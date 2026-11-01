@@ -26,8 +26,8 @@ schemas, and the OKF text in the workspace manuals are already restored; the
 spec is the one place that still says otherwise.
 
 The one divergence is OKF's optional `status`: `stage` is the lifecycle field,
-so no document sets `status`. Nothing enforces that today — `okf.yaml` does not
-declare `status` and accepts undeclared fields, and
+so no document sets `status`. Schema validation alone does not enforce that —
+`okf.yaml` does not declare `status` and accepts undeclared fields, and
 `test_no_schema_declares_status` checks the schemas only. The maintainer chose a
 small pre-commit check to block it.
 
@@ -163,7 +163,7 @@ Verified anchor points (line numbers as of 2026-11-01):
   improvements preserve the IWE model
 - `.pre-commit-config.yaml:154` — `plan-checkboxes`, the local pytest hook to
   follow
-- `.pre-commit-config.yaml:164` — `iwe-schema-validate`
+- `.pre-commit-config.yaml:173` — `iwe-schema-validate`
 - `docs/knowledge/tests/test_rank_and_base_schemas.py:132` —
   `test_no_schema_declares_status`
 - `.iwe/schemas/okf.yaml:3` — the OKF frontmatter schema, which accepts
