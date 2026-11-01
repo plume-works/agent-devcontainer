@@ -102,6 +102,8 @@ repos:
           else exec gitleaks git --pre-commit --redact --staged --verbose; fi'
         language: system
         pass_filenames: false
+        # A range can leave no changed file behind; the scan reads commits, not files.
+        always_run: true
 
       - id: actionlint
         name: Lint GitHub Actions workflow files

@@ -11,6 +11,7 @@ import shlex
 import shutil
 import string
 import subprocess
+import sys
 from uuid import uuid4
 
 import pytest
@@ -134,3 +135,37 @@ def test_commit_scans_the_staged_change(history: History) -> None:
     history.git('add', 'config.txt')
     result = history.run_hook()
     assert result.returncode != 0, result.stdout + result.stderr
+
+
+def test_pre_commit_runs_the_hook_for_a_range_that_leaves_no_file(history: History) -> None:
+    """A range that adds a secret in a new file and deletes it still runs, and fails, gitleaks."""
+    for repo in yaml.safe_load(CONFIG.read_text())['repos']:
+        hooks = [hook for hook in repo['hooks'] if hook['id'] == 'gitleaks']
+        if hooks:
+            config = {'repos': [{'repo': 'local', 'hooks': hooks}]}
+    (history.root / '.pre-commit-config.yaml').write_text(yaml.safe_dump(config))
+    history.git('add', '.pre-commit-config.yaml')
+    history.git('commit', '--quiet', '-m', 'config')
+    base = history.git('rev-parse', 'HEAD')
+    (history.root / 'leak.txt').write_text(f'token = {fake_token()}\n')
+    history.git('add', 'leak.txt')
+    history.git('commit', '--quiet', '-m', 'leak')
+    history.git('rm', '--quiet', 'leak.txt')
+    history.git('commit', '--quiet', '-m', 'unleak')
+    head = history.git('rev-parse', 'HEAD')
+
+    env = {k: v for k, v in os.environ.items() if k not in MODE_VARIABLES}
+    result = subprocess.run(
+        [sys.executable, '-m', 'pre_commit', 'run', '--from-ref', base, '--to-ref', head],
+        cwd=history.root,
+        env={
+            **env,
+            'GITLEAKS_LOG_OPTS': f'{base}..{head}',
+            'PRE_COMMIT_HOME': str(history.root / '.pc'),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert 'leaks found' in result.stdout + result.stderr
