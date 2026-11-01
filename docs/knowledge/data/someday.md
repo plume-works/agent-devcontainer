@@ -45,3 +45,5 @@ review](someday/revision-evaluator-calibration.md)
 tree](someday/agentdev-single-module-tree.md)
 
 [Self-repository `uses:` syntax](someday/self-repository-uses.md)
+
+[Replace actionlint and zizmor with jactionlint](someday/jactionlint.md)
