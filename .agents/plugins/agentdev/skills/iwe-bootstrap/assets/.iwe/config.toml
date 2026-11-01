@@ -102,7 +102,7 @@ match = [
 ]
 
 [schemas.tracker]
-match = ["data/product", "data/milestone", "data/template-adoption"]
+match = ["data/product", "data/milestone"]
 
 # base stacks on top of the per-type schemas and rejects any document under
 # data/ that arrives without a type. The log has no frontmatter; log checks its
