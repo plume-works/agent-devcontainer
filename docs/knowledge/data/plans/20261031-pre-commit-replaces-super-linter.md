@@ -262,9 +262,12 @@ path filter: pre-commit already skips hooks whose files did not change.
     reports 65/65 skills valid with no errors. `semantic-refactor-audit`'s
     description, which routed formatting to `local-reformat`, now names the
     pre-commit hooks.
-- [ ] `pr-merge` has no Reformat Workflow Synchronization section or step,
+- [x] `pr-merge` has no Reformat Workflow Synchronization section or step,
   `pr-merge-stack` no reformat-commit case, and `update-branch` no mandatory
   reformat.
+  - **Evidence:** commit `f4e7f0ae`; `grep -i reformat` over the three skills
+    finds nothing, the validator reports 65/65 skills valid, and
+    `uv run pytest .agents/plugins/agentdev/tests` passes 416.
 - [ ] The template-consume skill and guide name no Super-Linter script, no
   `reformat.yml` edits, and no sync rule; the guide tells a consumer to keep the
   `pre-commit` job and adapt its tool-version owner list.
