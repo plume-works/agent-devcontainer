@@ -43,3 +43,5 @@ review](someday/revision-evaluator-calibration.md)
 
 [Hermes-derived prompt stack for
 self-improve](someday/self-improve-hermes-prompt-stack.md)
+
+[Self-repository `uses:` syntax](someday/self-repository-uses.md)
