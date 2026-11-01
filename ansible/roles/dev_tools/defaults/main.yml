@@ -44,17 +44,17 @@ dev_tools_pinned_tools:
         checksum: e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
 
   - name: actionlint
-    # renovate: datasource=github-releases depName=rhysd/actionlint
-    version: v1.7.12
-    url_prefix: https://github.com/rhysd/actionlint/releases/download
+    # renovate: datasource=github-releases depName=kjanat/actionlint
+    version: v1.17.0
+    url_prefix: https://github.com/kjanat/actionlint/releases/download
     asset_prefix: "actionlint_{bare_version}_"
     archives:
       amd64:
         target: linux_amd64
-        checksum: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        checksum: 620abd485a12b6ab1125b844a876414e1d5bd2af8a3125b27f82b01d0d9d6e5a
       arm64:
         target: linux_arm64
-        checksum: 325e971b6ba9bfa504672e29be93c24981eeb1c07576d730e9f7c8805afff0c6
+        checksum: 9be067d6b6e2f455fd0144850520b4b1114a0a792ca6e003302c939792589345
 
   # Run by the hadolint and shellcheck pre-commit hooks.
   - name: hadolint
