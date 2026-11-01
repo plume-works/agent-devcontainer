@@ -79,8 +79,10 @@ maintainer asked for a pre-commit test instead.
 
 ### Task 3: CI passes on the pull request
 
-- [ ] The pre-commit and knowledge-base checks pass on the pull request for this
+- [x] The pre-commit and knowledge-base checks pass on the pull request for this
   branch
+  - **Evidence:** commit 2f55c012 on PR #616; CI runs 41358251501 (Knowledge
+    base validation) and 41358251586 (Primary checks, with pre-commit) succeeded
 
 ## Spec changes
 
