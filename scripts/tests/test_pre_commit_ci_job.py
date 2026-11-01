@@ -1,4 +1,4 @@
-"""Tests that Primary checks gates CI on a pre-commit job in the compose-pinned image."""
+"""Tests that pre-commit gates CI in the compose-pinned image and promotion in the candidate."""
 
 from __future__ import annotations
 
@@ -63,3 +63,31 @@ def test_ci_starts_only_after_pre_commit() -> None:
     """CI/CD needs the pre-commit job, and no reformat job remains."""
     assert 'pre-commit' in WORKFLOW['jobs']['ci']['needs']
     assert 'reformat' not in WORKFLOW['jobs']
+
+
+CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
+CANDIDATE = CI['jobs']['candidate-pre-commit']
+
+
+def test_candidate_run_uses_the_image_this_run_built() -> None:
+    """The second run's container is the merged candidate, not the committed pin."""
+    assert CANDIDATE['needs'] == ['merge-dev-image']
+    assert CANDIDATE['container']['image'] == (
+        '${{ needs.merge-dev-image.outputs.devcontainer_image_pinned }}'
+    )
+
+
+def test_candidate_run_checks_every_file() -> None:
+    """Any rebuilt tool can break any file, so the candidate run never narrows to a range."""
+    steps = CANDIDATE['steps']
+    assert steps[0]['uses'].split('@')[0] == 'actions/checkout'
+    phases = ['uv sync --locked', 'pre-commit install-hooks', 'pre-commit run --all-files']
+    for step, phase in zip(steps[1:], phases, strict=True):
+        assert phase in _run_lines(step), step
+    assert steps[-1]['env']['SKIP'] == 'no-commit-to-branch'
+
+
+def test_candidate_run_gates_promotion() -> None:
+    """No moving tag names an image whose tools fail the hooks."""
+    assert 'candidate-pre-commit' in CI['jobs']['promote-dev-image']['needs']
+    assert 'candidate-pre-commit' in CI['jobs']['finished']['needs']

@@ -149,6 +149,7 @@ def test_promotion_waits_for_both_test_jobs_and_reuses_the_merged_digests():
     assert set(promote['needs']) == {
         'merge-dev-image',
         'dev-container-ci',
+        'candidate-pre-commit',
         'deploy-acceptance',
         'devcontainer-acceptance',
     }

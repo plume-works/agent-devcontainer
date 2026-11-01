@@ -3,9 +3,10 @@ type: spec
 description: The pre-commit hooks are the CI lint gate — the commit range they check, when every file is checked, and how gitleaks scans a range.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T12:00:00Z
+  at: 2026-11-01T18:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
+- resource: .github/workflows/ci.yml
 - resource: scripts/pre-commit-ci-range.py
 - resource: .pre-commit-config.yaml
 - resource: devcontainer-compose-pins.yml
@@ -51,6 +52,24 @@ every file.
 - **WHEN** a pull request moves ruff's version in `uv.lock`
 - **THEN** the job runs every hook on every file, and fails if the new version
   would rewrite any of them.
+
+### Requirement: the rebuilt image passes every hook before promotion
+
+When CI builds a candidate `agentdev-devcontainer` image, it SHALL run every
+hook on every file inside that candidate, and SHALL NOT promote the image family
+unless the run passes.
+
+#### Scenario: Renovate bumps a tool the image provisions
+
+- **WHEN** a pull request changes a version the image build installs, and the
+  new version fails a hook on a file the pull request did not touch
+- **THEN** the candidate pre-commit job fails, and no moving tag names the
+  candidate.
+
+#### Scenario: the image is not rebuilt
+
+- **WHEN** the path filter skips the image build
+- **THEN** only the pre-commit job in the pinned image runs.
 
 ### Requirement: gitleaks scans every commit in a range
 
