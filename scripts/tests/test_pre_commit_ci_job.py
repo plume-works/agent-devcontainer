@@ -50,6 +50,6 @@ def test_run_step_takes_the_range_and_skips_the_branch_guard() -> None:
 
 
 def test_ci_starts_only_after_pre_commit() -> None:
-    """CI/CD needs the pre-commit job, and the Super-Linter reformat job is gone."""
+    """CI/CD needs the pre-commit job, and no reformat job remains."""
     assert 'pre-commit' in WORKFLOW['jobs']['ci']['needs']
     assert 'reformat' not in WORKFLOW['jobs']
