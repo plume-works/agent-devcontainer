@@ -5,6 +5,9 @@ one dated group per release; nothing else writes here.
 
 ## 2026-11-01
 
+- **Release**: [2.0.0](releases/2.0.0.md) cut from every feature and fix
+  accumulated since 1.0.0; later releases are built from the plans completed
+  after it.
 - **Update**: [Native macOS bootstrap](features/macos-native-bootstrap.md)
   implemented; [Bootstrap agentdev natively on macOS with
   Homebrew](plans/20261013-macos-native-bootstrap.md) plan done; specs synced.
@@ -17,9 +20,6 @@ one dated group per release; nothing else writes here.
 
 ## 2026-10-31
 
-- **Release**: [2.0.0](releases/2.0.0.md) cut from every feature and fix
-  accumulated since 1.0.0; later releases are built from the plans completed
-  after it.
 - **Update**: [Bug: an AI re-review that comments leaves its own change request
   blocking merge](bugs/ai-rereview-comment-keeps-changes-requested.md) fixed;
   [AI review verdicts gate merge and trusted bots are
