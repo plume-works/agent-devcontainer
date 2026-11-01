@@ -88,9 +88,13 @@ maintainer asked for a pre-commit test instead.
 
 **Files:** Create: `docs/knowledge/tests/test_reserved_file_shapes.py`
 
-- [ ] On a scratch copy of the graph, a `data/log.md` heading that is not a date
+- [x] On a scratch copy of the graph, a `data/log.md` heading that is not a date
   and a `data/index.md` with frontmatter beyond `okf_version` each make
   `iwe schema validate` fail naming that file, and the unmodified copy validates
+  - **Evidence:** commit 89b741a4;
+    `uv run pytest docs/knowledge/tests/test_reserved_file_shapes.py` passed (3
+    tests: the unmodified copy, `log-undated-heading`,
+    `index-extra-frontmatter`)
 
 ## Spec changes
 
