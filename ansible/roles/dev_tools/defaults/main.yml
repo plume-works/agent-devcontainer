@@ -18,16 +18,16 @@
 dev_tools_pinned_tools:
   - name: zizmor
     # renovate: datasource=github-releases depName=zizmorcore/zizmor
-    version: v1.25.2
+    version: v1.31.1
     url_prefix: https://github.com/zizmorcore/zizmor/releases/download
     asset_prefix: zizmor-
     archives:
       amd64:
         target: x86_64-unknown-linux-gnu
-        checksum: aa1facd105f0d83fe5c55b1adcd9d7417de5d83aa27471f91dc0b66cf3803577
+        checksum: d185f726bdaf92df78273217dfdd24ebcd6b0ef48cf3ce776ff5762b6e138c99
       arm64:
         target: aarch64-unknown-linux-gnu
-        checksum: 4b4b9491112c2a09b318101c0d3349b73af1c4f532e097dd6d0164f2abda760d
+        checksum: 37eebbd5762a44f262d94875431b14a6d2402991e90a685113ea97b8b41be833
 
   # Run by the gitleaks and actionlint pre-commit hooks, so a hook needs no Go toolchain.
   - name: gitleaks
@@ -59,17 +59,17 @@ dev_tools_pinned_tools:
   # Run by the hadolint and shellcheck pre-commit hooks.
   - name: hadolint
     # renovate: datasource=github-releases depName=hadolint/hadolint
-    version: v2.14.0
+    version: v2.15.1
     url_prefix: https://github.com/hadolint/hadolint/releases/download
     asset_prefix: hadolint-linux-
     bare_binary: true
     archives:
       amd64:
         target: x86_64
-        checksum: 6bf226944684f56c84dd014e8b979d27425c0148f61b3bd99bcc6f39e9dc5a47
+        checksum: c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
       arm64:
         target: arm64
-        checksum: 331f1d3511b84a4f1e3d18d52fec284723e4019552f4f47b19322a53ce9a40ed
+        checksum: f6198ef8090f404dbb771abfee086eb8c48ac177f30da7fd3510aca35b344b5d
 
   - name: shellcheck
     # renovate: datasource=github-releases depName=koalaman/shellcheck
