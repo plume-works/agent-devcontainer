@@ -8,6 +8,10 @@ one dated group per release; nothing else writes here.
 - **Release**: [2.0.0](releases/2.0.0.md) cut from every feature and fix
   accumulated since 1.0.0; later releases are built from the plans completed
   after it.
+- **Update**: [pre-commit is the CI gate](features/pre-commit-ci-gate.md)
+  implemented; [Replace Super-Linter with pre-commit in
+  CI](plans/20261031-pre-commit-replaces-super-linter.md) plan done; specs
+  synced and the [pre-commit gate](spec/pre-commit-gate.md) spec created.
 - **Update**: [Native macOS bootstrap](features/macos-native-bootstrap.md)
   implemented; [Bootstrap agentdev natively on macOS with
   Homebrew](plans/20261013-macos-native-bootstrap.md) plan done; specs synced.

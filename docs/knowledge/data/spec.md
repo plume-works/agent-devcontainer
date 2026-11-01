@@ -66,6 +66,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [PR merge conflicts](spec/pr-merge-conflicts.md)
 
+[pre-commit gate](spec/pre-commit-gate.md)
+
 [Self-improve learning loop](spec/self-improve-learning-loop.md)
 
 [Stacked PRs](spec/stacked-prs.md)

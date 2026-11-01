@@ -92,8 +92,8 @@ It ends by checking every tool and the `python3` from a fresh zsh login shell,
 and `python3` again from your `$SHELL` when that is not zsh, and exits nonzero
 naming whatever failed. A shell configuration that later puts another `python3`
 first, such as a `config.fish` that re-runs `brew shellenv`, fails that check. Open a new terminal afterwards to pick up
-the `PATH` change. Docker-backed skills such as `microvm-sandbox` and
-Super-Linter are not set up; escalate those to a Codespace with
+the `PATH` change. Docker-backed skills such as `microvm-sandbox` are
+not set up; escalate those to a Codespace with
 `remote-codespace-session`.
 
 ## Using it
@@ -112,7 +112,7 @@ the tools its definition lists. A skill that opts out of model invocation stays
 available as its command only.
 
 Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
-`super_linter.py local` or `python_lint_check.py` directly in a terminal.
+`python_lint_check.py` directly in a terminal.
 
 ### Agents
 
@@ -146,15 +146,13 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 
 #### Review, CI, and formatting
 
-| Skill                                       | What it does                                             |
-| ------------------------------------------- | -------------------------------------------------------- |
-| `/agentdev:code-review-standards`           | The review standards the other review skills apply.      |
-| `/agentdev:exec-summary`                    | One-minute, non-technical summary of the work in focus.  |
-| `/agentdev:extract-github-actions-logs`     | Pull failing job logs out of a workflow run.             |
-| `/agentdev:get-codeql-data`                 | Fetch CodeQL code-scanning alerts.                       |
-| `/agentdev:local-reformat`                  | Run the full reformat workflow locally via Super-Linter. |
-| `/agentdev:semantic-refactor-audit`         | Prove a behavior-preserving rewrite preserved behavior.  |
-| `/agentdev:sync-super-linter-tool-versions` | Realign local tools with the pinned Super-Linter image.  |
+| Skill                                   | What it does                                            |
+| --------------------------------------- | ------------------------------------------------------- |
+| `/agentdev:code-review-standards`       | The review standards the other review skills apply.     |
+| `/agentdev:exec-summary`                | One-minute, non-technical summary of the work in focus. |
+| `/agentdev:extract-github-actions-logs` | Pull failing job logs out of a workflow run.            |
+| `/agentdev:get-codeql-data`             | Fetch CodeQL code-scanning alerts.                      |
+| `/agentdev:semantic-refactor-audit`     | Prove a behavior-preserving rewrite preserved behavior. |
 
 #### Specs and escalation
 
@@ -193,7 +191,7 @@ documents. They are the project's memory across sessions.
 
 Most skills shell out to tools rather than reimplementing them. Depending on
 which ones you use, you will need `git`, an authenticated `gh` CLI, Docker (for
-`microvm-sandbox` and Super-Linter), and `uv` for the Python skills. The
+`microvm-sandbox`), and `uv` for the Python skills. The
 [devcontainer image](https://github.com/plume-works/agent-devcontainer) ships
 all of them preinstalled, but the plugin works in any environment that has the
 tools a given skill needs.

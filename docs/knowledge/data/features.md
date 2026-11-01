@@ -62,6 +62,8 @@ discovery](features/gitignore-aware-agent-file-discovery.md)
 
 [Native macOS bootstrap](features/macos-native-bootstrap.md)
 
+[Manual stacked pull requests](features/manual-stacked-prs.md)
+
 [Map masks version-only changes](features/map-masks-version-bumps.md)
 
 [Native stacked pull requests](features/native-stacked-prs.md)

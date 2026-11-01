@@ -31,6 +31,9 @@ context](plans/20260902-audit-plan-edits-in-fresh-context.md)
 [Let Implement verify, fix, and revise on its
 own](plans/20261026-autonomous-implement-loop.md)
 
+[Build on an unshipped dependency, ship after
+it](plans/20261101-build-on-unshipped-dependencies.md)
+
 [Run Node tooling through bun instead of
 npm](plans/20260925-bun-for-node-tooling.md)
 
@@ -112,6 +115,9 @@ pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
 
 [Bootstrap agentdev natively on macOS with
 Homebrew](plans/20261013-macos-native-bootstrap.md)
+
+[Replace gh stack with manual stacked pull
+requests](plans/20261101-manual-stacked-prs.md)
 
 [Mask version-only changes during a map
 refresh](plans/20261021-map-masks-version-bumps.md)

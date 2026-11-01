@@ -114,7 +114,6 @@ def test_every_filter_job_can_read_workflow_runs(workflow_path):
         assert workflow['jobs'][name]['permissions'].get('actions') == 'read', name
 
 
-def test_primary_checks_grants_actions_read_to_the_reusable_workflows():
+def test_primary_checks_grants_actions_read_to_the_reusable_workflow():
     workflow = yaml.safe_load((REPO_ROOT / '.github/workflows/primary-checks.yml').read_text())
-    for name in ('reformat', 'ci'):
-        assert workflow['jobs'][name]['permissions'].get('actions') == 'read', name
+    assert workflow['jobs']['ci']['permissions'].get('actions') == 'read'

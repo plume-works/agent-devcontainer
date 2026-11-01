@@ -144,6 +144,9 @@ bug](bugs/ship-release-link-without-feature.md)
 [The review opt-out marker fired too
 broadly](bugs/skip-ai-review-marker-overreach.md)
 
+[Bug: the stack guard reverts GitHub's post-merge
+rebase](bugs/stack-guard-reverts-post-merge-rebase.md)
+
 [Bug: Codex login stops being shared between standalone
 projects](bugs/standalone-codex-auth-unshared.md)
 

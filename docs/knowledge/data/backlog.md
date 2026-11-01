@@ -49,6 +49,9 @@ review](backlog/fail-review-run-without-review.md)
 [Run implement-all live against two
 plans](backlog/implement-all-multi-plan-e2e.md)
 
+[Let iwe-implement open its pull request without
+asking](backlog/implement-opens-pr.md)
+
 [Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)

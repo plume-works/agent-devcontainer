@@ -1,65 +1,111 @@
+# Every hook runs a tool with one version owner: uv.lock (`uv run`), the image's
+# dev_tools_pinned_tools binaries, or a `bunx <package>@<version>` pin. No hook
+# names a remote repository, so `pre-commit install-hooks` builds nothing.
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+  - repo: local
     hooks:
       - id: end-of-file-fixer
+        name: fix end of files
+        entry: uv run end-of-file-fixer
+        language: system
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
+
       - id: trailing-whitespace
+        name: trim trailing whitespace
+        entry: uv run trailing-whitespace-fixer
+        language: system
+        types: [text]
+        stages: [pre-commit, pre-push, manual]
+
       - id: check-merge-conflict
+        name: check for merge conflicts
+        entry: uv run check-merge-conflict
+        language: system
+        types: [text]
+
       - id: mixed-line-ending
+        name: mixed line ending
+        entry: uv run mixed-line-ending
+        language: system
+        types: [text]
         args: [--fix=lf]
+
       # Work lands through pull requests; see spec/git-new-branch.
       - id: no-commit-to-branch
+        name: don't commit to branch
+        entry: uv run no-commit-to-branch
+        language: system
+        pass_filenames: false
+        always_run: true
         args: [--branch, main, --branch, master]
 
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v21.1.2
-    hooks:
       - id: clang-format
+        name: clang-format
+        entry: uv run clang-format -i
+        language: system
+        types_or: [c, c++]
         files: '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$'
+        args: [-style=file]
 
-  - repo: https://github.com/ansible/ansible-lint
-    rev: v26.4.0
-    hooks:
+      # The repository root: ansible.cfg lives there, so that is where the
+      # inventory and roles paths resolve from.
       - id: ansible-lint
+        name: ansible-lint
+        entry: uv run ansible-lint -v --force-color
+        language: system
         files: '^ansible/.*\.ya?ml$'
-        # The repository root: ansible.cfg lives there, so that is where the
-        # inventory and roles paths resolve from.
         args: ['--project-dir=.']
-        language_version: python3
         pass_filenames: true
         always_run: false
 
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.14.0
-    hooks:
       - id: hadolint-docker
-        entry: ghcr.io/hadolint/hadolint:v2.14.0 hadolint
+        name: Lint Dockerfiles
+        entry: hadolint
+        language: system
+        types: [dockerfile]
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.17
-    hooks:
       - id: ruff-format
-      # `I` (isort) is in .ruff.toml's select list, so this single pass also
-      # sorts imports. Mirrors what Super-Linter runs in CI.
-      - id: ruff
-        args: [--fix]
+        name: ruff format
+        entry: uv run ruff format --force-exclude
+        language: system
+        types_or: [python, pyi, jupyter]
+        require_serial: true
 
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.11.0.1
-    hooks:
+      # `I` (isort) is in .ruff.toml's select list, so this single pass also
+      # sorts imports.
+      - id: ruff
+        name: ruff (legacy alias)
+        entry: uv run ruff check --force-exclude
+        language: system
+        types_or: [python, pyi, jupyter]
+        args: [--fix]
+        require_serial: true
+
       # shellcheck cannot parse zsh; the macOS bootstrap is checked with `zsh -n`.
       - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
         exclude: '^\.agents/plugins/agentdev/bin/macos-bootstrap\.zsh$'
+        require_serial: true
 
-  - repo: local
-    hooks:
-      # gitleaks and actionlint run the binaries dev_tools_pinned_tools provisions,
-      # so a commit needs no Go toolchain. Upstream hook ids, entries, and patterns.
+      # Scans GITLEAKS_LOG_OPTS when set (CI), the pushed range at pre-push, and the
+      # staged change otherwise; see spec/pre-commit-gate.
       - id: gitleaks
         name: Detect hardcoded secrets
-        entry: gitleaks git --pre-commit --redact --staged --verbose
+        entry: >-
+          bash -c 'if [ -n "${GITLEAKS_LOG_OPTS:-}" ]; then
+          exec gitleaks git --redact --verbose --log-opts="$GITLEAKS_LOG_OPTS";
+          elif [ -n "${PRE_COMMIT_FROM_REF:-}" ] && [ -n "${PRE_COMMIT_TO_REF:-}" ]; then
+          exec gitleaks git --redact --verbose
+          --log-opts="$PRE_COMMIT_FROM_REF..$PRE_COMMIT_TO_REF";
+          else exec gitleaks git --pre-commit --redact --staged --verbose; fi'
         language: system
         pass_filenames: false
+        # A range can leave no changed file behind; the scan reads commits, not files.
+        always_run: true
 
       - id: actionlint
         name: Lint GitHub Actions workflow files
@@ -69,7 +115,7 @@ repos:
         files: '^\.github/workflows/'
 
       # language: system + bunx: pre-commit's language: node installs hook envs with npm.
-      # Prettier's file set matches Super-Linter's; .prettierignore still applies.
+      # .prettierignore still applies.
       - id: prettier
         name: prettier
         entry: bunx prettier@3.8.4 --write --ignore-unknown

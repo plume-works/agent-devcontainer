@@ -100,15 +100,15 @@ the user or the calling skill supplies different values.
 
 ## Workflow 2: Handle the Result
 
-| RESULT               | Exit | Meaning                                                              | Action                                                                                                                                                          |
-| -------------------- | ---- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`            | `0`  | The update created a merge commit                                    | Continue. The delegated [git-merge-resolve](../git-merge-resolve/SKILL.md) completion workflow still requires reformatting and targeted validation before push. |
-| `ALREADY_UP_TO_DATE` | `3`  | The branch already contains the base ref; no merge commit was needed | Report that the branch is already up to date. A fast-forward to its upstream may have moved it; there is nothing new to push.                                   |
-| `MERGE_CONFLICTS`    | `4`  | A merge stopped on conflicts; `SOURCE` names the ref being merged    | Invoke and complete the [git-merge-resolve](../git-merge-resolve/SKILL.md) conflict-resolution and completion workflows, then rerun Workflow 1.                 |
-| `PROTECTED_BRANCH`   | `5`  | The current branch is `main` or `master`                             | **STOP.** Only with user authorization, create a feature branch through `/agentdev:git-new-branch`, then retry. Do not merge into the default branch.           |
-| `FETCH_FAILED`       | `6`  | The configured remote could not be fetched                           | **STOP.** Report the Git error and restore connectivity or authentication before retrying. Do not change the configured remote to work around the failure.      |
-| `PREFLIGHT_ERROR`    | `2`  | Bad usage, not a repo, or a dirty tree                               | **STOP.** Fix the reported error before retrying. Do not discard or stash changes without user approval.                                                        |
-| `SCRIPT_FAILURE`     | `1`  | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                          |
+| RESULT               | Exit | Meaning                                                              | Action                                                                                                                                                     |
+| -------------------- | ---- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`            | `0`  | The update created a merge commit                                    | Continue. The delegated [git-merge-resolve](../git-merge-resolve/SKILL.md) completion workflow still requires targeted validation before push.             |
+| `ALREADY_UP_TO_DATE` | `3`  | The branch already contains the base ref; no merge commit was needed | Report that the branch is already up to date. A fast-forward to its upstream may have moved it; there is nothing new to push.                              |
+| `MERGE_CONFLICTS`    | `4`  | A merge stopped on conflicts; `SOURCE` names the ref being merged    | Invoke and complete the [git-merge-resolve](../git-merge-resolve/SKILL.md) conflict-resolution and completion workflows, then rerun Workflow 1.            |
+| `PROTECTED_BRANCH`   | `5`  | The current branch is `main` or `master`                             | **STOP.** Only with user authorization, create a feature branch through `/agentdev:git-new-branch`, then retry. Do not merge into the default branch.      |
+| `FETCH_FAILED`       | `6`  | The configured remote could not be fetched                           | **STOP.** Report the Git error and restore connectivity or authentication before retrying. Do not change the configured remote to work around the failure. |
+| `PREFLIGHT_ERROR`    | `2`  | Bad usage, not a repo, or a dirty tree                               | **STOP.** Fix the reported error before retrying. Do not discard or stash changes without user approval.                                                   |
+| `SCRIPT_FAILURE`     | `1`  | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                     |
 
 ### Rerun After a Conflict
 
@@ -121,8 +121,8 @@ commit on the branch — continue to Workflow 3.
 
 ## Workflow 3: Push the Updated Branch
 
-Only after the `git-merge-resolve` workflow has completed its mandatory
-reformat and targeted validation:
+Only after the `git-merge-resolve` workflow has completed its targeted
+validation:
 
 1. Confirm the merge result:
 
@@ -144,7 +144,7 @@ reformat and targeted validation:
   the base
 - The remote base ref is merged into the current branch, or was already merged
 - The delegated `git-merge-resolve` workflow resolved all conflicts and ran its
-  required reformat and targeted validation
+  targeted validation
 - The updated branch was pushed through local Git when a merge occurred
 
 ## Troubleshooting

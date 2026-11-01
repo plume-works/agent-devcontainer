@@ -15,6 +15,9 @@ an idea gets real, promote it to a backlog task with
 `/agentdev:iwe-capture task --from someday/<slug>`, which removes its link here,
 or straight to a plan.*
 
+[Consolidate agentdev code into one module
+tree](someday/agentdev-single-module-tree.md)
+
 [Dependency-ordered service recovery](someday/dependency-ordered-recovery.md)
 
 [Narrow the devcontainer's forwarded agent

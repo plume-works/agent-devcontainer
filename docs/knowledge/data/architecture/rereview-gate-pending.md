@@ -3,7 +3,7 @@ type: architecture
 description: How the required ai-review-present check could read pending while a re-review runs, so a merge or auto-merge waits for it; a separate commit status is the leading candidate, and the marker-commit trigger and a merged review-and-gate job are rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
+  at: 2026-11-01T04:32:55Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -41,8 +41,7 @@ pending while a re-review runs, and green again once the review lands?
   the new head's gate is already green.
 - **A required check is evaluated on the head commit**, so every head needs an
   `ai-review-present` of its own. Without the `synchronize` trigger, every push
-  would block until a review run reported on the new head. That includes the
-  formatter commits `reformat.yml` pushes with `REPO_PAT`, which start runs.
+  would block until a review run reported on the new head.
 - **Exposure is narrow.** Only Renovate uses auto-merge, and its pull requests
   are trusted-bot pull requests whose review the gate waives. `pr-merge` never
   enables auto-merge, and stacks cannot use it. The exposed case is a person who
