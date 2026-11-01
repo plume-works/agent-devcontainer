@@ -49,8 +49,8 @@ description before its review.
 
 ## Keep the Layers Above in Sync
 
-Any new commit on a layer — a remediation, a conflict resolution, or a
-`reformat.yml` commit — leaves every layer above it without the new tip. From
+Any new commit on a layer — a remediation or a conflict resolution — leaves
+every layer above it without the new tip. From
 that layer's branch, bring them up to date and publish the stack through the
 gh-stack skill's guard — `begin` ran before that commit:
 
