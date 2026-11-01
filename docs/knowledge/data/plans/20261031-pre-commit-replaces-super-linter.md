@@ -268,9 +268,14 @@ path filter: pre-commit already skips hooks whose files did not change.
   - **Evidence:** commit `f4e7f0ae`; `grep -i reformat` over the three skills
     finds nothing, the validator reports 65/65 skills valid, and
     `uv run pytest .agents/plugins/agentdev/tests` passes 416.
-- [ ] The template-consume skill and guide name no Super-Linter script, no
+- [x] The template-consume skill and guide name no Super-Linter script, no
   `reformat.yml` edits, and no sync rule; the guide tells a consumer to keep the
   `pre-commit` job and adapt its tool-version owner list.
+  - **Evidence:** commit `11ac9050`;
+    `git grep -i -E 'super-?linter|reformat\.yml'` over the template-consume
+    skill finds nothing, and the guide's "Primary checks and pre-commit" section
+    keeps the job and `scripts/pre-commit-ci-range.py` and has the consumer
+    adapt `TOOL_VERSION_OWNERS`.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   and `uv run pytest .agents/plugins/agentdev/tests` pass.
 
