@@ -174,10 +174,14 @@ path filter: pre-commit already skips hooks whose files did not change.
     `grep -i super-linter .pre-commit-config.yaml` is empty. clang-format's
     `types_or` is `[c, c++]`, which selects the same files under its `files`
     pattern.
-- [ ] The `gitleaks` hook picks `GITLEAKS_LOG_OPTS`, then
+- [x] The `gitleaks` hook picks `GITLEAKS_LOG_OPTS`, then
   `PRE_COMMIT_FROM_REF..PRE_COMMIT_TO_REF`, then `--pre-commit --staged`, and a
   test drives each mode against a scratch repository holding a secret added and
   removed inside the range.
+  - **Evidence:** commit `aa9a47b6`;
+    `uv run pytest scripts/tests/test_gitleaks_hook.py` passes 5, covering each
+    mode, the `GITLEAKS_LOG_OPTS` precedence, and a range that never held the
+    secret.
 
 ### Task 6: Bring the tree to the new tool versions
 
