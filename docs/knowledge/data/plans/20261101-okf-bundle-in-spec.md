@@ -84,6 +84,14 @@ maintainer asked for a pre-commit test instead.
   - **Evidence:** commit 2f55c012 on PR #616; CI runs 41358251501 (Knowledge
     base validation) and 41358251586 (Primary checks, with pre-commit) succeeded
 
+### Task 4: A test proves the reserved files keep their OKF shapes
+
+**Files:** Create: `docs/knowledge/tests/test_reserved_file_shapes.py`
+
+- [ ] On a scratch copy of the graph, a `data/log.md` heading that is not a date
+  and a `data/index.md` with frontmatter beyond `okf_version` each make
+  `iwe schema validate` fail naming that file, and the unmodified copy validates
+
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — contract-heavy: the
@@ -146,6 +154,7 @@ field; a pre-commit check SHALL reject a document that sets it.
 - `uv run pytest docs/knowledge/tests/test_no_status_field.py` passes, and fails
   naming the document when a scratch copy of the graph gains `status`.
 - `pre-commit run no-status-field --all-files` passes.
+- `uv run pytest docs/knowledge/tests/test_reserved_file_shapes.py` passes.
 - `iwe normalize` leaves the tree unchanged and `iwe schema validate` exits 0.
 
 ## Out of scope
