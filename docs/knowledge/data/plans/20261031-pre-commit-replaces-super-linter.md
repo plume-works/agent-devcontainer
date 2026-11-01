@@ -202,11 +202,15 @@ path filter: pre-commit already skips hooks whose files did not change.
 `.github/workflows/primary-checks.yml`,
 `scripts/tests/test_paths_filter_last_pass.py`
 
-- [ ] `pre-commit-ci-range.py` writes `from_ref`, `to_ref`, `all_files`, and
+- [x] `pre-commit-ci-range.py` writes `from_ref`, `to_ref`, `all_files`, and
   `gitleaks_log_opts` to `GITHUB_OUTPUT`: base..head for `pull_request` and
   `merge_group`; before..after for `push`; all files and `-1 <sha>` for a zero
   `before`; all files and `--all` for `workflow_dispatch`; all files with the
   range scan when the range touches a tool-version owner. Tests cover each case.
+  - **Evidence:** commit `a842484f`;
+    `uv run pytest scripts/tests/test_pre_commit_ci_range.py` passes 12: each
+    event, every tool-version owner, an owner changed only on the base side, and
+    an unsupported event.
 - [ ] Primary checks has a `pre-commit` job in the compose-pin image with
   checkout (`fetch-depth: 0`), the range step, `uv sync --locked`,
   `pre-commit install-hooks`, and `pre-commit run` as separate steps,
