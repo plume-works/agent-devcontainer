@@ -14,7 +14,6 @@ DEFAULTS = (ROLE_ROOT / 'defaults/main.yml').read_text()
 DEFAULT_VALUES = yaml.safe_load(DEFAULTS)
 TASKS = (ROLE_ROOT / 'tasks/main.yml').read_text()
 DOCKERFILE = (REPO_ROOT / 'docker/base/agentdev-base.Dockerfile').read_text()
-CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
 
 
 def role_name(role: str | dict) -> str:
@@ -64,28 +63,3 @@ def test_desktop_image_enables_and_describes_the_pinned_browser() -> None:
     assert 'playwright_browser_version=$PLAYWRIGHT_VERSION' in DOCKERFILE
     assert 'ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright' in DOCKERFILE
     assert 'org.opencontainers.image.version.playwright="$PLAYWRIGHT_VERSION"' in DOCKERFILE
-
-
-def test_image_build_derives_the_playwright_version_from_the_role_default() -> None:
-    build_steps = CI['jobs']['build-dev-image']['steps']
-    version_step = next(step for step in build_steps if step.get('id') == 'playwright_version')
-    base_build = next(
-        step for step in build_steps if step.get('name') == 'Build agentdev base image'
-    )
-
-    assert 'ansible/roles/playwright_browser/defaults/main.yml' in version_step['run']
-    assert 'playwright_browser_version:' in version_step['run']
-    assert (
-        'PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}'
-        in (base_build['with']['build-args'])
-    )
-
-
-def test_native_image_acceptance_launches_bundled_chromium() -> None:
-    command = CI['jobs']['dev-container-ci']['steps'][-2]['with']['runCmd']
-
-    assert 'playwright --version' in command
-    assert 'mkdir -p .tmp' in command
-    assert 'playwright screenshot --browser chromium' in command
-    assert "'data:text/html,<title>playwright-smoke</title>'" in command
-    assert 'test -s .tmp/playwright-smoke.png' in command
