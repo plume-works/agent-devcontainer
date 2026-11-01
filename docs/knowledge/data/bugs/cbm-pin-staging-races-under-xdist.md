@@ -1,9 +1,10 @@
 ---
 type: bug
+stage: done
 description: Under pytest-xdist, the CBM tests fail with ETXTBSY because every worker's fixture copies the pinned codebase-memory-mcp binary over one shared /tmp path while another worker is executing it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:09:57Z
+  at: 2026-10-31T21:10:00Z
 sources:
 - resource: scripts/tests/cbm_pin.py
 - resource: scripts/tests/test_agent_runtime_cbm.py
@@ -37,17 +38,17 @@ worker that re-stages while another worker's test runs the binary hits ETXTBSY.
 
 ## Fix
 
-Not fixed. Options include staging only when the staged binary is absent or
-reports a different version, or copying to a unique temporary name and renaming
-it into place atomically. Either keeps a running binary's inode untouched.
+`stage_pinned_cbm` returns the staged binary untouched when it already reports
+the pinned version. Otherwise it stages the binary in a private temporary
+directory beside the destination and renames it into place, which never writes
+to an inode another worker is executing.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `scripts/tests/cbm_pin.py:29` — `stage_pinned_cbm`
-- `scripts/tests/cbm_pin.py:36-37` — the shared staging path
-- `scripts/tests/cbm_pin.py:39-41` — the unconditional `shutil.copy2` over it
+- `scripts/tests/cbm_pin.py:31` — `stage_pinned_cbm`
+- `scripts/tests/cbm_pin.py:42` — reuse of a current staged binary
+- `scripts/tests/cbm_pin.py:45` — private staging directory
+- `scripts/tests/cbm_pin.py:62` — the atomic rename into place
 - `scripts/tests/scratch.py:5` — `TMP_ROOT`, shared by every worker
-- `scripts/tests/test_agent_runtime_cbm.py:29` — fixture calling it
-- `scripts/tests/test_repair_codex_cbm_hooks_block.py:256` — fixture calling it
