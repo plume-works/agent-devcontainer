@@ -40,3 +40,6 @@ review](someday/revision-evaluator-calibration.md)
 [Nested dispatch from catalog agents](someday/nested-catalog-agent-dispatch.md)
 
 [Remove codebase-memory-mcp](someday/remove-codebase-memory-mcp.md)
+
+[Consolidate agentdev code into one module
+tree](someday/agentdev-single-module-tree.md)
