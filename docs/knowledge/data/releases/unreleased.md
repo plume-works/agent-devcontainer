@@ -100,9 +100,6 @@ names](../features/remote-control-environment-names.md)
 
 ## Fixed
 
-[Bug: worktrees in one devcontainer share the uv
-environment](../bugs/shared-uv-environment-across-worktrees.md)
-
 [Bug: CBM pin staging races under
 pytest-xdist](../bugs/cbm-pin-staging-races-under-xdist.md)
 

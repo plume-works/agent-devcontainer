@@ -29,7 +29,7 @@ def deploy(settings: env.Settings) -> bool:
 
 
 def sync(settings: env.Settings) -> int:
-    """Sync the project environment, shedding a ``.venv`` link to the retired shared one."""
+    """Sync the project into ``UV_PROJECT_ENVIRONMENT``, shedding a managed ``.venv`` link."""
     workspace = Path(settings.get('DEV_WORKSPACE_FOLDER'))
     venv = workspace / '.venv'
     if not deploy(settings) and venv.is_symlink():

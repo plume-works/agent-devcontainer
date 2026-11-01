@@ -1,10 +1,9 @@
 ---
 type: bug
-stage: done
-description: Every checkout in one devcontainer shared the uv environment at /uv/venvs/ws-project, so a uv run in one worktree repointed the editable agentdev_runtime and validate_agent_files installs and other worktrees' tests ran its code.
+description: Every checkout in one devcontainer shares the uv environment at /uv/venvs/ws-project, so a uv run in one worktree repoints the editable agentdev_runtime and validate_agent_files installs and dependencies, and other worktrees' tests run its code.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:10:00Z
+  at: 2026-11-01T03:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
@@ -24,15 +23,15 @@ a 14-minute suite twice.
 
 ## Reproduction
 
-In one devcontainer, with `UV_PROJECT_ENVIRONMENT=/uv/venvs/ws-project`, start
-`uv run pytest scripts/tests` in worktree A. While it runs, start any `uv run`
-in worktree B, which has a different `agentdev_runtime`. `uv run` in B reports
+In one devcontainer, start `uv run pytest scripts/tests` in worktree A. While it
+runs, start any `uv run` in worktree B, which has a different
+`agentdev_runtime`. `uv run` in B reports
 `Uninstalled 2 packages … Installed 2 packages`, and A's remaining
 `python -m agentdev_runtime` subprocesses run B's code.
 
 ## Root cause
 
-`devcontainer.json` set `UV_PROJECT_ENVIRONMENT` to one fixed path on the `/uv`
+`devcontainer.json` sets `UV_PROJECT_ENVIRONMENT` to one fixed path on the `/uv`
 volume, on the premise that each devcontainer serves one checkout. Git worktrees
 inside the container are several checkouts on that one volume. The project's
 packages are editable installs, and every `uv run` syncs them to point at the
@@ -40,21 +39,17 @@ invoking checkout, so the last checkout to run owns the environment.
 
 ## Fix
 
-`UV_PROJECT_ENVIRONMENT` is unset in the devcontainer, so each checkout keeps
-its own in-tree `.venv`, and the VS Code path settings name
-`${workspaceFolder}/.venv`. `agentdev-runtime project sync` already removes a
-`.venv` symlink into `/uv/venvs/`, so no checkout stays on the shared
-environment. The decision and its cost are in [uv environment
-location](../architecture/uv-environment-location.md). A running container picks
-the change up on rebuild.
+Not fixed. Each checkout needs its own environment: a `.venv` link into a
+per-checkout directory on the `/uv` volume keeps it hardlinked to the cache
+there.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `.devcontainer/devcontainer.json:48` — `UV_LINK_MODE`, in place of the fixed
-  `UV_PROJECT_ENVIRONMENT`
-- `.devcontainer/devcontainer.json:171` — `python.defaultInterpreterPath`
+- `.devcontainer/devcontainer.json:49` — the fixed `UV_PROJECT_ENVIRONMENT`
+- `.devcontainer/devcontainer.json:172` — `python.defaultInterpreterPath`
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py:23` —
   `MANAGED_VENV_PREFIX`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:31` — `sync`
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py:31` — `sync`, which
+  removes a `.venv` link into `/uv/venvs/`
