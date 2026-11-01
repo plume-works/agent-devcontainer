@@ -128,3 +128,5 @@ runtime](features/standalone-remote-control-autostart.md)
 harnesses](features/claude-and-opencode-only-harnesses.md)
 
 [pre-commit is the CI gate](features/pre-commit-ci-gate.md)
+
+[Manual stacked pull requests](features/manual-stacked-prs.md)
