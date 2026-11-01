@@ -77,3 +77,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [agentdev runtime images](spec/agentdev-runtime-images.md)
 
 [macOS native bootstrap](spec/macos-native-bootstrap.md)
+
+[pre-commit gate](spec/pre-commit-gate.md)

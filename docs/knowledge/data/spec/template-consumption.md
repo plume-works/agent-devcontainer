@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T18:00:00Z
+  at: 2026-11-01T06:44:52Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -74,11 +74,11 @@ as descriptor commands or derived-image hooks.
 
 ## Requirement: publisher-only source never survives adoption
 
-A consumer SHALL delete `.agents/`, `.claude-plugin/`, `py_packages/`, and
-`scripts/validate-super-linter-tool-versions.py`, and SHALL adapt every CI
-workflow, pre-commit hook, `pyproject.toml` entry, and path filter that
-referenced them. Agent-file validation, when retained, SHALL run the validator
-the digest-pinned image provides, never the deleted working-tree package.
+A consumer SHALL delete `.agents/`, `.claude-plugin/`, and `py_packages/`, and
+SHALL adapt every CI workflow, pre-commit hook, `pyproject.toml` entry, and path
+filter that referenced them. Agent-file validation, when retained, SHALL run the
+validator the digest-pinned image provides, never the deleted working-tree
+package.
 
 ## Requirement: `.ruff.toml` and `pyproject.toml` never both configure ruff
 

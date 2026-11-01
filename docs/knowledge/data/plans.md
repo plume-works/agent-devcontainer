@@ -26,9 +26,6 @@ conversation](plans/20261031-verify-report-in-chat.md)
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
-[Replace Super-Linter with pre-commit in
-CI](plans/20261031-pre-commit-replaces-super-linter.md)
-
 [Run the Dev Container as a non-root account with one home
 volume](plans/20261030-devcontainer-home-volume.md)
 
@@ -44,6 +41,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done
+
+[Replace Super-Linter with pre-commit in
+CI](plans/20261031-pre-commit-replaces-super-linter.md)
 
 [Bootstrap agentdev natively on macOS with
 Homebrew](plans/20261013-macos-native-bootstrap.md)

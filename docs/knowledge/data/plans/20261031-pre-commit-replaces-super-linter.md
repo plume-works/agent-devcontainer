@@ -17,6 +17,8 @@ sources:
 - resource: pyproject.toml
 - resource: .github/renovate.json
 - resource: https://github.com/gitleaks/gitleaks-action
+stage: done
+completed: 2026-11-01
 ---
 
 # Replace Super-Linter with pre-commit in CI
@@ -366,7 +368,7 @@ validator the digest-pinned image provides, never the deleted working-tree
 package.
 ```
 
-`spec/pre-commit-gate` — new:
+[pre-commit gate](../spec/pre-commit-gate.md) — new:
 
 ``` markdown
 ## ADDED Requirements
