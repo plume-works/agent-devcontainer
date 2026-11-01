@@ -352,9 +352,9 @@ marketplace metadata, references, and plugin layout. Repository discovery respec
 `.gitignore`, while explicitly named files remain directly validatable.
 `--recommend` enables warning-level guidance and `--errors-only` suppresses it.
 
-Pre-commit is the single local formatting path, and its environments persist across
-container rebuilds. CI runs the matching Super-Linter checks, validator suites,
-knowledge-base gates, and image builds.
+Pre-commit is the single lint and formatting gate: CI runs the same hooks in the
+pinned devcontainer image, alongside the validator suites, knowledge-base gates,
+and image builds.
 
 ## Firewall and desktop
 
