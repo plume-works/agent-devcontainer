@@ -189,18 +189,10 @@ jobs:
             const reviewEffort = /^[^\S\r\n]*\[ci:review-effort=(light|full)\][^\S\r\n]*\r?$/m;
             core.setOutput('bodyReviewEffort', reviewEffort.exec(pullRequest?.body ?? '')?.[1] ?? '');
 
-      - name: Checkout composite actions
-        if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
-        uses: actions/checkout@v7.0.1
-        with:
-          sparse-checkout: .github/actions
-          fetch-depth: 1
-          persist-credentials: false
-
       - name: Check for an accepted AI review
         id: review_status
         if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
-        uses: ./.github/actions/ai-review-status
+        uses: $/.github/actions/ai-review-status
         with:
           pr-number: ${{ steps.checkout_ref.outputs.prNumber }}
           github-token: ${{ github.token }}
@@ -422,7 +414,7 @@ jobs:
       needs.preflight.outputs.wants_review == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:6e5a23a8d049ccf62d6f42536ea9819012576c71aca0e97f98119d40a7ed7ee0
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:867cd2a0aa33947168eefe37ff061ec567e7e78f39f7605935b787760b00d5d2
     permissions:
       contents: read
       pull-requests: write # For PR reviews and inline comments
@@ -446,7 +438,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Claude responder
-        uses: ./.github/actions/run-claude-responder
+        uses: $/.github/actions/run-claude-responder
         with:
           artifact-name: claude-review-responder-output
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -469,7 +461,7 @@ jobs:
       needs.preflight.outputs.wants_task == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:6e5a23a8d049ccf62d6f42536ea9819012576c71aca0e97f98119d40a7ed7ee0
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:867cd2a0aa33947168eefe37ff061ec567e7e78f39f7605935b787760b00d5d2
     permissions:
       contents: write # For requested repository edits
       pull-requests: write # For PR comments and inline comments
@@ -488,7 +480,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Claude responder
-        uses: ./.github/actions/run-claude-responder
+        uses: $/.github/actions/run-claude-responder
         with:
           artifact-name: claude-task-responder-output
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -516,17 +508,10 @@ jobs:
       issues: read
       pull-requests: read
     steps:
-      - name: Checkout composite actions
-        uses: actions/checkout@v7.0.1
-        with:
-          sparse-checkout: .github/actions
-          fetch-depth: 1
-          persist-credentials: false
-
       - name: Check for an accepted AI review
         id: review_status
         if: github.event_name != 'merge_group'
-        uses: ./.github/actions/ai-review-status
+        uses: $/.github/actions/ai-review-status
         with:
           pr-number: ${{ github.event.pull_request.number || inputs.pr_number }}
           github-token: ${{ github.token }}
@@ -553,7 +538,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 

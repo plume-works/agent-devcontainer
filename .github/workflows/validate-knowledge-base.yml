@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
 
       - name: Filters
-        uses: ./.github/actions/paths-filter
+        uses: $/.github/actions/paths-filter
         id: filter
         with:
           extra-filter: |
@@ -47,7 +47,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -71,7 +71,7 @@ jobs:
         id: seed-filter
         uses: dorny/paths-filter@v4.0.3
         with:
-          base: ${{ github.event_name == 'pull_request' && '' || 'main' }}
+          base: ${{ github.event_name != 'pull_request' && 'main' || '' }}
           filters: |
             seed:
               - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
@@ -81,7 +81,7 @@ jobs:
               - docs/knowledge/tests/test_iwe_seed.py
 
       - name: Set up the Python environment
-        uses: ./.github/actions/setup-python-venv
+        uses: $/.github/actions/setup-python-venv
 
       # The image's pin, so CI validates with the iwe that writes .iwe/config.toml.
       - name: Install the pinned iwe
@@ -108,7 +108,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -121,11 +121,6 @@ jobs:
     timeout-minutes: 10
     if: always()
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Execution was not needed!
         if: needs.paths-filter.outputs.pass != 'true'
         run: |
@@ -145,6 +140,6 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}

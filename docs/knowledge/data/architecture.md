@@ -133,3 +133,5 @@ re-review](architecture/rereview-gate-pending.md)
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
 [Supported harnesses](architecture/supported-harnesses.md)
+
+[Self-repository `uses:` syntax](architecture/self-repository-uses.md)
