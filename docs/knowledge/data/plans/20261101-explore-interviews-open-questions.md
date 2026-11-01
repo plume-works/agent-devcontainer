@@ -9,6 +9,7 @@ generated:
   at: 2026-11-01T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+rank: 50
 ---
 
 # Explore settles open questions one at a time
