@@ -1,7 +1,7 @@
 ---
 type: feature
 stage: implemented
-description: OpenCode loads the agentdev catalog from the same tree as Claude Code and Codex through a dependency-free bridge plugin, with namespaced slash commands and tool-limited subagents, installed by the image build, postCreate, and postAttach.
+description: OpenCode loads the agentdev catalog from the same tree as Claude Code through a dependency-free bridge plugin, with namespaced slash commands and tool-limited subagents, installed by the image build, postCreate, and postAttach.
 generated:
   by: codex/gpt-5
   at: 2026-10-21T06:31:53Z
@@ -16,19 +16,18 @@ sources:
 
 ## Purpose
 
-The agentdev catalog serves Claude Code and Codex from one tree,
-`.agents/plugins/agentdev/`. OpenCode has neither a Claude plugin loader nor a
-Codex manifest format, so it could not use the catalog at all. This makes
-OpenCode a third host for the same tree, without copies and without depending on
-Claude Code.
+The agentdev catalog serves Claude Code from one tree,
+`.agents/plugins/agentdev/`. OpenCode has no Claude plugin loader, so it could
+not use the catalog at all. This makes OpenCode a second host for the same tree,
+without copies and without depending on Claude Code.
 
 ## Behaviour
 
 **A bridge plugin ships inside the catalog.**
-`.agents/plugins/agentdev/.opencode-plugin/` sits next to `.claude-plugin/` and
-`.codex-plugin/`, resolves the catalog root from its own location, and has no
-runtime dependencies, so it runs from the read-only staged catalog in the image.
-The same bridge loads in OpenCode v1 and v2.
+`.agents/plugins/agentdev/.opencode-plugin/` sits next to `.claude-plugin/`,
+resolves the catalog root from its own location, and has no runtime
+dependencies, so it runs from the read-only staged catalog in the image. The
+same bridge loads in OpenCode v1 and v2.
 
 **OpenCode sees the catalog the way the other hosts do.** Every catalog skill is
 listed by OpenCode's skill tool and is a `/agentdev:<name>` slash command that

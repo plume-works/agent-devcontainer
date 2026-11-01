@@ -285,7 +285,6 @@ devcontainer-compose-pins.yml
 AGENTS.md
 CLAUDE.md
 .claude/
-.codex/
 pyproject.toml
 .pre-commit-config.yaml
 .ruff.toml

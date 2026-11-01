@@ -4,12 +4,11 @@ stage: implemented
 description: The self-improve experiential-learning plugin ships from this repository's Claude marketplace as a second catalog plugin, published but not enabled by default.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-10-31T21:00:44Z
 sources:
 - resource: .claude-plugin/marketplace.json
 - resource: .agents/plugins/self-improve
 - resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
-- resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: Makefile
 ---
 
@@ -27,17 +26,13 @@ consolidation decision and its rejected alternatives are recorded in
 
 ## Behaviour
 
-**The catalog publishes two plugins on Claude, one on Codex.**
-`.claude-plugin/marketplace.json` publishes `agentdev` and `self-improve`;
-`.agents/plugins/marketplace.json` publishes `agentdev` alone, because
-`self-improve` ships no Codex manifest. The validator accepts the asymmetry — it
-skips an ecosystem a plugin does not ship for.
+**The catalog publishes two plugins on Claude.**
+`.claude-plugin/marketplace.json` publishes `agentdev` and `self-improve`.
 
 **The Claude reinstall script iterates every published plugin.**
 `reinstall-agentdev-claude.sh` uninstalls each published plugin across the
 `user`, `project`, and `local` scopes, then reinstalls each at the requested
-scope, so adding a third plugin needs no further change. The Codex script keeps
-its single-plugin read, which is accurate for the manifest it drives.
+scope, so adding a third plugin needs no further change.
 
 **Published is not enabled.** Nothing this repository ships enables the plugin:
 the tracked `.claude/settings.json` names it nowhere, and the Ansible catalog
@@ -68,17 +63,15 @@ formatting](pre-commit-owns-formatting.md).
 
 The plugin's behavior is unchanged by the move; it ships exactly as it arrived,
 and its durable behavior is specified in [Self-improve learning
-loop](../spec/self-improve-learning-loop.md). Enabling the plugin, staging it
-into `agent-desktop`, and Codex support for it are each separate decisions. Two
-measured defects ship with it, recorded rather than fixed: [Reviewer decline
+loop](../spec/self-improve-learning-loop.md). Enabling the plugin and staging it
+into `agent-desktop` are separate decisions. Two measured defects ship with it,
+recorded rather than fixed: [Reviewer decline
 asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md) and [Unstageable
 routing option in the improve
 skill](../bugs/self-improve-unstageable-routing-option.md).
 
 ## Edge cases
 
-- **A Codex install.** The Codex marketplace publishes `agentdev` alone, and the
-  validator skips `self-improve` for Codex because it ships no Codex manifest.
 - **Live tests selected by path, marker, or node id.** They are skipped unless
   `SELF_IMPROVE_RUN_LIVE` is set, and values such as `0`, `false`, and `off`
   read as unset.
@@ -87,8 +80,8 @@ skill](../bugs/self-improve-unstageable-routing-option.md).
 
 ## Open questions
 
-- Whether to enable the plugin by default, stage it into `agent-desktop`, or
-  ship a Codex manifest for it — each a separate decision not yet taken.
+- Whether to enable the plugin by default or stage it into `agent-desktop` —
+  each a separate decision not yet taken.
 
 ## References
 

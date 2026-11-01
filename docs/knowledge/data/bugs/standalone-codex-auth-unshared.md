@@ -3,11 +3,13 @@ type: bug
 description: In a standalone agent-opencode deployment, a project held a regular ~/.codex/auth.json instead of the symlink into the shared auth volume, so a second project with the same identity was not logged in to Codex until link-codex-auth.sh ran; which Codex action replaced the symlink is not yet settled.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T02:52:58Z
+  at: 2026-10-31T20:56:59Z
 sources:
 - resource: .devcontainer/scripts/link-codex-auth.sh
 - resource: .devcontainer/scripts/setup-agent-state.sh
 - resource: .devcontainer/scripts/runtime-workspace.sh
+stage: cancelled
+status: deprecated
 ---
 
 # Bug: Codex login stops being shared between standalone projects
@@ -52,12 +54,9 @@ One check separates them: in a running project with the symlink in place, run
 
 ## Fix
 
-Not fixed. If login replaces the symlink, the shared state needs a location
-Codex follows on every write, rather than a symlink a rename can replace. If
-only logout does, the repair has to run between a logout and the next login, not
-only at container start. Either fix also needs the linker to stop moving a local
-file over a shared target that already holds a login, which would overwrite that
-login.
+Not fixed: cancelled. Codex support was removed ([Supported
+harnesses](../architecture/supported-harnesses.md)), so the runtime no longer
+shares a Codex login and the link this bug concerns no longer exists.
 
 ## Key references
 

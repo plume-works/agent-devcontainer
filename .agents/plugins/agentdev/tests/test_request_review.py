@@ -275,7 +275,7 @@ def test_accepted_review_on_older_commit_still_toggles(
 def test_review_by_unaccepted_author_on_head_still_toggles(
     plugin_root: Path, plugin_tmp_path: Path, login: str
 ) -> None:
-    """A human, Codex, or another bot reviewing the head is not an accepted AI review."""
+    """A human or a bot other than Claude reviewing the head is not an accepted AI review."""
     fixture = make_fixture(reviews=[review(login, HEAD_SHA)])
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)

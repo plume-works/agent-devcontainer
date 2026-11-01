@@ -261,9 +261,8 @@ harmless, so each mutant fails only in its broken part.
 - [x] \\1 with `codex exec`, `gpt-5.6-sol`, medium model reasoning,
   `REQUESTED REVIEW EFFORT: full`, and the Task 2–4 and Task 6 skill. Keep
   sessions (omit `--ephemeral`) so every pass and validator record survives; see
-  [Headless Codex runs](../architecture/codex-headless-runs.md). Score each run
-  against the spike's known-bug key K1–K6 and record the table under
-  `## Verification results`.
+  Headless Codex runs. Score each run against the spike's known-bug key K1–K6
+  and record the table under `## Verification results`.
   - **Evidence:** the `docs(plan): record the full replays` commit scores all
     four runs under `### Full replays`: both #199 runs validate K1 and both #203
     runs validate K2–K6.

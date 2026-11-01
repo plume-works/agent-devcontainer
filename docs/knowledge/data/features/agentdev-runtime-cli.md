@@ -4,7 +4,7 @@ stage: implemented
 description: One agentdev-runtime Python CLI, installed in the runtime images as an embedded uv tool package, replaces the lifecycle shell scripts, the Xpra launcher, and the firewall script, and the Codex Cloud bootstrap is removed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:00Z
+  at: 2026-11-01T02:20:03Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -42,9 +42,9 @@ from PyPI at container start.
   `remote-control`, `opencode`, `coder`, `lifecycle`, and `doctor`. The image
   `ENTRYPOINT`, `HEALTHCHECK`, supervisord program commands, and the
   `devcontainer.metadata` lifecycle commands name these subcommands.
-- The package pins `supervisor`, `tomlkit`, `json5`, and `pyyaml`. The images
-  stop installing supervisor from apt, and no runtime step resolves a dependency
-  over the network.
+- The package pins `supervisor`, `json5`, and `pyyaml`. The images stop
+  installing supervisor from apt, and no runtime step resolves a dependency over
+  the network.
 - The behaviour behind each command is unchanged: profiles, probes, recovery
   budgets, readiness, the failure latch, the catalog override, CBM daemon
   handling, Remote Control, and the firewall's default-DROP policy with its

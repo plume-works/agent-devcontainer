@@ -4,10 +4,10 @@
 # This is a plain copy; install_catalog.yml installs from it through each agent's
 # own plugin CLI. That build-time install lets a raw-image consumer resolve the
 # catalog with no lifecycle hooks, and the container's lifecycle scripts install
-# again into the mounted ~/.claude and ~/.codex volumes, which shadow it.
+# again into the mounted ~/.claude volume, which shadows it.
 #
-# The staged root holds both marketplace manifests, and each resolves its plugin
-# by a path relative to that root, so the source layout has to be preserved.
+# The staged root holds the marketplace manifest, which resolves its plugin by a
+# path relative to that root, so the source layout has to be preserved.
 - name: Read the catalog marketplace manifest
   ansible.builtin.slurp:
     src: >-
@@ -41,29 +41,6 @@
       {{ agentic_tools_catalog_plugin_entry.source | regex_replace('^\./', '') | regex_replace('/$', '') }}
   vars:
     agentic_tools_catalog_plugin_entry: "{{ agentic_tools_catalog_plugin_entries | first }}"
-
-- name: Read the Codex plugin manifest
-  ansible.builtin.slurp:
-    src: >-
-      {{ agentic_tools_catalog_source_dir }}/{{ agentic_tools_catalog_plugin_source }}/{{
-         agentic_tools_catalog_codex_plugin_manifest }}
-  register: agentic_tools_catalog_codex_manifest_raw
-
-# The two manifests are released together, so a mismatch means one of them was
-# missed during a version bump and the image label would describe only half the
-# catalog.
-- name: Fail when the Claude and Codex plugin manifests disagree on the version
-  ansible.builtin.assert:
-    that:
-      - agentic_tools_catalog_codex_version == agentic_tools_catalog_plugin_version
-    fail_msg: >-
-      {{ agentic_tools_catalog_codex_plugin_manifest }} declares version
-      '{{ agentic_tools_catalog_codex_version }}' but
-      {{ agentic_tools_catalog_marketplace_manifest }} declares
-      '{{ agentic_tools_catalog_plugin_version }}'. Bump both together.
-  vars:
-    agentic_tools_catalog_codex_version: >-
-      {{ (agentic_tools_catalog_codex_manifest_raw.content | b64decode | from_json).version }}
 
 - name: Fail when the pinned plugin version is not the one being staged
   ansible.builtin.assert:

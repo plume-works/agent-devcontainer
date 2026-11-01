@@ -4,7 +4,7 @@ stage: implemented
 description: The agent-desktop image installs the agentdev catalog into each agent's plugin state at build time, so a consumer running the raw image with no devcontainer lifecycle hooks still resolves agentdev:* skills; postCreate installs again because mounted volumes shadow the build-time install.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-10-31T21:01:06Z
 sources:
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -28,18 +28,18 @@ consumers.
 
 **The catalog is installed during the image build.** `agentic_tools` gains an
 install step after staging, gated by `agentic_tools_install_catalog` (the
-Dockerfile passes it `true`). It reads the marketplace names from the staged
-Claude and Codex manifests rather than hardcoding them, then registers the
-staged root as a marketplace and installs the plugin for Claude at user scope
-and for Codex. The build stays offline and needs no auth — the marketplace is
+Dockerfile passes it `true`). It reads the marketplace name from the staged
+Claude manifest rather than hardcoding it, then registers the staged root as a
+marketplace, installs the plugin for Claude at user scope, and registers the
+OpenCode bridge. The build stays offline and needs no auth — the marketplace is
 added from the local staged path. A container run from the image with no volumes
 and no lifecycle hooks resolves `agentdev:*` skills.
 
 **postCreate still installs, because volumes shadow the build.** A devcontainer
-mounts persistent `~/.claude` / `~/.codex` volumes over where both agents record
-installed plugins, so the build-time install is invisible there;
-`postCreateCommand.sh` installs again on every create, so the workspace's
-catalog is never silently stale.
+mounts a persistent `~/.claude` volume over where Claude Code records installed
+plugins, so the build-time install is invisible there; `postCreateCommand.sh`
+installs again on every create, so the workspace's catalog is never silently
+stale.
 
 **The `~/.claude.json` handoff runs before cbm-install.** The build-time Claude
 install seeds a real `/root/.claude.json` into the image.

@@ -23,8 +23,6 @@ conversation](plans/20261031-verify-report-in-chat.md)
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
-[Remove Codex support](plans/20261031-remove-codex.md)
-
 [Replace Super-Linter with pre-commit in
 CI](plans/20261031-pre-commit-replaces-super-linter.md)
 
@@ -46,6 +44,8 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done
+
+[Remove Codex support](plans/20261031-remove-codex.md)
 
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)

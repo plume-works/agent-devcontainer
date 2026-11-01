@@ -3,7 +3,7 @@ type: architecture
 description: The agentdev runtime is one Python package, agentdev_runtime, installed as a uv tool in the two runtime images and run as the agentdev-runtime CLI; its integrity is the installed distribution's RECORD, the firewall runs from the bootstrap, and a container with no supervisor starts only CBM.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:49:18Z
+  at: 2026-11-01T02:20:03Z
 sources:
 - resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py
@@ -31,8 +31,8 @@ Both images install it the way the `validate_agent_files` role installs the
 validator: `uv tool install --reinstall --python /usr/bin/python3` from the
 build context, into `/opt/uv-tools` with the entry point on `/usr/local/bin`,
 with no cache and no interpreter download. The package pins `supervisor` and its
-`setuptools<85` requirement, `tomlkit`, `json5`, and `pyyaml`, so the images
-carry no apt `supervisor` and nothing resolves a dependency at container start.
+`setuptools<85` requirement, `json5`, and `pyyaml`, so the images carry no apt
+`supervisor` and nothing resolves a dependency at container start.
 `agentdev-base` stays lifecycle-neutral and never carries it.
 
 `agentdev_runtime.settings` parses every environment value the runtime reads,

@@ -141,7 +141,7 @@ CHECKS = """
 id -u agent; id -g agent; id -nG agent | tr ' ' '\\n' | grep -qx docker
 su agent -c 'sudo -n true' && echo sudo-ok
 stat -c '%u:%g' /home/agent /uv /workspaces/project
-stat -c '%u:%g %a' /var/lib/agentdev/auth /var/lib/agentdev/auth/codex
+stat -c '%u:%g %a' /var/lib/agentdev/auth /var/lib/agentdev/auth/claude
 stat -c '%u:%g %a' "${XDG_RUNTIME_DIR:-/run/user/$(id -u agent)}"
 su agent -c 'test ! -r /root'  && echo root-private
 """
@@ -220,7 +220,7 @@ def test_rejects_shared_auth_from_another_identity_without_touching_it(image, vo
         run(
             image,
             volumes.args(),
-            f'su agent -c "echo token > {AUTH}/codex/auth.json"',
+            f'su agent -c "echo token > {AUTH}/claude/.credentials.json"',
             uid=1001,
             gid=1001,
         )
@@ -233,7 +233,8 @@ def test_rejects_shared_auth_from_another_identity_without_touching_it(image, vo
         inspect = run(
             image,
             other.args(auth=volumes.auth),
-            f'stat -c "%u:%g" {AUTH} {AUTH}/codex/auth.json; cat {AUTH}/codex/auth.json',
+            f'stat -c "%u:%g" {AUTH} {AUTH}/claude/.credentials.json; '
+            f'cat {AUTH}/claude/.credentials.json',
             uid=1001,
             gid=1001,
         )
@@ -253,9 +254,9 @@ def test_concurrent_starts_share_one_initialization(image, volumes):
         check = run(
             image,
             others[0].args(auth=volumes.auth),
-            f'stat -c "%u:%g %a" {AUTH} {AUTH}/claude {AUTH}/codex {AUTH}/opencode',
+            f'stat -c "%u:%g %a" {AUTH} {AUTH}/claude {AUTH}/opencode',
         )
-        assert check.stdout.splitlines()[-4:] == ['1000:1000 700'] * 4
+        assert check.stdout.splitlines()[-3:] == ['1000:1000 700'] * 3
     finally:
         for box in others:
             box.remove()

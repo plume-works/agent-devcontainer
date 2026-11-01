@@ -39,6 +39,7 @@ XPRA_PASSWORD = 'acceptance-xpra-password'
 AUTH_HEADER = 'Basic ' + base64.b64encode(f'opencode:{PASSWORD}'.encode()).decode()
 INSTANCE_VOLUMES = {'home': '/home/agent', 'uv': '/uv', 'docker': '/var/lib/docker'}
 AUTH = '/var/lib/agentdev/auth'
+CLAUDE_CREDENTIALS = f'{AUTH}/claude/.credentials.json'
 WORKSPACE = '/workspaces/project'
 SCRATCH_DOCKERFILE = 'printf "FROM scratch\\nCOPY f /f\\n" > ~/ctx/Dockerfile'
 RUNTIME = '/opt/agentdev-runtime'
@@ -364,7 +365,6 @@ def websocket_status(
 
 TOOLS = (
     'claude',
-    'codex',
     'opencode',
     'iwe',
     'uv',
@@ -728,21 +728,17 @@ def test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images(
     ready_runtime.sh('docker image inspect acceptance:kept >/dev/null')
 
 
-def test_restarts_leave_codex_config_and_hooks_byte_identical(make_runtime, scratch: Path):
+def test_restarts_leave_the_opencode_config_byte_identical(make_runtime, scratch: Path):
     runtime = make_runtime(workspace=bind(make_checkout(scratch)))
     runtime.run()
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
-    codex = '/home/agent/.codex'
-    files = f'cat {codex}/config.toml; echo ===; cat {codex}/hooks.json'
-    first = runtime.sh(files).stdout
-    config, hooks = first.split('===\n')
-    assert '[[hooks.' not in config and 'SessionStart' not in config
-    assert set(json.loads(hooks)['hooks']) >= {'SessionStart', 'SubagentStart'}
+    config = 'cat ~/.config/opencode/opencode.json'
+    first = runtime.sh(config).stdout
+    assert any(p.endswith('/.opencode-plugin') for p in json.loads(first)['plugin'])
     for _ in range(3):
         runtime.restart()
         assert runtime.wait() == 'ready', runtime.logs()[-4000:]
-        assert runtime.sh(files).stdout == first
-    assert 'already registered' in runtime.logs()
+        assert runtime.sh(config).stdout == first
 
 
 @pytest.mark.skipif(not PREVIOUS_IMAGE, reason='set AGENTDEV_RUNTIME_PREVIOUS_IMAGE')
@@ -763,15 +759,15 @@ def test_upgrade_from_the_previous_image_keeps_user_state(make_runtime, scratch:
     assert session['id'] in {s['id'] for s in runtime.api('GET', '/session')}
 
 
-def test_concurrent_projects_share_codex_auth_but_not_sessions(make_runtime, scratch: Path):
+def test_concurrent_projects_share_claude_auth_but_not_sessions(make_runtime, scratch: Path):
     first = make_runtime(workspace=bind(make_checkout(scratch / 'a')))
     second = make_runtime(workspace=bind(make_checkout(scratch / 'b')), auth=first.auth)
     first.run()
     second.run()
     assert (first.wait(), second.wait()) == ('ready', 'ready'), first.logs() + second.logs()
 
-    first.sh('echo \'{"shared": true}\' > ~/.codex/auth.json')
-    assert json.loads(second.sh('cat ~/.codex/auth.json').stdout) == {'shared': True}
+    first.sh(f'echo \'{{"shared": true}}\' > {CLAUDE_CREDENTIALS}')
+    assert json.loads(second.sh(f'cat {CLAUDE_CREDENTIALS}').stdout) == {'shared': True}
     session = first.api('POST', '/session', {'title': 'only-first'})
     assert session['id'] in {s['id'] for s in first.api('GET', '/session')}
     assert session['id'] not in {s['id'] for s in second.api('GET', '/session')}
@@ -790,7 +786,7 @@ def test_concurrent_projects_share_codex_auth_but_not_sessions(make_runtime, scr
     assert intruder.wait() == 'failed'
     assert intruder.runtime()['latched'] == 'bootstrap'
     assert 'must all use AGENTDEV_UID=1000' in intruder.logs()
-    assert json.loads(first.sh('cat ~/.codex/auth.json').stdout) == {'shared': True}
+    assert json.loads(first.sh(f'cat {CLAUDE_CREDENTIALS}').stdout) == {'shared': True}
 
 
 def test_unavailable_worktree_metadata_fails_preparation(make_runtime, scratch: Path):

@@ -3,7 +3,7 @@ type: spec
 description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
+  at: 2026-11-01T03:25:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -38,9 +38,9 @@ tmux/failure semantics.
 `ghcr.io/plume-works/agentdev-deploy` SHALL derive from the corresponding digest
 of `agentdev-base`, provide linux/amd64 and linux/arm64 images, and start its
 environment without Coder, a Dev Containers client, or project scaffolding. It
-SHALL keep Claude Code and Codex available without autostarting them, except
-Claude Remote Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL omit
-Docker MCP gateway integration.
+SHALL keep Claude Code available without autostarting it, except Claude Remote
+Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, SHALL NOT install Codex, and
+SHALL omit Docker MCP gateway integration.
 
 #### Scenario: an ordinary checkout is mounted
 
@@ -127,12 +127,12 @@ runtime degraded. A checkout that cannot be used SHALL latch the runtime failed.
 
 The runtime SHALL persist workspace, instance home/configuration, keyrings,
 caches/environments, OpenCode provider logins and sessions, and nested Docker
-storage. Only Claude and Codex provider credentials SHALL be shared across
-project containers; OpenCode provider logins SHALL stay with the instance.
-Startup SHALL repair the shared credential links and reconcile managed
-client/catalog configuration after mounts on every container start while
-preserving unrelated settings and session data. It SHALL NOT add shared
-interactive GitHub-login storage.
+storage. Only Claude provider credentials SHALL be shared across project
+containers; OpenCode provider logins SHALL stay with the instance. Startup SHALL
+repair the shared credential links and reconcile managed client/catalog
+configuration after mounts on every container start while preserving unrelated
+settings and session data. It SHALL NOT add shared interactive GitHub-login
+storage.
 
 #### Scenario: an image is upgraded with existing volumes
 
@@ -144,8 +144,8 @@ interactive GitHub-login storage.
 
 - **WHEN** same-ID containers mount the same agent-auth volume and different
   instance volumes
-- **THEN** they see shared Claude and Codex credentials but have independent
-  OpenCode logins, sessions, keyring databases, caches, and Docker engines.
+- **THEN** they see shared Claude credentials but have independent OpenCode
+  logins, sessions, keyring databases, caches, and Docker engines.
 
 ### Requirement: services have supervised bounded recovery
 

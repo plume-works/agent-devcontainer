@@ -91,18 +91,6 @@
       "type": "volume"
     },
     {
-      // Codex's plugins, marketplaces, sessions, logs, and sqlite state. Declared
-      // here rather than in docker-compose.yml so Compose prefixes it per project,
-      // for the same reason as agentdev-claude: this state records absolute
-      // workspace paths, so worktrees sharing one copy fight over the marketplace
-      // registry (see `agentdev-runtime catalog install`). Only auth.json is shared,
-      // via the agentdev-agents-auth volume in docker-compose.yml and
-      // `agentdev-runtime state links`.
-      "source": "agentdev-codex",
-      "target": "/root/.codex",
-      "type": "volume"
-    },
-    {
       // OpenCode's data directory, per instance like agentdev-claude: its provider
       // logins and sessions live in its database here, so each worktree logs in once.
       // See architecture/agent-auth-persistence.
@@ -125,7 +113,6 @@
     "vscode": {
       "extensions": [
         "anthropic.claude-code",
-        "openai.chatgpt",
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.debugpy",
