@@ -1,7 +1,6 @@
 ---
 type: feature
 stage: deprecated
-status: deprecated
 description: Codex CLI sessions in the devcontainer run with full sandbox access and no approval prompts, written into Codex's config.toml on every container start without disturbing other tools' sections.
 generated:
   by: claude-code/opus-5.5
