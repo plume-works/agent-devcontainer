@@ -3,7 +3,7 @@ type: architecture
 description: Every script the agentdev catalog ships under bin/ and skills/*/agent-code/ is standard-library-only Python that reaches the shared bin/ modules through sys.path, because the catalog runs from any consuming repository's plugin cache on a host that installs nothing for it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:02:25Z
+  at: 2026-11-01T04:32:17Z
 sources:
 - resource: .agents/plugins/agentdev/bin/result_codes.py
 - resource: .agents/plugins/agentdev/bin/skill_common.py
@@ -26,10 +26,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
 
 The shared modules are `result_codes` (the `RESULT=` contract, its exit and
 signal hooks), `skill_common` (diagnostics, the declared-stop exception, the
-subprocess runners, `bash_quote`), and the topic modules `git_default_branch`,
-`github_issue`, and `super_linter`. Code that only one skill's scripts share
-lives beside them as `agent-code/<name>_common.py`. The output contract itself
-is the `skill-scripts` skill's.
+subprocess runners, `bash_quote`), and the topic modules `git_default_branch`
+and `github_issue`. Code that only one skill's scripts share lives beside them
+as `agent-code/<name>_common.py`. The output contract itself is the
+`skill-scripts` skill's.
 
 ## Constraints
 

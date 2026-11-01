@@ -3,7 +3,7 @@ type: architecture
 description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agentdev-base image, rather than published to PyPI or installed another way.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
+  at: 2026-11-01T04:31:48Z
 sources:
 - resource: docs/agents/specs/template-reuse-validation/ (folded and removed)
 ---
@@ -94,9 +94,6 @@ consumption](../spec/template-consumption.md):
   requirement there.
 - Formatter adoption rewriting verbatim third-party captures — now a named
   requirement there.
-- `reformat.yml`'s dependency on
-  `.agents/plugins/agentdev/bin/super_linter.py env` being under-specified in
-  the old guide — now stated concretely as an inline-heredoc instruction.
 - Smaller documentation gaps (empty `py_packages/`/`scripts/` after deletion,
   missing `pyproject.toml` dependencies, an orphaned `clean_build` workflow
   input, the `zizmor` pre-commit hook needing a host-portable alternative,
@@ -108,9 +105,3 @@ One item was out of scope and stayed with its owning repository: a pre-existing
 test failure in a consumer's own suite
 (`test_self_test_fails_when_state_root_is_unwritable`, fails only when the suite
 runs as root) — not caused by and not addressed by template adoption.
-
-Two stale CI filter references were also found and are unrelated to the template
-boundary: `.github/workflows/reformat.yml` filters on
-`.github/workflows/validate-super-linter-tool-versions.yml` and
-`.github/super-linter-*.env`, neither of which exist. Not yet fixed; worth a
-backlog item if noticed again.

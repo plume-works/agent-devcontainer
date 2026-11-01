@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-01T04:32:17Z
 ---
 
 # Product
@@ -93,11 +93,10 @@ the driver of design decisions — internal needs come first.
   Run both from root with `uv run pytest`.
 - **Lint/format**: ruff (Python, 99-char line limit per `.ruff.toml`, not 79),
   ansible-lint, shellcheck, clang-format, Prettier — applied locally by the
-  pre-commit hooks that run on every commit, and gated in CI by Super-Linter
-  (`.github/workflows/reformat.yml`). The `agentdev:local-reformat` skill runs
-  the full Super-Linter pass locally for manual use.
+  pre-commit hooks that run on every commit, and gated in CI by the same hooks
+  in the `pre-commit` job of `primary-checks.yml`.
 - **CI**: GitHub Actions — `ci.yml` (image build/publish), `primary-checks.yml`,
-  `validate-agent-files.yml`, `validate-knowledge-base.yml`, `reformat.yml`,
+  `validate-agent-files.yml`, `validate-knowledge-base.yml`,
   `delete-old-containers.yml`.
 
 ## Constraints
@@ -201,3 +200,6 @@ it):
   `agentdev-deploy`) and added `agentdev-devcontainer`, which owns the Dev
   Container lifecycle; the `agent-desktop` and `agent-opencode` names stopped
   publishing.
+- 2026-11-01 — made the pre-commit hooks the CI lint gate in place of
+  Super-Linter, and removed `agentdev:local-reformat` and
+  `agentdev:sync-super-linter-tool-versions`.
