@@ -56,30 +56,30 @@ class ToolListPins:
 
     def pins(self, defaults: dict[str, Any], repo_root: Path) -> list[Pin]:
         """Return one pin per tool entry, rendering URLs with the task file's templates."""
-        asset_template, extension_template, url_template = self._templates(repo_root)
+        facts, url_template = self._templates(repo_root)
         pins = []
         for tool in defaults[self.list_var]:
             urls = {}
             for arch in ARCHITECTURES:
                 context = {'dev_tools_tool': tool, 'system_arch': arch}
-                context['dev_tools_tool_asset'] = _render(asset_template, context)
-                context['dev_tools_tool_extension'] = _render(extension_template, context)
+                for name, template in facts:
+                    context[name] = _render(template, context)
                 urls[arch] = _render(url_template, context)
             checksums = {arch: tool['archives'][arch]['checksum'] for arch in ARCHITECTURES}
             pins.append(Pin(tool['name'], str(tool['version']), urls, checksums))
         return pins
 
-    def _templates(self, repo_root: Path) -> tuple[str, str, str]:
-        """Read the asset, extension, and URL expressions from the install task file."""
+    def _templates(self, repo_root: Path) -> tuple[list[tuple[str, str]], str]:
+        """Read the facts, in task order, and the URL expression from the install task file."""
         tasks = yaml.safe_load((repo_root / self.task_file).read_text())
-        facts: dict[str, str] = {}
+        facts: list[tuple[str, str]] = []
         url = None
         for task in tasks:
-            facts.update(task.get('ansible.builtin.set_fact', {}))
+            facts.extend(task.get('ansible.builtin.set_fact', {}).items())
             url = task.get('ansible.builtin.get_url', {}).get('url', url)
-        if url is None or 'dev_tools_tool_asset' not in facts:
+        if url is None or not facts:
             raise RefreshError(f'{self.task_file}: no download URL template found')
-        return facts['dev_tools_tool_asset'], facts['dev_tools_tool_extension'], url
+        return facts, url
 
 
 @dataclass(frozen=True)

@@ -77,19 +77,6 @@
       "platformAutomerge": true
     },
     {
-      "description": "Super-Linter and the pre-commit/local tools it pins (Prettier, clang-format, Ansible Lint, Hadolint, Ruff, ShellCheck) must stay in sync with the pinned Super-Linter image. Update them manually with the sync-super-linter-tool-versions skill instead. Gitleaks, Actionlint, and Zizmor are dev_tools_pinned_tools entries with no `# renovate:` comment, so no manager proposes them.",
-      "matchManagers": ["github-actions", "pre-commit"],
-      "matchPackageNames": [
-        "super-linter/super-linter",
-        "pre-commit/mirrors-clang-format",
-        "ansible/ansible-lint",
-        "hadolint/hadolint",
-        "astral-sh/ruff-pre-commit",
-        "shellcheck-py/shellcheck-py"
-      ],
-      "enabled": false
-    },
-    {
       "description": "The renovate-config-validator hook's `bunx --package renovate@<version>` pin: it is the Renovate version the bot and the validation workflow run. A bump edits .pre-commit-config.yaml, which runs the required validation check at the new version before it can merge.",
       "matchManagers": ["custom.regex"],
       "matchFileNames": [".pre-commit-config.yaml"],
@@ -145,11 +132,12 @@
       ]
     },
     {
-      "description": "npm packages the local pre-commit hooks run through `bunx --package <name>@<version>`. Prettier is excluded: its version follows the Super-Linter image (see the rule above).",
+      "description": "npm packages the local pre-commit hooks run through `bunx --package <name>@<version>` or `bunx <name>@<version>`.",
       "customType": "regex",
       "managerFilePatterns": ["/^\\.pre-commit-config\\.yaml$/"],
       "matchStrings": [
-        "bunx --package (?<depName>renovate)@(?<currentValue>[0-9][^\\s]*)"
+        "bunx --package (?<depName>renovate)@(?<currentValue>[0-9][^\\s]*)",
+        "bunx (?<depName>prettier)@(?<currentValue>[0-9][^\\s]*)"
       ],
       "datasourceTemplate": "npm"
     },
