@@ -154,8 +154,11 @@ path filter: pre-commit already skips hooks whose files did not change.
 
 **Files:** Modify: `pyproject.toml`, `uv.lock`
 
-- [ ] The `dev` group lists `clang-format>=21.1.2` and `pre-commit-hooks>=6.0.0`
+- [x] The `dev` group lists `clang-format>=21.1.2` and `pre-commit-hooks>=6.0.0`
   beside the existing `ruff` and `ansible-lint`, and `uv lock` records them.
+  - **Evidence:** commit `7c91ed4a`; `uv lock` records clang-format `23.1.3` and
+    pre-commit-hooks `6.0.0`, and `uv run clang-format --version` and
+    `uv run check-yaml --help` run from the synced environment.
 
 ### Task 5: Make every hook native
 
