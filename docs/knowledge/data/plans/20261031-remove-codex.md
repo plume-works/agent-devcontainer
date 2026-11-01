@@ -183,9 +183,12 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     prints nothing.
 - [x] `uv run pytest py_packages/agentdev_runtime` passes.
   - **Evidence:** `264e4bea`; 85 passed.
-- [ ] The package declares no `tomlkit` dependency, which only the Codex policy
+- [x] The package declares no `tomlkit` dependency, which only the Codex policy
   module used, the root `uv.lock` is re-locked without it, and the package
   carries no lockfile of its own beside the root `uv.lock`.
+  - **Evidence:** `93ab2570`; `uv lock` removed `tomlkit` v0.15.2,
+    `git ls-files` lists only the root `uv.lock`, and the package suite passes
+    (86).
 
 ### Task 6: Update the runtime tests under scripts/tests
 
@@ -234,8 +237,9 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
   - **Evidence:** `0d62d327`.
 - [x] `.codex/` and its `.dockerignore` entry are gone.
   - **Evidence:** `0d62d327`.
-- [ ] `devcontainer.json` no longer recommends the Codex VS Code extension
+- [x] `devcontainer.json` no longer recommends the Codex VS Code extension
   (`openai.chatgpt`).
+  - **Evidence:** `93ab2570`.
 
 ### Task 8: Remove Codex from CI and repository configuration
 
