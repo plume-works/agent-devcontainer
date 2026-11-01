@@ -142,6 +142,8 @@ requests](plans/20261002-native-stacked-prs.md)
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
+[Keep the graph an OKF bundle in the spec](plans/20261101-okf-bundle-in-spec.md)
+
 [Load the agentdev catalog into OpenCode through a bridge
 plugin](plans/20261001-opencode-catalog-bridge.md)
 
