@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
+rank: 550
 ---
 
 # Bug: Ship ships a plan whose prerequisite has not shipped

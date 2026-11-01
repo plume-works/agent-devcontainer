@@ -7,6 +7,7 @@ generated:
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
+rank: 475
 ---
 
 # Bug: worktrees in one devcontainer share the uv environment
