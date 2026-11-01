@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Give each checkout its own uv
+environment](plans/20261101-per-checkout-uv-environments.md)
+
 [Show the Verify report in the
 conversation](plans/20261031-verify-report-in-chat.md)
 

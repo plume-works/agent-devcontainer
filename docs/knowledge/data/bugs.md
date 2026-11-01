@@ -140,6 +140,9 @@ Container](bugs/cbm-cache-under-foreign-owned-checkout.md)
 [Bug: CBM pin staging races under
 pytest-xdist](bugs/cbm-pin-staging-races-under-xdist.md)
 
+[Bug: worktrees in one devcontainer share the uv
+environment](bugs/shared-uv-environment-across-worktrees.md)
+
 [Bug: body-shape schema tests share one scratch graph across concurrent
 runs](bugs/body-shape-schemas-shared-scratch.md)
 
