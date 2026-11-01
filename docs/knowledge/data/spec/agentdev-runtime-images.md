@@ -3,17 +3,18 @@ type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-10-31T20:55:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: docker/devcontainer/supervisord.conf
-- resource: .devcontainer/scripts/runtime-supervisor.py
-- resource: .devcontainer/scripts/devcontainer-created.sh
-- resource: .devcontainer/scripts/devcontainer-ready.sh
-- resource: .devcontainer/scripts/devcontainer-attached.sh
-- resource: .devcontainer/scripts/run-agentdev-hooks.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/hooks.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/integrity.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .github/workflows/ci.yml
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 ---
@@ -31,7 +32,8 @@ runtime](standalone-opencode-runtime.md).
 ### Requirement: the base image is lifecycle-neutral
 
 `agentdev-base` SHALL contain the shared development tools, agentdev catalog,
-and default policy without containing deploy or Dev Container lifecycle scripts.
+and default policy without containing deploy or Dev Container lifecycle
+implementation; it SHALL NOT carry the `agentdev_runtime` package.
 
 #### Scenario: a consumer runs the base image directly
 
@@ -71,8 +73,11 @@ shared with deploy.
 
 ### Requirement: lifecycle phases remain distinct
 
-The image SHALL provide stable create, start/readiness, and attach commands and
-SHALL NOT move create-once or attach-scoped work into the entrypoint.
+The image SHALL provide stable create, start/readiness, and attach commands —
+`agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
+`agentdev-runtime lifecycle attached`, published through the image's Dev
+Container metadata — and SHALL NOT move create-once or attach-scoped work into
+the entrypoint.
 
 #### Scenario: only the attach lifecycle runs
 
@@ -98,12 +103,54 @@ directories.
 
 - **WHEN** it installs an executable hook in a documented phase directory
 - **THEN** the hook runs in deterministic order after the managed phase without
-  replacing files below `/opt/agentdev-runtime`
+  changing, adding, or removing any file of the installed `agentdev_runtime`
+  distribution
 
 #### Scenario: a mounted repository contains a similarly named script
 
 - **WHEN** no explicit image hook registers that script
 - **THEN** mounting or attaching the repository does not execute it
+
+### Requirement: the bootstrap refuses a changed runtime package
+
+While the installed `agentdev_runtime` distribution's metadata is present, the
+root bootstrap SHALL refuse to run when a file its `RECORD` lists differs from
+the recorded hash or is missing, or a file was added beside the recorded files,
+and SHALL name the file and direct the consumer to the hook directories and
+documented environment. The check catches accidental or partial edits to the
+runtime and is not a security boundary: a derived image that deliberately
+deletes the distribution's metadata or rewrites its `RECORD` passes it.
+
+#### Scenario: a derived image edits a package file
+
+- **WHEN** a derived image replaces a file of the installed `agentdev_runtime`
+  distribution and the container starts
+- **THEN** the bootstrap fails naming that file and the extension points
+
+#### Scenario: a derived image adds a file to the package
+
+- **WHEN** a derived image adds a file below the installed distribution's
+  package directory
+- **THEN** the bootstrap fails naming the added file
+
+#### Scenario: an unmodified image starts
+
+- **WHEN** the installed distribution matches its `RECORD`
+- **THEN** the bootstrap continues
+
+### Requirement: missing pre-commit hook executables are reported
+
+`agentdev-runtime project hooks` SHALL warn, without failing, about each
+`language: system` pre-commit hook whose executable is not on `PATH`, and
+`agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as required
+tools.
+
+### Requirement: doctor judges a healthy Compose Dev Container healthy
+
+In the devcontainer profile, `agentdev-runtime doctor` SHALL check the
+`mcp-gateway` sidecar only when the Compose `mcp` profile is enabled, and SHALL
+accept the git identity git resolves, including one set through `GIT_AUTHOR_*`
+and `GIT_COMMITTER_*`.
 
 ### Requirement: the agentdev checkout overrides the staged catalog
 

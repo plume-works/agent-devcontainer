@@ -298,3 +298,63 @@ def test_checksum_recorded_elsewhere_in_the_file_fails(repo: Path, server: Asset
 
     assert run(repo, XPRA) == 1
     assert (repo / XPRA).read_text() == bumped
+
+
+LAYOUT_TARGETS = (('amd64', 'x86_64'), ('arm64', 'aarch64'))
+
+
+def layout_defaults(url: str, version: str, checksums: dict[str, dict[str, str]]) -> str:
+    """Return dev_tools defaults with a bare-binary tool and a tool unpacking into its own dir."""
+
+    def archives(name: str) -> str:
+        return ''.join(
+            f'      {arch}:\n        target: {target}\n        checksum: {checksums[name][arch]}\n'
+            for arch, target in LAYOUT_TARGETS
+        )
+
+    return (
+        '---\n'
+        'dev_tools_pinned_tools:\n'
+        '  - name: bare\n'
+        f'    version: v{version}\n'
+        f'    url_prefix: {url}\n'
+        '    asset_prefix: bare-linux-\n'
+        '    bare_binary: true\n'
+        f'    archives:\n{archives("bare")}'
+        '  - name: nested\n'
+        f'    version: v{version}\n'
+        f'    url_prefix: {url}\n'
+        '    asset_prefix: "nested-{version}.linux."\n'
+        '    extension: tar.xz\n'
+        '    binaries_dir: "nested-{version}"\n'
+        f'    archives:\n{archives("nested")}'
+    )
+
+
+def serve_layouts(server: AssetServer, version: str, tag: bytes) -> dict[str, dict[str, str]]:
+    """Serve both tools at the release URLs their publishers use; return their checksums."""
+    paths = {
+        'bare': '/v{version}/bare-linux-{target}',
+        'nested': '/v{version}/nested-v{version}.linux.{target}.tar.xz',
+    }
+    checksums: dict[str, dict[str, str]] = {}
+    for name, path in paths.items():
+        for arch, target in LAYOUT_TARGETS:
+            body = tag + name.encode() + target.encode()
+            server.assets[path.format(version=version, target=target)] = body
+            checksums.setdefault(name, {})[arch] = sha(body)
+    return checksums
+
+
+def test_bare_binary_and_nested_dir_urls_follow_the_install_task(
+    repo: Path, server: AssetServer
+) -> None:
+    """A bare binary has no extension in its URL; a nested archive keeps its own extension."""
+    old = serve_layouts(server, '1.0', b'old')
+    write(repo, DEV_TOOLS, layout_defaults(server.url, '1.0', old))
+    commit(repo)
+    new = serve_layouts(server, '2.0', b'new')
+    write(repo, DEV_TOOLS, layout_defaults(server.url, '2.0', old))
+
+    assert run(repo, DEV_TOOLS) == 0
+    assert (repo / DEV_TOOLS).read_text() == layout_defaults(server.url, '2.0', new)

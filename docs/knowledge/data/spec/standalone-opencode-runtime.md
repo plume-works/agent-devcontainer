@@ -3,16 +3,16 @@ type: spec
 description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/runtime-supervisor.py
-- resource: .devcontainer/scripts/runtime-remote-control.sh
-- resource: .devcontainer/scripts/runtime-bootstrap.sh
-- resource: .devcontainer/scripts/runtime-workspace.sh
-- resource: .devcontainer/scripts/runtime-health.sh
-- resource: .devcontainer/scripts/runtime-docker.sh
-- resource: .devcontainer/scripts/runtime-firewall.sh
-- resource: .devcontainer/scripts/setup-pre-commit.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/firewall.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/deploy/supervisord.conf
 - resource: compose.opencode.yml
@@ -203,15 +203,15 @@ default with an explicit disable option.
 ### Requirement: runtime state is reported, persisted, and retried explicitly
 
 The runtime SHALL report one state, `pending`, `ready`, `degraded`, or `failed`,
-with each component's status, through `runtime-health.sh status`. Container
-health SHALL be healthy only while a live controller reports `ready` and the
-core probes pass. Every latched failure SHALL write a bounded record to the home
-volume: startup ID, phase, command, exit status, output tail, and time. Startup
-SHALL NOT delete that record. A failed or degraded runtime SHALL resume only
-through an explicit `runtime-supervisor.py retry`, never by an automatic rerun
-of preparation. Boolean settings SHALL accept only documented true and false
-spellings, and counts and deadlines SHALL be positive; any other value SHALL
-latch a configuration failure naming the variable.
+with each component's status, through `agentdev-runtime health status`.
+Container health SHALL be healthy only while a live controller reports `ready`
+and the core probes pass. Every latched failure SHALL write a bounded record to
+the home volume: startup ID, phase, command, exit status, output tail, and time.
+Startup SHALL NOT delete that record. A failed or degraded runtime SHALL resume
+only through an explicit `agentdev-runtime supervisor retry`, never by an
+automatic rerun of preparation. Boolean settings SHALL accept only documented
+true and false spellings, and counts and deadlines SHALL be positive; any other
+value SHALL latch a configuration failure naming the variable.
 
 #### Scenario: a failure is inspected later
 
@@ -228,7 +228,7 @@ latch a configuration failure naming the variable.
 
 #### Scenario: an operator retries
 
-- **WHEN** `runtime-supervisor.py retry` runs after the cause is removed
+- **WHEN** `agentdev-runtime supervisor retry` runs after the cause is removed
 - **THEN** the runtime resumes from the failed component in the same container
   and reports ready on success.
 

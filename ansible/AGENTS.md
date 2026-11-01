@@ -21,8 +21,7 @@ working directory. Running from here silently loses the inventory and roles path
 - Roles must be independently runnable. Do not rely on a `register:` from another role
   without tolerating it being undefined.
 - Pin every external download, in the role's `defaults/`, under a `# renovate:`
-  comment naming its datasource; zizmor alone moves with the Super-Linter sync
-  instead. A binary or archive fetched directly also needs a
+  comment naming its datasource. A binary or archive fetched directly also needs a
   per-architecture checksum, as `dev_tools` does, and its pin registered in `PIN_FILES` in
   `scripts/refresh-pin-checksums.py` so Renovate's post-upgrade task recomputes it. A
   tool installed through an upstream installer or package registry is pinned by

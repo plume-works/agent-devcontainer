@@ -2,9 +2,9 @@
 
 This Ansible role installs a general set of development tools: build tooling
 (build-essential, CMake, Ninja, pkg-config), version control (git, git-lfs),
-Python packaging basics, `pre-commit`, `shellcheck`, `jq`, `ffmpeg`, `btop`,
+Python packaging basics, `pre-commit`, `jq`, `ffmpeg`, `btop`,
 and a list of pinned single-archive tools (currently the `zizmor` GitHub
-Actions auditor, `iwe`, the `codebase-memory-mcp` binary, and the `bun`
+Actions auditor, `hadolint`, `shellcheck`, `iwe`, the `codebase-memory-mcp` binary, and the `bun`
 runtime).
 
 ## Pinned single-archive tools
@@ -13,9 +13,11 @@ Each entry in `dev_tools_pinned_tools` (`defaults/main.yml`) describes a tool
 released as a per-architecture archive: a name, a version, a download URL
 built from `url_prefix`/`asset_prefix`/the per-arch `target`, and a SHA-256
 checksum per architecture. `extension` selects the archive format when it is
-not `tar.gz`, and `binaries_in_asset_dir` says the archive unpacks into a
-directory named after the asset rather than laying its binaries out flat; both
-apply to `bun`, whose `.zip` carries `bun-linux-<target>/bun`. `tasks/install_pinned_tool.yml` is included once
+not `tar.gz`, and `bare_binary` says the asset is the binary itself, as
+`hadolint` publishes it. An archive lays its binaries out flat unless
+`binaries_in_asset_dir` says they sit in a directory named after the asset, as
+in `bun`'s `.zip`, or `binaries_dir` names the directory, as `shellcheck-{version}`
+does for `shellcheck`'s `.tar.xz`. `tasks/install_pinned_tool.yml` is included once
 per entry via `loop` and, for each one: verifies `system_arch` is covered,
 downloads and checksum-verifies the archive, extracts it to a scratch
 tempdir, and copies out the files named in `binaries` (defaulting to a
@@ -31,9 +33,8 @@ Add a new tool by adding an entry to `dev_tools_pinned_tools`; no task
 changes are needed unless the archive ships binaries under names that differ
 from what `binaries` (or the default of `name`) can express.
 
-Unlike the version-only pins in the other roles' `defaults/`, these carry a
-per-architecture checksum, so Renovate cannot move them — it would advance the
-version and leave the hash behind. They are maintained by hand; see
+Each entry's `version` carries a `# renovate:` comment, so Renovate bumps it,
+and its post-upgrade task recomputes the checksums in the same commit; see
 `docs/knowledge/data/features/renovate-maintains-checksums.md`.
 
 ### codebase-memory-mcp

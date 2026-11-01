@@ -9,6 +9,7 @@ sources:
 - resource: data/architecture/ai-review-event-selection.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/542
 - resource: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets
+stage: done
 ---
 
 # Bug: an AI re-review that comments leaves its own change request blocking merge
