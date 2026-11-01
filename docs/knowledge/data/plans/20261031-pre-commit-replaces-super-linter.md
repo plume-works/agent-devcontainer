@@ -291,9 +291,14 @@ path filter: pre-commit already skips hooks whose files did not change.
   runs the pre-commit hooks, and none names Super-Linter.
   - **Evidence:** commit `7c6e48b3`; `git grep -i super-linter` over the four
     files finds nothing.
-- [ ] `.ansible-lint.yml` drops the Super-Linter framing, and its `skip_list`
+- [x] `.ansible-lint.yml` drops the Super-Linter framing, and its `skip_list`
   keeps `syntax-check` only if `uv run ansible-lint` in the devcontainer image
   still cannot resolve the roles' collections.
+  - **Evidence:** commit `51fcbd5d`; `skip_list` never carried `syntax-check`,
+    and the Super-Linter workaround was `mock_modules`. In the image pinned by
+    #609, `uv run pre-commit run ansible-lint --all-files` passes without the
+    mocks, resolving `community.docker` 5.4.0 from the uv-locked `ansible`, so
+    the mocks are gone and `offline: true` stays.
 
 ### Task 11: Record the decision in the knowledge graph
 
