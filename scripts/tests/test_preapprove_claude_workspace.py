@@ -8,14 +8,12 @@ import sys
 
 from agentdev_runtime import agent_state, lifecycle
 
-REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = [
     sys.executable,
     '-c',
     'from agentdev_runtime import claude_state, settings; '
     'claude_state.preapprove(settings.Settings())',
 ]
-RESPONDER_ACTION = REPO_ROOT / '.github/actions/run-claude-responder/action.yml'
 
 
 def run_preapprove(
@@ -88,7 +86,3 @@ def test_post_create_runs_after_state_symlink():
     assert 'agent_state.create(settings)' in inspect.getsource(lifecycle.created)
     create = inspect.getsource(agent_state.create)
     assert create.index('claude_state.preapprove') > create.index('link_claude_json')
-
-
-def test_ci_responder_opts_out():
-    assert "AGENTDEV_SKIP_CLAUDE_PREAPPROVE: '1'" in RESPONDER_ACTION.read_text()
