@@ -83,6 +83,9 @@ collection](plans/20261013-docker-storage-gc.md)
 
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
+[Explore settles open questions one at a
+time](plans/20261101-explore-interviews-open-questions.md)
+
 [Expo profile for template
 adoption](plans/20261014-expo-eas-template-profile.md)
 
