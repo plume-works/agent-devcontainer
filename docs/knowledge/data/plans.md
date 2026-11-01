@@ -35,9 +35,6 @@ volume](plans/20261030-devcontainer-home-volume.md)
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
-[Bootstrap agentdev natively on macOS with
-Homebrew](plans/20261013-macos-native-bootstrap.md)
-
 [The AI responder posts as the plume-works-quill
 App](plans/20261030-responder-quill-app-identity.md)
 
@@ -47,6 +44,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done
+
+[Bootstrap agentdev natively on macOS with
+Homebrew](plans/20261013-macos-native-bootstrap.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
 

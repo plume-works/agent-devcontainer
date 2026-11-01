@@ -35,7 +35,8 @@ repository can delete the publisher source without inheriting its maintenance ru
 - Update `.agents/plugins/agentdev/` sources directly.
 - Every script under the agentdev plugin's `bin/` and `skills/*/agent-code/` is standard-library-only
   Python on `#!/usr/bin/env python3`, reaching `bin/` through `sys.path`; the `skill-scripts`
-  skill holds its output contract.
+  skill holds its output contract. The one exception is `bin/macos-bootstrap.zsh`, which
+  provisions that `python3` and so runs before it exists.
 - Never write a repository-relative catalog path inside the plugin. A skill references its
   own bundled code as `agent-code/<file>`, relative to the skill directory, and reaches a
   sibling skill by its namespaced invocation. `${CLAUDE_SKILL_DIR}` appears only in
