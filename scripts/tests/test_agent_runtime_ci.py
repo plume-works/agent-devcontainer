@@ -156,7 +156,7 @@ def test_promotion_waits_for_both_test_jobs_and_reuses_the_merged_digests():
     checkout = steps(promote)[0]
     assert checkout['uses'].startswith('actions/checkout@')
     assert checkout['with']['fetch-depth'] == 0
-    promoted = [s for s in steps(promote) if s.get('uses') == './.github/actions/docker/promote']
+    promoted = [s for s in steps(promote) if s.get('uses') == '$/.github/actions/docker/promote']
     image_names = [
         'ANSIBLE_IMAGE_NAME',
         'BASE_IMAGE_NAME',

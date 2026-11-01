@@ -48,7 +48,7 @@ jobs:
           persist-credentials: false
 
       - name: Filters
-        uses: ./.github/actions/paths-filter
+        uses: $/.github/actions/paths-filter
         id: filter
         with:
           event-name: ${{ inputs.caller_event_name }}
@@ -61,7 +61,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -141,7 +141,7 @@ jobs:
 
       - name: Build ubuntu ansible image
         id: build_ubuntu_ansible
-        uses: ./.github/actions/docker/build-push-action
+        uses: $/.github/actions/docker/build-push-action
         with:
           context: docker/ansible
           file: docker/ansible/Dockerfile
@@ -158,7 +158,7 @@ jobs:
       # ansible/ and docker/bin/gh.
       - name: Build agentdev base image
         id: build
-        uses: ./.github/actions/docker/build-push-action
+        uses: $/.github/actions/docker/build-push-action
         with:
           context: .
           file: docker/base/agentdev-base.Dockerfile
@@ -174,7 +174,7 @@ jobs:
       # Both runtimes are siblings layered on exactly the base digest this job just
       # built, never on each other; see spec/agentdev-runtime-images.
       - name: Build agentdev deploy image
-        uses: ./.github/actions/docker/build-push-action
+        uses: $/.github/actions/docker/build-push-action
         with:
           context: .
           file: docker/deploy/agentdev-deploy.Dockerfile
@@ -187,7 +187,7 @@ jobs:
             FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
 
       - name: Build agentdev devcontainer image
-        uses: ./.github/actions/docker/build-push-action
+        uses: $/.github/actions/docker/build-push-action
         with:
           context: .
           file: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -201,7 +201,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -221,14 +221,10 @@ jobs:
       deploy_digest: ${{ steps.merge_deploy.outputs.digest }}
       devcontainer_digest: ${{ steps.merge_devcontainer.outputs.digest }}
     steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
       # Candidate tags only; promote-dev-image moves the public tags after the tests.
       - name: Merge and push ubuntu ansible image
         id: merge_ansible
-        uses: ./.github/actions/docker/multiarch-merge
+        uses: $/.github/actions/docker/multiarch-merge
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
           registry: ${{ env.REGISTRY }}
@@ -237,7 +233,7 @@ jobs:
 
       - name: Merge and push agentdev base image
         id: merge
-        uses: ./.github/actions/docker/multiarch-merge
+        uses: $/.github/actions/docker/multiarch-merge
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}
           registry: ${{ env.REGISTRY }}
@@ -246,7 +242,7 @@ jobs:
 
       - name: Merge and push agentdev deploy image
         id: merge_deploy
-        uses: ./.github/actions/docker/multiarch-merge
+        uses: $/.github/actions/docker/multiarch-merge
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEPLOY_IMAGE_NAME }}
           registry: ${{ env.REGISTRY }}
@@ -255,7 +251,7 @@ jobs:
 
       - name: Merge and push agentdev devcontainer image
         id: merge_devcontainer
-        uses: ./.github/actions/docker/multiarch-merge
+        uses: $/.github/actions/docker/multiarch-merge
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEVCONTAINER_IMAGE_NAME }}
           registry: ${{ env.REGISTRY }}
@@ -264,7 +260,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -363,7 +359,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -389,7 +385,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.REGISTRY_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: ./.github/actions/setup-python-venv
+      - uses: $/.github/actions/setup-python-venv
 
       # Root, because the fixtures hand checkouts to the runtime's UIDs.
       - name: Run container acceptance on the native architecture
@@ -401,7 +397,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -427,7 +423,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ env.REGISTRY_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: ./.github/actions/setup-python-venv
+      - uses: $/.github/actions/setup-python-venv
       - uses: oven-sh/setup-bun@v2.2.0
 
       # Its own step, so the pull's duration shows apart from the fixtures.
@@ -448,7 +444,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -472,7 +468,7 @@ jobs:
           fetch-depth: 0
 
       - name: Promote ubuntu ansible image
-        uses: ./.github/actions/docker/promote
+        uses: $/.github/actions/docker/promote
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
           digest: ${{ needs.merge-dev-image.outputs.ansible_digest }}
@@ -481,7 +477,7 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Promote agentdev base image
-        uses: ./.github/actions/docker/promote
+        uses: $/.github/actions/docker/promote
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}
           digest: ${{ needs.merge-dev-image.outputs.base_digest }}
@@ -490,7 +486,7 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Promote agentdev deploy image
-        uses: ./.github/actions/docker/promote
+        uses: $/.github/actions/docker/promote
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEPLOY_IMAGE_NAME }}
           digest: ${{ needs.merge-dev-image.outputs.deploy_digest }}
@@ -499,7 +495,7 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Promote agentdev devcontainer image
-        uses: ./.github/actions/docker/promote
+        uses: $/.github/actions/docker/promote
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEVCONTAINER_IMAGE_NAME }}
           digest: ${{ needs.merge-dev-image.outputs.devcontainer_digest }}
@@ -509,7 +505,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 

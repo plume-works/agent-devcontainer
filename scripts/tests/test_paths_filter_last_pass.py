@@ -100,7 +100,7 @@ def _jobs_using_filter(workflow: dict) -> list[str]:
         name
         for name, job in workflow['jobs'].items()
         if any(
-            step.get('uses') == './.github/actions/paths-filter' for step in job.get('steps', [])
+            step.get('uses') == '$/.github/actions/paths-filter' for step in job.get('steps', [])
         )
     ]
 
