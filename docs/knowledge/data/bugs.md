@@ -140,9 +140,6 @@ Container](bugs/cbm-cache-under-foreign-owned-checkout.md)
 [Bug: CBM pin staging races under
 pytest-xdist](bugs/cbm-pin-staging-races-under-xdist.md)
 
-[Bug: worktrees in one devcontainer share the uv
-environment](bugs/shared-uv-environment-across-worktrees.md)
-
 [Bug: opencode-web real-tmux tests share one tmux server under
 pytest-xdist](bugs/opencode-web-tmux-shared-under-xdist.md)
 
