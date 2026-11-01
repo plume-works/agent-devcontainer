@@ -37,8 +37,9 @@ data/              # the graph
 **Hub + directory; membership is a link.** Each entity type pairs a hub file
 (`data/plans.md`) with a directory (`data/plans/`). What makes a document a plan
 is the inclusion link from the hub, not its path — the directory is storage, the
-graph is truth. This keeps categorization refactorable (move a link, not a file)
-and makes every hub a queryable index.
+graph is truth. A hub is one flat list sorted by member key, with no sections,
+so it changes only when a member is created, removed, or renamed — two pull
+requests conflict on a hub only when their new members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, and backlog tasks
 are *work items*: a lifecycle `stage`, dates, a commit gate
@@ -48,21 +49,23 @@ are *work items*: a lifecycle `stage`, dates, a commit gate
 where it pays. Every document is validated — OKF conformance requires a `type`
 everywhere — but only work items are asked for more than that.
 
-**Dual representation.** A work item's stage lives in frontmatter (for queries)
-and as its link's position in the hub (for reading). The rule that makes this
-survivable: change both together, and no item is ever delisted — `## Done` and
-`## Cancelled` are history, not a trash can.
+**Frontmatter is the only record of state.** A work item's `stage`, `priority`,
+`completed`, and `rank` live in its own document, so a stage change edits one
+file that only its own pull request touches. The build order is a query over
+`rank`, not a file. No item is ever delisted from its hub — done and cancelled
+work is history, not a trash can.
 
-**Minimal frontmatter; relationships are links.** Five stage vocabularies and
-three date fields — that's the entire frontmatter surface. Everything relational
-(plan → spec, bug → requirement, release → feature, plan → plan dependency) is a
-markdown link in the body, which keeps relationships visible while reading and
-traversable via `iwe find --references`.
+**Minimal frontmatter; relationships are links.** Five stage vocabularies, three
+date fields, and one `rank` — that's the entire frontmatter surface. Everything
+relational (plan → spec, bug → requirement, release → feature, plan → plan
+dependency) is a markdown link in the body, which keeps relationships visible
+while reading and traversable via `iwe find --references`.
 
 **The funnel.** Ideas harden stepwise: `someday/` (no commitment) → `backlog/`
 (prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → feature
-`implemented` → `releases/unreleased` → a cut release. Each promotion is just a
-new doc plus a moved link.
+`implemented` → a cut release. Each promotion is a new doc or a frontmatter
+change; the release cut builds the release page from the plans completed since
+the previous one.
 
 **Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`)
 and says what they should end up saying; the ship skill updates those specs
@@ -82,8 +85,9 @@ a reviewable contract before implementation, bought without a second document
 lifecycle.
 
 **Milestones are plans of plans.** An aggregator plan inclusion-links its child
-plans and sequences them; `milestone.md` links the aggregators. No special
-milestone machinery — the graph already does it.
+plans as one flat list; their `rank` sets the build order, and dependencies stay
+in prose. `milestone.md` links the aggregators. No special milestone machinery —
+the graph already does it.
 
 **Code anchors are dated.** `path:line — symbol` lists under
 `## Key references`, stamped `Verified anchor points (line numbers as of ...)`.

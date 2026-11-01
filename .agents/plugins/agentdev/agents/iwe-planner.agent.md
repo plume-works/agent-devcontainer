@@ -36,7 +36,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    `## Authoring rules`, which bind what you write. Check for related work:
    `iwe find --fuzzy <topic> -f keys`, the relevant `data/spec/` and
    `data/features/` docs, and whether an active plan already covers this
-   (`iwe find --included-by data/plans -f keys`). Choose:
+   (`iwe find --filter '{type: plan, stage: {$exists: false}}' -f keys`).
+   Choose:
    - **Create mode** for a topic with no matching active plan.
    - **Revise mode** when the user requests a change to an existing active
      plan. Read the complete plan and linked context before editing it.
@@ -124,12 +125,17 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    by the revision and report them; do not rewrite that implementation from
    this skill.
 
-5. **File a created plan.** In create mode, add an inclusion link under
-   `## Active` in `data/plans.md`. A plan whose work users see but that no
+5. **File a created plan.** In create mode, add an inclusion link at its
+   sorted position in `data/plans.md` — by slug without the date prefix; the
+   hub has no sections. When the user names where the plan belongs in the build
+   order, set `rank` to the midpoint of its neighbours' ranks in
+   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`, and
+   edit no other document's `rank`; otherwise leave it unsequenced. A plan
+   whose work users see but that no
    feature describes first hands the feature to `/agentdev:iwe-capture feature`
    and lists its key in `release`. Set every proposed feature the plan lists to
    `stage: accepted`. If it grew from a backlog task,
-   mark the task done and move its link. An issue it grew from is closed in
+   mark the task done with `completed: <today>` and remove its `rank`. An issue it grew from is closed in
    step 8, after validation — never before the plan is known to be sound. In revise mode, preserve the plan's
    existing graph membership and lifecycle unless the requested planning
    change explicitly requires another valid planning-state update.

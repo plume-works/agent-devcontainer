@@ -2,6 +2,7 @@
 type: plan
 description: 'Example active plan: building the streak widget.'
 created: 2026-07-20
+rank: 500
 release:
 - features/streak-widget.example
 generated:
@@ -65,8 +66,10 @@ sessions.
 
 - Weekly/monthly aggregates in the history view.
 
-*Convention notes: an active plan simply has no `stage` — it appears under
-`## Active` in the plans hub. `## Depends on` uses inline links (soft
-references), so the dependency is queryable via `iwe find --references` without
-making this plan a child of the other. A spec that doesn't exist yet is named in
-back-ticks, not linked — links must never dangle.*
+*Convention notes: an active plan simply has no `stage`, and its `rank` places
+it in the build order that
+`iwe find --filter '{rank: {$exists: true}}' --sort rank:1` lists.
+`## Depends on` uses inline links (soft references), so the dependency is
+queryable via `iwe find --references` without making this plan a child of the
+other. A spec that doesn't exist yet is named in back-ticks, not linked — links
+must never dangle.*

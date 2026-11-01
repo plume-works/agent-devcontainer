@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+rank: 1900
 ---
 
 # Re-verify incrementally from a saved report

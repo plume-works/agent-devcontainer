@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
+rank: 500
 ---
 
 # Build on an unshipped dependency, ship after it

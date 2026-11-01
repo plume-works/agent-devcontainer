@@ -56,8 +56,8 @@ reverse = false
 # Document-schema bindings. Each entry names a schema file in .iwe/schemas/<name>.yaml
 # and a key-glob that binds it. Bindings are BY PATH, not by frontmatter fields,
 # and are relative to [workspace].path above (docs/knowledge), not to the repo
-# root or to .iwe/ itself. The extension-less hub keys (docs/knowledge/data/plans, docs/knowledge/data/bugs,
-# ...) match none of these globs, so hub documents stay unvalidated by design.
+# root or to .iwe/ itself. The extension-less hub keys (data/plans, data/bugs,
+# ...) match none of the directory globs; [schemas.hub] binds them by name.
 # Run: iwe schema validate  (--explain shows the binding trace).
 
 [schemas.plan]
@@ -87,9 +87,7 @@ match = "data/concept/**"
 [schemas.someday]
 match = "data/someday/**"
 
-# Directory hubs. OKF conformance requires every non-reserved document under the
-# bundle to carry a type, so the hubs are typed and validated too — the earlier
-# "hubs stay unvalidated by design" exemption is deliberately retired.
+# Directory hubs are typed and validated like every other document.
 [schemas.hub]
 match = [
   "data/architecture",
@@ -104,13 +102,11 @@ match = [
 ]
 
 [schemas.tracker]
-match = ["data/product", "data/milestone", "data/template-adoption"]
+match = ["data/product", "data/milestone"]
 
-# OKF v0.2 conformance (SPEC §11). okf stacks on top of the per-type schemas and
-# catches any document arriving without a type; okf-index and okf-log check the
-# body shapes of the reserved files, which a frontmatter-only check cannot see.
-# The bundle root is data/, so these bind under data/ only. The reserved
-# index/log files are unbound via negated patterns.
+# OKF v0.2 conformance (SPEC §11), except the `status` field: `stage` records the
+# lifecycle (docs/knowledge/SCHEMA.md). okf stacks on the per-type schemas; the
+# reserved index and log files take body schemas of their own.
 [schemas.okf]
 match = ["data/**", "!data/index", "!data/**/index", "!data/log", "!data/**/log"]
 

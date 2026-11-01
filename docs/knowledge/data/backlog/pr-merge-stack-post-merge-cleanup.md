@@ -10,6 +10,7 @@ generated:
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
+rank: 2200
 ---
 
 # Clean up the local checkout after pr-merge-stack

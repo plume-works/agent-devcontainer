@@ -10,6 +10,10 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Added
 
+- **`rank`, one build order.** Active plans, open bugs, and planned tasks may
+  carry a positive integer `rank`; lower builds first, and
+  `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` lists the sequence
+  across all three types. Ship removes it.
 - `data/` is now a conformant [Open Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
   v0.2 bundle — portable knowledge any OKF consumer can read, not just iwe.
@@ -28,20 +32,18 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   derived from — a codebase map cites the code path it describes), `resource`,
   `stale_after` (set on codebase maps, which go stale when the code moves), and
   `tags`.
-- `data/log.md` — a date-grouped history of the workspace. The `ship` skill
-  appends to it on every release.
+- `data/log.md` — a date-grouped history of the workspace. The release cut
+  appends one dated group per release.
 - A GitHub Actions workflow that runs `iwe schema validate` and checks that
   `iwe normalize` is a no-op on every push and pull request.
-- Backlog tasks accept `stage: cancelled` (OKF `status: deprecated`); a dropped
-  task's link moves to `## Cancelled` in `data/backlog.md`.
+- Backlog tasks accept `stage: cancelled`.
 
 ### Changed
 
 - **`status` is now `stage`.** OKF reserves `status` for its lifecycle values
   (`draft | stable | deprecated`), so the workflow field moved to `stage` in all
-  schemas and every document. `status` is now set only where it carries signal —
-  the mapping is the table in `SCHEMA.md`, and the skills maintain both fields
-  together.
+  schemas and every document. OKF's `status` is optional and never set: `stage`
+  is the one lifecycle field, so a state change edits one field.
 - **Codebase maps use OKF's `verified`.** The date-valued `verified: 2026-07-25`
   became `verified: { by: <actor>, at: <ISO 8601> }`, which is what the field
   always meant — who last confirmed the doc against the code. `source` and
@@ -58,6 +60,16 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Removed
 
+- **`status`.** No document or schema carries OKF's optional `status`; `stage`
+  is the only lifecycle field. If you cloned an earlier copy, drop `status:`
+  from every document and schema.
+- **Hub sections and the unreleased page.** Hubs are one flat list of inclusion
+  links sorted by member key without a `YYYYMMDD-` prefix, and a work item's
+  state lives only in its frontmatter; Ship writes no hub, release page, or log
+  entry. The release cut builds `releases/<X.Y.Z>.md` from the plans completed
+  since the previous release. If you cloned an earlier copy, remove the `##`
+  sections from every hub and sort its links, and
+  `iwe delete data/releases/unreleased` once its entries are in a cut release.
 - **The codebase map.** The `data/codebase/` lane, its `codebase` schema, and
   the catalog's map skill are gone. If you cloned an earlier copy, delete
   `data/codebase/`, `data/codebase.md`, and `.iwe/schemas/codebase.yaml`, and

@@ -8,6 +8,7 @@ sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
 - resource: docs/knowledge/data/spec/catalog-lifecycle.md
+rank: 700
 ---
 
 # Bug: ~/.claude.json stops being the volume symlink

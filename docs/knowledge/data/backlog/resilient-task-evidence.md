@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
+rank: 1700
 ---
 
 # Make plan task evidence survive history rewrites

@@ -51,10 +51,9 @@ needed. In particular:
    - **Cancellation** only when the operation is `cancel`. Go to step 2.
    - **Normal shipping** records implemented work. Go to step 3.
 
-   Read the current plan frontmatter and its exact hub section, plus every
-   feature and bug its `release` field lists, every entry in `## Spec changes`,
-   `data/releases/unreleased.md`, and today's `data/log.md` group. Record which
-   intended results already exist. Do not assume a prior Ship invocation
+   Read the current plan frontmatter, plus the frontmatter of every feature and
+   bug its `release` field lists, and every entry in `## Spec changes`. Record
+   which intended results already exist. Do not assume a prior Ship invocation
    finished or failed atomically.
 
    For normal shipping, `release` must be `internal` or list only documents that
@@ -63,11 +62,11 @@ needed. In particular:
    with no mutation. Ship never chooses the release impact itself.
 
 2. **Cancel without shipping.** Do not verify implementation, synchronize
-   specs, mark a feature implemented or bug fixed, or add a release entry. If
-   needed, set the plan to `stage: cancelled` and move its one existing hub
-   link to `## Cancelled`; do not duplicate the link if either change already
-   happened. Run `iwe normalize` and `iwe schema validate`, commit the
-   cancellation, report it, and stop.
+   specs, or mark a feature implemented or bug fixed. If needed, set the plan to
+   `stage: cancelled` and remove its `rank`; skip either change that already
+   happened. Leave `data/plans.md` untouched: its link stays where it is. Run
+   `iwe normalize` and `iwe schema validate`, commit the cancellation, report
+   it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
    `/agentdev:iwe-verify` skill for the selected plan, forwarding every
    approval your prompt quotes, verbatim, and take its route for a
@@ -101,8 +100,9 @@ needed. In particular:
      thing worth keeping, and silently restating it from the implementation
      destroys the only record of what was agreed.
    - If the spec does not exist, create it in Requirement / Scenario format,
-     add one inclusion link to `data/spec.md`, and replace the plan's
-     back-ticked name with a real link. Check for each result before adding it.
+     add one inclusion link to `data/spec.md` at its sorted position, and
+     replace the plan's back-ticked name with a real link. Check for each result
+     before adding it.
    - Retire a whole spec only when the plan explicitly requires retirement and
      Verify confirms the final represented behavior was removed. Use
      `iwe delete <key>` so references are repaired; never leave an empty or
@@ -120,45 +120,50 @@ needed. In particular:
    `iwe schema validate`. If any planned update is incomplete, disagrees with
    verified behavior, has broken references, or fails validation, return a Ship
    blocker report without marking the plan, feature, or bug complete.
-6. **Apply graph transitions idempotently.** Before each mutation, re-inspect
-   that document and hub or release section; skip a result that is already
-   correct and never add a second copy.
-   - Set the plan to `stage: done` with `completed: <today>`, then ensure its
-     single inclusion link is under `## Done` rather than `## Active`.
-   - Set each feature `release` lists to `stage: implemented` and each listed
-     bug to `stage: done`. Never create a feature or bug.
-   - Ensure `data/releases/unreleased.md` contains exactly one inclusion link
-     per listed document: a feature not in any earlier release goes under
-     `## Added`, a feature released in an earlier version that gained behavior
-     here goes under `## Changed`, and a bug goes under `## Fixed`. A plan that
-     declares `release: internal` adds no release entry. Release pages link
-     feature and bug docs, never plans, so a feature that keeps earning entries
-     across versions is linked once per version that changed it.
-   - Ensure today's `data/log.md` group contains exactly one state-change
-     bullet for each transition. Create the group only if absent and never
-     duplicate a matching prior bullet. For example:
-     <!-- validate_skills: ignore-cross-reference-start -->
-     `- **Update**: [Focus sessions](features/focus-sessions.md) implemented.`
-     <!-- validate_skills: ignore-cross-reference-end -->
+6. **Apply frontmatter transitions idempotently.** A work item's state lives
+   only in its own frontmatter. Before each mutation, re-inspect that document
+   and skip a result that is already correct.
+   - Set the plan to `stage: done` with `completed: <today>`, and remove its
+     `rank`.
+   - Set each feature `release` lists to `stage: implemented`, and each listed
+     bug to `stage: done` with its `rank` removed. Never create a feature or
+     bug.
+   - Write no hub, no release page, and no `data/log.md` entry: the plan's
+     `release` list and `completed` date are what the next release cut reads.
 7. **Validate, commit, and report.** Run `iwe normalize`, then
-   `iwe schema validate` — both must pass. Re-inspect the final plan, hub,
-   feature or bug, unreleased page, log, and all planned specs before
-   committing. Report which valid results were preserved from an earlier
+   `iwe schema validate` — both must pass. Re-inspect the final plan, each
+   feature or bug, and all planned specs before committing. Report which valid results were preserved from an earlier
    attempt and which operations this invocation completed. If the plan's
    milestone aggregator lists it, check whether it was the last child and say
    when the milestone is complete.
-8. **Cut a release only when the operation is `release <X.Y.Z>`.** Inspect
-   `data/releases.md`, the current unreleased page, and any page for the
-   requested version before every mutation. Refuse a conflicting existing
-   version; otherwise preserve each already-correct result and perform only
-   the missing operations:
-   - `iwe rename data/releases/unreleased data/releases/<X.Y.Z>`
-   - `iwe update -k data/releases/<X.Y.Z> --set version=<X.Y.Z> --set date=<today> --set stage=released`
-   - Recreate `data/releases/unreleased.md` with version/stage `unreleased` and
-     empty `## Added` / `## Changed` / `## Fixed` sections.
-   - Keep one `Unreleased` link on top of `data/releases.md` and one new-version
-     link immediately below it, newest first.
-   - Add one linked release-cut bullet to today's log group.
+8. **Cut a release only when the operation is `release <X.Y.Z>`.** The cut is
+   the only writer of release pages and the log. Inspect `data/releases.md`,
+   every release page, any page for the requested version, and `data/log.md`
+   before every mutation. Refuse a conflicting existing version; otherwise
+   preserve each already-correct result and perform only the missing
+   operations:
+   - Take the previous release's `date` — the latest among the pages at
+     `stage: released` other than `<X.Y.Z>` — and list the plans completed
+     since:
+     `iwe find --filter '{type: plan, stage: done, completed: {$gt: <previous release date>}}' -f keys`.
+     A plan completed on the previous release's date shipped in that release.
+   - Collect every key those plans' `release` lists name, once each; `internal`
+     contributes nothing. Release pages link feature and bug docs, never plans.
+   - Create `data/releases/<X.Y.Z>.md` with `type: release`,
+     `version: <X.Y.Z>`, `stage: released`, and `date: <today>`, and one
+     inclusion link per collected document: a feature that no earlier release
+     page links under `## Added`, a feature an earlier release page links under
+     `## Changed`, and a bug under `## Fixed`. Omit an empty section. A page
+     that already exists keeps its links; add only the missing ones.
+   - Ensure `data/releases.md` holds exactly one link to the page, at its
+     sorted position by version key.
+   - Ensure `data/log.md` holds exactly one `## <today>` group for the cut,
+     newest first, whose bullets name the release page and each linked
+     document. For example:
+     <!-- validate_skills: ignore-cross-reference-start -->
+     `- **Release**: [1.1.0](releases/1.1.0.md) — [Focus sessions](features/focus-sessions.md) added.`
+     <!-- validate_skills: ignore-cross-reference-end -->
+     When today's group already exists, add only the bullets it lacks.
 
    Run `iwe normalize` and `iwe schema validate`, re-inspect the release graph,
    and commit with a message describing the release cut.
@@ -202,8 +207,9 @@ evidence. It names the plan and, for each blocker, the route that answers it:
   they don't, the plan goes back for revision — Ship never edits the intent to
   match the code, and never presents its merge as a deterministic application
   of the delta.
-- Inspect before every mutation so rerunning Ship cannot duplicate plan-hub,
-  feature/bug, unreleased, release-hub, or log entries.
+- Ship and cancel write frontmatter only — never a hub, a release page, or the
+  log. Inspect before every mutation so rerunning a release cut cannot
+  duplicate a release link, a release-page entry, or a log group.
 - Never invent verification results or mark durable state complete after a
   mismatch or validation failure.
 - Never wait for a reply: a decision you were not given ends the run with a

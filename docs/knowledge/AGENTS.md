@@ -17,9 +17,11 @@ software project's memory and system of record. The division of labor:
    run the setup flow (`/agentdev:iwe-setup`) before anything else — planning
    without product context is guessing. Note `## Constraints` and
    `## Authoring rules`: they bind everything you write.
-2. Check the state of work: active plans under `## Active` in `data/plans.md`,
-   and high-priority tasks —
-   `iwe find --filter '{stage: planned, priority: high}' --included-by data/backlog -f keys`.
+2. Check the state of work: the build order —
+   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys` — lists
+   active plans, open bugs, and planned tasks together, lowest `rank` first.
+   Work not yet sequenced is the second query:
+   `iwe find --filter '{rank: {$exists: false}, stage: {$nin: [done, cancelled]}, type: {$in: [plan, bug, task]}}' -f keys`.
 
 ## The operating loop
 
@@ -37,20 +39,20 @@ software project's memory and system of record. The division of labor:
      `data/someday.md`. An idea that gets real is promoted with
      `/agentdev:iwe-capture task --from someday/<slug>`.
    - Actionable item → `/agentdev:iwe-capture task`: `data/backlog/<slug>.md`
-     (`stage: planned`, priority), linked under the priority section of
-     `data/backlog.md`.
+     (`stage: planned`, priority), linked from `data/backlog.md`.
    - Proposed feature → `/agentdev:iwe-capture feature`:
      `data/features/<slug>.md` at `stage: proposed`, linked from
      `data/features.md`.
    - Work starts → plan skill: `data/plans/YYYYMMDD-<slug>.md` (`created`,
      verified code anchors, and `## Spec changes` in the form the risk calls
-     for), plus a link under `## Active`.
+     for), plus a link in `data/plans.md`, and a `rank` when its place in the
+     build order is known.
    - Work ships → verify skill green (tasks, requirements, and scenarios checked
      against the code), then ship skill: specs synced first, then `stage: done`
-     with `completed`, link moved to `## Done`, feature doc `implemented`,
-     inclusion link in `data/releases/unreleased.md`.
-   - Plan abandoned → `stage: cancelled`, link moved to `## Cancelled` (it stays
-     listed — the record of why is worth keeping).
+     with `completed` and `rank` removed, feature doc `implemented`, bug
+     `stage: done`. No hub, release page, or log entry changes.
+   - Plan abandoned → `stage: cancelled` and `rank` removed (it stays listed —
+     the record of why is worth keeping).
    - Bug found → `/agentdev:iwe-capture bug`: `data/bugs/<slug>.md` (Symptom /
      Reproduction / Root cause / Fix / Key references, `path:line` anchors) +
      link from `data/bugs.md`. Fixed → `stage: done`.
@@ -60,18 +62,18 @@ software project's memory and system of record. The division of labor:
    - Design decision made → `data/architecture/<slug>.md`, including the
      rejected alternatives.
    - Vision insight → `data/concept/<slug>.md`.
-   - Task finished → `stage: done` + `completed` on the task doc, link moved to
-     `## Done` in `data/backlog.md`.
-   - Task dropped → `stage: cancelled` on the task doc, link moved to
-     `## Cancelled` in `data/backlog.md`.
-   - Release cut → ship skill's release mode (rename unreleased, stamp
-     version/date, fresh accumulator).
+   - Task finished → `stage: done` + `completed` on the task doc, `rank`
+     removed.
+   - Task dropped → `stage: cancelled` on the task doc, `rank` removed.
+   - Release cut → ship skill's release mode: it builds
+     `data/releases/<X.Y.Z>.md` from the plans completed since the previous
+     release and their `release` lists, links it from `data/releases.md`, and
+     adds one dated group to `data/log.md`. Nothing else writes either.
 5. **Stamp** — every document you create or meaningfully change gets
    `generated: { by: <producer>/<model-version>, at: <ISO 8601 now> }` (an actor
    as `SCHEMA.md` defines it), a one-sentence `description` if it has none, and
    — when you derived it from code or an external page — a `sources` entry
-   naming that path or URL. Whenever you set `stage`, derive OKF `status` from
-   the table in `SCHEMA.md` and set or clear it in the same edit.
+   naming that path or URL.
 6. **Validate & commit** — `iwe normalize`, then `iwe schema validate` must
    pass; commit with a short message describing the state change.
 
@@ -79,23 +81,30 @@ software project's memory and system of record. The division of labor:
 
 - **Inclusion link** = a markdown link on its own line — it makes the target a
   child in the graph. Hubs (`data/plans.md`, `data/features.md`, …)
-  inclusion-link their members; that link, not the directory, is what makes a
-  document a plan or a feature. Inline links (inside sentences/list items) are
+  inclusion-link their members. Inline links (inside sentences/list items) are
   soft references for cross-cutting relationships.
 - **`data/index.md` lists hubs, not documents.** Adding a document to an
   existing hub never touches it — the hub's own inclusion links are what change.
-  Update `data/index.md` only when you add or remove a *hub* itself, which also
-  means adding a `[schemas.*]` binding in `.iwe/config.toml`; the hub set is
-  enumerated there and closed by design. Never put a plan task on
-  `data/index.md` for ordinary document work.
-- **Dual representation**: a work item's stage lives in frontmatter *and* as its
-  link's position in the hub (`## Active`/`## Done`/`## Cancelled` in plans,
-  `## High`/`## Done` in backlog). Change both together; every item stays listed
-  forever.
+  Update `data/index.md` only when you add or remove a *hub* itself. Never put a
+  plan task on `data/index.md` for ordinary document work.
+- **Hubs are flat sorted membership lists**: one inclusion link per member, no
+  `##` sections, sorted by the member's key with any `YYYYMMDD-` prefix removed.
+  Edit a hub only when a member is created, removed, or renamed — never to
+  record a stage or priority change. Every item stays listed forever. The hub
+  set is closed: adding a hub means adding it to `[schemas.hub]` in
+  `.iwe/config.toml`.
+- **Frontmatter is the only record of state.** `stage`, `priority`, `completed`,
+  and `rank` live in the item's own document; queries select documents by `type`
+  and these fields, not by hub membership.
+- **One build order, `rank`**: active plans, open bugs, and planned tasks share
+  an optional positive integer `rank`, lower first. Ranks step by 100 and an
+  insertion takes the midpoint of its neighbours; renumber only in a reorder
+  pull request. An item without `rank` is not yet sequenced. Ship removes it.
+  Equal ranks are valid, break by key, and CI warns about them.
 - **Stage vocabularies** (schema-enforced, human reference in `SCHEMA.md`):
   plans `done|cancelled` (absent = active, `done` requires `completed`);
   features `proposed|accepted|implemented|deprecated|cancelled`; bugs
-  `done|cancelled` (absent = open); releases `released|unreleased`; backlog
+  `done|cancelled` (absent = open); releases `released`; backlog
   `planned|done|cancelled`. Reference docs (spec/architecture/concept/someday)
   carry a `type` and no stage.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
@@ -107,6 +116,9 @@ software project's memory and system of record. The division of labor:
   of link bullets; `data/log.md` stays date-grouped bullets under
   `## YYYY-MM-DD`. `okf.yaml`, `okf-index.yaml`, and `okf-log.yaml` enforce all
   three — never work around them by unbinding a schema.
+- **The workspace diverges from OKF only to cut merge and upkeep cost.** It
+  never sets OKF's optional `status`: `stage` is the one lifecycle field, so a
+  state change edits one field in one file.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.
@@ -137,7 +149,7 @@ software project's memory and system of record. The division of labor:
   follows in a commit of its own. One edit ticks one box — a sweep across the
   file is the defect, not a shortcut. Unticked boxes stay bare.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
-  kebab slug; releases are `<semver>` plus `unreleased`. One topic per file.
+  kebab slug; releases are `<semver>`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less
   (`[Timer](spec/timer)`), relative to the containing file.
 - **Example docs**: files suffixed `.example.md` demonstrate each directory's
@@ -154,7 +166,8 @@ settled, not the path taken to settle it. Three places in `data/` are the
 exception, by design, and only these:
 
 - `data/bugs/` requires Reproduction and Root cause.
-- `data/log.md` is retrospective — one entry per shipped change, after the fact.
+- `data/log.md` is retrospective — one dated group per release cut, after the
+  fact.
 - A plan's `## Verification results` holds results of the `## Verification`
   checks and findings that change what the plan claims.
 
@@ -195,9 +208,10 @@ iwe retrieve -k data/spec/timer                                  # read a doc
 iwe retrieve -k data/plans --expand-includes 1                   # hub + children
 iwe find --fuzzy timer -f keys                                   # fuzzy title+key match
 iwe find --lexical "session log storage" -f keys                 # full-text ranking
-iwe find --included-by data/plans -f keys                        # all docs under a hub
+iwe find --filter '{type: plan}' -f keys                         # every plan
 iwe find --references data/spec/timer -f keys                    # backlinks
-iwe find --filter '{stage: done}' --included-by data/plans -f keys   # frontmatter query
+iwe find --filter '{type: plan, stage: done}' -f keys           # frontmatter query
+iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys   # the build order
 iwe tree -k data/plans -d 2                                      # subtree overview
 iwe new --key data/plans/20260801-my-plan                        # create at an explicit key
 iwe update -k data/features/foo --set stage=implemented         # set frontmatter
@@ -214,14 +228,14 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 
 ## Workspace skills
 
-| Skill                       | What it does                                                            |
-| --------------------------- | ----------------------------------------------------------------------- |
-| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product/architecture  |
-| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code      |
-| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, Active listing  |
-| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated   |
-| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries   |
-| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it           |
-| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code   |
-| `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release recording, release cut |
-| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health       |
+| Skill                       | What it does                                                           |
+| --------------------------- | ---------------------------------------------------------------------- |
+| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product/architecture |
+| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code     |
+| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, hub link, rank |
+| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated  |
+| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries  |
+| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it          |
+| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code  |
+| `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release cut                   |
+| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health      |
