@@ -255,8 +255,13 @@ path filter: pre-commit already skips hooks whose files did not change.
 `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] The two skills and the module are gone, and the plugin README lists
+- [x] The two skills and the module are gone, and the plugin README lists
   neither skill nor Super-Linter as a dependency.
+  - **Evidence:** commit `6b797004`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 65/65 skills valid with no errors. `semantic-refactor-audit`'s
+    description, which routed formatting to `local-reformat`, now names the
+    pre-commit hooks.
 - [ ] `pr-merge` has no Reformat Workflow Synchronization section or step,
   `pr-merge-stack` no reformat-commit case, and `update-branch` no mandatory
   reformat.
