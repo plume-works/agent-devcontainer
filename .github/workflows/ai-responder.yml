@@ -1,9 +1,7 @@
 name: AI Responder
 
 on:
-  # Runs main's copy and bridges PR mentions into a dispatch after a write-access
-  # check; see architecture/dispatched-review-identity.
-  issue_comment: # zizmor: ignore[dangerous-triggers]
+  issue_comment:
     types:
       - created
   pull_request_review_comment:
