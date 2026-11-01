@@ -187,8 +187,12 @@ path filter: pre-commit already skips hooks whose files did not change.
 
 **Files:** Modify: whatever `pre-commit run --all-files` rewrites
 
-- [ ] `uv run pre-commit run --all-files` passes, with its rewrites in their own
+- [x] `uv run pre-commit run --all-files` passes, with its rewrites in their own
   commit.
+  - **Evidence:** at commit `aa9a47b6`, `uv sync --locked` and
+    `uv run pre-commit run --all-files` in the image pinned by #609 pass every
+    hook (ruff 0.17.1, clang-format 23.1.3) and rewrite no file, so there is no
+    rewrite commit.
 
 ### Task 7: Run pre-commit in Primary checks
 
