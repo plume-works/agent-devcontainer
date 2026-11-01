@@ -1,13 +1,12 @@
 ---
 type: spec
-description: Every startup path submits a background CBM index request for the workspace instead of a blocking index, and CBM installation keeps its Codex hooks in hooks.json, recovering an orphaned hooks block in config.toml only when it is exactly CBM's own.
+description: Every startup path submits a background CBM index request for the workspace instead of a blocking index.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
+  at: 2026-11-01T03:25:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
-- resource: py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py
 ---
 
 # CBM startup integration
@@ -34,31 +33,3 @@ for the index. No startup path SHALL run a blocking index.
 
 - **WHEN** a startup request targets a workspace CBM is already indexing
 - **THEN** the request joins that job and startup continues.
-
-### Requirement: CBM's Codex hooks have one representation
-
-CBM installation SHALL keep its Codex hooks in `$CODEX_HOME/hooks.json`, created
-as an empty object when absent, so that `config.toml` holds no CBM hook tables.
-Before installing, it SHALL remove an orphaned CBM hooks block only when every
-claimed table is exactly CBM's own, preserving all other content, newline style,
-and file mode, and SHALL otherwise leave the file unchanged and fail naming the
-foreign table.
-
-#### Scenario: Codex wrote tables around a lone closing marker
-
-- **WHEN** `config.toml` holds CBM's exact hook tables and a closing marker with
-  no opener, among Codex's own tables
-- **THEN** installation removes that block, writes the hooks to `hooks.json`,
-  keeps every Codex table, and a second installation changes neither file.
-
-#### Scenario: the orphaned block was edited
-
-- **WHEN** a hook table inside an orphaned block differs from CBM's canonical
-  content
-- **THEN** installation leaves `config.toml` byte-identical and fails naming
-  that table.
-
-#### Scenario: Codex has not run yet
-
-- **WHEN** installation runs before any `$CODEX_HOME` exists
-- **THEN** CBM registers its Codex hooks in a new `hooks.json`.

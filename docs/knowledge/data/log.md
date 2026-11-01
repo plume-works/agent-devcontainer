@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-11-01
 
+- **Update**: [Claude Code and OpenCode are the only supported
+  harnesses](features/claude-and-opencode-only-harnesses.md) implemented;
+  [Remove Codex support](plans/20261031-remove-codex.md) plan done; specs synced
+  and the Devcontainer Codex policy spec retired.
 - **Update**: fixed [Bug: OpenCode's config is reordered on the first
   restart](bugs/opencode-config-reordered-on-restart.md).
 
@@ -736,8 +740,8 @@ to the current day's group.
   `bun`/`bunx` as the only JavaScript runners.
 - **Update**: [Configure devcontainer Codex for full
   access](plans/20261005-codex-full-access-config.md) done. Devcontainer Codex
-  runs with full access and no approval prompts, per the new [Devcontainer Codex
-  policy](spec/devcontainer-codex-policy.md) spec.
+  runs with full access and no approval prompts, per the new Devcontainer Codex
+  policy spec.
 
 ## 2026-10-08
 

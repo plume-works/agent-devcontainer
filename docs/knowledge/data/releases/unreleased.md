@@ -88,6 +88,9 @@ names](../features/remote-control-environment-names.md)
 
 [agentdev-runtime CLI](../features/agentdev-runtime-cli.md)
 
+[Claude Code and OpenCode are the only supported
+harnesses](../features/claude-and-opencode-only-harnesses.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)

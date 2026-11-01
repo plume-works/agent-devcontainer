@@ -33,8 +33,7 @@ its own sandbox and approval prompts.
 kept. `tomlkit` is declared inline in the script, so it runs in a consumer
 repository whatever its `pyproject.toml` holds.
 
-The contract is [Devcontainer Codex
-policy](../spec/devcontainer-codex-policy.md).
+The contract is Devcontainer Codex policy.
 
 ## Edge cases
 

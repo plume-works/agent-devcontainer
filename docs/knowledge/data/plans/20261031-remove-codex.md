@@ -6,7 +6,7 @@ release:
 description: Remove Codex from the images, the agentdev-runtime package, the agentdev catalog, CI, the e2e suites, and the knowledge graph, leaving Claude Code and OpenCode as the only supported harnesses.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:45:07Z
+  at: 2026-11-01T03:30:00Z
 sources:
 - resource: docs/knowledge/data/features/claude-and-opencode-only-harnesses.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -14,6 +14,8 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: scripts/e2e/iwe-workflows/harness_codex.py
+stage: done
+completed: 2026-11-01
 ---
 
 # Remove Codex support
@@ -370,7 +372,7 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 
 ## Spec changes
 
-### [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md)
+### Devcontainer Codex policy
 
 Every requirement is removed; Ship deletes the spec document with `iwe delete`.
 
