@@ -146,8 +146,8 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
   - **Evidence:** `b1bb5954`.
 - [x] `git grep -i codex -- .agents` prints only lines about the
   `chatgpt-codex-connector[bot]` GitHub actor.
-  - **Evidence:** `b1bb5954`; the grep prints only the two
-    `chatgpt-codex-connector[bot]` lines in `test_request_review.py`.
+  - **Evidence:** `b1bb5954`; the grep prints only the
+    `chatgpt-codex-connector[bot]` line in `test_request_review.py`.
 
 ### Task 5: Remove Codex from the agentdev-runtime package
 
@@ -459,7 +459,8 @@ volume, and no image content is folded into it.
 The attach lifecycle SHALL register this checkout's complete Claude and
 OpenCode catalog over the staged copy and SHALL leave the staged copy selected
 when the mounted repository does not contain a complete catalog. A complete
-catalog SHALL NOT require a Codex marketplace manifest.
+catalog SHALL consist of `.claude-plugin/marketplace.json` and the OpenCode
+bridge directory.
 
 #### Scenario: an agentdev developer reloads the editor
 
@@ -471,7 +472,7 @@ catalog SHALL NOT require a Codex marketplace manifest.
 - **WHEN** its repository has no complete agentdev catalog
 - **THEN** attach succeeds without changing the staged catalog registration.
 
-#### Scenario: a checkout without a Codex manifest
+#### Scenario: a checkout with only the Claude manifest and the OpenCode bridge
 
 - **WHEN** the checkout holds `.claude-plugin/marketplace.json` and the
   OpenCode bridge but no `.agents/plugins/marketplace.json`, and attach runs
@@ -714,7 +715,7 @@ report at any point that needs a user decision it was not given.
 ## Verification
 
 - `git grep -i codex -- ':!docs' ':!py_packages/validate_agent_files'` prints
-  only the `chatgpt-codex-connector[bot]` lines in
+  only the `chatgpt-codex-connector[bot]` line in
   `.agents/plugins/agentdev/tests/test_request_review.py`, the actor pattern in
   `.github/workflows/reformat.yml`, and the Task 10 upgrade note in `README.md`
   (`### Upgrading from an image with Codex`).
