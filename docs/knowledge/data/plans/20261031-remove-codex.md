@@ -350,8 +350,13 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 
 **Files:** none
 
-- [ ] The pull request's CI, including Super-Linter, `validate-agent-files`, and
+- [x] The pull request's CI, including Super-Linter, `validate-agent-files`, and
   the image builds, passes on its head commit.
+  - **Evidence:** Primary checks run 41253362079 on head `84a4b224` passes:
+    Super-Linter, the development and Dev Container image builds, and Deploy and
+    Dev Container runtime acceptance on amd64 and arm64; Agent files validation
+    run 41253362120 and Knowledge base validation run 41253362066 pass.
+    `ai-review-present` waits on the AI review, which is not CI.
 
 ## Spec changes
 
