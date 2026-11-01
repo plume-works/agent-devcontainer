@@ -1,5 +1,13 @@
 rules:
+  # Not an inline comment: editing the trigger line re-raises CodeQL's TOCTOU
+  # alerts on the PR. Safety: architecture/dispatched-review-identity.
+  dangerous-triggers:
+    ignore:
+      - ai-responder.yml:4
   unpinned-uses:
     disable: true
   known-vulnerable-actions:
+    disable: true
+  # actionlint rejects `$/` uses; see someday/self-repository-uses.
+  self-repository:
     disable: true
