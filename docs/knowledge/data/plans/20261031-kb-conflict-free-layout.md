@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-01
 created: 2026-10-31
 release:
 - features/agentdev-iwe-workflow-skills
@@ -15,7 +17,6 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/assets
 - resource: docs/knowledge/AGENTS.md
-rank: 400
 ---
 
 # Conflict-free knowledge layout
