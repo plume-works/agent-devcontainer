@@ -318,7 +318,10 @@ only where it asserts the old layout
 
 ### Task 12: The e2e workflow suite passes
 
-- [ ] The Claude and OpenCode e2e workflow suites pass against this branch
+- [x] The Claude and OpenCode e2e workflow suites pass against this branch
+  - **Evidence:** commit faf2c7e0; `E2E_RUN_LIVE=1 uv run pytest -n 3` passed
+    `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py` (21 tests) and
+    `test_iwe_workflows_opencode.py` (21 tests)
 
 ### Task 13: CI passes on the pull request
 
