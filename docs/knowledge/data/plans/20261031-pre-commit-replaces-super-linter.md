@@ -211,12 +211,17 @@ path filter: pre-commit already skips hooks whose files did not change.
     `uv run pytest scripts/tests/test_pre_commit_ci_range.py` passes 12: each
     event, every tool-version owner, an owner changed only on the base side, and
     an unsupported event.
-- [ ] Primary checks has a `pre-commit` job in the compose-pin image with
+- [x] Primary checks has a `pre-commit` job in the compose-pin image with
   checkout (`fetch-depth: 0`), the range step, `uv sync --locked`,
   `pre-commit install-hooks`, and `pre-commit run` as separate steps,
   `SKIP=no-commit-to-branch`; `ci` needs it; the `reformat` job is gone.
   `test_pre_commit_ci_job.py` asserts the image equals the compose pin, the step
   order, and the `needs:` edge.
+  - **Evidence:** commit `85ff84d5`;
+    `uv run pytest scripts/tests/test_pre_commit_ci_job.py scripts/tests/test_paths_filter_last_pass.py`
+    passes 21, `actionlint` and `zizmor` report nothing, and the job's steps run
+    in the pinned image for a pull-request event from `b04c9524` to `85ff84d5`
+    pass every hook.
 
 ### Task 8: Remove Super-Linter from the publisher
 
