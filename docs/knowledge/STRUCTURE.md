@@ -85,8 +85,9 @@ a reviewable contract before implementation, bought without a second document
 lifecycle.
 
 **Milestones are plans of plans.** An aggregator plan inclusion-links its child
-plans and sequences them; `milestone.md` links the aggregators. No special
-milestone machinery — the graph already does it.
+plans as one flat list; their `rank` sets the build order, and dependencies stay
+in prose. `milestone.md` links the aggregators. No special milestone machinery —
+the graph already does it.
 
 **Code anchors are dated.** `path:line — symbol` lists under
 `## Key references`, stamped `Verified anchor points (line numbers as of ...)`.
