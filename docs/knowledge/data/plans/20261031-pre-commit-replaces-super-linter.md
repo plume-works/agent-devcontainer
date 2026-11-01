@@ -328,10 +328,13 @@ path filter: pre-commit skips hooks whose files did not change, except
     except the rejected alternative in `formatter-ownership` and the dated
     `product.md` Changelog. `someday/host-filesystem-dedup` needed no edit: its
     "reformat" is about a disk.
-- [ ] `features/pre-commit-owns-formatting` names [pre-commit is the CI
+- [x] `features/pre-commit-owns-formatting` names [pre-commit is the CI
   gate](../features/pre-commit-ci-gate.md) as the CI gate instead of
   Super-Linter, and `backlog/parallel-ci-with-pre-commit` cites no deleted file
   and no longer reads as blocked on this plan.
+  - **Evidence:** commit `6f9001dc`;
+    `git grep -i -E 'super-?linter|reformat\.yml|local-reformat'` over both
+    documents finds nothing, and `iwe schema validate` passes.
 
 ### Task 12: Green pre-commit job on the pull request
 
