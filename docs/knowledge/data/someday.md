@@ -43,3 +43,5 @@ review](someday/revision-evaluator-calibration.md)
 
 [Consolidate agentdev code into one module
 tree](someday/agentdev-single-module-tree.md)
+
+[Replace actionlint and zizmor with jactionlint](someday/jactionlint.md)
