@@ -279,8 +279,11 @@ path filter: pre-commit skips hooks whose files did not change, except
     skill finds nothing, and the guide's "Primary checks and pre-commit" section
     keeps the job and `scripts/pre-commit-ci-range.py` and has the consumer
     adapt `TOOL_VERSION_OWNERS`.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   and `uv run pytest .agents/plugins/agentdev/tests` pass.
+  - **Evidence:** at commit `9a524555`, after merging Remove Codex (#602), the
+    validator reports 64/64 skills valid with no errors or warnings, and
+    `uv run pytest .agents/plugins/agentdev/tests` passes 400.
 
 ### Task 10: Reword the repository's own guidance and configs
 
