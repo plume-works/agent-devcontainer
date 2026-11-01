@@ -6,22 +6,21 @@ priority: low
 description: Decide from the pre-commit job's recorded step timings whether Primary checks should start the ci job in parallel with the pre-commit job instead of after it, and drop the needs gate if so.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T12:00:00Z
+  at: 2026-11-01T05:09:35Z
 sources:
 - resource: .github/workflows/primary-checks.yml
-- resource: .github/workflows/reformat.yml
+- resource: scripts/tests/test_pre_commit_ci_job.py
 ---
 
 # Run Primary checks' ci job in parallel with the pre-commit job
 
-Once Super-Linter and `reformat.yml` are replaced by a CI pre-commit job running
-in the digest-pinned `agentdev-devcontainer` image, `ci` keeps waiting on that
-job through `needs:`, matching the current `reformat → ci` order.
+Primary checks' `ci` job waits on the `pre-commit` job, which runs the hooks in
+the digest-pinned `agentdev-devcontainer` image, through `needs:`.
 
-The original reason for the serial order — a formatter commit pushed to the head
-supersedes the run — is gone once the CI job only checks and never pushes. What
-waiting still buys is image-build runner time saved when lint fails; what it
-costs is the pre-commit job's full duration added to every PR's wall clock.
+The `pre-commit` job only checks and never pushes, so no formatter commit can
+supersede the run while `ci` builds. What waiting still buys is image-build
+runner time saved when lint fails; what it costs is the pre-commit job's full
+duration added to every PR's wall clock.
 
 ## Work
 
@@ -35,5 +34,6 @@ costs is the pre-commit job's full duration added to every PR's wall clock.
 
 ## Dependencies
 
-Blocked on the plan that removes Super-Linter and introduces the CI pre-commit
-job: it supplies the job and the timing data this decision needs.
+None open: the `pre-commit` job records each step's duration in the jobs API,
+and `test_pre_commit_ci_job.py` asserts the `needs:` edge a change here would
+drop.
