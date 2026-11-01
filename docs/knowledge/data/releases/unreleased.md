@@ -93,6 +93,8 @@ harnesses](../features/claude-and-opencode-only-harnesses.md)
 
 [Native macOS bootstrap](../features/macos-native-bootstrap.md)
 
+[pre-commit is the CI gate](../features/pre-commit-ci-gate.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)

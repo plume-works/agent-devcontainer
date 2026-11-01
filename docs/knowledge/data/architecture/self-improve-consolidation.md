@@ -3,7 +3,7 @@ type: architecture
 description: Why the self-improvement plugin lives in this repository as a second catalog plugin, and the constraints that placement creates.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:59:19Z
+  at: 2026-11-01T04:32:17Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement, merged at e94031a
@@ -32,9 +32,8 @@ into them, so the two designs converge on the same problem.
 Rejected alternatives:
 
 - **Two repositories, the loop consuming the catalog.** The original
-  arrangement. It duplicates the lint, CI, lockfile, and Super-Linter pin
-  surfaces, and the cost of keeping one such surface aligned is already high
-  enough here to warrant the `sync-super-linter-tool-versions` skill.
+  arrangement. It duplicates the lint, CI, lockfile, and tool-version surfaces,
+  each of which then has to be kept aligned across two repositories.
 - **Vendoring the loop as an unowned subtree.** Keeps the file layout but not
   the point: the loop is developed here, not merely carried.
 

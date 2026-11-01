@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: pre-commit is the lint and format gate in CI as well as locally, with every hook running a uv-locked or image-provisioned tool, and Super-Linter is removed from the repository.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T12:30:00Z
+  at: 2026-11-01T06:44:52Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/workflows/primary-checks.yml

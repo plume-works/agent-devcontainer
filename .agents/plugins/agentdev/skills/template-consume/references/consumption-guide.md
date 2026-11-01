@@ -83,17 +83,16 @@ Delete these paths from the copied repository:
 .agents/
 .claude-plugin/
 py_packages/
-scripts/validate-super-linter-tool-versions.py
 docs/knowledge/tests/test_iwe_seed.py
 ```
 
 `.iwe/` and the rest of `docs/knowledge/` are handled in [Optional
 knowledge-base setup](#optional-knowledge-base-setup), not here.
 
-`scripts/` holds nothing else, so it disappears with its one file; delete the
-empty directory rather than leaving it behind. The same applies to the
-`py_packages/` wrapper and its standalone `LICENSE` once `validate_agent_files`
-is gone.
+Keep `scripts/pre-commit-ci-range.py`: the `pre-commit` job in Primary checks
+runs it (see [Primary checks and pre-commit](#primary-checks-and-pre-commit)).
+Delete the empty `py_packages/` wrapper and its standalone `LICENSE` once
+`validate_agent_files` is gone.
 
 The catalog is not lost: the published image stages it at `/opt/agentdev`, and
 the retained post-create scripts install it through the Claude plugin CLI and
@@ -265,38 +264,25 @@ The IWE workflow skills are delivered by the installed `agentdev` catalog as
 
 The `.github/` tree is a starting point, not a copy-and-run contract.
 
-#### Primary checks and reformatting
+#### Primary checks and pre-commit
 
-In `.github/workflows/primary-checks.yml`, keep the reformat call and remove
-the `ci` job unless the optional image bundle is retained. That job is the
-only consumer of the `clean_build` `workflow_dispatch` input, so remove the
-input with it.
+In `.github/workflows/primary-checks.yml`, keep the `pre-commit` job: it is the
+lint gate, running the repository's pre-commit hooks in the same digest-pinned
+`agentdev-devcontainer` image as `devcontainer-compose-pins.yml`. Remove the
+`ci` job unless the optional image bundle is retained. That job is the only
+consumer of the `clean_build` `workflow_dispatch` input, so remove the input
+with it.
+
+`scripts/pre-commit-ci-range.py` picks the files the job checks. Adapt its
+`TOOL_VERSION_OWNERS` to the files that pin the consuming project's hook tools:
+a change to any of them makes the job check every file. Drop
+`ansible/roles/dev_tools/defaults/main.yml` when the optional bundle is gone.
 
 In `.github/actions/paths-filter/action.yml`, the built-in filter is named
 `image` and lists the publisher's build inputs. Delete the `ansible/**`,
 `docker/**`, `scripts/**`, `.agents/plugins/**`, `.claude-plugin/**`, and
 `py_packages/validate_agent_files/**` entries; keep `.devcontainer/**` and
 `.github/actions/**` so the retained workflows still trigger.
-
-In `.github/workflows/reformat.yml`:
-
-1. remove catalog, validator-source, Ansible, and excluded tool-version paths
-   that no longer exist;
-2. remove the `scripts/validate-super-linter-tool-versions.py` step;
-3. replace the two `./.agents/plugins/agentdev/bin/super_linter.py env` calls;
-   and
-4. update formatter path filters for the consuming project.
-
-Step 3 is the only one with real work in it. Both steps write the Super-Linter
-environment into `$GITHUB_ENV`, and the helper is nothing but a sequence of
-`NAME=value` lines — one set for the autofix pass, one for the check pass,
-differing in the `FIX_*` values and in four `VALIDATE_*` flags for linters that
-cannot autofix. Inline those two blocks into the workflow as heredocs and drop
-`VALIDATE_ANSIBLE` and `ANSIBLE_DIRECTORY` if the optional bundle is gone.
-Nothing else in the workflow depends on the catalog.
-
-The template's workflow references publisher files under `.agents/` and
-`scripts/`; it will fail if copied and pruned without these edits.
 
 #### Agent-file validation
 
@@ -482,10 +468,8 @@ Retain `.github/renovate.json`, but review every rule:
 1. keep Docker dependency management for `devcontainer-compose-pins.yml` so
    the development image does not become stale;
 2. remove the image-publisher self-build/automerge explanation when the
-   project consumes rather than publishes the image;
-3. remove the publisher-only Super-Linter synchronization rule if its
-   excluded script and release process are not retained; and
-4. update organization, repository, and branch assumptions.
+   project consumes rather than publishes the image; and
+3. update organization, repository, and branch assumptions.
 
 The catalog needs no Renovate rule of its own: the devcontainer reinstalls
 the bundled catalog on start, so its version follows the image pin rather

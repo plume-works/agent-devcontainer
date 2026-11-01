@@ -18,6 +18,9 @@ write a plan and link the plan instead.*
 
 ## Medium
 
+[Let iwe-implement open its pull request without
+asking](backlog/implement-opens-pr.md)
+
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 

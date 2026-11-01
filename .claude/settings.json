@@ -35,7 +35,6 @@
       "Bash(python3 -c *)",
       "Bash(python3 -m pytest *)",
       "Bash(python_lint_check.py *)",
-      "Bash(super_linter.py local *)",
       "Bash(pre-commit run *)",
       "mcp__gateway__*",
       "mcp__github__*"
