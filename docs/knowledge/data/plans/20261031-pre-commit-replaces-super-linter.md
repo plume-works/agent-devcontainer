@@ -314,10 +314,15 @@ path filter: pre-commit already skips hooks whose files did not change.
 `docs/knowledge/data/someday/host-filesystem-dedup.md`,
 `docs/knowledge/data/product.md`
 
-- [ ] `architecture/formatter-ownership` records the per-tool version owners,
+- [x] `architecture/formatter-ownership` records the per-tool version owners,
   pre-commit as the CI gate, the gitleaks range scan, and the rejected
   alternatives from `## Approach`; the other documents above describe the
   current gate. Shipped plans, `data/log.md`, and closed bugs stay as written.
+  - **Evidence:** commit `4a0a2e2f`; `iwe schema validate` passes. None of the
+    listed documents names Super-Linter, `reformat.yml`, or `local-reformat`,
+    except the rejected alternative in `formatter-ownership` and the dated
+    `product.md` Changelog. `someday/host-filesystem-dedup` needed no edit: its
+    "reformat" is about a disk.
 
 ### Task 12: Green pre-commit job on the pull request
 
