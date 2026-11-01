@@ -165,10 +165,15 @@ path filter: pre-commit already skips hooks whose files did not change.
 **Files:** Create: `scripts/tests/test_gitleaks_hook.py`; Modify:
 `.pre-commit-config.yaml`
 
-- [ ] Every hook is under `repo: local` with `language: system`: the
+- [x] Every hook is under `repo: local` with `language: system`: the
   pre-commit-hooks fixers, ruff, ruff-format, ansible-lint, and clang-format
   through `uv run`; hadolint and shellcheck as image binaries; ids, `files`
   patterns, and arguments unchanged; no comment names Super-Linter.
+  - **Evidence:** commit `aa9a47b6`; `uv run pre-commit validate-config` passes,
+    the commit's own hook run used the `uv run` fixers and ruff, and
+    `grep -i super-linter .pre-commit-config.yaml` is empty. clang-format's
+    `types_or` is `[c, c++]`, which selects the same files under its `files`
+    pattern.
 - [ ] The `gitleaks` hook picks `GITLEAKS_LOG_OPTS`, then
   `PRE_COMMIT_FROM_REF..PRE_COMMIT_TO_REF`, then `--pre-commit --staged`, and a
   test drives each mode against a scratch repository holding a secret added and
