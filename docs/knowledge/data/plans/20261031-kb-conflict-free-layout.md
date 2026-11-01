@@ -325,8 +325,11 @@ only where it asserts the old layout
 
 ### Task 13: CI passes on the pull request
 
-- [ ] The knowledge-base, agent-files, and CI/CD checks pass on the pull request
+- [x] The knowledge-base, agent-files, and CI/CD checks pass on the pull request
   for this branch
+  - **Evidence:** commit 0064e25e on PR #616; CI runs 41321902833 (Knowledge
+    base validation), 41321902949 (Agent files validation), and 41321902900
+    (Primary checks, CI/CD) succeeded
 
 ## Spec changes
 
