@@ -36,7 +36,7 @@ repos:
         entry: ghcr.io/hadolint/hadolint:v2.14.0 hadolint
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.17
+    rev: v0.17.3
     hooks:
       - id: ruff-format
       # `I` (isort) is in .ruff.toml's select list, so this single pass also
