@@ -70,7 +70,7 @@ repos:
       # Prettier's file set matches Super-Linter's; .prettierignore still applies.
       - id: prettier
         name: prettier
-        entry: bunx prettier@3.8.4 --write --ignore-unknown
+        entry: bunx prettier@3.9.10 --write --ignore-unknown
         language: system
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
 
