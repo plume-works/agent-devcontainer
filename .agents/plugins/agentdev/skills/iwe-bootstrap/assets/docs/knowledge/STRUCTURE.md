@@ -26,6 +26,7 @@ STRUCTURE.md       # this file: design rationale
 .agents/plugins/agentdev/skills/iwe-*/  # state workflows: setup, explore, plan,
                    # capture, implement, verify, ship, weekly (invoked as /agentdev:iwe-*)
 data/              # the graph
+  index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
   <hub>.md + <hub>/  # plans, features, bugs, spec, architecture, concept,
                      # releases, backlog, someday (+ milestone.md)
@@ -43,11 +44,10 @@ requests conflict on a hub only when their new members sort next to each other.
 **Work items vs. reference.** Plans, features, bugs, releases, and backlog tasks
 are *work items*: a lifecycle `stage`, dates, a commit gate
 (`iwe schema validate`). Specs, architecture, concept, and someday docs are
-*durable reference*: they carry a `type` and the shared provenance fields, but
-no `stage`, because nothing about them is a lifecycle. The split keeps the
-ceremony where it pays. Every document is validated — every query selects by
-`type`, so it is required everywhere — but only work items are asked for more
-than that.
+*durable reference*: they carry a `type` and the shared OKF families, but no
+`stage`, because nothing about them is a lifecycle. The split keeps the ceremony
+where it pays. Every document is validated — OKF conformance requires a `type`
+everywhere — but only work items are asked for more than that.
 
 **Frontmatter is the only record of state.** A work item's `stage`, `priority`,
 `completed`, and `rank` live in its own document, so a stage change edits one

@@ -104,11 +104,14 @@ match = [
 [schemas.tracker]
 match = ["data/product", "data/milestone"]
 
-# base stacks on top of the per-type schemas and rejects any document under
-# data/ that arrives without a type. The log has no frontmatter; log checks its
-# date-grouped body.
-[schemas.base]
-match = ["data/**", "!data/log"]
+# OKF v0.2 conformance (SPEC §11), except the `status` field: `stage` records the
+# lifecycle (docs/knowledge/SCHEMA.md). okf stacks on the per-type schemas; the
+# reserved index and log files take body schemas of their own.
+[schemas.okf]
+match = ["data/**", "!data/index", "!data/**/index", "!data/log", "!data/**/log"]
 
-[schemas.log]
-match = ["data/log"]
+[schemas.okf-index]
+match = ["data/index", "data/**/index"]
+
+[schemas.okf-log]
+match = ["data/log", "data/**/log"]
