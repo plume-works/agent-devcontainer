@@ -81,16 +81,17 @@ its own gitleaks; running the job on the image this pull request builds, which
 puts lint behind the full image build; and keeping remote hooks, which leaves a
 second copy of each tool beside `uv.lock`.
 
-**Order inside this plan.** The pinned image has no hadolint, and the CI job
-runs the pinned image. Task 1 ships first in its own pull request; Tasks 4
-onward start only once a Renovate digest bump has moved the pin to an image
-containing hadolint and the pinned shellcheck.
+**Order inside this plan.** The CI job runs the image
+`devcontainer-compose-pins.yml` pins, so Task 1 ships first in its own pull
+request and Tasks 4 onward start only once that pin names an image containing
+hadolint and the pinned shellcheck.
 
 **Assumptions.** The range selection is a stdlib Python script with tests,
 because the event cases are logic, not wiring. The gitleaks hook's mode switch
 stays an inline `bash -c` entry, so the hook remains self-contained in
 `.pre-commit-config.yaml` for template consumers. The `pre-commit` job has no
-path filter: pre-commit already skips hooks whose files did not change.
+path filter: pre-commit skips hooks whose files did not change, except
+`always_run` hooks such as gitleaks and no-commit-to-branch.
 
 ## Implementation Steps
 
@@ -278,11 +279,8 @@ path filter: pre-commit already skips hooks whose files did not change.
     skill finds nothing, and the guide's "Primary checks and pre-commit" section
     keeps the job and `scripts/pre-commit-ci-range.py` and has the consumer
     adapt `TOOL_VERSION_OWNERS`.
-- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   and `uv run pytest .agents/plugins/agentdev/tests` pass.
-  - **Evidence:** at commit `11ac9050`, the validator reports 65/65 skills valid
-    with no errors or warnings, and
-    `uv run pytest .agents/plugins/agentdev/tests` passes 416.
 
 ### Task 10: Reword the repository's own guidance and configs
 
@@ -314,7 +312,9 @@ path filter: pre-commit already skips hooks whose files did not change.
 `docs/knowledge/data/features/bun-only-javascript-runner.md`,
 `docs/knowledge/data/features/renovate-maintains-checksums.md`,
 `docs/knowledge/data/someday/host-filesystem-dedup.md`,
-`docs/knowledge/data/product.md`
+`docs/knowledge/data/product.md`,
+`docs/knowledge/data/features/pre-commit-owns-formatting.md`,
+`docs/knowledge/data/backlog/parallel-ci-with-pre-commit.md`
 
 - [x] `architecture/formatter-ownership` records the per-tool version owners,
   pre-commit as the CI gate, the gitleaks range scan, and the rejected
@@ -325,6 +325,10 @@ path filter: pre-commit already skips hooks whose files did not change.
     except the rejected alternative in `formatter-ownership` and the dated
     `product.md` Changelog. `someday/host-filesystem-dedup` needed no edit: its
     "reformat" is about a disk.
+- [ ] `features/pre-commit-owns-formatting` names [pre-commit is the CI
+  gate](../features/pre-commit-ci-gate.md) as the CI gate instead of
+  Super-Linter, and `backlog/parallel-ci-with-pre-commit` cites no deleted file
+  and no longer reads as blocked on this plan.
 
 ### Task 12: Green pre-commit job on the pull request
 
@@ -356,8 +360,7 @@ validator the digest-pinned image provides, never the deleted working-tree
 package.
 ```
 
-`spec/pre-commit-gate` — new; the gitleaks scan is security behaviour, so the
-contract is spelled out:
+`spec/pre-commit-gate` — new:
 
 ``` markdown
 ## ADDED Requirements
@@ -437,10 +440,14 @@ Super-Linter module and version check it ported.
 - `uv run pytest scripts/tests/test_refresh_pin_checksums.py scripts/tests/test_pre_commit_ci_range.py scripts/tests/test_pre_commit_ci_job.py scripts/tests/test_paths_filter_last_pass.py`
 - `uv run pytest scripts/tests/test_gitleaks_hook.py` (Task 5).
 - `uv run pre-commit run --all-files` in the devcontainer.
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-  and `uv run pytest .agents/plugins/agentdev/tests`.
+- `uv run validate_agent_files --recommend . --require-marketplace claude` and
+  `uv run pytest .agents/plugins/agentdev/tests`.
 - `git grep -n -i -E 'super-?linter|reformat\.yml|local-reformat'` returns only
-  shipped plans, `data/log.md`, closed bugs, and released notes.
+  shipped plans, `data/log.md`, closed bugs, released notes, the dated
+  `product.md` Changelog, this plan and its title in `data/plans.md`, its
+  feature `features/pre-commit-ci-gate`, the rejected alternative in
+  `architecture/formatter-ownership`, and `spec/template-consumption` until Ship
+  merges its delta.
 - `iwe normalize` and `iwe schema validate`.
 - The pull request's Primary checks run (Task 12).
 
