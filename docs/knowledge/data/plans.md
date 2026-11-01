@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Explore settles open questions one at a
+time](plans/20261101-explore-interviews-open-questions.md)
+
 [Build on an unshipped dependency, ship after
 it](plans/20261101-build-on-unshipped-dependencies.md)
 
