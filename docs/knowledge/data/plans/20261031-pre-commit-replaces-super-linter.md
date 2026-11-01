@@ -231,9 +231,15 @@ path filter: pre-commit already skips hooks whose files did not change.
 `scripts/tests/test_validate_super_linter_tool_versions.py`; Modify:
 `.gitignore`, `.claude/settings.json`
 
-- [ ] The files above are gone, `.gitignore` drops `super-linter-output/`,
+- [x] The files above are gone, `.gitignore` drops `super-linter-output/`,
   `.claude/settings.json` drops the `super_linter.py local` allow rule, and no
   workflow, test, or setting names Super-Linter or `reformat.yml`.
+  - **Evidence:** commit `c837d940`;
+    `git grep -i -E 'super-?linter|reformat\.yml' -- .github scripts .claude .gitignore`
+    finds nothing, and
+    `uv run pytest scripts/tests/test_pre_commit_ci_job.py scripts/tests/test_paths_filter_last_pass.py`
+    passes 20. `.gitignore` also drops `log/`, the Super-Linter section's other
+    entry.
 
 ### Task 9: Remove Super-Linter from the catalog
 
