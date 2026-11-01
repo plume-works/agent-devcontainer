@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-11-01
+
+- **Update**: fixed [Bug: OpenCode's config is reordered on the first
+  restart](bugs/opencode-config-reordered-on-restart.md).
+
 ## 2026-10-31
 
 - **Update**: [Bug: an AI re-review that comments leaves its own change request
