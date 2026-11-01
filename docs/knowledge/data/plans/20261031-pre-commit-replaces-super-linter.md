@@ -308,6 +308,7 @@ path filter: pre-commit already skips hooks whose files did not change.
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/architecture/self-improve-consolidation.md`,
 `docs/knowledge/data/architecture/catalog-script-language.md`,
+`docs/knowledge/data/architecture/rereview-gate-pending.md`,
 `docs/knowledge/data/features/bun-only-javascript-runner.md`,
 `docs/knowledge/data/features/renovate-maintains-checksums.md`,
 `docs/knowledge/data/someday/host-filesystem-dedup.md`,
