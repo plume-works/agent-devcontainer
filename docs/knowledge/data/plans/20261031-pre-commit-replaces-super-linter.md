@@ -181,7 +181,9 @@ path filter: pre-commit already skips hooks whose files did not change.
   - **Evidence:** commit `aa9a47b6`;
     `uv run pytest scripts/tests/test_gitleaks_hook.py` passes 5, covering each
     mode, the `GITLEAKS_LOG_OPTS` precedence, and a range that never held the
-    secret.
+    secret. Commit `cea4fecd` adds `always_run: true`, so pre-commit runs the
+    scan for a range that leaves no changed file, and the test that drives the
+    hook through pre-commit's file selection passes (6 in all).
 
 ### Task 6: Bring the tree to the new tool versions
 
