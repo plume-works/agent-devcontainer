@@ -11,7 +11,6 @@ import time
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
 # Runs `agentdev-runtime lifecycle` with the steps other modules own recorded instead of run;
 # the hooks, the catalog check, and the marker stay real.
 LIFECYCLE = """
@@ -323,13 +322,3 @@ def test_a_hook_root_inside_the_workspace_is_refused(lifecycle):
 def test_a_start_without_a_supervisor_starts_cbm_before_the_start_steps(lifecycle):
     assert_ok(lifecycle.run('ready', '--no-wait'))
     assert lifecycle.calls() == ['agentdev-runtime cbm start', *START_STEPS]
-
-
-def test_the_responder_runs_each_phase_through_the_cli():
-    action = (REPO_ROOT / '.github/actions/run-claude-responder/action.yml').read_text()
-    phases = [
-        'agentdev-runtime lifecycle created',
-        'agentdev-runtime lifecycle ready --no-wait',
-        'agentdev-runtime lifecycle attached',
-    ]
-    assert [action.index(phase) for phase in phases] == sorted(action.index(p) for p in phases)

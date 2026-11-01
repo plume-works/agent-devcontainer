@@ -6,10 +6,9 @@ priority: low
 description: Decide from the pre-commit job's recorded step timings whether Primary checks should start the ci job in parallel with the pre-commit job instead of after it, and drop the needs gate if so.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T05:09:35Z
+  at: 2026-11-01T19:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
-- resource: scripts/tests/test_pre_commit_ci_job.py
 rank: 2000
 ---
 
@@ -35,6 +34,4 @@ duration added to every PR's wall clock.
 
 ## Dependencies
 
-None open: the `pre-commit` job records each step's duration in the jobs API,
-and `test_pre_commit_ci_job.py` asserts the `needs:` edge a change here would
-drop.
+None open: the `pre-commit` job records each step's duration in the jobs API.

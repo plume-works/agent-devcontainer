@@ -367,6 +367,42 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
+  # Every hook on every file with the tools the rebuilt image provisions, so a bump that
+  # breaks a hook fails before promotion. See spec/pre-commit-gate.
+  candidate-pre-commit:
+    name: pre-commit on the candidate image
+    needs: [merge-dev-image]
+    runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ${{ needs.merge-dev-image.outputs.devcontainer_image_pinned }} # zizmor: ignore[unpinned-images] the merge output is name@sha256 digest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 30
+    env:
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: '*'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: uv sync
+        run: uv sync --locked
+
+      - name: pre-commit install-hooks
+        run: uv run pre-commit install-hooks
+
+      - name: pre-commit run
+        env:
+          SKIP: no-commit-to-branch
+        run: uv run pre-commit run --all-files --show-diff-on-failure
+
   deploy-acceptance:
     name: Deploy runtime acceptance
     needs: [merge-dev-image]
@@ -461,6 +497,7 @@ jobs:
     needs:
       - merge-dev-image
       - dev-container-ci
+      - candidate-pre-commit
       - deploy-acceptance
       - devcontainer-acceptance
     timeout-minutes: 15
@@ -521,6 +558,7 @@ jobs:
         build-dev-image,
         merge-dev-image,
         dev-container-ci,
+        candidate-pre-commit,
         deploy-acceptance,
         devcontainer-acceptance,
         promote-dev-image,

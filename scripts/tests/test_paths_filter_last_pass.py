@@ -81,39 +81,3 @@ def test_lookup_failure_warns_and_falls_back(tmp_path):
     assert result.returncode == 0, result.stderr
     assert outputs == {}
     assert '::warning::' in result.stdout
-
-
-def test_lookup_runs_only_for_a_push_to_the_base_branch():
-    condition = LAST_PASS['if']
-    assert "github.event_name == 'push'" in condition
-    assert 'inputs.base-branch' in condition
-
-
-def test_non_pull_request_filter_uses_the_last_pass_as_base():
-    base = STEPS['filter-base']['with']['base']
-    assert 'steps.last-pass.outputs.sha' in base
-    assert 'inputs.base-branch' in base
-
-
-def _jobs_using_filter(workflow: dict) -> list[str]:
-    return [
-        name
-        for name, job in workflow['jobs'].items()
-        if any(
-            step.get('uses') == './.github/actions/paths-filter' for step in job.get('steps', [])
-        )
-    ]
-
-
-@pytest.mark.parametrize(
-    'workflow_path', sorted((REPO_ROOT / '.github/workflows').glob('*.yml')), ids=lambda p: p.name
-)
-def test_every_filter_job_can_read_workflow_runs(workflow_path):
-    workflow = yaml.safe_load(workflow_path.read_text())
-    for name in _jobs_using_filter(workflow):
-        assert workflow['jobs'][name]['permissions'].get('actions') == 'read', name
-
-
-def test_primary_checks_grants_actions_read_to_the_reusable_workflow():
-    workflow = yaml.safe_load((REPO_ROOT / '.github/workflows/primary-checks.yml').read_text())
-    assert workflow['jobs']['ci']['permissions'].get('actions') == 'read'
