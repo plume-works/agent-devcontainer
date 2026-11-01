@@ -69,10 +69,13 @@ maintainer asked for a pre-commit test instead.
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] A local `no-status-field` hook runs `test_no_status_field.py` whenever a
+- [x] A local `no-status-field` hook runs `test_no_status_field.py` whenever a
   Markdown file under `docs/knowledge/data/` or the scaffold's
   `docs/knowledge/data/` is committed, and
   `pre-commit run no-status-field --all-files` passes
+  - **Evidence:** commit 05de23a8; `pre-commit run no-status-field --all-files`
+    passed, and `pre-commit run no-status-field --files` on
+    `features/codex-full-access-config.md` with `status` added failed naming it
 
 ### Task 3: CI passes on the pull request
 
