@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Replace gh stack with manual stacked pull
+requests](plans/20261101-manual-stacked-prs.md)
+
 [Give each checkout its own uv
 environment](plans/20261101-per-checkout-uv-environments.md)
 

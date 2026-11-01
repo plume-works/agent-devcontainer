@@ -160,3 +160,6 @@ restart](bugs/opencode-config-reordered-on-restart.md)
 
 [Bug: a metadata-gate review blocks the re-review it asks
 for](bugs/metadata-gate-review-blocks-rerequest.md)
+
+[Bug: the stack guard reverts GitHub's post-merge
+rebase](bugs/stack-guard-reverts-post-merge-rebase.md)
