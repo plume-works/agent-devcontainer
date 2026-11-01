@@ -287,8 +287,10 @@ path filter: pre-commit already skips hooks whose files did not change.
 **Files:** Modify: `AGENTS.md`, `README.md`, `.ruff.toml`, `.markdownlint.yml`,
 `.ansible-lint.yml`
 
-- [ ] `AGENTS.md`, `README.md`, `.ruff.toml`, and `.markdownlint.yml` say CI
+- [x] `AGENTS.md`, `README.md`, `.ruff.toml`, and `.markdownlint.yml` say CI
   runs the pre-commit hooks, and none names Super-Linter.
+  - **Evidence:** commit `7c6e48b3`; `git grep -i super-linter` over the four
+    files finds nothing.
 - [ ] `.ansible-lint.yml` drops the Super-Linter framing, and its `skip_list`
   keeps `syntax-check` only if `uv run ansible-lint` in the devcontainer image
   still cannot resolve the roles' collections.
