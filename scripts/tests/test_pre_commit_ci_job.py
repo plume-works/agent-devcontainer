@@ -3,13 +3,23 @@
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
 
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = yaml.safe_load((REPO_ROOT / '.github/workflows/primary-checks.yml').read_text())
 JOB = WORKFLOW['jobs']['pre-commit']
-COMPOSE = yaml.safe_load((REPO_ROOT / 'devcontainer-compose-pins.yml').read_text())
+# The committed pin: the Dev Container smoke test patches the working copy to its own build.
+COMPOSE = yaml.safe_load(
+    subprocess.run(
+        ['git', 'show', 'HEAD:devcontainer-compose-pins.yml'],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+)
 
 
 def _run_lines(step: dict[str, object]) -> str:
