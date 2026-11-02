@@ -50,7 +50,10 @@ The maintainer chose the following:
 
 - **Build cache:** each pass then runs
   `docker builder prune -f --max-used-space 10GB`, so the cap holds even when no
-  build runs.
+  build runs. BuildKit counts only cache that kept images do not share toward
+  the cap; `docker buildx du` reports it as Private. Shared cache holds the kept
+  images' layers, so removing it would free no disk. It counts toward the cap
+  once the image rule removes its image.
 
 - **Volumes:** an allow-list, gated by age. A pass removes a volume only when
   all three hold:
@@ -96,8 +99,8 @@ pass always exits 0.
 **Assumptions:**
 
 - The Dev Container engine's collection runs wherever the image runs, Codespaces
-  and local Dev Containers included, not only on Coder. Its image rule matches
-  the one the start-time prune applied on Coder.
+  and local Dev Containers included, not only on Coder. Its image rule is
+  unchanged: `until=72h`.
 - The workspace engine cannot run `agentdev-runtime`, because its image comes
   from another repository. Its script therefore restates the three steps in
   shell, with the same patterns and limits.
@@ -109,8 +112,7 @@ pass always exits 0.
   at the time.
 - A blanket `docker volume prune -a`. It deletes logins on any engine with no
   containers.
-- Relying on BuildKit's own GC for the cache. It cannot free cache that kept
-  images share, and may only run after a build.
+- Relying on BuildKit's own GC for the cache. It may only run after a build.
 - Turning on Coder autostop so that the start-time prune runs. That changes how
   workspaces behave to work around the cleanup's schedule.
 
@@ -251,7 +253,8 @@ pass always exits 0.
 
 The image's Docker configuration SHALL enable BuildKit garbage collection with a
 10 GB build-cache limit, and the supervised daemon SHALL run with it. Each
-garbage-collection pass SHALL also trim the build cache to at most 10 GB.
+garbage-collection pass SHALL also trim the build cache that no kept image
+shares to at most 10 GB, and SHALL leave cache that a kept image shares.
 
 #### Scenario: the build cache passes the limit
 
@@ -262,6 +265,11 @@ garbage-collection pass SHALL also trim the build cache to at most 10 GB.
 
 - **WHEN** the build cache is over 10 GB and no build runs
 - **THEN** the next garbage-collection pass reduces it to at most 10 GB.
+
+#### Scenario: a kept image shares build cache
+
+- **WHEN** build cache holds layers of an image the pass keeps
+- **THEN** the pass keeps that cache until the image is removed.
 
 ## REMOVED Requirements
 
@@ -392,8 +400,24 @@ supporting explicitly trusted proxy ingress and nested Docker operation.
   `program:prune` is absent.
 - In `coder-ide-baseline`: `shellcheck root-container/docker-gc`, and the
   `root-container` image builds in its CI.
-- On a live workspace: Task 8's checks, plus `docker system df` in both engines
-  showing build cache at or under 10 GB an hour after a build pushed it over.
+- On a live workspace: Task 8's checks, plus `docker buildx du` in both engines
+  showing Private at or under 10 GB an hour after a build pushed it over. Docker
+  reads `10GB` as 10 GiB. `docker system df`'s Build Cache size also counts
+  cache shared with kept images, so it is not the measure.
+
+## Verification results
+
+How `--max-used-space` counts, measured on workspace engines running Docker
+29.9.2 and buildx 0.38.1 with the containerd image store:
+
+- On `agent-dev4`, 6.293 GB of Private cache from an untagged build, plus 8.248
+  GB shared with the kept image. `docker builder prune -f --max-used-space 3GB`,
+  without `--all`, removed records oldest first until Private was 3.146 GB,
+  under 3 GiB. It left the shared 8.248 GB in place.
+- On `agent-dev3`, `docker system df` reported 15.63 GB of build cache: 7.384 GB
+  Private plus 8.248 GB shared with the two kept images, which the Images row
+  also counts (8.246 GB). A pass with the 10 GB limit removed nothing, as the
+  Private cache was under it.
 
 ## Out of scope
 
