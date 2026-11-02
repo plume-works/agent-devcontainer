@@ -299,9 +299,10 @@ describes a superseded fix
   `done` — at least `ai-rereview-comment-keeps-changes-requested`,
   `dispatched-review-gate-not-counted`, `plan-checkbox-over-claiming`,
   `pr-update-skips-review-eval`
-  - **Evidence:** all 42 done bugs read; five contradict `done`: the four named
-    plus `stack-guard-reverts-post-merge-rebase` ("Planned by"); rewritten in
-    commit 418f87ac
+  - **Evidence:** all 42 done bugs read; six contradict `done`: the four named,
+    `stack-guard-reverts-post-merge-rebase` ("Planned by"), and
+    `pin-bumps-invalidate-map-docs` ("Planned in"); rewritten in commits
+    418f87ac and b5329f49
 - [x] Rewrite each listed Fix to describe the fix that shipped, from the plan
   whose `release` lists the bug (`iwe find --references data/bugs/<slug>`),
   linking that plan
