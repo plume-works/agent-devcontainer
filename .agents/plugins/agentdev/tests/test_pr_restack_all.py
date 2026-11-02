@@ -370,3 +370,32 @@ def test_a_branch_with_an_open_pull_request_gets_its_merge_record(
     assert hub.pulls[2].body == (
         f'## Depends on\n\n- #1 — merged as {merge_x[:8]} (head {head_x[:8]}), reconnected\n'
     )
+
+
+def test_a_conflicting_squash_commit_is_resolved_with_the_printed_commands(
+    restack: ModuleType, hub: Hub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    hub.open(1, 'x', 'main')
+    hub.open(2, 'y', 'x', 1)
+    head_x = hub.commit('x', 'a.txt', 'from x')
+    conflicting = hub.commit('main', 'a.txt', 'from main')
+    git(hub.publisher, 'push', '--quiet', 'origin', '--delete', 'x')
+    hub.pulls[1] = dataclasses.replace(
+        hub.pulls[1], state='MERGED', head_oid=head_x, merge_oid=conflicting
+    )
+    hub.pulls[2] = dataclasses.replace(hub.pulls[2], base_branch='main')
+    before = hub.remote_sha('y')
+    assert run(restack, hub, '2') == restack.MERGE_CONFLICT
+    captured = capsys.readouterr()
+    assert hub.remote_sha('y') == before
+    worktree = Path(keys(captured.out, 'WORKTREE')[0])
+    resume = captured.err.split('then run: ', 1)[1].split(' and rerun;', 1)[0]
+    (worktree / 'a.txt').write_text('one\ntwo\nthree\nfrom x\nfrom main\n')
+    git(worktree, 'commit', '--quiet', '-am', 'Resolve')
+    subprocess.run(['bash', '-c', resume], cwd=worktree, check=True, capture_output=True)
+    git(hub.work, 'worktree', 'remove', '--force', str(worktree))
+    assert hub.contains('y', before)
+    assert hub.contains('y', head_x)
+    assert hub.contains('y', conflicting)
+    assert run(restack, hub, '2') == 0
+    assert keys(capsys.readouterr().out, 'PUSHED') == []

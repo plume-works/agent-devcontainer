@@ -26,7 +26,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import depends_on  # noqa: E402  (path set above so the plugin's bin/ resolves)
 import git_default_branch  # noqa: E402
 import result_codes as rc  # noqa: E402
-from skill_common import print_error, require_git_repo, run_tool, Stop  # noqa: E402
+from skill_common import (  # noqa: E402
+    bash_quote,
+    print_error,
+    require_git_repo,
+    run_tool,
+    Stop,
+)
 
 PREFLIGHT_ERROR = 2
 GH_FAILED = 3
@@ -216,16 +222,20 @@ class Restack:
             print_error(f'git fetch {self.remote} failed: {completed.stderr.strip()}')
             raise Stop(FETCH_FAILED)
 
-    def merge(self, commit: str, message: str, branch: str) -> None:
-        """Merge `commit` into the worktree's HEAD, stopping on a conflict."""
+    def merge(self, commit: str, message: str, branch: str, resume: str = '') -> None:
+        """
+        Merge `commit` into the worktree's HEAD, stopping on a conflict.
+
+        `resume` holds the commands that turn the resolved HEAD into `branch`'s new tip.
+        """
         completed = self.tree.run('merge', '--no-ff', '--no-edit', '-m', message, commit)
         if completed.returncode != 0:
             sys.stderr.write(completed.stdout + completed.stderr)
             print(f'WORKTREE={self.worktree}')
             print_error(
                 f'Merging {commit} for {branch} conflicted. Resolve and commit in the '
-                f'worktree, push with: git push {self.remote} HEAD:refs/heads/{branch}, '
-                'then rerun; restacked pull requests are skipped.'
+                f'worktree, then run: {resume}git push {self.remote} HEAD:refs/heads/{branch}'
+                ' and rerun; restacked pull requests are skipped.'
             )
             raise Stop(MERGE_CONFLICT)
 
@@ -274,12 +284,20 @@ class Restack:
             return self.tree.is_ancestor(head, 'HEAD')
         tip = self.tree.out('rev-parse', 'HEAD')
         self.tree.out('checkout', '--quiet', '--detach', head)
+        reconnect = f'Reconnect #{predecessor.number} after its squash merge'
         self.merge(
-            merge, f'Merge the squash commit of #{predecessor.number} into its head', branch
+            merge,
+            f'Merge the squash commit of #{predecessor.number} into its head',
+            branch,
+            # The worktree now holds P's head, which is never pushed: merge it in first.
+            resume=(
+                f'copy=$(git rev-parse HEAD); git checkout --detach {tip}; '
+                f'git merge --no-ff -m {bash_quote(reconnect)} "$copy"; '
+            ),
         )
         copy = self.tree.out('rev-parse', 'HEAD')
         self.tree.out('checkout', '--quiet', '--detach', tip)
-        self.merge(copy, f'Reconnect #{predecessor.number} after its squash merge', branch)
+        self.merge(copy, reconnect, branch)
         print(f'RECONNECTED=#{predecessor.number} HEAD={head} MERGE={merge}')
         return True
 

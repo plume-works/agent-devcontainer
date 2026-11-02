@@ -97,8 +97,11 @@ conflict.
 1. In `WORKTREE`, resolve every conflicted path with the
    [git-merge-resolve](../git-merge-resolve/SKILL.md) "Resolve Conflicts"
    workflow and commit the merge.
-2. Push with the command the error printed:
-   `git push <remote> HEAD:refs/heads/<branch>` — a plain push, never forced.
+2. Run, in `WORKTREE`, the commands the error printed. They end with
+   `git push <remote> HEAD:refs/heads/<branch>`, a plain push, never forced.
+   When the conflict was in merging a squash commit into the predecessor's
+   head, they first merge that resolved copy into the branch: the copy itself
+   is never pushed.
 3. Remove the worktree with `git worktree remove <WORKTREE>`, then rerun the
    same command. Pull requests already restacked are skipped: an open
    predecessor's head or a merged one's squash commit is already in them.
