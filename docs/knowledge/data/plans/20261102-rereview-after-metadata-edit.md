@@ -81,9 +81,12 @@ handling.
 
 **Files:** Modify: `.agents/plugins/agentdev/tests/test_request_review.py`
 
-- [ ] Teach `GH_STUB` to answer `api graphql` with a fixture's `lastEditedAt`
+- [x] Teach `GH_STUB` to answer `api graphql` with a fixture's `lastEditedAt`
   and title-rename times (both absent by default), and give `review()` and
   `check_run()` a `submitted_at` / `completed_at`.
+  - **Evidence:** commit c57256be adds the `graphql` branch and `-F` handling to
+    `GH_STUB`, the `edits` and `fail_graphql` fixture keys, and `submitted_at` /
+    `completed_at` on `review()` and `check_run()`.
 - [ ] Add tests that fail against the current script:
   - an accepted review on the head submitted before a description edit →
     `SUCCESS`, toggled;
