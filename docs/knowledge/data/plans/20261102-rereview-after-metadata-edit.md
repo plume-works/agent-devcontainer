@@ -120,9 +120,12 @@ handling.
     query) after the open check; a failed or malformed response returns
     `GH_UNAVAILABLE`, covered by
     `test_failing_edit_time_query_is_gh_unavailable`.
-- [ ] `reviewed()` counts only reviews whose `submitted_at` is after the cutoff;
+- [x] `reviewed()` counts only reviews whose `submitted_at` is after the cutoff;
   `requesting_check()` ignores completed checks whose `completed_at` is before
   the cutoff and keeps counting queued and in-progress ones.
+  - **Evidence:** commit e667e133: `reviewed()` and `requesting_check()` take
+    the cutoff through `after()`; covered by the Task 2 before-edit, after-edit,
+    completed-check and running-check tests.
 - [ ] Update `USAGE` (the refusal paragraph and the `ALREADY_REVIEWED` and
   `ALREADY_REQUESTED` result lines) to name the edit cutoff.
 - [ ] Task 2's tests and the whole
