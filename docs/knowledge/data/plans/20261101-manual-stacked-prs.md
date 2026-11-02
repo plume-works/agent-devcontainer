@@ -428,8 +428,7 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 `docs/knowledge/data/architecture/stack-push-guard.md`; Modify:
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/native-stacked-prs.md`,
-`docs/knowledge/data/backlog/pr-merge-stack-post-merge-cleanup.md`,
-`docs/knowledge/data/backlog.md`
+`docs/knowledge/data/backlog/pr-merge-stack-post-merge-cleanup.md`
 
 - [ ] `architecture/manual-stacked-prs` records the design, the rejected
   alternatives above, and the reconnect evidence: a normal merge of the squash
@@ -443,7 +442,7 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
   `iwe schema validate`
 - [ ] `features/native-stacked-prs` is `stage: deprecated`
 - [ ] `backlog/pr-merge-stack-post-merge-cleanup` is `stage: cancelled`, its
-  link moved to `## Cancelled`
+  `rank` removed; the flat `data/backlog.md` hub keeps its link
 
 ### Task 13: The `iwe/**` ruleset
 
