@@ -100,13 +100,21 @@ the trailer commit (Task 2), 8 the restack scope and 16 the chain discovery
 **Files:** Create: `.agents/plugins/agentdev/bin/depends_on.py`,
 `.agents/plugins/agentdev/tests/test_depends_on.py`
 
-- [ ] `depends_on.py` finds a PR body's `## Depends on` section, lists its
+- [x] `depends_on.py` finds a PR body's `## Depends on` section, lists its
   `- #<P>` entries in order, and replaces one entry's line with its merge
   record, leaving the rest of the body byte-for-byte; it reads every
   `Depends-on: #<P>` trailer from a branch's commits
-- [ ] Tests cover a body with no section, one entry, several entries, an entry
+  - **Evidence:** commit `77016019` adds `bin/depends_on.py` (`find_section`,
+    `entries`, `record_merge`, `read_trailers`);
+    `uv run pytest .agents/plugins/agentdev/tests/test_depends_on.py` — 8
+    passed.
+- [x] Tests cover a body with no section, one entry, several entries, an entry
   already carrying a record, the section followed by another heading, and
   trailers on two commits
+  - **Evidence:** commit `77016019` adds `tests/test_depends_on.py` with one
+    test per listed case plus an invalid list item and a fenced heading;
+    `uv run pytest .agents/plugins/agentdev/tests/test_depends_on.py` — 8
+    passed.
 
 The merge record replaces `- #P` with exactly this form:
 
