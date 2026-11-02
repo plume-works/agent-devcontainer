@@ -3,7 +3,7 @@ type: bug
 description: A review that stopped at the PR metadata gate counts as the head's AI review, so after the author fixes the description request-review.py reports ALREADY_REVIEWED and offers no override; the full review cannot run without a new commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T00:05:27Z
+  at: 2026-11-02T01:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
@@ -20,9 +20,10 @@ The AI review's metadata gate stops a review before the in-depth passes when the
 PR description is stale, and submits `REQUEST_CHANGES` asking the author to fix
 the description and request a re-review. Once the description is fixed,
 `request-review.py` refuses that request with `ALREADY_REVIEWED`, because the
-gate's review names the head commit. The full review never runs on that head,
-and `ai-review-present` stays red until someone pushes a new commit only to
-unlock a review.
+gate's review names the head commit. The full review never runs on that head.
+The gate's review satisfies `ai-review-present`, but it approves nothing, so the
+one-approval `main` ruleset blocks merge until someone pushes a new commit only
+to unlock a review.
 
 ## Reproduction
 
@@ -41,10 +42,12 @@ Seen on #602 at head `60f19c65`.
 `reviewed()` in `request-review.py` counts any `APPROVED`, `CHANGES_REQUESTED`,
 or `COMMENTED` review from the AI reviewer on the head as that head's review. It
 cannot tell a metadata-gate stop, which reviewed no code, from a full review.
-The script takes no argument to override the check. The rule it enforces is
-specified that way: the "one AI review trigger per head commit" requirement in
-[AI review refresh](../spec/ai-review-refresh.md) forbids a toggle for any head
-an accepted AI review names, with no exception for a gate-only review.
+`requesting_check()` refuses too: the gate run's responder check on the head
+completed with success, which counts as that head's request. The script takes no
+argument to override either check. The rule it enforces is specified that way:
+the "one AI review trigger per head commit" requirement in [AI review
+refresh](../spec/ai-review-refresh.md) forbids a toggle for any head an accepted
+AI review names, with no exception for a gate-only review.
 
 ## Fix
 
