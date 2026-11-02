@@ -269,7 +269,8 @@ their bootstrap copies under
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md`
 
-- [ ] The open-bugs query selects `stage: {$in: [pending, planned]}`
+- [x] The open-bugs query selects `stage: {$in: [pending, planned]}`
+  - **Evidence:** commit 4b1ea469; the query returns the 12 open bugs
 
 ### Task 9: Open bugs carry a Potential solution, not status
 
