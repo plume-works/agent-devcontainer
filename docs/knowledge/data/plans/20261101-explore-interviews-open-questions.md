@@ -92,8 +92,10 @@ default behavior unchanged.
 
 **Files:** none
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** run against commit 23893dff (holding 2553f18a and 1dd60b54):
+    64/64 skills valid, 0 errors, 0 warnings.
 
 ## Spec changes
 
