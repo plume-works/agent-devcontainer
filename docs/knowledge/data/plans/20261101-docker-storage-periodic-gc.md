@@ -166,11 +166,16 @@ pass always exits 0.
 `docker/devcontainer/supervisord.conf`, `docker/deploy/supervisord.conf`,
 `scripts/tests/test_agent_runtime_docker.py`
 
-- [ ] Both profiles carry a non-core `docker-gc` service after `dockerd`, backed
+- [x] Both profiles carry a non-core `docker-gc` service after `dockerd`, backed
   by a `program:docker-gc` that runs `agentdev-runtime docker gc --every`. The
   deploy profile's `prune` service and `program:prune` are removed. The test
   that checked `program:prune` checks `program:docker-gc` in both images, and a
   failing collector does not latch the runtime.
+  - **Evidence:** commit 900573aa;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py scripts/tests/test_agent_runtime_docker.py -n auto`
+    — 135 passed, 1 skipped
+    (`test_the_garbage_collector_follows_the_nested_engine[deploy|devcontainer]`,
+    `test_an_optional_failure_degrades_while_opencode_serves[docker-gc]`).
 
 ### Task 4: Drop the prune from the Coder agent start
 
