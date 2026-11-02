@@ -324,9 +324,13 @@ describes a superseded fix
 
 **Files:** Modify: `docs/knowledge/CHANGELOG.md` and its bootstrap copy
 
-- [ ] An `[Unreleased]` entry under `### Changed` states the new bug stages and
+- [x] An `[Unreleased]` entry under `### Changed` states the new bug stages and
   `severity`, the optional sections, the task stage rename, and what a cloned
   workspace changes in its own bugs and tasks to validate again
+  - **Evidence:** commit d6518a7c adds three `### Changed` entries to both
+    copies;
+    `uv run pytest docs/knowledge/tests/test_iwe_seed.py .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
+    passed (39 tests)
 
 ## Spec changes
 
