@@ -283,9 +283,12 @@ their bootstrap copies under
   - **Evidence:** commit 57ca665f rewrites all 12 open bugs; none keeps a
     `## Fix`, and `grep -iE 'not yet fixed|unfixed|planned in'` finds no open
     bug
-- [ ] `self-improve-reviewer-decline-asymmetry`, whose Root cause is unknown,
+- [x] `self-improve-reviewer-decline-asymmetry`, whose Root cause is unknown,
   links its backlog spike (Task 11); the rule that an unknown Reproduction or
   Root cause links a backlog task binds new captures (Task 5)
+  - **Evidence:** commit d326e567 links the bug to
+    `data/backlog/self-improve-execution-tracing`; commit 8c189a48 puts the rule
+    in `iwe-capture/SKILL.md` step 3
 
 ### Task 10: Done bugs describe the fix that shipped
 
