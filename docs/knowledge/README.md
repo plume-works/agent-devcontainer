@@ -1,5 +1,8 @@
 # Dev workspace
 
+[![OKF
+v0.2](https://img.shields.io/badge/OKF-v0.2%20conformant-blue)](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+
 **Memory for your coding agent.** A ready-to-use markdown knowledge base for a
 software project: what the product is, how it must behave, what's planned,
 shipped, broken, and released — structured as a queryable graph your agent reads
@@ -10,10 +13,14 @@ evaporates, and the reasons behind last month's design decision evaporate with
 it. This workspace is the fix: a system of record the agent maintains as it
 works, so every session starts with context instead of archaeology.
 
-Every document carries a `type`; provenance (`generated`, `sources`) and
-lifecycle (`stage`, `rank`) live in frontmatter, and the schemas are checked in
-CI on every commit. Hubs are flat sorted lists and a work item's state lives
-only in its own file, so parallel pull requests rarely conflict in the graph.
+It is also a conformant [Open Knowledge
+Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+v0.2 bundle — an open standard for agent-maintained knowledge — so your project
+graph is portable to any OKF consumer, not locked to one tool. Every document
+carries a `type`, provenance (`generated`, `sources`) and lifecycle (`stage`,
+`rank`, `stale_after`) live in frontmatter, and conformance is checked in CI on
+every commit. Hubs are flat sorted lists and a work item's state lives only in
+its own file, so parallel pull requests rarely conflict in the graph.
 
 ## Quickstart
 
@@ -65,6 +72,7 @@ iwe tree -k data/features                                            # the featu
 
 ```
 data/
+├── index.md          # the graph root — every hub is a child
 ├── product.md        # what you're building — the doc every session reads first
 ├── plans.md    plans/         # implementation plans, stage in frontmatter
 ├── features.md features/      # feature docs, proposed → implemented

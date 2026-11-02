@@ -1,5 +1,5 @@
 """
-Checks for the `rank` field on work items and the base schema's `type` rule.
+Checks for the `rank` field on work items and the OKF schema's `type` rule.
 
 Each test copies the graph into `/tmp`, edits one document, and runs
 `iwe schema validate` against it.
@@ -53,7 +53,7 @@ def _with_rank(content: str, rank: str) -> str:
 def workspace() -> Iterator[Path]:
     """Copy the configuration and graph into a workspace private to this run."""
     TMP_ROOT.mkdir(exist_ok=True)
-    root = TMP_ROOT / f'rank-base-schema-{uuid4().hex}'
+    root = TMP_ROOT / f'rank-okf-schema-{uuid4().hex}'
     try:
         (root / 'docs' / 'knowledge').mkdir(parents=True)
         shutil.copytree(IWE_CONFIG, root / '.iwe')
@@ -115,7 +115,7 @@ def untyped(workspace: Path) -> Iterator[Path]:
     ids=['no-frontmatter', 'no-type', 'empty-type'],
 )
 def test_document_without_type_is_rejected(workspace: Path, untyped: Path, front: str) -> None:
-    """The base schema requires a non-empty `type` on every document under data/."""
+    """The OKF schema requires a non-empty `type` on every document under data/."""
     untyped.write_text(f'{front}# Untyped note\n\nBody.\n')
     result = _validate(workspace)
     assert result.returncode != 0
@@ -123,7 +123,7 @@ def test_document_without_type_is_rejected(workspace: Path, untyped: Path, front
 
 
 def test_typed_document_passes(workspace: Path, untyped: Path) -> None:
-    """A document with any non-empty `type` satisfies the base schema."""
+    """A document with any non-empty `type` satisfies the OKF schema."""
     untyped.write_text('---\ntype: note\n---\n# Typed note\n\nBody.\n')
     result = _validate(workspace)
     assert result.returncode == 0, result.stdout + result.stderr

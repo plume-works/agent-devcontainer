@@ -1,6 +1,6 @@
 ---
 type: architecture
-description: Why work-item state lives only in frontmatter, the build order is a global rank field, hubs are flat alphabetical membership lists, the log and release pages are written only at a release cut, and the graph does not follow OKF.
+description: Why work-item state lives only in frontmatter, the build order is a global rank field, hubs are flat alphabetical membership lists, the log and release pages are written only at a release cut, and the graph diverges from OKF only where OKF costs merges or upkeep.
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-31T12:00:00Z
@@ -49,10 +49,11 @@ file, or the release cut.
   neither. The cut builds `releases/<X.Y.Z>.md` from the plans completed since
   the previous release and their `release` lists, and adds one dated group to
   `log.md`. There is no `releases/unreleased.md` accumulator.
-- **The graph does not follow OKF.** There is no `data/index.md`, no `okf-index`
-  or `okf-log` body schema, and no `status` field. A base schema still requires
-  a non-empty `type` on every document under `data/`, because every query
-  depends on it.
+- **The graph stays an OKF v0.2 bundle and diverges only to cut merge or upkeep
+  cost.** `data/index.md` lists hubs and changes only when a hub is added, so it
+  costs no merges and stays. The one divergence is `status`: it duplicated
+  `stage`, so every state change edited two fields; OKF makes it optional, and
+  the graph never sets it.
 
 ## Constraints
 

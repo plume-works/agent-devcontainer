@@ -29,6 +29,8 @@ refresh](someday/harness-refresh-restart-signal.md)
 [Deduplicate Docker storage at the host
 filesystem](someday/host-filesystem-dedup.md)
 
+[Replace actionlint and zizmor with jactionlint](someday/jactionlint.md)
+
 [Nested dispatch from catalog agents](someday/nested-catalog-agent-dispatch.md)
 
 [Validate correctness candidates on the large

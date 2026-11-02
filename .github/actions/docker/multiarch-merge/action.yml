@@ -59,7 +59,7 @@ runs:
 
     - name: Extract metadata (tags, labels) for docker image
       id: meta
-      uses: ./.github/actions/docker/metadata-action
+      uses: $/.github/actions/docker/metadata-action
       with:
         images: ${{ inputs.image }}
         prefix: ${{ inputs.future-tag }}

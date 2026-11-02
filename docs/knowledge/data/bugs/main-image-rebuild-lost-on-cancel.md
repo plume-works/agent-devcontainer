@@ -4,7 +4,7 @@ stage: done
 description: A push to main that cancels an in-progress Primary checks run drops the cancelled commit's image rebuild, so agent-desktop:edge stays built from an older commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-15T08:00:00Z
+  at: 2026-11-01T19:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/workflows/ci.yml
@@ -60,8 +60,7 @@ compared range until a run passes. When there is no earlier passing run, or the
 lookup fails, the action warns and falls back to the previous push. Every job
 that runs the action, and each `primary-checks.yml` job that calls a reusable
 workflow running it, grants `actions: read` for the lookup.
-`scripts/tests/test_paths_filter_last_pass.py` covers the lookup and the
-permissions.
+`scripts/tests/test_paths_filter_last_pass.py` covers the lookup.
 
 ## Key references
 

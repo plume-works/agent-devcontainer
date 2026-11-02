@@ -83,6 +83,10 @@ software project's memory and system of record. The division of labor:
   child in the graph. Hubs (`data/plans.md`, `data/features.md`, …)
   inclusion-link their members. Inline links (inside sentences/list items) are
   soft references for cross-cutting relationships.
+- **`data/index.md` lists hubs, not documents.** Adding a document to an
+  existing hub never touches it — the hub's own inclusion links are what change.
+  Update `data/index.md` only when you add or remove a *hub* itself. Never put a
+  plan task on `data/index.md` for ordinary document work.
 - **Hubs are flat sorted membership lists**: one inclusion link per member, no
   `##` sections, sorted by the member's key with any `YYYYMMDD-` prefix removed.
   Edit a hub only when a member is created, removed, or renamed — never to
@@ -103,10 +107,18 @@ software project's memory and system of record. The division of labor:
   `done|cancelled` (absent = open); releases `released`; backlog
   `planned|done|cancelled`. Reference docs (spec/architecture/concept/someday)
   carry a `type` and no stage.
-- **Every document under `data/` carries a non-empty `type`** — every query
-  depends on it, and `base.yaml` enforces it. `data/log.md` is the exception: it
-  has no frontmatter and stays date-grouped bullets under `## YYYY-MM-DD`,
-  checked by `log.yaml`.
+- **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
+  Knowledge
+  Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+  consumer can read, and CI checks conformance on every commit. Three rules keep
+  it true: every document under `data/` has frontmatter with a non-empty `type`;
+  `data/index.md` carries no frontmatter beyond `okf_version` and stays sections
+  of link bullets; `data/log.md` stays date-grouped bullets under
+  `## YYYY-MM-DD`. `okf.yaml`, `okf-index.yaml`, and `okf-log.yaml` enforce all
+  three — never work around them by unbinding a schema.
+- **The workspace diverges from OKF only to cut merge and upkeep cost.** It
+  never sets OKF's optional `status`: `stage` is the one lifecycle field, so a
+  state change edits one field in one file.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.

@@ -126,7 +126,7 @@ repos:
       # Renovate version: see architecture/renovate-config-validation.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.199.0 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.199.2 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
@@ -156,6 +156,15 @@ repos:
         entry: uv run pytest docs/knowledge/tests/test_plan_checkboxes.py
         language: system
         files: '^docs/knowledge/data/plans/.*\.md$'
+        pass_filenames: false
+
+      # The graph diverges from OKF only by never setting `status`; see
+      # spec/iwe-workflow-skills.
+      - id: no-status-field
+        name: no-status-field
+        entry: uv run pytest docs/knowledge/tests/test_no_status_field.py
+        language: system
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
         pass_filenames: false
 
       # Mirrors the Knowledge base validation workflow. Hooks read the whole graph

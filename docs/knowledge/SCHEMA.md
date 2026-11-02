@@ -8,21 +8,24 @@ hubs included. Run `iwe schema validate` before committing — exit 0 is the gat
 The examples below describe one fictional product (Pomodux, a focus-timer app);
 the `*.example.md` docs demonstrate each shape in place.
 
-Every document under `data/` carries a non-empty `type` —
-`.iwe/schemas/base.yaml` enforces it, because every query selects documents by
-it. `data/log.md` is the one exception and has a shape of its own. The per-type
-blocks below show only the fields specific to that type; the shared families
-come next.
+`data/` is a conformant [Open Knowledge
+Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
+v0.2 bundle. That is why every document carries a `type` and why the reserved
+`data/index.md` and `data/log.md` have shapes of their own. The per-type blocks
+below show only the fields specific to that type; the shared families come next.
 
 ## Fields every type carries
 
-Declared on every schema:
+OKF's optional families (SPEC §4.1, §5), declared on every schema and checked by
+`.iwe/schemas/okf.yaml`:
 
-- `description` — one sentence. Every document has one; it is what a reader sees
-  in query results before opening the file.
-- `generated` — `{ by, at }`. Write it on **every** edit. `by` is an actor:
-  `<producer>/<model-version>` for agent writes — the agent and the model
-  version that wrote the content; `human:<handle>` for hand-authored or
+- `description` — one sentence. Every document has one; it is what an OKF
+  consumer and `data/index.md` show before opening the file.
+- `generated` — `{ by, at }`. Write it on **every** edit. `by` is an actor in
+  the form [OKF SPEC
+  §7](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md#7-actor-convention)
+  defines: `<producer>/<model-version>` for agent writes — the agent and the
+  model version that wrote the content; `human:<handle>` for hand-authored or
   human-confirmed content; `process:<id>` for automation.
 - `sources` — the materials a document derives from, each
   `{ id, resource, title, author, usage_count, last_modified }` with `resource`
@@ -33,7 +36,8 @@ Declared on every schema:
 - `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
 `stage` is the only lifecycle field: the per-type enums below. A work item's
-state lives only in its own frontmatter; no hub section repeats it.
+state lives only in its own frontmatter; no hub section repeats it. OKF's
+optional `status` is never set, so a state change edits one field.
 
 ## The build order — `rank`
 
@@ -54,11 +58,16 @@ rank: 300 # optional; positive integer
 - Ship removes `rank` from a plan, bug, or task it marks done or cancelled.
 - Equal ranks are valid and break by key; CI warns about them.
 
-## The log — `data/log.md`
+## The reserved files — `data/index.md` and `data/log.md`
 
-The update history, written only by a release cut. It has no frontmatter, and
-`.iwe/schemas/log.yaml` checks its body: a title section over `## YYYY-MM-DD`
-groups of bullets, newest first.
+OKF reserved filenames, not concept documents: they carry no `type` and are
+checked by `okf-index.yaml` and `okf-log.yaml` instead.
+
+- `data/index.md` — the bundle-root index. Its only frontmatter is
+  `okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
+  markdown link to a hub followed by `-` and that hub's `description`.
+- `data/log.md` — the update history, written only by a release cut: a title
+  section over `## YYYY-MM-DD` groups of bullets, newest first.
 
 ## Plans — `data/plans/YYYYMMDD-<slug>.md`
 
