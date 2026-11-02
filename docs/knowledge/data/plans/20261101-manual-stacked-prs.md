@@ -488,8 +488,12 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/remote-codespace-session/agent-code/codespace-sync.py`
 
-- [ ] After a rejected push, `codespace-sync.py` tells the user to fetch and
+- [x] After a rejected push, `codespace-sync.py` tells the user to fetch and
   merge, never to rebase
+  - **Evidence:** commit `c858b80f` changes the message to "Fetch and merge the
+    remote branch to resolve";
+    `git grep -n -i -w rebase -- .agents/plugins/agentdev ':!*.md'` finds
+    nothing; `test_remote_codespace_session.py` — 28 passed.
 
 ### Task 15: CI
 
