@@ -31,6 +31,9 @@ context](plans/20260902-audit-plan-edits-in-fresh-context.md)
 [Let Implement verify, fix, and revise on its
 own](plans/20261026-autonomous-implement-loop.md)
 
+[Bug lifecycle stages and
+sections](plans/20261102-bug-lifecycle-and-sections.md)
+
 [Build on an unshipped dependency, ship after
 it](plans/20261101-build-on-unshipped-dependencies.md)
 
