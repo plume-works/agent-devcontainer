@@ -100,7 +100,7 @@ The last stdout line is `RESULT=<NAME>`; it decides the rest of the run:
 | RESULT             | Exit | Meaning                                                  | Action                                                                                                                                                                                                                                |
 | ------------------ | ---- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`          | `0`  | Exactly one open PR has this head branch                 | **Update mode.** Keep `PR_NUMBER`, `PR_BASE`, and `PR_TITLE`; the PR will be edited in place, never recreated.                                                                                                                        |
-| `NO_PR_FOUND`      | `3`  | No open PR for this branch                               | **Create mode.** Continue and create the PR at the end. Use `main` as the base unless the user says otherwise.                                                                                                                        |
+| `NO_PR_FOUND`      | `3`  | No open PR for this branch                               | **Create mode.** Continue and create the PR at the end. The base is `main` unless step 4 finds a dependent branch or the user says otherwise.                                                                                         |
 | `MULTIPLE_PRS`     | `4`  | Several PRs share this head branch                       | **STOP.** Show the candidates and ask which PR to update.                                                                                                                                                                             |
 | `PROTECTED_BRANCH` | `5`  | Branch, or the upstream it tracks, is `main` or `master` | **STOP.** A PR head must be a feature branch. With user authorization, create one through `/agentdev:git-new-branch`, then rerun — see the error handling section below.                                                              |
 | `GH_UNAVAILABLE`   | `6`  | `gh` is missing, unauthenticated, or its API call failed | **Fallback.** Detect the PR through the GitHub MCP server as described under GitHub Access, using the printed `HEAD_BRANCH`; the result selects update or create mode exactly as above. **STOP** only if no such server is connected. |
@@ -131,15 +131,44 @@ or staging workflow inline.
 
 ### 4. Branch Sync with the Base Branch
 
-**CRITICAL:** Before PR-body generation, sync the current branch with its base
-branch (`PR_BASE` in update mode, otherwise `main`) using the
-`/agentdev:update-branch` skill.
+**CRITICAL:** Before PR-body generation, sync the current branch. First check
+whether it depends on other pull requests — whether it carries the
+`Depends-on: #<P>` trailers `/agentdev:git-new-branch --depends-on` writes:
 
-The AI agent **MUST** invoke and follow the `/agentdev:update-branch` skill instead of
-re-implementing merge logic inline.
+```bash
+pr_restack_all.py <HEAD_BRANCH> --list
+```
 
-If `update-branch` reports unresolved conflicts or requires user input, stop
-PR creation and ask the user to resolve or confirm conflict decisions first.
+`pr_restack_all.py` ships in the plugin's `bin/`, on `PATH` while the plugin is
+enabled; it reads the pushed branch. A branch with no upstream yet reports
+`PREFLIGHT_ERROR` and has no dependency: `git-new-branch --depends-on` always
+pushes the branch it cuts. Each `DEPENDENCY=#<P> <STATE>
+<head-branch>` line is one of the branch's own dependencies, oldest first.
+
+**No `DEPENDENCY` line** — an ordinary branch. Sync it with its base branch
+(`PR_BASE` in update mode, otherwise `main`) using the
+`/agentdev:update-branch` skill. The AI agent **MUST** invoke and follow that
+skill instead of re-implementing merge logic inline.
+
+**One or more `DEPENDENCY` lines** — a manual stacked pull request:
+
+1. More than one dependency in state `OPEN`: **STOP** and create or edit
+   nothing. A pull request has one base, so the branch may wait on only one
+   unmerged predecessor; tell the user which ones are open.
+2. Push the branch's own commits first with step 8's helper, so the restack
+   builds on them.
+3. Restack it through `/agentdev:pr-restack-all` with
+   `pr_restack_all.py <HEAD_BRANCH>`, following that skill's result table, then
+   bring its merges into the local branch with `git merge --ff-only @{u}`.
+   This replaces the `update-branch` merge: a restack never merges `main`.
+4. In create mode, the base is the one `OPEN` dependency's head branch, or
+   `main` when none is open, and the dependencies for the body are every
+   `DEPENDENCY` number in merge order: the merged ones as listed, then the open
+   one last. Never open it as a draft.
+
+If `update-branch` or the restack reports unresolved conflicts or requires user
+input, stop PR creation and ask the user to resolve or confirm conflict
+decisions first.
 
 ### 5. Optional Issue Linking
 
@@ -178,8 +207,9 @@ description reflects the final changes the PR will contain.
 Generate the PR description by following the
 [pr-gen-description](../pr-gen-description/) skill. That skill performs the
 change review; do not review the diff separately here. Give it the base branch
-to compare against — `origin/${PR_BASE}` in update mode, `origin/main` in create
-mode — and expect it to report any uncommitted working-tree changes as out of PR
+to compare against — `origin/${PR_BASE}` in update mode, `origin/<base>` from
+step 4 in create mode — the dependencies step 4 found in create mode, and the
+pull request's current body in update mode, and expect it to report any uncommitted working-tree changes as out of PR
 scope rather than folding them into the body.
 
 Use the generated output as the PR body, and use one of these title formats:
@@ -209,21 +239,7 @@ through `pr-gen-description` first.
 **CRITICAL:** Before creating or updating the PR, push the branch so the remote
 head ref contains every commit the body describes.
 
-First check whether the branch belongs to a GitHub stack:
-
-```bash
-pr=$(gh pr view --json number --jq .number 2>/dev/null) &&
-  gh api "repos/{owner}/{repo}/pulls/$pr" --jq '.stack.number // empty'
-gh stack view --json >/dev/null 2>&1 && echo "tracked in a local stack"
-```
-
-If either prints anything, publish the stack with the guard's `publish`
-through [gh-stack](../gh-stack/SKILL.md) instead of the helper below, handling
-its result as that skill's push-guard table does, then continue at step 9. The
-guard updates stack branches with `--force-with-lease` only after checking that
-no remote commit would be lost.
-
-Otherwise, run the bundled helper:
+Run the bundled helper:
 
 ```bash
 agent-code/push-branch.py
@@ -244,11 +260,24 @@ Use `--remote <name>` or `--branch <name>` when the default remote or branch sho
 
 On any other `RESULT` than `SUCCESS`, display the script's actionable error
 output and abort.
-Never force-push outside the gh-stack skill's guarded `publish`, and never update the branch ref
+Never force-push, and never update the branch ref
 through a GitHub API or MCP tool — reconcile locally with
 `/agentdev:update-branch` and rerun this step.
 
 ### 9. Create or Update the Pull Request
+
+Before applying any body, check its `## Depends on` section with the parser
+`pr-restack-all` uses. In update mode, first save the current body with
+`gh pr view <PR_NUMBER> --json body --jq .body > ./.tmp/pr-body-current.md`:
+
+```bash
+check_depends_on.py ./.tmp/pr-body.md --current ./.tmp/pr-body-current.md  # update mode
+check_depends_on.py ./.tmp/pr-body.md --depends-on <P> ...                   # create mode, dependent branch
+check_depends_on.py ./.tmp/pr-body.md                                        # create mode, otherwise
+```
+
+Anything but `RESULT=SUCCESS`: do not apply the body. Regenerate it through
+`pr-gen-description` and check again.
 
 In **update mode**, edit the existing PR in place with `gh`. Write the body to a
 file under `./.tmp/` (relative to the repository root; create the directory if
@@ -274,12 +303,13 @@ gh pr create --title "<title>" --body-file ./.tmp/pr-body.md \
 - `--title` (required): full PR title
 - `--body-file` (required): the generated markdown from the
   [pr-gen-description](../pr-gen-description/) skill
-- `--base` (required): target branch. If not explicitly provided by user or
-  repo policy, use `main`
+- `--base` (required): target branch. The base step 4 chose for a dependent
+  branch; otherwise, if not explicitly provided by user or repo policy, `main`
 - `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr.py`,
   which is the configured upstream branch name rather than the local branch
   name whenever the two differ
-- `--draft` (optional): pass when the user wants a draft PR
+- `--draft` (optional): pass when the user wants a draft PR — never for a
+  dependent branch
 - `--repo <owner>/<repo>` (optional): pass when the working directory is not
   the target repository
 

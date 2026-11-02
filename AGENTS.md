@@ -4,12 +4,13 @@ NEVER use "$TMPDIR" env variable.
 ALWAYS use "./.tmp" (relative to the repo root) for temporary files; create it if it does not exist.
 The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so supervisord, CBM and tmux fail there with `EINVAL`.
 NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch contents. Use local git branch workflows instead; if push authentication is unavailable, stop and report the blocker rather than updating the branch remotely via API.
-NEVER force-push. The one exception: `gh stack rebase` and the `gh-stack` skill's `stack-guard.py publish`, run after its `stack-guard.py begin`, may update branches of a GitHub stack with `--force-with-lease` (see `docs/knowledge/data/architecture/stacked-prs.md`). Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`.
+NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
+NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 Commit at checkpoints as meaningful progress is achieved, rather than accumulating a whole task into one commit at the end.
 
 ## Best Practices for Agents
 
-0. NEVER change git config on local or global level unless explicitly instructed. The one exception: the repository-local `rerere.enabled` and `remote.pushDefault` that `gh stack` and the `gh-stack` skill's setup write. NEVER switch/change remote.
+0. NEVER change git config on local or global level unless explicitly instructed. NEVER switch/change remote.
 1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `uv sync` (`agentdev-runtime project sync` inside the runtime images) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
 2. **Scope test runs narrowly** while iterating: `uv run pytest <path>::<test_name>`, `bun test <path>`. Run the full suite only when asked.
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, escalate in this order: (a) Docker daemon available → use the `/agentdev:microvm-sandbox` skill to run the command through `devcontainer exec`; (b) no Docker daemon → use the `/agentdev:remote-codespace-session` skill to run it on a GitHub Codespace over SSH. Only report a blocker if both escalation paths are unavailable (e.g. no `gh` auth).

@@ -81,6 +81,9 @@ volume](plans/20261030-devcontainer-home-volume.md)
 [Cap Docker storage with automatic garbage
 collection](plans/20261013-docker-storage-gc.md)
 
+[Collect Docker garbage hourly in both workspace
+engines](plans/20261101-docker-storage-periodic-gc.md)
+
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 [Explore settles open questions one at a
@@ -133,6 +136,8 @@ repository](plans/20261028-move-expo-bridge-kb.md)
 
 [Move the IWE workflow skills into the agentdev
 plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
+
+[Narrow the image build context](plans/20261102-narrow-image-build-context.md)
 
 [Adopt GitHub native stacked pull
 requests](plans/20261002-native-stacked-prs.md)
@@ -222,6 +227,9 @@ conversation](plans/20261021-remote-control-pin-follows-clear.md)
 autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
+
+[Re-request an AI review after a title or description
+edit](plans/20261102-rereview-after-metadata-edit.md)
 
 [The AI responder posts as the plume-works-quill
 App](plans/20261030-responder-quill-app-identity.md)

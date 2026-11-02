@@ -3,6 +3,13 @@
 The history of this workspace, newest first. The `ship` skill's release cut adds
 one dated group per release; nothing else writes here.
 
+## 2026-11-02
+
+- **Update**: [Explore settles open questions one at a
+  time](plans/20261101-explore-interviews-open-questions.md) plan done; specs
+  synced in [IWE workflow skills](spec/iwe-workflow-skills.md); [Agentdev IWE
+  workflow skills](features/agentdev-iwe-workflow-skills.md) changed.
+
 ## 2026-11-01
 
 - **Release**: [2.0.0](releases/2.0.0.md) cut from every feature and fix
@@ -564,8 +571,8 @@ one dated group per release; nothing else writes here.
   now route every stack push through the gh-stack skill's guard; [Bug: gh stack
   push overwrites a stack layer whose remote is
   ahead](bugs/gh-stack-push-overwrites-remote-layer.md) fixed.
-- **Add**: [Stack push guard](architecture/stack-push-guard.md) records why
-  every stack push goes through the gh-stack skill's two-phase guard.
+- **Add**: Stack push guard records why every stack push goes through the
+  gh-stack skill's two-phase guard.
 - **Map**: refreshed the agentdev plugin, skills, and tests docs for
   `stack-guard.sh` and the repository-owned gh-stack skill.
 
@@ -811,8 +818,8 @@ one dated group per release; nothing else writes here.
   implemented.
 - **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
   created.
-- **Update**: [Stacked pull requests](architecture/stacked-prs.md) architecture
-  doc created from the stacked-PR spike.
+- **Update**: Stacked pull requests architecture doc created from the stacked-PR
+  spike.
 - **Update**: Refreshed the agentdev, agentdev skills, agentdev tests, Ansible,
   and image-build flow codebase maps for the vendored gh-stack skill, the new
   pr-merge-stack skill and the chain-merge skill it replaced, and the pinned

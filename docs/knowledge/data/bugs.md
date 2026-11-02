@@ -46,6 +46,9 @@ token](bugs/coder-askpass-push-hang.md)
 [Bug: Coder workspace Dev Container is lost on
 restart](bugs/coder-devcontainer-lost-on-restart.md)
 
+[Bug: Docker storage accumulates on long-running Coder
+workspaces](bugs/coder-docker-storage-accumulates.md)
+
 [Codex never loads the agentdev catalog
 agents](bugs/codex-catalog-agents-not-loaded.md)
 
@@ -82,6 +85,9 @@ ahead](bugs/gh-stack-push-overwrites-remote-layer.md)
 [Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
 /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
 
+[Bug: Image provisioning layer is keyed on the whole
+repository](bugs/image-build-context-whole-repo.md)
+
 [Bug: Image rebuild lost when a later push to main cancels its
 run](bugs/main-image-rebuild-lost-on-cancel.md)
 
@@ -112,8 +118,14 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
 
+[Bug: Remote Control real-tmux tests share one tmux server under
+pytest-xdist](bugs/remote-control-tmux-test-shared-under-xdist.md)
+
 [Bug: the Remote Control watcher restarts a session that never comes up on every
 tick](bugs/remote-control-watcher-start-loop.md)
+
+[Bug: the AI task responder cannot push to iwe/ branches under their
+ruleset](bugs/responder-cannot-bypass-iwe-ruleset.md)
 
 [A capitalized @Claude mention was admitted, then
 misrouted](bugs/responder-mention-case-sensitivity.md)
@@ -163,3 +175,6 @@ says so](bugs/workspace-image-lacks-hook-binaries.md)
 
 [Bug: xpra_setup installs Ubuntu's xpra
 3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)
+
+[Bug: supervised-Xpra tests can pick the same X display under
+pytest-xdist](bugs/xpra-test-displays-collide-under-xdist.md)

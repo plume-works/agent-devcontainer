@@ -4,7 +4,7 @@ stage: accepted
 description: The Dev Container runs as a non-root account matched to the host user, with its whole home on one per-instance volume, replacing the per-directory state volumes under /root and the ~/.claude.json symlink.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T06:05:00Z
+  at: 2026-11-02T12:45:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: .devcontainer/devcontainer.json
@@ -46,9 +46,9 @@ mounts it, and named after the host user's UID and GID. Containers with
 different IDs never share one.
 
 **Shell setup outside the home.** The shell configuration the image gives the
-account today through `/root/.bashrc` (the `~/.local/bin` path, the repository's
-`docker/bin` wrapper, `bun`, history settings) comes from system-wide files, so
-an empty home has it and an image upgrade updates it.
+account today through `/root/.bashrc` (the `~/.local/bin` path, `bun`, history
+settings) comes from system-wide files, so an empty home has it and an image
+upgrade updates it.
 
 ## Edge cases
 

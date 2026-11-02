@@ -101,32 +101,11 @@ def ensure_auth_dirs(settings: env.Settings) -> None:
         (auth / agent).chmod(0o700)
 
 
-def register_user_tools(settings: env.Settings) -> None:
-    """Register the image's root-home tooling for whichever account runs here."""
-    source = settings.path('AGENTDEV_GH_STACK_DIR')
-    binary = source / 'gh-stack'
-    manifest = source / 'manifest.yml'
-    if not (os.access(binary, os.X_OK) and manifest.is_file()):
-        return
-    extension = settings.path('XDG_DATA_HOME') / 'gh/extensions/gh-stack'
-    extension.mkdir(parents=True, exist_ok=True)
-    link = extension / 'gh-stack'
-    if link.is_symlink() or link.exists():
-        link.unlink()
-    link.symlink_to(binary)
-    lines = manifest.read_text().splitlines(keepends=True)
-    (extension / 'manifest.yml').write_text(
-        ''.join(f'path: {link}\n' if line.startswith('path: ') else line for line in lines)
-    )
-
-
 def apply_agent_policy() -> None:
     opencode_config.configure()
 
 
 def create(settings: env.Settings) -> None:
-    if deploy(settings):
-        register_user_tools(settings)
     link_claude_json(settings)
     if not deploy(settings):
         install_cbm(settings)

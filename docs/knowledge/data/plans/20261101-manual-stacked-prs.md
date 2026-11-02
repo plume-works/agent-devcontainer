@@ -8,7 +8,7 @@ release:
 description: Remove gh stack and GitHub native stacks and replace them with manual stacked pull requests — branches cut from their predecessor, kept current only with merges, and restacked after a squash merge by one pr-restack-all run.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T13:00:00Z
+  at: 2026-11-02T02:00:00Z
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -18,7 +18,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
-rank: 300
+completed: 2026-11-02
+stage: done
 ---
 
 # Replace gh stack with manual stacked pull requests
@@ -63,6 +64,10 @@ built from remote refs, never touching a local branch, so it cannot disturb
 another session's worktree; a session whose branch it advanced sees an ordinary
 non-fast-forward rejection and merges.
 
+Only branches of the remote are cut from or restacked: a pull request whose head
+lives in a fork names a branch the remote may hold under the same name, so
+`git-new-branch --depends-on` and `pr-restack-all` refuse it.
+
 All new code lives in the plugin's `bin/`; the PR body's `## Depends on` section
 is parsed and rewritten by one module that `pr-restack-all` and the body
 validation share.
@@ -100,13 +105,21 @@ the trailer commit (Task 2), 8 the restack scope and 16 the chain discovery
 **Files:** Create: `.agents/plugins/agentdev/bin/depends_on.py`,
 `.agents/plugins/agentdev/tests/test_depends_on.py`
 
-- [ ] `depends_on.py` finds a PR body's `## Depends on` section, lists its
+- [x] `depends_on.py` finds a PR body's `## Depends on` section, lists its
   `- #<P>` entries in order, and replaces one entry's line with its merge
   record, leaving the rest of the body byte-for-byte; it reads every
   `Depends-on: #<P>` trailer from a branch's commits
-- [ ] Tests cover a body with no section, one entry, several entries, an entry
+  - **Evidence:** commit `77016019` adds `bin/depends_on.py` (`find_section`,
+    `entries`, `record_merge`, `read_trailers`);
+    `uv run pytest .agents/plugins/agentdev/tests/test_depends_on.py` — 8
+    passed.
+- [x] Tests cover a body with no section, one entry, several entries, an entry
   already carrying a record, the section followed by another heading, and
   trailers on two commits
+  - **Evidence:** commit `77016019` adds `tests/test_depends_on.py` with one
+    test per listed case plus an invalid list item and a fenced heading;
+    `uv run pytest .agents/plugins/agentdev/tests/test_depends_on.py` — 8
+    passed.
 
 The merge record replaces `- #P` with exactly this form:
 
@@ -121,12 +134,27 @@ The merge record replaces `- #P` with exactly this form:
 `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`; Create:
 `.agents/plugins/agentdev/tests/test_git_new_branch_depends_on.py`
 
-- [ ] `--depends-on <P>`, repeatable, requires each PR to be open, cuts the
+- [x] `--depends-on <P>`, repeatable, requires each PR to be open, cuts the
   branch from the first PR's head branch and merges the other heads in, adds one
   empty commit with a `Depends-on: #<P>` trailer per PR, and pushes without
   force; a PR that is not open stops it before anything is created
-- [ ] `SKILL.md` documents the option, its result codes, and the rule that the
+  - **Evidence:** commit `f04d9a32` adds the option to `git-new-branch.py`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_git_new_branch_depends_on.py .agents/plugins/agentdev/tests/test_git_new_branch.py`
+    — 44 passed, covering one and two predecessors, a merged or closed one, and
+    a conflicting head.
+- [x] `SKILL.md` documents the option, its result codes, and the rule that the
   predecessor's PR must exist first
+  - **Evidence:** commit `f04d9a32` adds Workflow 6 and the
+    `DEPENDENCY_NOT_OPEN`, `GH_FAILED`, and `MERGE_FAILED` rows to
+    `git-new-branch/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    64/64 skills valid.
+- [x] A `--depends-on` pull request whose head is in a fork stops it with
+  `PREFLIGHT_ERROR` before anything is created, and `SKILL.md` says so
+  - **Evidence:** commit `f937838a` adds the `isCrossRepository` refusal to
+    `git-new-branch.py` and the `PREFLIGHT_ERROR` row wording to its `SKILL.md`;
+    `test_a_predecessor_in_a_fork_is_a_preflight_error` passes (`uv run pytest`
+    on both git-new-branch and restack test files: 24 passed).
 
 Approved flow:
 
@@ -144,17 +172,35 @@ git-new-branch <name> --depends-on <P>
 `.agents/plugins/agentdev/skills/pr-restack-all/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_pr_restack_all.py`
 
-- [ ] `pr_restack_all.py` takes a top PR or a branch and restacks the chain as
+- [x] `pr_restack_all.py` takes a top PR or a branch and restacks the chain as
   the blocks below state, printing `RECONNECTED=#P HEAD=<HEAD> MERGE=<MERGE>`
   per reconnect and writing the merge record through Task 1's module after each
   push lands
-- [ ] Tests run against real git repositories under `/tmp`, creating
+  - **Evidence:** commit `698bb5ef` adds `bin/pr_restack_all.py`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_pr_restack_all.py` — 11
+    passed.
+- [x] Tests run against real git repositories under `/tmp`, creating
   `refs/pull/N/head` refs and squash commits with plain git, with the PR
   metadata lookup behind one replaceable function: restack onto an open
   predecessor, onto a merged one, X+2 after X and X+1 merged, rerun after a
   conflict, a branch with two dependencies, and no local branch created or moved
-- [ ] `SKILL.md` documents the inputs, result codes, the conflict-and-rerun
+  - **Evidence:** commit `698bb5ef` adds `tests/test_pr_restack_all.py`, whose
+    `Hub` fixture implements the `PullRequests` protocol over a bare remote with
+    `refs/pull/N/head` refs and `git merge --squash` merges; one test per listed
+    case plus a closed predecessor, a wrong last entry, a moved final head, and
+    transitive trailers — 11 passed.
+- [x] `SKILL.md` documents the inputs, result codes, the conflict-and-rerun
   path, and that it never merges `main`
+  - **Evidence:** commit `698bb5ef` adds `skills/pr-restack-all/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
+- [x] A chain link or open predecessor whose head is in a fork stops the restack
+  with `CHAIN_BROKEN` before any push, and `SKILL.md` says so
+  - **Evidence:** commit `f937838a` adds `require_same_repository` to
+    `pr_restack_all.py` and the fork case to the `CHAIN_BROKEN` row of
+    `pr-restack-all/SKILL.md`;
+    `test_a_link_whose_head_is_in_a_fork_stops_before_any_push` passes for a
+    fork link and a fork predecessor.
 
 Approved chain discovery:
 
@@ -228,43 +274,78 @@ restacks onto open X+1 (Rz1) → X+1 merges as Sy → X+2 restacks onto merged X
 `.agents/plugins/agentdev/tests/test_check_depends_on.py`; Modify:
 `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`
 
-- [ ] `check_depends_on.py` takes a candidate body and fails when Task 1's
+- [x] `check_depends_on.py` takes a candidate body and fails when Task 1's
   module cannot find its `## Depends on` section and entries, or could not
   rewrite an entry's line
-- [ ] `pr-gen-description` writes `## Depends on` only for a new PR, keeps the
+  - **Evidence:** commit `6274189d` adds `bin/check_depends_on.py`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_check_depends_on.py` — 7
+    passed.
+- [x] `pr-gen-description` writes `## Depends on` only for a new PR, keeps the
   current section byte-for-byte on regeneration, and runs the check in Step 8
+  - **Evidence:** commit `6274189d` adds the Dependencies and Current Body
+    inputs, the Step 7 `Depends on` item, and the Step 8 `check_depends_on.py`
+    run to `pr-gen-description/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 5: `pr-open` opens a dependent PR
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] The GitHub stack detection in step 8 and its force-push exception are
+- [x] The GitHub stack detection in step 8 and its force-push exception are
   gone; every push goes through the existing helper
-- [ ] A branch carrying `Depends-on:` trailers runs `pr-restack-all <branch>` in
+  - **Evidence:** commit `9032ddce` removes the step 8 stack check and the
+    `gh-stack` force-push exception from `pr-open/SKILL.md`; step 8 runs only
+    `push-branch.py`.
+- [x] A branch carrying `Depends-on:` trailers runs `pr-restack-all <branch>` in
   step 4 instead of an `update-branch` merge, is refused while more than one
   dependency is unmerged, and in create mode gets its base from the one unmerged
   predecessor's head branch (`main` when none), the first `## Depends on`
   section, and no draft flag
-- [ ] Step 9 runs Task 4's check before `gh pr create` and `gh pr edit`, and
+  - **Evidence:** commit `9032ddce` rewrites step 4 of `pr-open/SKILL.md`:
+    `pr_restack_all.py <HEAD_BRANCH> --list`, a stop on more than one open
+    dependency, a `pr_restack_all.py <HEAD_BRANCH>` restack in place of
+    `update-branch`, the open predecessor's head branch (else `main`) as base,
+    dependencies in merge order for the body, and no draft.
+- [x] Step 9 runs Task 4's check before `gh pr create` and `gh pr edit`, and
   does not apply a body that fails it
+  - **Evidence:** commit `9032ddce` adds the `check_depends_on.py` run to step 9
+    of `pr-open/SKILL.md`, before `gh pr edit` (with `--current`) and
+    `gh pr create` (with `--depends-on`), refusing a failing body;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 6: `pr-merge` merges only into `main`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] Every `gh stack` path is gone: stack detection, `gh stack checkout`, the
+- [x] Every `gh stack` path is gone: stack detection, `gh stack checkout`, the
   guarded re-sync after a reformat or fix commit, and `gh stack merge`
-- [ ] `pr-merge` refuses a PR whose base is not `main` and never passes
+  - **Evidence:** commit `e70ad999` removes stack detection,
+    `gh stack checkout`, the guarded re-sync after a fix commit, and
+    `gh stack merge` from `pr-merge/SKILL.md` (the reformat re-sync was already
+    gone); `grep -n -i stack` there finds only the `pr-merge-stack` pointer.
+- [x] `pr-merge` refuses a PR whose base is not `main` and never passes
   `--admin`
+  - **Evidence:** commit `e70ad999` adds the `baseRefName` check that stops for
+    a base other than `main` and the Final Squash Merge rule never to pass
+    `--admin`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 7: `pr-merge-stack` merges a chain
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`
 
-- [ ] The skill keeps its name and runs the approved loop, with step 2 run by
+- [x] The skill keeps its name and runs the approved loop, with step 2 run by
   the owning session or child inside a coordinator session and by the skill
   itself outside one, and step 4 always the skill's own single `pr-restack-all`
   run
+  - **Evidence:** commit `7ad9141d` rewrites `pr-merge-stack/SKILL.md` around
+    the approved loop, step 2 by the owning session inside a coordinator and by
+    the skill otherwise, step 4 always the skill's own `pr-restack-all` run;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ``` text
 input: top PR
@@ -282,10 +363,17 @@ loop:
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] `update-branch` loses its stack prerequisite, Workflow 0, and the stack
+- [x] `update-branch` loses its stack prerequisite, Workflow 0, and the stack
   troubleshooting row; its script is unchanged
-- [ ] `pr-feedback-resolution` resolves every conflicted PR through
+  - **Evidence:** commit `a230ecbf` removes the prerequisite line, Workflow 0,
+    and the stack troubleshooting row from `update-branch/SKILL.md`;
+    `agent-code/update-branch.py` is unchanged.
+- [x] `pr-feedback-resolution` resolves every conflicted PR through
   `update-branch --base <baseRefName>`, its pre-stack text (`bad960f6^`)
+  - **Evidence:** commit `a230ecbf` restores the conflict block of
+    `pr-feedback-resolution/SKILL.md` from `bad960f6^` byte for byte;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 9: Delete the gh-stack skill
 
@@ -293,9 +381,15 @@ loop:
 `.agents/plugins/agentdev/tests/test_gh_stack_guard.py`; Modify:
 `.prettierignore`, `.agents/plugins/agentdev/README.md`
 
-- [ ] The skill directory, its guard tests, and its `.prettierignore` entry are
+- [x] The skill directory, its guard tests, and its `.prettierignore` entry are
   gone, and the catalog README lists `pr-restack-all` and the new
   `pr-merge-stack` summary instead of `gh-stack`
+  - **Evidence:** commit `6a536f62` deletes `skills/gh-stack/`,
+    `tests/test_gh_stack_guard.py`, and the `.prettierignore` entry, and
+    replaces the README's `gh-stack` row with `pr-restack-all` and the new
+    `pr-merge-stack` summary;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    61/61 valid (the skill and its three reference pages gone).
 
 ### Task 10: The images stop shipping gh-stack
 
@@ -307,30 +401,43 @@ loop:
 `py_packages/agentdev_runtime/README.md`, `scripts/refresh-pin-checksums.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] The pinned download, its Renovate comment and checksums, the three install
+- [x] The pinned download, its Renovate comment and checksums, the three install
   tasks, the deploy image's copy, the runtime registration and
   `AGENTDEV_GH_STACK_DIR`, the checksum refresh entry, and the acceptance
   check's `gh stack --help` are gone
+  - **Evidence:** commit `41df675c` deletes `github_cli/defaults/main.yml`,
+    which held only the gh-stack pin, and removes the install tasks, the deploy
+    image's copy, `register_user_tools` and its call, `AGENTDEV_GH_STACK_DIR`
+    and its README row, the `refresh-pin-checksums.py` entry, and the acceptance
+    check's `gh stack --help`; `uv run pytest py_packages/agentdev_runtime` — 86
+    passed.
 
 ### Task 11: The repository rules
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] `AGENTS.md` line 7 becomes:
+- [x] `AGENTS.md` line 7 becomes:
+  - **Evidence:** commit `adebf714` replaces `AGENTS.md` line 7 with the two
+    approved lines verbatim.
 
 ``` text
 NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 ```
 
-- [ ] Best Practice 0 becomes its pre-stack text (`a1c1563c^`):
+- [x] Best Practice 0 becomes its pre-stack text (`a1c1563c^`):
+  - **Evidence:** commit `adebf714` sets Best Practice 0 to the approved text,
+    identical to `git show a1c1563c^:AGENTS.md` line 10.
 
 ``` text
 0. NEVER change git config on local or global level unless explicitly instructed. NEVER switch/change remote.
 ```
 
-- [ ] `product.md`'s `## Authoring rules` mirrors both, and its changelog
+- [x] `product.md`'s `## Authoring rules` mirrors both, and its changelog
   records the change
+  - **Evidence:** commit `adebf714` rewrites the force-push and git config
+    bullets of `product.md` `## Authoring rules` and adds the 2026-11-02
+    changelog entry; `iwe schema validate` passes.
 
 ### Task 12: Project memory
 
@@ -339,43 +446,65 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 `docs/knowledge/data/architecture/stack-push-guard.md`; Modify:
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/native-stacked-prs.md`,
-`docs/knowledge/data/backlog/pr-merge-stack-post-merge-cleanup.md`,
-`docs/knowledge/data/backlog.md`
+`docs/knowledge/data/backlog/pr-merge-stack-post-merge-cleanup.md`
 
-- [ ] `architecture/manual-stacked-prs` records the design, the rejected
+- [x] `architecture/manual-stacked-prs` records the design, the rejected
   alternatives above, and the reconnect evidence: a normal merge of the squash
   commit into the PR's final head, replayed with `git merge-tree` on every
   squash-merged PR where `main` had moved before the squash (145 in
   plume-works/agent-devcontainer, 73 in Dr-QP/Dr.QP), was clean and equal to the
   squash commit's tree every time, linked from the architecture hub; it does not
   reference the two deleted documents
-- [ ] `architecture/stacked-prs` and `architecture/stack-push-guard` are removed
+  - **Evidence:** commit `f913aa71` adds `architecture/manual-stacked-prs.md`
+    (design, the five rejected alternatives, the 145 + 73 reconnect replay),
+    linked from `architecture.md`; it links neither deleted document.
+- [x] `architecture/stacked-prs` and `architecture/stack-push-guard` are removed
   with `iwe delete`, and every remaining link to them passes
   `iwe schema validate`
-- [ ] `features/native-stacked-prs` is `stage: deprecated`
-- [ ] `backlog/pr-merge-stack-post-merge-cleanup` is `stage: cancelled`, its
-  link moved to `## Cancelled`
+  - **Evidence:** commit `f913aa71` removes both with `iwe delete`, which
+    rewrote their links in seven documents; `iwe schema validate` exits 0.
+- [x] `features/native-stacked-prs` is `stage: deprecated`
+  - **Evidence:** commit `f913aa71` sets `stage: deprecated` with `iwe update`.
+- [x] `backlog/pr-merge-stack-post-merge-cleanup` is `stage: cancelled`, its
+  `rank` removed; the flat `data/backlog.md` hub keeps its link
+  - **Evidence:** commit `f913aa71` sets `stage: cancelled`, drops `rank`, and
+    records why in the task; `iwe schema validate` exits 0.
 
 ### Task 13: The `iwe/**` ruleset
 
 **Files:** none — repository settings
 
-- [ ] A ruleset on `refs/heads/iwe/**` requires the status check `base-is-main`,
+- [x] A ruleset on `refs/heads/iwe/**` requires the status check `base-is-main`,
   with the Write, Maintain, and Admin repository roles as bypass actors in mode
   `always`; no workflow reports the check
+  - **Evidence:** ruleset `iwe-branches-merge-only-into-main` (id 26335732,
+    `gh api repos/{owner}/{repo}/rulesets/26335732`) targets
+    `refs/heads/iwe/**`, requires `base-is-main`, and exempts repository roles
+    4, 2, and 5 (Write, Maintain, Admin) in mode `always`;
+    `git grep base-is-main -- .github` finds nothing; the owner push of this
+    tick was accepted.
 
-### Task 14: The AI responder's pushes
+### Task 14: No skill suggests a rebase
 
-**Files:** none, or the Task 13 ruleset
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/remote-codespace-session/agent-code/codespace-sync.py`
 
-- [ ] The identity `ai-responder.yml` pushes to PR branches with is confirmed,
-  and when it is a GitHub App, that App is a bypass actor on the Task 13 ruleset
+- [x] After a rejected push, `codespace-sync.py` tells the user to fetch and
+  merge, never to rebase
+  - **Evidence:** commit `c858b80f` changes the message to "Fetch and merge the
+    remote branch to resolve";
+    `git grep -n -i -w rebase -- .agents/plugins/agentdev ':!*.md'` finds
+    nothing; `test_remote_codespace_session.py` — 28 passed.
 
 ### Task 15: CI
 
 **Files:** none
 
-- [ ] The pull request's CI is green
+- [x] The pull request's CI is green
+  - **Evidence:** PR #633 at head `20a9a0ed`: the Primary checks run 41378861351
+    (which reports `CI/CD / CI finished`) concluded `success`; agent files,
+    knowledge base, Renovate config, and `ai-review-present` passed on the same
+    head — 29 checks passed, 4 skipped.
 
 ## Spec changes
 
@@ -417,9 +546,10 @@ stack. Another branch's history SHALL be brought in with a merge.
 ### Requirement: A dependent branch records its predecessors
 
 `git-new-branch --depends-on <P>`, repeatable, SHALL require every named pull
-request to be open, SHALL cut the branch from the first one's head branch and
-merge the others' heads, SHALL add an empty commit with a `Depends-on: #<P>`
-trailer for each, and SHALL push without force.
+request to be open and its head to be a branch of the remote, SHALL cut the
+branch from the first one's head branch and merge the others' heads, SHALL add
+an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push
+without force.
 
 #### Scenario: One open predecessor
 
@@ -436,6 +566,11 @@ trailer for each, and SHALL push without force.
 
 - **WHEN** `--depends-on` names two open pull requests
 - **THEN** the branch contains both heads and one trailer line for each
+
+#### Scenario: Predecessor in a fork
+
+- **WHEN** a named pull request's head is in a fork
+- **THEN** it stops before creating a branch
 
 ### Requirement: pr-open bases a dependent pull request on its predecessor
 
@@ -480,7 +615,8 @@ cannot find or edit.
 pr-restack-all SHALL take a top pull request or a branch. For a pull request it
 SHALL find the chain by walking each pull request's base to the open pull
 request whose head is that branch, down to a base of `main`, and SHALL stop when
-a pull request's last `## Depends on` entry is not the pull request below it.
+a pull request's last `## Depends on` entry is not the pull request below it, or
+when a pull request in the chain or an open predecessor has its head in a fork.
 For a branch it SHALL read the dependencies from its `Depends-on:` trailers. It
 SHALL work in one fresh detached worktree under `./.tmp/` built from remote
 refs, and SHALL NOT check out, create, or move a local branch. Bottom-up, for
@@ -530,6 +666,12 @@ push without force and, after the push lands, replace the `- #<P>` entry with
 - **WHEN** pr-restack-all runs while another worktree has a chain branch checked
   out
 - **THEN** no local branch or worktree other than its own is changed
+
+#### Scenario: Head in a fork
+
+- **WHEN** a pull request in the chain, or its open predecessor, has its head in
+  a fork
+- **THEN** it stops before any push
 
 ### Requirement: pr-merge merges only into main
 
@@ -622,8 +764,13 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 - `uv run pytest py_packages/agentdev_runtime` passes.
-- `git grep -n -i -E "gh[ -]stack|stack-guard|AGENTDEV_GH_STACK"` finds nothing
-  outside done plans, done bugs, `data/log.md`, and `data/releases/`.
+- `git grep -n -i -E "gh[ -]stack|stack-guard|AGENTDEV_GH_STACK" -- ':!docs/knowledge' ':!AGENTS.md'`
+  finds nothing. Under `docs/knowledge/data/` and in `AGENTS.md`, a remaining
+  hit is only a rule that forbids `gh stack`, a rejected alternative, a hub link
+  title, another plan, a done, cancelled, or deprecated document, `data/log.md`,
+  `data/releases/`, or a spec, feature, or bug this plan's Ship updates.
+- `git grep -n -i -w rebase -- .agents/plugins/agentdev ':!*.md'` finds no
+  instruction to rebase.
 - `iwe normalize` and `iwe schema validate` pass.
 - `gh api repos/{owner}/{repo}/rulesets` shows the Task 13 ruleset with its
   three bypass roles.
@@ -637,21 +784,25 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
 - Converting a GitHub native stack still open when this ships.
 - The `implement-agent-specs` coordinator workflow beyond what `pr-merge-stack`
   and `pr-restack-all` cover.
+- Pushes by the AI task responder to `iwe/` branches. It pushes as the GitHub
+  Actions app, which a ruleset cannot exempt, so the Task 13 ruleset rejects
+  them — [Bug: the AI task responder cannot push to iwe/ branches under their
+  ruleset](../bugs/responder-cannot-bypass-iwe-ruleset.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
+Verified anchor points (line numbers as of 2026-11-02):
 
 - `AGENTS.md:7` — the force-push exception for `gh stack`
 - `AGENTS.md:12` — Best Practice 0 with the `rerere`/`pushDefault` exception
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:37` — stack detection
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:62` — `gh stack checkout`
   in the worktree setup
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:104` — guarded re-sync
-  after a reformat commit
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:203` — guarded re-sync
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — force-push rule
+  naming the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:171` — guarded re-sync
   after a fix commit
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:231` — `gh stack merge`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:198` — `gh stack merge`
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:90` — §2 Existing Pull
   Request Detection, create mode's `main` base
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:132` — §4 Branch Sync with
@@ -698,8 +849,8 @@ Verified anchor points (line numbers as of 2026-11-01):
 - `py_packages/agentdev_runtime/README.md:33` — `AGENTDEV_GH_STACK_DIR` row
 - `scripts/refresh-pin-checksums.py:119` — gh-stack pin entry
 - `scripts/tests/test_agent_runtime_acceptance.py:392` — `gh stack --help`
-- `docs/knowledge/data/product.md:131` — force-push and git config rules
-- `docs/knowledge/data/architecture.md:75` — stacked-prs and stack-push-guard
+- `docs/knowledge/data/product.md:130` — force-push and git config rules
+- `docs/knowledge/data/architecture.md:123` — stacked-prs and stack-push-guard
   links
-- `docs/knowledge/data/features.md:74` — native stacked PRs link
-- `docs/knowledge/data/backlog.md:53` — pr-merge-stack cleanup link
+- `docs/knowledge/data/features.md:69` — native stacked PRs link
+- `docs/knowledge/data/backlog.md:72` — pr-merge-stack cleanup link
