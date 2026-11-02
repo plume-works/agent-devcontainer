@@ -8,7 +8,7 @@ release:
 description: Remove gh stack and GitHub native stacks and replace them with manual stacked pull requests — branches cut from their predecessor, kept current only with merges, and restacked after a squash merge by one pr-restack-all run.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T13:00:00Z
+  at: 2026-11-02T01:50:00Z
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -470,10 +470,7 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 
 **Files:** none
 
-- [x] The pull request's CI is green
-  - **Evidence:** PR #633 at head `57bc71a8`: CI/CD run 41370770799 concluded
-    `success`, and every other required check (agent files, knowledge base,
-    Renovate config, `ai-review-present`) passed on that head.
+- [ ] The pull request's CI is green
 
 ## Spec changes
 
