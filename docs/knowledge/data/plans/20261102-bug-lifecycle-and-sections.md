@@ -277,9 +277,12 @@ their bootstrap copies under
 **Files:** Modify: every `docs/knowledge/data/bugs/*.md` at `stage: pending` or
 `stage: planned`
 
-- [ ] Each `## Fix` becomes `## Potential solution`, and status wording ("Not
+- [x] Each `## Fix` becomes `## Potential solution`, and status wording ("Not
   yet fixed", "Unfixed", "Open.", "Planned in [plan]") is removed while the
   direction it describes stays
+  - **Evidence:** commit 57ca665f rewrites all 12 open bugs; none keeps a
+    `## Fix`, and `grep -iE 'not yet fixed|unfixed|planned in'` finds no open
+    bug
 - [ ] An open bug whose Reproduction or Root cause is unknown links a backlog
   task; `self-improve-reviewer-decline-asymmetry` is the known case (Task 11)
 
