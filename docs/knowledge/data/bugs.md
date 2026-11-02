@@ -112,6 +112,9 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
 
+[Bug: Remote Control real-tmux tests share one tmux server under
+pytest-xdist](bugs/remote-control-tmux-test-shared-under-xdist.md)
+
 [Bug: the Remote Control watcher restarts a session that never comes up on every
 tick](bugs/remote-control-watcher-start-loop.md)
 
