@@ -148,8 +148,12 @@ The merge record replaces `- #P` with exactly this form:
     `git-new-branch/SKILL.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude` —
     64/64 skills valid.
-- [ ] A `--depends-on` pull request whose head is in a fork stops it with
+- [x] A `--depends-on` pull request whose head is in a fork stops it with
   `PREFLIGHT_ERROR` before anything is created, and `SKILL.md` says so
+  - **Evidence:** commit `f937838a` adds the `isCrossRepository` refusal to
+    `git-new-branch.py` and the `PREFLIGHT_ERROR` row wording to its `SKILL.md`;
+    `test_a_predecessor_in_a_fork_is_a_preflight_error` passes (`uv run pytest`
+    on both git-new-branch and restack test files: 26 passed).
 
 Approved flow:
 
@@ -189,8 +193,13 @@ git-new-branch <name> --depends-on <P>
   - **Evidence:** commit `698bb5ef` adds `skills/pr-restack-all/SKILL.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude` —
     65/65 skills valid.
-- [ ] A chain link or open predecessor whose head is in a fork stops the restack
+- [x] A chain link or open predecessor whose head is in a fork stops the restack
   with `CHAIN_BROKEN` before any push, and `SKILL.md` says so
+  - **Evidence:** commit `f937838a` adds `require_same_repository` to
+    `pr_restack_all.py` and the fork case to the `CHAIN_BROKEN` row of
+    `pr-restack-all/SKILL.md`;
+    `test_a_link_whose_head_is_in_a_fork_stops_before_any_push` passes for a
+    fork link and a fork predecessor.
 
 Approved chain discovery:
 
