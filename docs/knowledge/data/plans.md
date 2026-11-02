@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Re-request an AI review after a title or description
+edit](plans/20261102-rereview-after-metadata-edit.md)
+
 [Explore settles open questions one at a
 time](plans/20261101-explore-interviews-open-questions.md)
 
