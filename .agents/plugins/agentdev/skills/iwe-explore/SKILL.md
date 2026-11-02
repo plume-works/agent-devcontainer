@@ -74,6 +74,24 @@ comparing options and tradeoffs, checking prior decisions, sketching a state
 machine or data flow, and identifying the smallest spike that would resolve an
 unknown. Use whichever moves help; this is a menu, not a checklist.
 
+## Settling open questions
+
+Once the problem has open questions, interview the user — one at a time:
+
+- **One topic per turn.** Name it and stay on it until the user settles it;
+  list what remains only when a topic closes. A finding that belongs to another
+  topic is noted for later, not opened.
+- **One decision per question.** Numbered options, each with its consequence,
+  your recommendation first. Use the structured-question tool where the choice
+  fits it.
+- **The user's names and the user's design.** Changing either is its own
+  question, never a silent substitution.
+- **Evidence before argument.** When a choice hinges on how the system behaves,
+  settle it with a read-only replay or a scratch test, then ask. Never raise a
+  corner case the evidence does not show.
+- **Record each answer as it is given** in `.tmp/approved-wording-<slug>.md`:
+  the user's words verbatim, marked approved only on an explicit yes.
+
 ## During implementation
 
 If exploration starts because implementation exposed a complication, read the
