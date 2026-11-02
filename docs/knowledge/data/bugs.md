@@ -166,3 +166,6 @@ says so](bugs/workspace-image-lacks-hook-binaries.md)
 
 [Bug: xpra_setup installs Ubuntu's xpra
 3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)
+
+[Bug: supervised-Xpra tests can pick the same X display under
+pytest-xdist](bugs/xpra-test-displays-collide-under-xdist.md)
