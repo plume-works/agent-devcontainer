@@ -83,9 +83,7 @@ holding it. The format is [Agent metadata
 files](../architecture/agent-metadata-files.md); a single repository-level map
 was considered and rejected there.
 
-Planned in [Digest masks for map docs](../plans/20260905-digest-masks.md), which
-depends on [Python skill scripts](../plans/20260905-python-skill-scripts.md) —
-the walk, JSON, and regex work needs the ported script.
+Fixed by [Digest masks for map docs](../plans/20260905-digest-masks.md).
 
 Three alternatives to masking were considered and rejected. Per-doc
 `digest_ignore` frontmatter puts a property of a file into every doc that claims
