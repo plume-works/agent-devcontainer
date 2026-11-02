@@ -398,21 +398,28 @@ loop:
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] `AGENTS.md` line 7 becomes:
+- [x] `AGENTS.md` line 7 becomes:
+  - **Evidence:** commit `adebf714` replaces `AGENTS.md` line 7 with the two
+    approved lines verbatim.
 
 ``` text
 NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 ```
 
-- [ ] Best Practice 0 becomes its pre-stack text (`a1c1563c^`):
+- [x] Best Practice 0 becomes its pre-stack text (`a1c1563c^`):
+  - **Evidence:** commit `adebf714` sets Best Practice 0 to the approved text,
+    identical to `git show a1c1563c^:AGENTS.md` line 10.
 
 ``` text
 0. NEVER change git config on local or global level unless explicitly instructed. NEVER switch/change remote.
 ```
 
-- [ ] `product.md`'s `## Authoring rules` mirrors both, and its changelog
+- [x] `product.md`'s `## Authoring rules` mirrors both, and its changelog
   records the change
+  - **Evidence:** commit `adebf714` rewrites the force-push and git config
+    bullets of `product.md` `## Authoring rules` and adds the 2026-11-02
+    changelog entry; `iwe schema validate` passes.
 
 ### Task 12: Project memory
 
