@@ -3,7 +3,7 @@ type: architecture
 description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: compose.opencode.yml
@@ -42,8 +42,7 @@ file is an ordinary file and the per-directory mounts go away.
 ## Constraints
 
 - The home must start empty. The deploy image creates no home and keeps
-  build-time tools out of it (`gh-stack` is installed under
-  `/usr/local/lib/agentdev`). Anything the base image builds into a home would
+  build-time tools out of it. Anything the base image builds into a home would
   be copied into the volume once and then never updated by an image upgrade.
 - The runtime account is not root. A host checkout must be writable by its
   UID/GID, the same requirement the deploy runtime's bootstrap enforces.
