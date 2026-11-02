@@ -19,6 +19,7 @@ sources:
 - resource: https://github.com/gitleaks/gitleaks-action
 stage: done
 completed: 2026-11-01
+released: 2.0.0
 ---
 
 # Replace Super-Linter with pre-commit in CI

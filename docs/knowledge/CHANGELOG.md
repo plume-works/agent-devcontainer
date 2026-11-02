@@ -66,10 +66,11 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 - **Hub sections and the unreleased page.** Hubs are one flat list of inclusion
   links sorted by member key without a `YYYYMMDD-` prefix, and a work item's
   state lives only in its frontmatter; Ship writes no hub, release page, or log
-  entry. The release cut builds `releases/<X.Y.Z>.md` from the plans completed
-  since the previous release. If you cloned an earlier copy, remove the `##`
-  sections from every hub and sort its links, and
-  `iwe delete data/releases/unreleased` once its entries are in a cut release.
+  entry. The release cut builds `releases/<X.Y.Z>.md` from the done plans no
+  earlier cut took and sets `released: <X.Y.Z>` on each. If you cloned an
+  earlier copy, remove the `##` sections from every hub and sort its links,
+  `iwe delete data/releases/unreleased` once its entries are in a cut release,
+  and set `released` on every done plan a cut release already covers.
 - **The codebase map.** The `data/codebase/` lane, its `codebase` schema, and
   the catalog's map skill are gone. If you cloned an earlier copy, delete
   `data/codebase/`, `data/codebase.md`, and `.iwe/schemas/codebase.yaml`, and

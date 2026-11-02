@@ -9,6 +9,7 @@ sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 stage: done
 completed: 2026-08-31
+released: 1.0.0
 ---
 
 # AI responder workflows

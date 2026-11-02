@@ -20,6 +20,7 @@ sources:
 - resource: docs/knowledge/data/plans/20261031-remove-codex.md
 stage: done
 completed: 2026-11-01
+released: 2.0.0
 ---
 
 # Bootstrap agentdev natively on macOS with Homebrew

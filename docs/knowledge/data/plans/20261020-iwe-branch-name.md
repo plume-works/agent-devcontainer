@@ -14,6 +14,7 @@ sources:
 - resource: .agents/plugins/agentdev/bin/result_codes.py
 stage: done
 completed: 2026-10-25
+released: 2.0.0
 ---
 
 # iwe-branch-name skill

@@ -17,6 +17,7 @@ sources:
 - resource: https://expo.dev/pricing
 stage: done
 completed: 2026-10-16
+released: 2.0.0
 ---
 
 # Expo profile for template adoption

@@ -763,11 +763,11 @@ priority change.
 
 ### Requirement: A release cut is the only writer of release pages and the log
 
-The release cut SHALL build `releases/<X.Y.Z>.md` from the plans whose
-`completed` date falls after the previous release's date, taking entries only
-from each plan's `release` list, SHALL link the page from `data/releases.md`,
-and SHALL add one dated group to `data/log.md`. No other operation SHALL write a
-release page or the log.
+The release cut SHALL build `releases/<X.Y.Z>.md` from the done plans that carry
+no `released` field, taking entries only from each plan's `release` list, SHALL
+set `released: <X.Y.Z>` on each plan it took, SHALL link the page from
+`data/releases.md`, and SHALL add one dated group to `data/log.md`. No other
+operation SHALL write a release page or the log.
 
 #### Scenario: A release is cut
 
@@ -775,6 +775,12 @@ release page or the log.
 - **THEN** the page lists each feature absent from every earlier release under
   Added, each feature present in an earlier release under Changed, and each bug
   under Fixed, with one link per document
+
+#### Scenario: A plan ships on the day of a cut
+
+- **WHEN** a plan ships after a release cut on the same day
+- **THEN** that cut's plans carry `released` and this plan does not, so the next
+  cut takes it
 
 #### Scenario: A release cut resumes
 

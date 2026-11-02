@@ -129,7 +129,8 @@ needed. In particular:
      bug to `stage: done` with its `rank` removed. Never create a feature or
      bug.
    - Write no hub, no release page, and no `data/log.md` entry: the plan's
-     `release` list and `completed` date are what the next release cut reads.
+     `release` list, and its missing `released`, are what the next release cut
+     reads.
 7. **Validate, commit, and report.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. Re-inspect the final plan, each
    feature or bug, and all planned specs before committing. Report which valid results were preserved from an earlier
@@ -142,11 +143,11 @@ needed. In particular:
    before every mutation. Refuse a conflicting existing version; otherwise
    preserve each already-correct result and perform only the missing
    operations:
-   - Take the previous release's `date` — the latest among the pages at
-     `stage: released` other than `<X.Y.Z>` — and list the plans completed
-     since:
-     `iwe find --filter '{type: plan, stage: done, completed: {$gt: <previous release date>}}' -f keys`.
-     A plan completed on the previous release's date shipped in that release.
+   - List the done plans no earlier cut took, plus any this cut already
+     stamped:
+     `iwe find --filter '{type: plan, stage: done, released: {$exists: false}}' -f keys`
+     and `iwe find --filter '{type: plan, released: <X.Y.Z>}' -f keys`.
+     Dates cannot order a ship against a cut made the same day; `released` can.
    - Collect every key those plans' `release` lists name, once each; `internal`
      contributes nothing. Release pages link feature and bug docs, never plans.
    - Create `data/releases/<X.Y.Z>.md` with `type: release`,
@@ -155,6 +156,7 @@ needed. In particular:
      page links under `## Added`, a feature an earlier release page links under
      `## Changed`, and a bug under `## Fixed`. Omit an empty section. A page
      that already exists keeps its links; add only the missing ones.
+   - Set `released: <X.Y.Z>` on each listed plan that lacks it.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
    - Ensure `data/log.md` holds exactly one `## <today>` group for the cut,

@@ -2,6 +2,7 @@
 type: plan
 stage: done
 completed: 2026-11-01
+released: 2.0.0
 created: 2026-10-31
 release:
 - features/agentdev-iwe-workflow-skills

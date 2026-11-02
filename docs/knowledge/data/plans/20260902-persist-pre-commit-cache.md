@@ -7,6 +7,7 @@ generated:
   at: 2026-09-02T03:05:00Z
 stage: done
 completed: 2026-09-02
+released: 1.0.0
 ---
 
 # Persist the pre-commit hook cache on the agentdev-cache volume

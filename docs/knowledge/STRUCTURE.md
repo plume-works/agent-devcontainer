@@ -64,8 +64,8 @@ while reading and traversable via `iwe find --references`.
 **The funnel.** Ideas harden stepwise: `someday/` (no commitment) → `backlog/`
 (prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → feature
 `implemented` → a cut release. Each promotion is a new doc or a frontmatter
-change; the release cut builds the release page from the plans completed since
-the previous one.
+change; the release cut builds the release page from the done plans no earlier
+cut took, and stamps each with `released: <version>`.
 
 **Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`)
 and says what they should end up saying; the ship skill updates those specs

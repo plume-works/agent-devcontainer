@@ -3,6 +3,7 @@ created: 2026-09-01
 type: plan
 stage: done
 completed: 2026-09-02
+released: 1.0.0
 description: validate_agent_files directory discovery honors .gitignore inside git work trees and uses caller-supplied directory pruning outside git work trees.
 generated:
   by: codex/gpt-5

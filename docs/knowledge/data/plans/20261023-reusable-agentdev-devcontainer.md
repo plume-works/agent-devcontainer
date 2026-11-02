@@ -21,6 +21,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 stage: done
 completed: 2026-10-30
+released: 2.0.0
 ---
 
 # Publish the reusable agentdev Dev Container image

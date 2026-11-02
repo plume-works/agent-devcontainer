@@ -17,6 +17,7 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 stage: done
 completed: 2026-10-09
+released: 2.0.0
 ---
 
 # Remove Coder agent auth seeding; keep Claude Remote Control autostart

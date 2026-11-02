@@ -2,6 +2,7 @@
 type: plan
 created: 2026-08-15
 completed: 2026-09-01
+released: 1.0.0
 stage: done
 description: Replace How to Test with Verification and Reviewer Handoff, moving PR structure into the pr-gen-description skill and reducing the repository template to a pointer stub.
 generated:

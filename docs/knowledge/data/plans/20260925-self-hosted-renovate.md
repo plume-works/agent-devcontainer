@@ -25,6 +25,7 @@ sources:
   title: A branch commit is Renovate's package files followed by post-upgrade artifacts
 stage: done
 completed: 2026-09-29
+released: 2.0.0
 ---
 
 # Self-hosted Renovate in the agent-desktop image

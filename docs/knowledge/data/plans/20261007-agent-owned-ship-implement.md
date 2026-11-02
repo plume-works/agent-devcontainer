@@ -16,6 +16,7 @@ sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 stage: done
 completed: 2026-10-10
+released: 2.0.0
 ---
 
 # Agent-owned Ship and Implement workflows

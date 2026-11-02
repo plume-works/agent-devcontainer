@@ -10,6 +10,7 @@ sources:
   title: agent-self-improvement at e94031a, the merge source
 stage: done
 completed: 2026-09-09
+released: 2.0.0
 ---
 
 # Consolidate the self-improve plugin into this repository

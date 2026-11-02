@@ -3,6 +3,7 @@ type: plan
 stage: done
 created: 2026-10-29
 completed: 2026-10-30
+released: 2.0.0
 release:
 - features/remote-control-environment-names
 description: Give the dev container a hostname derived from its launcher — coder-<workspace>, vscode-<host>-<checkout>, or cli-<host>-<checkout> — so Claude Remote Control environments are identifiable.

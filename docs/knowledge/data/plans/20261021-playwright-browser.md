@@ -15,6 +15,7 @@ sources:
 - resource: https://playwright.dev/docs/docker
 stage: done
 completed: 2026-10-25
+released: 2.0.0
 ---
 
 # Bundle a Playwright browser in the development image
