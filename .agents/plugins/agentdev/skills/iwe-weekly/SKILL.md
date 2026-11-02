@@ -21,9 +21,9 @@ next. Numbers come from frontmatter and git — never from memory.
    Flag any plan untouched for 14+ days (last commit touching the file) as
    possibly stalled or silently done.
 3. **Open bugs.** `iwe find --filter '{type: bug, stage: {$exists: false}}' -f keys`.
-4. **Backlog head.** The first planned tasks in the build order, then
+4. **Backlog head.** The first pending tasks in the build order, then
    unsequenced high-priority ones:
-   `iwe find --filter '{type: task, stage: planned, priority: high, rank: {$exists: false}}' -f keys`,
+   `iwe find --filter '{type: task, stage: pending, priority: high, rank: {$exists: false}}' -f keys`,
    plus how long they've sat (`created`).
 5. **Graph health.** `iwe schema validate` (report violations) and `iwe stats`
    (dangling links, plus any `data/` document listed under Orphans — every

@@ -186,7 +186,7 @@ def test_onboarding_tasks_are_present_and_open(consumer_workspace: Path) -> None
         assert doc.exists(), f'{key} is missing; iwe-setup closes it by key'
         post = frontmatter.load(doc)
         assert post['type'] == 'task'
-        assert post['stage'] == 'planned', f'{key} must start open'
+        assert post['stage'] == 'pending', f'{key} must start open'
 
 
 def test_product_doc_still_has_placeholders(consumer_workspace: Path) -> None:

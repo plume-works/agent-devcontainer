@@ -206,7 +206,7 @@ def test_installed_graph_carries_what_iwe_setup_needs(
         task = knowledge / 'data' / 'backlog' / f'{key}.md'
         assert task.is_file(), f'{key} is missing; iwe-setup closes it by key'
         assert frontmatter_value(task, 'type') == 'task'
-        assert frontmatter_value(task, 'stage') == 'planned'
+        assert frontmatter_value(task, 'stage') == 'pending'
     assert '✏️' in (knowledge / 'data' / 'product.md').read_text(encoding='utf-8')
     for name in KNOWLEDGE_INSTRUCTIONS:
         assert (knowledge / name).is_file(), name

@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-11-01
-stage: planned
+stage: pending
 priority: medium
 description: Add a standing AGENTS.md rule that authorizes an iwe-implement run to open or update its branch's pull request through pr-open, without asking, once it stops with committed work.
 generated:

@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-10-31
-stage: planned
+stage: pending
 priority: low
 description: Decide from the pre-commit job's recorded step timings whether Primary checks should start the ci job in parallel with the pre-commit job instead of after it, and drop the needs gate if so.
 generated:

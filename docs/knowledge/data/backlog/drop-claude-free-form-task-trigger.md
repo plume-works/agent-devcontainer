@@ -1,6 +1,6 @@
 ---
 type: task
-stage: planned
+stage: pending
 priority: low
 created: 2026-10-26
 description: Remove the free-form `@claude <prompt>` task responder — the comment, review, and issue mentions that dispatch a Claude task — once review re-requests move to the assignee trigger.
