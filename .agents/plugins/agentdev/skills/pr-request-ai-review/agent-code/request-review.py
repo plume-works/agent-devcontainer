@@ -9,6 +9,7 @@ nothing beyond the standard library.
 
 from __future__ import annotations
 
+from datetime import datetime
 import json
 from pathlib import Path
 import re
@@ -30,6 +31,14 @@ PREFLIGHT_ERROR = 2
 
 RESPONDER = 'Claude PR Review Responder'
 
+EDITS_QUERY = (
+    'query($owner: String!, $name: String!, $number: Int!) {'
+    ' repository(owner: $owner, name: $name) { pullRequest(number: $number) {'
+    ' lastEditedAt'
+    ' timelineItems(itemTypes: [RENAMED_TITLE_EVENT], last: 1) {'
+    ' nodes { ... on RenamedTitleEvent { createdAt } } } } } }'
+)
+
 USAGE = """\
 Request an AI review of a pull request's head commit by toggling the author's
 assignment, at most once per head.
@@ -45,10 +54,12 @@ Options:
   -h, --help             Show this help text.
 
 An assigned author is removed and added back; an unassigned one is added and
-removed, so the assignees end as they were found. The request is refused when
-an accepted AI review already names the head, or a Claude PR Review Responder
-check on the head is queued, in progress, or completed other than skipped or
-cancelled.
+removed, so the assignees end as they were found. A review covers the head
+together with the title and description it saw, so only reviews and finished
+checks newer than the latest title or description edit count. The request is
+refused when such an accepted AI review names the head, or a Claude PR Review
+Responder check on the head is queued, in progress, or completed after that
+edit other than skipped or cancelled.
 
 Output:
   RESULT is always the last line of stdout.
@@ -59,8 +70,10 @@ Output:
 
 Results (RESULT / exit code):
   SUCCESS            0  The author's assignment was toggled for the head
-  ALREADY_REVIEWED   3  An accepted AI review's commit is the head
-  ALREADY_REQUESTED  4  A Claude PR Review Responder check on the head counts as a request
+  ALREADY_REVIEWED   3  An accepted AI review newer than the last title or description edit
+                        names the head
+  ALREADY_REQUESTED  4  A Claude PR Review Responder check on the head counts as a request:
+                        running, or finished after the last title or description edit
   PR_NOT_OPEN        5  The pull request is closed, merged, or not found
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or an API call failed, the toggle too
   PREFLIGHT_ERROR    2  Missing --pr, unknown argument, or multi-line rationale
@@ -129,22 +142,63 @@ def finish(check_url: str, comment_url: str, code: int) -> int:
     return code
 
 
-def reviewed(reviews: list[dict[str, Any]], head_sha: str) -> bool:
-    """Return whether an accepted AI review names the head (reviewers: spec/ai-review-gate)."""
+def timestamp(value: Any) -> datetime | None:
+    """Parse a GitHub ISO 8601 timestamp; None when absent."""
+    return datetime.fromisoformat(str(value).replace('Z', '+00:00')) if value else None
+
+
+def edit_times(repo: str, pr_number: str) -> list[datetime] | None:
+    """Return the latest description edit and title rename times; None when gh fails."""
+    owner, _, name = repo.partition('/')
+    response = gh(
+        'api',
+        'graphql',
+        '-f',
+        f'query={EDITS_QUERY}',
+        '-F',
+        f'owner={owner}',
+        '-F',
+        f'name={name}',
+        '-F',
+        f'number={pr_number}',
+    )
+    if response.returncode != 0:
+        return None
+    try:
+        pull = json.loads(response.stdout)['data']['repository']['pullRequest']
+        renames = pull['timelineItems']['nodes']
+    except (json.JSONDecodeError, KeyError, TypeError):
+        return None
+    values = [pull.get('lastEditedAt'), *(node.get('createdAt') for node in renames)]
+    return [parsed for parsed in map(timestamp, values) if parsed]
+
+
+def after(value: Any, cutoff: datetime | None) -> bool:
+    """Return whether `value` is newer than the metadata edit cutoff, if there is one."""
+    moment = timestamp(value)
+    return cutoff is None or (moment is not None and moment > cutoff)
+
+
+def reviewed(reviews: list[dict[str, Any]], head_sha: str, cutoff: datetime | None) -> bool:
+    """Return whether an accepted AI review saw the head's input (spec/ai-review-refresh)."""
     return any(
         (item.get('user') or {}).get('login') in ('claude[bot]', 'github-actions[bot]')
         and str(item.get('state') or '').upper() in ('APPROVED', 'CHANGES_REQUESTED', 'COMMENTED')
         and item.get('commit_id') == head_sha
+        and after(item.get('submitted_at'), cutoff)
         for item in reviews
     )
 
 
-def requesting_check(runs: list[dict[str, Any]]) -> str:
+def requesting_check(runs: list[dict[str, Any]], cutoff: datetime | None) -> str:
     """Return the URL of a responder check that counts as a request (spec/ai-review-refresh)."""
     for run in runs:
         if run.get('name') == RESPONDER and (
             run.get('status') != 'completed'
-            or run.get('conclusion') not in ('skipped', 'cancelled')
+            or (
+                run.get('conclusion') not in ('skipped', 'cancelled')
+                and after(run.get('completed_at'), cutoff)
+            )
         ):
             return run.get('html_url') or ''
     return ''
@@ -202,19 +256,25 @@ def run(arguments: list[str]) -> int:
         print_error(f'Pull request {repo}#{pr_number} is {state}.')
         return finish('', '', PR_NOT_OPEN)
 
+    edits = edit_times(repo, pr_number)
+    if edits is None:
+        print_error(f'Could not read the title and description edits of {repo}#{pr_number}.')
+        return GH_UNAVAILABLE
+    cutoff = max(edits, default=None)
+
     # A reaction names no commit, so it cannot show that the head was reviewed.
     reviews = fetch_list(f'repos/{repo}/pulls/{pr_number}/reviews', None)
     if reviews is None:
         print_error(f'Could not read the reviews of {repo}#{pr_number}.')
         return GH_UNAVAILABLE
-    if reviewed(reviews, head_sha):
+    if reviewed(reviews, head_sha, cutoff):
         return finish('', '', ALREADY_REVIEWED)
 
     runs = fetch_list(f'repos/{repo}/commits/{head_sha}/check-runs', 'check_runs')
     if runs is None:
         print_error(f'Could not read the check runs of {head_sha}.')
         return GH_UNAVAILABLE
-    existing_url = requesting_check(runs)
+    existing_url = requesting_check(runs, cutoff)
     if existing_url:
         return finish(existing_url, '', ALREADY_REQUESTED)
 
