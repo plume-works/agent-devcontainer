@@ -169,10 +169,15 @@ handling.
 
 **Files:** none
 
-- [ ] On an open pull request in this repository, read the GraphQL query
+- [x] On an open pull request in this repository, read the GraphQL query
   `request-review.py` uses before and after editing the description and before
   and after renaming the title, and confirm each edit moves the cutoff past the
   newest AI review.
+  - **Evidence:** `edit_times()` at commit e667e133, run against #587 (newest AI
+    review 2026-10-31T17:16:09Z): no edits gave no cutoff; a description edit
+    set it to 2026-11-02T01:03:21Z; a title rename then moved it to 01:03:23Z
+    without changing `lastEditedAt`. Both edits were reverted, and they stay in
+    #587's edit history and timeline.
 
 ## Spec changes
 
