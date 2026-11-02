@@ -19,6 +19,7 @@ sources:
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: docker/bin/gh
 - resource: https://github.com/plume-works/agent-devcontainer/actions/runs/41371706407
+rank: 50
 ---
 
 # Narrow the image build context
