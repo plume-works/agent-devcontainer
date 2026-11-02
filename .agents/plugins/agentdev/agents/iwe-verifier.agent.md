@@ -111,8 +111,10 @@ runs in one of two modes:
      highest-traffic specs first: `iwe find --references <key>` counts).
    - Features marked `implemented` with no trace in the code; shipped
      behavior with no feature doc.
-   - Open bugs (no `stage`) — still reproducible? Point at ones whose
-     `## Key references` no longer exist.
+   - Open bugs
+     (`iwe find --filter '{type: bug, stage: {$in: [pending, planned]}}' -f keys`)
+     — still reproducible? Point at ones whose `sources` paths, or
+     `## Key references` where a bug has them, no longer exist.
    - Consistency: a done or cancelled plan, bug, or task that still carries a
      `rank`
      (`iwe find --filter '{rank: {$exists: true}, stage: {$in: [done, cancelled]}}' -f keys`);
