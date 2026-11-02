@@ -131,8 +131,12 @@ handling.
   - **Evidence:** commit e667e133 rewrites the refusal paragraph and the
     `ALREADY_REVIEWED` / `ALREADY_REQUESTED` lines of `USAGE`;
     `test_help_lists_options_keys_and_results` passes.
-- [ ] Task 2's tests and the whole
+- [x] Task 2's tests and the whole
   `uv run pytest .agents/plugins/agentdev/tests` pass.
+  - **Evidence:** at commit e667e133:
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` 34
+    passed, and `uv run pytest .agents/plugins/agentdev/tests` 407 passed, 15
+    skipped.
 
 ### Task 4: Document the rule in the skills
 
