@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: high
 description: The review orchestrator can end its turn while its dispatched passes are still running, so the responder job finishes green having published no review, and the gate accepts an older review instead of catching the miss.
 generated:
   by: claude-code/opus-5.5

@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: low
 description: Under pytest-xdist, the supervised-Xpra ingress tests picked X display numbers from a pid hash in one host-global range, so two workers could choose the same display and the second start refused it as already live.
 generated:
   by: claude-code/opus-5.5

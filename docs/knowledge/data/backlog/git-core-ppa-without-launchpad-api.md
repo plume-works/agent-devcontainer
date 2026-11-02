@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-11-02
-stage: planned
+stage: pending
 priority: high
 description: Add the Git Core PPA in the dev_tools role as an explicit repository entry with a pinned signing key instead of the ppa:git-core/ppa shorthand, so building the image no longer depends on the Launchpad API.
 generated:

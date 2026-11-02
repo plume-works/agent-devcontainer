@@ -41,9 +41,9 @@ optional `status` is never set, so a state change edits one field.
 
 ## The build order — `rank`
 
-Active plans, open bugs, and planned backlog tasks may carry `rank`, a positive
-integer: their place in one build order shared across the three types, lower
-first.
+Active plans, pending and planned bugs, and pending backlog tasks may carry
+`rank`, a positive integer: their place in one build order shared across the
+three types, lower first.
 
 ``` yaml
 rank: 300 # optional; positive integer
@@ -116,12 +116,24 @@ Bug reports and investigations. H1 starts with `Bug:`.
 ``` yaml
 ---
 type: bug # required
-stage: done # done | cancelled — omit while open
+stage: pending # pending | planned | done | cancelled — required
+severity: high # critical | high | medium | low — required
 ---
 ```
 
-Body: `## Symptom`, `## Reproduction`, `## Root cause`, `## Fix`,
-`## Key references`.
+- `stage`: Capture files a bug at `pending`, or at `done` when the same change
+  fixed it. Plan moves a bug its plan lists in `release` to `planned`; Ship
+  moves it to `done`, and returns it to `pending` when it cancels the plan.
+- `severity`: the impact of the defect — how bad it is when it happens — not its
+  urgency. Descriptive only; it does not set `rank`.
+
+Body: `## Symptom`, `## Reproduction`, `## Root cause`, all required, then the
+optional `## Potential solution` — the intended direction, at any stage — and
+`## Fix` — the fix that shipped, written when the bug becomes `done`: by the
+fixer when a change fixes it directly, by Ship from the plan that fixed it. A
+Reproduction or Root cause not yet known records what is known, the hypotheses
+eliminated and what eliminated them, and links the backlog task whose spike
+settles it. No section states lifecycle; `stage` does.
 
 ## Releases — `data/releases/<version>.md`
 
@@ -148,7 +160,7 @@ Atomic prioritized work items waiting to become plans.
 ``` yaml
 ---
 type: task # required
-stage: planned # planned | done | cancelled — required
+stage: pending # pending | done | cancelled — required
 priority: high # high | medium | low
 created: 2026-08-01 # required, YYYY-MM-DD
 completed: 2026-08-14 # set when done

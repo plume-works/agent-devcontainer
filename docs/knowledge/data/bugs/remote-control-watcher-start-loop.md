@@ -9,6 +9,7 @@ sources:
 - resource: scripts/tests/test_runtime_remote_control.py
 - resource: docs/knowledge/data/plans/20261027-standalone-remote-control-autostart.md
 stage: done
+severity: medium
 ---
 
 # Bug: the Remote Control watcher restarts a session that never comes up on every tick

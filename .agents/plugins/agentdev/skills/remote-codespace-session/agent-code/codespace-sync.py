@@ -186,7 +186,7 @@ def push_sync(name: str, workspace_q: str) -> int:
     push = ['git', 'push'] if tracked.returncode == 0 else ['git', 'push', '-u', 'origin', branch]
     status, output = merged(*push)
     if status != 0:
-        print_error('Git push failed. Fetch/merge or rebase to resolve, then re-run:')
+        print_error('Git push failed. Fetch and merge the remote branch to resolve, then re-run:')
         print(output, file=sys.stderr)
         return PUSH_REJECTED
     print(output)

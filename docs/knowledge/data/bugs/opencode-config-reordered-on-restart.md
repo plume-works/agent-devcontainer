@@ -10,6 +10,7 @@ sources:
 - resource: scripts/tests/test_agent_runtime_acceptance.py
 - resource: https://github.com/plume-works/agent-devcontainer/actions/runs/41245073592
 stage: done
+severity: low
 ---
 
 # Bug: OpenCode's config is reordered on the first restart

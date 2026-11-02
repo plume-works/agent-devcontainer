@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T00:57:57Z
+  at: 2026-11-02T20:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -200,9 +200,11 @@ The plan schema SHALL require every active plan to carry a `release` frontmatter
 value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
 work adds, changes, or fixes. The Plan skill SHALL set that value when it files
 a plan, SHALL declare `internal` only when no workspace user or template
-consumer sees a difference, and SHALL have Capture file a missing feature before
-it files the plan. Ship SHALL take a plan's release entries only from that value
-and SHALL never create a feature.
+consumer sees a difference, SHALL have Capture file a missing feature before it
+files the plan, and SHALL set every bug the plan lists to `stage: planned`. Ship
+SHALL take a plan's release entries only from that value, SHALL never create a
+feature, SHALL write the `## Fix` of each bug it marks done, and SHALL return
+each listed bug to `stage: pending` when it cancels the plan.
 
 #### Scenario: A plan introduces user-visible behavior with no feature
 
@@ -210,6 +212,11 @@ and SHALL never create a feature.
   template consumer sees, and no feature describes it
 - **THEN** Plan hands the feature to Capture, lists its key in `release`, and
   sets the feature to `stage: accepted`
+
+#### Scenario: A plan lists a bug
+
+- **WHEN** Plan files a plan whose `release` lists a bug at `stage: pending`
+- **THEN** Plan sets the bug to `stage: planned`
 
 #### Scenario: A plan changes nothing users see
 
@@ -219,10 +226,16 @@ and SHALL never create a feature.
 #### Scenario: A plan declares features and bugs
 
 - **WHEN** Ship ships a plan whose `release` lists feature and bug keys
-- **THEN** Ship marks each feature implemented and each bug done, and adds one
+- **THEN** Ship marks each feature implemented and each bug done, writes each
+  bug's `## Fix` describing the shipped fix and linking the plan, and adds one
   unreleased inclusion link per listed document — a feature new in this version
   under Added, a feature released in an earlier version under Changed, a bug
   under Fixed
+
+#### Scenario: A plan listing bugs is cancelled
+
+- **WHEN** Ship cancels a plan whose `release` lists a bug at `stage: planned`
+- **THEN** Ship sets the bug to `stage: pending` and writes no `## Fix`
 
 #### Scenario: An active plan has no release declaration
 
@@ -669,20 +682,29 @@ The Capture skill SHALL be the only writer of new bug, proposed-feature, and
 backlog-task documents, SHALL refuse a document missing any frontmatter field or
 body section `SCHEMA.md` requires for its type, SHALL check the graph for a
 likely duplicate before filing, SHALL file a feature at `stage: proposed` and
-never promote it, and SHALL link every filed document from its hub and end with
+never promote it, SHALL file a bug at `stage: pending` — or at `stage: done`
+with its `## Fix` when the same change fixed it — and a task at
+`stage: pending`, and SHALL link every filed document from its hub and end with
 `iwe normalize` and `iwe schema validate` passing.
 
 #### Scenario: A complete item is captured
 
 - **WHEN** Capture is invoked for a bug, feature, or task whose required
   sections and fields are all supplied, and no likely duplicate exists
-- **THEN** Capture writes the document at its lane's key with the `stage` and
-  `status` `SCHEMA.md` derives for it, stamps `generated` and `sources`, links
-  it from its hub — a task under its priority section — and validates the graph
+- **THEN** Capture writes the document at its lane's key with the `stage`
+  `SCHEMA.md` derives for it, stamps `generated` and `sources`, links it from
+  its hub at its sorted position, and validates the graph
+
+#### Scenario: A bug fixed in the same change is captured
+
+- **WHEN** Capture is invoked for a bug the same change already fixed, with a
+  `## Fix` describing that fix
+- **THEN** Capture files the bug at `stage: done`
 
 #### Scenario: A required section is missing
 
-- **WHEN** the supplied content lacks any section or field required for its type
+- **WHEN** the supplied content lacks any section or field required for its
+  type, including a bug's `severity`
 - **THEN** Capture writes nothing and lists every missing section and field
 
 #### Scenario: A likely duplicate exists
@@ -712,15 +734,29 @@ never promote it, and SHALL link every filed document from its hub and end with
 ### Requirement: Bug and feature documents keep the SCHEMA.md shape
 
 The bug and feature schemas SHALL require the body shape `SCHEMA.md` prescribes
-— a bug's `Bug:` H1 and its Symptom, Reproduction, Root cause, Fix, and Key
-references sections; a feature's Purpose, Behaviour, Edge cases, and Open
-questions sections — in that order, while allowing additional sections.
+— a bug's `Bug:` H1 and its Symptom, Reproduction, and Root cause sections,
+followed by optional Potential solution and Fix sections; a feature's Purpose,
+Behaviour, Edge cases, and Open questions sections — in that order, while
+allowing additional sections. The bug schema SHALL require a `stage` of
+`pending`, `planned`, `done`, or `cancelled` and a `severity` of `critical`,
+`high`, `medium`, or `low`.
 
 #### Scenario: A document is written without Capture
 
 - **WHEN** a bug or feature document lacks a required section, has them out of
   order, or a bug's H1 lacks the `Bug:` prefix
 - **THEN** `iwe schema validate` fails and names the document
+
+#### Scenario: A bug lacks its stage or severity
+
+- **WHEN** a bug document has no `stage` or no `severity`, or a value outside
+  its enum
+- **THEN** `iwe schema validate` fails and names the document
+
+#### Scenario: A bug has no Fix
+
+- **WHEN** a bug document has neither a Potential solution nor a Fix section
+- **THEN** `iwe schema validate` accepts it
 
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 

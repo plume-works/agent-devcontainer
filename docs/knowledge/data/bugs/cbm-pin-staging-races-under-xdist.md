@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: low
 description: Under pytest-xdist, the CBM tests fail with ETXTBSY because every worker's fixture copies the pinned codebase-memory-mcp binary over one shared /tmp path while another worker is executing it.
 generated:
   by: claude-code/opus-5.5

@@ -80,6 +80,8 @@ hook](backlog/remove-agentdev-session-start-hook.md)
 [Make plan task evidence survive history
 rewrites](backlog/resilient-task-evidence.md)
 
+[Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
+
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 

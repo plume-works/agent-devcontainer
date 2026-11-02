@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/602
 stage: done
+severity: medium
 ---
 
 # Bug: a metadata-gate review blocks the re-review it asks for

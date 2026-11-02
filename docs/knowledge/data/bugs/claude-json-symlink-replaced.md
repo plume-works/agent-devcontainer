@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: high
 description: Claude's saved state stops reaching the persistent volume once ~/.claude.json is replaced by a regular file, so trust, MCP, and session state written after that point are lost when the container is recreated.
 generated:
   by: claude-code/opus-5.5
@@ -46,11 +48,11 @@ Code saves its global config by writing a temporary file and renaming it over
 Confirming it takes one check: recreate the link, start a Claude session, and
 test the path again after its first config save.
 
-## Fix
+## Potential solution
 
-Open. Candidate: set `CLAUDE_CONFIG_DIR=/root/.claude` in the container
-environment so Claude keeps its global config inside the volume directory itself
-and no symlink is needed. The candidate stands or falls on whether Claude reads
+Candidate: set `CLAUDE_CONFIG_DIR=/root/.claude` in the container environment so
+Claude keeps its global config inside the volume directory itself and no symlink
+is needed. The candidate stands or falls on whether Claude reads
 `$CLAUDE_CONFIG_DIR/.claude.json` in place of `~/.claude.json`, and on migrating
 the existing `claude.json` in the volume to that name.
 `preapprove-claude-workspace.sh` and `codebase-memory-mcp-install.sh` would then

@@ -8,7 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/602
-rank: 350
+stage: done
+severity: high
 ---
 
 # Bug: the stack guard reverts GitHub's post-merge rebase
@@ -43,9 +44,11 @@ same branch is rejected as non-fast-forward.
 
 ## Fix
 
-Planned by [Replace gh stack with manual stacked pull
+Fixed by [Replace gh stack with manual stacked pull
 requests](../plans/20261101-manual-stacked-prs.md): native stacks, `gh stack`,
-and the guard are removed, and no branch is pushed with force.
+and the guard are removed. A dependent branch is cut from its predecessor and
+kept current with merges only, and after a squash merge `pr-restack-all`
+reconnects the successor with merges, so no branch is pushed with force.
 
 ## Key references
 

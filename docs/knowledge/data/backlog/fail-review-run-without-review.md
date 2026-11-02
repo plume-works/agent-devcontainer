@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-10-08
-stage: planned
+stage: pending
 priority: medium
 description: Fail a Claude PR review responder run that published no review of its own, by tying the published review to the run through an identity rather than a time window.
 generated:

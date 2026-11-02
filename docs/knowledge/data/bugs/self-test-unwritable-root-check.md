@@ -8,6 +8,7 @@ sources:
 - resource: .agents/plugins/self-improve/tests/integration/test_dispatcher.py
 - resource: .agents/plugins/self-improve/selfimprove/commands.py
 stage: done
+severity: low
 ---
 
 # Bug: Self-test unwritable-root check assumes a non-root user

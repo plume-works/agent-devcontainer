@@ -12,6 +12,7 @@ sources:
 - resource: compose.opencode.yml
 - resource: compose.opencode.bind.yml
 stage: done
+severity: medium
 ---
 
 # Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned /workspaces

@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T04:32:17Z
+  at: 2026-11-02T12:00:00Z
 ---
 
 # Product
@@ -127,13 +127,13 @@ it):
   content — local git workflows only; stop and report if push auth is
   unavailable.
 - Commit at meaningful checkpoints during a task, not only at the end.
-- Never force-push, except `gh stack rebase` and the `gh-stack` skill's
-  `stack-guard.py publish` (after its `begin`) with `--force-with-lease` on
-  branches of a GitHub stack; never a bare `gh stack push`, `submit`, or `sync`.
+- Never force-push. Never use `gh stack` or GitHub native stacked pull requests;
+  work that depends on an open pull request is a normal pull request based on
+  its predecessor's branch and kept current with merges.
+- Never rebase or reset a branch that has been pushed; bring in other history
+  with a merge.
 - Never change git config (local or global) or switch/change the remote unless
-  explicitly instructed; the repository-local `rerere.enabled` and
-  `remote.pushDefault` that `gh stack` and the `gh-stack` skill's setup write
-  are the only exception.
+  explicitly instructed.
 - Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
   install globally. JavaScript runs through `bun`/`bunx` everywhere — never
   `npm`, `npx`, `yarn`, or `pnpm`.
@@ -201,3 +201,6 @@ it):
 - 2026-11-01 — made the pre-commit hooks the CI lint gate in place of
   Super-Linter, and removed `agentdev:local-reformat` and
   `agentdev:sync-super-linter-tool-versions`.
+- 2026-11-02 — replaced GitHub native stacks with manual stacked pull requests:
+  no force-push exception, no rebase or reset of a pushed branch, and no
+  repository-local git config exception.

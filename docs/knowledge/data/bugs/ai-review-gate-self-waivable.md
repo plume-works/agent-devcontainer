@@ -8,6 +8,7 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/Dr-QP/Dr.QP/pull/454#discussion_r3991170588
 stage: done
+severity: high
 ---
 
 # Bug: AI review gate was self-waivable from the PR body
