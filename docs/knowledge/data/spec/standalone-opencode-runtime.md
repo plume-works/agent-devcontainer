@@ -279,10 +279,11 @@ inferred from a response that does not require the password.
 
 The runtime SHALL operate its own persisted DinD engine through a private Unix
 socket, without a host socket mount or Docker TCP listener. It SHALL retain 10
-GB BuildKit GC and startup pruning of unused images older than 72 hours, with
-prune errors nonfatal. The egress firewall SHALL remain opt-in; enabled
-configuration SHALL retain its allowlist/IPv6 policy and self-checks while
-supporting explicitly trusted proxy ingress and nested Docker operation.
+GB BuildKit GC and the hourly garbage collection of [Devcontainer Docker
+storage](devcontainer-docker-storage.md), with every collection error nonfatal.
+The egress firewall SHALL remain opt-in; enabled configuration SHALL retain its
+allowlist/IPv6 policy and self-checks while supporting explicitly trusted proxy
+ingress and nested Docker operation.
 
 #### Scenario: the engine restarts
 

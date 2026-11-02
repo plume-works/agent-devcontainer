@@ -46,6 +46,9 @@ end](backlog/exercise-removed-delta-blocks.md)
 [Fail a review run that published no
 review](backlog/fail-review-run-without-review.md)
 
+[Add the Git Core PPA without the Launchpad
+API](backlog/git-core-ppa-without-launchpad-api.md)
+
 [Run implement-all live against two
 plans](backlog/implement-all-multi-plan-e2e.md)
 
