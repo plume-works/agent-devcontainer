@@ -12,6 +12,7 @@ import subprocess
 import sys
 from uuid import uuid4
 
+from agentdev_runtime import supervisor
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -133,14 +134,17 @@ def test_refuses_a_second_engine_but_clears_a_stale_pid_file(engine: Engine, tmp
     assert not engine.pidfile.exists()
 
 
-def test_the_image_prune_runs_once_the_nested_engine_is_up():
-    supervisor = (
-        REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/supervisor.py'
-    ).read_text()
-    assert "Service('prune', after=('dockerd',), oneshot=True)" in supervisor
+@pytest.mark.parametrize('profile', ['deploy', 'devcontainer'])
+def test_the_garbage_collector_follows_the_nested_engine(profile):
+    services = {s.name: s for s in supervisor.PROFILES[profile].services}
+    collector = services['docker-gc']
+    assert collector.after == ('dockerd',)
+    assert collector.client and not collector.core and not collector.oneshot
+    assert 'prune' not in services
     config = configparser.RawConfigParser()
-    config.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
-    assert config['program:prune']['command'].endswith('/agentdev-runtime docker prune')
+    config.read(REPO_ROOT / f'docker/{profile}/supervisord.conf')
+    assert 'program:prune' not in config
+    assert config['program:docker-gc']['command'].endswith('/agentdev-runtime docker gc --every')
     workspace = REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/workspace.py'
     assert 'prune' not in workspace.read_text()
 
