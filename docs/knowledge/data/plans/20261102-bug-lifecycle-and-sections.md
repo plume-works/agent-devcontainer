@@ -283,8 +283,9 @@ their bootstrap copies under
   - **Evidence:** commit 57ca665f rewrites all 12 open bugs; none keeps a
     `## Fix`, and `grep -iE 'not yet fixed|unfixed|planned in'` finds no open
     bug
-- [ ] An open bug whose Reproduction or Root cause is unknown links a backlog
-  task; `self-improve-reviewer-decline-asymmetry` is the known case (Task 11)
+- [ ] `self-improve-reviewer-decline-asymmetry`, whose Root cause is unknown,
+  links its backlog spike (Task 11); the rule that an unknown Reproduction or
+  Root cause links a backlog task binds new captures (Task 5)
 
 ### Task 10: Done bugs describe the fix that shipped
 
@@ -507,6 +508,8 @@ allowing additional sections. The bug schema SHALL require a `stage` of
   questions implemented features still list.
 - Stripping `## Key references` from existing bugs, and any check that a done
   bug carries a `## Fix`.
+- Backlog spikes for other existing open bugs whose Reproduction or Root cause
+  is unknown; only `self-improve-reviewer-decline-asymmetry` gains one.
 - The task lifecycle itself; only its stage name changes.
 
 ## Key references
