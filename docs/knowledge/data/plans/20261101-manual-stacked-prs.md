@@ -8,7 +8,7 @@ release:
 description: Remove gh stack and GitHub native stacks and replace them with manual stacked pull requests — branches cut from their predecessor, kept current only with merges, and restacked after a squash merge by one pr-restack-all run.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T13:00:00Z
+  at: 2026-11-02T13:00:00Z
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -460,14 +460,7 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
   with the Write, Maintain, and Admin repository roles as bypass actors in mode
   `always`; no workflow reports the check
 
-### Task 14: The AI responder's pushes
-
-**Files:** none, or the Task 13 ruleset
-
-- [ ] The identity `ai-responder.yml` pushes to PR branches with is confirmed,
-  and when it is a GitHub App, that App is a bypass actor on the Task 13 ruleset
-
-### Task 15: CI
+### Task 14: CI
 
 **Files:** none
 
@@ -733,6 +726,10 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
 - Converting a GitHub native stack still open when this ships.
 - The `implement-agent-specs` coordinator workflow beyond what `pr-merge-stack`
   and `pr-restack-all` cover.
+- Pushes by the AI task responder to `iwe/` branches. It pushes as the GitHub
+  Actions app, which a ruleset cannot exempt, so the Task 13 ruleset rejects
+  them — [Bug: the AI task responder cannot push to iwe/ branches under their
+  ruleset](../bugs/responder-cannot-bypass-iwe-ruleset.md).
 
 ## Key references
 

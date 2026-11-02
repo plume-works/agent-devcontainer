@@ -92,9 +92,9 @@ A ruleset on `refs/heads/iwe/**` that requires a status check nothing reports
 refuses a merge into those branches unless a bypass actor forces it. Its bypass
 list can name only repository roles and GitHub Apps that this repository or its
 organization owns. The built-in GitHub Actions app, which `GITHUB_TOKEN` acts
-as, is refused (HTTP 422). So a workflow that pushes to an `iwe/` branch with
-`GITHUB_TOKEN`, as the AI task responder does, has to push as an owned App
-before the ruleset can be active.
+as, is refused (HTTP 422). A workflow that pushes to an `iwe/` branch with
+`GITHUB_TOKEN`, as the AI task responder does, is rejected until it pushes as an
+owned App that the ruleset exempts.
 
 ## Rejected alternatives
 
