@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-11-02
+
+- **Update**: [Explore settles open questions one at a
+  time](plans/20261101-explore-interviews-open-questions.md) plan done; specs
+  synced in [IWE workflow skills](spec/iwe-workflow-skills.md); [Agentdev IWE
+  workflow skills](features/agentdev-iwe-workflow-skills.md) changed.
+
 ## 2026-11-01
 
 - **Update**: [pre-commit is the CI gate](features/pre-commit-ci-gate.md)

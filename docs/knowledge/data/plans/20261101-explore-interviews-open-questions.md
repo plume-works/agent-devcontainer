@@ -6,9 +6,11 @@ release:
 description: Make Explore settle a problem's open questions with the user one at a time — one topic per turn, one decision per question, in the user's names and design, settled by evidence, with each answer recorded verbatim as it is given.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T12:00:00Z
+  at: 2026-11-02T00:58:20Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+stage: done
+completed: 2026-11-02
 ---
 
 # Explore settles open questions one at a time
