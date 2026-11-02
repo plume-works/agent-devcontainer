@@ -159,8 +159,11 @@ handling.
   - **Evidence:** commit d2bedf5e: `pr-merge/SKILL.md` Step 3 says once per head
     and title and description, and `ALREADY_REVIEWED` names a review newer than
     the last edit.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** at commit d2bedf5e:
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reported 64/64 skills valid, 0 errors, 0 warnings.
 
 ### Task 5: Confirm the edit times on a live pull request
 
