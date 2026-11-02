@@ -363,9 +363,15 @@ loop:
 `.agents/plugins/agentdev/tests/test_gh_stack_guard.py`; Modify:
 `.prettierignore`, `.agents/plugins/agentdev/README.md`
 
-- [ ] The skill directory, its guard tests, and its `.prettierignore` entry are
+- [x] The skill directory, its guard tests, and its `.prettierignore` entry are
   gone, and the catalog README lists `pr-restack-all` and the new
   `pr-merge-stack` summary instead of `gh-stack`
+  - **Evidence:** commit `6a536f62` deletes `skills/gh-stack/`,
+    `tests/test_gh_stack_guard.py`, and the `.prettierignore` entry, and
+    replaces the README's `gh-stack` row with `pr-restack-all` and the new
+    `pr-merge-stack` summary;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    61/61 valid (the skill and its three reference pages gone).
 
 ### Task 10: The images stop shipping gh-stack
 
