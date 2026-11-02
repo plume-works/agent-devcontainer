@@ -1,9 +1,12 @@
 ---
-type: someday
+type: task
+stage: pending
+priority: medium
+created: 2026-11-02
 description: An opt-in trace inside the plugin recording what each hook decided and why, keeping the evidence bundle as a keyed shape rather than its content.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-11-02T20:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement at e94031a, spec 0004

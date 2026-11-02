@@ -86,7 +86,7 @@ Settling it by diffing two runs will not work: the question is a difference in
 *rates*, and the fields varying run-to-run within one check — model prose above
 all — differ between checks too, for reasons that mean nothing. It needs shape
 descriptors aggregated across many runs, grouped by check and outcome, which is
-[Plugin execution tracing](../someday/self-improve-execution-tracing.md). That
+[Plugin execution tracing](../backlog/self-improve-execution-tracing.md). That
 proposal deliberately does not schedule the slices aimed at this question: the
 two available hypotheses are spent and a third has not been proposed, and
 building the instrument before naming the question is what these two documents
