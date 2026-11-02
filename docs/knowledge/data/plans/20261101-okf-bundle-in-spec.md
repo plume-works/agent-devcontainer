@@ -83,6 +83,9 @@ maintainer asked for a pre-commit test instead.
   branch
   - **Evidence:** commit 2f55c012 on PR #616; CI runs 41358251501 (Knowledge
     base validation) and 41358251586 (Primary checks, with pre-commit) succeeded
+    on that commit; on commit ec49c104, which adds Task 4's test, runs
+    41363876171 (Knowledge base validation) and 41363876200 (Primary checks)
+    succeeded
 
 ### Task 4: A test proves the reserved files keep their OKF shapes
 
