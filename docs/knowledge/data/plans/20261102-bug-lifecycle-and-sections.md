@@ -125,11 +125,9 @@ every `docs/knowledge/data/bugs/*.md`,
   planned — recount at implementation)
   - **Evidence:** commit f1721d3f; 12 stage-less bugs migrated, 6 to `planned` —
     exactly the bugs active plans list in `release`
-- [x] Every bug gets a `severity`. The proposed value per bug, with a one-line
+- [ ] Every bug gets a `severity`. The proposed value per bug, with a one-line
   reason from its Symptom, goes into the pull request description as a table for
   the maintainer to review
-  - **Evidence:** commit f1721d3f gives all 57 bugs a `severity`; the per-bug
-    table with reasons is in the pull request description
 - [x] The bootstrap example bug is `stage: pending` with a `severity`, its
   `## Fix` renamed `## Potential solution`, and no `## Key references`
   - **Evidence:** commit f1721d3f;
