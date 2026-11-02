@@ -640,18 +640,18 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
+Verified anchor points (line numbers as of 2026-11-02):
 
 - `AGENTS.md:7` — the force-push exception for `gh stack`
 - `AGENTS.md:12` — Best Practice 0 with the `rerere`/`pushDefault` exception
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:37` — stack detection
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:62` — `gh stack checkout`
   in the worktree setup
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:104` — guarded re-sync
-  after a reformat commit
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:203` — guarded re-sync
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — force-push rule
+  naming the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:171` — guarded re-sync
   after a fix commit
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:231` — `gh stack merge`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:198` — `gh stack merge`
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:90` — §2 Existing Pull
   Request Detection, create mode's `main` base
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:132` — §4 Branch Sync with
@@ -698,8 +698,8 @@ Verified anchor points (line numbers as of 2026-11-01):
 - `py_packages/agentdev_runtime/README.md:33` — `AGENTDEV_GH_STACK_DIR` row
 - `scripts/refresh-pin-checksums.py:119` — gh-stack pin entry
 - `scripts/tests/test_agent_runtime_acceptance.py:392` — `gh stack --help`
-- `docs/knowledge/data/product.md:131` — force-push and git config rules
-- `docs/knowledge/data/architecture.md:75` — stacked-prs and stack-push-guard
+- `docs/knowledge/data/product.md:130` — force-push and git config rules
+- `docs/knowledge/data/architecture.md:123` — stacked-prs and stack-push-guard
   links
-- `docs/knowledge/data/features.md:74` — native stacked PRs link
-- `docs/knowledge/data/backlog.md:53` — pr-merge-stack cleanup link
+- `docs/knowledge/data/features.md:69` — native stacked PRs link
+- `docs/knowledge/data/backlog.md:72` — pr-merge-stack cleanup link
