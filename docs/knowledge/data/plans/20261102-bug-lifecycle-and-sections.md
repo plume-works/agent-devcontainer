@@ -173,13 +173,22 @@ tasks under
 `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py`,
 `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md`
 
-- [ ] `task.yaml` (both copies): enum and description `pending, done, cancelled`
-- [ ] Every task at `stage: planned` (13 as of `00f33655`) and the four seed
+- [x] `task.yaml` (both copies): enum and description `pending, done, cancelled`
+  - **Evidence:** commit 08e9aecf; both copies identical (`cmp` clean),
+    `iwe schema validate` passed
+- [x] Every task at `stage: planned` (13 as of `00f33655`) and the four seed
   tasks move to `stage: pending`
-- [ ] The seed and bootstrap tests expect `pending` for the onboarding tasks
-- [ ] Weekly's backlog-head query selects `stage: pending`
-- [ ] `uv run pytest docs/knowledge/tests/test_iwe_seed.py .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
+  - **Evidence:** commit 08e9aecf moves 13 backlog tasks and the 4 seed tasks to
+    `pending`
+- [x] The seed and bootstrap tests expect `pending` for the onboarding tasks
+  - **Evidence:** commit 08e9aecf updates `test_iwe_seed.py` and
+    `test_iwe_bootstrap.py`
+- [x] Weekly's backlog-head query selects `stage: pending`
+  - **Evidence:** commit 08e9aecf changes the backlog-head query in
+    `iwe-weekly/SKILL.md` to `stage: pending`
+- [x] `uv run pytest docs/knowledge/tests/test_iwe_seed.py .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
   passes
+  - **Evidence:** commit 08e9aecf; the two files passed, 39 tests
 
 ### Task 4: SCHEMA.md and knowledge AGENTS.md describe the new model
 
