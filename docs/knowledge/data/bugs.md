@@ -82,6 +82,9 @@ ahead](bugs/gh-stack-push-overwrites-remote-layer.md)
 [Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
 /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
 
+[Bug: Image provisioning layer is keyed on the whole
+repository](bugs/image-build-context-whole-repo.md)
+
 [Bug: Image rebuild lost when a later push to main cancels its
 run](bugs/main-image-rebuild-lost-on-cancel.md)
 
