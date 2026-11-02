@@ -1,27 +1,32 @@
 ---
 type: spec
-description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
+description: How the PR skills merge pull requests explicitly and only into main, never rewrite a branch, record a dependent branch's predecessors, keep the Depends on section machine-editable, and restack a chain of dependent pull requests with merges through pr-restack-all.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T01:30:00Z
+  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
-- resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
+- resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
+- resource: .agents/plugins/agentdev/skills/pr-restack-all/SKILL.md
+- resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
+- resource: .agents/plugins/agentdev/bin/pr_restack_all.py
+- resource: .agents/plugins/agentdev/bin/depends_on.py
+- resource: .agents/plugins/agentdev/bin/check_depends_on.py
+- resource: .agents/plugins/agentdev/skills/remote-codespace-session/agent-code/codespace-sync.py
 - resource: AGENTS.md
-- resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
-- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 ---
 
 # Stacked PRs
 
 ## Purpose
 
-Defines how the PR skills merge: every PR explicitly and never through
-auto-merge, a PR in a GitHub native stack through `gh stack merge`, and branch
-updates without force except `gh stack`'s lease-guarded updates of stack
-branches.
+Defines how the PR skills merge and how work that depends on an open pull
+request is stacked: every PR is merged explicitly, never through auto-merge, and
+only into `main`; no branch is ever rewritten; a dependent pull request is a
+normal pull request based on its predecessor's branch, and after a squash merge
+its successors are reconnected with merges by one `pr-restack-all` run.
 
 ## Requirements
 
@@ -43,156 +48,180 @@ head SHA.
 - **WHEN** every completion criterion holds for the current head SHA
 - **THEN** pr-merge squash merges the PR explicitly and confirms `MERGED`
 
-### Requirement: Stacked PRs merge through gh stack merge
+### Requirement: No branch is rewritten
 
-A PR that belongs to a GitHub stack SHALL be merged with
-`gh stack merge <pr> --yes --squash`, never with `gh pr merge`. pr-merge SHALL
-merge only the lowest unmerged layer of a stack; pr-merge-stack SHALL bring
-every unmerged layer through CI and review bottom-up and land them with one
-`gh stack merge` of the top PR.
+Agent skills SHALL NOT force-push, SHALL NOT rebase or reset a branch that has
+been pushed, SHALL NOT run `gh stack`, and SHALL NOT create a GitHub native
+stack. Another branch's history SHALL be brought in with a merge.
 
-#### Scenario: Lowest unmerged layer
+#### Scenario: Remote moved
 
-- **WHEN** pr-merge is asked to merge the lowest unmerged PR of a stack
-- **THEN** it merges that PR with `gh stack merge <pr> --yes --squash`
+- **WHEN** a skill's push is rejected as non-fast-forward
+- **THEN** it merges the remote branch and pushes again without force
 
-#### Scenario: Higher layer
+### Requirement: A dependent branch records its predecessors
 
-- **WHEN** pr-merge is asked to merge a stacked PR with unmerged PRs below it
-- **THEN** it hands the stack to pr-merge-stack instead of merging
+`git-new-branch --depends-on <P>`, repeatable, SHALL require every named pull
+request to be open and its head to be a branch of the remote, SHALL cut the
+branch from the first one's head branch and merge the others' heads, SHALL add
+an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push
+without force.
 
-#### Scenario: Whole stack
+#### Scenario: One open predecessor
 
-- **WHEN** pr-merge-stack has every unmerged layer green for CI and review
-- **THEN** it runs one `gh stack merge <top> --yes --squash`
+- **WHEN** `git-new-branch <name> --depends-on <P>` runs and P is open
+- **THEN** the branch starts at P's head with a `Depends-on: #<P>` commit and is
+  pushed
 
-### Requirement: Force-pushes are limited to stack branches
+#### Scenario: Predecessor without an open pull request
 
-Agent skills SHALL NOT force-push, except that `gh stack rebase` and the
-gh-stack skill's `stack-guard.py publish` MAY update branches of a GitHub stack
-with `--force-with-lease`. The repository-local `rerere.enabled` and
-`remote.pushDefault` written by `gh stack` or the gh-stack skill's setup are the
-only permitted git config changes.
+- **WHEN** a named pull request is not open
+- **THEN** it stops before creating a branch
 
-#### Scenario: Branch outside a stack
+#### Scenario: Two predecessors
 
-- **WHEN** a skill must update a branch that belongs to no GitHub stack
-- **THEN** it pushes without force
+- **WHEN** `--depends-on` names two open pull requests
+- **THEN** the branch contains both heads and one trailer line for each
 
-#### Scenario: Lower layer changed
+#### Scenario: Predecessor in a fork
 
-- **WHEN** a commit lands on a lower layer of a stack
-- **THEN** the layers above are updated with `gh stack rebase --upstack` and
-  published with `stack-guard.py publish`
+- **WHEN** a named pull request's head is in a fork
+- **THEN** it stops before creating a branch
 
-### Requirement: update-branch refuses stack branches
+### Requirement: pr-open bases a dependent pull request on its predecessor
 
-The update-branch skill SHALL refuse a branch that belongs to a GitHub stack and
-SHALL direct the caller to the gh-stack skill's post-merge refresh.
+For a branch with `Depends-on:` trailers, pr-open SHALL run
+`pr-restack-all <branch>` before creating or updating the pull request, SHALL
+refuse while more than one dependency is unmerged, SHALL set a new pull
+request's base to the unmerged predecessor's head branch, or `main` when none is
+unmerged, SHALL write its first `## Depends on` section with one `- #<P>` entry
+per dependency in merge order, and SHALL NOT open it as a draft.
 
-#### Scenario: Stack branch
+#### Scenario: Open predecessor
 
-- **WHEN** update-branch runs on a branch of a GitHub stack
-- **THEN** it stops without merging and names the gh-stack skill's refresh
+- **WHEN** pr-open creates the pull request of a branch depending on open P
+- **THEN** its base is P's head branch and its body lists `- #<P>` under
+  `## Depends on`
 
-### Requirement: Stack pushes never drop remote-only commits
+#### Scenario: Two unmerged dependencies
 
-Agent skills SHALL update the remote branches of a GitHub stack only through
-`stack-guard.py publish`, never with a bare `gh stack push`, `gh stack submit`,
-or `gh stack sync`. `stack-guard.py begin` SHALL run before a skill rewrites a
-stack layer. It SHALL fast-forward a layer that its remote is ahead of, and it
-SHALL stop when a layer's remote holds a commit whose exact patch, whitespace
-included, the local branch lacks, each local commit matching at most one remote
-commit and empty commits matching by count, or a merge commit it lacks,
-excluding the trunk. `publish` SHALL stop when a layer's remote tip moved since
-`begin` to anything but its local tip, taking every tip from its own fetch. Its
-own push SHALL be the only force-push: every changed layer in one atomic push
-leased on the tips it checked, stopping without pushing when that lease is
-rejected. It SHALL NOT run `gh stack push` or `gh stack submit`; with `--submit`
-it SHALL open the PRs through `gh stack link`, which pushes without force: in
-create mode when no layer has merged, and in add mode, appending the layers
-without a PR to the GitHub stack, once one has. It SHALL refuse, before pushing,
-a layer without a PR below one with a PR and an all-digit layer name. After a
-link it SHALL record the linked PRs locally with
-`gh stack checkout <stack-number>`, keeping the current branch, and SHALL report
-`PUSH_FAILED` when that fails. It SHALL report a remote tip that differs from
-its local tip after the push. Both subcommands SHALL cover queued layers, and
-`publish` SHALL leave a layer that is still queued unpushed.
+- **WHEN** a branch depends on two unmerged pull requests
+- **THEN** pr-open refuses and creates nothing
 
-#### Scenario: Remote ahead
+### Requirement: The Depends on section stays machine-editable
 
-- **WHEN** `begin` runs and a layer's local tip is an ancestor of its remote tip
-- **THEN** it fast-forwards the local layer and reports it
+pr-gen-description and pr-open SHALL write the `## Depends on` section only when
+the pull request is created and SHALL keep it byte-for-byte when a body is
+regenerated. Before a body is applied they SHALL check it with the parser
+`pr-restack-all` uses, and SHALL NOT apply a body whose section that parser
+cannot find or edit.
 
-#### Scenario: Remote-only commit
+#### Scenario: Regenerated body
 
-- **WHEN** `begin` runs and a layer's remote holds a commit whose patch the
-  local branch lacks
-- **THEN** it stops, names the commit, and the skill asks the user how to
-  incorporate it
+- **WHEN** a pull request whose section carries a merge record is synced
+- **THEN** the new body carries the same section
 
-#### Scenario: Remote rebased after a lower layer merged
+#### Scenario: Unparseable section
 
-- **WHEN** GitHub rebased a layer after a lower layer merged, and the remote
-  holds no other commit
-- **THEN** `begin` succeeds
+- **WHEN** a candidate body's `## Depends on` section cannot be parsed
+- **THEN** the body is not applied
 
-#### Scenario: Remote moved during the edit
+### Requirement: pr-restack-all restacks a chain with merges
 
-- **WHEN** a layer's remote tip changed between `begin` and `publish`
-- **THEN** `publish` stops before pushing and names the layer
+pr-restack-all SHALL take a top pull request or a branch. For a pull request it
+SHALL find the chain by walking each pull request's base to the open pull
+request whose head is that branch, down to a base of `main`, and SHALL stop when
+a pull request's last `## Depends on` entry is not the pull request below it, or
+when a pull request in the chain or an open predecessor has its head in a fork.
+For a branch it SHALL read the dependencies from its `Depends-on:` trailers. It
+SHALL work in one fresh detached worktree under `./.tmp/` built from remote
+refs, and SHALL NOT check out, create, or move a local branch. Bottom-up, for
+each pull request it SHALL act only on the nearest predecessor P: when P is
+open, merge P's head branch; when P is merged and P's merge commit is already in
+the branch, do nothing; when P is merged otherwise, take HEAD as P's
+`headRefOid` and MERGE as P's `mergeCommit.oid`, require `refs/pull/<P>/head` to
+equal HEAD, merge MERGE into a detached copy of HEAD, and merge that copy into
+the branch; when P is closed unmerged, stop. It SHALL push without force and,
+after the push lands, replace the `- #<P>` entry with
+`- #<P> — merged as <MERGE> (head <HEAD>), reconnected`. It SHALL NOT merge
+`main` and SHALL stop on a merge conflict, printing the worktree path.
 
-#### Scenario: Remote moved after the check
+#### Scenario: Predecessor open
 
-- **WHEN** a layer's remote gained a commit after `publish` fetched it and
-  before its own push
-- **THEN** the lease rejects the push, the commit stays on the remote, and
-  `publish` reports `REMOTE_MOVED`
+- **WHEN** a pull request's predecessor is open
+- **THEN** the predecessor's head branch is merged in and pushed, and no record
+  is written
 
-#### Scenario: Whitespace-only remote rewrite
+#### Scenario: Predecessor merged
 
-- **WHEN** a layer's remote holds a commit that differs from a local one only in
-  whitespace
-- **THEN** `begin` stops and names the commit
+- **WHEN** a pull request's predecessor was squash-merged and its merge commit
+  is not in the branch
+- **THEN** the merge commit is merged into a copy of the predecessor's final
+  head, the copy is merged into the branch, the branch is pushed without force,
+  and the entry records the merge commit and head
 
-#### Scenario: Remote-only merge of the trunk
+#### Scenario: Two predecessors already merged
 
-- **WHEN** a layer's remote holds a merge of the trunk the local branch lacks
-- **THEN** `begin` stops and names the merge
+- **WHEN** X and X+1 have merged and X+2 is restacked
+- **THEN** only X+1 is reconnected, and X+2 contains `main` up to X+1's merge
+  commit and nothing later
 
-#### Scenario: Push lands before the link
+#### Scenario: Rerun after a conflict
 
-- **WHEN** `publish --submit` runs and a layer's remote gained a commit after
-  the guard's own push
-- **THEN** `gh stack link` is rejected, the commit stays on the remote, and
-  `publish` reports `PUSH_FAILED`
+- **WHEN** a restack stopped on a conflict that was resolved and it runs again
+- **THEN** pull requests already restacked are skipped
 
-#### Scenario: New layer after a lower layer merged
+#### Scenario: Branch without a pull request
 
-- **WHEN** `publish --submit` runs, a lower layer has merged, and a new top
-  layer has no PR
-- **THEN** it pushes the new layer and appends it to the GitHub stack with
-  `gh stack link <stack-number> <layer>`
+- **WHEN** pr-restack-all runs on a branch whose trailers name one merged and
+  one open pull request
+- **THEN** the merged one is reconnected and the branch is pushed
 
-#### Scenario: New layer below a layer with a PR
+#### Scenario: Local branches
 
-- **WHEN** `publish --submit` runs and a layer without a PR sits below one with
-  a PR
-- **THEN** it stops with `PREFLIGHT_ERROR` before pushing anything
+- **WHEN** pr-restack-all runs while another worktree has a chain branch checked
+  out
+- **THEN** no local branch or worktree other than its own is changed
 
-#### Scenario: Queued layer pushed by someone else
+#### Scenario: Head in a fork
 
-- **WHEN** a layer was queued at `begin` and its remote moved before `publish`
-- **THEN** `publish` stops with `REMOTE_MOVED` and the remote commit stays
+- **WHEN** a pull request in the chain, or its open predecessor, has its head in
+  a fork
+- **THEN** it stops before any push
 
-#### Scenario: Layer still queued
+### Requirement: pr-merge merges only into main
 
-- **WHEN** a layer is still queued when `publish` runs
-- **THEN** `publish` leaves it unpushed, publishes the layers above it, and
-  succeeds
+pr-merge SHALL refuse a pull request whose base is not `main` and SHALL NOT pass
+`--admin`.
 
-#### Scenario: Push left a layer behind
+#### Scenario: Dependent pull request
 
-- **WHEN** the guard's push or `gh stack link` exits `0` but a layer's remote
-  tip differs from its local tip
-- **THEN** `publish` reports the layer as not published
+- **WHEN** pr-merge is asked to merge a pull request based on another branch
+- **THEN** it stops without merging
+
+### Requirement: pr-merge-stack merges a chain bottom-up
+
+pr-merge-stack SHALL take the top pull request and repeat until it has merged:
+find the chain as pr-restack-all does, merge the bottom pull request through
+pr-merge, then restack the rest with one `pr-restack-all` run of the top.
+
+#### Scenario: Chain of three
+
+- **WHEN** pr-merge-stack runs on the top of a chain of three open pull requests
+- **THEN** each merges in order, with a restack after each of the first two
+
+### Requirement: Merges into dependent branches are blocked
+
+The repository SHALL have a ruleset on `refs/heads/iwe/**` requiring the status
+check `base-is-main`, with the Write, Maintain, and Admin repository roles as
+bypass actors, and no workflow SHALL report that check.
+
+#### Scenario: Pull request into an iwe branch
+
+- **WHEN** a pull request based on an `iwe/` branch is merged without `--admin`
+- **THEN** GitHub refuses the merge
+
+#### Scenario: Owner push
+
+- **WHEN** a user with Write access pushes to an `iwe/` branch
+- **THEN** the push is accepted
