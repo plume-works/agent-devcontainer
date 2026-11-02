@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-02
 created: 2026-11-01
 release:
 - bugs/coder-docker-storage-accumulates

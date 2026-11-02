@@ -111,23 +111,25 @@ point at content the new, empty volume lacks.
 ### Requirement: the workspace engine bounds its own storage
 
 The workspace engine SHALL run with BuildKit garbage collection enabled and a 10
-GB build-cache limit, from `/etc/docker/daemon.json` in the base image. The
-`coder_agent` startup script SHALL, once Docker is ready, remove images that no
-container references and that were created more than 72 hours ago. A failed
-prune SHALL NOT fail the startup script.
+GB build-cache limit, from `/etc/docker/daemon.json` in the base image. A
+systemd `docker-gc.timer` in the base image SHALL run `/usr/local/bin/docker-gc`
+15 minutes after boot and then hourly. Each run SHALL apply the
+garbage-collection pass of [Devcontainer Docker
+storage](devcontainer-docker-storage.md) to the workspace engine, with the same
+image age, build-cache limit, and volume patterns. A failed step SHALL only
+warn. The template's startup script SHALL NOT prune.
 
-#### Scenario: a stopped Dev Container's image survives the prune
+#### Scenario: a stopped Dev Container's image survives the collection
 
-- **WHEN** the workspace restarts and the startup script prunes before the Dev
-  Container is started again
+- **WHEN** the Dev Container is stopped and the collector runs
 - **THEN** the Dev Container's image is kept, because its stopped container
   references it.
 
-#### Scenario: an old image is unreferenced
+#### Scenario: the workspace runs for days
 
-- **WHEN** an image created more than 72 hours ago is referenced by no container
-  at agent start
-- **THEN** the startup script removes it.
+- **WHEN** a workspace stays up for longer than 72 hours
+- **THEN** unused images, build cache over 10 GB, and old unused disposable
+  volumes are removed within an hour of qualifying, without a restart.
 
 ### Requirement: the template offers an OpenCode app
 
