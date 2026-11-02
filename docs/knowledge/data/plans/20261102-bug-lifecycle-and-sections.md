@@ -237,10 +237,14 @@ their bootstrap copies under
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] Step 5 sets every bug the plan lists in `release` to `stage: planned`, as
+- [x] Step 5 sets every bug the plan lists in `release` to `stage: planned`, as
   it sets listed features to `accepted`
-- [ ] Revise mode returns a bug the revision removes from `release` to
+  - **Evidence:** commit c7f5f7d6, `iwe-planner.agent.md` step 5;
+    `validate_agent_files --recommend` reported 0 errors, 0 warnings
+- [x] Revise mode returns a bug the revision removes from `release` to
   `stage: pending`
+  - **Evidence:** commit c7f5f7d6, step 5's revise-mode sentence (a bug added by
+    a revision becomes `planned`, one removed returns to `pending`)
 
 ### Task 7: Ship writes the Fix and reverts cancelled bugs
 
