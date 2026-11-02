@@ -5,11 +5,13 @@ release: internal
 description: Restore the spec's OKF requirement — the graph stays an OKF v0.2 bundle and diverges only where OKF costs merges or upkeep — and block OKF's optional `status` with a pre-commit check.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T18:00:00Z
+  at: 2026-11-02T00:35:00Z
 sources:
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: .pre-commit-config.yaml
 - resource: .iwe/schemas/okf.yaml
+stage: done
+completed: 2026-11-02
 ---
 
 # Keep the graph an OKF bundle in the spec
