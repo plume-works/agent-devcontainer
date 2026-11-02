@@ -226,6 +226,9 @@ autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
 
+[Re-request an AI review after a title or description
+edit](plans/20261102-rereview-after-metadata-edit.md)
+
 [The AI responder posts as the plume-works-quill
 App](plans/20261030-responder-quill-app-identity.md)
 

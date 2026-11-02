@@ -228,11 +228,12 @@ it are filed on the head commit and listed by `gh pr checks`.
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
    `request-review.py` toggles the author's assignment at most once per head
-   SHA. On `ALREADY_REQUESTED`, a responder check already covers this head:
-   confirm it started as that skill describes and wait on the head's checks;
-   never request again. On
-   `ALREADY_REVIEWED`, an accepted review already names the head and the failed
-   gate predates it; report that instead of requesting.
+   and title and description. On `ALREADY_REQUESTED`, a responder check
+   already covers this head: confirm it started as that skill describes and
+   wait on the head's checks; never request again. On `ALREADY_REVIEWED`, an
+   accepted review newer than the last title or description edit already names
+   the head and the failed gate predates it; report that instead of
+   requesting.
 
 4. Wait until the latest `ai-review-present` run on the head completes — it
    finishes in the same run as the review — then refresh both `gh pr checks`
@@ -261,4 +262,5 @@ evidenced.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
   AI responder workflow.
 - [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — request the
-  review by assignee toggle, at most once per head SHA, and confirm it started.
+  review by assignee toggle, at most once per head and title and description,
+  and confirm it started.
