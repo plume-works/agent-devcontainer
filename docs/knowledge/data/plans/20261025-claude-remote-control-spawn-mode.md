@@ -15,6 +15,7 @@ sources:
 - resource: https://code.claude.com/docs/en/worktrees
 stage: done
 completed: 2026-10-26
+released: 2.0.0
 ---
 
 # Configurable Remote Control spawn mode, worktree by default

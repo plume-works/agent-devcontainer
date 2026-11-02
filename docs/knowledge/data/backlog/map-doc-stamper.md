@@ -2,7 +2,6 @@
 type: task
 description: Bundle a script with the iwe-map skill that writes a refreshed map doc's current source_digest, verified, stale_after, generated, and anchor date in one step.
 stage: cancelled
-status: deprecated
 priority: low
 created: 2026-10-29
 generated:

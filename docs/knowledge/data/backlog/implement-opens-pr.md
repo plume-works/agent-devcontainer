@@ -11,6 +11,7 @@ sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
+rank: 1950
 ---
 
 # Let iwe-implement open its pull request without asking

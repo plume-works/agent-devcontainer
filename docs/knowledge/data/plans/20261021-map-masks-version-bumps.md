@@ -3,6 +3,7 @@ type: plan
 stage: done
 created: 2026-10-21
 completed: 2026-10-21
+released: 2.0.0
 description: Teach the iwe-map refresh to mask a version-only change in the colocated .agent.metadata.json, prove the mask with a new stale-map-docs.py --replay mode, and commit the mask with the digest re-stamps it explains before refreshing any prose.
 release:
 - features/map-masks-version-bumps

@@ -9,6 +9,7 @@ generated:
   at: 2026-09-02T00:00:00Z
 stage: done
 completed: 2026-09-02
+released: 1.0.0
 ---
 
 # Audit every plan edit in a fresh context

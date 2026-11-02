@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:25:00Z
+  at: 2026-11-02T00:30:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -30,6 +30,11 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
+- resource: .github/workflows/validate-knowledge-base.yml
+- resource: docs/knowledge/tests/test_hub_order.py
+- resource: docs/knowledge/tests/test_no_status_field.py
+- resource: docs/knowledge/tests/test_reserved_file_shapes.py
+- resource: .pre-commit-config.yaml
 ---
 
 # IWE workflow skills
@@ -187,8 +192,8 @@ value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
 work adds, changes, or fixes. The Plan skill SHALL set that value when it files
 a plan, SHALL declare `internal` only when no workspace user or template
 consumer sees a difference, and SHALL have Capture file a missing feature before
-it files the plan. Ship SHALL take a plan's release entries only from that value
-and SHALL never create a feature.
+it files the plan. The release cut SHALL take a plan's release entries only from
+that value, and Ship SHALL never create a feature.
 
 #### Scenario: A plan introduces user-visible behavior with no feature
 
@@ -200,15 +205,16 @@ and SHALL never create a feature.
 #### Scenario: A plan changes nothing users see
 
 - **WHEN** Ship ships a plan that declares `release: internal`
-- **THEN** Ship marks the plan done and adds no release entry
+- **THEN** Ship marks the plan done, and the next release cut adds no entry for
+  it
 
 #### Scenario: A plan declares features and bugs
 
 - **WHEN** Ship ships a plan whose `release` lists feature and bug keys
-- **THEN** Ship marks each feature implemented and each bug done, and adds one
-  unreleased inclusion link per listed document — a feature new in this version
-  under Added, a feature released in an earlier version under Changed, a bug
-  under Fixed
+- **THEN** Ship marks each feature implemented and each bug done and writes no
+  release page, and the next release cut adds one link per listed document — a
+  feature new in that version under Added, a feature released in an earlier
+  version under Changed, a bug under Fixed
 
 #### Scenario: An active plan has no release declaration
 
@@ -571,9 +577,8 @@ to resume after a partial prior attempt.
 #### Scenario: Shipping resumes after partial graph updates
 
 - **WHEN** a prior Ship attempt already performed some valid state changes
-- **THEN** Ship inspects current state, preserves completed valid work, avoids
-  duplicate hub, release, and log entries, and continues from the first
-  incomplete operation
+- **THEN** Ship inspects current state, preserves completed valid work, and
+  continues from the first incomplete operation
 
 #### Scenario: A durable spec is retired
 
@@ -655,16 +660,16 @@ The Capture skill SHALL be the only writer of new bug, proposed-feature, and
 backlog-task documents, SHALL refuse a document missing any frontmatter field or
 body section `SCHEMA.md` requires for its type, SHALL check the graph for a
 likely duplicate before filing, SHALL file a feature at `stage: proposed` and
-never promote it, and SHALL link every filed document from its hub and end with
-`iwe normalize` and `iwe schema validate` passing.
+never promote it, and SHALL link every filed document at its sorted position in
+its hub and end with `iwe normalize` and `iwe schema validate` passing.
 
 #### Scenario: A complete item is captured
 
 - **WHEN** Capture is invoked for a bug, feature, or task whose required
   sections and fields are all supplied, and no likely duplicate exists
-- **THEN** Capture writes the document at its lane's key with the `stage` and
-  `status` `SCHEMA.md` derives for it, stamps `generated` and `sources`, links
-  it from its hub — a task under its priority section — and validates the graph
+- **THEN** Capture writes the document at its lane's key with the `stage`
+  `SCHEMA.md` assigns it, stamps `generated` and `sources`, links it at its
+  sorted position in its hub, and validates the graph
 
 #### Scenario: A required section is missing
 
@@ -708,14 +713,93 @@ questions sections — in that order, while allowing additional sections.
   order, or a bug's H1 lacks the `Bug:` prefix
 - **THEN** `iwe schema validate` fails and names the document
 
+### Requirement: Active work carries one global rank sequence
+
+Active plans, open bugs, and planned backlog tasks SHALL record their place in
+the build order as an optional integer `rank` in their own frontmatter, lower
+first, shared across the three types. The sequence SHALL be the result of
+`iwe find --filter '{rank: {$exists: true}}' --sort rank:1`. Ship SHALL remove
+`rank` from every document it marks done or cancelled. Equal ranks SHALL be
+valid, and CI SHALL warn about them without failing.
+
+#### Scenario: A plan is filed with a place in the sequence
+
+- **WHEN** the user names where a new plan belongs in the build order
+- **THEN** Plan sets its `rank` between its neighbours' ranks and edits no other
+  document's `rank`
+
+#### Scenario: Work ships
+
+- **WHEN** Ship marks a plan done and the bugs its `release` lists fixed
+- **THEN** none of them carries a `rank`, and the sequence query no longer lists
+  them
+
+#### Scenario: Two documents share a rank
+
+- **WHEN** two documents carry the same `rank`
+- **THEN** the knowledge-base CI check passes and emits a warning naming both
+
+### Requirement: Hubs are flat alphabetical membership lists
+
+Every hub SHALL be one list of inclusion links with no `##` sections, sorted by
+member key with any `YYYYMMDD-` prefix removed. A skill SHALL edit a hub only
+when a member is created, removed, or renamed, never to record a stage or
+priority change.
+
+#### Scenario: A document is filed
+
+- **WHEN** Capture or Plan files a new document
+- **THEN** its link is inserted at its sorted position in its hub
+
+#### Scenario: A hub is out of order or sectioned
+
+- **WHEN** a hub's links are out of order or its body has a `##` section
+- **THEN** the knowledge-base checks fail and name the hub
+
+#### Scenario: A work item changes stage
+
+- **WHEN** a plan, bug, task, or feature changes `stage`
+- **THEN** its hub file is unchanged
+
+### Requirement: A release cut is the only writer of release pages and the log
+
+The release cut SHALL build `releases/<X.Y.Z>.md` from the done plans that carry
+no `released` field, taking entries only from each plan's `release` list, SHALL
+set `released: <X.Y.Z>` on each plan it took, SHALL link the page from
+`data/releases.md`, and SHALL add one dated group to `data/log.md`. No other
+operation SHALL write a release page or the log.
+
+#### Scenario: A release is cut
+
+- **WHEN** the release cut runs for `<X.Y.Z>`
+- **THEN** the page lists each feature absent from every earlier release under
+  Added, each feature present in an earlier release under Changed, and each bug
+  under Fixed, with one link per document
+
+#### Scenario: A plan ships on the day of a cut
+
+- **WHEN** a plan ships after a release cut on the same day
+- **THEN** that cut's plans carry `released` and this plan does not, so the next
+  cut takes it
+
+#### Scenario: A release cut resumes
+
+- **WHEN** a prior release cut already wrote some of its results
+- **THEN** the cut preserves them and writes no second release link or log group
+
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
-workflow, graph links, durable specs, existing stage and status conventions,
-provenance requirements, and schema validation. Risk-scaled spec deltas SHALL
-remain embedded planning content without introducing OpenSpec change bundles,
-stores, separate delta files, archive moves, or a claimed programmatic delta
-application engine.
+workflow, graph links, durable specs, existing stage conventions, provenance
+requirements, and schema validation. Risk-scaled spec deltas SHALL remain
+embedded planning content without introducing OpenSpec change bundles, stores,
+separate delta files, archive moves, or a claimed programmatic delta application
+engine. The graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md`
+lists the hubs, `data/log.md` stays date-grouped, and the `okf`, `okf-index`,
+and `okf-log` schemas check every document — and SHALL diverge from OKF only
+where OKF costs merges or upkeep. The one divergence SHALL be that no document
+under `data/` sets OKF's optional `status`, because `stage` is the lifecycle
+field; a pre-commit check SHALL reject a document that sets it.
 
 #### Scenario: Updated skills write project memory
 
@@ -723,7 +807,13 @@ application engine.
 - **THEN** it follows the existing OKF metadata, graph membership,
   normalization, validation, and commit requirements defined by the workspace
 
-#### Scenario: Unaffected skills are exercised
+#### Scenario: A document sets status
 
-- **WHEN** Setup or Weekly runs after this change
-- **THEN** its existing behavior remains unchanged
+- **WHEN** a document under `data/` carries a `status` field
+- **THEN** the pre-commit check fails and names the document
+
+#### Scenario: A reserved file loses its OKF shape
+
+- **WHEN** `data/index.md` or `data/log.md` departs from the shape its OKF
+  schema defines
+- **THEN** `iwe schema validate` fails and names the file

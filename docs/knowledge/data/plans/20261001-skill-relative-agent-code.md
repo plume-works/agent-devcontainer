@@ -17,6 +17,7 @@ sources:
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/host_outcome.rs
 stage: done
 completed: 2026-10-02
+released: 2.0.0
 ---
 
 # Reference bundled skill code by skill-relative agent-code paths

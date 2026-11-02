@@ -16,6 +16,7 @@ sources:
 - resource: docs/knowledge/tests/test_iwe_seed.py
 stage: done
 completed: 2026-10-25
+released: 2.0.0
 ---
 
 # Extract a reusable IWE bootstrap skill

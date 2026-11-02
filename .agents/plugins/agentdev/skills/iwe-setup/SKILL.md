@@ -45,7 +45,8 @@ what the code can't answer. Every future session reads what you write here.
 6. **Close the loop.** Mark the finished onboarding tasks
    (`fill-product-doc`, and `capture-current-architecture` if step 3 ran):
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
-   and move their links in `data/backlog.md` to `## Done`. Delete the example
+   and remove any `rank` they carry; their links in `data/backlog.md` stay
+   where they are. Delete the example
    docs — every `*.example.md` under `data/` (`iwe delete <key>` per doc).
    `iwe delete` removes their inclusion links from hubs automatically but
    _flattens_ inline links to plain text: sweep the hub files and remaining

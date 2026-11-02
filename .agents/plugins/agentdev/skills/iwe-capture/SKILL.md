@@ -20,7 +20,7 @@ Run every `iwe` command from the repository root; keys are relative to
 ## Steps
 
 1. **Read the contract.** Read `docs/knowledge/SCHEMA.md` — the section for
-   the type, `## Fields every type carries`, and the `stage`/`status` table —
+   the type, `## Fields every type carries`, and the `stage` table —
    and `data/product.md` `## Authoring rules`. SCHEMA.md is the authority for
    what the document must contain; the bug and feature schemas in `.iwe/schemas/`
    enforce the same body sections, so a document that skips this step fails
@@ -54,10 +54,9 @@ Run every `iwe` command from the repository root; keys are relative to
    or `data/backlog/<slug>.md`, choosing a short kebab slug no existing key
    uses. Frontmatter:
    - `type` — `bug`, `feature`, or `task`.
-   - `stage` and `status` derived from the SCHEMA.md table: a new bug omits
-     both (open); a feature is `stage: proposed` with `status: draft`; a task
-     is `stage: planned` with `priority` and `created: <today>`, and no
-     `status`.
+   - `stage` from the SCHEMA.md table: a new bug omits it (open); a feature is
+     `stage: proposed`; a task is `stage: planned` with `priority` and
+     `created: <today>`.
    - `description`, `generated: { by: <actor>, at: <ISO 8601 now> }`, and
      `sources` naming every code path, page, and GitHub issue URL the item was
      derived from.
@@ -67,9 +66,10 @@ Run every `iwe` command from the repository root; keys are relative to
    step.
 
 5. **Link it from its hub** with an inclusion link — a markdown link on its own
-   line. A task goes under its priority's `## High`, `## Medium`, or `## Low`
-   section of `data/backlog.md`; a bug is appended to `data/bugs.md` and a
-   feature to `data/features.md`.
+   line — at its sorted position: a task in `data/backlog.md`, a bug in
+   `data/bugs.md`, a feature in `data/features.md`. Hubs are one flat list
+   sorted by member key, with no sections; priority and stage live in the
+   document's frontmatter only.
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.
 7. **Close the issue** when the item grew from a GitHub issue, with the bundled
@@ -83,7 +83,7 @@ Run every `iwe` command from the repository root; keys are relative to
 
    The last stdout line is `RESULT=<NAME>`; see `## Closing the issue`.
 
-8. **Report** the key written, its hub section, any `sources`, and the issue
+8. **Report** the key written, its hub, any `sources`, and the issue
    outcome.
 
 ## Promoting a someday idea
@@ -96,8 +96,8 @@ caller adds — usually the priority. Then:
 1. `iwe rename data/someday/<slug> data/backlog/<slug>` moves the document and
    repoints every reference, including the link in `data/someday.md`.
 2. Rewrite the frontmatter to the task shape in Step 4, keeping `sources`.
-3. Remove the link from `data/someday.md` and add it under the priority section
-   of `data/backlog.md`.
+3. Remove the link from `data/someday.md`, since the document left that hub,
+   and add it at its sorted position in `data/backlog.md`.
 4. Continue from Step 6.
 
 ## Closing the issue

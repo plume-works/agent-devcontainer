@@ -19,6 +19,7 @@ sources:
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
 stage: done
 completed: 2026-10-27
+released: 2.0.0
 ---
 
 # PR skills drive the AI review lifecycle on the single review workflow

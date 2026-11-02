@@ -3,6 +3,7 @@ type: plan
 created: 2026-10-16
 stage: done
 completed: 2026-10-16
+released: 2.0.0
 description: Every active plan declares its release impact in a schema-required release frontmatter field — internal, or the feature and bug keys it adds, changes, or fixes — so Ship applies the declaration instead of deciding, plus features and release links backfilled for shipped public-facing plans that have none.
 release:
 - bugs/ship-release-link-without-feature

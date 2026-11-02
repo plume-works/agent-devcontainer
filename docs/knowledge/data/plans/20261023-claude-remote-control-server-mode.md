@@ -14,6 +14,7 @@ sources:
 - resource: https://code.claude.com/docs/en/claude-projects
 stage: done
 completed: 2026-10-24
+released: 2.0.0
 ---
 
 # Opt-in Claude Remote Control server mode

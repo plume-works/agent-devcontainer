@@ -15,6 +15,7 @@ sources:
 - resource: https://github.com/devcontainers/spec/blob/main/docs/specs/devcontainerjson-reference.md
 stage: done
 completed: 2026-09-06
+released: 1.0.0
 ---
 
 # Use VS Code port forwarding for Xpra

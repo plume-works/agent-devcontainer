@@ -13,6 +13,7 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/349d8d6/template/main.tf
 stage: done
 completed: 2026-10-12
+released: 2.0.0
 ---
 
 # Configure the gh credential helper from the Coder agent

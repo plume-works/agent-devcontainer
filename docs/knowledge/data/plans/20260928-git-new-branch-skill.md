@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
 stage: done
 completed: 2026-09-29
+released: 2.0.0
 ---
 
 # git-new-branch skill

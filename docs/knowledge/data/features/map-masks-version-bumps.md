@@ -1,7 +1,6 @@
 ---
 type: feature
 stage: deprecated
-status: deprecated
 description: An iwe-map refresh that finds a map doc stale only because a version, digest, or pin value moved masks that kind of value, proves the mask against history, and re-stamps the digests it explains in one commit before refreshing any prose.
 generated:
   by: claude-code/opus-5.5

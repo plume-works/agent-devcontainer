@@ -12,6 +12,7 @@ sources:
 - resource: https://code.claude.com/docs/en/remote-control
 stage: done
 completed: 2026-10-13
+released: 2.0.0
 ---
 
 # Resume the autostarted Remote Control conversation by a pinned ID

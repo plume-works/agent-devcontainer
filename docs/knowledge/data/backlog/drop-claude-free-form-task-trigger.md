@@ -10,6 +10,7 @@ generated:
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
+rank: 2300
 ---
 
 # Drop the `@claude <custom prompt>` free-form task trigger

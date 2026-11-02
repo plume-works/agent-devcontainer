@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/475
+rank: 1300
 ---
 
 # Verify that auto-merge waits for an assignee-triggered review

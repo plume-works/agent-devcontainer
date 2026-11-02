@@ -35,30 +35,59 @@ def fixture(work):
     return clone_module.build_fixture_repo(REPO_ROOT, work / 'fixture')
 
 
-def active_links(hub: str) -> list[str]:
-    """Return the plan links listed under the ``## Active`` heading of a plans hub."""
-    active = re.search(r'^## Active$(.*?)(?=^## )', hub, re.MULTILINE | re.DOTALL)
-    return re.findall(r'\]\((plans/[^)]*\.md)\)', active.group(1))
+def active_plans(data: Path) -> list[str]:
+    """Return the plan keys whose frontmatter carries no ``stage``."""
+    return sorted(
+        f'plans/{plan.name}'
+        for plan in (data / 'plans').glob('*.md')
+        if not re.search(r'^stage:', plan.read_text(), re.MULTILINE)
+    )
 
 
 def test_fixtures_are_the_only_active_plans(fixture, work):
-    """Every other active plan is cancelled, in the hub and in its own frontmatter."""
+    """Every other active plan is cancelled in its own frontmatter, and the fixtures are listed."""
     clone = clone_module.make_clone(fixture, work / 'only-active', fixture.base)
-    hub = (clone.path / clone_module.DATA / 'plans.md').read_text()
-    assert active_links(hub) == list(clone_module.FIXTURE_PLANS)
-    head_hub = subprocess.run(
-        ['git', '-C', str(REPO_ROOT), 'show', 'HEAD:docs/knowledge/data/plans.md'],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    head_active = active_links(head_hub)
-    for key in head_active:
-        plan = (clone.path / clone_module.DATA / key).read_text()
+    data = clone.path / clone_module.DATA
+    assert active_plans(data) == sorted(clone_module.FIXTURE_PLANS)
+    for key in active_plans(REPO_ROOT / clone_module.DATA):
+        plan = (data / key).read_text()
         assert '\nstage: cancelled\n' in plan, key
+        assert not re.search(r'^rank:', plan, re.MULTILINE), key
+    hub = (data / 'plans.md').read_text().replace('\n', ' ')
+    for key in clone_module.FIXTURE_PLANS:
+        assert f']({key})' in hub, key
     assert clone.plan_active()
     assert clone.greet_untouched()
     assert clone.status() == ''
+
+
+def test_shared_diff_covers_hubs_releases_and_log_only(fixture, work):
+    """A plan edit is not a shared change; a hub, release page, or log edit is."""
+    clone = clone_module.make_clone(fixture, work / 'shared', fixture.base)
+    data = clone.path / clone_module.DATA
+    (clone.path / clone_module.HELLO).write_text(clone.hello() + '\nedited\n')
+    assert clone.shared_diff() == ''
+    for path in ('plans.md', 'log.md', 'releases.md', 'releases/1.0.0.md'):
+        target = data / path
+        original = target.read_text()
+        target.write_text(original + '\nedited\n')
+        assert path in clone.shared_diff(), path
+        target.write_text(original)
+
+
+def test_add_hub_links_keeps_the_hub_sorted(work):
+    """A link lands before the first member whose key sorts after it, date prefix ignored."""
+    hub = work / 'sorted-hub.md'
+    hub.write_text(
+        '# Plans\n\n[A](plans/20260101-alpha.md)\n\n[C wrapped\ntitle](plans/gamma.md)\n'
+    )
+    clone_module.add_hub_links(hub, ('[B](plans/20991231-beta.md)', '[Z](plans/zeta.md)'))
+    assert re.findall(r'\(([^)]*)\)', hub.read_text()) == [
+        'plans/20260101-alpha.md',
+        'plans/20991231-beta.md',
+        'plans/gamma.md',
+        'plans/zeta.md',
+    ]
 
 
 def test_base_and_open_question_commits(fixture, work):
@@ -67,7 +96,7 @@ def test_base_and_open_question_commits(fixture, work):
     assert clone.head() == fixture.open_question
     changed = clone.git('diff', '--name-only', fixture.base, fixture.open_question).split()
     assert changed == [clone_module.HELLO]
-    assert clone.unreleased_diff() == ''
+    assert clone.shared_diff() == ''
 
 
 def test_clones_share_no_commits_or_marker(fixture, work):
@@ -167,8 +196,7 @@ def test_plain_clones_have_no_tool_dir(fixture, work):
 def test_implement_all_commit_keeps_the_loop_and_pair_plans(fixture, work):
     """``implement_all`` leaves exactly the loop and pair plans active, both unimplemented."""
     clone = clone_module.make_clone(fixture, work / 'implement-all', fixture.implement_all)
-    hub = (clone.path / clone_module.DATA / 'plans.md').read_text()
-    assert sorted(active_links(hub)) == [
+    assert active_plans(clone.path / clone_module.DATA) == [
         'plans/20261026-e2e-loop.md',
         'plans/20261027-e2e-pair.md',
     ]

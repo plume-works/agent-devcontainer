@@ -1,11 +1,13 @@
 # Project Update Log
 
-The history of this workspace, newest first. The `ship` skill appends a dated
-group on every release; any skill that creates or retires a document adds a line
-to the current day's group.
+The history of this workspace, newest first. The `ship` skill's release cut adds
+one dated group per release; nothing else writes here.
 
 ## 2026-11-01
 
+- **Release**: [2.0.0](releases/2.0.0.md) cut from every feature and fix
+  accumulated since 1.0.0; later releases are built from the plans completed
+  after it.
 - **Update**: [pre-commit is the CI gate](features/pre-commit-ci-gate.md)
   implemented; [Replace Super-Linter with pre-commit in
   CI](plans/20261031-pre-commit-replaces-super-linter.md) plan done; specs
@@ -581,11 +583,11 @@ to the current day's group.
   backfilled as implemented and listed under Added on the
   [1.0.0](releases/1.0.0.md) release, which shipped it.
 - **Update**: Features backfilled as implemented for shipped plans that had
-  none, and listed under Added in the [unreleased
-  release](releases/unreleased.md): [Docker storage
-  limits](features/docker-storage-limits.md), [update-branch pulls the branch's
-  upstream](features/update-branch-pulls-upstream.md), [Remote Control autostart
-  on Coder](features/coder-remote-control-autostart.md), [Agent sign-in without
+  none, and listed under Added in the [unreleased release](releases/2.0.0.md):
+  [Docker storage limits](features/docker-storage-limits.md), [update-branch
+  pulls the branch's upstream](features/update-branch-pulls-upstream.md),
+  [Remote Control autostart on
+  Coder](features/coder-remote-control-autostart.md), [Agent sign-in without
   credential seeding](features/agent-sign-in-without-seeding.md), [Codex
   full-access config](features/codex-full-access-config.md), [PR feedback
   resolution resolves merge
@@ -1106,7 +1108,7 @@ to the current day's group.
   guarded at collection behind `SELF_IMPROVE_RUN_LIVE`.
 - **Creation**: [Self-improve plugin in the
   catalog](features/self-improve-plugin-in-catalog.md) implemented and recorded
-  in [unreleased](releases/unreleased.md). It is published from the Claude
+  in [unreleased](releases/2.0.0.md). It is published from the Claude
   marketplace and not enabled by anything the repository ships.
 - **Update**: Refreshed the eight codebase-map docs whose tracked sources the
   consolidation changed — the reinstall scripts now install every published
@@ -1115,8 +1117,8 @@ to the current day's group.
 ## 2026-09-08
 
 - **Release**: cut [1.0.0](releases/1.0.0.md) from the unreleased accumulator —
-  16 features and 4 fixes — and started a fresh
-  [unreleased](releases/unreleased.md) page.
+  16 features and 4 fixes — and started a fresh [unreleased](releases/2.0.0.md)
+  page.
 - **Update**: [Connect validator
   warnings](plans/20260907-connect-validator-warnings.md) done — `--recommend`
   now produces skill frontmatter and structure recommendations, `--errors-only`

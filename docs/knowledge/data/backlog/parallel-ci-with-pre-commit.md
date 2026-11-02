@@ -9,6 +9,7 @@ generated:
   at: 2026-11-01T19:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
+rank: 2000
 ---
 
 # Run Primary checks' ci job in parallel with the pre-commit job
