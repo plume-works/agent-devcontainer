@@ -1,7 +1,7 @@
 """
 The Coder agent's start, run by the template's ``coder_script`` on every agent start.
 
-Spec: devcontainer-git-credentials, opencode-web, devcontainer-docker-storage.
+Spec: devcontainer-git-credentials, opencode-web.
 """
 
 from __future__ import annotations
@@ -13,7 +13,6 @@ import sys
 from agentdev_runtime import settings as env
 
 STEPS = (
-    (('agentdev-runtime', 'docker', 'prune'), 'Docker image prune failed'),
     (('agentdev-runtime', 'git', 'credential-helper'), 'git credential helper setup failed'),
     (('agentdev-runtime', 'opencode', 'coder-start'), 'OpenCode web startup failed'),
 )

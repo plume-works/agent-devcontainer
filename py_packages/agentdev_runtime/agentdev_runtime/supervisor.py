@@ -216,7 +216,8 @@ DEPLOY_SERVICES = (
     Service('opencode', after=('keyring', 'prepare'), core=True, alongside=('xpra',)),
     Service('xpra', after=('keyring',)),
     Service('dockerd'),
-    Service('prune', after=('dockerd',), oneshot=True),
+    # A client: the collector never gates readiness. Spec: devcontainer-docker-storage.
+    Service('docker-gc', after=('dockerd',), client=True),
     Service('project', after=('prepare',), oneshot=True),
     Service('index', after=('cbm',), oneshot=True),
     Service('remote-control', after=('prepare',)),
@@ -230,6 +231,7 @@ DEVCONTAINER_SERVICES = (
     Service('dockerd', core=True),
     Service('cbm', core=True, refresh=('opencode',)),
     Service('xpra', after=('keyring',), core=True),
+    Service('docker-gc', after=('dockerd',), client=True),
     Service('created', oneshot=True, client=True),
     Service('opencode', after=('keyring', 'cbm', 'created'), client=True),
     Service('remote-control', after=('created',), client=True),

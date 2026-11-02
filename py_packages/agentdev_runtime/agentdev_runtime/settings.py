@@ -235,6 +235,7 @@ VARIABLES: tuple[Variable, ...] = (
     Variable('AGENTDEV_DOCKER_CONFIG', 'Nested engine configuration.', '/etc/docker/daemon.json'),
     Variable('AGENTDEV_DOCKER_EXEC_ROOT', 'Nested engine exec root.', '/var/run/docker'),
     Variable('AGENTDEV_DOCKER_PIDFILE', 'Nested engine PID file.', '/var/run/docker.pid'),
+    Variable('AGENTDEV_DOCKER_GC_INTERVAL', 'Seconds between Docker garbage collections.', '3600'),
     Variable(
         'AGENTDEV_PROC_STATUS',
         'Process status file the privilege preflight reads.',
