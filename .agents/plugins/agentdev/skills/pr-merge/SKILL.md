@@ -262,4 +262,5 @@ evidenced.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
   AI responder workflow.
 - [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — request the
-  review by assignee toggle, at most once per head SHA, and confirm it started.
+  review by assignee toggle, at most once per head and title and description,
+  and confirm it started.

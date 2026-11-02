@@ -402,6 +402,18 @@ def test_running_responder_check_counts_despite_metadata_edit(
     assert calls == []
 
 
+def test_responder_check_completed_after_metadata_edit_counts(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A run that finished after the latest edit already answered the head's current input."""
+    fixture = make_fixture(check_runs=[check_run('completed', 'failure')], edits={'body': EARLIER})
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (4, 'RESULT=ALREADY_REQUESTED')
+    assert calls == []
+
+
 def test_failing_edit_time_query_is_gh_unavailable(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:

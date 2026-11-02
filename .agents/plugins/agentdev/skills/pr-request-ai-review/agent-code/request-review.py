@@ -41,7 +41,7 @@ EDITS_QUERY = (
 
 USAGE = """\
 Request an AI review of a pull request's head commit by toggling the author's
-assignment, at most once per head.
+assignment, at most once per head and title and description.
 
 Usage:
   request-review.py --pr <number> [--rationale <one line>] [--repo <owner/repo>]
