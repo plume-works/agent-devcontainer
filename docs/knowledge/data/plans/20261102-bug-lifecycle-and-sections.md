@@ -312,9 +312,13 @@ describes a superseded fix
 `data/backlog/`), `docs/knowledge/data/someday.md`,
 `docs/knowledge/data/backlog.md`
 
-- [ ] `/agentdev:iwe-capture task --from someday/self-improve-execution-tracing`
+- [x] `/agentdev:iwe-capture task --from someday/self-improve-execution-tracing`
   with `priority: medium`, so `self-improve-reviewer-decline-asymmetry` links a
   backlog task
+  - **Evidence:** commit d326e567, through `/agentdev:iwe-capture`:
+    `data/backlog/self-improve-execution-tracing` at `stage: pending`,
+    `priority: medium`; the bug's link follows the rename; `test_hub_order.py`
+    passed
 
 ### Task 12: Migration note for template consumers
 
