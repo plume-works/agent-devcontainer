@@ -291,13 +291,19 @@ their bootstrap copies under
 **Files:** Modify: the done bugs whose `## Fix` states they are unfixed or
 describes a superseded fix
 
-- [ ] Read every `stage: done` bug's `## Fix` and list those that contradict
+- [x] Read every `stage: done` bug's `## Fix` and list those that contradict
   `done` — at least `ai-rereview-comment-keeps-changes-requested`,
   `dispatched-review-gate-not-counted`, `plan-checkbox-over-claiming`,
   `pr-update-skips-review-eval`
-- [ ] Rewrite each listed Fix to describe the fix that shipped, from the plan
+  - **Evidence:** all 41 done bugs read; five contradict `done`: the four named
+    plus `stack-guard-reverts-post-merge-rebase` ("Planned by"); rewritten in
+    commit 418f87ac
+- [x] Rewrite each listed Fix to describe the fix that shipped, from the plan
   whose `release` lists the bug (`iwe find --references data/bugs/<slug>`),
   linking that plan
+  - **Evidence:** commit 418f87ac rewrites the five, each linking the plan whose
+    `release` lists it or that fixed it (`plan-checkbox-over-claiming` predates
+    `release`: `20260815-honest-plan-checkboxes`); `iwe schema validate` passed
 
 ### Task 11: The self-improve spike becomes a backlog task
 
