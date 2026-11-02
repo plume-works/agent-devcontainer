@@ -153,7 +153,7 @@ The merge record replaces `- #P` with exactly this form:
   - **Evidence:** commit `f937838a` adds the `isCrossRepository` refusal to
     `git-new-branch.py` and the `PREFLIGHT_ERROR` row wording to its `SKILL.md`;
     `test_a_predecessor_in_a_fork_is_a_preflight_error` passes (`uv run pytest`
-    on both git-new-branch and restack test files: 26 passed).
+    on both git-new-branch and restack test files: 24 passed).
 
 Approved flow:
 
