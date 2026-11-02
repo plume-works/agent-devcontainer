@@ -77,20 +77,13 @@ lands.
 
 ## Fix
 
-Unfixed, and no direction has been chosen yet. Any fix must get a counted
-`ai-review-present` result onto the head commit after a comment-requested review
-finishes, and keep it pending while that review runs. Candidates to weigh at
-planning time:
-
-- the dispatched run re-runs the latest `pull_request`-event run of
-  `ai-responder.yml` for the head
-- the review is posted under an identity whose review raises a
-  `pull_request_review` event
-- the gate is reported in a form the ruleset reads from any run
-
-The skills in [PR skills drive the AI review lifecycle on the single review
-workflow](../plans/20261023-pr-skills-ai-review-lifecycle.md) work around this
-behavior rather than fixing it.
+Fixed by [Assignee-triggered AI re-reviews replace the comment
+trigger](../plans/20261026-assignee-review-trigger.md). Reviews run only from
+`pull_request` events — a re-review is requested by toggling the author's
+assignment — so every review's `ai-review-present` result lands on the
+`pull_request`-event run the ruleset counts. A dispatched run no longer reviews,
+`ai-review-present` no longer runs for `workflow_dispatch`, and an
+`@claude review` comment fails with a pointer to the assignment toggle.
 
 ## Key references
 

@@ -44,9 +44,11 @@ same branch is rejected as non-fast-forward.
 
 ## Fix
 
-Planned by [Replace gh stack with manual stacked pull
+Fixed by [Replace gh stack with manual stacked pull
 requests](../plans/20261101-manual-stacked-prs.md): native stacks, `gh stack`,
-and the guard are removed, and no branch is pushed with force.
+and the guard are removed. A dependent branch is cut from its predecessor and
+kept current with merges only, and after a squash merge `pr-restack-all`
+reconnects the successor with merges, so no branch is pushed with force.
 
 ## Key references
 

@@ -87,12 +87,14 @@ because verify has no CRITICAL to raise about a ticked box.
 
 ## Fix
 
-Not yet fixed. `48d0f79` corrected the instance — Task 8 split into a local
-check and a CI run, the CI half unticked, the log entry restated — but left both
-root causes in place. The next occurrence has nothing new standing in its way.
-
-Planned in [Make plan checkboxes carry their
-evidence](../plans/20260815-honest-plan-checkboxes.md).
+Fixed by [Make plan checkboxes carry their
+evidence](../plans/20260815-honest-plan-checkboxes.md). Every `- [x]` under a
+plan's `## Implementation Steps` carries an indented `- **Evidence:**` child
+naming the commit, test run, or CI run that closed it, so a blanket substitution
+cannot produce a valid plan. The `plan-checkboxes` pre-commit hook rejects a
+tick without evidence, `iwe-plan` keeps one outcome per task with externally
+evidenced work standing alone, and `iwe-verify` tests every ticked box against
+its evidence.
 
 ## Key references
 
