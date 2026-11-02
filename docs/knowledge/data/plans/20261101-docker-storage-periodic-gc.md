@@ -195,11 +195,18 @@ pass always exits 0.
 `root-container/docker-gc.service`, `root-container/docker-gc.timer`; Modify:
 `root-container/Dockerfile`, `template/main.tf`, `README.md`
 
-- [ ] The `root-container` image installs `/usr/local/bin/docker-gc`, which runs
+- [x] The `root-container` image installs `/usr/local/bin/docker-gc`, which runs
   the three steps with Task 1's patterns and limits, warning on any failed step
   and exiting 0. It also installs and enables `docker-gc.timer`, which runs it
   15 minutes after boot and then hourly. The template's startup script no longer
   prunes, and the README describes the hourly collection.
+  - **Evidence:** plume-works/coder-ide-baseline@19c97d7 on branch
+    `docker-gc-timer`; `shellcheck root-container/docker-gc` clean; a
+    stub-docker run removes only the old disposable volumes, warns and continues
+    when the image prune fails, and exits 0 with the daemon down; a local
+    `docker build` of `root-container` succeeds with the script executable and
+    `systemctl is-enabled docker-gc.timer` → `enabled`, and
+    `systemd-analyze verify` reports nothing for both units.
 
 ### Task 6: Template version activated on Coder
 
