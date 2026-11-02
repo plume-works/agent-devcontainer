@@ -44,7 +44,7 @@ default behavior unchanged.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Replace the `**Curious, not prescriptive**` bullet in `## The stance` with
+- [x] Replace the `**Curious, not prescriptive**` bullet in `## The stance` with
   this text, verbatim:
 
   ``` markdown
@@ -52,6 +52,10 @@ default behavior unchanged.
     assumptions, reframe. Surface the open threads, then follow them one at a
     time; don't funnel toward a conclusion.
   ```
+
+  - **Evidence:** commit 2553f18a;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed (64/64 skills valid, 0 errors).
 
 ### Task 2: Add the `## Settling open questions` section
 
