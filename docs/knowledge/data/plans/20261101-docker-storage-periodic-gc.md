@@ -228,10 +228,17 @@ pass always exits 0.
 
 ### Task 8: Both collectors run on a live workspace
 
-- [ ] On a Coder workspace updated to the Task 6 version and the new Dev
+- [x] On a Coder workspace updated to the Task 6 version and the new Dev
   Container image, `systemctl list-timers docker-gc.timer` shows the timer in
   the workspace engine. The Dev Container's `docker-gc` service logs a pass at
   start, and another an interval later.
+  - **Evidence:** agent-dev3 on template `main-55c6fd2`:
+    `systemctl list-timers docker-gc.timer` in the workspace engine lists the
+    timer, last run 06:19:57 UTC and next 07:19:57 UTC, with `docker-gc.service`
+    Result=success. The Dev Container on
+    `agentdev-devcontainer@sha256:fe87eaf7…` started its `docker-gc` service at
+    06:09:32 UTC, which logged an image and build-cache prune pass at start and
+    a second pass by 07:11 UTC; `agentdev-runtime health docker-gc` exits 0.
 
 ## Spec changes
 
