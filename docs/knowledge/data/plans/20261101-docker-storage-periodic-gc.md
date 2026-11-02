@@ -210,8 +210,13 @@ pass always exits 0.
 
 ### Task 6: Template version activated on Coder
 
-- [ ] A `coder-ide-baseline` template version carrying Task 5 is pushed and
+- [x] A `coder-ide-baseline` template version carrying Task 5 is pushed and
   active.
+  - **Evidence:** plume-works/coder-ide-baseline#32 merged as 55c6fd2f; its
+    `main` image build (Actions run 41370212597) succeeded and
+    `ghcr.io/plume-works/coder-ide-baseline:latest` carries revision 55c6fd2f;
+    template version `main-55c6fd2` pushed and listed `Active` by
+    `coder templates versions list coder-ide-baseline`.
 
 ### Task 7: CI green on the pull request
 
