@@ -68,6 +68,7 @@ while index < len(arguments):
     index += 1
 base = 'repos/octo/repo/'
 if endpoint == 'graphql':
+    open(os.environ['GH_STUB_GRAPHQL'], 'w').write(json.dumps(arguments))
     if fixture.get('fail_graphql'):
         print('simulated graphql failure', file=sys.stderr)
         sys.exit(1)
@@ -185,6 +186,7 @@ def run_script(
     environment['PATH'] = str(install_stub_path(work_path, with_gh=with_gh))
     environment['GH_STUB_FIXTURE'] = str(fixture_file)
     environment['GH_STUB_CALLS'] = str(calls_file)
+    environment['GH_STUB_GRAPHQL'] = str(work_path / 'graphql.json')
     completed = subprocess.run(
         [str(plugin_root / SCRIPT_PATH), *arguments],
         cwd=work_path,
@@ -412,6 +414,17 @@ def test_responder_check_completed_after_metadata_edit_counts(
 
     assert outcome(completed) == (4, 'RESULT=ALREADY_REQUESTED')
     assert calls == []
+
+
+def test_edit_time_query_sends_owner_and_name_as_strings(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A typed field would turn an all-digit owner or repository name into a number."""
+    run_script(plugin_root, plugin_tmp_path, make_fixture(), '--pr', PR_NUMBER)
+
+    arguments = json.loads((plugin_tmp_path / 'graphql.json').read_text())
+    flags = {value.split('=', 1)[0]: arguments[index - 1] for index, value in enumerate(arguments)}
+    assert (flags['owner'], flags['name'], flags['number']) == ('-f', '-f', '-F')
 
 
 def test_failing_edit_time_query_is_gh_unavailable(
