@@ -500,9 +500,10 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 **Files:** none
 
 - [x] The pull request's CI is green
-  - **Evidence:** PR #633 at head `20a9a0ed`: CI/CD run 41378861351 concluded
-    `success`; agent files, knowledge base, Renovate config, and
-    `ai-review-present` passed on the same head — 29 checks passed, 4 skipped.
+  - **Evidence:** PR #633 at head `20a9a0ed`: the Primary checks run 41378861351
+    (which reports `CI/CD / CI finished`) concluded `success`; agent files,
+    knowledge base, Renovate config, and `ai-review-present` passed on the same
+    head — 29 checks passed, 4 skipped.
 
 ## Spec changes
 
