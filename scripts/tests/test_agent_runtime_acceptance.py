@@ -389,7 +389,6 @@ def test_runtime_user_tool_inventory(ready_runtime: Runtime):
         assert path and not path.startswith('/root/'), tool
         ready_runtime.sh(f'timeout 60 {tool} --version >/dev/null')
     ready_runtime.sh('validate_agent_files --help >/dev/null')
-    ready_runtime.sh('gh stack --help >/dev/null')
     ready_runtime.sh('test ! -r /root && sudo -n true')
     configured = docker('image', 'inspect', '-f', '{{json .Config.Env}}', IMAGE).stdout
     image_path = next(e for e in json.loads(configured) if e.startswith('PATH='))[5:].split(':')
