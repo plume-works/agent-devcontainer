@@ -51,22 +51,20 @@ Exploration in `/agentdev:iwe-explore` (session "agent-dev1 Autonomy rules"), 20
 
 ## Proposed changes still standing (each observed more than once)
 
-| Change                                                                                                                                      | Evidence (sessions 2026-10-31 to 11-02)                                                                                                                            |
-| ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Label each finding "introduced by this plan" or "already there"; file the second kind instead of working it**                             | off-bash: ported-unchanged `doctor` checks became new Task 21; the integrity bypass existed in the bash manifest too. Needs the baseline defined (open question 1) |
-| **Only CRITICALs create work automatically.** A WARNING is fixed only when the fix fits an existing task and adds no promise; else filed    | `iwe-implementer` acts on "every WARNING whose recommendation names a concrete route". okf, remove-codebase-map, macOS, off-bash each gained work from a warning   |
-| **No promise ratchet.** A revision may add a task toward an outcome already promised, never add or sharpen a claim the code must newly meet | off-bash: a warning rewrote the integrity outcome into sharper promises; the next two Verify rounds attacked them (delete `METADATA`, then `.dist-info`)           |
-| **One hunk per finding.** A revision changes only lines that answer a quoted finding                                                        | Evaluator flagged hunks answering no finding: pre-commit (3), kb-conflict-free-layout (1), macOS (1)                                                               |
-| **Plan verification commands are scoped to the plan's own files**                                                                           | pre-commit: a repo-wide grep matched the macOS plan's file; remove-codex broke pre-commit's `validate_agent_files` command                                         |
+| Change                                                                                                                                      | Evidence (sessions 2026-10-31 to 11-02)                                                                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Label each finding "introduced by this plan" or "already there"; file the second kind instead of working it**                             | off-bash: ported-unchanged `doctor` checks became new Task 21; the integrity bypass existed in the bash manifest too. Baseline: the code as it was when the plan was created (settled) |
+| **Only CRITICALs create work automatically.** A WARNING is fixed only when the fix fits an existing task and adds no promise; else filed    | `iwe-implementer` acts on "every WARNING whose recommendation names a concrete route". okf, remove-codebase-map, macOS, off-bash each gained work from a warning                       |
+| **No promise ratchet.** A revision may add a task toward an outcome already promised, never add or sharpen a claim the code must newly meet | off-bash: a warning rewrote the integrity outcome into sharper promises; the next two Verify rounds attacked them (delete `METADATA`, then `.dist-info`)                               |
+| **One hunk per finding.** A revision changes only lines that answer a quoted finding                                                        | Evaluator flagged hunks answering no finding: pre-commit (3), kb-conflict-free-layout (1), macOS (1)                                                                                   |
+| **Plan verification commands are scoped to the plan's own files**                                                                           | pre-commit: a repo-wide grep matched the macOS plan's file; remove-codex broke pre-commit's `validate_agent_files` command                                                             |
 
 Existing stops stay as they are: always-escalate deviations, Verify `Needs decision`, and
 the round bounds.
 
 ## Open questions
 
-1. **What is the baseline** for "already there": `main` when the first implementation
-   branch started, or the commit the plan was created at?
-2. **May the implement-all coordinator start Ship** for a plan it just finished? Observed
+1. **May the implement-all coordinator start Ship** for a plan it just finished? Observed
    friction: the user typed `/agentdev:iwe-ship` in a worker session. PR #587 (open, plan
    `20261031-model-invocable-implement`) deliberately keeps Ship explicit-only, so this
    reverses its choice.
@@ -106,7 +104,7 @@ the round bounds.
 
 ## Next steps
 
-1. Settle open question 1, then 2.
+1. Settle the open question.
 2. Offer capture: hand the settled decisions and standing changes to `/agentdev:iwe-plan`
    (depends on `20261031-model-invocable-implement`), and file the leftover-test removal
    as a task through `/agentdev:iwe-capture`.
