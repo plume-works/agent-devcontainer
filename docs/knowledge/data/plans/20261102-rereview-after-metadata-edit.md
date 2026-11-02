@@ -102,7 +102,9 @@ handling.
     `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py`
     against the unchanged script: the before-edit (body and title),
     completed-check and GraphQL-failure tests fail (4 failed); the after-edit
-    and running-check guards pass, as their behavior already holds.
+    and running-check guards pass, as their behavior already holds. Commit
+    e0b8ccc3 adds `test_responder_check_completed_after_metadata_edit_counts`;
+    408 passed, 15 skipped.
 - [x] Every existing test keeps passing unchanged, with no edit times in the
   fixture.
   - **Evidence:** the same run at commit c57256be: every pre-existing test
@@ -150,7 +152,8 @@ handling.
   review.
   - **Evidence:** commit d2bedf5e: `pr-request-ai-review/SKILL.md` adds the
     edit-cutoff paragraph under Post the request and rewrites the
-    `ALREADY_REVIEWED` and `ALREADY_REQUESTED` rows.
+    `ALREADY_REVIEWED` and `ALREADY_REQUESTED` rows; commit e0b8ccc3 rewrites
+    `## Post at most once per reviewed input` to match.
 - [x] `pr-merge` Step 3: the script toggles at most once per head and title and
   description, not once per head SHA, and `ALREADY_REVIEWED` means a review
   newer than the last title or description edit names the head.
@@ -158,7 +161,7 @@ handling.
   title or description, then re-request review.
   - **Evidence:** commit d2bedf5e: `pr-merge/SKILL.md` Step 3 says once per head
     and title and description, and `ALREADY_REVIEWED` names a review newer than
-    the last edit.
+    the last edit; commit e0b8ccc3 fixes the same wording under Related Skills.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
   - **Evidence:** at commit d2bedf5e:
