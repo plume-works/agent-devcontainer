@@ -16,6 +16,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-weekly/SKILL.md
+- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 ---
 
 # Bug lifecycle stages and sections
@@ -335,6 +336,15 @@ describes a superseded fix
     `uv run pytest docs/knowledge/tests/test_iwe_seed.py .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
     passed (39 tests)
 
+### Task 13: Verify audits open bugs by stage
+
+**Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
+
+- [ ] Audit mode selects open bugs with
+  `iwe find --filter '{type: bug, stage: {$in: [pending, planned]}}' -f keys`
+  and points at a bug whose `sources` paths, or `## Key references` where it has
+  one, no longer exist
+
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md):
@@ -542,6 +552,8 @@ Verified anchor points (line numbers as of 2026-11-02):
   without shipping
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:128` — step 6 sets
   listed bugs to `done`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:114` — audit mode's
+  open-bugs bullet
 - `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:23` — open-bugs query
 - `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:26` — backlog-head query
 - `docs/knowledge/tests/test_body_shape_schemas.py:112` — `bug-out-of-order`
