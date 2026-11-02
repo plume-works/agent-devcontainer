@@ -47,10 +47,10 @@ is the property the allowlist exists to deny.
 So the skill and the mutator disagree about how many destinations exist, and the
 skill is the copy a model reads while choosing.
 
-## Fix
+## Potential solution
 
-Not fixed. The two ways to close it are to drop option 3 from the skill, leaving
-three options that all resolve, or to give linked references a bounded shape the
+The two ways to close it are to drop option 3 from the skill, leaving three
+options that all resolve, or to give linked references a bounded shape the
 allowlist can express and implement that kind.
 
 Dropping it is the smaller change and loses only an option that never worked.

@@ -51,10 +51,11 @@ The build reads only `ansible.cfg`, `ansible/`, `docker/bin/gh`, the catalog
 `supervisord.conf` files, and `.devcontainer/firewall-allowlist.txt` — the list
 `.dockerignore`'s own header states but does not enforce.
 
-## Fix
+## Potential solution
 
-Not fixed yet. Planned in [Narrow the image build
-context](../plans/20261102-narrow-image-build-context.md).
+Make `.dockerignore` an allow-list of the files the build reads, and split the
+provisioning `RUN` so each step bind-mounts only its own inputs. A change to
+`docs/`, `scripts/`, or the tests then leaves the provisioning layers cached.
 
 ## Key references
 

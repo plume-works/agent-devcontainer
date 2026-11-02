@@ -71,9 +71,9 @@ upstream report DeusData/codebase-memory-mcp#2162 has the same timeout, but no
 it is unconfirmed whether this is the same race. It is also undecided which
 layer should fix it: this runtime or upstream CBM.
 
-## Fix
+## Potential solution
 
-Not fixed. A fix needs `retry cbm` to do one of two things:
+A fix needs `retry cbm` to do one of two things:
 
 - reclaim a stale or contested rendezvous generation safely and bring the
   runtime back to `ready`;

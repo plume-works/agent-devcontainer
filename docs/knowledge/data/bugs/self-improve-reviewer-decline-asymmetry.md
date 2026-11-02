@@ -68,9 +68,9 @@ The offline-replay result is the most consequential, because it invalidates the
 cheap instrument: any prompt change measured by replay has not been measured
 against the case that actually declines.
 
-## Fix
+## Potential solution
 
-Not fixed, and not scheduled. Closing it means one of:
+Closing it means one of:
 
 1. a mechanism identified and demonstrated — a named difference between the two
    checks' bundles or environments, shown to change the decline rate when

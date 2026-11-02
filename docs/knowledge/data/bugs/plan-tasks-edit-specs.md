@@ -51,14 +51,13 @@ such a task, and `/agentdev:iwe-audit` plan scope looks only for
 durable-knowledge residue, so a structurally misplaced task is outside every
 pattern it checks.
 
-## Fix
+## Potential solution
 
-Not fixed. The intended outcome: `/agentdev:iwe-plan` states as a rule that no
-task creates, modifies, or deletes a `data/spec/` document or the `data/spec`
-hub, and that spec impact lives only in `## Spec changes` for Ship to merge; and
-the plan-scope audit reports any task whose `**Files:**` line or checkbox text
-targets `data/spec/` as a finding that routes back to `/agentdev:iwe-plan`
-revise mode.
+`/agentdev:iwe-plan` states as a rule that no task creates, modifies, or deletes
+a `data/spec/` document or the `data/spec` hub, and that spec impact lives only
+in `## Spec changes` for Ship to merge; and the plan-scope audit reports any
+task whose `**Files:**` line or checkbox text targets `data/spec/` as a finding
+that routes back to `/agentdev:iwe-plan` revise mode.
 
 ## Key references
 

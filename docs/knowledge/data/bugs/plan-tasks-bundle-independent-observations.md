@@ -70,9 +70,7 @@ The rule exists only as prose, and neither gate tests it.
   unticked. That correctness is what turns the planning defect into a
   bookkeeping problem at implementation time.
 
-## Fix
-
-Not fixed. The fix direction:
+## Potential solution
 
 - **`iwe-plan`.** State the rule per checkbox. Each checkbox names exactly one
   observation that closes it. A checkbox whose outcome joins independently

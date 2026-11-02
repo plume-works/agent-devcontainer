@@ -39,12 +39,11 @@ host, so the address is not in the `allowed-domains` ipset. The final `OUTPUT`
 rule rejects it with `icmp-admin-prohibited`, which the client reports as "no
 route to host".
 
-## Fix
+## Potential solution
 
-Not fixed. Add `production.cloudfront.docker.com` beside
-`production.cloudflare.docker.com` in `.devcontainer/firewall-allowlist.txt`.
-The standalone image bakes that file as its default allowlist, so the fix covers
-both runtimes.
+Add `production.cloudfront.docker.com` beside `production.cloudflare.docker.com`
+in `.devcontainer/firewall-allowlist.txt`. The standalone image bakes that file
+as its default allowlist, so the fix covers both runtimes.
 
 ## Key references
 
