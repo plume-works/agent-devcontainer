@@ -1,13 +1,13 @@
 ---
 name: iwe-branch-name
-description: "Name the next work branch for an IWE plan — iwe/<slug>/iter-<N>-impl or iwe/<slug>/iter-<N>-ship, one iteration counter across both phases — counting every iteration already used locally, on the remote, and in pull requests of any state, and read the plan's state at the remote default branch to pick the phase. Use when starting implementation or shipping work for a plan, when a skill needs the plan's next branch name, or to tell whether a branch is a plan work branch. Creates no branch: callers pass the name to git-new-branch. Keywords: plan branch name, iteration, impl branch, ship branch, next branch, plan state."
+description: "Name the next work branch for an IWE plan — iwe/<slug>/iter-<N>-plan, -impl, or -ship, one iteration counter across every phase — counting every iteration already used locally, on the remote, and in pull requests of any state, and read the plan's state at the remote default branch to pick the phase. Use when starting planning, implementation, or shipping work for a plan, when a skill needs the plan's next branch name, or to tell whether a branch is a plan work branch. Creates no branch: callers pass the name to git-new-branch. Keywords: plan branch name, iteration, plan branch, impl branch, ship branch, next branch, plan state."
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Name a Plan's Work Branch
 
-A plan's work spans several pull requests — one or more for implementation,
-one for shipping — and each starts on a fresh branch off the default branch.
+A plan's work spans several pull requests — one for writing the plan, one or
+more for implementation, one for shipping — and each starts on a fresh branch off the default branch.
 The repository squash-merges and deletes head branches, so the next iteration
 number has to be recovered from everywhere an earlier one may survive.
 
@@ -18,9 +18,9 @@ number has to be recovered from everywhere an earlier one may survive.
 - `slug` is the plan key's file name without its `YYYYMMDD-` prefix
   (`data/plans/20261020-foo` → `foo`);
 - `N` is a positive integer, one more than the highest already used for that
-  slug in either phase, so the numbers run in order across the plan's whole
+  slug in any phase, so the numbers run in order across the plan's whole
   lifecycle;
-- `phase` is `impl` or `ship`.
+- `phase` is `plan`, `impl`, or `ship`.
 
 ```text
 iwe/foo/iter-1-impl
@@ -53,15 +53,15 @@ repository root. It imports only the standard library and changes no branch.
   when it has at least one task checkbox under `## Implementation Steps` or
   the older `## Tasks` heading and every one is ticked; a plan with no task
   checkbox is `incomplete`, so `next` never sends it to `ship`.
-- `next <plan-key|slug>` prints `NEXT`, `NEXT_KIND` (`default`, `impl`,
-  `ship`), and `ITERATION` for a work branch. With `--phase impl|ship` it names
+- `next <plan-key|slug>` prints `NEXT`, `NEXT_KIND` (`default`, `plan`,
+  `impl`, `ship`), and `ITERATION` for a work branch. With `--phase plan|impl|ship` it names
   the next iteration with that phase suffix without reading the plan; without it, the
   phase follows `plan-state`: `complete` → `ship`, `incomplete` → `impl`, and
   `done`, `cancelled`, or `missing` → the default branch, with the plan-state
   keys printed too.
 
 The phase picks only the suffix: the iteration counts work branches of the
-slug in both phases, across local branches, the remote's branches, and the pull
+slug in every phase, across local branches, the remote's branches, and the pull
 requests in any state of the repository the remote's URL names, through
 `gh pr list --repo <remote URL>`, so branches and pull requests always come from
 the same repository. When `gh` cannot answer — missing, unauthenticated, or a
@@ -88,7 +88,7 @@ a bare number.
 | RESULT              | Exit                | Meaning                                                                              | Action                                                                                                                        |
 | ------------------- | ------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`           | `0`                 | The name's parts, the plan's state, or the next name was printed                     | Use the keys. For `next`, create a work branch through `/agentdev:git-new-branch NEXT`; on `NEXT_KIND=default`, switch to it. |
-| `NOT_A_WORK_BRANCH` | `3`                 | `parse`: the branch is not `iwe/<slug>/iter-<N>-<impl\|ship>`                        | Treat the branch as not a plan work branch. It is never renamed.                                                              |
+| `NOT_A_WORK_BRANCH` | `3`                 | `parse`: the branch is not `iwe/<slug>/iter-<N>-<plan\|impl\|ship>`                  | Treat the branch as not a plan work branch. It is never renamed.                                                              |
 | `AMBIGUOUS_PLAN`    | `4`                 | The slug matches more than one dated plan at the remote default branch               | **STOP.** Show the candidates from stderr and rerun with the full plan key the user means.                                    |
 | `FETCH_FAILED`      | `5`                 | The remote could not be fetched or its branches listed                               | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                  |
 | `GH_UNAVAILABLE`    | `6`                 | `gh` is missing, unauthenticated, or could not read the remote's pull requests       | **STOP.** Ask the user to install or log in to `gh` (`gh auth status`). Never pick an iteration without it.                   |

@@ -131,6 +131,8 @@ def test_next_ignores_names_off_the_shape(plugin_root: Path, plugin_tmp_path: Pa
     [
         (f'iwe/{PLAN_SLUG}/iter-2-impl', 'ship', f'iwe/{PLAN_SLUG}/iter-3-ship'),
         (f'iwe/{PLAN_SLUG}/iter-3-ship', 'impl', f'iwe/{PLAN_SLUG}/iter-4-impl'),
+        (f'iwe/{PLAN_SLUG}/iter-1-plan', 'impl', f'iwe/{PLAN_SLUG}/iter-2-impl'),
+        (f'iwe/{PLAN_SLUG}/iter-2-impl', 'plan', f'iwe/{PLAN_SLUG}/iter-3-plan'),
     ],
 )
 def test_next_counts_both_phases(
@@ -262,7 +264,7 @@ def test_next_reports_an_unlistable_remote(plugin_root: Path, plugin_tmp_path: P
 
 
 def test_next_rejects_an_unknown_phase(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """--phase takes only impl or ship."""
+    """--phase takes only plan, impl, or ship."""
     workspace = Workspace(plugin_tmp_path)
 
     completed, _ = run_script(plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'review')

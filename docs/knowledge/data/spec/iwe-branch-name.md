@@ -24,8 +24,9 @@ is read from the remote default branch to pick the phase.
 
 The iwe-branch-name skill SHALL name a plan's work branch
 `iwe/<slug>/iter-<N>-<phase>`, where `slug` is the plan key's file name without
-its `YYYYMMDD-` prefix, `N` is a positive integer, and `phase` is `impl` or
-`ship`, and SHALL always include the `iwe/` prefix and the iteration suffix.
+its `YYYYMMDD-` prefix, `N` is a positive integer, and `phase` is `plan`,
+`impl`, or `ship`, and SHALL always include the `iwe/` prefix and the iteration
+suffix.
 
 #### Scenario: First implementation branch
 
@@ -42,10 +43,10 @@ its `YYYYMMDD-` prefix, `N` is a positive integer, and `phase` is `impl` or
 ### Requirement: The next iteration follows every iteration already used
 
 The skill SHALL compute the next `N` for a slug as one more than the highest `N`
-of either phase among local branches, the remote's branches, and the pull
-requests in any state of the repository the remote's URL names, counting only
-names that match the shape exactly, and SHALL fail with `GH_UNAVAILABLE` rather
-than answer when those pull requests cannot be read.
+of any phase among local branches, the remote's branches, and the pull requests
+in any state of the repository the remote's URL names, counting only names that
+match the shape exactly, and SHALL fail with `GH_UNAVAILABLE` rather than answer
+when those pull requests cannot be read.
 
 #### Scenario: A merged iteration's branch was deleted
 
@@ -57,6 +58,11 @@ than answer when those pull requests cannot be read.
 
 - **WHEN** `iwe/foo/iter-2-impl` was used before
 - **THEN** the next `ship` name is `iwe/foo/iter-3-ship`
+
+#### Scenario: A planning branch takes the first iteration
+
+- **WHEN** `iwe/foo/iter-1-plan` was used before
+- **THEN** the next `impl` name is `iwe/foo/iter-2-impl`
 
 #### Scenario: Names from before the iwe/ shape are not counted
 

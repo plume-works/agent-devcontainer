@@ -29,7 +29,7 @@ branch.
 Usage:
   iwe-branch-name.py parse <branch>
   iwe-branch-name.py plan-state <plan-key|slug> [--remote <name>]
-  iwe-branch-name.py next <plan-key|slug> [--phase impl|ship] [--remote <name>]
+  iwe-branch-name.py next <plan-key|slug> [--phase plan|impl|ship] [--remote <name>]
 
 Arguments:
   <branch>          A branch name to split into phase, slug, and iteration.
@@ -38,8 +38,8 @@ Arguments:
 Options:
   --remote <name>   The remote whose default branch holds the plan and whose
                     branches count as used iterations. Default: origin.
-  --phase <phase>   next only: impl or ship, naming the next iteration of that
-                    phase without reading the plan.
+  --phase <phase>   next only: plan, impl, or ship, naming the next iteration
+                    of that phase without reading the plan.
   -h, --help        Show this help text.
 
 Output (key=value lines):
@@ -47,20 +47,20 @@ Output (key=value lines):
   parse:       PHASE, SLUG, ITERATION
   plan-state:  DEFAULT_BRANCH, PLAN_STATE (missing | cancelled | done | complete
                | incomplete), and PLAN_KEY when the plan exists
-  next:        NEXT, NEXT_KIND (default | impl | ship), and ITERATION for a
+  next:        NEXT, NEXT_KIND (default | plan | impl | ship), and ITERATION for a
                work branch; without --phase also the plan-state keys
 
 Without --phase, next names the default branch for a done, cancelled, or
 missing plan, the next ship iteration for a complete one, and the next impl
 iteration for an incomplete one. The next iteration is one more than the
-highest used for the slug, in either phase, across local branches, the remote's
+highest used for the slug, in any phase, across local branches, the remote's
 branches, and the pull requests in any state of the repository the remote's
 URL names. plan-state counts task checkboxes under ## Implementation Steps or
 ## Tasks; a plan with none is incomplete.
 
 Results (RESULT / exit code):
   SUCCESS            0  The name's parts, the plan's state, or the next name was reported
-  NOT_A_WORK_BRANCH  3  parse: the branch is not iwe/<slug>/iter-<N>-<impl|ship>
+  NOT_A_WORK_BRANCH  3  parse: the branch is not iwe/<slug>/iter-<N>-<plan|impl|ship>
   AMBIGUOUS_PLAN     4  The slug matches more than one plan at the default branch
   FETCH_FAILED       5  The remote could not be fetched or its branches listed
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or its pull-request query failed
@@ -78,8 +78,8 @@ AMBIGUOUS_PLAN = 4
 FETCH_FAILED = 5
 GH_UNAVAILABLE = 6
 
-PHASES = ('impl', 'ship')
-WORK_BRANCH = re.compile(r'iwe/([^/]+)/iter-([1-9][0-9]*)-(impl|ship)')
+PHASES = ('plan', 'impl', 'ship')
+WORK_BRANCH = re.compile(r'iwe/([^/]+)/iter-([1-9][0-9]*)-(plan|impl|ship)')
 DATED_PLAN = re.compile(r'([0-9]{8})-(.+)')
 # The task sections the repository's plan-checkbox gate also reads.
 TASK_SECTIONS = ('## Implementation Steps', '## Tasks')
@@ -400,7 +400,9 @@ def parse_arguments(argv: list[str]) -> Options | None:
             elif command == 'next' and value in PHASES:
                 phase = value
             else:
-                print_error(f'--phase takes impl or ship and applies to next only: {value}.')
+                print_error(
+                    f'--phase takes plan, impl, or ship and applies to next only: {value}.'
+                )
                 return None
         elif argument.startswith('-'):
             print_error(f'Unknown option: {argument}.')
@@ -437,7 +439,7 @@ def run_parse(branch: str) -> int:
     """Print the parts of a work branch name."""
     work_branch = parse_work_branch(branch)
     if work_branch is None:
-        print_error(f"'{branch}' is not iwe/<slug>/iter-<N>-<impl|ship>.")
+        print_error(f"'{branch}' is not iwe/<slug>/iter-<N>-<plan|impl|ship>.")
         return NOT_A_WORK_BRANCH
     print(f'PHASE={work_branch.phase}')
     print(f'SLUG={work_branch.slug}')
