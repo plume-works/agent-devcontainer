@@ -4,6 +4,7 @@ description: 'Example shipped plan: building focus sessions, from approach throu
 stage: done
 created: 2026-07-01
 completed: 2026-07-18
+released: 0.1.0
 generated:
   by: human:author
   at: 2026-07-01T00:00:00Z

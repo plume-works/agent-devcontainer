@@ -16,6 +16,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 stage: done
 completed: 2026-10-29
+released: 2.0.0
 ---
 
 # Move the Expo bridge knowledge into its own repository

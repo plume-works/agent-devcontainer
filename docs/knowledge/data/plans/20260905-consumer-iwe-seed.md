@@ -3,6 +3,7 @@ type: plan
 stage: done
 created: 2026-09-05
 completed: 2026-09-06
+released: 1.0.0
 description: Maintain a reusable IWE seed in this repository and initialize consumer project memory through setup and mapping without overwriting existing knowledge.
 generated:
   by: claude-code/opus-5

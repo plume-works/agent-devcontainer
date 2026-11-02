@@ -14,6 +14,7 @@ sources:
 - resource: https://github.com/plume-works/agent-devcontainer/actions/runs/40952296384/job/123732954994?pr=533
 stage: done
 completed: 2026-10-30
+released: 2.0.0
 ---
 
 # Escalate a client failure to the dependency that caused it

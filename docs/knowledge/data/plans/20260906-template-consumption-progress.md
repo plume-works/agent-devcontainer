@@ -3,6 +3,7 @@ type: plan
 stage: done
 created: 2026-09-06
 completed: 2026-09-06
+released: 1.0.0
 description: Give template consumption a resumable root-level progress document that records the task list and the user's choices, and summarize the adoption into the consumer's IWE graph when one exists.
 generated:
   by: codex/gpt-5

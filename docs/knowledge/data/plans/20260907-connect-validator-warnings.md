@@ -9,6 +9,7 @@ sources:
 - resource: py_packages/validate_agent_files/
 stage: done
 completed: 2026-09-08
+released: 1.0.0
 ---
 
 # Connect validator warnings

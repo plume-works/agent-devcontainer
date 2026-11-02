@@ -12,6 +12,7 @@ sources:
 - resource: docs/knowledge/data/architecture/module-layout.md
 stage: done
 completed: 2026-10-08
+released: 2.0.0
 ---
 
 # Install the catalog agents into Codex

@@ -13,6 +13,7 @@ sources:
 - resource: https://docs.github.com/en/actions/concepts/security/github_token
 stage: done
 completed: 2026-09-03
+released: 1.0.0
 ---
 
 # One AI review workflow with a needs-coupled gate

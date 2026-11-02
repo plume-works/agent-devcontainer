@@ -46,9 +46,9 @@ file, or the release cut.
   and frontmatter fields, not by `--included-by <hub>`; hubs remain as browsable
   lists and as the graph's tree for the IWE editor views.
 - **The log and release pages are written only at a release cut.** Ship writes
-  neither. The cut builds `releases/<X.Y.Z>.md` from the plans completed since
-  the previous release and their `release` lists, and adds one dated group to
-  `log.md`. There is no `releases/unreleased.md` accumulator.
+  neither. The cut builds `releases/<X.Y.Z>.md` from the done plans no earlier
+  cut took and their `release` lists, sets `released: <X.Y.Z>` on each, and adds
+  one dated group to `log.md`. There is no `releases/unreleased.md` accumulator.
 - **The graph stays an OKF v0.2 bundle and diverges only to cut merge or upkeep
   cost.** `data/index.md` lists hubs and changes only when a hub is added, so it
   costs no merges and stays. The one divergence is `status`: it duplicated

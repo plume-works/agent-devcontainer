@@ -2,6 +2,7 @@
 type: plan
 created: 2026-08-31
 completed: 2026-09-01
+released: 1.0.0
 stage: done
 ---
 

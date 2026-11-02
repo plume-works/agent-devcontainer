@@ -3,6 +3,7 @@ type: plan
 created: 2026-10-16
 stage: done
 completed: 2026-10-17
+released: 2.0.0
 release:
 - features/opencode-web-coder-autostart
 description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume, its data directory on a per-worktree volume, a printed link that opens the workspace folder, and a Coder dashboard app that opens the web UI.

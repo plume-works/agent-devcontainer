@@ -79,6 +79,7 @@ type: plan # required
 stage: done # done | cancelled — omit while active/pending
 created: 2026-07-01 # required, YYYY-MM-DD
 completed: 2026-07-18 # required when stage: done
+released: 0.1.0 # set by the release cut that took this done plan
 release: # required while active: internal, or the keys below
 - features/focus-sessions
 ---
@@ -87,7 +88,8 @@ release: # required while active: internal, or the keys below
 `release` is the plan's release impact, chosen when the plan is written:
 `internal` when no workspace user or template consumer sees a difference,
 otherwise the `features/` and `bugs/` keys the work adds, changes, or fixes. The
-release cut takes the plan's release entries from it.
+release cut takes the plan's release entries from it and sets `released` to its
+version; a done plan without `released` waits for the next cut.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
 `**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
@@ -123,8 +125,8 @@ Body: `## Symptom`, `## Reproduction`, `## Root cause`, `## Fix`,
 
 ## Releases — `data/releases/<version>.md`
 
-One page per cut version, written only by the release cut from the plans
-completed since the previous release and their `release` lists.
+One page per cut version, written only by the release cut from the done plans no
+earlier cut took — those without `released` — and their `release` lists.
 
 ``` yaml
 ---

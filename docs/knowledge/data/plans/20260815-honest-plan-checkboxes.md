@@ -12,6 +12,7 @@ sources:
 - resource: docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
 stage: done
 completed: 2026-08-16
+released: 1.0.0
 ---
 
 # Make plan checkboxes carry their evidence

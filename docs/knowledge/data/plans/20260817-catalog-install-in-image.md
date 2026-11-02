@@ -7,6 +7,7 @@ generated:
   at: 2026-08-17T00:00:00Z
 stage: done
 completed: 2026-09-02
+released: 1.0.0
 ---
 
 # Install the agentdev catalog into the image

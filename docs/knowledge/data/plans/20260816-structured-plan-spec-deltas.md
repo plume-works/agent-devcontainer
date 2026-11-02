@@ -16,6 +16,7 @@ sources:
 - resource: docs/knowledge/STRUCTURE.md
 stage: done
 completed: 2026-08-16
+released: 1.0.0
 ---
 
 # Embed structured spec deltas in IWE plans

@@ -5,6 +5,7 @@ release:
 - features/pr-feedback-resolves-merge-conflicts
 stage: done
 completed: 2026-10-02
+released: 2.0.0
 description: Make pr-feedback-resolution resolve a pull request's merge conflicts through update-branch before collecting feedback, and route a conflicted PR in pr-merge's monitoring loop to it.
 generated:
   by: claude-code/opus-5-5

@@ -16,6 +16,7 @@ sources:
 - resource: .github/workflows/validate-agent-files.yml
 stage: done
 completed: 2026-10-02
+released: 2.0.0
 ---
 
 # Refresh the codebase map before pushing and keep its staleness out of AI reviews
