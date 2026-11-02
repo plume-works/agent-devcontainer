@@ -69,11 +69,13 @@ handling.
 **Files:** Modify:
 `docs/knowledge/data/bugs/metadata-gate-review-blocks-rerequest.md`
 
-- [ ] Replace the Symptom's claim that `ai-review-present` stays red: the gate's
+- [x] Replace the Symptom's claim that `ai-review-present` stays red: the gate's
   `REQUEST_CHANGES` review satisfies `ai-review-present`, and the pull request
   cannot merge because the one-approval `main` ruleset gets no approval. Add to
   Root cause that `requesting_check()` also refuses, on the gate run's completed
   responder check.
+  - **Evidence:** commit 1759c194 rewrites the Symptom and Root cause;
+    `iwe schema validate` passed in that commit's pre-commit run.
 
 ### Task 2: Failing tests for the edit cutoff
 
