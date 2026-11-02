@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import time
 
 GC = [sys.executable, '-m', 'agentdev_runtime', 'docker', 'gc']
 IMAGE_PRUNE = 'image prune -af --filter until=72h'
@@ -39,6 +40,19 @@ def run_gc(
     failing: str = '',
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
     """Run one pass with a stub docker that logs its arguments and fails `failing`."""
+    fake_bin, log = stub_docker(tmp_path, docker_installed, info_exit, failing)
+    result = subprocess.run(GC, env={'PATH': str(fake_bin)}, text=True, capture_output=True)
+    return result, logged(log)
+
+
+def logged(log: Path) -> list[str]:
+    return log.read_text().splitlines() if log.exists() else []
+
+
+def stub_docker(
+    tmp_path: Path, docker_installed: bool = True, info_exit: int = 0, failing: str = ''
+) -> tuple[Path, Path]:
+    """Write a docker stub that logs its arguments; return its directory and log."""
     fake_bin = tmp_path / 'bin'
     fake_bin.mkdir()
     for tool in ('bash', 'env'):
@@ -62,9 +76,7 @@ def run_gc(
             'exit 0\n'
         )
         (fake_bin / 'docker').chmod(0o755)
-    result = subprocess.run(GC, env={'PATH': str(fake_bin)}, text=True, capture_output=True)
-    calls = log.read_text().splitlines() if log.exists() else []
-    return result, calls
+    return fake_bin, log
 
 
 def removed_volumes(calls: list[str]) -> set[str]:
@@ -102,3 +114,17 @@ def test_a_failed_step_warns_and_the_pass_continues(tmp_path):
     assert 'Warning' in result.stderr
     assert CACHE_PRUNE in calls
     assert removed_volumes(calls) == REMOVED
+
+
+def test_the_repeating_form_runs_a_pass_every_interval(tmp_path):
+    fake_bin, log = stub_docker(tmp_path)
+    env = {'PATH': str(fake_bin), 'AGENTDEV_DOCKER_GC_INTERVAL': '0.2'}
+    with subprocess.Popen([*GC, '--every'], env=env, text=True) as loop:
+        try:
+            deadline = time.monotonic() + 10
+            while logged(log).count(IMAGE_PRUNE) < 2 and time.monotonic() < deadline:
+                time.sleep(0.05)
+            assert loop.poll() is None
+        finally:
+            loop.terminate()
+    assert logged(log).count(IMAGE_PRUNE) >= 2

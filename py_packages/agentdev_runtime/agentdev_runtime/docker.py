@@ -15,6 +15,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from typing import NoReturn
 
 from agentdev_runtime import settings as env
@@ -171,10 +172,22 @@ def gc() -> int:
     return 0
 
 
+def gc_every(settings: env.Settings) -> NoReturn:
+    """Run a collection pass now, then one every AGENTDEV_DOCKER_GC_INTERVAL seconds."""
+    interval = settings.positive('AGENTDEV_DOCKER_GC_INTERVAL')
+    for error in settings.errors:
+        print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
+    while True:
+        gc()
+        time.sleep(interval)
+
+
 def main(argv: list[str]) -> int:
     if argv == ['run']:
         return run(env.Settings())
     if argv == ['gc']:
         return gc()
-    print('usage: agentdev-runtime docker run|gc', file=sys.stderr)
+    if argv == ['gc', '--every']:
+        gc_every(env.Settings())
+    print('usage: agentdev-runtime docker run|gc [--every]', file=sys.stderr)
     return 2
