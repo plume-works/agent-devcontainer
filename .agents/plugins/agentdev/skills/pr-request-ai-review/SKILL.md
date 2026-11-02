@@ -20,6 +20,12 @@ assigned author is removed and added back, an unassigned one is added and
 removed, and the assignees end as the script found them. An `@claude review`
 comment requests nothing; the responder rejects it.
 
+A review covers the head commit together with the title and description it
+saw. The script requests at most once per head and title and description:
+reviews and finished responder checks older than the latest title or
+description edit no longer count. Editing either is how a reviewed head gets
+another review — the answer to a metadata-gate stop — without a new commit.
+
 ```bash
 agent-code/request-review.py --pr <pr> [--rationale '<one line>']
 ```
@@ -31,8 +37,8 @@ covering this head — and `COMMENT_URL` — the posted rationale — and ends w
 | RESULT              | Exit                | What to do                                                                                                                                         |
 | ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`           | 0                   | Report the toggle and any `COMMENT_URL`, then confirm the review started.                                                                          |
-| `ALREADY_REVIEWED`  | 3                   | An accepted AI review already names the head. Report it; request nothing.                                                                          |
-| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL` already covers the head. Report it and confirm that one; do not retry.                                          |
+| `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                                    |
+| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL`, running or finished after the last edit, covers the head. Report it and confirm that one; do not retry.        |
 | `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                 |
 | `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, the toggle included. Stop and report stderr, which names any assignment left unrestored.              |
 | `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                               |
