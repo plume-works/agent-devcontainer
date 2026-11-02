@@ -129,12 +129,21 @@ The merge record replaces `- #P` with exactly this form:
 `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`; Create:
 `.agents/plugins/agentdev/tests/test_git_new_branch_depends_on.py`
 
-- [ ] `--depends-on <P>`, repeatable, requires each PR to be open, cuts the
+- [x] `--depends-on <P>`, repeatable, requires each PR to be open, cuts the
   branch from the first PR's head branch and merges the other heads in, adds one
   empty commit with a `Depends-on: #<P>` trailer per PR, and pushes without
   force; a PR that is not open stops it before anything is created
-- [ ] `SKILL.md` documents the option, its result codes, and the rule that the
+  - **Evidence:** commit `f04d9a32` adds the option to `git-new-branch.py`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_git_new_branch_depends_on.py .agents/plugins/agentdev/tests/test_git_new_branch.py`
+    — 44 passed, covering one and two predecessors, a merged or closed one, and
+    a conflicting head.
+- [x] `SKILL.md` documents the option, its result codes, and the rule that the
   predecessor's PR must exist first
+  - **Evidence:** commit `f04d9a32` adds Workflow 6 and the
+    `DEPENDENCY_NOT_OPEN`, `GH_FAILED`, and `MERGE_FAILED` rows to
+    `git-new-branch/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    64/64 skills valid.
 
 Approved flow:
 
