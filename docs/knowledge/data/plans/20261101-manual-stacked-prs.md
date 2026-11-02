@@ -430,19 +430,27 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 `docs/knowledge/data/features/native-stacked-prs.md`,
 `docs/knowledge/data/backlog/pr-merge-stack-post-merge-cleanup.md`
 
-- [ ] `architecture/manual-stacked-prs` records the design, the rejected
+- [x] `architecture/manual-stacked-prs` records the design, the rejected
   alternatives above, and the reconnect evidence: a normal merge of the squash
   commit into the PR's final head, replayed with `git merge-tree` on every
   squash-merged PR where `main` had moved before the squash (145 in
   plume-works/agent-devcontainer, 73 in Dr-QP/Dr.QP), was clean and equal to the
   squash commit's tree every time, linked from the architecture hub; it does not
   reference the two deleted documents
-- [ ] `architecture/stacked-prs` and `architecture/stack-push-guard` are removed
+  - **Evidence:** commit `f913aa71` adds `architecture/manual-stacked-prs.md`
+    (design, the five rejected alternatives, the 145 + 73 reconnect replay),
+    linked from `architecture.md`; it links neither deleted document.
+- [x] `architecture/stacked-prs` and `architecture/stack-push-guard` are removed
   with `iwe delete`, and every remaining link to them passes
   `iwe schema validate`
-- [ ] `features/native-stacked-prs` is `stage: deprecated`
-- [ ] `backlog/pr-merge-stack-post-merge-cleanup` is `stage: cancelled`, its
+  - **Evidence:** commit `f913aa71` removes both with `iwe delete`, which
+    rewrote their links in seven documents; `iwe schema validate` exits 0.
+- [x] `features/native-stacked-prs` is `stage: deprecated`
+  - **Evidence:** commit `f913aa71` sets `stage: deprecated` with `iwe update`.
+- [x] `backlog/pr-merge-stack-post-merge-cleanup` is `stage: cancelled`, its
   `rank` removed; the flat `data/backlog.md` hub keeps its link
+  - **Evidence:** commit `f913aa71` sets `stage: cancelled`, drops `rank`, and
+    records why in the task; `iwe schema validate` exits 0.
 
 ### Task 13: The `iwe/**` ruleset
 
