@@ -13,6 +13,8 @@ sources:
 - resource: .agents/plugins/agentdev/tests/test_request_review.py
 - resource: .github/actions/ai-review-status/action.yml
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
+stage: done
+completed: 2026-11-02
 ---
 
 # Re-request an AI review after a title or description edit
