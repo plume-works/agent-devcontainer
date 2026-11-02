@@ -256,11 +256,19 @@ restacks onto open X+1 (Rz1) → X+1 merges as Sy → X+2 restacks onto merged X
 `.agents/plugins/agentdev/tests/test_check_depends_on.py`; Modify:
 `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`
 
-- [ ] `check_depends_on.py` takes a candidate body and fails when Task 1's
+- [x] `check_depends_on.py` takes a candidate body and fails when Task 1's
   module cannot find its `## Depends on` section and entries, or could not
   rewrite an entry's line
-- [ ] `pr-gen-description` writes `## Depends on` only for a new PR, keeps the
+  - **Evidence:** commit `6274189d` adds `bin/check_depends_on.py`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_check_depends_on.py` — 7
+    passed.
+- [x] `pr-gen-description` writes `## Depends on` only for a new PR, keeps the
   current section byte-for-byte on regeneration, and runs the check in Step 8
+  - **Evidence:** commit `6274189d` adds the Dependencies and Current Body
+    inputs, the Step 7 `Depends on` item, and the Step 8 `check_depends_on.py`
+    run to `pr-gen-description/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 5: `pr-open` opens a dependent PR
 
