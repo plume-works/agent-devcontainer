@@ -203,7 +203,13 @@ def test_devcontainer_starts_required_services_then_publishes_readiness(devconta
     box = devcontainer()
     box.start()
     box.wait_for(box.ready)
-    assert started(box.events()) == ['bootstrap', *DEVCONTAINER_REQUIRED, 'docker-gc']
+    # The collector is a client, so readiness never waits for it.
+    assert started(box.events())[: len(DEVCONTAINER_REQUIRED) + 1] == [
+        'bootstrap',
+        *DEVCONTAINER_REQUIRED,
+    ]
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
+    assert started(box.events())[-1] == 'docker-gc'
     state = box.runtime()
     assert state['profile'] == 'devcontainer' and state['ready'] is True
     assert state['probes'] == DEVCONTAINER_REQUIRED
@@ -305,6 +311,7 @@ def test_sigterm_stops_every_service_and_exits_cleanly(devcontainer):
     box = devcontainer()
     box.start()
     box.wait_for(box.ready)
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
     assert box.process is not None
     box.process.send_signal(signal.SIGTERM)
     assert box.wait_exit() == 0

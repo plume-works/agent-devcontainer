@@ -676,6 +676,7 @@ def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
     box.set('opencode', 'mode', 'with-child')
     box.start()
     box.wait_for(box.ready)
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
     child = int((box.state / 'opencode.child').read_text())
 
     assert box.process is not None
