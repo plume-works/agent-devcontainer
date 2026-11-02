@@ -182,9 +182,12 @@ pass always exits 0.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/coder.py`,
 `scripts/tests/test_coder_agent_start.py`
 
-- [ ] `agentdev-runtime coder start` runs the credential helper and the OpenCode
+- [x] `agentdev-runtime coder start` runs the credential helper and the OpenCode
   start, then Remote Control, with no Docker step. Tests assert the new step
   list.
+  - **Evidence:** commit fa688484;
+    `uv run pytest scripts/tests/test_coder_agent_start.py` — 5 passed
+    (`test_helper_and_opencode_run_before_remote_control_with_no_docker_step`).
 
 ### Task 5: The workspace engine's collector
 
