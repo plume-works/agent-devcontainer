@@ -20,7 +20,7 @@ next. Numbers come from frontmatter and git — never from memory.
    `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`.
    Flag any plan untouched for 14+ days (last commit touching the file) as
    possibly stalled or silently done.
-3. **Open bugs.** `iwe find --filter '{type: bug, stage: {$exists: false}}' -f keys`.
+3. **Open bugs.** `iwe find --filter '{type: bug, stage: {$in: [pending, planned]}}' -f keys`.
 4. **Backlog head.** The first pending tasks in the build order, then
    unsequenced high-priority ones:
    `iwe find --filter '{type: task, stage: pending, priority: high, rank: {$exists: false}}' -f keys`,
