@@ -115,6 +115,9 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
 
+[Bug: Remote Control real-tmux tests share one tmux server under
+pytest-xdist](bugs/remote-control-tmux-test-shared-under-xdist.md)
+
 [Bug: the Remote Control watcher restarts a session that never comes up on every
 tick](bugs/remote-control-watcher-start-loop.md)
 
@@ -166,3 +169,6 @@ says so](bugs/workspace-image-lacks-hook-binaries.md)
 
 [Bug: xpra_setup installs Ubuntu's xpra
 3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)
+
+[Bug: supervised-Xpra tests can pick the same X display under
+pytest-xdist](bugs/xpra-test-displays-collide-under-xdist.md)
