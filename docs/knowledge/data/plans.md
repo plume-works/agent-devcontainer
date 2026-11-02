@@ -134,6 +134,9 @@ refresh](plans/20261021-map-masks-version-bumps.md)
 [Refresh the codebase map before pushing and keep its staleness out of AI
 reviews](plans/20260929-map-refresh-before-push.md)
 
+[Let any session asked to implement a named plan start
+Implement](plans/20261031-model-invocable-implement.md)
+
 [Move the Expo bridge knowledge into its own
 repository](plans/20261028-move-expo-bridge-kb.md)
 
