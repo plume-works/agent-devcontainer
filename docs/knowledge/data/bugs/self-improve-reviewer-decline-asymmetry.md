@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: low
 description: The reviewer declines a stated user directive far more often on the wake harness's negative control than on the wake check itself, on an identically scripted exchange, with no mechanism identified.
 generated:
   by: claude-code/opus-5.5
@@ -66,9 +68,9 @@ The offline-replay result is the most consequential, because it invalidates the
 cheap instrument: any prompt change measured by replay has not been measured
 against the case that actually declines.
 
-## Fix
+## Potential solution
 
-Not fixed, and not scheduled. Closing it means one of:
+Closing it means one of:
 
 1. a mechanism identified and demonstrated — a named difference between the two
    checks' bundles or environments, shown to change the decline rate when
@@ -84,7 +86,7 @@ Settling it by diffing two runs will not work: the question is a difference in
 *rates*, and the fields varying run-to-run within one check — model prose above
 all — differ between checks too, for reasons that mean nothing. It needs shape
 descriptors aggregated across many runs, grouped by check and outcome, which is
-[Plugin execution tracing](../someday/self-improve-execution-tracing.md). That
+[Plugin execution tracing](../backlog/self-improve-execution-tracing.md). That
 proposal deliberately does not schedule the slices aimed at this question: the
 two available hypotheses are spent and a third has not been proposed, and
 building the instrument before naming the question is what these two documents

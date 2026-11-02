@@ -10,6 +10,7 @@ sources:
 - resource: .devcontainer/scripts/runtime-health.sh
 - resource: https://github.com/plume-works/agent-devcontainer/pull/511
 stage: done
+severity: medium
 ---
 
 # Bug: a client is recovered on its own budget before its dependency's failure is confirmed

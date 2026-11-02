@@ -12,6 +12,7 @@ sources:
 - resource: docs/knowledge/data/spec/devcontainer-git-credentials.md
 - resource: docker/bin/gh
 stage: done
+severity: high
 ---
 
 # Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session token

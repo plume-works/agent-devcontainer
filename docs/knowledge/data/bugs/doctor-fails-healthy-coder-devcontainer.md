@@ -9,6 +9,7 @@ sources:
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
 stage: done
+severity: low
 ---
 
 # Bug: doctor fails a healthy Coder Dev Container

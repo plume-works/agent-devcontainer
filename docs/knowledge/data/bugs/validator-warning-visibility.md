@@ -8,6 +8,7 @@ sources:
 - resource: docs/agents/specs/validator-warning-visibility/ (folded and removed)
 - resource: py_packages/validate_agent_files/
 stage: done
+severity: medium
 ---
 
 # Bug: Validator warning visibility

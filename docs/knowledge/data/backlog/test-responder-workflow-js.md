@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-09-19
-stage: planned
+stage: pending
 priority: medium
 description: Give the responder workflow's inline github-script logic executable regression coverage, which no test harness in this repository currently reaches.
 generated:

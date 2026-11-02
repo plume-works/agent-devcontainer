@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: low
 description: Under pytest-xdist, the two real-tmux Remote Control start tests share one claude-remote tmux server, so one test sees the other's session as already running, or its teardown kills it, before the fake claude records a result.
 generated:
   by: claude-code/opus-5.5

@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: high
 description: Coder workspaces that run for days pile up unused Docker images, build cache, and volumes despite the storage limits of spec/devcontainer-docker-storage and spec/coder-ide-baseline, because the image prune runs only at agent start and only on images older than 72 hours, the build-cache cap cannot free cache that kept images share, and nothing removes volumes.
 generated:
   by: claude-code/opus-5.5
@@ -80,10 +82,10 @@ Each of the three gaps lets one kind of storage grow:
     `*_agentdev-opencode`) must survive a cleanup even when no container uses
     them. So a blanket `docker volume prune -a` is not a safe fix.
 
-## Fix
+## Potential solution
 
-Not fixed. A manual cleanup on 2026-11-01 reclaimed the space but changed
-nothing that prevents it from building up again. A fix needs:
+A one-off cleanup reclaims the space but does not stop it building up again. A
+fix needs:
 
 - a prune that runs periodically while a workspace is up, not only at agent
   start;

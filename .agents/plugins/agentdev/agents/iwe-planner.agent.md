@@ -134,11 +134,14 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    whose work users see but that no
    feature describes first hands the feature to `/agentdev:iwe-capture feature`
    and lists its key in `release`. Set every proposed feature the plan lists to
-   `stage: accepted`. If it grew from a backlog task,
+   `stage: accepted`, and every pending bug it lists to `stage: planned`. If it
+   grew from a backlog task,
    mark the task done with `completed: <today>` and remove its `rank`. An issue it grew from is closed in
    step 8, after validation — never before the plan is known to be sound. In revise mode, preserve the plan's
    existing graph membership and lifecycle unless the requested planning
-   change explicitly requires another valid planning-state update.
+   change explicitly requires another valid planning-state update. A revision
+   that adds a bug to `release` sets it to `stage: planned`; one that removes a
+   bug returns it to `stage: pending`.
 6. **Check coherence.** Re-read the complete plan as a future implementer.
    Confirm its context, approach, tasks, spec impact, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with

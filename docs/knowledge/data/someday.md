@@ -41,7 +41,5 @@ model](someday/pr-review-large-validator.md)
 [Calibrate the revision evaluator against human
 review](someday/revision-evaluator-calibration.md)
 
-[Self-improve execution tracing](someday/self-improve-execution-tracing.md)
-
 [Hermes-derived prompt stack for
 self-improve](someday/self-improve-hermes-prompt-stack.md)

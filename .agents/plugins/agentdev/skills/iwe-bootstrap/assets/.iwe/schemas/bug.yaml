@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Bug reports, investigations, and repro notes (data/bugs/<slug>.md). Stage is
-  optional; an absent stage means open/under investigation.
+  Bug reports, investigations, and repro notes (data/bugs/<slug>.md). Every bug
+  carries a stage and a severity; no body section states lifecycle.
 maxDepth: 4
 sections:
   - header:
@@ -12,29 +12,34 @@ sections:
     sections:
       - header: { const: Symptom }
         minContains: 1
-        description: &order-hint 'a bug body is Symptom, Reproduction, Root cause, Fix, Key references, in that order — a section out of that order reports as missing'
+        description: &order-hint 'a bug body is Symptom, Reproduction, Root cause, then the optional Potential solution and Fix, in that order — a required section out of that order reports as missing'
       - header: { const: Reproduction }
         minContains: 1
         description: *order-hint
       - header: { const: Root cause }
         minContains: 1
         description: *order-hint
-      - header: { const: Fix }
-        minContains: 1
+      - header: { const: Potential solution }
+        minContains: 0
+        maxContains: 1
         description: *order-hint
-      - header: { const: Key references }
-        minContains: 1
+      - header: { const: Fix }
+        minContains: 0
+        maxContains: 1
         description: *order-hint
     additionalSections: true
 additionalSections: false
 frontmatter:
   type: object
-  required: [type]
+  required: [type, stage, severity]
   properties:
     type: { const: bug }
     stage:
-      enum: [done, cancelled]
-      description: 'stage, if present, must be one of: done, cancelled (omit while open)'
+      enum: [pending, planned, done, cancelled]
+      description: 'stage must be one of: pending, planned, done, cancelled'
+    severity:
+      enum: [critical, high, medium, low]
+      description: 'severity must be one of: critical, high, medium, low — the impact of the defect, not its urgency'
     rank:
       type: integer
       minimum: 1
