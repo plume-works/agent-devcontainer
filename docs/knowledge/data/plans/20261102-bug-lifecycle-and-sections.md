@@ -295,7 +295,7 @@ describes a superseded fix
   `done` — at least `ai-rereview-comment-keeps-changes-requested`,
   `dispatched-review-gate-not-counted`, `plan-checkbox-over-claiming`,
   `pr-update-skips-review-eval`
-  - **Evidence:** all 41 done bugs read; five contradict `done`: the four named
+  - **Evidence:** all 42 done bugs read; five contradict `done`: the four named
     plus `stack-guard-reverts-post-merge-rebase` ("Planned by"); rewritten in
     commit 418f87ac
 - [x] Rewrite each listed Fix to describe the fix that shipped, from the plan
