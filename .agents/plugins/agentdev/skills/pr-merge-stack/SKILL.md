@@ -1,109 +1,72 @@
 ---
 name: pr-merge-stack
-description: 'Merge a GitHub native stack of pull requests: bring every unmerged layer through CI and AI review bottom-up, keep the layers above in sync after any change below, then land the stack with one gh stack merge. Use when asked to merge a PR stack, a stacked PR that has unmerged PRs below it, or a stack by its number. Keywords: merge stack, stacked pull requests, gh stack merge, merge PR stack, pr-merge-stack.'
+description: 'Merge a chain of manual stacked pull requests from its top: merge the bottom pull request through pr-merge, restack the rest with one pr-restack-all run, and repeat until the top has merged. Use when asked to merge a PR stack or chain, or a dependent pull request that has unmerged pull requests below it. Keywords: merge stack, stacked pull requests, dependent PRs, merge chain, pr-merge-stack.'
 ---
 
-# Merge a Pull-Request Stack
+# Merge a Chain of Stacked Pull Requests
 
-Drive every unmerged layer of a GitHub stack through the
-[pr-merge](../pr-merge/SKILL.md) monitoring loop, from the bottom up, without
-merging any of them, then land the whole stack with one all-or-nothing
-`gh stack merge`. Drive `gh stack` through [gh-stack](../gh-stack/SKILL.md):
-its non-interactive forms and exit-code recovery apply to every command here.
+A manual stacked pull request is based on its predecessor's branch and lists
+it under `## Depends on`. Only a pull request based on `main` can merge, so a
+chain merges one pull request at a time, bottom first, and the rest are
+restacked after each merge.
 
 ## Input and Safety Boundaries
 
-Accept one input: a PR number or URL from the stack, or a stack number.
+Accept one input: the top pull request of the chain, as a number or URL.
 
 - Require `gh auth status` to succeed.
-- Preserve the caller's working tree. Create a detached worktree under
-  `./.tmp/` and run `gh stack checkout <input>` inside it; run every command
-  from that worktree.
-- Branches of the stack are updated only by `gh stack rebase` and the
-  gh-stack skill's guarded `publish`, after its `begin`. Never force-push otherwise, and never update a ref
-  through a GitHub API or MCP tool, including the server-side **Rebase stack**
-  button.
-- Never enable auto-merge; GitHub rejects it for stacks anyway.
+- Branches are updated only by plain pushes: never force-push, rebase, or
+  reset, and never update a ref through a GitHub API or MCP tool.
+- Never enable auto-merge, and never pass `--admin`.
 
-## Read the Stack
+## The Loop
 
-```bash
-gh stack view --json
+```text
+input: top PR
+loop:
+  1. walk the chain from GitHub PRs        → bottom = the PR whose base is main
+  2. pr-merge bottom                        → CI, AI review, squash merge
+  3. GitHub retargets the next PR to main
+  4. pr-restack-all top                     → restacks every PR still in the chain
+  5. bottom was the top PR → done; else back to 1
 ```
 
-The layers in `branches` are listed bottom-up. Record, for every entry whose
-`isMerged` is `false`, its branch, `head`, and `pr.number`. Stop and report
-when an unmerged layer has no open PR, or when a layer is a draft and the user
-has not asked to mark it ready: `gh stack merge` merges only open, ready PRs.
+1. **Walk the chain.** From the top pull request, follow each base branch to
+   the open pull request whose head it is, down to the one based on `main`: the
+   bottom. Each link's last `## Depends on` entry must be the pull request below
+   it; stop and report the link when it is not. Restacking in step 4 walks the
+   chain the same way.
+2. **Merge the bottom** through [pr-merge](../pr-merge/SKILL.md): CI, AI
+   review, feedback, then its squash merge. pr-merge refuses a base other than
+   `main`, so it can never merge a link above the bottom. Who runs it:
+   - Inside a coordinator session that runs one child session per pull
+     request, the session that owns the bottom pull request runs pr-merge;
+     wait for it to report the merge.
+   - Otherwise this skill runs pr-merge itself.
+3. **GitHub retargets** the next pull request to `main`. Confirm with
+   `gh pr view <next> --json baseRefName` before continuing.
+4. **Restack** with one run of this skill's own
+   [pr-restack-all](../pr-restack-all/SKILL.md), on the top pull request — never
+   by a child session — following its result table. The merged pull request is
+   reconnected into the one above, and every link above that merges the new
+   head of the link below it.
+5. **Repeat** from step 1 until the top pull request itself has merged.
 
-## Bring Each Layer to Green
-
-For each unmerged layer, bottom first, run [pr-merge](../pr-merge/SKILL.md)'s
-**Monitoring Loop** steps 1–7 against its PR in this skill's worktree, and stop
-where step 7 would start the final squash merge. A layer is green when every
-pr-merge completion criterion except the merge holds for its current head.
-
-Each layer is reviewed as its own PR. A body still holding the repository's PR
-template fails the AI review's metadata gate, so give every layer a real
-description before its review.
-
-## Keep the Layers Above in Sync
-
-Any new commit on a layer — a remediation, a conflict resolution, or a
-`reformat.yml` commit — leaves every layer above it without the new tip. From
-that layer's branch, bring them up to date and publish the stack through the
-gh-stack skill's guard — `begin` ran before that commit:
-
-```bash
-gh stack rebase --upstack
-```
-
-Then run the guard's `publish` and handle its result with the gh-stack skill's
-push-guard table.
-
-Every layer above now has a new head SHA, so its CI re-runs. The AI review does
-not: the gate keeps accepting the layer's earlier review, and a
-`CHANGES_REQUESTED` verdict on it stays sticky until a fresh review replaces it.
-Re-enter the loop for each layer above before treating it as green again.
-
-## Land the Stack
-
-When every unmerged layer is green for its current head, merge the top PR, which
-merges it and every unmerged layer below it in one operation:
-
-```bash
-gh stack merge <top-pr> --yes --squash
-```
-
-Confirm with `gh stack view --json` that every layer reports `isMerged: true`,
-and with `gh pr view <pr> --json state` that each PR is `MERGED`.
-
-## A Merge That Stops Partway
-
-- **Rejected, nothing merged.** The merge is all-or-nothing, and the reason is
-  reported for the PR that blocked it. Return to that layer's loop, fix the
-  blocker, and merge again.
-- **Some layers merged.** A merge queue on the trunk lands queued PRs in
-  separate groups, and a layer can change after the merge started. Refresh
-  the stack with the gh-stack skill's guard — `begin`, `gh stack rebase`, then
-  `publish` — to rebase the remaining layers past the merged ones, re-read
-  the stack, and repeat **Bring Each Layer to Green** for the layers still
-  unmerged before merging the new top.
-- **Rebase conflict** (exit 3) from `rebase`: follow the gh-stack skill's
-  exit-3 recovery, then `publish` and re-enter the loop for that layer.
+Every restack gives each remaining link a new head, so its CI re-runs and
+pr-merge re-enters its monitoring loop for it when its turn comes.
 
 ## Final Report
 
-Report the stack number, every PR with its final state and merged SHA, the
-merge method, each remediation and resync performed, and any blocker that is
-still open. Say the stack was merged only after every layer's merged state is
-evidenced.
+Report every pull request with its final state and squash commit, each restack
+with its `RECONNECTED` and `PUSHED` lines, every remediation, and any blocker
+still open. Say the chain was merged only after each pull request's `MERGED`
+state is evidenced.
 
 ## Related Skills
 
-- [pr-merge](../pr-merge/SKILL.md) — the per-PR monitoring and remediation loop,
-  and the merge of a single lowest unmerged layer.
-- [gh-stack](../gh-stack/SKILL.md) — non-interactive `gh stack` usage and
-  exit-code recovery.
+- [pr-merge](../pr-merge/SKILL.md) — the per-PR monitoring, remediation, and
+  squash merge of the bottom pull request.
+- [pr-restack-all](../pr-restack-all/SKILL.md) — restacking the chain after
+  each merge.
 - [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) — conflict and
-  feedback resolution for a layer.
+  feedback resolution for a pull request.

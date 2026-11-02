@@ -3,7 +3,7 @@ type: spec
 description: How the iwe-bootstrap skill installs a blank IWE workspace from the installed agentdev catalog without overwriting existing knowledge, and stops before onboarding.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T07:39:19Z
+  at: 2026-10-31T18:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py
@@ -67,11 +67,10 @@ pre-existing byte.
 ### Requirement: bootstrap and onboarding are separate operations
 
 Bootstrap SHALL stop after the blank workspace validates. It SHALL NOT run
-`iwe-setup`, run `iwe-map`, answer their confirmation gates, or merge repository
-CI and pre-commit configuration.
+`iwe-setup`, answer its confirmation gates, or merge repository CI and
+pre-commit configuration.
 
 #### Scenario: direct initialization succeeds
 
 - **WHEN** bootstrap creates a workspace for a mounted repository
-- **THEN** it reports `iwe-setup` as the next product-onboarding operation and
-  `iwe-map` as the subsequent codebase-mapping operation
+- **THEN** it reports `iwe-setup` as the next product-onboarding operation

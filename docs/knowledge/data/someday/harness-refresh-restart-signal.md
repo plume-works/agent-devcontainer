@@ -3,7 +3,7 @@ type: someday
 description: Have the attach phase (agentdev-runtime lifecycle attached) signal long-running harness sessions started by the Coder agent through a marker file, so every harness restarts onto the catalog it just re-registered.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T11:49:47Z
+  at: 2026-10-31T21:01:06Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
@@ -12,11 +12,11 @@ sources:
 # Restart Coder-started harness sessions after a catalog refresh
 
 `agentdev-runtime lifecycle attached` re-registers the agentdev catalog for
-every harness — Codex, Claude, and OpenCode — on each editor attachment.
-Sessions that the Coder agent started earlier, such as Claude Remote Control and
-the [OpenCode web UI](../features/opencode-web-coder-autostart.md), read their
-configuration when they started, so they can keep serving the previous catalog
-until they restart.
+every harness — Claude and OpenCode — on each editor attachment. Sessions that
+the Coder agent started earlier, such as Claude Remote Control and the [OpenCode
+web UI](../features/opencode-web-coder-autostart.md), read their configuration
+when they started, so they can keep serving the previous catalog until they
+restart.
 
 The idea: `agentdev-runtime lifecycle attached` touches one marker file after
 its catalog install finishes, and each Coder-started session watches it —

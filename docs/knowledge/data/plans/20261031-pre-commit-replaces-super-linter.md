@@ -6,7 +6,7 @@ release:
 description: Replace Super-Linter and reformat.yml with a pre-commit job in the digest-pinned devcontainer image, make every hook a uv-locked or image-provisioned tool, scan gitleaks over commit ranges, and remove Super-Linter from the whole repository.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T13:00:00Z
+  at: 2026-10-31T20:45:18Z
 sources:
 - resource: .github/workflows/reformat.yml
 - resource: .github/workflows/primary-checks.yml
@@ -17,6 +17,9 @@ sources:
 - resource: pyproject.toml
 - resource: .github/renovate.json
 - resource: https://github.com/gitleaks/gitleaks-action
+stage: done
+completed: 2026-11-01
+released: 2.0.0
 ---
 
 # Replace Super-Linter with pre-commit in CI
@@ -81,16 +84,17 @@ its own gitleaks; running the job on the image this pull request builds, which
 puts lint behind the full image build; and keeping remote hooks, which leaves a
 second copy of each tool beside `uv.lock`.
 
-**Order inside this plan.** The pinned image has no hadolint, and the CI job
-runs the pinned image. Task 1 ships first in its own pull request; Tasks 4
-onward start only once a Renovate digest bump has moved the pin to an image
-containing hadolint and the pinned shellcheck.
+**Order inside this plan.** The CI job runs the image
+`devcontainer-compose-pins.yml` pins, so Task 1 ships first in its own pull
+request and Tasks 4 onward start only once that pin names an image containing
+hadolint and the pinned shellcheck.
 
 **Assumptions.** The range selection is a stdlib Python script with tests,
 because the event cases are logic, not wiring. The gitleaks hook's mode switch
 stays an inline `bash -c` entry, so the hook remains self-contained in
 `.pre-commit-config.yaml` for template consumers. The `pre-commit` job has no
-path filter: pre-commit already skips hooks whose files did not change.
+path filter: pre-commit skips hooks whose files did not change, except
+`always_run` hooks such as gitleaks and no-commit-to-branch.
 
 ## Implementation Steps
 
@@ -101,65 +105,100 @@ path filter: pre-commit already skips hooks whose files did not change.
 `ansible/roles/dev_tools/tasks/main.yml`, `scripts/refresh-pin-checksums.py`,
 `scripts/tests/test_refresh_pin_checksums.py`
 
-- [ ] `install_pinned_tool.yml` installs an entry published as a bare binary
+- [x] `install_pinned_tool.yml` installs an entry published as a bare binary
   (hadolint's `hadolint-linux-<arch>`) and one whose archive unpacks into a
   directory not named after the asset (shellcheck's `shellcheck-<version>/`),
   and `refresh-pin-checksums.py` renders the same URLs for both, covered by
   tests.
-- [ ] `dev_tools_pinned_tools` pins hadolint `v2.14.0` and shellcheck `v0.11.0`
+  - **Evidence:** commit `85534b52` adds `bare_binary` and `binaries_dir`;
+    `uv run pytest scripts/tests/test_refresh_pin_checksums.py` passes 11,
+    including `test_bare_binary_and_nested_dir_urls_follow_the_install_task`.
+- [x] `dev_tools_pinned_tools` pins hadolint `v2.14.0` and shellcheck `v0.11.0`
   with per-architecture checksums, and the apt `shellcheck` package is removed
   from `tasks/main.yml`.
+  - **Evidence:** commit `d5a2fdb3`;
+    `uv run scripts/refresh-pin-checksums.py ansible/roles/dev_tools/defaults/main.yml`
+    downloads every pin, both new ones included, and exits 0 with the file
+    unchanged.
 
 ### Task 2: Let Renovate bump every pinned binary
 
 **Files:** Modify: `ansible/roles/dev_tools/defaults/main.yml`,
-`ansible/AGENTS.md`, `.github/renovate.json`, `.agent.metadata.json`
+`ansible/AGENTS.md`, `.github/renovate.json`
 
-- [ ] zizmor, gitleaks, actionlint, hadolint, and shellcheck each carry a
+- [x] zizmor, gitleaks, actionlint, hadolint, and shellcheck each carry a
   `# renovate: datasource=github-releases depName=<owner/repo>` comment; the
   defaults header and `ansible/AGENTS.md` no longer say any tool moves with a
   Super-Linter sync.
-- [ ] `.github/renovate.json` drops the Super-Linter sync rule, the npm regex
+  - **Evidence:** commit `79f6f374`; the `dev_tools_pinned_tools` custom manager
+    regex in `.github/renovate.json` matches all five new comments, and
+    `git grep -i super-linter ansible/` returns nothing.
+- [x] `.github/renovate.json` drops the Super-Linter sync rule, the npm regex
   manager also matches the prettier `bunx` pin, no description names
   Super-Linter, and `bunx renovate-config-validator --strict` passes.
-- [ ] `.agent.metadata.json`'s `digest_ignore` reasons name Renovate as the only
-  mover of hook pins.
+  - **Evidence:** commit `13a7a15e`;
+    `bunx --package renovate@44.198.3 renovate-config-validator --strict .github/renovate.json`
+    passes, and the npm manager's match strings extract `renovate` and
+    `prettier` from `.pre-commit-config.yaml`.
 
 ### Task 3: Gate on the Task 1 image
 
 **Files:** none
 
-- [ ] The `agentdev-devcontainer` digest in `devcontainer-compose-pins.yml` on
+- [x] The `agentdev-devcontainer` digest in `devcontainer-compose-pins.yml` on
   `main` names an image with `hadolint --version` at `2.14.0` and
   `shellcheck --version` at `0.11.0`.
+  - **Evidence:** #609 (`b04c9524`) pins `sha256:0f3620b5…`, built from
+    `29a639e4` (#605); its amd64 image reports
+    `Haskell Dockerfile Linter 2.14.0` and shellcheck `0.11.0`, and the arm64
+    build installing the same checksum-verified pins passed in Primary checks
+    run 41262583568.
 
 ### Task 4: Lock the Python hook tools in uv
 
 **Files:** Modify: `pyproject.toml`, `uv.lock`
 
-- [ ] The `dev` group lists `clang-format>=21.1.2` and `pre-commit-hooks>=6.0.0`
+- [x] The `dev` group lists `clang-format>=21.1.2` and `pre-commit-hooks>=6.0.0`
   beside the existing `ruff` and `ansible-lint`, and `uv lock` records them.
+  - **Evidence:** commit `7c91ed4a`; `uv lock` records clang-format `23.1.3` and
+    pre-commit-hooks `6.0.0`, and `uv run clang-format --version` and
+    `uv run check-yaml --help` run from the synced environment.
 
 ### Task 5: Make every hook native
 
 **Files:** Create: `scripts/tests/test_gitleaks_hook.py`; Modify:
 `.pre-commit-config.yaml`
 
-- [ ] Every hook is under `repo: local` with `language: system`: the
+- [x] Every hook is under `repo: local` with `language: system`: the
   pre-commit-hooks fixers, ruff, ruff-format, ansible-lint, and clang-format
   through `uv run`; hadolint and shellcheck as image binaries; ids, `files`
   patterns, and arguments unchanged; no comment names Super-Linter.
-- [ ] The `gitleaks` hook picks `GITLEAKS_LOG_OPTS`, then
+  - **Evidence:** commit `aa9a47b6`; `uv run pre-commit validate-config` passes,
+    the commit's own hook run used the `uv run` fixers and ruff, and
+    `grep -i super-linter .pre-commit-config.yaml` is empty. clang-format's
+    `types_or` is `[c, c++]`, which selects the same files under its `files`
+    pattern.
+- [x] The `gitleaks` hook picks `GITLEAKS_LOG_OPTS`, then
   `PRE_COMMIT_FROM_REF..PRE_COMMIT_TO_REF`, then `--pre-commit --staged`, and a
   test drives each mode against a scratch repository holding a secret added and
   removed inside the range.
+  - **Evidence:** commit `aa9a47b6`;
+    `uv run pytest scripts/tests/test_gitleaks_hook.py` passes 5, covering each
+    mode, the `GITLEAKS_LOG_OPTS` precedence, and a range that never held the
+    secret. Commit `cea4fecd` adds `always_run: true`, so pre-commit runs the
+    scan for a range that leaves no changed file, and the test that drives the
+    hook through pre-commit's file selection passes (6 in all).
 
 ### Task 6: Bring the tree to the new tool versions
 
 **Files:** Modify: whatever `pre-commit run --all-files` rewrites
 
-- [ ] `uv run pre-commit run --all-files` passes, with its rewrites in their own
+- [x] `uv run pre-commit run --all-files` passes, with its rewrites in their own
   commit.
+  - **Evidence:** at commit `aa9a47b6`, `uv sync --locked` and
+    `uv run pre-commit run --all-files` in the image pinned by #609 pass every
+    hook (ruff 0.17.1, clang-format 23.1.3) and rewrite no file, so there is no
+    rewrite commit.
 
 ### Task 7: Run pre-commit in Primary checks
 
@@ -169,17 +208,26 @@ path filter: pre-commit already skips hooks whose files did not change.
 `.github/workflows/primary-checks.yml`,
 `scripts/tests/test_paths_filter_last_pass.py`
 
-- [ ] `pre-commit-ci-range.py` writes `from_ref`, `to_ref`, `all_files`, and
+- [x] `pre-commit-ci-range.py` writes `from_ref`, `to_ref`, `all_files`, and
   `gitleaks_log_opts` to `GITHUB_OUTPUT`: base..head for `pull_request` and
   `merge_group`; before..after for `push`; all files and `-1 <sha>` for a zero
   `before`; all files and `--all` for `workflow_dispatch`; all files with the
   range scan when the range touches a tool-version owner. Tests cover each case.
-- [ ] Primary checks has a `pre-commit` job in the compose-pin image with
+  - **Evidence:** commit `a842484f`;
+    `uv run pytest scripts/tests/test_pre_commit_ci_range.py` passes 12: each
+    event, every tool-version owner, an owner changed only on the base side, and
+    an unsupported event.
+- [x] Primary checks has a `pre-commit` job in the compose-pin image with
   checkout (`fetch-depth: 0`), the range step, `uv sync --locked`,
   `pre-commit install-hooks`, and `pre-commit run` as separate steps,
   `SKIP=no-commit-to-branch`; `ci` needs it; the `reformat` job is gone.
   `test_pre_commit_ci_job.py` asserts the image equals the compose pin, the step
   order, and the `needs:` edge.
+  - **Evidence:** commit `85ff84d5`;
+    `uv run pytest scripts/tests/test_pre_commit_ci_job.py scripts/tests/test_paths_filter_last_pass.py`
+    passes 21, `actionlint` and `zizmor` report nothing, and the job's steps run
+    in the pinned image for a pull-request event from `b04c9524` to `85ff84d5`
+    pass every hook.
 
 ### Task 8: Remove Super-Linter from the publisher
 
@@ -189,9 +237,15 @@ path filter: pre-commit already skips hooks whose files did not change.
 `scripts/tests/test_validate_super_linter_tool_versions.py`; Modify:
 `.gitignore`, `.claude/settings.json`
 
-- [ ] The files above are gone, `.gitignore` drops `super-linter-output/`,
+- [x] The files above are gone, `.gitignore` drops `super-linter-output/`,
   `.claude/settings.json` drops the `super_linter.py local` allow rule, and no
   workflow, test, or setting names Super-Linter or `reformat.yml`.
+  - **Evidence:** commit `c837d940`;
+    `git grep -i -E 'super-?linter|reformat\.yml' -- .github scripts .claude .gitignore`
+    finds nothing, and
+    `uv run pytest scripts/tests/test_pre_commit_ci_job.py scripts/tests/test_paths_filter_last_pass.py`
+    passes 20. `.gitignore` also drops `log/`, the Super-Linter section's other
+    entry.
 
 ### Task 9: Remove Super-Linter from the catalog
 
@@ -207,27 +261,50 @@ path filter: pre-commit already skips hooks whose files did not change.
 `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] The two skills and the module are gone, and the plugin README lists
+- [x] The two skills and the module are gone, and the plugin README lists
   neither skill nor Super-Linter as a dependency.
-- [ ] `pr-merge` has no Reformat Workflow Synchronization section or step,
+  - **Evidence:** commit `6b797004`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 65/65 skills valid with no errors. `semantic-refactor-audit`'s
+    description, which routed formatting to `local-reformat`, now names the
+    pre-commit hooks.
+- [x] `pr-merge` has no Reformat Workflow Synchronization section or step,
   `pr-merge-stack` no reformat-commit case, and `update-branch` no mandatory
   reformat.
-- [ ] The template-consume skill and guide name no Super-Linter script, no
+  - **Evidence:** commit `f4e7f0ae`; `grep -i reformat` over the three skills
+    finds nothing, the validator reports 65/65 skills valid, and
+    `uv run pytest .agents/plugins/agentdev/tests` passes 416.
+- [x] The template-consume skill and guide name no Super-Linter script, no
   `reformat.yml` edits, and no sync rule; the guide tells a consumer to keep the
   `pre-commit` job and adapt its tool-version owner list.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  - **Evidence:** commit `11ac9050`;
+    `git grep -i -E 'super-?linter|reformat\.yml'` over the template-consume
+    skill finds nothing, and the guide's "Primary checks and pre-commit" section
+    keeps the job and `scripts/pre-commit-ci-range.py` and has the consumer
+    adapt `TOOL_VERSION_OWNERS`.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   and `uv run pytest .agents/plugins/agentdev/tests` pass.
+  - **Evidence:** at commit `9a524555`, after merging Remove Codex (#602), the
+    validator reports 64/64 skills valid with no errors or warnings, and
+    `uv run pytest .agents/plugins/agentdev/tests` passes 400.
 
 ### Task 10: Reword the repository's own guidance and configs
 
 **Files:** Modify: `AGENTS.md`, `README.md`, `.ruff.toml`, `.markdownlint.yml`,
 `.ansible-lint.yml`
 
-- [ ] `AGENTS.md`, `README.md`, `.ruff.toml`, and `.markdownlint.yml` say CI
+- [x] `AGENTS.md`, `README.md`, `.ruff.toml`, and `.markdownlint.yml` say CI
   runs the pre-commit hooks, and none names Super-Linter.
-- [ ] `.ansible-lint.yml` drops the Super-Linter framing, and its `skip_list`
+  - **Evidence:** commit `7c6e48b3`; `git grep -i super-linter` over the four
+    files finds nothing.
+- [x] `.ansible-lint.yml` drops the Super-Linter framing, and its `skip_list`
   keeps `syntax-check` only if `uv run ansible-lint` in the devcontainer image
   still cannot resolve the roles' collections.
+  - **Evidence:** commit `51fcbd5d`; `skip_list` never carried `syntax-check`,
+    and the Super-Linter workaround was `mock_modules`. In the image pinned by
+    #609, `uv run pre-commit run ansible-lint --all-files` passes without the
+    mocks, resolving `community.docker` 5.4.0 from the uv-locked `ansible`, so
+    the mocks are gone and `offline: true` stays.
 
 ### Task 11: Record the decision in the knowledge graph
 
@@ -237,30 +314,43 @@ path filter: pre-commit already skips hooks whose files did not change.
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/architecture/self-improve-consolidation.md`,
 `docs/knowledge/data/architecture/catalog-script-language.md`,
+`docs/knowledge/data/architecture/rereview-gate-pending.md`,
 `docs/knowledge/data/features/bun-only-javascript-runner.md`,
 `docs/knowledge/data/features/renovate-maintains-checksums.md`,
 `docs/knowledge/data/someday/host-filesystem-dedup.md`,
-`docs/knowledge/data/product.md`
+`docs/knowledge/data/product.md`,
+`docs/knowledge/data/features/pre-commit-owns-formatting.md`,
+`docs/knowledge/data/backlog/parallel-ci-with-pre-commit.md`
 
-- [ ] `architecture/formatter-ownership` records the per-tool version owners,
+- [x] `architecture/formatter-ownership` records the per-tool version owners,
   pre-commit as the CI gate, the gitleaks range scan, and the rejected
   alternatives from `## Approach`; the other documents above describe the
   current gate. Shipped plans, `data/log.md`, and closed bugs stay as written.
+  - **Evidence:** commit `4a0a2e2f`; `iwe schema validate` passes. None of the
+    listed documents names Super-Linter, `reformat.yml`, or `local-reformat`,
+    except the rejected alternative in `formatter-ownership` and the dated
+    `product.md` Changelog. `someday/host-filesystem-dedup` needed no edit: its
+    "reformat" is about a disk.
+- [x] `features/pre-commit-owns-formatting` names [pre-commit is the CI
+  gate](../features/pre-commit-ci-gate.md) as the CI gate instead of
+  Super-Linter, and `backlog/parallel-ci-with-pre-commit` cites no deleted file
+  and no longer reads as blocked on this plan.
+  - **Evidence:** commit `6f9001dc`;
+    `git grep -i -E 'super-?linter|reformat\.yml|local-reformat'` over both
+    documents finds nothing, and `iwe schema validate` passes.
 
-### Task 12: Refresh the codebase map
-
-**Files:** Modify: the `docs/knowledge/data/codebase/` documents
-`stale-map-docs.py` reports
-
-- [ ] `/agentdev:iwe-map` refresh leaves no stale map document.
-
-### Task 13: Green pre-commit job on the pull request
+### Task 12: Green pre-commit job on the pull request
 
 **Files:** none
 
-- [ ] The pull request's Primary checks run shows the `pre-commit` job passing
+- [x] The pull request's Primary checks run shows the `pre-commit` job passing
   with `uv sync`, `pre-commit install-hooks`, and `pre-commit run` as separate
   timed steps, and `CI/CD` starting after it.
+  - **Evidence:** #611, Primary checks run 41273765302 at `18e1f090`: the
+    `pre-commit` job succeeded, with `uv sync` (6 s), `pre-commit install-hooks`
+    (1 s), and `pre-commit run` (6 s) as separate steps, and
+    `CI/CD / Need to run?` started at 04:38:06Z, after the job finished at
+    04:38:01Z.
 
 ## Spec changes
 
@@ -279,8 +369,7 @@ validator the digest-pinned image provides, never the deleted working-tree
 package.
 ```
 
-`spec/pre-commit-gate` — new; the gitleaks scan is security behaviour, so the
-contract is spelled out:
+[pre-commit gate](../spec/pre-commit-gate.md) — new:
 
 ``` markdown
 ## ADDED Requirements
@@ -360,12 +449,16 @@ Super-Linter module and version check it ported.
 - `uv run pytest scripts/tests/test_refresh_pin_checksums.py scripts/tests/test_pre_commit_ci_range.py scripts/tests/test_pre_commit_ci_job.py scripts/tests/test_paths_filter_last_pass.py`
 - `uv run pytest scripts/tests/test_gitleaks_hook.py` (Task 5).
 - `uv run pre-commit run --all-files` in the devcontainer.
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-  and `uv run pytest .agents/plugins/agentdev/tests`.
+- `uv run validate_agent_files --recommend . --require-marketplace claude` and
+  `uv run pytest .agents/plugins/agentdev/tests`.
 - `git grep -n -i -E 'super-?linter|reformat\.yml|local-reformat'` returns only
-  shipped plans, `data/log.md`, closed bugs, and released notes.
+  shipped plans, `data/log.md`, closed bugs, released notes, the dated
+  `product.md` Changelog, this plan and its title in `data/plans.md`, its
+  feature `features/pre-commit-ci-gate`, the rejected alternative in
+  `architecture/formatter-ownership`, and `spec/template-consumption` until Ship
+  merges its delta.
 - `iwe normalize` and `iwe schema validate`.
-- The pull request's Primary checks run (Task 13).
+- The pull request's Primary checks run (Task 12).
 
 ## Out of scope
 
@@ -393,43 +486,44 @@ Verified anchor points (line numbers as of 2026-10-31):
   `reformat.yml`
 - `.github/workflows/primary-checks.yml:54` — `ci` job, `needs: [reformat]`
 - `.github/workflows/reformat.yml:209` — `Run Super-Linter autofixes` step
-- `.github/workflows/validate-renovate-config.yml:59` — a job running in the
+- `.github/workflows/validate-renovate-config.yml:60` — a job running in the
   digest-pinned devcontainer image
 - `devcontainer-compose-pins.yml:14` — the `agentdev-devcontainer` pin
 - `.pre-commit-config.yaml:2` — `pre-commit/pre-commit-hooks` remote repo
 - `.pre-commit-config.yaml:14` — `mirrors-clang-format`
 - `.pre-commit-config.yaml:20` — `ansible-lint` remote repo
-- `.pre-commit-config.yaml:32` — `hadolint-docker`
+- `.pre-commit-config.yaml:35` — `hadolint-docker`
 - `.pre-commit-config.yaml:38` — `ruff-pre-commit` at `v0.15.17`
 - `.pre-commit-config.yaml:47` — `shellcheck-py`
-- `.pre-commit-config.yaml:56` — `gitleaks` hook, `--pre-commit --staged`
-- `.pre-commit-config.yaml:71` — `prettier` `bunx` pin
+- `.pre-commit-config.yaml:58` — `gitleaks` hook, `--pre-commit --staged`
+- `.pre-commit-config.yaml:70` — `prettier` `bunx` pin
 - `pyproject.toml:8` — `dev` dependency group
-- `ansible/roles/dev_tools/defaults/main.yml:17` — header saying three tools
+- `ansible/roles/dev_tools/defaults/main.yml:18` — header saying three tools
   move with the Super-Linter sync
 - `ansible/roles/dev_tools/defaults/main.yml:19` — `dev_tools_pinned_tools`
 - `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13` — asset and
   extension resolution
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:41` — `Extract archive`
-- `ansible/roles/dev_tools/tasks/main.yml:27` — apt `shellcheck`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:46` — `Extract archive`
+- `ansible/roles/dev_tools/tasks/main.yml:29` — apt `xz-utils`, which unpacks
+  the shellcheck release
 - `scripts/refresh-pin-checksums.py:47` — `ToolListPins`
 - `scripts/refresh-pin-checksums.py:108` — `PIN_FILES`
-- `.github/renovate.json:79` — Super-Linter sync rule
+- `.github/renovate.json:80` — Super-Linter sync rule
 - `.github/renovate.json:148` — npm regex manager for `bunx` pins
-- `.agent.metadata.json:15` — `digest_ignore` reasons naming the sync skill
-- `scripts/renovate-post-upgrade.sh:45` — post-upgrade `pre-commit run`
+- `scripts/renovate-post-upgrade.py:77` — post-upgrade `pre-commit run`
 - `scripts/tests/test_paths_filter_last_pass.py:117` —
   `test_primary_checks_grants_actions_read_to_the_reusable_workflows`
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:85` — Reformat Workflow
   Synchronization
 - `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:53` — `reformat.yml`
   commit case
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:125` — "mandatory
-  reformat"
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:271`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:125` — "reformat and
+  targeted validation"
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:270`
   — Primary checks and reformatting
 - `.agents/plugins/agentdev/README.md:122` — `local-reformat` row
 - `AGENTS.md:83` — "Super-Linter runs the same tools in CI"
+- `.ansible-lint.yml:2` — Super-Linter defaults framing
 - `.ansible-lint.yml:19` — Super-Linter collections comment
 - `docs/knowledge/data/spec/template-consumption.md:75` — publisher-only source
   requirement

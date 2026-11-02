@@ -2,10 +2,10 @@
 type: architecture
 description: A colocated per-directory file carrying agent tooling metadata, resolved root-to-leaf with accumulating namespaced sections.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T16:40:07Z
 sources:
-- resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
+- resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: docs/knowledge/data/architecture/template-boundary.md
 ---
 
@@ -14,14 +14,13 @@ sources:
 ## Decision
 
 Agent tooling reads per-directory metadata from `.agent.metadata.json` files
-placed anywhere in the source tree. The `iwe-map` digest staleness check is the
-first consumer. Each file is a JSON object whose top-level keys namespace one
-consumer apiece:
+placed anywhere in the source tree. Each file is a JSON object whose top-level
+keys namespace one consumer apiece:
 
 ``` json
 {
-  "iwe-map": {
-    "digest_ignore": {}
+  "template-consume": {
+    "consumed_ref": "<commit SHA>"
   }
 }
 ```
@@ -30,8 +29,9 @@ A consumer reads only its own key. A file carrying a key no installed tool
 claims is valid and inert, which is what lets a directory declare metadata for
 tooling a given checkout does not have.
 
-The format is deliberately general: digest masks for the codebase-map staleness
-check are its first consumer, not its purpose.
+The format is deliberately general: template-consume's root-only adoption state
+is its only current consumer, not its purpose. The root-to-leaf resolution below
+is the contract a future colocated consumer follows.
 
 ## Resolution
 
@@ -62,10 +62,9 @@ resolving .github/workflows/ci.yml
 A `.agent.metadata.json` is never itself tracked content. It describes how a
 consumer reaches its answer rather than the sources that answer is about, so a
 consumer fingerprinting a directory excludes these files from the fingerprint.
-What a rule *does* still reaches the result wherever it applies — `iwe-map`
-folds each applied rule's pattern and replacement into the doc digest — so a
-rule change that alters masking stays visible, while a file's prose, its
-formatting, and its mere presence do not move a digest.
+What a rule *does* still reaches the result wherever it applies, so a rule
+change stays visible, while a file's prose, its formatting, and its mere
+presence do not move a fingerprint.
 
 Accumulation has no removal operation. If a subtree ever needs to escape an
 inherited rule, that is a new key with its own semantics, not a reinterpretation
@@ -112,10 +111,9 @@ Template-class `.devcontainer/`; a file under `ansible/` stays Publisher and is
 never copied. A consuming repository that adopts a directory receives the rules
 governing that directory in the same operation, with nothing to reconcile.
 
-The repository-root file is the exception because it mixes ownership classes.
-Its `iwe-map` key is Template-class configuration, while `template-consume` is
-consumer-created adoption state. The boundary therefore classifies the root file
-per top-level key rather than assigning one class to the whole file.
+The repository-root file is the exception: its `template-consume` section is
+consumer-created adoption state, so the boundary classifies the root file per
+top-level key rather than assigning one class to the whole file.
 
 ## Alternatives considered
 
@@ -139,20 +137,14 @@ removes the portability that motivates colocation.
 
 ## Consumers
 
-- `iwe-map` / `digest_ignore` — masks machine-managed content out of the
-  codebase-map source fingerprint. Implemented by [Digest masks for map
-  docs](../plans/20260905-digest-masks.md).
 - `template-consume` — root-only adoption state. A repository has exactly one
   adopted ref, so walking and accumulating nested declarations is invalid.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-23):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `docs/knowledge/data/architecture/template-boundary.md:19-25` — the
   classification a colocated file inherits from its directory
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:291-333`
-  — `source_digest_for_paths`, the fingerprint the first consumer filters
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:388-421`
-  — `classify`, the per-document verdict function a broken subtree reports
-  through
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:22` — the root
+  marker's `template-consume` section

@@ -24,9 +24,9 @@
       - python3-pip
       - python3-setuptools
       - python3-venv
-      - shellcheck
       - tmux
       - unzip # extracts the bun release archive
+      - xz-utils # extracts the shellcheck release archive
       - ffmpeg # for rendering animations and screen captures
       - btop # for monitoring resource usage in development
     state: present

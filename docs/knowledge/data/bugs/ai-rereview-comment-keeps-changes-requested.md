@@ -9,6 +9,8 @@ sources:
 - resource: data/architecture/ai-review-event-selection.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/542
 - resource: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets
+stage: done
+severity: medium
 ---
 
 # Bug: an AI re-review that comments leaves its own change request blocking merge
@@ -49,10 +51,12 @@ which does not hold.
 
 ## Fix
 
-Not yet fixed. The reviewer stops choosing `COMMENT`: no findings or only
-non-blocking findings submit `APPROVE`, and any blocking finding submits
-`REQUEST_CHANGES`, so a clean re-review always replaces an earlier change
-request.
+Fixed by [AI review verdicts gate merge and trusted bots are
+auto-approved](../plans/20261030-ai-review-verdicts-and-bot-approval.md). The
+review event follows finding severity alone: no findings or only non-blocking
+findings submit `APPROVE`, and any blocking finding submits `REQUEST_CHANGES`.
+`COMMENT` is only the retry when GitHub rejects a verdict on the reviewer's own
+pull request, so a clean re-review always replaces an earlier change request.
 
 ## Key references
 

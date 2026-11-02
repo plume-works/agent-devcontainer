@@ -10,6 +10,7 @@ sources:
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py
 stage: done
+severity: medium
 ---
 
 # Bug: Command-result evidence is judged inconsistently

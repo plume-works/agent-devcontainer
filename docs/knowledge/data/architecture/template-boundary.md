@@ -3,13 +3,14 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-01T04:31:48Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: .devcontainer/devcontainer.json
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
+- resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 ---
 
 # Template boundary
@@ -74,10 +75,9 @@ layout](module-layout.md) for how these pieces compose internally.
 ### Adoption state
 
 The root `.agent.metadata.json` is classified per top-level key, unlike
-colocated metadata files that inherit their directory's class. Its `iwe-map`
-rules are Template content and travel with the directory whose sources they
-govern. Its `template-consume` section is consumer-created adoption state,
-written during setup and never copied from the publisher.
+colocated metadata files that inherit their directory's class. Its
+`template-consume` section is consumer-created adoption state, written during
+setup and never copied from the publisher.
 
 `.agentdev-template-progress.md` is Customize / consumer-created state. It is
 tracked in git, survives template updates, and never appears in `tracked_paths`.
@@ -91,7 +91,7 @@ the image's `agentdev-runtime`, so no lifecycle script is part of it:
 | Path                                   | Responsibility                                                                                    |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `.devcontainer/devcontainer.json`      | Dev Container entry point, the SSH feature, mounts, ports, environment, and editor configuration. |
-| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent Claude/Codex volumes.          |
+| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent agent volumes.                 |
 | `.devcontainer/devcontainer-init.sh`   | Generates host-specific Compose state and creates shared agent volumes before startup.            |
 | `.devcontainer/devcontainer-lock.json` | Locks the SSH feature digest.                                                                     |
 | `.devcontainer/firewall-allowlist.txt` | Project-owned allowlist read when the opt-in firewall starts.                                     |
@@ -100,9 +100,10 @@ the image's `agentdev-runtime`, so no lifecycle script is part of it:
 
 The default runtime intentionally retains all capabilities currently supplied
 here: supervised nested Docker; Xpra and VirtualGL desktop access; the Docker
-Desktop MCP gateway and secret socket integration; shared Claude and Codex
-authentication/configuration volumes; image-staged `agentdev` installation; the
-opt-in egress firewall; and Codespaces SSH and worktree-safe mounts.
+Desktop MCP gateway and secret socket integration; shared Claude authentication
+and per-instance agent configuration volumes; image-staged `agentdev`
+installation; the opt-in egress firewall; and Codespaces SSH and worktree-safe
+mounts.
 
 ### Agent-facing repository configuration
 
@@ -111,7 +112,6 @@ opt-in egress firewall; and Codespaces SSH and worktree-safe mounts.
 | `AGENTS.md` | Template    | Reusable safety, workflow, language, testing, and spike guidance.                        |
 | `CLAUDE.md` | Template    | Includes the root `AGENTS.md` for Claude Code.                                           |
 | `.claude/`  | Customize   | Shared Claude permissions, official plugins, local ignore rules, and explanatory README. |
-| `.codex/`   | Customize   | Explanation of where the shared catalog lives.                                           |
 
 Publisher-only instructions are scoped below `.agents/`, `.claude-plugin/`,
 `ansible/`, and `py_packages/validate_agent_files/`. Deleting those sources also
@@ -139,10 +139,6 @@ paths and must be reviewed in a copied project:
 | `.editorconfig`                      | Cross-editor whitespace and newline conventions.                                                                                                           |
 | `.gitignore`                         | Ignores devcontainer, agent, environment, test, and tool state.                                                                                            |
 
-`scripts/validate-super-linter-tool-versions.py` is deliberately not in this
-group. It checks this publisher repository's CI/tool pin synchronization and
-stays behind.
-
 ### GitHub surface
 
 The `.github/` tree is template-related, but it is mixed rather than copy-ready:
@@ -152,8 +148,8 @@ The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 | `.github/pull_request_template.md`               | Template  | A stub pointing at the `agentdev` catalog, which owns PR structure. Copy-ready precisely because it carries none: a consumer gets a pointer to the same authority, not a format that could drift from it.                                                                             |
 | `.github/pr-description-guidance.md`             | Customize | Consumer-created, absent from this publisher repository. Holds `pr-gen-description` instructions that take precedence over its default section generation; written when `template-consume` §4 captures a consumer's PR-template extras and the template is reduced to the stub above. |
 | `.github/renovate.json`                          | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                                                                                                                                                                       |
-| `.github/workflows/primary-checks.yml`           | Customize | Calls both reformatting and the optional image-building CI workflow.                                                                                                                                                                                                                  |
-| `.github/workflows/reformat.yml`                 | Customize | Calls `super_linter.py env` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                                                                                                                         |
+| `.github/workflows/primary-checks.yml`           | Customize | Runs the `pre-commit` lint gate in `container.image`, which names this image, and calls the optional image-building CI workflow.                                                                                                                                                      |
+| `scripts/pre-commit-ci-range.py`                 | Customize | Picks the files the `pre-commit` job checks; its `TOOL_VERSION_OWNERS` names this repository's tool-version files.                                                                                                                                                                    |
 | `.github/workflows/validate-agent-files.yml`     | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agentdev-devcontainer` instead.                                                                                                                                             |
 | `.github/workflows/validate-knowledge-base.yml`  | Customize | Installs `iwe`, runs `iwe schema validate`/`normalize` and `docs/knowledge/tests`; retained only when the consumer keeps an IWE knowledge base, and it shares this repository's `paths-filter`.                                                                                       |
 | `.github/workflows/renovate.yml`                 | Customize | Runs Renovate in `container.image`, which names this image, and needs a GitHub App whose client ID and private key are the `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY` secrets. `allowedCommands` names this repository's post-upgrade script.                            |
@@ -172,10 +168,10 @@ claimed to run unchanged after publisher source is removed.
 
 ### Repository presentation
 
-`README.md` and `LICENSE` are template content. The root README and the READMEs
-under `.claude/` and `.codex/` must be rewritten to remove publisher-only
-descriptions and links. The MIT license and its existing notice remain unless
-the project deliberately adopts a compatible alternative.
+`README.md` and `LICENSE` are template content. The root README and the README
+under `.claude/` must be rewritten to remove publisher-only descriptions and
+links. The MIT license and its existing notice remain unless the project
+deliberately adopts a compatible alternative.
 
 ## Optional custom-image bundle
 
@@ -270,22 +266,31 @@ The profile merges the Expo template's `AGENTS.md` into the root `AGENTS.md`,
 which therefore stops matching upstream: the consumer's progress document
 records it as customized, and update mode merges it by hand.
 
+## Native macOS host
+
+A macOS host that runs agents natively, with no devcontainer, consumes the
+`agentdev` catalog only. `bin/macos-bootstrap.zsh`, shipped inside the catalog,
+provisions it: Homebrew tools, a uv-managed Python, the release-only tools the
+image pins, and the plugin install. None of the `.devcontainer/` runtime surface
+applies to such a host — no image, lifecycle commands, MCP gateway, egress
+firewall, or shared agent volumes — and it takes no template paths. A repository
+that also keeps the devcontainer for other hosts keeps the Template surface as
+usual; the macOS host simply never starts it.
+
 ## Publisher-only source
 
 These paths stay in this repository but are deleted from a normal full template
 copy:
 
-| Path                                             | Responsibility                                                                                                                                 |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.agents/`                                       | Canonical `agentdev` plugin source: agents, skills (the `iwe-bootstrap` scaffold among them), hooks, helper commands, and plugin-script tests. |
-| `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                                                   |
-| `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                                                         |
-| `scripts/validate-super-linter-tool-versions.py` | Publisher CI consistency check.                                                                                                                |
-| `docs/knowledge/tests/test_iwe_seed.py`          | Validates the `iwe-bootstrap` scaffold in the catalog source, which no consumer keeps.                                                         |
+| Path                                    | Responsibility                                                                                                                                 |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.agents/`                              | Canonical `agentdev` plugin source: agents, skills (the `iwe-bootstrap` scaffold among them), hooks, helper commands, and plugin-script tests. |
+| `.claude-plugin/`                       | Claude marketplace manifest for the catalog.                                                                                                   |
+| `py_packages/validate_agent_files/`     | Standalone validator package source and package tests.                                                                                         |
+| `docs/knowledge/tests/test_iwe_seed.py` | Validates the `iwe-bootstrap` scaffold in the catalog source, which no consumer keeps.                                                         |
 
 After deleting `py_packages/validate_agent_files/`, remove the now-empty
-`py_packages/` wrapper and its standalone `LICENSE` as well. `scripts/` holds
-nothing but the tool-version check, so it disappears with it.
+`py_packages/` wrapper and its standalone `LICENSE` as well.
 
 `validate_agent_files` itself remains available from the agentdev images, which
 installs it at `/usr/local/bin/validate_agent_files` as an isolated `uv` tool
@@ -301,9 +306,8 @@ treated as template input: `.devcontainer/.env` (generated by
 `devcontainer-init.sh`); `.devcontainer/local.env` (ignored host-specific
 overrides); `.claude/settings.local.json` (ignored machine-specific Claude
 permissions); `.tmp/` (required scratch root for agents and audits); `.venv`,
-`.cache/`, `.pytest_cache/`, `.coverage`, and tool caches; `.ansible/`,
-`ansible/.ansible/`, and `ansible/ansible.log`; and `log/` and Super-Linter
-output.
+`.cache/`, `.pytest_cache/`, `.coverage`, and tool caches; and `.ansible/`,
+`ansible/.ansible/`, and `ansible/ansible.log`.
 
 ## Why the boundary is drawn here
 

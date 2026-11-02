@@ -3,7 +3,7 @@ type: architecture
 description: pr-review ships the reachable-scenario correctness bar with three-part scenarios validated part by part; the light validator judges whether a fault is real rather than whether each stated part holds, so a DROP's named part is diagnostic and a confirmed Outcome may overstate the harm.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-06T10:00:00Z
+  at: 2026-10-31T21:00:28Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: data/plans/20261005-pr-review-scenario-validation.md
@@ -40,10 +40,10 @@ tiers](pr-review-effort-tiers.md).
 
 ## What holds
 
-Full-effort Codex replays of #199 and #203 under the shipped skill find every
-known bug in every run — the #199 concurrency race and all five #203 bugs,
-including the out-of-diff keyring ordering — with no correctness finding judged
-noise. Every unmatched correctness finding has a matching fix in the merged pull
+Full-effort replays of #199 and #203 under the shipped skill find every known
+bug in every run — the #199 concurrency race and all five #203 bugs, including
+the out-of-diff keyring ordering — with no correctness finding judged noise.
+Every unmatched correctness finding has a matching fix in the merged pull
 request.
 
 ## Known limits

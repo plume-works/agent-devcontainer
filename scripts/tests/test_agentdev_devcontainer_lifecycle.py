@@ -11,7 +11,6 @@ import time
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
 # Runs `agentdev-runtime lifecycle` with the steps other modules own recorded instead of run;
 # the hooks, the catalog check, and the marker stay real.
 LIFECYCLE = """
@@ -29,7 +28,6 @@ def record(text, code=0):
 git.safe_directory = lambda settings: record('agentdev-runtime git safe-directory')
 git.credential_helper = lambda settings: record('agentdev-runtime git credential-helper')
 agent_state.create = lambda settings: record('agentdev-runtime state create')
-agent_state.link_codex_auth = lambda settings: record('agentdev-runtime state links')
 agent_state.apply_agent_policy = lambda: record('agentdev-runtime state agent-policy')
 workspace.Workspace.project = lambda self: record('agentdev-runtime workspace project')
 catalog.install = lambda settings, root, scope: record(
@@ -51,7 +49,6 @@ sys.exit(lifecycle.main(sys.argv[1:]))
 START_STEPS = [
     'agentdev-runtime git safe-directory',
     'agentdev-runtime git credential-helper',
-    'agentdev-runtime state links',
     'agentdev-runtime state agent-policy',
 ]
 
@@ -134,7 +131,6 @@ class Lifecycle:
         (self.workspace / '.claude-plugin').mkdir()
         (self.workspace / '.claude-plugin/marketplace.json').write_text('{}')
         (self.workspace / '.agents/plugins/agentdev/.opencode-plugin').mkdir(parents=True)
-        (self.workspace / '.agents/plugins/marketplace.json').write_text('{}')
 
     @property
     def marker(self) -> Path:
@@ -326,13 +322,3 @@ def test_a_hook_root_inside_the_workspace_is_refused(lifecycle):
 def test_a_start_without_a_supervisor_starts_cbm_before_the_start_steps(lifecycle):
     assert_ok(lifecycle.run('ready', '--no-wait'))
     assert lifecycle.calls() == ['agentdev-runtime cbm start', *START_STEPS]
-
-
-def test_the_responder_runs_each_phase_through_the_cli():
-    action = (REPO_ROOT / '.github/actions/run-claude-responder/action.yml').read_text()
-    phases = [
-        'agentdev-runtime lifecycle created',
-        'agentdev-runtime lifecycle ready --no-wait',
-        'agentdev-runtime lifecycle attached',
-    ]
-    assert [action.index(phase) for phase in phases] == sorted(action.index(p) for p in phases)

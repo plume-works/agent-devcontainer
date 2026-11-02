@@ -21,10 +21,6 @@ ansible/ansible.log
 .devcontainer/.env
 .devcontainer/local.env
 
-# Super-Linter
-super-linter-output/
-log/
-
 # Python
 __pycache__/
 *.py[cod]

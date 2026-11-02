@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Any repository can receive a blank IWE workspace from the installed agentdev catalog, directly or through template adoption, without overwriting existing knowledge.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:31:58Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/knowledge/data/plans/20260905-consumer-iwe-seed.md
 - resource: docs/knowledge/data/plans/20261023-reusable-iwe-bootstrap.md
@@ -41,14 +41,13 @@ change; any partial, incompatible, or colliding state is reported for
 reconciliation with nothing written. An interrupted run leaves only state the
 next run recognizes and discards or completes.
 
-**Onboarding stays separate.** Bootstrap names `iwe-setup` and then `iwe-map` as
-the next operations and runs neither; it adds no CI or pre-commit configuration.
+**Onboarding stays separate.** Bootstrap names `iwe-setup` as the next operation
+and does not run it; it adds no CI or pre-commit configuration.
 
 **Full adoption composes bootstrap.** Both template-consumption workflows invoke
-bootstrap, then iwe-setup followed by iwe-map from the consumer root. Workflow A
-first removes the copied publisher workspace only when it is proven
-byte-identical to the adopted ref. The onboarding skills retain their interview
-and confirmation gates, and mapping is deferred explicitly when no code exists.
+bootstrap, then iwe-setup from the consumer root. Workflow A first removes the
+copied publisher workspace only when it is proven byte-identical to the adopted
+ref. The onboarding skill retains its interview and confirmation gates.
 
 **Consumer knowledge remains consumer-owned.** Existing or partially onboarded
 knowledge is preserved and collisions are resolved with the user. Update mode

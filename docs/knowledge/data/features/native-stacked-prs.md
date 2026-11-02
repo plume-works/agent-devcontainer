@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: implemented
+stage: deprecated
 description: The PR skills merge a GitHub native stack of pull requests as one all-or-nothing operation through gh stack, route every stack branch update through gh stack, and merge every pull request explicitly instead of through auto-merge.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
+  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
@@ -52,8 +52,7 @@ guarded `publish` of a stack branch; a bare `gh stack push`, `submit`, or `sync`
 is never run.
 
 The contracts are [Stacked PRs](../spec/stacked-prs.md) and [PR merge
-conflicts](../spec/pr-merge-conflicts.md); the GitHub behavior they rest on is
-[Stacked pull requests](../architecture/stacked-prs.md).
+conflicts](../spec/pr-merge-conflicts.md).
 
 ## Edge cases
 
@@ -65,8 +64,6 @@ conflicts](../spec/pr-merge-conflicts.md); the GitHub behavior they rest on is
 - **A stack merge stops partway.** `pr-merge-stack` refreshes the remaining
   layers with `begin`, `gh stack rebase`, and `publish` and brings them to green
   again before merging the new top.
-- **A stack branch is pushed.** The guard's `publish` runs no codebase-map
-  check; CI still reports a stale map.
 - **Someone else pushed to a layer.** `begin` takes the new commits in when the
   local layer is behind, and stops for the user's decision when both sides
   moved; `publish` stops when the remote moved during the edit.
@@ -74,8 +71,7 @@ conflicts](../spec/pr-merge-conflicts.md); the GitHub behavior they rest on is
 ## Open questions
 
 None — GitHub refuses auto-merge on a stacked PR and does not support cross-fork
-stacks, both recorded in [Stacked pull
-requests](../architecture/stacked-prs.md).
+stacks.
 
 ## References
 

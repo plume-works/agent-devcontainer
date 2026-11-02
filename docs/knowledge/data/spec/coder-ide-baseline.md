@@ -3,7 +3,7 @@ type: spec
 description: How the plume-works/coder-ide-baseline Coder template runs this repository's Dev Container, and how to change, validate, and ship a template version.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T15:00:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/template/main.tf
@@ -11,7 +11,8 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/push.sh
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/README.md
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/98f892b/template/main.tf
-- resource: .devcontainer/scripts/coder-agent-start.sh
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
+- resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
 ---
 
 # Coder IDE baseline template
@@ -25,29 +26,45 @@ to work on the template.
 
 ## Requirements
 
-### Requirement: the agent-start script is the repository's only start hook
+### Requirement: the agent-start command is the repository's only start hook
 
 The template SHALL run, on every start of the Dev Container's sub-agent, the
-script that the `agent_start_script` workspace parameter names. The path is
-relative to the repository root and defaults to
-`.devcontainer/scripts/coder-agent-start.sh`. The script SHALL run under the
-sub-agent, so it inherits the agent's environment, including Coder user secrets.
-When the value is empty, or the path is not an executable file, nothing SHALL
-run and the script's log SHALL say so. The template SHALL NOT name any other
-script in this repository; new agent-start steps belong in
-`coder-agent-start.sh`.
+command that the `agent_start_script` workspace parameter names, in the
+repository checkout. The value defaults to `agentdev-runtime coder start`. The
+command SHALL run under the sub-agent, so it inherits the agent's environment,
+including Coder user secrets. The legacy value
+`.devcontainer/scripts/coder-agent-start.sh`, the template's former default,
+SHALL run the default command. When the command does not resolve but the
+checkout ships an executable `.devcontainer/scripts/coder-agent-start.sh`, that
+script SHALL run, so a workspace on an image without the CLI keeps its start.
+When the value is empty, or its first word does not resolve to a command and no
+such script exists, nothing SHALL run and the script's log SHALL say so. The
+template SHALL NOT name any other command in this repository; new agent-start
+steps belong in `agentdev-runtime coder start`.
 
-#### Scenario: the repository ships the script
+#### Scenario: the repository ships the CLI
 
 - **WHEN** the workspace starts with the default parameter value
-- **THEN** `coder-agent-start.sh` runs in the Dev Container with the Coder user
-  secrets in its environment.
+- **THEN** `agentdev-runtime coder start` runs in the Dev Container with the
+  Coder user secrets in its environment.
 
-#### Scenario: another repository has no agent-start script
+#### Scenario: a workspace stored the legacy script path
 
-- **WHEN** the configured path does not exist in the checkout
-- **THEN** the start script logs that the repository ships no agent-start script
-  and exits without error.
+- **WHEN** the workspace starts with `agent_start_script` set to
+  `.devcontainer/scripts/coder-agent-start.sh`
+- **THEN** `agentdev-runtime coder start` runs, as it would for the default.
+
+#### Scenario: an image without the CLI still ships the script
+
+- **WHEN** `agentdev-runtime` does not resolve and the checkout ships an
+  executable `.devcontainer/scripts/coder-agent-start.sh`
+- **THEN** that script runs with the Coder user secrets in its environment.
+
+#### Scenario: another repository has no agent-start command
+
+- **WHEN** the configured command does not resolve in the Dev Container
+- **THEN** the start script logs that the repository ships no agent-start
+  command and exits without error.
 
 ### Requirement: Coder user secrets reach only agent-started processes
 
@@ -55,12 +72,12 @@ Dev Container lifecycle hooks (`postCreateCommand`, `postStartCommand`) run
 inside `devcontainer up`, before Coder injects its agent into the container.
 They SHALL NOT depend on Coder user secrets or on the agent's environment
 (`GITHUB_TOKEN`, `CODER_*`, `GIT_ASKPASS`). Setup that needs them SHALL run from
-the agent-start script.
+the agent-start command.
 
 #### Scenario: setup needs a user secret
 
 - **WHEN** a setup step needs `GITHUB_TOKEN` supplied as a Coder user secret
-- **THEN** it runs from `coder-agent-start.sh`, not from post-start.
+- **THEN** it runs from `agentdev-runtime coder start`, not from post-start.
 
 ### Requirement: start scripts never wait for the Dev Container
 
@@ -122,7 +139,7 @@ it opens is specified in [OpenCode web](opencode-web.md).
 
 #### Scenario: the repository runs OpenCode
 
-- **WHEN** the repository's agent-start script started the OpenCode server
+- **WHEN** the repository's agent-start command started the OpenCode server
   (`opencode serve`)
 - **THEN** the dashboard shows a healthy `OpenCode` app that loads the web UI,
   from whose project picker `/workspaces/<repository>` opens.
@@ -201,9 +218,9 @@ ends the CLI with the workspace, so a self-update leaves it stopped and still
 outdated. Recover with `coder update <workspace>` from elsewhere.
 
 A workspace that has not yet restarted on a version that runs
-`coder-agent-start.sh` has no github.com credential helper. There, `git push`
-over HTTPS hangs on Coder's `GIT_ASKPASS` ([Bug: HTTPS git push hangs on Coder's
-askpass when gh's login is only a session
+`agentdev-runtime coder start` has no github.com credential helper. There,
+`git push` over HTTPS hangs on Coder's `GIT_ASKPASS` ([Bug: HTTPS git push hangs
+on Coder's askpass when gh's login is only a session
 token](../bugs/coder-askpass-push-hang.md)). Push with a one-off helper instead,
 which changes no git config:
 

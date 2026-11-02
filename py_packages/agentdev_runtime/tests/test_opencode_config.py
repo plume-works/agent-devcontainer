@@ -30,3 +30,15 @@ def test_a_non_object_config_is_refused(tmp_path: Path) -> None:
     (tmp_path / 'opencode.json').write_text('[]')
     with pytest.raises(ValueError):
         opencode_config.configure(tmp_path)
+
+
+def test_a_configured_file_keeps_its_key_order(tmp_path: Path) -> None:
+    opencode_config.configure(tmp_path)
+    config = tmp_path / 'opencode.json'
+    document = json.loads(config.read_text())
+    document['plugin'] = ['/catalog/.opencode-plugin']
+    document['mcp'] = {'cbm': {'type': 'local'}}
+    config.write_text(json.dumps(document, indent=2) + '\n')
+    before = config.read_bytes()
+    opencode_config.configure(tmp_path)
+    assert config.read_bytes() == before

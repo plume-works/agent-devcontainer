@@ -4,7 +4,7 @@ stage: implemented
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks refresh checksum pins, lock files, and pre-commit output in the same commit as a bump.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T20:30:00Z
+  at: 2026-11-01T04:32:17Z
 sources:
 - id: roles
   resource: ansible/roles
@@ -66,8 +66,7 @@ never fire.
 comment naming its datasource, the way the version-only pins already do. On a
 bump, a post-upgrade command recomputes every architecture's SHA-256 from the
 release asset and rewrites it in place; `fileFilters` narrows what that command
-is allowed to contribute to the commit. zizmor is the exception: its version
-belongs to the Super-Linter parity contract and moves only with it.
+is allowed to contribute to the commit.
 
 **Derived files move with the bump.** The same post-upgrade command regenerates
 the devcontainer lock when a feature reference changes and runs pre-commit on
@@ -83,12 +82,6 @@ request, because the build failure it causes surfaces far from its cause.
 **Every agent-desktop reference shares one pin.** Workflow jobs that run in the
 image pin the same digest as the devcontainer, moved together by one group, and
 a required check runs inside the new digest before a bump can merge.
-
-**Digest masks extend to the new pins.** Automerged bumps would otherwise mark
-every map doc sourcing `ansible` or `.github` stale while its prose stays
-accurate — the defect recorded in [Pin bumps invalidate map
-docs](../bugs/pin-bumps-invalidate-map-docs.md). The format and its resolution
-are [Agent metadata files](../architecture/agent-metadata-files.md).
 
 ## Scope
 

@@ -1,6 +1,6 @@
-# `agentdev` — a shared agent catalog for Claude Code, Codex, and OpenCode
+# `agentdev` — a shared agent catalog for Claude Code and OpenCode
 
-A Claude Code, Codex, and OpenCode plugin with the agents, skills, and helper scripts for
+A Claude Code and OpenCode plugin with the agents, skills, and helper scripts for
 everyday development work: git and pull requests, code review, CI log triage,
 formatting and linting, and escalating a command to a container or Codespace when
 the host lacks the toolchain.
@@ -35,12 +35,6 @@ and no trailing commas (unlike `devcontainer.json`):
 
 Restart Claude Code (or run `/plugin`) and the catalog is available.
 
-The same `.agents/plugins/agentdev/` directory is packaged for Codex by
-`.codex-plugin/plugin.json`; its agents and skills remain the same canonical
-files. This repository's devcontainer installs the staged plugin during
-`postCreateCommand` and refreshes the workspace copy on every editor attachment;
-start a new Codex session after attaching or reloading the window.
-
 ## Installing in OpenCode
 
 OpenCode reads the same directory through the bridge plugin in
@@ -63,6 +57,45 @@ absolute path in the `plugin` array of your OpenCode config — the project's
 
 The bridge has no dependencies to install. Restart OpenCode to load it.
 
+## Native macOS
+
+To run the catalog on a Mac without the devcontainer, install
+[Homebrew](https://brew.sh) and then run the bootstrap with macOS's own zsh:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/plume-works/agent-devcontainer/main/.agents/plugins/agentdev/bin/macos-bootstrap.zsh | zsh
+```
+
+Once the plugin is enabled, the same script is on `PATH` as
+`macos-bootstrap.zsh`, so re-running it is a plain command. Every step is safe
+to repeat. It changes the host in these ways:
+
+- **Homebrew packages** — `uv`, `jq`, `gh`, `shellcheck`, `bun`, `pre-commit`,
+  and the `claude-code` cask, at whatever version Homebrew ships.
+- **Python** — `uv python install --default` puts the Python version the catalog
+  is tested on in `~/.local/bin` as `python3`.
+- **`~/.local/bin`** — `iwe`, `iwes`, and `codebase-memory-mcp` from their
+  GitHub releases, at the versions the devcontainer image pins, each verified
+  against a recorded SHA-256.
+- **`~/.zprofile`** — one block between `# >>> agentdev macos-bootstrap >>>`
+  markers that loads `brew shellenv` and puts `~/.local/bin` first on `PATH`.
+  A re-run rewrites that block and leaves the rest of the file alone.
+- **`~/.config/fish/conf.d/agentdev.fish`** — when fish is installed or is your
+  login shell, the same kind of block for fish: `brew shellenv fish`, then
+  `fish_add_path` for `~/.local/bin`.
+- **Plugins** — registers this marketplace in Claude Code at user scope and
+  installs `agentdev`; Claude Code is the only agent it configures. Pass
+  `--skip-plugins` (`curl ... | zsh -s -- --skip-plugins`) to leave Claude
+  Code's plugins untouched.
+
+It ends by checking every tool and the `python3` from a fresh zsh login shell,
+and `python3` again from your `$SHELL` when that is not zsh, and exits nonzero
+naming whatever failed. A shell configuration that later puts another `python3`
+first, such as a `config.fish` that re-runs `brew shellenv`, fails that check. Open a new terminal afterwards to pick up
+the `PATH` change. Docker-backed skills such as `microvm-sandbox` are
+not set up; escalate those to a Codespace with
+`remote-codespace-session`.
+
 ## Using it
 
 Skills are namespaced by the plugin name — `/agentdev:pr-open`,
@@ -79,7 +112,7 @@ the tools its definition lists. A skill that opts out of model invocation stays
 available as its command only.
 
 Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
-`super_linter.py local` or `python_lint_check.py` directly in a terminal.
+`python_lint_check.py` directly in a terminal.
 
 ### Agents
 
@@ -100,7 +133,6 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:git-new-branch`         | Start a work branch at the fetched remote base, with its own upstream.  |
 | `/agentdev:git-merge-resolve`      | Merge a ref and resolve conflicts, escalating when unsure.              |
 | `/agentdev:update-branch`          | Update the current feature branch from its remote base.                 |
-| `/agentdev:gh-stack`               | Drive `gh stack` non-interactively; vendored from `github/gh-stack`.    |
 | `/agentdev:pr-open`                | Open a PR from conversation context, or refresh the branch existing PR. |
 | `/agentdev:pr-sync`                | Resync the branch PR title and body, delegating to `pr-open`.           |
 | `/agentdev:pr-gen-description`     | Write a PR description from the change analysis.                        |
@@ -109,19 +141,18 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:pr-eval-review-needed`  | Decide if pushed work needs a fresh AI review, and request it.          |
 | `/agentdev:pr-request-ai-review`   | Ask an AI agent to review a PR.                                         |
 | `/agentdev:pr-merge`               | Merge a PR with an explicit squash once CI and reviews are resolved.    |
-| `/agentdev:pr-merge-stack`         | Bring every layer of a GitHub stack to green, then merge it at once.    |
+| `/agentdev:pr-restack-all`         | Restack a chain of dependent PRs with merges after one moves or merges. |
+| `/agentdev:pr-merge-stack`         | Merge a chain of dependent PRs bottom-up, restacking after each merge.  |
 
 #### Review, CI, and formatting
 
-| Skill                                       | What it does                                             |
-| ------------------------------------------- | -------------------------------------------------------- |
-| `/agentdev:code-review-standards`           | The review standards the other review skills apply.      |
-| `/agentdev:exec-summary`                    | One-minute, non-technical summary of the work in focus.  |
-| `/agentdev:extract-github-actions-logs`     | Pull failing job logs out of a workflow run.             |
-| `/agentdev:get-codeql-data`                 | Fetch CodeQL code-scanning alerts.                       |
-| `/agentdev:local-reformat`                  | Run the full reformat workflow locally via Super-Linter. |
-| `/agentdev:semantic-refactor-audit`         | Prove a behavior-preserving rewrite preserved behavior.  |
-| `/agentdev:sync-super-linter-tool-versions` | Realign local tools with the pinned Super-Linter image.  |
+| Skill                                   | What it does                                            |
+| --------------------------------------- | ------------------------------------------------------- |
+| `/agentdev:code-review-standards`       | The review standards the other review skills apply.     |
+| `/agentdev:exec-summary`                | One-minute, non-technical summary of the work in focus. |
+| `/agentdev:extract-github-actions-logs` | Pull failing job logs out of a workflow run.            |
+| `/agentdev:get-codeql-data`             | Fetch CodeQL code-scanning alerts.                      |
+| `/agentdev:semantic-refactor-audit`     | Prove a behavior-preserving rewrite preserved behavior. |
 
 #### Specs and escalation
 
@@ -137,31 +168,30 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 #### Knowledge-graph workflow (IWE)
 
 These skills run against an [IWE](https://iwe.md) workspace — a markdown
-knowledge graph with a `data/` bundle of product, spec, architecture, plan,
-and codebase-map documents. They are the project's memory across sessions.
+knowledge graph with a `data/` bundle of product, spec, architecture, and plan
+documents. They are the project's memory across sessions.
 
-| Skill                         | What it does                                                         |
-| ----------------------------- | -------------------------------------------------------------------- |
-| `/agentdev:iwe-bootstrap`     | Installs a blank IWE workspace without touching existing knowledge.  |
-| `/agentdev:iwe-setup`         | Brownfield onboarding: drafts the product and architecture docs.     |
-| `/agentdev:iwe-map`           | Codebase archaeology: writes and refreshes the `data/codebase/` map. |
-| `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code.  |
-| `/agentdev:iwe-plan`          | Files a plan with verified anchors and its spec impact.              |
-| `/agentdev:iwe-capture`       | Files a complete bug, proposed feature, or task, deduplicated.       |
-| `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.           |
-| `/agentdev:iwe-implement-all` | Implements every active plan in turn.                                |
-| `/agentdev:iwe-branch-name`   | Names a plan's next `iwe/` iteration branch.                         |
-| `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.    |
-| `/agentdev:iwe-ship`          | Closes the loop: spec sync, stage flips, release recording.          |
-| `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                                |
-| `/agentdev:iwe-weekly`        | Read-only digest: shipped, in flight, bugs, backlog, graph health.   |
-| `/agentdev:iwe-audit`         | Prunes session residue from documents and comments.                  |
+| Skill                         | What it does                                                        |
+| ----------------------------- | ------------------------------------------------------------------- |
+| `/agentdev:iwe-bootstrap`     | Installs a blank IWE workspace without touching existing knowledge. |
+| `/agentdev:iwe-setup`         | Brownfield onboarding: drafts the product and architecture docs.    |
+| `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code. |
+| `/agentdev:iwe-plan`          | Files a plan with verified anchors and its spec impact.             |
+| `/agentdev:iwe-capture`       | Files a complete bug, proposed feature, or task, deduplicated.      |
+| `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.          |
+| `/agentdev:iwe-implement-all` | Implements every active plan in turn.                               |
+| `/agentdev:iwe-branch-name`   | Names a plan's next `iwe/` iteration branch.                        |
+| `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.   |
+| `/agentdev:iwe-ship`          | Closes the loop: spec sync, stage flips, release recording.         |
+| `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                               |
+| `/agentdev:iwe-weekly`        | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |
+| `/agentdev:iwe-audit`         | Prunes session residue from documents and comments.                 |
 
 ## What it expects
 
 Most skills shell out to tools rather than reimplementing them. Depending on
 which ones you use, you will need `git`, an authenticated `gh` CLI, Docker (for
-`microvm-sandbox` and Super-Linter), and `uv` for the Python skills. The
+`microvm-sandbox`), and `uv` for the Python skills. The
 [devcontainer image](https://github.com/plume-works/agent-devcontainer) ships
 all of them preinstalled, but the plugin works in any environment that has the
 tools a given skill needs.
@@ -183,4 +213,4 @@ package happens to live alongside it.
 
 `.agents/plugins/agentdev/` is the canonical source for the catalog, and this repository is where
 it is developed. See the [repository README](https://github.com/plume-works/agent-devcontainer#the-agent-catalog) for
-the editing rules, the `.codex/` mirror, and how to validate a change.
+the editing rules and how to validate a change.

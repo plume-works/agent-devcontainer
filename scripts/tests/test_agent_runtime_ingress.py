@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 from collections.abc import Iterator
 from contextlib import contextmanager
+import itertools
 import json
 import os
 from pathlib import Path
@@ -28,6 +29,20 @@ COMMAND = [sys.executable, '-m', 'agentdev_runtime', 'opencode']
 START_XPRA = [sys.executable, '-m', 'agentdev_runtime', 'xpra']
 PASSWORD = 'p@ss "quoted" \\ word'
 XPRA_SECRET = 'xpra-ingress-secret'
+# X displays are host-global; each xdist worker owns a block, clear of the runtime's :100.
+# See bugs/xpra-test-displays-collide-under-xdist.
+DISPLAY_BASE, DISPLAY_BLOCK, ROTATING_SLOTS = 200, 20, 10
+CRASH_SLOT = ROTATING_SLOTS
+_rotating_slot = itertools.count()
+
+
+def worker_display(slot: int | None = None) -> str:
+    """Return a display in this worker's block; without ``slot``, the next rotating one."""
+    worker = os.environ.get('PYTEST_XDIST_WORKER', '')
+    index = int(worker.removeprefix('gw')) if worker.startswith('gw') else 0
+    if slot is None:
+        slot = next(_rotating_slot) % ROTATING_SLOTS
+    return f':{DISPLAY_BASE + DISPLAY_BLOCK * index + slot}'
 
 
 def free_port() -> int:
@@ -235,7 +250,7 @@ def supervised_xpra(scratch: Path, password: str | None) -> Iterator[tuple[int, 
     if shutil.which('xpra') is None:
         pytest.skip('requires xpra')
     port = free_port()
-    display = f':{200 + (os.getpid() + port) % 500}'
+    display = worker_display()
     env = xpra_env(scratch, password)
     server = subprocess.Popen(
         [*START_XPRA, '--supervised', '--port', str(port), '--display', display],
@@ -315,7 +330,7 @@ def test_supervised_xpra_refuses_to_duplicate_a_live_session(xpra):
 def test_supervised_xpra_reclaims_the_display_after_a_crash(scratch: Path):
     if shutil.which('xpra') is None:
         pytest.skip('requires xpra')
-    port, display = free_port(), f':{700 + os.getpid() % 200}'
+    port, display = free_port(), worker_display(CRASH_SLOT)
     env = xpra_env(scratch, XPRA_SECRET)
     command = [*START_XPRA, '--supervised', '--port', str(port), '--display', display]
     crashed = subprocess.Popen(

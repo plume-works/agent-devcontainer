@@ -148,8 +148,6 @@ def ready(settings: env.Settings, wait: bool) -> None:
     git.safe_directory(settings)
     # After the keyring: gh may keep its login there.
     check(git.credential_helper(settings), 'the git credential helper setup')
-    # Repairs the shared auth.json symlink a `codex logout` can destroy.
-    agent_state.link_codex_auth(settings)
     with agent_state.config_lock(settings):
         agent_state.apply_agent_policy()
     hooks.run(settings, 'started')

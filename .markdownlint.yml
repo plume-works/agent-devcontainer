@@ -1,4 +1,4 @@
-# Aligned with the Prettier pass that Super-Linter runs, which owns wrapping.
+# Aligned with the Prettier pre-commit hook, which owns wrapping.
 default: true
 MD013: false # line length — Prettier owns formatting
 MD024:

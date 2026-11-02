@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: high
 description: iwe-shipper never checks a plan's `## Depends on`, so Ship and the ship-all coordinator can ship a plan whose prerequisite is still active — including one that came back Blocked earlier in the same ship-all run.
 generated:
   by: claude-code/opus-5.5
@@ -9,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
+rank: 550
 ---
 
 # Bug: Ship ships a plan whose prerequisite has not shipped
@@ -45,13 +48,12 @@ dependency check"). `iwe-shipper.agent.md` has no equivalent step in its normal
 shipping path, and `iwe-ship-all` only orders dispatches by `## Depends on`; it
 does not act on a prerequisite's outcome.
 
-## Fix
+## Potential solution
 
-Unfixed. Direction: a `## Depends on` check in the Shipper's normal-shipping
-path — every prerequisite plan must carry `stage: done`, otherwise a Ship
-blocker report naming the unshipped prerequisite, before Verify and with no
-mutation. That mirrors the implementer's check and covers both `iwe-ship` and
-`iwe-ship-all`.
+A `## Depends on` check in the Shipper's normal-shipping path — every
+prerequisite plan must carry `stage: done`, otherwise a Ship blocker report
+naming the unshipped prerequisite, before Verify and with no mutation. That
+mirrors the implementer's check and covers both `iwe-ship` and `iwe-ship-all`.
 
 ## Key references
 

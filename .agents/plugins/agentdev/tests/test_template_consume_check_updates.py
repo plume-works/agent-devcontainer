@@ -327,7 +327,7 @@ def test_check_updates_reports_no_marker_when_section_is_absent(
     consumer_dir = plugin_tmp_path / 'fixture-consumer-no-section'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
-    (consumer_dir / '.agent.metadata.json').write_text(json.dumps({'iwe-map': {}}))
+    (consumer_dir / '.agent.metadata.json').write_text(json.dumps({'other-skill': {}}))
     _run_git(['add', '-A'], consumer_dir)
     _run_git(['commit', '-m', 'init'], consumer_dir)
 

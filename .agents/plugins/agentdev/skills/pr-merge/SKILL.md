@@ -34,18 +34,16 @@ asks to change that state.
   gh auth status
   ```
 
-- Check whether the PR belongs to a GitHub stack and, if so, whether it is the
-  lowest unmerged layer:
+- Check the PR's base branch:
 
   ```bash
-  gh api "repos/{owner}/{repo}/pulls/<pr>" \
-    --jq '{stack: .stack.number, trunk: .stack.base.ref, base: .base.ref}'
+  gh pr view <pr> --json baseRefName --jq .baseRefName
   ```
 
-  A null `stack` is an ordinary PR. A stacked PR whose `base` equals `trunk` is
-  the lowest unmerged layer: GitHub retargets the next layer to the trunk when
-  the layer below merges. A stacked PR whose `base` differs from `trunk` has
-  unmerged layers below it; hand it to `/agentdev:pr-merge-stack` and stop.
+  This skill merges only into `main`. A PR based on any other branch is a
+  dependent pull request with unmerged pull requests below it: stop without
+  merging, and point the user at `/agentdev:pr-merge-stack` for its top pull
+  request.
 
 - Work from an isolated worktree. If the caller did not provide one, create
   one under `./.tmp/` after resolving the PR number and head branch.
@@ -59,10 +57,6 @@ asks to change that state.
   git -C ./.tmp/pr-merge-<pr> branch --set-upstream-to=origin/<head-branch>
   ```
 
-  For a stacked PR, create the worktree detached and run
-  `gh stack checkout <pr>` inside it instead of the private branch, so
-  `gh stack` tracks the layers under their own names.
-
   Run all local inspection, tests, commits, and pushes from that worktree.
   Push its `HEAD` only to the resolved PR head branch; never push its private
   `pr-merge-worktree/<pr>` name. The upstream set above is what makes the push
@@ -75,40 +69,12 @@ asks to change that state.
   unresolved review threads. Keep this state in the conversation; do not post
   progress comments to the PR.
 - Work only on the PR head branch. Preserve unrelated local changes, never
-  force-push outside the gh-stack skill's guarded `publish`, and never update its base branch unless
+  force-push, and never update its base branch unless
   the user explicitly requests it. This skill's merge workflow authorizes disabling auto-merge and
   performing the final squash merge.
 - A remediation requested by this skill is authorized by the user request to
   make the PR mergeable. Still stop for a genuinely ambiguous review request
   and ask for clarification in that review thread.
-
-## Reformat Workflow Synchronization
-
-`reformat.yml` can push a formatting commit to the PR branch as its job
-finishes. Treat its completion as a possible head change, not as proof that
-the checks and reviews already observed apply to the final branch state.
-
-Track every `reformat.yml` run for the current PR head. After such a run
-reaches `completed`, immediately refresh the PR head and fast-forward the
-isolated worktree:
-
-```bash
-gh run list --workflow=reformat.yml --branch <head-branch> \
-  --json databaseId,status,conclusion,headSha,updatedAt,url --limit 20
-gh pr view <pr> --json headRefName,headRefOid
-git -C <worktree> fetch origin <head-branch>
-git -C <worktree> merge --ff-only origin/<head-branch>
-```
-
-The fetch plus fast-forward merge is the required local pull of any formatter
-commit. On a stacked PR, follow it with the guarded edit workflow of
-[gh-stack](../gh-stack/SKILL.md) — the guard's `begin`,
-`gh stack rebase --upstack`, then `publish`: the layers above no longer contain
-the new tip. If the PR head SHA changed, record the new SHA and restart the
-monitoring loop from step 1: CI, AI review, feedback, and merge state must all
-be re-evaluated for that new head. If the fast-forward fails, do not create an
-automatic merge; report the local divergence and resolve it only through the
-normal focused-remediation workflow.
 
 ## Disable Auto-Merge Once
 
@@ -175,10 +141,6 @@ to check later.
    If the execution environment limits a long-running command, run bounded
    waits and immediately continue the loop. A `--watch` non-zero exit caused
    by a failed check is a state change to investigate, not a reason to stop.
-   When a `reformat.yml` run associated with the observed head has completed,
-   perform **Reformat Workflow Synchronization** before classifying checks. If
-   it pushed a formatter commit, restart at step 1 and do not act on the stale
-   checks or reviews.
 
 4. Classify every completed non-success check before changing code:
    - A GitHub Actions failure: use
@@ -200,10 +162,7 @@ to check later.
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
    `agent-code/push-branch.py`, handling its result as that skill's step 8 does.
-   On a stacked PR, run the guard's `begin` before the commit, then
-   `gh stack rebase --upstack` and the guard's `publish`, through
-   [gh-stack](../gh-stack/SKILL.md) instead, so every layer above carries the
-   fix. After the push, apply
+   After the push, apply
    [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) and report its
    decision. Restart the loop from step 1 because the head SHA and checks have
    changed.
@@ -215,9 +174,8 @@ to check later.
    piecemeal. Its resolved-thread filtering and confidence rules are mandatory.
 
 7. If feedback leads to a push, restart at step 1. If no actionable feedback
-   remains, refresh checks and merge state once more. Perform **Reformat
-   Workflow Synchronization** after that final refresh as well. If it changes
-   the head SHA, restart at step 1. Otherwise, perform the final squash merge.
+   remains, refresh checks and merge state once more. If the head SHA changed,
+   restart at step 1. Otherwise, perform the final squash merge.
 
 ## Final Squash Merge
 
@@ -228,12 +186,8 @@ head SHA, merge the PR explicitly:
 gh pr merge <pr> --squash
 ```
 
-A stacked PR cannot be merged with `gh pr merge`; merge the lowest unmerged
-layer with:
-
-```bash
-gh stack merge <pr> --yes --squash
-```
+Confirm first that the base is still `main`, and never pass `--admin`: a merge
+GitHub refuses is reported as a blocker, never forced through.
 
 Refresh the PR afterwards and confirm that its state is `MERGED`. If GitHub
 rejects the merge because the state changed, return to the monitoring loop;
@@ -261,11 +215,12 @@ it are filed on the head commit and listed by `gh pr checks`.
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
    `request-review.py` toggles the author's assignment at most once per head
-   SHA. On `ALREADY_REQUESTED`, a responder check already covers this head:
-   confirm it started as that skill describes and wait on the head's checks;
-   never request again. On
-   `ALREADY_REVIEWED`, an accepted review already names the head and the failed
-   gate predates it; report that instead of requesting.
+   and title and description. On `ALREADY_REQUESTED`, a responder check
+   already covers this head: confirm it started as that skill describes and
+   wait on the head's checks; never request again. On `ALREADY_REVIEWED`, an
+   accepted review newer than the last title or description edit already names
+   the head and the failed gate predates it; report that instead of
+   requesting.
 
 4. Wait until the latest `ai-review-present` run on the head completes — it
    finishes in the same run as the review — then refresh both `gh pr checks`
@@ -294,4 +249,5 @@ evidenced.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
   AI responder workflow.
 - [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — request the
-  review by assignee toggle, at most once per head SHA, and confirm it started.
+  review by assignee toggle, at most once per head and title and description,
+  and confirm it started.

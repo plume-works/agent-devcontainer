@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-08-16
-stage: planned
+stage: pending
 priority: medium
 description: Exercise the REMOVED Requirements delta operation end to end, which the risk-scaled spec-delta work specified but never ran against a real retirement.
 generated:
@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: docs/knowledge/data/plans/20260816-structured-plan-spec-deltas.md
+rank: 1800
 ---
 
 # Exercise REMOVED delta blocks end to end

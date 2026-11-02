@@ -13,6 +13,7 @@ sources:
 - resource: .devcontainer/scripts/opencode-web-start.sh
 stage: done
 completed: 2026-10-20
+released: 2.0.0
 ---
 
 # Port the IWE workflow e2e suite to pytest

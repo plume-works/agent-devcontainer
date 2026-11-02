@@ -3,16 +3,16 @@ type: spec
 description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-11-01T03:25:00Z
 sources:
-- resource: .devcontainer/scripts/runtime-supervisor.py
-- resource: .devcontainer/scripts/runtime-remote-control.sh
-- resource: .devcontainer/scripts/runtime-bootstrap.sh
-- resource: .devcontainer/scripts/runtime-workspace.sh
-- resource: .devcontainer/scripts/runtime-health.sh
-- resource: .devcontainer/scripts/runtime-docker.sh
-- resource: .devcontainer/scripts/runtime-firewall.sh
-- resource: .devcontainer/scripts/setup-pre-commit.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/firewall.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/deploy/supervisord.conf
 - resource: compose.opencode.yml
@@ -38,9 +38,9 @@ tmux/failure semantics.
 `ghcr.io/plume-works/agentdev-deploy` SHALL derive from the corresponding digest
 of `agentdev-base`, provide linux/amd64 and linux/arm64 images, and start its
 environment without Coder, a Dev Containers client, or project scaffolding. It
-SHALL keep Claude Code and Codex available without autostarting them, except
-Claude Remote Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL omit
-Docker MCP gateway integration.
+SHALL keep Claude Code available without autostarting it, except Claude Remote
+Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, SHALL NOT install Codex, and
+SHALL omit Docker MCP gateway integration.
 
 #### Scenario: an ordinary checkout is mounted
 
@@ -127,12 +127,12 @@ runtime degraded. A checkout that cannot be used SHALL latch the runtime failed.
 
 The runtime SHALL persist workspace, instance home/configuration, keyrings,
 caches/environments, OpenCode provider logins and sessions, and nested Docker
-storage. Only Claude and Codex provider credentials SHALL be shared across
-project containers; OpenCode provider logins SHALL stay with the instance.
-Startup SHALL repair the shared credential links and reconcile managed
-client/catalog configuration after mounts on every container start while
-preserving unrelated settings and session data. It SHALL NOT add shared
-interactive GitHub-login storage.
+storage. Only Claude provider credentials SHALL be shared across project
+containers; OpenCode provider logins SHALL stay with the instance. Startup SHALL
+repair the shared credential links and reconcile managed client/catalog
+configuration after mounts on every container start while preserving unrelated
+settings and session data. It SHALL NOT add shared interactive GitHub-login
+storage.
 
 #### Scenario: an image is upgraded with existing volumes
 
@@ -144,8 +144,8 @@ interactive GitHub-login storage.
 
 - **WHEN** same-ID containers mount the same agent-auth volume and different
   instance volumes
-- **THEN** they see shared Claude and Codex credentials but have independent
-  OpenCode logins, sessions, keyring databases, caches, and Docker engines.
+- **THEN** they see shared Claude credentials but have independent OpenCode
+  logins, sessions, keyring databases, caches, and Docker engines.
 
 ### Requirement: services have supervised bounded recovery
 
@@ -203,15 +203,15 @@ default with an explicit disable option.
 ### Requirement: runtime state is reported, persisted, and retried explicitly
 
 The runtime SHALL report one state, `pending`, `ready`, `degraded`, or `failed`,
-with each component's status, through `runtime-health.sh status`. Container
-health SHALL be healthy only while a live controller reports `ready` and the
-core probes pass. Every latched failure SHALL write a bounded record to the home
-volume: startup ID, phase, command, exit status, output tail, and time. Startup
-SHALL NOT delete that record. A failed or degraded runtime SHALL resume only
-through an explicit `runtime-supervisor.py retry`, never by an automatic rerun
-of preparation. Boolean settings SHALL accept only documented true and false
-spellings, and counts and deadlines SHALL be positive; any other value SHALL
-latch a configuration failure naming the variable.
+with each component's status, through `agentdev-runtime health status`.
+Container health SHALL be healthy only while a live controller reports `ready`
+and the core probes pass. Every latched failure SHALL write a bounded record to
+the home volume: startup ID, phase, command, exit status, output tail, and time.
+Startup SHALL NOT delete that record. A failed or degraded runtime SHALL resume
+only through an explicit `agentdev-runtime supervisor retry`, never by an
+automatic rerun of preparation. Boolean settings SHALL accept only documented
+true and false spellings, and counts and deadlines SHALL be positive; any other
+value SHALL latch a configuration failure naming the variable.
 
 #### Scenario: a failure is inspected later
 
@@ -228,7 +228,7 @@ latch a configuration failure naming the variable.
 
 #### Scenario: an operator retries
 
-- **WHEN** `runtime-supervisor.py retry` runs after the cause is removed
+- **WHEN** `agentdev-runtime supervisor retry` runs after the cause is removed
 - **THEN** the runtime resumes from the failed component in the same container
   and reports ready on success.
 

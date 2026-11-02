@@ -102,7 +102,7 @@ runs:
         CBM_CACHE_DIR: ${{ github.workspace }}/.cache/codebase-memory-mcp
         UV_PROJECT_ENVIRONMENT: /opt/ci-venv
       run: |
-        mkdir -p /root/.claude /root/.codex
+        mkdir -p /root/.claude
         # A pinned image built before the runtime package lacks the CLI. The build
         # runs on a copy so its build/ tree stays out of the reviewed checkout.
         if ! command -v agentdev-runtime >/dev/null; then

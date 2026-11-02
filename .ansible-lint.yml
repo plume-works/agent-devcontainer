@@ -1,6 +1,4 @@
 ---
-# Mirrors Super-Linter's bundled defaults, which this file replaces wholesale,
-# plus the collection handling below.
 quiet: true
 
 skip_list:
@@ -16,17 +14,6 @@ skip_list:
 use_default_rules: true
 verbosity: 1
 
-# The Super-Linter image ships no Ansible collections, so syntax-check cannot
-# resolve community.docker and fails fatally. Galaxy installs are not possible
-# from inside the linter container, so declare the modules instead; they stay
-# resolvable offline and are installed for real by docker/ansible/setup-ansible.sh.
-# Mocked modules carry no argument spec, so they emit non-fatal args[module]
-# warnings. That rule is deliberately left enabled to keep validating every
-# other module.
+# The roles' collections come from the uv-locked `ansible` package, so lint
+# never installs requirements.yml into the checkout.
 offline: true
-
-mock_modules:
-  - community.docker.docker_container
-  - community.docker.docker_container_exec
-  - community.docker.docker_image
-  - community.docker.docker_image_pull

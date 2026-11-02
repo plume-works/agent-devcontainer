@@ -1,16 +1,15 @@
 ---
 type: architecture
-description: The codebase-memory-mcp daemon is one per account per rendezvous directory; a supervisor drives it only through daemon start/status/stop, identifies a generation by PID plus start time, and must close MCP clients before stopping it. Startup only submits an async index request, and cbm's Codex hooks live in hooks.json.
+description: The codebase-memory-mcp daemon is one per account per rendezvous directory; a supervisor drives it only through daemon start/status/stop, identifies a generation by PID plus start time, and must close MCP clients before stopping it. Startup only submits an async index request.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T08:34:10Z
+  at: 2026-10-31T20:58:57Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: scripts/tests/test_agent_runtime_cbm.py
 - resource: https://github.com/DeusData/codebase-memory-mcp/blob/v0.12.1/src/daemon/ipc.c
 - resource: https://github.com/DeusData/codebase-memory-mcp/blob/v0.12.1/src/daemon/bootstrap.c
 - resource: https://github.com/DeusData/codebase-memory-mcp/blob/v0.12.1/src/cli/activation_transaction.c
-- resource: py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
 - resource: .devcontainer/devcontainer.json
 ---
@@ -85,27 +84,3 @@ An async job needs a daemon that outlives the request. Without one, the CLI's
 temporary daemon would cancel the job when the command exits, so CBM refuses it
 with an MCP error. The request therefore follows `daemon start`, and the
 standalone index one-shot depends on the supervised CBM daemon.
-
-## Codex hooks live in hooks.json
-
-cbm writes its Codex `SessionStart` and `SubagentStart` hooks to
-`$CODEX_HOME/hooks.json` when that file exists, and otherwise to a marked block
-at the end of `config.toml`. Codex rewrites `config.toml` and inserts its own
-tables above a trailing comment marker, which breaks the block apart (see [Bug:
-Codex tables inside cbm's hooks
-block](../bugs/cbm-codex-hooks-block-foreign-tables.md)). The install therefore
-creates `hooks.json` as `{}` when absent, so the hooks have one representation
-outside the file Codex rewrites. Given `hooks.json`, cbm migrates a well-formed
-TOML block out of `config.toml` itself.
-
-An orphaned block, a marker without its partner, is removed before the install
-only when every hook table it claims is exactly cbm's canonical content invoking
-the installed binary. It claims the contiguous run of hook tables after a lone
-opening marker, or the last run before a lone closing one; hook tables elsewhere
-are the user's and stay. A modified or foreign table in that run leaves the file
-unchanged and fails the install, naming the table. Comments are kept.
-
-The MCP block keeps its trailing marker, so Codex tables registered after cbm
-installs land above that marker, and the next install moves it. The standalone
-configuration step therefore registers the catalog before installing cbm, which
-leaves both files byte-identical across restarts.

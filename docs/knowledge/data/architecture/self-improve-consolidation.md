@@ -3,7 +3,7 @@ type: architecture
 description: Why the self-improvement plugin lives in this repository as a second catalog plugin, and the constraints that placement creates.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-01T04:32:17Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement, merged at e94031a
@@ -32,9 +32,8 @@ into them, so the two designs converge on the same problem.
 Rejected alternatives:
 
 - **Two repositories, the loop consuming the catalog.** The original
-  arrangement. It duplicates the lint, CI, lockfile, and Super-Linter pin
-  surfaces, and the cost of keeping one such surface aligned is already high
-  enough here to warrant the `sync-super-linter-tool-versions` skill.
+  arrangement. It duplicates the lint, CI, lockfile, and tool-version surfaces,
+  each of which then has to be kept aligned across two repositories.
 - **Vendoring the loop as an unowned subtree.** Keeps the file layout but not
   the point: the loop is developed here, not merely carried.
 
@@ -60,25 +59,15 @@ carries rather than on what one machine's settings say.
 
 ### The catalog is no longer single-plugin
 
-`agentdev-runtime catalog install` resolves the Codex plugin to install from the
-Codex manifest's first entry, and `agentic_tools_plugin_name` is a scalar.
-Marketplace *names* were deliberately de-hardcoded so a rename needs no edit;
-plugin arity never was. A second entry is otherwise installed never and
-uninstalled never — a silent no-op rather than an error.
+`agentic_tools_plugin_name` is a scalar, so the image build stages and installs
+one plugin by name. Marketplace *names* were deliberately de-hardcoded so a
+rename needs no edit; plugin arity never was. A second entry is installed at
+build time never — a silent no-op rather than an error — while
+`agentdev-runtime catalog install` installs every plugin the Claude marketplace
+manifest publishes.
 
 `validate_agent_files` is the exception: it already enumerates every plugin a
 marketplace manifest publishes.
-
-### The two ecosystems publish different plugin sets
-
-`self-improve` ships no Codex manifest, and Codex integration is analysed but
-unimplemented. The manifests are therefore asymmetric by design, and neither
-should be made to mirror the other:
-
-``` text
-.claude-plugin/marketplace.json     -> agentdev, self-improve
-.agents/plugins/marketplace.json    -> agentdev
-```
 
 ### The runtime imports the standard library only
 

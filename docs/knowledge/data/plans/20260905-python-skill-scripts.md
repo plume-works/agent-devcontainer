@@ -7,6 +7,7 @@ generated:
   at: 2026-09-05T00:00:00Z
 stage: done
 completed: 2026-09-06
+released: 1.0.0
 ---
 
 # Python skill scripts

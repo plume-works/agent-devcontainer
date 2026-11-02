@@ -7,7 +7,7 @@ release:
 description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude and Codex credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-11-02T12:45:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -23,8 +23,8 @@ sources:
 - resource: compose.opencode.yml
 - resource: ansible/roles/bash_setup/tasks/main.yml
 - resource: ansible/roles/bun_setup/tasks/main.yml
-- resource: ansible/roles/github_cli/tasks/main.yml
 - resource: https://containers.dev/implementors/json_reference/
+rank: 600
 ---
 
 # Run the Dev Container as a non-root account with one home volume
@@ -85,10 +85,10 @@ creates the account. With the home on one volume, `~/.claude.json` is an
 ordinary file in both profiles; the link step goes, and a home that still holds
 the link (a deploy home volume) has it replaced by the file it pointed to.
 
-The base image's shell blocks (the `~/.local/bin` path, the `docker/bin`
-wrapper, `bun`, history settings) move to system-wide files so an empty home has
-them and an image upgrade updates them; the roles keep `$HOME`-relative paths,
-so each account resolves its own home.
+The base image's shell blocks (the `~/.local/bin` path, `bun`, history settings)
+move to system-wide files so an empty home has them and an image upgrade updates
+them; the roles keep `$HOME`-relative paths, so each account resolves its own
+home.
 
 This repository's descriptor drops every per-directory state mount and the
 `/root` paths, and its host initializer names the shared auth volume after the
@@ -143,8 +143,7 @@ returns to revise mode before Task 4.
 ### Task 3: Move the base image's shell setup out of root's home
 
 **Files:** Modify: `ansible/roles/bash_setup/tasks/main.yml`,
-`ansible/roles/bun_setup/tasks/main.yml`,
-`ansible/roles/github_cli/tasks/main.yml`, their `defaults/main.yml`,
+`ansible/roles/bun_setup/tasks/main.yml`, their `defaults/main.yml`,
 `docker/base/agentdev-base.Dockerfile`
 
 - [ ] Each role's managed bash and fish blocks take their target file from a
@@ -152,7 +151,7 @@ returns to revise mode before Task 4.
   provisioning is unchanged.
 - [ ] The base image build points those variables at `/etc/bash.bashrc` and
   `/etc/fish/conf.d/`, and an interactive shell of an account with an empty home
-  has `~/.local/bin`, the checkout's `docker/bin`, and `bun` on `PATH`.
+  has `~/.local/bin` and `bun` on `PATH`.
 
 ### Task 4: Bootstrap the Dev Container profile's instance storage
 
@@ -249,12 +248,11 @@ returns to revise mode before Task 4.
 `docs/knowledge/data/architecture/devcontainer-home-volume.md`,
 `docs/knowledge/data/architecture/agent-auth-persistence.md`,
 `docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`,
-`docs/knowledge/data/features/persist-pre-commit-cache.md`, affected
-`docs/knowledge/data/codebase/` map docs
+`docs/knowledge/data/features/persist-pre-commit-cache.md`
 
 - [ ] The architecture document describes the shipped account and volumes; the
   auth and CBM documents and the pre-commit feature name the home volume and the
-  cohort auth volume instead of the per-directory volumes; the map is refreshed.
+  cohort auth volume instead of the per-directory volumes.
 
 ## Spec changes
 
@@ -348,6 +346,8 @@ with its home on one per-instance volume.
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md)
 
+[Narrow the image build context](20261102-narrow-image-build-context.md)
+
 ## Verification
 
 - `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py scripts/tests/test_agent_runtime_identity.py scripts/tests/test_agentdev_devcontainer_lifecycle.py scripts/tests/test_template_consume_migration.py`
@@ -423,4 +423,3 @@ ports each script to the `agentdev_runtime` module named in its plan.
   root-owned `/workspaces`
 - `ansible/roles/bash_setup/tasks/main.yml:5` — `.bashrc` target
 - `ansible/roles/bun_setup/tasks/main.yml:30` — `.bashrc` target
-- `ansible/roles/github_cli/tasks/main.yml:53` — `.bashrc` target

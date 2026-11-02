@@ -15,6 +15,7 @@ sources:
 - resource: https://github.com/devcontainers/spec/blob/main/docs/specs/devcontainerjson-reference.md
 stage: done
 completed: 2026-09-06
+released: 1.0.0
 ---
 
 # Use VS Code port forwarding for Xpra
@@ -22,10 +23,10 @@ completed: 2026-09-06
 ## Context
 
 Xpra currently derives its container port from `DEVCONTAINER_ID`, while the
-devcontainer configuration requests forwarding for `14500-14599`. The [image
-runtime interface](../codebase/api-image-runtime.md) describes that behavior.
-Separate devcontainers have separate network namespaces, so each can listen on
-the same internal port. The [Dev Container
+devcontainer configuration requests forwarding for `14500-14599`. The image
+runtime interface describes that behavior. Separate devcontainers have separate
+network namespaces, so each can listen on the same internal port. The [Dev
+Container
 specification](https://github.com/devcontainers/spec/blob/main/docs/specs/devcontainerjson-reference.md#port-attributes)
 defaults `requireLocalPort` to false: forwarding may select another local port
 when the preferred one is unavailable.

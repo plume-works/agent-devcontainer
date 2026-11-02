@@ -6,13 +6,8 @@ FROM $FROM_IMAGE
 
 ARG FROM_IMAGE
 
-# gh-stack moves out of root's home so any runtime account can register it.
 # UID rationale: see architecture/standalone-opencode-runtime.
-RUN userdel --remove ubuntu \
-    && install -D -m 0755 /root/.local/share/gh/extensions/gh-stack/gh-stack \
-      /usr/local/lib/agentdev/gh-stack/gh-stack \
-    && install -m 0644 /root/.local/share/gh/extensions/gh-stack/manifest.yml \
-      /usr/local/lib/agentdev/gh-stack/manifest.yml
+RUN userdel --remove ubuntu
 
 # The runtime CLI is a uv tool on the system interpreter, like validate_agent_files; the
 # bind mount is writable because setuptools writes its egg-info beside the source.
@@ -36,7 +31,6 @@ ENV AGENTDEV_RUNTIME_MODE=deploy \
     CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude \
     AGENTDEV_CLAUDE_DIR=/home/agent/.claude \
     AGENTDEV_CLAUDE_JSON=/home/agent/.claude.json \
-    CODEX_HOME=/home/agent/.codex \
     CBM_CACHE_DIR=/home/agent/.cache/codebase-memory-mcp \
     XDG_RUNTIME_DIR=/run/agentdev/xdg \
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus \

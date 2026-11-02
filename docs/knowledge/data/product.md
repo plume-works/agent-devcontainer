@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-02T12:00:00Z
 ---
 
 # Product
@@ -16,8 +16,8 @@ development, published as `ghcr.io/plume-works/agentdev-devcontainer`.
 
 The repository has three responsibilities in one checkout: it publishes the
 agentdev image family (Python + Node, nested Docker, an Xpra remote desktop,
-Claude Code and Codex preinstalled, an opt-in egress firewall), it publishes the
-`agentdev` catalog of agents and skills for Claude Code and Codex, and it
+Claude Code and OpenCode preinstalled, an opt-in egress firewall), it publishes
+the `agentdev` catalog of agents and skills for Claude Code and OpenCode, and it
 carries reusable devcontainer scaffolding. Other projects point a descriptor at
 `agentdev-devcontainer`, derive their own image from it, or copy the template
 surface — descriptor, MCP config, GitHub workflows — through
@@ -74,9 +74,9 @@ the driver of design decisions — internal needs come first.
     package (its own `pyproject.toml`, isolated test suite) that validates
     agent/skill definitions.
   - `.agents/plugins/agentdev/` — the canonical source for the `agentdev` Claude
-    Code / Codex plugin (agents, skills, `bin/` scripts); this directory is the
-    source of truth, everything else under `.claude-plugin/`,
-    `.agents/plugins/marketplace.json`, and the reinstall scripts is derived.
+    Code / OpenCode plugin (agents, skills, `bin/` scripts); this directory is
+    the source of truth, everything else under `.claude-plugin/` and the
+    reinstall scripts is derived.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
   - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
     — image build.
@@ -93,11 +93,10 @@ the driver of design decisions — internal needs come first.
   Run both from root with `uv run pytest`.
 - **Lint/format**: ruff (Python, 99-char line limit per `.ruff.toml`, not 79),
   ansible-lint, shellcheck, clang-format, Prettier — applied locally by the
-  pre-commit hooks that run on every commit, and gated in CI by Super-Linter
-  (`.github/workflows/reformat.yml`). The `agentdev:local-reformat` skill runs
-  the full Super-Linter pass locally for manual use.
+  pre-commit hooks that run on every commit, and gated in CI by the same hooks
+  in the `pre-commit` job of `primary-checks.yml`.
 - **CI**: GitHub Actions — `ci.yml` (image build/publish), `primary-checks.yml`,
-  `validate-agent-files.yml`, `validate-knowledge-base.yml`, `reformat.yml`,
+  `validate-agent-files.yml`, `validate-knowledge-base.yml`,
   `delete-old-containers.yml`.
 
 ## Constraints
@@ -128,13 +127,13 @@ it):
   content — local git workflows only; stop and report if push auth is
   unavailable.
 - Commit at meaningful checkpoints during a task, not only at the end.
-- Never force-push, except `gh stack rebase` and the `gh-stack` skill's
-  `stack-guard.py publish` (after its `begin`) with `--force-with-lease` on
-  branches of a GitHub stack; never a bare `gh stack push`, `submit`, or `sync`.
+- Never force-push. Never use `gh stack` or GitHub native stacked pull requests;
+  work that depends on an open pull request is a normal pull request based on
+  its predecessor's branch and kept current with merges.
+- Never rebase or reset a branch that has been pushed; bring in other history
+  with a merge.
 - Never change git config (local or global) or switch/change the remote unless
-  explicitly instructed; the repository-local `rerere.enabled` and
-  `remote.pushDefault` that `gh stack` and the `gh-stack` skill's setup write
-  are the only exception.
+  explicitly instructed.
 - Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
   install globally. JavaScript runs through `bun`/`bunx` everywhere — never
   `npm`, `npx`, `yarn`, or `pnpm`.
@@ -152,8 +151,6 @@ it):
 - OpenCode tests and e2e runs default to `openai/gpt-6.1-sol` (big model) and
   `openai/gpt-6-luna` (small model); a costlier model only when the user names
   it.
-- Edit `.agents/plugins/agentdev/` for catalog changes, never `.codex/`; Codex
-  reads the canonical plugin tree directly.
 - Consult the **Principal Engineer** agent for
   architecture/design/implementation strategy decisions ("When in Doubt").
 - Python: PEP 8, 99-char line limit, type hints + PEP 257 docstrings, ruff for
@@ -201,3 +198,9 @@ it):
   `agentdev-deploy`) and added `agentdev-devcontainer`, which owns the Dev
   Container lifecycle; the `agent-desktop` and `agent-opencode` names stopped
   publishing.
+- 2026-11-01 — made the pre-commit hooks the CI lint gate in place of
+  Super-Linter, and removed `agentdev:local-reformat` and
+  `agentdev:sync-super-linter-tool-versions`.
+- 2026-11-02 — replaced GitHub native stacks with manual stacked pull requests:
+  no force-push exception, no rebase or reset of a pushed branch, and no
+  repository-local git config exception.

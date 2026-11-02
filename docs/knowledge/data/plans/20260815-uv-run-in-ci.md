@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/bin/python-lint-check.sh
 stage: done
 completed: 2026-08-15
+released: 1.0.0
 ---
 
 # Finish uv-run-only in CI

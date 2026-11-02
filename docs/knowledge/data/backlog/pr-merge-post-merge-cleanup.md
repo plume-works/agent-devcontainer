@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-10-20
-stage: planned
+stage: pending
 priority: medium
 description: After pr-merge squash-merges a PR from its own head branch, release that branch and move the checkout to main or to the plan's next work branch, named by iwe-branch-name.
 generated:
@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+rank: 1200
 ---
 
 # Clean up the local checkout after pr-merge

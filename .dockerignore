@@ -4,7 +4,6 @@
 .git
 .github
 .claude
-.codex
 .devcontainer
 # The runtime images bake only the firewall allowlist from .devcontainer.
 !.devcontainer/firewall-allowlist.txt

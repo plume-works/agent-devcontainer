@@ -9,6 +9,7 @@ sources:
 - resource: py_packages/validate_agent_files/
 stage: done
 completed: 2026-09-08
+released: 1.0.0
 ---
 
 # Connect validator warnings
@@ -166,8 +167,8 @@ files* are discovered, not what is reported about them; this work does not touch
 discovery. No spec document currently states the validator's warning behavior.
 
 Rather than create one for a flag surface that is already documented as an
-interface, the intended behavior is recorded as a normative outcome against [the
-CLI interface map](../codebase/api-validate-agent-files-cli.md):
+interface, the intended behavior is recorded as a normative outcome against the
+CLI interface map:
 
 `validate_agent_files` SHALL emit skill frontmatter and structure
 recommendations as warning-level issues when `--recommend` is passed, SHALL

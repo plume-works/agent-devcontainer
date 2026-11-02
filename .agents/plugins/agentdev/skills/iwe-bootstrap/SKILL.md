@@ -27,8 +27,8 @@ add CI workflows, pre-commit hooks, or other repository configuration.
 1. Never delete, overwrite, or merge an existing `.iwe/` or `docs/knowledge/`.
    The helper refuses before writing; resolving a conflict is the user's
    decision, never a cleanup you make to get the helper to succeed.
-2. Never run `/agentdev:iwe-setup` or `/agentdev:iwe-map` from this skill, and
-   never answer their questions; report them as next steps.
+2. Never run `/agentdev:iwe-setup` from this skill, and never answer its
+   questions; report it as the next step.
 3. Remove `<root>/.iwe-bootstrap.txn/` only by rerunning the helper, which
    recognizes the state it owns. Never delete it by hand.
 
@@ -52,16 +52,16 @@ always `RESULT=<NAME>`.
 
 ## Workflow 3: Handle the Result
 
-| RESULT                    | Exit                | Meaning                                                                                                     | Action                                                                                                                                                                                                       |
-| ------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SUCCESS`                 | `0`                 | The scaffold was installed at `ROOT` and validated                                                          | Report the root. When `RECOVERED_TRANSACTION` is printed, say an interrupted run was `discarded` or `completed`. Name `NEXT_SKILLS` as the next operations: `/agentdev:iwe-setup`, then `/agentdev:iwe-map`. |
-| `ALREADY_INITIALIZED`     | `4`                 | A complete, valid workspace is already present; nothing changed                                             | Report it. Do not reinstall or refresh anything; onboarding state is whatever the workspace already records.                                                                                                 |
-| `RECONCILIATION_REQUIRED` | `5`                 | A managed path exists but is not the complete valid scaffold, or a foreign state blocks it; nothing changed | **STOP.** List each `CONFLICT=<reason>:<path>` and ask the user how to reconcile it. Leaving it unmerged is a valid answer.                                                                                  |
-| `MISSING_DEPENDENCY`      | `3`                 | The `iwe` CLI is not on PATH; nothing changed                                                               | **STOP.** Ask the user to install IWE (https://iwe.md/quick-start/), then rerun.                                                                                                                             |
-| `VALIDATION_FAILED`       | `6`                 | The staged scaffold failed `iwe schema validate` or is not normalized; nothing changed                      | **STOP.** Report the iwe output from stderr verbatim; the installed catalog's scaffold does not match this `iwe`.                                                                                            |
-| `PREFLIGHT_ERROR`         | `2`                 | Bad usage, a root that is not a directory, no repository to default to, or no packaged scaffold             | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                                                       |
-| `SCRIPT_FAILURE`          | `1`                 | The helper broke                                                                                            | **STOP.** Report the blocker verbatim; do not work around it.                                                                                                                                                |
-| `SIGNAL_*`                | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                                                            | **STOP.** Rerun the helper when the user is ready; it discards or completes the interrupted transaction.                                                                                                     |
+| RESULT                    | Exit                | Meaning                                                                                                     | Action                                                                                                                                                                            |
+| ------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`                 | `0`                 | The scaffold was installed at `ROOT` and validated                                                          | Report the root. When `RECOVERED_TRANSACTION` is printed, say an interrupted run was `discarded` or `completed`. Name `NEXT_SKILLS` as the next operation: `/agentdev:iwe-setup`. |
+| `ALREADY_INITIALIZED`     | `4`                 | A complete, valid workspace is already present; nothing changed                                             | Report it. Do not reinstall or refresh anything; onboarding state is whatever the workspace already records.                                                                      |
+| `RECONCILIATION_REQUIRED` | `5`                 | A managed path exists but is not the complete valid scaffold, or a foreign state blocks it; nothing changed | **STOP.** List each `CONFLICT=<reason>:<path>` and ask the user how to reconcile it. Leaving it unmerged is a valid answer.                                                       |
+| `MISSING_DEPENDENCY`      | `3`                 | The `iwe` CLI is not on PATH; nothing changed                                                               | **STOP.** Ask the user to install IWE (https://iwe.md/quick-start/), then rerun.                                                                                                  |
+| `VALIDATION_FAILED`       | `6`                 | The staged scaffold failed `iwe schema validate` or is not normalized; nothing changed                      | **STOP.** Report the iwe output from stderr verbatim; the installed catalog's scaffold does not match this `iwe`.                                                                 |
+| `PREFLIGHT_ERROR`         | `2`                 | Bad usage, a root that is not a directory, no repository to default to, or no packaged scaffold             | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                            |
+| `SCRIPT_FAILURE`          | `1`                 | The helper broke                                                                                            | **STOP.** Report the blocker verbatim; do not work around it.                                                                                                                     |
+| `SIGNAL_*`                | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                                                            | **STOP.** Rerun the helper when the user is ready; it discards or completes the interrupted transaction.                                                                          |
 
 `CONFLICT` reasons:
 
@@ -87,5 +87,4 @@ an onboarded workspace stays `ALREADY_INITIALIZED`.
 - The helper reported `SUCCESS` or `ALREADY_INITIALIZED` for the named root,
   or the user has the conflicts or blocker it reported
 - `iwe schema validate` passes from the root after `SUCCESS`
-- `/agentdev:iwe-setup` and `/agentdev:iwe-map` are reported as next steps and
-  not run
+- `/agentdev:iwe-setup` is reported as the next step and not run

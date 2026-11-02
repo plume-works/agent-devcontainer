@@ -3,7 +3,7 @@ type: architecture
 description: Why the Implement verify, fix, and revise loop runs in one orchestrator whose every dispatched agent is a leaf, why the Plan rulebook moved into the iwe-planner agent, and why a revision is drafted, audited, and evaluated before it commits.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T13:00:00Z
+  at: 2026-10-31T20:59:36Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
@@ -21,9 +21,8 @@ sources:
 session is the orchestrator for `/agentdev:iwe-implement`; the
 `/agentdev:iwe-implement-all` coordinator is the orchestrator once per plan.
 `iwe-implementer`, `iwe-verifier`, and `iwe-revision-evaluator` never dispatch,
-so the loop runs on Claude Code, Codex, and OpenCode without OpenCode's
-experimental depth setting ([Nested subagent
-dispatch](nested-subagent-dispatch.md)).
+so the loop runs on Claude Code and OpenCode without OpenCode's experimental
+depth setting ([Nested subagent dispatch](nested-subagent-dispatch.md)).
 
 **The loop is written once, in the `iwe-implementer` rulebook,** as
 `## Running the loop`, a section only an orchestrator runs. The session already
@@ -54,8 +53,7 @@ returns:
   specified behavior, changes `release`, or changes text the user approved.
 
 On `REJECT` or `ESCALATE` the orchestrator restores the plan from `HEAD` and
-stops. The evaluator's tools are `Bash, Read, Grep, Glob`, so the Codex
-installer gives it a `read-only` sandbox.
+stops. The evaluator's tools are `Bash, Read, Grep, Glob`.
 
 **The run is bounded.** It stops when a finding recurs after a fix attempt,
 after three Verify rounds, or when a second revision would follow one approved

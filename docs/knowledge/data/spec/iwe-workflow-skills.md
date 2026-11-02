@@ -1,9 +1,9 @@
 ---
 type: spec
-description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
+description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T07:39:19Z
+  at: 2026-11-02T20:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -14,8 +14,6 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/agent-code/fetch-issue.py
 - resource: .agents/plugins/agentdev/skills/iwe-plan/agent-code/close-issue.py
-- resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
 - resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
@@ -51,7 +49,10 @@ editing application code, SHALL remain adaptive and patient as the problem takes
 shape, and SHALL offer capture or a phase handoff without pressuring the user to
 formalize unfinished thinking. When the user approves specific text, Explore
 SHALL persist it verbatim outside the conversation and reproduce it verbatim in
-the handoff, and SHALL never paraphrase it.
+the handoff, and SHALL never paraphrase it. Once the problem has open questions,
+Explore SHALL settle them with the user one at a time — one topic per turn and
+one decision per question, in the user's names and design — and SHALL record
+each answer verbatim as it is given.
 
 #### Scenario: Exploration starts from an open-ended idea
 
@@ -84,6 +85,17 @@ the handoff, and SHALL never paraphrase it.
 - **THEN** Explore writes it verbatim to `.tmp/approved-wording-<slug>.md`
   before continuing, names that file in the handoff, and reproduces the text
   verbatim rather than describing it
+
+#### Scenario: The exploration has open questions
+
+- **WHEN** the problem being explored has more than one open question
+- **THEN** Explore names one topic and stays on it until the user settles it,
+  asks one decision at a time as numbered options with a recommendation, keeps
+  the user's names and design unless changing them is the question asked,
+  settles a question about system behavior with evidence before asking it,
+  records each answer verbatim in `.tmp/approved-wording-<slug>.md` — marked
+  approved only on an explicit yes — and opens the next topic only after the
+  current one is settled
 
 ### Requirement: Plan creates or revises planning state without implementing
 
@@ -188,9 +200,11 @@ The plan schema SHALL require every active plan to carry a `release` frontmatter
 value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
 work adds, changes, or fixes. The Plan skill SHALL set that value when it files
 a plan, SHALL declare `internal` only when no workspace user or template
-consumer sees a difference, and SHALL have Capture file a missing feature before
-it files the plan. Ship SHALL take a plan's release entries only from that value
-and SHALL never create a feature.
+consumer sees a difference, SHALL have Capture file a missing feature before it
+files the plan, and SHALL set every bug the plan lists to `stage: planned`. Ship
+SHALL take a plan's release entries only from that value, SHALL never create a
+feature, SHALL write the `## Fix` of each bug it marks done, and SHALL return
+each listed bug to `stage: pending` when it cancels the plan.
 
 #### Scenario: A plan introduces user-visible behavior with no feature
 
@@ -198,6 +212,11 @@ and SHALL never create a feature.
   template consumer sees, and no feature describes it
 - **THEN** Plan hands the feature to Capture, lists its key in `release`, and
   sets the feature to `stage: accepted`
+
+#### Scenario: A plan lists a bug
+
+- **WHEN** Plan files a plan whose `release` lists a bug at `stage: pending`
+- **THEN** Plan sets the bug to `stage: planned`
 
 #### Scenario: A plan changes nothing users see
 
@@ -207,10 +226,16 @@ and SHALL never create a feature.
 #### Scenario: A plan declares features and bugs
 
 - **WHEN** Ship ships a plan whose `release` lists feature and bug keys
-- **THEN** Ship marks each feature implemented and each bug done, and adds one
+- **THEN** Ship marks each feature implemented and each bug done, writes each
+  bug's `## Fix` describing the shipped fix and linking the plan, and adds one
   unreleased inclusion link per listed document — a feature new in this version
   under Added, a feature released in an earlier version under Changed, a bug
   under Fixed
+
+#### Scenario: A plan listing bugs is cancelled
+
+- **WHEN** Ship cancels a plan whose `release` lists a bug at `stage: planned`
+- **THEN** Ship sets the bug to `stage: pending` and writes no `## Fix`
 
 #### Scenario: An active plan has no release declaration
 
@@ -375,7 +400,7 @@ behavior, changes `release`, or changes text the user approved.
 
 - **WHEN** the orchestrator dispatches `iwe-revision-evaluator`
 - **THEN** the prompt holds the plan key and the quoted finding and nothing else
-  from the conversation, and on Codex the spawn forwards no turns
+  from the conversation
 
 ### Requirement: Plans record intent, not the path taken to it
 
@@ -589,13 +614,13 @@ to resume after a partial prior attempt.
 The Ship and Implement workflows SHALL each be defined once, as the catalog
 agents `iwe-shipper` and `iwe-implementer`. Their user entry skills and the
 `iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
-Claude Code, Codex, and OpenCode. Only those skills, those coordinators, and
-Plan revise mode answering a Ship blocker report SHALL start the workflows. Ship
-SHALL always run as a dispatched `iwe-shipper` whose prompt carries only the
-plan key, the operation, and the user's approvals quoted verbatim, so its
-verification rests on the code and the graph alone. Implement started by the
-user's own invocation SHALL run in the user's session. A dispatched workflow
-SHALL stop and report at any point that needs a user decision it was not given.
+Claude Code and OpenCode. Only those skills, those coordinators, and Plan revise
+mode answering a Ship blocker report SHALL start the workflows. Ship SHALL
+always run as a dispatched `iwe-shipper` whose prompt carries only the plan key,
+the operation, and the user's approvals quoted verbatim, so its verification
+rests on the code and the graph alone. Implement started by the user's own
+invocation SHALL run in the user's session. A dispatched workflow SHALL stop and
+report at any point that needs a user decision it was not given.
 
 #### Scenario: The user ships a plan directly
 
@@ -647,189 +672,9 @@ SHALL stop and report at any point that needs a user decision it was not given.
 
 #### Scenario: The model tries to start a gated skill
 
-- **WHEN** a model on Claude Code, Codex, or OpenCode tries to load `iwe-ship`,
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship`,
   `iwe-implement`, or either coordinator without a user request
 - **THEN** the harness withholds it.
-
-### Requirement: Map derives the codebase lane from the code and refreshes it incrementally
-
-The Map skill SHALL write `data/codebase/` only from reading the current
-checkout, SHALL place each component doc at the canonical key that mirrors its
-source path, SHALL stamp every doc with the `source` it describes, a
-`source_digest` fingerprint of tracked source contents, and a `verified` record,
-SHALL link children from their parent's `## Contains` so the hub tree renders
-the code's containment, and SHALL re-read only the docs whose tracked source
-contents differ from `source_digest` when refreshing.
-
-#### Scenario: The map is written for the first time
-
-- **WHEN** the user asks to map the codebase and `data/codebase.md` has no
-  members
-- **THEN** Map surveys entry points, external surfaces, and the build, run, and
-  test commands first, proposes the containment tree before writing, writes one
-  doc per confirmed component plus flow and api docs, fills `## Getting around`,
-  and ends with `iwe normalize` and `iwe schema validate` passing
-
-#### Scenario: Code moved after the map was written
-
-- **WHEN** Map runs in refresh mode, or Verify's audit hands it stale map docs
-- **THEN** Map re-reads only the components whose tracked source contents differ
-  from `source_digest`, rewrites the affected sections, bumps `source_digest`,
-  `verified`, and `stale_after`, and leaves fresh docs untouched
-
-#### Scenario: A mapped component was moved or deleted
-
-- **WHEN** a map doc's `source` no longer exists in the checkout
-- **THEN** Map relocates the doc with `iwe rename` when the code moved, or
-  removes it with `iwe delete` when the code is gone, and never moves or deletes
-  the file by hand
-
-#### Scenario: The code answers a question the map cannot
-
-- **WHEN** reading a component reveals a design decision or its rationale
-- **THEN** Map records what the code does in the map doc and reports the
-  rationale as a candidate `data/architecture/` doc rather than writing it into
-  the map
-
-### Requirement: Map staleness reflects described content
-
-The codebase-map staleness check SHALL classify a map document by whether the
-content it describes changed, not by whether any byte under its `source`
-changed. Content designated machine-managed SHALL be normalized to a fixed
-placeholder before the source fingerprint is computed.
-
-#### Scenario: An automerged pin bump leaves the document fresh
-
-- **WHEN** a dependency-update commit changes only a pinned value designated
-  machine-managed under a map document's `source`
-- **THEN** the staleness check reports that document as `FRESH`
-
-#### Scenario: A structural change around a masked value is still staleness
-
-- **WHEN** a commit changes the structure holding a masked value — the identity
-  of the pinned artifact, the set of pinned entries, or the presence of the pin
-- **THEN** the staleness check reports the document as `STALE`
-
-#### Scenario: Changing the mask set invalidates the documents it reaches
-
-- **WHEN** the mask designations change
-- **THEN** the staleness check reports as `STALE` every document with a source
-  file the changed designation matches, and reports the remaining documents
-  unchanged
-
-#### Scenario: An unreadable designation breaks only its own subtree
-
-- **WHEN** a mask designation cannot be read or a pattern cannot be compiled
-- **THEN** the check reports every document whose sources reach that designation
-  as broken, naming it, rather than computing a fingerprint from unmasked
-  content
-- **AND** documents whose sources do not reach it keep their normal verdicts
-
-### Requirement: Map masks a version-only change before refreshing
-
-When a refresh finds a map document stale and every change under its `source`
-since it was verified is a version, digest, or pin value whose surrounding
-structure is unchanged, the Map skill SHALL mask that kind of value in the
-colocated `digest_ignore` designation, SHALL keep the mask only when replaying
-it over history absorbs no change other than version-only ones, SHALL re-stamp
-`source_digest` only on documents the new mask alone explains, and SHALL commit
-the designation change and those re-stamps together before refreshing any
-document's prose.
-
-#### Scenario: A version-only change re-stamps instead of refreshing
-
-- **WHEN** a map document is stale only because a pinned value moved
-- **THEN** the refresh commits a mask for that kind of value and the document's
-  new `source_digest`, without editing the document's body
-- **AND** the staleness check then reports the document `FRESH`
-
-#### Scenario: A mixed change is masked first and refreshed after
-
-- **WHEN** a change under a document's `source` moves a pinned value and also
-  changes described content
-- **THEN** the mask lands in its own commit first
-- **AND** the document is refreshed for the remaining change
-
-#### Scenario: A document stale for another reason is not re-stamped
-
-- **WHEN** a new mask reaches a document whose sources also changed outside that
-  mask since it was verified
-- **THEN** replay reports the document `REFRESH`
-- **AND** its `source_digest` is left for the prose refresh to update
-
-#### Scenario: Replay evidence follows the recorded digest's ancestry
-
-- **WHEN** commit dates or `--since` exclude a source commit after the commit
-  that established a document's recorded digest
-- **THEN** replay still includes that source commit in the document's verdict
-  and evidence
-
-#### Scenario: Working-tree edits are reviewable evidence
-
-- **WHEN** a working-tree mask absorbs or fails to absorb an uncommitted source
-  edit
-- **THEN** replay reports that path as `ABSORBED WORKTREE` or `MOVED WORKTREE`
-- **AND** every value hidden by that comparison appears in `HIDDEN` evidence
-
-#### Scenario: Broken metadata has one replay result contract
-
-- **WHEN** a document depends on malformed metadata, including on an early
-  `REFRESH` path
-- **THEN** replay reports the document `BROKEN` and ends `BROKEN_METADATA`
-- **AND** it does not expose an exception traceback
-
-#### Scenario: A quoted value is not masked away
-
-- **WHEN** the document quotes the value that moved
-- **THEN** the change is not version-only for that document and it is refreshed
-
-#### Scenario: The report names hidden major bumps
-
-- **WHEN** a mask added by the refresh also hides major-version changes of the
-  value it covers
-- **THEN** the run's report names that kind of value
-
-### Requirement: An agent push carries a fresh codebase map
-
-The branch push helper shared by the pull request skills SHALL run the
-codebase-map staleness check against the branch head, including a head the
-upstream already holds, SHALL refuse to push when the check reports a stale map,
-and SHALL push without the check only when the repository has no IWE map or the
-caller passes an explicit override. The AI pull request review SHALL NOT report
-codebase-map staleness when the repository's CI runs the staleness check, which
-then owns it.
-
-#### Scenario: A push would carry a stale map
-
-- **WHEN** a pull request skill pushes a branch whose map docs the staleness
-  check reports stale
-- **THEN** the push helper pushes nothing and reports `MAP_STALE`, and the skill
-  runs the Map refresh, commits it, and pushes again
-
-#### Scenario: The repository has no map
-
-- **WHEN** the repository root has no `.iwe/config.toml`, or the check reports
-  no map docs
-- **THEN** the push helper pushes without gating
-
-#### Scenario: The user pushes a stale map on purpose
-
-- **WHEN** the user explicitly asks to push while the map is stale
-- **THEN** the skill passes the override, the helper pushes and reports the
-  check as overridden, and CI still reports the stale map
-
-#### Scenario: A stale head reached the remote outside the helper
-
-- **WHEN** the branch head is already on its upstream, pushed by a path that
-  does not run the check, and its map docs are stale
-- **THEN** the push helper reports `MAP_STALE`, and the skill refreshes the map,
-  commits it, and pushes again
-
-#### Scenario: A review sees a stale map
-
-- **WHEN** an AI review runs on a pull request whose map docs are stale, in a
-  repository whose CI runs the staleness check
-- **THEN** the review raises no finding about map staleness
 
 ### Requirement: Capture files complete inbox documents
 
@@ -837,20 +682,29 @@ The Capture skill SHALL be the only writer of new bug, proposed-feature, and
 backlog-task documents, SHALL refuse a document missing any frontmatter field or
 body section `SCHEMA.md` requires for its type, SHALL check the graph for a
 likely duplicate before filing, SHALL file a feature at `stage: proposed` and
-never promote it, and SHALL link every filed document from its hub and end with
+never promote it, SHALL file a bug at `stage: pending` — or at `stage: done`
+with its `## Fix` when the same change fixed it — and a task at
+`stage: pending`, and SHALL link every filed document from its hub and end with
 `iwe normalize` and `iwe schema validate` passing.
 
 #### Scenario: A complete item is captured
 
 - **WHEN** Capture is invoked for a bug, feature, or task whose required
   sections and fields are all supplied, and no likely duplicate exists
-- **THEN** Capture writes the document at its lane's key with the `stage` and
-  `status` `SCHEMA.md` derives for it, stamps `generated` and `sources`, links
-  it from its hub — a task under its priority section — and validates the graph
+- **THEN** Capture writes the document at its lane's key with the `stage`
+  `SCHEMA.md` derives for it, stamps `generated` and `sources`, links it from
+  its hub at its sorted position, and validates the graph
+
+#### Scenario: A bug fixed in the same change is captured
+
+- **WHEN** Capture is invoked for a bug the same change already fixed, with a
+  `## Fix` describing that fix
+- **THEN** Capture files the bug at `stage: done`
 
 #### Scenario: A required section is missing
 
-- **WHEN** the supplied content lacks any section or field required for its type
+- **WHEN** the supplied content lacks any section or field required for its
+  type, including a bug's `severity`
 - **THEN** Capture writes nothing and lists every missing section and field
 
 #### Scenario: A likely duplicate exists
@@ -880,15 +734,29 @@ never promote it, and SHALL link every filed document from its hub and end with
 ### Requirement: Bug and feature documents keep the SCHEMA.md shape
 
 The bug and feature schemas SHALL require the body shape `SCHEMA.md` prescribes
-— a bug's `Bug:` H1 and its Symptom, Reproduction, Root cause, Fix, and Key
-references sections; a feature's Purpose, Behaviour, Edge cases, and Open
-questions sections — in that order, while allowing additional sections.
+— a bug's `Bug:` H1 and its Symptom, Reproduction, and Root cause sections,
+followed by optional Potential solution and Fix sections; a feature's Purpose,
+Behaviour, Edge cases, and Open questions sections — in that order, while
+allowing additional sections. The bug schema SHALL require a `stage` of
+`pending`, `planned`, `done`, or `cancelled` and a `severity` of `critical`,
+`high`, `medium`, or `low`.
 
 #### Scenario: A document is written without Capture
 
 - **WHEN** a bug or feature document lacks a required section, has them out of
   order, or a bug's H1 lacks the `Bug:` prefix
 - **THEN** `iwe schema validate` fails and names the document
+
+#### Scenario: A bug lacks its stage or severity
+
+- **WHEN** a bug document has no `stage` or no `severity`, or a value outside
+  its enum
+- **THEN** `iwe schema validate` fails and names the document
+
+#### Scenario: A bug has no Fix
+
+- **WHEN** a bug document has neither a Potential solution nor a Fix section
+- **THEN** `iwe schema validate` accepts it
 
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 

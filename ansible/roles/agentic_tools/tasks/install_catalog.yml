@@ -4,25 +4,17 @@
 # agentdev:* skills; the devcontainer path shadows it via mounted volumes.
 # See spec/catalog-lifecycle and architecture/ci-agent-plugin-availability.
 #
-# Names come from the staged marketplace manifests, never hardcoded: the two
-# agents publish the same plugin under separate manifests, and a rename must not
-# require editing this role.
+# The marketplace name comes from the staged manifest, never hardcoded, so a rename
+# does not require editing this role.
 - name: Read the staged Claude marketplace manifest
   ansible.builtin.slurp:
     src: "{{ agentic_tools_catalog_root }}/{{ agentic_tools_catalog_marketplace_manifest }}"
   register: agentic_tools_install_claude_manifest_raw
 
-- name: Read the staged Codex marketplace manifest
-  ansible.builtin.slurp:
-    src: "{{ agentic_tools_catalog_root }}/{{ agentic_tools_catalog_codex_marketplace_manifest }}"
-  register: agentic_tools_install_codex_manifest_raw
-
-- name: Resolve the marketplace names the staged manifests declare
+- name: Resolve the marketplace name the staged manifest declares
   ansible.builtin.set_fact:
     agentic_tools_install_claude_marketplace_name: >-
       {{ (agentic_tools_install_claude_manifest_raw.content | b64decode | from_json).name }}
-    agentic_tools_install_codex_marketplace_name: >-
-      {{ (agentic_tools_install_codex_manifest_raw.content | b64decode | from_json).name }}
 
 - name: Register the staged catalog as a Claude marketplace at user scope
   ansible.builtin.command:
@@ -45,49 +37,6 @@
       - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_claude_marketplace_name }}"
       - --scope
       - user
-  changed_when: true
-
-- name: Register the staged catalog as a Codex marketplace
-  ansible.builtin.command:
-    argv:
-      - codex
-      - plugin
-      - marketplace
-      - add
-      - "{{ agentic_tools_catalog_root }}"
-  changed_when: true
-
-- name: Remove the existing Codex plugin install
-  ansible.builtin.command:
-    argv:
-      - codex
-      - plugin
-      - remove
-      - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_codex_marketplace_name }}"
-  register: agentic_tools_install_codex_remove
-  changed_when: agentic_tools_install_codex_remove.rc == 0
-  failed_when: >
-    agentic_tools_install_codex_remove.rc != 0 and
-    'is not configured or installed' not in agentic_tools_install_codex_remove.stderr and
-    'not found' not in agentic_tools_install_codex_remove.stderr
-
-- name: Install the plugin for Codex
-  ansible.builtin.command:
-    argv:
-      - codex
-      - plugin
-      - add
-      - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_codex_marketplace_name }}"
-  changed_when: true
-
-# Codex reads agents only from its own agents/ directory, never from a plugin.
-# -B keeps __pycache__ out of the staged catalog the image ships.
-- name: Install the staged catalog agents for Codex
-  ansible.builtin.command:
-    argv:
-      - python3
-      - -B
-      - "{{ agentic_tools_catalog_root }}/.agents/plugins/{{ agentic_tools_plugin_name }}/bin/install-codex-agents.py"
   changed_when: true
 
 - name: Register the staged OpenCode bridge plugin in the user's OpenCode config

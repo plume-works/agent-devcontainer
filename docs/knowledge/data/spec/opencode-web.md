@@ -3,13 +3,11 @@ type: spec
 description: The Coder agent start runs the OpenCode v2 server and web UI in a reusable tmux session on port 4096, always behind a server password and bound beyond localhost only with a configured one, prints the server's root URL, and keeps logins and chats per worktree across rebuilds.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T15:00:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/opencode-web-start.sh
-- resource: .devcontainer/scripts/coder-agent-start.sh
-- resource: .devcontainer/scripts/opencode-web-command.sh
-- resource: .devcontainer/scripts/postCreateCommand.sh
-- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/opencode.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: .devcontainer/devcontainer.json
 - resource: scripts/tests/test_opencode_web_start.py
 - resource: scripts/tests/test_coder_agent_start.py
@@ -27,15 +25,16 @@ template](coder-ide-baseline.md).
 
 ### Requirement: the Coder agent start runs the OpenCode web UI
 
-`coder-agent-start.sh` SHALL run `opencode-web-start.sh` on every agent start,
-before Remote Control starts. The script SHALL start `opencode serve` in exactly
-one detached tmux session named `opencode` on the dedicated tmux server
-`tmux -L opencode`, in the workspace folder, without checking for a provider
-login. Repeated runs SHALL reuse a live session. It SHALL skip startup when
-`opencode` or `tmux` is unavailable. A failure SHALL NOT stop Remote Control
-from starting. On a start or a reuse it SHALL print the server's root URL,
-`VSCODE_PROXY_URI` with `{{port}}` replaced by `4096` and any trailing `/`
-removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is unset or empty.
+`agentdev-runtime coder start` SHALL run `agentdev-runtime opencode coder-start`
+on every agent start, before Remote Control starts. The command SHALL start
+`opencode serve` in exactly one detached tmux session named `opencode` on the
+dedicated tmux server `tmux -L opencode`, in the workspace folder, without
+checking for a provider login. Repeated runs SHALL reuse a live session. It
+SHALL skip startup when `opencode` or `tmux` is unavailable. A failure SHALL NOT
+stop Remote Control from starting. On a start or a reuse it SHALL print the
+server's root URL, `VSCODE_PROXY_URI` with `{{port}}` replaced by `4096` and any
+trailing `/` removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is
+unset or empty.
 
 #### Scenario: a workspace starts
 
@@ -50,7 +49,7 @@ removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is unset or empty.
 
 #### Scenario: the start prints the server's URL
 
-- **WHEN** the script starts or reuses the `opencode` session
+- **WHEN** the command starts or reuses the `opencode` session
 - **THEN** its output carries Coder's port URL for 4096, which opens the web UI
   through Coder.
 
@@ -61,7 +60,7 @@ removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is unset or empty.
 
 #### Scenario: the OpenCode start fails
 
-- **WHEN** `opencode-web-start.sh` exits non-zero
+- **WHEN** `agentdev-runtime opencode coder-start` exits non-zero
 - **THEN** the agent start warns and Remote Control still starts.
 
 ### Requirement: the server is exposed only behind a password
@@ -69,9 +68,9 @@ removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is unset or empty.
 The server SHALL listen on port 4096 and SHALL always require a password. When
 `OPENCODE_SERVER_PASSWORD` is non-empty in the agent's environment, the server
 SHALL use it and bind `0.0.0.0`. Otherwise it SHALL bind `127.0.0.1` and use the
-password in `~/.local/share/opencode/agentdev-server-password`, which the script
-SHALL create with a random value and mode `0600` when it is missing. The
-password SHALL NOT appear in the script's output or the server's command line;
+password in `~/.local/share/opencode/agentdev-server-password`, which the
+command SHALL create with a random value and mode `0600` when it is missing. The
+password SHALL NOT appear in the command's output or the server's command line;
 the output SHALL name the password file when that file is in use.
 
 #### Scenario: no password is set

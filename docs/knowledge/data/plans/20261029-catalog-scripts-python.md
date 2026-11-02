@@ -20,6 +20,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
 stage: done
 completed: 2026-10-31
+released: 2.0.0
 ---
 
 # Port the catalog's bundled shell scripts to Python

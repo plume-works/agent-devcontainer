@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-08-24
-stage: planned
+stage: pending
 priority: low
 description: Investigate whether a plan absorbing a working logbook can be detected mechanically, which the shape gate cannot do today because narration has no reliable shape.
 generated:
@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
 - resource: docs/knowledge/data/plans/20260817-no-logbooks-in-the-graph.md
 - resource: AGENTS.md
+rank: 2400
 ---
 
 # Detect plan narration growth mechanically

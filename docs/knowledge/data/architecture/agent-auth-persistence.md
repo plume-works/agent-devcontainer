@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Claude Code and Codex credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while OpenCode's logins and the rest of each agent's state are mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
+description: Claude Code credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while OpenCode's logins and the rest of each agent's state are mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T11:49:47Z
+  at: 2026-10-31T20:58:33Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer.json
@@ -23,13 +23,12 @@ sources:
 
 Agent state is split in two:
 
-- **Claude Code and Codex credentials are shared.** One volume,
-  `agentdev-agents-auth`, is declared with an explicit top-level `name:` and
-  mounted at `/root/.agents-auth`. Claude Code's credential store is pointed at
-  `/root/.agents-auth/claude` through `CLAUDE_SECURESTORAGE_CONFIG_DIR`, and
-  Codex's `auth.json` is symlinked to `/root/.agents-auth/codex/auth.json`.
-- **Everything else is per instance.** The `agentdev-claude`, `agentdev-codex`,
-  and `agentdev-opencode` mounts carry each agent's remaining state and are left
+- **Claude Code credentials are shared.** One volume, `agentdev-agents-auth`, is
+  declared with an explicit top-level `name:` and mounted at
+  `/root/.agents-auth`. Claude Code's credential store is pointed at
+  `/root/.agents-auth/claude` through `CLAUDE_SECURESTORAGE_CONFIG_DIR`.
+- **Everything else is per instance.** The `agentdev-claude` and
+  `agentdev-opencode` mounts carry each agent's remaining state and are left
   Compose-project-scoped, so a worktree, a clone, and a Codespace each get their
   own.
 - **OpenCode's logins are per instance.** OpenCode v2 keeps provider logins in

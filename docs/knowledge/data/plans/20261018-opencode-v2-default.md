@@ -22,6 +22,7 @@ sources:
 - resource: https://opencode.ai/v2/docs
 stage: done
 completed: 2026-10-20
+released: 2.0.0
 ---
 
 # Make OpenCode v2 the devcontainer default

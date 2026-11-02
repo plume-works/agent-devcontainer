@@ -3,7 +3,7 @@ type: spec
 description: How the published ubuntu-ansible, agentdev-base, agentdev-deploy, and agentdev-devcontainer images are tagged after acceptance, and pinned and updated by consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-11-01T18:00:00Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md
@@ -73,10 +73,10 @@ digest update SHALL move every reference in one change.
 
 CI SHALL publish `ubuntu-ansible`, `agentdev-base`, `agentdev-deploy`, and
 `agentdev-devcontainer` candidates under immutable commit tags and SHALL move
-event tags only after native deploy and Dev Container acceptance pass for the
-same digests, without rebuilding. CI SHALL NOT move a tag to an image built from
-an ancestor of the commit it names. Primary checks runs on `main` SHALL NOT
-cancel one another.
+event tags only after native deploy and Dev Container acceptance and the
+candidate pre-commit run pass for the same digests, without rebuilding. CI SHALL
+NOT move a tag to an image built from an ancestor of the commit it names.
+Primary checks runs on `main` SHALL NOT cancel one another.
 
 ### Scenario: every acceptance check passes
 

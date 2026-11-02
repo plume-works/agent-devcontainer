@@ -25,49 +25,49 @@ OKF's optional families (SPEC §4.1, §5), declared on every schema and checked 
   the form [OKF SPEC
   §7](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md#7-actor-convention)
   defines: `<producer>/<model-version>` for agent writes — the agent and the
-  model version that wrote the content, as in the spec's own example;
-  `human:<handle>` for hand-authored or human-confirmed content; `process:<id>`
-  for automation.
+  model version that wrote the content; `human:<handle>` for hand-authored or
+  human-confirmed content; `process:<id>` for automation.
 - `sources` — the materials a document derives from, each
   `{ id, resource, title, author, usage_count, last_modified }` with `resource`
-  required. A `resource` may be a URL or a repo path, so a codebase map cites
-  the code it describes. Attribute individual claims with a markdown footnote
-  keyed to an entry's `id` (SPEC §5.1).
+  required. A `resource` may be a URL or a repo path. Attribute individual
+  claims with a markdown footnote keyed to an entry's `id`.
 - `verified` — `{ by, at }` or a list, recording who confirmed the content
-  against its sources. Codebase maps use it for "this doc still matches the
-  code", which is what the old date-valued `verified` field meant.
-- `resource`, `tags`, `stale_after`, `usage_window` — optional. Set
-  `stale_after` on codebase maps, which go stale the moment the code moves.
+  against its sources.
+- `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
-### `stage` versus `status`
+`stage` is the only lifecycle field: the per-type enums below. A work item's
+state lives only in its own frontmatter; no hub section repeats it. OKF's
+optional `status` is never set, so a state change edits one field.
 
-`stage` is this workspace's workflow field — the per-type enums below. `status`
-is OKF's lifecycle field and takes only `draft | stable | deprecated`; absent
-means stable, which is why most documents omit it. Maintain the two together:
-whenever you set `stage`, derive `status` from this table and set or clear it.
+## The build order — `rank`
 
-| type    | `stage` value             | set `status` |
-| ------- | ------------------------- | ------------ |
-| bug     | `cancelled`               | `deprecated` |
-| feature | `proposed`                | `draft`      |
-| feature | `deprecated`, `cancelled` | `deprecated` |
-| plan    | `cancelled`               | `deprecated` |
-| release | `unreleased`              | `draft`      |
+Active plans, pending and planned bugs, and pending backlog tasks may carry
+`rank`, a positive integer: their place in one build order shared across the
+three types, lower first.
 
-Every other `stage` value means the document is current — omit `status`. `task`
-and the reference types never set it.
+``` yaml
+rank: 300 # optional; positive integer
+```
 
-## Reserved files
+- The sequence is
+  `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`. An item
+  without `rank` is not yet sequenced; that is the separate
+  `rank: {$exists: false}` query, never part of the sequence.
+- Ranks step by 100; an insertion takes the midpoint of its neighbours. Only a
+  reorder pull request renumbers.
+- Ship removes `rank` from a plan, bug, or task it marks done or cancelled.
+- Equal ranks are valid and break by key; CI warns about them.
 
-`data/index.md` and `data/log.md` are OKF reserved filenames and are not concept
-documents — they carry no `type` and are checked by `okf-index.yaml` and
-`okf-log.yaml` instead.
+## The reserved files — `data/index.md` and `data/log.md`
+
+OKF reserved filenames, not concept documents: they carry no `type` and are
+checked by `okf-index.yaml` and `okf-log.yaml` instead.
 
 - `data/index.md` — the bundle-root index. Its only frontmatter is
   `okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
-  markdown link to a document followed by `-` and that document's `description`.
-- `data/log.md` — the update history. A title section over `## YYYY-MM-DD`
-  groups of bullets, newest first. The `ship` skill appends to it.
+  markdown link to a hub followed by `-` and that hub's `description`.
+- `data/log.md` — the update history, written only by a release cut: a title
+  section over `## YYYY-MM-DD` groups of bullets, newest first.
 
 ## Plans — `data/plans/YYYYMMDD-<slug>.md`
 
@@ -79,6 +79,7 @@ type: plan # required
 stage: done # done | cancelled — omit while active/pending
 created: 2026-07-01 # required, YYYY-MM-DD
 completed: 2026-07-18 # required when stage: done
+released: 0.1.0 # set by the release cut that took this done plan
 release: # required while active: internal, or the keys below
 - features/focus-sessions
 ---
@@ -86,14 +87,14 @@ release: # required while active: internal, or the keys below
 
 `release` is the plan's release impact, chosen when the plan is written:
 `internal` when no workspace user or template consumer sees a difference,
-otherwise the `features/` and `bugs/` keys the work adds, changes, or fixes.
-Ship takes the plan's release entries from it.
+otherwise the `features/` and `bugs/` keys the work adds, changes, or fixes. The
+release cut takes the plan's release entries from it and sets `released` to its
+version; a done plan without `released` waits for the next cut.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
 `**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
 `## Verification`, `## Out of scope`, `## Key references` (dated
-`path:line — symbol` anchors). The link in `data/plans.md` sits under the
-section matching the stage.
+`path:line — symbol` anchors). Its link in `data/plans.md` never moves.
 
 ## Features — `data/features/<slug>.md`
 
@@ -115,23 +116,36 @@ Bug reports and investigations. H1 starts with `Bug:`.
 ``` yaml
 ---
 type: bug # required
-stage: done # done | cancelled — omit while open
+stage: pending # pending | planned | done | cancelled — required
+severity: high # critical | high | medium | low — required
 ---
 ```
 
-Body: `## Symptom`, `## Reproduction`, `## Root cause`, `## Fix`,
-`## Key references`.
+- `stage`: Capture files a bug at `pending`, or at `done` when the same change
+  fixed it. Plan moves a bug its plan lists in `release` to `planned`; Ship
+  moves it to `done`, and returns it to `pending` when it cancels the plan.
+- `severity`: the impact of the defect — how bad it is when it happens — not its
+  urgency. Descriptive only; it does not set `rank`.
+
+Body: `## Symptom`, `## Reproduction`, `## Root cause`, all required, then the
+optional `## Potential solution` — the intended direction, at any stage — and
+`## Fix` — the fix that shipped, written when the bug becomes `done`: by the
+fixer when a change fixes it directly, by Ship from the plan that fixed it. A
+Reproduction or Root cause not yet known records what is known, the hypotheses
+eliminated and what eliminated them, and links the backlog task whose spike
+settles it. No section states lifecycle; `stage` does.
 
 ## Releases — `data/releases/<version>.md`
 
-One page per version; `unreleased.md` accumulates until a release is cut.
+One page per cut version, written only by the release cut from the done plans no
+earlier cut took — those without `released` — and their `release` lists.
 
 ``` yaml
 ---
 type: release # required
-version: 0.1.0 # required; the accumulator page uses "unreleased"
-date: 2026-07-18 # required when stage: released
-stage: released # released | unreleased — required
+version: 0.1.0 # required
+date: 2026-07-18 # the day the release was cut
+stage: released # required, always released
 ---
 ```
 
@@ -146,35 +160,12 @@ Atomic prioritized work items waiting to become plans.
 ``` yaml
 ---
 type: task # required
-stage: planned # planned | done — required
+stage: pending # pending | done | cancelled — required
 priority: high # high | medium | low
 created: 2026-08-01 # required, YYYY-MM-DD
 completed: 2026-08-14 # set when done
 ---
 ```
-
-## Codebase map — `data/codebase/<canonical-path>.md`
-
-Derived docs, written only by reading the code: one per component (crate,
-package, module), plus `flow-<name>` and `api-<name>`. Keys are canonical — a
-component's key mirrors its source path with wrapper segments elided
-(`crates/liwe/src/graph` → `data/codebase/crates/liwe/graph`). Their extra
-fields are provenance, not lifecycle.
-
-``` yaml
----
-type: codebase # required
-source: src/timer # required; one path, or a list of paths (first is primary)
-source_digest: sha256:... # required; deterministic tracked-source fingerprint
-verified: { by: human:author, at: 2026-07-25T00:00:00Z } # required; who last confirmed the doc against the code
-stale_after: 2026-11-01 # the day to re-check it
----
-```
-
-Component body: role paragraph, `## Contains` (inclusion links to children —
-this builds the tree), `## Public surface`, `## How it works`, `## Depends on`
-(one-way — "used by" is a backlink query), `## Invariants & gotchas`,
-`## Key references`. Flows: numbered `## Trace` + `## Failure modes`.
 
 ## Reference documents — type only
 
@@ -189,5 +180,7 @@ rejected alternatives.
 
 Hub files (`data/plans.md`, `data/features.md`, …) carry `type: hub`;
 `data/product.md` and `data/milestone.md` carry `type: tracker`. Both take
-`stage: living`. A hub's body is inclusion links grouped by `##` sections; a
-document's category is which hub links it, not which directory holds it.
+`stage: living`. A hub's body is one flat list of inclusion links, one per
+member, sorted by the member's key with any `YYYYMMDD-` prefix removed, with no
+`##` sections — `.iwe/schemas/hub.yaml` rejects a section, and a test checks the
+order. A hub changes only when a member is created, removed, or renamed.

@@ -13,6 +13,7 @@ sources:
 - resource: docs/knowledge/data/features/verification-in-the-main-loop.md
 stage: done
 completed: 2026-08-16
+released: 1.0.0
 ---
 
 # Name the missing handoff routes in explore and verify

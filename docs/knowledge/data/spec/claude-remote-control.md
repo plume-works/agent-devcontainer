@@ -3,20 +3,16 @@ type: spec
 description: Claude Remote Control autostarts from the Coder agent, or from the standalone runtime's supervised watcher when AGENTDEV_CLAUDE_RC_MODE opts in, only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, every container pre-approves Claude's first-run state unless it opts out, and the dev container's hostname, which names the Remote Control environment, says where the container came from.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-10-31T20:55:00Z
 sources:
 - resource: .claude/.gitignore
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
-- resource: .devcontainer/scripts/claude-remote-control-pin.sh
-- resource: .devcontainer/scripts/claude-remote-control-session.sh
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
-- resource: .devcontainer/scripts/coder-agent-start.sh
-- resource: .devcontainer/scripts/preapprove-claude-workspace.sh
-- resource: .devcontainer/scripts/runtime-remote-control.sh
-- resource: .devcontainer/scripts/runtime-supervisor.py
-- resource: .devcontainer/scripts/postCreateCommand.sh
-- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/claude_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: scripts/tests/test_claude_remote_control_pin.py
 - resource: scripts/tests/test_claude_remote_control_session.py
@@ -47,8 +43,8 @@ first-run prompts ahead of time.
 
 ### Requirement: Remote Control autostarts only on a live claude.ai login
 
-`claude-remote-control-start.sh` SHALL start Remote Control in exactly one
-detached tmux session named `claude-remote`, on the dedicated tmux server
+`agentdev-runtime remote-control start` SHALL start Remote Control in exactly
+one detached tmux session named `claude-remote`, on the dedicated tmux server
 `tmux -L claude-remote`, naming the Remote Control session after
 `CODER_WORKSPACE_NAME` when it is set, only when `claude auth status --json`
 reports `loggedIn: true` with `authMethod: "claude.ai"`. The Coder template's
@@ -79,7 +75,7 @@ a resumed conversation leaves Claude running with Remote Control off; running
 
 - **WHEN** the credential file exists but `claude auth status --json` reports
   `loggedIn: false`
-- **THEN** no session is started and the script exits successfully.
+- **THEN** no session is started and the command exits successfully.
 
 #### Scenario: only a setup token is available
 
@@ -89,13 +85,13 @@ a resumed conversation leaves Claude running with Remote Control off; running
 
 #### Scenario: the operator logs in after the workspace started
 
-- **WHEN** an operator completes `/login` and runs the script from a Coder
+- **WHEN** an operator completes `/login` and runs the command from a Coder
   terminal
 - **THEN** `claude-remote` starts without a workspace restart.
 
 #### Scenario: the session starts in a Coder workspace
 
-- **WHEN** the script starts `claude-remote` with `CODER_WORKSPACE_NAME` set
+- **WHEN** the command starts `claude-remote` with `CODER_WORKSPACE_NAME` set
 - **THEN** claude.ai/code lists the Remote Control session under that workspace
   name.
 
@@ -133,13 +129,17 @@ reports it. A value other than `session` or `server`, or in server mode an
 `AGENTDEV_CLAUDE_RC_SPAWN` other than empty, `worktree`, or `same-dir`, SHALL
 latch a configuration failure naming the variable before the bootstrap. While no
 claude.ai login exists, the component SHALL be ready, the runtime SHALL stay
-`ready`, and `runtime-health.sh status` SHALL say it is waiting for a claude.ai
-login. Once a claude.ai login exists, the component SHALL run
-`claude-remote-control-start.sh` as the runtime user in the workspace folder,
-with no operator action, and check for the login without starting a Claude
-process unless the credential file changed. When a `claude-remote` session it
-saw live is gone while the login holds, it SHALL restart the session within the
-runtime's recovery budget for optional services.
+`ready`, and `agentdev-runtime health status` SHALL say it is waiting for a
+claude.ai login. Once a claude.ai login exists, the component SHALL run
+`agentdev-runtime remote-control start` as the runtime user in the workspace
+folder, with no operator action, and check for the login without starting a
+Claude process unless the credential file changed. When a `claude-remote`
+session it saw live is gone while the login holds, it SHALL restart the session
+within the runtime's recovery budget for optional services. A start that returns
+without leaving a live `claude-remote` session SHALL count as the session
+exiting, so the runtime restarts it and, once the recovery budget is exhausted,
+reports degraded naming `remote-control`, or latches failed under strict
+startup.
 
 #### Scenario: the mode is unset
 
@@ -179,13 +179,13 @@ runtime's recovery budget for optional services.
 
 `AGENTDEV_CLAUDE_RC_MODE` SHALL select the mode: `server` selects server mode,
 and an unset or `session` value selects session mode. Any other value SHALL make
-the script print the value and the valid options to stderr, start no session,
+the command print the value and the valid options to stderr, start no session,
 and exit non-zero, before any other check. In server mode,
 `AGENTDEV_CLAUDE_RC_SPAWN` SHALL select the spawn mode: an unset or `worktree`
 value selects `worktree`, and `same-dir` selects `same-dir`. Any other value
-SHALL make the script print the value and the valid options to stderr, start no
+SHALL make the command print the value and the valid options to stderr, start no
 session, and exit non-zero, before any check other than the mode's. In session
-mode the script SHALL NOT read `AGENTDEV_CLAUDE_RC_SPAWN`. In server mode the
+mode the command SHALL NOT read `AGENTDEV_CLAUDE_RC_SPAWN`. In server mode the
 `claude-remote` session SHALL run `claude remote-control --spawn <spawn mode>`,
 passing `--name` and `--remote-control-session-name-prefix` set to
 `CODER_WORKSPACE_NAME` when it is set, and SHALL neither read nor write the
@@ -193,14 +193,14 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 
 #### Scenario: server mode is selected
 
-- **WHEN** the script starts `claude-remote` with
+- **WHEN** the command starts `claude-remote` with
   `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN` unset
 - **THEN** the session runs `claude remote-control --spawn worktree` and reaches
   a connected server with no terminal interaction.
 
 #### Scenario: same-dir spawn mode is selected
 
-- **WHEN** the script starts `claude-remote` with
+- **WHEN** the command starts `claude-remote` with
   `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN=same-dir`
 - **THEN** the session runs `claude remote-control --spawn same-dir`.
 
@@ -209,7 +209,7 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 - **WHEN** a new conversation is started in the workspace's environment from
   claude.ai/code or the Claude mobile app while the server runs in worktree mode
 - **THEN** it runs in its own git worktree under the workspace folder's
-  `.claude/worktrees/` with the environment of the process that ran the script,
+  `.claude/worktrees/` with the environment of the process that ran the command,
   and `git status` in the workspace folder lists none of its files.
 
 #### Scenario: the server pre-creates its session in worktree mode
@@ -224,31 +224,31 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 - **WHEN** a new conversation is started in the workspace's environment from
   claude.ai/code or the Claude mobile app while the server runs in same-dir mode
 - **THEN** it runs in the workspace folder with the environment of the process
-  that ran the script.
+  that ran the command.
 
 #### Scenario: the mode value is unrecognized
 
-- **WHEN** the script runs with `AGENTDEV_CLAUDE_RC_MODE` set to a value other
+- **WHEN** the command runs with `AGENTDEV_CLAUDE_RC_MODE` set to a value other
   than `server` or `session`
 - **THEN** it prints the value and the valid options `server` and `session`,
   starts no session, and exits non-zero.
 
 #### Scenario: the spawn value is unrecognized in server mode
 
-- **WHEN** the script runs with `AGENTDEV_CLAUDE_RC_MODE=server` and
+- **WHEN** the command runs with `AGENTDEV_CLAUDE_RC_MODE=server` and
   `AGENTDEV_CLAUDE_RC_SPAWN` set to a value other than `worktree` or `same-dir`
 - **THEN** it prints the value and the valid options `worktree` and `same-dir`,
   starts no session, and exits non-zero.
 
 #### Scenario: the spawn value is set in session mode
 
-- **WHEN** the script runs in session mode with `AGENTDEV_CLAUDE_RC_SPAWN` set
+- **WHEN** the command runs in session mode with `AGENTDEV_CLAUDE_RC_SPAWN` set
   to any value
 - **THEN** it starts the pinned pane exactly as with the variable unset.
 
 #### Scenario: the mode or spawn mode changes while a session is live
 
-- **WHEN** the script runs with a different mode or spawn mode while
+- **WHEN** the command runs with a different mode or spawn mode while
   `claude-remote` is live
 - **THEN** it leaves the existing session running, and the new setting applies
   on the next session start.
@@ -293,9 +293,9 @@ no leading or trailing hyphen, and at most 63 characters.
 ### Requirement: Remote Control inherits the Coder agent's environment
 
 The Claude process in `claude-remote` SHALL receive the environment of the
-process that ran `claude-remote-control-start.sh`, including when another tmux
-server is live on the default socket. Started by the `coder_script`, it SHALL
-carry the Coder user secrets and the agent's git credential helper.
+process that ran `agentdev-runtime remote-control start`, including when another
+tmux server is live on the default socket. Started by the `coder_script`, it
+SHALL carry the Coder user secrets and the agent's git credential helper.
 
 #### Scenario: a GitHub token is a Coder user secret
 
@@ -305,9 +305,9 @@ carry the Coder user secrets and the agent's git credential helper.
 
 #### Scenario: a default tmux server is already running
 
-- **WHEN** a tmux server is live on the default socket before the script runs
+- **WHEN** a tmux server is live on the default socket before the command runs
 - **THEN** `claude-remote` starts on its own server and its Claude process
-  receives the script's environment.
+  receives the command's environment.
 
 ### Requirement: every container pre-approves first-run Claude state
 
@@ -333,10 +333,10 @@ files SHALL be preserved. The CI responder SHALL set the opt-out.
 - **THEN** the first interactive `claude` session shows no onboarding, trust, or
   project-MCP prompt.
 
-#### Scenario: the CI responder runs the lifecycle scripts
+#### Scenario: the CI responder runs the lifecycle commands
 
-- **WHEN** `postCreateCommand.sh` runs with `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`
-  set
+- **WHEN** `agentdev-runtime lifecycle created` runs with
+  `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` set
 - **THEN** neither `~/.claude.json` nor `.claude/settings.local.json` is
   modified.
 
@@ -345,18 +345,19 @@ files SHALL be preserved. The CI responder SHALL set the opt-out.
 ### 1. Attach the Coder agent start, or opt in the standalone runtime
 
 On Coder, the workspace template's `coder_script` on the dev container's
-sub-agent runs the repository's agent-start script, by default
-`.devcontainer/scripts/coder-agent-start.sh`, on every agent start, and that
-script execs `claude-remote-control-start.sh` ([Devcontainer Git
+sub-agent runs the repository's agent-start command, by default
+`agentdev-runtime coder start`, on every agent start, and that command execs
+`agentdev-runtime remote-control start` ([Devcontainer Git
 credentials](devcontainer-git-credentials.md)). The `coder_script` runs nothing
-when the repository ships no such script.
+when the repository ships no agent-start command ([Coder IDE
+baseline](coder-ide-baseline.md)).
 
 In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
 `session` or `server` (and, in server mode, optionally
-`AGENTDEV_CLAUDE_RC_SPAWN`); its `remote-control` watcher then starts the script
-once a claude.ai login exists, and `runtime-health.sh status` reports what it is
-doing. On other hosts nothing starts Remote Control; the script can still be run
-by hand.
+`AGENTDEV_CLAUDE_RC_SPAWN`); its `remote-control` watcher then runs
+`agentdev-runtime remote-control start` once a claude.ai login exists, and
+`agentdev-runtime health status` reports what it is doing. On other hosts
+nothing starts Remote Control; the command can still be run by hand.
 
 ### 2. Log in
 
@@ -367,7 +368,7 @@ the login happened, start it by hand from a Coder terminal, which carries the
 same environment as the `coder_script`:
 
 ``` bash
-.devcontainer/scripts/claude-remote-control-start.sh
+agentdev-runtime remote-control start
 ```
 
 A workspace restart also starts it.

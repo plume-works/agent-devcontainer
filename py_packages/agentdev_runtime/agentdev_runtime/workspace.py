@@ -158,7 +158,7 @@ class Workspace:
 
     def catalog(self) -> None:
         root = self.select_catalog()
-        log(f'registering the agentdev catalog at {root} for Claude, Codex, and OpenCode')
+        log(f'registering the agentdev catalog at {root} for Claude and OpenCode')
         with agent_state.config_lock(self.settings):
             catalog.install(self.settings, str(root), 'user')
 
@@ -171,7 +171,7 @@ class Workspace:
             agent_state.apply_agent_policy()
 
     def config(self) -> None:
-        """Register the catalog, then CBM: Codex inserts tables CBM's block then moves."""
+        """Register the catalog, then CBM."""
         self.catalog()
         with agent_state.config_lock(self.settings):
             agent_state.install_cbm(self.settings)

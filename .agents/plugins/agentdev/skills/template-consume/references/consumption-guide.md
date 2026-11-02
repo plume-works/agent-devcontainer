@@ -21,10 +21,10 @@ The default setup SHALL retain all runtime capabilities provided by the
 template's devcontainer: the digest-pinned `agentdev-devcontainer` image
 with its supervised nested Docker, and Codespaces SSH; worktree-safe workspace mounts;
 Xpra/VirtualGL desktop access; the Docker Desktop MCP gateway and secrets
-socket integration; persistent state volumes (one shared volume holding both
-agents' credentials, the rest of each agent's state scoped per devcontainer
+socket integration; persistent state volumes (one shared volume holding Claude
+Code's credentials, the rest of each agent's state scoped per devcontainer
 instance); the `agentdev` catalog staged in the image and installed after
-volume mounts; Codex devcontainer policy configuration; keyring and GitHub
+volume mounts; keyring and GitHub
 authentication support; uv environment caching and pre-commit setup; and an
 opt-in egress firewall with a project-owned allowlist.
 
@@ -61,11 +61,11 @@ authentication/configuration should remain shared with other local projects.
 
 The supplied configuration uses the literal Docker volume
 `agentdev-agents-auth`, mounted at `/root/.agents-auth` with one subdirectory
-per agent. Keeping it shares Claude Code's and Codex's credentials only —
+per agent. Keeping it shares Claude Code's credentials only —
 nothing else — across this project, its worktrees, and other projects using the
 same volume name. That is the default behavior supplied here. The rest of each
-agent's state — plugins, marketplaces, sessions, `~/.claude.json`, `~/.codex`'s
-logs and sqlite state — lives in the `agentdev-claude` and `agentdev-codex`
+agent's state — plugins, marketplaces, sessions, `~/.claude.json`, OpenCode's
+provider logins and sessions — lives in the `agentdev-claude` and `agentdev-opencode`
 mounts, which Compose scopes per devcontainer instance because that state
 records absolute workspace paths that differ between worktrees.
 
@@ -83,26 +83,25 @@ Delete these paths from the copied repository:
 .agents/
 .claude-plugin/
 py_packages/
-scripts/validate-super-linter-tool-versions.py
 docs/knowledge/tests/test_iwe_seed.py
 ```
 
 `.iwe/` and the rest of `docs/knowledge/` are handled in [Optional
 knowledge-base setup](#optional-knowledge-base-setup), not here.
 
-`scripts/` holds nothing else, so it disappears with its one file; delete the
-empty directory rather than leaving it behind. The same applies to the
-`py_packages/` wrapper and its standalone `LICENSE` once `validate_agent_files`
-is gone.
+Keep `scripts/pre-commit-ci-range.py`: the `pre-commit` job in Primary checks
+runs it (see [Primary checks and pre-commit](#primary-checks-and-pre-commit)).
+Delete the empty `py_packages/` wrapper and its standalone `LICENSE` once
+`validate_agent_files` is gone.
 
 The catalog is not lost: the published image stages it at `/opt/agentdev`, and
-the retained post-create scripts install it through the Claude and Codex plugin
-CLIs. The validator source is also unnecessary — the image installs
+the retained post-create scripts install it through the Claude plugin CLI and
+OpenCode's bridge plugin. The validator source is also unnecessary — the image installs
 `validate_agent_files` at `/usr/local/bin/validate_agent_files`, so the command
 works in the devcontainer with no `uv run` prefix. Confirm it with
 `command -v validate_agent_files`.
 
-Do not delete `.claude/` or `.codex/`; those are project-facing configuration.
+Do not delete `.claude/`; it is project-facing configuration.
 Do not delete the root `AGENTS.md` or `CLAUDE.md`; publisher-only instructions
 were split into the source trees removed above.
 
@@ -240,7 +239,7 @@ host as `initializeCommand` and supplies the environment consumed by Compose.
 
 ### 7. Review agent configuration
 
-Retain `.claude/` and `.codex/`, then review them as project policy:
+Retain `.claude/`, then review it as project policy:
 
 - `.claude/settings.json` is strict JSON. Review allowed paths, Bash commands,
   web domains, MCP tools, and enabled official plugins. Remove the
@@ -251,8 +250,6 @@ Retain `.claude/` and `.codex/`, then review them as project policy:
   permissions.
 - Rewrite `.claude/README.md` so it no longer links to the deleted catalog
   publisher tree.
-- Rewrite `.codex/README.md` to describe the consumer project without links to
-  deleted publisher manifests.
 - Root `CLAUDE.md` continues to include root `AGENTS.md`.
 
 The project does not need to declare `agentdev` in `.claude/settings.json`
@@ -267,38 +264,25 @@ The IWE workflow skills are delivered by the installed `agentdev` catalog as
 
 The `.github/` tree is a starting point, not a copy-and-run contract.
 
-#### Primary checks and reformatting
+#### Primary checks and pre-commit
 
-In `.github/workflows/primary-checks.yml`, keep the reformat call and remove
-the `ci` job unless the optional image bundle is retained. That job is the
-only consumer of the `clean_build` `workflow_dispatch` input, so remove the
-input with it.
+In `.github/workflows/primary-checks.yml`, keep the `pre-commit` job: it is the
+lint gate, running the repository's pre-commit hooks in the same digest-pinned
+`agentdev-devcontainer` image as `devcontainer-compose-pins.yml`. Remove the
+`ci` job unless the optional image bundle is retained. That job is the only
+consumer of the `clean_build` `workflow_dispatch` input, so remove the input
+with it.
+
+`scripts/pre-commit-ci-range.py` picks the files the job checks. Adapt its
+`TOOL_VERSION_OWNERS` to the files that pin the consuming project's hook tools:
+a change to any of them makes the job check every file. Drop
+`ansible/roles/dev_tools/defaults/main.yml` when the optional bundle is gone.
 
 In `.github/actions/paths-filter/action.yml`, the built-in filter is named
 `image` and lists the publisher's build inputs. Delete the `ansible/**`,
 `docker/**`, `scripts/**`, `.agents/plugins/**`, `.claude-plugin/**`, and
 `py_packages/validate_agent_files/**` entries; keep `.devcontainer/**` and
 `.github/actions/**` so the retained workflows still trigger.
-
-In `.github/workflows/reformat.yml`:
-
-1. remove catalog, validator-source, Ansible, and excluded tool-version paths
-   that no longer exist;
-2. remove the `scripts/validate-super-linter-tool-versions.py` step;
-3. replace the two `./.agents/plugins/agentdev/bin/super_linter.py env` calls;
-   and
-4. update formatter path filters for the consuming project.
-
-Step 3 is the only one with real work in it. Both steps write the Super-Linter
-environment into `$GITHUB_ENV`, and the helper is nothing but a sequence of
-`NAME=value` lines — one set for the autofix pass, one for the check pass,
-differing in the `FIX_*` values and in four `VALIDATE_*` flags for linters that
-cannot autofix. Inline those two blocks into the workflow as heredocs and drop
-`VALIDATE_ANSIBLE` and `ANSIBLE_DIRECTORY` if the optional bundle is gone.
-Nothing else in the workflow depends on the catalog.
-
-The template's workflow references publisher files under `.agents/` and
-`scripts/`; it will fail if copied and pruned without these edits.
 
 #### Agent-file validation
 
@@ -308,8 +292,8 @@ owns. The template's `.github/workflows/validate-agent-files.yml` builds a
 working-tree_ validator — the same publisher-only package step 2 deletes.
 Copying that workflow as-is fails once `py_packages/` is gone. Remove: the
 `py_packages/validate_agent_files/tests` step; the
-`.agents/plugins/agentdev/tests` step; the `--require-marketplace claude
-codex` argument, which asserts publisher manifests a consumer does not have;
+`.agents/plugins/agentdev/tests` step; the `--require-marketplace claude`
+argument, which asserts publisher manifests a consumer does not have;
 and path filters for deleted catalog/package source in the `paths-filter`
 job's `extra-filter`.
 
@@ -484,10 +468,8 @@ Retain `.github/renovate.json`, but review every rule:
 1. keep Docker dependency management for `devcontainer-compose-pins.yml` so
    the development image does not become stale;
 2. remove the image-publisher self-build/automerge explanation when the
-   project consumes rather than publishes the image;
-3. remove the publisher-only Super-Linter synchronization rule if its
-   excluded script and release process are not retained; and
-4. update organization, repository, and branch assumptions.
+   project consumes rather than publishes the image; and
+3. update organization, repository, and branch assumptions.
 
 The catalog needs no Renovate rule of its own: the devcontainer reinstalls
 the bundled catalog on start, so its version follows the image pin rather
@@ -535,8 +517,8 @@ Run these checks from the new repository:
 5. Create or rebuild the devcontainer and confirm the post-create and
    post-start commands finish successfully.
 
-6. Confirm Claude and Codex list `agentdev@agent-devcontainer` after starting
-   new sessions.
+6. Confirm Claude Code lists `agentdev@agent-devcontainer` and OpenCode lists the
+   catalog's skills after starting new sessions.
 
 7. When agent files are present, run the image-provided validator against
    their actual locations.
@@ -599,7 +581,6 @@ Copy or merge:
 AGENTS.md
 CLAUDE.md
 .claude/
-.codex/
 ```
 
 When the existing repository already has agent instructions or settings,
@@ -878,17 +859,14 @@ publisher's own `.iwe/` and `docs/knowledge/` are never modified.
 ### Onboard the consumer's project memory
 
 A freshly bootstrapped workspace holds placeholders, not project memory. Fill it by
-invoking the two onboarding skills, in order, from the **consumer** repository
-root:
+invoking the onboarding skill from the **consumer** repository root:
 
 1. `/agentdev:iwe-setup` — reads the consumer's codebase, interviews the
    developer for what the code cannot answer, fills `data/product.md`, writes
    the first architecture doc, closes the `fill-product-doc` and
    `capture-current-architecture` backlog tasks, and deletes the `*.example.md`
    documents.
-2. `/agentdev:iwe-map` — writes the per-module `data/codebase/` map that setup
-   deliberately defers.
-3. At the end of the consumption episode, write the adoption summary described
+2. At the end of the consumption episode, write the adoption summary described
    below into the consumer graph. Record the adopted SHA, workflow, and settled
    choices, and point to `.agentdev-template-progress.md` as the live record.
    Do not copy the checklist into the graph.
@@ -900,15 +878,14 @@ The bootstrapped `.iwe/config.toml` binds that exact key to `[schemas.tracker]`.
 writes it and update mode refreshes it at the end of every episode. A consumer
 without IWE skips the summary entirely.
 
-Both skills own their own interviews and confirmation gates. This guide invokes
-them; it does not answer for the user, skip a confirmation, or pre-fill an
+Setup owns its own interview and confirmation gates. This guide invokes it; it
+does not answer for the user, skip a confirmation, or pre-fill an
 interview.
 
 Two states need naming explicitly:
 
-- **A greenfield consumer** — no code to map. Run setup, which works from the
-  interview alone, and report mapping as deferred until code exists. Do not run
-  map against an empty tree and do not record it as done.
+- **A greenfield consumer** — no code yet. Run setup, which works from the
+  interview alone.
 - **Onboarding interrupted** — a question unanswered, a confirmation not given,
   the session ended partway. Report onboarding as pending, naming what is
   outstanding and `.agentdev-template-progress.md` as the file holding that
@@ -919,9 +896,7 @@ Two states need naming explicitly:
 
 Verify the result from the consumer root: `iwe schema validate` and
 `iwe normalize` both clean, `data/product.md` free of `✏️` placeholders, and
-no `*.example.md` documents left under `data/`. For a mapped brownfield
-consumer, the installed iwe-map skill's `stale-map-docs.py` must report
-`RESULT=SUCCESS`.
+no `*.example.md` documents left under `data/`.
 
 ### When IWE is declined
 
@@ -1192,8 +1167,8 @@ episodes; template updates neither replace nor delete it.
 
 Project memory is outside that loop. `docs/knowledge/data/` is the consumer's
 own from the moment it is bootstrapped, so update mode neither compares it nor
-invokes `/agentdev:iwe-bootstrap`, and it never re-runs `/agentdev:iwe-setup` or
-`/agentdev:iwe-map`. A catalog update that changes the bootstrap scaffold never
+invokes `/agentdev:iwe-bootstrap`, and it never re-runs `/agentdev:iwe-setup`.
+A catalog update that changes the bootstrap scaffold never
 reaches an initialized workspace. Only the
 reusable scaffold listed above is tracked. A marker written before that
 distinction existed tracks `docs/knowledge/` wholesale; update mode narrows it
@@ -1204,3 +1179,15 @@ schema or config change applied from upstream can invalidate documents the
 consumer already wrote, so validate the consumer's graph against the proposed
 schemas — `iwe schema validate` from the consumer root — and decide with the
 user before applying.
+
+The one consumer-memory change update mode makes without asking is removing a
+retired codebase map: this catalog version no longer ships the map's tooling, so
+a kept map leaves a CI step that fails. Wherever present, update mode removes
+every `data/codebase/` document and the `data/codebase.md` hub through
+`iwe delete`, then the de-linked lines that deletion leaves in other documents;
+`.iwe/schemas/codebase.yaml`, the `[schemas.codebase]` block, and
+`"data/codebase"` in the hub schema's `match` list of `.iwe/config.toml`; the
+`iwe-map` key of every `.agent.metadata.json`, and each such file left holding
+no key; and any CI step or pre-commit hook that runs `stale-map-docs.py`. It
+reports each removal, then runs `iwe normalize` and `iwe schema validate` from
+the consumer root. A consumer that never adopted the map sees no change.

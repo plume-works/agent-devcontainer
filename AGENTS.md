@@ -4,12 +4,13 @@ NEVER use "$TMPDIR" env variable.
 ALWAYS use "./.tmp" (relative to the repo root) for temporary files; create it if it does not exist.
 The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so supervisord, CBM and tmux fail there with `EINVAL`.
 NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch contents. Use local git branch workflows instead; if push authentication is unavailable, stop and report the blocker rather than updating the branch remotely via API.
-NEVER force-push. The one exception: `gh stack rebase` and the `gh-stack` skill's `stack-guard.py publish`, run after its `stack-guard.py begin`, may update branches of a GitHub stack with `--force-with-lease` (see `docs/knowledge/data/architecture/stacked-prs.md`). Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`.
+NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
+NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 Commit at checkpoints as meaningful progress is achieved, rather than accumulating a whole task into one commit at the end.
 
 ## Best Practices for Agents
 
-0. NEVER change git config on local or global level unless explicitly instructed. The one exception: the repository-local `rerere.enabled` and `remote.pushDefault` that `gh stack` and the `gh-stack` skill's setup write. NEVER switch/change remote.
+0. NEVER change git config on local or global level unless explicitly instructed. NEVER switch/change remote.
 1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `uv sync` (`agentdev-runtime project sync` inside the runtime images) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
 2. **Scope test runs narrowly** while iterating: `uv run pytest <path>::<test_name>`, `bun test <path>`. Run the full suite only when asked.
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, escalate in this order: (a) Docker daemon available → use the `/agentdev:microvm-sandbox` skill to run the command through `devcontainer exec`; (b) no Docker daemon → use the `/agentdev:remote-codespace-session` skill to run it on a GitHub Codespace over SSH. Only report a blocker if both escalation paths are unavailable (e.g. no `gh` auth).
@@ -80,7 +81,7 @@ Practice 8.
 
 - Follow **PEP 8**: 4 spaces per indentation level, descriptive names. The line limit is **99** (`.ruff.toml`), not 79.
 - Use type hints (PEP 484, `typing` module) and PEP 257 docstrings placed immediately after `def`/`class`
-- Formatting and autofixes are applied by **ruff**, via the pre-commit hooks that run on every commit; Super-Linter runs the same tools in CI. Verify with `python_lint_check.py` for a fast, Docker-free check. Never judge style with stock `flake8` or `black`: their defaults (79-char limit, double quotes, different isort grouping) produce false positives that do not match this repo and do not fail CI. Import sorting needs no separate pass — `I` is in `.ruff.toml`'s `select` list, so the ruff hook sorts imports too. Use a targeted `# noqa: <rule>` only for a formatter-required incompatibility (for example `E203` on a slice); never disable a rule for a whole file or package, and fix import-group disagreements in `.ruff.toml`'s `lint.isort` rather than with `noqa`
+- Formatting and autofixes are applied by **ruff**, via the pre-commit hooks that run on every commit and in CI's `pre-commit` job. Verify with `python_lint_check.py` for a fast, Docker-free check. Never judge style with stock `flake8` or `black`: their defaults (79-char limit, double quotes, different isort grouping) produce false positives that do not match this repo and do not fail CI. Import sorting needs no separate pass — `I` is in `.ruff.toml`'s `select` list, so the ruff hook sorts imports too. Use a targeted `# noqa: <rule>` only for a formatter-required incompatibility (for example `E203` on a slice); never disable a rule for a whole file or package, and fix import-group disagreements in `.ruff.toml`'s `lint.isort` rather than with `noqa`
 - **Exception handling**: never write empty handlers (`except ...: pass`). Handle expected exceptions explicitly by at least one of: logging context, returning a safe fallback value, re-raising with context, or raising `SystemExit` for CLI interruption paths (`raise SystemExit(130)` for user interrupts). If an exception must be intentionally ignored, document the reason in a comment and keep the ignored scope minimal. Prefer specific exception types over broad `except Exception`
 
 ### Python Testing
@@ -94,7 +95,8 @@ Practice 8.
 
 ### Shell
 
-- All scripts are `#!/usr/bin/env bash` with `set -euo pipefail`, and must pass `shellcheck` (enforced by pre-commit and Super-Linter)
+- All scripts are `#!/usr/bin/env bash` with `set -euo pipefail`, and must pass `shellcheck` (enforced by the pre-commit hooks, locally and in CI)
+- The one exception is the agentdev catalog's `bin/macos-bootstrap.zsh`: it is zsh because it runs on a stock macOS host before anything is installed, where `/bin/zsh` is the only modern shell. `shellcheck` cannot parse zsh, so it is checked with `zsh -n` instead
 - Quote every expansion; prefer `"${var:-default}"` over assuming a variable is set
 
 ### C++

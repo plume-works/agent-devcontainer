@@ -3,11 +3,11 @@ type: spec
 description: How self-hosted Renovate keeps checksums, lock files, and pre-commit output in the same change as the version bump that implies them.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T20:00:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
 - resource: .github/renovate.json
 - resource: .github/workflows/renovate.yml
-- resource: scripts/renovate-post-upgrade.sh
+- resource: scripts/renovate-post-upgrade.py
 - resource: scripts/refresh-pin-checksums.py
 - resource: scripts/tests/test_refresh_pin_checksums.py
 - resource: scripts/tests/test_renovate_post_upgrade.py

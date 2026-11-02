@@ -65,7 +65,7 @@ Fill in at least:
 | `GH_TOKEN`                     | The GitHub token, when the repository is private               |
 | `AGENTDEV_UID`, `AGENTDEV_GID` | In bind mode, the IDs that own the checkout (`id -u`, `id -g`) |
 
-Every project that should share Claude Code and Codex logins uses the same
+Every project that should share Claude Code logins uses the same
 `AGENTDEV_UID`, `AGENTDEV_GID`, and `AGENTDEV_AUTH_VOLUME`.
 
 To reach the project from claude.ai/code or the Claude app, also set
@@ -156,13 +156,12 @@ the proxy a static `ipv4_address` keeps that address stable.
   only.
 - **Desktop.** Open `https://desktop.example.com`; the Xpra HTML5 client asks for
   `XPRA_PASSWORD` when it connects.
-- **Claude Code and Codex.** Log in once from a shell in the container; every project
-  container in the same identity cohort then shares the login:
+- **Claude Code.** Log in once from a shell in the container; every project container
+  in the same identity cohort then shares the login:
 
   ```bash
   docker exec -u agent -it myproject-opencode-1 bash
   claude        # follow its login prompt, then exit
-  codex login   # `codex login --help` lists a device-code flow for remote hosts
   ```
 
 - **Claude Remote Control.** With `AGENTDEV_CLAUDE_RC_MODE` set, Remote Control
@@ -184,11 +183,11 @@ files. Keep credentials and session contents out of anything you record.
 1. Create an OpenCode session and change a user setting.
 2. Replace the container: `docker compose ... up -d --force-recreate` with the same
    files. The OpenCode provider login, the session, the setting, and the Claude Code
-   and Codex logins are all still there.
+   login are all still there.
 3. Upgrade: take a newer `opencode-compose-pins.yml` and run the same `up -d`. The
    same state survives, and `docker inspect` shows the new digest.
 4. Start a second project with another `-p` name, the same IDs, and the same auth
-   volume. It is already logged in to Claude Code and Codex, asks for its own OpenCode
+   volume. It is already logged in to Claude Code, asks for its own OpenCode
    provider login, and lists none of the first project's sessions.
 5. From another container on `agentdev-proxy`, port `4096` refuses requests without
    the OpenCode password and port `14500` refuses sessions without the Xpra password.

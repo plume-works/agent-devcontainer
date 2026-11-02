@@ -4,7 +4,7 @@ stage: implemented
 description: bun and bunx are the only JavaScript runners — the Prettier and Renovate pre-commit hooks run through bunx and AGENTS.md rules out npm, npx, yarn, and pnpm.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
+  at: 2026-11-01T04:32:17Z
 sources:
 - resource: docs/knowledge/data/plans/20260925-bun-for-node-tooling.md
 - resource: .pre-commit-config.yaml
@@ -32,8 +32,8 @@ printed to users, and rules out `npm`, `npx`, `yarn`, and `pnpm`.
 
 ## Edge cases
 
-- **The Prettier version** still follows the Super-Linter image; the
-  tool-version sync check reads it from the `bunx` entry.
+- **The Prettier version** is pinned in its `bunx prettier@<version>` hook
+  entry, which Renovate's npm regex manager bumps.
 
 ## Open questions
 

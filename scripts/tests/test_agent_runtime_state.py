@@ -26,7 +26,6 @@ def runtime_env(root: Path, **extra: str) -> dict[str, str]:
     return {
         'PATH': os.environ['PATH'],
         'HOME': str(home),
-        'CODEX_HOME': str(home / '.codex'),
         'XDG_DATA_HOME': str(home / '.local/share'),
         'XDG_CONFIG_HOME': str(home / '.config'),
         'AGENTDEV_AGENTS_AUTH_DIR': str(root / 'auth'),
@@ -77,66 +76,13 @@ def test_devcontainer_defaults_are_the_root_layout():
         settings.get('AGENTDEV_AGENTS_AUTH_DIR'),
         settings.get('AGENTDEV_CLAUDE_DIR'),
         settings.get('AGENTDEV_CLAUDE_JSON'),
-        settings.get('CODEX_HOME'),
         f'{settings.get("XDG_DATA_HOME")}/opencode',
     ] == [
         '/root/.agents-auth',
         '/root/.claude',
         '/root/.claude.json',
-        '/root/.codex',
         '/root/.local/share/opencode',
     ]
-
-
-def run_links(tmp_path: Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        [*STATE, 'links'], env=runtime_env(tmp_path), capture_output=True, text=True
-    )
-
-
-def test_links_explicit_roots_on_fresh_volumes(tmp_path: Path):
-    result = run_links(tmp_path)
-    assert result.returncode == 0, result.stderr
-
-    home, auth = tmp_path / 'home', tmp_path / 'auth'
-    assert os.readlink(home / '.codex/auth.json') == str(auth / 'codex/auth.json')
-    assert mode(auth / 'codex') == 0o700
-    assert not (auth / 'opencode').exists()
-    assert not (home / '.local/share/opencode/auth.json').exists()
-
-
-def test_migrates_regular_credentials_and_preserves_other_config(tmp_path: Path):
-    home = tmp_path / 'home'
-    (home / '.codex').mkdir(parents=True)
-    (home / '.codex/auth.json').write_text('{"codex": 1}')
-    (home / '.codex/config.toml').write_text('model = "keep"\n')
-    (home / '.local/share/opencode').mkdir(parents=True)
-    (home / '.local/share/opencode/auth.json').write_text('{"opencode": 1}')
-    (home / '.local/share/opencode/storage.db').write_text('sessions')
-
-    result = run_links(tmp_path)
-    assert result.returncode == 0, result.stderr
-
-    auth = tmp_path / 'auth'
-    assert (auth / 'codex/auth.json').read_text() == '{"codex": 1}'
-    assert mode(auth / 'codex/auth.json') == 0o600
-    assert (home / '.codex/auth.json').is_symlink()
-    assert (home / '.local/share/opencode/auth.json').read_text() == '{"opencode": 1}'
-    assert (home / '.codex/config.toml').read_text() == 'model = "keep"\n'
-    assert (home / '.local/share/opencode/storage.db').read_text() == 'sessions'
-
-
-def test_repairs_destroyed_and_wrong_links(tmp_path: Path):
-    home, auth = tmp_path / 'home', tmp_path / 'auth'
-    (auth / 'codex').mkdir(parents=True)
-    (auth / 'codex/auth.json').write_text('shared')
-    (home / '.codex').mkdir(parents=True)
-    (home / '.codex/auth.json').symlink_to(tmp_path / 'elsewhere')
-
-    result = run_links(tmp_path)
-    assert result.returncode == 0, result.stderr
-
-    assert (home / '.codex/auth.json').read_text() == 'shared'
 
 
 def test_standalone_create_order_migrates_the_users_claude_json(
@@ -153,10 +99,8 @@ def test_standalone_create_order_migrates_the_users_claude_json(
     assert (home / '.claude/claude.json').read_text() == '{"user": true}'
     assert os.readlink(home / '.claude.json') == str(home / '.claude/claude.json')
     assert recorder.calls == ['preapprove']
-    assert (home / '.codex/auth.json').is_symlink()
-    for agent in ('claude', 'codex'):
-        assert mode(tmp_path / 'auth' / agent) == 0o700
-    assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude', 'codex']
+    assert mode(tmp_path / 'auth/claude') == 0o700
+    assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude']
     assert not (home / '.local/share/opencode/auth.json').exists()
 
 
@@ -199,7 +143,6 @@ def test_standalone_cbm_step_fails_when_cbm_install_fails(
 
 def test_catalog_passes_the_scope_only_to_claude(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     calls: list[str] = []
-    monkeypatch.setattr(catalog, 'codex', lambda _s, root: calls.append(f'codex {root}'))
     monkeypatch.setattr(
         catalog, 'claude', lambda root, scope: calls.append(f'claude {root} {scope}')
     )
@@ -208,28 +151,26 @@ def test_catalog_passes_the_scope_only_to_claude(tmp_path: Path, monkeypatch: py
     assert catalog.main(['install', '/opt/catalog', '--claude-scope', 'user']) == 0
     assert catalog.main(['install', '/opt/catalog']) == 0
     assert calls == [
-        'codex /opt/catalog',
         'claude /opt/catalog user',
         'opencode /opt/catalog',
-        'codex /opt/catalog',
         'claude /opt/catalog local',
         'opencode /opt/catalog',
     ]
 
 
-@pytest.mark.parametrize('missing', [catalog.CLAUDE_MANIFEST, catalog.CODEX_MANIFEST, None])
+@pytest.mark.parametrize('missing', [catalog.CLAUDE_MANIFEST, catalog.OPENCODE_BRIDGE, None])
 def test_a_catalog_is_complete_only_with_every_client_manifest(tmp_path: Path, missing):
-    for manifest in (catalog.CLAUDE_MANIFEST, catalog.CODEX_MANIFEST):
-        if manifest != missing:
-            (tmp_path / manifest).parent.mkdir(parents=True, exist_ok=True)
-            (tmp_path / manifest).write_text('{}')
-    (tmp_path / catalog.OPENCODE_BRIDGE).mkdir(parents=True)
+    if missing != catalog.CLAUDE_MANIFEST:
+        (tmp_path / catalog.CLAUDE_MANIFEST).parent.mkdir(parents=True)
+        (tmp_path / catalog.CLAUDE_MANIFEST).write_text('{}')
+    if missing != catalog.OPENCODE_BRIDGE:
+        (tmp_path / catalog.OPENCODE_BRIDGE).mkdir(parents=True)
     assert catalog.complete(tmp_path) is (missing is None)
 
 
 def test_hooks_keep_their_call_order():
     ready = inspect.getsource(lifecycle.ready)
-    assert ready.index('link_codex_auth') < ready.index('apply_agent_policy')
+    assert ready.index('credential_helper') < ready.index('apply_agent_policy')
     assert ready.rstrip().endswith("hooks.run(settings, 'started')")
     created = inspect.getsource(lifecycle.created)
     assert created.index('agent_state.create') < created.index('.project()')

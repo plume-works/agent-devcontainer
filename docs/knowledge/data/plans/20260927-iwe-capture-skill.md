@@ -16,6 +16,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
 stage: done
 completed: 2026-09-27
+released: 2.0.0
 ---
 
 # Add the iwe-capture skill

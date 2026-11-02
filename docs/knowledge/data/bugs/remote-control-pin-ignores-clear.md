@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/data/architecture/claude-remote-control-resume.md
 - resource: https://code.claude.com/docs/en/hooks
 stage: done
+severity: medium
 ---
 
 # Bug: the Remote Control pin ignores `/clear`

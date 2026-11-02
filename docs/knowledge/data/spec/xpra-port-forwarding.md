@@ -2,10 +2,10 @@
 type: spec
 description: Xpra uses a fixed container port while VS Code handles local port conflicts.
 generated:
-  by: codex/gpt-6
-  at: 2026-09-06T04:26:49Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: docker/desktop/start-xpra.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/xpra.py
 - resource: .devcontainer/devcontainer.json
 - resource: README.md
 ---
@@ -14,7 +14,7 @@ sources:
 
 ## Requirement: Xpra has a fixed default container port
 
-The startup script SHALL use TCP port 14500 by default, independently of
+`agentdev-runtime xpra` SHALL use TCP port 14500 by default, independently of
 `DEVCONTAINER_ID`, and SHALL honor an explicit `--port` argument.
 
 ### Scenario: default startup

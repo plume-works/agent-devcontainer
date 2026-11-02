@@ -4,7 +4,7 @@ A reproducible, multi-architecture development environment built for agent-drive
 software development.
 
 `agent-devcontainer` combines a ready-to-use container image, a plugin catalog for
-Claude Code and Codex, project-memory workflows, automated pull-request review,
+Claude Code and OpenCode, project-memory workflows, automated pull-request review,
 validation tooling, and reusable scaffolding for adopting the environment in other
 repositories.
 
@@ -13,7 +13,7 @@ repositories.
 - Multi-architecture `linux/amd64` and `linux/arm64` images published through GHCR.
 - Python development through `uv`, plus Bun and Node.js 24.
 - A supervised nested Docker engine, Buildx, Compose, CMake, Ninja, Git LFS, and GitHub CLI.
-- Claude Code and Codex preinstalled with the shared `agentdev` catalog.
+- Claude Code and OpenCode preinstalled with the shared `agentdev` catalog.
 - An optional `self-improve` plugin that turns verified corrections into reviewable
   instructions, published but not enabled by default.
 - A browser-accessible Xpra desktop with VirtualGL support.
@@ -96,8 +96,7 @@ for prerequisites and the full-copy and selective-copy workflows.
 scaffolding. On start it creates its runtime account, prepares the workspace, and
 starts the OpenCode server, with nested Docker, an instance-local keyring, Codebase
 Memory MCP, and the Xpra desktop around it. Each service is supervised and recovered
-within a bounded budget. Claude Code and Codex are installed and configured but not
-started.
+within a bounded budget. Claude Code is installed and configured but not started.
 
 ### Launch
 
@@ -136,7 +135,7 @@ the path its `.git` file names.
   peer on the proxy network cannot bypass the proxy. The HTML5 page loads without
   it and asks for it on connect.
 - `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
-- Claude Code and Codex logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
+- Claude Code logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
   every project container in the same identity cohort. Each project container logs in
   to OpenCode once: its logins share a database with its sessions in the instance
   `home` volume, and survive replacement and upgrade there. Sessions, configuration,
@@ -159,7 +158,7 @@ ownership is never changed.
 | `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring, CBM |
 | `/uv`                    | `uv`                     | uv cache, Python installs, project venv                |
 | `/var/lib/docker`        | `docker`                 | The nested engine, including its image store           |
-| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude and Codex logins                         |
+| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude Code logins                              |
 
 Back up `home`, `workspace`, and the auth volume to keep an instance's state; `uv` and
 `docker` can be rebuilt. Removing the container keeps every volume. `docker compose
@@ -169,7 +168,7 @@ name instead, for example `docker volume rm myproject_home myproject_uv`.
 ### Startup and failures
 
 The core path is the root bootstrap (account, volumes, and the opt-in firewall), the
-session bus and keyring, then the core phase (checkout, Claude and Codex login links,
+session bus and keyring, then the core phase (checkout, the Claude credential links,
 agent policy), then OpenCode. Everything else is optional work:
 
 - before OpenCode, which reads them when it starts: catalog registration, the
@@ -234,7 +233,7 @@ retry` resumes a latched runtime from
 | ------------- | ------------------------------------------------------------------------------------ |
 | Python        | `uv`, system Python, and `pre-commit`                                                |
 | JavaScript    | Bun, Node.js 24, and Yarn                                                            |
-| Agents        | Claude Code, Codex, MCP Inspector, and Codebase Memory MCP                           |
+| Agents        | Claude Code, OpenCode, MCP Inspector, and Codebase Memory MCP                        |
 | Build tooling | `build-essential`, Kitware CMake, Ninja, and `pkg-config`                            |
 | Quality       | Ruff, ShellCheck, Zizmor, Ansible Lint, Prettier, Hadolint, Gitleaks, and Actionlint |
 | GitHub        | Git, Git LFS, `gh`, and a transparent host-token wrapper                             |
@@ -248,16 +247,32 @@ Memory data, and pre-commit environments persist across container rebuilds and r
 isolated per worktree. Authentication is shared so opening another worktree does not
 require signing in again.
 
+### Upgrading from an image with Codex
+
+Earlier images also shipped Codex. Claude Code and OpenCode are now the only
+supported harnesses, so an existing devcontainer's `agentdev-codex` volume and the
+`codex/auth.json` file on the shared auth volume are no longer used. Nothing removes
+them; delete them by hand once you no longer need them:
+
+```bash
+# A devcontainer's per-instance Codex volume
+docker volume rm <project>_agentdev-codex
+# The Codex login on the devcontainer's shared auth volume
+docker run --rm -v agentdev-agents-auth:/auth busybox rm -rf /auth/codex
+# The Codex login on an agentdev-deploy auth volume
+docker run --rm -v "${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}":/auth busybox rm -rf /auth/codex
+```
+
 ## The plugin catalog
 
 The repository is its own plugin marketplace. Claude Code sees two plugins,
-`agentdev` and `self-improve`; Codex sees `agentdev` alone, because `self-improve`
-ships no Codex manifest.
+`agentdev` and `self-improve`; OpenCode loads `agentdev` through the bridge plugin
+it ships.
 
 ### `agentdev`
 
 The image carries `agentdev` 4.2.0, a cross-agent plugin with 37 skills and five
-agent definitions for Claude Code and Codex. It covers:
+agent definitions for Claude Code and OpenCode. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
 - Pull-request creation, synchronization, review, feedback resolution, and merging.
@@ -301,14 +316,13 @@ and the comparative analysis behind it is in [`docs/research/`](docs/research/).
 
 ## IWE project memory
 
-IWE stores product context, architecture, specifications, plans, releases, and a
-source-backed codebase map as a Markdown knowledge graph. The catalog provides a
+IWE stores product context, architecture, specifications, plans, and releases as
+a Markdown knowledge graph. The catalog provides a
 complete workflow:
 
 | Skill                              | Purpose                                                               |
 | ---------------------------------- | --------------------------------------------------------------------- |
 | `iwe-setup`                        | Onboard an existing project and establish its product context.        |
-| `iwe-map`                          | Create and refresh the codebase map.                                  |
 | `iwe-explore`                      | Investigate ideas or GitHub issues without changing code.             |
 | `iwe-plan`                         | Plan work with verified anchors and risk-scaled specification impact. |
 | `iwe-capture`                      | File complete, deduplicated bugs, proposed features, and tasks.       |
@@ -353,9 +367,9 @@ marketplace metadata, references, and plugin layout. Repository discovery respec
 `.gitignore`, while explicitly named files remain directly validatable.
 `--recommend` enables warning-level guidance and `--errors-only` suppresses it.
 
-Pre-commit is the single local formatting path, and its environments persist across
-container rebuilds. CI runs the matching Super-Linter checks, validator suites,
-knowledge-base gates, and image builds.
+Pre-commit is the single lint and formatting gate: CI runs the same hooks in the
+pinned devcontainer image, alongside the validator suites, knowledge-base gates,
+and image builds.
 
 ## Firewall and desktop
 
@@ -403,7 +417,7 @@ Install dependencies and run the primary repository checks:
 
 ```bash
 uv sync --all-groups
-uv run validate_agent_files --recommend . --require-marketplace claude codex
+uv run validate_agent_files --recommend . --require-marketplace claude
 uv run pytest
 uv run ansible-lint ansible
 uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml

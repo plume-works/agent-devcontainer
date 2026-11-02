@@ -1,6 +1,6 @@
 ---
 type: task
-stage: planned
+stage: pending
 priority: low
 created: 2026-10-26
 description: Remove the free-form `@claude <prompt>` task responder — the comment, review, and issue mentions that dispatch a Claude task — once review re-requests move to the assignee trigger.
@@ -10,6 +10,7 @@ generated:
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
+rank: 2300
 ---
 
 # Drop the `@claude <custom prompt>` free-form task trigger

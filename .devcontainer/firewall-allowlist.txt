@@ -19,7 +19,7 @@ statsig.anthropic.com
 statsig.com
 sentry.io
 
-# OpenAI / Codex
+# OpenAI, an OpenCode provider
 api.openai.com
 chatgpt.com
 

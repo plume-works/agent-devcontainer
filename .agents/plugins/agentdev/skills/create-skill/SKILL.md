@@ -8,20 +8,19 @@ description: Create, update, or review repository skills in the agentdev plugin 
 Use a general skill-authoring guide when the host provides one. Invoke it first for craft —
 degrees of freedom, progressive disclosure, description triggering, and forward-testing:
 
-- **Codex**: `$skill-creator`, a system skill under `~/.codex/skills/.system/skill-creator/`.
 - **Claude Code**: `/skill-creator:skill-creator`, from the official plugin marketplace.
 
-If neither is available, do that work yourself. The catalog rules below override a general
+If it is not available, do that work yourself. The catalog rules below override a general
 guide wherever they disagree.
 
 ## Where the Skill Lives
 
 Create or update skills under `.agents/plugins/agentdev/skills/<skill-name>/` and edit them
 in place. Pass `--path .agents/plugins/agentdev/skills` when scaffolding. Never edit from a
-copy or create a separate Codex copy. Use a personal skill directory only when the user
+copy or create a separate per-harness copy. Use a personal skill directory only when the user
 explicitly asks for a user-wide skill.
 
-The catalog ships as a plugin through `claude plugin install` and `codex plugin add`. The
+The catalog ships as a plugin through `claude plugin install` and to OpenCode through its bridge plugin. The
 edited repository files are the deliverable; do not create a separate `.skill` archive.
 
 For an existing skill, read its `SKILL.md` and every resource it references before editing.
@@ -32,7 +31,7 @@ goes in `./.tmp/` at the repo root. Never `$TMPDIR`, never `/tmp/`, and never a
 `<skill-name>-workspace/` sibling inside the catalog, which the plugin would ship and the
 validator would walk.
 
-## Frontmatter Follows the Agent Skills Spec, and There Is No `agents/openai.yaml`
+## Frontmatter Follows the Agent Skills Spec
 
 `name` and `description` are required. Beyond them, use only keys the open Agent
 Skills Specification defines — `license`, `compatibility`, `allowed-tools`, and
@@ -41,13 +40,6 @@ validator accepts exactly this set. Ship a key only when the skill needs it:
 `allowed-tools` when a skill runs bundled scripts
 (`Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`), `disable-model-invocation` to suppress
 implicit invocation. Do not invent keys outside this set.
-
-Do not add the `agents/openai.yaml` that Codex's guide recommends and its `init_skill.py`
-generates; delete it if a scaffold created one. Its `interface` block duplicates per skill
-what `.codex-plugin/plugin.json` already declares once for the whole catalog. Add it only
-for something frontmatter genuinely cannot express — `policy.allow_implicit_invocation` to
-suppress implicit invocation, `dependencies.tools` for a hard tool dependency, or
-`interface.icon_*` for required assets — and include only the keys that requirement needs.
 
 Two forces pull on the description. Claude's guide pushes toward eager triggering, which is
 right for the skill's own domain: claim the phrasings a user would actually type. But this
@@ -70,7 +62,7 @@ invocation. Add no README, changelog, or quick-reference file to a skill directo
 
 ## Gates Before Done
 
-1. `uv run validate_agent_files --recommend . --require-marketplace claude codex` passes.
+1. `uv run validate_agent_files --recommend . --require-marketplace claude` passes.
 2. Every bundled script follows `/agentdev:skill-scripts`, and its result and exit code are
    pinned by a test in the plugin's `tests/` resolved from the plugin root — a hand-run is
    not enough. Then `uv run pytest .agents/plugins/agentdev/tests`.

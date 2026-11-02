@@ -1,5 +1,5 @@
 """
-The runtime's own nested Docker engine, and the image prune that runs once it is up.
+The runtime's own nested Docker engine, and the garbage collection that runs once it is up.
 
 Exactly one root dockerd on a private Unix socket over per-instance storage, with no TCP
 listener and no host socket. Spec: standalone-opencode-runtime, devcontainer-docker-storage.
@@ -7,12 +7,15 @@ listener and no host socket. Spec: standalone-opencode-runtime, devcontainer-doc
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
+import time
 from typing import NoReturn
 
 from agentdev_runtime import settings as env
@@ -20,7 +23,11 @@ from agentdev_runtime import settings as env
 PREFIX = 'agentdev-runtime docker'
 # Without CAP_SYS_ADMIN, dockerd cannot mount its storage.
 CAP_SYS_ADMIN = 21
-PRUNE_AGE = '72h'
+GC_AGE = timedelta(hours=72)
+CACHE_LIMIT = '10GB'
+# Volumes a collection may remove; every other volume is never touched.
+# Spec: devcontainer-docker-storage.
+DISPOSABLE_VOLUME = re.compile(r'(^|_)dind-var-lib-(docker|containerd)-|_agentdev-(cache|codex)$')
 
 
 class DockerError(Exception):
@@ -110,35 +117,77 @@ def run(settings: env.Settings) -> NoReturn | int:
     os.execvp(command[0], command)
 
 
-def prune() -> int:
-    """Remove unused images older than 72 hours; every failure is only a warning."""
-    if shutil.which('docker') is None:
-        print('docker is not installed; skipping image prune.')
-        return 0
-    if subprocess.run(['docker', 'info'], capture_output=True, check=False).returncode != 0:
-        print('The Docker daemon is unreachable; skipping image prune.')
-        return 0
-    result = subprocess.run(
-        ['docker', 'image', 'prune', '-af', '--filter', f'until={PRUNE_AGE}'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        check=False,
+def _docker(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ['docker', *args], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=False
     )
+
+
+def _step(name: str, *args: str) -> subprocess.CompletedProcess[str]:
+    """Run one collection step; a failure is only a warning."""
+    result = _docker(*args)
     if result.returncode != 0:
         print(result.stdout.rstrip('\n'), file=sys.stderr)
-        print('Warning: docker image prune failed; continuing.', file=sys.stderr)
+        print(f'Warning: {name} failed; continuing.', file=sys.stderr, flush=True)
+    else:
+        for line in result.stdout.splitlines():
+            if line.startswith('Total'):
+                print(f'{name}: {line}', flush=True)
+    return result
+
+
+def _old_disposable_volumes(now: datetime) -> list[str]:
+    listed = _step('volume listing', 'volume', 'ls', '-q', '--filter', 'dangling=true')
+    names = [n for n in listed.stdout.split() if DISPOSABLE_VOLUME.search(n)]
+    if listed.returncode != 0 or not names:
+        return []
+    inspected = _step(
+        'volume inspection', 'volume', 'inspect', '--format', '{{.Name}} {{.CreatedAt}}', *names
+    )
+    old = []
+    for line in inspected.stdout.splitlines():
+        name, _, created = line.partition(' ')
+        try:
+            if now - datetime.fromisoformat(created.strip()) > GC_AGE:
+                old.append(name)
+        except ValueError:
+            print(f'Warning: unreadable creation time for volume {name}', file=sys.stderr)
+    return old
+
+
+def gc() -> int:
+    """Run one collection pass: old unused images, cache over its cap, old disposable volumes."""
+    if shutil.which('docker') is None:
+        print('docker is not installed; skipping garbage collection.')
         return 0
-    for line in result.stdout.splitlines():
-        if line.startswith('Total reclaimed space:'):
-            print(line)
+    if subprocess.run(['docker', 'info'], capture_output=True, check=False).returncode != 0:
+        print('The Docker daemon is unreachable; skipping garbage collection.')
+        return 0
+    hours = int(GC_AGE.total_seconds() // 3600)
+    _step('image prune', 'image', 'prune', '-af', '--filter', f'until={hours}h')
+    _step('build cache prune', 'builder', 'prune', '-f', '--max-used-space', CACHE_LIMIT)
+    old = _old_disposable_volumes(datetime.now(timezone.utc))
+    if old:
+        _step('volume removal', 'volume', 'rm', *old)
     return 0
+
+
+def gc_every(settings: env.Settings) -> NoReturn:
+    """Run a collection pass now, then one every AGENTDEV_DOCKER_GC_INTERVAL seconds."""
+    interval = settings.positive('AGENTDEV_DOCKER_GC_INTERVAL')
+    for error in settings.errors:
+        print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
+    while True:
+        gc()
+        time.sleep(interval)
 
 
 def main(argv: list[str]) -> int:
     if argv == ['run']:
         return run(env.Settings())
-    if argv == ['prune']:
-        return prune()
-    print('usage: agentdev-runtime docker run|prune', file=sys.stderr)
+    if argv == ['gc']:
+        return gc()
+    if argv == ['gc', '--every']:
+        gc_every(env.Settings())
+    print('usage: agentdev-runtime docker run|gc [--every]', file=sys.stderr)
     return 2

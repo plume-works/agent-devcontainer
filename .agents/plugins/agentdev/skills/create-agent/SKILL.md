@@ -1,6 +1,6 @@
 ---
 name: create-agent
-description: Create or update repository subagents shared by Claude Code and Codex. Use when adding an agent in the agentdev plugin catalog or defining its delegation scope, tools, and instructions.
+description: Create or update repository subagents shared by Claude Code and OpenCode. Use when adding an agent in the agentdev plugin catalog or defining its delegation scope, tools, and instructions.
 ---
 
 # Create Custom Agent
@@ -16,9 +16,9 @@ Instructions for creating effective and maintainable custom agents (subagents) t
 - Purpose: Define specialized agents with tailored expertise, tools, and instructions for specific tasks
 - Official documentation: https://code.claude.com/docs/en/sub-agents
 
-Claude Code and Codex discover every `*.md` file in the plugin's `agents/`
-directory; this repository uses the `.agent.md` suffix so agent specs are easy
-to distinguish and validate.
+Claude Code discovers every `*.md` file in the plugin's `agents/` directory, and
+OpenCode's bridge plugin loads every `*.agent.md` there. Name agent files with the
+`.agent.md` suffix so both harnesses load them and the validator recognizes them.
 
 ## Agent Frontmatter
 
@@ -156,7 +156,7 @@ Prompt: Work on issue #123 in py_packages/example_package.
 - ❌ Granting all tools to a read-only reviewer agent
 - ❌ Referencing tools that don't exist in Claude Code (tool aliases from other assistants)
 - ❌ Assuming the sub-agent can see the parent conversation — it can't; pass context explicitly
-- ❌ Creating a separate Codex copy instead of editing the canonical
+- ❌ Creating a separate per-harness copy instead of editing the canonical
   `.agents/plugins/agentdev/agents/` spec
 - ❌ Vague, ambiguous instructions or conflicting guidelines
 - ❌ Using spaces or special characters in filenames

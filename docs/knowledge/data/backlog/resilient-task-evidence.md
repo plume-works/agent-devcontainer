@@ -1,16 +1,17 @@
 ---
 type: task
 created: 2026-10-28
-stage: planned
+stage: pending
 priority: medium
 description: Explore a way for plan task evidence to stay traceable after rebases and squash merges, since evidence lines name commits whose ids those operations rewrite or erase.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T10:45:00Z
+  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
+rank: 1700
 ---
 
 # Make plan task evidence survive history rewrites
@@ -20,9 +21,9 @@ task's evidence name the commit that holds its change, and Verify, and the Ship
 run that repeats it, check that the commit can be traced. Commit ids do not
 last:
 
-- **Rebase** gives every rebased commit a new id. [Stacked
-  PRs](../architecture/stacked-prs.md) rebase every layer above a change, so
-  evidence written on a lower layer goes stale before the stack merges.
+- **Rebase** gives every rebased commit a new id. Stacked PRs rebase every layer
+  above a change, so evidence written on a lower layer goes stale before the
+  stack merges.
 - **Squash merge** replaces a PR's commits with one commit on the default
   branch. Once the branch is deleted, every evidence line in the PR's plans
   points at a commit that no longer exists anywhere a later session can reach.
@@ -50,9 +51,6 @@ answer:
 
 Alternatives to weigh against it:
 
-- The codebase map's `source_digest` already solved the same problem for map
-  docs: it fingerprints tracked content rather than naming a commit, so it stays
-  valid across squash merges and branch rewrites.
 - The PR number survives both rebase and squash and links the squashed commit to
   the branch's history.
 

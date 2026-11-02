@@ -48,23 +48,22 @@ def apply_policy(current: dict[str, Any]) -> dict[str, Any]:
     existing_external = permission.get('external_directory')
     external = existing_external if isinstance(existing_external, dict) else {}
 
-    unmanaged_top = {
-        key: value for key, value in current.items() if key not in {'$schema', 'permission'}
-    }
     unmanaged_permission = {
         key: value for key, value in permission.items() if key not in {'*', 'external_directory'}
     }
     unmanaged_external = {key: value for key, value in external.items() if key != '/**'}
-
-    return {
-        '$schema': SCHEMA,
-        **unmanaged_top,
-        'permission': {
-            '*': 'allow',
-            **unmanaged_permission,
-            'external_directory': {'/**': 'allow', **unmanaged_external},
-        },
+    managed_permission = {
+        '*': 'allow',
+        **unmanaged_permission,
+        'external_directory': {'/**': 'allow', **unmanaged_external},
     }
+
+    # Keys keep their positions so an unchanged config rewrites byte-identically.
+    updated = {} if '$schema' in current else {'$schema': SCHEMA}
+    for key, value in current.items():
+        updated[key] = {'$schema': SCHEMA, 'permission': managed_permission}.get(key, value)
+    updated.setdefault('permission', managed_permission)
+    return updated
 
 
 def write_atomically(path: Path, content: str) -> None:

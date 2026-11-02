@@ -3,9 +3,9 @@
 """
 Verify Python style compliance with ruff (the CI gate).
 
-The pre-commit hooks (locally) and Super-Linter (in CI) apply ruff's formatter
-and autofixes; this is the non-mutating check, so it is safe to run anywhere and
-needs no Docker. Nothing here installs or upgrades packages.
+The pre-commit hooks, locally and in CI, apply ruff's formatter and autofixes;
+this is the non-mutating check, so it is safe to run anywhere and needs no
+Docker. Nothing here installs or upgrades packages.
 
 Usage:
   python_lint_check.py [PATH ...]

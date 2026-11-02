@@ -17,6 +17,7 @@ sources:
 - resource: scripts/e2e/iwe-workflows/clone.py
 stage: done
 completed: 2026-10-31
+released: 2.0.0
 ---
 
 # Verify report cache

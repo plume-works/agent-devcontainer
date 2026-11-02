@@ -42,7 +42,7 @@ def test_an_unknown_mode_resolves_devcontainer_defaults() -> None:
 def test_derived_defaults_follow_the_runtime_account() -> None:
     settings = Settings({'AGENTDEV_RUNTIME_MODE': DEPLOY})
     assert settings.get('AGENTDEV_HOME') == '/home/agent'
-    assert settings.get('CODEX_HOME') == '/home/agent/.codex'
+    assert settings.get('CLAUDE_CONFIG_DIR') == '/home/agent/.claude'
     assert settings.get('OPENCODE_CONFIG_DIR') == '/home/agent/.config/opencode'
     assert settings.get('XDG_RUNTIME_DIR') == '/run/user/1000'
 
@@ -106,4 +106,4 @@ def test_numeric_defaults_parse() -> None:
 def test_home_derived_defaults_follow_the_caller_home() -> None:
     settings = Settings({'AGENTDEV_RUNTIME_MODE': DEPLOY, 'HOME': '/sandbox'})
     assert settings.get('CBM_INSTALL_DIR') == '/sandbox/.local/bin'
-    assert settings.get('CODEX_HOME') == '/sandbox/.codex'
+    assert settings.get('CLAUDE_CONFIG_DIR') == '/sandbox/.claude'

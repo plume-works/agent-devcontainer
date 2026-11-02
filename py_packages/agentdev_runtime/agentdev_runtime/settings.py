@@ -94,11 +94,6 @@ VARIABLES: tuple[Variable, ...] = (
     ),
     Variable('AGENTDEV_UV_DIR', 'uv cache, interpreter, and venv volume root.', '/uv'),
     Variable(
-        'AGENTDEV_GH_STACK_DIR',
-        'Image copy of the gh-stack extension.',
-        '/usr/local/lib/agentdev/gh-stack',
-    ),
-    Variable(
         'AGENTDEV_REQUIRE_MOUNTS',
         '`1` makes the bootstrap refuse unmounted instance storage.',
         '1',
@@ -146,7 +141,6 @@ VARIABLES: tuple[Variable, ...] = (
         "Claude Code's own configuration directory.",
         Derived('$HOME/.claude', lambda s: f'{s.home}/.claude'),
     ),
-    Variable('CODEX_HOME', 'Codex home.', Derived('$HOME/.codex', lambda s: f'{s.home}/.codex')),
     Variable(
         'XDG_CONFIG_HOME',
         'XDG configuration root.',
@@ -236,6 +230,7 @@ VARIABLES: tuple[Variable, ...] = (
     Variable('AGENTDEV_DOCKER_CONFIG', 'Nested engine configuration.', '/etc/docker/daemon.json'),
     Variable('AGENTDEV_DOCKER_EXEC_ROOT', 'Nested engine exec root.', '/var/run/docker'),
     Variable('AGENTDEV_DOCKER_PIDFILE', 'Nested engine PID file.', '/var/run/docker.pid'),
+    Variable('AGENTDEV_DOCKER_GC_INTERVAL', 'Seconds between Docker garbage collections.', '3600'),
     Variable(
         'AGENTDEV_PROC_STATUS',
         'Process status file the privilege preflight reads.',

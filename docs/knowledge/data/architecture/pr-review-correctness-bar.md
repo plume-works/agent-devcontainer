@@ -2,8 +2,8 @@
 type: architecture
 description: Why the reachable-scenario correctness bar remains experimental after a mixed replay result, and why validator strictness must be isolated before changing the shipped PR review skill.
 generated:
-  by: codex/gpt-6
-  at: 2026-10-04T21:58:34Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T16:40:07Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: data/plans/20260929-pr-review-scenario-bar-spike.md
@@ -51,8 +51,6 @@ why a validator dropped a candidate.
 
 The rule-checking noise has independent owners:
 
-- codebase-map metadata needs a broader review-ignore boundary than stale
-  `source_digest` values alone;
 - durable-knowledge review must respect `pr-review`'s file lens and preserve
   `iwe-audit`'s load-bearing-comment guard;
 - compliance review must distinguish agent scratch rules and example values from

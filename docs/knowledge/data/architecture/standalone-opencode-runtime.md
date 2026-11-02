@@ -3,7 +3,7 @@ type: architecture
 description: agentdev-deploy runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-10-31T20:59:36Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
@@ -53,11 +53,11 @@ IDs are deployment settings. The image deletes the stock UID 1000 account and
 does not create `/home/agent`, so a fresh home volume starts empty, without
 Docker copying files into it, and is initialized after mounts.
 
-Only Claude and Codex credentials are shared, through one auth volume per
-UID/GID cohort. Sharing a whole home or agent directory was rejected: sessions,
-configuration, keyrings, and caches record per-project state, and two containers
-writing them would corrupt each other. Sharing across cohorts was rejected
-because it would mean rewriting another running container's file ownership.
+Only Claude credentials are shared, through one auth volume per UID/GID cohort.
+Sharing a whole home or agent directory was rejected: sessions, configuration,
+keyrings, and caches record per-project state, and two containers writing them
+would corrupt each other. Sharing across cohorts was rejected because it would
+mean rewriting another running container's file ownership.
 
 OpenCode logins stay per project container. OpenCode 2.0.32
 (`agentic_tools_opencode_version`) keeps them in
@@ -121,9 +121,9 @@ controller then starts the services in dependency order.
 
 ## Core path and optional work
 
-The core path is `dbus`, `keyring`, and the `prepare` one-shot (checkout, Claude
-and Codex login links, agent policy), then `opencode`. The other components are
-optional:
+The core path is `dbus`, `keyring`, and the `prepare` one-shot (checkout, the
+Claude credential links, agent policy), then `opencode`. The other components
+are optional:
 
 - `config` registers the catalog and then the CBM client configuration. It runs
   before OpenCode, which reads both when it starts.

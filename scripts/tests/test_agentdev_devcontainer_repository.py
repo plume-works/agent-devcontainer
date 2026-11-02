@@ -114,7 +114,6 @@ def checkouts() -> Iterator:
 def assert_checkout_catalog(box: Checkout) -> None:
     claude = json.loads(box.sh('cat ~/.claude/plugins/known_marketplaces.json'))
     assert claude['agent-devcontainer']['installLocation'] == box.workspace
-    assert f'source = "{box.workspace}"' in box.sh('cat ~/.codex/config.toml')
     assert box.workspace in box.sh('cat ~/.config/opencode/opencode.json')
 
 

@@ -12,6 +12,7 @@ sources:
 - resource: .devcontainer/firewall-allowlist.txt
 stage: done
 completed: 2026-10-09
+released: 2.0.0
 ---
 
 # Configure devcontainer Codex for full access
@@ -141,8 +142,8 @@ devcontainer script tests)
 
 ## Spec changes
 
-New spec [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md) —
-this change disables Codex's sandbox, so the contract is stated in full:
+New spec Devcontainer Codex policy — this change disables Codex's sandbox, so
+the contract is stated in full:
 
 ``` markdown
 ## ADDED Requirements

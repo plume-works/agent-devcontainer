@@ -23,7 +23,16 @@ from test_agent_runtime_supervision import (
 
 DEVCONTAINER_CONFIG = REPO_ROOT / 'docker/devcontainer/supervisord.conf'
 
-SHARED = {'dbus', 'keyring', 'dockerd', 'cbm', 'xpra', 'opencode', 'remote-control'}
+SHARED = {
+    'dbus',
+    'keyring',
+    'dockerd',
+    'docker-gc',
+    'cbm',
+    'xpra',
+    'opencode',
+    'remote-control',
+}
 DEVCONTAINER_REQUIRED = ['dbus', 'keyring', 'dockerd', 'cbm', 'xpra']
 
 
@@ -61,7 +70,7 @@ def test_both_profiles_share_one_service_vocabulary(supervisor):
     deploy = set(names(supervisor.PROFILES['deploy'].services))
     devcontainer = set(names(supervisor.PROFILES['devcontainer'].services))
     assert deploy & devcontainer == SHARED
-    assert deploy - SHARED == {'prepare', 'config', 'prune', 'project', 'index'}
+    assert deploy - SHARED == {'prepare', 'config', 'project', 'index'}
     assert devcontainer - SHARED == {'created'}
 
 
@@ -82,8 +91,10 @@ def test_devcontainer_requires_its_persistent_services_and_omits_project_work(
     selected = supervisor.enabled_services(
         settings(supervisor, monkeypatch, AGENTDEV_RUNTIME_MODE='devcontainer')
     )
-    assert names(selected) == DEVCONTAINER_REQUIRED
-    assert all(service.core and not service.client for service in selected)
+    required = [service for service in selected if not service.client]
+    assert names(required) == DEVCONTAINER_REQUIRED
+    assert all(service.core for service in required)
+    assert [service.name for service in selected if service.client] == ['docker-gc']
     assert supervisor.PROFILES['devcontainer'].exit_on_latch
 
 
@@ -98,7 +109,13 @@ def test_devcontainer_starts_opencode_only_as_an_opt_in_client(supervisor, monke
         )
     )
     by_name = {service.name: service for service in selected}
-    assert names(selected) == [*DEVCONTAINER_REQUIRED, 'created', 'opencode', 'remote-control']
+    assert names(selected) == [
+        *DEVCONTAINER_REQUIRED,
+        'docker-gc',
+        'created',
+        'opencode',
+        'remote-control',
+    ]
     for client in ('created', 'opencode', 'remote-control'):
         assert by_name[client].client and not by_name[client].core
     assert 'created' in requires(selected, 'opencode')
@@ -186,7 +203,13 @@ def test_devcontainer_starts_required_services_then_publishes_readiness(devconta
     box = devcontainer()
     box.start()
     box.wait_for(box.ready)
-    assert started(box.events()) == ['bootstrap', *DEVCONTAINER_REQUIRED]
+    # The collector is a client, so readiness never waits for it.
+    assert started(box.events())[: len(DEVCONTAINER_REQUIRED) + 1] == [
+        'bootstrap',
+        *DEVCONTAINER_REQUIRED,
+    ]
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
+    assert started(box.events())[-1] == 'docker-gc'
     state = box.runtime()
     assert state['profile'] == 'devcontainer' and state['ready'] is True
     assert state['probes'] == DEVCONTAINER_REQUIRED
@@ -288,9 +311,10 @@ def test_sigterm_stops_every_service_and_exits_cleanly(devcontainer):
     box = devcontainer()
     box.start()
     box.wait_for(box.ready)
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
     assert box.process is not None
     box.process.send_signal(signal.SIGTERM)
     assert box.wait_exit() == 0
     stopped = [e.split()[1] for e in box.events() if e.startswith('stop ')]
-    assert sorted(stopped) == sorted(DEVCONTAINER_REQUIRED)
+    assert sorted(stopped) == sorted([*DEVCONTAINER_REQUIRED, 'docker-gc'])
     assert stopped.index('xpra') < stopped.index('dockerd')

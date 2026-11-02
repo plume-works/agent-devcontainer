@@ -23,14 +23,13 @@ sources:
 
 ## Decision
 
-OpenCode is the catalog's third host. It reads the same tree as Claude Code and
-Codex, `.agents/plugins/agentdev/`, through a **bridge plugin** at
+OpenCode is the catalog's second host. It reads the same tree as Claude Code,
+`.agents/plugins/agentdev/`, through a **bridge plugin** at
 `.agents/plugins/agentdev/.opencode-plugin/`, which sits next to
-`.claude-plugin/` and `.codex-plugin/`. The user's OpenCode config lists the
-bridge directory by absolute path, and one module serves both OpenCode majors:
-its default export is `{id, server, effect}`. v1 runs `server` and ignores
-`effect`; v2 runs `effect` and ignores `server`. Both read the catalog through
-the same parser.
+`.claude-plugin/`. The user's OpenCode config lists the bridge directory by
+absolute path, and one module serves both OpenCode majors: its default export is
+`{id, server, effect}`. v1 runs `server` and ignores `effect`; v2 runs `effect`
+and ignores `server`. Both read the catalog through the same parser.
 
 ### On OpenCode v1
 
@@ -80,8 +79,8 @@ Rules match last-wins, so the devcontainer's full-access `"*": "allow"` would
 cancel any deny rule the bridge pushed onto an agent. Instead,
 `session.hook("context")` removes a catalog agent's denied tools from what the
 model is offered, and `permission.hook("evaluate")` sets `deny` for a denied
-action. Approval for an allowed tool is untouched. Claude Code and Codex enforce
-a catalog agent's declared tools under full access too; this keeps OpenCode at
+action. Approval for an allowed tool is untouched. Claude Code enforces a
+catalog agent's declared tools under full access too; this keeps OpenCode at
 parity.
 
 **A user's agent replaces the catalog agent.** Both hooks apply a catalog
@@ -270,8 +269,8 @@ user's approval settings apply.
   to load a skill under its bare frontmatter name, which the catalog also uses.
 - **Deny rules on the v2 agent.** The host appends the global rules after them,
   so full access cancels every catalog agent's tool limits.
-- **Dropping tool limits on every harness.** Claude Code and Codex enforce a
-  catalog agent's declared tools under full access.
+- **Dropping tool limits on every harness.** Claude Code enforces a catalog
+  agent's declared tools under full access.
 - **Reading the user's config files to skip a replaced agent.** It would
   duplicate v2's config discovery, which plugins cannot query.
 - **v2 diagnostics through `console` or the plugin's own `Effect.runPromise`.**
@@ -281,8 +280,8 @@ user's approval settings apply.
 - **A bridge-owned log file for v2 diagnostics.** It would sit outside
   OpenCode's own log.
 - **Bare `<name>` commands.** They would rank higher on `/pr`, but the names
-  would differ from Claude Code and Codex and could collide with other plugins'
-  bare skills. The namespaced ranking above is usable, so this is not needed.
+  would differ from Claude Code and could collide with other plugins' bare
+  skills. The namespaced ranking above is usable, so this is not needed.
 - **Rewriting catalog text to "the `<name>` skill".** That means rewriting more
   than 100 `/agentdev:<name>` references and less precise invocation in Claude
   Code, for a gap the prefix rewrite closes.

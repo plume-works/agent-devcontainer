@@ -41,7 +41,6 @@ WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 # measured at the worker cap. OPENCODE_BUDGET, plus server startup, sets the login's minimum life.
 OPENCODE_BUDGET = 300
 CLAUDE_BUDGET = 420
-CODEX_BUDGET = 900
 
 
 def mentions(calls: list[dict[str, Any]], pattern: str | re.Pattern) -> bool:

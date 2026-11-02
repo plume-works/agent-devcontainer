@@ -16,8 +16,6 @@ from pathlib import Path
 
 DISTRIBUTION = 'agentdev_runtime'
 REMEDY = 'extend the runtime through /etc/agentdev/hooks and documented environment instead'
-# Bytecode the interpreter writes at run time is never in RECORD.
-GENERATED = ('__pycache__',)
 
 
 class IntegrityError(Exception):
@@ -32,8 +30,18 @@ def _digest(path: Path, algorithm: str) -> str:
     return base64.urlsafe_b64encode(hasher.digest()).rstrip(b'=').decode()
 
 
-def _generated(path: Path) -> bool:
-    return any(part in GENERATED for part in path.parts)
+def _bytecode(path: Path, recorded: set[Path]) -> bool:
+    """Return whether ``path`` is the interpreter's run-time cache of a recorded module."""
+    if path.parent.name != '__pycache__' or path.suffix != '.pyc':
+        return False
+    source = path.parent.parent / f'{path.name.split(".", 1)[0]}.py'
+    return source.resolve() in recorded
+
+
+def _installed(distribution: metadata.Distribution) -> bool:
+    """Return whether this is a wheel install; a source checkout's egg-info records nothing."""
+    path = getattr(distribution, '_path', None)
+    return path is not None and Path(str(path)).name.endswith('.dist-info')
 
 
 def _record(distribution: metadata.Distribution) -> list[tuple[str, str]]:
@@ -51,8 +59,7 @@ def verify(distribution: metadata.Distribution | None = None) -> None:
             distribution = metadata.distribution(DISTRIBUTION)
         except metadata.PackageNotFoundError:
             return
-    # A source checkout's egg-info records nothing; only an installed dist-info carries METADATA.
-    if distribution.read_text('METADATA') is None:
+    if not _installed(distribution):
         return
     root = Path(str(distribution.locate_file('')))
     rows = _record(distribution)
@@ -67,7 +74,7 @@ def verify(distribution: metadata.Distribution | None = None) -> None:
             raise IntegrityError(f"{path} differs from the image's; {REMEDY}")
     for top in _installed_roots(root, [relative for relative, _ in rows]):
         for path in top.rglob('*'):
-            if path.is_dir() or _generated(path.relative_to(root)):
+            if path.is_dir() or _bytecode(path, recorded):
                 continue
             if path.resolve() not in recorded:
                 raise IntegrityError(f'{path} was added to the installed runtime; {REMEDY}')

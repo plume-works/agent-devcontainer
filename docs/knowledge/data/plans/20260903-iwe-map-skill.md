@@ -15,6 +15,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
 stage: done
 completed: 2026-09-05
+released: 1.0.0
 ---
 
 # Add the iwe-map skill

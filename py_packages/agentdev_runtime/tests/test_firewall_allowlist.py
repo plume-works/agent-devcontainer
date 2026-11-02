@@ -71,3 +71,16 @@ def test_deploy_reads_the_image_copy_or_the_setting(tmp_path: Path) -> None:
     assert firewall.allowlist_path(Settings(deploy)) == firewall.IMAGE_ALLOWLIST
     explicit = Settings({**deploy, 'FIREWALL_ALLOWLIST': '/x/allow.txt'})
     assert firewall.allowlist_path(explicit) == Path('/x/allow.txt')
+
+
+def test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer(tmp_path: Path) -> None:
+    (tmp_path / '.devcontainer').mkdir()
+    (tmp_path / '.devcontainer/firewall-allowlist.txt').write_text('github-meta\n')
+    settings = Settings(
+        {
+            'AGENTDEV_RUNTIME_MODE': DEVCONTAINER,
+            'DEV_WORKSPACE_FOLDER': str(tmp_path),
+            'FIREWALL_ALLOWLIST': '/x/allow.txt',
+        }
+    )
+    assert firewall.allowlist_path(settings) == Path('/x/allow.txt')
