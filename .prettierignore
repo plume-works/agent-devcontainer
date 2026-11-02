@@ -10,6 +10,3 @@ docs/knowledge/**
 # The iwe-bootstrap scaffold is the workspace a consumer receives; `iwe normalize`
 # owns its markdown formatting, the same way it owns docs/knowledge above.
 .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
-
-# Vendored byte for byte from github/gh-stack; a pytest pins it to the extension version.
-.agents/plugins/agentdev/skills/gh-stack/**

@@ -94,11 +94,6 @@ VARIABLES: tuple[Variable, ...] = (
     ),
     Variable('AGENTDEV_UV_DIR', 'uv cache, interpreter, and venv volume root.', '/uv'),
     Variable(
-        'AGENTDEV_GH_STACK_DIR',
-        'Image copy of the gh-stack extension.',
-        '/usr/local/lib/agentdev/gh-stack',
-    ),
-    Variable(
         'AGENTDEV_REQUIRE_MOUNTS',
         '`1` makes the bootstrap refuse unmounted instance storage.',
         '1',

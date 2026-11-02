@@ -29,6 +29,10 @@ Generate a comprehensive PR description by analyzing the change set and writing 
   `origin/main`; accept an explicit base ref or range when the caller provides
   one. A caller updating an existing pull request passes that PR's base branch.
 - **Related Issues**: GitHub issue numbers
+- **Dependencies**: For a new pull request of a branch that depends on other
+  pull requests, their numbers in merge order, as
+  [pr-open](../pr-open/SKILL.md) passes them
+- **Current Body**: For an existing pull request, its body as it is now
 - **Breaking Changes**: Yes/No
 - **Migration Steps**: If breaking
 
@@ -126,6 +130,12 @@ This section list is the structure. Follow the wording rules from [code-review-s
 - **Breaking Changes**: Only when applicable
 - **Migration**: Required rollout, upgrade, backfill, or operator steps
 - **Related**: Issues, design docs, or follow-up work
+- **Depends on**: Only for a dependent pull request. A new pull request gets
+  one `- #<P>` line per dependency, in merge order, and nothing else in the
+  section. When regenerating an existing body, copy its current
+  `## Depends on` section byte-for-byte — `pr-restack-all` rewrites its lines
+  into merge records, and a regenerated body must never drop or reword one.
+  Never add the section to an existing pull request that lacks it.
 
 Neither verification section may hold the other's box type — the split by tense
 is what makes each item's state readable without reading its text.
@@ -158,6 +168,19 @@ not-consulted path. Report only templates that carry a real structure this skill
 overrode.
 
 ### Step 8: Review and Validate
+
+Write the candidate body to a file under `./.tmp/` and check its
+`## Depends on` section with the parser `pr-restack-all` uses:
+
+```bash
+check_depends_on.py <body-file> [--current <current-body-file>] [--depends-on <P>]...
+```
+
+`check_depends_on.py` ships in the plugin's `bin/`, on `PATH` while the plugin
+is enabled. Pass `--current` with the existing pull request's body when
+regenerating, and one `--depends-on` per dependency for a new dependent pull
+request. Anything but `RESULT=SUCCESS` means the body is not done: fix the
+section the error names and check again. Never hand over a body that fails.
 
 Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list plus any guidance-added sections that comply with the Verification / Reviewer Handoff split, and does not repeat generic review or clean-code checklists from the referenced documents.
 
