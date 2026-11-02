@@ -103,8 +103,10 @@ handling.
   - a queued or in-progress responder check that started before the edit →
     `ALREADY_REQUESTED`;
   - a failing GraphQL call → `GH_UNAVAILABLE`, nothing toggled.
-- [ ] Every existing test keeps passing unchanged, with no edit times in the
+- [x] Every existing test keeps passing unchanged, with no edit times in the
   fixture.
+  - **Evidence:** the same run at commit c57256be: every pre-existing test
+    passed (30 passed, 4 failed — only the new ones).
 
 ### Task 3: Apply the cutoff in `request-review.py`
 
