@@ -88,11 +88,6 @@ handling.
     `GH_STUB`, the `edits` and `fail_graphql` fixture keys, and `submitted_at` /
     `completed_at` on `review()` and `check_run()`.
 - [x] Add tests that fail against the current script:
-  - **Evidence:** commit c57256be;
-    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py`
-    against the unchanged script: the before-edit (body and title),
-    completed-check and GraphQL-failure tests fail (4 failed); the after-edit
-    and running-check guards pass, as their behavior already holds.
   - an accepted review on the head submitted before a description edit →
     `SUCCESS`, toggled;
   - an accepted review on the head submitted before a title rename → `SUCCESS`;
@@ -103,10 +98,15 @@ handling.
   - a queued or in-progress responder check that started before the edit →
     `ALREADY_REQUESTED`;
   - a failing GraphQL call → `GH_UNAVAILABLE`, nothing toggled.
+  - **Evidence:** commit c57256be;
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py`
+    against the unchanged script: the before-edit (body and title),
+    completed-check and GraphQL-failure tests fail (4 failed); the after-edit
+    and running-check guards pass, as their behavior already holds.
 - [x] Every existing test keeps passing unchanged, with no edit times in the
   fixture.
   - **Evidence:** the same run at commit c57256be: every pre-existing test
-    passed (30 passed, 4 failed — only the new ones).
+    passed; all 4 failures were new tests.
 
 ### Task 3: Apply the cutoff in `request-review.py`
 
