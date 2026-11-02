@@ -234,7 +234,8 @@ class Restack:
             print(f'WORKTREE={self.worktree}')
             print_error(
                 f'Merging {commit} for {branch} conflicted. Resolve and commit in the '
-                f'worktree, then run: {resume}git push {self.remote} HEAD:refs/heads/{branch}'
+                f'worktree, then run: {resume}git push {bash_quote(self.remote)} '
+                f'{bash_quote("HEAD:refs/heads/" + branch)}'
                 ' and rerun; restacked pull requests are skipped.'
             )
             raise Stop(MERGE_CONFLICT)

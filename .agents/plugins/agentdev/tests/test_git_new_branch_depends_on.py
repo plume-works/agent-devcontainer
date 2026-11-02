@@ -184,3 +184,24 @@ def test_a_predecessor_in_a_fork_is_a_preflight_error(
     )
     assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
     assert git(fixture.work, 'branch', '--list', 'next') == ''
+
+
+def test_changes_with_two_predecessors_stop_before_anything_is_created(
+    plugin_root: Path, fixture: Fixture, plugin_tmp_path: Path
+) -> None:
+    publish_branch(fixture, 'feature-a', 'a.txt')
+    publish_branch(fixture, 'feature-b', 'b.txt')
+    stub = pull_requests(
+        plugin_tmp_path / 'gh', {3: ('OPEN', 'feature-a'), 5: ('OPEN', 'feature-b')}
+    )
+    (fixture.work / 'draft.txt').write_text('draft\n')
+    git(fixture.work, 'add', 'draft.txt')
+    before = git(fixture.work, 'rev-parse', 'HEAD')
+    completed, _ = run_script(
+        plugin_root, fixture.work, 'next', '--depends-on', '3', '--depends-on', '5',
+        path_prefix=stub,
+    )  # fmt: skip
+    assert outcome(completed) == (4, 'RESULT=CARRY_CONFLICT')
+    assert git(fixture.work, 'branch', '--list', 'next') == ''
+    assert git(fixture.work, 'rev-parse', 'HEAD') == before
+    assert git(fixture.work, 'diff', '--cached', '--name-only') == 'draft.txt'

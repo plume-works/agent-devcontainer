@@ -86,7 +86,8 @@ Results (RESULT / exit code):
   SUCCESS          0  Branch created, pushed, and tracking <remote>/<name>
   BRANCH_EXISTS    3  <name> exists locally or on the remote; nothing was created
   CARRY_CONFLICT   4  Uncommitted changes touch paths that differ between HEAD
-                      and the base; nothing was changed
+                      and the base, or would be carried onto a branch merging
+                      more than one dependency; nothing was changed
   PUSH_FAILED      5  The branch was created locally but the push failed
   FETCH_FAILED     6  The remote could not be fetched
   STASH_CONFLICTS  7  The branch was created but popping the stash conflicted;
@@ -461,6 +462,14 @@ def create_in_place(
 ) -> int:
     """Create the branch in this checkout, carrying or stashing changes, and push it."""
     dirty = bool(git_out('status', '--porcelain', '--untracked-files=all'))
+    if dirty and not options.stash and len(dependencies) > 1:
+        # A real merge of the further heads refuses a checkout with changes.
+        print_error(
+            'Uncommitted changes cannot be carried onto a branch that merges more than one '
+            'dependency. Nothing was changed. Commit them first, or rerun with --stash only '
+            'after the user approves stashing.'
+        )
+        return CARRY_CONFLICT
     if dirty and not options.stash:
         blocked = blocked_paths(start_sha)
         if blocked:

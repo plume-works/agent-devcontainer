@@ -52,8 +52,7 @@ guarded `publish` of a stack branch; a bare `gh stack push`, `submit`, or `sync`
 is never run.
 
 The contracts are [Stacked PRs](../spec/stacked-prs.md) and [PR merge
-conflicts](../spec/pr-merge-conflicts.md); the GitHub behavior they rest on is
-Stacked pull requests.
+conflicts](../spec/pr-merge-conflicts.md).
 
 ## Edge cases
 
@@ -72,7 +71,7 @@ Stacked pull requests.
 ## Open questions
 
 None — GitHub refuses auto-merge on a stacked PR and does not support cross-fork
-stacks, both recorded in Stacked pull requests.
+stacks.
 
 ## References
 
