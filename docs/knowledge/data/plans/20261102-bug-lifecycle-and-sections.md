@@ -196,16 +196,23 @@ tasks under
 their bootstrap copies under
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/`
 
-- [ ] `SCHEMA.md` Bugs section: the stage enum with what moves each stage, the
+- [x] `SCHEMA.md` Bugs section: the stage enum with what moves each stage, the
   `severity` field and its meaning, the body sections with which are optional,
   and that no section states lifecycle; Backlog tasks:
   `pending | done | cancelled`; the `rank` paragraph names pending and planned
   bugs and pending tasks
-- [ ] `AGENTS.md`: the lifecycle bullets (bug found, work ships, plan abandoned,
+  - **Evidence:** commit 049831ae rewrites the Bugs section, the task stage
+    line, and the `rank` paragraph
+- [x] `AGENTS.md`: the lifecycle bullets (bug found, work ships, plan abandoned,
   actionable item), the build-order sentence, and the stage vocabularies match
   `SCHEMA.md`
-- [ ] Both bootstrap copies are byte-identical to the repository's
+  - **Evidence:** commit 049831ae updates the build-order sentence, the
+    actionable-item, work-starts, work-ships, plan-abandoned and bug-found
+    bullets, and the stage vocabularies
+- [x] Both bootstrap copies are byte-identical to the repository's
   (`test_scaffold_support_files_match_the_publisher_workspace` passes)
+  - **Evidence:** commit 049831ae;
+    `test_scaffold_support_files_match_the_publisher_workspace` passed
 
 ### Task 5: Capture files bugs in the new shape
 
