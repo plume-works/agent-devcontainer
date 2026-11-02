@@ -39,7 +39,7 @@ jobs:
           persist-credentials: false
 
       - name: Filters
-        uses: ./.github/actions/paths-filter
+        uses: $/.github/actions/paths-filter
         id: filter
         with:
           event-name: ${{ github.event_name }}
