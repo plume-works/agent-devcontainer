@@ -9,6 +9,7 @@ generated:
   at: 2026-09-04T04:52:22Z
 stage: done
 completed: 2026-09-05
+released: 1.0.0
 ---
 
 # Consumer PR description guidance

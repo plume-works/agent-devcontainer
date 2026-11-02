@@ -19,6 +19,7 @@ sources:
 - resource: compose.opencode.yml
 stage: done
 completed: 2026-10-28
+released: 2.0.0
 ---
 
 # Start Claude Remote Control in the standalone runtime

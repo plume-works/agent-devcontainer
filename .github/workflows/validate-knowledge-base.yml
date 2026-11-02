@@ -97,6 +97,17 @@ jobs:
           iwe normalize
           git diff --exit-code
 
+      # Equal ranks are valid and break by key; the warning only surfaces them.
+      - name: Warn about work items that share a rank
+        continue-on-error: true
+        env:
+          RANKED: '{rank: {$exists: true}}'
+          PROJECTION: key=$key,rank
+        run: |
+          iwe find --filter "$RANKED" --project "$PROJECTION" -f json \
+            | jq -r 'group_by(.rank)[] | select(length > 1)
+                | "::warning::rank \(.[0].rank) is shared by \(map(.key) | join(", "))"'
+
       - name: Check that ticked plan checkboxes carry evidence
         run: uv run pytest docs/knowledge/tests --ignore=docs/knowledge/tests/test_iwe_seed.py
 

@@ -2,7 +2,6 @@
 type: feature
 description: 'Example proposed feature: a streak widget, still awaiting a decision.'
 stage: proposed
-status: draft
 generated:
   by: human:author
   at: 2026-08-01T00:00:00Z

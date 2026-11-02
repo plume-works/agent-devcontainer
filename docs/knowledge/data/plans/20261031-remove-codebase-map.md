@@ -16,6 +16,7 @@ sources:
 - resource: .github/workflows/validate-agent-files.yml
 stage: done
 completed: 2026-10-31
+released: 2.0.0
 ---
 
 # Remove the codebase map

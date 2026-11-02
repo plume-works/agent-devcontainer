@@ -13,6 +13,7 @@ sources:
 - resource: https://code.claude.com/docs/en/hooks
 stage: done
 completed: 2026-10-21
+released: 2.0.0
 ---
 
 # Keep the Remote Control pin on the pane's current conversation

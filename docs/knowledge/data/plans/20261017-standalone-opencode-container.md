@@ -29,6 +29,7 @@ sources:
 - resource: .pre-commit-config.yaml
 stage: done
 completed: 2026-10-28
+released: 2.0.0
 ---
 
 # Ship a standalone OpenCode container

@@ -18,6 +18,7 @@ sources:
 - resource: docs/knowledge/data/spec/template-consumption.md
 stage: done
 completed: 2026-10-31
+released: 2.0.0
 ---
 
 # AI review verdicts gate merge and trusted bots are auto-approved

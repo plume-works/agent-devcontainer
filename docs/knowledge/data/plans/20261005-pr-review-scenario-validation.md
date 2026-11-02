@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 stage: done
 completed: 2026-10-07
+released: 2.0.0
 ---
 
 # Ship the reachable-scenario bar with part-by-part validation in pr-review

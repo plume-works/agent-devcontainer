@@ -16,6 +16,7 @@ sources:
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/submit.ts
 stage: done
 completed: 2026-10-21
+released: 2.0.0
 ---
 
 # Show the full OpenCode slash-command invocation

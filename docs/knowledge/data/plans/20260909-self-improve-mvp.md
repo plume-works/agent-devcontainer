@@ -10,6 +10,7 @@ sources:
   title: agent-self-improvement at e94031a, specs 0001 and 0002
 stage: done
 completed: 2026-08-02
+released: 1.0.0
 ---
 
 # Self-improve MVP

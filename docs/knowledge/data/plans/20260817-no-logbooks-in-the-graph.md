@@ -19,6 +19,7 @@ sources:
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 stage: done
 completed: 2026-08-24
+released: 1.0.0
 ---
 
 # Never write a working logbook

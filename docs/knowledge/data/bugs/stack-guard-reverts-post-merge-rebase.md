@@ -8,6 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/602
+rank: 350
 ---
 
 # Bug: the stack guard reverts GitHub's post-merge rebase

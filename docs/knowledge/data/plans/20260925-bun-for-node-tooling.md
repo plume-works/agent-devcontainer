@@ -15,6 +15,7 @@ sources:
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/extract.ts
 stage: done
 completed: 2026-10-09
+released: 2.0.0
 ---
 
 # Run Node tooling through bun instead of npm

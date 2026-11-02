@@ -10,6 +10,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/602
+rank: 1150
 ---
 
 # Bug: a metadata-gate review blocks the re-review it asks for

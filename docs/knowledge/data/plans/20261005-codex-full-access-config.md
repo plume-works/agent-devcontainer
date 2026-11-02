@@ -12,6 +12,7 @@ sources:
 - resource: .devcontainer/firewall-allowlist.txt
 stage: done
 completed: 2026-10-09
+released: 2.0.0
 ---
 
 # Configure devcontainer Codex for full access
