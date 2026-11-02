@@ -18,7 +18,9 @@ The responder reviews on a `pull_request` `assigned` event, so the bundled
 script requests a review by toggling the pull request author's assignment: an
 assigned author is removed and added back, an unassigned one is added and
 removed, and the assignees end as the script found them. An `@claude review`
-comment requests nothing; the responder rejects it.
+comment requests nothing; the responder rejects it. The script requests at
+most once per head and title and description; see
+[Post at most once per reviewed input](#post-at-most-once-per-reviewed-input).
 
 ```bash
 agent-code/request-review.py --pr <pr> [--rationale '<one line>']
@@ -31,8 +33,8 @@ covering this head — and `COMMENT_URL` — the posted rationale — and ends w
 | RESULT              | Exit                | What to do                                                                                                                                         |
 | ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`           | 0                   | Report the toggle and any `COMMENT_URL`, then confirm the review started.                                                                          |
-| `ALREADY_REVIEWED`  | 3                   | An accepted AI review already names the head. Report it; request nothing.                                                                          |
-| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL` already covers the head. Report it and confirm that one; do not retry.                                          |
+| `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                                    |
+| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL`, running or started after the last edit, covers the head. Report it and confirm that one; do not retry.         |
 | `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                 |
 | `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, the toggle included. Stop and report stderr, which names any assignment left unrestored.              |
 | `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                               |
@@ -90,23 +92,28 @@ The shape of that run points at the cause:
 The first four need a person rather than a retry. If none of these applies and
 the check is simply still pending, say so plainly instead of requesting again.
 
-## Post at most once per head SHA
+## Post at most once per reviewed input
 
-A review is a full container run against one commit, so the head SHA is the
-unit: it is what makes an existing review stale, and it is what justifies the
-next request. Push the work first, then request the review for the head that
-push produced.
+A review is a full container run against one commit and the title and
+description it read, so that is the unit: a new head or an edit to either is
+what makes an existing review stale, and what justifies the next request. Push
+the work first, then request the review for the head that push produced. After
+a metadata-gate stop, fix the title or description instead; the edit alone
+lets the script request a review of the same head.
 
-Request at most one review per head SHA. `request-review.py` enforces the rule
-whoever started the review: a `Claude PR Review Responder` check on the head
-that is queued, in progress, or completed other than skipped or cancelled is
-that head's request. A skipped responder is the gate-only run a push to a
-reviewed pull request starts, so it does not count. No skill requests a review
-any other way.
+Request at most one review per head and title and description.
+`request-review.py` enforces the rule whoever started the review: a
+`Claude PR Review Responder` check on the head that is queued or in progress,
+or started after the latest title or description edit and completed other than
+skipped or cancelled, is that input's request. A run reads the title and
+description when it starts, so a review submitted by a run that started before
+the edit does not count either. A skipped responder is the gate-only run a
+push to a reviewed pull request starts, so it does not count. No skill requests
+a review any other way.
 
 When a run genuinely fails without publishing a review, inspect its logs and
-report that failure; wait for a new head SHA or explicit user direction before
-requesting again.
+report that failure; wait for a new head, a title or description edit, or
+explicit user direction before requesting again.
 
 ## Related Skills
 

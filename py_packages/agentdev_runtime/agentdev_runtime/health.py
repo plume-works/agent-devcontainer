@@ -17,7 +17,16 @@ import sys
 from agentdev_runtime import settings as env, state as files
 from agentdev_runtime.supervisor import RETRY_COMMAND
 
-SERVICES = ('dockerd', 'dbus', 'keyring', 'cbm', 'xpra', 'opencode', 'remote-control')
+SERVICES = (
+    'dockerd',
+    'docker-gc',
+    'dbus',
+    'keyring',
+    'cbm',
+    'xpra',
+    'opencode',
+    'remote-control',
+)
 # The session bus and the CBM rendezvous admit only the account that owns them.
 USER_SERVICES = frozenset({'dbus', 'keyring', 'cbm', 'opencode', 'xpra', 'remote-control'})
 # -P keeps the probe's working directory, often a checkout, off sys.path.
@@ -48,6 +57,9 @@ def _run(
 def probe(settings: env.Settings, service: str) -> bool:
     if service == 'dockerd':
         return _run(['docker', 'info'], timeout=10, stdout=False, stderr=False)
+    if service == 'docker-gc':
+        # The collector serves nothing; supervisord's RUNNING state is its whole health.
+        return True
     if service == 'dbus':
         return _run(
             [
