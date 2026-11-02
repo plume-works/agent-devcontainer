@@ -220,8 +220,11 @@ pass always exits 0.
 
 ### Task 7: CI green on the pull request
 
-- [ ] The pull request's image builds and runtime acceptance pass, both images
+- [x] The pull request's image builds and runtime acceptance pass, both images
   included.
+  - **Evidence:** PR #631 CI on `0e73c225`: the Development, Devcontainer image,
+    Dev Container runtime acceptance and Deploy runtime acceptance jobs pass on
+    amd64 and arm64, and `CI/CD / CI finished` succeeds.
 
 ### Task 8: Both collectors run on a live workspace
 
