@@ -55,11 +55,12 @@ Options:
 
 An assigned author is removed and added back; an unassigned one is added and
 removed, so the assignees end as they were found. A review covers the head
-together with the title and description it saw, so only reviews and finished
-checks newer than the latest title or description edit count. The request is
-refused when such an accepted AI review names the head, or a Claude PR Review
-Responder check on the head is queued, in progress, or completed after that
-edit other than skipped or cancelled.
+together with the title and description it saw, which its run reads when it
+starts. Only responder runs started after the latest title or description edit,
+and the reviews they submit, count. The request is refused when such an
+accepted AI review names the head, or a Claude PR Review Responder check on the
+head is queued, in progress, or started after that edit and completed other
+than skipped or cancelled.
 
 Output:
   RESULT is always the last line of stdout.
@@ -73,7 +74,7 @@ Results (RESULT / exit code):
   ALREADY_REVIEWED   3  An accepted AI review newer than the last title or description edit
                         names the head
   ALREADY_REQUESTED  4  A Claude PR Review Responder check on the head counts as a request:
-                        running, or finished after the last title or description edit
+                        running, or started after the last title or description edit
   PR_NOT_OPEN        5  The pull request is closed, merged, or not found
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or an API call failed, the toggle too
   PREFLIGHT_ERROR    2  Missing --pr, unknown argument, or multi-line rationale
@@ -179,13 +180,36 @@ def after(value: Any, cutoff: datetime | None) -> bool:
     return cutoff is None or (moment is not None and moment > cutoff)
 
 
-def reviewed(reviews: list[dict[str, Any]], head_sha: str, cutoff: datetime | None) -> bool:
+Window = tuple[datetime, datetime | None]
+
+
+def stale_windows(runs: list[dict[str, Any]], cutoff: datetime | None) -> list[Window]:
+    """Return the start and end of each responder run that read metadata older than `cutoff`."""
+    windows = []
+    for run in runs:
+        start = timestamp(run.get('started_at'))
+        if run.get('name') == RESPONDER and start and cutoff and start <= cutoff:
+            windows.append((start, timestamp(run.get('completed_at'))))
+    return windows
+
+
+def reviewed(
+    reviews: list[dict[str, Any]], head_sha: str, cutoff: datetime | None, stale: list[Window]
+) -> bool:
     """Return whether an accepted AI review saw the head's input (spec/ai-review-refresh)."""
+
+    def from_stale_run(item: dict[str, Any]) -> bool:
+        moment = timestamp(item.get('submitted_at'))
+        return moment is not None and any(
+            start <= moment and (end is None or moment <= end) for start, end in stale
+        )
+
     return any(
         (item.get('user') or {}).get('login') in ('claude[bot]', 'github-actions[bot]')
         and str(item.get('state') or '').upper() in ('APPROVED', 'CHANGES_REQUESTED', 'COMMENTED')
         and item.get('commit_id') == head_sha
         and after(item.get('submitted_at'), cutoff)
+        and not from_stale_run(item)
         for item in reviews
     )
 
@@ -197,7 +221,7 @@ def requesting_check(runs: list[dict[str, Any]], cutoff: datetime | None) -> str
             run.get('status') != 'completed'
             or (
                 run.get('conclusion') not in ('skipped', 'cancelled')
-                and after(run.get('completed_at'), cutoff)
+                and after(run.get('started_at'), cutoff)
             )
         ):
             return run.get('html_url') or ''
@@ -267,13 +291,13 @@ def run(arguments: list[str]) -> int:
     if reviews is None:
         print_error(f'Could not read the reviews of {repo}#{pr_number}.')
         return GH_UNAVAILABLE
-    if reviewed(reviews, head_sha, cutoff):
-        return finish('', '', ALREADY_REVIEWED)
-
     runs = fetch_list(f'repos/{repo}/commits/{head_sha}/check-runs', 'check_runs')
     if runs is None:
         print_error(f'Could not read the check runs of {head_sha}.')
         return GH_UNAVAILABLE
+    if reviewed(reviews, head_sha, cutoff, stale_windows(runs, cutoff)):
+        return finish('', '', ALREADY_REVIEWED)
+
     existing_url = requesting_check(runs, cutoff)
     if existing_url:
         return finish(existing_url, '', ALREADY_REQUESTED)

@@ -26,6 +26,7 @@ CHECK_URL = 'https://github.com/octo/repo/runs/700'
 POSTED_URL = 'https://github.com/octo/repo/pull/42#issuecomment-900'
 RATIONALE = 'Reworked the retry backoff beyond the thread.'
 EARLIER = '2026-01-01T09:00:00Z'
+STARTED_AT = '2026-01-01T09:30:00Z'
 REVIEWED_AT = '2026-01-01T10:00:00Z'
 LATER = '2026-01-01T11:00:00Z'
 
@@ -145,6 +146,7 @@ def check_run(
     conclusion: str | None = None,
     name: str = RESPONDER,
     completed_at: str = REVIEWED_AT,
+    started_at: str = STARTED_AT,
 ) -> dict[str, Any]:
     """Build a check run on the head commit as the check-runs endpoint returns it."""
     return {
@@ -152,6 +154,7 @@ def check_run(
         'status': status,
         'conclusion': conclusion,
         'html_url': CHECK_URL,
+        'started_at': started_at if status != 'queued' else None,
         'completed_at': completed_at if status == 'completed' else None,
     }
 
@@ -414,6 +417,33 @@ def test_responder_check_completed_after_metadata_edit_counts(
 
     assert outcome(completed) == (4, 'RESULT=ALREADY_REQUESTED')
     assert calls == []
+
+
+@pytest.mark.parametrize(
+    ('started_at', 'expected'),
+    [
+        ('2026-01-01T10:30:00Z', (0, 'RESULT=SUCCESS')),
+        ('2026-01-01T11:10:00Z', (3, 'RESULT=ALREADY_REVIEWED')),
+    ],
+)
+def test_review_from_a_run_started_before_the_edit_does_not_count(
+    plugin_root: Path, plugin_tmp_path: Path, started_at: str, expected: tuple[int, str]
+) -> None:
+    """A run reads the title and description when it starts, whenever it finishes."""
+    fixture = make_fixture(
+        reviews=[review('claude[bot]', HEAD_SHA, submitted_at='2026-01-01T11:20:00Z')],
+        check_runs=[
+            check_run(
+                'completed', 'success', started_at=started_at, completed_at='2026-01-01T11:30:00Z'
+            )
+        ],
+        edits={'body': LATER},
+    )
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == expected
+    assert bool(toggle_calls(calls)) == (expected[0] == 0)
 
 
 def test_edit_time_query_sends_owner_and_name_as_strings(

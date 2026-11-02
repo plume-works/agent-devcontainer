@@ -34,7 +34,7 @@ covering this head — and `COMMENT_URL` — the posted rationale — and ends w
 | ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`           | 0                   | Report the toggle and any `COMMENT_URL`, then confirm the review started.                                                                          |
 | `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                                    |
-| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL`, running or finished after the last edit, covers the head. Report it and confirm that one; do not retry.        |
+| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL`, running or started after the last edit, covers the head. Report it and confirm that one; do not retry.         |
 | `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                 |
 | `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, the toggle included. Stop and report stderr, which names any assignment left unrestored.              |
 | `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                               |
@@ -104,8 +104,10 @@ lets the script request a review of the same head.
 Request at most one review per head and title and description.
 `request-review.py` enforces the rule whoever started the review: a
 `Claude PR Review Responder` check on the head that is queued or in progress,
-or completed after the latest title or description edit other than skipped or
-cancelled, is that input's request. A skipped responder is the gate-only run a
+or started after the latest title or description edit and completed other than
+skipped or cancelled, is that input's request. A run reads the title and
+description when it starts, so a review submitted by a run that started before
+the edit does not count either. A skipped responder is the gate-only run a
 push to a reviewed pull request starts, so it does not count. No skill requests
 a review any other way.
 

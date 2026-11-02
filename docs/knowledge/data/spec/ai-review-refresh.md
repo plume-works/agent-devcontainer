@@ -3,7 +3,7 @@ type: spec
 description: When the agentdev pr-* skills evaluate whether a reviewed pull request needs a fresh AI review, how they request one at most once per head commit and its title and description, and how they judge a requested review's progress.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
+  at: 2026-11-02T03:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
@@ -51,13 +51,16 @@ author is added and removed, so the assignees end as they were found. The
 catalog SHALL NOT post an `@claude review` comment.
 
 A review's input is the head commit together with the pull request's title and
-description. The script SHALL NOT toggle for a head commit that an accepted AI
-review submitted after the latest title or description edit already names, or
+description, which a review run reads when it starts. The script SHALL NOT
+toggle for a head commit that an accepted AI review already names, submitted
+after the latest title or description edit by a run that started after it, or
 that carries a `Claude PR Review Responder` check run that is queued, in
-progress, or completed after that edit with a conclusion other than `skipped` or
-`cancelled`, whoever started it. When the pull request was never edited, every
-such review and check counts. Accepted reviews are those the AI review gate
-names, by author and state; a reaction names no commit and is not counted.
+progress, or started after that edit and completed with a conclusion other than
+`skipped` or `cancelled`, whoever started it. A review submitted while a
+responder run that started before the edit was running SHALL NOT count. When the
+pull request was never edited, every such review and check counts. Accepted
+reviews are those the AI review gate names, by author and state; a reaction
+names no commit and is not counted.
 
 A rationale, when given, SHALL be posted as a pull request comment that opens
 with `AI review requested for <sha>:` and carries no `@claude` mention.
@@ -65,8 +68,8 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 ### Scenario: a second request for the same head
 
 - **WHEN** a `Claude PR Review Responder` check on the head is queued, in
-  progress, or completed with a failure after the latest title or description
-  edit
+  progress, or started after the latest title or description edit and completed
+  with a failure
 - **THEN** the script toggles nothing and reports `ALREADY_REQUESTED` with that
   check's URL.
 
@@ -78,10 +81,19 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 
 ### Scenario: the description changed after the head's review
 
-- **WHEN** every accepted AI review naming the head, and every completed
-  responder check on it, predates the latest title or description edit, and no
-  responder check on the head is queued or in progress
+- **WHEN** every completed responder check on the head started before the latest
+  title or description edit, every accepted AI review naming the head was
+  submitted before that edit or by one of those runs, and no responder check on
+  the head is queued or in progress
 - **THEN** the script toggles the author's assignment and reports `SUCCESS`.
+
+### Scenario: the description changed while a review was running
+
+- **WHEN** the title or description is edited after a responder run on the head
+  started, and that run finishes and submits its review after the edit
+- **THEN** neither the run's check nor its review counts, and once no responder
+  check is queued or in progress the script toggles the author's assignment and
+  reports `SUCCESS`.
 
 ### Scenario: a push to a reviewed pull request
 

@@ -53,8 +53,8 @@ AI review names, with no exception for a gate-only review.
 ## Fix
 
 A review covers the head commit together with the title and description it saw.
-`request-review.py` counts only AI reviews submitted, and responder checks
-completed, after the latest title or description edit, so fixing the description
+`request-review.py` counts only responder runs started after the latest title or
+description edit, and the AI reviews they submit, so fixing the description
 after a metadata-gate stop lets it request a review of the same head. Plan:
 [Re-request an AI review after a title or description
 edit](../plans/20261102-rereview-after-metadata-edit.md).
