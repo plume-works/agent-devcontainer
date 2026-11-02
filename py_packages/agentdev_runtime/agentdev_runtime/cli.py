@@ -138,7 +138,7 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'catalog': (_catalog, 'register a catalog root with Claude Code and OpenCode'),
     'cbm': (_cbm, 'the codebase-memory-mcp daemon, its install, and its index request'),
     'coder': (_coder, "the Coder agent's start"),
-    'docker': (_docker, 'the nested Docker engine and its image prune'),
+    'docker': (_docker, 'the nested Docker engine and its garbage collection'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
     'remote-control': (_remote_control, 'the Claude Remote Control watcher, start, pane, and pin'),
