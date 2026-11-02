@@ -145,14 +145,23 @@ every `docs/knowledge/data/bugs/*.md`,
 `docs/knowledge/tests/test_rank_and_base_schemas.py` (only if its open-item
 selection breaks)
 
-- [ ] The `bug-out-of-order` case moves a required section (`Root cause` after
+- [x] The `bug-out-of-order` case moves a required section (`Root cause` after
   `Symptom`) instead of the now-optional `Fix`
-- [ ] New rejection cases: a bug with no `stage`, a bug with no `severity`, a
+  - **Evidence:** commit dcd65bf0 moves `Root cause` after `Symptom`; the case
+    passes
+- [x] New rejection cases: a bug with no `stage`, a bug with no `severity`, a
   bug whose `severity` is outside the enum
-- [ ] New acceptance cases: a bug with neither `Potential solution` nor `Fix`,
+  - **Evidence:** commit dcd65bf0 adds
+    `test_malformed_bug_frontmatter_is_rejected` (no stage, no severity, bad
+    severity, bad stage)
+- [x] New acceptance cases: a bug with neither `Potential solution` nor `Fix`,
   and one with both
-- [ ] `uv run pytest docs/knowledge/tests/test_body_shape_schemas.py docs/knowledge/tests/test_rank_and_base_schemas.py`
+  - **Evidence:** commit dcd65bf0 adds `test_optional_bug_sections_are_accepted`
+    (neither, both)
+- [x] `uv run pytest docs/knowledge/tests/test_body_shape_schemas.py docs/knowledge/tests/test_rank_and_base_schemas.py`
   passes
+  - **Evidence:** commit dcd65bf0; the two files passed, 41 tests;
+    `test_rank_and_base_schemas.py` needed no change
 
 ### Task 3: Task stage `planned` becomes `pending`
 
