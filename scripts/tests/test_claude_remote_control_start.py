@@ -210,10 +210,8 @@ def test_reuses_existing_session():
 def test_real_tmux_starts_claude_without_setup_token(existing_server):
     test_dir = make_test_dir()
     fake_bin = test_dir / 'bin'
-    tmux_dir = TMP_ROOT
     result_file = test_dir / 'result'
     fake_bin.mkdir()
-    tmux_dir.mkdir(parents=True, exist_ok=True)
     (fake_bin / 'claude').write_text(
         FAKE_CLAUDE_AUTH + 'test "${1:-}" = --remote-control\n'
         'test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}"\n'
@@ -224,7 +222,8 @@ def test_real_tmux_starts_claude_without_setup_token(existing_server):
     marker = uuid.uuid4().hex
     env = os.environ | {
         'PATH': f'{fake_bin}:{os.environ["PATH"]}',
-        'TMUX_TMPDIR': str(tmux_dir),
+        # Private tmux servers per test: see bugs/remote-control-tmux-test-shared-under-xdist.
+        'TMUX_TMPDIR': str(test_dir),
         'CLAUDE_CODE_OAUTH_TOKEN': 'tmux-test-secret',
         'CLAUDE_TEST_STATUS': json.dumps(CLAUDE_AI_LOGIN),
         'CLAUDE_TMUX_TEST_RESULT': str(result_file),
@@ -242,7 +241,7 @@ def test_real_tmux_starts_claude_without_setup_token(existing_server):
             )
         caller_env = env | {'CLAUDE_TMUX_TEST_MARKER': marker}
         result = subprocess.run(SCRIPT, env=caller_env, text=True, capture_output=True)
-        for _ in range(30):
+        for _ in range(100):
             if result_file.exists():
                 break
             time.sleep(0.1)
