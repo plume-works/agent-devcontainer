@@ -8,7 +8,7 @@ release:
 description: Remove gh stack and GitHub native stacks and replace them with manual stacked pull requests — branches cut from their predecessor, kept current only with merges, and restacked after a squash merge by one pr-restack-all run.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T01:50:00Z
+  at: 2026-11-02T02:00:00Z
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -62,6 +62,10 @@ One `pr-restack-all` run restacks a whole chain from a fresh detached worktree
 built from remote refs, never touching a local branch, so it cannot disturb
 another session's worktree; a session whose branch it advanced sees an ordinary
 non-fast-forward rejection and merges.
+
+Only branches of the remote are cut from or restacked: a pull request whose head
+lives in a fork names a branch the remote may hold under the same name, so
+`git-new-branch --depends-on` and `pr-restack-all` refuse it.
 
 All new code lives in the plugin's `bin/`; the PR body's `## Depends on` section
 is parsed and rewritten by one module that `pr-restack-all` and the body
@@ -144,6 +148,8 @@ The merge record replaces `- #P` with exactly this form:
     `git-new-branch/SKILL.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude` —
     64/64 skills valid.
+- [ ] A `--depends-on` pull request whose head is in a fork stops it with
+  `PREFLIGHT_ERROR` before anything is created, and `SKILL.md` says so
 
 Approved flow:
 
@@ -183,6 +189,8 @@ git-new-branch <name> --depends-on <P>
   - **Evidence:** commit `698bb5ef` adds `skills/pr-restack-all/SKILL.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude` —
     65/65 skills valid.
+- [ ] A chain link or open predecessor whose head is in a fork stops the restack
+  with `CHAIN_BROKEN` before any push, and `SKILL.md` says so
 
 Approved chain discovery:
 
@@ -466,7 +474,15 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
     `git grep base-is-main -- .github` finds nothing; the owner push of this
     tick was accepted.
 
-### Task 14: CI
+### Task 14: No skill suggests a rebase
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/remote-codespace-session/agent-code/codespace-sync.py`
+
+- [ ] After a rejected push, `codespace-sync.py` tells the user to fetch and
+  merge, never to rebase
+
+### Task 15: CI
 
 **Files:** none
 
@@ -512,9 +528,10 @@ stack. Another branch's history SHALL be brought in with a merge.
 ### Requirement: A dependent branch records its predecessors
 
 `git-new-branch --depends-on <P>`, repeatable, SHALL require every named pull
-request to be open, SHALL cut the branch from the first one's head branch and
-merge the others' heads, SHALL add an empty commit with a `Depends-on: #<P>`
-trailer for each, and SHALL push without force.
+request to be open and its head to be a branch of the remote, SHALL cut the
+branch from the first one's head branch and merge the others' heads, SHALL add
+an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push
+without force.
 
 #### Scenario: One open predecessor
 
@@ -531,6 +548,11 @@ trailer for each, and SHALL push without force.
 
 - **WHEN** `--depends-on` names two open pull requests
 - **THEN** the branch contains both heads and one trailer line for each
+
+#### Scenario: Predecessor in a fork
+
+- **WHEN** a named pull request's head is in a fork
+- **THEN** it stops before creating a branch
 
 ### Requirement: pr-open bases a dependent pull request on its predecessor
 
@@ -575,7 +597,8 @@ cannot find or edit.
 pr-restack-all SHALL take a top pull request or a branch. For a pull request it
 SHALL find the chain by walking each pull request's base to the open pull
 request whose head is that branch, down to a base of `main`, and SHALL stop when
-a pull request's last `## Depends on` entry is not the pull request below it.
+a pull request's last `## Depends on` entry is not the pull request below it, or
+when a pull request in the chain or an open predecessor has its head in a fork.
 For a branch it SHALL read the dependencies from its `Depends-on:` trailers. It
 SHALL work in one fresh detached worktree under `./.tmp/` built from remote
 refs, and SHALL NOT check out, create, or move a local branch. Bottom-up, for
@@ -625,6 +648,12 @@ push without force and, after the push lands, replace the `- #<P>` entry with
 - **WHEN** pr-restack-all runs while another worktree has a chain branch checked
   out
 - **THEN** no local branch or worktree other than its own is changed
+
+#### Scenario: Head in a fork
+
+- **WHEN** a pull request in the chain, or its open predecessor, has its head in
+  a fork
+- **THEN** it stops before any push
 
 ### Requirement: pr-merge merges only into main
 
@@ -717,8 +746,13 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 - `uv run pytest py_packages/agentdev_runtime` passes.
-- `git grep -n -i -E "gh[ -]stack|stack-guard|AGENTDEV_GH_STACK"` finds nothing
-  outside done plans, done bugs, `data/log.md`, and `data/releases/`.
+- `git grep -n -i -E "gh[ -]stack|stack-guard|AGENTDEV_GH_STACK" -- ':!docs/knowledge' ':!AGENTS.md'`
+  finds nothing. Under `docs/knowledge/data/` and in `AGENTS.md`, a remaining
+  hit is only a rule that forbids `gh stack`, a rejected alternative, a hub link
+  title, another plan, a done, cancelled, or deprecated document, `data/log.md`,
+  `data/releases/`, or a spec, feature, or bug this plan's Ship updates.
+- `git grep -n -i -w rebase -- .agents/plugins/agentdev ':!*.md'` finds no
+  instruction to rebase.
 - `iwe normalize` and `iwe schema validate` pass.
 - `gh api repos/{owner}/{repo}/rulesets` shows the Task 13 ruleset with its
   three bypass roles.
