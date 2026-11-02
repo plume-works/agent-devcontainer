@@ -319,10 +319,15 @@ restacks onto open X+1 (Rz1) → X+1 merges as Sy → X+2 restacks onto merged X
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`
 
-- [ ] The skill keeps its name and runs the approved loop, with step 2 run by
+- [x] The skill keeps its name and runs the approved loop, with step 2 run by
   the owning session or child inside a coordinator session and by the skill
   itself outside one, and step 4 always the skill's own single `pr-restack-all`
   run
+  - **Evidence:** commit `7ad9141d` rewrites `pr-merge-stack/SKILL.md` around
+    the approved loop, step 2 by the owning session inside a coordinator and by
+    the skill otherwise, step 4 always the skill's own `pr-restack-all` run;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ``` text
 input: top PR
