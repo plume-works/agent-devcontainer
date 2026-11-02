@@ -86,6 +86,16 @@ pr-merge merges only a pull request based on `main`. pr-merge-stack loops: merge
 the bottom through pr-merge, then restack the rest with one `pr_restack_all.py`
 run of the top.
 
+## Blocking merges into dependent branches
+
+A ruleset on `refs/heads/iwe/**` that requires a status check nothing reports
+refuses a merge into those branches unless a bypass actor forces it. Its bypass
+list can name only repository roles and GitHub Apps that this repository or its
+organization owns. The built-in GitHub Actions app, which `GITHUB_TOKEN` acts
+as, is refused (HTTP 422). So a workflow that pushes to an `iwe/` branch with
+`GITHUB_TOKEN`, as the AI task responder does, has to push as an owned App
+before the ruleset can be active.
+
 ## Rejected alternatives
 
 - **GitHub native stacks driven by `gh stack`.** GitHub rebases every remaining
