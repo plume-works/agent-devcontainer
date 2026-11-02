@@ -18,7 +18,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
-rank: 300
+completed: 2026-11-02
+stage: done
 ---
 
 # Replace gh stack with manual stacked pull requests
