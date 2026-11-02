@@ -65,7 +65,9 @@ Supply either only when the user asked for it.
 The dependencies are the branch's own `Depends-on: #<P>` trailers, the ones
 [git-new-branch](../git-new-branch/SKILL.md) `--depends-on` writes. Trailers
 carried in from a predecessor's own branch are not counted. Every merged
-dependency is reconnected as above, and the branch is pushed without force.
+dependency is reconnected as above, the branch is pushed without force, and,
+when the branch has an open pull request, each reconnected entry gets its merge
+record.
 `--list` prints `DEPENDENCY=#<P> <STATE> <head-branch>` per dependency, oldest
 first, and changes nothing.
 

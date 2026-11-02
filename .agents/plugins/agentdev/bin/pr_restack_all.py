@@ -420,11 +420,15 @@ class Restack:
                 )
             return
         before = self.checkout(branch)
+        reconnected = []
         for predecessor in dependencies:
             self.require_predecessor(predecessor.number, branch)
-            if predecessor.state == 'MERGED':
-                self.reconnect(predecessor, branch)
+            if predecessor.state == 'MERGED' and self.reconnect(predecessor, branch):
+                reconnected.append(predecessor)
         self.push(branch, before)
+        pull_request = self.prs.open_with_head(branch) if reconnected else None
+        for predecessor in reconnected if pull_request else []:
+            self.write_record(pull_request.number, predecessor)
 
 
 _PULL_REQUEST = re.compile(r'#?([0-9]+)')

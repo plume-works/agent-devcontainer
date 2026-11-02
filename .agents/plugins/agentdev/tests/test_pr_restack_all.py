@@ -350,3 +350,23 @@ def test_a_link_whose_head_is_in_a_fork_stops_before_any_push(
     hub.pulls[fork] = dataclasses.replace(hub.pulls[fork], cross_repository=True)
     assert run(restack, hub, '2') == restack.CHAIN_BROKEN
     assert hub.remote_sha('y') == before
+
+
+def test_a_branch_with_an_open_pull_request_gets_its_merge_record(
+    restack: ModuleType, hub: Hub, capsys: pytest.CaptureFixture[str]
+) -> None:
+    hub.open(1, 'x', 'main')
+    git(hub.publisher, 'fetch', '--quiet', 'origin')
+    git(hub.publisher, 'checkout', '--quiet', '-B', 'b', 'origin/x')
+    git(hub.publisher, 'commit', '--quiet', '--allow-empty', '-m', 'Depend\n\nDepends-on: #1')
+    git(hub.publisher, 'push', '--quiet', 'origin', 'b:b')
+    hub.pulls[2] = restack.PullRequest(2, 'OPEN', 'b', 'x', '', None, '## Depends on\n\n- #1\n')
+    hub.sync_pull_refs()
+    hub.advance_main('o')
+    merge_x = hub.squash_merge(1)
+    head_x = hub.pulls[1].head_oid
+    assert run(restack, hub, 'b') == 0
+    assert keys(capsys.readouterr().out, 'RECONNECTED')
+    assert hub.pulls[2].body == (
+        f'## Depends on\n\n- #1 — merged as {merge_x[:8]} (head {head_x[:8]}), reconnected\n'
+    )
