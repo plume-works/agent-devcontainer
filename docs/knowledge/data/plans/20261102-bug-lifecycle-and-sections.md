@@ -111,22 +111,33 @@ field) and the flat hubs.
 every `docs/knowledge/data/bugs/*.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/bugs/timer-drift-after-sleep.example.md`
 
-- [ ] `bug.yaml` (both copies, byte-identical):
+- [x] `bug.yaml` (both copies, byte-identical):
   `required: [type, stage, severity]`; `stage` enum
   `pending, planned, done, cancelled`; `severity` enum
   `critical, high, medium, low`; sections `Symptom`, `Reproduction`,
   `Root cause` required, then `Potential solution` and `Fix` each
   `minContains: 0, maxContains: 1`; no `Key references` entry; the schema
   `description` and the order hint name the new shape
-- [ ] Every bug without a stage gets `stage: planned` when an active plan lists
+  - **Evidence:** commit f1721d3f changes both `bug.yaml` copies identically
+    (`cmp` clean); `iwe schema validate` passed in its pre-commit hook
+- [x] Every bug without a stage gets `stage: planned` when an active plan lists
   it in `release`, otherwise `stage: pending` (as of `00f33655`: 12 bugs, 6
   planned — recount at implementation)
-- [ ] Every bug gets a `severity`. The proposed value per bug, with a one-line
+  - **Evidence:** commit f1721d3f; 12 stage-less bugs migrated, 6 to `planned` —
+    exactly the bugs active plans list in `release`
+- [x] Every bug gets a `severity`. The proposed value per bug, with a one-line
   reason from its Symptom, goes into the pull request description as a table for
   the maintainer to review
-- [ ] The bootstrap example bug is `stage: pending` with a `severity`, its
+  - **Evidence:** commit f1721d3f gives all 57 bugs a `severity`; the per-bug
+    table with reasons is in the pull request description
+- [x] The bootstrap example bug is `stage: pending` with a `severity`, its
   `## Fix` renamed `## Potential solution`, and no `## Key references`
-- [ ] `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit f1721d3f;
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py docs/knowledge/tests`
+    passed (121 tests)
+- [x] `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit f1721d3f; both passed locally and in its
+    `iwe-normalize` / `iwe-schema-validate` pre-commit hooks
 
 ### Task 2: Schema tests for the bug shape
 
