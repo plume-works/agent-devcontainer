@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-10-28
-stage: planned
+stage: pending
 priority: medium
 description: Explore a way for plan task evidence to stay traceable after rebases and squash merges, since evidence lines name commits whose ids those operations rewrite or erase.
 generated:

@@ -35,10 +35,14 @@ Run every `iwe` command from the repository root; keys are relative to
 3. **Gate on completeness.** Check the supplied content against every required
    frontmatter field and body section for the type:
    - **bug** — an H1 starting `Bug: `, then `## Symptom`, `## Reproduction`,
-     `## Root cause`, `## Fix`, and `## Key references` in that order, with
-     `path:line — symbol` anchors verified in the current checkout under a
-     `Verified anchor points (line numbers as of YYYY-MM-DD):` line. An
-     unfixed bug says so in `## Fix`.
+     and `## Root cause` in that order, and a `severity` of `critical`,
+     `high`, `medium`, or `low` — the defect's impact, not its urgency.
+     `## Potential solution`, the intended direction, and `## Fix`, the fix
+     that shipped, are optional and follow `## Root cause`. A Reproduction or
+     Root cause not yet known states what is known, the hypotheses eliminated
+     and what eliminated each, and links the `data/backlog/` task whose spike
+     settles it — never a bare "unknown". No section states lifecycle: not
+     "unfixed", not "planned in"; `stage` carries that.
    - **feature** — `## Purpose`, `## Behaviour`, `## Edge cases`, and
      `## Open questions` in that order; an Open questions section with nothing
      open says so in one line.
@@ -54,9 +58,10 @@ Run every `iwe` command from the repository root; keys are relative to
    or `data/backlog/<slug>.md`, choosing a short kebab slug no existing key
    uses. Frontmatter:
    - `type` — `bug`, `feature`, or `task`.
-   - `stage` from the SCHEMA.md table: a new bug omits it (open); a feature is
-     `stage: proposed`; a task is `stage: planned` with `priority` and
-     `created: <today>`.
+   - `stage` from the SCHEMA.md table: a bug is `stage: pending` with its
+     `severity`, or `stage: done` when the same change already fixed it, with a
+     `## Fix` that describes that fix; a feature is `stage: proposed`; a task
+     is `stage: pending` with `priority` and `created: <today>`.
    - `description`, `generated: { by: <actor>, at: <ISO 8601 now> }`, and
      `sources` naming every code path, page, and GitHub issue URL the item was
      derived from.

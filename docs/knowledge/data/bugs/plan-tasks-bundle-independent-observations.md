@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: medium
 description: A plan checkbox can bundle several independently observed outcomes, so the implementer cannot tick the half it observed and has to park that evidence elsewhere; neither the plan skill's coherence check nor the plan auditor tests checkbox granularity.
 generated:
   by: claude-code/opus-5.5
@@ -68,9 +70,7 @@ The rule exists only as prose, and neither gate tests it.
   unticked. That correctness is what turns the planning defect into a
   bookkeeping problem at implementation time.
 
-## Fix
-
-Not fixed. The fix direction:
+## Potential solution
 
 - **`iwe-plan`.** State the rule per checkbox. Each checkbox names exactly one
   observation that closes it. A checkbox whose outcome joins independently

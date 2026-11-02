@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-08-16
-stage: planned
+stage: pending
 priority: medium
 description: Exercise the REMOVED Requirements delta operation end to end, which the risk-scaled spec-delta work specified but never ran against a real retirement.
 generated:

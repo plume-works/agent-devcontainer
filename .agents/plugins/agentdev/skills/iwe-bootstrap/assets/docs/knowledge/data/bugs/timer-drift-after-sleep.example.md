@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: medium
 description: 'Example bug record: the timer drifts after the machine sleeps, with repro and investigation notes.'
 generated:
   by: human:author
@@ -8,9 +10,8 @@ generated:
 
 # Bug: Timer drifts after laptop sleep
 
-*Example document — this shows the shape of a bug report; absent `stage`
-frontmatter means the bug is open. The setup skill deletes `*.example.md` files
-after onboarding.*
+*Example document — this shows the shape of an open bug report. The setup skill
+deletes `*.example.md` files after onboarding.*
 
 ## Symptom
 
@@ -30,18 +31,11 @@ clock leaks into elapsed time across sleep — a direct violation of the
 "Wall-clock independence" requirement in the [Timer
 spec](../spec/timer.example).
 
-## Fix
+## Potential solution
 
 Compute elapsed time from `performance.now()` (monotonic) and reconcile once on
 the wake event instead of every tick.
 
-## Key references
-
-Verified anchor points (line numbers as of 2026-07-25):
-
-- `src/timer/engine.ts:42` — `tick()`, the wall-clock delta
-- `src/timer/engine.ts:88` — wake-event handler, currently a no-op
-
-*Convention notes: code anchors are `path:line — symbol`, stamped with the date
-they were verified, so a reader knows how much to trust them. When the fix
-ships, the bug gets `stage: done` and stays listed in the bugs hub.*
+*Convention notes: `stage` and `severity` live in frontmatter; no section states
+lifecycle. When the fix ships, the bug gets `stage: done` and a `## Fix` that
+describes the fix that shipped.*

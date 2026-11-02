@@ -14,6 +14,7 @@ sources:
 - resource: .github/actionlint.yml
 - resource: .agents/plugins/agentdev/bin/super-linter-env.sh
 stage: done
+severity: low
 ---
 
 # Bug: Runner label bump ahead of actionlint

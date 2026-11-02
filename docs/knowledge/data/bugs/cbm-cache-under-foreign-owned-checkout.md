@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: critical
 description: With CBM_CACHE_DIR inside a bind-mounted checkout another UID owns, every boot-time CBM start exits with "could not load saved runtime settings", and the supervisor stops the Dev Container.
 generated:
   by: claude-code/opus-5.5

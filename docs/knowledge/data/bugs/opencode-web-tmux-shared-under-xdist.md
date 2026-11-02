@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: low
 description: Under pytest-xdist, the real-tmux opencode-web tests shared one tmux server socket, so one test's teardown killed the other's server before its fake opencode recorded a result.
 generated:
   by: claude-code/opus-5.5

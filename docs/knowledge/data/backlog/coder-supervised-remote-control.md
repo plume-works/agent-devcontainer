@@ -1,7 +1,7 @@
 ---
 type: task
 description: Replace the Coder agent's one-shot Remote Control start with a supervised service, like the standalone runtime's remote-control watcher, so a Coder workspace starts Remote Control after a later claude.ai login and restarts a session that exits.
-stage: planned
+stage: pending
 priority: medium
 created: 2026-10-28
 generated:

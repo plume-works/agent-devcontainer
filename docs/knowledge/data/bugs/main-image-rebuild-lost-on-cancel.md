@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: high
 description: A push to main that cancels an in-progress Primary checks run drops the cancelled commit's image rebuild, so agent-desktop:edge stays built from an older commit.
 generated:
   by: claude-code/opus-5.5

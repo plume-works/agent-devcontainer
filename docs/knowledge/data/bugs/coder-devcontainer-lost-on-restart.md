@@ -9,6 +9,7 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/349d8d6/template/main.tf
 - resource: https://docs.docker.com/engine/storage/containerd/
 stage: done
+severity: critical
 ---
 
 # Bug: Coder workspace Dev Container is lost on restart
