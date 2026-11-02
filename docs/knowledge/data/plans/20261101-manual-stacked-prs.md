@@ -345,10 +345,17 @@ loop:
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] `update-branch` loses its stack prerequisite, Workflow 0, and the stack
+- [x] `update-branch` loses its stack prerequisite, Workflow 0, and the stack
   troubleshooting row; its script is unchanged
-- [ ] `pr-feedback-resolution` resolves every conflicted PR through
+  - **Evidence:** commit `a230ecbf` removes the prerequisite line, Workflow 0,
+    and the stack troubleshooting row from `update-branch/SKILL.md`;
+    `agent-code/update-branch.py` is unchanged.
+- [x] `pr-feedback-resolution` resolves every conflicted PR through
   `update-branch --base <baseRefName>`, its pre-stack text (`bad960f6^`)
+  - **Evidence:** commit `a230ecbf` restores the conflict block of
+    `pr-feedback-resolution/SKILL.md` from `bad960f6^` byte for byte;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 9: Delete the gh-stack skill
 
