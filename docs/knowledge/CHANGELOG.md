@@ -40,6 +40,25 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Changed
 
+- **Bugs carry a `stage` and a `severity`.** A bug's `stage` is required:
+  `pending | planned | done | cancelled`, with "absent means open" retired.
+  Capture files a bug at `pending`, or at `done` when the same change fixed it;
+  Plan moves a bug its plan lists in `release` to `planned`; Ship moves it to
+  `done`, and back to `pending` when it cancels the plan. `severity` is required
+  too — `critical | high | medium | low`, the defect's impact, not its urgency.
+  To migrate, give every bug without a stage `stage: pending`, or
+  `stage: planned` when an active plan lists it, and give every bug a
+  `severity`.
+- **A bug's `## Fix` is the fix that shipped.** `## Symptom`, `## Reproduction`,
+  and `## Root cause` stay required; `## Potential solution` (the intended
+  direction) and `## Fix` (written when the bug becomes `done`, by Ship from the
+  plan or by the fixer directly) are optional, and `## Key references` is no
+  longer required. No section states lifecycle. To migrate, rename an open bug's
+  `## Fix` to `## Potential solution` and drop wording such as "Not yet fixed"
+  or "Planned in".
+- **The task stage `planned` is now `pending`**, so `planned` means only that a
+  plan owns a bug. To migrate, change `stage: planned` to `stage: pending` on
+  every backlog task.
 - **`status` is now `stage`.** OKF reserves `status` for its lifecycle values
   (`draft | stable | deprecated`), so the workflow field moved to `stage` in all
   schemas and every document. OKF's `status` is optional and never set: `stage`
