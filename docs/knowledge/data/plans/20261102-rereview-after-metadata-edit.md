@@ -151,11 +151,14 @@ handling.
   - **Evidence:** commit d2bedf5e: `pr-request-ai-review/SKILL.md` adds the
     edit-cutoff paragraph under Post the request and rewrites the
     `ALREADY_REVIEWED` and `ALREADY_REQUESTED` rows.
-- [ ] `pr-merge` Step 3: the script toggles at most once per head and title and
+- [x] `pr-merge` Step 3: the script toggles at most once per head and title and
   description, not once per head SHA, and `ALREADY_REVIEWED` means a review
   newer than the last title or description edit names the head.
   `pr-feedback-resolution` already treats a gate body as feedback: update the
   title or description, then re-request review.
+  - **Evidence:** commit d2bedf5e: `pr-merge/SKILL.md` Step 3 says once per head
+    and title and description, and `ALREADY_REVIEWED` names a review newer than
+    the last edit.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
