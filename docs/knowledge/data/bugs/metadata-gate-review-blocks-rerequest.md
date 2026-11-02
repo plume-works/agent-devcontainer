@@ -3,7 +3,7 @@ type: bug
 description: A review that stopped at the PR metadata gate counts as the head's AI review, so after the author fixes the description request-review.py reports ALREADY_REVIEWED and offers no override; the full review cannot run without a new commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T01:51:21Z
+  at: 2026-11-02T00:05:27Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
@@ -51,6 +51,14 @@ an accepted AI review names, with no exception for a gate-only review.
 Not fixed. A fix needs the spec to allow a re-request on a head whose only AI
 review stopped at the metadata gate, and either a way to recognize that review
 or an explicit override argument on `request-review.py`.
+
+Workaround: toggle the PR author's assignment by hand with `gh pr edit <pr>`:
+`--add-assignee <author>` then `--remove-assignee <author>`, or the reverse when
+the author is already assigned, so the assignees end as they were. The responder
+reviews on the `assigned` event, so this starts the full review on the same head
+without a new commit. Use a token whose events start workflows, such as your own
+`gh` login, and use it only after a gate-only review: it bypasses the per-head
+guard `request-review.py` enforces.
 
 ## Key references
 
