@@ -123,13 +123,17 @@ pass always exits 0.
 `scripts/tests/test_docker_gc.py`; Delete:
 `scripts/tests/test_docker_image_prune.py`
 
-- [ ] `agentdev-runtime docker gc` runs
+- [x] `agentdev-runtime docker gc` runs
   `docker image prune -af --filter until=72h`, then
   `docker builder prune -f --max-used-space 10GB`, then removes each dangling
   volume whose name matches a disposable pattern and whose `CreatedAt` is more
   than 72 hours old. `docker prune` is gone. Tests with a stub `docker` cover
   the command order. For volumes, they check that an old disposable volume is
   removed, a young disposable volume is kept, and an old login volume is kept.
+  - **Evidence:** commit 448df291;
+    `uv run pytest scripts/tests/test_docker_gc.py` — 5 passed
+    (`test_prunes_images_then_cache_then_volumes_in_order`,
+    `test_removes_only_old_disposable_volumes`).
 - [ ] Docker missing or its daemon unreachable: the pass does nothing and exits
   0\. A failing step warns, the remaining steps still run, and the pass exits 0.
   Tests cover each case.
