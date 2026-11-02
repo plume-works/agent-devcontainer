@@ -275,15 +275,23 @@ def open_dependencies(options: Options) -> list[Dependency]:
     for number in options.depends_on:
         completed = run_tool(
             'gh', 'pr', 'view', str(number), '--repo', repository,
-            '--json', 'state,headRefName', '--jq', '.state + " " + .headRefName',
+            '--json', 'state,isCrossRepository,headRefName',
+            '--jq', '.state + " " + (.isCrossRepository | tostring) + " " + .headRefName',
         )  # fmt: skip
-        state, _, head_branch = completed.stdout.strip().partition(' ')
+        state, _, rest = completed.stdout.strip().partition(' ')
+        cross_repository, _, head_branch = rest.partition(' ')
         if completed.returncode != 0 or not head_branch:
             print_error(f'gh could not read pull request #{number}: {completed.stderr.strip()}')
             raise Stop(GH_FAILED)
         if state != 'OPEN':
             print_error(f'Pull request #{number} is {state}, not open; nothing was created.')
             raise Stop(DEPENDENCY_NOT_OPEN)
+        if cross_repository != 'false':
+            print_error(
+                f"Pull request #{number}'s head is in a fork; a dependent branch can only be "
+                f'cut from a branch of {options.remote}.'
+            )
+            raise Stop(PREFLIGHT_ERROR)
         dependencies.append(Dependency(number, head_branch))
     return dependencies
 

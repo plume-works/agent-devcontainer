@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T07:39:19Z
+  at: 2026-11-02T15:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -21,7 +21,7 @@ sources:
 Defines how the PR skills merge: every PR explicitly and never through
 auto-merge, a PR in a GitHub native stack through `gh stack merge`, and branch
 updates without force except `gh stack`'s lease-guarded updates of stack
-branches. See Stacked pull requests for the GitHub behavior these rules rest on.
+branches.
 
 ## Requirements
 

@@ -69,9 +69,9 @@ Results (RESULT / exit code):
   SUCCESS             0  Every pull request is restacked
   PREFLIGHT_ERROR     2  Bad usage or not a repository
   GH_FAILED           3  gh could not read or edit a pull request
-  CHAIN_BROKEN        4  A pull request is not open, no open pull request has its
-                         base as head, or its last '## Depends on' entry is not
-                         the pull request below it
+  CHAIN_BROKEN        4  A pull request is not open, its head is in a fork, no
+                         open pull request has its base as head, or its last
+                         '## Depends on' entry is not the pull request below it
   PREDECESSOR_CLOSED  5  A predecessor was closed without merging
   HEAD_MISMATCH       6  refs/pull/<P>/head differs from P's recorded final head
   MERGE_CONFLICT      7  A merge conflicted; the worktree is kept at WORKTREE
@@ -92,6 +92,7 @@ class PullRequest:
     head_oid: str
     merge_oid: str | None
     body: str
+    cross_repository: bool = False
 
 
 class PullRequests(Protocol):
@@ -110,7 +111,7 @@ class PullRequests(Protocol):
 class GitHubPullRequests:
     """Pull request metadata from `gh`, scoped to the remote's repository."""
 
-    FIELDS = 'number,state,headRefName,baseRefName,headRefOid,mergeCommit,body'
+    FIELDS = 'number,state,headRefName,baseRefName,headRefOid,mergeCommit,body,isCrossRepository'
 
     def __init__(self, repository: str) -> None:
         self.repository = repository
@@ -136,6 +137,7 @@ class GitHubPullRequests:
             head_oid=data['headRefOid'],
             merge_oid=(data.get('mergeCommit') or {}).get('oid'),
             body=data.get('body') or '',
+            cross_repository=bool(data.get('isCrossRepository')),
         )
 
     def open_with_head(self, branch: str) -> PullRequest | None:
@@ -308,6 +310,15 @@ class Restack:
             raise Stop(PREDECESSOR_CLOSED)
         return predecessor
 
+    def require_same_repository(self, pull_request: PullRequest) -> None:
+        """Stop for a pull request whose head branch lives in a fork, not on the remote."""
+        if pull_request.cross_repository:
+            print_error(
+                f"#{pull_request.number}'s head {pull_request.head_branch} is in a fork; "
+                f'only branches of {self.remote} are restacked.'
+            )
+            raise Stop(CHAIN_BROKEN)
+
     def restack_pull_request(self, pull_request: PullRequest) -> None:
         """Restack one pull request onto the last entry of its ``## Depends on``."""
         entries = depends_on.entries(pull_request.body)
@@ -320,6 +331,9 @@ class Restack:
                 f'{pull_request.base_branch}, not {predecessor.head_branch}.'
             )
             raise Stop(CHAIN_BROKEN)
+        self.require_same_repository(pull_request)
+        if predecessor.state == 'OPEN':
+            self.require_same_repository(predecessor)
         branch = pull_request.head_branch
         before = self.checkout(branch)
         if predecessor.state == 'OPEN':
@@ -341,6 +355,7 @@ class Restack:
         if links[0].state != 'OPEN':
             print_error(f'#{top} is {links[0].state}, not open.')
             raise Stop(CHAIN_BROKEN)
+        self.require_same_repository(links[0])
         while links[-1].base_branch != self.trunk:
             upper = links[-1]
             lower = self.prs.open_with_head(upper.base_branch)
@@ -349,6 +364,7 @@ class Restack:
                     f"No open pull request has #{upper.number}'s base {upper.base_branch}."
                 )
                 raise Stop(CHAIN_BROKEN)
+            self.require_same_repository(lower)
             entries = depends_on.entries(upper.body)
             if not entries or entries[-1].number != lower.number:
                 print_error(

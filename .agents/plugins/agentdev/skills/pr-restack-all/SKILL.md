@@ -76,19 +76,19 @@ top, `RECONNECTED=#P HEAD=<HEAD> MERGE=<MERGE>` per reconnect,
 `PUSHED=<branch> <sha>` per branch that moved, and `WORKTREE=<path>` on a
 conflict.
 
-| RESULT               | Exit | Meaning                                                   | Action                                                                           |
-| -------------------- | ---- | --------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `SUCCESS`            | `0`  | Every pull request is restacked                           | Report the chain, reconnects, and pushes.                                        |
-| `PREFLIGHT_ERROR`    | `2`  | Bad usage, not a repository, or the branch does not exist | **STOP.** Fix the input.                                                         |
-| `GH_FAILED`          | `3`  | `gh` could not read or edit a pull request                | **STOP.** Report the error; restore `gh` authentication.                         |
-| `CHAIN_BROKEN`       | `4`  | A link is not open, missing, or its last entry is wrong   | **STOP.** Report which link; fix its base or its `## Depends on` section.        |
-| `PREDECESSOR_CLOSED` | `5`  | A predecessor was closed without merging                  | **STOP.** Ask the user how the dependent work continues.                         |
-| `HEAD_MISMATCH`      | `6`  | `refs/pull/<P>/head` differs from P's recorded final head | **STOP.** Report both commits; never reconnect against a guessed head.           |
-| `MERGE_CONFLICT`     | `7`  | A merge conflicted; the worktree is kept at `WORKTREE`    | Resolve the conflict in the worktree (below), push, and rerun.                   |
-| `PUSH_REJECTED`      | `8`  | A plain push was rejected because the branch moved        | Rerun: the restack starts again from the new remote state.                       |
-| `FETCH_FAILED`       | `9`  | The remote could not be fetched                           | **STOP.** Restore connectivity or authentication.                                |
-| `BODY_UPDATE_FAILED` | `10` | The push landed but the merge record was not written      | Rerun: a branch holding both P's head and squash commit gets its missing record. |
-| `SCRIPT_FAILURE`     | `1`  | The script broke                                          | **STOP.** Report the blocker verbatim.                                           |
+| RESULT               | Exit | Meaning                                                            | Action                                                                                                        |
+| -------------------- | ---- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`            | `0`  | Every pull request is restacked                                    | Report the chain, reconnects, and pushes.                                                                     |
+| `PREFLIGHT_ERROR`    | `2`  | Bad usage, not a repository, or the branch does not exist          | **STOP.** Fix the input.                                                                                      |
+| `GH_FAILED`          | `3`  | `gh` could not read or edit a pull request                         | **STOP.** Report the error; restore `gh` authentication.                                                      |
+| `CHAIN_BROKEN`       | `4`  | A link is not open, missing, in a fork, or its last entry is wrong | **STOP.** Report which link; fix its base or its `## Depends on` section; a fork's branch is never restacked. |
+| `PREDECESSOR_CLOSED` | `5`  | A predecessor was closed without merging                           | **STOP.** Ask the user how the dependent work continues.                                                      |
+| `HEAD_MISMATCH`      | `6`  | `refs/pull/<P>/head` differs from P's recorded final head          | **STOP.** Report both commits; never reconnect against a guessed head.                                        |
+| `MERGE_CONFLICT`     | `7`  | A merge conflicted; the worktree is kept at `WORKTREE`             | Resolve the conflict in the worktree (below), push, and rerun.                                                |
+| `PUSH_REJECTED`      | `8`  | A plain push was rejected because the branch moved                 | Rerun: the restack starts again from the new remote state.                                                    |
+| `FETCH_FAILED`       | `9`  | The remote could not be fetched                                    | **STOP.** Restore connectivity or authentication.                                                             |
+| `BODY_UPDATE_FAILED` | `10` | The push landed but the merge record was not written               | Rerun: a branch holding both P's head and squash commit gets its missing record.                              |
+| `SCRIPT_FAILURE`     | `1`  | The script broke                                                   | **STOP.** Report the blocker verbatim.                                                                        |
 
 ## Resolve a Conflict and Rerun
 

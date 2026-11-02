@@ -337,3 +337,16 @@ def test_the_command_line_names_its_result(plugin_root: Path, plugin_tmp_path: P
         2,
         'RESULT=PREFLIGHT_ERROR',
     )
+
+
+@pytest.mark.parametrize('fork', [1, 2])
+def test_a_link_whose_head_is_in_a_fork_stops_before_any_push(
+    restack: ModuleType, hub: Hub, fork: int
+) -> None:
+    hub.open(1, 'x', 'main')
+    hub.open(2, 'y', 'x', 1)
+    hub.commit('x', 'a.txt', 'x2')
+    before = hub.remote_sha('y')
+    hub.pulls[fork] = dataclasses.replace(hub.pulls[fork], cross_repository=True)
+    assert run(restack, hub, '2') == restack.CHAIN_BROKEN
+    assert hub.remote_sha('y') == before

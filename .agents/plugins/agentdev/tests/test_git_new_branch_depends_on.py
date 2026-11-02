@@ -22,7 +22,9 @@ def publish_branch(fixture: Fixture, branch: str, name: str) -> str:
 def pull_requests(directory: Path, states: dict[int, tuple[str, str]]) -> Path:
     """Install a gh stub answering `pr view <n>` with each pull request's state and head."""
     cases = '\n'.join(
-        f'  {number}) echo "{state} {branch}" ;;' for number, (state, branch) in states.items()
+        f'  {number}) echo "{state} {"true" if branch.startswith("fork:") else "false"} '
+        f'{branch.removeprefix("fork:")}" ;;'
+        for number, (state, branch) in states.items()
     )
     return stub_gh(directory, f'case "$3" in\n{cases}\n  *) exit 1 ;;\nesac')
 
@@ -170,3 +172,15 @@ def test_worktree_mode_records_the_dependency(
     assert git(worktree, 'rev-parse', 'HEAD~1') == head
     assert trailers(worktree, 'HEAD') == ['#591']
     assert git(fixture.work, 'branch', '--show-current') == fixture.default_branch
+
+
+def test_a_predecessor_in_a_fork_is_a_preflight_error(
+    plugin_root: Path, fixture: Fixture, plugin_tmp_path: Path
+) -> None:
+    publish_branch(fixture, 'feature-p', 'p.txt')
+    stub = pull_requests(plugin_tmp_path / 'gh', {591: ('OPEN', 'fork:feature-p')})
+    completed, _ = run_script(
+        plugin_root, fixture.work, 'next', '--depends-on', '591', path_prefix=stub
+    )
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert git(fixture.work, 'branch', '--list', 'next') == ''
