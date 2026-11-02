@@ -137,6 +137,8 @@ repository](plans/20261028-move-expo-bridge-kb.md)
 [Move the IWE workflow skills into the agentdev
 plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
+[Narrow the image build context](plans/20261102-narrow-image-build-context.md)
+
 [Adopt GitHub native stacked pull
 requests](plans/20261002-native-stacked-prs.md)
 
