@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+rank: 187
 ---
 
 # Add an adversarial review for plans and their code

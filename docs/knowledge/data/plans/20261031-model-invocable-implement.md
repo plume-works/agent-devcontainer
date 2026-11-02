@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+rank: 150
 ---
 
 # Let any session asked to implement a named plan start Implement

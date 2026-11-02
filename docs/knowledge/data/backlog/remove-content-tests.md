@@ -13,6 +13,7 @@ sources:
 - resource: scripts/tests/test_macos_bootstrap_pins.py
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: https://github.com/plume-works/agent-devcontainer/pull/629
+rank: 197
 ---
 
 # Remove tests that check file contents instead of running behaviour
