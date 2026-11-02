@@ -1,16 +1,15 @@
 ---
 type: task
 created: 2026-10-20
-stage: planned
+stage: cancelled
 priority: low
 description: Plan the post-merge local cleanup for pr-merge-stack, which lands several layers with one gh stack merge.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T00:00:00Z
+  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
-rank: 2200
 ---
 
 # Clean up the local checkout after pr-merge-stack
@@ -23,3 +22,7 @@ branch when layers serve different plans, and how the release interacts with the
 stack metadata `gh stack` keeps — see [Stacked PRs](../spec/stacked-prs.md).
 
 Plan it once the single-PR cleanup has shipped and its script can be reused.
+
+Cancelled: [Manual stacked pull requests](../architecture/manual-stacked-prs.md)
+replace GitHub native stacks, and pr-merge-stack now merges each pull request
+through pr-merge, so the single-PR cleanup covers every merge.

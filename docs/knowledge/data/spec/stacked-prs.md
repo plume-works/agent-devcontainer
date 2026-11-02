@@ -21,8 +21,7 @@ sources:
 Defines how the PR skills merge: every PR explicitly and never through
 auto-merge, a PR in a GitHub native stack through `gh stack merge`, and branch
 updates without force except `gh stack`'s lease-guarded updates of stack
-branches. See [Stacked pull requests](../architecture/stacked-prs.md) for the
-GitHub behavior these rules rest on.
+branches. See Stacked pull requests for the GitHub behavior these rules rest on.
 
 ## Requirements
 

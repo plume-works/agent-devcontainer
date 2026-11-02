@@ -21,9 +21,9 @@ task's evidence name the commit that holds its change, and Verify, and the Ship
 run that repeats it, check that the commit can be traced. Commit ids do not
 last:
 
-- **Rebase** gives every rebased commit a new id. [Stacked
-  PRs](../architecture/stacked-prs.md) rebase every layer above a change, so
-  evidence written on a lower layer goes stale before the stack merges.
+- **Rebase** gives every rebased commit a new id. Stacked PRs rebase every layer
+  above a change, so evidence written on a lower layer goes stale before the
+  stack merges.
 - **Squash merge** replaces a PR's commits with one commit on the default
   branch. Once the branch is deleted, every evidence line in the PR's plans
   points at a commit that no longer exists anywhere a later session can reach.

@@ -85,6 +85,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
+[Manual stacked pull requests](architecture/manual-stacked-prs.md)
+
 [MCP gateway transport](architecture/mcp-gateway-transport.md)
 
 [Module layout](architecture/module-layout.md)
@@ -119,10 +121,6 @@ re-review](architecture/rereview-gate-pending.md)
 
 [Testing sibling workspaces in
 devcontainers](architecture/sibling-devcontainer-testing.md)
-
-[Stack push guard](architecture/stack-push-guard.md)
-
-[Stacked pull requests](architecture/stacked-prs.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
 
