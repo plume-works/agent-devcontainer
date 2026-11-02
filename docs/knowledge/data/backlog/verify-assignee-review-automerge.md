@@ -1,6 +1,6 @@
 ---
 type: task
-stage: planned
+stage: pending
 priority: medium
 created: 2026-10-26
 description: Settle, on two throwaway pull requests, whether an assignee-triggered re-review holds a merge because the required ai-review-present is re-expected, and whether auto-merge waits for it.

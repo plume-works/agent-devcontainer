@@ -19,7 +19,7 @@ software project's memory and system of record. The division of labor:
    `## Authoring rules`: they bind everything you write.
 2. Check the state of work: the build order —
    `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys` — lists
-   active plans, open bugs, and planned tasks together, lowest `rank` first.
+   active plans, open bugs, and pending tasks together, lowest `rank` first.
    Work not yet sequenced is the second query:
    `iwe find --filter '{rank: {$exists: false}, stage: {$nin: [done, cancelled]}, type: {$in: [plan, bug, task]}}' -f keys`.
 
@@ -39,23 +39,27 @@ software project's memory and system of record. The division of labor:
      `data/someday.md`. An idea that gets real is promoted with
      `/agentdev:iwe-capture task --from someday/<slug>`.
    - Actionable item → `/agentdev:iwe-capture task`: `data/backlog/<slug>.md`
-     (`stage: planned`, priority), linked from `data/backlog.md`.
+     (`stage: pending`, priority), linked from `data/backlog.md`.
    - Proposed feature → `/agentdev:iwe-capture feature`:
      `data/features/<slug>.md` at `stage: proposed`, linked from
      `data/features.md`.
    - Work starts → plan skill: `data/plans/YYYYMMDD-<slug>.md` (`created`,
      verified code anchors, and `## Spec changes` in the form the risk calls
      for), plus a link in `data/plans.md`, and a `rank` when its place in the
-     build order is known.
+     build order is known. Each bug the plan lists in `release` moves to
+     `stage: planned`.
    - Work ships → verify skill green (tasks, requirements, and scenarios checked
      against the code), then ship skill: specs synced first, then `stage: done`
      with `completed` and `rank` removed, feature doc `implemented`, bug
-     `stage: done`. No hub, release page, or log entry changes.
+     `stage: done` with a `## Fix` describing the shipped fix. No hub, release
+     page, or log entry changes.
    - Plan abandoned → `stage: cancelled` and `rank` removed (it stays listed —
-     the record of why is worth keeping).
+     the record of why is worth keeping); each bug it lists returns to
+     `stage: pending`.
    - Bug found → `/agentdev:iwe-capture bug`: `data/bugs/<slug>.md` (Symptom /
-     Reproduction / Root cause / Fix / Key references, `path:line` anchors) +
-     link from `data/bugs.md`. Fixed → `stage: done`.
+     Reproduction / Root cause, optional Potential solution, a `severity`) at
+     `stage: pending` + link from `data/bugs.md`. Fixed in the same change →
+     filed at `stage: done` with a `## Fix` describing the fix.
    - Behavior defined or changed → the matching `data/spec/` doc
      (Requirement/Scenario format); this happens *inside* the ship flow, not as
      an afterthought.
@@ -97,7 +101,7 @@ software project's memory and system of record. The division of labor:
 - **Frontmatter is the only record of state.** `stage`, `priority`, `completed`,
   and `rank` live in the item's own document; queries select documents by `type`
   and these fields, not by hub membership.
-- **One build order, `rank`**: active plans, open bugs, and planned tasks share
+- **One build order, `rank`**: active plans, open bugs, and pending tasks share
   an optional positive integer `rank`, lower first. Ranks step by 100 and an
   insertion takes the midpoint of its neighbours; renumber only in a reorder
   pull request. An item without `rank` is not yet sequenced. Ship removes it.
@@ -105,9 +109,9 @@ software project's memory and system of record. The division of labor:
 - **Stage vocabularies** (schema-enforced, human reference in `SCHEMA.md`):
   plans `done|cancelled` (absent = active, `done` requires `completed`);
   features `proposed|accepted|implemented|deprecated|cancelled`; bugs
-  `done|cancelled` (absent = open); releases `released`; backlog
-  `planned|done|cancelled`. Reference docs (spec/architecture/concept/someday)
-  carry a `type` and no stage.
+  `pending|planned|done|cancelled` (open = `pending` or `planned`); releases
+  `released`; backlog `pending|done|cancelled`. Reference docs
+  (spec/architecture/concept/someday) carry a `type` and no stage.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
   Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)

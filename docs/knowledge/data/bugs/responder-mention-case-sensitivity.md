@@ -8,6 +8,7 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/163
 stage: done
+severity: medium
 ---
 
 # Bug: A capitalized `@Claude` mention was admitted, then misrouted

@@ -9,6 +9,7 @@ sources:
 - resource: .devcontainer/scripts/setup-agent-state.sh
 - resource: .devcontainer/scripts/runtime-workspace.sh
 stage: cancelled
+severity: medium
 ---
 
 # Bug: Codex login stops being shared between standalone projects

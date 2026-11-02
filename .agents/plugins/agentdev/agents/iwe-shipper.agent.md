@@ -63,8 +63,9 @@ needed. In particular:
 
 2. **Cancel without shipping.** Do not verify implementation, synchronize
    specs, or mark a feature implemented or bug fixed. If needed, set the plan to
-   `stage: cancelled` and remove its `rank`; skip either change that already
-   happened. Leave `data/plans.md` untouched: its link stays where it is. Run
+   `stage: cancelled` and remove its `rank`, and set every bug its `release`
+   lists at `stage: planned` back to `stage: pending`, writing no `## Fix`;
+   skip any change that already happened. Leave `data/plans.md` untouched: its link stays where it is. Run
    `iwe normalize` and `iwe schema validate`, commit the cancellation, report
    it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
@@ -128,12 +129,18 @@ needed. In particular:
    - Set each feature `release` lists to `stage: implemented`, and each listed
      bug to `stage: done` with its `rank` removed. Never create a feature or
      bug.
+   - Write each listed bug's `## Fix`: the shipped fix in a few sentences,
+     taken from Verify's evidence, linking the plan. Place it after any
+     `## Potential solution` and leave that section as it is. A `## Fix` that
+     already describes this fix stays as it is; one that does not is
+     replaced.
    - Write no hub, no release page, and no `data/log.md` entry: the plan's
      `release` list, and its missing `released`, are what the next release cut
      reads.
 7. **Validate, commit, and report.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. Re-inspect the final plan, each
-   feature or bug, and all planned specs before committing. Report which valid results were preserved from an earlier
+   feature or bug — including every bug `## Fix` written in step 6 — and all
+   planned specs before committing. Report which valid results were preserved from an earlier
    attempt and which operations this invocation completed. If the plan's
    milestone aggregator lists it, check whether it was the last child and say
    when the milestone is complete.

@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: medium
 description: The AI task responder pushes with GITHUB_TOKEN, whose GitHub Actions app GitHub refuses as a ruleset bypass actor, so the iwe/** ruleset that blocks merges into dependent branches also rejects every responder push to an iwe/ branch.
 generated:
   by: claude-code/opus-5.5
@@ -40,13 +42,10 @@ commits are pushed by the built-in GitHub Actions app (app id 15368). A ruleset
 bypass list accepts only repository roles, teams, and GitHub Apps installed on
 the repository's owner; the built-in app is none of these.
 
-## Fix
+## Potential solution
 
-Unfixed. [The AI responder posts as the plume-works-quill
-App](../plans/20261030-responder-quill-app-identity.md) moves every responder
-push onto the organization-owned `plume-works-quill` App; that App is then added
-to the `iwe/**` ruleset as a bypass actor in mode `always`. Until then, `iwe/`
-branches take no responder pushes.
+Move every responder push onto the organization-owned `plume-works-quill` App,
+then add that App to the `iwe/**` ruleset as a bypass actor in mode `always`.
 
 ## Key references
 

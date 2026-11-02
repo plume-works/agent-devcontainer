@@ -1,7 +1,7 @@
 ---
 type: task
 description: Add a CI check that runs agentdev-base with no client-state volumes and no lifecycle commands and asserts that Claude Code and OpenCode resolve the staged catalog.
-stage: planned
+stage: pending
 priority: low
 created: 2026-10-29
 generated:

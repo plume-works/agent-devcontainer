@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-10-30
-stage: planned
+stage: pending
 priority: medium
 description: Let a Verify run whose HEAD descends from a commit with a saved Verify report re-check only what changed since that commit, instead of re-running every check and verification command.
 generated:

@@ -8,6 +8,7 @@ sources:
 - resource: docs/knowledge/tests/test_devcontainer_metadata_mask.py
 - resource: .pre-commit-config.yaml
 stage: done
+severity: low
 ---
 
 # Bug: Fixture git inherits the outer commit's index

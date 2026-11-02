@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 stage: done
+severity: high
 ---
 
 # Bug: PR updates skip the re-review evaluation
@@ -54,8 +55,13 @@ only be remembered, not read back from the pull request.
 
 ## Fix
 
-Open. Planned in [PR skills drive the AI review lifecycle on the single review
-workflow](../plans/20261023-pr-skills-ai-review-lifecycle.md).
+Fixed by [PR skills drive the AI review lifecycle on the single review
+workflow](../plans/20261023-pr-skills-ai-review-lifecycle.md). `pr-open` in
+update mode, and so `pr-sync`, applies `pr-eval-review-needed` on every run, and
+`pr-merge` applies it after a CI-fix push. A bundled `request-review` script is
+the one path that requests a review: it toggles the author's assignment and
+refuses when an accepted AI review already names the head or a responder check
+on the head shows a review was requested, enforcing one request per head SHA.
 
 ## Key references
 

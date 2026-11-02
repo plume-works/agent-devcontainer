@@ -1,9 +1,9 @@
 """
-Rejection checks for the body shape the bug and feature schemas require.
+Checks for the shape the bug and feature schemas require.
 
-Each test copies the graph into `/tmp`, breaks one conforming
-bug or feature document the way a hand-written one would, and asserts that
-`iwe schema validate` refuses it and names the section at fault.
+Each test copies the graph into `/tmp`, changes one conforming bug or feature
+document the way a hand-written one would, and asserts whether
+`iwe schema validate` accepts it or refuses it and names the document.
 """
 
 from __future__ import annotations
@@ -71,6 +71,27 @@ def _move_after(name: str, anchor: str) -> Callable[[str], str]:
     return mutate
 
 
+def _set_field(name: str, value: str | None) -> Callable[[str], str]:
+    """Build a mutation that sets frontmatter `name` to `value`, or removes it on None."""
+
+    def mutate(content: str) -> str:
+        line = re.compile(rf'^{name}: .*\n', re.M)
+        assert line.search(content), f'frontmatter field {name!r} not found'
+        return line.sub('' if value is None else f'{name}: {value}\n', content, count=1)
+
+    return mutate
+
+
+def _add_after(name: str, anchor: str) -> Callable[[str], str]:
+    """Build a mutation that adds an empty-bodied `## name` just after `## anchor`."""
+
+    def mutate(content: str) -> str:
+        end = _section(content, anchor).end()
+        return content[:end] + f'## {name}\n\nText.\n\n' + content[end:]
+
+    return mutate
+
+
 def _strip_bug_prefix(content: str) -> str:
     """Remove the `Bug: ` prefix from the H1."""
     return re.sub(r'^# Bug: ', '# ', content, count=1, flags=re.M)
@@ -109,7 +130,7 @@ def test_unmodified_graph_validates(workspace: Path) -> None:
     ('document', 'mutate', 'reported'),
     [
         ('bugs', _drop('Root cause'), 'required section "Root cause" is missing'),
-        ('bugs', _move_after('Fix', 'Symptom'), 'is missing'),
+        ('bugs', _move_after('Root cause', 'Symptom'), 'is missing'),
         ('bugs', _strip_bug_prefix, 'is missing'),
         ('features', _drop('Edge cases'), 'required section "Edge cases" is missing'),
         ('features', _move_after('Open questions', 'Purpose'), 'is missing'),
@@ -132,3 +153,57 @@ def test_malformed_body_is_rejected(
     assert result.returncode != 0
     assert document.stem in result.stdout
     assert reported in result.stdout
+
+
+@pytest.mark.parametrize(
+    ('document', 'mutate'),
+    [
+        ('bugs', _set_field('stage', None)),
+        ('bugs', _set_field('severity', None)),
+        ('bugs', _set_field('severity', 'urgent')),
+        ('bugs', _set_field('stage', 'open')),
+    ],
+    ids=['bug-no-stage', 'bug-no-severity', 'bug-bad-severity', 'bug-bad-stage'],
+    indirect=['document'],
+)
+def test_malformed_bug_frontmatter_is_rejected(
+    workspace: Path, document: Path, mutate: Callable[[str], str]
+) -> None:
+    """A bug without a valid stage and severity fails and is named."""
+    document.write_text(mutate(document.read_text()))
+    result = _validate(workspace)
+    assert result.returncode != 0
+    assert document.stem in result.stdout
+
+
+def _neither_solution_nor_fix(content: str) -> str:
+    """Remove any `## Potential solution` and `## Fix` sections."""
+    for name in ('Potential solution', 'Fix'):
+        if any(m.group().startswith(f'## {name}\n') for m in SECTION.finditer(content)):
+            content = _drop(name)(content)
+    return content
+
+
+def _both_solution_and_fix(content: str) -> str:
+    """Ensure the bug carries a `## Potential solution` followed by a `## Fix`."""
+    content = _neither_solution_nor_fix(content)
+    content = _add_after('Potential solution', 'Root cause')(content)
+    return _add_after('Fix', 'Potential solution')(content)
+
+
+@pytest.mark.parametrize(
+    ('document', 'mutate'),
+    [
+        ('bugs', _neither_solution_nor_fix),
+        ('bugs', _both_solution_and_fix),
+    ],
+    ids=['bug-no-optional-sections', 'bug-both-optional-sections'],
+    indirect=['document'],
+)
+def test_optional_bug_sections_are_accepted(
+    workspace: Path, document: Path, mutate: Callable[[str], str]
+) -> None:
+    """A bug validates with neither or both of Potential solution and Fix."""
+    document.write_text(mutate(document.read_text()))
+    result = _validate(workspace)
+    assert result.returncode == 0, result.stdout + result.stderr

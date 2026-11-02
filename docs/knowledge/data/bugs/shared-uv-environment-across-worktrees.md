@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: medium
 description: Every checkout in one devcontainer shares the uv environment at /uv/venvs/ws-project, so a uv run in one worktree repoints the editable agentdev_runtime and validate_agent_files installs and dependencies, and other worktrees' tests run its code.
 generated:
   by: claude-code/opus-5.5
@@ -38,11 +40,10 @@ inside the container are several checkouts on that one volume. The project's
 packages are editable installs, and every `uv run` syncs them to point at the
 invoking checkout, so the last checkout to run owns the environment.
 
-## Fix
+## Potential solution
 
-Not fixed. Each checkout needs its own environment: a `.venv` link into a
-per-checkout directory on the `/uv` volume keeps it hardlinked to the cache
-there.
+Each checkout needs its own environment: a `.venv` link into a per-checkout
+directory on the `/uv` volume keeps it hardlinked to the cache there.
 
 ## Key references
 

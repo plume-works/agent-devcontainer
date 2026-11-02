@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: https://github.com/iwe-org/dev-workspace/issues/1
 stage: done
+severity: medium
 ---
 
 # Bug: Missing map skill

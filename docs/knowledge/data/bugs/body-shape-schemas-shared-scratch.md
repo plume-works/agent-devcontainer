@@ -5,6 +5,7 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-10-31T06:00:00Z
 stage: done
+severity: low
 sources:
 - resource: docs/knowledge/tests/test_body_shape_schemas.py
 - resource: docs/knowledge/tests/test_plan_release_schema.py
