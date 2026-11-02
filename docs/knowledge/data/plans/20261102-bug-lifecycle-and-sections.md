@@ -17,6 +17,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-weekly/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
+stage: done
+completed: 2026-11-02
 ---
 
 # Bug lifecycle stages and sections
