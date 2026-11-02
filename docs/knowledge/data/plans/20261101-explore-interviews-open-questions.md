@@ -6,10 +6,11 @@ release:
 description: Make Explore settle a problem's open questions with the user one at a time — one topic per turn, one decision per question, in the user's names and design, settled by evidence, with each answer recorded verbatim as it is given.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T12:00:00Z
+  at: 2026-11-02T00:58:20Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
-rank: 50
+stage: done
+completed: 2026-11-02
 ---
 
 # Explore settles open questions one at a time
@@ -45,7 +46,7 @@ default behavior unchanged.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Replace the `**Curious, not prescriptive**` bullet in `## The stance` with
+- [x] Replace the `**Curious, not prescriptive**` bullet in `## The stance` with
   this text, verbatim:
 
   ``` markdown
@@ -54,11 +55,15 @@ default behavior unchanged.
     time; don't funnel toward a conclusion.
   ```
 
+  - **Evidence:** commit 2553f18a;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed (64/64 skills valid, 0 errors).
+
 ### Task 2: Add the `## Settling open questions` section
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Insert this section after `## The stance`, before
+- [x] Insert this section after `## The stance`, before
   `## During implementation`, verbatim:
 
   ``` markdown
@@ -81,12 +86,18 @@ default behavior unchanged.
     the user's words verbatim, marked approved only on an explicit yes.
   ```
 
+  - **Evidence:** commit 1dd60b54;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed (64/64 skills valid, 0 errors).
+
 ### Task 3: Validate the catalog
 
 **Files:** none
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** run against commit 23893dff (holding 2553f18a and 1dd60b54):
+    64/64 skills valid, 0 errors, 0 warnings.
 
 ## Spec changes
 
