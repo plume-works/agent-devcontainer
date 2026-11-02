@@ -161,17 +161,28 @@ git-new-branch <name> --depends-on <P>
 `.agents/plugins/agentdev/skills/pr-restack-all/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_pr_restack_all.py`
 
-- [ ] `pr_restack_all.py` takes a top PR or a branch and restacks the chain as
+- [x] `pr_restack_all.py` takes a top PR or a branch and restacks the chain as
   the blocks below state, printing `RECONNECTED=#P HEAD=<HEAD> MERGE=<MERGE>`
   per reconnect and writing the merge record through Task 1's module after each
   push lands
-- [ ] Tests run against real git repositories under `/tmp`, creating
+  - **Evidence:** commit `698bb5ef` adds `bin/pr_restack_all.py`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_pr_restack_all.py` — 11
+    passed.
+- [x] Tests run against real git repositories under `/tmp`, creating
   `refs/pull/N/head` refs and squash commits with plain git, with the PR
   metadata lookup behind one replaceable function: restack onto an open
   predecessor, onto a merged one, X+2 after X and X+1 merged, rerun after a
   conflict, a branch with two dependencies, and no local branch created or moved
-- [ ] `SKILL.md` documents the inputs, result codes, the conflict-and-rerun
+  - **Evidence:** commit `698bb5ef` adds `tests/test_pr_restack_all.py`, whose
+    `Hub` fixture implements the `PullRequests` protocol over a bare remote with
+    `refs/pull/N/head` refs and `git merge --squash` merges; one test per listed
+    case plus a closed predecessor, a wrong last entry, a moved final head, and
+    transitive trailers — 11 passed.
+- [x] `SKILL.md` documents the inputs, result codes, the conflict-and-rerun
   path, and that it never merges `main`
+  - **Evidence:** commit `698bb5ef` adds `skills/pr-restack-all/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 Approved chain discovery:
 
