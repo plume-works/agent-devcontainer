@@ -25,6 +25,9 @@ RESPONDER = 'Claude PR Review Responder'
 CHECK_URL = 'https://github.com/octo/repo/runs/700'
 POSTED_URL = 'https://github.com/octo/repo/pull/42#issuecomment-900'
 RATIONALE = 'Reworked the retry backoff beyond the thread.'
+EARLIER = '2026-01-01T09:00:00Z'
+REVIEWED_AT = '2026-01-01T10:00:00Z'
+LATER = '2026-01-01T11:00:00Z'
 
 GH_STUB = """
 import json
@@ -53,7 +56,7 @@ while index < len(arguments):
         method = arguments[index + 1]
         index += 2
         continue
-    if argument in ('-f', '--raw-field'):
+    if argument in ('-f', '--raw-field', '-F', '--field'):
         key, value = arguments[index + 1].split('=', 1)
         fields[key] = value
         index += 2
@@ -64,6 +67,15 @@ while index < len(arguments):
     endpoint = argument
     index += 1
 base = 'repos/octo/repo/'
+if endpoint == 'graphql':
+    if fixture.get('fail_graphql'):
+        print('simulated graphql failure', file=sys.stderr)
+        sys.exit(1)
+    edits = fixture.get('edits', {})
+    renames = [{'createdAt': edits['title']}] if edits.get('title') else []
+    pull = {'lastEditedAt': edits.get('body'), 'timelineItems': {'nodes': renames}}
+    print(json.dumps({'data': {'repository': {'pullRequest': pull}}}))
+    sys.exit(0)
 if method != 'GET':
     log_path = os.environ['GH_STUB_CALLS']
     calls = json.loads(open(log_path).read()) if os.path.exists(log_path) else []
@@ -115,14 +127,32 @@ def make_fixture(**overrides: Any) -> dict[str, Any]:
     return fixture
 
 
-def review(login: str, commit_id: str, state: str = 'APPROVED') -> dict[str, Any]:
+def review(
+    login: str, commit_id: str, state: str = 'APPROVED', submitted_at: str = REVIEWED_AT
+) -> dict[str, Any]:
     """Build a pull request review as the reviews endpoint returns it."""
-    return {'user': {'login': login}, 'commit_id': commit_id, 'state': state}
+    return {
+        'user': {'login': login},
+        'commit_id': commit_id,
+        'state': state,
+        'submitted_at': submitted_at,
+    }
 
 
-def check_run(status: str, conclusion: str | None = None, name: str = RESPONDER) -> dict[str, Any]:
+def check_run(
+    status: str,
+    conclusion: str | None = None,
+    name: str = RESPONDER,
+    completed_at: str = REVIEWED_AT,
+) -> dict[str, Any]:
     """Build a check run on the head commit as the check-runs endpoint returns it."""
-    return {'name': name, 'status': status, 'conclusion': conclusion, 'html_url': CHECK_URL}
+    return {
+        'name': name,
+        'status': status,
+        'conclusion': conclusion,
+        'html_url': CHECK_URL,
+        'completed_at': completed_at if status == 'completed' else None,
+    }
 
 
 def install_stub_path(path: Path, *, with_gh: bool = True) -> Path:
@@ -312,6 +342,76 @@ def test_skipped_or_cancelled_responder_still_toggles(
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert toggle_calls(calls)
+
+
+@pytest.mark.parametrize('edited', ['body', 'title'])
+def test_review_on_head_before_metadata_edit_still_toggles(
+    plugin_root: Path, plugin_tmp_path: Path, edited: str
+) -> None:
+    """A review that saw an older title or description does not cover the head's input."""
+    fixture = make_fixture(
+        reviews=[review('claude[bot]', HEAD_SHA, 'CHANGES_REQUESTED')], edits={edited: LATER}
+    )
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert toggle_calls(calls)
+
+
+def test_review_on_head_after_metadata_edit_toggles_nothing(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A review submitted after the latest edit saw the current title and description."""
+    fixture = make_fixture(
+        reviews=[review('claude[bot]', HEAD_SHA)], edits={'body': EARLIER, 'title': EARLIER}
+    )
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (3, 'RESULT=ALREADY_REVIEWED')
+    assert calls == []
+
+
+def test_responder_check_completed_before_metadata_edit_still_toggles(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """The metadata gate's own finished run does not count as a request for the edited input."""
+    fixture = make_fixture(
+        reviews=[review('claude[bot]', HEAD_SHA, 'CHANGES_REQUESTED')],
+        check_runs=[check_run('completed', 'success')],
+        edits={'body': LATER},
+    )
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert toggle_calls(calls)
+
+
+@pytest.mark.parametrize('status', ['queued', 'in_progress'])
+def test_running_responder_check_counts_despite_metadata_edit(
+    plugin_root: Path, plugin_tmp_path: Path, status: str
+) -> None:
+    """A review still running covers the head whenever it started."""
+    fixture = make_fixture(check_runs=[check_run(status)], edits={'body': LATER})
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (4, 'RESULT=ALREADY_REQUESTED')
+    assert calls == []
+
+
+def test_failing_edit_time_query_is_gh_unavailable(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Without the edit times the script cannot tell what the head's review saw."""
+    fixture = make_fixture(reviews=[review('claude[bot]', HEAD_SHA)], fail_graphql=True)
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (6, 'RESULT=GH_UNAVAILABLE')
+    assert calls == []
 
 
 def test_other_check_on_head_still_toggles(plugin_root: Path, plugin_tmp_path: Path) -> None:
