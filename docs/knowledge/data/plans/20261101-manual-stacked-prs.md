@@ -274,15 +274,28 @@ restacks onto open X+1 (Rz1) → X+1 merges as Sy → X+2 restacks onto merged X
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] The GitHub stack detection in step 8 and its force-push exception are
+- [x] The GitHub stack detection in step 8 and its force-push exception are
   gone; every push goes through the existing helper
-- [ ] A branch carrying `Depends-on:` trailers runs `pr-restack-all <branch>` in
+  - **Evidence:** commit `9032ddce` removes the step 8 stack check and the
+    `gh-stack` force-push exception from `pr-open/SKILL.md`; step 8 runs only
+    `push-branch.py`.
+- [x] A branch carrying `Depends-on:` trailers runs `pr-restack-all <branch>` in
   step 4 instead of an `update-branch` merge, is refused while more than one
   dependency is unmerged, and in create mode gets its base from the one unmerged
   predecessor's head branch (`main` when none), the first `## Depends on`
   section, and no draft flag
-- [ ] Step 9 runs Task 4's check before `gh pr create` and `gh pr edit`, and
+  - **Evidence:** commit `9032ddce` rewrites step 4 of `pr-open/SKILL.md`:
+    `pr_restack_all.py <HEAD_BRANCH> --list`, a stop on more than one open
+    dependency, a `pr_restack_all.py <HEAD_BRANCH>` restack in place of
+    `update-branch`, the open predecessor's head branch (else `main`) as base,
+    dependencies in merge order for the body, and no draft.
+- [x] Step 9 runs Task 4's check before `gh pr create` and `gh pr edit`, and
   does not apply a body that fails it
+  - **Evidence:** commit `9032ddce` adds the `check_depends_on.py` run to step 9
+    of `pr-open/SKILL.md`, before `gh pr edit` (with `--current`) and
+    `gh pr create` (with `--depends-on`), refusing a failing body;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 6: `pr-merge` merges only into `main`
 
