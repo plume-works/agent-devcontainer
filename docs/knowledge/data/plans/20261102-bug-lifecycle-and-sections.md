@@ -340,10 +340,13 @@ describes a superseded fix
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] Audit mode selects open bugs with
+- [x] Audit mode selects open bugs with
   `iwe find --filter '{type: bug, stage: {$in: [pending, planned]}}' -f keys`
   and points at a bug whose `sources` paths, or `## Key references` where it has
   one, no longer exist
+  - **Evidence:** commit 02c925a4 rewrites the audit-mode bullet in
+    `iwe-verifier.agent.md`; the query returns the 12 open bugs;
+    `validate_agent_files --recommend` reported 0 errors, 0 warnings
 
 ## Spec changes
 
