@@ -1,9 +1,10 @@
 ---
 type: bug
-description: Under pytest-xdist, the supervised-Xpra ingress tests pick X display numbers from a pid hash in one host-global range, so two workers can choose the same display and one's start reclaims, and kills, the other's live X server.
+stage: done
+description: Under pytest-xdist, the supervised-Xpra ingress tests picked X display numbers from a pid hash in one host-global range, so two workers could choose the same display and the second start refused it as already live.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T05:00:00Z
+  at: 2026-11-02T06:00:00Z
 sources:
 - resource: scripts/tests/test_agent_runtime_ingress.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/xpra.py
@@ -14,50 +15,41 @@ sources:
 
 ## Symptom
 
-Not yet observed failing. CI runs `uv run pytest -n 8` in an image with xpra
-installed, so the three tests that start a supervised Xpra on a display from
-`:200 + (pid + port) % 500` run concurrently on different workers. When two pick
-the same number, one test's Xpra loses its X server mid-test: a request, an
-`xpra info` session, or the 90-second readiness wait fails.
+CI runs `uv run pytest -n 8` in an image with xpra installed, so the three tests
+that start a supervised Xpra on a display from `:200 + (pid + port) % 500` run
+concurrently on different workers. When two pick the same number, the second
+test's Xpra exits at once and its fixture fails after the 90-second readiness
+wait.
 
 ## Reproduction
 
-Run `scripts/tests/test_agent_runtime_ingress.py` under pytest-xdist so two of
+Start two supervised servers, `agentdev_runtime xpra --supervised`, on one
+display from separate scratch directories, each with its own `HOME` and
+`XDG_RUNTIME_DIR`. The second prints
+`Error: an Xpra session is already live on :<N>; refusing to start a duplicate.`
+and exits; the first keeps serving. Under xdist the collision needs two of
 `test_supervised_xpra_serves_its_client_but_sessions_need_the_password`,
 `test_supervised_xpra_without_a_password_keeps_sessions_open`, and
-`test_supervised_xpra_refuses_to_duplicate_a_live_session` land on different
-workers at once and hash to the same display, roughly 1 in 500 per concurrent
-pair. Forcing it deterministically means starting two supervised servers on one
-display from separate scratch directories.
+`test_supervised_xpra_refuses_to_duplicate_a_live_session` on different workers
+at once, hashing to the same display — roughly 1 in 500 per concurrent pair.
 
 ## Root cause
 
-X displays are host-global — `/tmp/.X<N>-lock` and `/tmp/.X11-unix/X<N>` — but
-each test gives Xpra its own `HOME` and `XDG_RUNTIME_DIR` (`xpra_env`), and the
-display number comes from a hash, not from anything the worker owns. On start,
-`agentdev_runtime xpra` asks `session_running`, which reads `xpra list` in that
-private environment and so cannot see the other worker's session; it then calls
-`reclaim_orphaned_display`, which finds the other worker's `Xvfb-for-Xpra-<N>`
-through the shared lock file and sends it `SIGTERM`.
-
-The reclaim is correct for the runtime, which owns one desktop per container;
-the defect is the tests' display allocation. Unverified: if `xpra list` also
-reads a socket directory shared across workers, the second start instead fails
-cleanly with "already live" and kills nothing — still a failure, but
-non-destructive.
-
-`test_supervised_xpra_reclaims_the_display_after_a_crash` is not affected: it
-alone uses `:700 + pid % 200`, and a worker's pid is constant.
+X displays are host-global, and the display number came from a hash rather than
+from anything the worker owns. `session_running` reads `xpra list`, which sees
+sessions across the private `HOME` and `XDG_RUNTIME_DIR` the tests set, so the
+second start finds the first worker's live session and refuses the display. The
+refusal is correct for the runtime, which owns one desktop per container; the
+defect was the tests' display allocation.
 
 ## Fix
 
-Not yet fixed. Allocate displays per xdist worker: derive a block of display
-numbers from `worker_id` (`gw<k>`, or `master` without `-n`) and step a
-per-worker counter through it per test, so workers are disjoint by construction
-and a test does not reuse a display whose Xvfb may still hold its lock from the
-previous teardown. The crash test keeps a display disjoint from the fixture's,
-and every range stays clear of `:100`, the runtime's default display. The
-runtime is unchanged.
+Each xdist worker owns a block of 20 displays starting at
+`:200 + 20 * <worker index>` (`PYTEST_XDIST_WORKER`, index 0 without `-n`):
+`worker_display()` rotates through its first 10 per test, so a test never reuses
+a display the previous teardown's Xvfb may still hold, and the crash test takes
+the fixed slot after them. Workers are disjoint by construction, and every
+display stays clear of `:100`, the runtime's default. The runtime is unchanged.
 
 Not covered: two concurrent pytest runs on one host both have a `gw0`; closing
 that needs a run-unique offset from the xdist controller
@@ -67,21 +59,13 @@ that needs a run-unique offset from the xdist controller
 
 Verified anchor points (line numbers as of 2026-11-02):
 
-- `scripts/tests/test_agent_runtime_ingress.py:220` — `xpra_env`, per-test
-  `HOME` and `XDG_RUNTIME_DIR`
-- `scripts/tests/test_agent_runtime_ingress.py:234` — `supervised_xpra`
-- `scripts/tests/test_agent_runtime_ingress.py:238` — pid-hashed display
-- `scripts/tests/test_agent_runtime_ingress.py:250` — teardown
-  `server.terminate()`
-- `scripts/tests/test_agent_runtime_ingress.py:318` — crash test's separate
-  display range
+- `scripts/tests/test_agent_runtime_ingress.py:34` — `DISPLAY_BASE`,
+  `DISPLAY_BLOCK`, `ROTATING_SLOTS`
+- `scripts/tests/test_agent_runtime_ingress.py:39` — `worker_display`
+- `scripts/tests/test_agent_runtime_ingress.py:249` — `supervised_xpra`
+- `scripts/tests/test_agent_runtime_ingress.py:253` — rotating display per test
+- `scripts/tests/test_agent_runtime_ingress.py:333` — crash test's fixed slot
 - `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:66` — `session_running`
-- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:103` —
-  `reclaim_orphaned_display`
-- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:123` — `SIGTERM` to the
-  lock holder
-- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:241` — start path:
-  reclaim when no session is visible
-- `scripts/e2e/iwe-workflows/conftest.py:45` — `fixture_repo`, existing
-  per-worker state from `worker_id`
+- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:235` — duplicate
+  refusal
 - `.github/workflows/ci.yml:357` — CI's `pytest -n 8`

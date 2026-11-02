@@ -1,9 +1,10 @@
 ---
 type: bug
+stage: done
 description: Under pytest-xdist, the two real-tmux Remote Control start tests share one claude-remote tmux server, so one test sees the other's session as already running, or its teardown kills it, before the fake claude records a result.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T04:00:00Z
+  at: 2026-11-02T06:00:00Z
 sources:
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -47,11 +48,12 @@ whose fix covered only `test_opencode_web_start.py`.
 
 ## Fix
 
-Not yet fixed. Set `TMUX_TMPDIR` to the test's own scratch directory so each
-variant gets private default and `claude-remote` servers, and allow the result
-poll 10 seconds. The `[True]` variant must keep its keeper on the default socket
-under that directory: it covers the `data/spec/claude-remote-control` scenario
-in which a tmux server is live on the default socket before the command runs.
+`TMUX_TMPDIR` is the test's own scratch directory, so each variant gets private
+default and `claude-remote` servers, and the result poll allows 10 seconds; it
+still returns as soon as the result appears. The `[True]` variant's keeper stays
+on the default socket under that directory, which keeps covering the
+`data/spec/claude-remote-control` scenario in which a tmux server is live on the
+default socket before the command runs.
 
 ## Key references
 
@@ -59,13 +61,12 @@ Verified anchor points (line numbers as of 2026-11-02):
 
 - `scripts/tests/test_claude_remote_control_start.py:210` —
   `test_real_tmux_starts_claude_without_setup_token`
-- `scripts/tests/test_claude_remote_control_start.py:213` — shared
-  `tmux_dir = TMP_ROOT`
-- `scripts/tests/test_claude_remote_control_start.py:245` — 3-second result poll
-- `scripts/tests/test_claude_remote_control_start.py:253` — teardown
+- `scripts/tests/test_claude_remote_control_start.py:226` — per-test
+  `TMUX_TMPDIR`
+- `scripts/tests/test_claude_remote_control_start.py:244` — result poll
+- `scripts/tests/test_claude_remote_control_start.py:252` — teardown
   `kill-server` on both sockets
 - `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:25` —
   `SESSION = 'claude-remote'`
 - `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:132` —
   `start()` returns early when `live()`
-- `scripts/tests/scratch.py:5` — `TMP_ROOT`, shared by every worker
