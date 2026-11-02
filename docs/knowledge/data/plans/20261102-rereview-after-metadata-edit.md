@@ -144,10 +144,13 @@ handling.
 `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] `pr-request-ai-review`: the `ALREADY_REVIEWED` and `ALREADY_REQUESTED`
+- [x] `pr-request-ai-review`: the `ALREADY_REVIEWED` and `ALREADY_REQUESTED`
   rows say the review or check is newer than the last title or description edit,
   and the skill says that editing either is how a reviewed head gets another
   review.
+  - **Evidence:** commit d2bedf5e: `pr-request-ai-review/SKILL.md` adds the
+    edit-cutoff paragraph under Post the request and rewrites the
+    `ALREADY_REVIEWED` and `ALREADY_REQUESTED` rows.
 - [ ] `pr-merge` Step 3: the script toggles at most once per head and title and
   description, not once per head SHA, and `ALREADY_REVIEWED` means a review
   newer than the last title or description edit names the head.
