@@ -150,10 +150,14 @@ pass always exits 0.
 `py_packages/agentdev_runtime/README.md`; Modify:
 `scripts/tests/test_docker_gc.py`
 
-- [ ] `agentdev-runtime docker gc --every` runs a pass at once, then one every
+- [x] `agentdev-runtime docker gc --every` runs a pass at once, then one every
   `AGENTDEV_DOCKER_GC_INTERVAL` seconds. The variable is parsed in `settings`
   with default `3600` and listed in the package README. A test with a short
   interval sees at least two passes.
+  - **Evidence:** commit 6afe15c2;
+    `uv run pytest scripts/tests/test_docker_gc.py py_packages/agentdev_runtime/tests/test_settings.py`
+    — 31 passed (`test_the_repeating_form_runs_a_pass_every_interval`,
+    `test_the_readme_lists_every_variable`).
 
 ### Task 3: Supervise the collector in both images
 
