@@ -36,12 +36,17 @@ PUSH_FAILED = 5
 FETCH_FAILED = 6
 STASH_CONFLICTS = 7
 CREATE_FAILED = 8
+DEPENDENCY_NOT_OPEN = 9
+GH_FAILED = 10
+MERGE_FAILED = 11
 PREFLIGHT_ERROR = 2
 
 USAGE = """
 Usage:
   git-new-branch.py <name> [--remote <name>] [--base <branch>] [--stash]
   git-new-branch.py <name> --worktree [--worktree-root <dir>] [--remote <name>] [--base <branch>]
+  git-new-branch.py <name> --depends-on <pr> [--depends-on <pr>]... [--remote <name>]
+                    [--stash | --worktree [--worktree-root <dir>]]
 
 Options:
   --remote <name>        Remote to fetch from and push to. Default: origin
@@ -59,11 +64,17 @@ Options:
                          otherwise <main checkout>/.worktrees.
                          The worktree is <parent>/<repo>-<name>; a '/' in <name>
                          stays a directory separator
+  --depends-on <pr>      Repeatable. Each pull request must be open. The branch
+                         starts at the first one's head branch instead of
+                         --base, merges the other heads, and gets one empty
+                         commit with a 'Depends-on: #<pr>' trailer per pull
+                         request before it is pushed
   -h, --help             Show this help text.
 
 Output (key=value lines):
   RESULT, BRANCH, BASE, BASE_SHA
   In worktree mode also: WORKTREE
+  With --depends-on also: DEPENDS_ON (the pull requests, comma-separated)
   When main/master holds commits the base lacks also: LOCAL_COMMITS; the
   branch then starts at HEAD instead of the base, and outside worktree mode
   main/master is reset to the base afterwards; DEFAULT_RESET=failed when
@@ -82,6 +93,12 @@ Results (RESULT / exit code):
                       the stash entry STASH_REF is kept
   CREATE_FAILED    8  The branch could not be created; the checkout is unchanged
                       and any stash was restored (STASH_REF when restoring failed)
+  DEPENDENCY_NOT_OPEN 9  A --depends-on pull request is not open; nothing was
+                      created
+  GH_FAILED       10  gh could not read a --depends-on pull request; nothing
+                      was created
+  MERGE_FAILED    11  Merging another dependency's head failed; the branch is
+                      kept locally, unpushed, with the merge left to resolve
   PREFLIGHT_ERROR  2  Bad usage, not a repo, invalid name, or no base ref
   SCRIPT_FAILURE   1  Unhandled error
   SIGNAL_HUP     129  Interrupted by HUP
@@ -92,6 +109,7 @@ Examples:
   agent-code/git-new-branch.py my-feature
   agent-code/git-new-branch.py my-feature --stash
   agent-code/git-new-branch.py my-feature --worktree
+  agent-code/git-new-branch.py my-feature --depends-on 591
 """
 
 DESCRIPTION = (
@@ -108,6 +126,14 @@ class Options(NamedTuple):
     worktree: bool
     worktree_root: str
     stash: bool
+    depends_on: tuple[int, ...] = ()
+
+
+class Dependency(NamedTuple):
+    """An open pull request the new branch builds on."""
+
+    number: int
+    head_branch: str
 
 
 class WorktreeParent(NamedTuple):
@@ -143,10 +169,12 @@ def parse_arguments(arguments: list[str]) -> Options:
     worktree = False
     worktree_root = ''
     stash = False
+    base_given = False
+    depends_on: list[int] = []
     remaining = list(arguments)
     while remaining:
         argument = remaining.pop(0)
-        if argument in ('--remote', '--base', '--worktree-root'):
+        if argument in ('--remote', '--base', '--worktree-root', '--depends-on'):
             if not remaining:
                 print_error(f'Missing value for {argument}')
                 raise Stop(PREFLIGHT_ERROR)
@@ -155,6 +183,14 @@ def parse_arguments(arguments: list[str]) -> Options:
                 remote = value
             elif argument == '--base':
                 base = value
+                base_given = True
+            elif argument == '--depends-on':
+                number = value.removeprefix('#')
+                if not number.isdigit() or int(number) == 0:
+                    print_error(f'--depends-on takes a pull request number, not {value!r}')
+                    raise Stop(PREFLIGHT_ERROR)
+                if int(number) not in depends_on:
+                    depends_on.append(int(number))
             else:
                 worktree_root = value
                 worktree = True
@@ -184,7 +220,10 @@ def parse_arguments(arguments: list[str]) -> Options:
             '--stash has no effect in worktree mode, which leaves the current checkout alone.'
         )
         raise Stop(PREFLIGHT_ERROR)
-    return Options(branch, remote, base, worktree, worktree_root, stash)
+    if depends_on and base_given:
+        print_error('--depends-on sets the base to its first pull request; drop --base.')
+        raise Stop(PREFLIGHT_ERROR)
+    return Options(branch, remote, base, worktree, worktree_root, stash, tuple(depends_on))
 
 
 def git_ok(*arguments: str) -> bool:
@@ -229,13 +268,73 @@ def resolve_base(remote: str, base: str) -> str:
     return default_ref
 
 
+def open_dependencies(options: Options) -> list[Dependency]:
+    """Look up every --depends-on pull request, stopping unless each one is open."""
+    repository = git_out('remote', 'get-url', options.remote)
+    dependencies = []
+    for number in options.depends_on:
+        completed = run_tool(
+            'gh', 'pr', 'view', str(number), '--repo', repository,
+            '--json', 'state,headRefName', '--jq', '.state + " " + .headRefName',
+        )  # fmt: skip
+        state, _, head_branch = completed.stdout.strip().partition(' ')
+        if completed.returncode != 0 or not head_branch:
+            print_error(f'gh could not read pull request #{number}: {completed.stderr.strip()}')
+            raise Stop(GH_FAILED)
+        if state != 'OPEN':
+            print_error(f'Pull request #{number} is {state}, not open; nothing was created.')
+            raise Stop(DEPENDENCY_NOT_OPEN)
+        dependencies.append(Dependency(number, head_branch))
+    return dependencies
+
+
+def resolve_dependency_base(remote: str, dependency: Dependency) -> str:
+    """Return the remote-tracking head branch of `dependency`; there is no fallback."""
+    head_ref = f'{remote}/{dependency.head_branch}'
+    if not commit_of(f'refs/remotes/{head_ref}'):
+        print_error(f"Pull request #{dependency.number}'s head '{head_ref}' was not fetched.")
+        raise Stop(PREFLIGHT_ERROR)
+    return head_ref
+
+
+def record_dependencies(options: Options, dependencies: list[Dependency], cwd: str) -> int:
+    """
+    Add one trailer commit per dependency, then merge every dependency head after the first.
+
+    The trailer commits are built with commit-tree, so carried changes stay uncommitted.
+    """
+    for dependency in dependencies:
+        tree = git_out('-C', cwd, 'rev-parse', 'HEAD^{tree}')
+        parent = git_out('-C', cwd, 'rev-parse', 'HEAD')
+        commit = git_out(
+            '-C', cwd, 'commit-tree', tree, '-p', parent,
+            '-m', f'Depend on #{dependency.number}',
+            '-m', f'Depends-on: #{dependency.number}',
+        )  # fmt: skip
+        if not commit or run_to_stderr(
+            'git', '-C', cwd, 'update-ref', f'refs/heads/{options.branch}', commit, parent
+        ):
+            print_error(f'Could not record the dependency on #{dependency.number}.')
+            return CREATE_FAILED
+    for dependency in dependencies[1:]:
+        head_ref = resolve_dependency_base(options.remote, dependency)
+        if run_to_stderr('git', '-C', cwd, 'merge', '--no-edit', head_ref):
+            print_error(
+                f"Merging {head_ref} into '{options.branch}' failed; the branch is kept "
+                'locally and unpushed. Resolve and commit the merge, then push with: '
+                f'git push --set-upstream {options.remote} {options.branch}'
+            )
+            return MERGE_FAILED
+    return 0
+
+
 def push_branch(options: Options) -> int:
     """Push the new branch with its own upstream; git's output goes to stderr."""
     print(f'Pushing {options.branch} to {options.remote}...', file=sys.stderr)
     return run_to_stderr('git', 'push', '--set-upstream', options.remote, options.branch)
 
 
-def create_worktree(options: Options, start_sha: str) -> int:
+def create_worktree(options: Options, start_sha: str, dependencies: list[Dependency]) -> int:
     """Create the branch in a new worktree and push it."""
     main_dir = main_checkout_dir()
     if main_dir is None:
@@ -265,6 +364,9 @@ def create_worktree(options: Options, start_sha: str) -> int:
         print_error(f"Could not add the worktree '{worktree_dir}'; nothing was created.")
         return CREATE_FAILED
     print(f'WORKTREE={worktree_dir}')
+    recorded = record_dependencies(options, dependencies, worktree_dir)
+    if recorded:
+        return recorded
     if push_branch(options):
         print_error('Push failed; the local branch and worktree are kept.')
         return PUSH_FAILED
@@ -342,7 +444,12 @@ def stash_changes(branch: str) -> OwnStash | None:
 
 
 def create_in_place(
-    options: Options, base_ref: str, base_sha: str, start_sha: str, current: str
+    options: Options,
+    base_ref: str,
+    base_sha: str,
+    start_sha: str,
+    current: str,
+    dependencies: list[Dependency],
 ) -> int:
     """Create the branch in this checkout, carrying or stashing changes, and push it."""
     dirty = bool(git_out('status', '--porcelain', '--untracked-files=all'))
@@ -385,6 +492,13 @@ def create_in_place(
                 f"Could not reset '{current}' to {base_ref}; it still holds the moved commits."
             )
 
+    recorded = record_dependencies(options, dependencies, '.')
+    if recorded:
+        if stash is not None:
+            kept = stash.report()
+            print_error(f'The stash entry {kept} still holds the changes.')
+        return recorded
+
     push_status = push_branch(options)
 
     if stash is not None and not stash.pop():
@@ -409,12 +523,19 @@ def run(arguments: list[str]) -> int:
         return PREFLIGHT_ERROR
 
     print(f'BRANCH={options.branch}')
+    dependencies = open_dependencies(options)
+    if dependencies:
+        print(f'DEPENDS_ON={",".join(str(dependency.number) for dependency in dependencies)}')
     print(f'Fetching {options.remote}...', file=sys.stderr)
     if run_inherited('git', 'fetch', options.remote):
         print_error(f"Failed to fetch remote '{options.remote}'.")
         return FETCH_FAILED
 
-    base_ref = resolve_base(options.remote, options.base)
+    base_ref = (
+        resolve_dependency_base(options.remote, dependencies[0])
+        if dependencies
+        else resolve_base(options.remote, options.base)
+    )
     base_sha = commit_of(f'refs/remotes/{base_ref}')
     print(f'BASE={base_ref}')
     print(f'BASE_SHA={base_sha}')
@@ -436,7 +557,7 @@ def run(arguments: list[str]) -> int:
     # left behind; the caller merges the base in afterwards.
     start_sha = base_sha
     current = git_out('symbolic-ref', '--quiet', '--short', 'HEAD')
-    if git_default_branch.is_default_branch(current):
+    if not dependencies and git_default_branch.is_default_branch(current):
         local_commits = int(git_out('rev-list', '--count', f'{base_sha}..HEAD') or 0)
         if local_commits > 0:
             start_sha = git_out('rev-parse', 'HEAD')
@@ -448,8 +569,8 @@ def run(arguments: list[str]) -> int:
             )
 
     if options.worktree:
-        return create_worktree(options, start_sha)
-    return create_in_place(options, base_ref, base_sha, start_sha, current)
+        return create_worktree(options, start_sha, dependencies)
+    return create_in_place(options, base_ref, base_sha, start_sha, current, dependencies)
 
 
 def main() -> int:
@@ -469,6 +590,9 @@ if __name__ == '__main__':
             FETCH_FAILED: 'FETCH_FAILED',
             STASH_CONFLICTS: 'STASH_CONFLICTS',
             CREATE_FAILED: 'CREATE_FAILED',
+            DEPENDENCY_NOT_OPEN: 'DEPENDENCY_NOT_OPEN',
+            GH_FAILED: 'GH_FAILED',
+            MERGE_FAILED: 'MERGE_FAILED',
         }
     )
     rc.install()

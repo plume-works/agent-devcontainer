@@ -18,6 +18,7 @@ all treat it as a feature branch from its first minute.
   branch
 - Work on a second branch in parallel without touching the current checkout
   (worktree mode)
+- Start work that builds on an open pull request (`--depends-on`)
 
 To bring an existing branch up to date with its base, use
 [update-branch](../update-branch/SKILL.md) instead.
@@ -80,9 +81,10 @@ Options:
   to `.git/info/exclude` unless Git already ignores it.
 - `--worktree-root <dir>` overrides the worktree parent and implies
   `--worktree`.
+- `--depends-on <P>`, repeatable, starts a dependent branch: see Workflow 6.
 
-Supply `--remote`, `--base`, or a worktree option only when the user asked for
-it. The last line of stdout is always `RESULT=<NAME>`; match on that name, not
+Supply `--remote`, `--base`, `--depends-on`, or a worktree option only when the
+user asked for it. The last line of stdout is always `RESULT=<NAME>`; match on that name, not
 on a bare number.
 
 ## Workflow 1: Create the Branch
@@ -93,18 +95,21 @@ agent-code/git-new-branch.py <name>
 
 ## Workflow 2: Handle the Result
 
-| RESULT            | Exit                | Meaning                                                              | Action                                                                                                                                                                  |
-| ----------------- | ------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`                 | Branch created at `BASE_SHA`, pushed, tracking `<remote>/<name>`     | Report `BRANCH`, `BASE`, and `WORKTREE` when present. In worktree mode, continue the work inside `WORKTREE`. When `LOCAL_COMMITS` is printed, continue with Workflow 5. |
-| `BRANCH_EXISTS`   | `3`                 | The name exists locally or on the remote; nothing was created        | **STOP.** Ask the user for another name, or whether to continue on the existing branch with `git switch <name>`. Never reset it.                                        |
-| `CARRY_CONFLICT`  | `4`                 | Local changes touch paths that differ between HEAD and the base      | Show the paths from stderr and ask the user (Workflow 3). Nothing was changed.                                                                                          |
-| `PUSH_FAILED`     | `5`                 | The branch exists locally but the push failed                        | **STOP.** Report the Git error. The local branch is kept; retry `git push --set-upstream <remote> <name>` once access is restored — never via API.                      |
-| `FETCH_FAILED`    | `6`                 | The remote could not be fetched                                      | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                                                            |
-| `STASH_CONFLICTS` | `7`                 | The branch was created but popping the stash conflicted              | Resolve through Workflow 4. The stash entry `STASH_REF` is kept until then.                                                                                             |
-| `CREATE_FAILED`   | `8`                 | The branch or its worktree could not be created; nothing changed     | **STOP.** Report the Git error. Any stash was restored; when `STASH_REF` is printed, tell the user that stash entry holds their changes.                                |
-| `PREFLIGHT_ERROR` | `2`                 | Bad usage, not a repository, invalid name, or no base ref to resolve | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                  |
-| `SCRIPT_FAILURE`  | `1`                 | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                  |
-| `SIGNAL_*`        | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                     | **STOP.** Inspect `git status` and `git stash list` before rerunning.                                                                                                   |
+| RESULT                | Exit                | Meaning                                                               | Action                                                                                                                                                                  |
+| --------------------- | ------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`             | `0`                 | Branch created at `BASE_SHA`, pushed, tracking `<remote>/<name>`      | Report `BRANCH`, `BASE`, and `WORKTREE` when present. In worktree mode, continue the work inside `WORKTREE`. When `LOCAL_COMMITS` is printed, continue with Workflow 5. |
+| `BRANCH_EXISTS`       | `3`                 | The name exists locally or on the remote; nothing was created         | **STOP.** Ask the user for another name, or whether to continue on the existing branch with `git switch <name>`. Never reset it.                                        |
+| `CARRY_CONFLICT`      | `4`                 | Local changes touch paths that differ between HEAD and the base       | Show the paths from stderr and ask the user (Workflow 3). Nothing was changed.                                                                                          |
+| `PUSH_FAILED`         | `5`                 | The branch exists locally but the push failed                         | **STOP.** Report the Git error. The local branch is kept; retry `git push --set-upstream <remote> <name>` once access is restored — never via API.                      |
+| `FETCH_FAILED`        | `6`                 | The remote could not be fetched                                       | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                                                            |
+| `STASH_CONFLICTS`     | `7`                 | The branch was created but popping the stash conflicted               | Resolve through Workflow 4. The stash entry `STASH_REF` is kept until then.                                                                                             |
+| `DEPENDENCY_NOT_OPEN` | `9`                 | A `--depends-on` pull request is not open; nothing was created        | **STOP.** Report which one. Its predecessor's pull request must be open first; a merged one is already in the default branch, so drop it.                               |
+| `GH_FAILED`           | `10`                | `gh` could not read a `--depends-on` pull request; nothing created    | **STOP.** Report the error; restore `gh` authentication or fix the number.                                                                                              |
+| `MERGE_FAILED`        | `11`                | Merging a second dependency's head conflicted; branch local, unpushed | Resolve with [git-merge-resolve](../git-merge-resolve/SKILL.md), commit the merge, then `git push --set-upstream <remote> <name>`.                                      |
+| `CREATE_FAILED`       | `8`                 | The branch or its worktree could not be created; nothing changed      | **STOP.** Report the Git error. Any stash was restored; when `STASH_REF` is printed, tell the user that stash entry holds their changes.                                |
+| `PREFLIGHT_ERROR`     | `2`                 | Bad usage, not a repository, invalid name, or no base ref to resolve  | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                  |
+| `SCRIPT_FAILURE`      | `1`                 | The script broke                                                      | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                  |
+| `SIGNAL_*`            | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                      | **STOP.** Inspect `git status` and `git stash list` before rerunning.                                                                                                   |
 
 ## Workflow 3: Uncommitted Changes Git Cannot Carry
 
@@ -175,10 +180,33 @@ still holds the commits, and leave resetting it to them.
    and still holds the `<n>` commits. Tell the user; resetting it there is
    their call, never yours.
 
+## Workflow 6: A Branch That Depends on an Open Pull Request
+
+Work that builds on an unmerged pull request is a manual stacked pull request:
+its branch is cut from the predecessor's branch and kept current with merges,
+never a rebase. The predecessor's pull request must exist and be open first;
+open it with [pr-open](../pr-open/SKILL.md) before cutting the dependent
+branch.
+
+```bash
+agent-code/git-new-branch.py <name> --depends-on <P> [--depends-on <Q>]
+```
+
+The script reads each pull request with `gh pr view` against the remote's URL
+and stops before creating anything unless every one is open. The branch starts
+at the first pull request's head branch, in place of `--base`, which the option
+rejects. It gets one empty commit per pull request with a `Depends-on: #<P>`
+trailer, then merges each further pull request's head, and is pushed without
+force. Carried changes stay uncommitted. `DEPENDS_ON` lists the pull requests.
+
+`pr-open` reads the trailers to base the new pull request on its predecessor.
+
 ## Completion Criteria
 
 - The branch points at the freshly fetched base commit `BASE_SHA`, or, after
-  `LOCAL_COMMITS`, contains both the moved commits and `BASE`
+  `LOCAL_COMMITS`, contains both the moved commits and `BASE`, or, with
+  `--depends-on`, holds every dependency's head and one `Depends-on` trailer
+  each
 - `git rev-parse --abbrev-ref @{u}` on the branch prints `<remote>/<name>`
 - The user's uncommitted changes are present on the branch, and any stash this
   skill created has been dropped only after its conflicts were resolved
