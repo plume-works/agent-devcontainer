@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:25:00Z
+  at: 2026-11-02T00:57:57Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -49,7 +49,10 @@ editing application code, SHALL remain adaptive and patient as the problem takes
 shape, and SHALL offer capture or a phase handoff without pressuring the user to
 formalize unfinished thinking. When the user approves specific text, Explore
 SHALL persist it verbatim outside the conversation and reproduce it verbatim in
-the handoff, and SHALL never paraphrase it.
+the handoff, and SHALL never paraphrase it. Once the problem has open questions,
+Explore SHALL settle them with the user one at a time — one topic per turn and
+one decision per question, in the user's names and design — and SHALL record
+each answer verbatim as it is given.
 
 #### Scenario: Exploration starts from an open-ended idea
 
@@ -82,6 +85,17 @@ the handoff, and SHALL never paraphrase it.
 - **THEN** Explore writes it verbatim to `.tmp/approved-wording-<slug>.md`
   before continuing, names that file in the handoff, and reproduces the text
   verbatim rather than describing it
+
+#### Scenario: The exploration has open questions
+
+- **WHEN** the problem being explored has more than one open question
+- **THEN** Explore names one topic and stays on it until the user settles it,
+  asks one decision at a time as numbered options with a recommendation, keeps
+  the user's names and design unless changing them is the question asked,
+  settles a question about system behavior with evidence before asking it,
+  records each answer verbatim in `.tmp/approved-wording-<slug>.md` — marked
+  approved only on an explicit yes — and opens the next topic only after the
+  current one is settled
 
 ### Requirement: Plan creates or revises planning state without implementing
 
