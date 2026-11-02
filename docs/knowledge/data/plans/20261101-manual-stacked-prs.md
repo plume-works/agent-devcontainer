@@ -301,10 +301,19 @@ restacks onto open X+1 (Rz1) → X+1 merges as Sy → X+2 restacks onto merged X
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] Every `gh stack` path is gone: stack detection, `gh stack checkout`, the
+- [x] Every `gh stack` path is gone: stack detection, `gh stack checkout`, the
   guarded re-sync after a reformat or fix commit, and `gh stack merge`
-- [ ] `pr-merge` refuses a PR whose base is not `main` and never passes
+  - **Evidence:** commit `e70ad999` removes stack detection,
+    `gh stack checkout`, the guarded re-sync after a fix commit, and
+    `gh stack merge` from `pr-merge/SKILL.md` (the reformat re-sync was already
+    gone); `grep -n -i stack` there finds only the `pr-merge-stack` pointer.
+- [x] `pr-merge` refuses a PR whose base is not `main` and never passes
   `--admin`
+  - **Evidence:** commit `e70ad999` adds the `baseRefName` check that stops for
+    a base other than `main` and the Final Squash Merge rule never to pass
+    `--admin`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` —
+    65/65 skills valid.
 
 ### Task 7: `pr-merge-stack` merges a chain
 
