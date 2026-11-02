@@ -456,9 +456,15 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 
 **Files:** none — repository settings
 
-- [ ] A ruleset on `refs/heads/iwe/**` requires the status check `base-is-main`,
+- [x] A ruleset on `refs/heads/iwe/**` requires the status check `base-is-main`,
   with the Write, Maintain, and Admin repository roles as bypass actors in mode
   `always`; no workflow reports the check
+  - **Evidence:** ruleset `iwe-branches-merge-only-into-main` (id 26335732,
+    `gh api repos/{owner}/{repo}/rulesets/26335732`) targets
+    `refs/heads/iwe/**`, requires `base-is-main`, and exempts repository roles
+    4, 2, and 5 (Write, Maintain, Admin) in mode `always`;
+    `git grep base-is-main -- .github` finds nothing; the owner push of this
+    tick was accepted.
 
 ### Task 14: CI
 
