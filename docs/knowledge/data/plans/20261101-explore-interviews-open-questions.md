@@ -61,7 +61,7 @@ default behavior unchanged.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Insert this section after `## The stance`, before
+- [x] Insert this section after `## The stance`, before
   `## During implementation`, verbatim:
 
   ``` markdown
@@ -83,6 +83,10 @@ default behavior unchanged.
   - **Record each answer as it is given** in `.tmp/approved-wording-<slug>.md`:
     the user's words verbatim, marked approved only on an explicit yes.
   ```
+
+  - **Evidence:** commit 1dd60b54;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed (64/64 skills valid, 0 errors).
 
 ### Task 3: Validate the catalog
 
