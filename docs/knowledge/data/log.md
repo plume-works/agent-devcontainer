@@ -3,6 +3,13 @@
 The history of this workspace, newest first. The `ship` skill's release cut adds
 one dated group per release; nothing else writes here.
 
+## 2026-11-02
+
+- **Update**: [Explore settles open questions one at a
+  time](plans/20261101-explore-interviews-open-questions.md) plan done; specs
+  synced in [IWE workflow skills](spec/iwe-workflow-skills.md); [Agentdev IWE
+  workflow skills](features/agentdev-iwe-workflow-skills.md) changed.
+
 ## 2026-11-01
 
 - **Release**: [2.0.0](releases/2.0.0.md) cut from every feature and fix

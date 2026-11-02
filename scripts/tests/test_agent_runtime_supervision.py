@@ -33,13 +33,13 @@ STARTUP_ORDER = [
     'opencode',
     'xpra',
     'dockerd',
-    'prune',
+    'docker-gc',
     'project',
     'index',
 ]
-STOP_ORDER = ['opencode', 'cbm', 'xpra', 'keyring', 'dbus', 'dockerd']
-ONESHOTS = {'prepare', 'config', 'prune', 'project', 'index'}
-OPTIONAL = ['config', 'cbm', 'xpra', 'dockerd', 'prune', 'project', 'index']
+STOP_ORDER = ['opencode', 'cbm', 'xpra', 'docker-gc', 'keyring', 'dbus', 'dockerd']
+ONESHOTS = {'prepare', 'config', 'project', 'index'}
+OPTIONAL = ['config', 'cbm', 'xpra', 'dockerd', 'docker-gc', 'project', 'index']
 
 FAKE_SERVICE = """#!/usr/bin/env bash
 name="$1"; state="$STATE_DIR"
@@ -534,14 +534,14 @@ def test_a_failed_optional_dependency_blocks_its_dependents_until_retried(make):
     box.set('dockerd', 'mode', 'never-ready')
     box.start()
     box.wait_for(box.degraded)
-    assert box.status('prune') == 'blocked'
-    assert 'prune' not in started(box.events())
+    assert box.status('docker-gc') == 'blocked'
+    assert 'docker-gc' not in started(box.events())
 
     (box.state / 'dockerd.mode').unlink()
     resumed = box.retry('dockerd')
     assert resumed.returncode == 0, resumed.stdout + resumed.stderr
-    box.wait_for(box.ready)
-    assert started(box.events()).count('prune') == 1
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
+    assert started(box.events()).count('docker-gc') == 1
 
 
 def test_opencode_does_not_wait_for_xpra(make):
@@ -676,6 +676,7 @@ def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
     box.set('opencode', 'mode', 'with-child')
     box.start()
     box.wait_for(box.ready)
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
     child = int((box.state / 'opencode.child').read_text())
 
     assert box.process is not None

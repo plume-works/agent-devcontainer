@@ -81,6 +81,9 @@ volume](plans/20261030-devcontainer-home-volume.md)
 [Cap Docker storage with automatic garbage
 collection](plans/20261013-docker-storage-gc.md)
 
+[Collect Docker garbage hourly in both workspace
+engines](plans/20261101-docker-storage-periodic-gc.md)
+
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 [Explore settles open questions one at a
