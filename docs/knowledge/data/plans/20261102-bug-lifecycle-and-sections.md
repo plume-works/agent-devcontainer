@@ -218,15 +218,20 @@ their bootstrap copies under
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md`
 
-- [ ] Step 3's bug gate requires the `Bug:` H1, `## Symptom`, `## Reproduction`,
+- [x] Step 3's bug gate requires the `Bug:` H1, `## Symptom`, `## Reproduction`,
   `## Root cause` and a `severity`; names `## Potential solution` and `## Fix`
   as optional; and no longer asks for Key references or anchors
-- [ ] An unknown Reproduction or Root cause states what is known, the hypotheses
+  - **Evidence:** commit 8c189a48 rewrites the bug gate in
+    `iwe-capture/SKILL.md` step 3; `validate_agent_files --recommend` reported 0
+    errors, 0 warnings
+- [x] An unknown Reproduction or Root cause states what is known, the hypotheses
   eliminated and what eliminated them, and links the `backlog/` task that
   settles it; no section states lifecycle
-- [ ] Step 4 files a bug at `stage: pending`, or at `stage: done` with a
+  - **Evidence:** commit 8c189a48, same step 3 bullet
+- [x] Step 4 files a bug at `stage: pending`, or at `stage: done` with a
   `## Fix` describing the fix when the bug was fixed in the same change; a task
   at `stage: pending`
+  - **Evidence:** commit 8c189a48 rewrites the step 4 `stage` bullet
 
 ### Task 6: Plan moves listed bugs to `planned`
 
