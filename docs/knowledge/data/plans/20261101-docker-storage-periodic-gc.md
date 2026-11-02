@@ -134,9 +134,14 @@ pass always exits 0.
     `uv run pytest scripts/tests/test_docker_gc.py` — 5 passed
     (`test_prunes_images_then_cache_then_volumes_in_order`,
     `test_removes_only_old_disposable_volumes`).
-- [ ] Docker missing or its daemon unreachable: the pass does nothing and exits
+- [x] Docker missing or its daemon unreachable: the pass does nothing and exits
   0\. A failing step warns, the remaining steps still run, and the pass exits 0.
   Tests cover each case.
+  - **Evidence:** commit 448df291;
+    `uv run pytest scripts/tests/test_docker_gc.py` — 5 passed
+    (`test_skips_when_docker_is_missing`,
+    `test_skips_when_daemon_is_unreachable`,
+    `test_a_failed_step_warns_and_the_pass_continues`).
 
 ### Task 2: The repeating form
 
