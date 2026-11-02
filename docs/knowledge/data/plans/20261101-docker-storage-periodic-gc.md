@@ -42,10 +42,10 @@ storage](../spec/devcontainer-docker-storage.md), the workspace engine's in
 The maintainer chose the following:
 
 - **Cadence:** each engine runs a garbage-collection pass hourly, and the first
-  pass runs when the engine's host starts. That first pass replaces today's
-  start-only prune.
+  pass runs when the engine's host starts. That first pass replaces the prune
+  that ran only at Coder agent start.
 
-- **Images:** keep today's rule. Each pass runs
+- **Images:** the 72-hour rule is unchanged. Each pass runs
   `docker image prune -af --filter until=72h`.
 
 - **Build cache:** each pass then runs
@@ -95,9 +95,9 @@ pass always exits 0.
 
 **Assumptions:**
 
-- The Dev Container engine's collection now runs wherever the image runs,
-  Codespaces and local Dev Containers included, not only on Coder. Its rules are
-  the ones the start-time prune already applied on Coder.
+- The Dev Container engine's collection runs wherever the image runs, Codespaces
+  and local Dev Containers included, not only on Coder. Its image rule matches
+  the one the start-time prune applied on Coder.
 - The workspace engine cannot run `agentdev-runtime`, because its image comes
   from another repository. Its script therefore restates the three steps in
   shell, with the same patterns and limits.
@@ -387,8 +387,9 @@ supporting explicitly trusted proxy ingress and nested Docker operation.
 ## Verification
 
 - `uv run pytest scripts/tests/test_docker_gc.py scripts/tests/test_coder_agent_start.py scripts/tests/test_agent_runtime_docker.py`
-- `grep -rn "docker prune\|program:prune" py_packages docker scripts` finds
-  nothing.
+- `grep -rn --exclude-dir=tests "docker prune\|program:prune" py_packages docker scripts`
+  finds nothing. Tests are left out because the image test asserts
+  `program:prune` is absent.
 - In `coder-ide-baseline`: `shellcheck root-container/docker-gc`, and the
   `root-container` image builds in its CI.
 - On a live workspace: Task 8's checks, plus `docker system df` in both engines
@@ -404,7 +405,7 @@ supporting explicitly trusted proxy ingress and nested Docker operation.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
+Anchor points at 644ebc40, the plan's base commit:
 
 - `py_packages/agentdev_runtime/agentdev_runtime/docker.py:23` — `PRUNE_AGE`;
   `:113` — `prune`; `:138` — `main`
