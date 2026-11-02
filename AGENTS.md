@@ -84,6 +84,15 @@ Practice 8.
 - Formatting and autofixes are applied by **ruff**, via the pre-commit hooks that run on every commit and in CI's `pre-commit` job. Verify with `python_lint_check.py` for a fast, Docker-free check. Never judge style with stock `flake8` or `black`: their defaults (79-char limit, double quotes, different isort grouping) produce false positives that do not match this repo and do not fail CI. Import sorting needs no separate pass — `I` is in `.ruff.toml`'s `select` list, so the ruff hook sorts imports too. Use a targeted `# noqa: <rule>` only for a formatter-required incompatibility (for example `E203` on a slice); never disable a rule for a whole file or package, and fix import-group disagreements in `.ruff.toml`'s `lint.isort` rather than with `noqa`
 - **Exception handling**: never write empty handlers (`except ...: pass`). Handle expected exceptions explicitly by at least one of: logging context, returning a safe fallback value, re-raising with context, or raising `SystemExit` for CLI interruption paths (`raise SystemExit(130)` for user interrupts). If an exception must be intentionally ignored, document the reason in a comment and keep the ignored scope minimal. Prefer specific exception types over broad `except Exception`
 
+### Tests
+
+- A test runs the behaviour it covers: it executes the code, script, hook, or command under
+  test with inputs it controls, owns every resource it uses, and checks what results.
+- Never write a test that reads a repository file to check its text, keys, steps, or
+  versions, or that two files agree; that checks another tool did its job; or that queries a
+  live service or waits on CI. None of them covers behaviour.
+- Behaviour no such test can reach stays untested.
+
 ### Python Testing
 
 - **Always use `pytest`** — never `unittest`.
