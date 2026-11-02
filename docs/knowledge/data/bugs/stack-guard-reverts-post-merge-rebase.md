@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/602
 stage: done
+severity: high
 ---
 
 # Bug: the stack guard reverts GitHub's post-merge rebase

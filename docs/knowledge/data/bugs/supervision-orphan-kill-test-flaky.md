@@ -5,6 +5,7 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-10-27T18:00:00Z
 stage: done
+severity: low
 sources:
 - resource: scripts/tests/test_agent_runtime_supervision.py
 - resource: .devcontainer/scripts/runtime-supervisor.py

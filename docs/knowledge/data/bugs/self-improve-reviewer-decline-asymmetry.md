@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: low
 description: The reviewer declines a stated user directive far more often on the wake harness's negative control than on the wake check itself, on an identically scripted exchange, with no mechanism identified.
 generated:
   by: claude-code/opus-5.5

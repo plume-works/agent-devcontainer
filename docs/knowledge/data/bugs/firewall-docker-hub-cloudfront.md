@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: medium
 description: With the egress firewall enabled, Docker Hub pulls fail because blob downloads now come from production.cloudfront.docker.com, which the shipped allowlist does not include.
 generated:
   by: claude-code/opus-5.5

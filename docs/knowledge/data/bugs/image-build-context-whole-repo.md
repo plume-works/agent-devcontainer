@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: medium
 description: The agentdev-base provisioning step bind-mounts the whole repository as its build context, so any change anywhere in the repository invalidates the cached Ansible layer and every image-touching run reprovisions from scratch.
 generated:
   by: claude-code/opus-5.5

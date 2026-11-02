@@ -1,6 +1,7 @@
 ---
 type: bug
 stage: done
+severity: high
 description: Tables Codex writes into config.toml land inside codebase-memory-mcp's trailing SessionStart block, so every later cbm install refuses with ambiguous_hook_ownership, and the failed install used to abort postCreate and skip all of postStart.
 generated:
   by: claude-code/opus-5.5

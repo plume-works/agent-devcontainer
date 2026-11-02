@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: medium
 description: The AI task responder pushes with GITHUB_TOKEN, whose GitHub Actions app GitHub refuses as a ruleset bypass actor, so the iwe/** ruleset that blocks merges into dependent branches also rejects every responder push to an iwe/ branch.
 generated:
   by: claude-code/opus-5.5

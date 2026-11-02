@@ -8,6 +8,7 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/141
 stage: done
+severity: medium
 ---
 
 # Bug: The review opt-out marker fired too broadly

@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: planned
+severity: high
 description: iwe-shipper never checks a plan's `## Depends on`, so Ship and the ship-all coordinator can ship a plan whose prerequisite is still active — including one that came back Blocked earlier in the same ship-all run.
 generated:
   by: claude-code/opus-5.5

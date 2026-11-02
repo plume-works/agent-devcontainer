@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 stage: done
+severity: high
 ---
 
 # Bug: PR updates skip the re-review evaluation

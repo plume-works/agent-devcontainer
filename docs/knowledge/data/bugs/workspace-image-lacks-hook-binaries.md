@@ -13,6 +13,7 @@ sources:
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/440
 stage: done
+severity: high
 ---
 
 # Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing says so

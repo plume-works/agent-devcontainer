@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 stage: done
+severity: high
 ---
 
 # Bug: Plan checkbox over-claiming

@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: medium
 description: The improve skill offers a routing option — add or patch a linked reference — that the path allowlist cannot resolve, so choosing it is rejected as bad_kind.
 generated:
   by: claude-code/opus-5.5

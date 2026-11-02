@@ -1,5 +1,7 @@
 ---
 type: bug
+stage: pending
+severity: medium
 description: A standalone agent-opencode container whose CBM daemon fails to start stays degraded and Docker-unhealthy through every recovery attempt, the advertised retry, and a container restart, because the leftover rendezvous artifacts under /tmp survive in the writable layer; only recreating the container clears it.
 generated:
   by: claude-code/opus-5.5

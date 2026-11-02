@@ -7,6 +7,7 @@ generated:
 sources:
 - resource: ansible/roles/fish_setup/tasks/main.yml
 stage: done
+severity: medium
 ---
 
 # Bug: Fisher install over untracked plugins

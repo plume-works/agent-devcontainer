@@ -11,6 +11,7 @@ sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/468
 - resource: https://github.com/plume-works/agent-devcontainer/pull/101
 stage: done
+severity: high
 ---
 
 # Bug: a comment-requested review's gate does not count toward merge

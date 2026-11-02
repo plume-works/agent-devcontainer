@@ -9,6 +9,7 @@ sources:
 - resource: .github/renovate.json
 - resource: docs/knowledge/data/codebase/devcontainer.md
 stage: done
+severity: low
 ---
 
 # Bug: Pin bumps invalidate map docs
