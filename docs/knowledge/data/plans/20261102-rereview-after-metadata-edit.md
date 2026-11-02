@@ -126,8 +126,11 @@ handling.
   - **Evidence:** commit e667e133: `reviewed()` and `requesting_check()` take
     the cutoff through `after()`; covered by the Task 2 before-edit, after-edit,
     completed-check and running-check tests.
-- [ ] Update `USAGE` (the refusal paragraph and the `ALREADY_REVIEWED` and
+- [x] Update `USAGE` (the refusal paragraph and the `ALREADY_REVIEWED` and
   `ALREADY_REQUESTED` result lines) to name the edit cutoff.
+  - **Evidence:** commit e667e133 rewrites the refusal paragraph and the
+    `ALREADY_REVIEWED` / `ALREADY_REQUESTED` lines of `USAGE`;
+    `test_help_lists_options_keys_and_results` passes.
 - [ ] Task 2's tests and the whole
   `uv run pytest .agents/plugins/agentdev/tests` pass.
 
