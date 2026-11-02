@@ -49,6 +49,11 @@ Exploration in `/agentdev:iwe-explore` (session "agent-dev1 Autonomy rules"), 20
    near-closing task for plans that warrant it. It can also be run on a plan before it is
    finalized — **by hand only**; Plan never invokes it.
 
+6. **Ship loses its user-only guard.** It existed to keep conversation context out of
+   Ship; the fresh `iwe-shipper` subagent already does that. A coordinator or session may
+   start Ship. This reverses what PR #587's plan (`20261031-model-invocable-implement`)
+   keeps, so the autonomy plan revises that requirement.
+
 ## Proposed changes still standing (each observed more than once)
 
 | Change                                                                                                                                      | Evidence (sessions 2026-10-31 to 11-02)                                                                                                                          |
@@ -63,10 +68,7 @@ the round bounds.
 
 ## Open questions
 
-1. **May the implement-all coordinator start Ship** for a plan it just finished? Observed
-   friction: the user typed `/agentdev:iwe-ship` in a worker session. PR #587 (open, plan
-   `20261031-model-invocable-implement`) deliberately keeps Ship explicit-only, so this
-   reverses its choice.
+None.
 
 ## Cut for lack of evidence (do not re-propose without a new case)
 
@@ -107,7 +109,6 @@ the round bounds.
 
 ## Next steps
 
-1. Settle the open question.
 2. Offer capture: hand the settled decisions and standing changes to `/agentdev:iwe-plan`
    (depends on `20261031-model-invocable-implement`), and file the leftover-test removal
    as a task through `/agentdev:iwe-capture`.
