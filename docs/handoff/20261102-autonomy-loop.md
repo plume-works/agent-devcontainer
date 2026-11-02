@@ -109,6 +109,6 @@ None.
 
 ## Next steps
 
-2. Offer capture: hand the settled decisions and standing changes to `/agentdev:iwe-plan`
+1. Offer capture: hand the settled decisions and standing changes to `/agentdev:iwe-plan`
    (depends on `20261031-model-invocable-implement`), and file the leftover-test removal
    as a task through `/agentdev:iwe-capture`.
