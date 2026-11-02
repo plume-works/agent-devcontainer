@@ -6,7 +6,7 @@ release:
 description: Let request-review.py request a fresh AI review of an already-reviewed head when the pull request's title or description changed after that head's review, so a metadata-gate stop is answered by fixing the description instead of pushing a commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T01:00:00Z
+  at: 2026-11-02T03:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
@@ -38,10 +38,11 @@ review, and `requesting_check()` on the gate run's completed, successful
 ## Approach
 
 A review's input is the head commit together with the title and description,
-because the metadata gate reads them on every review. A head is therefore
-covered only by AI reviews submitted, and responder checks completed, after the
-latest title or description edit. Queued or in-progress responder checks still
-count, whenever they started.
+because the metadata gate reads them on every review, once, when its run starts.
+A head is therefore covered only by responder runs started after the latest
+title or description edit, and by the AI reviews they submit: a review submitted
+while a run that started before the edit was running does not count. Queued or
+in-progress responder checks still count, whenever they started.
 
 The script reads the latest edit time from GitHub through one GraphQL query:
 `PullRequest.lastEditedAt` for the description, and the newest
@@ -200,13 +201,16 @@ author is added and removed, so the assignees end as they were found. The
 catalog SHALL NOT post an `@claude review` comment.
 
 A review's input is the head commit together with the pull request's title and
-description. The script SHALL NOT toggle for a head commit that an accepted AI
-review submitted after the latest title or description edit already names, or
+description, which a review run reads when it starts. The script SHALL NOT
+toggle for a head commit that an accepted AI review already names, submitted
+after the latest title or description edit by a run that started after it, or
 that carries a `Claude PR Review Responder` check run that is queued, in
-progress, or completed after that edit with a conclusion other than `skipped`
-or `cancelled`, whoever started it. When the pull request was never edited,
-every such review and check counts. Accepted reviews are those the AI review
-gate names, by author and state; a reaction names no commit and is not counted.
+progress, or started after that edit and completed with a conclusion other than
+`skipped` or `cancelled`, whoever started it. A review submitted while a
+responder run that started before the edit was running SHALL NOT count. When the
+pull request was never edited, every such review and check counts. Accepted
+reviews are those the AI review gate names, by author and state; a reaction
+names no commit and is not counted.
 
 A rationale, when given, SHALL be posted as a pull request comment that opens
 with `AI review requested for <sha>:` and carries no `@claude` mention.
@@ -214,23 +218,32 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 ### Scenario: a second request for the same head
 
 - **WHEN** a `Claude PR Review Responder` check on the head is queued, in
-  progress, or completed with a failure after the latest title or description
-  edit
+  progress, or started after the latest title or description edit and completed
+  with a failure
 - **THEN** the script toggles nothing and reports `ALREADY_REQUESTED` with that
   check's URL.
 
 ### Scenario: the head is already reviewed
 
-- **WHEN** an accepted AI review submitted after the latest title or
-  description edit names the head commit
+- **WHEN** an accepted AI review submitted after the latest title or description
+  edit names the head commit
 - **THEN** the script toggles nothing and reports `ALREADY_REVIEWED`.
 
 ### Scenario: the description changed after the head's review
 
-- **WHEN** every accepted AI review naming the head, and every completed
-  responder check on it, predates the latest title or description edit, and no
-  responder check on the head is queued or in progress
+- **WHEN** every completed responder check on the head started before the latest
+  title or description edit, every accepted AI review naming the head was
+  submitted before that edit or by one of those runs, and no responder check on
+  the head is queued or in progress
 - **THEN** the script toggles the author's assignment and reports `SUCCESS`.
+
+### Scenario: the description changed while a review was running
+
+- **WHEN** the title or description is edited after a responder run on the head
+  started, and that run finishes and submits its review after the edit
+- **THEN** neither the run's check nor its review counts, and once no responder
+  check is queued or in progress the script toggles the author's assignment and
+  reports `SUCCESS`.
 
 ### Scenario: a push to a reviewed pull request
 
@@ -260,6 +273,15 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
   passes.
 - Task 5's live check confirms both edit kinds move the cutoff.
 - `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+- The AI review of the pull request found that judging a responder check by its
+  completion time counted a run that started before an edit and finished after
+  it, so that edit never got a review. The rule now judges a run by its start
+  time and discounts the reviews such a run submits; the Approach and the spec
+  delta state it (commit 80d0d014,
+  `test_review_from_a_run_started_before_the_edit_does_not_count`).
 
 ## Out of scope
 
