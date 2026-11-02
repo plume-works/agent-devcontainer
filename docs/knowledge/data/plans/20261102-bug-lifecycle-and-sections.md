@@ -250,13 +250,20 @@ their bootstrap copies under
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Step 6: when it sets a listed bug to `stage: done`, Ship writes the bug's
+- [x] Step 6: when it sets a listed bug to `stage: done`, Ship writes the bug's
   `## Fix` — the shipped fix in a few sentences, taken from Verify's evidence,
   linking the plan — after any `## Potential solution`; it leaves an
   already-accurate Fix as it is
-- [ ] Step 2: cancellation sets every bug the plan lists in `release` back to
+  - **Evidence:** commit 7ce37f4c adds the `## Fix` bullet to
+    `iwe-shipper.agent.md` step 6; `validate_agent_files --recommend` reported 0
+    errors, 0 warnings
+- [x] Step 2: cancellation sets every bug the plan lists in `release` back to
   `stage: pending`, skipping a bug already there
-- [ ] Step 7's re-inspection covers the bug bodies Ship wrote
+  - **Evidence:** commit 7ce37f4c, step 2 returns listed bugs at `planned` to
+    `pending`, skipping any already moved
+- [x] Step 7's re-inspection covers the bug bodies Ship wrote
+  - **Evidence:** commit 7ce37f4c, step 7 names the step 6 `## Fix` sections in
+    its re-inspection
 
 ### Task 8: Weekly lists open bugs by stage
 
