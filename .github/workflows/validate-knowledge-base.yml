@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
 
       - name: Filters
-        uses: ./.github/actions/paths-filter
+        uses: $/.github/actions/paths-filter
         id: filter
         with:
           extra-filter: |
@@ -47,7 +47,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -81,7 +81,7 @@ jobs:
               - docs/knowledge/tests/test_iwe_seed.py
 
       - name: Set up the Python environment
-        uses: ./.github/actions/setup-python-venv
+        uses: $/.github/actions/setup-python-venv
 
       # The image's pin, so CI validates with the iwe that writes .iwe/config.toml.
       - name: Install the pinned iwe
@@ -97,6 +97,17 @@ jobs:
           iwe normalize
           git diff --exit-code
 
+      # Equal ranks are valid and break by key; the warning only surfaces them.
+      - name: Warn about work items that share a rank
+        continue-on-error: true
+        env:
+          RANKED: '{rank: {$exists: true}}'
+          PROJECTION: key=$key,rank
+        run: |
+          iwe find --filter "$RANKED" --project "$PROJECTION" -f json \
+            | jq -r 'group_by(.rank)[] | select(length > 1)
+                | "::warning::rank \(.[0].rank) is shared by \(map(.key) | join(", "))"'
+
       - name: Check that ticked plan checkboxes carry evidence
         run: uv run pytest docs/knowledge/tests --ignore=docs/knowledge/tests/test_iwe_seed.py
 
@@ -108,7 +119,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -121,11 +132,6 @@ jobs:
     timeout-minutes: 10
     if: always()
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Execution was not needed!
         if: needs.paths-filter.outputs.pass != 'true'
         run: |
@@ -145,6 +151,6 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}

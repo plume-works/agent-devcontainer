@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+rank: 1200
 ---
 
 # Clean up the local checkout after pr-merge

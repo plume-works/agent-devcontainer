@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
 
       - name: Filters
-        uses: ./.github/actions/paths-filter
+        uses: $/.github/actions/paths-filter
         id: filter
         with:
           extra-filter: |
@@ -45,7 +45,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -64,7 +64,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Python venv
-        uses: ./.github/actions/setup-python-venv
+        uses: $/.github/actions/setup-python-venv
 
       - name: Test validate_agent_files
         run: uv run pytest py_packages/validate_agent_files/tests
@@ -94,7 +94,7 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
 
@@ -136,11 +136,6 @@ jobs:
     timeout-minutes: 10
     if: always()
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-
       - name: Execution was not needed!
         if: needs.paths-filter.outputs.pass != 'true'
         run: |
@@ -160,6 +155,6 @@ jobs:
 
       - name: Log debug stats
         if: ${{ always() }}
-        uses: ./.github/actions/log-debug-stats
+        uses: $/.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}

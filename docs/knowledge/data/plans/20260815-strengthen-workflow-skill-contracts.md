@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 stage: done
 completed: 2026-08-16
+released: 1.0.0
 ---
 
 # Strengthen the workflow skill contracts

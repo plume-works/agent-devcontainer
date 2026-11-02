@@ -28,9 +28,12 @@ user's direction behaves according to the mode:
 ## Steps
 
 1. **Select the plan.** Take it from the request — the skill's argument, the
-   conversation, or your dispatch prompt. If it is ambiguous, list the plans
-   under `## Active` in `data/plans.md` (most recently created first) and ask
-   which one; dispatched, report the candidates and stop. Announce:
+   conversation, or your dispatch prompt. If it is ambiguous, list the active
+   plans — the sequenced ones in build order from
+   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`,
+   then the unsequenced ones from
+   `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`
+   — and ask which one; dispatched, report the candidates and stop. Announce:
    "Working on: <plan> — task N of M". No plan exists for what the user wants
    built? Stop and point at the `/agentdev:iwe-plan` skill.
 2. **Load the context.** Read the full plan, the specs in its

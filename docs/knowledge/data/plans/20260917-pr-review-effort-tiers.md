@@ -18,6 +18,7 @@ sources:
   title: GPT-5.6 Terra model identifier
 stage: done
 completed: 2026-09-22
+released: 2.0.0
 ---
 
 # Effort tiers for the AI pull request review

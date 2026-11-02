@@ -15,6 +15,7 @@ sources:
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
 stage: done
 completed: 2026-10-27
+released: 2.0.0
 ---
 
 # Assignee-triggered AI re-reviews replace the comment trigger

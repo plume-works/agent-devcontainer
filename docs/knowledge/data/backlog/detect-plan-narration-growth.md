@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
 - resource: docs/knowledge/data/plans/20260817-no-logbooks-in-the-graph.md
 - resource: AGENTS.md
+rank: 2400
 ---
 
 # Detect plan narration growth mechanically

@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 stage: done
 completed: 2026-10-30
+released: 2.0.0
 ---
 
 # iwe-branch-name v2: one iteration counter per plan

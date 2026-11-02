@@ -14,6 +14,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
 stage: done
 completed: 2026-10-12
+released: 2.0.0
 ---
 
 # Update branch pulls its upstream before merging the base

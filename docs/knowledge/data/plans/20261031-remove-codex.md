@@ -16,6 +16,7 @@ sources:
 - resource: scripts/e2e/iwe-workflows/harness_codex.py
 stage: done
 completed: 2026-11-01
+released: 2.0.0
 ---
 
 # Remove Codex support

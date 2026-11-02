@@ -9,9 +9,6 @@ frontmatter:
     description: { type: string }
     resource: { type: string }
     tags: { type: array, items: { type: string } }
-    status:
-      enum: [draft, stable, deprecated]
-      description: OKF lifecycle (SPEC §5.4); omit when stable
     stale_after: { type: string, format: date }
     generated:
       type: object

@@ -16,6 +16,7 @@ sources:
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
 stage: done
 completed: 2026-10-18
+released: 2.0.0
 ---
 
 # Automatically index OpenCode workspaces in CBM

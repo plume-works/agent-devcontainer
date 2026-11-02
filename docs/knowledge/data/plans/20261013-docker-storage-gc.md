@@ -17,6 +17,7 @@ sources:
 - resource: https://docs.docker.com/reference/cli/docker/image/prune/
 stage: done
 completed: 2026-10-13
+released: 2.0.0
 ---
 
 # Cap Docker storage with automatic garbage collection

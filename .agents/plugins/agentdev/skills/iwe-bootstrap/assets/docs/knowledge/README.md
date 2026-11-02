@@ -17,9 +17,10 @@ It is also a conformant [Open Knowledge
 Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 v0.2 bundle — an open standard for agent-maintained knowledge — so your project
 graph is portable to any OKF consumer, not locked to one tool. Every document
-carries a `type`, provenance (`generated`, `sources`) and lifecycle (`status`,
-`stale_after`) live in frontmatter, and conformance is checked in CI on every
-commit.
+carries a `type`, provenance (`generated`, `sources`) and lifecycle (`stage`,
+`rank`, `stale_after`) live in frontmatter, and conformance is checked in CI on
+every commit. Hubs are flat sorted lists and a work item's state lives only in
+its own file, so parallel pull requests rarely conflict in the graph.
 
 ## Quickstart
 
@@ -51,7 +52,7 @@ verified code anchors and the specs it will touch) → **implement**
 as tests pass) → **verify** (`"is it ready to ship?"` — an optional standalone
 check of tasks, requirements, and scenarios against the actual code) → **ship**
 (`"ship dark mode"` — invokes that verification as a mandatory gate, then syncs
-the specs, flips stages, and records the work in the unreleased page) →
+the specs and flips stages; a release cut later builds the release page) →
 occasionally **weekly** (`"weekly digest"` — what moved, what's stuck, what's
 next). Enter and leave the loop anywhere — invoking Ship directly still runs its
 verification gate. Each step leaves the graph consistent, so the next session —
@@ -60,7 +61,8 @@ or the next agent — picks up exactly where this one stopped.
 Ask questions against the graph instead of re-reading the codebase:
 
 ``` bash
-iwe find --filter '{stage: done}' --included-by data/plans -f keys  # what shipped
+iwe find --filter '{type: plan, stage: done}' -f keys               # what shipped
+iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys    # the build order
 iwe find --references data/spec/timer -f keys                        # what depends on this spec
 iwe retrieve -k data/plans/mvp --expand-includes 1                   # a milestone and its plans
 iwe tree -k data/features                                            # the feature landscape
@@ -72,13 +74,13 @@ iwe tree -k data/features                                            # the featu
 data/
 ├── index.md          # the graph root — every hub is a child
 ├── product.md        # what you're building — the doc every session reads first
-├── plans.md    plans/         # implementation plans: Active / Done / Cancelled
+├── plans.md    plans/         # implementation plans, stage in frontmatter
 ├── features.md features/      # feature docs, proposed → implemented
 ├── bugs.md     bugs/          # symptom / repro / root cause / fix
 ├── spec.md     spec/          # behavioral specs — the durable truth, synced at ship time
 ├── architecture.md architecture/  # design decisions, with the rejected alternatives
 ├── concept.md  concept/       # product vision — the tiebreaker for feature debates
-├── releases.md releases/      # one page per version + the unreleased accumulator
+├── releases.md releases/      # one page per cut version
 ├── backlog.md  backlog/       # prioritized next work
 ├── someday.md  someday/       # ideas that aren't commitments
 └── milestone.md               # milestones: plans whose children are plans

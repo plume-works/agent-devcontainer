@@ -19,6 +19,7 @@ sources:
 - resource: https://man7.org/linux/man-pages/man1/tmux.1.html
 stage: done
 completed: 2026-10-12
+released: 2.0.0
 ---
 
 # Start Claude Remote Control from the Coder agent

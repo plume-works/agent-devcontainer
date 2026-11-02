@@ -17,6 +17,7 @@ sources:
 - resource: https://github.com/anthropics/claude-code-action/blob/main/action.yml
 - resource: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token
 - resource: https://docs.github.com/en/code-security/dependabot/troubleshooting-dependabot/troubleshooting-dependabot-on-github-actions
+rank: 1000
 ---
 
 # The AI responder posts as the plume-works-quill App
