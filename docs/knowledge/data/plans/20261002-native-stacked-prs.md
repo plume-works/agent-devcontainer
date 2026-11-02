@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-chain/SKILL.md
 stage: done
 completed: 2026-10-05
+released: 2.0.0
 ---
 
 # Adopt GitHub native stacked pull requests

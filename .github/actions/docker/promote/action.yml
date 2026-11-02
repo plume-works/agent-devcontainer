@@ -30,7 +30,7 @@ runs:
 
     - name: Extract moving tags for docker image
       id: meta
-      uses: ./.github/actions/docker/metadata-action
+      uses: $/.github/actions/docker/metadata-action
       with:
         images: ${{ inputs.image }}
 

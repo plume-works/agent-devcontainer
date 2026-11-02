@@ -13,6 +13,7 @@ sources:
 - resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
 stage: done
 completed: 2026-10-08
+released: 2.0.0
 ---
 
 # Keep agentdev enabled in the responder and collect review passes in the foreground

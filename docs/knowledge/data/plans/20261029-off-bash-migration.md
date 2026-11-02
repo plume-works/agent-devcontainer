@@ -29,6 +29,7 @@ sources:
 - resource: https://github.com/anthropics/claude-code-action/blob/v1/action.yml
 stage: done
 completed: 2026-10-31
+released: 2.0.0
 ---
 
 # Replace the runtime shell scripts with one agentdev-runtime CLI

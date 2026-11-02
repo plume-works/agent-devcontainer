@@ -12,7 +12,7 @@ generated:
 *One page per shipped version in `releases/<version>.md`, sorted by version,
 each aggregating as inclusion links the features it added, the released features
 it changed, and the fixes it shipped. The ship skill's release cut writes each
-page from the plans completed since the previous release, and adds one dated
-group to the [update log](log.md).*
+page from the done plans no earlier cut took, and adds one dated group to the
+[update log](log.md).*
 
 [0.1.0](releases/0.1.0.example)

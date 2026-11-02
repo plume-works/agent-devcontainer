@@ -7,6 +7,7 @@ generated:
   at: 2026-09-06T05:35:53Z
 stage: done
 completed: 2026-09-06
+released: 1.0.0
 ---
 
 # Digest masks for map docs

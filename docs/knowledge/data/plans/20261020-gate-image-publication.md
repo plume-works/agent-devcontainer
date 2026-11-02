@@ -3,6 +3,7 @@ type: plan
 stage: done
 created: 2026-10-20
 completed: 2026-10-20
+released: 2.0.0
 release:
 - bugs/ci-publishes-images-before-acceptance
 description: Publish ubuntu-ansible, agent-desktop, and agent-opencode under their moving tags only after the same run's devcontainer checks and runtime acceptance pass.

@@ -15,6 +15,7 @@ sources:
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 stage: done
 completed: 2026-08-24
+released: 1.0.0
 ---
 
 # Preserve approved wording across the explore handoff

@@ -14,6 +14,7 @@ sources:
 - resource: https://opencode.ai/docs/config/
 stage: done
 completed: 2026-10-18
+released: 2.0.0
 ---
 
 # Configure devcontainer OpenCode for full access

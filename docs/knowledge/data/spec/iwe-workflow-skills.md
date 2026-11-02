@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T12:00:00Z
+  at: 2026-11-02T00:30:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -32,6 +32,9 @@ sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .github/workflows/validate-knowledge-base.yml
 - resource: docs/knowledge/tests/test_hub_order.py
+- resource: docs/knowledge/tests/test_no_status_field.py
+- resource: docs/knowledge/tests/test_reserved_file_shapes.py
+- resource: .pre-commit-config.yaml
 ---
 
 # IWE workflow skills
@@ -760,11 +763,11 @@ priority change.
 
 ### Requirement: A release cut is the only writer of release pages and the log
 
-The release cut SHALL build `releases/<X.Y.Z>.md` from the plans whose
-`completed` date falls after the previous release's date, taking entries only
-from each plan's `release` list, SHALL link the page from `data/releases.md`,
-and SHALL add one dated group to `data/log.md`. No other operation SHALL write a
-release page or the log.
+The release cut SHALL build `releases/<X.Y.Z>.md` from the done plans that carry
+no `released` field, taking entries only from each plan's `release` list, SHALL
+set `released: <X.Y.Z>` on each plan it took, SHALL link the page from
+`data/releases.md`, and SHALL add one dated group to `data/log.md`. No other
+operation SHALL write a release page or the log.
 
 #### Scenario: A release is cut
 
@@ -773,22 +776,44 @@ release page or the log.
   Added, each feature present in an earlier release under Changed, and each bug
   under Fixed, with one link per document
 
+#### Scenario: A plan ships on the day of a cut
+
+- **WHEN** a plan ships after a release cut on the same day
+- **THEN** that cut's plans carry `released` and this plan does not, so the next
+  cut takes it
+
 #### Scenario: A release cut resumes
 
 - **WHEN** a prior release cut already wrote some of its results
 - **THEN** the cut preserves them and writes no second release link or log group
 
-### Requirement: Workflow improvements preserve the IWE model
+### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
 workflow, graph links, durable specs, existing stage conventions, provenance
 requirements, and schema validation. Risk-scaled spec deltas SHALL remain
 embedded planning content without introducing OpenSpec change bundles, stores,
 separate delta files, archive moves, or a claimed programmatic delta application
-engine.
+engine. The graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md`
+lists the hubs, `data/log.md` stays date-grouped, and the `okf`, `okf-index`,
+and `okf-log` schemas check every document — and SHALL diverge from OKF only
+where OKF costs merges or upkeep. The one divergence SHALL be that no document
+under `data/` sets OKF's optional `status`, because `stage` is the lifecycle
+field; a pre-commit check SHALL reject a document that sets it.
 
 #### Scenario: Updated skills write project memory
 
 - **WHEN** an updated skill creates or meaningfully changes an IWE document
-- **THEN** it follows the existing metadata, graph membership, normalization,
-  validation, and commit requirements defined by the workspace
+- **THEN** it follows the existing OKF metadata, graph membership,
+  normalization, validation, and commit requirements defined by the workspace
+
+#### Scenario: A document sets status
+
+- **WHEN** a document under `data/` carries a `status` field
+- **THEN** the pre-commit check fails and names the document
+
+#### Scenario: A reserved file loses its OKF shape
+
+- **WHEN** `data/index.md` or `data/log.md` departs from the shape its OKF
+  schema defines
+- **THEN** `iwe schema validate` fails and names the file

@@ -66,9 +66,10 @@ software project's memory and system of record. The division of labor:
      removed.
    - Task dropped → `stage: cancelled` on the task doc, `rank` removed.
    - Release cut → ship skill's release mode: it builds
-     `data/releases/<X.Y.Z>.md` from the plans completed since the previous
-     release and their `release` lists, links it from `data/releases.md`, and
-     adds one dated group to `data/log.md`. Nothing else writes either.
+     `data/releases/<X.Y.Z>.md` from the done plans without `released` and their
+     `release` lists, sets `released: <X.Y.Z>` on each, links it from
+     `data/releases.md`, and adds one dated group to `data/log.md`. Nothing else
+     writes either.
 5. **Stamp** — every document you create or meaningfully change gets
    `generated: { by: <producer>/<model-version>, at: <ISO 8601 now> }` (an actor
    as `SCHEMA.md` defines it), a one-sentence `description` if it has none, and

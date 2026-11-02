@@ -24,6 +24,10 @@ frontmatter:
       type: string
       format: date
       description: completed must be a YYYY-MM-DD date
+    released:
+      type: string
+      pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
+      description: 'released must be the X.Y.Z version whose release cut took this done plan'
     release:
       description: 'release must be internal, or a non-empty list of features/<slug> and bugs/<slug> keys the work adds, changes, or fixes'
       anyOf:

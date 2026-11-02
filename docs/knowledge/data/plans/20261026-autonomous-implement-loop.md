@@ -16,6 +16,7 @@ sources:
 - resource: scripts/e2e/iwe-workflows/clone.py
 stage: done
 completed: 2026-10-27
+released: 2.0.0
 ---
 
 # Let Implement verify, fix, and revise on its own

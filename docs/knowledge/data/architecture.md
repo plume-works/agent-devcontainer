@@ -119,6 +119,8 @@ re-review](architecture/rereview-gate-pending.md)
 
 [Self-improve runtime](architecture/self-improve-runtime.md)
 
+[Self-repository `uses:` syntax](architecture/self-repository-uses.md)
+
 [Testing sibling workspaces in
 devcontainers](architecture/sibling-devcontainer-testing.md)
 

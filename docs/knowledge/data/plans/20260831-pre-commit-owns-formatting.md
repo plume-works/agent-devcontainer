@@ -7,6 +7,7 @@ generated:
   at: 2026-08-31T00:00:00Z
 stage: done
 completed: 2026-08-31
+released: 1.0.0
 ---
 
 # Let pre-commit own formatting
