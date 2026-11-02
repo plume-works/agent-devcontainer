@@ -383,10 +383,16 @@ loop:
 `py_packages/agentdev_runtime/README.md`, `scripts/refresh-pin-checksums.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] The pinned download, its Renovate comment and checksums, the three install
+- [x] The pinned download, its Renovate comment and checksums, the three install
   tasks, the deploy image's copy, the runtime registration and
   `AGENTDEV_GH_STACK_DIR`, the checksum refresh entry, and the acceptance
   check's `gh stack --help` are gone
+  - **Evidence:** commit `41df675c` deletes `github_cli/defaults/main.yml`,
+    which held only the gh-stack pin, and removes the install tasks, the deploy
+    image's copy, `register_user_tools` and its call, `AGENTDEV_GH_STACK_DIR`
+    and its README row, the `refresh-pin-checksums.py` entry, and the acceptance
+    check's `gh stack --help`; `uv run pytest py_packages/agentdev_runtime` — 86
+    passed.
 
 ### Task 11: The repository rules
 
