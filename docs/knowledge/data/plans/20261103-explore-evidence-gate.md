@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-03
 created: 2026-11-03
 release:
 - features/agentdev-iwe-workflow-skills
@@ -9,7 +11,6 @@ generated:
   at: 2026-11-03T01:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
-rank: 125
 ---
 
 # Explore proposes only for observed problems
