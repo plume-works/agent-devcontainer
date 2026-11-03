@@ -97,6 +97,9 @@ flaky](backlog/supervision-orphan-kill-test-cause.md)
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 
+[Fix a broken verification command as a tactical
+correction](backlog/verification-command-fix-is-tactical.md)
+
 [Verify that auto-merge waits for an assignee-triggered
 review](backlog/verify-assignee-review-automerge.md)
 
