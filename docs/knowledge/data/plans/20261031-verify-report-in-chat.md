@@ -195,11 +195,17 @@ Nothing refers to a finding across reports by ID.
     assistant message);
     `uv run pytest scripts/tests/test_e2e_iwe_workflows_claude_transcript.py scripts/tests/test_e2e_iwe_workflows_opencode_transcript.py`
     passes, covering both, at that commit.
-- [ ] `scenarios.py` gains a helper that takes a saved report (the
+- [x] `scenarios.py` gains a helper that takes a saved report (the
   `Clone.saved_report` text) and a final message, and holds when the report
   body's lead line and every finding line opening with a `C<n>`, `W<n>`, or
   `S<n>` ID appear in the final message. Lines are compared after stripping
   surrounding whitespace.
+  - **Evidence:** Commit `aef6a780` adds `scenarios.shows_report` (with
+    `report_lines`): it holds when the saved report body lead line and every
+    `C<n>`/`W<n>`/`S<n>` finding line appear, whitespace-stripped, in the final
+    message;
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_report_shown.py` passes
+    (shown, path-only, missing finding, missing lead, empty) at that commit.
 
 ### Task 8: Assert the report is shown on Claude Code
 
