@@ -207,7 +207,8 @@ Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 70 tests.
 - [x] The scenarios run on Claude Code against the rulebooks this plan changes,
   before the change.
-  - **Evidence:** `E2E_RUN_LIVE=1 uv run pytest -n 3` on 33865c4e: failing are
+  - **Evidence:** `E2E_RUN_LIVE=1 uv run pytest -n 3` on df0f7636, with
+    `test_ship_waits_for_observation` rerun on 33865c4e: failing are
     `test_verify_lists_observation`, `test_implement_files_warning`,
     `test_plan_marks_post_merge_observation`,
     `test_plan_keeps_verification_runnable`, `test_plan_names_mechanism_limit`,
