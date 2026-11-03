@@ -57,6 +57,12 @@ check, or refusal gate".
   `/agentdev:iwe-implement-all`; no caller follows the auditor's rulebook in
   place.
 
+- `iwe-shipper` gains the `Agent` tool and dispatches `iwe-verifier` itself
+  from a fresh context, so only `iwe-verifier`'s report enters `iwe-shipper`'s
+  context. `data/backlog/ship-verifies-before-dispatch` proposed
+  `/agentdev:iwe-ship` dispatching `iwe-verifier` instead; its intent changes
+  to match.
+
 ## Findings
 
 - `iwe` 0.29.3 accepts conditionals in a document schema only inside
@@ -82,19 +88,23 @@ check, or refusal gate".
   after the user approves the report table. The `Durable Knowledge Auditor`
   agent has no `Edit` or `Write` tool.
 
-- Claude Code 2.1.306 was observed nesting to depth 3
-  (`data/architecture/nested-subagent-dispatch`); depths 4 and 5 are unverified
-  on both harnesses.
+- Claude Code 2.1.316 nests to depth 3 by default: the agent at the limit is
+  not offered the `Agent` tool, even when its `tools:` lists it, and nothing
+  errors. The environment variable `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets
+  the limit; a server-side feature flag can also change the default. With the
+  variable at `5` a chain reached depth 5 and the depth-5 agent had no `Agent`
+  tool; at `6` it reached depth 6. Evidence: each subagent's `.meta.json`
+  `spawnDepth` and the `result` event's `subagent_stats.max_depth`. OpenCode
+  depths above 2 are unverified.
 - On Claude Code an agent can dispatch only when its `tools:` list includes
   `Agent` or is omitted. `iwe-shipper`, `iwe-implementer`, and the `Durable
 Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-With nesting allowed, does `data/backlog/ship-verifies-before-dispatch` still
-stand — `/agentdev:iwe-ship` dispatches `iwe-verifier` before `iwe-shipper` —
-or does `iwe-shipper` gain the `Agent` tool and dispatch `iwe-verifier` itself
-from a fresh context?
+Claude Code's default nesting depth is 3, below the `5` chosen for OpenCode. Does
+the devcontainer also set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5` for Claude
+Code, so both harnesses nest to depth 5?
 
 ## Queued
 
