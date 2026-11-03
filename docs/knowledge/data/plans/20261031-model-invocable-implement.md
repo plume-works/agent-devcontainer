@@ -159,11 +159,17 @@ Rejected:
 `scripts/e2e/iwe-workflows/harness_opencode.py`,
 `scripts/e2e/iwe-workflows/harness_claude.py`
 
-- [ ] On Claude Code and OpenCode, a plain prompt asking to implement
+- [x] On Claude Code and OpenCode, a plain prompt asking to implement
   `GREET_KEY`, with no command, loads the `iwe-implement` skill through the
   skill tool and reads `RULEBOOK` in session, with the same tree assertions as
   `test_implement`. The OpenCode harness gains a run that posts a prompt instead
   of a command.
+  - **Evidence:** commit 4c03b7d6 adds `test_implement_requested` to both
+    suites, sharing `assert_greet_stopped` with `test_implement`, and
+    `OpenCodeServer.prompt`, which posts to `/api/session/<id>/prompt`; at that
+    commit
+    `OPENCODE_BIN=opencode uv run pytest scripts/tests/test_e2e_iwe_workflows_opencode_server.py`
+    — 4 passed.
 - [ ] On Claude Code and OpenCode, `/agentdev:iwe-plan` asked to plan a small
   change "and then build it" loads no `iwe-implement` skill, dispatches no
   `iwe-implementer`, edits nothing outside `docs/knowledge/`, and its final
