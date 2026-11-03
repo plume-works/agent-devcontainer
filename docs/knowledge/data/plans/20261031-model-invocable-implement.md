@@ -82,8 +82,11 @@ Rejected:
   - **Evidence:** commit a964f0be drops the key from the frontmatter;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reports 61/61 skills valid at that commit.
-- [ ] The description says the skill is for a request that names a plan to
+- [x] The description says the skill is for a request that names a plan to
   implement, so a request with no plan does not match it.
+  - **Evidence:** commit a964f0be — the description reads "Use only when the
+    request names the plan to implement; a request to build something with no
+    plan named does not match."
 - [ ] The body follows the rulebook "for the plan the request names" instead of
   "the plan the user named", and keeps its rule that only
   `/agentdev:iwe-implement-all` dispatches `iwe-implementer`.
