@@ -11,7 +11,7 @@ sources:
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
-- resource: docs/knowledge/data/someday/nested-catalog-agent-dispatch.md
+- resource: docs/knowledge/data/backlog/nested-catalog-agent-dispatch.md
 ---
 
 # Nested agent dispatch
