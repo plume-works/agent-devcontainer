@@ -125,9 +125,12 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] The opening paragraph and step 8's report say Plan never loads
+- [x] The opening paragraph and step 8's report say Plan never loads
   `/agentdev:iwe-implement`, never dispatches `iwe-implementer`, and never names
   Implement as a next step; the report ends at readiness.
+  - **Evidence:** commit fc486edb adds the rule to the opening paragraph and to
+    step 8's report ("The report ends at readiness: it never names Implement as
+    a next step"); the validator reports 61/61 valid at that commit.
 - [ ] The **From the Implement orchestrator** mode is unchanged: the
   orchestrator follows Plan, and Plan never calls back into Implement.
 
