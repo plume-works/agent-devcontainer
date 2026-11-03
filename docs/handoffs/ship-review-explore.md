@@ -95,6 +95,15 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
   `data/plans/20261102-bug-lifecycle-and-sections`, which is not edited
   (`AGENTS.md` `## Project memory`: references point newer to older).
 
+- Every plan already at `stage: done` gets a `## Ship review` backfilled by
+  `iwe-ship-reviewer` in ship mode, which exercises the agent on real plans.
+  After the backfill the checker CLI requires the section on every plan at
+  `stage: done`, not only checks its shape where it exists.
+- The checker CLI works in every pre-commit mode: on the staged files of a
+  commit, on a `--from-ref`/`--to-ref` range as
+  `.github/workflows/primary-checks.yml` runs it, and with `--all-files` as
+  `.github/workflows/ci.yml` runs it.
+
 ## Out of scope
 
 - Refactoring `/agentdev:iwe-audit` and the `Durable Knowledge Auditor` agent
@@ -145,11 +154,19 @@ Knowledge Auditor` agent list tools without `Agent`.
   digest. Ship's own commit moves `HEAD`, so a re-dispatched `iwe-shipper` that
   starts at its step 3 misses the saved report and runs Verify in full.
 
+- 96 plans are at `stage: done` and none at `stage: cancelled` as of commit
+  `12ab309f`.
+
 ## Current question
 
-How is the work split into plans? The pieces: nesting depth 5 on both
-harnesses; `iwe-shipper` dispatching `iwe-verifier`; the checker CLI for a done
-bug's `## Fix` and the `## Ship review` shape; `iwe-ship-reviewer` with its
-plan mode and ship mode; `/agentdev:iwe-plan-review` and `iwe-planner` step 7
-calling it; `iwe-shipper`'s fix operation and the review loop in
-`/agentdev:iwe-ship`.
+The split into plans, with the backfill placed before the checker CLI requires
+`## Ship review`:
+
+| #   | Plan                                                                                                         | Depends on |
+| --- | ------------------------------------------------------------------------------------------------------------ | ---------- |
+| 1   | Nesting depth 5 on both harnesses                                                                            | —          |
+| 2   | Checker CLI and pre-commit hook: a done bug has `## Fix`; `## Ship review` has the fixed shape where present | —          |
+| 3   | `iwe-shipper` gains `Agent` and dispatches `iwe-verifier`                                                    | 1          |
+| 4   | `iwe-ship-reviewer` in both modes, `iwe-shipper`'s fix operation, the loop in `/agentdev:iwe-ship`           | 1, 2       |
+| 5   | Backfill `## Ship review` on every done plan; the checker CLI then requires it                               | 4          |
+| 6   | `/agentdev:iwe-plan-review`, called from `iwe-planner` step 7                                                | 4          |
