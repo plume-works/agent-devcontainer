@@ -605,6 +605,30 @@ def test_custom_ids_own_their_files_and_keep_sudo(make_runtime, scratch: Path):
     assert (checkout / 'made-here').stat().st_uid == 2345
 
 
+def make_ca_and_leaf(root: Path) -> tuple[Path, Path]:
+    """Create a throwaway CA and a leaf certificate it signed; return both PEM paths."""
+    for command in (
+        'req -x509 -newkey rsa:2048 -nodes -days 2 -subj /CN=ca -keyout ca.key -out ca.crt',
+        'req -newkey rsa:2048 -nodes -subj /CN=leaf -keyout leaf.key -out leaf.csr',
+        'x509 -req -days 2 -CA ca.crt -CAkey ca.key -CAcreateserial -in leaf.csr -out leaf.crt',
+    ):
+        subprocess.run(['openssl', *command.split()], cwd=root, capture_output=True, check=True)
+    return root / 'ca.crt', root / 'leaf.crt'
+
+
+def test_an_extra_ca_bundle_is_trusted_through_the_system_store(make_runtime, scratch: Path):
+    ca, leaf = make_ca_and_leaf(scratch)
+    runtime = make_runtime(
+        workspace=bind(make_checkout(scratch / 'project')),
+        options=['-v', f'{ca}:/etc/agentdev/extra-ca.crt:ro', '-v', f'{leaf}:/srv/leaf.crt:ro'],
+    )
+    runtime.run()
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    runtime.sh('openssl verify /srv/leaf.crt')
+    runtime.sh('openssl verify -CAfile "$SSL_CERT_FILE" /srv/leaf.crt')
+    assert 'trusted 1 extra CA certificate(s)' in runtime.logs()
+
+
 def test_preparation_failure_keeps_opencode_unavailable(make_runtime):
     runtime = make_runtime(workspace=[], AGENTDEV_REPOSITORY_URL='file:///nonexistent.git')
     runtime.run()
