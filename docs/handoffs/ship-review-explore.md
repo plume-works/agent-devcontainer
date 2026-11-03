@@ -60,6 +60,26 @@ check, or refusal gate".
   order on every plan, and every item ticked with either `confirmed:` and its
   evidence or `N/A:` and the reason it does not apply.
 
+- The fixed structure of `## Ship review`, which the pre-commit checker CLI also
+  checks on a plan at `stage: done`: no commit SHAs, and no item for
+  `iwe normalize` or `iwe schema validate`, which pre-commit already runs.
+
+```markdown
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
+
+- [x] Verify reported zero CRITICAL — confirmed: <Verify's verdict line>
+- [x] Every `## Spec changes` operation is in its spec — confirmed: <spec keys> | N/A: `## Spec changes` is None
+- [x] Every spec the plan created is linked from `data/spec.md` — confirmed: <keys> | N/A: no spec created
+- [x] Every spec the plan retired was removed with `iwe delete` — confirmed: <keys> | N/A: no spec retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: <completed date>
+- [x] Every feature in `release` is `stage: implemented` — confirmed: <keys> | N/A: `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: <keys> | N/A: `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: <keys> | N/A: `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
+```
+
 ## Out of scope
 
 - Refactoring `/agentdev:iwe-audit` and the `Durable Knowledge Auditor` agent
@@ -107,29 +127,10 @@ Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-Is this the fixed structure of `## Ship review`? Each item is one obligation
-from the steps of `iwe-shipper.agent.md`.
-
-```markdown
-## Ship review
-
-Reviewed by `iwe-ship-reviewer` on commit `<sha>`, <YYYY-MM-DD>.
-
-- [x] Verify reported zero CRITICAL on the shipped commit — confirmed: <saved report's commit>
-- [x] Every `## Spec changes` operation is in its spec — confirmed: <spec keys> | N/A: `## Spec changes` is None
-- [x] Every spec the plan created is linked from `data/spec.md` — confirmed: <keys> | N/A: no spec created
-- [x] Every spec the plan retired was removed with `iwe delete` — confirmed: <keys> | N/A: no spec retired
-- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: <completed date>
-- [x] Every feature in `release` is `stage: implemented` — confirmed: <keys> | N/A: `release` lists no feature
-- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: <keys> | N/A: `release` lists no bug
-- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: <keys> | N/A: `release` lists no bug
-- [x] The ship commit edits no hub, release page, or `data/log.md` — confirmed: <commit>
-- [x] `iwe normalize` and `iwe schema validate` pass on the ship commit — confirmed: <commit>
-```
+Who writes the follow-up commit when `iwe-ship-reviewer` finds a gap after
+`iwe-shipper` commits: a re-dispatched `iwe-shipper`, or `/agentdev:iwe-ship`?
 
 ## Queued
 
-- Who writes the follow-up commit when `iwe-ship-reviewer` finds a gap after
-  `iwe-shipper` commits: a re-dispatched `iwe-shipper`, or `/agentdev:iwe-ship`.
 - Recording the reversal of the "no schema rule, CI check, or refusal gate"
   decision in `data/plans/20261102-bug-lifecycle-and-sections`.
