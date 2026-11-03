@@ -102,9 +102,13 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] The **In the user's session** mode covers a session that loaded
+- [x] The **In the user's session** mode covers a session that loaded
   `/agentdev:iwe-implement` on the user's command, on a plain request, or on a
   message from another session such as a coordinator.
+  - **Evidence:** commit 8ede183b — the mode opens "the session loaded
+    `/agentdev:iwe-implement` on the user's command, on a plain request, or on a
+    message from another session such as a coordinator"; the validator reports
+    61/61 valid at that commit.
 - [ ] The mode states that the plan comes from the request, that a decision the
   rulebook asks for is answered by this session's own user or by an approval of
   the user's that a coordinator's message relays, and that while waiting the
