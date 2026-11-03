@@ -183,15 +183,22 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 — `Shipped`, `Cancelled`, `Released <X.Y.Z>`, `Blocked`, or
 `Needs decision` — and the plan key, then:
 
-- **Verify verdict** — zero-CRITICAL or the CRITICAL count, for normal
-  shipping, and `saved report from <commit>` when the skill returned one.
+- **Verify report** — whenever Verify produced a report, carry it verbatim
+  here, after the lead line and before the Ship summary, led by
+  `Saved Verify report from <commit>` when the skill returned a saved one. A
+  path to the saved report, or the report in a tool result only, is not a
+  substitute.
 - **Completed** and **preserved** operations, and the commit.
 - **Needs decision** — the exact command or choice and why, when you stopped
   for one.
 
-A **Ship blocker report** leads with `Blocked` and lists every blocker — each
-CRITICAL, or each intent-versus-implementation mismatch — with its `path:line`
-evidence. It names the plan and, for each blocker, the route that answers it:
+A **Ship blocker report** leads with `Blocked`, names the plan, and lists every
+blocker with the route that answers it (below). A Verify CRITICAL is listed by
+its ID and route only — `C2: /agentdev:iwe-implement` — because the Verify
+report above already states it. Each blocker Ship found on its own — an
+intent-versus-implementation mismatch, a failed spec merge, a missing or
+unresolvable `release` declaration — is written out in full with its
+`path:line` evidence and route, because no Verify report holds it.
 
 - **Code or verification failure** — a failing `## Verification` command, a
   requirement or task with no implementation, missing evidence:
