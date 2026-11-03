@@ -233,8 +233,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] Completeness accepts a CI job as evidence for behaviour only CI exercises
+- [x] Completeness accepts a CI job as evidence for behaviour only CI exercises
   when the job exercises it, without requiring a run on the current head.
+
+  - **Evidence:** commit c03d084c adds the CI-job sentence to Completeness in
+    `iwe-verifier.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] Correctness judges coverage by the `iwe-planner` coverage rule (Task 2),
   and replaces "(uncovered scenario is a WARNING)" with this approved sentence
