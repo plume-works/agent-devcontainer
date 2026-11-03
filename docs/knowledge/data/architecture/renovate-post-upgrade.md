@@ -9,6 +9,7 @@ sources:
 - resource: scripts/renovate-post-upgrade.py
 - resource: scripts/refresh-pin-checksums.py
 - resource: scripts/fetch-pinned-tool.py
+- resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 - resource: .github/workflows/primary-checks.yml
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/execute-post-upgrade-commands.ts
   title: Post-upgrade output is kept only where its path matches fileFilters
@@ -44,10 +45,15 @@ derives the bump from `git diff HEAD` in Renovate's clone and, in order:
 Any failure fails the branch, so no pull request carries a version beside a
 stale checksum or lock.
 
-`refresh-pin-checksums.py` renders each download URL from the consuming role's
-own templates — the `dev_tools` install task's expressions, or a
-`*_download_url` default — so it fetches exactly what the image build fetches. A
-new checksum-carrying pin needs its file registered in `PIN_FILES`.
+`refresh-pin-checksums.py` renders each download URL from its consumer's own
+templates — the `dev_tools` install task's expressions, a `*_download_url`
+default, or the macOS bootstrap's `install_release` calls and `arch=` case arms
+— so it fetches exactly what that consumer fetches. A new checksum-carrying pin
+needs its file registered in `PIN_FILES`.
+
+The macOS bootstrap pins the same release tools as `dev_tools`, and the
+`ansible role dependency pins` group covers both files, so one pull request
+moves a tool's Linux and darwin pins together.
 
 ## `fileFilters` enumerates every path Renovate edits
 

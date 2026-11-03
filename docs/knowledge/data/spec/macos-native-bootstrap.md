@@ -7,7 +7,8 @@ generated:
 sources:
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 - resource: .agents/plugins/agentdev/tests/test_macos_bootstrap.py
-- resource: scripts/tests/test_macos_bootstrap_pins.py
+- resource: scripts/tests/test_refresh_pin_checksums.py
+- resource: .github/renovate.json
 - resource: .github/workflows/validate-agent-files.yml
 - resource: docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
 ---
@@ -56,8 +57,9 @@ default `python3` executable in `~/.local/bin`.
 
 The script SHALL install `iwe`, `iwes`, and `codebase-memory-mcp` into
 `~/.local/bin` from their GitHub release darwin archives, at the versions
-`ansible/roles/dev_tools` pins, and SHALL verify each archive's SHA-256 before
-installing anything from it. It SHALL NOT install `iwec`.
+`ansible/roles/dev_tools` pins, which Renovate moves in the same pull request,
+and SHALL verify each archive's SHA-256 before installing anything from it. It
+SHALL NOT install `iwec`.
 
 #### Scenario: Checksum mismatch
 

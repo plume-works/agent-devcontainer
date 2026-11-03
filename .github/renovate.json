@@ -7,6 +7,7 @@
     "executionMode": "branch",
     "fileFilters": [
       "ansible/**",
+      ".agents/plugins/agentdev/bin/macos-bootstrap.zsh",
       ".iwe/**",
       "docs/knowledge/**",
       ".devcontainer/**",
@@ -86,9 +87,12 @@
       "platformAutomerge": true
     },
     {
-      "description": "The provisioning tools the Ansible roles pin, including the checksum-carrying downloads. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a role half-updated. That is what makes batching and automerge safe here.",
+      "description": "The provisioning tools the Ansible roles pin, including the checksum-carrying downloads, and the macOS bootstrap's pins of the same release tools, so a tool's Linux and macOS pins move in one pull request. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a pin half-updated. That is what makes batching and automerge safe here.",
       "matchManagers": ["custom.regex"],
-      "matchFileNames": ["ansible/roles/*/defaults/main.yml"],
+      "matchFileNames": [
+        "ansible/roles/*/defaults/main.yml",
+        ".agents/plugins/agentdev/bin/macos-bootstrap.zsh"
+      ],
       "groupName": "ansible role dependency pins",
       "automerge": true,
       "automergeType": "pr",
@@ -120,6 +124,16 @@
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\n\\s*version: (?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "description": "Release-tool versions in the macOS bootstrap: a `typeset -r` constant under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.agents/plugins/agentdev/bin/macos-bootstrap\\.zsh$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\ntypeset -r [A-Z0-9_]+=(?<currentValue>\\S+)"
       ]
     },
     {

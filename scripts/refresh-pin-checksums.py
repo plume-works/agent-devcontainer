@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Recompute the per-architecture SHA-256 of pinned downloads in Ansible role defaults.
+Recompute the per-architecture SHA-256 of pinned downloads in their pin files.
 
-Each pin's download URL is rendered from the consuming role's own Jinja templates, so the
-script fetches exactly what the image build fetches. Every pin in a given file is hashed:
+Each pin's download URL is rendered from its consumer's own templates — an Ansible role's
+Jinja, or the macOS bootstrap's zsh — so the script fetches exactly what that consumer fetches. Every pin in a given file is hashed:
 a bumped pin gets its checksums rewritten, and a pin whose version matches ``HEAD`` must
 hash to its recorded value, or the tag moved under it. Any failure leaves every file as it
 was and exits non-zero. Files that carry no known pins are ignored.
@@ -15,6 +15,7 @@ import argparse
 from dataclasses import dataclass
 import hashlib
 from pathlib import Path
+import re
 import subprocess
 import sys
 from typing import Any
@@ -49,6 +50,10 @@ class ToolListPins:
 
     list_var: str
     task_file: str
+
+    def load(self, text: str) -> Any:
+        """Parse the pin file."""
+        return yaml.safe_load(text)
 
     def versions(self, defaults: dict[str, Any]) -> dict[str, str]:
         """Map each tool's name to its version."""
@@ -91,6 +96,10 @@ class VariablePin:
     checksums_var: str
     arch_var: str
 
+    def load(self, text: str) -> Any:
+        """Parse the pin file."""
+        return yaml.safe_load(text)
+
     def versions(self, defaults: dict[str, Any]) -> dict[str, str]:
         """Map the pin's version variable to its version."""
         return {self.version_var: str(defaults[self.version_var])}
@@ -105,7 +114,81 @@ class VariablePin:
         return [Pin(self.version_var, str(defaults[self.version_var]), urls, checksums)]
 
 
-PIN_FILES: dict[str, ToolListPins | VariablePin] = {
+@dataclass(frozen=True)
+class ZshReleasePins:
+    """
+    Release downloads a zsh script passes to ``install_release`` and checks in ``SHA256``.
+
+    Constants are ``typeset -r NAME=value`` lines; each ``*_VERSION`` constant a download URL
+    names is that pin's version. Per-architecture variables come from the ``arch=`` case arms.
+    """
+
+    def load(self, text: str) -> str:
+        """Keep the script's text: it is parsed per query."""
+        return text
+
+    def versions(self, text: str) -> dict[str, str]:
+        """Map each version constant a download URL names to its value."""
+        return {pin.key: pin.version for pin in self._calls(text)}
+
+    def pins(self, text: str, repo_root: Path) -> list[Pin]:
+        """Return one pin per ``install_release`` call."""
+        return self._calls(text)
+
+    def _calls(self, text: str) -> list[Pin]:
+        constants = dict(re.findall(r'^typeset -r (\w+)=(\S+)$', text, re.MULTILINE))
+        block = re.search(r'^typeset -rA SHA256=\(\n(.*?)^\)$', text, re.MULTILINE | re.DOTALL)
+        if block is None:
+            raise RefreshError('no SHA256 map found')
+        digests = dict(re.findall(r'^\s*(\S+) ([0-9a-f]{64})$', block.group(1), re.MULTILINE))
+        arms = {}
+        for assignments in re.findall(r'^\s*\S+\)\s+(arch=\w+(?: \w+=\S+)*) ;;$', text, re.M):
+            variables = dict(item.split('=', 1) for item in assignments.split())
+            arms[variables['arch']] = variables
+        calls = re.findall(r'^\s*install_release (\S+) \\\n\s*(\S+) \\$', text, re.MULTILINE)
+        if not calls or set(arms) != set(ARCHITECTURES):
+            raise RefreshError('no install_release calls or arch case arms found')
+        pins = []
+        for key_template, url_template in calls:
+            versions = sorted(
+                {name for name in _zsh_names(url_template) if name.endswith('_VERSION')}
+            )
+            if len(versions) != 1:
+                raise RefreshError(f'{url_template}: names {len(versions)} version constants')
+            urls, checksums = {}, {}
+            for arch in ARCHITECTURES:
+                context = {**constants, **arms[arch]}
+                urls[arch] = _render_zsh(url_template, context)
+                key = _render_zsh(key_template, context)
+                if key not in digests:
+                    raise RefreshError(f'SHA256 records no digest for {key}')
+                checksums[arch] = digests[key]
+            pins.append(Pin(versions[0], constants[versions[0]], urls, checksums))
+        return pins
+
+
+ZSH_PARAMETER = re.compile(r'\$\{?(\w+)\}?')
+
+
+def _zsh_names(template: str) -> list[str]:
+    """Return the parameter names a zsh word expands."""
+    return ZSH_PARAMETER.findall(template)
+
+
+def _render_zsh(template: str, context: dict[str, str]) -> str:
+    """Expand the plain ``$name`` parameters of a zsh word."""
+
+    def value(match: re.Match[str]) -> str:
+        if match.group(1) not in context:
+            raise RefreshError(f'cannot render {template!r}: ${match.group(1)} is unknown')
+        return context[match.group(1)]
+
+    return ZSH_PARAMETER.sub(value, template)
+
+
+PinSpec = ToolListPins | VariablePin | ZshReleasePins
+
+PIN_FILES: dict[str, PinSpec] = {
     'ansible/roles/dev_tools/defaults/main.yml': ToolListPins(
         list_var='dev_tools_pinned_tools',
         task_file='ansible/roles/dev_tools/tasks/install_pinned_tool.yml',
@@ -122,6 +205,7 @@ PIN_FILES: dict[str, ToolListPins | VariablePin] = {
         checksums_var='xpra_setup_virtualgl_checksums',
         arch_var='xpra_setup_virtualgl_arch',
     ),
+    '.agents/plugins/agentdev/bin/macos-bootstrap.zsh': ZshReleasePins(),
 }
 
 
@@ -150,7 +234,7 @@ def _sha256_of_url(url: str) -> str:
     return digest.hexdigest()
 
 
-def _head_versions(path: str, spec: ToolListPins | VariablePin, repo_root: Path) -> dict[str, str]:
+def _head_versions(path: str, spec: PinSpec, repo_root: Path) -> dict[str, str]:
     """Map each pin key to its version at ``HEAD``; empty when the file is new."""
     shown = subprocess.run(
         ['git', 'show', f'HEAD:{path}'],
@@ -161,7 +245,7 @@ def _head_versions(path: str, spec: ToolListPins | VariablePin, repo_root: Path)
     )
     if shown.returncode != 0:
         return {}
-    return spec.versions(yaml.safe_load(shown.stdout))
+    return spec.versions(spec.load(shown.stdout))
 
 
 def refreshed_text(path: str, repo_root: Path) -> str | None:
@@ -171,7 +255,7 @@ def refreshed_text(path: str, repo_root: Path) -> str | None:
         return None
     text = (repo_root / path).read_text()
     head_versions = _head_versions(path, spec, repo_root)
-    for pin in spec.pins(yaml.safe_load(text), repo_root):
+    for pin in spec.pins(spec.load(text), repo_root):
         bumped = head_versions.get(pin.key) != pin.version
         stale: dict[str, dict[str, str]] = {}
         for arch in ARCHITECTURES:
