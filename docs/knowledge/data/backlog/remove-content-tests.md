@@ -1,8 +1,9 @@
 ---
 type: task
-stage: pending
+stage: done
 priority: medium
 created: 2026-11-02
+completed: 2026-11-03
 description: Delete the tests that check file contents or another tool's work instead of running behaviour, as the AGENTS.md Tests rule requires.
 generated:
   by: claude-code/opus-5.5
@@ -13,7 +14,6 @@ sources:
 - resource: scripts/tests/test_macos_bootstrap_pins.py
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: https://github.com/plume-works/agent-devcontainer/pull/629
-rank: 197
 ---
 
 # Remove tests that check file contents instead of running behaviour

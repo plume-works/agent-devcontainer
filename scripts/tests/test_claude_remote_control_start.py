@@ -13,7 +13,6 @@ from scratch import TMP_ROOT
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = [sys.executable, '-m', 'agentdev_runtime', 'remote-control', 'start']
 PANE_SCRIPT = 'agentdev-runtime remote-control session'
-COMPOSE = REPO_ROOT / '.devcontainer/docker-compose.yml'
 CLAUDE_AI_LOGIN = {'loggedIn': True, 'authMethod': 'claude.ai'}
 # Prints $CLAUDE_TEST_STATUS for `claude auth status`, refusing a leaked setup token.
 FAKE_CLAUDE_AUTH = (
@@ -191,10 +190,6 @@ def test_skips_without_live_claude_ai_login(status, status_exit):
     result, calls = run_with_fake_tmux(status=status, status_exit=status_exit)
     assert result.returncode == 0, result.stderr
     assert calls == ''
-
-
-def test_compose_does_not_pass_setup_token():
-    assert 'CLAUDE_CODE_OAUTH_TOKEN' not in COMPOSE.read_text()
 
 
 def test_reuses_existing_session():
