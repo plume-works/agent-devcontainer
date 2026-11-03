@@ -148,8 +148,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `## Rules` says a plan carries no task or `## Verification` step whose
+- [x] `## Rules` says a plan carries no task or `## Verification` step whose
   only claim is that CI passes: `pr-merge` gates every merge on CI.
+
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] `## Rules` says behaviour observable only after merge is a task carrying a
   `**Closed by:** <who or what event>` line, and that Ship waits for it.
