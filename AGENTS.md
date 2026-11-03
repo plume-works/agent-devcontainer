@@ -51,6 +51,17 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
    OpenCode, use `openai/gpt-6.1-sol` as the big model and `openai/gpt-6-luna`
    as the small model. Use a costlier model only when the user names it.
 
+10. **Name things by their real names.** In every message, document, and
+    report, name each actor — the user, the session running a named skill
+    (`/agentdev:iwe-implement`), a catalog agent (`iwe-verifier`,
+    `iwe-revision-evaluator`) — and each artifact — a file path, a plan section
+    (`## Approach`), a requirement's title — by its real name. Never let a
+    pronoun or a nickname stand in for either ("the loop", "the evaluator",
+    "the weaker side"). Never use a label coined during the session (a rule
+    number, an option letter, "plan A") alone; if one is needed, define it in the
+    sentence that first uses it. Prefer "who does what to which file" over an
+    abstract summary.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
