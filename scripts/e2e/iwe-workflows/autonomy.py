@@ -51,6 +51,10 @@ PLAN_LIMIT = (
     ' differs from the digest stored in `e2e/hello.sha256`.'
 )
 _FINDING = re.compile(r'^[\s>*#-]*\**(CRITICAL|WARNING)\**\s*(?:[—:(-]|$)')
+# A harness may put its own hand-back preamble before the report's lead line.
+_LEAD = re.compile(
+    r'^[\s*#]*((?:Ready to ship|Blocked|Needs decision|Audit|Shipped|Cancelled)\b.*)$', re.M
+)
 _NONE = re.compile(r'\b(none|no findings?)\b|^\W*\w+\W*0\W*$', re.IGNORECASE)
 _SEARCH = re.compile(r'\b(git grep|rg|grep\s+-\w*[rR])\b')
 _CI_PASSES = re.compile(r'\b(CI|workflow|job|check)s?\b.*\b(pass|passes|green|succeeds?)\b', re.I)
@@ -114,9 +118,9 @@ def stub_warning_verifier(clone: Clone) -> str:
 
 
 def lead(report: str) -> str:
-    """Return a report's first non-empty line, without Markdown emphasis or heading marks."""
-    first = next((line for line in report.splitlines() if line.strip()), '')
-    return re.sub(r'[*#]', '', first).strip()
+    """Return a report's lead line, skipping any preamble the harness puts before it."""
+    found = _LEAD.search(report)
+    return found.group(1) if found else ''
 
 
 def findings(report: str, level: str) -> list[str]:
