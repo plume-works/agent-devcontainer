@@ -114,8 +114,12 @@ been written.
 
 **Files:** none
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** at commit `1d31a3f3`, which holds all three
+    `iwe-explore/SKILL.md` edits,
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    exits 0 (61/61 skills valid, 0 errors, 0 warnings).
 
 ## Spec changes
 
