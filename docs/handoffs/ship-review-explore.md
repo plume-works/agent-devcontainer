@@ -157,10 +157,10 @@ Knowledge Auditor` agent list tools without `Agent`.
 - 96 plans are at `stage: done` and none at `stage: cancelled` as of commit
   `12ab309f`.
 
-## Current question
+## Plans
 
-The split into plans, with the backfill placed before the checker CLI requires
-`## Ship review`:
+The work is six plans, filed in this order. Plan 3 replaces
+`data/backlog/ship-verifies-before-dispatch`.
 
 | #   | Plan                                                                                                         | Depends on |
 | --- | ------------------------------------------------------------------------------------------------------------ | ---------- |
@@ -170,3 +170,7 @@ The split into plans, with the backfill placed before the checker CLI requires
 | 4   | `iwe-ship-reviewer` in both modes, `iwe-shipper`'s fix operation, the loop in `/agentdev:iwe-ship`           | 1, 2       |
 | 5   | Backfill `## Ship review` on every done plan; the checker CLI then requires it                               | 4          |
 | 6   | `/agentdev:iwe-plan-review`, called from `iwe-planner` step 7                                                | 4          |
+
+## Current question
+
+Hand the thread to `/agentdev:iwe-plan`, starting with plan 1?
