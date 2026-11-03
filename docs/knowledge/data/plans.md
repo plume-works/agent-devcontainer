@@ -245,6 +245,9 @@ autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
 
+[Re-request an AI review after a change
+request](plans/20261103-rereview-after-changes-requested.md)
+
 [Re-request an AI review after a title or description
 edit](plans/20261102-rereview-after-metadata-edit.md)
 
