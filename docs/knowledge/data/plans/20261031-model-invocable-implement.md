@@ -535,17 +535,21 @@ Verified anchor points (line numbers as of 2026-11-03):
 - `scripts/e2e/iwe-workflows/scenarios.py:42` — `WORKFLOW_SKILL`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:218` — `OpenCodeServer.run`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:222` — `OpenCodeServer.prompt`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:207` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:208` —
   `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:344` — `test_explore`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:236` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:354` — `test_explore`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:237` —
   `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:386` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:399` —
   `test_explore`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:214` —
   `test_implement_requested`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:243` —
   `test_implement_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:223` —
+  `test_implement_coordinator_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:255` —
+  `test_implement_coordinator_requested`
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
   may start them**
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
@@ -556,5 +560,5 @@ Verified anchor points (line numbers as of 2026-11-03):
   **Drop the gate and rely on descriptions, for Ship**
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:45` — Explore requirement
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:112` — Plan requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:624` — Ship and Implement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:677` — Ship and Implement
   start requirement
