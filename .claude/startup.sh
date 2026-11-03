@@ -51,8 +51,14 @@ bring_devcontainer_up() {
     bunx --bun @devcontainers/cli@0.80.2 up --workspace-folder "${REPO_ROOT}"
 }
 
+add_cloud_instructions() {
+    mkdir -p ~/.claude
+    cp -f "${REPO_ROOT}/.claude/CLAUDE.cloud.md" ~/.claude/CLAUDE.md
+}
+
 main() {
     time register_plugin
+    add_cloud_instructions
     time start_docker
     time pull_pinned_images
     time bring_devcontainer_up
