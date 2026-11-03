@@ -6,7 +6,7 @@ release:
 description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T01:40:00Z
+  at: 2026-11-03T06:20:47Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -93,7 +93,8 @@ Rejected:
   - **Evidence:** commit a964f0be — the body reads "for the plan the request
     names" and keeps "Do not dispatch it as a subagent: only
     `/agentdev:iwe-implement-all` does that."
-- [x] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
+- [x] `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+  passes.
   - **Evidence:** at commit a964f0be,
     `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts` (bun
     1.4.4 needs the `./` to read the argument as a path) — 29 pass, 0 fail.
@@ -242,6 +243,20 @@ Rejected:
     CI/CD / CI finished (Actions run 41585202319, job 125759054406), pre-commit
     (run 41585202319, job 125748954752), Validate agent files (run 41585202317,
     job 125749073322), Validate knowledge base (run 41585202303).
+
+### Task 9: A coordinator relays the user's approval of a narrowing
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+
+- [ ] On Claude Code and OpenCode, a plain message written as a coordinator
+  session's, asking to implement `CONFLICT_KEY` and quoting the user's approval
+  to narrow `e2e-conflict` to `yes`, loads the `iwe-implement` skill, dispatches
+  no `iwe-implementer`, leaves `e2e/conflict.txt` holding `yes`, and does not
+  stop to ask the user about the narrowing.
+- [ ] That scenario passes on Claude Code and on OpenCode with the default test
+  models.
 
 ## Spec changes
 
@@ -476,11 +491,11 @@ SHALL stop and report at any point that needs a user decision it was not given.
 
 ## Verification
 
-- `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+- `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 5
   scenarios with `test_implement` and `test_explore` on Claude Code and OpenCode
-  (Task 6).
+  (Task 6), and the Task 9 scenario on both (Task 9).
 - `git grep -n "iwe-implement\b" .agents/plugins/agentdev/skills/iwe-explore .agents/plugins/agentdev/agents/iwe-planner.agent.md`
   prints nothing that names Implement as a next step.
 - `iwe normalize` and `iwe schema validate` pass.
@@ -506,7 +521,7 @@ Verified anchor points (line numbers as of 2026-11-03):
   mode
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:15` — "report readiness,
   and stop before editing implementation code"
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:178` — step 8's report
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:179` — step 8's report
 - `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:102` —
   `## During implementation` handoff
 - `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:151` — `## Rules`
@@ -524,6 +539,12 @@ Verified anchor points (line numbers as of 2026-11-03):
   `test_implement`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:386` —
   `test_explore`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:321` —
+  `test_implement_stops_on_narrowing`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:359` —
+  `test_implement_stops_on_narrowing`
+- `scripts/e2e/iwe-workflows/fixtures/plans/20261027-e2e-conflict.md:1` — the
+  conflict fixture plan
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
   may start them**
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
