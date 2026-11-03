@@ -306,8 +306,12 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Normal shipping stops with a Ship blocker report while any task carrying a
+- [x] Normal shipping stops with a Ship blocker report while any task carrying a
   `**Closed by:**` line is unticked, before any shipping state transition.
+  - **Evidence:** commit c03d084c adds the gate to step 3 and `## Rules` in
+    `iwe-shipper.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 - [ ] The blocker report's routes add: observe it, tick it with evidence, then
   run `/agentdev:iwe-ship` again.
 
