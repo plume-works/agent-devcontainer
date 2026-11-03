@@ -8,7 +8,9 @@ fixture plan but the loop plan cancelled and the pair plan added beside it as
 ``implement_all``, and, on another,
 the catalog's revision evaluator replaced by a stub that rejects every revision
 as ``stub_evaluator``, and, on a third, the planner replaced by a stub that
-always drafts the revise plan's narrowing as ``stub_planner``. Each test gets
+always drafts the revise plan's narrowing as ``stub_planner``, and, on a fourth,
+the autonomy fixture plans, their scripts, and their workflow added as
+``autonomy``. Each test gets
 its own clone of it; a main clone also gets ``main``, a bare ``origin`` beside
 it, and a stub ``gh``.
 """
@@ -30,6 +32,16 @@ LOOP = f'{DATA}/plans/20261026-e2e-loop.md'
 REVISE = f'{DATA}/plans/20261026-e2e-revise.md'
 CONFLICT = f'{DATA}/plans/20261027-e2e-conflict.md'
 PAIR = f'{DATA}/plans/20261027-e2e-pair.md'
+WHISPER = f'{DATA}/plans/20261102-e2e-whisper.md'
+# The autonomy fixture plans; the CI plan's evidence names the base commit at @BASE@.
+AUTONOMY_PLANS = (
+    '20261102-e2e-ci.md',
+    '20261102-e2e-observe.md',
+    '20261102-e2e-shout.md',
+    '20261102-e2e-token.md',
+    '20261102-e2e-whisper.md',
+)
+CI_WORKFLOW = '.github/workflows/e2e-ci.yml'
 EVALUATOR_AGENT = '.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md'
 PLANNER_AGENT = '.agents/plugins/agentdev/agents/iwe-planner.agent.md'
 # What Ship never writes: every hub, every release page, and the log.
@@ -65,6 +77,14 @@ _ACTIVE_LINKS = (
     '[E2E conflict fixture](plans/20261027-e2e-conflict.md)',
 )
 _PAIR_LINK = '[E2E pair fixture](plans/20261027-e2e-pair.md)'
+_AUTONOMY_LINKS = (
+    '[E2E CI fixture](plans/20261102-e2e-ci.md)',
+    '[E2E observe fixture](plans/20261102-e2e-observe.md)',
+    '[E2E shout fixture](plans/20261102-e2e-shout.md)',
+    '[E2E token fixture](plans/20261102-e2e-token.md)',
+    '[E2E whisper fixture](plans/20261102-e2e-whisper.md)',
+)
+_PLAN_FILE = re.compile(rf'^{re.escape(DATA)}/plans/[^/]+\.md$')
 _AUTHOR = ('-c', 'user.name=e2e', '-c', 'user.email=e2e@example.invalid')
 
 
@@ -124,6 +144,7 @@ class FixtureRepo:
     implement_all: str
     stub_evaluator: str
     stub_planner: str
+    autonomy: str
 
 
 def cancel_active_plans(data: Path, keep: tuple[str, ...] = ()) -> list[str]:
@@ -210,6 +231,17 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'agents/iwe-planner.narrowing-stub.md', path / PLANNER_AGENT)
     shutil.copy2(FIXTURES / 'e2e/revise.narrowed.md', path / 'e2e')
     stub_planner = repo.commit_all('e2e: stub planner drafts the narrowing')
+
+    repo.git('checkout', '-q', '-b', 'e2e-autonomy', base)
+    shutil.copytree(FIXTURES / 'autonomy/bin', path / 'bin', dirs_exist_ok=True)
+    shutil.copytree(FIXTURES / 'autonomy/e2e', path / 'e2e', dirs_exist_ok=True)
+    shutil.copy2(FIXTURES / 'autonomy/e2e-ci.yml', path / CI_WORKFLOW)
+    for name in AUTONOMY_PLANS:
+        text = (FIXTURES / 'plans' / name).read_text().replace('@BASE@', base)
+        (path / DATA / 'plans' / name).write_text(text)
+    add_hub_links(data / 'plans.md', _AUTONOMY_LINKS)
+    repo.iwe_check()
+    autonomy = repo.commit_all('e2e: autonomy fixture plans')
     repo.git('checkout', '-q', 'e2e-fixture')
     return FixtureRepo(
         path=path,
@@ -218,17 +250,19 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
         implement_all=implement_all,
         stub_evaluator=stub_evaluator,
         stub_planner=stub_planner,
+        autonomy=autonomy,
     )
+
+
+def section(text: str, heading: str) -> str:
+    """Return the body of a plan's ``heading`` section, stripped; empty when it has none."""
+    found = re.search(rf'^{re.escape(heading)}\n(.*?)(?=^## |\Z)', text, re.MULTILINE | re.DOTALL)
+    return found.group(1).strip() if found else ''
 
 
 def plan_intent(text: str) -> tuple[list[str], dict[str, str]]:
     """Return a plan's task headings and the text of each of its intent sections."""
-    sections = {}
-    for heading in INTENT_SECTIONS:
-        found = re.search(
-            rf'^{re.escape(heading)}\n(.*?)(?=^## |\Z)', text, re.MULTILINE | re.DOTALL
-        )
-        sections[heading] = found.group(1).strip() if found else ''
+    sections = {heading: section(text, heading) for heading in INTENT_SECTIONS}
     return TASK_HEADING.findall(text), sections
 
 
@@ -374,6 +408,19 @@ class Clone(Repo):
         before = plan_intent(self.git('show', f'{self.base}:{plan}'))
         after = plan_intent(self.git('show', f'HEAD:{plan}'))
         return before == after and self.git('status', '--porcelain', '--', plan) == ''
+
+    def tasks_since_start(self, plan: str) -> tuple[int, int]:
+        """Return ``plan``'s task count at ``start`` and in the worktree."""
+        before = self.git('show', f'{self.start}:{plan}')
+        after = (self.path / plan).read_text()
+        return len(TASK_HEADING.findall(before)), len(TASK_HEADING.findall(after))
+
+    def new_plans(self) -> list[str]:
+        """Return the text of every plan file added since ``start``, committed or not."""
+        added = self.git('diff', '--name-only', '--diff-filter=A', self.start).split()
+        added += self.git('ls-files', '--others', '--exclude-standard').split()
+        paths = sorted({path for path in added if _PLAN_FILE.match(path)})
+        return [(self.path / path).read_text() for path in paths]
 
     def conflict_text(self) -> str | None:
         """Return the conflict fixture's file, stripped, or ``None`` when it was never written."""

@@ -1,0 +1,11 @@
+name: e2e-ci
+on: pull_request
+permissions: {}
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: bin/ci-only.sh

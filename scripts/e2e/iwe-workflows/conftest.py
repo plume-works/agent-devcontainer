@@ -97,6 +97,12 @@ def stub_planner_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRe
     return clone_at(fixture_repo.stub_planner)
 
 
+@pytest.fixture
+def autonomy_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone at the ``autonomy`` commit, where the autonomy fixture plans live."""
+    return clone_at(fixture_repo.autonomy)
+
+
 @pytest.fixture(scope='session')
 def opencode_source() -> opencode_credential.Server:
     """Locate the web UI's OpenCode 2.x server, or skip the OpenCode tests."""
