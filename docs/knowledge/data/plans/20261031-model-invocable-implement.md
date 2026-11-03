@@ -184,7 +184,9 @@ Rejected:
   - **Evidence:** commit 4c03b7d6 — both `test_explore` functions assert
     `NAMES_IMPLEMENT` does not match `transcript.final_text()`, the accessor
     both harnesses already had.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+- [x] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+  - **Evidence:** at commit 4c03b7d6 the command collects 46 tests with no
+    error, and `uv run ruff check scripts/e2e/iwe-workflows` passes.
 
 ### Task 6: The new and changed e2e scenarios pass
 
