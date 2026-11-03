@@ -3,9 +3,7 @@ Checks for the IWE scaffold the iwe-bootstrap skill ships under `assets/`.
 
 The scaffold is laid out as a repository root and no live graph reads it.
 Install behaviour (a normalized, schema-valid graph that carries what
-`iwe-setup` needs) is covered by `test_iwe_bootstrap.py`. The checks here that
-compare the scaffold with the repository that develops the catalog skip when it
-is absent, as in a consumer's plugin cache.
+`iwe-setup` needs) is covered by `test_iwe_bootstrap.py`.
 """
 
 from __future__ import annotations
@@ -45,12 +43,6 @@ requires_iwe = pytest.mark.skipif(
     shutil.which('iwe') is None,
     reason='the iwe CLI is not installed',
 )
-requires_publisher = pytest.mark.skipif(
-    not (PUBLISHER_ROOT / '.claude-plugin' / 'marketplace.json').is_file()
-    or not (PUBLISHER_ROOT / '.iwe' / 'config.toml').is_file()
-    or not (PUBLISHER_ROOT / '.git').exists(),
-    reason='the repository that develops the catalog is not present',
-)
 
 
 def _run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -59,7 +51,6 @@ def _run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
 
 
 @requires_iwe
-@requires_publisher
 def test_seed_is_not_a_member_of_the_publisher_graph() -> None:
     """`iwe` at the publisher root must not see any scaffold document."""
     result = _run('iwe', 'find', '-f', 'keys', cwd=PUBLISHER_ROOT)
@@ -87,7 +78,6 @@ def test_scaffold_is_complete() -> None:
     assert sorted(path.name for path in SCAFFOLD.iterdir()) == ['.iwe', 'docs']
 
 
-@requires_publisher
 def test_scaffold_support_files_match_the_publisher_workspace() -> None:
     """Schemas, config, and instructions stay the bytes the publisher uses."""
     tracked = subprocess.run(
@@ -150,7 +140,6 @@ def test_seed_holds_no_publisher_paths() -> None:
     assert not offenders, 'publisher-specific references in the seed:\n' + '\n'.join(offenders)
 
 
-@requires_publisher
 def test_every_scaffold_file_is_tracked() -> None:
     """Catalog installs copy tracked files only, so an ignored asset never ships."""
     tracked = set(

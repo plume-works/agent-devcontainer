@@ -13,7 +13,8 @@ repository can delete the publisher source without inheriting its maintenance ru
 - Tests for scripts shipped by the plugin belong in `.agents/plugins/agentdev/tests/` and
   anchor on the plugin root. Validator library and CLI behavior belongs in
   `py_packages/validate_agent_files/tests/`; never mix the two suites.
-- Plugin tests must pass from a consumer's plugin cache. Resolve scripts through the
+- Plugin tests run only in this repository, never from a consumer's plugin cache, and may
+  rely on the publisher checkout around the plugin. Resolve scripts through the
   `plugin_root` fixture instead of spelling out `.agents/plugins/agentdev/...`.
 - The plugin test suite owns its `plugin_tmp_path` scratch fixture and `.gitignore` because
   the repository's root ignore rules do not travel with an installed plugin.
