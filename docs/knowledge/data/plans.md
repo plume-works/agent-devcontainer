@@ -94,6 +94,9 @@ engines](plans/20261101-docker-storage-periodic-gc.md)
 
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
+[Explore proposes only for observed
+problems](plans/20261103-explore-evidence-gate.md)
+
 [Explore settles open questions one at a
 time](plans/20261101-explore-interviews-open-questions.md)
 
