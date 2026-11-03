@@ -35,6 +35,9 @@ EVALUATE = (
     f'prompt: "Plan key: {REVISE_KEY}. Finding: {REVISE_FINDING}" Change no file yourself. '
     'Reply with the first line of its report.'
 )
+# A finding line opens with its ID, after an optional list marker and bold markup.
+FINDING_LINE = re.compile(r'^(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|`)?[CWS][1-9]\d*\b')
+SAVED_FRONTMATTER = re.compile(r'\A---\n.*?\n---\n', re.DOTALL)
 VERDICT = re.compile(r'^\s*(APPROVE|REJECT|ESCALATE)\b', re.MULTILINE)
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 # Per-test budgets in seconds: about three times each harness's slowest scenario
@@ -46,6 +49,19 @@ CLAUDE_BUDGET = 420
 def mentions(calls: list[dict[str, Any]], pattern: str | re.Pattern) -> bool:
     """Whether any call's input, as JSON, matches ``pattern``."""
     return any(re.search(pattern, json.dumps(call)) for call in calls)
+
+
+def report_lines(saved: str) -> list[str]:
+    """Return a saved report body's lead line and every finding line, whitespace-stripped."""
+    body = SAVED_FRONTMATTER.sub('', saved, count=1)
+    lines = [line.strip() for line in body.splitlines() if line.strip()]
+    return lines[:1] + [line for line in lines[1:] if FINDING_LINE.match(line)]
+
+
+def shows_report(saved: str, final: str) -> bool:
+    """Whether ``final`` contains the saved report's lead line and every finding line."""
+    lines = report_lines(saved)
+    return bool(lines) and all(line in final for line in lines)
 
 
 def verdict(report: str) -> str | None:

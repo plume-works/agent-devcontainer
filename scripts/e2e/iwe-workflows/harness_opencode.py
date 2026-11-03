@@ -102,6 +102,17 @@ class Transcript:
             for part in message.get('content') or []
         ]
 
+    def final_text(self) -> str:
+        """Return the session's final message text: the text parts of the last assistant message."""
+        assistant = [message for message in self.messages if message.get('type') == 'assistant']
+        if not assistant:
+            return ''
+        return '\n'.join(
+            part.get('text', '')
+            for part in assistant[-1].get('content') or []
+            if part.get('type') == 'text'
+        )
+
     def errors(self) -> list[dict[str, Any]]:
         """Return the error of every assistant message that failed."""
         return [
