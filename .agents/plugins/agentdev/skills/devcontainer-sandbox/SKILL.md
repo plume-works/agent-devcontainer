@@ -1,9 +1,9 @@
 ---
-name: microvm-sandbox
+name: devcontainer-sandbox
 description: Run build, test, or lint commands through this repository's devcontainer when the host lacks the project toolchain. Use for devcontainer up or exec, Docker-backed sandbox testing, and local toolchain escalation.
 ---
 
-# microVM Sandbox
+# Devcontainer Sandbox
 
 Use this skill when the host cannot run the project's toolchain directly — `uv`
 is missing, `bun` is missing, or a command needs the provisioned image — **and** a

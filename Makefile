@@ -77,7 +77,7 @@ test smoke smoke-auto wake wake-memory wake-repeat test-harness clean clean-clau
 	@echo "uv is required for development tooling."
 	@echo "When the host lacks the toolchain, escalate rather than stopping"
 	@echo "(AGENTS.md Best Practice 3): with a Docker daemon, run the command"
-	@echo "through the devcontainer (/agentdev:microvm-sandbox)."
+	@echo "through the devcontainer (/agentdev:devcontainer-sandbox)."
 	@echo "The plugin itself needs no dependencies; this is only for tests."
 	@exit 1
 else
