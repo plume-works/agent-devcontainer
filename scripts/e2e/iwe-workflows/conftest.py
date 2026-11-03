@@ -11,7 +11,7 @@ from clone import build_fixture_repo, Clone, FixtureRepo, make_clone, make_main_
 from harness_opencode import CATALOG_TIMEOUT, OpenCodeServer, READY_TIMEOUT, start_server
 import opencode_credential
 import pytest
-from scenarios import OPENCODE_BUDGET
+from scenarios import OPENCODE_BUDGET, PLAN_BUDGET
 
 SUITE = Path(__file__).parent
 REPO_ROOT = Path(
@@ -111,7 +111,7 @@ def opencode_source() -> opencode_credential.Server:
 @pytest.fixture
 def opencode_login(opencode_source: opencode_credential.Server) -> dict:
     """Return the source's ChatGPT login, valid through server startup and this test's budget."""
-    life = READY_TIMEOUT + CATALOG_TIMEOUT + OPENCODE_BUDGET
+    life = READY_TIMEOUT + CATALOG_TIMEOUT + max(OPENCODE_BUDGET, PLAN_BUDGET)
     return opencode_credential.fresh_credential(opencode_source, life)
 
 
