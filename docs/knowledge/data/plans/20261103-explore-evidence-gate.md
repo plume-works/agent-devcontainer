@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-03
 created: 2026-11-03
 release:
 - features/agentdev-iwe-workflow-skills
@@ -9,7 +11,6 @@ generated:
   at: 2026-11-03T01:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
-rank: 125
 ---
 
 # Explore proposes only for observed problems
@@ -50,7 +51,7 @@ been written.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Insert this bullet as the first bullet of `## The stance`, before
+- [x] Insert this bullet as the first bullet of `## The stance`, before
   `**Grounded, not theoretical**`, verbatim:
 
   ``` markdown
@@ -62,11 +63,17 @@ been written.
     listed under "not observed", never designed for.
   ```
 
+  - **Evidence:** commit `2958893d` inserts the block as the first
+    `## The stance` bullet; a byte comparison of the fenced block against
+    `iwe-explore/SKILL.md` finds it exactly once, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes (61/61 skills valid, 0 errors, 0 warnings).
+
 ### Task 2: Narrow the `Honest about unknowns` bullet
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Apply this change to the `**Honest about unknowns**` bullet in
+- [x] Apply this change to the `**Honest about unknowns**` bullet in
   `## The stance`, verbatim:
 
   ``` diff
@@ -77,11 +84,17 @@ been written.
   +  finding.
   ```
 
+  - **Evidence:** commit `9a4df5b4` replaces the `**Honest about unknowns**`
+    bullet; a byte comparison finds the `+` side of the fenced diff exactly once
+    in `iwe-explore/SKILL.md` and the `-` side absent, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes (61/61 skills valid, 0 errors, 0 warnings).
+
 ### Task 3: Add the proposal-costs rule
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Insert this bullet in `## Rules`, directly after the bullet that begins
+- [x] Insert this bullet in `## Rules`, directly after the bullet that begins
   `Every claim about the existing system is checked`, verbatim:
 
   ``` markdown
@@ -92,12 +105,22 @@ been written.
     case.
   ```
 
+  - **Evidence:** commit `1d31a3f3` inserts the block in `## Rules` directly
+    after the `Every claim about the existing system is checked` bullet; a byte
+    comparison finds the fenced block exactly once in `iwe-explore/SKILL.md`,
+    and `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes (61/61 skills valid, 0 errors, 0 warnings).
+
 ### Task 4: Validate the catalog
 
 **Files:** none
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** at commit `1d31a3f3`, which holds all three
+    `iwe-explore/SKILL.md` edits,
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    exits 0 (61/61 skills valid, 0 errors, 0 warnings).
 
 ## Spec changes
 
