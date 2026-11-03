@@ -237,7 +237,11 @@ Rejected:
 
 ### Task 8: CI passes on the implementation branch
 
-- [ ] Every required check on the pull request passes.
+- [x] Every required check on the pull request passes.
+  - **Evidence:** PR #663 at commit eabce470: every check passes, none failing —
+    CI/CD / CI finished (Actions run 41585202319, job 125759054406), pre-commit
+    (run 41585202319, job 125748954752), Validate agent files (run 41585202317,
+    job 125749073322), Validate knowledge base (run 41585202303).
 
 ## Spec changes
 
