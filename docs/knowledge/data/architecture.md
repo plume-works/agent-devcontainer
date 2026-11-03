@@ -134,4 +134,4 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 
 [Validator image install](architecture/validator-image-install.md)
 
-[Worktree catalog hooks](architecture/worktree-catalog-hooks.md)
+[Worktree hooks](architecture/worktree-hooks.md)

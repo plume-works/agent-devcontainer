@@ -2,8 +2,9 @@
 
 Temporary. This file tracks the worktree-catalog thread so its findings and
 decisions show up as diffs. It is deleted when `/agentdev:iwe-plan` takes the
-thread into a plan. The durable decision lives in
-`docs/knowledge/data/architecture/worktree-catalog-hooks.md`.
+thread into a plan, which records its own architecture on completion. How to
+write the hooks themselves lives in
+`docs/knowledge/data/architecture/worktree-hooks.md`.
 
 ## Problem
 
