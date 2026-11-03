@@ -161,8 +161,8 @@ After any capture: `iwe normalize`, `iwe schema validate`.
   question survives only if its answer changes what gets built for an observed
   case.
 - End each exploration by summarizing the current understanding and offering an
-  optional next step: keep exploring, capture, plan, return to implementation,
-  or drop.
+  optional next step: keep exploring, capture, plan, return to the plan, or
+  drop.
 - **Approved text is never paraphrased.** Once the user has agreed to specific
   wording, it survives verbatim or not at all — into `.tmp/` at approval time
   and into the plan's tasks as fenced blocks. Conversation is not storage: a
