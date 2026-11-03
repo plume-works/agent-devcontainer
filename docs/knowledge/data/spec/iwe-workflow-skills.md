@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T12:00:00Z
+  at: 2026-11-03T13:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -47,16 +47,16 @@ durable shipping state.
 The Explore skill SHALL investigate the project graph and codebase without
 editing application code, SHALL remain adaptive and patient as the problem takes
 shape, and SHALL offer capture or a phase handoff without pressuring the user to
-formalize unfinished thinking. Explore SHALL propose a change only for a problem
-it can show has occurred, SHALL list a case it can only imagine as not observed
-rather than design for it, and SHALL weigh a risk its own proposal creates
-against that proposal rather than open it as a new question. When the user
-approves specific text, Explore SHALL persist it verbatim outside the
-conversation and reproduce it verbatim in the handoff, and SHALL never
-paraphrase it. Once the problem has open questions, Explore SHALL settle them
-with the user one at a time — one topic per turn and one decision per question,
-in the user's names and design — and SHALL record each answer verbatim as it is
-given.
+formalize unfinished thinking. Explore SHALL neither start Implement nor name it
+as a next step. Explore SHALL propose a change only for a problem it can show
+has occurred, SHALL list a case it can only imagine as not observed rather than
+design for it, and SHALL weigh a risk its own proposal creates against that
+proposal rather than open it as a new question. When the user approves specific
+text, Explore SHALL persist it verbatim outside the conversation and reproduce
+it verbatim in the handoff, and SHALL never paraphrase it. Once the problem has
+open questions, Explore SHALL settle them with the user one at a time — one
+topic per turn and one decision per question, in the user's names and design —
+and SHALL record each answer verbatim as it is given.
 
 #### Scenario: Exploration starts from an open-ended idea
 
@@ -79,8 +79,8 @@ given.
 - **WHEN** the user invokes Explore because an active implementation task
   exposed a complication
 - **THEN** Explore reads the active plan and task, investigates without editing
-  code, and hands any resulting decision, scope change, or new work back to the
-  skill that owns plan execution
+  code, and hands any resulting decision, scope change, or new work to Plan,
+  without naming Implement
 
 #### Scenario: The user approves specific wording
 
@@ -115,8 +115,9 @@ The Plan skill SHALL treat its invocation as authorization to write planning
 state only, SHALL resolve material ambiguity before committing the plan, and
 SHALL keep a created or revised plan coherent across context, approach, tasks,
 spec impact, dependencies, verification, out-of-scope boundaries, and current
-code anchors. When a decision was made as specific text, Plan SHALL reproduce
-that text verbatim in the task that applies it and SHALL never paraphrase it.
+code anchors. Plan SHALL neither start Implement nor name it as a next step.
+When a decision was made as specific text, Plan SHALL reproduce that text
+verbatim in the task that applies it and SHALL never paraphrase it.
 
 #### Scenario: A plan grows from a GitHub issue
 
@@ -129,8 +130,9 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 #### Scenario: A planning request also asks to build the change
 
 - **WHEN** a request invokes Plan while also asking for implementation
-- **THEN** Plan creates and validates the planning state, reports readiness, and
-  stops before editing implementation code
+- **THEN** Plan creates and validates the planning state, reports readiness
+  without naming Implement, and stops before editing implementation code,
+  neither loading Implement nor dispatching `iwe-implementer`
 
 #### Scenario: Ambiguity would alter observable behavior
 
@@ -677,15 +679,19 @@ to resume after a partial prior attempt.
 ### Requirement: Ship and Implement start only from an explicit request or a named dispatcher
 
 The Ship and Implement workflows SHALL each be defined once, as the catalog
-agents `iwe-shipper` and `iwe-implementer`. Their user entry skills and the
+agents `iwe-shipper` and `iwe-implementer`. Ship's user entry skill and the
 `iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
-Claude Code and OpenCode. Only those skills, those coordinators, and Plan revise
-mode answering a Ship blocker report SHALL start the workflows. Ship SHALL
-always run as a dispatched `iwe-shipper` whose prompt carries only the plan key,
-the operation, and the user's approvals quoted verbatim, so its verification
-rests on the code and the graph alone. Implement started by the user's own
-invocation SHALL run in the user's session. A dispatched workflow SHALL stop and
-report at any point that needs a user decision it was not given.
+Claude Code and OpenCode. Implement's entry skill SHALL be model-invocable on
+both, so a session asked to implement a named plan may load it, including on a
+message from a coordinator session. Only those skills, those coordinators, and
+Plan revise mode answering a Ship blocker report SHALL start the workflows. Ship
+SHALL always run as a dispatched `iwe-shipper` whose prompt carries only the
+plan key, the operation, and the user's approvals quoted verbatim, so its
+verification rests on the code and the graph alone. Implement started through
+its entry skill SHALL run in the session that loaded it and SHALL take every
+decision from that session's own user or from an approval of the user's that a
+coordinator session relays. A dispatched workflow SHALL stop and report at any
+point that needs a user decision it was not given.
 
 #### Scenario: The user ships a plan directly
 
@@ -709,6 +715,20 @@ report at any point that needs a user decision it was not given.
 - **THEN** the session follows the `iwe-implementer` rulebook and waits for the
   user's direction.
 
+#### Scenario: A session is asked in plain words to implement a plan
+
+- **WHEN** the user asks a session to implement a named plan without typing the
+  command
+- **THEN** the session loads `/agentdev:iwe-implement` and follows the
+  `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
+
+#### Scenario: A coordinator asks a session to implement a plan
+
+- **WHEN** a coordinator session sends a session a message asking it to
+  implement a named plan
+- **THEN** the session loads `/agentdev:iwe-implement` and follows the
+  `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
+
 #### Scenario: A coordinator ships every implemented plan
 
 - **WHEN** the user runs `/agentdev:iwe-ship-all`
@@ -726,7 +746,8 @@ report at any point that needs a user decision it was not given.
 - **WHEN** during `/agentdev:iwe-explore` the user answers an open question in a
   way that leaves a plan apparently complete
 - **THEN** Explore neither dispatches `iwe-shipper` nor loads a Ship or
-  Implement skill or coordinator, and names the next step for the user.
+  Implement skill or coordinator, and names a next step for the user other than
+  Implement.
 
 #### Scenario: A revision answers a Ship blocker
 
@@ -737,8 +758,8 @@ report at any point that needs a user decision it was not given.
 
 #### Scenario: The model tries to start a gated skill
 
-- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship`,
-  `iwe-implement`, or either coordinator without a user request
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` or either
+  coordinator without a user request
 - **THEN** the harness withholds it.
 
 ### Requirement: Capture files complete inbox documents
