@@ -81,6 +81,28 @@ outside the worktree, cannot point its plugins back at the worktree's
   session sees the last commit, not the working tree, and a new commit needs
   `claude plugin update` to show up.
 
+### A file-source marketplace inside the worktree (this container)
+
+- A marketplace can be a single JSON file:
+  `claude plugin marketplace add <path>.json` registers it with source
+  `{"source": "file", "path": "<path>.json"}`. Its root, against which `./`
+  plugin entries resolve, is the parent of the folder holding the file. A file
+  at `<worktree>/.claude/marketplace.local.json` therefore has the worktree as
+  its root, and the unchanged entry `./.agents/plugins/agentdev` resolves to the
+  worktree's own plugin folder.
+- `.claude/.gitignore` already ignores `*.local.json`, so that file leaves the
+  worktree clean.
+- Installed with `--scope local`, the plugin is read in place: `claude plugin
+list` shows `Read from: <worktree>/.agents/plugins/agentdev`, and a session's
+  `init` event lists a skill that exists only uncommitted in the worktree. No
+  copy, no cache, no refresh.
+- `claude plugin marketplace add` declares the marketplace in user settings
+  (`~/.claude/settings.json` `extraKnownMarketplaces`), one entry per worktree,
+  which `WorktreeRemove` must take out again.
+- A `file` marketplace declared only in a repository's
+  `.claude/settings.local.json` `extraKnownMarketplaces` was not registered in a
+  clone under `/tmp`; the hook registers it with the CLI instead.
+
 ### Inline plugins: `--plugin-dir` and `CLAUDE_CODE_PLUGIN_DIRS` (this container)
 
 - `claude --plugin-dir <path>` loads a plugin folder for that session only, read
