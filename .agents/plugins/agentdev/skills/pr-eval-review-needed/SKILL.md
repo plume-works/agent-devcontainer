@@ -30,11 +30,12 @@ neither. When genuinely balanced, request it.
 **First, read the AI reviewer's newest verdict.** When it is
 `CHANGES_REQUESTED`, request a fresh review whatever the diff holds. GitHub keeps
 a reviewer's change request, and it blocks merge, until that same reviewer
-approves or a person dismisses it, so only a re-review can lift it. Applying the change request's own feedback is exactly the push that
-needs one.
+approves or a person dismisses it, so only a re-review can lift it. Applying
+the change request's own feedback is exactly the push that needs one.
 
-When that verdict is `APPROVED`, compare what is on the PR head now against
-what the last review saw.
+Otherwise — the verdict is `APPROVED`, or the AI reviewer has left only
+`COMMENTED` reviews — compare what is on the PR head now against what the last
+review saw.
 
 **Ask: does the diff since the newest reviewed commit go beyond what the pull
 request's review threads and review comments since that review asked for?**
@@ -44,8 +45,8 @@ change, so a cold run from `pr-sync` or `pr-merge` decides on the same footing a
 a feedback pass.
 
 - **No** — the diff only applies what those threads and comments asked for.
-  After an AI approval, that is the review working as intended, and
-  re-reviewing it re-reads the reviewer's own instructions. Reply in the
+  With no AI change request pending, that is the review working as intended,
+  and re-reviewing it re-reads the reviewer's own instructions. Reply in the
   threads; do not request a review.
 - **Yes** — behavior entered the PR that no reviewer has seen or asked for.
   Request a fresh review.
@@ -70,8 +71,8 @@ Request a review when the work since the last one did any of these:
 - Merged the base branch and resolved conflicts by making a judgment call rather
   than taking one side cleanly.
 
-After an AI approval, do not request a review when the work since the last one
-was only:
+Unless an AI change request is pending, do not request a review when the work
+since the last one was only:
 
 - The exact edits reviewers requested, applied as discussed.
 - Formatter, linter, or generated-file output.
