@@ -20,6 +20,12 @@ and one for audit mode, keyed by the commit Verify ran on and the digest of the
 active agentdev catalog. Run it from the repository root. Its target is the plan
 key, or `audit` in audit mode.
 
+**Returning the report** means putting its body, verbatim, into your final
+message text. A path to the saved report does not count, and neither does the
+report appearing only inside a tool call or a tool result, such as a `Read`
+result or the save heredoc. Inside `iwe-shipper`, the Shipper's report carries
+it.
+
 **Look up** before any Verify step, adding `--fresh` only when the user's own
 request carries it:
 
@@ -27,14 +33,14 @@ request carries it:
 agent-code/verify-cache.py lookup <plan-key|audit> [--fresh]
 ```
 
-| RESULT            | Exit   | Action                                                                                                                                 |
-| ----------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `HIT`             | `3`    | Read the file `REPORT` names and return its body, led by `Saved Verify report from <COMMIT>`. Run no Verify step.                      |
-| `MISS`            | `4`    | Run Verify by your route, keeping `COMMIT` for the save.                                                                               |
-| `DIRTY_WORKTREE`  | `5`    | **STOP.** Report that Verify runs only on a clean worktree, with the paths stderr lists. Commit or remove them, then run Verify again. |
-| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repository, no commit, bad arguments).                                                    |
-| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                 |
-| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it.                                                                                          |
+| RESULT            | Exit   | Action                                                                                                                                                |
+| ----------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HIT`             | `3`    | Read the file `REPORT` names and return its body verbatim in your final message text, led by `Saved Verify report from <COMMIT>`. Run no Verify step. |
+| `MISS`            | `4`    | Run Verify by your route, keeping `COMMIT` for the save.                                                                                              |
+| `DIRTY_WORKTREE`  | `5`    | **STOP.** Report that Verify runs only on a clean worktree, with the paths stderr lists. Commit or remove them, then run Verify again.                |
+| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repository, no commit, bad arguments).                                                                   |
+| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                |
+| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it.                                                                                                         |
 
 **Save** the report the run produced, verbatim on stdin, with the `COMMIT` the
 miss printed, the verdict its lead line names — `Ready to ship`, `Blocked`, or
@@ -61,14 +67,14 @@ agent-code/verify-cache.py save <plan-key|audit> --commit <COMMIT> \
 VERIFY_REPORT
 ```
 
-| RESULT            | Exit   | Action                                                                                                              |
-| ----------------- | ------ | ------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`    | Return the report.                                                                                                  |
-| `DIRTY_WORKTREE`  | `5`    | Return the report unsaved, and say the worktree was dirty after the run, so the next Verify will not reuse it.      |
-| `HEAD_MOVED`      | `6`    | Return the report unsaved, and say `HEAD` moved off `COMMIT` during the run, so the report may not describe `HEAD`. |
-| `PREFLIGHT_ERROR` | `2`    | Return the report unsaved, with the error verbatim.                                                                 |
-| `SCRIPT_FAILURE`  | `1`    | Return the report unsaved, with the error verbatim.                                                                 |
-| `SIGNAL_*`        | `129`+ | Return the report unsaved, and say the save was interrupted.                                                        |
+| RESULT            | Exit   | Action                                                                                                                                                   |
+| ----------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`         | `0`    | Return the report verbatim in your final message text.                                                                                                   |
+| `DIRTY_WORKTREE`  | `5`    | Return the report unsaved, verbatim in your final message text, and say the worktree was dirty after the run, so the next Verify will not reuse it.      |
+| `HEAD_MOVED`      | `6`    | Return the report unsaved, verbatim in your final message text, and say `HEAD` moved off `COMMIT` during the run, so the report may not describe `HEAD`. |
+| `PREFLIGHT_ERROR` | `2`    | Return the report unsaved, verbatim in your final message text, with the error verbatim.                                                                 |
+| `SCRIPT_FAILURE`  | `1`    | Return the report unsaved, verbatim in your final message text, with the error verbatim.                                                                 |
+| `SIGNAL_*`        | `129`+ | Return the report unsaved, verbatim in your final message text, and say the save was interrupted.                                                        |
 
 ## From inside `iwe-shipper`
 
@@ -84,7 +90,9 @@ save its report and return it to your Verify step. Do not dispatch any agent.
 1. **Look up** the plan the user named, or `audit` in audit mode, with
    `--fresh` only when the request carries it. If neither a plan nor audit mode
    is clear from the request, ask the user first. On a `HIT`, re-post the saved
-   report and stop.
+   report verbatim in your final message text, led by
+   `Saved Verify report from <COMMIT>`, and stop. The saved report's path, or
+   the `Read` result that showed it, does not count as re-posting it.
 2. **Build the dispatch prompt from the request alone.** It carries exactly:
    - **Plan key** — the plan the user named, as `data/plans/<YYYYMMDD>-<slug>`
      or its file path — or **audit mode** when the user asked for a
@@ -99,8 +107,10 @@ save its report and return it to your Verify step. Do not dispatch any agent.
    turns, and wait for its report.
 4. **Save its report**, unless it reports `Needs decision`, with the user's
    request as the skill request and the step 2 prompt as the verifier prompt.
-5. **Re-post its report verbatim.** When it reports `Needs decision`, name the
-   approval or choice it needs and tell the user to re-run
+5. **Re-post its report verbatim** in your final message text: the subagent's
+   result and the save heredoc are tool output the user may never see, and a
+   path to the saved report does not count. When it reports `Needs decision`,
+   name the approval or choice it needs and tell the user to re-run
    `/agentdev:iwe-verify <plan>` granting it.
 
 ## Rules

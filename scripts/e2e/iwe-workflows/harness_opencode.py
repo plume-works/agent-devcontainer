@@ -102,6 +102,17 @@ class Transcript:
             for part in message.get('content') or []
         ]
 
+    def final_text(self) -> str:
+        """Return the session's final message text: the text parts of the last assistant message."""
+        assistant = [message for message in self.messages if message.get('type') == 'assistant']
+        if not assistant:
+            return ''
+        return '\n'.join(
+            part.get('text', '')
+            for part in assistant[-1].get('content') or []
+            if part.get('type') == 'text'
+        )
+
     def errors(self) -> list[dict[str, Any]]:
         """Return the error of every assistant message that failed."""
         return [
@@ -206,6 +217,13 @@ class OpenCodeServer:
 
     def run(self, name: str, command: str, text: str, budget: float) -> Transcript:
         """Run one command in a fresh session located in the clone, and save its transcript."""
+        return self._run(name, 'command', {'name': command, 'text': text}, budget)
+
+    def prompt(self, name: str, text: str, budget: float) -> Transcript:
+        """Post one plain prompt, no command, in a fresh session, and save its transcript."""
+        return self._run(name, 'prompt', {'text': text}, budget)
+
+    def _run(self, name: str, kind: str, body: dict[str, Any], budget: float) -> Transcript:
         deadline = time.monotonic() + budget
         session = self.server.request(
             'POST',
@@ -217,9 +235,7 @@ class OpenCodeServer:
             },
         )['data']['id']
         self.sessions.append(session)
-        self.server.request(
-            'POST', f'/api/session/{session}/command', {'name': command, 'text': text}
-        )
+        self.server.request('POST', f'/api/session/{session}/{kind}', body)
         timed_out = not self._wait(session, deadline)
         if timed_out:
             self.server.request('POST', f'/api/session/{session}/interrupt')

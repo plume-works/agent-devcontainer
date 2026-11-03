@@ -118,6 +118,9 @@ change](bugs/plan-tasks-edit-specs.md)
 [Bug: PR updates skip the re-review
 evaluation](bugs/pr-update-skips-review-eval.md)
 
+[Bug: Implement takes a peer session's claim as the user's
+approval](bugs/relayed-approval-unauthenticated.md)
+
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
 

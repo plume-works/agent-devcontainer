@@ -31,8 +31,6 @@ filesystem](someday/host-filesystem-dedup.md)
 
 [Replace actionlint and zizmor with jactionlint](someday/jactionlint.md)
 
-[Nested dispatch from catalog agents](someday/nested-catalog-agent-dispatch.md)
-
 [Validate correctness candidates on the large
 model](someday/pr-review-large-validator.md)
 

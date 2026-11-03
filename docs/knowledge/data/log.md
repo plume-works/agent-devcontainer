@@ -251,7 +251,7 @@ one dated group per release; nothing else writes here.
   harness.
 - **Create**: someday ideas [Calibrate the revision evaluator against human
   review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
-  catalog agents](someday/nested-catalog-agent-dispatch.md).
+  catalog agents](backlog/nested-catalog-agent-dispatch.md).
 - **Map**: re-anchored the scripts map for the Remote Control watcher's shorter
   header, and re-stamped devcontainer and the devcontainer lifecycle.
 - **Map**: refreshed the scripts, docker, and image and runtime maps for the

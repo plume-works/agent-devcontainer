@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why the Ship and Implement rulebooks live in catalog agents that only explicit-only skills and named dispatchers start, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code and OpenCode that the gate rests on.
+description: Why the Ship and Implement rulebooks live in catalog agents, why Ship and the coordinators start only from explicit-only skills and named dispatchers while any session asked to implement a named plan may load Implement, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code and OpenCode that the gate rests on.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:11Z
+  at: 2026-11-03T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -20,7 +20,10 @@ skills that start them carry no rules of their own.
 
 - **Who may start them.** Only these callers:
 
-  - the user's `/agentdev:iwe-ship` and `/agentdev:iwe-implement`;
+  - the user's `/agentdev:iwe-ship`;
+  - for Implement, any session asked to implement a named plan — by the user's
+    `/agentdev:iwe-implement`, by a plain request, or by a message from a
+    coordinator session — which loads `/agentdev:iwe-implement`;
   - the `/agentdev:iwe-ship-all` and `/agentdev:iwe-implement-all` coordinators,
     which the user starts;
   - `/agentdev:iwe-plan` revise mode, when the revision answers a Ship blocker
@@ -28,10 +31,17 @@ skills that start them carry no rules of their own.
 
   Each agent's `description` names its dispatchers, so nothing else matches it.
 
-- **The gate is explicit-only on both harnesses.** The two entry skills, the two
-  coordinators, and every other gated skill carry the
-  `disable-model-invocation: true` frontmatter key. It gates Claude Code
-  directly and OpenCode through the bridge's `deny`.
+- **The gate is explicit-only on both harnesses.** Of the entry points,
+  `iwe-ship`, `iwe-ship-all`, and `iwe-implement-all` carry the
+  `disable-model-invocation: true` frontmatter key, as does every other gated
+  skill. It gates Claude Code directly and OpenCode through the bridge's `deny`.
+
+- **Implement's entry skill is model-invocable.** `iwe-implement` carries no
+  gate, and its description matches only a request that names a plan. It needs a
+  named active plan whose dependencies are done and asks when the plan is
+  ambiguous, so a stray match has nothing to build; and Plan and Explore, the
+  sessions where a stray start could happen, never name it as a next step. A
+  stray Ship run reaches the remote, so Ship keeps its gate.
 
 - **Ship always runs as a dispatched subagent**, including the user's own
   `/agentdev:iwe-ship`. Its verification must rest on the code and the graph,
@@ -41,9 +51,12 @@ skills that start them carry no rules of their own.
   report, and the user re-runs `/agentdev:iwe-ship` granting it.
 
 - **Implement keeps the user's session for a direct run.**
-  `/agentdev:iwe-implement` has the session follow the `iwe-implementer`
-  rulebook in place, so it can ask about an ambiguous plan or a material
-  deviation. Only `iwe-implement-all` dispatches it.
+  `/agentdev:iwe-implement` has the session that loaded it follow the
+  `iwe-implementer` rulebook in place, so it can ask about an ambiguous plan or
+  a material deviation. A decision the rulebook asks for comes from that
+  session's own user, or from an approval of the user's that a coordinator
+  session relays in its message; the coordinator asks the user in one place and
+  passes the answers on. Only `iwe-implement-all` dispatches the agent.
 
 - **A dispatched agent cannot reach the user.** Wherever its rulebook would ask,
   it stops without taking the step and reports the decision it needs.
@@ -141,10 +154,10 @@ headless run grants it in the project's `opencode.json`:
 
 ## Rejected alternatives
 
-- **Drop the gate and rely on descriptions.** An ungated skill is listed to the
-  model with its description on every harness, so a description match can start
-  Ship from Explore — for example after a partial answer closes a plan's open
-  question.
+- **Drop the gate and rely on descriptions, for Ship.** An ungated skill is
+  listed to the model with its description on every harness, so a description
+  match can start Ship from Explore — for example after a partial answer closes
+  a plan's open question.
 - **Preload the gated skill into the agent.** Claude Code withholds a gated
   skill from an agent's `skills:` preload, so the agent starts without its
   rulebook.
@@ -157,3 +170,11 @@ headless run grants it in the project's `opencode.json`:
   tool call, not the skill or request behind it, so it cannot tell a
   coordinator's dispatch from Explore's without parsing the transcript, and it
   needs one implementation per harness.
+- **A separate model-invocable Implement entry skill that runs only on a
+  coordinator's request.** Its description is still listed to the model, and the
+  "only on a coordinator's request" check is a prompt-level self-check, the same
+  weakness as a self-checking skill.
+- **Workers following the rulebook file without the skill.** A worker that tried
+  the gated skill first sees the refusal text, which tells it not to replicate
+  the workflow by other means, so the route depends on the coordinator never
+  mentioning the skill.

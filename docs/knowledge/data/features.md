@@ -68,6 +68,8 @@ discovery](features/gitignore-aware-agent-file-discovery.md)
 
 [Native stacked pull requests](features/native-stacked-prs.md)
 
+[Nested agent dispatch](features/nested-agent-dispatch.md)
+
 [Never write a working logbook](features/no-working-logbooks.md)
 
 [OpenCode as a catalog host](features/opencode-catalog-host.md)
@@ -114,6 +116,8 @@ pins](features/renovate-maintains-checksums.md)
 [Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)
 
 [Shared BuildKit builder](features/shared-buildkit-builder.md)
+
+[Ship review](features/ship-review.md)
 
 [Standalone OpenCode container](features/standalone-opencode-container.md)
 

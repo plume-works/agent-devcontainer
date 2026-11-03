@@ -1,19 +1,20 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-03
 created: 2026-10-31
 release:
 - features/agentdev-iwe-workflow-skills
 description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T01:40:00Z
+  at: 2026-11-03T07:33:14Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
-rank: 150
 ---
 
 # Let any session asked to implement a named plan start Implement
@@ -68,8 +69,8 @@ Rejected:
   coordinator request" check is a prompt-level self-check — the alternative the
   architecture document already rejects.
 - **Workers following the rulebook file without the skill.** A worker that tried
-  the skill first sees the refusal text, which tells it not to replicate the
-  workflow by other means, so the route depends on the coordinator never
+  the gated skill first sees the refusal text, which tells it not to replicate
+  the workflow by other means, so the route depends on the coordinator never
   mentioning the skill.
 
 ## Implementation Steps
@@ -78,45 +79,83 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] `SKILL.md` carries no `disable-model-invocation` key.
-- [ ] The description says the skill is for a request that names a plan to
+- [x] `SKILL.md` carries no `disable-model-invocation` key.
+  - **Evidence:** commit a964f0be drops the key from the frontmatter;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 61/61 skills valid at that commit.
+- [x] The description says the skill is for a request that names a plan to
   implement, so a request with no plan does not match it.
-- [ ] The body follows the rulebook "for the plan the request names" instead of
+  - **Evidence:** commit a964f0be — the description reads "Use only when the
+    request names the plan to implement; a request to build something with no
+    plan named does not match."
+- [x] The body follows the rulebook "for the plan the request names" instead of
   "the plan the user named", and keeps its rule that only
   `/agentdev:iwe-implement-all` dispatches `iwe-implementer`.
-- [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
+  - **Evidence:** commit a964f0be — the body reads "for the plan the request
+    names" and keeps "Do not dispatch it as a subagent: only
+    `/agentdev:iwe-implement-all` does that."
+- [x] `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+  passes.
+  - **Evidence:** at commit a964f0be,
+    `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts` (bun
+    1.4.4 needs the `./` to read the argument as a path) — 29 pass, 0 fail.
 
 ### Task 2: Take decisions from the user, directly or relayed
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] The **In the user's session** mode covers a session that loaded
+- [x] The **In the user's session** mode covers a session that loaded
   `/agentdev:iwe-implement` on the user's command, on a plain request, or on a
   message from another session such as a coordinator.
-- [ ] The mode states that the plan comes from the request, that a decision the
+  - **Evidence:** commit 8ede183b — the mode opens "the session loaded
+    `/agentdev:iwe-implement` on the user's command, on a plain request, or on a
+    message from another session such as a coordinator"; the validator reports
+    61/61 valid at that commit.
+- [x] The mode states that the plan comes from the request, that a decision the
   rulebook asks for is answered by this session's own user or by an approval of
   the user's that a coordinator's message relays, and that while waiting the
   session tells the requesting session what it is waiting on.
-- [ ] The rollup goes back to the requesting session as well as this one.
+  - **Evidence:** commit 8ede183b — the mode reads "The plan comes from the
+    request", "answered by this session's own user, or by an approval of the
+    user's that a coordinator's message relays", and "tell a requesting session
+    what you are waiting on".
+- [x] The rollup goes back to the requesting session as well as this one.
+  - **Evidence:** commit 8ede183b — the mode ends "Send the rollup back to a
+    requesting session as well as reporting it here."
 
 ### Task 3: Plan never starts or names Implement
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] The opening paragraph and step 8's report say Plan never loads
+- [x] The opening paragraph and step 8's report say Plan never loads
   `/agentdev:iwe-implement`, never dispatches `iwe-implementer`, and never names
   Implement as a next step; the report ends at readiness.
-- [ ] The **From the Implement orchestrator** mode is unchanged: the
+  - **Evidence:** commit fc486edb adds the rule to the opening paragraph and to
+    step 8's report ("The report ends at readiness: it never names Implement as
+    a next step"); the validator reports 61/61 valid at that commit.
+- [x] The **From the Implement orchestrator** mode is unchanged: the
   orchestrator follows Plan, and Plan never calls back into Implement.
+  - **Evidence:** `git show fc486edb` touches only the opening paragraph and
+    step 8's report; the mode still stops with the revision uncommitted for
+    `iwe-revision-evaluator` and loads no Implement skill.
 
 ### Task 4: Explore never names Implement
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] `## During implementation` hands a decision, scope change, or new work to
+- [x] `## During implementation` hands a decision, scope change, or new work to
   `/agentdev:iwe-plan` only, and `## Rules` points only at `/agentdev:iwe-plan`;
   neither names `/agentdev:iwe-implement`.
-- [ ] Explore still never starts Plan or Implement itself.
+  - **Evidence:** commit 149e8843; at that commit
+    `git grep -n "iwe-implement" .agents/plugins/agentdev/skills/iwe-explore`
+    prints nothing, and the validator reports 61/61 valid.
+- [x] Explore still never starts Plan or Implement itself.
+  - **Evidence:** commit 149e8843 — `## During implementation` reads "never
+    start Plan or Implement from Explore or silently change the plan." Commit
+    c0533739 rewords `## Rules`' closing next step from "return to
+    implementation" to "return to the plan"; at that commit
+    `git grep -n "return to implementation" .agents/plugins/agentdev/skills/iwe-explore`
+    prints nothing.
 
 ### Task 5: e2e scenarios for a requested run and for Plan and Explore
 
@@ -126,47 +165,105 @@ Rejected:
 `scripts/e2e/iwe-workflows/harness_opencode.py`,
 `scripts/e2e/iwe-workflows/harness_claude.py`
 
-- [ ] On Claude Code and OpenCode, a plain prompt asking to implement
+- [x] On Claude Code and OpenCode, a plain prompt asking to implement
   `GREET_KEY`, with no command, loads the `iwe-implement` skill through the
   skill tool and reads `RULEBOOK` in session, with the same tree assertions as
   `test_implement`. The OpenCode harness gains a run that posts a prompt instead
   of a command.
-- [ ] On Claude Code and OpenCode, `/agentdev:iwe-plan` asked to plan a small
+  - **Evidence:** commit 4c03b7d6 adds `test_implement_requested` to both
+    suites, sharing `assert_greet_stopped` with `test_implement`, and
+    `OpenCodeServer.prompt`, which posts to `/api/session/<id>/prompt`; at that
+    commit
+    `OPENCODE_BIN=opencode uv run pytest scripts/tests/test_e2e_iwe_workflows_opencode_server.py`
+    — 4 passed.
+- [x] On Claude Code and OpenCode, `/agentdev:iwe-plan` asked to plan a small
   change "and then build it" loads no `iwe-implement` skill, dispatches no
   `iwe-implementer`, edits nothing outside `docs/knowledge/`, and its final
   message does not name `iwe-implement`.
-- [ ] `test_explore` on both harnesses also asserts the final message does not
+  - **Evidence:** commit 4c03b7d6 adds `test_plan_does_not_implement` to both
+    suites, with `Clone.changed_outside` and the `PLAN_AND_BUILD` request;
+    `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 46 tests
+    at that commit.
+- [x] `test_explore` on both harnesses also asserts the final message does not
   name `iwe-implement`; the harnesses gain a final-message accessor if they lack
   one.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+  - **Evidence:** commit 4c03b7d6 — both `test_explore` functions assert
+    `NAMES_IMPLEMENT` does not match `transcript.final_text()`, the accessor
+    both harnesses already had.
+- [x] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+  - **Evidence:** at commit 4c03b7d6 the command collects 46 tests with no
+    error, and `uv run ruff check scripts/e2e/iwe-workflows` passes.
 
 ### Task 6: The new and changed e2e scenarios pass
 
-- [ ] The Task 5 scenarios and the existing `test_implement` and `test_explore`
+- [x] The Task 5 scenarios and the existing `test_implement` and `test_explore`
   pass on Claude Code and on OpenCode with the default test models.
+  - **Evidence:** at commit 5ede7bd0 (code from 4c03b7d6),
+    `E2E_RUN_LIVE=1 uv run pytest -n 3 scripts/e2e/iwe-workflows -k "test_implement and not (verifies or revises or all or stops or main) or test_plan_does_not_implement or test_explore"`
+    — 8 passed: `test_implement`, `test_implement_requested`,
+    `test_plan_does_not_implement`, and `test_explore` on each harness, with the
+    default OpenCode models.
 
 ### Task 7: Record the decision in the architecture document
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/explicit-only-workflow-agents.md`
 
-- [ ] **Who may start them** lists any session asked to implement a named plan,
+- [x] **Who may start them** lists any session asked to implement a named plan,
   including on a coordinator's message, for Implement; Ship's callers are
   unchanged.
-- [ ] The gate bullet names only `iwe-ship`, `iwe-ship-all`, and
+  - **Evidence:** commit 5b4b924a lists "any session asked to implement a named
+    plan — by the user's `/agentdev:iwe-implement`, by a plain request, or by a
+    message from a coordinator session"; the Ship callers keep their bullets;
+    `iwe schema validate` passes at that commit.
+- [x] The gate bullet names only `iwe-ship`, `iwe-ship-all`, and
   `iwe-implement-all` as entry points under the gate, and **Implement keeps the
   user's session** states the authority rule from Task 2, including approvals a
   coordinator relays.
-- [ ] The decision states why Implement can drop the gate — it needs a named
+  - **Evidence:** commit 5b4b924a — the gate bullet reads "Of the entry points,
+    `iwe-ship`, `iwe-ship-all`, and `iwe-implement-all` carry" the key, and
+    **Implement keeps the user's session** adds "A decision the rulebook asks
+    for comes from that session's own user, or from an approval of the user's
+    that a coordinator session relays in its message".
+- [x] The decision states why Implement can drop the gate — it needs a named
   active plan with satisfied dependencies and asks when the plan is ambiguous,
   and Plan and Explore never name it — and **Drop the gate and rely on
   descriptions** stays rejected for Ship, with its Explore example.
-- [ ] The two alternatives rejected in `## Approach` are added under
+  - **Evidence:** commit 5b4b924a adds **Implement's entry skill is
+    model-invocable** ("needs a named active plan whose dependencies are done
+    and asks when the plan is ambiguous … Plan and Explore … never name it") and
+    retitles the rejection **Drop the gate and rely on descriptions, for Ship**,
+    keeping its Explore example.
+- [x] The two alternatives rejected in `## Approach` are added under
   `## Rejected alternatives`.
+  - **Evidence:** commit 5b4b924a adds **A separate model-invocable Implement
+    entry skill that runs only on a coordinator's request** and **Workers
+    following the rulebook file without the skill** under
+    `## Rejected alternatives`.
 
-### Task 8: CI passes on the implementation branch
+### Task 8: A coordinator's message names a plan to implement
 
-- [ ] Every required check on the pull request passes.
+**Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+
+- [x] On Claude Code and OpenCode, a plain message written as a coordinator
+  session's, asking to implement `GREET_KEY`, loads the `iwe-implement` skill
+  and passes the same assertions as `test_implement_requested`: the rulebook
+  read in session, nothing dispatched, and the greet task handled as in
+  `test_implement`.
+  - **Evidence:** commit 1b8ea659 adds `COORDINATOR_REQUEST` and
+    `test_implement_coordinator_requested` to both suites, sharing
+    `assert_greet_stopped` with `test_implement_requested`, and removes
+    `RELAYED_NARROWING` and `test_implement_relayed_narrowing`; at that commit
+    `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 48 tests
+    and the ruff pre-commit hooks pass.
+- [x] That scenario passes on Claude Code and on OpenCode with the default test
+  models.
+  - **Evidence:** at commit 1b8ea659,
+    `E2E_RUN_LIVE=1 uv run pytest -n 2 scripts/e2e/iwe-workflows -k test_implement_coordinator_requested`
+    — 2 passed: `test_implement_coordinator_requested` on each harness, with the
+    default OpenCode models.
 
 ## Spec changes
 
@@ -353,11 +450,9 @@ SHALL stop and report at any point that needs a user decision it was not given.
 #### Scenario: A coordinator asks a session to implement a plan
 
 - **WHEN** a coordinator session sends a session a message asking it to
-  implement a named plan and relaying the user's approval of a narrowing
-  deviation, and a task needs that deviation
-- **THEN** the session loads `/agentdev:iwe-implement`, follows the
-  `iwe-implementer` rulebook in place, and takes the deviation without asking
-  again.
+  implement a named plan
+- **THEN** the session loads `/agentdev:iwe-implement` and follows the
+  `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
 
 #### Scenario: A coordinator ships every implemented plan
 
@@ -401,15 +496,14 @@ SHALL stop and report at any point that needs a user decision it was not given.
 
 ## Verification
 
-- `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+- `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 5
   scenarios with `test_implement` and `test_explore` on Claude Code and OpenCode
-  (Task 6).
+  (Task 6), and the Task 8 scenario on both (Task 8).
 - `git grep -n "iwe-implement\b" .agents/plugins/agentdev/skills/iwe-explore .agents/plugins/agentdev/agents/iwe-planner.agent.md`
   prints nothing that names Implement as a next step.
 - `iwe normalize` and `iwe schema validate` pass.
-- The pull request's CI passes (Task 8).
 
 ## Out of scope
 
@@ -425,42 +519,47 @@ SHALL stop and report at any point that needs a user decision it was not given.
 Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:3` — `description`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:4` —
-  `disable-model-invocation: true`
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:20` — **In the
   user's session** mode
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:22` — **Dispatched**
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:28` — **Dispatched**
   mode
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:14` — "report readiness,
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:15` — "report readiness,
   and stop before editing implementation code"
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:177` — step 8's report
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:100` —
-  `## During implementation` handoff naming `/agentdev:iwe-implement`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:148` — `## Rules`
-  pointer naming `/agentdev:iwe-implement`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:179` — step 8's report
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:102` —
+  `## During implementation` handoff
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:151` — `## Rules`
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:166` — `explicitOnly` read
   from the frontmatter
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:220` — skill `deny`
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:67` — deny test
-- `scripts/e2e/iwe-workflows/scenarios.py:39` — `WORKFLOW_SKILL`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:207` — `OpenCodeServer.run`,
-  command-only
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:173` —
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:71` — deny test
+- `scripts/e2e/iwe-workflows/scenarios.py:42` — `WORKFLOW_SKILL`
+- `scripts/e2e/iwe-workflows/harness_opencode.py:218` — `OpenCodeServer.run`
+- `scripts/e2e/iwe-workflows/harness_opencode.py:222` — `OpenCodeServer.prompt`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:208` —
   `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:295` — `test_explore`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:196` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:354` — `test_explore`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:237` —
   `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:330` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:399` —
   `test_explore`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:214` —
+  `test_implement_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:243` —
+  `test_implement_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:223` —
+  `test_implement_coordinator_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:255` —
+  `test_implement_coordinator_requested`
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
   may start them**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:31` — the
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
   gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:45` —
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:53` —
   **Implement keeps the user's session**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:168` —
-  **Drop the gate and rely on descriptions**
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:47` — Explore requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:88` — Plan requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:587` — Ship and Implement
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:157` —
+  **Drop the gate and rely on descriptions, for Ship**
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:45` — Explore requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:112` — Plan requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:677` — Ship and Implement
   start requirement

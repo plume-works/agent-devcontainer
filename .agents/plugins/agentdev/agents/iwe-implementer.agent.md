@@ -17,8 +17,14 @@ is not proof that behavior exists; current code and passing task evidence are.
 This rulebook runs in one of two modes, and every point below that needs the
 user's direction behaves according to the mode:
 
-- **In the user's session** — the `/agentdev:iwe-implement` skill had the
-  session follow this file. Ask the user and wait for the answer.
+- **In the user's session** — the session loaded `/agentdev:iwe-implement` on
+  the user's command, on a plain request, or on a message from another session
+  such as a coordinator, and follows this file in place. The plan comes from
+  the request. A decision this rulebook asks for is answered by this session's
+  own user, or by an approval of the user's that a coordinator's message
+  relays; otherwise ask the user and wait, and tell a requesting session what
+  you are waiting on. Send the rollup back to a requesting session as well as
+  reporting it here.
 - **Dispatched** — the `/agentdev:iwe-implement-all` coordinator started you
   as a subagent with a plan in your prompt. You cannot reach the user, and your
   final message goes to the coordinator. Wherever this rulebook would ask or
@@ -180,9 +186,11 @@ loop dispatches is a leaf and dispatches nothing.
    which the user grants by re-running the skill. A choice between routes is a
    finding like any other — take a route the steps above allow. An
    always-escalate deviation stops for the user as Step 7 says.
-6. **Report once.** The Finish rollup, plus each Verify verdict in order and
-   each evaluator verdict with the finding it answered, and the reason the run
-   ended.
+6. **Report once.** The Finish rollup; then the last Verify report verbatim,
+   as message text — a path to the saved report, or the report in a tool result
+   only, does not count; then each earlier round's verdict with the first line
+   of each finding fixed in it; each evaluator verdict with the finding it
+   answered; and the reason the run ended.
 
 ## Capturing what implementation turns up
 
