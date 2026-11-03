@@ -58,8 +58,9 @@ Rejected:
   hides the image's `~/.claude/settings.json` once the volume holds a file.
 
 Assumption: both compose files set the value as
-`${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}`, so a host or `runtime.env` value
-overrides the default of 5, like the other variables those blocks pass through.
+`${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}`, so a host value overrides the
+default of 5 in the devcontainer, and a host or `runtime.env` value does so in
+the standalone runtime.
 
 ## Implementation Steps
 
@@ -169,7 +170,8 @@ host's value when it is set, and to `5` otherwise.
 
 #### Scenario: the host overrides the depth
 
-- **WHEN** the host or `runtime.env` sets `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
+- **WHEN** the host, or for the standalone runtime `runtime.env`, sets
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
 - **THEN** the container's Claude Code uses that value.
 ```
 
