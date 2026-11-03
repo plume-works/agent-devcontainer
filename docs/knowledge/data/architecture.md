@@ -133,3 +133,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [uv environment location](architecture/uv-environment-location.md)
 
 [Validator image install](architecture/validator-image-install.md)
+
+[What Verify and pr-review each catch](architecture/verify-versus-pr-review.md)
