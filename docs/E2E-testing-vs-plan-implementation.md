@@ -3,114 +3,136 @@
 Window: 2026-11-01 00:00 → 2026-11-03 09:36 UTC. No tests were run to produce this report; every
 number comes from existing logs.
 
-**Tokens** = input + cache write + cache read + output. Cache reads make up about 95% of most
-totals, so output tokens are shown alongside. USD is the list-price `costUSD` the session logs
-record; it is given for reference only. The cost asked for is token usage.
+**Tokens** = input + cache write + cache read + output. Cache reads make up about 90–95% of most
+totals, so output tokens are shown alongside. The cost asked for is token usage. The USD figure
+for Claude sessions is the list-price `costUSD` their logs record, given for reference only.
 
 ## Sources
 
-| Source                                                       | What it gives                                                           | Limits                                                                 |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| agent-dev2 `~/.claude/projects/*.jsonl`, including subagents | Exact per-message usage for the agent-dev2 sessions                     | None of them ran e2e                                                   |
-| agent-dev2 `~/.claude/projects/-tmp-agentdev-tests-e2e-*`    | Exact usage of 65 live **Claude Code** e2e test runs, 18 distinct tests | From Oct 30–31, just before the window; no OpenCode runs               |
-| Session API `result` events, agent-dev1, 3 and 4             | Per-turn usage, including subagents, for 31 Remote Control sessions     | Covers only the session itself, not the e2e child processes it started |
+| Source                                                                             | What it gives                                                                                                                            |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| agent-dev1 `~/.claude/projects/-tmp-agentdev-tests-e2e-*`, copied over `coder ssh` | Exact usage of **all 127 Claude Code e2e test sessions** in the window, including subagents, in 4 batches                                |
+| agent-dev1 `/tmp/agentdev-tests/e2e/*/…/opencode/data/opencode/opencode.db`        | OpenCode e2e usage, but **only the last run of 12 tests** in the #663 batch                                                              |
+| agent-dev2 `~/.claude/projects/-tmp-agentdev-tests-e2e-*`                          | 65 Claude Code e2e runs from Oct 30–31, used only as an extra baseline                                                                   |
+| agent-dev2 local transcripts, including subagents                                  | Exact usage of the agent-dev2 sessions, none of which ran e2e                                                                            |
+| Session API `result` events, agent-dev1, 3 and 4                                   | Per-turn usage, including subagents, of 31 Remote Control sessions. A session's own figure does not include the e2e processes it started |
 
 **Not available:**
 
-- **Token cost of the e2e runs inside the window.** pytest starts each test as a separate agent
-  process. Their transcripts are on agent-dev1 under `/tmp/agentdev-tests/e2e-*` and
-  `~/.claude/projects/-tmp-agentdev-tests-e2e-*`, which this machine cannot reach (`coder` is
-  not logged in).
-- **Any OpenCode e2e cost.** The local `opencode.db` holds no sessions.
-- **Development cost of tests written before Oct 29.** No local session ever edited
-  `scripts/e2e/`; that work happened on other machines or before the logs available here.
+- **OpenCode e2e cost**, except for those 12 runs. Each OpenCode test keeps its database in a
+  per-test folder, and the next run of that test overwrites it. The folders for the #616 and
+  autonomy-loop batches no longer exist on agent-dev1.
+- **Development cost of tests written before the window.** No transcript in reach shows that
+  work.
 
 ## 1. Where e2e ran, what the tests were, and what they caught
 
-| Session                                | Plan or PR                                                                       | Tests run                                                                                                                                                                                                                                                                                   | What they caught                                                                                                                                                                                                                                                                                                 | Effect                                                                                                                                                                           |
-| -------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| agent-dev1 `LsN5Qx`, Nov 3 04:00–07:54 | `20261031-verify-report-in-chat` and `20261031-model-invocable-implement` (#663) | Claude Code: plan 2 Task 6 (8 passed); plan 1 suite (4 of 6 passed); `test_ship*` reruns; `test_implement_all`; `test_implement_relayed_narrowing`; `test_implement_coordinator_requested`; `test_explore`. OpenCode: 6 Ship cases, relayed narrowing (failed twice), coordinator requested | **Product bug:** `test_ship_approved` and `test_ship_reuses_saved_report` showed the shipper agent rewording the Verify report. The plan task requiring it to be carried verbatim was already ticked. **Routing gap:** OpenCode's `iwe-revision-evaluator` rejected a relayed approval that Claude Code accepted | Fix `eba88949`. Plan revisions `0b0de304` (new Task 9) and `5526b211` (scenario narrowed; `test_implement_coordinator_requested` replaced relayed narrowing). **Positive loop.** |
-| agent-dev1 `LtSmEM`, Nov 1 08:00–08:16 | Conflict-free layout (#616), Task 12                                             | Full Claude Code and OpenCode suites at `faf2c7e0`: 21 of 21 and 21 of 21 passed. The first launch left out `E2E_RUN_LIVE`                                                                                                                                                                  | Nothing                                                                                                                                                                                                                                                                                                          | Used only as acceptance (`50acd04e`). **No loop.**                                                                                                                               |
-| agent-dev1 `LrHezB`, Nov 3 01:25–01:43 | `20261102-autonomy-loop` (planning session)                                      | New autonomy scenarios, red run on Claude Code: 6 of 16 failed                                                                                                                                                                                                                              | Only that most scenarios were not red                                                                                                                                                                                                                                                                            | Plan's test design rewritten (PR #656); test code written in a planning session had to be reverted. **Loop on test design only.**                                                |
-| agent-dev1 `LtSCyz`, Nov 3 07:57–09:32 | `20261102-autonomy-loop` (implementation)                                        | `test_autonomy_loop_{claude,opencode}.py` and others. Red: 9 of 14 failed. Green: 17 of 18 passed on each harness, over about 6 reruns                                                                                                                                                      | **Harness bugs only:** permission prompts; `section()` in `clone.py` stopping at a fenced heading, which made one guard check nothing; a no-op fixture; the `FAILS_OUTSIDE` regex; a flaky OpenCode test                                                                                                         | All e2e changes reverted (`55025cbc`); e2e moved to Out of scope (`2477b950`) at your request. **Net negative.**                                                                 |
+| Batch on agent-dev1           | Session and plan                                                                           | Tests                                                                                                                                                                                                                   | What they caught                                                                                                                                                                             | Effect                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `4e03277f`, Nov 1 08:00–08:08 | `LtSmEM`, conflict-free layout (#616), Task 12                                             | Full Claude Code suite: 21 tests, 21 passed; full OpenCode suite: 21 passed                                                                                                                                             | Nothing                                                                                                                                                                                      | Used only as acceptance. **No loop.**                                                 |
+| `10caffc3`, Nov 3 01:32–01:41 | `LrHezB`, `20261102-autonomy-loop`, planning fork                                          | 16 new autonomy scenarios, red run, Claude Code: 6 failed and 10 passed, plus 1 rerun                                                                                                                                   | Only that most scenarios were not red                                                                                                                                                        | Plan's test design rewritten (PR #656). **Loop on test design only.**                 |
+| `66cc0543`, Nov 3 04:18–07:42 | `LsN5Qx`, `20261031-verify-report-in-chat` and `20261031-model-invocable-implement` (#663) | Claude Code: 22 sessions over 12 tests. `ship_reuses_saved_report` ×6, `ship_approved` ×3, `ship_all` ×3, plus `implement_relayed_narrowing`, `implement_coordinator_requested` and others. OpenCode: the same 12 tests | **Product bug:** the shipper agent reworded the Verify report (`ship_approved`, `ship_reuses_saved_report`). **Routing gap:** OpenCode rejected a relayed approval that Claude Code accepted | Fix `eba88949`. Plan revisions `0b0de304` and `5526b211`. **The only positive loop.** |
+| `d409dce6`, Nov 3 08:07–09:25 | `LtSCyz`, `20261102-autonomy-loop` implementation                                          | 64 sessions over 18 tests: 12 autonomy scenarios at 3–5 runs each, plus `ship`, `implement_verifies` and the 4 `evaluator` variants as regression checks                                                                | **Harness bugs only:** permission prompts, the `section()` parser in `clone.py`, a no-op fixture, the `FAILS_OUTSIDE` regex, a flaky OpenCode test                                           | All reverted (`55025cbc`); e2e put out of scope (`2477b950`). **Net negative.**       |
 
-Every other session in the window ran no e2e. That includes the Explore-interview plan (#624 and
-#632), where e2e was put out of scope at planning time, and the re-review (#657), evidence gate
-(#660) and Codex removal (#602) skill or harness changes.
+No other session in the window ran e2e.
 
-## 2. Cost of each test run (Claude Code harness, measured on Oct 30–31)
+## 2. Cost of each test run (Claude Code, measured in the window)
 
-Median tokens per run of each test. Each run includes its subagents.
+The #616 full pass is the clean baseline: every test on `main` at that time, run once.
 
-| Test                                     | Runs | Median total | Median output | Range       |
-| ---------------------------------------- | ---: | -----------: | ------------: | ----------- |
-| `implement_revises`                      |    3 |    1,926,952 |        20,989 | 1.85M–2.01M |
-| `implement_all`                          |    3 |    1,531,038 |        13,921 | 1.33M–1.57M |
-| `implement_stops_on_rejection`           |    3 |    1,386,434 |        13,873 | 1.29M–1.51M |
-| `ship_all`                               |    3 |    1,083,226 |         8,245 | 0.96M–1.36M |
-| `implement_stops_on_escalation`          |    3 |      998,334 |        10,398 | 0.99M–1.14M |
-| `implement_on_main`                      |    5 |      950,250 |         5,644 | 0.74M–1.03M |
-| `ship_approved`                          |    3 |      798,579 |         7,414 | 0.62M–0.80M |
-| `implement_verifies`                     |    4 |      786,918 |         6,306 | 0.70M–0.83M |
-| `ship_reuses_saved_report`               |    8 |      473,577 |         5,369 | 0.37M–0.65M |
-| `verify_fresh_reruns_without_forwarding` |    2 |      372,148 |         4,498 | 0.36M–0.39M |
-| `verify_approved`                        |    3 |      368,620 |         4,996 | 0.37M       |
-| `dirtying_verification_is_not_saved`     |    1 |      356,784 |         5,968 | n/a         |
-| `needs_decision_not_reused`              |    8 |      356,280 |         4,968 | 0.27M–0.46M |
-| `verify`                                 |    3 |      324,077 |         4,810 | 0.31M–0.35M |
-| `ship`                                   |    3 |      298,228 |         3,004 | 0.30M       |
-| `verify_refuses_dirty_worktree`          |    4 |      117,819 |           492 | 0.12M       |
-| `implement_stops_on_narrowing`           |    3 |       87,927 |         1,402 | 0.09M–0.14M |
-| `implement`                              |    3 |       87,392 |         1,187 | 0.08M–0.09M |
+| Test (#616 pass, Nov 1)                               |    Tokens | Output |
+| ----------------------------------------------------- | --------: | -----: |
+| `implement_revises`                                   | 1,723,968 | 19,726 |
+| `implement_all`                                       | 1,494,900 | 13,423 |
+| `implement_stops_on_rejection`                        | 1,197,911 | 12,295 |
+| `implement_on_main`                                   | 1,099,966 |  6,197 |
+| `implement_stops_on_escalation`                       | 1,075,235 | 11,135 |
+| `ship_all`                                            |   945,413 |  7,165 |
+| `ship_reuses_saved_report` (2 sessions)               |   863,047 |  9,002 |
+| `verify_fresh_reruns_without_forwarding` (2 sessions) |   740,460 | 10,628 |
+| `implement_verifies`                                  |   718,642 |  5,984 |
+| `needs_decision_not_reused` (2 sessions)              |   613,103 |  9,239 |
+| `ship_approved`                                       |   454,536 |  5,088 |
+| `verify_approved`                                     |   355,968 |  5,920 |
+| `dirtying_verification_is_not_saved`                  |   312,504 |  5,023 |
+| `ship`                                                |   290,085 |  2,637 |
+| `verify`                                              |   284,341 |  4,003 |
+| `explore`                                             |   256,478 |  2,145 |
+| `implement`                                           |   119,978 |  1,328 |
+| `verify_refuses_dirty_worktree`                       |   110,729 |    525 |
+| `evaluator[narrowed-ESCALATE]`                        |    95,661 |  1,338 |
+| `evaluator[restated-REJECT]`                          |    95,550 |  1,380 |
+| `implement_stops_on_narrowing`                        |    83,108 |  1,297 |
+
+Tests added since #616 (from the #663 batch):
+
+| Test                                         |     Tokens |
+| -------------------------------------------- | ---------: |
+| `plan_does_not_implement`                    |    790,672 |
+| `implement_relayed_narrowing`, later dropped |  1,268,093 |
+| `implement_coordinator_requested`            |    117,580 |
+| `implement_requested`                        |    117,330 |
+| `evaluator[sharpened-REJECT]`                | about 127K |
+| `evaluator[stray-REJECT]`                    |  about 97K |
+
+The two new `evaluator` variants were measured in the `10caffc3` batch.
+
+The autonomy scenarios, now deleted, were the most expensive tests:
+
+| Scenario                   | Tokens per run |
+| -------------------------- | -------------- |
+| `plan_no_nested_container` | about 1.6M     |
+| `plan_matches_code`        | 1.1–1.4M       |
+| `plan_names_limit`         | 1.1–1.4M       |
+| `implement_files_warning`  | 1.4–1.7M       |
 
 ### Cost of one full run
 
-- **Measured, 18 Claude Code tests:** about **12.3M tokens** (123K output) as the sum of the
-  medians. The three measured passes of the suite on Oct 30 cost 14.3M, 12.2M and 12.7M tokens.
-- **Claude Code suite on `main` today:** 23 test functions, plus the 4 `test_evaluator` variants.
-  The 8 tests with no logged runs are `implement_requested`, `implement_coordinator_requested`,
-  `plan_does_not_implement`, `explore`, and the 4 `evaluator` variants. At the measured average of
-  0.68M per test, a full pass is about **17.8M tokens**. This is an extrapolation, not a
-  measurement.
-- **OpenCode suite:** not available, since no OpenCode run logs are reachable. It uses OpenAI
-  models, so its usage would not be directly comparable anyway.
-- **All 65 Claude Code test runs logged on Oct 30–31:** **42.7M tokens**.
+| Suite                                 |                   Tokens | Basis                                                                                                                                                                           |
+| ------------------------------------- | -----------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Code, 21 tests at #616         | **12.93M** (135K output) | Measured. Wall time about 8 minutes                                                                                                                                             |
+| Claude Code, 26 tests on `main` today |          **about 14.2M** | The #616 pass plus the five tests added since (three new tests and two `evaluator` variants), at their measured cost                                                            |
+| OpenCode                              |              **Partial** | 12 of 26 tests measured: **4.61M** (18K output, model `gpt-6.1-sol`). That is about 0.38M per test, roughly 40% of the Claude Code cost per test. A full pass is not measurable |
+| Both assistants, today's suite        |         **about 23–24M** | Estimate: the Claude Code figure plus about 26 × 0.38M for OpenCode                                                                                                             |
 
-## 3. Cost to develop the tests (the session's own usage)
+**All e2e runs in the window:**
 
-These figures are the session's own turns only. The e2e runs it started are **not included**;
-see the first item under "Not available".
+- Claude Code: **82.25M tokens** over 127 test sessions.
+- OpenCode: **4.61M tokens** measured. This is a lower bound; the rest is not available.
 
-| Work                                                                                                                                                     | Slice                | Tokens | Output | USD (list) |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | -----: | -----: | ---------: |
-| Autonomy-loop scenarios: writing, red and green runs, harness fixes (all reverted)                                                                       | `LtSCyz` 07:57–09:32 |  30.7M |   138K |     $12.37 |
-| Autonomy-loop scenarios first drafted, plus red run                                                                                                      | `LrHezB` 01:25–01:43 |   6.2M |    47K |      $2.96 |
-| `test_implement_coordinator_requested` and the dropped relayed-narrowing test, including both plan revisions                                             | `LsN5Qx` 06:24–07:34 |  17.7M |   108K |      $8.63 |
-| Plan 2 implementation turn (skill changes, `test_implement_requested`, `test_plan_does_not_implement`, the Ship fix). The test share cannot be separated | `LsN5Qx` 04:40–04:53 |  14.6M |   104K |      $7.04 |
-| Steering the #616 acceptance run                                                                                                                         | `LtSmEM` 07:58–08:16 |   4.0M |     8K |      $1.25 |
-| Stripping e2e out of the autonomy-loop plan and shipping it                                                                                              | `LtSCyz` 09:33–09:36 |   2.6M |    13K |      $1.82 |
+## 3. Cost to develop the tests, plus the runs it took
 
-**Tests that were kept versus discarded:**
+The development column is the developing session's own turns. The run column is that work's e2e
+batch.
 
-- **Kept:** the #663 tests, about 18–32M tokens of development.
-- **Discarded:** the autonomy-loop tests, about **37M** tokens of development before any run cost.
+| Work                                                                                                                           | Development |                                      Test runs |  Total | Fate           |
+| ------------------------------------------------------------------------------------------------------------------------------ | ----------: | ---------------------------------------------: | -----: | -------------- |
+| Autonomy-loop scenarios, planning fork (`LrHezB` 01:25–01:43)                                                                  |        6.2M |                              11.4M Claude Code |  17.6M | Discarded      |
+| Autonomy-loop scenarios, implementation (`LtSCyz` 07:57–09:32)                                                                 |       30.7M | 45.3M Claude Code, plus OpenCode not available | ≥76.0M | Discarded      |
+| `implement_coordinator_requested` and the dropped relayed-narrowing test, including both plan revisions (`LsN5Qx` 06:24–07:34) |       17.7M |               Included in the #663 batch below |        | Kept, narrowed |
+| All #663 e2e work: two plans, the Ship fix, and 4 new tests (whole `LsN5Qx` session)                                           |       53.7M |              12.6M Claude Code + 4.6M OpenCode |  70.9M | Kept           |
+| #616 acceptance run (`LtSmEM` 07:58–08:16)                                                                                     |        4.0M | 12.9M Claude Code, plus OpenCode not available | ≥16.9M | Nothing found  |
+
+- **Discarded autonomy-loop e2e work:** at least **93.6M tokens**.
+- **The one positive loop, the whole #663 session including its runs:** about **71M tokens**.
+  Its e2e share cannot be cleanly separated from the skill work.
 
 ## 4. Sessions that ran e2e versus sessions that did not
 
-| Group                                                                               |                                                           Sessions |     Tokens |    Output | Share |
-| ----------------------------------------------------------------------------------- | -----------------------------------------------------------------: | ---------: | --------: | ----: |
-| Ran e2e: `LsN5Qx`, `LtSCyz`, `LrHezB`, `LtSmEM`, counting only their in-window part |                                                                  4 |     202.7M |      863K |   21% |
-| No e2e, agent-dev1, 3 and 4 (session API)                                           |                                                                 21 |     534.2M |     1.83M |   56% |
-| No e2e, agent-dev2 (local transcripts, including subagents)                         | 10 that used more than 100K tokens, plus small `self-improve` runs |     215.6M |      850K |   23% |
-| **Total**                                                                           |                                                                    | **952.5M** | **3.55M** |       |
+| Group                                                                 |                           Sessions |     Tokens |    Output |   Share |
+| --------------------------------------------------------------------- | ---------------------------------: | ---------: | --------: | ------: |
+| Ran e2e: the sessions' own turns                                      |                                  4 |     202.7M |      863K |     19% |
+| Ran e2e: their test runs (Claude Code 82.3M + measured OpenCode 4.6M) |                                    |      86.9M |      541K |      8% |
+| **Ran e2e, total**                                                    |                              **4** | **289.6M** | **1.40M** | **28%** |
+| No e2e, agent-dev1, 3 and 4 (session API)                             |                                 21 |     534.2M |     1.83M |     51% |
+| No e2e, agent-dev2 (local transcripts, including subagents)           | 10, plus small `self-improve` runs |     215.6M |      850K |     21% |
+| **Total**                                                             |                                    | **1,039M** | **4.09M** |         |
 
-- **Average per session:** a session that ran e2e used about 51M tokens. A session that did not
-  used about 24M (750M across 31 sessions).
-- **Mix of work:** the e2e sessions are all long implementation sessions, so their size does not
-  come from e2e alone.
-- **Not included:** the tokens of the e2e runs themselves. Using the Claude Code medians, the
-  roughly 30–40 Claude Code test runs in the window would add very roughly another 20–30M tokens,
-  plus the OpenCode runs. This is an estimate, not a measurement.
+- **Average per session:** a session that ran e2e used about **72M tokens** in total. A session
+  that did not used about **24M**.
+- **Share of the e2e sessions' tokens:** test runs are about 30%; the sessions' own turns are
+  the other 70%.
+- **The e2e sessions' own turns** include implementation work that is not e2e.
 
 **Biggest sessions with no e2e:**
 
@@ -123,13 +145,13 @@ see the first item under "Not available".
 
 ## 5. Data-quality notes
 
-- **Cross-checks:** for 28 of 31 sessions, the sum of the per-turn usage equals the session's
-  cumulative counter exactly. The three that differ are shown with their range or noted below:
+- **Session-API cross-checks:** for 28 of 31 sessions, the sum of the per-turn usage equals the
+  session's cumulative counter exactly. The three that differ:
   - `Lr2gKx`: 81M per-turn versus 120M cumulative.
-  - `Lt4Mq8`: 62.8M versus 66.5M, mostly from the Oct 31 portion.
+  - `Lt4Mq8`: 62.8M versus 66.5M.
   - `Lu7TQ4`, the PR #667 fork: 16.5M versus 21.9M.
 - **Classification:** `Lu7TQ4` holds the e2e history imported from `LsN5Qx` but ran no e2e of its
   own, so it is counted as not running e2e.
+- **E2E figures:** these come straight from the transcript files and are exact, deduplicated by
+  message id.
 - **Excluded:** this analysis session, and agent-dev2 sessions that started after 09:36 on Nov 3.
-- **Transcription:** the session-API figures were copied by hand from tool output by the
-  collection agents. The exact cross-check matches above are the evidence they are correct.
