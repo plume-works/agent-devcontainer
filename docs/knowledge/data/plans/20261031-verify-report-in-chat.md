@@ -148,10 +148,17 @@ Nothing refers to a finding across reports by ID.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md`
 
-- [ ] `## Running the loop` step 6 (**Report once**): the Finish rollup, then
+- [x] `## Running the loop` step 6 (**Report once**): the Finish rollup, then
   the last Verify report verbatim, then each earlier round's verdict with the
   first line of each finding fixed in it, each evaluator verdict with the
   finding it answered, and the reason the run ended.
+  - **Evidence:** Commit `bd42fd29` rewrites `## Running the loop` step 6 in
+    `iwe-implementer.agent.md`: the Finish rollup, the last Verify report
+    verbatim as message text, each earlier round verdict with the first line of
+    each finding fixed, each evaluator verdict with its finding, and the reason
+    the run ended;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 - [ ] `iwe-implement-all` re-posts each plan's rollup with that plan's final
   Verify report verbatim, each earlier Verify verdict, each evaluator verdict,
   and any decision it stopped for.
