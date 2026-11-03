@@ -237,11 +237,11 @@ Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:4` — `tools:`; `:71` —
   step 3, Run Verify for normal shipping
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:73` — the "From inside
-  `iwe-shipper`" section; `:82` — `## From a session`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:79` — the "From inside
+  `iwe-shipper`" section; `:88` — `## From a session`
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:36` — the "In place
   inside `iwe-shipper`" mode
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:457` — Requirement: Normal
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:459` — Requirement: Normal
   shipping requires a clean independent verification
 - `docs/knowledge/data/architecture/fresh-context-verify.md:35` — the Shipper's
   in-place route

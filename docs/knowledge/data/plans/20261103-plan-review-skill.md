@@ -195,12 +195,12 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 
 Verified anchor points (line numbers as of 2026-11-03):
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:149` — step 7, Audit the
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:151` — step 7, Audit the
   plan from a fresh context
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:162` — the revision
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:170` — the revision
   step's Durable Knowledge Auditor gate
 - `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md:4` —
   `tools:`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:331` — Requirement: Implement
-  verifies its own work and acts on the report; `:417` — Requirement: Plans
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:333` — Requirement: Implement
+  verifies its own work and acts on the report; `:419` — Requirement: Plans
   record intent, not the path taken to it

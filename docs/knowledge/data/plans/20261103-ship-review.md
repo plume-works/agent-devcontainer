@@ -207,7 +207,7 @@ Verified anchor points (line numbers as of 2026-11-03):
   `iwe-shipper`; `:29` — step 3, Re-post its report
 - `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — dispatches
   `iwe-shipper` once per plan
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:172` — step 8
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:158` — step 8
   re-dispatches `iwe-shipper` for a Ship blocker report
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:624` — Requirement: Ship and
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:679` — Requirement: Ship and
   Implement start only from an explicit request or a named dispatcher
