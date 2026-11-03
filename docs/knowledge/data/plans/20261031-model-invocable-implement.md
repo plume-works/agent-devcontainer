@@ -117,7 +117,9 @@ Rejected:
     request", "answered by this session's own user, or by an approval of the
     user's that a coordinator's message relays", and "tell a requesting session
     what you are waiting on".
-- [ ] The rollup goes back to the requesting session as well as this one.
+- [x] The rollup goes back to the requesting session as well as this one.
+  - **Evidence:** commit 8ede183b — the mode ends "Send the rollup back to a
+    requesting session as well as reporting it here."
 
 ### Task 3: Plan never starts or names Implement
 
