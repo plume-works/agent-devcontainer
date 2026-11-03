@@ -82,7 +82,10 @@ needed. In particular:
    the working tree runs only under a quoted approval that names it; otherwise
    stop as above. If the report contains any CRITICAL finding, make no shipping
    state transition and return a **Ship blocker report** (below); there is no
-   CRITICAL override. Continue only with a zero-CRITICAL verdict.
+   CRITICAL override. Continue only with a zero-CRITICAL verdict. While any
+   task carrying a `**Closed by:**` line is unticked — Verify lists it under
+   Outstanding observations — make no shipping state transition either, and
+   return a Ship blocker report naming each such task.
 4. **Merge every planned durable spec.** Use the plan's complete
    `## Spec changes` list and Verify's implementation evidence, not plan prose
    alone. The plan's recorded form — `None`, a concise normative outcome, or a
@@ -212,12 +215,15 @@ unresolvable `release` declaration — is written out in full with its
   once the revision validates.
 - **Dirty worktree** — uncommitted changes Verify refuses to judge: the user
   commits or discards the listed paths, then runs `/agentdev:iwe-ship` again.
+- **Outstanding observation** — an unticked task carrying a `**Closed by:**`
+  line: observe it, tick it with evidence, then run `/agentdev:iwe-ship` again.
 
 ## Rules
 
 - Cancellation and normal shipping are separate paths; cancellation never
   inherits normal shipping's verification, spec, feature/bug, or release work.
-- Normal shipping never proceeds past a Verify report containing a CRITICAL.
+- Normal shipping never proceeds past a Verify report containing a CRITICAL,
+  nor while a task carrying a `**Closed by:**` line is unticked.
 - Specs sync and validate before lifecycle stage changes, never after them.
 - Derive durable specs from verified shipped behavior and preserve unaffected
   content; never overwrite a whole spec from plan prose.
