@@ -266,11 +266,15 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] `## Running the loop` step 2 acts on every CRITICAL, and on a WARNING only
+- [x] `## Running the loop` step 2 acts on every CRITICAL, and on a WARNING only
   when its fix fits a task the plan already has and adds no claim the code must
   newly meet; every other WARNING is filed through `/agentdev:iwe-capture` and
   named in the report. Outstanding observations do not stop the run; the report
   names them.
+  - **Evidence:** commit c03d084c rewrites step 2 of `## Running the loop` in
+    `iwe-implementer.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 - [ ] Step 4's drafting sub-step says the revision changes only lines that
   answer the quoted finding and adds or sharpens no claim the code must newly
   meet.
