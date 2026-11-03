@@ -27,6 +27,7 @@ from scenarios import (
     REVISE_KEY,
     RULEBOOK,
     SHIPPER,
+    shows_report,
     verdict,
     VERIFIER,
     WORKFLOW_SKILL,
@@ -64,6 +65,16 @@ def agent_results(transcript: Transcript, agent: str) -> list[str]:
     ]
 
 
+def assert_report_shown(clone: Clone, key: str, transcript: Transcript) -> None:
+    """Assert the run's final message carries plan ``key``'s saved Verify report verbatim."""
+    saved = clone.saved_report(key)
+    assert saved is not None, f'a Verify report saved for {key}\n{transcript.excerpt()}'
+    final = transcript.final_text()
+    assert shows_report(saved, final), (
+        f'Verify report for {key} shown verbatim\n--- saved\n{saved}\n--- final\n{final}'
+    )
+
+
 def test_verify(base_clone: Clone, opencode) -> None:
     """Verify without approval dispatches the verifier once and changes nothing."""
     transcript = run(opencode(base_clone), 'verify', 'agentdev:iwe-verify', HELLO_KEY)
@@ -88,6 +99,7 @@ def test_verify_approved(base_clone: Clone, opencode) -> None:
     assert base_clone.has_marker(), f'publish ran\n{transcript.excerpt()}'
     assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
     assert base_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+    assert_report_shown(base_clone, HELLO_KEY, transcript)
 
 
 def test_ship(base_clone: Clone, opencode) -> None:
@@ -117,6 +129,7 @@ def test_ship_approved(base_clone: Clone, opencode) -> None:
         f'ship writes no hub, release page, or log\n{base_clone.shared_diff()}'
     )
     assert agent_prompts(transcript, VERIFIER) == [], f'Verify ran in place\n{dispatches}'
+    assert_report_shown(base_clone, HELLO_KEY, transcript)
 
 
 def test_ship_reuses_saved_report(base_clone: Clone, opencode) -> None:
@@ -131,6 +144,7 @@ def test_ship_reuses_saved_report(base_clone: Clone, opencode) -> None:
     assert prompt is not None and APPROVAL in prompt, (
         f'verifier prompt saved with the approval\n{base_clone.saved_report(HELLO_KEY)}'
     )
+    assert_report_shown(base_clone, HELLO_KEY, verify)
     verified = base_clone.head()
     base_clone.remove_marker()
     ship = run(server, 'saved-ship', 'agentdev:iwe-ship', HELLO_KEY)
@@ -139,6 +153,7 @@ def test_ship_reuses_saved_report(base_clone: Clone, opencode) -> None:
     assert not reports[0].lstrip().startswith('Needs decision'), f'no approval asked\n{reports[0]}'
     assert verified[:7] in reports[0], f'saved report named\n{reports[0]}'
     assert not base_clone.has_marker(), f'publish did not run again\n{ship.excerpt()}'
+    assert_report_shown(base_clone, HELLO_KEY, ship)
 
 
 def test_verify_refuses_dirty_worktree(base_clone: Clone, opencode) -> None:
@@ -199,6 +214,7 @@ def test_ship_all(base_clone: Clone, opencode) -> None:
     assert len(agent_prompts(transcript, SHIPPER)) == 1, (
         f'one iwe-shipper dispatch\n{transcript.excerpt("subagent")}'
     )
+    assert_report_shown(base_clone, HELLO_KEY, transcript)
 
 
 def assert_greet_stopped(clone: Clone, transcript: Transcript) -> None:
@@ -267,6 +283,7 @@ def test_implement_verifies(base_clone: Clone, opencode) -> None:
     assert base_clone.saved_field(LOOP_KEY, 'commit') == base_clone.head(), (
         f'loop verdict saved for HEAD\n{base_clone.saved_report(LOOP_KEY)}'
     )
+    assert_report_shown(base_clone, LOOP_KEY, transcript)
 
 
 def test_implement_revises(base_clone: Clone, opencode) -> None:
@@ -298,6 +315,8 @@ def test_implement_all(implement_all_clone: Clone, opencode) -> None:
     assert agent_prompts(transcript, EVALUATOR) == [], f'no evaluator\n{dispatches}'
     assert clone.loop_done(), f'loop ticked with evidence, file written\n{transcript.excerpt()}'
     assert clone.pair_done(), f'pair ticked with evidence, file written\n{transcript.excerpt()}'
+    for key in (LOOP_KEY, PAIR_KEY):
+        assert_report_shown(clone, key, transcript)
 
 
 @pytest.mark.parametrize(
