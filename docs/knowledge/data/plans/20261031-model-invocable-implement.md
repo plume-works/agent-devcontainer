@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-03
 created: 2026-10-31
 release:
 - features/agentdev-iwe-workflow-skills
@@ -13,7 +15,6 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
-rank: 150
 ---
 
 # Let any session asked to implement a named plan start Implement
