@@ -4,9 +4,9 @@ The agent catalog does not live here; it ships as the `agentdev` plugin under
 [`.agents/plugins/agentdev/`](../.agents/plugins/agentdev/README.md). What remains in this directory is the
 configuration this repository keeps for itself.
 
-| Path            | Purpose                                                               |
-| --------------- | --------------------------------------------------------------------- |
-| `settings.json` | Permissions, additional directories, and enabled third-party plugins. |
+| Path            | Purpose                                                                                                           |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `settings.json` | Permissions, additional directories, and enabled third-party plugins.                                             |
 | `startup.sh`    | Cloud session startup: registers the marketplace, installs `agentdev`, starts Docker, pre-pulls the pinned image. |
 
 `startup.sh` resolves the repository root from its own location, so it runs from any directory. It
