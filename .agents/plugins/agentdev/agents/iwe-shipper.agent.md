@@ -185,9 +185,11 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 
 - **Verify report** — whenever Verify produced a report, carry it verbatim
   here, after the lead line and before the Ship summary, led by
-  `Saved Verify report from <commit>` when the skill returned a saved one. A
-  path to the saved report, or the report in a tool result only, is not a
-  substitute.
+  `Saved Verify report from <commit>` when the skill returned a saved one. When
+  the report was saved, read the file the cache script's `REPORT` names and copy
+  its body below the frontmatter character for character: no rewording,
+  re-wrapping, reformatting, or shortened paths. A path to the saved report, or
+  the report in a tool result only, is not a substitute.
 - **Completed** and **preserved** operations, and the commit.
 - **Needs decision** — the exact command or choice and why, when you stopped
   for one.

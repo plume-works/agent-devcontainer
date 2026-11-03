@@ -132,8 +132,10 @@ then:
 - **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding opens
   with its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for
   SUGGESTION, numbered from 1 per severity in report order — then its
-  `path:line` evidence or the label "unverified", and its recommendation. Audit
-  mode numbers its findings the same way.
+  `path:line` evidence or the label "unverified", and its recommendation. A
+  `path` is relative to the repository root, never absolute, so the report
+  reads the same from any checkout. Audit mode numbers its findings the same
+  way.
 - **Verification commands** — each `## Verification` command run and its actual
   result.
 - **Needs decision** — the exact command or choice and why, when you stopped
