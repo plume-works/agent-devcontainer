@@ -50,7 +50,7 @@ been written.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Insert this bullet as the first bullet of `## The stance`, before
+- [x] Insert this bullet as the first bullet of `## The stance`, before
   `**Grounded, not theoretical**`, verbatim:
 
   ``` markdown
@@ -61,6 +61,12 @@ been written.
     needs several observed cases it explains. A case you can only imagine is
     listed under "not observed", never designed for.
   ```
+
+  - **Evidence:** commit `2958893d` inserts the block as the first
+    `## The stance` bullet; a byte comparison of the fenced block against
+    `iwe-explore/SKILL.md` finds it exactly once, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes (61/61 skills valid, 0 errors, 0 warnings).
 
 ### Task 2: Narrow the `Honest about unknowns` bullet
 
