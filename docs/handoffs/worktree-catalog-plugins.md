@@ -29,6 +29,9 @@ checkout sat 31 commits behind `origin/main`.
   `Bash(/root/.claude/plugins/cache/wt-<name>/agentdev/*)`.
 - Remote Control's automatic cleanup of a spawned session's worktree runs
   `WorktreeRemove` (human:author).
+- Inline plugins (`--plugin-dir`, `CLAUDE_CODE_PLUGIN_DIRS`) are not the route
+  for Remote Control spawns: no hook can turn them on per worktree. They stay a
+  manual option for a local session started with `claude -w` (human:author).
 
 ## Findings (Claude Code 2.1.316, agent-dev3)
 
