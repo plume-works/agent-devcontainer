@@ -223,8 +223,12 @@ Rejected:
     and asks when the plan is ambiguous … Plan and Explore … never name it") and
     retitles the rejection **Drop the gate and rely on descriptions, for Ship**,
     keeping its Explore example.
-- [ ] The two alternatives rejected in `## Approach` are added under
+- [x] The two alternatives rejected in `## Approach` are added under
   `## Rejected alternatives`.
+  - **Evidence:** commit 5b4b924a adds **A separate model-invocable Implement
+    entry skill that runs only on a coordinator's request** and **Workers
+    following the rulebook file without the skill** under
+    `## Rejected alternatives`.
 
 ### Task 8: CI passes on the implementation branch
 
