@@ -118,7 +118,7 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `stray` and `sharpened` `test_evaluator` variants, and their fixtures;
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` at f9335f1e lists
     each scenario on both harnesses.
-- [ ] Before Tasks 2–6 change any rulebook, these nine scenarios run on Claude
+- [x] Before Tasks 2–6 change any rulebook, these nine scenarios run on Claude
   Code only, and each fails for the right reason — the transcript shows the
   failure the scenario names: `test_ship_waits_for_observation`,
   `test_verify_lists_observation`, `test_implement_files_warning`,
@@ -130,6 +130,15 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
   `test_verify_rejects_content_coverage`, `test_plan_matches_code`, and
   `test_evaluator[stray]` — are regression guards that must pass after the
   change (Task 8).
+  - **Evidence:** `E2E_RUN_LIVE=1 uv run pytest -n 3` on Claude Code, before the
+    rulebook commit c03d084c: at 50ee5a75, the four `test_plan_*` observation,
+    CI, nested-container, and limit scenarios fail, with requests unchanged
+    through f9335f1e; at 537037b5, `test_ship_waits_for_observation` (Ship
+    ships), `test_verify_lists_observation` (CRITICAL),
+    `test_implement_files_warning` (no `iwe-capture`), and
+    `test_plan_scopes_search` (repository-wide search) fail; at f9335f1e,
+    `test_evaluator[sharpened]` fails on `APPROVE`. The five guards pass at
+    537037b5 and f9335f1e.
 - [x] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
   - **Evidence:** at commit f9335f1e,
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 76 tests
