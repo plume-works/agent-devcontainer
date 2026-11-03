@@ -147,7 +147,9 @@ Rejected:
   - **Evidence:** commit 149e8843; at that commit
     `git grep -n "iwe-implement" .agents/plugins/agentdev/skills/iwe-explore`
     prints nothing, and the validator reports 61/61 valid.
-- [ ] Explore still never starts Plan or Implement itself.
+- [x] Explore still never starts Plan or Implement itself.
+  - **Evidence:** commit 149e8843 — `## During implementation` reads "never
+    start Plan or Implement from Explore or silently change the plan."
 
 ### Task 5: e2e scenarios for a requested run and for Plan and Explore
 
