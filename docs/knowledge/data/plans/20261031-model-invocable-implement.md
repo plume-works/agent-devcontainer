@@ -6,7 +6,7 @@ release:
 description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T06:20:47Z
+  at: 2026-11-03T07:24:45Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -248,17 +248,18 @@ Rejected:
     (run 41585202319, job 125748954752), Validate agent files (run 41585202317,
     job 125749073322), Validate knowledge base (run 41585202303).
 
-### Task 9: A coordinator relays the user's approval of a narrowing
+### Task 9: A coordinator's message names a plan to implement
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
 - [ ] On Claude Code and OpenCode, a plain message written as a coordinator
-  session's, asking to implement `CONFLICT_KEY` and quoting the user's approval
-  to narrow `e2e-conflict` to `yes`, loads the `iwe-implement` skill, dispatches
-  no `iwe-implementer`, leaves `e2e/conflict.txt` holding `yes`, and does not
-  stop to ask the user about the narrowing.
+  session's, asking to implement `GREET_KEY`, loads the `iwe-implement` skill
+  and passes the same assertions as `test_implement_requested`: the rulebook
+  read in session, nothing dispatched, and the greet task handled as in
+  `test_implement`. Task 9 removes `RELAYED_NARROWING` from `scenarios.py` and
+  `test_implement_relayed_narrowing` from both suites.
 - [ ] That scenario passes on Claude Code and on OpenCode with the default test
   models.
 
@@ -447,11 +448,9 @@ SHALL stop and report at any point that needs a user decision it was not given.
 #### Scenario: A coordinator asks a session to implement a plan
 
 - **WHEN** a coordinator session sends a session a message asking it to
-  implement a named plan and relaying the user's approval of a narrowing
-  deviation, and a task needs that deviation
-- **THEN** the session loads `/agentdev:iwe-implement`, follows the
-  `iwe-implementer` rulebook in place, and takes the deviation without asking
-  again.
+  implement a named plan
+- **THEN** the session loads `/agentdev:iwe-implement` and follows the
+  `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
 
 #### Scenario: A coordinator ships every implemented plan
 
@@ -543,12 +542,10 @@ Verified anchor points (line numbers as of 2026-11-03):
   `test_implement`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:386` —
   `test_explore`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:321` —
-  `test_implement_stops_on_narrowing`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:359` —
-  `test_implement_stops_on_narrowing`
-- `scripts/e2e/iwe-workflows/fixtures/plans/20261027-e2e-conflict.md:1` — the
-  conflict fixture plan
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:214` —
+  `test_implement_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:243` —
+  `test_implement_requested`
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
   may start them**
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
