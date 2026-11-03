@@ -6,7 +6,7 @@ release:
 description: Delete the IWE workflow e2e suite under scripts/e2e/ with its unit tests and pytest marker, drop e2e claims from living project memory, and add a standing rule that plans add no live-model end-to-end test of the workflow skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T20:00:00Z
+  at: 2026-11-03T19:34:21Z
 sources:
 - resource: scripts/e2e/conftest.py
 - resource: scripts/e2e/iwe-workflows/scenarios.py
@@ -28,10 +28,11 @@ through the agentdev workflow skills against a live model, gated by
 `E2E_RUN_LIVE` and the `e2e` marker, plus the unit tests in `scripts/tests/`
 that cover the suite's own harness.
 
-The active plans [Let any session asked to ship a named plan start
-Ship](20261102-model-invocable-ship.md) and [Add an adversarial review for plans
-and their code](20261102-adversarial-review.md) cover behaviour only a live
-session shows with observation tasks, not e2e scenarios.
+Filing this plan also revises the active plans [Let any session asked to ship a
+named plan start Ship](20261102-model-invocable-ship.md) and [Add an adversarial
+review for plans and their code](20261102-adversarial-review.md): their e2e
+tasks become observation tasks. That is planning state, so no task below carries
+it.
 
 The planner rule changes what [IWE workflow skills in the agentdev
 catalog](../features/agentdev-iwe-workflow-skills.md) ships to template
@@ -45,8 +46,8 @@ rule to `AGENTS.md` `### Tests` and to the `iwe-planner` rulebook, so behaviour
 only a live agent session can show becomes an observation task under the
 existing observation-task rule.
 
-Done plans, done backlog tasks, bug documents, and `data/log.md` stay as they
-are: they record what shipped, and the e2e runs were part of that.
+Done plans, done backlog tasks, done bug documents, and `data/log.md` stay as
+they are: they record what shipped, and the e2e runs were part of that.
 
 Rejected:
 
@@ -241,8 +242,10 @@ session from adding such a test.
 
 ## Out of scope
 
-- Done plans, done backlog tasks, bug documents, and `data/log.md`: they record
-  shipped work and keep their e2e mentions.
+- Done plans, done backlog tasks, done bug documents, and `data/log.md`: they
+  record shipped work and keep their e2e mentions.
+- Open bug documents that cite the deleted suite; keeping their reproductions
+  runnable is separate work.
 - The self-improve plugin's `smoke`, `pty`, and `auto_memory` live-session
   tests, their markers, and their `Makefile` targets.
 - The `'e2e'` strings in `.agents/plugins/agentdev/tests/test_verify_cache.py`:
