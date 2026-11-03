@@ -431,23 +431,23 @@ Verified anchor points (line numbers as of 2026-11-03):
   user's session** mode
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:22` — **Dispatched**
   mode
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:14` — "report readiness,
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:15` — "report readiness,
   and stop before editing implementation code"
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:177` — step 8's report
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:100` —
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:102` —
   `## During implementation` handoff naming `/agentdev:iwe-implement`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:148` — `## Rules`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:155` — `## Rules`
   pointer naming `/agentdev:iwe-implement`
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:166` — `explicitOnly` read
   from the frontmatter
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:220` — skill `deny`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:67` — deny test
-- `scripts/e2e/iwe-workflows/scenarios.py:39` — `WORKFLOW_SKILL`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:207` — `OpenCodeServer.run`,
+- `scripts/e2e/iwe-workflows/scenarios.py:42` — `WORKFLOW_SKILL`
+- `scripts/e2e/iwe-workflows/harness_opencode.py:218` — `OpenCodeServer.run`,
   command-only
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:173` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:189` —
   `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:295` — `test_explore`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:314` — `test_explore`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:196` —
   `test_implement`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:330` —
@@ -456,11 +456,11 @@ Verified anchor points (line numbers as of 2026-11-03):
   may start them**
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:31` — the
   gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:45` —
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:43` —
   **Implement keeps the user's session**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:168` —
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:144` —
   **Drop the gate and rely on descriptions**
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:47` — Explore requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:88` — Plan requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:587` — Ship and Implement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:45` — Explore requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:112` — Plan requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:624` — Ship and Implement
   start requirement
