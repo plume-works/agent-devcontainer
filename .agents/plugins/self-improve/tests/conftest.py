@@ -12,8 +12,6 @@ import sys
 
 import pytest
 
-# Resolved from this file so the suite runs from the plugin cache, where the
-# repository that develops the plugin is not present.
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SI = os.path.join(PLUGIN_ROOT, 'agent-code', 'si')
 

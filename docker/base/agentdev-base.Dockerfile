@@ -15,7 +15,7 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 # the build context, so this is a pin the build verifies rather than a version it
 # fetches: .claude-plugin/marketplace.json must declare exactly this version or the
 # provisioning fails. Bump both together when releasing the catalog.
-ARG AGENTDEV_PLUGIN_VERSION=4.2.0
+ARG AGENTDEV_PLUGIN_VERSION=5.0.0
 
 # Where the staged catalog lives. Outside $HOME on purpose: ~/.claude is commonly
 # mounted as a volume, which would shadow anything placed under them.
@@ -74,6 +74,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # persistent ~/.claude volume it mounts over this install.
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
+# Tools with their own root store read the system one, so an added CA reaches them all.
+# Design: architecture/extra-ca-trust.
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+    REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+    NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 
 LABEL org.opencontainers.image.title="agentdev-base"
 LABEL org.opencontainers.image.description="Lifecycle-neutral agentdev tools, staged catalog, and default policy."

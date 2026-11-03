@@ -82,3 +82,17 @@ if [[ -S "$HOST_SECRETS_SOCKET" ]]; then
 else
     touch "/tmp/stub-secrets-engine.sock"
 fi
+
+# A TLS-intercepting proxy's CA, for the runtime to trust; design: architecture/extra-ca-trust.
+# Always written, empty when the host names none, so Compose bind-mounts a file.
+extra_ca="$script_dir/.extra-ca.crt"
+: > "$extra_ca"
+if [[ -n "${AGENTDEV_EXTRA_CA_CERTS:-}" ]]; then
+    if [[ ! -r "$AGENTDEV_EXTRA_CA_CERTS" ]]; then
+        echo "devcontainer-init: AGENTDEV_EXTRA_CA_CERTS=$AGENTDEV_EXTRA_CA_CERTS is not readable" >&2
+        exit 1
+    fi
+    cat "$AGENTDEV_EXTRA_CA_CERTS" > "$extra_ca"
+elif [[ -n "${NODE_EXTRA_CA_CERTS:-}" && -r "$NODE_EXTRA_CA_CERTS" ]]; then
+    cat "$NODE_EXTRA_CA_CERTS" > "$extra_ca"
+fi

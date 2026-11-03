@@ -271,7 +271,7 @@ it ships.
 
 ### `agentdev`
 
-The image carries `agentdev` 4.2.0, a cross-agent plugin with 37 skills and five
+The image carries `agentdev` 5.0.0, a cross-agent plugin with 37 skills and five
 agent definitions for Claude Code and OpenCode. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
@@ -279,7 +279,7 @@ agent definitions for Claude Code and OpenCode. It covers:
 - GitHub Actions and CodeQL diagnostics.
 - Formatting, linting, and semantic-refactor auditing.
 - Agent and skill authoring.
-- Docker-backed execution and remote GitHub Codespace sessions.
+- Docker-backed execution through the project devcontainer.
 - Template adoption and updates.
 - The complete IWE project-memory workflow.
 
