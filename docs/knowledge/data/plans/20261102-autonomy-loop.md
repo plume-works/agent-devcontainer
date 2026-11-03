@@ -324,10 +324,14 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 **Files:** Modify:
 `docs/knowledge/data/architecture/autonomous-implement-loop.md`
 
-- [ ] The decision states what the loop acts on (CRITICALs; a WARNING only
+- [x] The decision states what the loop acts on (CRITICALs; a WARNING only
   inside an existing task), that Verify is a conformance check, that CI belongs
   to `pr-merge` and post-merge observations to Ship, and the evaluator's two new
   `REJECT` conditions.
+  - **Evidence:** commit c03d084c adds the paragraph "The loop acts only on what
+    the plan promised" and both `REJECT` bullets to
+    `autonomous-implement-loop.md` `## Decision`; `iwe schema validate` passes
+    at 267b16dc.
 - [ ] `## Rejected alternatives` adds the two alternatives in `## Approach`.
 
 ### Task 8: The e2e scenarios pass on both harnesses
