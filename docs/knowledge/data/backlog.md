@@ -59,6 +59,8 @@ asking](backlog/implement-opens-pr.md)
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
 
+[Nested dispatch from catalog agents](backlog/nested-catalog-agent-dispatch.md)
+
 [Run Primary checks' ci job in parallel with the pre-commit
 job](backlog/parallel-ci-with-pre-commit.md)
 

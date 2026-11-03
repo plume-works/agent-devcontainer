@@ -159,6 +159,9 @@ plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 [Adopt GitHub native stacked pull
 requests](plans/20261002-native-stacked-prs.md)
 
+[Nest agent dispatch to depth 5 on both
+harnesses](plans/20261103-nested-dispatch-depth.md)
+
 [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
 
 [Replace the runtime shell scripts with one agentdev-runtime

@@ -68,6 +68,8 @@ discovery](features/gitignore-aware-agent-file-discovery.md)
 
 [Native stacked pull requests](features/native-stacked-prs.md)
 
+[Nested agent dispatch](features/nested-agent-dispatch.md)
+
 [Never write a working logbook](features/no-working-logbooks.md)
 
 [OpenCode as a catalog host](features/opencode-catalog-host.md)
