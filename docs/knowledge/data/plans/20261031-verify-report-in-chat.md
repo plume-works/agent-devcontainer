@@ -159,9 +159,13 @@ Nothing refers to a finding across reports by ID.
     the run ended;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reports 0 errors at that commit.
-- [ ] `iwe-implement-all` re-posts each plan's rollup with that plan's final
+- [x] `iwe-implement-all` re-posts each plan's rollup with that plan's final
   Verify report verbatim, each earlier Verify verdict, each evaluator verdict,
   and any decision it stopped for.
+  - **Evidence:** Commit `bd42fd29` makes `iwe-implement-all/SKILL.md` re-post
+    each plan rollup with that plan final Verify report verbatim, each earlier
+    Verify verdict, each evaluator verdict, and any decision it stopped for;
+    validator reports 0 errors at that commit.
 
 ### Task 6: Record the behavior in the feature doc
 
