@@ -44,14 +44,15 @@ check, or refusal gate".
   `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` only
   invokes `/agentdev:iwe-audit`, whose `SKILL.md` holds every rule.
 
-- The devcontainer's OpenCode config sets `experimental.subagent_depth` to `5`,
-  so a dispatched catalog agent may dispatch another on OpenCode as on Claude
-  Code. The writer is
-  `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`, under the
-  spec `data/spec/devcontainer-opencode-policy`. Catalog agents stop being
+- Nesting depth is 3 on both harnesses. Claude Code keeps its default limit of
+  3, with no `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` override. The devcontainer's
+  OpenCode config sets `experimental.subagent_depth` to `3` to match; the writer
+  is `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`, under
+  the spec `data/spec/devcontainer-opencode-policy`. Catalog agents stop being
   leaves by design; this promotes `data/someday/nested-catalog-agent-dispatch`
   and reverses the leaf rule that `data/architecture/fresh-context-verify` and
-  `data/architecture/autonomous-implement-loop` rest on.
+  `data/architecture/autonomous-implement-loop` rest on. Every workflow's
+  dispatch chain fits in 3 levels; the agent at depth 3 cannot dispatch.
 - Every caller of the durable-knowledge audit dispatches the auditor agent,
   including a `/agentdev:pr-review` pass and `iwe-implementer` under
   `/agentdev:iwe-implement-all`; no caller follows the auditor's rulebook in
@@ -102,14 +103,12 @@ Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-Claude Code's default nesting depth is 3, below the `5` chosen for OpenCode. Does
-the devcontainer also set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5` for Claude
-Code, so both harnesses nest to depth 5?
+What are the final names of the durable-knowledge auditor agent (today
+`Durable Knowledge Auditor`) and the Ship-obligations reviewer agent (working
+name `ship-obligations-reviewer`)?
 
 ## Queued
 
-- The final names of the durable-knowledge auditor agent and the
-  Ship-obligations reviewer agent.
 - Where `/agentdev:iwe-audit`'s apply mode lives once the agent holds the
   rulebook and stays report-only.
 
