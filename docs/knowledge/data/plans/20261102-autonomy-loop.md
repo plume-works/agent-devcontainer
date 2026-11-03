@@ -156,8 +156,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] `## Rules` says behaviour observable only after merge is a task carrying a
+- [x] `## Rules` says behaviour observable only after merge is a task carrying a
   `**Closed by:** <who or what event>` line, and that Ship waits for it.
+
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] `## Rules` carries this approved paragraph verbatim:
 
