@@ -29,7 +29,8 @@ The loop reaches its three-round stop bound instead of converging. The causes:
   run stale. Post-merge observations (for example "the next Renovate pull
   request receives the bot approval") cannot be closed before merge at all.
 - **Warnings become work.** The loop acts on every WARNING whose recommendation
-  names a route, and Verify almost always names one.
+  names a concrete route, and the verifier rulebook requires a concrete
+  recommendation on every finding.
 - **Verify is not bound to the plan's contract.** A finding need not cite a
   requirement, scenario, task, or verification step, so each fresh round can
   report a weakness no plan claim addresses.
@@ -65,9 +66,10 @@ and files the rest through `/agentdev:iwe-capture`. The evaluator rejects a
 stray hunk and a new or sharpened claim. Ship refuses while an observation task
 is unticked.
 
-Each failure these rules remove first gets an e2e scenario, run on Claude Code,
-where the failures were seen, before any rulebook changes, so it fails there.
-After the rulebook changes, the scenarios pass on Claude Code and OpenCode.
+Each failure these rules remove first gets an e2e scenario, run on Claude Code
+before any rulebook changes, so it fails there; a scenario the current rulebooks
+already pass stays as a regression guard. After the rulebook changes, every
+scenario passes on Claude Code and OpenCode.
 
 Verify stays caller-independent, because the Implement loop and Ship share its
 saved report; Ship, not Verify, enforces the observation gate.
@@ -87,6 +89,7 @@ Rejected:
 `scripts/e2e/iwe-workflows/test_autonomy_loop_opencode.py`, and the fixture
 plans and stubs the scenarios need under `scripts/e2e/iwe-workflows/fixtures/`;
 Modify: `scripts/e2e/iwe-workflows/clone.py`,
+`scripts/e2e/iwe-workflows/harness_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
@@ -115,9 +118,18 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `stray` and `sharpened` `test_evaluator` variants, and their fixtures;
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` at f9335f1e lists
     each scenario on both harnesses.
-- [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
-  only, where these failures were seen, and fails for the right reason: the
-  transcript shows the failure the scenario names.
+- [ ] Before Tasks 2–6 change any rulebook, these nine scenarios run on Claude
+  Code only, and each fails for the right reason — the transcript shows the
+  failure the scenario names: `test_ship_waits_for_observation`,
+  `test_verify_lists_observation`, `test_implement_files_warning`,
+  `test_plan_scopes_search`, `test_plan_marks_observation`,
+  `test_plan_leaves_ci_to_merge_gate`, `test_plan_no_nested_container`,
+  `test_plan_names_limit`, and `test_evaluator[sharpened]`. The other five —
+  `test_verify_accepts_earlier_ci_run`,
+  `test_verify_ignores_unaddressed_weakness`,
+  `test_verify_rejects_content_coverage`, `test_plan_matches_code`, and
+  `test_evaluator[stray]` — are regression guards that must pass after the
+  change (Task 8).
 - [x] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
   - **Evidence:** at commit f9335f1e,
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 76 tests
@@ -456,10 +468,10 @@ that mechanism Plan knows.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 1
-  scenarios on Claude Code before any rulebook changes (Task 1), and with
-  `test_evaluator`, `test_ship`, and `test_implement_verifies` on Claude Code
-  and OpenCode after them (Task 8).
+- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the nine Task 1
+  scenarios that fail on Claude Code before any rulebook changes (Task 1), and
+  with `test_evaluator`, `test_ship`, and `test_implement_verifies` on Claude
+  Code and OpenCode after them (Task 8).
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -508,8 +520,9 @@ Verified anchor points (line numbers as of 2026-11-03):
   requirement
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:459` — Normal shipping
   requirement
-- `scripts/e2e/iwe-workflows/clone.py:363` — `draft_revision`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:297` —
+- `scripts/e2e/iwe-workflows/clone.py:401` — `draft_revision`
+- `scripts/e2e/iwe-workflows/harness_claude.py:20` — `allowed_tools`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:303` —
   `test_evaluator`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:338` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:344` —
   `test_evaluator`
