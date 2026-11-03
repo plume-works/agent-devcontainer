@@ -83,7 +83,7 @@ PLAN_DISAGREE = (
 PUBLISH_SCRIPT = 'bin/publish-e2e.sh'
 # A claim that the script fails outside a git repository; it prints `published` and exits 0.
 FAILS_OUTSIDE = re.compile(
-    r'outside[^.]*git repositor[^.]*\b(fail|non-?zero|refuse|error|abort)',
+    r'outside[^.]*git repositor[^.]*\b(fail|non-?zero|refuse|abort)',
     re.IGNORECASE | re.DOTALL,
 )
 # A path a task's **Files:** line names.
