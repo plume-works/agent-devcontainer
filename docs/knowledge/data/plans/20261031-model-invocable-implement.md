@@ -93,7 +93,10 @@ Rejected:
   - **Evidence:** commit a964f0be — the body reads "for the plan the request
     names" and keeps "Do not dispatch it as a subagent: only
     `/agentdev:iwe-implement-all` does that."
-- [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
+- [x] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
+  - **Evidence:** at commit a964f0be,
+    `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts` (bun
+    1.4.4 needs the `./` to read the argument as a path) — 29 pass, 0 fail.
 
 ### Task 2: Take decisions from the user, directly or relayed
 
