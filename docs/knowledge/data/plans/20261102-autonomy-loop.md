@@ -55,7 +55,10 @@ catalog](../features/agentdev-iwe-workflow-skills.md).
 
 Each decision lands in the rulebook that owns it. The planner stops writing CI
 tasks and repository-wide searches, marks post-merge observations with a
-`**Closed by:**` line, and adopts the approved test-coverage wording. The
+`**Closed by:**` line, and adopts the approved test-coverage wording. Before
+validation it checks each changed requirement against the plan's `## Approach`
+and the code it describes, keeps `## Verification` to commands the verifier can
+run, and writes requirements that claim only what their mechanism delivers. The
 verifier reports only against the plan's contract, lists unticked observation
 tasks as outstanding instead of CRITICAL, accepts a CI job as evidence without
 requiring a run on the current head, and adopts its approved sentence. The
@@ -94,6 +97,19 @@ Rejected:
 
 - [ ] Step 4's `## Verification` bullet says a search for leftover text covers
   only the files the plan changes.
+
+- [ ] `## Rules` says that before validation the planner checks each requirement
+  in `## Spec changes` that the plan adds or modifies against the plan's
+  `## Approach` and against the code it describes, and resolves every
+  disagreement in the plan before it is written.
+
+- [ ] Step 4's `## Verification` bullet says each command runs in the checkout
+  the `iwe-verifier` agent works in, with no started Dev Container and no CI; a
+  check that needs either is a cited CI job or a task carrying a
+  `**Closed by:**` line.
+
+- [ ] `## Rules` says a requirement in `## Spec changes` claims only what its
+  mechanism delivers and names each limit of that mechanism the planner knows.
 
 ### Task 2: Verify judges conformance to the plan
 
@@ -371,7 +387,12 @@ Plan SHALL write no task or verification step whose only claim is that CI
 passes, SHALL record behaviour observable only after merge as a task carrying a
 `**Closed by:**` line, SHALL name a test as coverage only when it runs the
 behaviour, and SHALL scope a verification search for leftover text to the files
-the plan changes.
+the plan changes. Before validation, Plan SHALL check each requirement it adds
+or modifies against the plan's `## Approach` and the code that requirement
+describes. Every `## Verification` command SHALL run in the checkout the
+`iwe-verifier` agent works in, without a started Dev Container or CI. A
+requirement SHALL claim only what its mechanism delivers and name each limit of
+that mechanism Plan knows.
 
 #### Scenario: A plan's work needs CI
 
@@ -384,6 +405,25 @@ the plan changes.
   branch
 - **THEN** Plan writes a task for it carrying a `**Closed by:**` line naming who
   or what closes it
+
+#### Scenario: A requirement disagrees with the code
+
+- **WHEN** a requirement Plan adds or modifies states a restriction the code it
+  describes does not hold, or contradicts the plan's `## Approach`
+- **THEN** Plan changes the requirement, the `## Approach`, or adds a task
+  before validation, and the plan carries no disagreement
+
+#### Scenario: A check needs a started Dev Container
+
+- **WHEN** proving the work needs a command that runs only inside a started Dev
+  Container
+- **THEN** `## Verification` does not list the command; the plan cites a CI job
+  that runs it or adds a task carrying a `**Closed by:**` line
+
+#### Scenario: A mechanism has a known limit
+
+- **WHEN** Plan writes a requirement for a mechanism with a limit it knows of
+- **THEN** the requirement names that limit
 ```
 
 ## Verification
