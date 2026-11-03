@@ -1,0 +1,243 @@
+---
+type: plan
+created: 2026-11-03
+release:
+- features/agentdev-iwe-workflow-skills
+description: Delete the IWE workflow e2e suite under scripts/e2e/ with its unit tests and pytest marker, drop e2e claims from living project memory, and add a standing rule that plans add no live-model end-to-end test of the workflow skills.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-11-03T19:30:00Z
+sources:
+- resource: scripts/e2e/conftest.py
+- resource: scripts/e2e/iwe-workflows/scenarios.py
+- resource: pyproject.toml
+- resource: AGENTS.md
+- resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
+---
+
+# Remove the IWE workflow e2e suite
+
+## Context
+
+The maintainer decided to remove every e2e test in the repository and to stop
+plans from adding new ones. The e2e tests are the IWE workflow suite under
+`scripts/e2e/`: pytest scenarios that drive Claude Code and OpenCode sessions
+through the agentdev workflow skills against a live model, gated by
+`E2E_RUN_LIVE` and the `e2e` marker, plus the unit tests in `scripts/tests/`
+that cover the suite's own harness.
+
+The active plans [Let any session asked to ship a named plan start
+Ship](20261102-model-invocable-ship.md) and [Add an adversarial review for plans
+and their code](20261102-adversarial-review.md) cover behaviour only a live
+session shows with observation tasks, not e2e scenarios.
+
+The planner rule changes what [IWE workflow skills in the agentdev
+catalog](../features/agentdev-iwe-workflow-skills.md) ships to template
+consumers.
+
+## Approach
+
+Delete the suite and everything that exists only to serve it, then remove the
+sentences in living project memory that say the suite exists or runs. Add the
+rule to `AGENTS.md` `### Tests` and to the `iwe-planner` rulebook, so behaviour
+only a live agent session can show becomes an observation task under the
+existing observation-task rule.
+
+Done plans, done backlog tasks, bug documents, and `data/log.md` stay as they
+are: they record what shipped, and the e2e runs were part of that.
+
+Rejected:
+
+- **Keep the suite but stop running it.** Unrun tests rot and still read as
+  coverage.
+- **Ban every live-model test.** The self-improve plugin's `smoke`, `pty`, and
+  `auto_memory` tests also drive live sessions; the maintainer kept them, so the
+  rule names the workflow skills only.
+
+## Implementation Steps
+
+### Task 1: Delete the e2e suite and its unit tests
+
+**Files:** Delete: `scripts/e2e/` (all 28 tracked files),
+`scripts/tests/test_e2e_iwe_workflows_claude_transcript.py`,
+`scripts/tests/test_e2e_iwe_workflows_clone.py`,
+`scripts/tests/test_e2e_iwe_workflows_credential.py`,
+`scripts/tests/test_e2e_iwe_workflows_opencode_server.py`,
+`scripts/tests/test_e2e_iwe_workflows_opencode_transcript.py`,
+`scripts/tests/test_e2e_iwe_workflows_report_shown.py`,
+`scripts/tests/test_e2e_live_gate.py`; Modify: `pyproject.toml`
+
+- [ ] `git ls-files scripts/e2e 'scripts/tests/test_e2e_*'` prints nothing.
+- [ ] The `e2e` entry is gone from `[tool.pytest.ini_options].markers`; the
+  `smoke`, `interactive`, `pty`, `harness`, and `auto_memory` markers stay.
+- [ ] `uv run pytest --collect-only -q` collects with no error.
+
+### Task 2: The standing rule and the OpenCode model rule in AGENTS.md
+
+**Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
+
+- [ ] `AGENTS.md` `### Tests` gains this bullet after "Behaviour no such test
+  can reach stays untested.", verbatim:
+
+  ``` markdown
+  - Never write an end-to-end test that drives an agent session (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
+  ```
+
+- [ ] Best Practice 9 reads "When a test or check runs OpenCode" in place of
+  "When a test, e2e harness, or check runs OpenCode".
+
+- [ ] `data/product.md` `## Authoring rules` reads "OpenCode tests default to"
+  in place of "OpenCode tests and e2e runs default to", and gains a bullet
+  restating the new `### Tests` rule.
+
+### Task 3: The standing rule in the iwe-planner rulebook
+
+**Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
+
+- [ ] `## Rules` gains this bullet directly after the "A scenario is covered by
+  a test only when" bullet, verbatim:
+
+  ``` markdown
+  - A plan adds no end-to-end test that drives an agent session through the workflow skills against a live model; behaviour only such a session can show is an observation task naming who closes it, and Ship waits for it.
+  ```
+
+- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+  reports no errors.
+
+### Task 4: Drop e2e claims from living project memory
+
+**Files:** Modify:
+`docs/knowledge/data/features/claude-and-opencode-only-harnesses.md`,
+`docs/knowledge/data/architecture/supported-harnesses.md`,
+`docs/knowledge/data/someday/revision-evaluator-calibration.md`,
+`docs/knowledge/data/architecture/fresh-context-verify.md`,
+`docs/knowledge/data/features/verify-report-cache.md`,
+`docs/knowledge/data/backlog/incremental-re-verify.md`
+
+- [ ] `claude-and-opencode-only-harnesses`: the `description` and `## Purpose`
+  list "the images, runtime, agentdev catalog, and CI" with no e2e suites; the
+  `scripts/e2e/iwe-workflows/harness_codex.py` source is removed; the Behaviour
+  bullet reads "CI requires only the Claude marketplace."
+- [ ] `supported-harnesses`: the `description` drops "and e2e suites"; the
+  `## Decision` bullet reads "CI validates the catalog with
+  `--require-marketplace claude`."
+- [ ] `revision-evaluator-calibration`: the `scripts/e2e/...` source is removed,
+  and the sentence on the e2e suite reads "No check compares any of its verdicts
+  with a human verdict."
+- [ ] `fresh-context-verify`, `verify-report-cache` (`description` and
+  `## Purpose`), and `incremental-re-verify` say "test runs" or "full test
+  suites" with no "e2e runs".
+- [ ] Each changed document's `generated` stamp is refreshed.
+
+## Spec changes
+
+[IWE workflow skills](../spec/iwe-workflow-skills.md) — the Plan testing
+requirement gains the no-e2e rule and a scenario for it.
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: Plans test behaviour and leave CI to the merge gate
+
+Plan SHALL write no task or verification step whose only claim is that CI
+passes, SHALL record behaviour observable only after merge as a task carrying a
+`**Closed by:**` line, SHALL name a test as coverage only when it runs the
+behaviour, and SHALL scope a verification search for leftover text to the files
+the plan changes. Plan SHALL add no end-to-end test that drives an agent
+session through the workflow skills against a live model; behaviour only such a
+session can show SHALL be an observation task naming who closes it. Before
+validation, Plan SHALL check each requirement it adds or modifies against the
+plan's `## Approach` and the code that requirement describes. Every
+`## Verification` command SHALL run in the checkout the `iwe-verifier` agent
+works in, inside the Dev Container or container the agent already runs in,
+without starting a nested Dev Container or CI. A requirement SHALL claim only
+what its mechanism delivers and name each limit of that mechanism Plan knows.
+
+#### Scenario: A plan's work needs CI
+
+- **WHEN** Plan writes a plan whose change is checked by CI
+- **THEN** the plan carries no "CI passes" task or verification step
+
+#### Scenario: Behaviour is visible only after merge
+
+- **WHEN** a requirement can be observed only once the change is on the default
+  branch
+- **THEN** Plan writes a task for it carrying a `**Closed by:**` line naming who
+  or what closes it
+
+#### Scenario: Behaviour only a live agent session shows
+
+- **WHEN** a requirement can be observed only by driving an agent session
+  through the workflow skills against a live model
+- **THEN** Plan writes an observation task naming who closes it and adds no
+  end-to-end test for it
+
+#### Scenario: A requirement disagrees with the code
+
+- **WHEN** a requirement Plan adds or modifies states a restriction the code it
+  describes does not hold, or contradicts the plan's `## Approach`
+- **THEN** Plan changes the requirement, the `## Approach`, or adds a task
+  before validation, and the plan carries no disagreement
+
+#### Scenario: A check needs a nested Dev Container
+
+- **WHEN** proving the work needs a command that runs only after starting a
+  nested Dev Container
+- **THEN** `## Verification` does not list the command; the plan cites a CI job
+  that runs it or adds a task carrying a `**Closed by:**` line
+
+#### Scenario: A mechanism has a known limit
+
+- **WHEN** Plan writes a requirement for a mechanism with a limit it knows of
+- **THEN** the requirement names that limit
+```
+
+The rule is a rulebook instruction: nothing mechanically stops a plan or a
+session from adding such a test.
+
+## Verification
+
+- `git ls-files scripts/e2e 'scripts/tests/test_e2e_*'` prints nothing.
+- `uv run pytest --collect-only -q` collects with no error.
+- `grep -n -i 'e2e' pyproject.toml AGENTS.md docs/knowledge/data/product.md .agents/plugins/agentdev/agents/iwe-planner.agent.md docs/knowledge/data/features/claude-and-opencode-only-harnesses.md docs/knowledge/data/architecture/supported-harnesses.md docs/knowledge/data/someday/revision-evaluator-calibration.md docs/knowledge/data/architecture/fresh-context-verify.md docs/knowledge/data/features/verify-report-cache.md docs/knowledge/data/backlog/incremental-re-verify.md`
+  prints nothing.
+- `uv run validate_agent_files --recommend . --require-marketplace claude`
+- `iwe normalize` and `iwe schema validate` pass.
+
+## Out of scope
+
+- Done plans, done backlog tasks, bug documents, and `data/log.md`: they record
+  shipped work and keep their e2e mentions.
+- The self-improve plugin's `smoke`, `pty`, and `auto_memory` live-session
+  tests, their markers, and their `Makefile` targets.
+- The `'e2e'` strings in `.agents/plugins/agentdev/tests/test_verify_cache.py`:
+  arbitrary approval text, not an e2e test.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-11-03):
+
+- `scripts/e2e/conftest.py:1` — the `E2E_RUN_LIVE` gate
+- `scripts/tests/test_e2e_live_gate.py:16` — loads `scripts/e2e/conftest.py`
+- `pyproject.toml:41` — the `e2e` marker
+- `AGENTS.md:50` — Best Practice 9
+- `AGENTS.md:98` — `### Tests`
+- `docs/knowledge/data/product.md:151` — the OpenCode default-model authoring
+  rule
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:264` — "A scenario is
+  covered by a test only when"
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:272` — Plans test behaviour
+  requirement
+- `docs/knowledge/data/features/claude-and-opencode-only-harnesses.md:35` — the
+  e2e Behaviour bullet
+- `docs/knowledge/data/architecture/supported-harnesses.md:29` — the CI and e2e
+  bullet
+- `docs/knowledge/data/someday/revision-evaluator-calibration.md:18` — the e2e
+  suite sentence
+- `docs/knowledge/data/architecture/fresh-context-verify.md:57` — "test and e2e
+  runs"
+- `docs/knowledge/data/features/verify-report-cache.md:23` — "full test suites
+  and e2e runs"
+- `docs/knowledge/data/backlog/incremental-re-verify.md:23` — "full test suites
+  and e2e runs"

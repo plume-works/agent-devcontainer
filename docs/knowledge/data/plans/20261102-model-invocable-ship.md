@@ -6,7 +6,7 @@ release:
 description: Drop the explicit-only gate on the iwe-ship skill so a session or coordinator asked to ship a named plan can start Ship, which still runs as a fresh iwe-shipper subagent, while Explore never starts it and the coordinators stay explicit-only.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T21:00:00Z
+  at: 2026-11-03T19:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -94,28 +94,30 @@ Rejected:
 - [ ] **Drop the gate and rely on descriptions** stays rejected for the
   coordinators only.
 
-### Task 4: e2e scenarios for a requested Ship and for Explore
+### Task 4: Observe a plain-words Ship request on both harnesses
 
-**Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+**Closed by:** the maintainer, observing one session on Claude Code and one on
+OpenCode with the default test models.
 
-- [ ] On both harnesses, a plain prompt asking to ship `HELLO_KEY`, with no
-  command, loads the `iwe-ship` skill and dispatches one `iwe-shipper`, with the
-  same assertions as `test_ship`.
-- [ ] The existing `test_explore` still asserts no Ship or Implement skill load.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+- [ ] A plain prompt asking to ship a named plan, with no command, loads the
+  `iwe-ship` skill and dispatches one `iwe-shipper` whose prompt carries only
+  the plan key, the ship operation, and quoted approvals.
 
-### Task 5: The new and changed e2e scenarios pass
+### Task 5: Observe Explore leaving Ship alone on both harnesses
 
-- [ ] The Task 4 scenarios and the existing `test_ship` and `test_explore` pass
-  on Claude Code and on OpenCode with the default test models.
+**Closed by:** the maintainer, observing one session on Claude Code and one on
+OpenCode with the default test models.
+
+- [ ] During `/agentdev:iwe-explore`, a partial answer that leaves a plan
+  apparently complete loads no Ship or Implement skill and dispatches no
+  `iwe-shipper`.
 
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — the requirement on who
-starts Ship and Implement changes again, building on the wording [Let any
-session asked to implement a named plan start
-Implement](20261031-model-invocable-implement.md) records.
+starts Ship and Implement is modified from the wording [Let any session asked to
+implement a named plan start Implement](20261031-model-invocable-implement.md)
+records.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -235,9 +237,8 @@ decision it was not given.
 
 - `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 4
-  scenarios with `test_ship` and `test_explore` on Claude Code and OpenCode
-  (Task 5).
+- Tasks 4 and 5 are observation tasks the maintainer closes; Ship waits for
+  them.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -249,14 +250,14 @@ decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
+Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:3` — `description`
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:4` —
   `disable-model-invocation: true`
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:37` — "Never perform a Ship
   step in this session"
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:69` — explicit-only
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:71` — explicit-only
   skills map to `deny`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:113` — `iwe-ship`
   expected `deny`
@@ -264,14 +265,9 @@ Verified anchor points (line numbers as of 2026-11-02):
   expected `deny`
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
   may start them**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:31` — the
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
   gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:144` —
-  **Drop the gate and rely on descriptions**
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:612` — Ship and Implement
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:157` —
+  **Drop the gate and rely on descriptions, for Ship**
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:804` — Ship and Implement
   start requirement
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:70` — `test_ship`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:295` — `test_explore`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:85` — `test_ship`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:330` —
-  `test_explore`

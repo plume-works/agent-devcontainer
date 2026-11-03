@@ -6,7 +6,7 @@ release:
 description: Add an adversarial review — a report-only catalog agent and its entry skill — that looks for ways to defeat a plan's design or its implemented code, runs only when a plan task or the user asks, and leaves Verify a conformance check.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T20:30:00Z
+  at: 2026-11-03T19:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -113,25 +113,23 @@ Modify: `docs/knowledge/data/architecture.md`
   `## Approach`.
 - [ ] `data/architecture.md` links it at its sorted position.
 
-### Task 5: e2e scenarios for both targets
+### Task 5: Observe a code review on both harnesses
 
-**Files:** Create: a fixture plan whose code defeats one of its own claims;
-Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+**Closed by:** the maintainer, observing one session on Claude Code and one on
+OpenCode with the default test models, on a plan whose code defeats one of its
+own claims.
 
-- [ ] On both harnesses, `/agentdev:iwe-adversarial-review <fixture> code`
-  dispatches one `iwe-adversarial-reviewer` whose report names the defeated
-  claim, and the clone has no new commit and a clean worktree.
-- [ ] On both harnesses, `/agentdev:iwe-plan` asked to plan a small change loads
-  no `iwe-adversarial-review` skill and dispatches no
-  `iwe-adversarial-reviewer`.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+- [ ] `/agentdev:iwe-adversarial-review <plan> code` dispatches one
+  `iwe-adversarial-reviewer` whose report names the defeated claim, and the
+  checkout has no new commit and a clean worktree.
 
-### Task 6: The new e2e scenarios pass
+### Task 6: Observe planning leaving the review alone on both harnesses
 
-- [ ] The Task 5 scenarios pass on Claude Code and on OpenCode with the default
-  test models.
+**Closed by:** the maintainer, observing one session on Claude Code and one on
+OpenCode with the default test models.
+
+- [ ] `/agentdev:iwe-plan` asked to plan a small change loads no
+  `iwe-adversarial-review` skill and dispatches no `iwe-adversarial-reviewer`.
 
 ## Spec changes
 
@@ -180,8 +178,8 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 5
-  scenarios on Claude Code and OpenCode (Task 6).
+- Tasks 5 and 6 are observation tasks the maintainer closes; Ship waits for
+  them.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -191,15 +189,14 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
+Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:1` — the entry-skill
   shape to follow
 - `.agents/plugins/agentdev/README.md:184` — skill table, `/agentdev:iwe-verify`
   row
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:239` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:187` —
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:198` —
   `## Capturing what implementation turns up`
 - `docs/knowledge/data/architecture.md:18` — first entry,
   `actions-approval-permission`
-- `scripts/e2e/iwe-workflows/scenarios.py:23` — agent name constants
