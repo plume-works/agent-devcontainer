@@ -90,12 +90,19 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`
 
-- [ ] The lookup table's `HIT` row, the save table's `SUCCESS` row and its
+- [x] The lookup table's `HIT` row, the save table's `SUCCESS` row and its
   unsaved rows, session route step 1's `HIT` re-post, and step 5's re-post all
   say that the report body goes verbatim into the final message text. A path to
   the saved report, or the report appearing only in a tool call or tool result,
   does not count as returning it. On the route inside `iwe-shipper`, the
   Shipper's report carries it (Task 3).
+  - **Evidence:** Commit `bd7fd4c2` defines returning the report as its verbatim
+    body in the final message text (not a path, tool call, or tool result) in
+    `iwe-verify/SKILL.md`, applies it to the lookup `HIT` row, every save-table
+    row, and session steps 1 and 5, and names the Shipper report as the carrier
+    inside `iwe-shipper`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 
 ### Task 3: Lead the Shipper's report with the Verify report
 
