@@ -141,9 +141,12 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] `## During implementation` hands a decision, scope change, or new work to
+- [x] `## During implementation` hands a decision, scope change, or new work to
   `/agentdev:iwe-plan` only, and `## Rules` points only at `/agentdev:iwe-plan`;
   neither names `/agentdev:iwe-implement`.
+  - **Evidence:** commit 149e8843; at that commit
+    `git grep -n "iwe-implement" .agents/plugins/agentdev/skills/iwe-explore`
+    prints nothing, and the validator reports 61/61 valid.
 - [ ] Explore still never starts Plan or Implement itself.
 
 ### Task 5: e2e scenarios for a requested run and for Plan and Explore
