@@ -18,6 +18,7 @@ import pytest
         ('iwe/focus-timer/iter-1-impl', 'impl', 'focus-timer', '1'),
         ('iwe/focus-timer/iter-2-ship', 'ship', 'focus-timer', '2'),
         ('iwe/focus-timer/iter-12-impl', 'impl', 'focus-timer', '12'),
+        ('iwe/focus-timer/iter-1-plan', 'plan', 'focus-timer', '1'),
     ],
 )
 def test_parse_splits_a_work_branch(

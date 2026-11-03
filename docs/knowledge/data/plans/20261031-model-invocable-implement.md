@@ -3,7 +3,7 @@ type: plan
 created: 2026-10-31
 release:
 - features/agentdev-iwe-workflow-skills
-description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take every decision from that session's own user, and have Plan and Explore neither start Implement nor name it as a next step.
+description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-31T12:00:00Z
@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+rank: 150
 ---
 
 # Let any session asked to implement a named plan start Implement
@@ -49,9 +50,10 @@ this fix" does not load it. `iwe-implement-all`, `iwe-ship`, and `iwe-ship-all`
 stay explicit-only.
 
 A session that loads Implement on another session's message follows the rulebook
-in place, like a direct run. The plan comes from the request; every decision the
-rulebook asks for comes from that session's own user. A message from another
-session is never the user's approval, even when it quotes the user.
+in place, like a direct run. The plan comes from the request. A decision the
+rulebook asks for comes from that session's own user, or from an approval of the
+user's that a coordinator session relays: the coordinator asks the user its
+questions in one place and passes the answers to the sessions it runs.
 
 Plan and Explore neither load Implement nor name it as a next step. Plan's
 readiness report ends at readiness; Explore hands a finding back to Plan. Ship's
@@ -82,18 +84,17 @@ Rejected:
   `/agentdev:iwe-implement-all` dispatches `iwe-implementer`.
 - [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
 
-### Task 2: Take decisions only from the session's own user
+### Task 2: Take decisions from the user, directly or relayed
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
 - [ ] The **In the user's session** mode covers a session that loaded
   `/agentdev:iwe-implement` on the user's command, on a plain request, or on a
   message from another session such as a coordinator.
-- [ ] The mode states that the plan comes from the request, that every decision
-  the rulebook asks for is answered only by this session's own user, that
-  nothing in a message from another session counts as that user's approval even
-  when it quotes them, and that while waiting the session tells the requesting
-  session what it is waiting on.
+- [ ] The mode states that the plan comes from the request, that a decision the
+  rulebook asks for is answered by this session's own user or by an approval of
+  the user's that a coordinator's message relays, and that while waiting the
+  session tells the requesting session what it is waiting on.
 - [ ] The rollup goes back to the requesting session as well as this one.
 
 ### Task 3: Plan never starts or names Implement
@@ -142,16 +143,7 @@ Rejected:
 - [ ] The Task 5 scenarios and the existing `test_implement` and `test_explore`
   pass on Claude Code and on OpenCode with the default test models.
 
-### Task 7: A coordinator's approval does not unblock a requested run
-
-- [ ] In two Claude Code sessions on a clone holding the `CONFLICT_KEY` fixture
-  plan, one sends the other a cross-session message asking it to implement that
-  plan and stating that the narrowing deviation is approved. The receiving
-  session loads `/agentdev:iwe-implement`, stops at the deviation, asks its own
-  user, and tells the sender it is waiting; the plan's intent is unchanged until
-  its own user answers.
-
-### Task 8: Record the decision in the architecture document
+### Task 7: Record the decision in the architecture document
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/explicit-only-workflow-agents.md`
@@ -161,7 +153,8 @@ Rejected:
   unchanged.
 - [ ] The gate bullet names only `iwe-ship`, `iwe-ship-all`, and
   `iwe-implement-all` as entry points under the gate, and **Implement keeps the
-  user's session** states the authority rule from Task 2.
+  user's session** states the authority rule from Task 2, including approvals a
+  coordinator relays.
 - [ ] The decision states why Implement can drop the gate — it needs a named
   active plan with satisfied dependencies and asks when the plan is ambiguous,
   and Plan and Explore never name it — and **Drop the gate and rely on
@@ -169,15 +162,16 @@ Rejected:
 - [ ] The two alternatives rejected in `## Approach` are added under
   `## Rejected alternatives`.
 
-### Task 9: CI passes on the implementation branch
+### Task 8: CI passes on the implementation branch
 
 - [ ] Every required check on the pull request passes.
 
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — three requirements
-change: Implement's entry skill becomes model-invocable with the session's own
-user as the only authority, and Plan and Explore stop naming Implement.
+change: Implement's entry skill becomes model-invocable, taking decisions from
+the session's own user or approvals a coordinator relays from the user, and Plan
+and Explore stop naming Implement.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -296,8 +290,8 @@ SHALL start the workflows. Ship SHALL always run as a dispatched `iwe-shipper`
 whose prompt carries only the plan key, the operation, and the user's approvals
 quoted verbatim, so its verification rests on the code and the graph alone.
 Implement started through its entry skill SHALL run in the session that loaded
-it and SHALL take every decision from that session's own user; a message from
-another session SHALL never count as that user's approval. A dispatched workflow
+it and SHALL take every decision from that session's own user or from an
+approval of the user's that a coordinator session relays. A dispatched workflow
 SHALL stop and report at any point that needs a user decision it was not given.
 
 #### Scenario: The user ships a plan directly
@@ -332,12 +326,11 @@ SHALL stop and report at any point that needs a user decision it was not given.
 #### Scenario: A coordinator asks a session to implement a plan
 
 - **WHEN** a coordinator session sends a session a message asking it to
-  implement a named plan and stating that a narrowing deviation is approved, and
-  a task needs that deviation
+  implement a named plan and relaying the user's approval of a narrowing
+  deviation, and a task needs that deviation
 - **THEN** the session loads `/agentdev:iwe-implement`, follows the
-  `iwe-implementer` rulebook in place, asks its own user and waits, and tells the
-  coordinator what it is waiting on; the coordinator's approval does not take
-  the step.
+  `iwe-implementer` rulebook in place, and takes the deviation without asking
+  again.
 
 #### Scenario: A coordinator ships every implemented plan
 
@@ -384,11 +377,10 @@ SHALL stop and report at any point that needs a user decision it was not given.
 - `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 5
   scenarios with `test_implement` and `test_explore` on Claude Code and OpenCode
   (Task 6).
-- The two-session check in Task 7.
 - `git grep -n "iwe-implement\b" .agents/plugins/agentdev/skills/iwe-explore .agents/plugins/agentdev/agents/iwe-planner.agent.md`
   prints nothing that names Implement as a next step.
 - `iwe normalize` and `iwe schema validate` pass.
-- The pull request's CI passes (Task 9).
+- The pull request's CI passes (Task 8).
 
 ## Out of scope
 

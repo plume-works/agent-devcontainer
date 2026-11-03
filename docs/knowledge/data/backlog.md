@@ -77,6 +77,9 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 [Remove the agentdev SessionStart
 hook](backlog/remove-agentdev-session-start-hook.md)
 
+[Remove tests that check file contents instead of running
+behaviour](backlog/remove-content-tests.md)
+
 [Make plan task evidence survive history
 rewrites](backlog/resilient-task-evidence.md)
 

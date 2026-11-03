@@ -14,6 +14,9 @@ one list sorted by slug without the date prefix. A plan's stage and its place in
 the build order (`rank`) live only in its frontmatter, so shipping or cancelling
 a plan never edits this page.*
 
+[Add an adversarial review for plans and their
+code](plans/20261102-adversarial-review.md)
+
 [Agent-owned Ship and Implement
 workflows](plans/20261007-agent-owned-ship-implement.md)
 
@@ -30,6 +33,8 @@ context](plans/20260902-audit-plan-edits-in-fresh-context.md)
 
 [Let Implement verify, fix, and revise on its
 own](plans/20261026-autonomous-implement-loop.md)
+
+[Make the Implement loop converge](plans/20261102-autonomy-loop.md)
 
 [Bug lifecycle stages and
 sections](plans/20261102-bug-lifecycle-and-sections.md)
@@ -136,6 +141,9 @@ reviews](plans/20260929-map-refresh-before-push.md)
 
 [Let any session asked to implement a named plan start
 Implement](plans/20261031-model-invocable-implement.md)
+
+[Let any session asked to ship a named plan start
+Ship](plans/20261102-model-invocable-ship.md)
 
 [Move the Expo bridge knowledge into its own
 repository](plans/20261028-move-expo-bridge-kb.md)
