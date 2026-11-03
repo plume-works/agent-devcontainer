@@ -118,11 +118,16 @@ Nothing refers to a finding across reports by ID.
     `Saved Verify report from <commit>` for a saved one;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reports 0 errors at that commit.
-- [ ] The **Ship blocker report** paragraph lists a Verify CRITICAL by its ID
+- [x] The **Ship blocker report** paragraph lists a Verify CRITICAL by its ID
   and route only, without restating its evidence. Each blocker that Ship found
   on its own (intent-versus-implementation mismatch, failed spec merge, missing
   or unresolvable `release` declaration) is written out in full with its
   `path:line` evidence and route. The dirty-worktree blocker is unchanged.
+  - **Evidence:** Commit `507a56a6` rewrites the **Ship blocker report**
+    paragraph in `iwe-shipper.agent.md`: Verify CRITICALs listed by ID and route
+    only; mismatch, failed spec merge, and `release` blockers written out in
+    full with `path:line` and route; the dirty-worktree route unchanged;
+    validator reports 0 errors at that commit.
 
 ### Task 4: Re-post each Shipper's report in ship-all
 
