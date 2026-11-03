@@ -1,7 +1,7 @@
 ---
 type: feature
 stage: implemented
-description: The iwe-branch-name skill names a plan's work branches as iwe/<plan-slug>/iter-<N>-<impl|ship>, with one iteration counter across both phases, and reads a plan's state at the remote default branch, so callers create the next branch through git-new-branch.
+description: The iwe-branch-name skill names a plan's work branches as iwe/<plan-slug>/iter-<N>-<plan|impl|ship>, with one iteration counter across every phase, and reads a plan's state at the remote default branch, so callers create the next branch through git-new-branch.
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-30T00:00:00Z
@@ -27,11 +27,11 @@ gets the same answer.
 
 - **Name shape.** `iwe/<slug>/iter-<N>-<phase>`, where `slug` is the plan key's
   file name without its `YYYYMMDD-` prefix, `N` starts at 1, and `phase` is
-  `impl` or `ship`. The `iwe/` prefix keeps plan branches apart from every other
-  branch, and the suffix is always present, so no name is a path prefix of
-  another and Git never refuses one for nesting under an existing ref.
+  `plan`, `impl`, or `ship`. The `iwe/` prefix keeps plan branches apart from
+  every other branch, and the suffix is always present, so no name is a path
+  prefix of another and Git never refuses one for nesting under an existing ref.
 - **Next iteration.** `N` is one more than the highest iteration of the slug, in
-  either phase, found among local branches, the remote's branches, and the pull
+  any phase, found among local branches, the remote's branches, and the pull
   requests in any state of the repository the remote names. Only names matching
   the shape exactly count.
 - **Plan state.** The plan is read at the fetched remote default branch and
