@@ -7,8 +7,8 @@ description: Run build, test, or lint commands through this repository's devcont
 
 Use this skill when the host cannot run the project's toolchain directly — `uv`
 is missing, `bun` is missing, or a command needs the provisioned image — **and** a
-Docker daemon is available. If Docker is unavailable, use
-[remote-codespace-session](../remote-codespace-session/SKILL.md) instead.
+Docker daemon is available. If Docker is unavailable, report the
+blocker.
 
 Start the development container from the repository root when it is not already
 running:
