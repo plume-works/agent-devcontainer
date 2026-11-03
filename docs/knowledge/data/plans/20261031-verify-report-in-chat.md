@@ -187,9 +187,14 @@ Nothing refers to a finding across reports by ID.
 `scripts/e2e/iwe-workflows/harness_opencode.py`,
 `scripts/e2e/iwe-workflows/scenarios.py`
 
-- [ ] `ClaudeTranscript` and the OpenCode `Transcript` each expose the session's
+- [x] `ClaudeTranscript` and the OpenCode `Transcript` each expose the session's
   final message text: the last `result` event's `result` for Claude, and the
   text parts of the last assistant message for OpenCode.
+  - **Evidence:** Commit `aef6a780` adds `ClaudeTranscript.final_text` (last
+    `result` event) and OpenCode `Transcript.final_text` (text parts of the last
+    assistant message);
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_claude_transcript.py scripts/tests/test_e2e_iwe_workflows_opencode_transcript.py`
+    passes, covering both, at that commit.
 - [ ] `scenarios.py` gains a helper that takes a saved report (the
   `Clone.saved_report` text) and a final message, and holds when the report
   body's lead line and every finding line opening with a `C<n>`, `W<n>`, or
