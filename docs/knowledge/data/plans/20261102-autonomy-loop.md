@@ -225,8 +225,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] Completeness lists an unticked task carrying a `**Closed by:**` line under
+- [x] Completeness lists an unticked task carrying a `**Closed by:**` line under
   a new **Outstanding observations** report heading instead of as a CRITICAL.
+
+  - **Evidence:** commit c03d084c changes Completeness in
+    `iwe-verifier.agent.md` to list the task under **Outstanding observations**;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] Completeness accepts a CI job as evidence for behaviour only CI exercises
   when the job exercises it, without requiring a run on the current head.
