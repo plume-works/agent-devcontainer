@@ -227,7 +227,13 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] The same six scenarios as Task 8 assert the Task 7 helper.
+- [x] The same six scenarios as Task 8 assert the Task 7 helper.
+  - **Evidence:** Commit `95a4ca1d` adds the assertions to all six scenarios.
+    The live OpenCode selection from `## Verification`, run at `81e44d5c` (after
+    the Shipper fix `eba88949`), passed `test_verify_approved`,
+    `test_ship_approved`, `test_ship_reuses_saved_report`, `test_ship_all`, and
+    `test_implement_verifies`; `test_implement_all`, run on its own, passed live
+    (1 passed).
 
 ## Spec changes
 
