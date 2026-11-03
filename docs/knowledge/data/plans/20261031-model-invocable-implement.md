@@ -205,10 +205,15 @@ Rejected:
     plan — by the user's `/agentdev:iwe-implement`, by a plain request, or by a
     message from a coordinator session"; the Ship callers keep their bullets;
     `iwe schema validate` passes at that commit.
-- [ ] The gate bullet names only `iwe-ship`, `iwe-ship-all`, and
+- [x] The gate bullet names only `iwe-ship`, `iwe-ship-all`, and
   `iwe-implement-all` as entry points under the gate, and **Implement keeps the
   user's session** states the authority rule from Task 2, including approvals a
   coordinator relays.
+  - **Evidence:** commit 5b4b924a — the gate bullet reads "Of the entry points,
+    `iwe-ship`, `iwe-ship-all`, and `iwe-implement-all` carry" the key, and
+    **Implement keeps the user's session** adds "A decision the rulebook asks
+    for comes from that session's own user, or from an approval of the user's
+    that a coordinator session relays in its message".
 - [ ] The decision states why Implement can drop the gate — it needs a named
   active plan with satisfied dependencies and asks when the plan is ambiguous,
   and Plan and Explore never name it — and **Drop the gate and rely on
