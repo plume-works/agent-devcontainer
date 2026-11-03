@@ -467,20 +467,20 @@ that mechanism Plan knows.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
+Verified anchor points (line numbers as of 2026-11-03):
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:84` —
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:86` —
   `## Implementation Steps` bullet
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:100` — `## Verification`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:102` — `## Verification`
   bullet
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:239` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:243` — `## Rules`
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:56` — Completeness
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:93` — "(uncovered
   scenario is a WARNING)"
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:126` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:147` — loop step 2,
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:153` — loop step 2,
   findings to act on
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:156` — loop step 4,
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:162` — loop step 4,
   revision route
 - `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:52` —
   `REJECT`
@@ -488,20 +488,20 @@ Verified anchor points (line numbers as of 2026-11-02):
   `APPROVE`
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Verify for
   normal shipping
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:192` — Ship blocker
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:197` — Ship blocker
   report
 - `docs/knowledge/data/architecture/autonomous-implement-loop.md:18` —
   `## Decision`
 - `docs/knowledge/data/architecture/autonomous-implement-loop.md:62` —
   `## Rejected alternatives`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:319` — Implement verifies
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:333` — Implement verifies
   requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:365` — Implement revises
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:379` — Implement revises
   requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:445` — Normal shipping
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:459` — Normal shipping
   requirement
-- `scripts/e2e/iwe-workflows/clone.py:356` — `draft_revision`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:238` —
+- `scripts/e2e/iwe-workflows/clone.py:363` — `draft_revision`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:297` —
   `test_evaluator`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:269` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:338` —
   `test_evaluator`
