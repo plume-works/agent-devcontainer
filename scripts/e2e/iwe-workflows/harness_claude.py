@@ -55,6 +55,11 @@ class ClaudeTranscript:
         """Return every final result event."""
         return [event for event in self.events if event.get('type') == 'result']
 
+    def final_text(self) -> str:
+        """Return the session's final message text: the last result event's ``result``."""
+        results = self.results()
+        return str(results[-1].get('result') or '') if results else ''
+
     def completed(self) -> bool:
         """Whether the run reached a successful final result event."""
         return any(

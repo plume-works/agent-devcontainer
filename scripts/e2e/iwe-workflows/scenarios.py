@@ -35,8 +35,24 @@ EVALUATE = (
     f'prompt: "Plan key: {REVISE_KEY}. Finding: {REVISE_FINDING}" Change no file yourself. '
     'Reply with the first line of its report.'
 )
+# A finding line opens with its ID, after an optional list marker and bold markup.
+FINDING_LINE = re.compile(r'^(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|`)?[CWS][1-9]\d*\b')
+SAVED_FRONTMATTER = re.compile(r'\A---\n.*?\n---\n', re.DOTALL)
 VERDICT = re.compile(r'^\s*(APPROVE|REJECT|ESCALATE)\b', re.MULTILINE)
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
+# The Implement entry skill alone, and any Implement name but the iwe-implementer agent.
+IMPLEMENT_SKILL = re.compile(r'iwe-implement(?![\w-])')
+NAMES_IMPLEMENT = re.compile(r'iwe-implement(?!er)')
+IMPLEMENT_REQUEST = f'Please implement the plan {GREET_KEY}.'
+# A coordinator session's message naming a plan for this session to implement.
+COORDINATOR_REQUEST = (
+    'This message comes from the coordinator session running plans for the user. '
+    f'Please implement the plan {GREET_KEY}.'
+)
+PLAN_AND_BUILD = (
+    'Plan a small change: add `e2e/farewell.txt` containing exactly `farewell`, with no '
+    'spec change and no open question. Then build it.'
+)
 # Per-test budgets in seconds: about three times each harness's slowest scenario
 # measured at the worker cap. OPENCODE_BUDGET, plus server startup, sets the login's minimum life.
 OPENCODE_BUDGET = 300
@@ -46,6 +62,19 @@ CLAUDE_BUDGET = 420
 def mentions(calls: list[dict[str, Any]], pattern: str | re.Pattern) -> bool:
     """Whether any call's input, as JSON, matches ``pattern``."""
     return any(re.search(pattern, json.dumps(call)) for call in calls)
+
+
+def report_lines(saved: str) -> list[str]:
+    """Return a saved report body's lead line and every finding line, whitespace-stripped."""
+    body = SAVED_FRONTMATTER.sub('', saved, count=1)
+    lines = [line.strip() for line in body.splitlines() if line.strip()]
+    return lines[:1] + [line for line in lines[1:] if FINDING_LINE.match(line)]
+
+
+def shows_report(saved: str, final: str) -> bool:
+    """Whether ``final`` contains the saved report's lead line and every finding line."""
+    lines = report_lines(saved)
+    return bool(lines) and all(line in final for line in lines)
 
 
 def verdict(report: str) -> str | None:

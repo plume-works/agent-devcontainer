@@ -57,3 +57,14 @@ def test_failure_names_its_reason(events, timed_out, returncode, reason):
     run = transcript(*events, timed_out=timed_out, returncode=returncode)
     assert not run.completed()
     assert reason in run.failure_reason(420)
+
+
+def test_final_text_is_the_last_result():
+    """The final message text is the last result event's ``result``."""
+    retry = {**SUCCESS, 'result': 'Ready to ship data/plans/x'}
+    assert transcript(INIT, SUCCESS, retry).final_text() == 'Ready to ship data/plans/x'
+
+
+def test_final_text_without_a_result_is_empty():
+    """A run with no result event has no final message text."""
+    assert transcript(INIT).final_text() == ''

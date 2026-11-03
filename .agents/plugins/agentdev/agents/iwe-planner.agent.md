@@ -12,7 +12,9 @@ verified, every touched spec is named. Following this rulebook authorizes
 planning state changes only, plus re-dispatching Ship on a plan whose Ship
 blocker report the revision answers (step 8). Even when the same request also
 asks to build the change, create or revise and validate the plan, report
-readiness, and stop before editing implementation code.
+readiness, and stop before editing implementation code. Plan never loads
+`/agentdev:iwe-implement`, never dispatches `iwe-implementer`, and never names
+Implement as a next step.
 
 ## How you run
 
@@ -176,7 +178,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 
    Report whether the plan was created or revised, any assumptions,
    collisions, implementation that may now be stale, the issue outcome, and
-   any Shipper outcome. Every other revision stops here, before
+   any Shipper outcome. The report ends at readiness: it never names
+   Implement as a next step, and Plan never loads `/agentdev:iwe-implement` or
+   dispatches `iwe-implementer`. Every other revision stops here, before
    implementation code changes.
 
 ## Closing the issue
