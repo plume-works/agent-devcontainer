@@ -17,8 +17,14 @@ is not proof that behavior exists; current code and passing task evidence are.
 This rulebook runs in one of two modes, and every point below that needs the
 user's direction behaves according to the mode:
 
-- **In the user's session** — the `/agentdev:iwe-implement` skill had the
-  session follow this file. Ask the user and wait for the answer.
+- **In the user's session** — the session loaded `/agentdev:iwe-implement` on
+  the user's command, on a plain request, or on a message from another session
+  such as a coordinator, and follows this file in place. The plan comes from
+  the request. A decision this rulebook asks for is answered by this session's
+  own user, or by an approval of the user's that a coordinator's message
+  relays; otherwise ask the user and wait, and tell a requesting session what
+  you are waiting on. Send the rollup back to a requesting session as well as
+  reporting it here.
 - **Dispatched** — the `/agentdev:iwe-implement-all` coordinator started you
   as a subagent with a plan in your prompt. You cannot reach the user, and your
   final message goes to the coordinator. Wherever this rulebook would ask or
