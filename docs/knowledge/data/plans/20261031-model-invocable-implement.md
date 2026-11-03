@@ -178,9 +178,12 @@ Rejected:
     suites, with `Clone.changed_outside` and the `PLAN_AND_BUILD` request;
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 46 tests
     at that commit.
-- [ ] `test_explore` on both harnesses also asserts the final message does not
+- [x] `test_explore` on both harnesses also asserts the final message does not
   name `iwe-implement`; the harnesses gain a final-message accessor if they lack
   one.
+  - **Evidence:** commit 4c03b7d6 — both `test_explore` functions assert
+    `NAMES_IMPLEMENT` does not match `transcript.final_text()`, the accessor
+    both harnesses already had.
 - [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
 
 ### Task 6: The new and changed e2e scenarios pass
