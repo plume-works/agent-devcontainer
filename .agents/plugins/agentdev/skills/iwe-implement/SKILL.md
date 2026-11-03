@@ -1,7 +1,6 @@
 ---
 name: iwe-implement
-description: Execute an active plan task-by-task with state discipline — verified anchors, tests before checkbox ticks, clean stopping points, deviations written back into the plan — then verify the result and act on the findings.
-disable-model-invocation: true
+description: Implement a named IWE plan task-by-task with state discipline — verified anchors, tests before checkbox ticks, clean stopping points, deviations written back into the plan — then verify the result and act on the findings. Use only when the request names the plan to implement; a request to build something with no plan named does not match.
 ---
 
 # Implement a plan
@@ -11,7 +10,7 @@ this session, so you can ask the user about an ambiguous plan or a material
 deviation and wait for the answer.
 
 Read [the iwe-implementer rulebook](../../agents/iwe-implementer.agent.md) in
-full and follow it in place for the plan the user named, in its
+full and follow it in place for the plan the request names, in its
 **In the user's session** mode. Do not dispatch it as a subagent: only
 `/agentdev:iwe-implement-all` does that.
 
