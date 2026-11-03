@@ -80,6 +80,13 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 - [x] Ship edited no hub, release page, or `data/log.md` — confirmed
 ```
 
+- `/agentdev:iwe-ship` runs the review loop: it dispatches `iwe-shipper`,
+  which commits, then dispatches `iwe-ship-reviewer` in ship mode. When
+  `iwe-ship-reviewer` reports a gap, `/agentdev:iwe-ship` re-dispatches
+  `iwe-shipper` to fix it in a follow-up commit and dispatches
+  `iwe-ship-reviewer` again, up to 3 repeats. A fix pass never re-runs Verify
+  in full. `iwe-shipper` does not dispatch `iwe-ship-reviewer`.
+
 ## Out of scope
 
 - Refactoring `/agentdev:iwe-audit` and the `Durable Knowledge Auditor` agent
@@ -125,10 +132,17 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
   `Agent` or is omitted. `iwe-shipper`, `iwe-implementer`, and the `Durable
 Knowledge Auditor` agent list tools without `Agent`.
 
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py` keys
+  a saved Verify report by the exact commit Verify ran on and the catalog
+  digest. Ship's own commit moves `HEAD`, so a re-dispatched `iwe-shipper` that
+  starts at its step 3 misses the saved report and runs Verify in full.
+
 ## Current question
 
-Who writes the follow-up commit when `iwe-ship-reviewer` finds a gap after
-`iwe-shipper` commits: a re-dispatched `iwe-shipper`, or `/agentdev:iwe-ship`?
+How does a fix pass skip Verify: `iwe-shipper` gains a fix operation that takes
+`iwe-ship-reviewer`'s gap list and performs only those missing operations, or
+the saved Verify report stays valid across commits that change only
+`docs/knowledge/data/`?
 
 ## Queued
 
