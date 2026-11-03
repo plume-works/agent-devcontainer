@@ -190,8 +190,13 @@ Rejected:
 
 ### Task 6: The new and changed e2e scenarios pass
 
-- [ ] The Task 5 scenarios and the existing `test_implement` and `test_explore`
+- [x] The Task 5 scenarios and the existing `test_implement` and `test_explore`
   pass on Claude Code and on OpenCode with the default test models.
+  - **Evidence:** at commit 5ede7bd0 (code from 4c03b7d6),
+    `E2E_RUN_LIVE=1 uv run pytest -n 3 scripts/e2e/iwe-workflows -k "test_implement and not (verifies or revises or all or stops or main) or test_plan_does_not_implement or test_explore"`
+    — 8 passed: `test_implement`, `test_implement_requested`,
+    `test_plan_does_not_implement`, and `test_explore` on each harness, with the
+    default OpenCode models.
 
 ### Task 7: Record the decision in the architecture document
 
