@@ -55,6 +55,10 @@ check, or refusal gate".
   obligations as it checks each one, and attaches it to the end of the shipped
   plan as a QA stamp. Ship mode therefore writes to the plan file; plan mode
   stays report-only.
+- The QA stamp is a `## Ship review` section, the last section of the shipped
+  plan, made of checkboxes. Its structure is fixed: the same items in the same
+  order on every plan, and every item ticked with either `confirmed:` and its
+  evidence or `N/A:` and the reason it does not apply.
 
 ## Out of scope
 
@@ -103,9 +107,25 @@ Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-Where in the shipped plan does the QA stamp go: a new section of its own at the
-end, or inside `## Verification results`, which `iwe-planner.agent.md` calls the
-plan's only narrative section?
+Is this the fixed structure of `## Ship review`? Each item is one obligation
+from the steps of `iwe-shipper.agent.md`.
+
+```markdown
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on commit `<sha>`, <YYYY-MM-DD>.
+
+- [x] Verify reported zero CRITICAL on the shipped commit — confirmed: <saved report's commit>
+- [x] Every `## Spec changes` operation is in its spec — confirmed: <spec keys> | N/A: `## Spec changes` is None
+- [x] Every spec the plan created is linked from `data/spec.md` — confirmed: <keys> | N/A: no spec created
+- [x] Every spec the plan retired was removed with `iwe delete` — confirmed: <keys> | N/A: no spec retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: <completed date>
+- [x] Every feature in `release` is `stage: implemented` — confirmed: <keys> | N/A: `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: <keys> | N/A: `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: <keys> | N/A: `release` lists no bug
+- [x] The ship commit edits no hub, release page, or `data/log.md` — confirmed: <commit>
+- [x] `iwe normalize` and `iwe schema validate` pass on the ship commit — confirmed: <commit>
+```
 
 ## Queued
 
