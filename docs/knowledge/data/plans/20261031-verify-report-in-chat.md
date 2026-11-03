@@ -15,7 +15,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: scripts/e2e/iwe-workflows/scenarios.py
-rank: 100
+completed: 2026-11-03
+stage: done
 ---
 
 # Show the Verify report in the conversation

@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T20:00:00Z
+  at: 2026-11-03T12:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -570,6 +570,59 @@ be a CRITICAL finding.
 - **WHEN** a `## Verification` command leaves a tracked change or an unignored
   file behind
 - **THEN** Verify reports a CRITICAL naming the dirty paths
+
+### Requirement: The Verify report reaches the conversation verbatim
+
+Every Verify report SHALL number its findings by severity in report order —
+`C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION — and every
+caller of Verify SHALL show the report verbatim in its final message text:
+`/agentdev:iwe-verify` on the session route, on a saved hit and after a save;
+`iwe-shipper` ahead of its Ship summary; `iwe-ship-all` by re-posting each
+Shipper's report verbatim; the Implement orchestrator for the last Verify round
+of a run; and `iwe-implement-all` for each plan's last round. A path to the
+saved report, or the report appearing only in a tool call or tool result, SHALL
+not count as showing it. A Ship blocker report SHALL route each Verify CRITICAL
+by its ID without restating it, and SHALL state in full, with `path:line`
+evidence, each blocker Ship found outside Verify.
+
+#### Scenario: A session verifies a plan
+
+- **WHEN** the user runs `/agentdev:iwe-verify <plan>` and the verifier returns
+  a report, or the skill finds a saved one
+- **THEN** the session's final message contains that report verbatim, not only
+  its verdict or the saved report's path
+
+#### Scenario: Ship is blocked by Verify
+
+- **WHEN** `iwe-shipper` gets a Verify report with CRITICAL findings
+- **THEN** its final message carries the Verify report verbatim, then a blocker
+  report that names each CRITICAL by its ID with its route, and
+  `/agentdev:iwe-ship` re-posts that message verbatim
+
+#### Scenario: Ship finds a blocker Verify did not
+
+- **WHEN** Verify reports zero CRITICAL findings and the spec merge finds an
+  intent-versus-implementation mismatch
+- **THEN** the Shipper's final message carries the Verify report verbatim and
+  states the mismatch in full with its `path:line` evidence and route
+
+#### Scenario: A plan ships
+
+- **WHEN** `iwe-shipper` ships a plan
+- **THEN** its final message carries the Verify report verbatim before the
+  completed and preserved operations and the commit
+
+#### Scenario: The ship-all coordinator ships several plans
+
+- **WHEN** the user runs `/agentdev:iwe-ship-all`
+- **THEN** the coordinator re-posts each Shipper's report verbatim, one plan per
+  entry, followed by the summary across plans
+
+#### Scenario: The Implement loop runs several Verify rounds
+
+- **WHEN** an Implement run verifies, fixes findings, and verifies again
+- **THEN** its final report carries the last Verify report verbatim and each
+  earlier round's verdict with the first line of each finding it fixed
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 
