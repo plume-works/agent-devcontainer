@@ -131,8 +131,11 @@ Rejected:
   - **Evidence:** commit fc486edb adds the rule to the opening paragraph and to
     step 8's report ("The report ends at readiness: it never names Implement as
     a next step"); the validator reports 61/61 valid at that commit.
-- [ ] The **From the Implement orchestrator** mode is unchanged: the
+- [x] The **From the Implement orchestrator** mode is unchanged: the
   orchestrator follows Plan, and Plan never calls back into Implement.
+  - **Evidence:** `git show fc486edb` touches only the opening paragraph and
+    step 8's report; the mode still stops with the revision uncommitted for
+    `iwe-revision-evaluator` and loads no Implement skill.
 
 ### Task 4: Explore never names Implement
 
