@@ -5,8 +5,11 @@ emulate -R zsh
 setopt err_exit no_unset pipe_fail
 
 typeset -r PYTHON_VERSION=3.12
+# renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
 typeset -r IWE_VERSION=iwe-v0.29.3
+# renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
 typeset -r CBM_VERSION=v0.12.1
+# Renovate bumps the versions; scripts/refresh-pin-checksums.py rewrites these digests.
 typeset -rA SHA256=(
   iwe-arm64 4df263c837fbddafa7b57afcd334f860ef10b8515ffcc3b532026675beabf02e
   iwe-amd64 f7701f83f044a5cec8fc873a34b66ce9fdac88bae91355cc11de721f53edc40c
