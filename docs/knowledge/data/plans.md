@@ -187,6 +187,9 @@ CBM](plans/20261018-opencode-workspace-cbm-indexing.md)
 [Give each checkout its own uv
 environment](plans/20261101-per-checkout-uv-environments.md)
 
+[Give each Claude worktree its own agentdev
+catalog](plans/20261103-per-worktree-catalog.md)
+
 [Persist the Coder workspace containerd image
 store](plans/20261011-persist-coder-workspace-containerd.md)
 
