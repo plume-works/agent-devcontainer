@@ -70,6 +70,32 @@ checkout sat 31 commits behind `origin/main`.
   from the next session. `SubagentStart` fires on subagent dispatch, not on
   worktree creation.
 
+### Main checkout, devcontainer, and spawn modes (from the code)
+
+- A session started in the main checkout, or in a worktree no hook created
+  (`git worktree add`, `/agentdev:git-new-branch --worktree`), goes through no
+  `WorktreeCreate` and loads the shared `agent-devcontainer` catalog as today.
+- The hooks fire for `claude -w`, `/batch`, and Remote Control in `worktree`
+  spawn mode, so a devcontainer without Remote Control still gets per-worktree
+  catalogs through `claude -w`.
+- The devcontainer's attach phase reinstalls the checkout's catalog at local
+  scope (`lifecycle.attached` → `catalog.install(settings, folder, None)` →
+  `catalog.claude(root, 'local')`), which writes `enabledPlugins` into the main
+  checkout's `.claude/settings.local.json`. That file's `enabledPlugins` wins in
+  every worktree session, so this install has to move to user scope, as the
+  image-staged install (`lifecycle.created`) and `workspace.catalog` already
+  are.
+- `catalog.claude` sweeps only marketplaces whose path or `installLocation` is
+  the catalog root; a `wt-<name>` marketplace's `installLocation` is its
+  worktree, so the sweep leaves it alone.
+- `AGENTDEV_CLAUDE_RC_SPAWN` selects `worktree` (default) or `same-dir`. In
+  `same-dir` no worktree is made, no hook runs, and spawned sessions load the
+  shared catalog. A server restarted in another spawn mode revives earlier
+  sessions in its own mode (`data/architecture/claude-remote-control-spawn-mode-switch`):
+  former worktree sessions then run in the workspace folder on the shared
+  catalog, and their `wt-<name>` marketplaces stay registered until their
+  worktrees are removed.
+
 ### A renamed manifest pointing into the worktree (this container)
 
 A copied `.claude-plugin/marketplace.json` with only `name` changed, kept
@@ -223,6 +249,9 @@ User settings entries:
 - Test worktrees, branches, marketplaces, and install records are removed.
 
 ## Open
+
+- Whether a `same-dir` session revived by a `worktree` server goes through
+  `WorktreeCreate`.
 
 - Keep the agent-dev3 setup live, or restore the backups and restart Remote
   Control.
