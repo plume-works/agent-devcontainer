@@ -54,19 +54,32 @@ approval, and it adds a review per push in that state for no gain.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md`
 
-- [ ] `## The test` opens with the verdict check: when the AI reviewer's newest
+- [x] `## The test` opens with the verdict check: when the AI reviewer's newest
   verdict is `CHANGES_REQUESTED`, request a re-review regardless of the diff,
   because only that reviewer's `APPROVE` lifts its change request; the scope
   question applies only when that verdict is `APPROVED`.
-- [ ] The **No** branch and the "Do not request a review when" list say they
+  - **Evidence:** commit 699047b7 opens `## The test` with the verdict check;
+    `validate_agent_files --recommend . --require-marketplace claude` reported
+    61/61 skills valid on that commit.
+- [x] The **No** branch and the "Do not request a review when" list say they
   apply only after an AI approval.
-- [ ] `## Establish what the last review saw` names the AI reviewer's logins and
+  - **Evidence:** commit 699047b7 prefixes both with "After an AI approval";
+    `validate_agent_files` reported 61/61 skills valid on that commit.
+- [x] `## Establish what the last review saw` names the AI reviewer's logins and
   says its newest verdict is its latest `APPROVED` or `CHANGES_REQUESTED`
   review, read from the `reviews` query the section already runs.
-- [ ] `## Report the decision` says a request made for a change request names
+  - **Evidence:** commit 699047b7 adds the paragraph after the `reviews` query,
+    naming the logins in both the `gh pr view` and REST forms;
+    `validate_agent_files` reported 61/61 skills valid on that commit.
+- [x] `## Report the decision` says a request made for a change request names
   that verdict as the reason.
-- [ ] The frontmatter `description` names a pending AI change request as a
+  - **Evidence:** commit 699047b7 changes the Requesting bullet to name the
+    pending change request; `validate_agent_files` reported 61/61 skills valid
+    on that commit.
+- [x] The frontmatter `description` names a pending AI change request as a
   reason to request a review.
+  - **Evidence:** commit 699047b7 rewrites the `description`;
+    `validate_agent_files` reported 61/61 skills valid on that commit.
 
 ## Spec changes
 
