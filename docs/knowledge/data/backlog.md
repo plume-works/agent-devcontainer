@@ -85,6 +85,9 @@ rewrites](backlog/resilient-task-evidence.md)
 
 [Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
 
+[Run Verify from the iwe-ship skill, not inside the
+Shipper](backlog/ship-verifies-before-dispatch.md)
+
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
