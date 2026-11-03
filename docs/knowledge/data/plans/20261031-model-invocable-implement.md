@@ -150,7 +150,11 @@ Rejected:
     prints nothing, and the validator reports 61/61 valid.
 - [x] Explore still never starts Plan or Implement itself.
   - **Evidence:** commit 149e8843 — `## During implementation` reads "never
-    start Plan or Implement from Explore or silently change the plan."
+    start Plan or Implement from Explore or silently change the plan." Commit
+    c0533739 rewords `## Rules`' closing next step from "return to
+    implementation" to "return to the plan"; at that commit
+    `git grep -n "return to implementation" .agents/plugins/agentdev/skills/iwe-explore`
+    prints nothing.
 
 ### Task 5: e2e scenarios for a requested run and for Plan and Explore
 
