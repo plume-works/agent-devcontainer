@@ -164,11 +164,16 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] `## Rules` carries this approved paragraph verbatim:
+- [x] `## Rules` carries this approved paragraph verbatim:
 
   ``` text
   A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.
   ```
+
+  - **Evidence:** commit c03d084c adds the paragraph to `iwe-planner.agent.md`
+    `## Rules` byte for byte;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] Step 4's `## Verification` bullet says a search for leftover text covers
   only the files the plan changes.
