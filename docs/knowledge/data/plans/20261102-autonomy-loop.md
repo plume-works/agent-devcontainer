@@ -275,9 +275,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `iwe-implementer.agent.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
-- [ ] Step 4's drafting sub-step says the revision changes only lines that
+- [x] Step 4's drafting sub-step says the revision changes only lines that
   answer the quoted finding and adds or sharpens no claim the code must newly
   meet.
+  - **Evidence:** commit c03d084c adds the sentence to step 4's drafting
+    sub-step in `iwe-implementer.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 ### Task 5: The evaluator rejects stray hunks and new promises
 
