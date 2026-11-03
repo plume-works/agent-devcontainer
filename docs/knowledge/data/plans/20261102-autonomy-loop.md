@@ -255,7 +255,12 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] `## Report` lists **Outstanding observations** after the findings.
+- [x] `## Report` lists **Outstanding observations** after the findings.
+
+  - **Evidence:** commit c03d084c adds the heading to `iwe-verifier.agent.md`
+    `## Report` after the findings;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 ### Task 4: The Implement loop acts on CRITICALs and files the rest
 
