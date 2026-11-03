@@ -8,7 +8,6 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-11-02T21:00:00Z
 sources:
-- resource: docs/handoff/20261102-autonomy-loop.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -29,7 +28,12 @@ Implement and keeps it on Ship.
 The maintainer decided Ship no longer needs the gate: it exists to keep
 conversation context out of Ship, and Ship already runs as a fresh `iwe-shipper`
 subagent whose prompt carries only the plan key, the operation, and quoted
-approvals ([handoff](../../../handoff/20261102-autonomy-loop.md)).
+approvals.
+
+A coordinator may ask a session to ship a plan and relay the user's approvals:
+it asks the user its questions in one place and passes the answers to the
+sessions it runs. The skill quotes a relayed approval into the dispatch prompt
+the same way as one the user typed.
 
 This reverses an alternative [Explicit-only workflow
 agents](../architecture/explicit-only-workflow-agents.md) rejected for Ship:
@@ -63,6 +67,8 @@ Rejected:
 - [ ] `SKILL.md` carries no `disable-model-invocation` key.
 - [ ] The description says the skill is for a request that names a plan to ship
   or cancel, or a release to cut.
+- [ ] Step 1 quotes each approval in the request verbatim, whether the user gave
+  it in this session or a coordinator's message relays it from the user.
 - [ ] The bridge tests that expect `iwe-ship` denied expect a gated coordinator
   denied instead, and `iwe-ship` allowed.
 - [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
@@ -81,6 +87,8 @@ Rejected:
 
 - [ ] **Who may start them** lists any session asked to ship a named plan, and
   the gate bullet names only the two coordinators as explicit-only.
+- [ ] The authority rule says a coordinator may relay the user's approvals to a
+  session it asks to ship a plan.
 - [ ] The decision states why Ship can drop the gate: it always runs as a fresh
   subagent with a conversation-free prompt, and Explore never starts it.
 - [ ] **Drop the gate and rely on descriptions** stays rejected for the
@@ -123,10 +131,11 @@ on a message from a coordinator session. Only those skills, those coordinators,
 and Plan revise mode answering a Ship blocker report SHALL start the workflows,
 and Explore SHALL start neither. Ship SHALL always run as a dispatched
 `iwe-shipper` whose prompt carries only the plan key, the operation, and the
-user's approvals quoted verbatim, so its verification rests on the code and the
-graph alone. Implement started through its entry skill SHALL run in the session
-that loaded it and SHALL take every decision from that session's own user; a
-message from another session SHALL never count as that user's approval. A
+user's approvals quoted verbatim, including approvals a coordinator session
+relays from the user, so its verification rests on the code and the graph alone.
+Implement started through its entry skill SHALL run in the session that loaded
+it and SHALL take every decision from that session's own user or from an
+approval of the user's that a coordinator session relays. A
 dispatched workflow SHALL stop and report at any point that needs a user
 decision it was not given.
 
@@ -153,6 +162,13 @@ decision it was not given.
   `iwe-shipper` with the plan key and the ship operation and nothing else from
   the conversation.
 
+#### Scenario: A coordinator relays an approval to Ship
+
+- **WHEN** a coordinator session asks a session to ship a named plan and relays
+  the user's approval of a command the Shipper reported needing
+- **THEN** the session loads `/agentdev:iwe-ship`, the dispatch prompt quotes
+  that approval verbatim, and the Shipper runs the approved command.
+
 #### Scenario: The user implements a plan directly
 
 - **WHEN** the user runs `/agentdev:iwe-implement <plan>` and a task needs a
@@ -170,12 +186,11 @@ decision it was not given.
 #### Scenario: A coordinator asks a session to implement a plan
 
 - **WHEN** a coordinator session sends a session a message asking it to
-  implement a named plan and stating that a narrowing deviation is approved, and
-  a task needs that deviation
+  implement a named plan and relaying the user's approval of a narrowing
+  deviation, and a task needs that deviation
 - **THEN** the session loads `/agentdev:iwe-implement`, follows the
-  `iwe-implementer` rulebook in place, asks its own user and waits, and tells the
-  coordinator what it is waiting on; the coordinator's approval does not take
-  the step.
+  `iwe-implementer` rulebook in place, and takes the deviation without asking
+  again.
 
 #### Scenario: A coordinator ships every implemented plan
 
