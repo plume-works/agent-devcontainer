@@ -312,8 +312,12 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `iwe-shipper.agent.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
-- [ ] The blocker report's routes add: observe it, tick it with evidence, then
+- [x] The blocker report's routes add: observe it, tick it with evidence, then
   run `/agentdev:iwe-ship` again.
+  - **Evidence:** commit c03d084c adds the **Outstanding observation** route to
+    the Ship blocker report in `iwe-shipper.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 ### Task 7: Record the decisions
 
