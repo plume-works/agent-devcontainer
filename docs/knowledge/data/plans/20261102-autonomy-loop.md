@@ -13,7 +13,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
-rank: 181
+stage: done
+completed: 2026-11-03
 ---
 
 # Make the Implement loop converge
