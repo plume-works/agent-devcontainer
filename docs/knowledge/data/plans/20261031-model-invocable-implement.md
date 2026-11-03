@@ -87,9 +87,12 @@ Rejected:
   - **Evidence:** commit a964f0be — the description reads "Use only when the
     request names the plan to implement; a request to build something with no
     plan named does not match."
-- [ ] The body follows the rulebook "for the plan the request names" instead of
+- [x] The body follows the rulebook "for the plan the request names" instead of
   "the plan the user named", and keeps its rule that only
   `/agentdev:iwe-implement-all` dispatches `iwe-implementer`.
+  - **Evidence:** commit a964f0be — the body reads "for the plan the request
+    names" and keeps "Do not dispatch it as a subagent: only
+    `/agentdev:iwe-implement-all` does that."
 - [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
 
 ### Task 2: Take decisions from the user, directly or relayed
