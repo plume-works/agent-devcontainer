@@ -8,7 +8,6 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-11-02T21:00:00Z
 sources:
-- resource: docs/handoff/20261102-autonomy-loop.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -29,7 +28,7 @@ Implement and keeps it on Ship.
 The maintainer decided Ship no longer needs the gate: it exists to keep
 conversation context out of Ship, and Ship already runs as a fresh `iwe-shipper`
 subagent whose prompt carries only the plan key, the operation, and quoted
-approvals ([handoff](../../../handoff/20261102-autonomy-loop.md)).
+approvals .
 
 This reverses an alternative [Explicit-only workflow
 agents](../architecture/explicit-only-workflow-agents.md) rejected for Ship:

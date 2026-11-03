@@ -8,7 +8,6 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-11-02T20:30:00Z
 sources:
-- resource: docs/handoff/20261102-autonomy-loop.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -23,8 +22,7 @@ rank: 187
 conformance check: it reports only against the plan's contract. Looking for ways
 to defeat a design or its code is still worth doing for some plans — a trust
 check, an integrity check — but it is a different question with its own rubric,
-and inside every Verify round it keeps the loop from converging
-([handoff](../../../handoff/20261102-autonomy-loop.md)).
+and inside every Verify round it keeps the loop from converging.
 
 The maintainer decided that adversarial review is a separate agent. The planner
 may add it as a closing or near-closing task for a plan that warrants it, and a

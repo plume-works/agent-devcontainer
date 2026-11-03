@@ -8,7 +8,6 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-11-02T20:00:00Z
 sources:
-- resource: docs/handoff/20261102-autonomy-loop.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -23,8 +22,7 @@ rank: 181
 
 The [Autonomous Implement loop](../architecture/autonomous-implement-loop.md)
 runs Verify, acts on its findings, and revises the plan through an evaluator.
-The loop reaches its three-round stop bound instead of converging
-([handoff](../../../handoff/20261102-autonomy-loop.md)). The causes:
+The loop reaches its three-round stop bound instead of converging. The causes:
 
 - **Evidence timing.** A "CI passes" task, or a task citing a CI run, cannot be
   closed before the pull request exists, and every fix commit makes the cited
