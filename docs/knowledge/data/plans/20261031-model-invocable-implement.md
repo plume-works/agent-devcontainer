@@ -198,9 +198,13 @@ Rejected:
 **Files:** Modify:
 `docs/knowledge/data/architecture/explicit-only-workflow-agents.md`
 
-- [ ] **Who may start them** lists any session asked to implement a named plan,
+- [x] **Who may start them** lists any session asked to implement a named plan,
   including on a coordinator's message, for Implement; Ship's callers are
   unchanged.
+  - **Evidence:** commit 5b4b924a lists "any session asked to implement a named
+    plan — by the user's `/agentdev:iwe-implement`, by a plain request, or by a
+    message from a coordinator session"; the Ship callers keep their bullets;
+    `iwe schema validate` passes at that commit.
 - [ ] The gate bullet names only `iwe-ship`, `iwe-ship-all`, and
   `iwe-implement-all` as entry points under the gate, and **Implement keeps the
   user's session** states the authority rule from Task 2, including approvals a
