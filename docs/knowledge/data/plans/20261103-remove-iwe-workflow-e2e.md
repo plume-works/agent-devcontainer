@@ -67,10 +67,16 @@ Rejected:
 `scripts/tests/test_e2e_iwe_workflows_report_shown.py`,
 `scripts/tests/test_e2e_live_gate.py`; Modify: `pyproject.toml`
 
-- [ ] `git ls-files scripts/e2e 'scripts/tests/test_e2e_*'` prints nothing.
-- [ ] The `e2e` entry is gone from `[tool.pytest.ini_options].markers`; the
+- [x] `git ls-files scripts/e2e 'scripts/tests/test_e2e_*'` prints nothing.
+  - **Evidence:** commit 920ac34;
+    `git ls-files scripts/e2e 'scripts/tests/test_e2e_*'` printed nothing.
+- [x] The `e2e` entry is gone from `[tool.pytest.ini_options].markers`; the
   `smoke`, `interactive`, `pty`, `harness`, and `auto_memory` markers stay.
-- [ ] `uv run pytest --collect-only -q` collects with no error.
+  - **Evidence:** commit 920ac34 removes only the `e2e` line from
+    `pyproject.toml`'s `markers`; the other five entries are unchanged.
+- [x] `uv run pytest --collect-only -q` collects with no error.
+  - **Evidence:** commit 920ac34; `uv run pytest --collect-only -q` collected
+    1865 tests with no error.
 
 ### Task 2: The standing rule and the OpenCode model rule in AGENTS.md
 
