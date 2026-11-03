@@ -14,9 +14,10 @@ Start the development container from the repository root when it is not already
 running:
 
 ```bash
-devcontainer up --workspace-folder . \
-  --mount "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
+devcontainer up --workspace-folder .
 ```
+
+The container runs its own Docker engine; never mount the host's Docker socket into it.
 
 Run the original command inside it:
 
