@@ -63,6 +63,28 @@ checkout sat 31 commits behind `origin/main`.
   from the next session. `SubagentStart` fires on subagent dispatch, not on
   worktree creation.
 
+### Inline plugins: `--plugin-dir` and `CLAUDE_CODE_PLUGIN_DIRS` (this container)
+
+- `claude --plugin-dir <path>` loads a plugin folder for that session only, read
+  live from the folder: no copy, no marketplace, no install record.
+- The environment variable `CLAUDE_CODE_PLUGIN_DIRS` does the same: a list of
+  plugin folders separated by `:`. Each entry must be an absolute path; a
+  relative path or one starting with `~` is skipped with a warning.
+- An inline plugin replaces an installed plugin of the same name. With
+  `agentdev@agent-devcontainer` installed and enabled, a session started with the
+  worktree's folder inline lists one `agentdev`, source `agentdev@inline`, with
+  the worktree's skills; `self-improve` still comes from the installed catalog.
+- The variable takes effect from the shell environment and from the `env` block
+  of a `--settings` file. It does not take effect from the `env` block of the
+  worktree's `.claude/settings.json` or `.claude/settings.local.json`: the
+  session still loads the installed `agentdev`. A `WorktreeCreate` hook therefore
+  cannot switch a session to inline plugins by writing project settings.
+- `claude plugin list` does not show inline plugins; the `init` event of
+  `--output-format stream-json --verbose` does, under `plugins`.
+- `claude remote-control --help` lists no `--plugin-dir`. Whether a variable set
+  on the Remote Control process reaches the sessions it spawns is untested; it
+  would name the same folders for every spawned session.
+
 ## Hook scripts as tested
 
 Installed on agent-dev3 at `/root/.claude/wt-hooks/`. Spike quality: no tests,
