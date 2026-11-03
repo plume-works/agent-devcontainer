@@ -137,20 +137,30 @@ Rejected:
 `docs/knowledge/data/features/verify-report-cache.md`,
 `docs/knowledge/data/backlog/incremental-re-verify.md`
 
-- [ ] `claude-and-opencode-only-harnesses`: the `description` and `## Purpose`
+- [x] `claude-and-opencode-only-harnesses`: the `description` and `## Purpose`
   list "the images, runtime, agentdev catalog, and CI" with no e2e suites; the
   `scripts/e2e/iwe-workflows/harness_codex.py` source is removed; the Behaviour
   bullet reads "CI requires only the Claude marketplace."
-- [ ] `supported-harnesses`: the `description` drops "and e2e suites"; the
+  - **Evidence:** commit 0419bea edits the `description`, `## Purpose`,
+    `sources`, and Behaviour bullet as stated.
+- [x] `supported-harnesses`: the `description` drops "and e2e suites"; the
   `## Decision` bullet reads "CI validates the catalog with
   `--require-marketplace claude`."
-- [ ] `revision-evaluator-calibration`: the `scripts/e2e/...` source is removed,
+  - **Evidence:** commit 0419bea edits the `description` and the `## Decision`
+    bullet as stated.
+- [x] `revision-evaluator-calibration`: the `scripts/e2e/...` source is removed,
   and the sentence on the e2e suite reads "No check compares any of its verdicts
   with a human verdict."
-- [ ] `fresh-context-verify`, `verify-report-cache` (`description` and
+  - **Evidence:** commit 0419bea removes the source and replaces the sentence as
+    stated.
+- [x] `fresh-context-verify`, `verify-report-cache` (`description` and
   `## Purpose`), and `incremental-re-verify` say "test runs" or "full test
   suites" with no "e2e runs".
-- [ ] Each changed document's `generated` stamp is refreshed.
+  - **Evidence:** commit 0419bea; `grep -n -i e2e` over the three documents
+    prints nothing.
+- [x] Each changed document's `generated` stamp is refreshed.
+  - **Evidence:** commit 0419bea sets `generated.at: 2026-11-03T21:00:00Z` on
+    all six documents.
 
 ## Spec changes
 
