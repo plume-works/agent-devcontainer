@@ -92,6 +92,11 @@ VARIABLES: tuple[Variable, ...] = (
         'Sudoers entry the bootstrap writes for the runtime account.',
         '/etc/sudoers.d/agentdev-runtime',
     ),
+    Variable(
+        'AGENTDEV_EXTRA_CA_CERTS',
+        'PEM bundle the bootstrap adds to the system trust store; absent or empty adds none.',
+        '/etc/agentdev/extra-ca.crt',
+    ),
     Variable('AGENTDEV_UV_DIR', 'uv cache, interpreter, and venv volume root.', '/uv'),
     Variable(
         'AGENTDEV_REQUIRE_MOUNTS',

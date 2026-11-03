@@ -21,7 +21,7 @@ import sys
 import time
 from typing import NoReturn
 
-from agentdev_runtime import firewall as egress, integrity, settings as env
+from agentdev_runtime import firewall as egress, integrity, settings as env, trust
 
 PREFIX = 'agentdev-runtime bootstrap'
 MAX_ID = 2147483647
@@ -337,6 +337,17 @@ def devcontainer(settings: env.Settings) -> None:
     log(f'accepted account {user} ({ident.uid}:{ident.gid}) and workspace {workspace} as mounted')
 
 
+def install_extra_ca(settings: env.Settings) -> None:
+    """Trust the extra CA bundle before any service or tool makes a TLS connection."""
+    source = settings.path('AGENTDEV_EXTRA_CA_CERTS')
+    try:
+        count = trust.install(source)
+    except (trust.TrustError, OSError) as error:
+        fail(f'extra CA bundle {source}: {error}')
+    if count:
+        log(f'trusted {count} extra CA certificate(s) from {source}')
+
+
 def firewall(settings: env.Settings) -> int:
     """Apply the firewall last, before supervisord starts dockerd."""
     return egress.apply(settings)
@@ -356,6 +367,7 @@ def main(argv: list[str]) -> int:
             devcontainer(settings)
         else:
             fail(f"AGENTDEV_RUNTIME_MODE must be deploy or devcontainer; got '{mode}'")
+        install_extra_ca(settings)
     except BootstrapError as error:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
         return 1
