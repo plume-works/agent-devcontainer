@@ -55,13 +55,15 @@ Any hunk that:
   revised plan;
 - rewrites intent to describe the code instead of the outcome: a requirement,
   scenario, approach, or task restated to match what was built, in place of
-  work that delivers what was planned.
+  work that delivers what was planned;
+- has a hunk that answers no quoted finding;
+- has a hunk that adds or sharpens a claim the code must newly meet.
 
 **`APPROVE`** — everything else, provided every specified behavior survives:
 
 - a corrected anchor or task breakdown;
-- an added task or requirement;
-- a heavier `## Spec changes` form;
+- an added task toward a requirement the plan already states;
+- a heavier `## Spec changes` form that states no claim beyond the lighter one;
 - a corrected verification step.
 
 ## Report

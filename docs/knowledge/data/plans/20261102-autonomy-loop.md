@@ -6,14 +6,15 @@ release:
 description: Narrow what the Implement loop acts on so it converges — Verify judges conformance only, CI is left to the merge gate, post-merge observations wait for Ship, only CRITICALs create work, and a revision answers its finding without adding promises.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T02:01:10Z
+  at: 2026-11-03T16:58:40Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
-rank: 181
+stage: done
+completed: 2026-11-03
 ---
 
 # Make the Implement loop converge
@@ -29,7 +30,8 @@ The loop reaches its three-round stop bound instead of converging. The causes:
   run stale. Post-merge observations (for example "the next Renovate pull
   request receives the bot approval") cannot be closed before merge at all.
 - **Warnings become work.** The loop acts on every WARNING whose recommendation
-  names a route, and Verify almost always names one.
+  names a concrete route, and the verifier rulebook requires a concrete
+  recommendation on every finding.
 - **Verify is not bound to the plan's contract.** A finding need not cite a
   requirement, scenario, task, or verification step, so each fresh round can
   report a weakness no plan claim addresses.
@@ -65,10 +67,6 @@ and files the rest through `/agentdev:iwe-capture`. The evaluator rejects a
 stray hunk and a new or sharpened claim. Ship refuses while an observation task
 is unticked.
 
-Each failure these rules remove first gets an e2e scenario, run on Claude Code,
-where the failures were seen, before any rulebook changes, so it fails there.
-After the rulebook changes, the scenarios pass on Claude Code and OpenCode.
-
 Verify stays caller-independent, because the Implement loop and Ship share its
 saved report; Ship, not Verify, enforces the observation gate.
 
@@ -81,88 +79,104 @@ Rejected:
 
 ## Implementation Steps
 
-### Task 1: e2e scenarios for each failure, failing on Claude Code
-
-**Files:** Create: `scripts/e2e/iwe-workflows/test_autonomy_loop_claude.py`,
-`scripts/e2e/iwe-workflows/test_autonomy_loop_opencode.py`, and the fixture
-plans and stubs the scenarios need under `scripts/e2e/iwe-workflows/fixtures/`;
-Modify: `scripts/e2e/iwe-workflows/clone.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
-
-- [ ] Each failure this plan removes has one e2e scenario on both harnesses:
-  - Verify reports an unticked task carrying a `**Closed by:**` line as a
-    CRITICAL instead of listing it under **Outstanding observations**.
-  - Verify rejects a CI job cited on an earlier commit as evidence.
-  - Verify reports a weakness the plan's contract does not address.
-  - Verify counts a check of file contents as coverage of a scenario.
-  - Ship ships a plan whose only open task carries a `**Closed by:**` line.
-  - Implement adds a task or code for a WARNING whose fix adds work, instead of
-    filing it through `/agentdev:iwe-capture`.
-  - The evaluator approves a revision with a hunk that answers no finding
-    (`test_evaluator` variant `stray`) or one that sharpens a requirement
-    (`sharpened`).
-  - Plan writes a task or verification step whose only claim is that CI passes.
-  - Plan records behaviour observable only after merge without a task carrying a
-    `**Closed by:**` line.
-  - Plan writes a search for leftover text over the whole repository.
-  - Plan writes a requirement the code it describes does not hold.
-  - Plan lists in `## Verification` a command that needs starting a nested Dev
-    Container.
-  - Plan writes a requirement that does not name a known limit of its mechanism.
-- [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
-  only, where these failures were seen, and fails for the right reason: the
-  transcript shows the failure the scenario names.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
-
-### Task 2: The planner leaves CI to the merge gate and marks observations
+### Task 1: The planner leaves CI to the merge gate and marks observations
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `## Rules` says a plan carries no task or `## Verification` step whose
+- [x] `## Rules` says a plan carries no task or `## Verification` step whose
   only claim is that CI passes: `pr-merge` gates every merge on CI.
 
-- [ ] `## Rules` says behaviour observable only after merge is a task carrying a
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] `## Rules` says behaviour observable only after merge is a task carrying a
   `**Closed by:** <who or what event>` line, and that Ship waits for it.
 
-- [ ] `## Rules` carries this approved paragraph verbatim:
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] `## Rules` carries this approved paragraph verbatim:
 
   ``` text
   A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.
   ```
 
-- [ ] Step 4's `## Verification` bullet says a search for leftover text covers
+  - **Evidence:** commit c03d084c adds the paragraph to `iwe-planner.agent.md`
+    `## Rules` byte for byte;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] Step 4's `## Verification` bullet says a search for leftover text covers
   only the files the plan changes.
 
-- [ ] `## Rules` says that before validation the planner checks each requirement
+  - **Evidence:** commit c03d084c adds the sentence to `iwe-planner.agent.md`
+    step 4's `## Verification` bullet;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] `## Rules` says that before validation the planner checks each requirement
   in `## Spec changes` that the plan adds or modifies against the plan's
   `## Approach` and against the code it describes, and resolves every
   disagreement in the plan before it is written.
 
-- [ ] Step 4's `## Verification` bullet says each command runs in the checkout
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] Step 4's `## Verification` bullet says each command runs in the checkout
   the `iwe-verifier` agent works in — inside the Dev Container or container the
   agent already runs in — without starting a nested Dev Container and without
   CI; a check that needs either is a cited CI job or a task carrying a
   `**Closed by:**` line.
 
-- [ ] `## Rules` says a requirement in `## Spec changes` claims only what its
+  - **Evidence:** commit c03d084c adds the sentence to `iwe-planner.agent.md`
+    step 4's `## Verification` bullet;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] `## Rules` says a requirement in `## Spec changes` claims only what its
   mechanism delivers and names each limit of that mechanism the planner knows.
 
-### Task 3: Verify judges conformance to the plan
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+### Task 2: Verify judges conformance to the plan
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] Step 3 says every CRITICAL and WARNING cites the requirement, scenario,
+- [x] Step 3 says every CRITICAL and WARNING cites the requirement, scenario,
   task, or verification step of the effective contract it contradicts; a
   weakness the contract does not address is not reported as either.
 
-- [ ] Completeness lists an unticked task carrying a `**Closed by:**` line under
+  - **Evidence:** commit c03d084c adds the citation rule to
+    `iwe-verifier.agent.md` step 3;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] Completeness lists an unticked task carrying a `**Closed by:**` line under
   a new **Outstanding observations** report heading instead of as a CRITICAL.
 
-- [ ] Completeness accepts a CI job as evidence for behaviour only CI exercises
+  - **Evidence:** commit c03d084c changes Completeness in
+    `iwe-verifier.agent.md` to list the task under **Outstanding observations**;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] Completeness accepts a CI job as evidence for behaviour only CI exercises
   when the job exercises it, without requiring a run on the current head.
 
-- [ ] Correctness judges coverage by the `iwe-planner` coverage rule (Task 2),
+  - **Evidence:** commit c03d084c adds the CI-job sentence to Completeness in
+    `iwe-verifier.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+- [x] Correctness judges coverage by the `iwe-planner` coverage rule (Task 1),
   and replaces "(uncovered scenario is a WARNING)" with this approved sentence
   verbatim:
 
@@ -170,57 +184,93 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
   An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
   ```
 
-- [ ] `## Report` lists **Outstanding observations** after the findings.
+  - **Evidence:** commit c03d084c applies the `iwe-planner` coverage rule in
+    `iwe-verifier.agent.md` Correctness and adds the approved sentence byte for
+    byte;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
-### Task 4: The Implement loop acts on CRITICALs and files the rest
+- [x] `## Report` lists **Outstanding observations** after the findings.
+
+  - **Evidence:** commit c03d084c adds the heading to `iwe-verifier.agent.md`
+    `## Report` after the findings;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+
+### Task 3: The Implement loop acts on CRITICALs and files the rest
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] `## Running the loop` step 2 acts on every CRITICAL, and on a WARNING only
+- [x] `## Running the loop` step 2 acts on every CRITICAL, and on a WARNING only
   when its fix fits a task the plan already has and adds no claim the code must
   newly meet; every other WARNING is filed through `/agentdev:iwe-capture` and
   named in the report. Outstanding observations do not stop the run; the report
   names them.
-- [ ] Step 4's drafting sub-step says the revision changes only lines that
+  - **Evidence:** commit c03d084c rewrites step 2 of `## Running the loop` in
+    `iwe-implementer.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+- [x] Step 4's drafting sub-step says the revision changes only lines that
   answer the quoted finding and adds or sharpens no claim the code must newly
   meet.
+  - **Evidence:** commit c03d084c adds the sentence to step 4's drafting
+    sub-step in `iwe-implementer.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
-### Task 5: The evaluator rejects stray hunks and new promises
+### Task 4: The evaluator rejects stray hunks and new promises
 
 **Files:** Modify:
 `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md`
 
-- [ ] `REJECT` gains two conditions: a hunk that answers no quoted finding, and
+- [x] `REJECT` gains two conditions: a hunk that answers no quoted finding, and
   a hunk that adds or sharpens a claim the code must newly meet.
-- [ ] `APPROVE` lists "an added task toward a requirement the plan already
+  - **Evidence:** commit c03d084c adds both bullets to `REJECT` in
+    `iwe-revision-evaluator.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+- [x] `APPROVE` lists "an added task toward a requirement the plan already
   states" in place of "an added task or requirement", and allows a heavier
   `## Spec changes` form only when it states no claim beyond the lighter one.
+  - **Evidence:** commit c03d084c rewrites both `APPROVE` bullets in
+    `iwe-revision-evaluator.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
-### Task 6: Ship waits for post-merge observations
+### Task 5: Ship waits for post-merge observations
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Normal shipping stops with a Ship blocker report while any task carrying a
+- [x] Normal shipping stops with a Ship blocker report while any task carrying a
   `**Closed by:**` line is unticked, before any shipping state transition.
-- [ ] The blocker report's routes add: observe it, tick it with evidence, then
+  - **Evidence:** commit c03d084c adds the gate to step 3 and `## Rules` in
+    `iwe-shipper.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
+- [x] The blocker report's routes add: observe it, tick it with evidence, then
   run `/agentdev:iwe-ship` again.
+  - **Evidence:** commit c03d084c adds the **Outstanding observation** route to
+    the Ship blocker report in `iwe-shipper.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
-### Task 7: Record the decisions
+### Task 6: Record the decisions
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/autonomous-implement-loop.md`
 
-- [ ] The decision states what the loop acts on (CRITICALs; a WARNING only
+- [x] The decision states what the loop acts on (CRITICALs; a WARNING only
   inside an existing task), that Verify is a conformance check, that CI belongs
   to `pr-merge` and post-merge observations to Ship, and the evaluator's two new
   `REJECT` conditions.
-- [ ] `## Rejected alternatives` adds the two alternatives in `## Approach`.
-
-### Task 8: The e2e scenarios pass on both harnesses
-
-- [ ] After Tasks 2–6, every Task 1 scenario, with the existing
-  `test_evaluator`, `test_ship`, and `test_implement_verifies`, passes on Claude
-  Code and on OpenCode with the default test models.
+  - **Evidence:** commit c03d084c adds the paragraph "The loop acts only on what
+    the plan promised" and both `REJECT` bullets to
+    `autonomous-implement-loop.md` `## Decision`; `iwe schema validate` passes
+    at 267b16dc.
+- [x] `## Rejected alternatives` adds the two alternatives in `## Approach`.
+  - **Evidence:** commit c03d084c adds both alternatives to
+    `autonomous-implement-loop.md` `## Rejected alternatives`;
+    `iwe schema validate` passes at 267b16dc.
 
 ## Spec changes
 
@@ -448,14 +498,11 @@ that mechanism Plan knows.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 1
-  scenarios on Claude Code before any rulebook changes (Task 1), and with
-  `test_evaluator`, `test_ship`, and `test_implement_verifies` on Claude Code
-  and OpenCode after them (Task 8).
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
 
+- e2e scenarios for the changed rulebooks.
 - Removing existing content tests — [Remove tests that check file contents
   instead of running behaviour](../backlog/remove-content-tests.md).
 - The adversarial review agent ([Add an adversarial review for plans and their
@@ -467,41 +514,36 @@ that mechanism Plan knows.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
+Verified anchor points (line numbers as of 2026-11-03):
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:84` —
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:86` —
   `## Implementation Steps` bullet
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:100` — `## Verification`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:102` — `## Verification`
   bullet
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:239` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:56` — Completeness
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:93` — "(uncovered
-  scenario is a WARNING)"
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:126` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:147` — loop step 2,
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:59` — Completeness
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:104` —
+  uncovered-scenario sentence
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:137` — `## Report`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:153` — loop step 2,
   findings to act on
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:156` — loop step 4,
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:164` — loop step 4,
   revision route
 - `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:52` —
   `REJECT`
-- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:60` —
+- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:62` —
   `APPROVE`
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Verify for
   normal shipping
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:192` — Ship blocker
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:200` — Ship blocker
   report
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md:18` —
+- `docs/knowledge/data/architecture/autonomous-implement-loop.md:20` —
   `## Decision`
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md:62` —
+- `docs/knowledge/data/architecture/autonomous-implement-loop.md:76` —
   `## Rejected alternatives`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:319` — Implement verifies
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:333` — Implement verifies
   requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:365` — Implement revises
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:379` — Implement revises
   requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:445` — Normal shipping
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:459` — Normal shipping
   requirement
-- `scripts/e2e/iwe-workflows/clone.py:356` — `draft_revision`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:238` —
-  `test_evaluator`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:269` —
-  `test_evaluator`

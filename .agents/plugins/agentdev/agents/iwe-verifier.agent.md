@@ -52,9 +52,15 @@ runs in one of two modes:
    its `## Spec changes`, and the linked feature/bug docs
    (`iwe retrieve -k data/plans/<key>`).
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
-   SUGGESTION, each with a concrete recommendation:
-   - **Completeness** — every unchecked `- [ ]` task is a CRITICAL, with three
-     routes out: complete it, tick it if already done, or revise the plan to
+   SUGGESTION, each with a concrete recommendation. Every CRITICAL and WARNING
+   cites the requirement, scenario, task, or verification step of the
+   effective contract it contradicts; a weakness the contract does not address
+   is not reported as either.
+   - **Completeness** — an unchecked `- [ ]` task carrying a `**Closed by:**`
+     line is a post-merge observation: list it under **Outstanding
+     observations**, not as a finding; Ship waits for it. Every other unchecked
+     `- [ ]` task is a CRITICAL, with three routes out: complete it, tick it if
+     already done, or revise the plan to
      drop it via the `/agentdev:iwe-plan` skill's revise mode, which treats
      dropping a task as a material scope change and so asks the user before
      doing it. The third route exists because Ship refuses any CRITICAL and has
@@ -69,7 +75,9 @@ runs in one of two modes:
      stdout transcribed as evidence, an ephemeral identifier that will not exist
      next session (a container or machine id, a temp path), and a citation of an
      uncommitted `.tmp/` harness each fail this check the same way an empty line
-     does. Audit the two asymmetrically, because they fail asymmetrically: an
+     does. A CI job is evidence for behaviour only CI exercises when the job
+     exercises that behaviour; it need not have run on the current head. Audit
+     the two asymmetrically, because they fail asymmetrically: an
      unchecked box that is actually done is a nuisance the next session clears
      in a minute, while a checked box that is not done is a false premise the
      next session builds on. Taking a tick on faith is how the second one
@@ -90,8 +98,11 @@ runs in one of two modes:
    - **Correctness** — map each requirement to `path:line` evidence and judge
      whether the implementation matches its SHALL statement (divergence is a
      WARNING with the file and lines to review). For each `#### Scenario:`,
-     check the condition is handled in code and covered by a test (uncovered
-     scenario is a WARNING). Run the plan's `## Verification` commands and
+     check the condition is handled in code and covered by a test, judged by
+     the `iwe-planner` coverage rule: a test covers a scenario only when it
+     runs the behaviour.
+     An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
+     Run the plan's `## Verification` commands and
      report their actual output — a failing command is a CRITICAL. Then run
      `git status --porcelain`: any output is a CRITICAL naming the dirty paths,
      recommending that the command leave the worktree clean, because a saved
@@ -136,6 +147,8 @@ then:
   `path` is relative to the repository root, never absolute, so the report
   reads the same from any checkout. Audit mode numbers its findings the same
   way.
+- **Outstanding observations** — each unticked task carrying a
+  `**Closed by:**` line, with who or what closes it.
 - **Verification commands** — each `## Verification` command run and its actual
   result.
 - **Needs decision** — the exact command or choice and why, when you stopped
