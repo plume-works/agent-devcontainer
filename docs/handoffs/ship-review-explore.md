@@ -18,12 +18,12 @@ check, or refusal gate".
 
 - The `iwe-shipper` agent writes and enforces the `## Fix` section of every bug
   its plan's `release` list names.
-- A new catalog agent, not yet named, reviews a plan against Ship's
+- A new catalog agent, `iwe-ship-reviewer`, reviews a plan against Ship's
   obligations. It has one rubric built from what `iwe-shipper.agent.md` requires,
   and runs both when `/agentdev:iwe-plan` files or revises a plan and on the
   result `iwe-shipper` commits.
-- On the Ship side the new agent runs after the commit: `/agentdev:iwe-ship`
-  dispatches `iwe-shipper`, which commits, then dispatches the new agent from a
+- On the Ship side `iwe-ship-reviewer` runs after the commit: `/agentdev:iwe-ship`
+  dispatches `iwe-shipper`, which commits, then dispatches `iwe-ship-reviewer` from a
   fresh context. A gap it finds is fixed in a follow-up commit.
 - Verify moves out of `iwe-shipper`'s context: `/agentdev:iwe-ship` dispatches
   `iwe-verifier` itself, filed as `data/backlog/ship-verifies-before-dispatch`.
@@ -34,10 +34,10 @@ check, or refusal gate".
   `.github/workflows/ci.yml`.
 
 - A new skill, `/agentdev:iwe-plan-review`, fans out to two catalog agents on
-  one plan and returns their reports together: the durable-knowledge auditor
-  (today the `Durable Knowledge Auditor` agent) and the new Ship-obligations
-  reviewer agent (working name `ship-obligations-reviewer`).
-- `/agentdev:iwe-audit` and the `Durable Knowledge Auditor` agent take the
+  one plan and returns their reports together: `iwe-auditor` (today the `Durable
+Knowledge Auditor` agent) and the new `iwe-ship-reviewer`.
+- The `Durable Knowledge Auditor` agent is renamed `iwe-auditor`.
+- `/agentdev:iwe-audit` and `iwe-auditor` take the
   shape `/agentdev:iwe-ship` and `iwe-shipper`, and `/agentdev:iwe-verify` and
   `iwe-verifier`, already have: the skill dispatches the agent, and the agent
   file holds the rulebook. Today it is the reverse:
@@ -45,9 +45,9 @@ check, or refusal gate".
   invokes `/agentdev:iwe-audit`, whose `SKILL.md` holds every rule.
 
 - Nesting depth is 5 on both harnesses. Claude Code gets
-  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5`; where the devcontainer sets it —
-  `containerEnv` in `.devcontainer/devcontainer.json`, the image's environment,
-  or the `env` block of Claude Code's `settings.json` — is the plan's call. The
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5` in the `env` block of
+  `~/.claude/settings.json`, the file the `agentic_tools` Ansible role already
+  merges `cc-filter` hooks into. The
   devcontainer's OpenCode config sets `experimental.subagent_depth` to `5`; the
   writer is `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`,
   under the spec `data/spec/devcontainer-opencode-policy`. Catalog agents stop
@@ -55,9 +55,9 @@ check, or refusal gate".
   `data/someday/nested-catalog-agent-dispatch` and reverses the leaf rule that
   `data/architecture/fresh-context-verify` and
   `data/architecture/autonomous-implement-loop` rest on.
-- Every caller of the durable-knowledge audit dispatches the auditor agent,
+- Every caller of the durable-knowledge audit dispatches `iwe-auditor`,
   including a `/agentdev:pr-review` pass and `iwe-implementer` under
-  `/agentdev:iwe-implement-all`; no caller follows the auditor's rulebook in
+  `/agentdev:iwe-implement-all`; no caller follows the `iwe-auditor` rulebook in
   place.
 
 - `iwe-shipper` gains the `Agent` tool and dispatches `iwe-verifier` itself
@@ -105,18 +105,14 @@ Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-What are the final names of the durable-knowledge auditor agent (today
-`Durable Knowledge Auditor`) and the Ship-obligations reviewer agent (working
-name `ship-obligations-reviewer`)?
+Where does `/agentdev:iwe-audit`'s apply mode live, once `iwe-auditor` holds the
+rulebook and stays report-only?
 
 ## Queued
 
-- Where `/agentdev:iwe-audit`'s apply mode lives once the agent holds the
-  rulebook and stays report-only.
-
 - Whether one rubric covers both the plan-time run and the post-Ship run, or
-  the new agent has a plan mode and a ship mode.
-- Who writes the follow-up commit when the new agent finds a gap after
+  `iwe-ship-reviewer` has a plan mode and a ship mode.
+- Who writes the follow-up commit when `iwe-ship-reviewer` finds a gap after
   `iwe-shipper` commits: a re-dispatched `iwe-shipper`, or `/agentdev:iwe-ship`.
 - Recording the reversal of the "no schema rule, CI check, or refusal gate"
   decision in `data/plans/20261102-bug-lifecycle-and-sections`.
