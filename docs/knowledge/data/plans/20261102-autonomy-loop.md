@@ -65,6 +65,10 @@ and files the rest through `/agentdev:iwe-capture`. The evaluator rejects a
 stray hunk and a new or sharpened claim. Ship refuses while an observation task
 is unticked.
 
+Each failure these rules remove first gets an e2e scenario, run on Claude Code,
+where the failures were seen, before any rulebook changes, so it fails there.
+After the rulebook changes, the scenarios pass on Claude Code and OpenCode.
+
 Verify stays caller-independent, because the Implement loop and Ship share its
 saved report; Ship, not Verify, enforces the observation gate.
 
@@ -77,7 +81,39 @@ Rejected:
 
 ## Implementation Steps
 
-### Task 1: The planner leaves CI to the merge gate and marks observations
+### Task 1: e2e scenarios for each failure, failing on Claude Code
+
+**Files:** Create: `scripts/e2e/iwe-workflows/test_autonomy_loop_claude.py`,
+`scripts/e2e/iwe-workflows/test_autonomy_loop_opencode.py`, and the fixture
+plans and stubs the scenarios need under `scripts/e2e/iwe-workflows/fixtures/`;
+Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+
+- [ ] Each failure this plan removes has one e2e scenario on both harnesses:
+  - Verify reports an unticked task carrying a `**Closed by:**` line as a
+    CRITICAL instead of listing it under **Outstanding observations**.
+  - Verify rejects a CI job cited on an earlier commit as evidence.
+  - Verify reports a weakness the plan's contract does not address.
+  - Verify counts a check of file contents as coverage of a scenario.
+  - Ship ships a plan whose only open task carries a `**Closed by:**` line.
+  - Implement adds a task or code for a WARNING whose fix adds work, instead of
+    filing it through `/agentdev:iwe-capture`.
+  - The evaluator approves a revision with a hunk that answers no finding
+    (`test_evaluator` variant `stray`) or one that sharpens a requirement
+    (`sharpened`).
+  - Plan writes a task or verification step whose only claim is that CI passes.
+  - Plan records behaviour observable only after merge without a task carrying a
+    `**Closed by:**` line.
+  - Plan writes a search for leftover text over the whole repository.
+  - Plan writes a requirement the code it describes does not hold.
+  - Plan lists in `## Verification` a command that needs a started Dev
+    Container.
+  - Plan writes a requirement that does not name a known limit of its mechanism.
+- [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
+  only, where these failures were seen, and fails.
+- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+
+### Task 2: The planner leaves CI to the merge gate and marks observations
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
@@ -109,7 +145,7 @@ Rejected:
 - [ ] `## Rules` says a requirement in `## Spec changes` claims only what its
   mechanism delivers and names each limit of that mechanism the planner knows.
 
-### Task 2: Verify judges conformance to the plan
+### Task 3: Verify judges conformance to the plan
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
@@ -123,7 +159,7 @@ Rejected:
 - [ ] Completeness accepts a CI job as evidence for behaviour only CI exercises
   when the job exercises it, without requiring a run on the current head.
 
-- [ ] Correctness judges coverage by the `iwe-planner` coverage rule (Task 1),
+- [ ] Correctness judges coverage by the `iwe-planner` coverage rule (Task 2),
   and replaces "(uncovered scenario is a WARNING)" with this approved sentence
   verbatim:
 
@@ -133,7 +169,7 @@ Rejected:
 
 - [ ] `## Report` lists **Outstanding observations** after the findings.
 
-### Task 3: The Implement loop acts on CRITICALs and files the rest
+### Task 4: The Implement loop acts on CRITICALs and files the rest
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
@@ -146,7 +182,7 @@ Rejected:
   answer the quoted finding and adds or sharpens no claim the code must newly
   meet.
 
-### Task 4: The evaluator rejects stray hunks and new promises
+### Task 5: The evaluator rejects stray hunks and new promises
 
 **Files:** Modify:
 `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md`
@@ -157,7 +193,7 @@ Rejected:
   states" in place of "an added task or requirement", and allows a heavier
   `## Spec changes` form only when it states no claim beyond the lighter one.
 
-### Task 5: Ship waits for post-merge observations
+### Task 6: Ship waits for post-merge observations
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
@@ -166,7 +202,7 @@ Rejected:
 - [ ] The blocker report's routes add: observe it, tick it with evidence, then
   run `/agentdev:iwe-ship` again.
 
-### Task 6: Record the decisions
+### Task 7: Record the decisions
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/autonomous-implement-loop.md`
@@ -177,30 +213,11 @@ Rejected:
   `REJECT` conditions.
 - [ ] `## Rejected alternatives` adds the two alternatives in `## Approach`.
 
-### Task 7: e2e scenarios for the evaluator and the observation gate
+### Task 8: The e2e scenarios pass on both harnesses
 
-**Files:** Create:
-`scripts/e2e/iwe-workflows/fixtures/plans/20261026-e2e-revise.stray.md`,
-`scripts/e2e/iwe-workflows/fixtures/plans/20261026-e2e-revise.sharpened.md`, a
-fixture plan with an unticked `**Closed by:**` task; Modify:
-`scripts/e2e/iwe-workflows/clone.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
-
-- [ ] `test_evaluator` on both harnesses gains `stray` (a revision with a hunk
-  answering no finding) and `sharpened` (a revision that sharpens a
-  requirement), each expecting `REJECT`.
-- [ ] A Ship scenario on both harnesses runs on a plan whose only unticked task
-  carries a `**Closed by:**` line: Verify's report has no CRITICAL and lists it
-  under **Outstanding observations**, and the Shipper returns `Blocked` naming
-  it, with no shipping state change.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
-
-### Task 8: The new and changed e2e scenarios pass
-
-- [ ] The Task 7 scenarios, with the existing `test_evaluator`, `test_ship`, and
-  `test_implement_verifies`, pass on Claude Code and on OpenCode with the
-  default test models.
+- [ ] After Tasks 2–6, every Task 1 scenario, with the existing
+  `test_evaluator`, `test_ship`, and `test_implement_verifies`, passes on Claude
+  Code and on OpenCode with the default test models.
 
 ## Spec changes
 
@@ -427,9 +444,10 @@ that mechanism Plan knows.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 7
-  scenarios with `test_evaluator`, `test_ship`, and `test_implement_verifies` on
-  Claude Code and OpenCode (Task 8).
+- `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 1
+  scenarios on Claude Code before any rulebook changes (Task 1), and with
+  `test_evaluator`, `test_ship`, and `test_implement_verifies` on Claude Code
+  and OpenCode after them (Task 8).
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
