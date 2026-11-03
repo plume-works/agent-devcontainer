@@ -332,7 +332,10 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     the plan promised" and both `REJECT` bullets to
     `autonomous-implement-loop.md` `## Decision`; `iwe schema validate` passes
     at 267b16dc.
-- [ ] `## Rejected alternatives` adds the two alternatives in `## Approach`.
+- [x] `## Rejected alternatives` adds the two alternatives in `## Approach`.
+  - **Evidence:** commit c03d084c adds both alternatives to
+    `autonomous-implement-loop.md` `## Rejected alternatives`;
+    `iwe schema validate` passes at 267b16dc.
 
 ### Task 8: The e2e scenarios pass on both harnesses
 
