@@ -6,7 +6,7 @@ release:
 description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T12:00:00Z
+  at: 2026-11-03T01:40:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -44,10 +44,12 @@ catalog](../features/agentdev-iwe-workflow-skills.md).
 
 This lands after [Remove Codex support](20261031-remove-codex.md), so the gate
 is the `disable-model-invocation` key alone: Claude Code reads it, and the
-OpenCode bridge turns it into a skill `deny`. Remove it from `iwe-implement`.
-Narrow its description to a request that names a plan, so an ordinary "implement
-this fix" does not load it. `iwe-implement-all`, `iwe-ship`, and `iwe-ship-all`
-stay explicit-only.
+OpenCode bridge turns it into a skill `deny`. It also lands after [Explore
+proposes only for observed problems](20261103-explore-evidence-gate.md); the
+Explore requirement delta below keeps that plan's text. Remove the key from
+`iwe-implement`. Narrow its description to a request that names a plan, so an
+ordinary "implement this fix" does not load it. `iwe-implement-all`, `iwe-ship`,
+and `iwe-ship-all` stay explicit-only.
 
 A session that loads Implement on another session's message follows the rulebook
 in place, like a direct run. The plan comes from the request. A decision the
@@ -182,9 +184,15 @@ The Explore skill SHALL investigate the project graph and codebase without
 editing application code, SHALL remain adaptive and patient as the problem takes
 shape, and SHALL offer capture or a phase handoff without pressuring the user to
 formalize unfinished thinking. Explore SHALL neither start Implement nor name it
-as a next step. When the user approves specific text, Explore SHALL persist it
-verbatim outside the conversation and reproduce it verbatim in the handoff, and
-SHALL never paraphrase it.
+as a next step. Explore SHALL propose a change only for a problem it can show has
+occurred, SHALL list a case it can only imagine as not observed rather than
+design for it, and SHALL weigh a risk its own proposal creates against that
+proposal rather than open it as a new question. When the user approves specific
+text, Explore SHALL persist it verbatim outside the conversation and reproduce it
+verbatim in the handoff, and SHALL never paraphrase it. Once the problem has open
+questions, Explore SHALL settle them with the user one at a time — one topic per
+turn and one decision per question, in the user's names and design — and SHALL
+record each answer verbatim as it is given.
 
 #### Scenario: Exploration starts from an open-ended idea
 
@@ -217,6 +225,25 @@ SHALL never paraphrase it.
 - **THEN** Explore writes it verbatim to `.tmp/approved-wording-<slug>.md`
   before continuing, names that file in the handoff, and reproduces the text
   verbatim rather than describing it
+
+#### Scenario: The exploration has open questions
+
+- **WHEN** the problem being explored has more than one open question
+- **THEN** Explore names one topic and stays on it until the user settles it,
+  asks one decision at a time as numbered options with a recommendation, keeps
+  the user's names and design unless changing them is the question asked,
+  settles a question about system behavior with evidence before asking it,
+  records each answer verbatim in `.tmp/approved-wording-<slug>.md` — marked
+  approved only on an explicit yes — and opens the next topic only after the
+  current one is settled
+
+#### Scenario: Exploration proposes a change
+
+- **WHEN** Explore is about to propose a change to the system
+- **THEN** it first collects and counts the observed occurrences of the problem,
+  proposes the smallest change that would have prevented them, lists any case
+  it can only imagine under "not observed", and opens no thread or open
+  question for a risk that exists only because of its own proposal
 
 ### Requirement: Plan creates or revises planning state without implementing
 
@@ -369,6 +396,8 @@ SHALL stop and report at any point that needs a user decision it was not given.
 ## Depends on
 
 - [Remove Codex support](20261031-remove-codex.md)
+- [Explore proposes only for observed
+  problems](20261103-explore-evidence-gate.md)
 
 ## Verification
 
@@ -393,7 +422,7 @@ SHALL stop and report at any point that needs a user decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
+Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:3` — `description`
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:4` —
@@ -404,10 +433,10 @@ Verified anchor points (line numbers as of 2026-10-31):
   mode
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:14` — "report readiness,
   and stop before editing implementation code"
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:168` — step 8's report
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:82` —
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:177` — step 8's report
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:100` —
   `## During implementation` handoff naming `/agentdev:iwe-implement`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:130` — `## Rules`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:148` — `## Rules`
   pointer naming `/agentdev:iwe-implement`
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:166` — `explicitOnly` read
   from the frontmatter

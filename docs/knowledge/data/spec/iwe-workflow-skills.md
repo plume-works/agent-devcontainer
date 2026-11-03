@@ -47,12 +47,16 @@ durable shipping state.
 The Explore skill SHALL investigate the project graph and codebase without
 editing application code, SHALL remain adaptive and patient as the problem takes
 shape, and SHALL offer capture or a phase handoff without pressuring the user to
-formalize unfinished thinking. When the user approves specific text, Explore
-SHALL persist it verbatim outside the conversation and reproduce it verbatim in
-the handoff, and SHALL never paraphrase it. Once the problem has open questions,
-Explore SHALL settle them with the user one at a time — one topic per turn and
-one decision per question, in the user's names and design — and SHALL record
-each answer verbatim as it is given.
+formalize unfinished thinking. Explore SHALL propose a change only for a problem
+it can show has occurred, SHALL list a case it can only imagine as not observed
+rather than design for it, and SHALL weigh a risk its own proposal creates
+against that proposal rather than open it as a new question. When the user
+approves specific text, Explore SHALL persist it verbatim outside the
+conversation and reproduce it verbatim in the handoff, and SHALL never
+paraphrase it. Once the problem has open questions, Explore SHALL settle them
+with the user one at a time — one topic per turn and one decision per question,
+in the user's names and design — and SHALL record each answer verbatim as it is
+given.
 
 #### Scenario: Exploration starts from an open-ended idea
 
@@ -96,6 +100,14 @@ each answer verbatim as it is given.
   records each answer verbatim in `.tmp/approved-wording-<slug>.md` — marked
   approved only on an explicit yes — and opens the next topic only after the
   current one is settled
+
+#### Scenario: Exploration proposes a change
+
+- **WHEN** Explore is about to propose a change to the system
+- **THEN** it first collects and counts the observed occurrences of the problem,
+  proposes the smallest change that would have prevented them, lists any case it
+  can only imagine under "not observed", and opens no thread or open question
+  for a risk that exists only because of its own proposal
 
 ### Requirement: Plan creates or revises planning state without implementing
 

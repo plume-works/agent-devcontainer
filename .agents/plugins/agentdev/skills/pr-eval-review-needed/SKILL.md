@@ -1,6 +1,6 @@
 ---
 name: pr-eval-review-needed
-description: 'Decide whether work just pushed to an open pull request needs a fresh AI review, because it went beyond what a reviewer already saw. Use after implementing, refactoring, or fixing anything on a branch with an open PR that has already been reviewed — especially when resolving review feedback led to changes wider than the feedback asked for, or when new behavior, files, or dependencies entered the PR since the last review. Applied by pr-open in update mode, by pr-merge after a CI-fix push, and by pr-feedback-resolution. Keywords: re-review needed, stale review, reviewed changed since, beyond feedback scope, review scope.'
+description: "Decide whether work just pushed to an open pull request needs a fresh AI review, because the AI reviewer's newest verdict is a pending change request or the work went beyond what a reviewer already saw. Use after implementing, refactoring, or fixing anything on a branch with an open PR that has already been reviewed — especially when resolving review feedback led to changes wider than the feedback asked for, or when new behavior, files, or dependencies entered the PR since the last review. Applied by pr-open in update mode, by pr-merge after a CI-fix push, and by pr-feedback-resolution. Keywords: re-review needed, changes requested, stale review, reviewed changed since, beyond feedback scope, review scope."
 ---
 
 # Evaluate Whether a Re-Review Is Needed
@@ -27,7 +27,15 @@ neither. When genuinely balanced, request it.
 
 ## The test
 
-Compare what is on the PR head now against what the last review saw.
+**First, read the AI reviewer's newest verdict.** When it is
+`CHANGES_REQUESTED`, request a fresh review whatever the diff holds. GitHub keeps
+a reviewer's change request, and it blocks merge, until that same reviewer
+approves or a person dismisses it, so only a re-review can lift it. Applying
+the change request's own feedback is exactly the push that needs one.
+
+Otherwise — the verdict is `APPROVED`, or the AI reviewer has left only
+`COMMENTED` reviews — compare what is on the PR head now against what the last
+review saw.
 
 **Ask: does the diff since the newest reviewed commit go beyond what the pull
 request's review threads and review comments since that review asked for?**
@@ -37,8 +45,9 @@ change, so a cold run from `pr-sync` or `pr-merge` decides on the same footing a
 a feedback pass.
 
 - **No** — the diff only applies what those threads and comments asked for.
-  That is the review working as intended, and re-reviewing it re-reads the
-  reviewer's own instructions. Reply in the threads; do not request a review.
+  With no AI change request pending, that is the review working as intended,
+  and re-reviewing it re-reads the reviewer's own instructions. Reply in the
+  threads; do not request a review.
 - **Yes** — behavior entered the PR that no reviewer has seen or asked for.
   Request a fresh review.
 
@@ -62,7 +71,8 @@ Request a review when the work since the last one did any of these:
 - Merged the base branch and resolved conflicts by making a judgment call rather
   than taking one side cleanly.
 
-Do not request a review when the work since the last one was only:
+Unless an AI change request is pending, do not request a review when the work
+since the last one was only:
 
 - The exact edits reviewers requested, applied as discussed.
 - Formatter, linter, or generated-file output.
@@ -79,6 +89,11 @@ summary is not evidence of what was reviewed. Read the PR:
 gh pr view <pr> --json reviews,headRefOid \
   --jq '{head: .headRefOid, reviews: [.reviews[] | {author: .author.login, state, submittedAt, commit: .commit.oid}]}'
 ```
+
+The AI reviewer is the author the `ai-review-present` gate accepts: `claude` or
+`github-actions` in this query, `claude[bot]` or `github-actions[bot]` in the
+REST API. Its newest verdict is its latest review in state `APPROVED` or
+`CHANGES_REQUESTED`; a later `COMMENTED` review does not replace it.
 
 Then diff the newest reviewed commit against the current head to see exactly
 what has landed since:
@@ -111,7 +126,8 @@ unsatisfied, and that is a merge-time concern for `/agentdev:pr-merge`.
 
 State the call and the reason in one or two sentences:
 
-- Requesting — name what entered the PR beyond the feedback, then run
+- Requesting — name the AI reviewer's pending change request, or what entered
+  the PR beyond the feedback, then run
   [pr-request-ai-review](../pr-request-ai-review/SKILL.md) to post it.
 - Not requesting — say that the changes since the last review only apply what
   reviewers asked for.

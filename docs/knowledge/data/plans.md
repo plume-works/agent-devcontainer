@@ -94,6 +94,9 @@ engines](plans/20261101-docker-storage-periodic-gc.md)
 
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
+[Explore proposes only for observed
+problems](plans/20261103-explore-evidence-gate.md)
+
 [Explore settles open questions one at a
 time](plans/20261101-explore-interviews-open-questions.md)
 
@@ -241,6 +244,9 @@ conversation](plans/20261021-remote-control-pin-follows-clear.md)
 autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
+
+[Re-request an AI review after a change
+request](plans/20261103-rereview-after-changes-requested.md)
 
 [Re-request an AI review after a title or description
 edit](plans/20261102-rereview-after-metadata-edit.md)
