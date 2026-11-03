@@ -36,6 +36,9 @@ own](plans/20261026-autonomous-implement-loop.md)
 
 [Make the Implement loop converge](plans/20261102-autonomy-loop.md)
 
+[Backfill Ship reviews on shipped
+plans](plans/20261103-backfill-ship-reviews.md)
+
 [Bug lifecycle stages and
 sections](plans/20261102-bug-lifecycle-and-sections.md)
 
