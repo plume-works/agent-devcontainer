@@ -3,7 +3,7 @@ type: architecture
 description: The agentdev-devcontainer runtime supervises the nested dockerd instead of the Docker-in-Docker feature, on a per-container /var/lib/docker volume, and SSH comes from the sshd feature plus image-level packages, so the same image works from a Codespace.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-03T19:24:20Z
 sources:
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
@@ -26,7 +26,7 @@ controller gates readiness on it and recovers it within its budget. The image's
 Dev Container metadata mounts a per-container volume at `/var/lib/docker`.
 
 SSH is provided by the `devcontainers/features/sshd` feature, while the packages
-it needs (`openssh-server`, `rsync`) are installed in the image by Ansible.
+it needs (`openssh-server`) is installed in the image by Ansible.
 
 ## Why the runtime owns the engine
 
@@ -51,9 +51,10 @@ usable immediately rather than paying an apt install on every container create;
 keeping configuration in the feature avoids reimplementing host-key and account
 setup.
 
-This split is what makes the image reachable over `gh codespace ssh`, which the
-`/agentdev:remote-codespace-session` skill depends on as its transport when no
-Docker daemon is available locally.
+This split is what makes the image reachable over `gh codespace ssh`. A
+Codespace is one more host for the devcontainer and gets no special treatment:
+the catalog ships no skill that creates, syncs to, or runs commands on a
+Codespace (human:author).
 
 ## The host-side precondition
 

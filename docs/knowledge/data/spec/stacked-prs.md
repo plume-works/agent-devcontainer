@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly and only into main, never rewrite a branch, record a dependent branch's predecessors, keep the Depends on section machine-editable, and restack a chain of dependent pull requests with merges through pr-restack-all.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
+  at: 2026-11-03T19:24:20Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -14,7 +14,6 @@ sources:
 - resource: .agents/plugins/agentdev/bin/pr_restack_all.py
 - resource: .agents/plugins/agentdev/bin/depends_on.py
 - resource: .agents/plugins/agentdev/bin/check_depends_on.py
-- resource: .agents/plugins/agentdev/skills/remote-codespace-session/agent-code/codespace-sync.py
 - resource: AGENTS.md
 ---
 

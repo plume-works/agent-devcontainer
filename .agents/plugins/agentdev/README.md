@@ -2,7 +2,7 @@
 
 A Claude Code and OpenCode plugin with the agents, skills, and helper scripts for
 everyday development work: git and pull requests, code review, CI log triage,
-formatting and linting, and escalating a command to a container or Codespace when
+formatting and linting, and escalating a command to the project devcontainer when
 the host lacks the toolchain.
 
 It is published from [plume-works/agent-devcontainer](https://github.com/plume-works/agent-devcontainer),
@@ -92,9 +92,8 @@ It ends by checking every tool and the `python3` from a fresh zsh login shell,
 and `python3` again from your `$SHELL` when that is not zsh, and exits nonzero
 naming whatever failed. A shell configuration that later puts another `python3`
 first, such as a `config.fish` that re-runs `brew shellenv`, fails that check. Open a new terminal afterwards to pick up
-the `PATH` change. Docker-backed skills such as `microvm-sandbox` are
-not set up; escalate those to a Codespace with
-`remote-codespace-session`.
+the `PATH` change. Docker-backed skills such as `devcontainer-sandbox` are
+not set up.
 
 ## Using it
 
@@ -156,14 +155,13 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 
 #### Specs and escalation
 
-| Skill                                | What it does                                                           |
-| ------------------------------------ | ---------------------------------------------------------------------- |
-| `/agentdev:microvm-sandbox`          | Run a command through the project devcontainer.                        |
-| `/agentdev:remote-codespace-session` | Use a GitHub Codespace as a remote build and test machine.             |
-| `/agentdev:create-agent`             | Add or update an agent in this catalog.                                |
-| `/agentdev:create-skill`             | Add or update a skill in this catalog.                                 |
-| `/agentdev:skill-scripts`            | Write a skill script's result and exit-code contract.                  |
-| `/agentdev:template-consume`         | Adopt or update the agent-devcontainer template in another repository. |
+| Skill                            | What it does                                                           |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| `/agentdev:devcontainer-sandbox` | Run a command through the project devcontainer.                        |
+| `/agentdev:create-agent`         | Add or update an agent in this catalog.                                |
+| `/agentdev:create-skill`         | Add or update a skill in this catalog.                                 |
+| `/agentdev:skill-scripts`        | Write a skill script's result and exit-code contract.                  |
+| `/agentdev:template-consume`     | Adopt or update the agent-devcontainer template in another repository. |
 
 #### Knowledge-graph workflow (IWE)
 
@@ -191,7 +189,7 @@ documents. They are the project's memory across sessions.
 
 Most skills shell out to tools rather than reimplementing them. Depending on
 which ones you use, you will need `git`, an authenticated `gh` CLI, Docker (for
-`microvm-sandbox`), and `uv` for the Python skills. The
+`devcontainer-sandbox`), and `uv` for the Python skills. The
 [devcontainer image](https://github.com/plume-works/agent-devcontainer) ships
 all of them preinstalled, but the plugin works in any environment that has the
 tools a given skill needs.

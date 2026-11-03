@@ -1,22 +1,23 @@
 ---
-name: microvm-sandbox
+name: devcontainer-sandbox
 description: Run build, test, or lint commands through this repository's devcontainer when the host lacks the project toolchain. Use for devcontainer up or exec, Docker-backed sandbox testing, and local toolchain escalation.
 ---
 
-# microVM Sandbox
+# Devcontainer Sandbox
 
 Use this skill when the host cannot run the project's toolchain directly — `uv`
 is missing, `bun` is missing, or a command needs the provisioned image — **and** a
-Docker daemon is available. If Docker is unavailable, use
-[remote-codespace-session](../remote-codespace-session/SKILL.md) instead.
+Docker daemon is available. If Docker is unavailable, report the
+blocker.
 
 Start the development container from the repository root when it is not already
 running:
 
 ```bash
-devcontainer up --workspace-folder . \
-  --mount "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
+devcontainer up --workspace-folder .
 ```
+
+The container runs its own Docker engine; never mount the host's Docker socket into it.
 
 Run the original command inside it:
 
