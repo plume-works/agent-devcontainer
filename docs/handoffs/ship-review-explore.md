@@ -48,6 +48,13 @@ check, or refusal gate".
   context. `data/backlog/ship-verifies-before-dispatch` proposed
   `/agentdev:iwe-ship` dispatching `iwe-verifier` instead; its intent changes
   to match.
+- `iwe-ship-reviewer` is one agent with two modes, both drawn from the steps
+  of `iwe-shipper.agent.md`: plan mode, run by `/agentdev:iwe-plan-review` on a
+  plan, and ship mode, run on what `iwe-shipper` committed.
+- In ship mode `iwe-ship-reviewer` keeps a running checklist of Ship's
+  obligations as it checks each one, and attaches it to the end of the shipped
+  plan as a QA stamp. Ship mode therefore writes to the plan file; plan mode
+  stays report-only.
 
 ## Out of scope
 
@@ -96,9 +103,9 @@ Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-Does one rubric cover both the run `/agentdev:iwe-plan-review` makes on a plan
-and the run after `iwe-shipper` commits, or does `iwe-ship-reviewer` have a plan
-mode and a ship mode?
+Where in the shipped plan does the QA stamp go: a new section of its own at the
+end, or inside `## Verification results`, which `iwe-planner.agent.md` calls the
+plan's only narrative section?
 
 ## Queued
 
