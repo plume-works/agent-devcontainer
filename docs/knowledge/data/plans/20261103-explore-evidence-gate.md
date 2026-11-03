@@ -93,7 +93,7 @@ been written.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Insert this bullet in `## Rules`, directly after the bullet that begins
+- [x] Insert this bullet in `## Rules`, directly after the bullet that begins
   `Every claim about the existing system is checked`, verbatim:
 
   ``` markdown
@@ -103,6 +103,12 @@ been written.
     question survives only if its answer changes what gets built for an observed
     case.
   ```
+
+  - **Evidence:** commit `1d31a3f3` inserts the block in `## Rules` directly
+    after the `Every claim about the existing system is checked` bullet; a byte
+    comparison finds the fenced block exactly once in `iwe-explore/SKILL.md`,
+    and `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes (61/61 skills valid, 0 errors, 0 warnings).
 
 ### Task 4: Validate the catalog
 
