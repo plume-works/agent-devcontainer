@@ -76,11 +76,15 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] In `## Report`, the **Findings** bullet requires each finding to open with
+- [x] In `## Report`, the **Findings** bullet requires each finding to open with
   its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION,
   numbered from 1 per severity in report order — followed by its `path:line`
   evidence or "unverified", and its recommendation. The same applies in audit
   mode.
+  - **Evidence:** Commit `077bc0cc` adds finding IDs to the **Findings** bullet
+    of `iwe-verifier.agent.md` `## Report`, covering audit mode;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 61/61 valid, 0 errors, at that commit.
 
 ### Task 2: Make the iwe-verify skill show the report as message text
 
