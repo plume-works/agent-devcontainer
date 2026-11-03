@@ -323,54 +323,54 @@ Verified anchor points (line numbers as of 2026-11-03):
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:126` — `## Report`
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:132` — **Findings**
   bullet
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:32` — lookup `HIT` row
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:66` — save `SUCCESS` row
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:86` — session step 1,
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:38` — lookup `HIT` row
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:72` — save `SUCCESS` row
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:92` — session step 1,
   `HIT` re-post
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:102` — session step 5,
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:110` — session step 5,
   re-post
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:180` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:186` — **Verify
-  verdict** bullet
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:192` — Ship blocker
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:186` — **Verify report**
+  bullet
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:197` — Ship blocker
   report
 - `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:18` — Shipper re-post
   line
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:183` — step 6,
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:189` — step 6,
   Report once
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:25` — rollup
   re-post line
-- `docs/knowledge/data/features/verify-report-cache.md:26` — `## Behaviour`
+- `docs/knowledge/data/features/verify-report-cache.md:28` — `## Behaviour`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:457` — Normal shipping
   requires a clean independent verification
 - `scripts/e2e/iwe-workflows/harness_claude.py:54` — `ClaudeTranscript.results`
-- `scripts/e2e/iwe-workflows/harness_claude.py:93` —
+- `scripts/e2e/iwe-workflows/harness_claude.py:98` —
   `ClaudeTranscript.agent_results`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:96` —
   `Transcript.assistant_parts`
-- `scripts/e2e/iwe-workflows/clone.py:295` — `Clone.saved_report`
-- `scripts/e2e/iwe-workflows/scenarios.py:46` — `mentions`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:56` —
+- `scripts/e2e/iwe-workflows/clone.py:296` — `Clone.saved_report`
+- `scripts/e2e/iwe-workflows/scenarios.py:57` — `mentions`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:71` —
   `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:82` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:98` —
   `test_ship_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:99` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:116` —
   `test_ship_reuses_saved_report`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:165` — `test_ship_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:192` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:184` — `test_ship_all`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:238` —
   `test_implement_verifies`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:218` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:265` —
   `test_implement_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:71` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:90` —
   `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:97` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:117` —
   `test_ship_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:114` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:135` —
   `test_ship_reuses_saved_report`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:188` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:211` —
   `test_ship_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:217` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:270` —
   `test_implement_verifies`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:249` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:303` —
   `test_implement_all`
