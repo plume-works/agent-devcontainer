@@ -11,6 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
 - resource: docs/knowledge/data/architecture/ai-review-event-selection.md
+stage: done
+completed: 2026-11-03
 ---
 
 # Re-request an AI review after a change request

@@ -25,10 +25,13 @@ how the agentdev catalog makes that call and carries it out.
 After any push to a pull request that has an accepted AI review, made through
 `pr-open`'s update mode (and so `pr-sync`), `pr-merge`'s CI-fix step, or
 `pr-feedback-resolution`, the agent SHALL apply `pr-eval-review-needed` and
-report its decision, whether or not it requests a review. The evaluation SHALL
-ask whether the diff since the newest reviewed commit goes beyond what the pull
-request's review threads and review comments since that review asked for, read
-from the pull request rather than from the session that made the change.
+report its decision, whether or not it requests a review. When the AI reviewer's
+newest verdict — its latest review in state `APPROVED` or `CHANGES_REQUESTED` —
+is `CHANGES_REQUESTED`, the evaluation SHALL request a review whatever the diff
+holds. Otherwise the evaluation SHALL ask whether the diff since the newest
+reviewed commit goes beyond what the pull request's review threads and review
+comments since that review asked for, read from the pull request rather than
+from the session that made the change.
 
 ### Scenario: pr-sync pushes undirected behavior
 
@@ -38,9 +41,17 @@ from the pull request rather than from the session that made the change.
 
 ### Scenario: an update only applies requested feedback
 
-- **WHEN** the diff since the newest reviewed commit only applies what the
-  review threads and comments since that review asked for
+- **WHEN** the AI reviewer's newest verdict is `APPROVED` and the diff since the
+  newest reviewed commit only applies what the review threads and comments since
+  that review asked for
 - **THEN** the agent reports that no review is requested.
+
+### Scenario: an update answers a change request
+
+- **WHEN** the AI reviewer's newest verdict is `CHANGES_REQUESTED` and the diff
+  since that review only applies what its threads asked for
+- **THEN** the agent requests a fresh review and reports the change request as
+  the reason.
 
 ## Requirement: one AI review trigger per head commit
 
