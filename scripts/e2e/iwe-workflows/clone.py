@@ -21,6 +21,7 @@ import shutil
 import subprocess
 
 FIXTURES = Path(__file__).parent / 'fixtures'
+KNOWLEDGE = 'docs/knowledge/'
 DATA = 'docs/knowledge/data'
 HELLO = f'{DATA}/plans/20261008-e2e-hello.md'
 GREET = f'{DATA}/plans/20261008-e2e-greet.md'
@@ -311,6 +312,12 @@ class Clone(Repo):
     def status(self) -> str:
         """Return ``git status --porcelain``; empty means a clean tree."""
         return self.git('status', '--porcelain')
+
+    def changed_outside(self, prefix: str) -> list[str]:
+        """Return every path changed since ``start``, committed or not, outside ``prefix``."""
+        changed = self.git('diff', '--name-only', self.start).split()
+        changed += self.git('ls-files', '--others', '--exclude-standard').split()
+        return sorted({path for path in changed if not path.startswith(prefix)})
 
     def hello(self) -> str:
         """Return the hello fixture plan's text."""

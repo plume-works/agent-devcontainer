@@ -40,6 +40,14 @@ FINDING_LINE = re.compile(r'^(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|`)?[CWS][1-9]\d*\b')
 SAVED_FRONTMATTER = re.compile(r'\A---\n.*?\n---\n', re.DOTALL)
 VERDICT = re.compile(r'^\s*(APPROVE|REJECT|ESCALATE)\b', re.MULTILINE)
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
+# The Implement entry skill alone, and any Implement name but the iwe-implementer agent.
+IMPLEMENT_SKILL = re.compile(r'iwe-implement(?![\w-])')
+NAMES_IMPLEMENT = re.compile(r'iwe-implement(?!er)')
+IMPLEMENT_REQUEST = f'Please implement the plan {GREET_KEY}.'
+PLAN_AND_BUILD = (
+    'Plan a small change: add `e2e/farewell.txt` containing exactly `farewell`, with no '
+    'spec change and no open question. Then build it.'
+)
 # Per-test budgets in seconds: about three times each harness's slowest scenario
 # measured at the worker cap. OPENCODE_BUDGET, plus server startup, sets the login's minimum life.
 OPENCODE_BUDGET = 300

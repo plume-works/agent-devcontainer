@@ -217,6 +217,13 @@ class OpenCodeServer:
 
     def run(self, name: str, command: str, text: str, budget: float) -> Transcript:
         """Run one command in a fresh session located in the clone, and save its transcript."""
+        return self._run(name, 'command', {'name': command, 'text': text}, budget)
+
+    def prompt(self, name: str, text: str, budget: float) -> Transcript:
+        """Post one plain prompt, no command, in a fresh session, and save its transcript."""
+        return self._run(name, 'prompt', {'text': text}, budget)
+
+    def _run(self, name: str, kind: str, body: dict[str, Any], budget: float) -> Transcript:
         deadline = time.monotonic() + budget
         session = self.server.request(
             'POST',
@@ -228,9 +235,7 @@ class OpenCodeServer:
             },
         )['data']['id']
         self.sessions.append(session)
-        self.server.request(
-            'POST', f'/api/session/{session}/command', {'name': command, 'text': text}
-        )
+        self.server.request('POST', f'/api/session/{session}/{kind}', body)
         timed_out = not self._wait(session, deadline)
         if timed_out:
             self.server.request('POST', f'/api/session/{session}/interrupt')
