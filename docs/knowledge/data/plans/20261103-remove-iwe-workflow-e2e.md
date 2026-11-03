@@ -13,6 +13,8 @@ sources:
 - resource: pyproject.toml
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
+stage: done
+completed: 2026-11-03
 ---
 
 # Remove the IWE workflow e2e suite
