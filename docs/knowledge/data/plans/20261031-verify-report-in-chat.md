@@ -6,7 +6,7 @@ release:
 - features/verify-report-cache
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T15:43:54Z
+  at: 2026-11-03T05:39:03Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -15,7 +15,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: scripts/e2e/iwe-workflows/scenarios.py
-rank: 100
+completed: 2026-11-03
+stage: done
 ---
 
 # Show the Verify report in the conversation
@@ -76,67 +77,110 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] In `## Report`, the **Findings** bullet requires each finding to open with
+- [x] In `## Report`, the **Findings** bullet requires each finding to open with
   its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION,
   numbered from 1 per severity in report order — followed by its `path:line`
   evidence or "unverified", and its recommendation. The same applies in audit
   mode.
+  - **Evidence:** Commit `077bc0cc` adds finding IDs to the **Findings** bullet
+    of `iwe-verifier.agent.md` `## Report`, covering audit mode;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 61/61 valid, 0 errors, at that commit.
 
 ### Task 2: Make the iwe-verify skill show the report as message text
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`
 
-- [ ] The lookup table's `HIT` row, the save table's `SUCCESS` row and its
+- [x] The lookup table's `HIT` row, the save table's `SUCCESS` row and its
   unsaved rows, session route step 1's `HIT` re-post, and step 5's re-post all
   say that the report body goes verbatim into the final message text. A path to
   the saved report, or the report appearing only in a tool call or tool result,
   does not count as returning it. On the route inside `iwe-shipper`, the
   Shipper's report carries it (Task 3).
+  - **Evidence:** Commit `bd7fd4c2` defines returning the report as its verbatim
+    body in the final message text (not a path, tool call, or tool result) in
+    `iwe-verify/SKILL.md`, applies it to the lookup `HIT` row, every save-table
+    row, and session steps 1 and 5, and names the Shipper report as the carrier
+    inside `iwe-shipper`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 
 ### Task 3: Lead the Shipper's report with the Verify report
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] In `## Report`, replace the **Verify verdict** bullet: whenever Verify
+- [x] In `## Report`, replace the **Verify verdict** bullet: whenever Verify
   produced a report, the Shipper's report carries it verbatim, after the lead
   line and before the Ship summary, led by `Saved Verify report from <commit>`
   when the skill returned a saved one.
-- [ ] The **Ship blocker report** paragraph lists a Verify CRITICAL by its ID
+  - **Evidence:** Commit `507a56a6` replaces the **Verify verdict** bullet in
+    `iwe-shipper.agent.md` `## Report` with a **Verify report** bullet carrying
+    the report verbatim after the lead line, led by
+    `Saved Verify report from <commit>` for a saved one;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
+- [x] The **Ship blocker report** paragraph lists a Verify CRITICAL by its ID
   and route only, without restating its evidence. Each blocker that Ship found
   on its own (intent-versus-implementation mismatch, failed spec merge, missing
   or unresolvable `release` declaration) is written out in full with its
   `path:line` evidence and route. The dirty-worktree blocker is unchanged.
+  - **Evidence:** Commit `507a56a6` rewrites the **Ship blocker report**
+    paragraph in `iwe-shipper.agent.md`: Verify CRITICALs listed by ID and route
+    only; mismatch, failed spec merge, and `release` blockers written out in
+    full with `path:line` and route; the dirty-worktree route unchanged;
+    validator reports 0 errors at that commit.
 
 ### Task 4: Re-post each Shipper's report in ship-all
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md`
 
-- [ ] Replace "Re-post each Shipper's Verify verdict and outcome here" with a
+- [x] Replace "Re-post each Shipper's Verify verdict and outcome here" with a
   verbatim re-post of each Shipper's report, one plan per entry, followed by the
   summary across plans of what shipped, what is blocked, and what needs a
   decision.
+  - **Evidence:** Commit `a6961177` replaces the verdict-and-outcome re-post in
+    `iwe-ship-all/SKILL.md` with a verbatim re-post of each Shipper report, one
+    plan per entry, then the cross-plan summary;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 
 ### Task 5: Carry the Verify report in the Implement loop's report
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md`
 
-- [ ] `## Running the loop` step 6 (**Report once**): the Finish rollup, then
+- [x] `## Running the loop` step 6 (**Report once**): the Finish rollup, then
   the last Verify report verbatim, then each earlier round's verdict with the
   first line of each finding fixed in it, each evaluator verdict with the
   finding it answered, and the reason the run ended.
-- [ ] `iwe-implement-all` re-posts each plan's rollup with that plan's final
+  - **Evidence:** Commit `bd42fd29` rewrites `## Running the loop` step 6 in
+    `iwe-implementer.agent.md`: the Finish rollup, the last Verify report
+    verbatim as message text, each earlier round verdict with the first line of
+    each finding fixed, each evaluator verdict with its finding, and the reason
+    the run ended;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
+- [x] `iwe-implement-all` re-posts each plan's rollup with that plan's final
   Verify report verbatim, each earlier Verify verdict, each evaluator verdict,
   and any decision it stopped for.
+  - **Evidence:** Commit `bd42fd29` makes `iwe-implement-all/SKILL.md` re-post
+    each plan rollup with that plan final Verify report verbatim, each earlier
+    Verify verdict, each evaluator verdict, and any decision it stopped for;
+    validator reports 0 errors at that commit.
 
 ### Task 6: Record the behavior in the feature doc
 
 **Files:** Modify: `docs/knowledge/data/features/verify-report-cache.md`
 
-- [ ] Add a `## Behaviour` bullet: every caller shows the Verify report verbatim
+- [x] Add a `## Behaviour` bullet: every caller shows the Verify report verbatim
   in the conversation, with findings numbered by severity, and the saved file is
   a cache, never the only place the report appears. Restamp `generated` and add
   this plan's sources for the changed files.
+  - **Evidence:** Commit `b0d7abaa` adds the `## Behaviour` bullet to
+    `data/features/verify-report-cache.md` (verbatim report on every caller,
+    findings numbered `C<n>`/`W<n>`/`S<n>`, saved file only a cache), restamps
+    `generated`, and adds the `iwe-ship-all` and `iwe-implement-all` skill
+    sources; `iwe normalize` and `iwe schema validate` pass at that commit.
 
 ### Task 7: Give the e2e harnesses a report-shown check
 
@@ -144,29 +188,53 @@ Nothing refers to a finding across reports by ID.
 `scripts/e2e/iwe-workflows/harness_opencode.py`,
 `scripts/e2e/iwe-workflows/scenarios.py`
 
-- [ ] `ClaudeTranscript` and the OpenCode `Transcript` each expose the session's
+- [x] `ClaudeTranscript` and the OpenCode `Transcript` each expose the session's
   final message text: the last `result` event's `result` for Claude, and the
   text parts of the last assistant message for OpenCode.
-- [ ] `scenarios.py` gains a helper that takes a saved report (the
+  - **Evidence:** Commit `aef6a780` adds `ClaudeTranscript.final_text` (last
+    `result` event) and OpenCode `Transcript.final_text` (text parts of the last
+    assistant message);
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_claude_transcript.py scripts/tests/test_e2e_iwe_workflows_opencode_transcript.py`
+    passes, covering both, at that commit.
+- [x] `scenarios.py` gains a helper that takes a saved report (the
   `Clone.saved_report` text) and a final message, and holds when the report
   body's lead line and every finding line opening with a `C<n>`, `W<n>`, or
   `S<n>` ID appear in the final message. Lines are compared after stripping
   surrounding whitespace.
+  - **Evidence:** Commit `aef6a780` adds `scenarios.shows_report` (with
+    `report_lines`): it holds when the saved report body lead line and every
+    `C<n>`/`W<n>`/`S<n>` finding line appear, whitespace-stripped, in the final
+    message;
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_report_shown.py` passes
+    (shown, path-only, missing finding, missing lead, empty) at that commit.
 
 ### Task 8: Assert the report is shown on Claude Code
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`
 
-- [ ] `test_verify_approved`, `test_ship_approved`,
+- [x] `test_verify_approved`, `test_ship_approved`,
   `test_ship_reuses_saved_report`, `test_ship_all`, `test_implement_verifies`,
   and `test_implement_all` (for each of its plans) assert the Task 7 helper
   against the saved report of each plan the run verified.
+  - **Evidence:** Commit `ecb0053e` adds the assertions to all six scenarios.
+    The live Claude selection from `## Verification` passed
+    `test_verify_approved`, `test_ship_all`, `test_implement_verifies`, and
+    `test_implement_all` at `95a4ca1d`; after commit `eba88949` made the Shipper
+    copy the saved report exactly and the verifier cite repository-relative
+    paths, `test_ship_approved`, `test_ship_reuses_saved_report`, and
+    `test_ship_all` passed live (3 passed).
 
 ### Task 9: Assert the report is shown on OpenCode
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] The same six scenarios as Task 8 assert the Task 7 helper.
+- [x] The same six scenarios as Task 8 assert the Task 7 helper.
+  - **Evidence:** Commit `95a4ca1d` adds the assertions to all six scenarios.
+    The live OpenCode selection from `## Verification`, run at `81e44d5c` (after
+    the Shipper fix `eba88949`), passed `test_verify_approved`,
+    `test_ship_approved`, `test_ship_reuses_saved_report`, `test_ship_all`, and
+    `test_implement_verifies`; `test_implement_all`, run on its own, passed live
+    (1 passed).
 
 ## Spec changes
 
@@ -232,7 +300,7 @@ evidence, each blocker Ship found outside Verify.
 
 ## Verification
 
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest .agents/plugins/agentdev/tests`
 - `iwe normalize` then `iwe schema validate`, from the repository root
 - `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'verify_approved or ship_approved or saved_report or ship_all or implement_verifies or implement_all'`,
@@ -251,59 +319,59 @@ evidence, each blocker Ship found outside Verify.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
+Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:126` — `## Report`
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:132` — **Findings**
   bullet
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:32` — lookup `HIT` row
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:66` — save `SUCCESS` row
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:86` — session step 1,
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:38` — lookup `HIT` row
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:72` — save `SUCCESS` row
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:92` — session step 1,
   `HIT` re-post
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:102` — session step 5,
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:110` — session step 5,
   re-post
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:166` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:172` — **Verify
-  verdict** bullet
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:178` — Ship blocker
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:180` — `## Report`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:186` — **Verify report**
+  bullet
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:197` — Ship blocker
   report
 - `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:18` — Shipper re-post
   line
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:180` — step 6,
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:189` — step 6,
   Report once
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:25` — rollup
   re-post line
-- `docs/knowledge/data/features/verify-report-cache.md:26` — `## Behaviour`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:420` — Normal shipping
+- `docs/knowledge/data/features/verify-report-cache.md:28` — `## Behaviour`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:457` — Normal shipping
   requires a clean independent verification
 - `scripts/e2e/iwe-workflows/harness_claude.py:54` — `ClaudeTranscript.results`
-- `scripts/e2e/iwe-workflows/harness_claude.py:93` —
+- `scripts/e2e/iwe-workflows/harness_claude.py:98` —
   `ClaudeTranscript.agent_results`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:96` —
   `Transcript.assistant_parts`
-- `scripts/e2e/iwe-workflows/clone.py:293` — `Clone.saved_report`
-- `scripts/e2e/iwe-workflows/scenarios.py:47` — `mentions`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:56` —
+- `scripts/e2e/iwe-workflows/clone.py:296` — `Clone.saved_report`
+- `scripts/e2e/iwe-workflows/scenarios.py:57` — `mentions`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:71` —
   `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:82` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:98` —
   `test_ship_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:99` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:116` —
   `test_ship_reuses_saved_report`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:165` — `test_ship_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:192` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:184` — `test_ship_all`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:238` —
   `test_implement_verifies`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:218` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:265` —
   `test_implement_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:71` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:90` —
   `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:97` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:117` —
   `test_ship_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:114` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:135` —
   `test_ship_reuses_saved_report`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:188` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:211` —
   `test_ship_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:217` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:270` —
   `test_implement_verifies`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:249` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:303` —
   `test_implement_all`

@@ -104,9 +104,8 @@ Once the problem has open questions, interview the user — one at a time:
 If exploration starts because implementation exposed a complication, read the
 active plan and current task before investigating. Keep the same no-code
 boundary. Summarize any resulting decision, scope change, or newly discovered
-work, and point the user at the `/agentdev:iwe-implement` or
-`/agentdev:iwe-plan` skill that owns the written plan and its execution; never
-start either from Explore or silently change the plan.
+work, and hand it to the `/agentdev:iwe-plan` skill, which owns the written
+plan; never start Plan or Implement from Explore or silently change the plan.
 
 ## Capturing
 
@@ -152,8 +151,7 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 ## Rules
 
 - No code, no implementation, no "quick fix while we're here" — if asked,
-  point at the `/agentdev:iwe-plan` or `/agentdev:iwe-implement` skill and stay
-  in the conversation.
+  point at the `/agentdev:iwe-plan` skill and stay in the conversation.
 - Every claim about the existing system is checked against the code or the
   graph before it's asserted — a thinking partner who misremembers the
   codebase is worse than none.
@@ -163,8 +161,8 @@ After any capture: `iwe normalize`, `iwe schema validate`.
   question survives only if its answer changes what gets built for an observed
   case.
 - End each exploration by summarizing the current understanding and offering an
-  optional next step: keep exploring, capture, plan, return to implementation,
-  or drop.
+  optional next step: keep exploring, capture, plan, return to the plan, or
+  drop.
 - **Approved text is never paraphrased.** Once the user has agreed to specific
   wording, it survives verbatim or not at all — into `.tmp/` at approval time
   and into the plan's tasks as fenced blocks. Conversation is not storage: a

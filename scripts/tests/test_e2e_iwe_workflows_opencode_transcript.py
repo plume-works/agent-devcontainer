@@ -106,3 +106,18 @@ def test_a_login_failure_is_reported_even_when_the_session_completed():
 def test_a_clean_run_has_no_failure_reason():
     """A completed run in time, with no login signal, has nothing to explain."""
     assert transcript(USER, ANSWER).failure_reason(300) is None
+
+
+def test_final_text_joins_the_last_assistant_messages_text_parts():
+    """Only the last assistant message's text parts make up the final message text."""
+    tool = {'type': 'tool', 'name': 'bash', 'state': {'input': {}}}
+    last = {
+        'type': 'assistant',
+        'content': [{'type': 'text', 'text': 'Blocked'}, tool, {'type': 'text', 'text': 'C1'}],
+    }
+    assert transcript(USER, ANSWER, last).final_text() == 'Blocked\nC1'
+
+
+def test_final_text_without_an_assistant_message_is_empty():
+    """A session the agent never answered has no final message text."""
+    assert transcript(USER).final_text() == ''

@@ -15,5 +15,7 @@ order. Each prompt carries only the plan key and the operation `ship`, plus any
 approval the user gave when starting this run, quoted verbatim — nothing else
 from this conversation. Wait for each report before the next dispatch.
 
-Re-post each Shipper's Verify verdict and outcome here, one plan per entry,
-then a summary of what shipped, what is blocked, and what needs a decision.
+Re-post each Shipper's report here verbatim, in your final message text, one
+plan per entry; a reduced verdict or a path to the saved Verify report does not
+count. Then give a summary across plans of what shipped, what is blocked, and
+what needs a decision.

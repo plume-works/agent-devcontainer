@@ -1,6 +1,6 @@
 """Verify, Ship, Implement, and Explore on Claude Code, one clone per scenario."""
 
-from clone import BUNDLE, Clone, CONFLICT, REVISE, STRAY
+from clone import BUNDLE, Clone, CONFLICT, KNOWLEDGE, REVISE, STRAY
 from harness_claude import ClaudeTranscript, run_claude
 import pytest
 from scenarios import (
@@ -9,20 +9,26 @@ from scenarios import (
     BRANCH_WORK,
     CLAUDE_BUDGET,
     CONFLICT_KEY,
+    COORDINATOR_REQUEST,
     EVALUATE,
     EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    IMPLEMENT_REQUEST,
+    IMPLEMENT_SKILL,
     IMPLEMENTER,
     LOOP_KEY,
     mentions,
+    NAMES_IMPLEMENT,
     PAIR_KEY,
+    PLAN_AND_BUILD,
     PLANTED,
     REVISE_KEY,
     RULEBOOK,
     SHIPPER,
+    shows_report,
     verdict,
     VERIFIER,
     WORKFLOW_SKILL,
@@ -39,6 +45,16 @@ def run(clone: Clone, name: str, prompt: str) -> ClaudeTranscript:
         f'{transcript.failure_reason(CLAUDE_BUDGET)}\n{transcript.excerpt()}'
     )
     return transcript
+
+
+def assert_report_shown(clone: Clone, key: str, transcript: ClaudeTranscript) -> None:
+    """Assert the run's final message carries plan ``key``'s saved Verify report verbatim."""
+    saved = clone.saved_report(key)
+    assert saved is not None, f'a Verify report saved for {key}\n{transcript.excerpt()}'
+    final = transcript.final_text()
+    assert shows_report(saved, final), (
+        f'Verify report for {key} shown verbatim\n--- saved\n{saved}\n--- final\n{final}'
+    )
 
 
 def test_verify(base_clone: Clone) -> None:
@@ -65,6 +81,7 @@ def test_verify_approved(base_clone: Clone) -> None:
     assert base_clone.has_marker(), f'publish ran\n{transcript.excerpt()}'
     assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
     assert base_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+    assert_report_shown(base_clone, HELLO_KEY, transcript)
 
 
 def test_ship(base_clone: Clone) -> None:
@@ -94,6 +111,7 @@ def test_ship_approved(base_clone: Clone) -> None:
         f'ship writes no hub, release page, or log\n{base_clone.shared_diff()}'
     )
     assert transcript.agent_prompts(VERIFIER) == [], f'Verify ran in place\n{dispatches}'
+    assert_report_shown(base_clone, HELLO_KEY, transcript)
 
 
 def test_ship_reuses_saved_report(base_clone: Clone) -> None:
@@ -106,6 +124,7 @@ def test_ship_reuses_saved_report(base_clone: Clone) -> None:
     assert prompt is not None and APPROVAL in prompt, (
         f'verifier prompt saved with the approval\n{base_clone.saved_report(HELLO_KEY)}'
     )
+    assert_report_shown(base_clone, HELLO_KEY, verify)
     verified = base_clone.head()
     base_clone.remove_marker()
     ship = run(base_clone, 'saved-ship', f'/agentdev:iwe-ship {HELLO_KEY}')
@@ -114,6 +133,7 @@ def test_ship_reuses_saved_report(base_clone: Clone) -> None:
     assert not reports[0].lstrip().startswith('Needs decision'), f'no approval asked\n{reports[0]}'
     assert verified[:7] in reports[0], f'saved report named\n{reports[0]}'
     assert not base_clone.has_marker(), f'publish did not run again\n{ship.excerpt()}'
+    assert_report_shown(base_clone, HELLO_KEY, ship)
 
 
 def test_verify_refuses_dirty_worktree(base_clone: Clone) -> None:
@@ -168,11 +188,11 @@ def test_ship_all(base_clone: Clone) -> None:
     assert len(transcript.agent_prompts(SHIPPER)) == 1, (
         f'one iwe-shipper dispatch\n{transcript.excerpt("Agent")}'
     )
+    assert_report_shown(base_clone, HELLO_KEY, transcript)
 
 
-def test_implement(base_clone: Clone) -> None:
-    """Implement reads its rulebook in session and dispatches nothing."""
-    transcript = run(base_clone, 'implement', f'/agentdev:iwe-implement {GREET_KEY}')
+def assert_greet_stopped(clone: Clone, transcript: ClaudeTranscript) -> None:
+    """Assert the rulebook was read in session, nothing dispatched, and greet left alone."""
     assert mentions(transcript.calls('Read'), RULEBOOK), (
         f'rulebook read in session\n{transcript.excerpt("Read")}'
     )
@@ -180,13 +200,49 @@ def test_implement(base_clone: Clone) -> None:
     assert transcript.agent_prompts(EVALUATOR) == [], (
         f'no evaluator\n{transcript.excerpt("Agent")}'
     )
-    assert base_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
-    assert base_clone.branch() == FIXTURE_BRANCH, (
-        f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
+    assert clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
+    assert clone.branch() == FIXTURE_BRANCH, f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
+    assert clone.local_branches() == [FIXTURE_BRANCH], f'no branch added\n{transcript.excerpt()}'
+
+
+def test_implement(base_clone: Clone) -> None:
+    """Implement reads its rulebook in session and dispatches nothing."""
+    transcript = run(base_clone, 'implement', f'/agentdev:iwe-implement {GREET_KEY}')
+    assert_greet_stopped(base_clone, transcript)
+
+
+def test_implement_requested(base_clone: Clone) -> None:
+    """A plain request naming a plan loads the Implement skill and runs it in session."""
+    transcript = run(base_clone, 'implement-requested', IMPLEMENT_REQUEST)
+    assert mentions(transcript.calls('Skill'), IMPLEMENT_SKILL), (
+        f'iwe-implement loaded\n{transcript.excerpt("Skill")}'
     )
-    assert base_clone.local_branches() == [FIXTURE_BRANCH], (
-        f'no branch added\n{transcript.excerpt()}'
+    assert_greet_stopped(base_clone, transcript)
+
+
+def test_implement_coordinator_requested(base_clone: Clone) -> None:
+    """A coordinator session's message naming a plan loads the Implement skill in session."""
+    transcript = run(base_clone, 'implement-coordinator', COORDINATOR_REQUEST)
+    assert mentions(transcript.calls('Skill'), IMPLEMENT_SKILL), (
+        f'iwe-implement loaded\n{transcript.excerpt("Skill")}'
     )
+    assert_greet_stopped(base_clone, transcript)
+
+
+def test_plan_does_not_implement(base_clone: Clone) -> None:
+    """Plan asked to build too stops at readiness without starting or naming Implement."""
+    transcript = run(base_clone, 'plan-and-build', f'/agentdev:iwe-plan {PLAN_AND_BUILD}')
+    assert not mentions(transcript.calls('Skill'), NAMES_IMPLEMENT), (
+        f'no Implement skill\n{transcript.excerpt("Skill")}'
+    )
+    assert transcript.agent_prompts(IMPLEMENTER) == [], (
+        f'no iwe-implementer\n{transcript.excerpt("Agent")}'
+    )
+    assert base_clone.changed_outside(KNOWLEDGE) == [], (
+        f'only {KNOWLEDGE} edited\n{base_clone.status()}\n{transcript.excerpt()}'
+    )
+    final = transcript.final_text()
+    assert not NAMES_IMPLEMENT.search(final), f'Implement not named\n{final}'
 
 
 def test_implement_verifies(base_clone: Clone) -> None:
@@ -201,6 +257,7 @@ def test_implement_verifies(base_clone: Clone) -> None:
     assert base_clone.saved_field(LOOP_KEY, 'commit') == base_clone.head(), (
         f'loop verdict saved for HEAD\n{base_clone.saved_report(LOOP_KEY)}'
     )
+    assert_report_shown(base_clone, LOOP_KEY, transcript)
 
 
 def test_implement_revises(base_clone: Clone) -> None:
@@ -230,6 +287,8 @@ def test_implement_all(implement_all_clone: Clone) -> None:
     assert transcript.agent_prompts(EVALUATOR) == [], f'no evaluator\n{dispatches}'
     assert clone.loop_done(), f'loop ticked with evidence, file written\n{transcript.excerpt()}'
     assert clone.pair_done(), f'pair ticked with evidence, file written\n{transcript.excerpt()}'
+    for key in (LOOP_KEY, PAIR_KEY):
+        assert_report_shown(clone, key, transcript)
 
 
 @pytest.mark.parametrize(
@@ -293,7 +352,7 @@ def test_implement_on_main(main_clone: Clone) -> None:
 
 
 def test_explore(open_question_clone: Clone) -> None:
-    """Explore of a finished-sounding plan neither ships, implements, commits, nor edits."""
+    """Explore of a finished-sounding plan: no ship, implement, commit, edit, or Implement named."""
     clone = open_question_clone
     transcript = run(clone, 'explore', f'/agentdev:iwe-explore {EXPLORE}')
     assert transcript.calls('Agent') == [], f'nothing dispatched\n{transcript.excerpt("Agent")}'
@@ -303,3 +362,5 @@ def test_explore(open_question_clone: Clone) -> None:
     assert not clone.has_marker(), f'publish did not run\n{transcript.excerpt()}'
     assert clone.head() == clone.start, f'no commit\n{transcript.excerpt()}'
     assert clone.status() == '', f'clean tree\n{clone.status()}'
+    final = transcript.final_text()
+    assert not NAMES_IMPLEMENT.search(final), f'Implement not named\n{final}'
