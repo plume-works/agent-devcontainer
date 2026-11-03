@@ -82,19 +82,28 @@ Rejected:
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] `AGENTS.md` `### Tests` gains this bullet after "Behaviour no such test
+- [x] `AGENTS.md` `### Tests` gains this bullet after "Behaviour no such test
   can reach stays untested.", verbatim:
 
   ``` markdown
   - NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
   ```
 
-- [ ] Best Practice 9 reads "When a test or check runs OpenCode" in place of
+  - **Evidence:** commit d289b1e adds the bullet verbatim to `AGENTS.md`
+    `### Tests`, after "Behaviour no such test can reach stays untested."
+
+- [x] Best Practice 9 reads "When a test or check runs OpenCode" in place of
   "When a test, e2e harness, or check runs OpenCode".
 
-- [ ] `data/product.md` `## Authoring rules` reads "OpenCode tests default to"
+  - **Evidence:** commit d289b1e; `AGENTS.md` Best Practice 9 now opens "When a
+    test or check runs OpenCode".
+
+- [x] `data/product.md` `## Authoring rules` reads "OpenCode tests default to"
   in place of "OpenCode tests and e2e runs default to", and gains a bullet
   restating the new `### Tests` rule.
+
+  - **Evidence:** commit d289b1e; `data/product.md` reads "OpenCode tests
+    default to" and carries the restated rule after the Python testing bullet.
 
 ### Task 3: The standing rule in the iwe-planner rulebook
 
