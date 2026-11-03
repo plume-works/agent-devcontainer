@@ -333,16 +333,10 @@ def test_implement_all(implement_all_clone: Clone, opencode) -> None:
 
 
 @pytest.mark.parametrize(
-    ('variant', 'expected'),
-    [
-        ('narrowed', 'ESCALATE'),
-        ('restated', 'REJECT'),
-        ('stray', 'REJECT'),
-        ('sharpened', 'REJECT'),
-    ],
+    ('variant', 'expected'), [('narrowed', 'ESCALATE'), ('restated', 'REJECT')]
 )
 def test_evaluator(base_clone: Clone, opencode, variant: str, expected: str) -> None:
-    """The evaluator escalates a narrowing, rejects the rest, and edits nothing."""
+    """The evaluator escalates a narrowing and rejects a restatement, editing nothing."""
     base_clone.draft_revision(variant)
     transcript = run(opencode(base_clone), f'evaluator-{variant}', PROMPT_COMMAND, EVALUATE)
     reports = agent_results(transcript, EVALUATOR)

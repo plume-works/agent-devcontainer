@@ -19,21 +19,19 @@ from clone import Clone
 
 def allowed_tools(clone: Clone) -> list[str]:
     """Return the tools a run may use without a prompt nobody would answer."""
+    publish = 'bin/publish-e2e.sh'
     scripts = '.agents/plugins/agentdev/skills/'
     return [
         'Bash(iwe *)',
         'Bash(git *)',
         'Bash(grep *)',
         'Bash(test *)',
+        f'Bash({publish}*)',
+        f'Bash(./{publish}*)',
+        f'Bash({clone.path}/{publish}*)',
         f'Bash({scripts}*)',
         f'Bash(./{scripts}*)',
         f'Bash({clone.path}/{scripts}*)',
-        'Bash(bin/*)',
-        'Bash(bash bin/*)',
-        'Bash(chmod *)',
-        'Bash(shellcheck *)',
-        'Bash(./bin/*)',
-        f'Bash({clone.path}/bin/*)',
         'Read',
         'Edit',
         'Write',
