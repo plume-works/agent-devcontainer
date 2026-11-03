@@ -22,8 +22,9 @@ for each plan before the next dispatch. Where it fixes code, re-dispatch
 `iwe-implementer` with the plan key and the findings to fix, quoted as
 reported, again forwarding no conversation, rather than fixing them yourself.
 
-Re-post each plan's rollup here, with each Verify verdict and each evaluator
-verdict, and any decision it stopped for.
+Re-post each plan's rollup here, with that plan's final Verify report verbatim
+in your final message text — a path to the saved report does not count — each
+earlier Verify verdict, each evaluator verdict, and any decision it stopped for.
 
 ## Long-running peer sessions
 

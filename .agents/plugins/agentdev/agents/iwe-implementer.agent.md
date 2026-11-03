@@ -180,9 +180,11 @@ loop dispatches is a leaf and dispatches nothing.
    which the user grants by re-running the skill. A choice between routes is a
    finding like any other — take a route the steps above allow. An
    always-escalate deviation stops for the user as Step 7 says.
-6. **Report once.** The Finish rollup, plus each Verify verdict in order and
-   each evaluator verdict with the finding it answered, and the reason the run
-   ended.
+6. **Report once.** The Finish rollup; then the last Verify report verbatim,
+   as message text — a path to the saved report, or the report in a tool result
+   only, does not count; then each earlier round's verdict with the first line
+   of each finding fixed in it; each evaluator verdict with the finding it
+   answered; and the reason the run ended.
 
 ## Capturing what implementation turns up
 
