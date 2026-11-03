@@ -33,6 +33,17 @@ check, or refusal gate".
   through the pre-commit runs in `.github/workflows/primary-checks.yml` and
   `.github/workflows/ci.yml`.
 
+- A new skill, `/agentdev:iwe-plan-review`, fans out to two catalog agents on
+  one plan and returns their reports together: the durable-knowledge auditor
+  (today the `Durable Knowledge Auditor` agent) and the new Ship-obligations
+  reviewer agent (working name `ship-obligations-reviewer`).
+- `/agentdev:iwe-audit` and the `Durable Knowledge Auditor` agent take the
+  shape `/agentdev:iwe-ship` and `iwe-shipper`, and `/agentdev:iwe-verify` and
+  `iwe-verifier`, already have: the skill dispatches the agent, and the agent
+  file holds the rulebook. Today it is the reverse:
+  `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` only
+  invokes `/agentdev:iwe-audit`, whose `SKILL.md` holds every rule.
+
 ## Findings
 
 - `iwe` 0.29.3 accepts conditionals in a document schema only inside
@@ -46,13 +57,32 @@ check, or refusal gate".
 - Every bug at `stage: done` has a `## Fix` section as of commit `12ab309f`, so
   the checker CLI starts green over the whole graph.
 
+- Two callers of the durable-knowledge audit run inside a dispatched subagent,
+  where a further dispatch is nested: `/agentdev:pr-review` runs
+  `/agentdev:iwe-audit` in diff scope inside a `general-purpose` pass it
+  dispatched, and `iwe-implementer`, when `/agentdev:iwe-implement-all`
+  dispatches it, follows the `iwe-planner` rulebook in place, whose step 7
+  dispatches the `Durable Knowledge Auditor` agent. OpenCode refuses a nested
+  dispatch at its default `experimental.subagent_depth` of 1
+  (`data/architecture/nested-subagent-dispatch`).
+- `/agentdev:iwe-audit` also has an apply mode that edits the audited files
+  after the user approves the report table. The `Durable Knowledge Auditor`
+  agent has no `Edit` or `Write` tool.
+
 ## Current question
 
-When `/agentdev:iwe-plan` files or revises a plan, does it dispatch the new
-agent alongside the `Durable Knowledge Auditor` agent, or does the `Durable
-Knowledge Auditor` agent's rubric grow to cover Ship's obligations?
+When a caller that is itself a dispatched subagent needs the durable-knowledge
+audit — a `/agentdev:pr-review` pass, or `iwe-implementer` under
+`/agentdev:iwe-implement-all` — does it follow the auditor agent's rulebook in
+place, as `iwe-shipper` follows the `iwe-verifier` rulebook today, or must every
+caller run in a context that can dispatch?
 
 ## Queued
+
+- The final names of the durable-knowledge auditor agent and the
+  Ship-obligations reviewer agent.
+- Where `/agentdev:iwe-audit`'s apply mode lives once the agent holds the
+  rulebook and stays report-only.
 
 - Whether one rubric covers both the plan-time run and the post-Ship run, or
   the new agent has a plan mode and a ship mode.
