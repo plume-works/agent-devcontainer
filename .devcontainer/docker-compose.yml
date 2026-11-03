@@ -98,6 +98,9 @@ services:
       # other agent state is per instance. See architecture/agent-auth-persistence.
       - agentdev-agents-auth:/root/.agents-auth
 
+      # Written by devcontainer-init.sh, empty when the host names no extra CA.
+      - ./.extra-ca.crt:/etc/agentdev/extra-ca.crt:ro
+
 volumes:
   # `name:` pins the literal Docker volume name so it's shared across every
   # devcontainer instance (worktrees, Codespaces, etc), instead of Compose's

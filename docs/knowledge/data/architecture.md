@@ -73,6 +73,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Explicit-only workflow agents](architecture/explicit-only-workflow-agents.md)
 
+[Extra CA trust](architecture/extra-ca-trust.md)
+
 [Fork pull request builds](architecture/fork-pull-request-builds.md)
 
 [Formatter ownership](architecture/formatter-ownership.md)
