@@ -108,10 +108,16 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] In `## Report`, replace the **Verify verdict** bullet: whenever Verify
+- [x] In `## Report`, replace the **Verify verdict** bullet: whenever Verify
   produced a report, the Shipper's report carries it verbatim, after the lead
   line and before the Ship summary, led by `Saved Verify report from <commit>`
   when the skill returned a saved one.
+  - **Evidence:** Commit `507a56a6` replaces the **Verify verdict** bullet in
+    `iwe-shipper.agent.md` `## Report` with a **Verify report** bullet carrying
+    the report verbatim after the lead line, led by
+    `Saved Verify report from <commit>` for a saved one;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 - [ ] The **Ship blocker report** paragraph lists a Verify CRITICAL by its ID
   and route only, without restating its evidence. Each blocker that Ship found
   on its own (intent-versus-implementation mismatch, failed spec merge, missing
