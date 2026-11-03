@@ -133,10 +133,15 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md`
 
-- [ ] Replace "Re-post each Shipper's Verify verdict and outcome here" with a
+- [x] Replace "Re-post each Shipper's Verify verdict and outcome here" with a
   verbatim re-post of each Shipper's report, one plan per entry, followed by the
   summary across plans of what shipped, what is blocked, and what needs a
   decision.
+  - **Evidence:** Commit `a6961177` replaces the verdict-and-outcome re-post in
+    `iwe-ship-all/SKILL.md` with a verbatim re-post of each Shipper report, one
+    plan per entry, then the cross-plan summary;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 
 ### Task 5: Carry the Verify report in the Implement loop's report
 
