@@ -36,6 +36,9 @@ own](plans/20261026-autonomous-implement-loop.md)
 
 [Make the Implement loop converge](plans/20261102-autonomy-loop.md)
 
+[Backfill Ship reviews on shipped
+plans](plans/20261103-backfill-ship-reviews.md)
+
 [Bug lifecycle stages and
 sections](plans/20261102-bug-lifecycle-and-sections.md)
 
@@ -159,6 +162,9 @@ plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 [Adopt GitHub native stacked pull
 requests](plans/20261002-native-stacked-prs.md)
 
+[Nest agent dispatch to depth 5 on both
+harnesses](plans/20261103-nested-dispatch-depth.md)
+
 [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
 
 [Replace the runtime shell scripts with one agentdev-runtime
@@ -192,6 +198,8 @@ store](plans/20261011-persist-coder-workspace-containerd.md)
 
 [Persist the pre-commit hook cache on the agentdev-cache
 volume](plans/20260902-persist-pre-commit-cache.md)
+
+[The iwe-plan-review skill](plans/20261103-plan-review-skill.md)
 
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
@@ -276,6 +284,13 @@ image](plans/20260925-self-hosted-renovate.md)
 
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
+
+[Gate done bugs and Ship reviews in
+pre-commit](plans/20261103-ship-records-gate.md)
+
+[Review every ship against Ship's obligations](plans/20261103-ship-review.md)
+
+[The Shipper dispatches Verify](plans/20261103-shipper-dispatches-verifier.md)
 
 [One AI review workflow with a needs-coupled
 gate](plans/20260903-single-ai-review-workflow.md)

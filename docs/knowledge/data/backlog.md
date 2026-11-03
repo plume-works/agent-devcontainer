@@ -59,6 +59,8 @@ asking](backlog/implement-opens-pr.md)
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
 
+[Nested dispatch from catalog agents](backlog/nested-catalog-agent-dispatch.md)
+
 [Run Primary checks' ci job in parallel with the pre-commit
 job](backlog/parallel-ci-with-pre-commit.md)
 
@@ -84,6 +86,9 @@ behaviour](backlog/remove-content-tests.md)
 rewrites](backlog/resilient-task-evidence.md)
 
 [Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
+
+[Run Verify from the iwe-ship skill, not inside the
+Shipper](backlog/ship-verifies-before-dispatch.md)
 
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
