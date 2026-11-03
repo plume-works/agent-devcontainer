@@ -67,6 +67,9 @@ merge](bugs/dispatched-review-gate-not-counted.md)
 [Bug: doctor fails a healthy Coder Dev
 Container](bugs/doctor-fails-healthy-coder-devcontainer.md)
 
+[Bug: the re-review evaluation skips a re-review after a change
+request](bugs/eval-skips-rereview-after-changes-requested.md)
+
 [Bug: firewalled Docker Hub pulls fail at the CloudFront
 CDN](bugs/firewall-docker-hub-cloudfront.md)
 
