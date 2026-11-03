@@ -5,7 +5,7 @@ severity: high
 description: A session running /agentdev:iwe-implement accepts an approval that another session's message claims to relay from the user, with nothing authenticating the relayer, so any peer session's claim can stand in for the user's consent to an always-escalate deviation and reach iwe-verifier as a quoted approval.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T19:11:23Z
+  at: 2026-11-03T19:14:19Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -38,8 +38,10 @@ behaviour depends on which instruction the model follows.
 
 ## Reproduction
 
-Traced through the rulebook text; not yet run live. No test sends a
-coordinator's message that relays an approval.
+Traced through the rulebook text; not yet run live. The removed e2e test
+`test_implement_coordinator_requested` sent a coordinator's message that named a
+plan but relayed no approval, so it never reached this path. Reproduce it by
+hand in a live session, as below; never write an end-to-end test for it.
 
 1. In a clone, add an active plan whose only completion narrows its spec
    outcome, at `docs/knowledge/data/plans/20261027-e2e-conflict.md`:
@@ -125,3 +127,7 @@ of a coordinator skill the user invoked in-process
 by a peer session's message asks its own user for every decision and tells the
 requesting session what it is waiting on. Apply the same rule before
 `20261102-model-invocable-ship` adds its relay.
+
+A plan that fixes this adds no end-to-end test that drives a session against a
+live model; the fix's behaviour is an observation task naming who closes it, per
+the `### Tests` rule in the repository `AGENTS.md`.
