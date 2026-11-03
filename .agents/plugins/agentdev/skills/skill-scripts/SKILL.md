@@ -223,7 +223,7 @@ boundary before printing metadata; otherwise `printf foo` becomes
 `fooREMOTE_EXIT_CODE=0`, which is not a parseable key-value line:
 
 ```python
-status = run_inherited('gh', 'codespace', 'ssh', '-c', name, '--', remote_command)
+status = run_inherited('ssh', host, '--', remote_command)
 print(f'\nREMOTE_EXIT_CODE={status}')
 if status:
     return REMOTE_COMMAND_FAILED
