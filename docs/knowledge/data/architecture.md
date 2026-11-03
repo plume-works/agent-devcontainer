@@ -133,3 +133,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [uv environment location](architecture/uv-environment-location.md)
 
 [Validator image install](architecture/validator-image-install.md)
+
+[Worktree catalog hooks](architecture/worktree-catalog-hooks.md)
