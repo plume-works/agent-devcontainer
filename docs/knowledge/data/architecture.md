@@ -135,3 +135,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Validator image install](architecture/validator-image-install.md)
 
 [What Verify and pr-review each catch](architecture/verify-versus-pr-review.md)
+
+[Worktree hooks](architecture/worktree-hooks.md)
