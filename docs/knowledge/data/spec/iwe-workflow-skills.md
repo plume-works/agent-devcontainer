@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T13:00:00Z
+  at: 2026-11-03T18:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -269,6 +269,51 @@ each listed bug to `stage: pending` when it cancels the plan.
 - **WHEN** a plan at `stage: done` or `stage: cancelled` has no `release`
 - **THEN** `iwe schema validate` accepts it
 
+### Requirement: Plans test behaviour and leave CI to the merge gate
+
+Plan SHALL write no task or verification step whose only claim is that CI
+passes, SHALL record behaviour observable only after merge as a task carrying a
+`**Closed by:**` line, SHALL name a test as coverage only when it runs the
+behaviour, and SHALL scope a verification search for leftover text to the files
+the plan changes. Before validation, Plan SHALL check each requirement it adds
+or modifies against the plan's `## Approach` and the code that requirement
+describes. Every `## Verification` command SHALL run in the checkout the
+`iwe-verifier` agent works in, inside the Dev Container or container the agent
+already runs in, without starting a nested Dev Container or CI. A requirement
+SHALL claim only what its mechanism delivers and name each limit of that
+mechanism Plan knows.
+
+#### Scenario: A plan's work needs CI
+
+- **WHEN** Plan writes a plan whose change is checked by CI
+- **THEN** the plan carries no "CI passes" task or verification step
+
+#### Scenario: Behaviour is visible only after merge
+
+- **WHEN** a requirement can be observed only once the change is on the default
+  branch
+- **THEN** Plan writes a task for it carrying a `**Closed by:**` line naming who
+  or what closes it
+
+#### Scenario: A requirement disagrees with the code
+
+- **WHEN** a requirement Plan adds or modifies states a restriction the code it
+  describes does not hold, or contradicts the plan's `## Approach`
+- **THEN** Plan changes the requirement, the `## Approach`, or adds a task
+  before validation, and the plan carries no disagreement
+
+#### Scenario: A check needs a nested Dev Container
+
+- **WHEN** proving the work needs a command that runs only after starting a
+  nested Dev Container
+- **THEN** `## Verification` does not list the command; the plan cites a CI job
+  that runs it or adds a task carrying a `**Closed by:**` line
+
+#### Scenario: A mechanism has a known limit
+
+- **WHEN** Plan writes a requirement for a mechanism with a limit it knows of
+- **THEN** the requirement names that limit
+
 ### Requirement: Implement starts work on its own branch
 
 The Implement skill SHALL, when the checkout is on `main` or `master`, create
@@ -335,17 +380,20 @@ evidence.
 When a plan's last task closes, the Implement orchestrator — the user's session
 for `/agentdev:iwe-implement`, and the `iwe-implement-all` coordinator for each
 plan it runs — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
-every CRITICAL finding and every WARNING that names a concrete route, reporting
-SUGGESTIONs only. A code or evidence finding SHALL be fixed under the Implement
-rules and verified again, and a finding about the plan's intent SHALL go through
-an evaluated revision. The orchestrator SHALL stop when a finding recurs after a
-fix attempt, after three Verify rounds, or after one approved revision in the
-run. No agent the loop dispatches SHALL dispatch another.
+every CRITICAL finding, and on a WARNING only when its fix fits a task the plan
+already has and adds no claim the code must newly meet. It SHALL file every
+other WARNING through `/agentdev:iwe-capture`, report SUGGESTIONs only, and
+SHALL not stop for an outstanding observation. A code or evidence finding SHALL
+be fixed under the Implement rules and verified again, and a finding about the
+plan's intent SHALL go through an evaluated revision. The orchestrator SHALL
+stop when a finding recurs after a fix attempt, after three Verify rounds, or
+after one approved revision in the run. No agent the loop dispatches SHALL
+dispatch another.
 
 #### Scenario: Verify finds nothing to act on
 
 - **WHEN** the plan's tasks are closed and Verify reports zero CRITICAL findings
-  and no WARNING with a concrete route
+  and no WARNING whose fix fits an existing task
 - **THEN** the run ends with its rollup and the Verify verdict, and suggests
   `/agentdev:iwe-ship`
 
@@ -354,6 +402,18 @@ run. No agent the loop dispatches SHALL dispatch another.
 - **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
 - **THEN** the orchestrator fixes it under the Implement rules, closes it with
   evidence, and runs Verify again through `/agentdev:iwe-verify`
+
+#### Scenario: A warning would add work
+
+- **WHEN** Verify reports a WARNING whose fix needs a new task or a new claim
+- **THEN** the orchestrator files it through `/agentdev:iwe-capture`, names it
+  in the report, and does not act on it in this run
+
+#### Scenario: An observation is outstanding
+
+- **WHEN** Verify lists an unticked `**Closed by:**` task under Outstanding
+  observations and reports nothing else to act on
+- **THEN** the run ends with its rollup naming the observation
 
 #### Scenario: A finding recurs
 
@@ -381,14 +441,17 @@ run. No agent the loop dispatches SHALL dispatch another.
 The Plan rulebook SHALL be defined once, as the catalog agent `iwe-planner`,
 which `/agentdev:iwe-plan` follows in place. The Implement orchestrator SHALL
 revise a plan only by drafting the revision under the `iwe-planner` revise
-rules, including its fresh-context audit and validation, leaving it uncommitted,
-and dispatching `iwe-revision-evaluator` with a prompt carrying only the plan
-key and the finding the revision answers, quoted as reported. It SHALL commit
-the revision only on the evaluator's `APPROVE`. On `REJECT` or `ESCALATE` it
-SHALL restore the plan from `HEAD` and stop with a report. The evaluator SHALL
-judge the uncommitted diff against the plan at `HEAD` and SHALL never approve a
-revision that drops, narrows, defers, or accepts an exception to specified
-behavior, changes `release`, or changes text the user approved.
+rules, including its fresh-context audit and validation, changing only lines
+that answer the quoted finding, leaving it uncommitted, and dispatching
+`iwe-revision-evaluator` with a prompt carrying only the plan key and the
+finding the revision answers, quoted as reported. It SHALL commit the revision
+only on the evaluator's `APPROVE`. On `REJECT` or `ESCALATE` it SHALL restore
+the plan from `HEAD` and stop with a report. The evaluator SHALL judge the
+uncommitted diff against the plan at `HEAD`, SHALL never approve a revision that
+drops, narrows, defers, or accepts an exception to specified behavior, changes
+`release`, or changes text the user approved, and SHALL reject a revision with a
+hunk that answers no quoted finding or that adds or sharpens a claim the code
+must newly meet.
 
 #### Scenario: The evaluator approves an added task
 
@@ -409,6 +472,18 @@ behavior, changes `release`, or changes text the user approved.
   without answering the quoted finding
 - **THEN** the evaluator returns `REJECT`, the orchestrator restores the plan
   from `HEAD`, and the run stops with the evaluator's reasons
+
+#### Scenario: The evaluator rejects a stray hunk
+
+- **WHEN** a drafted revision answers the quoted finding and also changes lines
+  the finding does not concern
+- **THEN** the evaluator returns `REJECT` naming the stray hunk
+
+#### Scenario: The evaluator rejects a sharpened promise
+
+- **WHEN** a drafted revision rewrites a requirement into a stricter claim the
+  code must newly meet
+- **THEN** the evaluator returns `REJECT`
 
 #### Scenario: The evaluator sees no conversation
 
@@ -625,6 +700,56 @@ evidence, each blocker Ship found outside Verify.
 - **WHEN** an Implement run verifies, fixes findings, and verifies again
 - **THEN** its final report carries the last Verify report verbatim and each
   earlier round's verdict with the first line of each finding it fixed
+
+### Requirement: Verify judges conformance to the plan
+
+Verify SHALL report a CRITICAL or WARNING finding only against a requirement,
+scenario, task, or verification step of the plan's effective contract, citing
+it. It SHALL treat a scenario as uncovered only when a test that runs the
+behaviour could cover it, and SHALL never count a check of file contents as
+coverage. It SHALL accept a CI job as evidence for behaviour only CI exercises
+when the job exercises that behaviour, without requiring a run on the current
+head. It SHALL list an unticked task carrying a `**Closed by:**` line under
+Outstanding observations rather than as a CRITICAL.
+
+#### Scenario: A weakness the plan does not address
+
+- **WHEN** Verify notices a way to defeat the code that no requirement,
+  scenario, task, or verification step of the plan addresses
+- **THEN** it reports no CRITICAL or WARNING for it
+
+#### Scenario: A scenario has only a content test
+
+- **WHEN** the only test for a scenario reads a repository file to check its
+  text
+- **THEN** Verify counts the scenario as uncovered only if a test that runs the
+  behaviour could cover it, and never counts the content test as coverage
+
+#### Scenario: A post-merge observation is unticked
+
+- **WHEN** the plan's only unticked task carries a `**Closed by:**` line
+- **THEN** Verify lists it under Outstanding observations and reports no
+  CRITICAL for it
+
+#### Scenario: A CI job ran on an earlier commit
+
+- **WHEN** a task cites a CI job that exercises behaviour only CI reaches, and
+  the run cited is on an earlier commit than `HEAD`
+- **THEN** Verify accepts the evidence
+
+### Requirement: Ship waits for post-merge observations
+
+Ship SHALL refuse normal shipping while the plan has an unticked task carrying a
+`**Closed by:**` line, SHALL make no shipping state transition, and SHALL name
+each such task in its blocker report with the route: observe it, tick it with
+evidence, then run Ship again.
+
+#### Scenario: An observation is still open
+
+- **WHEN** Ship runs on a plan whose Verify report has no CRITICAL and lists an
+  outstanding observation
+- **THEN** the Shipper returns `Blocked` naming the observation and changes no
+  state
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 

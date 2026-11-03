@@ -100,7 +100,12 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    - `## Depends on` — inline links to plans that must ship first (omit if
      none)
    - `## Verification` — how a session proves the work is done: commands,
-     tests, manual checks
+     tests, manual checks. A search for leftover text covers only the files
+     the plan changes. Each command runs in the checkout the `iwe-verifier`
+     agent works in — inside the Dev Container or container the agent already
+     runs in — without starting a nested Dev Container and without CI; a check
+     that needs either is a cited CI job or a task carrying a `**Closed by:**`
+     line
    - `## Verification results` — narrative evidence for the plan as a whole,
      written as the work happens rather than reconstructed at the end (omit
      until there is something to record). This is the plan's only narrative
@@ -252,6 +257,16 @@ Ship creates the document and replaces the key with a real link.
   was not.
 - Code anchors are verified against the current checkout and stamped with the
   date — never cite from memory.
+- A plan carries no task or `## Verification` step whose only claim is that CI
+  passes: `pr-merge` gates every merge on CI.
+- Behaviour observable only after merge is a task carrying a
+  `**Closed by:** <who or what event>` line, and Ship waits for it.
+- A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.
+- Before validation, check each requirement in `## Spec changes` that the plan
+  adds or modifies against the plan's `## Approach` and against the code it
+  describes, and resolve every disagreement in the plan before it is written.
+- A requirement in `## Spec changes` claims only what its mechanism delivers
+  and names each limit of that mechanism you know.
 - `## Spec changes` is mandatory thinking, even when its honest content is
   "none — no behavioral change". Picking the form is part of that thinking:
   a contract-heavy change written as a one-line summary is a Verify CRITICAL,

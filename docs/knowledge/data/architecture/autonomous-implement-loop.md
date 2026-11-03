@@ -1,13 +1,15 @@
 ---
 type: architecture
-description: Why the Implement verify, fix, and revise loop runs in one orchestrator whose every dispatched agent is a leaf, why the Plan rulebook moved into the iwe-planner agent, and why a revision is drafted, audited, and evaluated before it commits.
+description: Why the Implement verify, fix, and revise loop runs in one orchestrator whose every dispatched agent is a leaf, why the Plan rulebook moved into the iwe-planner agent, why a revision is drafted, audited, and evaluated before it commits, and why the loop acts only on what the plan promised.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:59:36Z
+  at: 2026-11-03T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
@@ -47,13 +49,25 @@ returns:
 
 - `APPROVE` — the revision answers the finding and keeps every specified
   behavior; the orchestrator commits it and resumes.
-- `REJECT` — the revision does not answer the finding, or restates the plan to
-  match the code.
+- `REJECT` — the revision does not answer the finding, restates the plan to
+  match the code, has a hunk that answers no quoted finding, or has a hunk that
+  adds or sharpens a claim the code must newly meet.
 - `ESCALATE` — the revision drops, narrows, defers, or accepts an exception to
   specified behavior, changes `release`, or changes text the user approved.
 
 On `REJECT` or `ESCALATE` the orchestrator restores the plan from `HEAD` and
 stops. The evaluator's tools are `Bash, Read, Grep, Glob`.
+
+**The loop acts only on what the plan promised.** Verify is a conformance check:
+every CRITICAL and WARNING cites the requirement, scenario, task, or
+verification step it contradicts. The loop acts on every CRITICAL, and on a
+WARNING only when its fix fits a task the plan already has and adds no claim the
+code must newly meet; every other WARNING is filed through
+`/agentdev:iwe-capture`. CI belongs to `pr-merge`, which gates every merge on
+it, so no plan task claims only that CI passes. Behaviour observable only after
+merge is a task carrying a `**Closed by:**` line: Verify lists it as an
+outstanding observation rather than a CRITICAL, and Ship, not Verify, refuses
+while it is unticked, so Verify's saved report stays the same for both callers.
 
 **The run is bounded.** It stops when a finding recurs after a fix attempt,
 after three Verify rounds, or when a second revision would follow one approved
@@ -68,6 +82,10 @@ revision.
   dispatch agents; the gate needs a leaf that returns a fixed verdict.
 - **Evaluate before the audit.** The audit may rewrite the text, so the
   evaluator would approve bytes that never land.
+- **Verify treats an observation as CRITICAL only when Ship calls it.** The
+  saved report would differ by caller, and Ship reuses the loop's report.
+- **Delta-scoped Verify rounds.** They treat the symptom; this decision removes
+  its causes, CI timing and unbounded probing, at the source.
 - **Run the loop inside a dispatched `iwe-implementer`.** It would need nested
   dispatch, and the coordinator could no longer see what its Implementer
   dispatched.

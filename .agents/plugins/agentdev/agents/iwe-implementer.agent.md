@@ -150,10 +150,12 @@ loop dispatches is a leaf and dispatches nothing.
    the plan key and each approval the user gave, quoted verbatim; forward no
    conversation turns. Commit every change first: Verify refuses a dirty
    worktree. Wait for its report.
-2. **Pick the findings to act on**: every CRITICAL, and every WARNING whose
-   recommendation names a concrete route. Report SUGGESTIONs only. With none to
-   act on, the run ends with the report (step 6) and suggests the
-   `/agentdev:iwe-ship` skill.
+2. **Pick the findings to act on**: every CRITICAL, and a WARNING only when its
+   fix fits a task the plan already has and adds no claim the code must newly
+   meet. File every other WARNING through the `/agentdev:iwe-capture` skill and
+   name it in the report. Report SUGGESTIONs only. Outstanding observations do
+   not stop the run; the report names them. With none to act on, the run ends
+   with the report (step 6) and suggests the `/agentdev:iwe-ship` skill.
 3. **Code route** — a finding about code or evidence. Fix it under the Steps
    above: the code, the test, its commit, then the task's evidence line. Then
    run Verify again (step 1). The coordinator re-dispatches
@@ -168,7 +170,8 @@ loop dispatches is a leaf and dispatches nothing.
    2. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
       its **From the Implement orchestrator** mode: draft the revision, run
       its Durable Knowledge Auditor gate and validation, and leave the plan
-      uncommitted.
+      uncommitted. The revision changes only lines that answer the quoted
+      finding and adds or sharpens no claim the code must newly meet.
    3. Dispatch `iwe-revision-evaluator` with a prompt carrying only the plan
       key and the finding the revision answers, quoted as reported; forward no
       conversation turns.
