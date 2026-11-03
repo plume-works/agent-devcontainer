@@ -204,8 +204,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] `## Rules` says a requirement in `## Spec changes` claims only what its
+- [x] `## Rules` says a requirement in `## Spec changes` claims only what its
   mechanism delivers and names each limit of that mechanism the planner knows.
+
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 ### Task 3: Verify judges conformance to the plan
 
