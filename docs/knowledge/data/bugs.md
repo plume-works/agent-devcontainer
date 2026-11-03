@@ -118,6 +118,9 @@ change](bugs/plan-tasks-edit-specs.md)
 [Bug: PR updates skip the re-review
 evaluation](bugs/pr-update-skips-review-eval.md)
 
+[Bug: runtime containers reject a TLS-intercepting proxy's
+certificates](bugs/proxy-ca-untrusted-in-runtime-containers.md)
+
 [Bug: Implement takes a peer session's claim as the user's
 approval](bugs/relayed-approval-unauthenticated.md)
 

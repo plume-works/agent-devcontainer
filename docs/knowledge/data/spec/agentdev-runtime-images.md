@@ -3,7 +3,7 @@ type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:25:00Z
+  at: 2026-11-03T20:10:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
@@ -13,6 +13,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/hooks.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/integrity.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/trust.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .github/workflows/ci.yml
@@ -137,6 +138,28 @@ deletes the distribution's metadata or rewrites its `RECORD` passes it.
 
 - **WHEN** the installed distribution matches its `RECORD`
 - **THEN** the bootstrap continues
+
+### Requirement: the bootstrap trusts an extra CA bundle
+
+Before any service starts, the root bootstrap of both runtime images SHALL make
+the system certificate store hold exactly the PEM certificates of the bundle at
+`AGENTDEV_EXTRA_CA_CERTS`, withdrawing those of an earlier start, and SHALL fail
+when that file is non-empty but holds no certificate. The image SHALL point
+`SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and `NODE_EXTRA_CA_CERTS` at the system
+store. The Dev Container's host init SHALL hand over the host's
+`AGENTDEV_EXTRA_CA_CERTS`, else its `NODE_EXTRA_CA_CERTS`. Design: [Extra CA
+trust](../architecture/extra-ca-trust.md).
+
+#### Scenario: a host behind a TLS-intercepting proxy starts a runtime
+
+- **WHEN** the proxy's CA bundle is mounted at `AGENTDEV_EXTRA_CA_CERTS`
+- **THEN** a certificate it signed verifies against the system store inside the
+  container, so nested pulls and package downloads succeed
+
+#### Scenario: no extra CA is given
+
+- **WHEN** the file is absent or empty
+- **THEN** the bootstrap adds nothing and continues
 
 ### Requirement: missing pre-commit hook executables are reported
 
