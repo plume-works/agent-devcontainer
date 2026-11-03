@@ -46,7 +46,7 @@ This lands after [Remove Codex support](20261031-remove-codex.md), so the gate
 is the `disable-model-invocation` key alone: Claude Code reads it, and the
 OpenCode bridge turns it into a skill `deny`. It also lands after [Explore
 proposes only for observed problems](20261103-explore-evidence-gate.md); the
-Explore requirement delta below keeps that plan's text. Remove it from
+Explore requirement delta below keeps that plan's text. Remove the key from
 `iwe-implement`. Narrow its description to a request that names a plan, so an
 ordinary "implement this fix" does not load it. `iwe-implement-all`, `iwe-ship`,
 and `iwe-ship-all` stay explicit-only.
