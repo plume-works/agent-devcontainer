@@ -294,9 +294,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `iwe-revision-evaluator.agent.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
-- [ ] `APPROVE` lists "an added task toward a requirement the plan already
+- [x] `APPROVE` lists "an added task toward a requirement the plan already
   states" in place of "an added task or requirement", and allows a heavier
   `## Spec changes` form only when it states no claim beyond the lighter one.
+  - **Evidence:** commit c03d084c rewrites both `APPROVE` bullets in
+    `iwe-revision-evaluator.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 ### Task 6: Ship waits for post-merge observations
 
