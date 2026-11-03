@@ -140,8 +140,8 @@ it):
 - Scope test runs narrowly while iterating (`uv run pytest <path>::<test>`);
   full suite only when asked.
 - If the local toolchain is missing, escalate — don't give up: Docker available
-  → `/agentdev:devcontainer-sandbox`. Only report a blocker when no Docker daemon is
-  available.
+  → `/agentdev:devcontainer-sandbox`. Only report a blocker when no Docker
+  daemon is available.
 - Prefer the structured-question tool (`AskUserQuestion` /
   `vscode/askQuestions`) for yes/no and multiple-choice questions over free
   text.
