@@ -6,7 +6,7 @@ release:
 description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T07:24:45Z
+  at: 2026-11-03T07:33:14Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -68,8 +68,8 @@ Rejected:
   coordinator request" check is a prompt-level self-check — the alternative the
   architecture document already rejects.
 - **Workers following the rulebook file without the skill.** A worker that tried
-  the skill first sees the refusal text, which tells it not to replicate the
-  workflow by other means, so the route depends on the coordinator never
+  the gated skill first sees the refusal text, which tells it not to replicate
+  the workflow by other means, so the route depends on the coordinator never
   mentioning the skill.
 
 ## Implementation Steps
@@ -240,15 +240,7 @@ Rejected:
     following the rulebook file without the skill** under
     `## Rejected alternatives`.
 
-### Task 8: CI passes on the implementation branch
-
-- [x] Every required check on the pull request passes.
-  - **Evidence:** PR #663 at commit eabce470: every check passes, none failing —
-    CI/CD / CI finished (Actions run 41585202319, job 125759054406), pre-commit
-    (run 41585202319, job 125748954752), Validate agent files (run 41585202317,
-    job 125749073322), Validate knowledge base (run 41585202303).
-
-### Task 9: A coordinator's message names a plan to implement
+### Task 8: A coordinator's message names a plan to implement
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
@@ -258,8 +250,7 @@ Rejected:
   session's, asking to implement `GREET_KEY`, loads the `iwe-implement` skill
   and passes the same assertions as `test_implement_requested`: the rulebook
   read in session, nothing dispatched, and the greet task handled as in
-  `test_implement`. Task 9 removes `RELAYED_NARROWING` from `scenarios.py` and
-  `test_implement_relayed_narrowing` from both suites.
+  `test_implement`.
   - **Evidence:** commit 1b8ea659 adds `COORDINATOR_REQUEST` and
     `test_implement_coordinator_requested` to both suites, sharing
     `assert_greet_stopped` with `test_implement_requested`, and removes
@@ -508,11 +499,10 @@ SHALL stop and report at any point that needs a user decision it was not given.
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 5
   scenarios with `test_implement` and `test_explore` on Claude Code and OpenCode
-  (Task 6), and the Task 9 scenario on both (Task 9).
+  (Task 6), and the Task 8 scenario on both (Task 8).
 - `git grep -n "iwe-implement\b" .agents/plugins/agentdev/skills/iwe-explore .agents/plugins/agentdev/agents/iwe-planner.agent.md`
   prints nothing that names Implement as a next step.
 - `iwe normalize` and `iwe schema validate` pass.
-- The pull request's CI passes (Task 8).
 
 ## Out of scope
 
