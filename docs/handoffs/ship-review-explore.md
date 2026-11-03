@@ -44,15 +44,17 @@ check, or refusal gate".
   `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` only
   invokes `/agentdev:iwe-audit`, whose `SKILL.md` holds every rule.
 
-- Nesting depth is 3 on both harnesses. Claude Code keeps its default limit of
-  3, with no `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` override. The devcontainer's
-  OpenCode config sets `experimental.subagent_depth` to `3` to match; the writer
-  is `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`, under
-  the spec `data/spec/devcontainer-opencode-policy`. Catalog agents stop being
-  leaves by design; this promotes `data/someday/nested-catalog-agent-dispatch`
-  and reverses the leaf rule that `data/architecture/fresh-context-verify` and
-  `data/architecture/autonomous-implement-loop` rest on. Every workflow's
-  dispatch chain fits in 3 levels; the agent at depth 3 cannot dispatch.
+- Nesting depth is 5 on both harnesses. Claude Code gets
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5`; where the devcontainer sets it —
+  `containerEnv` in `.devcontainer/devcontainer.json`, the image's environment,
+  or the `env` block of Claude Code's `settings.json` — is the plan's call. The
+  devcontainer's OpenCode config sets `experimental.subagent_depth` to `5`; the
+  writer is `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`,
+  under the spec `data/spec/devcontainer-opencode-policy`. Catalog agents stop
+  being leaves by design; this promotes
+  `data/someday/nested-catalog-agent-dispatch` and reverses the leaf rule that
+  `data/architecture/fresh-context-verify` and
+  `data/architecture/autonomous-implement-loop` rest on.
 - Every caller of the durable-knowledge audit dispatches the auditor agent,
   including a `/agentdev:pr-review` pass and `iwe-implementer` under
   `/agentdev:iwe-implement-all`; no caller follows the auditor's rulebook in
