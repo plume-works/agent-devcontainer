@@ -83,7 +83,6 @@ Delete these paths from the copied repository:
 .agents/
 .claude-plugin/
 py_packages/
-docs/knowledge/tests/test_iwe_seed.py
 ```
 
 `.iwe/` and the rest of `docs/knowledge/` are handled in [Optional
@@ -347,11 +346,6 @@ when the consuming project also adopts IWE-based project memory under
 setup](#optional-knowledge-base-setup) for the full adoption path; otherwise
 delete the workflow along with the `iwe-schema-validate` and `iwe-normalize`
 pre-commit hooks and the `docs/knowledge/tests` pytest path.
-
-The workflow's scaffold-test step is publisher-only: it validates the
-`iwe-bootstrap` skill's packaged scaffold in the catalog source, which no
-consumer keeps. Drop that step along with
-`docs/knowledge/tests/test_iwe_seed.py`.
 
 #### AI responder and the review gate
 
@@ -812,11 +806,6 @@ repository's own `.prettierignore` carries the entry and the rationale; a
 consumer bootstrapping the workspace does not get it implicitly. This is the same class of problem as [formatter adoption never
 rewrites verbatim third-party
 captures](#requirement-formatter-adoption-never-rewrites-verbatim-third-party-captures).
-
-`docs/knowledge/tests/test_iwe_seed.py` is **not** in that list. It validates
-the catalog source's packaged scaffold, which a consumer does not keep; copying
-it leaves a test that fails on a missing directory. Delete it if the copy
-brought it along.
 
 ### Initialize the consumer's knowledge
 
