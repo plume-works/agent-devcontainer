@@ -175,8 +175,13 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] Step 4's `## Verification` bullet says a search for leftover text covers
+- [x] Step 4's `## Verification` bullet says a search for leftover text covers
   only the files the plan changes.
+
+  - **Evidence:** commit c03d084c adds the sentence to `iwe-planner.agent.md`
+    step 4's `## Verification` bullet;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] `## Rules` says that before validation the planner checks each requirement
   in `## Spec changes` that the plan adds or modifies against the plan's
