@@ -193,11 +193,16 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] Step 4's `## Verification` bullet says each command runs in the checkout
+- [x] Step 4's `## Verification` bullet says each command runs in the checkout
   the `iwe-verifier` agent works in — inside the Dev Container or container the
   agent already runs in — without starting a nested Dev Container and without
   CI; a check that needs either is a cited CI job or a task carrying a
   `**Closed by:**` line.
+
+  - **Evidence:** commit c03d084c adds the sentence to `iwe-planner.agent.md`
+    step 4's `## Verification` bullet;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] `## Rules` says a requirement in `## Spec changes` claims only what its
   mechanism delivers and names each limit of that mechanism the planner knows.
