@@ -129,8 +129,11 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 — `Ready to ship`, `Blocked`, `Audit`, or `Needs decision` — and the plan key,
 then:
 
-- **Findings** — CRITICAL, then WARNING, then SUGGESTION, each with its
-  `path:line` evidence or the label "unverified", and its recommendation.
+- **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding opens
+  with its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for
+  SUGGESTION, numbered from 1 per severity in report order — then its
+  `path:line` evidence or the label "unverified", and its recommendation. Audit
+  mode numbers its findings the same way.
 - **Verification commands** — each `## Verification` command run and its actual
   result.
 - **Needs decision** — the exact command or choice and why, when you stopped
