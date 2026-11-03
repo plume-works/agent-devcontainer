@@ -251,7 +251,7 @@ evidence, each blocker Ship found outside Verify.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
+Verified anchor points (line numbers as of 2026-11-03):
 
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:126` — `## Report`
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:132` — **Findings**
@@ -263,27 +263,27 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:102` — session step 5,
   re-post
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:166` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:172` — **Verify
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:180` — `## Report`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:186` — **Verify
   verdict** bullet
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:178` — Ship blocker
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:192` — Ship blocker
   report
 - `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:18` — Shipper re-post
   line
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:180` — step 6,
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:183` — step 6,
   Report once
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:25` — rollup
   re-post line
 - `docs/knowledge/data/features/verify-report-cache.md:26` — `## Behaviour`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:420` — Normal shipping
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:457` — Normal shipping
   requires a clean independent verification
 - `scripts/e2e/iwe-workflows/harness_claude.py:54` — `ClaudeTranscript.results`
 - `scripts/e2e/iwe-workflows/harness_claude.py:93` —
   `ClaudeTranscript.agent_results`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:96` —
   `Transcript.assistant_parts`
-- `scripts/e2e/iwe-workflows/clone.py:293` — `Clone.saved_report`
-- `scripts/e2e/iwe-workflows/scenarios.py:47` — `mentions`
+- `scripts/e2e/iwe-workflows/clone.py:295` — `Clone.saved_report`
+- `scripts/e2e/iwe-workflows/scenarios.py:46` — `mentions`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:56` —
   `test_verify_approved`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:82` —
