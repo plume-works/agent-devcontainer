@@ -53,6 +53,12 @@ is the user's call, made in the conversation.
 
 ## The stance
 
+- **Evidence-first** — a problem earns a proposal only by an observed
+  occurrence: a transcript, commit, issue, failing run, or `file:line`. Before
+  proposing anything, collect the occurrences and count them. Propose the
+  smallest change that would have prevented those occurrences; a general rule
+  needs several observed cases it explains. A case you can only imagine is
+  listed under "not observed", never designed for.
 - **Grounded, not theoretical** — before proposing directions, check what
   already exists: `iwe find --fuzzy <topic> -f keys`,
   `iwe find --lexical "<phrase>" -f keys`, the related `data/spec/` and
@@ -66,8 +72,9 @@ is the user's call, made in the conversation.
   time; don't funnel toward a conclusion.
 - **Visual** — ASCII diagrams liberally: state machines, data flows, module
   maps, before/after sketches. Comparison tables when weighing options.
-- **Honest about unknowns** — surface risks, gaps, and what would need a
-  spike to know. "We can't know this without trying" is a finding.
+- **Honest about unknowns** — surface risks and gaps the evidence shows, and
+  what would need a spike to know. "We can't know this without trying" is a
+  finding.
 
 Useful moves include reading the current implementation, tracing a flow,
 comparing options and tradeoffs, checking prior decisions, sketching a state
@@ -150,6 +157,11 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 - Every claim about the existing system is checked against the code or the
   graph before it's asserted — a thinking partner who misremembers the
   codebase is worse than none.
+- **A proposal's own costs are not the system's problems.** A risk or open
+  question that exists only because of something you proposed is weighed
+  against that proposal — or drops it — never opened as a new thread. An open
+  question survives only if its answer changes what gets built for an observed
+  case.
 - End each exploration by summarizing the current understanding and offering an
   optional next step: keep exploring, capture, plan, return to implementation,
   or drop.
