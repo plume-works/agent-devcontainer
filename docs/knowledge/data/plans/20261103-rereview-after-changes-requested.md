@@ -57,12 +57,12 @@ approval, and it adds a review per push in that state for no gain.
 - [x] `## The test` opens with the verdict check: when the AI reviewer's newest
   verdict is `CHANGES_REQUESTED`, request a re-review regardless of the diff,
   because only that reviewer's `APPROVE` lifts its change request; the scope
-  question applies only when that verdict is `APPROVED`.
+  question applies whenever no AI change request is pending.
   - **Evidence:** commit 699047b7 opens `## The test` with the verdict check;
     `validate_agent_files --recommend . --require-marketplace claude` reported
     61/61 skills valid on that commit.
 - [x] The **No** branch and the "Do not request a review when" list say they
-  apply only after an AI approval.
+  apply only while no AI change request is pending.
   - **Evidence:** commit 699047b7 prefixes both with "After an AI approval";
     `validate_agent_files` reported 61/61 skills valid on that commit.
 - [x] `## Establish what the last review saw` names the AI reviewer's logins and
