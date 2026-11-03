@@ -214,10 +214,15 @@ Rejected:
     **Implement keeps the user's session** adds "A decision the rulebook asks
     for comes from that session's own user, or from an approval of the user's
     that a coordinator session relays in its message".
-- [ ] The decision states why Implement can drop the gate — it needs a named
+- [x] The decision states why Implement can drop the gate — it needs a named
   active plan with satisfied dependencies and asks when the plan is ambiguous,
   and Plan and Explore never name it — and **Drop the gate and rely on
   descriptions** stays rejected for Ship, with its Explore example.
+  - **Evidence:** commit 5b4b924a adds **Implement's entry skill is
+    model-invocable** ("needs a named active plan whose dependencies are done
+    and asks when the plan is ambiguous … Plan and Explore … never name it") and
+    retitles the rejection **Drop the gate and rely on descriptions, for Ship**,
+    keeping its Explore example.
 - [ ] The two alternatives rejected in `## Approach` are added under
   `## Rejected alternatives`.
 
