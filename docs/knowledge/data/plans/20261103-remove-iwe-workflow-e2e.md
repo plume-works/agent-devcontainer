@@ -109,15 +109,23 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `## Rules` gains this bullet directly after the "A scenario is covered by
+- [x] `## Rules` gains this bullet directly after the "A scenario is covered by
   a test only when" bullet, verbatim:
 
   ``` markdown
   - A plan adds no end-to-end test that drives an agent session through the workflow skills against a live model; behaviour only such a session can show is an observation task naming who closes it, and Ship waits for it.
   ```
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+  - **Evidence:** commit b6d6fca adds the bullet verbatim to
+    `iwe-planner.agent.md` `## Rules`, directly after the "A scenario is covered
+    by a test only when" bullet.
+
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   reports no errors.
+
+  - **Evidence:** commit b6d6fca;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reported 61/61 valid, 0 errors, 0 warnings.
 
 ### Task 4: Drop e2e claims from living project memory
 
