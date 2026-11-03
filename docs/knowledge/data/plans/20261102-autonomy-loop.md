@@ -90,7 +90,7 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] Each failure this plan removes has one e2e scenario on both harnesses:
+- [x] Each failure this plan removes has one e2e scenario on both harnesses:
   - Verify reports an unticked task carrying a `**Closed by:**` line as a
     CRITICAL instead of listing it under **Outstanding observations**.
   - Verify rejects a CI job cited on an earlier commit as evidence.
@@ -110,6 +110,11 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
   - Plan lists in `## Verification` a command that needs starting a nested Dev
     Container.
   - Plan writes a requirement that does not name a known limit of its mechanism.
+  - **Evidence:** commits 50ee5a75, 537037b5, and f9335f1e add
+    `test_autonomy_loop_claude.py`, `test_autonomy_loop_opencode.py`, the
+    `stray` and `sharpened` `test_evaluator` variants, and their fixtures;
+    `uv run pytest --collect-only scripts/e2e/iwe-workflows` at f9335f1e lists
+    each scenario on both harnesses.
 - [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
   only, where these failures were seen, and fails for the right reason: the
   transcript shows the failure the scenario names.
