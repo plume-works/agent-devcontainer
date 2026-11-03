@@ -72,8 +72,9 @@ is the user's call, made in the conversation.
   time; don't funnel toward a conclusion.
 - **Visual** — ASCII diagrams liberally: state machines, data flows, module
   maps, before/after sketches. Comparison tables when weighing options.
-- **Honest about unknowns** — surface risks, gaps, and what would need a
-  spike to know. "We can't know this without trying" is a finding.
+- **Honest about unknowns** — surface risks and gaps the evidence shows, and
+  what would need a spike to know. "We can't know this without trying" is a
+  finding.
 
 Useful moves include reading the current implementation, tracing a flow,
 comparing options and tradeoffs, checking prior decisions, sketching a state
