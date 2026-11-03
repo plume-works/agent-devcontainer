@@ -326,10 +326,9 @@ reason: bootstrap installs it and it is consumer-owned afterward. The
 bootstrap scaffold lives in the installed catalog, not in the template
 checkout, so it is never a `tracked_paths` entry either.
 
-Never add `.agents/`, `.claude-plugin/`, `py_packages/`, or
-`docs/knowledge/tests/test_iwe_seed.py` — those are publisher-only source this
-guide has the consumer delete during setup, so they can never be legitimate
-members of a consumer's `tracked_paths`.
+Never add `.agents/`, `.claude-plugin/`, or `py_packages/` — those are
+publisher-only source this guide has the consumer delete during setup, so they
+can never be legitimate members of a consumer's `tracked_paths`.
 
 `.github/pr-description-guidance.md` is not in the copied list above: this
 repository does not carry it, and it is created only when the guide's §4 capture

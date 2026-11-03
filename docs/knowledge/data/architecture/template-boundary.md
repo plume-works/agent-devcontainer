@@ -282,12 +282,11 @@ usual; the macOS host simply never starts it.
 These paths stay in this repository but are deleted from a normal full template
 copy:
 
-| Path                                    | Responsibility                                                                                                                                 |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.agents/`                              | Canonical `agentdev` plugin source: agents, skills (the `iwe-bootstrap` scaffold among them), hooks, helper commands, and plugin-script tests. |
-| `.claude-plugin/`                       | Claude marketplace manifest for the catalog.                                                                                                   |
-| `py_packages/validate_agent_files/`     | Standalone validator package source and package tests.                                                                                         |
-| `docs/knowledge/tests/test_iwe_seed.py` | Validates the `iwe-bootstrap` scaffold in the catalog source, which no consumer keeps.                                                         |
+| Path                                | Responsibility                                                                                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.agents/`                          | Canonical `agentdev` plugin source: agents, skills (the `iwe-bootstrap` scaffold among them), hooks, helper commands, and plugin-script tests. |
+| `.claude-plugin/`                   | Claude marketplace manifest for the catalog.                                                                                                   |
+| `py_packages/validate_agent_files/` | Standalone validator package source and package tests.                                                                                         |
 
 After deleting `py_packages/validate_agent_files/`, remove the now-empty
 `py_packages/` wrapper and its standalone `LICENSE` as well.

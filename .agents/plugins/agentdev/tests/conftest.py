@@ -4,9 +4,8 @@
 Shared fixtures for the plugin's own script tests.
 
 These tests exercise the scripts this plugin ships — the helpers in ``bin/`` and
-the ``scripts/`` bundled with individual skills. They resolve everything from the
-plugin root so the suite runs unchanged from a consumer's plugin cache, where the
-repository that develops the plugin is not present.
+the ``scripts/`` bundled with individual skills, and run only in the repository
+that develops the plugin, never from a consumer's plugin cache.
 """
 
 from __future__ import annotations
