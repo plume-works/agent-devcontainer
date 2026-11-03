@@ -110,7 +110,8 @@ Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
     Container.
   - Plan writes a requirement that does not name a known limit of its mechanism.
 - [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
-  only, where these failures were seen, and fails.
+  only, where these failures were seen, and fails for the right reason: the
+  transcript shows the failure the scenario names.
 - [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
 
 ### Task 2: The planner leaves CI to the merge gate and marks observations
