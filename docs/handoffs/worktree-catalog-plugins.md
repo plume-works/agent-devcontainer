@@ -61,7 +61,10 @@ checkout sat 31 commits behind `origin/main`.
   Control's automatic cleanup does.
 - A worktree session reads the main checkout's `.claude/settings.local.json` as
   well as its own, and an `enabledPlugins` value in the main checkout's file wins
-  over the worktree's. The worktree's local settings do override user settings.
+  over the worktree's. The main checkout is found through git, not through
+  the folder layout: a worktree added at `/tmp/wt-out`, outside the main
+  checkout, also loaded `agentdev@agent-devcontainer`, which only the main
+  checkout's local settings enable. The worktree's local settings do override user settings.
 - With the shared catalog enabled in user settings and disabled in the worktree's
   local settings, a worktree session loads only its `wt-<name>` copy (no
   duplicate agent names), and a main-checkout session still loads from
