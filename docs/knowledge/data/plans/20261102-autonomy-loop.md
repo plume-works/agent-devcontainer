@@ -241,13 +241,19 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] Correctness judges coverage by the `iwe-planner` coverage rule (Task 2),
+- [x] Correctness judges coverage by the `iwe-planner` coverage rule (Task 2),
   and replaces "(uncovered scenario is a WARNING)" with this approved sentence
   verbatim:
 
   ``` text
   An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
   ```
+
+  - **Evidence:** commit c03d084c applies the `iwe-planner` coverage rule in
+    `iwe-verifier.agent.md` Correctness and adds the approved sentence byte for
+    byte;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] `## Report` lists **Outstanding observations** after the findings.
 
