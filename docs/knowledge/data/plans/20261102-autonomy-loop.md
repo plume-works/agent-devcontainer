@@ -216,9 +216,14 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] Step 3 says every CRITICAL and WARNING cites the requirement, scenario,
+- [x] Step 3 says every CRITICAL and WARNING cites the requirement, scenario,
   task, or verification step of the effective contract it contradicts; a
   weakness the contract does not address is not reported as either.
+
+  - **Evidence:** commit c03d084c adds the citation rule to
+    `iwe-verifier.agent.md` step 3;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] Completeness lists an unticked task carrying a `**Closed by:**` line under
   a new **Outstanding observations** report heading instead of as a CRITICAL.
