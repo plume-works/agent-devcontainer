@@ -6,7 +6,7 @@ release:
 description: Delete the IWE workflow e2e suite under scripts/e2e/ with its unit tests and pytest marker, drop e2e claims from living project memory, and add a standing rule that plans add no live-model end-to-end test of the workflow skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T19:30:00Z
+  at: 2026-11-03T20:00:00Z
 sources:
 - resource: scripts/e2e/conftest.py
 - resource: scripts/e2e/iwe-workflows/scenarios.py
@@ -80,7 +80,7 @@ Rejected:
   can reach stays untested.", verbatim:
 
   ``` markdown
-  - Never write an end-to-end test that drives an agent session (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
+  - NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
   ```
 
 - [ ] Best Practice 9 reads "When a test or check runs OpenCode" in place of
