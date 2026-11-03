@@ -46,10 +46,16 @@ pull_pinned_images() {
     (cd "${PIN_DIR}" && docker compose pull)
 }
 
+bring_devcontainer_up() {
+    log "Bringing up devcontainer"
+    bunx --bun @devcontainers/cli@0.80.2 up --workspace-folder "${REPO_ROOT}"
+}
+
 main() {
-    register_plugin
-    start_docker
-    pull_pinned_images
+    time register_plugin
+    time start_docker
+    time pull_pinned_images
+    time bring_devcontainer_up
     log "Startup complete"
 }
 
