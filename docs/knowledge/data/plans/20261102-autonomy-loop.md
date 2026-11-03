@@ -106,7 +106,7 @@ Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
     `**Closed by:**` line.
   - Plan writes a search for leftover text over the whole repository.
   - Plan writes a requirement the code it describes does not hold.
-  - Plan lists in `## Verification` a command that needs a started Dev
+  - Plan lists in `## Verification` a command that needs starting a nested Dev
     Container.
   - Plan writes a requirement that does not name a known limit of its mechanism.
 - [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
