@@ -3,13 +3,14 @@ type: plan
 created: 2026-11-03
 release:
 - features/nested-agent-dispatch
-description: Set Claude Code's and OpenCode's subagent nesting limit to 5 in the devcontainer on every container start, so a dispatched catalog agent can dispatch another on both harnesses.
+description: Set Claude Code's and OpenCode's subagent nesting limit to 5 in the devcontainer and the standalone runtime, so a dispatched catalog agent can dispatch another on both harnesses.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T06:10:00Z
+  at: 2026-11-03T06:40:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
-- resource: py_packages/agentdev_runtime/agentdev_runtime/claude_state.py
+- resource: .devcontainer/docker-compose.yml
+- resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
 ---
@@ -34,24 +35,31 @@ subagent dispatch](../architecture/nested-subagent-dispatch.md)).
 
 ## Approach
 
-`agentdev-runtime state agent-policy`, which already restores OpenCode's
-permission policy on every container start, also sets the two depth values:
+Each harness gets its limit where it reads it:
 
-- `experimental.subagent_depth` to `5` in the OpenCode config
-  `opencode_config.apply_policy` already patches, keeping every other
-  `experimental` key.
-- `env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to `"5"` in Claude Code's
-  `settings.json`, keeping every other key, through `claude_state.update_json`.
+- **Claude Code** reads `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` from its
+  environment. The `environment:` block of the `devcontainer` service in
+  `.devcontainer/docker-compose.yml` and of the `opencode` service in
+  `compose.opencode.yml` sets it to `5`.
+- **OpenCode** reads `experimental.subagent_depth` from its config.
+  `agentdev-runtime state agent-policy`, which already restores OpenCode's
+  permission policy on every container start in both containers, sets it to `5`
+  through `opencode_config.apply_policy`, keeping every other `experimental` key
+  and restoring a changed value.
 
-Both are restored when a session changes them, like the permission policy.
+Rejected:
 
-Rejected: writing the Claude Code value from the `agentic_tools` Ansible role at
-image build. `~/.claude` is the `agentdev-claude` volume
-(`.devcontainer/devcontainer.json`), which hides the image's
-`~/.claude/settings.json` once the volume holds a file.
+- Writing `env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` into Claude Code's
+  `settings.json` from `agentdev-runtime state agent-policy`. The repository
+  owner chose the compose environment, which states the value where the
+  container is defined.
+- Writing it from the `agentic_tools` Ansible role at image build. `~/.claude`
+  is the `agentdev-claude` volume (`.devcontainer/devcontainer.json`), which
+  hides the image's `~/.claude/settings.json` once the volume holds a file.
 
-Assumption: Claude Code's `settings.json` is resolved from `CLAUDE_CONFIG_DIR`
-when it is set, and from `~/.claude` otherwise, as Claude Code resolves it.
+Assumption: both compose files set the value as
+`${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}`, so a host or `runtime.env` value
+overrides the default of 5, like the other variables those blocks pass through.
 
 ## Implementation Steps
 
@@ -68,19 +76,16 @@ when it is set, and from `~/.claude` otherwise, as Claude Code resolves it.
 
 ### Task 2: Claude Code nests to depth 5
 
-**Files:** Modify:
-`py_packages/agentdev_runtime/agentdev_runtime/claude_state.py`,
-`py_packages/agentdev_runtime/agentdev_runtime/agent_state.py`,
-`py_packages/agentdev_runtime/tests/test_claude_state.py`
+**Files:** Modify: `.devcontainer/docker-compose.yml`, `compose.opencode.yml`
 
-- [ ] A `claude_state` function sets `env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
-  to `"5"` in `settings.json` under `CLAUDE_CONFIG_DIR` or `~/.claude`, keeping
-  every other key, including the `cc-filter` `hooks`; tests cover a missing
-  file, a file with other `env` entries and `hooks`, and a different value.
-- [ ] `apply_agent_policy` calls it after `opencode_config.configure`, so both
-  `agentdev-runtime lifecycle ready` and the standalone supervisor's core phase
-  apply it; a test runs `agentdev-runtime state agent-policy` against a scratch
-  home and reads both files.
+- [ ] The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
+  `opencode` service in `compose.opencode.yml` set
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: ${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}`
+  in their `environment:` blocks.
+- [ ] In a container started from each compose file, the nesting fixture in
+  [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
+  extended to five levels, reaches depth 5 on Claude Code, read from each
+  subagent's `.meta.json` `spawnDepth`.
 
 ### Task 3: Record the depth limits
 
@@ -91,8 +96,8 @@ when it is set, and from `~/.claude` otherwise, as Claude Code resolves it.
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the nesting limit; when it is
   unset, a server-side flag sets the limit, falling back to 3; the agent at the
   limit is not offered the `Agent` tool, and nothing reports an error. It also
-  records that the devcontainer sets both harnesses to 5, and replaces the
-  2.1.306 version the section names.
+  records that the devcontainer and the standalone runtime set both harnesses to
+  5, and replaces the 2.1.306 version the section names.
 
 ## Spec changes
 
@@ -143,41 +148,38 @@ mode `0600`.
 - **THEN** the configure step fails and leaves the file unchanged.
 ```
 
-`devcontainer-claude-policy` — a new spec for Claude Code's managed settings.
+`nested-agent-dispatch` — a new spec for Claude Code's nesting limit in both
+containers.
 
 ``` markdown
 ## ADDED Requirements
 
-### Requirement: devcontainer Claude Code nests subagent dispatch to depth 5
+### Requirement: Claude Code nests subagent dispatch to depth 5
 
-On every container start, `agentdev-runtime state agent-policy` SHALL set
-`env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to `"5"` in the Claude Code
-`settings.json` under `CLAUDE_CONFIG_DIR`, or under `~/.claude` when that
-variable is unset, preserving every other key.
+The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
+`opencode` service in `compose.opencode.yml` SHALL set
+`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` in the container environment to the
+host's value when it is set, and to `5` otherwise.
 
-#### Scenario: a container starts with no Claude Code settings
+#### Scenario: a container starts with no override
 
-- **WHEN** the container starts and `settings.json` does not exist
-- **THEN** it is created holding only the managed `env` value.
+- **WHEN** either container starts and the host sets no
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
+- **THEN** Claude Code in the container nests subagent dispatch to depth 5.
 
-#### Scenario: the settings carry hooks and other environment values
+#### Scenario: the host overrides the depth
 
-- **WHEN** `settings.json` holds `hooks` and other `env` entries
-- **THEN** those values survive and the managed value is set.
-
-#### Scenario: a session changed the depth
-
-- **WHEN** `env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` holds a different value
-- **THEN** the next container start restores `"5"`.
+- **WHEN** the host or `runtime.env` sets `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
+- **THEN** the container's Claude Code uses that value.
 ```
 
 ## Verification
 
-- `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py py_packages/agentdev_runtime/tests/test_claude_state.py`
-- In a rebuilt devcontainer, the fixture in [Nested subagent
-  dispatch](../architecture/nested-subagent-dispatch.md) extended to five levels
-  reaches depth 5 on Claude Code, read from each subagent's `.meta.json`
-  `spawnDepth`.
+- `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
+- In a rebuilt devcontainer and a standalone runtime container, the fixture in
+  [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)
+  extended to five levels reaches depth 5 on Claude Code, read from each
+  subagent's `.meta.json` `spawnDepth`.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -194,8 +196,9 @@ Verified anchor points (line numbers as of 2026-11-03):
 
 - `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py:44` —
   `apply_policy`; `:83` — `configure`
-- `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py:18` —
-  `update_json`; `:35` — `preapprove`
+- `.devcontainer/docker-compose.yml:67` — the `devcontainer` service's
+  `environment:` block
+- `compose.opencode.yml:11` — the `opencode` service's `environment:` block
 - `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:104` —
   `apply_agent_policy`
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:152` — the `ready`
@@ -206,5 +209,3 @@ Verified anchor points (line numbers as of 2026-11-03):
   devcontainer OpenCode runs with unrestricted filesystem access
 - `docs/knowledge/data/architecture/nested-subagent-dispatch.md:18` —
   `## Host behavior`
-- `ansible/roles/agentic_tools/tasks/cc_filter.yml` — merges the `cc-filter`
-  `hooks` into `~/.claude/settings.json` at image build

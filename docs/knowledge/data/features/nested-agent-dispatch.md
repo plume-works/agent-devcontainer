@@ -4,10 +4,11 @@ stage: accepted
 description: Agents in the devcontainer can dispatch subagents that dispatch further subagents, up to depth 5, on both Claude Code and OpenCode.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T06:00:00Z
+  at: 2026-11-03T06:45:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
-- resource: py_packages/agentdev_runtime/agentdev_runtime/claude_state.py
+- resource: .devcontainer/docker-compose.yml
+- resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
 - resource: docs/knowledge/data/someday/nested-catalog-agent-dispatch.md
@@ -24,10 +25,11 @@ default, and OpenCode refuses any nesting at its default
 
 ## Behaviour
 
-On every container start, `agentdev-runtime` sets
-`env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to `5` in `~/.claude/settings.json`
-and `experimental.subagent_depth` to `5` in OpenCode's `opencode.json`. Every
-other setting in both files is preserved, and a changed value is restored.
+The devcontainer and the standalone runtime container start with
+`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` set to `5` in their environment, unless
+the host sets another value. On every container start, `agentdev-runtime` sets
+`experimental.subagent_depth` to `5` in OpenCode's `opencode.json`, preserving
+every other setting and restoring a changed value.
 
 ## Edge cases
 
