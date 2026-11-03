@@ -86,7 +86,8 @@ Rejected:
 **Files:** Create: `scripts/e2e/iwe-workflows/test_autonomy_loop_claude.py`,
 `scripts/e2e/iwe-workflows/test_autonomy_loop_opencode.py`, and the fixture
 plans and stubs the scenarios need under `scripts/e2e/iwe-workflows/fixtures/`;
-Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
+Modify: `scripts/e2e/iwe-workflows/clone.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
 - [ ] Each failure this plan removes has one e2e scenario on both harnesses:
