@@ -133,9 +133,9 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
   - **Evidence:** `E2E_RUN_LIVE=1 uv run pytest -n 3` on Claude Code, before the
     rulebook commit c03d084c: at 50ee5a75, the four `test_plan_*` observation,
     CI, nested-container, and limit scenarios fail, with requests unchanged
-    through f9335f1e; at 537037b5, `test_ship_waits_for_observation` (Ship
-    ships), `test_verify_lists_observation` (CRITICAL),
-    `test_implement_files_warning` (no `iwe-capture`), and
+    through f9335f1e; at 537037b5, `test_ship_waits_for_observation` (blocked on
+    a CRITICAL), `test_verify_lists_observation` (CRITICAL),
+    `test_implement_files_warning` (a revision instead of filing), and
     `test_plan_scopes_search` (repository-wide search) fail; at f9335f1e,
     `test_evaluator[sharpened]` fails on `APPROVE`. The five guards pass at
     537037b5 and f9335f1e.
