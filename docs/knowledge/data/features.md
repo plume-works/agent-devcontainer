@@ -117,6 +117,8 @@ pins](features/renovate-maintains-checksums.md)
 
 [Shared BuildKit builder](features/shared-buildkit-builder.md)
 
+[Ship review](features/ship-review.md)
+
 [Standalone OpenCode container](features/standalone-opencode-container.md)
 
 [Remote Control autostart in the standalone

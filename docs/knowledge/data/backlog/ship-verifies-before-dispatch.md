@@ -1,6 +1,7 @@
 ---
 type: task
-stage: pending
+stage: done
+completed: 2026-11-03
 priority: high
 created: 2026-11-03
 description: Run Verify from the iwe-ship skill as its own fresh subagent and have iwe-shipper only read the saved Verify report, so no Verify run ever lands in the Shipper's context.

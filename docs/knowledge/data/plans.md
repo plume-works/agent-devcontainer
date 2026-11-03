@@ -196,6 +196,8 @@ store](plans/20261011-persist-coder-workspace-containerd.md)
 [Persist the pre-commit hook cache on the agentdev-cache
 volume](plans/20260902-persist-pre-commit-cache.md)
 
+[The iwe-plan-review skill](plans/20261103-plan-review-skill.md)
+
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
 
@@ -279,6 +281,13 @@ image](plans/20260925-self-hosted-renovate.md)
 
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
+
+[Gate done bugs and Ship reviews in
+pre-commit](plans/20261103-ship-records-gate.md)
+
+[Review every ship against Ship's obligations](plans/20261103-ship-review.md)
+
+[The Shipper dispatches Verify](plans/20261103-shipper-dispatches-verifier.md)
 
 [One AI review workflow with a needs-coupled
 gate](plans/20260903-single-ai-review-workflow.md)
