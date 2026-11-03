@@ -3,10 +3,10 @@ type: plan
 created: 2026-11-03
 release:
 - bugs/eval-skips-rereview-after-changes-requested
-description: Make pr-eval-review-needed request a re-review whenever the AI reviewer's newest verdict is CHANGES_REQUESTED, because only that reviewer's own APPROVE lifts its change request; the scope test decides only after an approval.
+description: Make pr-eval-review-needed request a re-review whenever the AI reviewer's newest verdict is CHANGES_REQUESTED, because only that reviewer's own APPROVE lifts its change request; the scope test decides whenever no AI change request is pending.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T02:40:00Z
+  at: 2026-11-03T03:52:20Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
@@ -28,7 +28,7 @@ selection](../architecture/ai-review-event-selection.md) the AI reviewer's
 verdict gates merge: the `main` ruleset needs one approving review, and a
 pending `CHANGES_REQUESTED` stands until the same reviewer approves or a person
 dismisses it. A push that applies exactly what a change request asked for is
-therefore the push that most needs a re-review, and the skill skips it.
+therefore the push that most needs a re-review, and a scope-only test skips it.
 
 ## Approach
 
@@ -148,15 +148,15 @@ Verified anchor points (line numbers as of 2026-11-03):
 - `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:3` —
   `description`
 - `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:28` —
-  `## The test`; `:39` — the **No** branch
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:65` — "Do not
+  `## The test`; `:47` — the **No** branch
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:74` — "do not
   request a review when" list
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:73` —
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:83` —
   `## Establish what the last review saw`
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:110` —
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:125` —
   `## Report the decision`
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:208`
   — accepted AI reviewer logins
 - `docs/knowledge/data/spec/ai-review-refresh.md:23` — Requirement: every push
-  to a reviewed pull request is evaluated; `:39` — Scenario: an update only
+  to a reviewed pull request is evaluated; `:42` — Scenario: an update only
   applies requested feedback
