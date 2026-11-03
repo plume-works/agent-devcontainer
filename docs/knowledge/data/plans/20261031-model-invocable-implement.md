@@ -254,12 +254,18 @@ Rejected:
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] On Claude Code and OpenCode, a plain message written as a coordinator
+- [x] On Claude Code and OpenCode, a plain message written as a coordinator
   session's, asking to implement `GREET_KEY`, loads the `iwe-implement` skill
   and passes the same assertions as `test_implement_requested`: the rulebook
   read in session, nothing dispatched, and the greet task handled as in
   `test_implement`. Task 9 removes `RELAYED_NARROWING` from `scenarios.py` and
   `test_implement_relayed_narrowing` from both suites.
+  - **Evidence:** commit 1b8ea659 adds `COORDINATOR_REQUEST` and
+    `test_implement_coordinator_requested` to both suites, sharing
+    `assert_greet_stopped` with `test_implement_requested`, and removes
+    `RELAYED_NARROWING` and `test_implement_relayed_narrowing`; at that commit
+    `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 48 tests
+    and the ruff pre-commit hooks pass.
 - [ ] That scenario passes on Claude Code and on OpenCode with the default test
   models.
 
