@@ -1,9 +1,0 @@
-name: e2e-ci
-on: push
-permissions: {}
-jobs:
-  e2e-ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - run: bin/ci-e2e.sh

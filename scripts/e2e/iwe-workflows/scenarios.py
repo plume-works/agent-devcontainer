@@ -38,11 +38,9 @@ EVALUATE = (
 VERDICT = re.compile(r'^\s*(APPROVE|REJECT|ESCALATE)\b', re.MULTILINE)
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 # Per-test budgets in seconds: about three times each harness's slowest scenario
-# measured at the worker cap. The longest OpenCode budget, plus server startup, sets the
-# login's minimum life. Plan runs discovery over the whole clone, so it gets its own budget.
+# measured at the worker cap. OPENCODE_BUDGET, plus server startup, sets the login's minimum life.
 OPENCODE_BUDGET = 300
 CLAUDE_BUDGET = 420
-PLAN_BUDGET = 900
 
 
 def mentions(calls: list[dict[str, Any]], pattern: str | re.Pattern) -> bool:

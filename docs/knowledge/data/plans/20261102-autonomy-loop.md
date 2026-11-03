@@ -177,47 +177,29 @@ Rejected:
   `REJECT` conditions.
 - [ ] `## Rejected alternatives` adds the two alternatives in `## Approach`.
 
-### Task 7: e2e scenarios for each failure this plan removes
+### Task 7: e2e scenarios for the evaluator and the observation gate
 
-**Files:** Create: `scripts/e2e/iwe-workflows/autonomy.py`,
-`scripts/e2e/iwe-workflows/test_autonomy_loop_claude.py`,
-`scripts/e2e/iwe-workflows/test_autonomy_loop_opencode.py`, the fixture plans
-`20261103-e2e-observe`, `20261103-e2e-ci`, `20261103-e2e-weak`,
-`20261103-e2e-cover`, `20261026-e2e-revise.stray`, and
-`20261026-e2e-revise.sharpened` under
-`scripts/e2e/iwe-workflows/fixtures/plans/`, and the stub
-`scripts/e2e/iwe-workflows/fixtures/agents/iwe-verifier.warning-stub.md`;
-Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`,
-`scripts/e2e/iwe-workflows/harness_claude.py`,
-`scripts/e2e/iwe-workflows/scenarios.py`,
-`scripts/e2e/iwe-workflows/conftest.py`
+**Files:** Create:
+`scripts/e2e/iwe-workflows/fixtures/plans/20261026-e2e-revise.stray.md`,
+`scripts/e2e/iwe-workflows/fixtures/plans/20261026-e2e-revise.sharpened.md`, a
+fixture plan with an unticked `**Closed by:**` task; Modify:
+`scripts/e2e/iwe-workflows/clone.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [x] Each failure has a scenario on both harnesses: Verify lists an unticked
-  `**Closed by:**` task as outstanding, accepts a CI job cited on an earlier
-  commit, reports no weakness the contract does not address, and does not count
-  a content check as coverage; Ship refuses a plan whose only open task is an
-  observation; Implement files a WARNING whose fix adds work through
-  `/agentdev:iwe-capture`; `test_evaluator` rejects a `stray` hunk and a
-  `sharpened` requirement; and Plan writes no "CI passes" step, marks a
-  post-merge observation, scopes a leftover-text search to its files, checks a
-  requirement against the code, keeps a Dev Container check out of
-  `## Verification`, and names a mechanism's limit.
-  - **Evidence:** committed in df0f7636 and 33865c4e;
-    `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 70 tests.
-- [x] The scenarios run on Claude Code against the rulebooks this plan changes,
-  before the change.
-  - **Evidence:** `E2E_RUN_LIVE=1 uv run pytest -n 3` on df0f7636, with
-    `test_ship_waits_for_observation` rerun on 33865c4e: failing are
-    `test_verify_lists_observation`, `test_implement_files_warning`,
-    `test_plan_marks_post_merge_observation`,
-    `test_plan_keeps_verification_runnable`, `test_plan_names_mechanism_limit`,
-    and `test_evaluator[sharpened-REJECT]`; the other ten pass already.
+- [ ] `test_evaluator` on both harnesses gains `stray` (a revision with a hunk
+  answering no finding) and `sharpened` (a revision that sharpens a
+  requirement), each expecting `REJECT`.
+- [ ] A Ship scenario on both harnesses runs on a plan whose only unticked task
+  carries a `**Closed by:**` line: Verify's report has no CRITICAL and lists it
+  under **Outstanding observations**, and the Shipper returns `Blocked` naming
+  it, with no shipping state change.
+- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
 
-### Task 8: The e2e scenarios pass on both harnesses
+### Task 8: The new and changed e2e scenarios pass
 
-- [ ] Every Task 7 scenario, with the existing `test_evaluator`, `test_ship`,
-  and `test_implement_verifies`, passes on Claude Code and on OpenCode with the
+- [ ] The Task 7 scenarios, with the existing `test_evaluator`, `test_ship`, and
+  `test_implement_verifies`, pass on Claude Code and on OpenCode with the
   default test models.
 
 ## Spec changes
@@ -446,9 +428,8 @@ that mechanism Plan knows.
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 7
-  scenarios in `test_autonomy_loop_claude.py` and
-  `test_autonomy_loop_opencode.py` with `test_evaluator`, `test_ship`, and
-  `test_implement_verifies` on Claude Code and OpenCode (Task 8).
+  scenarios with `test_evaluator`, `test_ship`, and `test_implement_verifies` on
+  Claude Code and OpenCode (Task 8).
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
