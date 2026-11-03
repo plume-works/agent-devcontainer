@@ -29,7 +29,10 @@ checkout sat 31 commits behind `origin/main`.
 - `WorktreeRemove` removes the `wt-<name>` marketplace, which also takes its
   entry out of `~/.claude/settings.json`.
 - The shared catalog's `enabledPlugins` move from the main checkout's
-  `.claude/settings.local.json` to user settings.
+  `.claude/settings.local.json` to user settings: the devcontainer's attach
+  phase installs the checkout's catalog at user scope instead of local scope
+  (`lifecycle.attached` → `catalog.install`). The same plan that delivers the
+  hooks makes this switch (human:author).
 - A worktree's `.claude/settings.local.json` also gets `Bash(*)`.
 - Remote Control's automatic cleanup of a spawned session's worktree runs
   `WorktreeRemove` (human:author).
