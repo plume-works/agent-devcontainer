@@ -171,10 +171,15 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `docs/knowledge/data/features/verify-report-cache.md`
 
-- [ ] Add a `## Behaviour` bullet: every caller shows the Verify report verbatim
+- [x] Add a `## Behaviour` bullet: every caller shows the Verify report verbatim
   in the conversation, with findings numbered by severity, and the saved file is
   a cache, never the only place the report appears. Restamp `generated` and add
   this plan's sources for the changed files.
+  - **Evidence:** Commit `b0d7abaa` adds the `## Behaviour` bullet to
+    `data/features/verify-report-cache.md` (verbatim report on every caller,
+    findings numbered `C<n>`/`W<n>`/`S<n>`, saved file only a cache), restamps
+    `generated`, and adds the `iwe-ship-all` and `iwe-implement-all` skill
+    sources; `iwe normalize` and `iwe schema validate` pass at that commit.
 
 ### Task 7: Give the e2e harnesses a report-shown check
 
