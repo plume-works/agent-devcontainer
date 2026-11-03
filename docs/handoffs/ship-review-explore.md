@@ -87,6 +87,14 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
   `iwe-ship-reviewer` again, up to 3 repeats. A fix pass never re-runs Verify
   in full. `iwe-shipper` does not dispatch `iwe-ship-reviewer`.
 
+- `iwe-shipper` gains a fix operation. `/agentdev:iwe-ship` passes it
+  `iwe-ship-reviewer`'s gap list, quoted; `iwe-shipper` performs only those
+  missing operations and skips Verify and the spec-merge check.
+- The reversal of the "no schema rule, CI check, or refusal gate" decision is
+  recorded in the new plan's `## Context`, pointing at
+  `data/plans/20261102-bug-lifecycle-and-sections`, which is not edited
+  (`AGENTS.md` `## Project memory`: references point newer to older).
+
 ## Out of scope
 
 - Refactoring `/agentdev:iwe-audit` and the `Durable Knowledge Auditor` agent
@@ -139,12 +147,9 @@ Knowledge Auditor` agent list tools without `Agent`.
 
 ## Current question
 
-How does a fix pass skip Verify: `iwe-shipper` gains a fix operation that takes
-`iwe-ship-reviewer`'s gap list and performs only those missing operations, or
-the saved Verify report stays valid across commits that change only
-`docs/knowledge/data/`?
-
-## Queued
-
-- Recording the reversal of the "no schema rule, CI check, or refusal gate"
-  decision in `data/plans/20261102-bug-lifecycle-and-sections`.
+How is the work split into plans? The pieces: nesting depth 5 on both
+harnesses; `iwe-shipper` dispatching `iwe-verifier`; the checker CLI for a done
+bug's `## Fix` and the `## Ship review` shape; `iwe-ship-reviewer` with its
+plan mode and ship mode; `/agentdev:iwe-plan-review` and `iwe-planner` step 7
+calling it; `iwe-shipper`'s fix operation and the review loop in
+`/agentdev:iwe-ship`.
