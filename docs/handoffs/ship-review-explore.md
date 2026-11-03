@@ -44,6 +44,19 @@ check, or refusal gate".
   `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` only
   invokes `/agentdev:iwe-audit`, whose `SKILL.md` holds every rule.
 
+- The devcontainer's OpenCode config sets `experimental.subagent_depth` to `5`,
+  so a dispatched catalog agent may dispatch another on OpenCode as on Claude
+  Code. The writer is
+  `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`, under the
+  spec `data/spec/devcontainer-opencode-policy`. Catalog agents stop being
+  leaves by design; this promotes `data/someday/nested-catalog-agent-dispatch`
+  and reverses the leaf rule that `data/architecture/fresh-context-verify` and
+  `data/architecture/autonomous-implement-loop` rest on.
+- Every caller of the durable-knowledge audit dispatches the auditor agent,
+  including a `/agentdev:pr-review` pass and `iwe-implementer` under
+  `/agentdev:iwe-implement-all`; no caller follows the auditor's rulebook in
+  place.
+
 ## Findings
 
 - `iwe` 0.29.3 accepts conditionals in a document schema only inside
@@ -69,13 +82,19 @@ check, or refusal gate".
   after the user approves the report table. The `Durable Knowledge Auditor`
   agent has no `Edit` or `Write` tool.
 
+- Claude Code 2.1.306 was observed nesting to depth 3
+  (`data/architecture/nested-subagent-dispatch`); depths 4 and 5 are unverified
+  on both harnesses.
+- On Claude Code an agent can dispatch only when its `tools:` list includes
+  `Agent` or is omitted. `iwe-shipper`, `iwe-implementer`, and the `Durable
+Knowledge Auditor` agent list tools without `Agent`.
+
 ## Current question
 
-When a caller that is itself a dispatched subagent needs the durable-knowledge
-audit — a `/agentdev:pr-review` pass, or `iwe-implementer` under
-`/agentdev:iwe-implement-all` — does it follow the auditor agent's rulebook in
-place, as `iwe-shipper` follows the `iwe-verifier` rulebook today, or must every
-caller run in a context that can dispatch?
+With nesting allowed, does `data/backlog/ship-verifies-before-dispatch` still
+stand — `/agentdev:iwe-ship` dispatches `iwe-verifier` before `iwe-shipper` —
+or does `iwe-shipper` gain the `Agent` tool and dispatch `iwe-verifier` itself
+from a fresh context?
 
 ## Queued
 
