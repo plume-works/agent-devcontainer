@@ -58,7 +58,7 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
     (`## Approach`), a requirement's title — by its real name. Never let a
     pronoun or a nickname stand in for either ("the loop", "the evaluator",
     "the weaker side"). Never use a label coined during the session (a rule
-    number, an option letter, "plan A"); if one is needed, define it in the
+    number, an option letter, "plan A") alone; if one is needed, define it in the
     sentence that first uses it. Prefer "who does what to which file" over an
     abstract summary.
 
