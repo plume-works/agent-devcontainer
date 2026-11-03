@@ -59,6 +59,8 @@ asking](backlog/implement-opens-pr.md)
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
 
+[Nested dispatch from catalog agents](backlog/nested-catalog-agent-dispatch.md)
+
 [Run Primary checks' ci job in parallel with the pre-commit
 job](backlog/parallel-ci-with-pre-commit.md)
 
@@ -85,6 +87,9 @@ rewrites](backlog/resilient-task-evidence.md)
 
 [Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
 
+[Run Verify from the iwe-ship skill, not inside the
+Shipper](backlog/ship-verifies-before-dispatch.md)
+
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
@@ -96,6 +101,9 @@ flaky](backlog/supervision-orphan-kill-test-cause.md)
 
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
+
+[Fix a broken verification command as a tactical
+correction](backlog/verification-command-fix-is-tactical.md)
 
 [Verify that auto-merge waits for an assignee-triggered
 review](backlog/verify-assignee-review-automerge.md)
