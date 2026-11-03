@@ -183,10 +183,15 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes at 267b16dc.
 
-- [ ] `## Rules` says that before validation the planner checks each requirement
+- [x] `## Rules` says that before validation the planner checks each requirement
   in `## Spec changes` that the plan adds or modifies against the plan's
   `## Approach` and against the code it describes, and resolves every
   disagreement in the plan before it is written.
+
+  - **Evidence:** commit c03d084c adds the rule to `iwe-planner.agent.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 
 - [ ] Step 4's `## Verification` bullet says each command runs in the checkout
   the `iwe-verifier` agent works in — inside the Dev Container or container the
