@@ -118,7 +118,10 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 - [ ] Before Tasks 2–6 change any rulebook, each scenario runs on Claude Code
   only, where these failures were seen, and fails for the right reason: the
   transcript shows the failure the scenario names.
-- [ ] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+- [x] `uv run pytest --collect-only scripts/e2e/iwe-workflows` passes.
+  - **Evidence:** at commit f9335f1e,
+    `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 76 tests
+    and exits 0.
 
 ### Task 2: The planner leaves CI to the merge gate and marks observations
 
