@@ -288,8 +288,12 @@ Modify: `scripts/e2e/iwe-workflows/clone.py`,
 **Files:** Modify:
 `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md`
 
-- [ ] `REJECT` gains two conditions: a hunk that answers no quoted finding, and
+- [x] `REJECT` gains two conditions: a hunk that answers no quoted finding, and
   a hunk that adds or sharpens a claim the code must newly meet.
+  - **Evidence:** commit c03d084c adds both bullets to `REJECT` in
+    `iwe-revision-evaluator.agent.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes at 267b16dc.
 - [ ] `APPROVE` lists "an added task toward a requirement the plan already
   states" in place of "an added task or requirement", and allows a heavier
   `## Spec changes` form only when it states no claim beyond the lighter one.
