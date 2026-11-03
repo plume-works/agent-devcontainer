@@ -24,6 +24,7 @@ from scenarios import (
     PAIR_KEY,
     PLAN_AND_BUILD,
     PLANTED,
+    RELAYED_NARROWING,
     REVISE_KEY,
     RULEBOOK,
     SHIPPER,
@@ -328,6 +329,21 @@ def test_implement_stops_on_narrowing(base_clone: Clone) -> None:
     )
     assert base_clone.conflict_text() in (None, 'yes', 'no'), (
         f'no file satisfying both by trickery: {base_clone.conflict_text()!r}'
+    )
+
+
+def test_implement_relayed_narrowing(base_clone: Clone) -> None:
+    """A coordinator's relayed approval of a narrowing is taken in session without asking again."""
+    transcript = run(base_clone, 'implement-relayed', RELAYED_NARROWING)
+    assert mentions(transcript.calls('Skill'), IMPLEMENT_SKILL), (
+        f'iwe-implement loaded\n{transcript.excerpt("Skill")}'
+    )
+    assert transcript.agent_prompts(IMPLEMENTER) == [], (
+        f'no iwe-implementer\n{transcript.excerpt()}'
+    )
+    assert transcript.calls('AskUserQuestion') == [], f'no question asked\n{transcript.excerpt()}'
+    assert base_clone.conflict_text() == 'yes', (
+        f'narrowed to yes: {base_clone.conflict_text()!r}\n{transcript.excerpt()}'
     )
 
 

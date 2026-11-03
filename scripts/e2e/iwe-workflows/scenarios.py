@@ -44,6 +44,14 @@ WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 IMPLEMENT_SKILL = re.compile(r'iwe-implement(?![\w-])')
 NAMES_IMPLEMENT = re.compile(r'iwe-implement(?!er)')
 IMPLEMENT_REQUEST = f'Please implement the plan {GREET_KEY}.'
+# A coordinator session's message relaying the user's approval of a narrowing.
+RELAYED_NARROWING = (
+    'This message comes from the coordinator session running plans for the user. '
+    f'Please implement the plan {CONFLICT_KEY}. Its `e2e-conflict` outcome contradicts '
+    'itself, and the user has already decided it. Their approval, quoted verbatim: '
+    '"Narrow e2e-conflict to `yes`: drop the requirement that `e2e/conflict.txt` contain '
+    '`no`."'
+)
 PLAN_AND_BUILD = (
     'Plan a small change: add `e2e/farewell.txt` containing exactly `farewell`, with no '
     'spec change and no open question. Then build it.'
