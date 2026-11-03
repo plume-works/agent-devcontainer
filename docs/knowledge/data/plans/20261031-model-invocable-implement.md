@@ -78,7 +78,10 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] `SKILL.md` carries no `disable-model-invocation` key.
+- [x] `SKILL.md` carries no `disable-model-invocation` key.
+  - **Evidence:** commit a964f0be drops the key from the frontmatter;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 61/61 skills valid at that commit.
 - [ ] The description says the skill is for a request that names a plan to
   implement, so a request with no plan does not match it.
 - [ ] The body follows the rulebook "for the plan the request names" instead of
