@@ -48,7 +48,8 @@ pull_pinned_images() {
 
 bring_devcontainer_up() {
     log "Bringing up devcontainer"
-    bunx --bun @devcontainers/cli@0.80.2 up --workspace-folder "${REPO_ROOT}"
+    bun install @devcontainers/cli@0.80.2 --global
+    devcontainers up --workspace-folder "${REPO_ROOT}"
 }
 
 add_cloud_instructions() {
