@@ -6,7 +6,7 @@ release:
 description: Narrow what the Implement loop acts on so it converges — Verify judges conformance only, CI is left to the merge gate, post-merge observations wait for Ship, only CRITICALs create work, and a revision answers its finding without adding promises.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T20:00:00Z
+  at: 2026-11-03T02:01:10Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -102,8 +102,9 @@ Rejected:
   disagreement in the plan before it is written.
 
 - [ ] Step 4's `## Verification` bullet says each command runs in the checkout
-  the `iwe-verifier` agent works in, with no started Dev Container and no CI; a
-  check that needs either is a cited CI job or a task carrying a
+  the `iwe-verifier` agent works in — inside the Dev Container or container the
+  agent already runs in — without starting a nested Dev Container and without
+  CI; a check that needs either is a cited CI job or a task carrying a
   `**Closed by:**` line.
 
 - [ ] `## Rules` says a requirement in `## Spec changes` claims only what its
@@ -388,7 +389,8 @@ behaviour, and SHALL scope a verification search for leftover text to the files
 the plan changes. Before validation, Plan SHALL check each requirement it adds
 or modifies against the plan's `## Approach` and the code that requirement
 describes. Every `## Verification` command SHALL run in the checkout the
-`iwe-verifier` agent works in, without a started Dev Container or CI. A
+`iwe-verifier` agent works in, inside the Dev Container or container the agent
+already runs in, without starting a nested Dev Container or CI. A
 requirement SHALL claim only what its mechanism delivers and name each limit of
 that mechanism Plan knows.
 
@@ -411,10 +413,10 @@ that mechanism Plan knows.
 - **THEN** Plan changes the requirement, the `## Approach`, or adds a task
   before validation, and the plan carries no disagreement
 
-#### Scenario: A check needs a started Dev Container
+#### Scenario: A check needs a nested Dev Container
 
-- **WHEN** proving the work needs a command that runs only inside a started Dev
-  Container
+- **WHEN** proving the work needs a command that runs only after starting a
+  nested Dev Container
 - **THEN** `## Verification` does not list the command; the plan cites a CI job
   that runs it or adds a task carrying a `**Closed by:**` line
 
