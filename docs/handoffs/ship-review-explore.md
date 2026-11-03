@@ -21,6 +21,10 @@ refusal gate" (`data/plans/20261102-bug-lifecycle-and-sections`).
   gap becomes a follow-up fix commit.
 - **D4** — Verify moves out of the Shipper's context: filed as
   `data/backlog/ship-verifies-before-dispatch`.
+- **D5** — A done bug's `## Fix` is enforced mechanically by a checker CLI that
+  a pre-commit hook runs over `data/bugs/*.md`, failing a `stage: done` bug with
+  no `## Fix` heading. It is a CLI, not a pytest file; tests cover the CLI on
+  made-up bug files. CI enforces it through its existing pre-commit runs.
 
 ## Findings
 
@@ -34,12 +38,13 @@ refusal gate" (`data/plans/20261102-bug-lifecycle-and-sections`).
 - **F3** — Every done bug carries a `## Fix` as of `12ab309f`, so a gate over the
   whole graph starts green.
 
-## Open questions
+## Current question
 
-1. **(current)** How is "a done bug has a `## Fix`" enforced mechanically?
-2. Plan side: a new agent beside the Durable Knowledge Auditor, or the
-   auditor's rubric widened?
-3. Does one rubric hold, or one agent with plan and ship modes?
-4. Under D3, who writes the follow-up fix commit: a re-dispatched Shipper, or
-   the caller?
-5. Recording the reversal of the bug-lifecycle "nothing enforces" decision.
+Plan side: is the reviewer a new agent dispatched beside the Durable Knowledge
+Auditor, or the auditor's rubric widened?
+
+## Queued
+
+- Does one rubric hold, or one agent with plan and ship modes?
+- Under D3, who writes the follow-up fix commit?
+- Recording the reversal of the bug-lifecycle "nothing enforces" decision.
