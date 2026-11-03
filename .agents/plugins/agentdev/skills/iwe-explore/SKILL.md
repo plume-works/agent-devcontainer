@@ -157,6 +157,11 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 - Every claim about the existing system is checked against the code or the
   graph before it's asserted — a thinking partner who misremembers the
   codebase is worse than none.
+- **A proposal's own costs are not the system's problems.** A risk or open
+  question that exists only because of something you proposed is weighed
+  against that proposal — or drops it — never opened as a new thread. An open
+  question survives only if its answer changes what gets built for an observed
+  case.
 - End each exploration by summarizing the current understanding and offering an
   optional next step: keep exploring, capture, plan, return to implementation,
   or drop.
