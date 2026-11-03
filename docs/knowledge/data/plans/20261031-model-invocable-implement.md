@@ -266,8 +266,12 @@ Rejected:
     `RELAYED_NARROWING` and `test_implement_relayed_narrowing`; at that commit
     `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 48 tests
     and the ruff pre-commit hooks pass.
-- [ ] That scenario passes on Claude Code and on OpenCode with the default test
+- [x] That scenario passes on Claude Code and on OpenCode with the default test
   models.
+  - **Evidence:** at commit 1b8ea659,
+    `E2E_RUN_LIVE=1 uv run pytest -n 2 scripts/e2e/iwe-workflows -k test_implement_coordinator_requested`
+    — 2 passed: `test_implement_coordinator_requested` on each harness, with the
+    default OpenCode models.
 
 ## Spec changes
 
