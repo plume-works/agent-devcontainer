@@ -89,7 +89,7 @@ FAILS_OUTSIDE = re.compile(
 # A path a task's **Files:** line names.
 FILES_PATH = re.compile(r'`([^`\s]+\.[A-Za-z0-9]+)`')
 PLAN_NESTED = (
-    'Plan a small change with no spec change: add `ms-python.python` to the VS Code '
+    'Plan a small change with no spec change: add `ms-vscode.makefile-tools` to the VS Code '
     'extensions in `.devcontainer/devcontainer.json`, and prove the Dev Container still '
     'builds and starts with it.' + _PLAN_ONLY
 )

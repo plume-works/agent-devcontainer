@@ -259,9 +259,21 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
 
 
 def section(text: str, heading: str) -> str:
-    """Return the body of a plan's ``heading`` section, stripped; empty when it has none."""
-    found = re.search(rf'^{re.escape(heading)}\n(.*?)(?=^## |\Z)', text, re.MULTILINE | re.DOTALL)
-    return found.group(1).strip() if found else ''
+    """Return a plan's ``heading`` section body, stripped, read past fenced headings."""
+    body: list[str] | None = None
+    fenced = False
+    for line in text.splitlines():
+        if not fenced and line.startswith('## '):
+            if body is not None:
+                break
+            if line == heading:
+                body = []
+                continue
+        if line.lstrip().startswith('```'):
+            fenced = not fenced
+        if body is not None:
+            body.append(line)
+    return '\n'.join(body).strip() if body is not None else ''
 
 
 def plan_intent(text: str) -> tuple[list[str], dict[str, str]]:
