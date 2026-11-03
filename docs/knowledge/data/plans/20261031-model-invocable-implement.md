@@ -170,10 +170,14 @@ Rejected:
     commit
     `OPENCODE_BIN=opencode uv run pytest scripts/tests/test_e2e_iwe_workflows_opencode_server.py`
     — 4 passed.
-- [ ] On Claude Code and OpenCode, `/agentdev:iwe-plan` asked to plan a small
+- [x] On Claude Code and OpenCode, `/agentdev:iwe-plan` asked to plan a small
   change "and then build it" loads no `iwe-implement` skill, dispatches no
   `iwe-implementer`, edits nothing outside `docs/knowledge/`, and its final
   message does not name `iwe-implement`.
+  - **Evidence:** commit 4c03b7d6 adds `test_plan_does_not_implement` to both
+    suites, with `Clone.changed_outside` and the `PLAN_AND_BUILD` request;
+    `uv run pytest --collect-only scripts/e2e/iwe-workflows` collects 46 tests
+    at that commit.
 - [ ] `test_explore` on both harnesses also asserts the final message does not
   name `iwe-implement`; the harnesses gain a final-message accessor if they lack
   one.
