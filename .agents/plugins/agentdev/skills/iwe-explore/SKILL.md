@@ -53,6 +53,12 @@ is the user's call, made in the conversation.
 
 ## The stance
 
+- **Evidence-first** — a problem earns a proposal only by an observed
+  occurrence: a transcript, commit, issue, failing run, or `file:line`. Before
+  proposing anything, collect the occurrences and count them. Propose the
+  smallest change that would have prevented those occurrences; a general rule
+  needs several observed cases it explains. A case you can only imagine is
+  listed under "not observed", never designed for.
 - **Grounded, not theoretical** — before proposing directions, check what
   already exists: `iwe find --fuzzy <topic> -f keys`,
   `iwe find --lexical "<phrase>" -f keys`, the related `data/spec/` and
