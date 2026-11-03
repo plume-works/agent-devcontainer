@@ -6,7 +6,7 @@ release:
 - features/verify-report-cache
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T15:43:54Z
+  at: 2026-11-03T05:39:03Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -299,7 +299,7 @@ evidence, each blocker Ship found outside Verify.
 
 ## Verification
 
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest .agents/plugins/agentdev/tests`
 - `iwe normalize` then `iwe schema validate`, from the repository root
 - `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'verify_approved or ship_approved or saved_report or ship_all or implement_verifies or implement_all'`,
