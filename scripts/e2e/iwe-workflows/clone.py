@@ -10,7 +10,8 @@ the catalog's revision evaluator replaced by a stub that rejects every revision
 as ``stub_evaluator``, and, on a third, the planner replaced by a stub that
 always drafts the revise plan's narrowing as ``stub_planner``, and, on a fourth,
 the autonomy fixture plans, their scripts, and their workflow added as
-``autonomy``. Each test gets
+``autonomy``, in a repository whose ``AGENTS.md`` has no ``### Tests`` rule, as a
+consumer's may not. Each test gets
 its own clone of it; a main clone also gets ``main``, a bare ``origin`` beside
 it, and a stub ``gh``.
 """
@@ -33,7 +34,7 @@ REVISE = f'{DATA}/plans/20261026-e2e-revise.md'
 CONFLICT = f'{DATA}/plans/20261027-e2e-conflict.md'
 PAIR = f'{DATA}/plans/20261027-e2e-pair.md'
 WHISPER = f'{DATA}/plans/20261102-e2e-whisper.md'
-# The autonomy fixture plans; the CI plan's evidence names the base commit at @BASE@.
+# The autonomy fixture plans; their evidence names, at @COMMIT@, the commit holding their files.
 AUTONOMY_PLANS = (
     '20261102-e2e-ci.md',
     '20261102-e2e-observe.md',
@@ -236,8 +237,11 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copytree(FIXTURES / 'autonomy/bin', path / 'bin', dirs_exist_ok=True)
     shutil.copytree(FIXTURES / 'autonomy/e2e', path / 'e2e', dirs_exist_ok=True)
     shutil.copy2(FIXTURES / 'autonomy/e2e-ci.yml', path / CI_WORKFLOW)
+    agents = path / 'AGENTS.md'
+    agents.write_text(re.sub(r'^### Tests\n.*?(?=^##)', '', agents.read_text(), 1, re.M | re.S))
+    files = repo.commit_all('e2e: autonomy fixture files')
     for name in AUTONOMY_PLANS:
-        text = (FIXTURES / 'plans' / name).read_text().replace('@BASE@', base)
+        text = (FIXTURES / 'plans' / name).read_text().replace('@COMMIT@', files)
         (path / DATA / 'plans' / name).write_text(text)
     add_hub_links(data / 'plans.md', _AUTONOMY_LINKS)
     repo.iwe_check()

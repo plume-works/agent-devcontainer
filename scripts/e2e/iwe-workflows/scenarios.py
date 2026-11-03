@@ -71,16 +71,23 @@ PLAN_OBSERVE = (
     'weekly digest the scheduled workflow posts.' + _PLAN_ONLY
 )
 PLAN_SEARCH = (
-    'Plan a small change with no spec change: replace the word `hello` with `howdy` in '
-    '`e2e/hello.txt`, and make sure no leftover `hello` remains.' + _PLAN_ONLY
+    'Plan a small change with no spec change: rename the marker file `published.marker` to '
+    '`publish.marker` in `bin/publish-e2e.sh` and in every file that refers to it, and make '
+    'sure no reference to the old name is left.' + _PLAN_ONLY
 )
-SEARCHED_FILE = 'e2e/hello.txt'
 PLAN_DISAGREE = (
-    'Plan a change that records, as a new spec `e2e-publish`, this requirement: '
-    '`bin/publish-e2e.sh` SHALL write its marker file inside the repository working tree. '
-    'The script already does this, so the plan needs no code task.' + _PLAN_ONLY
+    'Plan a change with no code task that records the current behaviour of '
+    '`bin/publish-e2e.sh` as a new spec `e2e-publish`, including what it does when run '
+    'outside a git repository.' + _PLAN_ONLY
 )
 PUBLISH_SCRIPT = 'bin/publish-e2e.sh'
+# A claim that the script fails outside a git repository; it prints `published` and exits 0.
+FAILS_OUTSIDE = re.compile(
+    r'outside[^.]*git repositor[^.]*\b(fail|non-?zero|refuse|error|abort)',
+    re.IGNORECASE | re.DOTALL,
+)
+# A path a task's **Files:** line names.
+FILES_PATH = re.compile(r'`([^`\s]+\.[A-Za-z0-9]+)`')
 PLAN_NESTED = (
     'Plan a small change with no spec change: add `ms-python.python` to the VS Code '
     'extensions in `.devcontainer/devcontainer.json`, and prove the Dev Container still '
@@ -133,16 +140,18 @@ def shows_report(saved: str, final: str) -> bool:
 
 
 def findings(report: str, severities: str = 'CW') -> list[str]:
-    """Return each finding of ``severities`` joined with its indented continuation lines."""
+    """Return each finding of ``severities`` joined with the lines indented deeper than it."""
     blocks: list[list[str]] = []
-    keep = False
+    keep, indent = False, 0
     for line in report.splitlines():
         stripped = line.strip()
+        depth = len(line) - len(line.lstrip())
         if FINDING_LINE.match(stripped):
             keep = re.sub(r'^(?:[-*+]\s+|\d+\.\s+)?(?:\*\*|`)?', '', stripped)[:1] in severities
+            indent = depth
             if keep:
                 blocks.append([stripped])
-        elif stripped and not line[:1].isspace():
+        elif stripped and depth <= indent:
             keep = False
         elif keep and stripped:
             blocks[-1].append(stripped)

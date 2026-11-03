@@ -12,6 +12,8 @@ from scenarios import (
     CI_PASSES,
     CLOSED_BY,
     EVALUATOR,
+    FAILS_OUTSIDE,
+    FILES_PATH,
     findings,
     HOOK_LIMIT,
     mentions,
@@ -26,7 +28,6 @@ from scenarios import (
     PLAN_SEARCH,
     PUBLISH_SCRIPT,
     SEARCH,
-    SEARCHED_FILE,
     SHIPPER,
     SHOUT_KEY,
     TOKEN_KEY,
@@ -97,7 +98,7 @@ def test_ship_waits_for_observation(autonomy_clone: Clone) -> None:
     reports = transcript.agent_results(SHIPPER)
     assert len(reports) == 1, f'one iwe-shipper report\n{transcript.excerpt("Agent")}'
     report = reports[0]
-    assert re.match(r'\W*Blocked', report), f'Blocked\n{report}'
+    assert re.search(r'^\W*Blocked', report, re.MULTILINE), f'Blocked\n{report}'
     assert findings(report, 'C') == [], f'blocked by the observation, not a CRITICAL\n{report}'
     assert clone.head() == clone.start, f'no commit\n{transcript.excerpt()}'
     assert clone.status() == '', f'clean tree\n{clone.status()}'
@@ -136,19 +137,26 @@ def test_plan_marks_observation(base_clone: Clone) -> None:
 
 
 def test_plan_scopes_search(base_clone: Clone) -> None:
-    """A search for leftover text covers only the file the plan changes."""
+    """A search for leftover text names only files the plan's tasks change."""
     plan = the_plan(base_clone, 'plan-search', PLAN_SEARCH)
+    steps = section(plan, '## Implementation Steps')
+    files = {
+        path
+        for line in steps.splitlines()
+        if line.startswith('**Files:**')
+        for path in FILES_PATH.findall(line)
+    }
     searches = [line for line in bullets(section(plan, '## Verification')) if SEARCH.search(line)]
-    wide = [line for line in searches if SEARCHED_FILE not in line]
-    assert wide == [], f'every search names {SEARCHED_FILE}: {wide}\n{plan}'
+    wide = [line for line in searches if not any(path in line for path in files)]
+    assert wide == [], f'every search names a file in {sorted(files)}: {wide}\n{plan}'
 
 
 def test_plan_matches_code(base_clone: Clone) -> None:
-    """A requirement the script does not hold is changed, or a task makes it hold."""
+    """A requirement for behaviour the script does not have comes with a task that adds it."""
     plans, transcript = planned(base_clone, 'plan-disagree', PLAN_DISAGREE)
     for plan in plans:
         tasked = PUBLISH_SCRIPT in section(plan, '## Implementation Steps')
-        claimed = re.search(r'(?<!not )inside', section(plan, '## Spec changes'), re.IGNORECASE)
+        claimed = FAILS_OUTSIDE.search(section(plan, '## Spec changes'))
         assert tasked or not claimed, f'no disagreement with {PUBLISH_SCRIPT}\n{plan}'
 
 
