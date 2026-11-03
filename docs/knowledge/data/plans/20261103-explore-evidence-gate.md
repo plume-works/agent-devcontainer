@@ -72,7 +72,7 @@ been written.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] Apply this change to the `**Honest about unknowns**` bullet in
+- [x] Apply this change to the `**Honest about unknowns**` bullet in
   `## The stance`, verbatim:
 
   ``` diff
@@ -82,6 +82,12 @@ been written.
   +  what would need a spike to know. "We can't know this without trying" is a
   +  finding.
   ```
+
+  - **Evidence:** commit `9a4df5b4` replaces the `**Honest about unknowns**`
+    bullet; a byte comparison finds the `+` side of the fenced diff exactly once
+    in `iwe-explore/SKILL.md` and the `-` side absent, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes (61/61 skills valid, 0 errors, 0 warnings).
 
 ### Task 3: Add the proposal-costs rule
 
