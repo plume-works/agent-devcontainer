@@ -109,10 +109,14 @@ Rejected:
     `/agentdev:iwe-implement` on the user's command, on a plain request, or on a
     message from another session such as a coordinator"; the validator reports
     61/61 valid at that commit.
-- [ ] The mode states that the plan comes from the request, that a decision the
+- [x] The mode states that the plan comes from the request, that a decision the
   rulebook asks for is answered by this session's own user or by an approval of
   the user's that a coordinator's message relays, and that while waiting the
   session tells the requesting session what it is waiting on.
+  - **Evidence:** commit 8ede183b — the mode reads "The plan comes from the
+    request", "answered by this session's own user, or by an approval of the
+    user's that a coordinator's message relays", and "tell a requesting session
+    what you are waiting on".
 - [ ] The rollup goes back to the requesting session as well as this one.
 
 ### Task 3: Plan never starts or names Implement
