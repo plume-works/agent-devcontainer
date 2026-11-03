@@ -66,6 +66,21 @@ checkout sat 31 commits behind `origin/main`.
   from the next session. `SubagentStart` fires on subagent dispatch, not on
   worktree creation.
 
+### A renamed manifest pointing into the worktree (this container)
+
+A copied `.claude-plugin/marketplace.json` with only `name` changed, kept
+outside the worktree, cannot point its plugins back at the worktree's
+`.agents/plugins/`:
+
+- A string `source` must start with `./`. `./` followed by a path that climbs
+  out of the marketplace folder is refused, like an absolute or symlinked entry.
+- Object sources `directory` and `local` are refused as unsupported source types.
+- A `git-subdir` source with `url: file://<worktree>`, `path:
+.agents/plugins/agentdev`, and `ref: <worktree branch>` installs. It clones the
+  branch's committed tree into `~/.claude/plugins/cache/<marketplace>/`, so the
+  session sees the last commit, not the working tree, and a new commit needs
+  `claude plugin update` to show up.
+
 ### Inline plugins: `--plugin-dir` and `CLAUDE_CODE_PLUGIN_DIRS` (this container)
 
 - `claude --plugin-dir <path>` loads a plugin folder for that session only, read
