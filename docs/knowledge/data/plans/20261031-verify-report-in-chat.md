@@ -211,10 +211,17 @@ Nothing refers to a finding across reports by ID.
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`
 
-- [ ] `test_verify_approved`, `test_ship_approved`,
+- [x] `test_verify_approved`, `test_ship_approved`,
   `test_ship_reuses_saved_report`, `test_ship_all`, `test_implement_verifies`,
   and `test_implement_all` (for each of its plans) assert the Task 7 helper
   against the saved report of each plan the run verified.
+  - **Evidence:** Commit `ecb0053e` adds the assertions to all six scenarios.
+    The live Claude selection from `## Verification` passed
+    `test_verify_approved`, `test_ship_all`, `test_implement_verifies`, and
+    `test_implement_all` at `95a4ca1d`; after commit `eba88949` made the Shipper
+    copy the saved report exactly and the verifier cite repository-relative
+    paths, `test_ship_approved`, `test_ship_reuses_saved_report`, and
+    `test_ship_all` passed live (3 passed).
 
 ### Task 9: Assert the report is shown on OpenCode
 
