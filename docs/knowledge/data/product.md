@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
+  at: 2026-11-03T20:30:00Z
 ---
 
 # Product
@@ -148,7 +148,7 @@ it):
   text.
 - Keep devcontainer runtime code in the `agentdev_runtime` package
   (`py_packages/agentdev_runtime/`).
-- OpenCode tests and e2e runs default to `openai/gpt-6.1-sol` (big model) and
+- OpenCode tests default to `openai/gpt-6.1-sol` (big model) and
   `openai/gpt-6-luna` (small model); a costlier model only when the user names
   it.
 - Consult the **Principal Engineer** agent for
@@ -159,6 +159,9 @@ it):
 - Python testing: pytest only, never `unittest`; prefer several small focused
   test files; keep fixtures independent of repo identity when behavior is meant
   to generalize.
+- NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION through the
+  agentdev workflow skills against a live model; behaviour only such a session
+  can show is an observation task in its plan.
 - Shell: `#!/usr/bin/env bash`, `set -euo pipefail`, shellcheck-clean, quote
   every expansion.
 - Investigation/spike work gets documented directly in IWE project memory: an

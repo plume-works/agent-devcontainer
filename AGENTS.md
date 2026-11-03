@@ -47,9 +47,9 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
    If no, drop it. Record a decision as a decision — never as the obstacle that
    prompted it, which goes stale and reads as a workaround.
 
-9. **Default OpenCode test models.** When a test, e2e harness, or check runs
-   OpenCode, use `openai/gpt-6.1-sol` as the big model and `openai/gpt-6-luna`
-   as the small model. Use a costlier model only when the user names it.
+9. **Default OpenCode test models.** When a test or check runs OpenCode, use
+   `openai/gpt-6.1-sol` as the big model and `openai/gpt-6-luna` as the small
+   model. Use a costlier model only when the user names it.
 
 10. **Name things by their real names.** In every message, document, and
     report, name each actor — the user, the session running a named skill
@@ -103,6 +103,7 @@ Practice 8.
   versions, or that two files agree; that checks another tool did its job; or that queries a
   live service or waits on CI. None of them covers behaviour.
 - Behaviour no such test can reach stays untested.
+- NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
 
 ### Python Testing
 
