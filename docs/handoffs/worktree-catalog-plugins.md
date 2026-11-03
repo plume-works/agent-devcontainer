@@ -19,14 +19,18 @@ checkout sat 31 commits behind `origin/main`.
 
 - Each worktree gets its own catalog through `WorktreeCreate` and
   `WorktreeRemove` hooks configured in user settings (`~/.claude/settings.json`).
-- The marketplace name comes from a generated folder
-  `~/.claude/wt-marketplaces/wt-<name>/` holding a renamed copy of
-  `.claude-plugin/marketplace.json` and a copy of `.agents/plugins/`.
+- `WorktreeCreate` writes `<worktree>/.claude/marketplace.local.json`, a copy of
+  `.claude-plugin/marketplace.json` with `name` set to `wt-<name>` and the plugin
+  entries unchanged, registers it with
+  `claude plugin marketplace add <worktree>/.claude/marketplace.local.json`, and
+  installs from it at `--scope local`. The plugins are read in place from the
+  worktree's `.agents/plugins/`; nothing is copied to `~/.claude/`
+  (human:author).
+- `WorktreeRemove` removes the `wt-<name>` marketplace, which also takes its
+  entry out of `~/.claude/settings.json`.
 - The shared catalog's `enabledPlugins` move from the main checkout's
   `.claude/settings.local.json` to user settings.
-- A worktree's `.claude/settings.local.json` also gets `Bash(*)` and the
-  per-worktree plugin-cache permission
-  `Bash(/root/.claude/plugins/cache/wt-<name>/agentdev/*)`.
+- A worktree's `.claude/settings.local.json` also gets `Bash(*)`.
 - Remote Control's automatic cleanup of a spawned session's worktree runs
   `WorktreeRemove` (human:author).
 - Inline plugins (`--plugin-dir`, `CLAUDE_CODE_PLUGIN_DIRS`) are not the route
@@ -128,7 +132,8 @@ list` shows `Read from: <worktree>/.agents/plugins/agentdev`, and a session's
 ## Hook scripts as tested
 
 Installed on agent-dev3 at `/root/.claude/wt-hooks/`. Spike quality: no tests,
-`/root` paths hard-coded.
+`/root` paths hard-coded. These implement the superseded route that copies the
+catalog to `~/.claude/wt-marketplaces/`, not the decided file-source route.
 
 `worktree-create.py`:
 
@@ -222,8 +227,8 @@ User settings entries:
 - Keep the agent-dev3 setup live, or restore the backups and restart Remote
   Control.
 - Which field `WorktreeRemove` receives from Remote Control's cleanup.
-- A worktree's copied catalog does not follow catalog edits made in the
-  worktree; whether a refresh is needed, and when.
+- The file-source route is untested end to end: a Remote Control spawn on
+  agent-dev3 through hooks that implement it.
 - Where the hooks and the settings move live in the repository: the
   `agentic_tools` Ansible role, `agentdev-runtime`, or the catalog.
 - Which container startup step writes `Bash(*)` today, so the hook and it stay
