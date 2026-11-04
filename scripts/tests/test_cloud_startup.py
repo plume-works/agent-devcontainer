@@ -48,17 +48,20 @@ def free_port() -> int:
         return probe.getsockname()[1]
 
 
-def run_resume(scratch: Path, **env: str) -> tuple[subprocess.CompletedProcess[str], Path]:
-    """Run `startup.py resume` with stubs that record every call, and return the call log."""
+def run_startup(
+    scratch: Path, mode: str, scripts: dict[str, str] | None = None, **env: str
+) -> tuple[subprocess.CompletedProcess[str], Path]:
+    """Run `startup.py <mode>` with stubs that log each call, then run their script or fail."""
     bin_dir = scratch / 'bin'
     bin_dir.mkdir()
     calls = scratch / 'calls'
     for name in STUBBED:
         stub = bin_dir / name
-        stub.write_text(f'#!/bin/sh\necho {name} "$@" >> {calls}\nexit 1\n')
+        body = (scripts or {}).get(name, 'exit 1')
+        stub.write_text(f'#!/bin/sh\necho {name} "$@" >> {calls}\n{body}\n')
         stub.chmod(0o755)
     result = subprocess.run(
-        [sys.executable, str(STARTUP), 'resume'],
+        [sys.executable, str(STARTUP), mode],
         env={
             'PATH': f'{bin_dir}:/usr/bin:/bin',
             'HOME': str(scratch),
@@ -70,6 +73,11 @@ def run_resume(scratch: Path, **env: str) -> tuple[subprocess.CompletedProcess[s
         check=False,
     )
     return result, calls
+
+
+def run_resume(scratch: Path, **env: str) -> tuple[subprocess.CompletedProcess[str], Path]:
+    """Run `startup.py resume` with failing stubs."""
+    return run_startup(scratch, 'resume', **env)
 
 
 @pytest.mark.parametrize(
@@ -249,3 +257,21 @@ def test_no_session_env_never_recreates(scratch: Path, monkeypatch: pytest.Monke
     startup.CLOUD_ENV.unlink()
     startup.sync_devcontainer(environ, always_up=True)
     assert devcontainer_calls(calls) == [f'devcontainer up --workspace-folder {startup.REPO_ROOT}']
+
+
+def test_setup_builds_the_image_without_creating_the_container(scratch: Path) -> None:
+    """Setup has no session proxy, so it builds the devcontainer image and creates nothing."""
+    version = startup.DEVCONTAINER_CLI_VERSION
+    result, calls = run_startup(
+        scratch,
+        'setup',
+        {
+            'docker': 'exit 0',
+            'claude': 'exit 0',
+            'devcontainer': f'[ "$1" = --version ] && echo {version}; exit 0',
+        },
+    )
+    assert result.returncode == 0, result.stderr
+    lines = calls.read_text().splitlines()
+    assert f'devcontainer build --workspace-folder {startup.REPO_ROOT}' in lines
+    assert not [line for line in lines if line.startswith(('devcontainer up', 'docker compose'))]

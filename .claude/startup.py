@@ -3,7 +3,8 @@
 Start or resume the devcontainer of a Claude Code cloud session.
 
 `startup.py setup`, the environment setup script, registers the agentdev plugin, starts the
-Docker daemon, pre-pulls the pinned images, and brings the devcontainer up.
+Docker daemon, and builds the devcontainer image; it has no session proxy, so it creates no
+container.
 `startup.py resume`, the SessionStart hook, restores what a worker restart stops.
 Standard library only: the session host has no project environment.
 Design: architecture/cloud-session-devcontainer.
@@ -22,7 +23,6 @@ import time
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RELAY_SCRIPT = REPO_ROOT / '.claude/agent-proxy-relay.py'
 CLOUD_ENV = REPO_ROOT / '.devcontainer/cloud-session.env'
-PIN_DIR = REPO_ROOT / '.tmp/comp-pin'
 LOG_DIR = Path(os.environ.get('AGENTDEV_STARTUP_LOG_DIR') or '/var/log')
 DOCKERD_LOG = LOG_DIR / 'dockerd.log'
 RELAY_LOG = LOG_DIR / 'agent-proxy-relay.log'
@@ -273,12 +273,11 @@ def add_cloud_instructions() -> None:
     shutil.copyfile(REPO_ROOT / '.claude/CLAUDE.cloud.md', target)
 
 
-def pull_pinned_images() -> None:
-    """Pre-pull the images pinned in devcontainer-compose-pins.yml."""
-    log('Pulling pinned devcontainer images')
-    PIN_DIR.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(REPO_ROOT / 'devcontainer-compose-pins.yml', PIN_DIR / 'docker-compose.yml')
-    subprocess.run(['docker', 'compose', 'pull'], cwd=PIN_DIR, stdout=sys.stderr, check=True)
+def build_devcontainer() -> None:
+    """Install the CLI and build the devcontainer image, pulling what it needs."""
+    log('Building devcontainer image')
+    install_devcontainer_cli()
+    run('devcontainer', 'build', '--workspace-folder', str(REPO_ROOT))
 
 
 def timed(step: Callable[..., None], *args: object) -> None:
@@ -293,9 +292,8 @@ def setup(environ: Mapping[str, str]) -> None:
     timed(register_plugin)
     add_cloud_instructions()
     timed(start_docker)
-    timed(pull_pinned_images)
-    timed(bring_devcontainer_up, environ)
-    log('Startup complete')
+    timed(build_devcontainer)
+    log('Setup complete')
 
 
 def resume(environ: Mapping[str, str]) -> None:

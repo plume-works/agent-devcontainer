@@ -3,7 +3,7 @@ type: architecture
 description: In a Claude Code cloud session .claude/startup.py brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T03:50:45Z
+  at: 2026-11-04T04:01:02Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/agent-proxy-relay.py
@@ -20,7 +20,9 @@ sources:
 
 A Claude Code cloud session runs `.claude/startup.py` as its environment setup
 script. The repository checkout stays on the session's host; the toolchain lives
-in the devcontainer, which the script brings up before the session starts work:
+in the devcontainer. Setup runs once, when the session's host is built, and
+without the session's loopback agent proxy, so it prepares the image but creates
+no container:
 
 1. registers the checkout as the `agent-devcontainer` plugin marketplace and
    installs `agentdev`;
@@ -28,22 +30,21 @@ in the devcontainer, which the script brings up before the session starts work:
    session that the devcontainer is already up and that tools run through
    `/agentdev:devcontainer-sandbox`;
 3. starts the host `dockerd`;
-4. pre-pulls the images pinned in `devcontainer-compose-pins.yml`;
-5. installs a pinned `@devcontainers/cli` with `bun` unless that version is
-   already on `PATH`, prepares the proxy access and git identity described
-   below, and runs `devcontainer up` on the checkout.
+4. installs a pinned `@devcontainers/cli` with `bun` unless that version is
+   already on `PATH`, and runs `devcontainer build`, which pulls the image
+   pinned in `devcontainer-compose-pins.yml` and builds the devcontainer image.
 
 Any failing step fails the script, and the session starts without the steps
 after it.
 
-The setup script runs once, when the session's host is built, and without the
-session's loopback agent proxy, so the container it creates has no proxy access.
-A worker restart inside a session stops the host `dockerd`, the relay and with
-them the container, and can move the agent proxy to another port. A
-`SessionStart` hook in `.claude/settings.json` therefore runs
-`.claude/startup.py resume` on every session start. Resume mode acts only on a
-cloud-session host (`CLAUDE_CODE_REMOTE=true` and no `AGENTDEV_RUNTIME_MODE`,
-which the devcontainer sets), keeps whatever still runs, and restores the rest:
+The session's host starts with no container, and a worker restart inside a
+session stops the host `dockerd`, the relay and with them the container, and can
+move the agent proxy to another port. A `SessionStart` hook in
+`.claude/settings.json` therefore runs `.claude/startup.py resume` on every
+session start, synchronously, so the container is up before the session's first
+turn. Resume mode acts only on a cloud-session host (`CLAUDE_CODE_REMOTE=true`
+and no `AGENTDEV_RUNTIME_MODE`, which the devcontainer sets), keeps whatever
+still runs, and restores the rest:
 
 - starts `dockerd` when it does not answer;
 - keeps the relay while `/proc/<pid>/cmdline` still names it with the proxy's
@@ -51,7 +52,8 @@ which the devcontainer sets), keeps whatever still runs, and restores the rest:
 - rewrites `.devcontainer/cloud-session.env`, and recreates the container with
   `devcontainer up --remove-existing-container` when its environment misses a
   line of that file or carries a different value;
-- otherwise brings a stopped or missing container up.
+- otherwise brings a stopped or missing container up, with the proxy access and
+  git identity described below.
 
 ## Decision
 
@@ -85,12 +87,12 @@ the host configures in its Docker client config still reaches the container.
   container on the host bridge. The maintainer accepted that for cloud sessions.
 - The container's environment is fixed when it is created, and the devcontainer
   CLI restarts an existing container instead of recreating it. The relay's fixed
-  port keeps that environment valid when the proxy's port moves; a container
-  created without `cloud-session.env`, as every setup script creates it, is
-  recreated by the first `resume`. That recreate runs inside the `SessionStart`
-  hook: container creation plus the `postCreate`, `postStart` and `postAttach`
-  commands, about 30 seconds each, and an image pull and build when the pin
-  changed.
+  port keeps that environment valid when the proxy's port moves, and `resume`
+  recreates a container created without `cloud-session.env`.
+- Creating the container delays the session's start: the `SessionStart` hook
+  runs `devcontainer up` and the `postCreate`, `postStart` and `postAttach`
+  commands, about 40 seconds on the image setup built. A pin changed after setup
+  adds its pull and build.
 - GitHub GraphQL is refused by the session's proxy policy, so `gh` commands
   built on it fail inside the container exactly as on the host. `gh auth status`
   validates the token through GraphQL, so it reports the token as invalid while
