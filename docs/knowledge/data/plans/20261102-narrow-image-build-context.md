@@ -331,8 +331,11 @@ Modify: `docs/knowledge/data/architecture.md`
 
 **Files:** Modify: `scripts/tests/test_agentdev_devcontainer_image.py`
 
-- [ ] The direct-consumer acceptance test asserts that `$AGENTDEV_CATALOG_DIR`
+- [x] The direct-consumer acceptance test asserts that `$AGENTDEV_CATALOG_DIR`
   holds no `tests` directory and that its `.agents/` holds only `plugins`.
+  - **Evidence:** commit cd8efbd adds both assertions; run by hand inside the
+    CI-built `agentdev-devcontainer:pr-692` image, each passes, and `.agents/`
+    lists only `plugins`.
 - [ ] Dev Container runtime acceptance passes with the new assertions on both
   architectures.
 
