@@ -159,7 +159,9 @@ would make host provisioning carry a container entrypoint it never uses.
   - **Evidence:** commit c0a95df; running the role against a scratch home whose
     `.bashrc` and `config.fish` carry the block removes it from both and leaves
     the surrounding lines; no other role or runtime file prepends a checkout
-    path.
+    path. Commit b9fc039 removes the blocks only from configs that exist;
+    running its tasks against scratch homes with no config, `.bashrc` only, and
+    both removes each existing block and creates no file.
 - [x] The wrapper's comments describe one baked copy, keeping the PATH walk and
   the `GH_WRAPPER_ACTIVE` guard as defensive behavior.
   - **Evidence:** commit c0a95df rewrites the two comments and leaves the PATH
