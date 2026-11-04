@@ -195,6 +195,22 @@ loop dispatches is a leaf and dispatches nothing.
    of each finding fixed in it; each evaluator verdict with the finding it
    answered; and the reason the run ended.
 
+## The adversarial review task
+
+A plan task that runs `/agentdev:iwe-adversarial-review <plan> code` runs once
+per plan, and the orchestrator runs it: in the user's session, this session
+runs it on reaching the task; dispatched, stop before it and name it in your
+Finish rollup, and the coordinator runs it. Commit every earlier task first, so
+the review reads committed code. Act on each finding by its **Defeats** line:
+
+- A finding that names a plan claim takes the code route: fix it under the
+  Steps above — the code, the test, its commit.
+- A finding that names no claim is filed through the `/agentdev:iwe-capture`
+  skill and named in the report.
+
+Tick the task once every claim-defeating finding is fixed, its evidence naming
+the commit the review ran on, each fix commit, and each captured document.
+
 ## Capturing what implementation turns up
 
 Implementation findings do not belong in the plan. Route each finding by type:
