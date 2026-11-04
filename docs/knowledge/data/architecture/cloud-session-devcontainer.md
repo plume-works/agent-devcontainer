@@ -1,17 +1,38 @@
 ---
 type: architecture
-description: In a Claude Code cloud session the devcontainer reaches the session's loopback agent proxy through a relay on the host Docker bridge, which .claude/startup.sh moves off 172.17.0.0/16, so gh and git authenticate inside the container.
+description: In a Claude Code cloud session .claude/startup.sh brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T00:30:00Z
+  at: 2026-11-04T01:10:00Z
 sources:
 - resource: .claude/startup.sh
 - resource: .claude/agent-proxy-relay.py
+- resource: .claude/CLAUDE.cloud.md
+- resource: devcontainer-compose-pins.yml
 - resource: .devcontainer/docker-compose.yml
 - resource: /root/.ccr/README.md
 ---
 
 # Cloud session devcontainer
+
+## Startup sequence
+
+A Claude Code cloud session runs `.claude/startup.sh` as its environment setup
+script. The repository checkout stays on the session's host; the toolchain lives
+in the devcontainer, which the script brings up before the session starts work:
+
+1. registers the checkout as the `agent-devcontainer` plugin marketplace and
+   installs `agentdev`;
+2. copies `.claude/CLAUDE.cloud.md` to `~/.claude/CLAUDE.md`, which tells the
+   session that the devcontainer is already up and that tools run through
+   `/agentdev:devcontainer-sandbox`;
+3. starts the host `dockerd`;
+4. pre-pulls the images pinned in `devcontainer-compose-pins.yml`;
+5. installs a pinned `@devcontainers/cli` with `bun`, exports the variables
+   described below, and runs `devcontainer up` on the checkout.
+
+Any failing step fails the script, and the session starts without the steps
+after it.
 
 ## Decision
 
