@@ -3,7 +3,7 @@ type: architecture
 description: In a Claude Code cloud session .claude/startup.py brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T04:42:51Z
+  at: 2026-11-04T05:08:34Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/agent-proxy-relay.py
@@ -51,9 +51,11 @@ and no `AGENTDEV_RUNTIME_MODE`, which the devcontainer sets), keeps whatever
 still runs, and restores the rest:
 
 - starts `dockerd` when it does not answer, first removing a
-  `/var/run/docker.pid` that names no running `dockerd`: `/var/run` is on the
-  persistent disk, and `dockerd` refuses to start while the pid it names is
-  alive;
+  `/var/run/docker.pid` that names no running `dockerd` and a
+  `/var/run/docker/containerd/containerd.pid` that names no running
+  `containerd`: `/var/run` is on the persistent disk, `dockerd` refuses to start
+  while the pid in its own file is alive, and it takes a live pid in
+  containerd's file for its containerd;
 - keeps the relay while `/proc/<pid>/cmdline` still names it with the proxy's
   current port, and otherwise restarts it there;
 - rewrites `.devcontainer/cloud-session.env`, and recreates the container with
