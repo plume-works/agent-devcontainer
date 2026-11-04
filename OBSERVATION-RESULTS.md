@@ -46,3 +46,21 @@ has run. Copy each box's lines into its `- **Evidence:**` line on
   `durable-knowledge-auditor` (sub-session `ses_e58206d9affeAwq1qRugv0M01i`);
   no call loaded `iwe-adversarial-review` or dispatched
   `iwe-adversarial-reviewer`.
+
+## Plan target (Verify suggestion S2)
+
+Not a plan task; observed after `data/plans/20261102-adversarial-review`
+shipped.
+
+- **Claude Code:** Claude Code 2.1.318, `claude-opus-5-5`, headless
+  `claude -p` on `scratch/adversarial-review-fixture` at `88a1fcb`, request
+  `/agentdev:iwe-adversarial-review data/plans/20261104-slug-guard-fixture plan`:
+  one `Agent` dispatch of `agentdev:iwe-adversarial-reviewer` with a prompt of
+  only plan key, target `plan`, and approvals; the reviewer made four
+  read-only calls and no edit or dispatch. The report names five design
+  weaknesses, each tied to a plan claim — no task wires a caller, Windows UNC
+  and drive-letter slugs escape without `/` or `..`, symlinks defeat a text
+  check, a full plan key always contains `/`, and empty, `.`, and NUL slugs
+  have no scenario — and reports the code defect separately as out of scope.
+  `HEAD` and `git status --porcelain` matched the baseline.
+- **OpenCode:** pending.
