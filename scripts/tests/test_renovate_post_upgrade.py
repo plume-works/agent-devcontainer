@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 from uuid import uuid4
@@ -14,6 +16,7 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = 'scripts/renovate-post-upgrade.py'
+LOCK = '.devcontainer/devcontainer-lock.json'
 DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
 IWE_CONFIG = '.iwe/config.toml'
 
@@ -47,6 +50,11 @@ set -euo pipefail
 printf 'iwe %s\\n' "$*" >> "$STUB_LOG"
 echo migrated > .iwe/config.toml
 """
+BUNX_STUB = """#!/usr/bin/env bash
+set -euo pipefail
+printf 'bunx %s\\n' "$*" >> "$STUB_LOG"
+echo '{"regenerated": true}' > .devcontainer/devcontainer-lock.json
+"""
 
 
 @pytest.fixture
@@ -55,15 +63,16 @@ def repo() -> Iterator[Path]:
     TMP_ROOT.mkdir(exist_ok=True)
     root = TMP_ROOT / f'post-upgrade-{uuid4().hex}'
     (root / 'scripts').mkdir(parents=True)
+    (root / '.devcontainer').mkdir()
     (root / '.iwe').mkdir()
     (root / DEV_TOOLS).parent.mkdir(parents=True)
     (root / 'bin').mkdir()
     shutil.copy(REPO_ROOT / SCRIPT, root / SCRIPT)
-    for name, body in (('uv', UV_STUB),):
+    for name, body in (('uv', UV_STUB), ('bunx', BUNX_STUB)):
         (root / 'bin' / name).write_text(body)
         (root / 'bin' / name).chmod(0o755)
     (root / '.gitignore').write_text('bin/\nstub.log*\n.tmp/\n')
-    for path in ('pins.yml', 'gone.yml', IWE_CONFIG):
+    for path in ('.devcontainer/devcontainer.json', LOCK, 'pins.yml', 'gone.yml', IWE_CONFIG):
         (root / path).write_text('original\n')
     (root / DEV_TOOLS).write_text('original\n')
     try:
@@ -107,6 +116,30 @@ def test_changed_files_reach_the_refresh_and_pre_commit(repo: Path) -> None:
         'uv run --frozen scripts/refresh-pin-checksums.py pins.yml new.yml',
         'uv run --frozen pre-commit run --files pins.yml new.yml',
     ]
+
+
+def test_devcontainer_bump_regenerates_the_lock_before_pre_commit(repo: Path) -> None:
+    """A changed devcontainer.json runs the pinned CLI, and pre-commit sees the new lock."""
+    (repo / '.devcontainer/devcontainer.json').write_text('bumped\n')
+
+    code, calls = run(repo)
+
+    assert code == 0
+    assert calls[1].startswith('bunx --package @devcontainers/cli@')
+    assert calls[1].endswith(' devcontainer upgrade --workspace-folder .')
+    assert (
+        calls[2]
+        == f'uv run --frozen pre-commit run --files {LOCK} .devcontainer/devcontainer.json'
+    )
+
+
+def test_no_devcontainer_change_leaves_the_lock_alone(repo: Path) -> None:
+    """The devcontainer CLI runs only when devcontainer.json changed."""
+    (repo / 'pins.yml').write_text('bumped\n')
+
+    _, calls = run(repo)
+
+    assert not any(call.startswith('bunx') for call in calls)
 
 
 def test_a_hook_rewrite_passes_on_the_second_pass(repo: Path) -> None:
@@ -214,3 +247,18 @@ def test_a_failed_iwe_fetch_fails_before_pre_commit(repo: Path) -> None:
 
     assert code != 0
     assert not any(call.startswith('iwe') or 'pre-commit' in call for call in calls)
+
+
+def test_renovate_reads_the_cli_pin_from_the_script() -> None:
+    """The custom manager's pattern still finds the devcontainer CLI pin in the script."""
+    config = json.loads((REPO_ROOT / '.github/renovate.json').read_text())
+    manager = next(
+        m
+        for m in config['customManagers']
+        if 'renovate-post-upgrade' in m['managerFilePatterns'][0]
+    )
+    pattern = manager['matchStrings'][0].replace('(?<', '(?P<')
+    found = re.search(pattern, (REPO_ROOT / SCRIPT).read_text())
+    assert found is not None
+    assert found['depName'] == '@devcontainers/cli'
+    assert SCRIPT in config['postUpgradeTasks']['commands']

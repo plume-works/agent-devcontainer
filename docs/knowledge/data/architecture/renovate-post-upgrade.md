@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: How the self-hosted Renovate's one post-upgrade task produces the checksums and pre-commit output a bump implies, and the constraints that keep its output in Renovate's commit.
+description: How the self-hosted Renovate's one post-upgrade task produces the checksums, lock file, and pre-commit output a bump implies, and the constraints that keep its output in Renovate's commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
+  at: 2026-11-01T04:31:25Z
 sources:
 - resource: .github/renovate.json
 - resource: scripts/renovate-post-upgrade.py
@@ -29,19 +29,21 @@ derives the bump from `git diff HEAD` in Renovate's clone and, in order:
 1. recomputes the per-architecture SHA-256 of every pin in a changed pin file
    (`scripts/refresh-pin-checksums.py`), failing when an asset cannot be fetched
    or a pin whose version is unchanged hashes differently;
-2. when the `dev_tools` pins changed, fetches the pinned `iwe` with
+2. regenerates `.devcontainer/devcontainer-lock.json` with the devcontainer CLI
+   when `devcontainer.json` changed;
+3. when the `dev_tools` pins changed, fetches the pinned `iwe` with
    `scripts/fetch-pinned-tool.py`, which verifies the archive against its
    recorded checksum, puts it first on `PATH`, and runs `iwe normalize`. The
    image the task runs in still carries the previous `iwe`, so a release that
    migrates `.iwe/config.toml` or reformats the graph is applied by the version
    being pinned, and the pre-commit `iwe` hooks after it run at that version;
-3. runs pre-commit on every changed file, accepting a first pass that only
+4. runs pre-commit on every changed file, accepting a first pass that only
    rewrites files and failing on a hook that still fails on the second. The runs
    skip `no-commit-to-branch`, because Renovate's clone is still on the base
    branch and that guard is for commits (see spec/git-new-branch).
 
 Any failure fails the branch, so no pull request carries a version beside a
-stale checksum.
+stale checksum or lock.
 
 `refresh-pin-checksums.py` renders each download URL from its consumer's own
 templates — the `dev_tools` install task's expressions, a `*_download_url`
@@ -83,8 +85,8 @@ pre-commit pass missed.
 ## The App token carries only Renovate's permissions
 
 The post-upgrade task runs code at versions Renovate has just bumped — new
-pre-commit hook revs, a new `iwe` — as the same user as Renovate, so that code
-can reach Renovate's token. `renovate.yml` therefore names the token's
+pre-commit hook revs, a new devcontainer CLI — as the same user as Renovate, so
+that code can reach Renovate's token. `renovate.yml` therefore names the token's
 permissions explicitly rather than inheriting everything the App installation
 holds: write on contents, pull requests, issues, workflows, checks and statuses,
 and read on administration and vulnerability alerts. A permission later granted

@@ -1,13 +1,14 @@
 ---
 type: architecture
-description: The agentdev-devcontainer runtime supervises the nested dockerd instead of the Docker-in-Docker feature, on a per-container /var/lib/docker volume, and the container runs no SSH server.
+description: The agentdev-devcontainer runtime supervises the nested dockerd instead of the Docker-in-Docker feature, on a per-container /var/lib/docker volume, and SSH comes from the sshd feature plus image-level packages, so the same image works from a Codespace.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:28:00Z
+  at: 2026-11-03T19:24:20Z
 sources:
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
 - resource: .devcontainer/devcontainer.json
+- resource: .devcontainer/devcontainer-lock.json
 - resource: .devcontainer/devcontainer-init.sh
 - resource: ansible/roles/basic_prereqs/tasks/main.yml
 - resource: https://github.com/Dr-QP/Dr.QP/pull/406
@@ -24,8 +25,8 @@ runtime: `agentdev-runtime docker run` starts `dockerd`, and the runtime
 controller gates readiness on it and recovers it within its budget. The image's
 Dev Container metadata mounts a per-container volume at `/var/lib/docker`.
 
-The container runs no SSH server: the descriptor declares no Dev Container
-feature and the image installs no `openssh-server`.
+SSH is provided by the `devcontainers/features/sshd` feature, while the packages
+it needs (`openssh-server`) is installed in the image by Ansible.
 
 ## Why the runtime owns the engine
 
@@ -42,13 +43,18 @@ two components would then start and restart one daemon, so exactly one owns it.
 The same supervised engine serves the deploy image, which has no Dev Containers
 client to run a feature (see [Dev Container runtime](devcontainer-runtime.md)).
 
-## Why there is no SSH server
+## Why the SSH capability is split across a feature and the image
 
-Editors and terminals reach the container through their host's own channel: the
-Dev Containers client attaches through Docker, and Coder exposes the Dev
-Container as a sub-agent that `coder ssh <workspace>.repo` reaches through the
-Coder agent (see spec/coder-ide-baseline). No supported host connects to an
-in-container `sshd`, so the image carries none (human:author).
+The feature performs sshd **configuration**; the image supplies the
+**packages**. Installing the packages at image build time keeps a Codespace
+usable immediately rather than paying an apt install on every container create;
+keeping configuration in the feature avoids reimplementing host-key and account
+setup.
+
+This split is what makes the image reachable over `gh codespace ssh`. A
+Codespace is one more host for the devcontainer and gets no special treatment:
+the catalog ships no skill that creates, syncs to, or runs commands on a
+Codespace (human:author).
 
 ## The host-side precondition
 
@@ -60,4 +66,8 @@ error.
 
 ## Consequences
 
-- Upgrading Docker is an image change.
+- Upgrading Docker is an image change; upgrading SSH configuration is a feature
+  version bump in `devcontainer.json` plus a regenerated
+  `devcontainer-lock.json`.
+- The sshd feature runs at container-create time, so it takes effect even before
+  a rebuilt image carries the packages.

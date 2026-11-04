@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:28:00Z
+  at: 2026-11-04T01:40:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -90,20 +90,22 @@ The default devcontainer surface is the tracked `.devcontainer/` descriptor plus
 two root companions — one runtime unit. The lifecycle implementation comes from
 the image's `agentdev-runtime`, so no lifecycle script is part of it:
 
-| Path                                   | Responsibility                                                                                  |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `.devcontainer/devcontainer.json`      | Dev Container entry point, mounts, ports, environment, and editor configuration.                |
-| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent agent volumes.               |
-| `.devcontainer/devcontainer-init.sh`   | Generates host-specific Compose state and creates shared agent volumes before startup.          |
-| `.devcontainer/firewall-allowlist.txt` | Project-owned allowlist read when the opt-in firewall starts.                                   |
-| `devcontainer-compose-pins.yml`        | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`. |
-| `.mcp.json`                            | Points repository agents at the MCP gateway sidecar.                                            |
+| Path                                   | Responsibility                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `.devcontainer/devcontainer.json`      | Dev Container entry point, the SSH feature, mounts, ports, environment, and editor configuration. |
+| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent agent volumes.                 |
+| `.devcontainer/devcontainer-init.sh`   | Generates host-specific Compose state and creates shared agent volumes before startup.            |
+| `.devcontainer/devcontainer-lock.json` | Locks the SSH feature digest.                                                                     |
+| `.devcontainer/firewall-allowlist.txt` | Project-owned allowlist read when the opt-in firewall starts.                                     |
+| `devcontainer-compose-pins.yml`        | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.   |
+| `.mcp.json`                            | Points repository agents at the MCP gateway sidecar.                                              |
 
 The default runtime intentionally retains all capabilities currently supplied
 here: supervised nested Docker; Xpra and VirtualGL desktop access; the Docker
 Desktop MCP gateway and secret socket integration; shared Claude authentication
 and per-instance agent configuration volumes; image-staged `agentdev`
-installation; the opt-in egress firewall; and worktree-safe mounts.
+installation; the opt-in egress firewall; and Codespaces SSH and worktree-safe
+mounts.
 
 ### Agent-facing repository configuration
 

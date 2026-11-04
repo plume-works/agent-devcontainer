@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:28:00Z
+  at: 2026-11-01T06:44:52Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -37,12 +37,12 @@ keep/customize/optional/delete inventory the guide walks.
 
 The default setup SHALL retain every runtime capability the template's
 devcontainer provides — the digest-pinned `agentdev-devcontainer` image with its
-supervised nested Docker, worktree-safe mounts, Xpra/VirtualGL, the MCP gateway
-and secrets socket, persistent agent-state volumes with one shared credentials
-volume, the image-staged `agentdev` catalog, keyring and GitHub authentication,
-uv caching and pre-commit setup, and the opt-in egress firewall. It SHALL NOT
-infer a language, create application code, choose dependencies, or invent CI for
-the consuming project's product.
+supervised nested Docker and Codespaces SSH, worktree-safe mounts,
+Xpra/VirtualGL, the MCP gateway and secrets socket, persistent agent-state
+volumes with one shared credentials volume, the image-staged `agentdev` catalog,
+keyring and GitHub authentication, uv caching and pre-commit setup, and the
+opt-in egress firewall. It SHALL NOT infer a language, create application code,
+choose dependencies, or invent CI for the consuming project's product.
 
 ## Requirement: an update migrates the consumer to the agentdev image family in one change
 

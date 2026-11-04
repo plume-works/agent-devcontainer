@@ -4,7 +4,7 @@ stage: implemented
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks refresh checksum pins, lock files, and pre-commit output in the same commit as a bump.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
+  at: 2026-11-01T04:32:17Z
 sources:
 - id: roles
   resource: ansible/roles
@@ -13,6 +13,7 @@ sources:
 - id: renovate-options
   resource: https://docs.renovatebot.com/self-hosted-configuration/
 - resource: .pre-commit-config.yaml
+- resource: .devcontainer/devcontainer-lock.json
 ---
 
 # Renovate maintains checksum-carrying pins
@@ -26,7 +27,8 @@ automated bump would leave a stale checksum and fail the image build at download
 time. They are maintained by hand, and go stale because nothing prompts a bump.
 
 The same gap covers every file a bump implies but Renovate does not write
-itself: the pre-commit output for the files a bump touched.
+itself: `.devcontainer/devcontainer-lock.json` after a feature bump, and the
+pre-commit output for the files a bump touched.
 
 Renovate's `postUpgradeTasks` runs a command after the version bump and before
 the commit, which is enough to produce all of these in the same pull request.
@@ -66,9 +68,10 @@ bump, a post-upgrade command recomputes every architecture's SHA-256 from the
 release asset and rewrites it in place; `fileFilters` narrows what that command
 is allowed to contribute to the commit.
 
-**Derived files move with the bump.** The same post-upgrade command runs
-pre-commit on the changed files. `uv.lock` is relocked by Renovate's own
-`pep621` manager, and lock file maintenance refreshes it periodically.
+**Derived files move with the bump.** The same post-upgrade command regenerates
+the devcontainer lock when a feature reference changes and runs pre-commit on
+the changed files. `uv.lock` is relocked by Renovate's own `pep621` manager, and
+lock file maintenance refreshes it periodically.
 
 **A failed post-upgrade command fails the branch.** A pull request that carries
 a new version beside an unverified or unchanged hash is worse than no pull

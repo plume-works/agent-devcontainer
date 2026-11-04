@@ -12,6 +12,11 @@
   // agentdev-devcontainer supplies the lifecycle commands, waitFor, and the supervised
   // services, nested Docker included, through its image metadata; see
   // architecture/devcontainer-runtime. Declaring them here too would run each twice.
+  "features": {
+    // Configures the SSH server (openssh-server is pre-installed in the image)
+    // so `gh codespace ssh` can attach to a Codespace.
+    "ghcr.io/devcontainers/features/sshd:1": {}
+  },
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "containerEnv": {
     // The firewall is installed in the image but inert until this is "true".

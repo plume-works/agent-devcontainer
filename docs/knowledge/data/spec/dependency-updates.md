@@ -3,7 +3,7 @@ type: spec
 description: How self-hosted Renovate keeps checksums, lock files, and pre-commit output in the same change as the version bump that implies them.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
 - resource: .github/renovate.json
 - resource: .github/workflows/renovate.yml
@@ -50,6 +50,13 @@ the same change as the version.
 
 A Renovate change SHALL carry the lock files and pre-commit output its edits
 imply, produced by the same toolchain contributors use.
+
+#### Scenario: a dev container feature is bumped
+
+- **WHEN** Renovate changes a feature reference in
+  `.devcontainer/devcontainer.json`
+- **THEN** the same pull request carries the regenerated
+  `.devcontainer/devcontainer-lock.json`.
 
 #### Scenario: a bumped file needs formatting
 

@@ -10,6 +10,9 @@
       - lsb-release
       - ca-certificates
       - apt-utils
+      # Pre-installed so GitHub Codespaces can start an SSH server in the
+      # container. The devcontainers/features/sshd feature handles configuration.
+      - openssh-server
       # GNOME Keyring Secret Service stack. `agentdev-runtime keyring` runs a
       # headless org.freedesktop.secrets under the runtime's supervisor so
       # `gh auth login` has somewhere to persist its token.
