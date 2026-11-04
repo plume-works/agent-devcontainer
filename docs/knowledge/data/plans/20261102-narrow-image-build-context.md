@@ -149,13 +149,22 @@ would make host provisioning carry a container entrypoint it never uses.
 **Files:** Create: `ansible/roles/github_cli/files/gh` (moved from
 `docker/bin/gh`); Modify: `ansible/roles/github_cli/tasks/main.yml`
 
-- [ ] The wrapper is installed to `/usr/local/bin/gh` from the role's
+- [x] The wrapper is installed to `/usr/local/bin/gh` from the role's
   `files/gh`, and `docker/bin/` no longer exists.
-- [ ] The bash and fish `github_cli_wrapper` blocks are `state: absent` with the
+  - **Evidence:** commit c0a95df moves the file and copies `src: gh`; running
+    the role from the devcontainer installs a `/usr/local/bin/gh` identical to
+    `files/gh`.
+- [x] The bash and fish `github_cli_wrapper` blocks are `state: absent` with the
   same markers, so a re-provisioned host loses them, and nothing else puts a
   checkout path ahead of `/usr/local/bin/gh`.
-- [ ] The wrapper's comments describe one baked copy, keeping the PATH walk and
+  - **Evidence:** commit c0a95df; running the role against a scratch home whose
+    `.bashrc` and `config.fish` carry the block removes it from both and leaves
+    the surrounding lines; no other role or runtime file prepends a checkout
+    path.
+- [x] The wrapper's comments describe one baked copy, keeping the PATH walk and
   the `GH_WRAPPER_ACTIVE` guard as defensive behavior.
+  - **Evidence:** commit c0a95df rewrites the two comments and leaves the PATH
+    walk and guard code unchanged; `shellcheck` passes.
 
 ### Task 5: Split catalog staging into an `agent_catalog` role
 
