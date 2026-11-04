@@ -203,8 +203,23 @@ own claims.
 **Closed by:** the maintainer, observing one session on Claude Code and one on
 OpenCode with the default test models.
 
-- [ ] `/agentdev:iwe-plan` asked to plan a small change loads no
+- [x] `/agentdev:iwe-plan` asked to plan a small change loads no
   `iwe-adversarial-review` skill and dispatches no `iwe-adversarial-reviewer`.
+  - **Evidence:** Maintainer observation on branch
+    `scratch/adversarial-review-fixture`, request
+    `/agentdev:iwe-plan Plan a change so that is_safe_slug in scripts/slug_guard.py also rejects backslashes.`
+    Claude Code 2.1.318 (cloud, `claude-opus-5-5`), session
+    `session_01Q7BhLsjCAGNdn2tLU8PM6G` after `/clear`: create mode wrote
+    `data/plans/20261104-slug-guard-backslash` and `iwe schema validate` passed;
+    across its 21 tool calls the only `Skill` load was `agentdev:iwe-audit`,
+    inside the Durable Knowledge Auditor, and the only `Agent` dispatch was
+    `agentdev:Durable Knowledge Auditor`. OpenCode (`openai/gpt-6.1-sol`),
+    session `ses_e5821c2aeffdP6vszCpTPCvBCj`: create mode wrote
+    `data/plans/20261104-slug-guard-backslashes` and `iwe schema validate`
+    printed no violations; the only skills loaded were `iwe-plan` and
+    `git-commit`, and the only `subagent` call was `durable-knowledge-auditor`.
+    Neither session loaded `iwe-adversarial-review` or dispatched
+    `iwe-adversarial-reviewer`.
 
 ## Spec changes
 
