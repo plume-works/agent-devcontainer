@@ -10,6 +10,8 @@
       - lsb-release
       - ca-certificates
       - apt-utils
+      # git SSH remotes and commit signing (lifecycle sets gpg.ssh.program).
+      - openssh-client
       # GNOME Keyring Secret Service stack. `agentdev-runtime keyring` runs a
       # headless org.freedesktop.secrets under the runtime's supervisor so
       # `gh auth login` has somewhere to persist its token.
