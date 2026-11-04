@@ -1124,7 +1124,6 @@ in `## Choices`.
    .devcontainer/devcontainer.json
    .devcontainer/docker-compose.yml
    .devcontainer/devcontainer-init.sh
-   .devcontainer/devcontainer-lock.json
    .devcontainer/firewall-allowlist.txt
    ```
 
