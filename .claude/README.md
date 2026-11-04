@@ -4,15 +4,15 @@ The agent catalog does not live here; it ships as the `agentdev` plugin under
 [`.agents/plugins/agentdev/`](../.agents/plugins/agentdev/README.md). What remains in this directory is the
 configuration this repository keeps for itself.
 
-| Path            | Purpose                                                                                                           |
-| --------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `settings.json` | Permissions, additional directories, and enabled third-party plugins.                                             |
-| `startup.sh`    | Cloud session startup: registers the marketplace, installs `agentdev`, starts Docker, pre-pulls the pinned image. |
+| Path            | Purpose                                                                                                                                |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `settings.json` | Permissions, additional directories, enabled third-party plugins, and the `SessionStart` hook.                                         |
+| `startup.py`    | Cloud session startup and resume: see [Cloud session devcontainer](../docs/knowledge/data/architecture/cloud-session-devcontainer.md). |
 
-`startup.sh` resolves the repository root from its own location, so it runs from any directory. It
-fails fast if the Docker daemon does not answer within 30 seconds; the daemon log is
-`/var/log/dockerd.log`. The image it pulls is the digest in `devcontainer-compose-pins.yml`, so the
-script stays in step with Renovate's pin bumps without edits.
+`startup.py` is standard-library Python, because the session host has no project environment. It
+resolves the repository root from its own location, so it runs from any directory. The cloud
+environment runs `startup.py` as its setup script; the `SessionStart` hook in `settings.json` runs
+`startup.py resume`. Its logs are `/var/log/dockerd.log` and `/var/log/agent-proxy-relay.log`.
 
 `settings.json` must be strict JSON: no comments and no trailing commas. Claude
 Code rejects the file outright if it does not parse, which silently drops every

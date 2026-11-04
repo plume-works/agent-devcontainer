@@ -63,6 +63,8 @@ switch](architecture/claude-remote-control-spawn-mode-switch.md)
 [Claude Remote Control worktree restart
 resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
+[Cloud session devcontainer](architecture/cloud-session-devcontainer.md)
+
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
 
 [Dev Container runtime](architecture/devcontainer-runtime.md)
