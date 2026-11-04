@@ -312,6 +312,10 @@ jobs:
         run: docker pull "$MERGED_IMAGE"
 
       - name: Build and test dev container image
+        # With no Feature, the CLI's generated Dockerfile lies outside every build
+        # context, which Compose's bake build refuses without an fs.read entitlement.
+        env:
+          COMPOSE_BAKE: 'false'
         uses: devcontainers/ci@v0.3.1900000450
         with:
           configFile: .devcontainer/devcontainer.json
