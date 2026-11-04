@@ -101,12 +101,16 @@ would make host provisioning carry a container entrypoint it never uses.
 
 **Files:** Modify: `docker/ansible/Dockerfile`, `.github/workflows/ci.yml`
 
-- [ ] `docker/ansible/Dockerfile`'s `ARG BASE_IMAGE` default is
+- [x] `docker/ansible/Dockerfile`'s `ARG BASE_IMAGE` default is
   `ubuntu:24.04@sha256:<current digest>`, and its setup-script mount names the
   context root instead of `source=..`.
-- [ ] `ci.yml` passes no `BASE_IMAGE` build argument and no longer selects
+  - **Evidence:** commit 5b2b4c2 pins the 24.04 index digest and mounts
+    `source=.`; `pre-commit run` `hadolint-docker` passes on the file.
+- [x] `ci.yml` passes no `BASE_IMAGE` build argument and no longer selects
   `agentdev-base:edge` as a base; the `Set base image refs` step and its skopeo
   lookup are gone.
+  - **Evidence:** commit 5b2b4c2 removes the step and the build argument;
+    `pre-commit run` `actionlint` and `zizmor` pass on `ci.yml`.
 
 ### Task 2: Let Renovate move only the Ubuntu digest, weekly
 
