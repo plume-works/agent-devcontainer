@@ -9,6 +9,8 @@ repos:
         entry: uv run end-of-file-fixer
         language: system
         types: [text]
+        # The devcontainer CLI writes its lock file without a final newline on every `up`.
+        exclude: '^\.devcontainer/devcontainer-lock\.json$'
         stages: [pre-commit, pre-push, manual]
 
       - id: trailing-whitespace
