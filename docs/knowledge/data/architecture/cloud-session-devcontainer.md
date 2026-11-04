@@ -3,7 +3,7 @@ type: architecture
 description: In a Claude Code cloud session .claude/startup.py brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T04:01:02Z
+  at: 2026-11-04T04:42:51Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/agent-proxy-relay.py
@@ -46,7 +46,10 @@ turn. Resume mode acts only on a cloud-session host (`CLAUDE_CODE_REMOTE=true`
 and no `AGENTDEV_RUNTIME_MODE`, which the devcontainer sets), keeps whatever
 still runs, and restores the rest:
 
-- starts `dockerd` when it does not answer;
+- starts `dockerd` when it does not answer, first removing a
+  `/var/run/docker.pid` that names no running `dockerd`: `/var/run` is on the
+  persistent disk, and `dockerd` refuses to start while the pid it names is
+  alive;
 - keeps the relay while `/proc/<pid>/cmdline` still names it with the proxy's
   current port, and otherwise restarts it there;
 - rewrites `.devcontainer/cloud-session.env`, and recreates the container with

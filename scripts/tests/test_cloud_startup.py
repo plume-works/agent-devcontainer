@@ -275,3 +275,41 @@ def test_setup_builds_the_image_without_creating_the_container(scratch: Path) ->
     lines = calls.read_text().splitlines()
     assert f'devcontainer build --workspace-folder {startup.REPO_ROOT}' in lines
     assert not [line for line in lines if line.startswith(('devcontainer up', 'docker compose'))]
+
+
+def stub_dockerd(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Stub a dockerd that, like the real one, refuses to start while its pid file exists."""
+    bin_dir = scratch / 'bin'
+    bin_dir.mkdir()
+    pidfile = scratch / 'docker.pid'
+    ready = scratch / 'ready'
+    (bin_dir / 'docker').write_text(f'#!/bin/sh\n[ -e {ready} ]\n')
+    (bin_dir / 'dockerd').write_text(
+        f'#!/bin/sh\nif [ -e {pidfile} ]; then echo "pid file found"; exit 1; fi\n'
+        f'echo "dockerd started"\ntouch {ready}\n'
+    )
+    for stub in bin_dir.iterdir():
+        stub.chmod(0o755)
+    monkeypatch.setenv('PATH', f'{bin_dir}:/usr/bin:/bin')
+    monkeypatch.setattr(startup, 'DOCKER_PIDFILE', pidfile)
+    monkeypatch.setattr(startup, 'DOCKERD_LOG', scratch / 'dockerd.log')
+    return pidfile
+
+
+@pytest.mark.parametrize('stale', ['live-process', 'missing-process'])
+def test_stale_docker_pidfile_is_removed_before_dockerd_starts(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch, stale: str
+) -> None:
+    """A pid file left by the previous boot names no dockerd, so it no longer blocks the start."""
+    pidfile = stub_dockerd(scratch, monkeypatch)
+    pidfile.write_text(f'{os.getpid() if stale == "live-process" else 2**22 + 1}\n')
+    startup.start_docker()
+    assert 'dockerd started' in startup.DOCKERD_LOG.read_text()
+
+
+def test_dockerd_log_keeps_earlier_runs(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Starting dockerd appends to its log, so a failed earlier start stays readable."""
+    stub_dockerd(scratch, monkeypatch)
+    startup.DOCKERD_LOG.write_text('earlier run\n')
+    startup.start_docker()
+    assert startup.DOCKERD_LOG.read_text().startswith('earlier run\n')
