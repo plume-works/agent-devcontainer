@@ -17,6 +17,8 @@ rejected are as valuable as the one you picked.*
 
 [Actions approval permission](architecture/actions-approval-permission.md)
 
+[Adversarial review](architecture/adversarial-review.md)
+
 [Agent auth persistence](architecture/agent-auth-persistence.md)
 
 [Agent metadata files](architecture/agent-metadata-files.md)
