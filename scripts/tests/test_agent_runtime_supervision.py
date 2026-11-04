@@ -747,6 +747,7 @@ def test_health_needs_a_live_controller_reporting_ready(make):
     box.set('opencode', 'unhealthy')
     assert box.health('ready').returncode == 1, 'the core probes run at every check'
     (box.state / 'opencode.unhealthy').unlink()
+    box.wait_for(box.ready)
 
     controller = box.controller_pid()
     os.kill(controller, signal.SIGSTOP)
