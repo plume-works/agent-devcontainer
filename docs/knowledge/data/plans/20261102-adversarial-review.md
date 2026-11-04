@@ -89,9 +89,15 @@ Rejected:
     `path:line` evidence or "unverified";
     `uv run validate_agent_files --recommend . --require-marketplace claude` on
     that commit: 0 errors, 0 warnings.
-- [ ] It edits nothing, commits nothing, dispatches no agent, and runs a command
+- [x] It edits nothing, commits nothing, dispatches no agent, and runs a command
   whose effects reach beyond the working tree only under a quoted approval that
   names it.
+  - **Evidence:** Commit 04a8965, `## Rules` of
+    `iwe-adversarial-reviewer.agent.md`: no edit, commit, or dispatch, and a
+    command reaching beyond the working tree only under a quoted approval naming
+    it; the agent has no `Edit`, `Write`, or `Agent` tool;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 
 ### Task 2: The entry skill
 
