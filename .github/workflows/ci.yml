@@ -118,6 +118,7 @@ jobs:
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
+          stable-labels: 'true'
 
       # The base image's build context is the repository root, narrowed by the
       # .dockerignore allow-list; each provisioning step mounts only its inputs.

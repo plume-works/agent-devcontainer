@@ -39,6 +39,12 @@ inputs:
       every image build of a clean_build dispatch or a [ci:clean_build] run.
     required: false
     default: 'false'
+  stable-labels:
+    description: >-
+      Leave out the created, revision, and version labels, so unchanged inputs keep the
+      image digest. Set for an image another build starts FROM by digest.
+    required: false
+    default: 'false'
 outputs:
   digest:
     description: Digest of the built image
@@ -60,6 +66,14 @@ runs:
         images: |
           ${{ inputs.image }}
 
+    - name: Select labels
+      id: labels
+      shell: bash
+      env:
+        LABELS: ${{ steps.meta.outputs.labels }}
+        STABLE_LABELS: ${{ inputs.stable-labels }}
+      run: '$GITHUB_ACTION_PATH/select-labels.sh'
+
     - name: Build and push Docker image
       id: build
       uses: docker/build-push-action@v7.4.0
@@ -69,7 +83,7 @@ runs:
       with:
         context: ${{ inputs.context }} # zizmor: ignore[template-injection] context is always a static path literal at all call sites
         file: ${{ inputs.file }}
-        labels: ${{ steps.meta.outputs.labels }}
+        labels: ${{ steps.labels.outputs.labels }}
         cache-from: ${{ inputs.no-cache != 'true' && (env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE) || '' }}
         cache-to: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }},mode=max
         build-args: ${{ inputs.build-args }}
