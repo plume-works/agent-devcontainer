@@ -300,8 +300,7 @@ def build_devcontainer(environ: Mapping[str, str]) -> None:
     """Install the CLI and build the devcontainer image, pulling what it needs."""
     log('Building devcontainer image')
     install_devcontainer_cli()
-    # With no Feature, the CLI's generated Dockerfile lies outside every build context,
-    # which Compose's bake refuses without an fs.read entitlement.
+    # Bake's fs entitlement check off: see architecture/cloud-session-devcontainer.
     run(
         'devcontainer',
         'build',

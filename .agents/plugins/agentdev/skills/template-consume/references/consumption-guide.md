@@ -19,7 +19,7 @@ The steps below walk that classification path by path.
 
 The default setup SHALL retain all runtime capabilities provided by the
 template's devcontainer: the digest-pinned `agentdev-devcontainer` image
-with its supervised nested Docker, and Codespaces SSH; worktree-safe workspace mounts;
+with its supervised nested Docker; worktree-safe workspace mounts;
 Xpra/VirtualGL desktop access; the Docker Desktop MCP gateway and secrets
 socket integration; persistent state volumes (one shared volume holding Claude
 Code's credentials, the rest of each agent's state scoped per devcontainer
