@@ -145,9 +145,15 @@ Rejected:
     mode;
     `uv run validate_agent_files --recommend . --require-marketplace claude` on
     that commit: 0 errors, 0 warnings.
-- [ ] The implementer runs that task once; a finding that defeats a plan claim
+- [x] The implementer runs that task once; a finding that defeats a plan claim
   takes the code route, and any other finding is filed through
   `/agentdev:iwe-capture` and named in the report.
+  - **Evidence:** Commit bd354c4 adds `## The adversarial review task` to
+    `iwe-implementer.agent.md`: the orchestrator runs the task once per plan; a
+    finding that names a plan claim takes the code route, and one that names
+    none is filed through `/agentdev:iwe-capture` and named in the report;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 
 ### Task 4: Record the decision
 
