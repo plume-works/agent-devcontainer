@@ -1,10 +1,11 @@
-ARG BASE_IMAGE=ubuntu:24.04
+# Renovate moves only this digest, weekly; see spec/image-pinning.
+ARG BASE_IMAGE=ubuntu:24.04@sha256:fe81560990fae86dc4743202b2cb4d3df98d0bcf949173cecef15ce1127ef852
 FROM $BASE_IMAGE
 
 # Install Ansible
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,readonly,source=..,target=/scripts \
+    --mount=type=bind,readonly,source=.,target=/scripts \
     apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \

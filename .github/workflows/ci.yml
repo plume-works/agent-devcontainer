@@ -96,41 +96,6 @@ jobs:
             const found = pattern.test(commitMessage) || pattern.test(prBody);
             core.setOutput('found', found);
 
-      # Warm start: the ansible base image is normally rebuilt on top of the
-      # previous agentdev-base image so apt and the provisioning steps hit their
-      # caches. Fall back to a clean ubuntu base on main, tags, merge queues,
-      # and when a clean build is explicitly requested.
-      - name: Set base image refs
-        id: base_refs
-        env:
-          CLEAN_BUILD_DISPATCH: ${{ inputs.clean_build }}
-          CLEAN_BUILD_COMMIT: ${{ steps.clean_build_msg.outputs.found == 'true' }}
-          CLEAN_BUILD_MERGE_GROUP: ${{ inputs.caller_event_name == 'merge_group' }}
-          IS_MAIN: ${{ github.ref == 'refs/heads/main' || contains(github.ref, 'tags/v') }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "ansible_base=ubuntu:24.04" >> "$GITHUB_OUTPUT"
-
-          if [[ $CLEAN_BUILD_DISPATCH = true ]] \
-            || [[ $CLEAN_BUILD_COMMIT = true ]] \
-            || [[ $CLEAN_BUILD_MERGE_GROUP = true ]] \
-            || [[ $IS_MAIN = true ]]; then
-            echo "Clean build required"
-            exit 0
-          fi
-
-          DEV_IMAGE="${REGISTRY}/${{ github.repository_owner }}/${BASE_IMAGE_NAME}:edge"
-
-          sudo apt-get update -qq && sudo apt-get install -y -qq skopeo
-
-          if skopeo inspect --creds "${GITHUB_ACTOR}:${GITHUB_TOKEN}" \
-             "docker://${DEV_IMAGE}" >/dev/null 2>&1; then
-             echo "Using edge image as base to speed up build. Include [ci:clean_build] in your commit message to force a clean build."
-             echo "ansible_base=$DEV_IMAGE" >> "$GITHUB_OUTPUT"
-          else
-            echo "Edge image not found; building from scratch"
-          fi
-
       - name: Read Playwright version from the Ansible role
         id: playwright_version
         run: |
@@ -150,8 +115,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
-          build-args: |
-            BASE_IMAGE=${{ steps.base_refs.outputs.ansible_base }}
 
       # The base image's build context is the repository root: the dockerfile
       # bind-mounts the whole context at /provision so Ansible can read both
