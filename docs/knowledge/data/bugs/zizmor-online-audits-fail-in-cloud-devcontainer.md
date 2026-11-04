@@ -3,13 +3,13 @@ type: bug
 description: In the devcontainer of a Claude Code cloud session, the zizmor pre-commit hook fails with a 401 on any change to a GitHub workflow or action, because its online audits send the session's placeholder GH_TOKEN for repositories outside the session's GitHub scope.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T03:22:57Z
+  at: 2026-11-04T18:22:32Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .claude/startup.py
 - resource: docs/knowledge/data/architecture/cloud-session-devcontainer.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/686
-stage: pending
+stage: done
 severity: medium
 ---
 
@@ -47,7 +47,10 @@ repository and 401 for `actions/github-script`, while the same request with no
 token returns 200. The placeholder therefore works only for repositories in the
 session's GitHub scope, and every other repository rejects it.
 
-## Potential solution
+## Fix
 
-`cloud-session.env` sets `ZIZMOR_OFFLINE=true`, so the hook skips its online
-audits in cloud sessions only.
+`cloud_env_text` in `.claude/startup.py` writes `ZIZMOR_OFFLINE=true` into
+`.devcontainer/cloud-session.env`, so the `zizmor` hook skips its online audits
+in cloud sessions only. Every other host keeps them. A container created before
+the change differs from the new env file, so `.claude/startup.py resume`
+recreates it.

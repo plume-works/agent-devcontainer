@@ -3,7 +3,7 @@ type: architecture
 description: In a Claude Code cloud session .claude/startup.py brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T05:08:34Z
+  at: 2026-11-04T18:22:32Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/agent-proxy-relay.py
@@ -33,6 +33,10 @@ no container:
 4. installs a pinned `@devcontainers/cli` with `bun` unless that version is
    already on `PATH`, and runs `devcontainer build`, which pulls the image
    pinned in `devcontainer-compose-pins.yml` and builds the devcontainer image.
+   It sets `BUILDX_BAKE_ENTITLEMENTS_FS=0`: with no Dev Container Feature, the
+   CLI's generated Dockerfile lies outside every build context, and Compose's
+   bake refuses to read it without that check off. CI's devcontainer build sets
+   it for the same reason.
 
 Any failing step fails the script, and the session starts without the steps
 after it.
@@ -75,7 +79,10 @@ GitHub, but the placeholder token gets a 401 there.
   host bridge gateway to the proxy's current `127.0.0.1:<port>`;
 - writes `.devcontainer/cloud-session.env` (git-ignored) with `HTTPS_PROXY` and
   `https_proxy` set to `http://host.docker.internal:3128`, `NO_PROXY` and
-  `no_proxy` from the session's own list, and the session's `GH_TOKEN`;
+  `no_proxy` from the session's own list, the session's `GH_TOKEN`, and
+  `ZIZMOR_OFFLINE=true`, since the proxy honours that token only for
+  repositories in the session's GitHub scope and zizmor's online audits query
+  others;
 - exports `GIT_AUTHOR_*` / `GIT_COMMITTER_*` from the host's git identity, which
   `.devcontainer/docker-compose.yml` already passes through.
 
