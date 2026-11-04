@@ -42,9 +42,9 @@ notes record each file's PPA URL and SHA-256.
 
 The `git_ppa` role downloads the pinned release's packages, checks their
 SHA-256, and installs `git` and `git-man` in one apt transaction, replacing
-Ubuntu's `git`. It also deletes the `git-core-ppa` apt source that images and
-hosts provisioned while git came straight from the PPA still carry, including
-the `edge` image pull-request builds start from. Renovate bumps
+Ubuntu's `git`, or a newer build an image it starts from already carries. It
+also deletes the `git-core-ppa` apt source, so an image or host provisioned
+while git came straight from the PPA stops contacting Launchpad. Renovate bumps
 `git_ppa_version` from the repository's releases, and
 `scripts/refresh-pin-checksums.py` rehashes both packages in the same commit.
 

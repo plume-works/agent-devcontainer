@@ -45,7 +45,7 @@
     - name: Install the git packages
       ansible.builtin.command: # noqa: command-instead-of-module
         cmd: >-
-          apt-get install --yes --no-install-recommends
+          apt-get install --yes --no-install-recommends --allow-downgrades
           ./{{ git_ppa_man_download_url | basename }} ./{{ git_ppa_download_url | basename }}
         chdir: "{{ git_ppa_download_dir.path }}"
       environment:
