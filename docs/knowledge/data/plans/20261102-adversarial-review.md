@@ -124,8 +124,11 @@ Rejected:
   - **Evidence:** Commit 6de0ec2 adds the `/agentdev:iwe-adversarial-review` row
     to the Knowledge-graph workflow (IWE) skill table of
     `.agents/plugins/agentdev/README.md`, after `/agentdev:iwe-verify`.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   reports no errors.
+  - **Evidence:** Commit 6de0ec2:
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 62/62 skills valid, 0 errors, 0 warnings.
 
 ### Task 3: Plan and Implement rules for the review
 
