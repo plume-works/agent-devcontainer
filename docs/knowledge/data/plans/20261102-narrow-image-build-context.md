@@ -75,11 +75,12 @@ those inputs do.
   `[ci:clean_build]` build without the layer cache.
 
 - **Stable intermediate digest.** `agentdev-base` starts from `ubuntu-ansible`
-  by digest, so a per-run change to `ubuntu-ansible`'s image config misses every
-  provisioning step's cache. CI builds `ubuntu-ansible` without the
+  by digest, so a per-run change to that digest misses every provisioning step's
+  cache. CI builds `ubuntu-ansible` without the
   `org.opencontainers.image.created`, `.revision`, and `.version` labels, so
-  unchanged inputs keep its digest; the run's provenance attestation still
-  records the revision.
+  unchanged inputs keep its manifest digest, and `agentdev-base` starts from
+  that per-architecture manifest rather than the pushed index, whose per-run
+  provenance attestation changes every run.
 
 - **gh wrapper.** `docker/bin/gh` becomes the `github_cli` role's `files/gh`,
   and the role stops putting the checkout's `docker/bin` on `PATH`: a checkout's
@@ -294,7 +295,9 @@ Modify: `docs/knowledge/data/architecture.md`
 ### Task 12: Keep the `ubuntu-ansible` digest stable across runs
 
 **Files:** Create: `.github/actions/docker/build-push-action/select-labels.sh`,
-`scripts/tests/test_build_push_select_labels.py`; Modify:
+`.github/actions/docker/build-push-action/platform-digest.sh`,
+`scripts/tests/test_build_push_select_labels.py`,
+`scripts/tests/test_build_push_platform_digest.py`; Modify:
 `.github/actions/docker/build-push-action/action.yml`,
 `.github/workflows/ci.yml`
 
@@ -311,6 +314,10 @@ Modify: `docs/knowledge/data/architecture.md`
   - **Evidence:** Primary checks run 41852171165 at commit e0a4a23, attempts 1
     and 2, both build `ubuntu-ansible` from cache and export the same manifest,
     `sha256:d39ddb34…` on amd64 and `sha256:4c0ea1e8…` on arm64.
+- [ ] The composite build action outputs a `platform-digest`, the built
+  architecture's manifest inside the pushed index, and `ci.yml`'s
+  `Build agentdev base image` step passes it as `FROM_IMAGE` in place of the
+  index digest.
 
 ## Spec changes
 
