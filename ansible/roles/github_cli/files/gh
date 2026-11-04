@@ -8,10 +8,9 @@ set -euo pipefail
 # script — which still say "gh-wrapper:" in their log output — are detected too.
 # gh-wrapper-marker: transparent-auth-shim
 
-# Discover the real gh by walking PATH and skipping every copy of this wrapper
-# (a live workspace copy and the image-baked /usr/local/bin/gh both shadow the
-# real binary). Hard-coding /usr/bin/gh breaks whenever gh lives elsewhere, so
-# that path is only the last-resort fallback.
+# Discover the real gh by walking PATH and skipping every copy of this wrapper:
+# the baked /usr/local/bin/gh shadows the real binary, and a stray copy may too.
+# /usr/bin/gh is only the last-resort fallback for a gh installed elsewhere.
 self_path=$(readlink -f -- "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")
 real_gh=""
 while IFS= read -r candidate; do
@@ -43,9 +42,8 @@ log() {
   fi
 }
 
-# Re-entrancy guard: the wrapper can legitimately be on PATH twice (a live
-# workspace copy ahead of the image-baked default at /usr/local/bin/gh). Only
-# the first invocation in a process tree should do any work.
+# Re-entrancy guard: should another copy of the wrapper reach PATH, only the
+# first invocation in a process tree does any work.
 if [[ -n "${GH_WRAPPER_ACTIVE:-}" ]]; then
   log "already active in this process tree, delegating immediately"
   exec "$real_gh" "$@"
