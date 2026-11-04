@@ -119,9 +119,8 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
 
-      # The base image's build context is the repository root: the dockerfile
-      # bind-mounts the whole context at /provision so Ansible can read both
-      # ansible/ and docker/bin/gh.
+      # The base image's build context is the repository root, narrowed by the
+      # .dockerignore allow-list; each provisioning step mounts only its inputs.
       - name: Build agentdev base image
         id: build
         uses: $/.github/actions/docker/build-push-action
