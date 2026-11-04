@@ -18,5 +18,13 @@ has run. Copy each box's lines into its `- **Evidence:**` line on
 
 ## Task 6: planning leaves the review alone
 
-- **Claude Code:** pending.
+- **Claude Code:** Claude Code 2.1.318 (cloud, `claude-opus-5-5`), session
+  `session_01Q7BhLsjCAGNdn2tLU8PM6G` after `/clear`, on
+  `scratch/adversarial-review-fixture`:
+  `/agentdev:iwe-plan Plan a change so that is_safe_slug in scripts/slug_guard.py also rejects backslashes.`
+  wrote `data/plans/20261104-slug-guard-backslash` in create mode, and
+  `iwe schema validate` passed. Across its 21 tool calls, the only `Skill`
+  load was `agentdev:iwe-audit`, inside the Durable Knowledge Auditor, and the
+  only `Agent` dispatch was `agentdev:Durable Knowledge Auditor`; no call
+  loaded `iwe-adversarial-review` or dispatched `iwe-adversarial-reviewer`.
 - **OpenCode:** pending.
