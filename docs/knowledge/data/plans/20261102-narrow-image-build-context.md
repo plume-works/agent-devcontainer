@@ -178,10 +178,14 @@ would make host provisioning carry a container entrypoint it never uses.
 `install_agent_catalog: false` gate, like its sibling roles', so an untagged
 host run still stages no catalog)
 
-- [ ] `agent_catalog` stages and installs the catalog with `agent_catalog_*`
+- [x] `agent_catalog` stages and installs the catalog with `agent_catalog_*`
   variables, is tagged `agent_catalog` in `setup-dev.yml` after `agentic_tools`,
   and relies on no fact another role sets except the `always`-tagged
   `extra_facts`.
+  - **Evidence:** commit 27c33da; a local `agentdev-base` build at commit
+    ecc66aa runs the `--tags agent_catalog` step with only `perm_probe` and
+    `extra_facts` beside it, `failed=0`, and the image lists
+    `agentdev@agent-devcontainer` 5.0.0 enabled from `/opt/agentdev`.
 - [x] `agentic_tools` installs only the tools and `cc-filter`; its catalog
   switches and variables are gone.
   - **Evidence:** commit 27c33da; no `agentic_tools_*catalog*` or
@@ -199,9 +203,13 @@ host run still stages no catalog)
 **Files:** Modify: `docker/base/agentdev-base.Dockerfile`; Create:
 `scripts/tests/test_agentdev_base_dockerfile.py`
 
-- [ ] The provisioning runs as the three `RUN` steps in `## Approach`, each with
+- [x] The provisioning runs as the three `RUN` steps in `## Approach`, each with
   one read-only bind mount per input it reads under `/provision`, tag selection
   as listed, and `ANSIBLE_LOG_PATH=` set.
+  - **Evidence:** commit 325b78e; a local `agentdev-base` build at commit
+    ecc66aa, layered on the published `agentdev-base:edge`, runs all three steps
+    with `failed=0`, and rebuilding after a `docs/` edit reports all three
+    `CACHED`. A from-scratch build is Task 10's CI run.
 - [ ] A test fails when any bind mount in `agentdev-base.Dockerfile` omits
   `source`, and when the three steps' tag selections stop covering every role in
   `setup-dev.yml` exactly once; `test_playwright_browser_provisioning.py` still
