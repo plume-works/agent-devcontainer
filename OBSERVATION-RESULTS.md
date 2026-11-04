@@ -14,7 +14,17 @@ has run. Copy each box's lines into its `- **Evidence:**` line on
   read-only `Bash` calls and no edit or dispatch; A1 names "Slugs cannot leave
   the plans directory" with `scripts/slug_guard.py:6`;
   `git status --porcelain` empty before and after.
-- **OpenCode:** pending.
+- **OpenCode:** OpenCode session `ses_e5825cbeeffenHmG7Bgao3qB4h`
+  (`openai/gpt-6.1-sol`, agent `build`) in `/workspaces/agent-devcontainer`,
+  from its exported transcript: the `iwe-adversarial-review` skill loaded once
+  with the request; one `subagent` call to `iwe-adversarial-reviewer` with a
+  prompt of only plan key, target `code`, and approvals (sub-session
+  `ses_e5825bcddffeotiDktQmmwlyXA`); A1 names "Slugs cannot leave the plans
+  directory" and "A nested slug is refused" with `scripts/slug_guard.py:6` and
+  `is_safe_slug("a/b")` returning True; the final message re-posts the report;
+  the session's worktree snapshot is the same tree at start and end with no
+  changed files, and the reviewer's `git status --porcelain` was empty before
+  and after.
 
 ## Task 6: planning leaves the review alone
 
