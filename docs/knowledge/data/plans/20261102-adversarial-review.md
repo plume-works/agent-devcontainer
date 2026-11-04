@@ -189,11 +189,11 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
+Verified anchor points (line numbers as of 2026-11-04):
 
 - `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:1` — the entry-skill
   shape to follow
-- `.agents/plugins/agentdev/README.md:184` — skill table, `/agentdev:iwe-verify`
+- `.agents/plugins/agentdev/README.md:182` — skill table, `/agentdev:iwe-verify`
   row
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:198` —
