@@ -73,8 +73,13 @@ Rejected:
     `iwe-adversarial-review` skill as its only dispatcher;
     `uv run validate_agent_files --recommend . --require-marketplace claude` on
     that commit: 0 errors, 0 warnings.
-- [ ] Its inputs are the plan key, the target (`plan` or `code`), and quoted
+- [x] Its inputs are the plan key, the target (`plan` or `code`), and quoted
   approvals; anything else in the prompt is not evidence.
+  - **Evidence:** Commit 04a8965, `## Inputs` of
+    `iwe-adversarial-reviewer.agent.md`: plan key, target `plan` or `code`, and
+    quoted approvals, with any other prompt content not evidence;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 - [ ] The plan rubric and the code rubric are as `## Approach` describes; every
   code finding names the plan claim it defeats, or `none`, with `path:line`
   evidence or the label "unverified".
