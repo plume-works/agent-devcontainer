@@ -87,9 +87,6 @@ rewrites](backlog/resilient-task-evidence.md)
 
 [Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
 
-[Settle how the cloud devcontainer is created without its session
-env](backlog/settle-cloud-devcontainer-created-without-session-env.md)
-
 [Run Verify from the iwe-ship skill, not inside the
 Shipper](backlog/ship-verifies-before-dispatch.md)
 

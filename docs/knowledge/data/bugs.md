@@ -40,15 +40,6 @@ them](bugs/ci-publishes-images-before-acceptance.md)
 [~/.claude.json stops being the volume
 symlink](bugs/claude-json-symlink-replaced.md)
 
-[Bug: cloud devcontainer loses the agent proxy after a worker
-restart](bugs/cloud-devcontainer-loses-proxy-after-worker-restart.md)
-
-[Bug: cloud devcontainer runs without the session env, and resume does not
-recover it](bugs/cloud-devcontainer-runs-without-session-env.md)
-
-[Bug: cloud startup crashes before installing the devcontainer
-CLI](bugs/cloud-startup-crashes-without-devcontainer-cli.md)
-
 [Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](bugs/coder-askpass-push-hang.md)
 

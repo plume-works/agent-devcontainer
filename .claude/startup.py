@@ -3,7 +3,8 @@
 Start or resume the devcontainer of a Claude Code cloud session.
 
 `startup.py setup`, the environment setup script, registers the agentdev plugin, starts the
-Docker daemon, pre-pulls the pinned images, and brings the devcontainer up.
+Docker daemon, and builds the devcontainer image; it has no session proxy, so it creates no
+container.
 `startup.py resume`, the SessionStart hook, restores what a worker restart stops.
 Standard library only: the session host has no project environment.
 Design: architecture/cloud-session-devcontainer.
@@ -22,7 +23,6 @@ import time
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RELAY_SCRIPT = REPO_ROOT / '.claude/agent-proxy-relay.py'
 CLOUD_ENV = REPO_ROOT / '.devcontainer/cloud-session.env'
-PIN_DIR = REPO_ROOT / '.tmp/comp-pin'
 LOG_DIR = Path(os.environ.get('AGENTDEV_STARTUP_LOG_DIR') or '/var/log')
 DOCKERD_LOG = LOG_DIR / 'dockerd.log'
 RELAY_LOG = LOG_DIR / 'agent-proxy-relay.log'
@@ -211,24 +211,52 @@ def install_devcontainer_cli() -> None:
         run('bun', 'install', f'@devcontainers/cli@{DEVCONTAINER_CLI_VERSION}', '--global')
 
 
-def devcontainer_running() -> bool:
-    """Tell whether this checkout's devcontainer is running."""
+def devcontainer_ids(*flags: str) -> list[str]:
+    """Return the IDs of this checkout's devcontainer, running only unless flags say otherwise."""
     label = f'label=devcontainer.local_folder={REPO_ROOT}'
-    return bool(output('docker', 'ps', '-q', '--filter', label))
+    return output('docker', 'ps', '-q', *flags, '--filter', label).split()
 
 
-def bring_devcontainer_up(environ: Mapping[str, str]) -> None:
-    """Install the CLI, prepare proxy access, and run devcontainer up with the git identity."""
-    log('Bringing up devcontainer')
-    install_devcontainer_cli()
-    prepare_proxy_access(environ)
+def lacks_session_env(container: str) -> bool:
+    """Tell whether the container's environment misses or differs from cloud-session.env."""
+    if not CLOUD_ENV.exists():
+        return False
+    wanted = set(CLOUD_ENV.read_text().splitlines()) - {''}
+    env = output('docker', 'inspect', '-f', '{{range .Config.Env}}{{println .}}{{end}}', container)
+    return not wanted <= set(env.splitlines())
+
+
+def devcontainer_up(environ: Mapping[str, str], *flags: str) -> None:
+    """Run devcontainer up on the checkout with the host's git identity."""
     run(
         'devcontainer',
         'up',
+        *flags,
         '--workspace-folder',
         str(REPO_ROOT),
         env={**environ, **git_identity()},
     )
+
+
+def sync_devcontainer(environ: Mapping[str, str]) -> None:
+    """
+    Bring the devcontainer up, recreating it when it lacks cloud-session.env.
+
+    A container's environment is fixed at creation, so only a new container picks up the file.
+    """
+    if any(lacks_session_env(container) for container in devcontainer_ids('-a')):
+        log('Recreating the devcontainer, whose environment lacks cloud-session.env')
+        devcontainer_up(environ, '--remove-existing-container')
+    elif not devcontainer_ids():
+        log('Bringing up devcontainer')
+        devcontainer_up(environ)
+
+
+def bring_devcontainer_up(environ: Mapping[str, str]) -> None:
+    """Install the CLI, prepare proxy access, and bring the devcontainer up."""
+    install_devcontainer_cli()
+    prepare_proxy_access(environ)
+    sync_devcontainer(environ)
 
 
 def register_plugin() -> None:
@@ -245,12 +273,11 @@ def add_cloud_instructions() -> None:
     shutil.copyfile(REPO_ROOT / '.claude/CLAUDE.cloud.md', target)
 
 
-def pull_pinned_images() -> None:
-    """Pre-pull the images pinned in devcontainer-compose-pins.yml."""
-    log('Pulling pinned devcontainer images')
-    PIN_DIR.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(REPO_ROOT / 'devcontainer-compose-pins.yml', PIN_DIR / 'docker-compose.yml')
-    subprocess.run(['docker', 'compose', 'pull'], cwd=PIN_DIR, stdout=sys.stderr, check=True)
+def build_devcontainer() -> None:
+    """Install the CLI and build the devcontainer image, pulling what it needs."""
+    log('Building devcontainer image')
+    install_devcontainer_cli()
+    run('devcontainer', 'build', '--workspace-folder', str(REPO_ROOT))
 
 
 def timed(step: Callable[..., None], *args: object) -> None:
@@ -265,9 +292,8 @@ def setup(environ: Mapping[str, str]) -> None:
     timed(register_plugin)
     add_cloud_instructions()
     timed(start_docker)
-    timed(pull_pinned_images)
-    timed(bring_devcontainer_up, environ)
-    log('Startup complete')
+    timed(build_devcontainer)
+    log('Setup complete')
 
 
 def resume(environ: Mapping[str, str]) -> None:
@@ -275,11 +301,7 @@ def resume(environ: Mapping[str, str]) -> None:
     if not is_cloud_host(environ):
         return
     start_docker()
-    if devcontainer_running():
-        install_devcontainer_cli()
-        prepare_proxy_access(environ)
-    else:
-        bring_devcontainer_up(environ)
+    bring_devcontainer_up(environ)
 
 
 def main(argv: list[str]) -> int:
