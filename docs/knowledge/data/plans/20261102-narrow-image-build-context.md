@@ -306,8 +306,11 @@ Modify: `docs/knowledge/data/architecture.md`
     it on `Build ubuntu ansible image` only;
     `pytest scripts/tests/test_build_push_select_labels.py` passes 4 tests, and
     `actionlint` and `zizmor --offline` pass.
-- [ ] Two runs of the action on unchanged `docker/ansible/` inputs push the same
+- [x] Two runs of the action on unchanged `docker/ansible/` inputs push the same
   `ubuntu-ansible` per-architecture manifest digest.
+  - **Evidence:** Primary checks run 41852171165 at commit e0a4a23, attempts 1
+    and 2, both build `ubuntu-ansible` from cache and export the same manifest,
+    `sha256:d39ddb34…` on amd64 and `sha256:4c0ea1e8…` on arm64.
 
 ## Spec changes
 
