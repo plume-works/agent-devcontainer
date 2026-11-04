@@ -106,6 +106,11 @@ def test_unknown_mode_is_a_usage_error() -> None:
     assert result.returncode == 2
 
 
+def test_output_of_a_missing_command_is_empty() -> None:
+    """A command that is not installed reads as failed, so the caller can install it."""
+    assert startup.output(f'missing-command-{uuid4().hex}', '--version') == ''
+
+
 @pytest.mark.parametrize(
     ('environ', 'port'),
     [

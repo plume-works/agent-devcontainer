@@ -53,7 +53,10 @@ def run(*command: str, env: Mapping[str, str] | None = None) -> None:
 
 def output(*command: str) -> str:
     """Return a command's stripped stdout, or an empty string when it fails."""
-    result = subprocess.run(command, capture_output=True, text=True, check=False)
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+    except FileNotFoundError:
+        return ''
     return result.stdout.strip() if result.returncode == 0 else ''
 
 
