@@ -3,7 +3,7 @@ type: bug
 description: In a Claude Code cloud session the devcontainer can run without the proxy and token from .devcontainer/cloud-session.env, and .claude/startup.py resume does not recover it, so gh and git push fail inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T03:33:47Z
+  at: 2026-11-04T03:49:43Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/settings.json
@@ -44,18 +44,14 @@ restores `gh` and `git push`.
   created. When the container is running, `resume` only refreshes the relay and
   rewrites `cloud-session.env`; it never compares the container's environment
   with that file or recreates the container.
-- **How the container came to lack the file — not settled.** The container was
-  created before the session's `SessionStart` hook ran, at a point when
-  `cloud-session.env` did not exist.
-  - Eliminated: the `SessionStart` hook running without a loopback `HTTPS_PROXY`
-    and deleting the file. The hook's recorded output shows it starting the
-    relay to the loopback proxy, and the container predates the hook's run.
-  - Open: the environment setup script ran `devcontainer up`, directly or
-    through `.claude/startup.py setup`, without a loopback `HTTPS_PROXY`, so
-    `prepare_proxy_access` removed the file before `devcontainer up`.
-  - [Settle how the cloud devcontainer is created without its session
-    env](../backlog/settle-cloud-devcontainer-created-without-session-env.md)
-    settles it.
+- **How the container came to lack the file — settled.** The environment setup
+  script runs `.claude/startup.py setup` without a loopback `HTTPS_PROXY`, so
+  `prepare_proxy_access` removes `cloud-session.env` and `devcontainer up`
+  creates the container without it. The session's agent proxy reaches only the
+  `SessionStart` hook, which runs after the container exists. [Settle how the
+  cloud devcontainer is created without its session
+  env](../backlog/settle-cloud-devcontainer-created-without-session-env.md)
+  records the evidence.
 
 ## Fix
 
