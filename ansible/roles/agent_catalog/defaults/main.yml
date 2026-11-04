@@ -1,0 +1,35 @@
+---
+# The catalog is staged from the provisioning sources themselves, so the image and
+# the catalog it carries always come from the same commit. Point this at any tree
+# whose root holds a Claude Code marketplace manifest.
+agent_catalog_source_dir: "{{ role_path }}/../../.."
+agent_catalog_marketplace_manifest: .claude-plugin/marketplace.json
+agent_catalog_plugin_name: agentdev
+
+# Optional pin. When set, the manifest must declare exactly this version or the
+# build fails, which is what keeps the image reproducible and its label honest.
+agent_catalog_plugin_version: ""
+
+# The staged catalog lives outside $HOME on purpose: ~/.claude is commonly
+# mounted as a volume, which would shadow anything placed under them.
+agent_catalog_root: /opt/agentdev
+
+# Copied whole so the marketplace manifest and the plugins it publishes keep the
+# root-relative layout the manifest resolves them by. The .agents/ root files are
+# publisher-only contributor instructions and stay out.
+agent_catalog_trees:
+  - .claude-plugin
+  - .agents/plugins
+
+# Directories 0755, files 0644, and anything already executable stays executable
+# so the scripts the plugin ships in bin/ keep working.
+agent_catalog_mode: "u=rwX,go=rX"
+
+# Directories that must never survive into the image: build scratch, and plugin
+# test suites, which only ever run in the publisher checkout.
+agent_catalog_prune_names:
+  - __pycache__
+  - .pytest_cache
+  - .ruff_cache
+  - .tmp
+  - tests

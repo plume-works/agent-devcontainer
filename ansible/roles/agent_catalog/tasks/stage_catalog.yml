@@ -1,0 +1,101 @@
+---
+# A plain copy that keeps the source layout, because the marketplace manifest
+# resolves its plugins by paths relative to the staged root; install_catalog.yml
+# then installs from it. See the role README.
+- name: Read the catalog marketplace manifest
+  ansible.builtin.slurp:
+    src: >-
+      {{ agent_catalog_source_dir }}/{{ agent_catalog_marketplace_manifest }}
+  register: agent_catalog_manifest_raw
+
+- name: Resolve the marketplace name and the plugin entry it publishes
+  ansible.builtin.set_fact:
+    agent_catalog_marketplace_name: "{{ agent_catalog_manifest.name }}"
+    agent_catalog_plugin_entries: >-
+      {{ agent_catalog_manifest.plugins
+         | selectattr('name', 'equalto', agent_catalog_plugin_name)
+         | list }}
+  vars:
+    agent_catalog_manifest: >-
+      {{ agent_catalog_manifest_raw.content | b64decode | from_json }}
+
+- name: Fail when the manifest does not publish exactly one matching plugin
+  ansible.builtin.assert:
+    that:
+      - agent_catalog_plugin_entries | length == 1
+    fail_msg: >-
+      {{ agent_catalog_marketplace_manifest }} publishes
+      {{ agent_catalog_plugin_entries | length }} plugins named
+      '{{ agent_catalog_plugin_name }}'; expected exactly one.
+
+- name: Record the staged plugin version and source path
+  ansible.builtin.set_fact:
+    agent_catalog_staged_version: "{{ agent_catalog_plugin_entry.version }}"
+    agent_catalog_staged_source: >-
+      {{ agent_catalog_plugin_entry.source | regex_replace('^\./', '') | regex_replace('/$', '') }}
+  vars:
+    agent_catalog_plugin_entry: "{{ agent_catalog_plugin_entries | first }}"
+
+- name: Fail when the pinned plugin version is not the one being staged
+  ansible.builtin.assert:
+    that:
+      - agent_catalog_staged_version == agent_catalog_plugin_version
+    fail_msg: >-
+      Pinned version '{{ agent_catalog_plugin_version }}' does not match version
+      '{{ agent_catalog_staged_version }}' declared by
+      {{ agent_catalog_marketplace_manifest }}. Bump the pin and the
+      manifest together so the image label stays honest.
+  when: agent_catalog_plugin_version | length > 0
+
+- name: Reset the staged catalog
+  ansible.builtin.file:
+    path: "{{ agent_catalog_root }}"
+    state: absent
+
+- name: Create the staged catalog directories
+  ansible.builtin.file:
+    path: "{{ agent_catalog_root }}/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ agent_catalog_trees }}"
+
+- name: Copy the catalog into the staged tree
+  ansible.builtin.command:
+    argv:
+      - cp
+      - --archive
+      - "{{ agent_catalog_source_dir }}/{{ item }}/."
+      - "{{ agent_catalog_root }}/{{ item }}/"
+  loop: "{{ agent_catalog_trees }}"
+  changed_when: true
+
+- name: Find build scratch and test directories copied into the staged catalog
+  ansible.builtin.find:
+    paths: "{{ agent_catalog_root }}"
+    patterns: "{{ agent_catalog_prune_names }}"
+    file_type: directory
+    recurse: true
+    hidden: true
+  register: agent_catalog_scratch_dirs
+
+- name: Remove build scratch and test directories from the staged catalog
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ agent_catalog_scratch_dirs.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+# Read-only by design: the lifecycle scripts only ever read from here, and a
+# container that wants a different catalog registers its own on top. Updating the
+# staged copy means rebuilding the image.
+- name: Make the staged catalog root-owned and read-only
+  ansible.builtin.file:
+    path: "{{ agent_catalog_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "{{ agent_catalog_mode }}"
+    recurse: true
