@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T18:30:00Z
+  at: 2026-11-04T19:30:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -440,8 +440,8 @@ instruction files.
   nothing, and `command -v gh` in `bash -ic` and `fish -c` prints
   `/usr/local/bin/gh` with a checkout carrying `docker/bin/gh` mounted at the
   workspace folder.
-- An untagged `ansible-playbook ansible/playbooks/setup-dev.yml --check` lists
-  every role in its original order.
+- An untagged `ansible-playbook ansible/playbooks/setup-dev.yml --list-tasks`
+  lists every role in its original order.
 - Tasks 10 and 11 close on the pull request's CI runs.
 
 ## Depends on
