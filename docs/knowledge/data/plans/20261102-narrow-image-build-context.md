@@ -233,11 +233,13 @@ host run still stages no catalog)
 **Files:** Create: `docs/knowledge/data/architecture/gh-wrapper-image-only.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] A new architecture document records that the image's wrapper is the only
+- [x] A new architecture document records that the image's wrapper is the only
   `gh` shim and that no checkout path precedes it, with the reason and the
   rejected live-workspace override, linking [gh authentication
   shim](../architecture/gh-authentication-shim.md) as the decision it
   supersedes; it is linked from `data/architecture.md`.
+  - **Evidence:** commit 52c9ed2 adds `architecture/gh-wrapper-image-only` and
+    its hub link; `iwe schema validate` passes.
 
 ### Task 10: Observe the images build and pass acceptance from the narrowed context
 
