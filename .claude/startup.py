@@ -27,6 +27,8 @@ LOG_DIR = Path(os.environ.get('AGENTDEV_STARTUP_LOG_DIR') or '/var/log')
 DOCKERD_LOG = LOG_DIR / 'dockerd.log'
 RELAY_LOG = LOG_DIR / 'agent-proxy-relay.log'
 RELAY_PIDFILE = Path('/var/run/agent-proxy-relay.pid')
+# On the session's persistent disk, so it outlives the dockerd that wrote it.
+DOCKER_PIDFILE = Path('/var/run/docker.pid')
 # Fixed, so the container's proxy address survives the session proxy changing port.
 RELAY_PORT = 3128
 # The devcontainer's nested engine claims 172.17.0.1, so the host bridge, which
@@ -160,12 +162,30 @@ def docker_ready() -> bool:
     return subprocess.run(['docker', 'info'], capture_output=True, check=False).returncode == 0
 
 
+def dockerd_running(pid: int, proc: Path = Path('/proc')) -> bool:
+    """Tell whether pid is a running dockerd."""
+    try:
+        argv0 = (proc / str(pid) / 'cmdline').read_bytes().split(b'\0')[0]
+    except OSError:
+        return False
+    return Path(argv0.decode(errors='replace')).name == 'dockerd'
+
+
+def remove_stale_docker_pidfile() -> None:
+    """Remove a pid file naming no dockerd, which a worker restart leaves and dockerd refuses."""
+    recorded = DOCKER_PIDFILE.read_text().strip() if DOCKER_PIDFILE.exists() else ''
+    if recorded.isdigit() and dockerd_running(int(recorded)):
+        return
+    DOCKER_PIDFILE.unlink(missing_ok=True)
+
+
 def start_docker() -> None:
     """Start the host dockerd on its own bridge subnet, unless it already runs."""
     if docker_ready():
         return
+    remove_stale_docker_pidfile()
     log(f'Starting Docker daemon (log: {DOCKERD_LOG})')
-    with DOCKERD_LOG.open('w') as log_file:
+    with DOCKERD_LOG.open('a') as log_file:
         dockerd = subprocess.Popen(
             ['dockerd', '--bip', DOCKER_BRIDGE_CIDR],
             stdin=subprocess.DEVNULL,
