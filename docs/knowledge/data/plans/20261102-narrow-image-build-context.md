@@ -293,13 +293,19 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 12: Keep the `ubuntu-ansible` digest stable across runs
 
-**Files:** Modify: `.github/actions/docker/build-push-action/action.yml`,
+**Files:** Create: `.github/actions/docker/build-push-action/select-labels.sh`,
+`scripts/tests/test_build_push_select_labels.py`; Modify:
+`.github/actions/docker/build-push-action/action.yml`,
 `.github/workflows/ci.yml`
 
-- [ ] The composite build action takes a `stable-labels` input that drops the
+- [x] The composite build action takes a `stable-labels` input that drops the
   `org.opencontainers.image.created`, `.revision`, and `.version` labels from
   the metadata it applies, and `ci.yml`'s `Build ubuntu ansible image` step sets
   it; the other image builds keep every label.
+  - **Evidence:** commit 7168f5e adds the input and `select-labels.sh`, and sets
+    it on `Build ubuntu ansible image` only;
+    `pytest scripts/tests/test_build_push_select_labels.py` passes 4 tests, and
+    `actionlint` and `zizmor --offline` pass.
 - [ ] Two runs of the action on unchanged `docker/ansible/` inputs push the same
   `ubuntu-ansible` per-architecture manifest digest.
 
