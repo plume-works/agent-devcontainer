@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T05:40:00Z
+  at: 2026-11-04T15:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -73,6 +73,13 @@ those inputs do.
   rebuild; between bumps `main` and pull requests share the layer cache, so the
   warm start from `agentdev-base:edge` is removed. `clean_build` and
   `[ci:clean_build]` build without the layer cache.
+
+- **Stable intermediate digest.** `agentdev-base` starts from `ubuntu-ansible`
+  by digest, so a per-run change to `ubuntu-ansible`'s image config misses every
+  provisioning step's cache. CI builds `ubuntu-ansible` without the
+  `org.opencontainers.image.created`, `.revision`, and `.version` labels, so
+  unchanged inputs keep its digest; the run's provenance attestation still
+  records the revision.
 
 - **gh wrapper.** `docker/bin/gh` becomes the `github_cli` role's `files/gh`,
   and the role stops putting the checkout's `docker/bin` on `PATH`: a checkout's
@@ -281,7 +288,20 @@ Modify: `docs/knowledge/data/architecture.md`
 
 - [ ] **Closed by: CI on the pull request.** After a commit that changes only a
   file under `.agents/plugins/`, the base image build log shows RUN 1 and RUN 2
-  `CACHED` and RUN 3 executed, on both architectures.
+  `CACHED` and RUN 3 executed, on both architectures. It closes on a run after
+  Task 12 lands, on a pull request whose body carries no `[ci:clean_build]`.
+
+### Task 12: Keep the `ubuntu-ansible` digest stable across runs
+
+**Files:** Modify: `.github/actions/docker/build-push-action/action.yml`,
+`.github/workflows/ci.yml`
+
+- [ ] The composite build action takes a `stable-labels` input that drops the
+  `org.opencontainers.image.created`, `.revision`, and `.version` labels from
+  the metadata it applies, and `ci.yml`'s `Build ubuntu ansible image` step sets
+  it; the other image builds keep every label.
+- [ ] Two runs of the action on unchanged `docker/ansible/` inputs push the same
+  `ubuntu-ansible` per-architecture manifest digest.
 
 ## Spec changes
 
@@ -332,8 +352,9 @@ The image build context SHALL contain only `ansible.cfg`, `ansible/`,
 `.devcontainer/firewall-allowlist.txt`. `agentdev-base` SHALL provision in
 three steps — Ansible roles, the validator, the catalog — each bind-mounting
 only the inputs it reads, so a change outside a step's inputs SHALL leave that
-step's cached layer valid. A `clean_build` dispatch or a `[ci:clean_build]`
-marker SHALL build without the layer cache.
+step's cached layer valid. `ubuntu-ansible` SHALL carry no per-run labels, so
+unchanged inputs keep its digest. A `clean_build` dispatch or a
+`[ci:clean_build]` marker SHALL build without the layer cache.
 
 #### Scenario: a change outside the image inputs
 
@@ -439,6 +460,9 @@ Verified anchor points (line numbers as of 2026-11-04, at commit d88b298; Task
 - `.github/workflows/primary-checks.yml:15` — dispatch `clean_build` input
 - `.github/actions/docker/build-push-action/action.yml:61-68` — `cache-from` and
   `cache-to`
+- `.github/actions/docker/build-push-action/action.yml:56-72` — `meta` step
+  labels applied to the build (Task 12)
+- `.github/workflows/ci.yml:109-120` — `Build ubuntu ansible image` (Task 12)
 - `.github/renovate.json:66-72` — `ubuntu` rule, `enabled: false`
 - `ansible/playbooks/setup-dev.yml:18-44` — the role list and tags (Task 6),
   from the `always`-tagged `perm_probe` and `extra_facts` to the final
