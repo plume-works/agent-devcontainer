@@ -66,8 +66,13 @@ Rejected:
 **Files:** Create:
 `.agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md`
 
-- [ ] The agent's tools are `Bash, Read, Grep, Glob`; its description names the
+- [x] The agent's tools are `Bash, Read, Grep, Glob`; its description names the
   `iwe-adversarial-review` skill as its only dispatcher.
+  - **Evidence:** Commit 04a8965 adds `iwe-adversarial-reviewer.agent.md` with
+    `tools: Bash, Read, Grep, Glob` and a description that names the
+    `iwe-adversarial-review` skill as its only dispatcher;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 - [ ] Its inputs are the plan key, the target (`plan` or `code`), and quoted
   approvals; anything else in the prompt is not evidence.
 - [ ] The plan rubric and the code rubric are as `## Approach` describes; every
