@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T20:10:00Z
+  at: 2026-11-04T21:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -336,8 +336,10 @@ Modify: `docs/knowledge/data/architecture.md`
   - **Evidence:** commit cd8efbd adds both assertions; run by hand inside the
     CI-built `agentdev-devcontainer:pr-692` image, each passes, and `.agents/`
     lists only `plugins`.
-- [ ] Dev Container runtime acceptance passes with the new assertions on both
+- [x] Dev Container runtime acceptance passes with the new assertions on both
   architectures.
+  - **Evidence:** Primary checks run 41908309456 at commit e28f58e; Dev
+    Container runtime acceptance passes 10 tests on amd64 and arm64.
 
 ## Spec changes
 
