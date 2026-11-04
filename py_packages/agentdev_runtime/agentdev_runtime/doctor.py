@@ -199,13 +199,10 @@ def services(report: Report, mode: str, firewall: str) -> None:
     report.check('cbm process', 'bash', '-c', "pgrep -f '[c]odebase-memory' >/dev/null")
     report.check('opencode probe', 'agentdev-runtime', 'opencode', 'probe')
     if mode == env.DEPLOY:
-        report.result('sshd process', 'SKIP', 'not used in deploy mode')
         report.result('mcp-gateway', 'SKIP', 'sidecar is not part of deploy mode')
     elif mode == env.DEVCONTAINER:
-        report.check('sshd process', 'bash', '-c', 'pgrep -x sshd >/dev/null')
         gateway(report)
     else:
-        report.result('sshd process', 'SKIP', 'runtime mode is invalid')
         report.result('mcp-gateway', 'SKIP', 'runtime mode is invalid')
     if firewall in TRUE_WORDS:
         report.check(
