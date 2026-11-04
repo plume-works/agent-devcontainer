@@ -37,4 +37,12 @@ has run. Copy each box's lines into its `- **Evidence:**` line on
   load was `agentdev:iwe-audit`, inside the Durable Knowledge Auditor, and the
   only `Agent` dispatch was `agentdev:Durable Knowledge Auditor`; no call
   loaded `iwe-adversarial-review` or dispatched `iwe-adversarial-reviewer`.
-- **OpenCode:** pending.
+- **OpenCode:** OpenCode session `ses_e5821c2aeffdP6vszCpTPCvBCj`
+  (`openai/gpt-6.1-sol`, agent `build`), from its exported transcript: the
+  request loaded `iwe-plan`, which wrote
+  `data/plans/20261104-slug-guard-backslashes` in create mode, and
+  `iwe schema validate` printed no violations. The only skills loaded were
+  `iwe-plan` and `git-commit`, and the only `subagent` call was
+  `durable-knowledge-auditor` (sub-session `ses_e58206d9affeAwq1qRugv0M01i`);
+  no call loaded `iwe-adversarial-review` or dispatched
+  `iwe-adversarial-reviewer`.
