@@ -224,12 +224,18 @@ host run still stages no catalog)
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] The consumption guide's image-build section describes opting out of the
+- [x] The consumption guide's image-build section describes opting out of the
   catalog and validator by removing their provisioning steps instead of the
   removed switches, and names the `.dockerignore` allow-list as the place a
   customized image adds inputs.
-- [ ] `architecture/template-boundary` lists `.dockerignore` as an allow-list a
+  - **Evidence:** commit 43f5127;
+    `validate_agent_files --recommend . --require-marketplace claude` reports 0
+    errors and prettier passes.
+- [x] `architecture/template-boundary` lists `.dockerignore` as an allow-list a
   custom image extends, and no longer implies `docker/bin` is needed.
+  - **Evidence:** commit 43f5127 adds the allow-list paragraph and replaces the
+    switch-based opt-out; the document names no `docker/bin` path, and
+    `iwe schema validate` passes.
 
 ### Task 9: Record the image-only gh wrapper decision
 
