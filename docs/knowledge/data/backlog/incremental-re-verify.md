@@ -6,7 +6,7 @@ priority: medium
 description: Let a Verify run whose HEAD descends from a commit with a saved Verify report re-check only what changed since that commit, instead of re-running every check and verification command.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-11-03T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -20,8 +20,8 @@ Builds on Verify report caching, which saves each Verify report keyed by plan
 key and the commit it ran on, and returns the saved report when Verify runs
 again on that same commit. That caching saves nothing once a commit lands, so
 every Implement loop round after a fix re-runs every check and every
-`## Verification` command — full test suites and e2e runs — even when the fix
-was a one-line evidence edit.
+`## Verification` command — full test suites — even when the fix was a one-line
+evidence edit.
 
 The work: when no report exists for `HEAD` but one exists for a commit that is
 an ancestor of `HEAD`, re-check only what the diff since that commit can affect,

@@ -43,6 +43,12 @@ symlink](bugs/claude-json-symlink-replaced.md)
 [Bug: cloud devcontainer loses the agent proxy after a worker
 restart](bugs/cloud-devcontainer-loses-proxy-after-worker-restart.md)
 
+[Bug: cloud devcontainer runs without the session env, and resume does not
+recover it](bugs/cloud-devcontainer-runs-without-session-env.md)
+
+[Bug: cloud startup crashes before installing the devcontainer
+CLI](bugs/cloud-startup-crashes-without-devcontainer-cli.md)
+
 [Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](bugs/coder-askpass-push-hang.md)
 
@@ -193,3 +199,6 @@ says so](bugs/workspace-image-lacks-hook-binaries.md)
 
 [Bug: supervised-Xpra tests can pick the same X display under
 pytest-xdist](bugs/xpra-test-displays-collide-under-xdist.md)
+
+[Bug: zizmor online audits fail in the cloud
+devcontainer](bugs/zizmor-online-audits-fail-in-cloud-devcontainer.md)
