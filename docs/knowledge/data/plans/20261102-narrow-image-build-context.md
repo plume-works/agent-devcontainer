@@ -314,10 +314,14 @@ Modify: `docs/knowledge/data/architecture.md`
   - **Evidence:** Primary checks run 41852171165 at commit e0a4a23, attempts 1
     and 2, both build `ubuntu-ansible` from cache and export the same manifest,
     `sha256:d39ddb34…` on amd64 and `sha256:4c0ea1e8…` on arm64.
-- [ ] The composite build action outputs a `platform-digest`, the built
+- [x] The composite build action outputs a `platform-digest`, the built
   architecture's manifest inside the pushed index, and `ci.yml`'s
   `Build agentdev base image` step passes it as `FROM_IMAGE` in place of the
   index digest.
+  - **Evidence:** commit b59450b adds `platform-digest.sh` and the output, and
+    sets `FROM_IMAGE` from it;
+    `pytest scripts/tests/test_build_push_platform_digest.py` passes 4 tests,
+    and `actionlint` and `zizmor --offline` pass.
 
 ## Spec changes
 
