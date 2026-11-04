@@ -1108,7 +1108,7 @@ in `## Choices`.
    `containerEnv`, which the image sets; and remove the `postCreateCommand`,
    `postStartCommand`, `postAttachCommand`, and `waitFor` keys that ran the
    copied scripts. Keep the consumer's mounts, workspace, editor settings,
-   `initializeCommand`, and SSH Feature.
+   `initializeCommand`, and the consumer's own Features.
 4. **The consumer's own lifecycle work.** Compare each copied lifecycle script
    with the upstream copy at `consumed_ref`. Move what the consumer added into a
    descriptor `postCreateCommand`, `postStartCommand`, or `postAttachCommand`,
