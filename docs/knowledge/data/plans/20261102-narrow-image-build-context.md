@@ -174,7 +174,9 @@ would make host provisioning carry a container entrypoint it never uses.
 `ansible/roles/agentic_tools/defaults/main.yml`,
 `ansible/roles/agentic_tools/README.md`,
 `ansible/roles/validate_agent_files/defaults/main.yml`,
-`ansible/playbooks/setup-dev.yml`
+`ansible/playbooks/setup-dev.yml`, `ansible/playbooks/group_vars/all.yml` (an
+`install_agent_catalog: false` gate, like its sibling roles', so an untagged
+host run still stages no catalog)
 
 - [ ] `agent_catalog` stages and installs the catalog with `agent_catalog_*`
   variables, is tagged `agent_catalog` in `setup-dev.yml` after `agentic_tools`,
@@ -379,11 +381,11 @@ on this plan: its shell-setup task no longer puts the checkout's `docker/bin` on
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
+Verified anchor points (line numbers as of 2026-11-04, at commit d88b298):
 
 - `docker/base/agentdev-base.Dockerfile:45-66` — provisioning `RUN`,
   whole-context mount at line 47, catalog and validator `-e` switches at 60-65
-- `docker/base/agentdev-base.Dockerfile:91` — `COPY` of
+- `docker/base/agentdev-base.Dockerfile:96` — `COPY` of
   `docker/desktop/entrypoint.sh`
 - `docker/ansible/Dockerfile:1` — `ARG BASE_IMAGE=ubuntu:24.04`
 - `docker/ansible/Dockerfile:7` — `source=..` setup-script mount
@@ -396,7 +398,7 @@ Verified anchor points (line numbers as of 2026-11-02):
 - `.github/workflows/primary-checks.yml:15` — dispatch `clean_build` input
 - `.github/actions/docker/build-push-action/action.yml:61-68` — `cache-from` and
   `cache-to`
-- `.github/renovate.json:65-71` — `ubuntu` rule, `enabled: false`
+- `.github/renovate.json:66-72` — `ubuntu` rule, `enabled: false`
 - `ansible/playbooks/setup-dev.yml:33-39` — `bun_setup` tag list,
   `validate_agent_files` and `agentic_tools` roles
 - `ansible/roles/agentic_tools/tasks/main.yml:41-49` — catalog stage and install
@@ -410,7 +412,7 @@ Verified anchor points (line numbers as of 2026-11-02):
 - `ansible.cfg:6` — `log_path=ansible/ansible.log`
 - `scripts/tests/test_playwright_browser_provisioning.py:16` — reads
   `agentdev-base.Dockerfile`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1059-1072`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1049-1072`
   — image-build opt-out through `agentic_tools_stage_catalog`
 - `docs/knowledge/data/architecture/template-boundary.md:178-182` — custom image
   path set
