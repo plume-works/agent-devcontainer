@@ -277,34 +277,37 @@ def test_setup_builds_the_image_without_creating_the_container(scratch: Path) ->
     assert not [line for line in lines if line.startswith(('devcontainer up', 'docker compose'))]
 
 
-def stub_dockerd(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Stub a dockerd that, like the real one, refuses to start while its pid file exists."""
+def stub_dockerd(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Path]:
+    """Stub a dockerd that refuses to start while a daemon pid file exists."""
     bin_dir = scratch / 'bin'
     bin_dir.mkdir()
-    pidfile = scratch / 'docker.pid'
+    pidfiles = {name: scratch / f'{name}.pid' for name in startup.DAEMON_PIDFILES}
     ready = scratch / 'ready'
+    found = ' || '.join(f'[ -e {pidfile} ]' for pidfile in pidfiles.values())
     (bin_dir / 'docker').write_text(f'#!/bin/sh\n[ -e {ready} ]\n')
     (bin_dir / 'dockerd').write_text(
-        f'#!/bin/sh\nif [ -e {pidfile} ]; then echo "pid file found"; exit 1; fi\n'
+        f'#!/bin/sh\nif {found}; then echo "pid file found"; exit 1; fi\n'
         f'echo "dockerd started"\ntouch {ready}\n'
     )
     for stub in bin_dir.iterdir():
         stub.chmod(0o755)
     monkeypatch.setenv('PATH', f'{bin_dir}:/usr/bin:/bin')
-    monkeypatch.setattr(startup, 'DOCKER_PIDFILE', pidfile)
+    monkeypatch.setattr(startup, 'DAEMON_PIDFILES', pidfiles)
     monkeypatch.setattr(startup, 'DOCKERD_LOG', scratch / 'dockerd.log')
-    return pidfile
+    return pidfiles
 
 
+@pytest.mark.parametrize('daemon', list(startup.DAEMON_PIDFILES))
 @pytest.mark.parametrize('stale', ['live-process', 'missing-process'])
-def test_stale_docker_pidfile_is_removed_before_dockerd_starts(
-    scratch: Path, monkeypatch: pytest.MonkeyPatch, stale: str
+def test_stale_daemon_pidfile_is_removed_before_dockerd_starts(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch, daemon: str, stale: str
 ) -> None:
-    """A pid file left by the previous boot names no dockerd, so it no longer blocks the start."""
-    pidfile = stub_dockerd(scratch, monkeypatch)
+    """A pid file the previous boot left names no such daemon, so it does not block the start."""
+    pidfile = stub_dockerd(scratch, monkeypatch)[daemon]
     pidfile.write_text(f'{os.getpid() if stale == "live-process" else 2**22 + 1}\n')
     startup.start_docker()
     assert 'dockerd started' in startup.DOCKERD_LOG.read_text()
+    assert not pidfile.exists()
 
 
 def test_dockerd_log_keeps_earlier_runs(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> None:
