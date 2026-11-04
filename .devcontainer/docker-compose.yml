@@ -73,7 +73,7 @@ services:
       GIT_COMMITTER_NAME:
       GIT_COMMITTER_EMAIL:
 
-    # Written only by .claude/startup.sh, so elsewhere no key is set and nothing is
+    # Written only by .claude/startup.py, so elsewhere no key is set and nothing is
     # overridden; see architecture/cloud-session-devcontainer.
     env_file:
       - path: ./cloud-session.env

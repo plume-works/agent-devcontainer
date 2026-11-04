@@ -1,11 +1,11 @@
 ---
 type: architecture
-description: In a Claude Code cloud session .claude/startup.sh brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
+description: In a Claude Code cloud session .claude/startup.py brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
   at: 2026-11-04T04:00:00Z
 sources:
-- resource: .claude/startup.sh
+- resource: .claude/startup.py
 - resource: .claude/agent-proxy-relay.py
 - resource: .claude/CLAUDE.cloud.md
 - resource: .claude/settings.json
@@ -18,7 +18,7 @@ sources:
 
 ## Startup sequence
 
-A Claude Code cloud session runs `.claude/startup.sh` as its environment setup
+A Claude Code cloud session runs `.claude/startup.py` as its environment setup
 script. The repository checkout stays on the session's host; the toolchain lives
 in the devcontainer, which the script brings up before the session starts work:
 
@@ -38,7 +38,7 @@ after it.
 A worker restart inside a session stops the host `dockerd`, the relay and with
 them the container, and can move the agent proxy to another port. A
 `SessionStart` hook in `.claude/settings.json` therefore runs
-`.claude/startup.sh resume` on every session start. Resume mode acts only on a
+`.claude/startup.py resume` on every session start. Resume mode acts only on a
 cloud-session host (`CLAUDE_CODE_REMOTE=true` and no `AGENTDEV_RUNTIME_MODE`,
 which the devcontainer sets), keeps whatever still runs, and restarts the rest:
 `dockerd`, a relay aimed at the proxy's current port, and the container.
@@ -51,7 +51,7 @@ placeholder that the proxy replaces with the real credential, and the proxy
 injects git's HTTP authentication. Direct egress from a container reaches
 GitHub, but the placeholder token gets a 401 there.
 
-`.claude/startup.sh`, which runs only in cloud sessions, therefore:
+`.claude/startup.py`, which runs only in cloud sessions, therefore:
 
 - starts the host `dockerd` with `--bip 10.213.0.1/24`;
 - runs `.claude/agent-proxy-relay.py`, a plain TCP relay from port 3128 on the

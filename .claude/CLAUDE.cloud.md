@@ -1,7 +1,7 @@
 # Cloud environment with agentdev
 
 The repository is checked out on the session host, outside its devcontainer.
-`.claude/startup.sh` has already brought the devcontainer up. The host has none
+`.claude/startup.py` has already brought the devcontainer up. The host has none
 of the project toolchain; the devcontainer has all of it. Follow the
 `/agentdev:devcontainer-sandbox` skill to run tools there.
 
