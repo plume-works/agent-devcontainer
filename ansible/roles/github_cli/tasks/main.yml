@@ -48,14 +48,19 @@
 
 # A checkout's own gh must never run ahead of the wrapper, so hosts provisioned
 # with the old PATH prepends lose them.
-- name: Remove the workspace gh PATH prepend from bash
-  ansible.builtin.blockinfile:
-    path: "{{ user_home }}/.bashrc"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK: github_cli_wrapper"
-    state: absent
+- name: Find the shell configs that may carry the workspace gh PATH prepend
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ user_home }}/.bashrc"
+    - "{{ user_home }}/.config/fish/config.fish"
+  register: github_cli_shell_configs
 
-- name: Remove the workspace gh PATH prepend from fish
+- name: Remove the workspace gh PATH prepend
   ansible.builtin.blockinfile:
-    path: "{{ user_home }}/.config/fish/config.fish"
+    path: "{{ item.stat.path }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: github_cli_wrapper"
     state: absent
+  loop: "{{ github_cli_shell_configs.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.item }}"
