@@ -105,8 +105,14 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md`; Modify:
 `.agents/plugins/agentdev/README.md`
 
-- [ ] The skill builds the conversation-free prompt, dispatches
+- [x] The skill builds the conversation-free prompt, dispatches
   `iwe-adversarial-reviewer`, and re-posts its report verbatim.
+  - **Evidence:** Commit 6de0ec2 adds `skills/iwe-adversarial-review/SKILL.md`:
+    steps 2-4 build a prompt of plan key, target, and quoted approvals only,
+    dispatch `iwe-adversarial-reviewer` forwarding no conversation turns, and
+    re-post its report verbatim;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 - [ ] Its description limits it to an explicit request or a plan task that runs
   it.
 - [ ] The README's skill table lists it.
