@@ -6,7 +6,7 @@ generated:
   at: 2026-11-04T03:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
-- resource: .claude/startup.sh
+- resource: .claude/startup.py
 - resource: .devcontainer/docker-compose.yml
 - resource: https://code.claude.com/docs/en/claude-code-on-the-web
 stage: pending
@@ -17,7 +17,7 @@ severity: low
 
 ## Symptom
 
-In a devcontainer that `.claude/startup.sh` brought up in a Claude Code cloud
+In a devcontainer that `.claude/startup.py` brought up in a Claude Code cloud
 session, `agentdev-runtime doctor` ends `Overall: FAIL` with three GitHub
 failures. Meanwhile `gh api user` returns the account, and `git ls-remote` and
 `git push` to `origin` succeed:
@@ -29,7 +29,7 @@ failures. Meanwhile `gh api user` returns the account, and `git ls-remote` and
 
 ## Reproduction
 
-1. Start a Claude Code cloud session on this repository, so `.claude/startup.sh`
+1. Start a Claude Code cloud session on this repository, so `.claude/startup.py`
    relays the agent proxy and writes `.devcontainer/cloud-session.env` (see
    [Cloud session devcontainer](../architecture/cloud-session-devcontainer.md)).
 2. In the devcontainer, run `gh api user` and `git ls-remote origin`; both
@@ -59,7 +59,7 @@ runs in a cloud session.
 
 ## Potential solution
 
-Give `doctor` a Claude Code cloud environment. `.claude/startup.sh` can mark it,
+Give `doctor` a Claude Code cloud environment. `.claude/startup.py` can mark it,
 for example with a variable in `.devcontainer/cloud-session.env`. In that
 environment, check `gh` with a REST call (`gh api user`), accept
 `git ls-remote origin` authenticating in place of a configured credential

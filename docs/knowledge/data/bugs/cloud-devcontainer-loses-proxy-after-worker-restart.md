@@ -5,7 +5,7 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-11-04T04:00:00Z
 sources:
-- resource: .claude/startup.sh
+- resource: .claude/startup.py
 - resource: .claude/settings.json
 - resource: .claude/agent-proxy-relay.py
 - resource: .devcontainer/docker-compose.yml
@@ -25,7 +25,7 @@ Once the container is up again, `git push` inside it fails with
 
 ## Reproduction
 
-1. In a Claude Code cloud session, let `.claude/startup.sh` bring the
+1. In a Claude Code cloud session, let `.claude/startup.py` bring the
    devcontainer up, so its `HTTPS_PROXY` names the relay on the agent proxy's
    port at that time.
 2. Restart the session's worker process. The host `dockerd` and the relay stop,
@@ -35,7 +35,7 @@ Once the container is up again, `git push` inside it fails with
 
 ## Root cause
 
-- `.claude/startup.sh` runs only as the environment setup script when the
+- `.claude/startup.py` runs only as the environment setup script when the
   session's host is built. Nothing runs it after a worker restart, which stops
   the host `dockerd`, the relay, and the container.
 - The relay listened on the agent proxy's own port, and that port went into the
@@ -48,7 +48,7 @@ Once the container is up again, `git push` inside it fails with
 
 - The relay listens on the fixed port 3128 and forwards to the proxy's current
   port, so the container's `HTTPS_PROXY` stays valid when the proxy moves.
-- `.claude/startup.sh resume` restores what a worker restart stops: it starts
+- `.claude/startup.py resume` restores what a worker restart stops: it starts
   `dockerd` when it is down, restarts the relay unless a relay to the current
   port is alive, and brings the container up when it is not running. A relay
   counts as alive only while `/proc/<pid>/cmdline` still names it with that
