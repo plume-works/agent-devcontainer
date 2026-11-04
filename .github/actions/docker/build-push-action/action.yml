@@ -49,6 +49,11 @@ outputs:
   digest:
     description: Digest of the built image
     value: ${{ steps.build.outputs.digest }}
+  platform-digest:
+    description: >-
+      Digest of the image's own manifest for the built architecture. A build FROM it stays
+      cached while the image is unchanged, whatever per-run attestations its index carries.
+    value: ${{ steps.platform.outputs.digest }}
 runs:
   using: composite
   steps:
@@ -88,6 +93,15 @@ runs:
         cache-to: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }},mode=max
         build-args: ${{ inputs.build-args }}
         outputs: type=image,"name=${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=true
+
+    - name: Resolve platform digest
+      id: platform
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+        DIGEST: ${{ steps.build.outputs.digest }}
+        ARCH: ${{ inputs.arch }}
+      run: '$GITHUB_ACTION_PATH/platform-digest.sh'
 
     - name: Export digest
       if: ${{ inputs.export-digest == 'true' }}

@@ -135,7 +135,7 @@ jobs:
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
           build-args: |
-            FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}@${{ steps.build_ubuntu_ansible.outputs.digest }}
+            FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}@${{ steps.build_ubuntu_ansible.outputs.platform-digest }}
             PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}
 
       # Both runtimes are siblings layered on exactly the base digest this job just
