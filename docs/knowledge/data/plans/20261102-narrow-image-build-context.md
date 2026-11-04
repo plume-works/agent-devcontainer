@@ -182,10 +182,17 @@ host run still stages no catalog)
   variables, is tagged `agent_catalog` in `setup-dev.yml` after `agentic_tools`,
   and relies on no fact another role sets except the `always`-tagged
   `extra_facts`.
-- [ ] `agentic_tools` installs only the tools and `cc-filter`; its catalog
+- [x] `agentic_tools` installs only the tools and `cc-filter`; its catalog
   switches and variables are gone.
-- [ ] The staged trees are `.claude-plugin` and `.agents/plugins`, and no plugin
+  - **Evidence:** commit 27c33da; no `agentic_tools_*catalog*` or
+    `agentic_tools_plugin_*` name remains under `ansible/`, and `ansible-lint`
+    passes.
+- [x] The staged trees are `.claude-plugin` and `.agents/plugins`, and no plugin
   `tests/` directory reaches the staged catalog.
+  - **Evidence:** commit 27c33da; running `stage_catalog.yml` alone from the
+    devcontainer against this checkout stages only `.claude-plugin` and
+    `.agents/plugins`, `find -name tests -type d` on the staged root prints
+    nothing, and a mismatched version pin still fails.
 
 ### Task 6: Split the base image provisioning into per-input steps
 
