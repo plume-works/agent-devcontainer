@@ -132,11 +132,17 @@ would make host provisioning carry a container entrypoint it never uses.
 **Files:** Modify: `.github/actions/docker/build-push-action/action.yml`,
 `.github/workflows/ci.yml`, `.github/workflows/primary-checks.yml`
 
-- [ ] The composite build action takes a `no-cache` input that drops
+- [x] The composite build action takes a `no-cache` input that drops
   `cache-from` while still writing `cache-to`.
-- [ ] A `clean_build` dispatch or a `[ci:clean_build]` marker in the commit
+  - **Evidence:** commit aa9f25c adds the input and empties `cache-from` when it
+    is `'true'`, leaving `cache-to` unchanged; `actionlint` and `zizmor` pass on
+    the action.
+- [x] A `clean_build` dispatch or a `[ci:clean_build]` marker in the commit
   message or pull request body sets it for every image build in the run, and the
   input descriptions say so.
+  - **Evidence:** commit aa9f25c passes `no-cache` to all four image builds in
+    `ci.yml` from `inputs.clean_build` or the marker check, and rewrites both
+    `clean_build` descriptions; `actionlint` and `zizmor` pass.
 
 ### Task 4: Move the gh wrapper into the `github_cli` role
 
