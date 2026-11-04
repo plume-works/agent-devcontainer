@@ -308,6 +308,8 @@ verify](plans/20260816-skill-handoff-routes.md)
 [Reference bundled skill code by skill-relative agent-code
 paths](plans/20261001-skill-relative-agent-code.md)
 
+[Guard plan slugs against path traversal](plans/20261104-slug-guard-fixture.md)
+
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
