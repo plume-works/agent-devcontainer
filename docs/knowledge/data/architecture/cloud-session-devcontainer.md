@@ -3,7 +3,7 @@ type: architecture
 description: In a Claude Code cloud session .claude/startup.sh brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T02:00:00Z
+  at: 2026-11-04T02:30:00Z
 sources:
 - resource: .claude/startup.sh
 - resource: .claude/agent-proxy-relay.py
@@ -63,12 +63,16 @@ the host configures in its Docker client config still reaches the container.
   its own `docker0` at `172.17.0.1`. With the host bridge there too,
   `host.docker.internal` (`host-gateway`) resolves to the container itself.
 - The relay exposes the proxy, and with it the session's GitHub access, to every
-  container on the host bridge.
+  container on the host bridge. The maintainer accepted that for cloud sessions.
 - The proxy address is fixed when the container is created. A new session
   re-runs `.claude/startup.sh` and recreates the container.
 - GitHub GraphQL is refused by the session's proxy policy, so `gh` commands
   built on it fail inside the container exactly as on the host. `gh auth status`
-  reports the placeholder token as invalid on both.
+  validates the token through GraphQL, so it reports the token as invalid while
+  REST calls with it succeed.
+- The proxy serves repository paths on `github.com` but answers the bare root
+  `https://github.com/` with 400, and git needs no credential helper because the
+  proxy injects its authentication.
 
 ## Rejected alternatives
 
