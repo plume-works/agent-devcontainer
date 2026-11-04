@@ -211,24 +211,52 @@ def install_devcontainer_cli() -> None:
         run('bun', 'install', f'@devcontainers/cli@{DEVCONTAINER_CLI_VERSION}', '--global')
 
 
-def devcontainer_running() -> bool:
-    """Tell whether this checkout's devcontainer is running."""
+def devcontainer_ids(*flags: str) -> list[str]:
+    """Return the IDs of this checkout's devcontainer, running only unless flags say otherwise."""
     label = f'label=devcontainer.local_folder={REPO_ROOT}'
-    return bool(output('docker', 'ps', '-q', '--filter', label))
+    return output('docker', 'ps', '-q', *flags, '--filter', label).split()
 
 
-def bring_devcontainer_up(environ: Mapping[str, str]) -> None:
-    """Install the CLI, prepare proxy access, and run devcontainer up with the git identity."""
-    log('Bringing up devcontainer')
-    install_devcontainer_cli()
-    prepare_proxy_access(environ)
+def lacks_session_env(container: str) -> bool:
+    """Tell whether the container's environment misses or differs from cloud-session.env."""
+    if not CLOUD_ENV.exists():
+        return False
+    wanted = set(CLOUD_ENV.read_text().splitlines()) - {''}
+    env = output('docker', 'inspect', '-f', '{{range .Config.Env}}{{println .}}{{end}}', container)
+    return not wanted <= set(env.splitlines())
+
+
+def devcontainer_up(environ: Mapping[str, str], *flags: str) -> None:
+    """Run devcontainer up on the checkout with the host's git identity."""
     run(
         'devcontainer',
         'up',
+        *flags,
         '--workspace-folder',
         str(REPO_ROOT),
         env={**environ, **git_identity()},
     )
+
+
+def sync_devcontainer(environ: Mapping[str, str], *, always_up: bool) -> None:
+    """
+    Bring the devcontainer up, recreating it when it lacks cloud-session.env.
+
+    A container's environment is fixed at creation, so only a new container picks up the file.
+    """
+    if any(lacks_session_env(container) for container in devcontainer_ids('-a')):
+        log('Recreating the devcontainer, whose environment lacks cloud-session.env')
+        devcontainer_up(environ, '--remove-existing-container')
+    elif always_up or not devcontainer_ids():
+        log('Bringing up devcontainer')
+        devcontainer_up(environ)
+
+
+def bring_devcontainer_up(environ: Mapping[str, str], *, always_up: bool = True) -> None:
+    """Install the CLI, prepare proxy access, and bring the devcontainer up."""
+    install_devcontainer_cli()
+    prepare_proxy_access(environ)
+    sync_devcontainer(environ, always_up=always_up)
 
 
 def register_plugin() -> None:
@@ -275,11 +303,7 @@ def resume(environ: Mapping[str, str]) -> None:
     if not is_cloud_host(environ):
         return
     start_docker()
-    if devcontainer_running():
-        install_devcontainer_cli()
-        prepare_proxy_access(environ)
-    else:
-        bring_devcontainer_up(environ)
+    bring_devcontainer_up(environ, always_up=False)
 
 
 def main(argv: list[str]) -> int:

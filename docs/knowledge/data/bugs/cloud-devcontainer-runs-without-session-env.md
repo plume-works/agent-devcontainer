@@ -3,13 +3,14 @@ type: bug
 description: In a Claude Code cloud session the devcontainer can run without the proxy and token from .devcontainer/cloud-session.env, and .claude/startup.py resume does not recover it, so gh and git push fail inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T03:22:57Z
+  at: 2026-11-04T03:33:47Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/settings.json
 - resource: .devcontainer/docker-compose.yml
+- resource: scripts/tests/test_cloud_startup.py
 - resource: https://github.com/plume-works/agent-devcontainer/pull/686
-stage: pending
+stage: done
 severity: high
 ---
 
@@ -56,7 +57,12 @@ restores `gh` and `git push`.
     env](../backlog/settle-cloud-devcontainer-created-without-session-env.md)
     settles it.
 
-## Potential solution
+## Fix
 
-`resume` recreates a running container whose environment lacks a key that
-`cloud-session.env` sets, or carries a different value for it.
+`setup` and `resume` compare each existing devcontainer's environment with
+`cloud-session.env`. When a line of the file is missing from it or carries a
+different value, they run `devcontainer up --remove-existing-container`, so the
+container is recreated with the file; otherwise `resume` keeps a running
+container. Without the file there is nothing to compare and the container is
+kept. `scripts/tests/test_cloud_startup.py` covers a missing key, a different
+value, a matching container, no container, and no file.

@@ -170,3 +170,82 @@ def test_no_loopback_proxy_removes_stale_access(
     monkeypatch.setattr(startup, 'RELAY_PIDFILE', scratch / 'relay.pid')
     startup.prepare_proxy_access({})
     assert not cloud_env.exists()
+
+
+SESSION_ENV = 'HTTPS_PROXY=http://host.docker.internal:3128\nGH_TOKEN=token\n'
+
+
+def stub_container(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch, container_env: list[str] | None
+) -> tuple[dict[str, str], Path]:
+    """Stub docker and devcontainer around one container, or none; return the env and call log."""
+    bin_dir = scratch / 'bin'
+    bin_dir.mkdir()
+    calls = scratch / 'calls'
+    listing = '' if container_env is None else 'echo c0ffee'
+    env_lines = '\n'.join(container_env or [])
+    (bin_dir / 'docker').write_text(
+        f'#!/bin/sh\necho docker "$@" >> {calls}\n'
+        f'case "$1" in ps) {listing} ;; inspect) printf "%s\\n" "{env_lines}" ;; esac\n'
+    )
+    (bin_dir / 'devcontainer').write_text(f'#!/bin/sh\necho devcontainer "$@" >> {calls}\n')
+    for stub in bin_dir.iterdir():
+        stub.chmod(0o755)
+    cloud_env = scratch / 'cloud-session.env'
+    cloud_env.write_text(SESSION_ENV)
+    monkeypatch.setattr(startup, 'CLOUD_ENV', cloud_env)
+    path = f'{bin_dir}:/usr/bin:/bin'
+    monkeypatch.setenv('PATH', path)
+    return {'PATH': path}, calls
+
+
+def devcontainer_calls(calls: Path) -> list[str]:
+    """Return the recorded devcontainer invocations."""
+    if not calls.exists():
+        return []
+    return [line for line in calls.read_text().splitlines() if line.startswith('devcontainer')]
+
+
+@pytest.mark.parametrize(
+    'container_env',
+    [
+        ['HTTPS_PROXY=http://host.docker.internal:3128'],
+        ['HTTPS_PROXY=http://host.docker.internal:3128', 'GH_TOKEN=old'],
+    ],
+    ids=['missing-key', 'different-value'],
+)
+def test_container_without_the_session_env_is_recreated(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch, container_env: list[str]
+) -> None:
+    """A container whose environment differs from cloud-session.env is recreated from it."""
+    environ, calls = stub_container(scratch, monkeypatch, container_env)
+    startup.sync_devcontainer(environ, always_up=False)
+    assert devcontainer_calls(calls) == [
+        f'devcontainer up --remove-existing-container --workspace-folder {startup.REPO_ROOT}'
+    ]
+
+
+def test_running_container_with_the_session_env_is_kept(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Resume leaves a running container alone when it already carries cloud-session.env."""
+    environ, calls = stub_container(
+        scratch, monkeypatch, ['PATH=/usr/bin', *SESSION_ENV.splitlines()]
+    )
+    startup.sync_devcontainer(environ, always_up=False)
+    assert devcontainer_calls(calls) == []
+
+
+def test_missing_container_is_brought_up(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Without a container, devcontainer up creates one, with no recreate flag."""
+    environ, calls = stub_container(scratch, monkeypatch, None)
+    startup.sync_devcontainer(environ, always_up=False)
+    assert devcontainer_calls(calls) == [f'devcontainer up --workspace-folder {startup.REPO_ROOT}']
+
+
+def test_no_session_env_never_recreates(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Without cloud-session.env there is nothing to compare, so the container is kept."""
+    environ, calls = stub_container(scratch, monkeypatch, ['PATH=/usr/bin'])
+    startup.CLOUD_ENV.unlink()
+    startup.sync_devcontainer(environ, always_up=True)
+    assert devcontainer_calls(calls) == [f'devcontainer up --workspace-folder {startup.REPO_ROOT}']
