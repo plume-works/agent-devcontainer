@@ -179,9 +179,24 @@ Modify: `docs/knowledge/data/architecture.md`
 OpenCode with the default test models, on a plan whose code defeats one of its
 own claims.
 
-- [ ] `/agentdev:iwe-adversarial-review <plan> code` dispatches one
+- [x] `/agentdev:iwe-adversarial-review <plan> code` dispatches one
   `iwe-adversarial-reviewer` whose report names the defeated claim, and the
   checkout has no new commit and a clean worktree.
+  - **Evidence:** Maintainer observation on fixture plan
+    `data/plans/20261104-slug-guard-fixture` (branch
+    `scratch/adversarial-review-fixture`, whose code accepts the `a/b` slug its
+    requirement refuses). Claude Code 2.1.318 (cloud, `claude-opus-5-5`),
+    session `session_01Q7BhLsjCAGNdn2tLU8PM6G`: one `Agent` dispatch of
+    `agentdev:iwe-adversarial-reviewer` with a prompt of only plan key, target
+    `code`, and approvals; the reviewer made three read-only `Bash` calls and no
+    edit or dispatch; its report names "Slugs cannot leave the plans directory"
+    with `scripts/slug_guard.py:6`; `git status --porcelain` empty before and
+    after. OpenCode (`openai/gpt-6.1-sol`), session
+    `ses_e5825cbeeffenHmG7Bgao3qB4h`: one `subagent` call to
+    `iwe-adversarial-reviewer` with the same three-line prompt; its report names
+    the same requirement and the "A nested slug is refused" scenario with
+    `scripts/slug_guard.py:6`; the session's worktree snapshot is unchanged with
+    no files changed.
 
 ### Task 6: Observe planning leaving the review alone on both harnesses
 
