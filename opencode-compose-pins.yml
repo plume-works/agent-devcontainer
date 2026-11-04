@@ -2,4 +2,4 @@
 # Kept outside the image-build path filter; see spec/image-pinning.
 services:
   opencode:
-    image: ghcr.io/plume-works/agentdev-deploy:edge@sha256:673d565881354a589ab5b76d28d3bfbbed94421b5814ca344d5b217b8f9b3187
+    image: ghcr.io/plume-works/agentdev-deploy:edge@sha256:4bc06587c32be885d8cd63c7f689a7c7d47c0e672c12956d25b9f0ab5b717e2a
