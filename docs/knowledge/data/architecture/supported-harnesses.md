@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Claude Code and OpenCode are the two agent harnesses the images, runtime, catalog, CI, and e2e suites support; Codex is not supported, while validate_agent_files keeps its Codex ecosystem for other repositories.
+description: Claude Code and OpenCode are the two agent harnesses the images, runtime, catalog, and CI support; Codex is not supported, while validate_agent_files keeps its Codex ecosystem for other repositories.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:33:45Z
+  at: 2026-11-03T21:00:00Z
 sources:
 - resource: docs/knowledge/data/features/claude-and-opencode-only-harnesses.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -26,8 +26,7 @@ supported anywhere:
   (`.agents/plugins/agentdev/.opencode-plugin/`), and nothing for Codex;
 - a catalog checkout is complete with those two, so `catalog install` and the
   attach override register Claude Code and OpenCode only;
-- CI validates the catalog with `--require-marketplace claude`, and the e2e
-  suites run Claude Code and OpenCode.
+- CI validates the catalog with `--require-marketplace claude`.
 
 A user may still install Codex inside a container; nothing configures it or
 registers the catalog for it.

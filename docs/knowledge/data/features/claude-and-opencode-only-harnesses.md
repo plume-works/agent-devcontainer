@@ -1,16 +1,15 @@
 ---
 type: feature
 stage: implemented
-description: Claude Code and OpenCode are the only agent harnesses the images, runtime, agentdev catalog, CI, and e2e suites support; Codex is removed entirely.
+description: Claude Code and OpenCode are the only agent harnesses the images, runtime, agentdev catalog, and CI support; Codex is removed entirely.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:30:00Z
+  at: 2026-11-03T21:00:00Z
 sources:
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
 - resource: .agents/plugins/agentdev/.codex-plugin/plugin.json
 - resource: .agents/plugins/agentdev/bin/install-codex-agents.py
-- resource: scripts/e2e/iwe-workflows/harness_codex.py
 ---
 
 # Claude Code and OpenCode are the only supported harnesses
@@ -18,8 +17,8 @@ sources:
 ## Purpose
 
 The devcontainer, the `agentdev-base`, `agentdev-devcontainer`, and
-`agentdev-deploy` images, the `agentdev` catalog, CI, and the e2e suites support
-exactly two agent harnesses: Claude Code and OpenCode. Codex is not supported.
+`agentdev-deploy` images, the `agentdev` catalog, and CI support exactly two
+agent harnesses: Claude Code and OpenCode. Codex is not supported.
 
 ## Behaviour
 
@@ -32,8 +31,7 @@ exactly two agent harnesses: Claude Code and OpenCode. Codex is not supported.
   Codex agent installer.
 - The repository has no `.codex/` directory and the devcontainer declares no
   `agentdev-codex` volume.
-- The e2e suites run Claude Code and OpenCode only, and CI requires only the
-  Claude marketplace.
+- CI requires only the Claude marketplace.
 - The general-purpose `validate_agent_files` package keeps its Codex ecosystem
   support, because it validates other repositories' catalogs.
 

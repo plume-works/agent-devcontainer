@@ -136,6 +136,8 @@ pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
 [Bootstrap agentdev natively on macOS with
 Homebrew](plans/20261013-macos-native-bootstrap.md)
 
+[Cool down Primary checks on main](plans/20261104-main-ci-cooldown.md)
+
 [Replace gh stack with manual stacked pull
 requests](plans/20261101-manual-stacked-prs.md)
 
@@ -255,6 +257,8 @@ conversation](plans/20261021-remote-control-pin-follows-clear.md)
 autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
+
+[Remove the IWE workflow e2e suite](plans/20261103-remove-iwe-workflow-e2e.md)
 
 [Re-request an AI review after a change
 request](plans/20261103-rereview-after-changes-requested.md)

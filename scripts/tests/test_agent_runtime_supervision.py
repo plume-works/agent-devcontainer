@@ -740,7 +740,7 @@ def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
 
 
 def test_health_needs_a_live_controller_reporting_ready(make):
-    box = make()
+    box = make(AGENTDEV_PROBE_FAILURES='1000')
     box.start()
     box.wait_for(box.ready)
     assert box.health('ready').returncode == 0

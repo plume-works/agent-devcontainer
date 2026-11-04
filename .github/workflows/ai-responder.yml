@@ -414,7 +414,7 @@ jobs:
       needs.preflight.outputs.wants_review == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:3b4e23e2fb4f2bbe1ef5c993c0c01ad58568c3e64e155bcea0749aa16e842ad0
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:921641c119164439fd10d349315e0a197ea1a567b619398abd1408e08f2eb20f
     permissions:
       contents: read
       pull-requests: write # For PR reviews and inline comments
@@ -461,7 +461,7 @@ jobs:
       needs.preflight.outputs.wants_task == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:3b4e23e2fb4f2bbe1ef5c993c0c01ad58568c3e64e155bcea0749aa16e842ad0
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:921641c119164439fd10d349315e0a197ea1a567b619398abd1408e08f2eb20f
     permissions:
       contents: write # For requested repository edits
       pull-requests: write # For PR comments and inline comments

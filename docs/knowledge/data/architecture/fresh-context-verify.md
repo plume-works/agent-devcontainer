@@ -3,7 +3,7 @@ type: architecture
 description: Why Verify's rulebook lives in the iwe-verifier catalog agent, which the iwe-verify skill dispatches with a conversation-free prompt and iwe-shipper follows in place, so every Verify run judges the code from a fresh context.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:59:36Z
+  at: 2026-11-03T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -54,9 +54,9 @@ judged, and a verification command that dirties it is a CRITICAL. A
 `Needs decision` report is never saved, so a re-run granting the approval runs
 Verify. The Implement loop runs Verify through the skill, so the Shipper's
 in-place Verify on the same commit reuses the loop's verdict instead of
-repeating its test and e2e runs. The lookup and save are a bundled script in the
-skill, the one place both routes reach on every harness. Trust in `.tmp/verify/`
-rests on a rule: only that script writes it.
+repeating its test runs. The lookup and save are a bundled script in the skill,
+the one place both routes reach on every harness. Trust in `.tmp/verify/` rests
+on a rule: only that script writes it.
 
 The catalog digest hashes the files of the catalog the script runs from, on disk
 rather than Git-tracked, because an installed plugin is not a Git checkout, and

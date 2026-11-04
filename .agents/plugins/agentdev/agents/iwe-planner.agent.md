@@ -262,6 +262,7 @@ Ship creates the document and replaces the key with a real link.
 - Behaviour observable only after merge is a task carrying a
   `**Closed by:** <who or what event>` line, and Ship waits for it.
 - A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.
+- A plan adds no end-to-end test that drives an agent session through the workflow skills against a live model; behaviour only such a session can show is an observation task naming who closes it, and Ship waits for it.
 - Before validation, check each requirement in `## Spec changes` that the plan
   adds or modifies against the plan's `## Approach` and against the code it
   describes, and resolve every disagreement in the plan before it is written.

@@ -1,10 +1,10 @@
 ---
 type: feature
 stage: implemented
-description: Verify saves its last report per plan, keyed by the commit it ran on and the active catalog digest, and returns that report instead of re-running when invoked again on the same clean commit, so Ship reuses the Implement loop's Verify instead of repeating its test and e2e runs.
+description: Verify saves its last report per plan, keyed by the commit it ran on and the active catalog digest, and returns that report instead of re-running when invoked again on the same clean commit, so Ship reuses the Implement loop's Verify instead of repeating its test runs.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T04:07:03Z
+  at: 2026-11-03T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -20,10 +20,10 @@ sources:
 
 The regular flow is Implement → Verify → Ship → `pr-open` on one branch. The
 Implement loop's last Verify and the Shipper's Verify judge the same commit, and
-each re-runs the plan's `## Verification` commands — full test suites and e2e
-runs. The second run adds no information: the first already came from a fresh
-context. Caching the report in the Verify skill gives every caller the saved
-verdict for a commit it has already judged.
+each re-runs the plan's `## Verification` commands — full test suites. The
+second run adds no information: the first already came from a fresh context.
+Caching the report in the Verify skill gives every caller the saved verdict for
+a commit it has already judged.
 
 ## Behaviour
 
