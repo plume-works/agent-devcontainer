@@ -43,6 +43,7 @@ update.code.visualstudio.com
 # The rest of the dev image: Ubuntu, container registries and tooling
 security.ubuntu.com
 archive.ubuntu.com
+cdn.kernel.org
 ports.ubuntu.com
 download.docker.com
 ghcr.io

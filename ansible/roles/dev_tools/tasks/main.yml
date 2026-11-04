@@ -7,7 +7,6 @@
       - build-essential
       - cmake
       - dirmngr
-      - git
       - git-lfs
       - gnupg2
       - jq

@@ -1,0 +1,79 @@
+---
+# Upstream git from its source release, ahead of Ubuntu's on PATH: see
+# architecture/no-launchpad-ppas.
+- name: Install the git build dependencies
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - cargo
+      - gettext
+      - libcurl4-gnutls-dev
+      - libexpat1-dev
+      - libpcre2-dev
+      - libssl-dev
+      - xz-utils
+      - zlib1g-dev
+    state: present
+    install_recommends: false
+    update_cache: true
+
+- name: Read the version of the git already built
+  ansible.builtin.command:
+    cmd: "{{ git_source_prefix }}/bin/git --version"
+  register: git_source_installed
+  changed_when: false
+  failed_when: false
+
+- name: Build and install git from source
+  when: git_source_installed.stdout != 'git version ' ~ git_source_version
+  block:
+    - name: Create the git build directory
+      ansible.builtin.tempfile:
+        state: directory
+      register: git_source_build_dir
+
+    - name: Download the git source release
+      ansible.builtin.get_url:
+        url: "{{ git_source_download_url }}"
+        dest: "{{ git_source_build_dir.path }}/git.tar.xz"
+        checksum: "sha256:{{ git_source_checksums[system_arch] }}"
+        mode: "0644"
+
+    - name: Extract the git source release
+      ansible.builtin.unarchive:
+        src: "{{ git_source_build_dir.path }}/git.tar.xz"
+        dest: "{{ git_source_build_dir.path }}"
+        remote_src: true
+        extra_opts: [--strip-components=1]
+
+    - name: Build and install git
+      ansible.builtin.command:
+        cmd: >-
+          make -j{{ ansible_facts['processor_nproc'] }}
+          prefix={{ git_source_prefix }}
+          USE_LIBPCRE2=YesPlease NO_TCLTK=YesPlease NO_PYTHON=YesPlease
+          all install
+        chdir: "{{ git_source_build_dir.path }}"
+      changed_when: true
+
+  always:
+    - name: Remove the git build directory
+      ansible.builtin.file:
+        path: "{{ git_source_build_dir.path }}"
+        state: absent
+      when: git_source_build_dir.path is defined
+
+# Ubuntu's git stays installed as a dependency of gh, docker-ce and git-lfs.
+- name: Resolve git on PATH
+  ansible.builtin.shell:
+    cmd: command -v git && git --version
+    executable: /bin/bash
+  register: git_source_on_path
+  changed_when: false
+
+- name: Require the source-built git first on PATH
+  ansible.builtin.assert:
+    that:
+      - git_source_on_path.stdout_lines[0] == git_source_prefix ~ '/bin/git'
+      - git_source_on_path.stdout_lines[1] == 'git version ' ~ git_source_version
+    fail_msg: "PATH resolves git to {{ git_source_on_path.stdout_lines | join(', ') }}"

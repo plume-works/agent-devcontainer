@@ -199,6 +199,12 @@ PIN_FILES: dict[str, PinSpec] = {
         checksums_var='agentic_tools_cc_filter_checksums',
         arch_var='system_arch',
     ),
+    'ansible/roles/git_source/defaults/main.yml': VariablePin(
+        version_var='git_source_version',
+        url_var='git_source_download_url',
+        checksums_var='git_source_checksums',
+        arch_var='system_arch',
+    ),
     'ansible/roles/xpra_setup/defaults/main.yml': VariablePin(
         version_var='xpra_setup_virtualgl_version',
         url_var='xpra_setup_virtualgl_download_url',
