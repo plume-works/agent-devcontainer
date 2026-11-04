@@ -82,10 +82,13 @@ def cloud_env_text(environ: Mapping[str, str]) -> str:
     relay = f'http://host.docker.internal:{RELAY_PORT}'
     no_proxy = environ.get('NO_PROXY') or environ.get('no_proxy') or ''
     token = environ.get('GH_TOKEN') or environ.get('GITHUB_TOKEN') or ''
+    # The proxy honours GH_TOKEN only for in-scope repositories, so zizmor's online
+    # audits get 401s: see bugs/zizmor-online-audits-fail-in-cloud-devcontainer.
     return (
         f'HTTPS_PROXY={relay}\nhttps_proxy={relay}\n'
         f'NO_PROXY={no_proxy}\nno_proxy={no_proxy}\n'
         f'GH_TOKEN={token}\n'
+        'ZIZMOR_OFFLINE=true\n'
     )
 
 

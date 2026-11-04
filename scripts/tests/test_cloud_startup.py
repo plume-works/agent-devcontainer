@@ -134,7 +134,7 @@ def test_proxy_port_needs_a_loopback_proxy(environ: dict[str, str], port: int | 
 
 
 def test_cloud_env_points_the_container_at_the_relay() -> None:
-    """The env file names the relay, the session's no-proxy list, and its token."""
+    """The env file names the relay, the no-proxy list, the token, and offline zizmor."""
     text = startup.cloud_env_text({'NO_PROXY': 'localhost,pypi.org', 'GH_TOKEN': 'token'})
     relay = f'http://host.docker.internal:{startup.RELAY_PORT}'
     assert text.splitlines() == [
@@ -143,6 +143,7 @@ def test_cloud_env_points_the_container_at_the_relay() -> None:
         'NO_PROXY=localhost,pypi.org',
         'no_proxy=localhost,pypi.org',
         'GH_TOKEN=token',
+        'ZIZMOR_OFFLINE=true',
     ]
 
 
