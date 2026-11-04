@@ -167,7 +167,11 @@ Modify: `docs/knowledge/data/architecture.md`
     `## Decision` states why the review is separate from Verify, its `plan` and
     `code` targets, and who may start it; `## Rejected alternatives` lists the
     three from `## Approach`; `iwe schema validate` passes on that commit.
-- [ ] `data/architecture.md` links it at its sorted position.
+- [x] `data/architecture.md` links it at its sorted position.
+  - **Evidence:** Commit 86c1f62 links `architecture/adversarial-review.md` from
+    `data/architecture.md` between `actions-approval-permission` and
+    `agent-auth-persistence`; `iwe normalize` and `iwe schema validate` pass on
+    that commit.
 
 ### Task 5: Observe a code review on both harnesses
 
