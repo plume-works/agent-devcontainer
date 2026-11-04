@@ -238,7 +238,7 @@ def devcontainer_up(environ: Mapping[str, str], *flags: str) -> None:
     )
 
 
-def sync_devcontainer(environ: Mapping[str, str], *, always_up: bool) -> None:
+def sync_devcontainer(environ: Mapping[str, str]) -> None:
     """
     Bring the devcontainer up, recreating it when it lacks cloud-session.env.
 
@@ -247,16 +247,16 @@ def sync_devcontainer(environ: Mapping[str, str], *, always_up: bool) -> None:
     if any(lacks_session_env(container) for container in devcontainer_ids('-a')):
         log('Recreating the devcontainer, whose environment lacks cloud-session.env')
         devcontainer_up(environ, '--remove-existing-container')
-    elif always_up or not devcontainer_ids():
+    elif not devcontainer_ids():
         log('Bringing up devcontainer')
         devcontainer_up(environ)
 
 
-def bring_devcontainer_up(environ: Mapping[str, str], *, always_up: bool = True) -> None:
+def bring_devcontainer_up(environ: Mapping[str, str]) -> None:
     """Install the CLI, prepare proxy access, and bring the devcontainer up."""
     install_devcontainer_cli()
     prepare_proxy_access(environ)
-    sync_devcontainer(environ, always_up=always_up)
+    sync_devcontainer(environ)
 
 
 def register_plugin() -> None:
@@ -301,7 +301,7 @@ def resume(environ: Mapping[str, str]) -> None:
     if not is_cloud_host(environ):
         return
     start_docker()
-    bring_devcontainer_up(environ, always_up=False)
+    bring_devcontainer_up(environ)
 
 
 def main(argv: list[str]) -> int:

@@ -227,7 +227,7 @@ def test_container_without_the_session_env_is_recreated(
 ) -> None:
     """A container whose environment differs from cloud-session.env is recreated from it."""
     environ, calls = stub_container(scratch, monkeypatch, container_env)
-    startup.sync_devcontainer(environ, always_up=False)
+    startup.sync_devcontainer(environ)
     assert devcontainer_calls(calls) == [
         f'devcontainer up --remove-existing-container --workspace-folder {startup.REPO_ROOT}'
     ]
@@ -240,14 +240,14 @@ def test_running_container_with_the_session_env_is_kept(
     environ, calls = stub_container(
         scratch, monkeypatch, ['PATH=/usr/bin', *SESSION_ENV.splitlines()]
     )
-    startup.sync_devcontainer(environ, always_up=False)
+    startup.sync_devcontainer(environ)
     assert devcontainer_calls(calls) == []
 
 
 def test_missing_container_is_brought_up(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Without a container, devcontainer up creates one, with no recreate flag."""
     environ, calls = stub_container(scratch, monkeypatch, None)
-    startup.sync_devcontainer(environ, always_up=False)
+    startup.sync_devcontainer(environ)
     assert devcontainer_calls(calls) == [f'devcontainer up --workspace-folder {startup.REPO_ROOT}']
 
 
@@ -255,8 +255,8 @@ def test_no_session_env_never_recreates(scratch: Path, monkeypatch: pytest.Monke
     """Without cloud-session.env there is nothing to compare, so the container is kept."""
     environ, calls = stub_container(scratch, monkeypatch, ['PATH=/usr/bin'])
     startup.CLOUD_ENV.unlink()
-    startup.sync_devcontainer(environ, always_up=True)
-    assert devcontainer_calls(calls) == [f'devcontainer up --workspace-folder {startup.REPO_ROOT}']
+    startup.sync_devcontainer(environ)
+    assert devcontainer_calls(calls) == []
 
 
 def test_setup_builds_the_image_without_creating_the_container(scratch: Path) -> None:
