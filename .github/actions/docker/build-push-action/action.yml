@@ -33,6 +33,12 @@ inputs:
     description: Export digest as artifacts
     required: false
     default: 'true'
+  no-cache:
+    description: >-
+      Build without reading the layer cache, still writing it for later runs. Set for
+      every image build of a clean_build dispatch or a [ci:clean_build] run.
+    required: false
+    default: 'false'
 outputs:
   digest:
     description: Digest of the built image
@@ -64,7 +70,7 @@ runs:
         context: ${{ inputs.context }} # zizmor: ignore[template-injection] context is always a static path literal at all call sites
         file: ${{ inputs.file }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }}
+        cache-from: ${{ inputs.no-cache != 'true' && (env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE) || '' }}
         cache-to: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }},mode=max
         build-args: ${{ inputs.build-args }}
         outputs: type=image,"name=${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=true

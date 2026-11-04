@@ -9,7 +9,9 @@ on:
         default: ''
         type: string
       clean_build:
-        description: Build images from scratch instead of reusing the edge image.
+        description: >-
+          Build every image without the layer cache, as a [ci:clean_build] marker in the
+          commit message or pull request body also does.
         required: false
         default: false
         type: boolean
@@ -115,6 +117,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
+          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
 
       # The base image's build context is the repository root: the dockerfile
       # bind-mounts the whole context at /provision so Ansible can read both
@@ -130,6 +133,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
+          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
           build-args: |
             FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}@${{ steps.build_ubuntu_ansible.outputs.digest }}
             PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}
@@ -146,6 +150,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
+          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
           build-args: |
             FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
 
@@ -159,6 +164,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
+          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
           build-args: |
             FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
 
