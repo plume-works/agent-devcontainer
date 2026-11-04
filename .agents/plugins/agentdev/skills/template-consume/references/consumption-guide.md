@@ -19,7 +19,7 @@ The steps below walk that classification path by path.
 
 The default setup SHALL retain all runtime capabilities provided by the
 template's devcontainer: the digest-pinned `agentdev-devcontainer` image
-with its supervised nested Docker, and Codespaces SSH; worktree-safe workspace mounts;
+with its supervised nested Docker; worktree-safe workspace mounts;
 Xpra/VirtualGL desktop access; the Docker Desktop MCP gateway and secrets
 socket integration; persistent state volumes (one shared volume holding Claude
 Code's credentials, the rest of each agent's state scoped per devcontainer
@@ -1103,7 +1103,7 @@ in `## Choices`.
    `containerEnv`, which the image sets; and remove the `postCreateCommand`,
    `postStartCommand`, `postAttachCommand`, and `waitFor` keys that ran the
    copied scripts. Keep the consumer's mounts, workspace, editor settings,
-   `initializeCommand`, and SSH Feature.
+   `initializeCommand`, and the consumer's own Features.
 4. **The consumer's own lifecycle work.** Compare each copied lifecycle script
    with the upstream copy at `consumed_ref`. Move what the consumer added into a
    descriptor `postCreateCommand`, `postStartCommand`, or `postAttachCommand`,
@@ -1124,7 +1124,6 @@ in `## Choices`.
    .devcontainer/devcontainer.json
    .devcontainer/docker-compose.yml
    .devcontainer/devcontainer-init.sh
-   .devcontainer/devcontainer-lock.json
    .devcontainer/firewall-allowlist.txt
    ```
 

@@ -98,7 +98,6 @@ esac
         'python3',
         'ruff',
         'shellcheck',
-        'sshd',
         'sudo',
         'uv',
         'xpra',
@@ -160,7 +159,6 @@ def test_deploy_mode_skips_non_applicable_sidecars_and_redacts_auth_output(
     result = _run_health(tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     assert re.search(r'^mcp-gateway\s+SKIP\b', result.stdout, re.MULTILINE)
-    assert re.search(r'^sshd process\s+SKIP\b', result.stdout, re.MULTILINE)
     assert 'SHOULD_NOT_APPEAR' not in result.stdout
     assert 'SECRET_VALUE' not in result.stdout
     assert 'claude.json link' in result.stdout
@@ -206,7 +204,6 @@ def test_command_timeout_sets_aggregate_failure(tmp_path: Path) -> None:
 def test_devcontainer_mode_checks_sidecars(tmp_path: Path) -> None:
     result = _run_health(tmp_path, mode='devcontainer', environ={'COMPOSE_PROFILES': 'web,mcp'})
     assert result.returncode == 0, result.stdout + result.stderr
-    assert re.search(r'^sshd process\s+PASS\b', result.stdout, re.MULTILINE)
     assert re.search(r'^mcp-gateway DNS\s+PASS\b', result.stdout, re.MULTILINE)
     assert re.search(r'^mcp-gateway :8811\s+PASS\b', result.stdout, re.MULTILINE)
 
