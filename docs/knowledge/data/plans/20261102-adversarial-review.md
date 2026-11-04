@@ -160,9 +160,13 @@ Rejected:
 **Files:** Create: `docs/knowledge/data/architecture/adversarial-review.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] The document states why adversarial review is separate from Verify, its
+- [x] The document states why adversarial review is separate from Verify, its
   two targets, who may start it, and the three alternatives rejected in
   `## Approach`.
+  - **Evidence:** Commit 86c1f62 adds `data/architecture/adversarial-review.md`:
+    `## Decision` states why the review is separate from Verify, its `plan` and
+    `code` targets, and who may start it; `## Rejected alternatives` lists the
+    three from `## Approach`; `iwe schema validate` passes on that commit.
 - [ ] `data/architecture.md` links it at its sorted position.
 
 ### Task 5: Observe a code review on both harnesses
