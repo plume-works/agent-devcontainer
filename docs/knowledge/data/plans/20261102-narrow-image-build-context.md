@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T19:30:00Z
+  at: 2026-11-04T20:10:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -326,6 +326,15 @@ Modify: `docs/knowledge/data/architecture.md`
     sets `FROM_IMAGE` from it;
     `pytest scripts/tests/test_build_push_platform_digest.py` passes 4 tests,
     and `actionlint` and `zizmor --offline` pass.
+
+### Task 13: Check the staged catalog contents in Dev Container acceptance
+
+**Files:** Modify: `scripts/tests/test_agentdev_devcontainer_image.py`
+
+- [ ] The direct-consumer acceptance test asserts that `$AGENTDEV_CATALOG_DIR`
+  holds no `tests` directory and that its `.agents/` holds only `plugins`.
+- [ ] Dev Container runtime acceptance passes with the new assertions on both
+  architectures.
 
 ## Spec changes
 
