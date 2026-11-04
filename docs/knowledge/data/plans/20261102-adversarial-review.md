@@ -113,8 +113,13 @@ Rejected:
     re-post its report verbatim;
     `uv run validate_agent_files --recommend . --require-marketplace claude` on
     that commit: 0 errors, 0 warnings.
-- [ ] Its description limits it to an explicit request or a plan task that runs
+- [x] Its description limits it to an explicit request or a plan task that runs
   it.
+  - **Evidence:** Commit 6de0ec2, `description` of
+    `skills/iwe-adversarial-review/SKILL.md`: use only on an explicit request
+    for a named plan or a plan task that runs it, never while planning;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 - [ ] The README's skill table lists it.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   reports no errors.
