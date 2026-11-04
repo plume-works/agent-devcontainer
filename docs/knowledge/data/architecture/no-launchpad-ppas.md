@@ -42,9 +42,11 @@ notes record each file's PPA URL and SHA-256.
 
 The `git_ppa` role downloads the pinned release's packages, checks their
 SHA-256, and installs `git` and `git-man` in one apt transaction, replacing
-Ubuntu's `git`. Renovate bumps `git_ppa_version` from the repository's releases,
-and `scripts/refresh-pin-checksums.py` rehashes both packages in the same
-commit.
+Ubuntu's `git`. It also deletes the `git-core-ppa` apt source that images and
+hosts provisioned while git came straight from the PPA still carry, including
+the `edge` image pull-request builds start from. Renovate bumps
+`git_ppa_version` from the repository's releases, and
+`scripts/refresh-pin-checksums.py` rehashes both packages in the same commit.
 
 The PPA keeps only its newest build. A release is therefore the only lasting
 copy of a build, and the workflow never replaces one that exists. GitHub

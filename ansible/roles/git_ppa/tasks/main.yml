@@ -1,6 +1,18 @@
 ---
 # The Git Core PPA's git, fetched from its GitHub release copy: see
 # architecture/no-launchpad-ppas.
+# Images and hosts provisioned while git came straight from the PPA still carry its source.
+- name: Remove the Git Core PPA apt source
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/git-core-ppa.list
+    state: absent
+  register: git_ppa_old_source
+
+- name: Refresh the apt cache without the PPA
+  ansible.builtin.apt:
+    update_cache: true
+  when: git_ppa_old_source is changed
+
 - name: Read the installed git package version
   ansible.builtin.command:
     cmd: dpkg-query --show --showformat=${Version} git
