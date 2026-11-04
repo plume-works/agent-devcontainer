@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T15:00:00Z
+  at: 2026-11-04T18:30:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -287,10 +287,14 @@ Modify: `docs/knowledge/data/architecture.md`
 
 **Files:** none; a second CI run on the pull request
 
-- [ ] **Closed by: CI on the pull request.** After a commit that changes only a
+- [x] **Closed by: CI on the pull request.** After a commit that changes only a
   file under `.agents/plugins/`, the base image build log shows RUN 1 and RUN 2
   `CACHED` and RUN 3 executed, on both architectures. It closes on a run after
   Task 12 lands, on a pull request whose body carries no `[ci:clean_build]`.
+  - **Evidence:** Primary checks run 41875687016 at commit a6b5abf, which
+    changes only `.agents/plugins/agentdev/README.md`: on amd64 and arm64 the
+    `agentdev-base` roles and validator steps report `CACHED` and run no Ansible
+    task, and the catalog step runs its 33 tasks.
 
 ### Task 12: Keep the `ubuntu-ansible` digest stable across runs
 
