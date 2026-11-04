@@ -1,11 +1,5 @@
 ---
 # Development tools installation
-- name: Add Git Core PPA
-  ansible.builtin.apt_repository:
-    repo: ppa:git-core/ppa
-    state: present
-    filename: git-core-ppa
-
 - name: Install development tools
   ansible.builtin.apt:
     name:
