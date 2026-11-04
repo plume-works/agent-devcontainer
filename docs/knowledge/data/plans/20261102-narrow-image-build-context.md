@@ -116,11 +116,16 @@ would make host provisioning carry a container entrypoint it never uses.
 
 **Files:** Modify: `.github/renovate.json`
 
-- [ ] The `ubuntu` rule for `docker/ansible/Dockerfile` allows only `digest`
+- [x] The `ubuntu` rule for `docker/ansible/Dockerfile` allows only `digest`
   updates, on a weekly schedule, with `automerge`, `automergeType: pr`, and
   `platformAutomerge`; major, minor, and patch updates stay disabled, and its
   description still says the release never moves off 24.04.
-- [ ] `renovate-config-validator` passes on the changed configuration.
+  - **Evidence:** commit dc03270 splits the rule into a disabled
+    major/minor/patch rule that keeps the 24.04 description and a weekly
+    automerged `digest` rule.
+- [x] `renovate-config-validator` passes on the changed configuration.
+  - **Evidence:** `pre-commit run renovate-config-validator` (`--strict`) passes
+    on `.github/renovate.json` at commit dc03270.
 
 ### Task 3: Make `clean_build` bypass the layer cache
 
