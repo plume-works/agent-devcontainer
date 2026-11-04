@@ -68,7 +68,19 @@
       "matchManagers": ["dockerfile"],
       "matchFileNames": ["docker/ansible/Dockerfile"],
       "matchDepNames": ["ubuntu"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
       "enabled": false
+    },
+    {
+      "description": "The 24.04 base's digest moves weekly, which is the images' scheduled clean rebuild; see spec/image-pinning. A bump edits docker/ansible/Dockerfile, which rebuilds and accepts every image from the new base before it can merge. That is what makes automerge safe here.",
+      "matchManagers": ["dockerfile"],
+      "matchFileNames": ["docker/ansible/Dockerfile"],
+      "matchDepNames": ["ubuntu"],
+      "matchUpdateTypes": ["digest"],
+      "schedule": ["* 0-3 * * 1"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     },
     {
       "description": "pre-commit hook revisions. A rev bump edits .pre-commit-config.yaml, which runs the pre-commit checks before it can merge.",
