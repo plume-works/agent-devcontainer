@@ -1,19 +1,22 @@
-# The image build context is the repository root; keep it small. The build consumes only
-# ansible/, docker/, the seeded catalog (.claude-plugin/ and its .agents/ plugin tree),
-# py_packages/validate_agent_files/, and py_packages/agentdev_runtime/.
-.git
-.github
-.claude
-.devcontainer
-# The runtime images bake only the firewall allowlist from .devcontainer.
+# An allow-list: the image build context holds only the inputs the image builds read,
+# so a change anywhere else cannot reach a build step. A customized image that reads
+# another path adds it here; see spec/agentdev-runtime-images.
+*
+!ansible.cfg
+!ansible
+!docker
+!.claude-plugin
+!.agents/plugins
+.agents/plugins/*/tests
+!py_packages/validate_agent_files
+!py_packages/agentdev_runtime
 !.devcontainer/firewall-allowlist.txt
-.tmp
-.venv
-node_modules
 **/__pycache__
 **/*.pyc
 **/.pytest_cache
 **/.ruff_cache
 **/.tmp
+# ansible.cfg's log_path, written by a host run; never an image input.
+ansible/ansible.log
 # Editable-install metadata: stale by definition and confuses the wheel build.
 **/*.egg-info
