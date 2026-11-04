@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
+  at: 2026-11-04T05:40:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -267,9 +267,13 @@ Modify: `docs/knowledge/data/architecture.md`
 
 **Files:** none; the pull request's CI run
 
-- [ ] **Closed by: CI on the pull request.** Primary checks builds both
+- [x] **Closed by: CI on the pull request.** Primary checks builds both
   architectures from the narrowed context, and Dev Container and deploy runtime
   acceptance and the candidate pre-commit run pass.
+  - **Evidence:** Primary checks run 41776248447 at commit 5fe2ea4 builds
+    `ubuntu-ansible` from the pinned `ubuntu:24.04` digest and runs all three
+    `agentdev-base` provisioning steps on amd64 and arm64; both Dev Container
+    and deploy runtime acceptance jobs and the candidate pre-commit job pass.
 
 ### Task 11: Observe a catalog-only change reuse the provisioning layers
 
