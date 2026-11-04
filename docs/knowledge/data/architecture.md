@@ -130,6 +130,8 @@ re-review](architecture/rereview-gate-pending.md)
 [Testing sibling workspaces in
 devcontainers](architecture/sibling-devcontainer-testing.md)
 
+[Skill rehearsal runs](architecture/skill-rehearsal-runs.md)
+
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
 
 [Supported harnesses](architecture/supported-harnesses.md)
