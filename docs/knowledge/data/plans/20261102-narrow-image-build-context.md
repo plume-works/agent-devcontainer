@@ -211,9 +211,12 @@ host run still stages no catalog)
 
 **Files:** Modify: `.dockerignore`
 
-- [ ] `.dockerignore` excludes everything and re-includes exactly the context
+- [x] `.dockerignore` excludes everything and re-includes exactly the context
   listed in `## Approach`, keeping the cache and `*.egg-info` exclusions inside
   the re-included trees.
+  - **Evidence:** commit d21bda7; a `COPY . /ctx` probe build lists only the
+    listed paths, no plugin `tests/`, no scratch or `*.egg-info`, and no
+    `ansible/ansible.log`, which the allow-list also excludes.
 
 ### Task 8: Update the consumer and role documentation
 
