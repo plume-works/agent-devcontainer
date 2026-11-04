@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T18:00:00Z
+  at: 2026-11-03T19:04:06Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -275,13 +275,15 @@ Plan SHALL write no task or verification step whose only claim is that CI
 passes, SHALL record behaviour observable only after merge as a task carrying a
 `**Closed by:**` line, SHALL name a test as coverage only when it runs the
 behaviour, and SHALL scope a verification search for leftover text to the files
-the plan changes. Before validation, Plan SHALL check each requirement it adds
-or modifies against the plan's `## Approach` and the code that requirement
-describes. Every `## Verification` command SHALL run in the checkout the
-`iwe-verifier` agent works in, inside the Dev Container or container the agent
-already runs in, without starting a nested Dev Container or CI. A requirement
-SHALL claim only what its mechanism delivers and name each limit of that
-mechanism Plan knows.
+the plan changes. Plan SHALL add no end-to-end test that drives an agent session
+through the workflow skills against a live model; behaviour only such a session
+can show SHALL be an observation task naming who closes it. Before validation,
+Plan SHALL check each requirement it adds or modifies against the plan's
+`## Approach` and the code that requirement describes. Every `## Verification`
+command SHALL run in the checkout the `iwe-verifier` agent works in, inside the
+Dev Container or container the agent already runs in, without starting a nested
+Dev Container or CI. A requirement SHALL claim only what its mechanism delivers
+and name each limit of that mechanism Plan knows.
 
 #### Scenario: A plan's work needs CI
 
@@ -294,6 +296,13 @@ mechanism Plan knows.
   branch
 - **THEN** Plan writes a task for it carrying a `**Closed by:**` line naming who
   or what closes it
+
+#### Scenario: Behaviour only a live agent session shows
+
+- **WHEN** a requirement can be observed only by driving an agent session
+  through the workflow skills against a live model
+- **THEN** Plan writes an observation task naming who closes it and adds no
+  end-to-end test for it
 
 #### Scenario: A requirement disagrees with the code
 
