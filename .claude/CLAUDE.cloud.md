@@ -36,7 +36,7 @@ relay, the devcontainer, and any background command or monitor you started.
   `devcontainer exec`, or `git` and `gh` in the container failing with
   `Failed to connect to host.docker.internal` mean the worker restarted;
   `uptime` confirms it.
-- **Restore it.** Run `.claude/startup.sh resume` from the repository root. The
+- **Restore it.** Run `.claude/startup.py resume` from the repository root. The
   `SessionStart` hook runs it when a session starts; after a restart inside a
   turn, run it yourself. It keeps whatever still runs and restarts the rest, and
   is safe to run again.
