@@ -11,7 +11,7 @@ so projects consume it by version instead of copying files around.
 ## Installing in Claude Code
 
 Working inside the `agentdev-devcontainer` image, there is nothing to do:
-the catalog is staged in the image and installed at user scope when the container
+the image stages the catalog and installs it at user scope when the container
 is created, with no clone and no network. It is an ordinary install, so updating
 it means updating the image, and a project that declares its own marketplace
 composes with it the usual way.
