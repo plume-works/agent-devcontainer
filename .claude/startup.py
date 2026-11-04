@@ -293,11 +293,19 @@ def add_cloud_instructions() -> None:
     shutil.copyfile(REPO_ROOT / '.claude/CLAUDE.cloud.md', target)
 
 
-def build_devcontainer() -> None:
+def build_devcontainer(environ: Mapping[str, str]) -> None:
     """Install the CLI and build the devcontainer image, pulling what it needs."""
     log('Building devcontainer image')
     install_devcontainer_cli()
-    run('devcontainer', 'build', '--workspace-folder', str(REPO_ROOT))
+    # With no Feature, the CLI's generated Dockerfile lies outside every build context,
+    # which Compose's bake refuses without an fs.read entitlement.
+    run(
+        'devcontainer',
+        'build',
+        '--workspace-folder',
+        str(REPO_ROOT),
+        env={**environ, 'BUILDX_BAKE_ENTITLEMENTS_FS': '0'},
+    )
 
 
 def timed(step: Callable[..., None], *args: object) -> None:
@@ -312,7 +320,7 @@ def setup(environ: Mapping[str, str]) -> None:
     timed(register_plugin)
     add_cloud_instructions()
     timed(start_docker)
-    timed(build_devcontainer)
+    timed(build_devcontainer, environ)
     log('Setup complete')
 
 

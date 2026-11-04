@@ -277,6 +277,26 @@ def test_setup_builds_the_image_without_creating_the_container(scratch: Path) ->
     assert not [line for line in lines if line.startswith(('devcontainer up', 'docker compose'))]
 
 
+def test_setup_builds_without_the_bake_fs_entitlement_check(scratch: Path) -> None:
+    """The featureless build passes only when bake skips its filesystem entitlement check."""
+    version = startup.DEVCONTAINER_CLI_VERSION
+    seen = scratch / 'entitlements'
+    result, _ = run_startup(
+        scratch,
+        'setup',
+        {
+            'docker': 'exit 0',
+            'claude': 'exit 0',
+            'devcontainer': (
+                f'[ "$1" = --version ] && echo {version}\n'
+                f'[ "$1" = build ] && echo "$BUILDX_BAKE_ENTITLEMENTS_FS" > {seen}\nexit 0'
+            ),
+        },
+    )
+    assert result.returncode == 0, result.stderr
+    assert seen.read_text().strip() == '0'
+
+
 def stub_dockerd(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Stub a dockerd that, like the real one, refuses to start while its pid file exists."""
     bin_dir = scratch / 'bin'

@@ -33,6 +33,10 @@ no container:
 4. installs a pinned `@devcontainers/cli` with `bun` unless that version is
    already on `PATH`, and runs `devcontainer build`, which pulls the image
    pinned in `devcontainer-compose-pins.yml` and builds the devcontainer image.
+   It sets `BUILDX_BAKE_ENTITLEMENTS_FS=0`: with no Dev Container Feature, the
+   CLI's generated Dockerfile lies outside every build context, and Compose's
+   bake refuses to read it without that check off. CI's devcontainer build sets
+   it for the same reason.
 
 Any failing step fails the script, and the session starts without the steps
 after it.

@@ -313,9 +313,9 @@ jobs:
 
       - name: Build and test dev container image
         # With no Feature, the CLI's generated Dockerfile lies outside every build
-        # context, which Compose's bake build refuses without an fs.read entitlement.
+        # context, which Compose's bake refuses without an fs.read entitlement.
         env:
-          COMPOSE_BAKE: 'false'
+          BUILDX_BAKE_ENTITLEMENTS_FS: '0'
         uses: devcontainers/ci@v0.3.1900000450
         with:
           configFile: .devcontainer/devcontainer.json
