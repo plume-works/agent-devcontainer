@@ -6,7 +6,7 @@ release:
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:30:00Z
+  at: 2026-11-04T01:40:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile
@@ -18,7 +18,6 @@ sources:
 - resource: ansible/roles/agentic_tools/tasks/main.yml
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: docker/bin/gh
-- resource: https://github.com/plume-works/agent-devcontainer/actions/runs/41371706407
 rank: 50
 ---
 
@@ -33,10 +32,10 @@ invalidates the cached Ansible layer.
 
 Two existing behaviors depend on the current shape and change with it:
 
-- `main` builds from a bare `ubuntu:24.04` tag for freshness, and other refs
-  warm-start from `agentdev-base:edge` ([Image
-  pinning](../spec/image-pinning.md) governs the published images; the Ubuntu
-  base is excluded from Renovate entirely).
+- `main`, release tags, merge queues, and requested clean builds start from a
+  bare `ubuntu:24.04` tag, and other refs warm-start from `agentdev-base:edge`
+  when it exists ([Image pinning](../spec/image-pinning.md) governs the
+  published images; the Ubuntu base is excluded from Renovate entirely).
 - The `github_cli` role puts the opened checkout's `docker/bin` ahead of the
   image-baked `gh` wrapper on `PATH` ([gh authentication
   shim](../architecture/gh-authentication-shim.md)), which is also why the base
@@ -200,8 +199,7 @@ host run still stages no catalog)
 
 ### Task 6: Split the base image provisioning into per-input steps
 
-**Files:** Modify: `docker/base/agentdev-base.Dockerfile`; Create:
-`scripts/tests/test_agentdev_base_dockerfile.py`
+**Files:** Modify: `docker/base/agentdev-base.Dockerfile`
 
 - [x] The provisioning runs as the three `RUN` steps in `## Approach`, each with
   one read-only bind mount per input it reads under `/provision`, tag selection
@@ -210,10 +208,10 @@ host run still stages no catalog)
     ecc66aa, layered on the published `agentdev-base:edge`, runs all three steps
     with `failed=0`, and rebuilding after a `docs/` edit reports all three
     `CACHED`. A from-scratch build is Task 10's CI run.
-- [ ] A test fails when any bind mount in `agentdev-base.Dockerfile` omits
-  `source`, and when the three steps' tag selections stop covering every role in
-  `setup-dev.yml` exactly once; `test_playwright_browser_provisioning.py` still
-  passes.
+- [ ] `ansible-playbook ansible/playbooks/setup-dev.yml --list-tasks`, run from
+  the repository root once with each step's tag selection, lists every role of
+  the playbook in exactly one step, apart from the `always`-tagged `perm_probe`
+  and `extra_facts`; `test_playwright_browser_provisioning.py` still passes.
 
 ### Task 7: Turn `.dockerignore` into an allow-list
 
@@ -371,8 +369,11 @@ instruction files.
 
 ## Verification
 
-- `uv run pytest scripts/tests/test_agentdev_base_dockerfile.py scripts/tests/test_playwright_browser_provisioning.py`
-  passes.
+- `uv run pytest scripts/tests/test_playwright_browser_provisioning.py` passes.
+- `ansible-playbook ansible/playbooks/setup-dev.yml --list-tasks` from the
+  repository root, with `--skip-tags validate_agent_files,agent_catalog`, with
+  `--tags validate_agent_files`, and with `--tags agent_catalog`, lists every
+  role other than `perm_probe` and `extra_facts` under exactly one of the three.
 - `uv run pre-commit run --all-files` passes, including `ansible-lint`,
   `hadolint`, `actionlint`, `zizmor`, and `renovate-config-validator`.
 - Locally, `docker buildx build -f docker/base/agentdev-base.Dockerfile .` twice
@@ -390,8 +391,7 @@ instruction files.
 ## Depends on
 
 None. [Dev Container home volume](20261030-devcontainer-home-volume.md) depends
-on this plan: its shell-setup task no longer puts the checkout's `docker/bin` on
-`PATH`.
+on this plan: its shell-setup task (Task 3) puts no checkout path on `PATH`.
 
 ## Out of scope
 
@@ -400,17 +400,21 @@ on this plan: its shell-setup task no longer puts the checkout's `docker/bin` on
 - Pinning apt package versions beyond what the roles already pin; a weekly
   digest bump can expose a superseded apt pin, and that is fixed when it
   happens.
-- Shortening runtime acceptance, which remains the longest part of an
-  image-touching run.
+- Shortening runtime acceptance.
+- A test that parses `agentdev-base.Dockerfile` for its mounts or tag
+  selections: a test may not read a repository file to check its text. The local
+  builds and tag listings in `## Verification`, and Tasks 10 and 11, cover that
+  behavior.
 - Changing what the published deploy and Dev Container images contain beyond the
   staged catalog's `tests/` and root instruction files.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-04, at commit d88b298):
+Verified anchor points (line numbers as of 2026-11-04, at commit d88b298; Task
+6's anchors at commit 1cbd4e1):
 
-- `docker/base/agentdev-base.Dockerfile:45-66` — provisioning `RUN`,
-  whole-context mount at line 47, catalog and validator `-e` switches at 60-65
+- `docker/base/agentdev-base.Dockerfile:22-84` — the three provisioning `RUN`
+  steps, their mounts, and their tag selections (Task 6)
 - `docker/base/agentdev-base.Dockerfile:96` — `COPY` of
   `docker/desktop/entrypoint.sh`
 - `docker/ansible/Dockerfile:1` — `ARG BASE_IMAGE=ubuntu:24.04`
@@ -425,8 +429,9 @@ Verified anchor points (line numbers as of 2026-11-04, at commit d88b298):
 - `.github/actions/docker/build-push-action/action.yml:61-68` — `cache-from` and
   `cache-to`
 - `.github/renovate.json:66-72` — `ubuntu` rule, `enabled: false`
-- `ansible/playbooks/setup-dev.yml:33-39` — `bun_setup` tag list,
-  `validate_agent_files` and `agentic_tools` roles
+- `ansible/playbooks/setup-dev.yml:18-44` — the role list and tags (Task 6),
+  from the `always`-tagged `perm_probe` and `extra_facts` to the final
+  `perm_probe`
 - `ansible/roles/agentic_tools/tasks/main.yml:41-49` — catalog stage and install
   imports
 - `ansible/roles/agentic_tools/defaults/main.yml:45-84` — catalog switches,
