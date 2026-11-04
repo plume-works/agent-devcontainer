@@ -120,7 +120,10 @@ Rejected:
     for a named plan or a plan task that runs it, never while planning;
     `uv run validate_agent_files --recommend . --require-marketplace claude` on
     that commit: 0 errors, 0 warnings.
-- [ ] The README's skill table lists it.
+- [x] The README's skill table lists it.
+  - **Evidence:** Commit 6de0ec2 adds the `/agentdev:iwe-adversarial-review` row
+    to the Knowledge-graph workflow (IWE) skill table of
+    `.agents/plugins/agentdev/README.md`, after `/agentdev:iwe-verify`.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   reports no errors.
 
