@@ -137,11 +137,12 @@
       ]
     },
     {
-      "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it.",
+      "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it that may name an extractVersion or a versioning scheme.",
       "customType": "regex",
       "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\""
       ]
     },

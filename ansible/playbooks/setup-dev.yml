@@ -25,8 +25,8 @@
     - { role: fish_setup, tags: ["fish_setup"] }
     - { role: bash_setup, tags: ["bash_setup"] }
     - { role: cmake_kitware, tags: ["cmake"] }
+    - { role: git_ppa, tags: ["git_ppa"] }
     - { role: dev_tools, tags: ["dev_tools"] }
-    - { role: git_source, tags: ["git_source"] }
     - { role: github_cli, tags: ["github_cli"] }
     # dev_tools installs the bun binary, so it must precede nodejs and
     # agentic_tools, which install global packages through `bun add --global`;

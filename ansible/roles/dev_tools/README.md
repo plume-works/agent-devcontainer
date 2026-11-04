@@ -2,7 +2,7 @@
 
 This Ansible role installs a general set of development tools: build tooling
 (build-essential, CMake, Ninja, pkg-config), version control (git-lfs; git itself comes from the
-`git_source` role),
+`git_ppa` role),
 Python packaging basics, `pre-commit`, `jq`, `ffmpeg`, `btop`,
 and a list of pinned single-archive tools (currently the `zizmor` GitHub
 Actions auditor, `hadolint`, `shellcheck`, `iwe`, the `codebase-memory-mcp` binary, and the `bun`

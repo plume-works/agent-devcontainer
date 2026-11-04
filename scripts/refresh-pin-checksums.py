@@ -188,7 +188,7 @@ def _render_zsh(template: str, context: dict[str, str]) -> str:
 
 PinSpec = ToolListPins | VariablePin | ZshReleasePins
 
-PIN_FILES: dict[str, PinSpec] = {
+PIN_FILES: dict[str, PinSpec | tuple[PinSpec, ...]] = {
     'ansible/roles/dev_tools/defaults/main.yml': ToolListPins(
         list_var='dev_tools_pinned_tools',
         task_file='ansible/roles/dev_tools/tasks/install_pinned_tool.yml',
@@ -199,11 +199,19 @@ PIN_FILES: dict[str, PinSpec] = {
         checksums_var='agentic_tools_cc_filter_checksums',
         arch_var='system_arch',
     ),
-    'ansible/roles/git_source/defaults/main.yml': VariablePin(
-        version_var='git_source_version',
-        url_var='git_source_download_url',
-        checksums_var='git_source_checksums',
-        arch_var='system_arch',
+    'ansible/roles/git_ppa/defaults/main.yml': (
+        VariablePin(
+            version_var='git_ppa_version',
+            url_var='git_ppa_download_url',
+            checksums_var='git_ppa_checksums',
+            arch_var='system_arch',
+        ),
+        VariablePin(
+            version_var='git_ppa_version',
+            url_var='git_ppa_man_download_url',
+            checksums_var='git_ppa_man_checksums',
+            arch_var='system_arch',
+        ),
     ),
     'ansible/roles/xpra_setup/defaults/main.yml': VariablePin(
         version_var='xpra_setup_virtualgl_version',
@@ -256,10 +264,17 @@ def _head_versions(path: str, spec: PinSpec, repo_root: Path) -> dict[str, str]:
 
 def refreshed_text(path: str, repo_root: Path) -> str | None:
     """Return the file's text with recomputed checksums, or None when it carries no pins."""
-    spec = PIN_FILES.get(path)
-    if spec is None:
+    specs = PIN_FILES.get(path)
+    if specs is None:
         return None
     text = (repo_root / path).read_text()
+    for spec in specs if isinstance(specs, tuple) else (specs,):
+        text = _refreshed_by(path, spec, text, repo_root)
+    return text
+
+
+def _refreshed_by(path: str, spec: PinSpec, text: str, repo_root: Path) -> str:
+    """Return the text with the checksums of one spec's pins recomputed."""
     head_versions = _head_versions(path, spec, repo_root)
     for pin in spec.pins(spec.load(text), repo_root):
         bumped = head_versions.get(pin.key) != pin.version

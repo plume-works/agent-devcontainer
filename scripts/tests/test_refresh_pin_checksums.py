@@ -423,3 +423,47 @@ def test_bootstrap_moved_tag_fails(repo: Path, server: AssetServer) -> None:
 
     assert run(repo, BOOTSTRAP) == 1
     assert (repo / BOOTSTRAP).read_text() == text
+
+
+GIT_PPA = 'ansible/roles/git_ppa/defaults/main.yml'
+
+
+def git_ppa_defaults(url: str, version: str, git: dict[str, str], man: str) -> str:
+    """Return a defaults file pinning a per-arch package and an arch-independent one."""
+    return (
+        '---\n'
+        f'git_ppa_version: "{version}"\n'
+        'git_ppa_checksums:\n'
+        f'  amd64: {git["amd64"]}\n'
+        f'  arm64: {git["arm64"]}\n'
+        'git_ppa_download_url: >-\n'
+        f'  {url}/{{{{ git_ppa_version }}}}/git_{{{{ system_arch }}}}.deb\n'
+        'git_ppa_man_checksums:\n'
+        f'  amd64: {man}\n'
+        f'  arm64: {man}\n'
+        'git_ppa_man_download_url: >-\n'
+        f'  {url}/{{{{ git_ppa_version }}}}/git-man_all.deb\n'
+    )
+
+
+def serve_git_ppa(server: AssetServer, version: str, tag: bytes) -> tuple[dict[str, str], str]:
+    """Serve one release's packages and return their checksums."""
+    git = {}
+    for arch in refresh.ARCHITECTURES:
+        body = tag + arch.encode()
+        server.assets[f'/{version}/git_{arch}.deb'] = body
+        git[arch] = sha(body)
+    server.assets[f'/{version}/git-man_all.deb'] = tag + b'man'
+    return git, sha(tag + b'man')
+
+
+def test_every_pin_spec_of_a_file_is_rehashed(repo: Path, server: AssetServer) -> None:
+    """A file with two specs sharing one version gets both pins' checksums recomputed."""
+    old_git, old_man = serve_git_ppa(server, 'v1', b'old-')
+    write(repo, GIT_PPA, git_ppa_defaults(server.url, 'v1', old_git, old_man))
+    commit(repo)
+    new_git, new_man = serve_git_ppa(server, 'v2', b'new-')
+    write(repo, GIT_PPA, git_ppa_defaults(server.url, 'v2', old_git, old_man))
+
+    assert run(repo, GIT_PPA) == 0
+    assert (repo / GIT_PPA).read_text() == git_ppa_defaults(server.url, 'v2', new_git, new_man)
