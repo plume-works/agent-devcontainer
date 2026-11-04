@@ -80,9 +80,15 @@ Rejected:
     quoted approvals, with any other prompt content not evidence;
     `uv run validate_agent_files --recommend . --require-marketplace claude` on
     that commit: 0 errors, 0 warnings.
-- [ ] The plan rubric and the code rubric are as `## Approach` describes; every
+- [x] The plan rubric and the code rubric are as `## Approach` describes; every
   code finding names the plan claim it defeats, or `none`, with `path:line`
   evidence or the label "unverified".
+  - **Evidence:** Commit 04a8965, `## Steps` step 2 and `## Report` of
+    `iwe-adversarial-reviewer.agent.md`: the plan and code rubrics from
+    `## Approach`, each finding with a **Defeats** claim or `none` and
+    `path:line` evidence or "unverified";
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 - [ ] It edits nothing, commits nothing, dispatches no agent, and runs a command
   whose effects reach beyond the working tree only under a quoted approval that
   names it.
