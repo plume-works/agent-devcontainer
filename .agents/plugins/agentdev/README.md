@@ -12,7 +12,7 @@ so projects consume it by version instead of copying files around.
 
 Working inside the `agentdev-devcontainer` image, there is nothing to do:
 the image stages the catalog and installs it at user scope when the container
-is created, with no clone and no network. It is an ordinary install, so updating
+is created, without a clone or network access. It is an ordinary install, so updating
 it means updating the image, and a project that declares its own marketplace
 composes with it the usual way.
 
