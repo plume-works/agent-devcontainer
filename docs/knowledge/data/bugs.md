@@ -64,6 +64,9 @@ keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
 [Bug: a comment-requested review's gate does not count toward
 merge](bugs/dispatched-review-gate-not-counted.md)
 
+[Bug: doctor fails a healthy Claude Code cloud
+devcontainer](bugs/doctor-fails-healthy-claude-cloud-devcontainer.md)
+
 [Bug: doctor fails a healthy Coder Dev
 Container](bugs/doctor-fails-healthy-coder-devcontainer.md)
 
