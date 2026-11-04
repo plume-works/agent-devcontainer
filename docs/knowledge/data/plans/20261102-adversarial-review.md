@@ -135,9 +135,16 @@ Rejected:
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] The planner's `## Rules` says a plan may carry one task, closing or
+- [x] The planner's `## Rules` says a plan may carry one task, closing or
   near-closing, that runs `/agentdev:iwe-adversarial-review <plan> code`, and
   that planning never invokes the skill.
+  - **Evidence:** Commit bd354c4 adds a `## Rules` bullet to
+    `iwe-planner.agent.md`: a plan may carry one closing or near-closing task
+    that runs `/agentdev:iwe-adversarial-review <plan> code`, and planning never
+    invokes that skill nor dispatches `iwe-adversarial-reviewer`, in either
+    mode;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` on
+    that commit: 0 errors, 0 warnings.
 - [ ] The implementer runs that task once; a finding that defeats a plan claim
   takes the code route, and any other finding is filed through
   `/agentdev:iwe-capture` and named in the report.
