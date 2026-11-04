@@ -3,11 +3,12 @@ type: architecture
 description: In a Claude Code cloud session .claude/startup.sh brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T02:00:00Z
+  at: 2026-11-04T04:00:00Z
 sources:
 - resource: .claude/startup.sh
 - resource: .claude/agent-proxy-relay.py
 - resource: .claude/CLAUDE.cloud.md
+- resource: .claude/settings.json
 - resource: devcontainer-compose-pins.yml
 - resource: .devcontainer/docker-compose.yml
 - resource: https://code.claude.com/docs/en/claude-code-on-the-web
@@ -34,6 +35,14 @@ in the devcontainer, which the script brings up before the session starts work:
 Any failing step fails the script, and the session starts without the steps
 after it.
 
+A worker restart inside a session stops the host `dockerd`, the relay and with
+them the container, and can move the agent proxy to another port. A
+`SessionStart` hook in `.claude/settings.json` therefore runs
+`.claude/startup.sh resume` on every session start. Resume mode acts only on a
+cloud-session host (`CLAUDE_CODE_REMOTE=true` and no `AGENTDEV_RUNTIME_MODE`,
+which the devcontainer sets), keeps whatever still runs, and restarts the rest:
+`dockerd`, a relay aimed at the proxy's current port, and the container.
+
 ## Decision
 
 A Claude Code cloud session authenticates GitHub only through its agent proxy,
@@ -45,10 +54,10 @@ GitHub, but the placeholder token gets a 401 there.
 `.claude/startup.sh`, which runs only in cloud sessions, therefore:
 
 - starts the host `dockerd` with `--bip 10.213.0.1/24`;
-- runs `.claude/agent-proxy-relay.py`, a plain TCP relay from the host bridge
-  gateway, on the proxy's port, to `127.0.0.1:<port>`;
+- runs `.claude/agent-proxy-relay.py`, a plain TCP relay from port 3128 on the
+  host bridge gateway to the proxy's current `127.0.0.1:<port>`;
 - writes `.devcontainer/cloud-session.env` (git-ignored) with `HTTPS_PROXY` and
-  `https_proxy` set to `http://host.docker.internal:<port>`, `NO_PROXY` and
+  `https_proxy` set to `http://host.docker.internal:3128`, `NO_PROXY` and
   `no_proxy` from the session's own list, and the session's `GH_TOKEN`;
 - exports `GIT_AUTHOR_*` / `GIT_COMMITTER_*` from the host's git identity, which
   `.devcontainer/docker-compose.yml` already passes through.
@@ -63,12 +72,17 @@ the host configures in its Docker client config still reaches the container.
   its own `docker0` at `172.17.0.1`. With the host bridge there too,
   `host.docker.internal` (`host-gateway`) resolves to the container itself.
 - The relay exposes the proxy, and with it the session's GitHub access, to every
-  container on the host bridge.
-- The proxy address is fixed when the container is created. A new session
-  re-runs `.claude/startup.sh` and recreates the container.
+  container on the host bridge. The maintainer accepted that for cloud sessions.
+- The container's environment is fixed when it is created, and the devcontainer
+  CLI restarts an existing container instead of recreating it. The relay's fixed
+  port keeps that environment valid when the proxy's port moves.
 - GitHub GraphQL is refused by the session's proxy policy, so `gh` commands
   built on it fail inside the container exactly as on the host. `gh auth status`
-  reports the placeholder token as invalid on both.
+  validates the token through GraphQL, so it reports the token as invalid while
+  REST calls with it succeed.
+- The proxy serves repository paths on `github.com` but answers the bare root
+  `https://github.com/` with 400, and git needs no credential helper because the
+  proxy injects its authentication.
 
 ## Rejected alternatives
 

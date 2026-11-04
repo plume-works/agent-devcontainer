@@ -40,6 +40,9 @@ them](bugs/ci-publishes-images-before-acceptance.md)
 [~/.claude.json stops being the volume
 symlink](bugs/claude-json-symlink-replaced.md)
 
+[Bug: cloud devcontainer loses the agent proxy after a worker
+restart](bugs/cloud-devcontainer-loses-proxy-after-worker-restart.md)
+
 [Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](bugs/coder-askpass-push-hang.md)
 
@@ -63,6 +66,9 @@ keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
 
 [Bug: a comment-requested review's gate does not count toward
 merge](bugs/dispatched-review-gate-not-counted.md)
+
+[Bug: doctor fails a healthy Claude Code cloud
+devcontainer](bugs/doctor-fails-healthy-claude-cloud-devcontainer.md)
 
 [Bug: doctor fails a healthy Coder Dev
 Container](bugs/doctor-fails-healthy-coder-devcontainer.md)

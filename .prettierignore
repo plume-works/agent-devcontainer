@@ -10,3 +10,7 @@ docs/knowledge/**
 # The iwe-bootstrap scaffold is the workspace a consumer receives; `iwe normalize`
 # owns its markdown formatting, the same way it owns docs/knowledge above.
 .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
+
+# The devcontainer CLI owns this file and rewrites it, without a final newline, on
+# every `devcontainer up`.
+.devcontainer/devcontainer-lock.json
