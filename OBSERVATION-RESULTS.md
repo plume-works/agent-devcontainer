@@ -63,4 +63,12 @@ shipped.
   check, a full plan key always contains `/`, and empty, `.`, and NUL slugs
   have no scenario — and reports the code defect separately as out of scope.
   `HEAD` and `git status --porcelain` matched the baseline.
-- **OpenCode:** pending.
+- **OpenCode:** OpenCode session `ses_e576d99f1ffeeQ6kugbjzvrIZO`
+  (`openai/gpt-6.1-sol`, agent `build`), from its exported transcript: the
+  `iwe-adversarial-review` skill loaded once with the request; one `subagent`
+  call to `iwe-adversarial-reviewer` with a prompt of only plan key, target
+  `plan`, and approvals (sub-session `ses_e576d8127ffeLaP8kSjcBvLvpA`). The
+  report names one design weakness against "Slugs cannot leave the plans
+  directory": a rooted Windows slug such as `\outside` escapes without `/` or
+  `..`, shown with an `ntpath.join` probe. The session's worktree snapshot is
+  unchanged with no files changed.
