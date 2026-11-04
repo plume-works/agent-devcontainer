@@ -208,10 +208,15 @@ host run still stages no catalog)
     ecc66aa, layered on the published `agentdev-base:edge`, runs all three steps
     with `failed=0`, and rebuilding after a `docs/` edit reports all three
     `CACHED`. A from-scratch build is Task 10's CI run.
-- [ ] `ansible-playbook ansible/playbooks/setup-dev.yml --list-tasks`, run from
+- [x] `ansible-playbook ansible/playbooks/setup-dev.yml --list-tasks`, run from
   the repository root once with each step's tag selection, lists every role of
   the playbook in exactly one step, apart from the `always`-tagged `perm_probe`
   and `extra_facts`; `test_playwright_browser_provisioning.py` still passes.
+  - **Evidence:** commits 325b78e and 27c33da; at commit cb3616d, the three
+    `--list-tasks` selections from the devcontainer list 16, 1, and 1 roles with
+    no role in two, an untagged listing names all 18 in playbook order, and
+    `pytest scripts/tests/test_playwright_browser_provisioning.py` passes 3
+    tests.
 
 ### Task 7: Turn `.dockerignore` into an allow-list
 
