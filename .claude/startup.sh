@@ -10,6 +10,10 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly REPO_ROOT
 readonly DOCKERD_LOG="/var/log/dockerd.log"
 readonly DOCKER_WAIT_SECONDS=30
+readonly RELAY_LOG="/var/log/agent-proxy-relay.log"
+# The devcontainer's nested engine claims 172.17.0.1, so the host bridge, which
+# host.docker.internal resolves to, needs another subnet.
+readonly DOCKER_BRIDGE_CIDR="10.213.0.1/24"
 readonly PIN_DIR="${REPO_ROOT}/.tmp/comp-pin"
 
 log() {
@@ -30,7 +34,7 @@ register_plugin() {
 
 start_docker() {
     log "Starting Docker daemon (log: ${DOCKERD_LOG})"
-    dockerd >"${DOCKERD_LOG}" 2>&1 &
+    dockerd --bip "${DOCKER_BRIDGE_CIDR}" >"${DOCKERD_LOG}" 2>&1 &
 
     for _ in $(seq 1 "${DOCKER_WAIT_SECONDS}"); do
         docker info >/dev/null 2>&1 && return 0
@@ -46,9 +50,38 @@ pull_pinned_images() {
     (cd "${PIN_DIR}" && docker compose pull)
 }
 
+export_git_identity() {
+    local name email
+    name="$(git config --get user.name || true)"
+    email="$(git config --get user.email || true)"
+    [[ -n "${name}" ]] && export GIT_AUTHOR_NAME="${name}" GIT_COMMITTER_NAME="${name}"
+    [[ -n "${email}" ]] && export GIT_AUTHOR_EMAIL="${email}" GIT_COMMITTER_EMAIL="${email}"
+    return 0
+}
+
+# gh and git authenticate only through the session's loopback agent proxy; relay it onto
+# the Docker bridge for the container. See architecture/cloud-session-devcontainer.
+export_proxy_access() {
+    local proxy="${HTTPS_PROXY:-${https_proxy:-}}" port bridge_ip
+    if [[ ! "${proxy}" =~ ^http://127\.0\.0\.1:([0-9]+)/?$ ]]; then
+        printf 'startup: warning: no loopback HTTPS_PROXY; gh and git push stay unauthenticated\n' >&2
+        return 0
+    fi
+    port="${BASH_REMATCH[1]}"
+    bridge_ip="$(docker network inspect bridge -f '{{(index .IPAM.Config 0).Gateway}}')"
+    log "Relaying agent proxy ${bridge_ip}:${port} -> 127.0.0.1:${port} (log: ${RELAY_LOG})"
+    nohup python3 -I "${REPO_ROOT}/.claude/agent-proxy-relay.py" \
+        "${bridge_ip}" "${port}" 127.0.0.1 "${port}" >"${RELAY_LOG}" 2>&1 &
+    export DEVCONTAINER_HTTPS_PROXY="http://host.docker.internal:${port}"
+    export DEVCONTAINER_NO_PROXY="${NO_PROXY:-${no_proxy:-}}"
+    export DEVCONTAINER_GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+}
+
 bring_devcontainer_up() {
     log "Bringing up devcontainer"
     bun install @devcontainers/cli@0.80.2 --global
+    export_git_identity
+    export_proxy_access
     devcontainer up --workspace-folder "${REPO_ROOT}"
 }
 

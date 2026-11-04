@@ -72,6 +72,12 @@ services:
       GIT_AUTHOR_EMAIL:
       GIT_COMMITTER_NAME:
       GIT_COMMITTER_EMAIL:
+      # Empty unless .claude/startup.sh sets them; see architecture/cloud-session-devcontainer.
+      HTTPS_PROXY: ${DEVCONTAINER_HTTPS_PROXY:-}
+      https_proxy: ${DEVCONTAINER_HTTPS_PROXY:-}
+      NO_PROXY: ${DEVCONTAINER_NO_PROXY:-}
+      no_proxy: ${DEVCONTAINER_NO_PROXY:-}
+      GH_TOKEN: ${DEVCONTAINER_GH_TOKEN:-}
 
     extra_hosts:
       - host.docker.internal:host-gateway
