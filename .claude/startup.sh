@@ -15,6 +15,7 @@ readonly RELAY_LOG="/var/log/agent-proxy-relay.log"
 # host.docker.internal resolves to, needs another subnet.
 readonly DOCKER_BRIDGE_CIDR="10.213.0.1/24"
 readonly PIN_DIR="${REPO_ROOT}/.tmp/comp-pin"
+readonly CLOUD_ENV="${REPO_ROOT}/.devcontainer/cloud-session.env"
 
 log() {
     printf '\n==> %s\n' "$*"
@@ -62,7 +63,8 @@ export_git_identity() {
 # gh and git authenticate only through the session's loopback agent proxy; relay it onto
 # the Docker bridge for the container. See architecture/cloud-session-devcontainer.
 export_proxy_access() {
-    local proxy="${HTTPS_PROXY:-${https_proxy:-}}" port bridge_ip
+    local proxy="${HTTPS_PROXY:-${https_proxy:-}}" port bridge_ip relay_proxy no_proxy_list
+    rm -f "${CLOUD_ENV}"
     if [[ ! "${proxy}" =~ ^http://127\.0\.0\.1:([0-9]+)/?$ ]]; then
         printf 'startup: warning: no loopback HTTPS_PROXY; gh and git push stay unauthenticated\n' >&2
         return 0
@@ -72,9 +74,13 @@ export_proxy_access() {
     log "Relaying agent proxy ${bridge_ip}:${port} -> 127.0.0.1:${port} (log: ${RELAY_LOG})"
     nohup python3 -I "${REPO_ROOT}/.claude/agent-proxy-relay.py" \
         "${bridge_ip}" "${port}" 127.0.0.1 "${port}" >"${RELAY_LOG}" 2>&1 &
-    export DEVCONTAINER_HTTPS_PROXY="http://host.docker.internal:${port}"
-    export DEVCONTAINER_NO_PROXY="${NO_PROXY:-${no_proxy:-}}"
-    export DEVCONTAINER_GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+    relay_proxy="http://host.docker.internal:${port}"
+    no_proxy_list="${NO_PROXY:-${no_proxy:-}}"
+    {
+        printf 'HTTPS_PROXY=%s\nhttps_proxy=%s\n' "${relay_proxy}" "${relay_proxy}"
+        printf 'NO_PROXY=%s\nno_proxy=%s\n' "${no_proxy_list}" "${no_proxy_list}"
+        printf 'GH_TOKEN=%s\n' "${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+    } >"${CLOUD_ENV}"
 }
 
 bring_devcontainer_up() {
