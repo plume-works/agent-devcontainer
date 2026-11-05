@@ -1,19 +1,19 @@
 ---
-# The Git Core PPA's build, republished unchanged by plume-works/git-releases.
+# The Git Core PPA's build, republished unchanged as a release of this repository.
 # yamllint disable-line rule:line-length
-# renovate: datasource=github-releases depName=plume-works/git-releases versioning=regex:^v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-0ppa(?<build>\d+)-ubuntu24\.04\.(?<revision>\d+)$
-git_ppa_version: "v2.56.0-0ppa1-ubuntu24.04.2"
+# renovate: datasource=github-releases depName=plume-works/agent-devcontainer versioning=regex:^pinned-deps/git/(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)-0ppa(?<build>\d+)-ubuntu24\.04\.(?<revision>\d+)$
+git_ppa_release_tag: "pinned-deps/git/2.56.0-0ppa1-ubuntu24.04.2"
 git_ppa_checksums:
   amd64: 8681013502ef3b3ab4131c94e43ca89dd133934d0f5dc143cd456a7896b0ba81
   arm64: b6a00c49c64e0056a223089ea1802b1bc7eec6e76c727e417735eeb471e4feaf
 git_ppa_download_url: >-
-  https://github.com/plume-works/git-releases/releases/download/{{ git_ppa_version }}/git_{{
-  git_ppa_version[1:] }}_{{ system_arch }}.deb
+  https://github.com/plume-works/agent-devcontainer/releases/download/{{ git_ppa_release_tag }}/git_{{
+  git_ppa_release_tag.split('/')[-1] }}_{{ system_arch }}.deb
 # git-man is architecture-independent; refresh-pin-checksums.py hashes a URL per
 # architecture, so the same checksum is recorded twice.
 git_ppa_man_checksums:
   amd64: cb822902516208cb4b8475732c4c25ab0413adef1149c31c82d8b9e1f301047a
   arm64: cb822902516208cb4b8475732c4c25ab0413adef1149c31c82d8b9e1f301047a
 git_ppa_man_download_url: >-
-  https://github.com/plume-works/git-releases/releases/download/{{ git_ppa_version }}/git-man_{{
-  git_ppa_version[1:] }}_all.deb
+  https://github.com/plume-works/agent-devcontainer/releases/download/{{ git_ppa_release_tag }}/git-man_{{
+  git_ppa_release_tag.split('/')[-1] }}_all.deb
