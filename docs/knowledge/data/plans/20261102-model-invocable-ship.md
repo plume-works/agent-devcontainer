@@ -250,14 +250,14 @@ decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
+Verified anchor points (line numbers as of 2026-11-05):
 
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:3` — `description`
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:4` —
   `disable-model-invocation: true`
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:37` — "Never perform a Ship
   step in this session"
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:71` — explicit-only
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:67` — explicit-only
   skills map to `deny`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:113` — `iwe-ship`
   expected `deny`
@@ -269,5 +269,5 @@ Verified anchor points (line numbers as of 2026-11-03):
   gate bullet
 - `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:157` —
   **Drop the gate and rely on descriptions, for Ship**
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:804` — Ship and Implement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:846` — Ship and Implement
   start requirement
