@@ -61,6 +61,12 @@ asking](backlog/implement-opens-pr.md)
 
 [Nested dispatch from catalog agents](backlog/nested-catalog-agent-dispatch.md)
 
+[Check adversarial review depth on
+OpenCode](backlog/observe-adversarial-review-depth-on-opencode.md)
+
+[Observe a planned adversarial review task through the Implement
+loop](backlog/observe-planned-adversarial-review.md)
+
 [Run Primary checks' ci job in parallel with the pre-commit
 job](backlog/parallel-ci-with-pre-commit.md)
 

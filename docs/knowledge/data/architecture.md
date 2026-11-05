@@ -17,6 +17,8 @@ rejected are as valuable as the one you picked.*
 
 [Actions approval permission](architecture/actions-approval-permission.md)
 
+[Adversarial review](architecture/adversarial-review.md)
+
 [Agent auth persistence](architecture/agent-auth-persistence.md)
 
 [Agent metadata files](architecture/agent-metadata-files.md)
@@ -131,6 +133,8 @@ re-review](architecture/rereview-gate-pending.md)
 
 [Testing sibling workspaces in
 devcontainers](architecture/sibling-devcontainer-testing.md)
+
+[Skill rehearsal runs](architecture/skill-rehearsal-runs.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
 

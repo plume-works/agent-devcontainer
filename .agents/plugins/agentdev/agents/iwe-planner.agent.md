@@ -259,6 +259,10 @@ Ship creates the document and replaces the key with a real link.
   date — never cite from memory.
 - A plan carries no task or `## Verification` step whose only claim is that CI
   passes: `pr-merge` gates every merge on CI.
+- A plan may carry one task, closing or near-closing, that runs
+  `/agentdev:iwe-adversarial-review <plan> code`, when its claims are worth
+  attacking — a trust boundary, an integrity check. Planning never invokes that
+  skill and never dispatches `iwe-adversarial-reviewer`, in either mode.
 - Behaviour observable only after merge is a task carrying a
   `**Closed by:** <who or what event>` line, and Ship waits for it.
 - A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.

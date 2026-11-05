@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T19:04:06Z
+  at: 2026-11-04T12:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -29,6 +29,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md
+- resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 ---
 
@@ -745,6 +747,37 @@ Outstanding observations rather than as a CRITICAL.
 - **WHEN** a task cites a CI job that exercises behaviour only CI reaches, and
   the run cited is on an earlier commit than `HEAD`
 - **THEN** Verify accepts the evidence
+
+### Requirement: Adversarial review runs only when asked
+
+The adversarial review SHALL be defined once, as the catalog agent
+`iwe-adversarial-reviewer`, which `/agentdev:iwe-adversarial-review` dispatches
+from a fresh context with a prompt carrying only the plan key, the target
+(`plan` or `code`), and the user's approvals quoted verbatim. The agent SHALL
+edit nothing and dispatch no agent, and every finding against code SHALL name
+the plan claim it defeats, or none. The review SHALL run only on a person's
+request or a plan task that runs it; Plan SHALL never invoke it. In the
+Implement loop, a finding that defeats a plan claim SHALL take the code route,
+and any other finding SHALL be filed through `/agentdev:iwe-capture`.
+
+#### Scenario: A plan task runs the review
+
+- **WHEN** Implement reaches a task that runs
+  `/agentdev:iwe-adversarial-review <plan> code` and the report names a defeated
+  plan claim
+- **THEN** the orchestrator fixes it under the Implement rules, and files every
+  finding that names no plan claim
+
+#### Scenario: A person reviews a plan
+
+- **WHEN** the user runs `/agentdev:iwe-adversarial-review <plan> plan`
+- **THEN** the agent reports the plan's weaknesses and changes nothing
+
+#### Scenario: Planning does not start the review
+
+- **WHEN** `/agentdev:iwe-plan` creates or revises a plan
+- **THEN** it neither loads `/agentdev:iwe-adversarial-review` nor dispatches
+  `iwe-adversarial-reviewer`
 
 ### Requirement: Ship waits for post-merge observations
 
