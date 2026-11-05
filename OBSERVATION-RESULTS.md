@@ -72,3 +72,15 @@ shipped.
   directory": a rooted Windows slug such as `\outside` escapes without `/` or
   `..`, shown with an `ntpath.join` probe. The session's worktree snapshot is
   unchanged with no files changed.
+- **OpenCode, after the "report every finding" rule:** OpenCode session
+  `ses_e56b7c782ffduYUAJR4Cm2qD3v` (`openai/gpt-6.1-sol` default, agent
+  `build`) on `scratch/adversarial-review-fixture` at `23dd890` — the session
+  snapshot `eaeb5f7` is that commit's tree, so the reviewer had the rule
+  "Check every part of the rubric … report every finding". Dispatch was the
+  same: one `subagent` call to `iwe-adversarial-reviewer`, prompt of only plan
+  key, target `plan`, and approvals (sub-session
+  `ses_e56b7bc74ffeQfnk7K6UH0gJXr`), report re-posted verbatim, snapshot
+  unchanged. The report still names one weakness — a symlink inside
+  `data/plans/` defeats the string check — and neither structural weakness (no
+  caller wired, a full plan key contains `/`). The rule did not change the
+  depth on this model.
