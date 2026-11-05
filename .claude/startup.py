@@ -202,7 +202,7 @@ def start_docker() -> None:
     for _ in range(DOCKER_WAIT_SECONDS):
         if docker_ready():
             return
-        if dockerd.poll() is not None:
+        if dockerd.poll() is not None and not docker_ready():
             raise StartupError(f'dockerd exited with {dockerd.returncode}; see {DOCKERD_LOG}')
         time.sleep(1)
     raise StartupError(f'Docker daemon not ready after {DOCKER_WAIT_SECONDS}s; see {DOCKERD_LOG}')
