@@ -83,6 +83,9 @@ Delete these paths from the copied repository:
 .agents/
 .claude-plugin/
 py_packages/
+.github/workflows/cache-git-ppa-release.yml
+scripts/cache-git-ppa-release.py
+scripts/git-core-ppa.asc
 ```
 
 `.iwe/` and the rest of `docs/knowledge/` are handled in [Optional
