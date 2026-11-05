@@ -1,5 +1,5 @@
 ---
-# The Git Core PPA's git, fetched from its GitHub release copy: see
+# The Git Core PPA's git, fetched from its release copy in this repository: see
 # architecture/no-launchpad-ppas.
 # Images and hosts provisioned while git came straight from the PPA still carry its source.
 - name: Remove the Git Core PPA apt source
@@ -21,7 +21,7 @@
   failed_when: false
 
 - name: Install git from the cached PPA packages
-  when: git_ppa_installed.stdout | regex_replace('^\d+:', '') | replace('~', '-') != git_ppa_version[1:]
+  when: git_ppa_installed.stdout | regex_replace('^\d+:', '') | replace('~', '-') != git_ppa_release_tag.split('/')[-1]
   block:
     - name: Create the git download directory
       ansible.builtin.tempfile:
@@ -70,5 +70,5 @@
     that:
       - >-
         (git_ppa_installed.stdout | regex_replace('^\d+:', '') | replace('~', '-'))
-        == git_ppa_version[1:]
-    fail_msg: "git {{ git_ppa_installed.stdout }} is installed, not {{ git_ppa_version }}"
+        == git_ppa_release_tag.split('/')[-1]
+    fail_msg: "git {{ git_ppa_installed.stdout }} is installed, not {{ git_ppa_release_tag }}"

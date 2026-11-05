@@ -101,7 +101,9 @@ class VariablePin:
         return yaml.safe_load(text)
 
     def versions(self, defaults: dict[str, Any]) -> dict[str, str]:
-        """Map the pin's version variable to its version."""
+        """Map the pin's version variable to its version; empty when the file lacks it."""
+        if self.version_var not in defaults:
+            return {}
         return {self.version_var: str(defaults[self.version_var])}
 
     def pins(self, defaults: dict[str, Any], repo_root: Path) -> list[Pin]:
@@ -201,13 +203,13 @@ PIN_FILES: dict[str, PinSpec | tuple[PinSpec, ...]] = {
     ),
     'ansible/roles/git_ppa/defaults/main.yml': (
         VariablePin(
-            version_var='git_ppa_version',
+            version_var='git_ppa_release_tag',
             url_var='git_ppa_download_url',
             checksums_var='git_ppa_checksums',
             arch_var='system_arch',
         ),
         VariablePin(
-            version_var='git_ppa_version',
+            version_var='git_ppa_release_tag',
             url_var='git_ppa_man_download_url',
             checksums_var='git_ppa_man_checksums',
             arch_var='system_arch',
