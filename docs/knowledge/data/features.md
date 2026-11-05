@@ -39,6 +39,8 @@ restarts](features/claude-remote-control-resume.md)
 
 [Remote Control server mode](features/claude-remote-control-server-mode.md)
 
+[Cloud session host toolchain](features/cloud-session-host-toolchain.md)
+
 [Remote Control autostart on Coder](features/coder-remote-control-autostart.md)
 
 [Codex full-access config](features/codex-full-access-config.md)
