@@ -71,7 +71,8 @@ Rejected:
   it in this session or a coordinator's message relays it from the user.
 - [ ] The bridge tests that expect `iwe-ship` denied expect a gated coordinator
   denied instead, and `iwe-ship` allowed.
-- [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
+- [ ] `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+  passes.
 
 ### Task 2: Explore never starts Ship
 
@@ -235,7 +236,7 @@ decision it was not given.
 
 ## Verification
 
-- `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+- `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - Tasks 4 and 5 are observation tasks the maintainer closes; Ship waits for
   them.
