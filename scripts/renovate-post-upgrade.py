@@ -10,9 +10,6 @@ import subprocess
 import sys
 import tempfile
 
-# renovate: datasource=npm depName=@devcontainers/cli
-DEVCONTAINER_CLI_VERSION = '0.90.0'
-DEVCONTAINER_JSON = '.devcontainer/devcontainer.json'
 DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
 
 
@@ -46,16 +43,6 @@ def main() -> int:
     if not changed:
         return 0
     run('uv', 'run', '--frozen', 'scripts/refresh-pin-checksums.py', *changed)
-    if DEVCONTAINER_JSON in changed:
-        run(
-            'bunx',
-            '--package',
-            f'@devcontainers/cli@{DEVCONTAINER_CLI_VERSION}',
-            'devcontainer',
-            'upgrade',
-            '--workspace-folder',
-            '.',
-        )
     iwe_dir = None
     try:
         # The image carries the old iwe; the pinned one migrates .iwe/ and serves the hooks below.

@@ -82,10 +82,13 @@ def cloud_env_text(environ: Mapping[str, str]) -> str:
     relay = f'http://host.docker.internal:{RELAY_PORT}'
     no_proxy = environ.get('NO_PROXY') or environ.get('no_proxy') or ''
     token = environ.get('GH_TOKEN') or environ.get('GITHUB_TOKEN') or ''
+    # The proxy honours GH_TOKEN only for in-scope repositories, so zizmor's online
+    # audits get 401s: see bugs/zizmor-online-audits-fail-in-cloud-devcontainer.
     return (
         f'HTTPS_PROXY={relay}\nhttps_proxy={relay}\n'
         f'NO_PROXY={no_proxy}\nno_proxy={no_proxy}\n'
         f'GH_TOKEN={token}\n'
+        'ZIZMOR_OFFLINE=true\n'
     )
 
 
@@ -296,11 +299,18 @@ def add_cloud_instructions() -> None:
     shutil.copyfile(REPO_ROOT / '.claude/CLAUDE.cloud.md', target)
 
 
-def build_devcontainer() -> None:
+def build_devcontainer(environ: Mapping[str, str]) -> None:
     """Install the CLI and build the devcontainer image, pulling what it needs."""
     log('Building devcontainer image')
     install_devcontainer_cli()
-    run('devcontainer', 'build', '--workspace-folder', str(REPO_ROOT))
+    # Bake's fs entitlement check off: see architecture/cloud-session-devcontainer.
+    run(
+        'devcontainer',
+        'build',
+        '--workspace-folder',
+        str(REPO_ROOT),
+        env={**environ, 'BUILDX_BAKE_ENTITLEMENTS_FS': '0'},
+    )
 
 
 def timed(step: Callable[..., None], *args: object) -> None:
@@ -315,7 +325,7 @@ def setup(environ: Mapping[str, str]) -> None:
     timed(register_plugin)
     add_cloud_instructions()
     timed(start_docker)
-    timed(build_devcontainer)
+    timed(build_devcontainer, environ)
     log('Setup complete')
 
 

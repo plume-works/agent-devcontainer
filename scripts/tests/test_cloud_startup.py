@@ -134,7 +134,7 @@ def test_proxy_port_needs_a_loopback_proxy(environ: dict[str, str], port: int | 
 
 
 def test_cloud_env_points_the_container_at_the_relay() -> None:
-    """The env file names the relay, the session's no-proxy list, and its token."""
+    """The env file names the relay, the no-proxy list, the token, and offline zizmor."""
     text = startup.cloud_env_text({'NO_PROXY': 'localhost,pypi.org', 'GH_TOKEN': 'token'})
     relay = f'http://host.docker.internal:{startup.RELAY_PORT}'
     assert text.splitlines() == [
@@ -143,6 +143,7 @@ def test_cloud_env_points_the_container_at_the_relay() -> None:
         'NO_PROXY=localhost,pypi.org',
         'no_proxy=localhost,pypi.org',
         'GH_TOKEN=token',
+        'ZIZMOR_OFFLINE=true',
     ]
 
 
@@ -275,6 +276,26 @@ def test_setup_builds_the_image_without_creating_the_container(scratch: Path) ->
     lines = calls.read_text().splitlines()
     assert f'devcontainer build --workspace-folder {startup.REPO_ROOT}' in lines
     assert not [line for line in lines if line.startswith(('devcontainer up', 'docker compose'))]
+
+
+def test_setup_builds_without_the_bake_fs_entitlement_check(scratch: Path) -> None:
+    """The featureless build passes only when bake skips its filesystem entitlement check."""
+    version = startup.DEVCONTAINER_CLI_VERSION
+    seen = scratch / 'entitlements'
+    result, _ = run_startup(
+        scratch,
+        'setup',
+        {
+            'docker': 'exit 0',
+            'claude': 'exit 0',
+            'devcontainer': (
+                f'[ "$1" = --version ] && echo {version}\n'
+                f'[ "$1" = build ] && echo "$BUILDX_BAKE_ENTITLEMENTS_FS" > {seen}\nexit 0'
+            ),
+        },
+    )
+    assert result.returncode == 0, result.stderr
+    assert seen.read_text().strip() == '0'
 
 
 def stub_dockerd(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Path]:
