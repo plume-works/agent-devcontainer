@@ -64,15 +64,27 @@ Rejected:
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md`,
 `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 
-- [ ] `SKILL.md` carries no `disable-model-invocation` key.
-- [ ] The description says the skill is for a request that names a plan to ship
+- [x] `SKILL.md` carries no `disable-model-invocation` key.
+  - **Evidence:** commit 64c80a3 removes the key from
+    `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes on it (62/62 skills, 0 errors).
+- [x] The description says the skill is for a request that names a plan to ship
   or cancel, or a release to cut.
-- [ ] Step 1 quotes each approval in the request verbatim, whether the user gave
+  - **Evidence:** commit 64c80a3 ends the `iwe-ship` description with "Use only
+    when the request names a plan to ship or cancel, or a release to cut".
+- [x] Step 1 quotes each approval in the request verbatim, whether the user gave
   it in this session or a coordinator's message relays it from the user.
-- [ ] The bridge tests that expect `iwe-ship` denied expect a gated coordinator
+  - **Evidence:** commit 64c80a3 rewrites Step 1's **Approvals** bullet in
+    `iwe-ship/SKILL.md` to cover approvals a coordinator's message relays.
+- [x] The bridge tests that expect `iwe-ship` denied expect a gated coordinator
   denied instead, and `iwe-ship` allowed.
-- [ ] `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+  - **Evidence:** commit 64c80a3 changes both config-hook tests in
+    `bridge.test.ts` to expect `iwe-ship-all` denied and `iwe-ship` absent from
+    the deny map; with the gate put back, both fail (27 pass, 2 fail).
+- [x] `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
   passes.
+  - **Evidence:** on commit 64c80a3, 29 pass, 0 fail.
 
 ### Task 2: Explore never starts Ship
 
