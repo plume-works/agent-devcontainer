@@ -57,10 +57,9 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
            validate_agent_files_version=$VALIDATE_AGENT_FILES_VERSION \
          "
 
-# Version of the agentdev catalog staged into the image. The catalog is staged from
-# the build context, so this is a pin the build verifies rather than a version it
-# fetches: .claude-plugin/marketplace.json must declare exactly this version or the
-# provisioning fails. Bump both together when releasing the catalog.
+# Version of the agentdev catalog staged into the image: a pin the build verifies, not
+# a version it fetches. .claude-plugin/marketplace.json must declare exactly this
+# version or provisioning fails. Bump both together when releasing the catalog.
 ARG AGENTDEV_PLUGIN_VERSION=5.0.0
 
 # Where the staged catalog lives. Outside $HOME on purpose: ~/.claude is commonly

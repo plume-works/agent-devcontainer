@@ -16,9 +16,8 @@ sources:
 The `github_cli` role installs the `gh` authentication wrapper from its own
 `files/gh` to `/usr/local/bin/gh`, and that baked copy is the only `gh` shim.
 Nothing the images or `setup-dev.yml` provide puts a path from the workspace
-checkout ahead of it on `PATH`. A host provisioned while the role still
-prepended the checkout's `docker/bin` loses those bash and fish blocks the next
-time `setup-dev.yml` runs.
+checkout ahead of it on `PATH`. `setup-dev.yml` removes the `github_cli_wrapper`
+block from an existing `~/.bashrc` and `config.fish`.
 
 This supersedes the live-workspace override in [gh authentication
 shim](gh-authentication-shim.md); the wrapper's contract recorded there is

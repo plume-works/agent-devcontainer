@@ -100,7 +100,7 @@ on `PATH`.
 - **THEN** `command -v gh` in an interactive bash or fish shell resolves to
   `/usr/local/bin/gh`
 
-#### Scenario: a host provisioned before this change
+#### Scenario: a host carries the legacy `github_cli_wrapper` block
 
 - **WHEN** `setup-dev.yml` runs again on a host whose `~/.bashrc` or
   `config.fish` carries the `github_cli_wrapper` block

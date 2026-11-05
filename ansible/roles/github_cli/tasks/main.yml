@@ -46,8 +46,8 @@
     owner: root
     group: root
 
-# A checkout's own gh must never run ahead of the wrapper, so hosts provisioned
-# with the old PATH prepends lose them.
+# A checkout's own gh must never run ahead of the wrapper: see
+# architecture/gh-wrapper-image-only.
 - name: Find the shell configs that may carry the workspace gh PATH prepend
   ansible.builtin.stat:
     path: "{{ item }}"
