@@ -112,14 +112,3 @@ Then compare `HEAD` and `git status --porcelain` with the baseline.
 - **Running the skill in the session that built the fixture.** It exercises the
   dispatch, but the dispatching session knows the defect; acceptable for a quick
   smoke check only.
-
-## Example
-
-Example only — the [Adversarial review](adversarial-review.md) rehearsal of
-`/agentdev:iwe-adversarial-review <plan> code`. The fixture branch held a slug
-guard whose code accepted a slug its plan's requirement says it must refuse. The
-runner session made one call, `Agent` with
-`subagent_type: agentdev:iwe-adversarial-reviewer` and a prompt of exactly the
-plan key, target, and approvals; every other call came from the reviewer and was
-read-only. The report named the defeated requirement, and `HEAD` and the
-worktree matched the baseline.
