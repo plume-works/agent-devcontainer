@@ -38,10 +38,10 @@ that means a top-level session, or a session started as an agent whose `tools:`
 lists `Agent` ([Nested subagent dispatch](nested-subagent-dispatch.md)).
 
 - **An in-session subagent of a Claude Code cloud session does not qualify.** It
-  receives neither `Agent` nor `Skill`, whatever its definition's `tools:`
-  lists. A dispatching skill run there either stops, which is the skill working,
-  or is followed by hand through some other mechanism, which does not exercise
-  the skill's dispatch at all.
+  receives no `Agent` tool, whatever its definition's `tools:` lists; it
+  receives `Skill` when its `tools:` lists it. A dispatching skill run there
+  either stops, which is the skill working, or is followed by hand through some
+  other mechanism, which does not exercise the skill's dispatch at all.
 - **A fresh `claude` process does qualify.** Started headless with
   `--agent <runner>`, where the runner's `tools:` lists `Agent` and `Skill`, it
   dispatches the subagent the skill names.
@@ -107,8 +107,8 @@ Then compare `HEAD` and `git status --porcelain` with the baseline.
 - **An in-session `general-purpose` or catch-all subagent as the dispatching
   session.** It has no `Agent` tool, so the skill cannot dispatch.
 - **An existing catalog agent whose `tools:` lists `Agent`, as a stand-in.** In
-  a cloud session it still receives no `Agent` or `Skill`, and it carries its
-  own instructions into the run.
+  a cloud session it still receives no `Agent`, and it carries its own
+  instructions into the run.
 - **Running the skill in the session that built the fixture.** It exercises the
   dispatch, but the dispatching session knows the defect; acceptable for a quick
   smoke check only.

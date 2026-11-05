@@ -151,7 +151,9 @@ def checkout(sandbox: Sandbox) -> Path:
     repo = sandbox.root / 'checkout'
     repo.mkdir()
     (repo / 'module.py').write_text('def answer():\n    return 42\n')
+    # Detached auto-maintenance would race owners() over the checkout's lock files.
     git = ['git', '-C', str(repo), '-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
+    git += ['-c', 'maintenance.auto=false']
     subprocess.run([*git, 'init', '-q'], check=True)
     subprocess.run([*git, 'add', '.'], check=True)
     subprocess.run([*git, 'commit', '-qm', 'init'], check=True)

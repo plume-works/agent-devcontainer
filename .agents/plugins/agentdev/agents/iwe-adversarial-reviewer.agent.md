@@ -77,6 +77,9 @@ Lead with one line — `Adversarial review: <plan key> — <target>` — then:
   published artifact, a CI trigger, anything remote — runs only under a quoted
   approval that names it; otherwise stop before it and report it under
   `Needs decision`.
+- Check every part of the rubric for the target, including a mechanism no
+  caller reaches and a scenario no task covers, and report every finding it
+  turns up, not only the most severe.
 - Every finding cites evidence or is labeled "unverified"; a weakness you could
   not demonstrate is unverified, not dropped.
 - A finding is a concrete way to defeat a claim or the code, not a style or

@@ -19,8 +19,7 @@
       ".pre-commit-config.yaml",
       "pyproject.toml",
       "py_packages/*/pyproject.toml",
-      "uv.lock",
-      "scripts/renovate-post-upgrade.py"
+      "uv.lock"
     ]
   },
   "lockFileMaintenance": {
@@ -51,14 +50,6 @@
         "ghcr.io/plume-works/agentdev-deploy"
       ],
       "groupName": "agentdev image digests",
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
-    },
-    {
-      "description": "Dev Container features in .devcontainer/devcontainer.json. The post-upgrade script regenerates devcontainer-lock.json in the same commit, and a change under .devcontainer/ runs the devcontainer image build on both architectures before it can merge. That is what makes automerge safe here.",
-      "matchManagers": ["devcontainer"],
-      "matchPackageNames": ["ghcr.io/devcontainers/features/**"],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
@@ -109,14 +100,6 @@
   ],
   "customManagers": [
     {
-      "description": "The devcontainer CLI version the post-upgrade script regenerates the devcontainer lock with.",
-      "customType": "regex",
-      "managerFilePatterns": ["/^scripts/renovate-post-upgrade\\.py$/"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n[A-Z0-9_]+ = '(?<currentValue>[^']+)'"
-      ]
-    },
-    {
       "description": "Versions of the checksum-carrying tools in dev_tools_pinned_tools: an entry's unquoted `version:` field, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
       "customType": "regex",
       "managerFilePatterns": [
@@ -137,11 +120,12 @@
       ]
     },
     {
-      "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it.",
+      "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it that may name an extractVersion or a versioning scheme.",
       "customType": "regex",
       "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\""
       ]
     },

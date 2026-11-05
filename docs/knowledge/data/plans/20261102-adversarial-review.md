@@ -11,7 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
-rank: 187
+stage: done
+completed: 2026-11-04
 ---
 
 # Add an adversarial review for plans and their code
@@ -179,17 +180,47 @@ Modify: `docs/knowledge/data/architecture.md`
 OpenCode with the default test models, on a plan whose code defeats one of its
 own claims.
 
-- [ ] `/agentdev:iwe-adversarial-review <plan> code` dispatches one
+- [x] `/agentdev:iwe-adversarial-review <plan> code` dispatches one
   `iwe-adversarial-reviewer` whose report names the defeated claim, and the
   checkout has no new commit and a clean worktree.
+  - **Evidence:** Maintainer observation on fixture plan
+    `data/plans/20261104-slug-guard-fixture` (branch
+    `scratch/adversarial-review-fixture`, whose code accepts the `a/b` slug its
+    requirement refuses). Claude Code 2.1.318 (cloud, `claude-opus-5-5`),
+    session `session_01Q7BhLsjCAGNdn2tLU8PM6G`: one `Agent` dispatch of
+    `agentdev:iwe-adversarial-reviewer` with a prompt of only plan key, target
+    `code`, and approvals; the reviewer made three read-only `Bash` calls and no
+    edit or dispatch; its report names "Slugs cannot leave the plans directory"
+    with `scripts/slug_guard.py:6`; `git status --porcelain` empty before and
+    after. OpenCode (`openai/gpt-6.1-sol`), session
+    `ses_e5825cbeeffenHmG7Bgao3qB4h`: one `subagent` call to
+    `iwe-adversarial-reviewer` with the same three-line prompt; its report names
+    the same requirement and the "A nested slug is refused" scenario with
+    `scripts/slug_guard.py:6`; the session's worktree snapshot is unchanged with
+    no files changed.
 
 ### Task 6: Observe planning leaving the review alone on both harnesses
 
 **Closed by:** the maintainer, observing one session on Claude Code and one on
 OpenCode with the default test models.
 
-- [ ] `/agentdev:iwe-plan` asked to plan a small change loads no
+- [x] `/agentdev:iwe-plan` asked to plan a small change loads no
   `iwe-adversarial-review` skill and dispatches no `iwe-adversarial-reviewer`.
+  - **Evidence:** Maintainer observation on branch
+    `scratch/adversarial-review-fixture`, request
+    `/agentdev:iwe-plan Plan a change so that is_safe_slug in scripts/slug_guard.py also rejects backslashes.`
+    Claude Code 2.1.318 (cloud, `claude-opus-5-5`), session
+    `session_01Q7BhLsjCAGNdn2tLU8PM6G` after `/clear`: create mode wrote
+    `data/plans/20261104-slug-guard-backslash` and `iwe schema validate` passed;
+    across its 21 tool calls the only `Skill` load was `agentdev:iwe-audit`,
+    inside the Durable Knowledge Auditor, and the only `Agent` dispatch was
+    `agentdev:Durable Knowledge Auditor`. OpenCode (`openai/gpt-6.1-sol`),
+    session `ses_e5821c2aeffdP6vszCpTPCvBCj`: create mode wrote
+    `data/plans/20261104-slug-guard-backslashes` and `iwe schema validate`
+    printed no violations; the only skills loaded were `iwe-plan` and
+    `git-commit`, and the only `subagent` call was `durable-knowledge-auditor`.
+    Neither session loaded `iwe-adversarial-review` or dispatched
+    `iwe-adversarial-reviewer`.
 
 ## Spec changes
 
