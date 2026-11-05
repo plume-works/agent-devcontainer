@@ -102,14 +102,21 @@ Rejected:
 **Files:** Modify:
 `docs/knowledge/data/architecture/explicit-only-workflow-agents.md`
 
-- [ ] **Who may start them** lists any session asked to ship a named plan, and
+- [x] **Who may start them** lists any session asked to ship a named plan, and
   the gate bullet names only the two coordinators as explicit-only.
-- [ ] The authority rule says a coordinator may relay the user's approvals to a
+  - **Evidence:** commit f338eea; `iwe schema validate` passes on it.
+- [x] The authority rule says a coordinator may relay the user's approvals to a
   session it asks to ship a plan.
-- [ ] The decision states why Ship can drop the gate: it always runs as a fresh
+  - **Evidence:** commit f338eea extends the **Ship always runs as a dispatched
+    subagent** bullet with the relay rule.
+- [x] The decision states why Ship can drop the gate: it always runs as a fresh
   subagent with a conversation-free prompt, and Explore never starts it.
-- [ ] **Drop the gate and rely on descriptions** stays rejected for the
+  - **Evidence:** commit f338eea adds the **Ship's entry skill is
+    model-invocable** bullet stating both reasons.
+- [x] **Drop the gate and rely on descriptions** stays rejected for the
   coordinators only.
+  - **Evidence:** commit f338eea renames the rejected alternative to **Drop the
+    gate and rely on descriptions, for the coordinators**.
 
 ### Task 4: Observe a plain-words Ship request on both harnesses
 
