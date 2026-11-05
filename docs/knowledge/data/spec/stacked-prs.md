@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly and only into main, never rewrite a branch, record a dependent branch's predecessors, keep the Depends on section machine-editable, and restack a chain of dependent pull requests with merges through pr-restack-all.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T19:24:20Z
+  at: 2026-11-05T02:43:47Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -93,8 +93,8 @@ For a branch with `Depends-on:` trailers, pr-open SHALL run
 `pr-restack-all <branch>` before creating or updating the pull request, SHALL
 refuse while more than one dependency is unmerged, SHALL set a new pull
 request's base to the unmerged predecessor's head branch, or `main` when none is
-unmerged, SHALL write its first `## Depends on` section with one `- #<P>` entry
-per dependency in merge order, and SHALL NOT open it as a draft.
+unmerged, and SHALL write its first `## Depends on` section with one `- #<P>`
+entry per dependency in merge order.
 
 #### Scenario: Open predecessor
 
