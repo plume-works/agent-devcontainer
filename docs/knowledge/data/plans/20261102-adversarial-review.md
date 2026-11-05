@@ -5,8 +5,8 @@ release:
 - features/agentdev-iwe-workflow-skills
 description: Add an adversarial review — a report-only catalog agent and its entry skill — that looks for ways to defeat a plan's design or its implemented code, runs only when a plan task or the user asks, and leaves Verify a conformance check.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T19:30:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-11-05T02:56:13Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -280,14 +280,14 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-04):
+Verified anchor points (line numbers as of 2026-11-05):
 
 - `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:1` — the entry-skill
   shape to follow
 - `.agents/plugins/agentdev/README.md:182` — skill table, `/agentdev:iwe-verify`
   row
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:198` —
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:214` —
   `## Capturing what implementation turns up`
 - `docs/knowledge/data/architecture.md:18` — first entry,
   `actions-approval-permission`
