@@ -337,3 +337,18 @@ def test_dockerd_log_keeps_earlier_runs(scratch: Path, monkeypatch: pytest.Monke
     startup.DOCKERD_LOG.write_text('earlier run\n')
     startup.start_docker()
     assert startup.DOCKERD_LOG.read_text().startswith('earlier run\n')
+
+
+def test_dockerd_that_exits_once_ready_counts_as_started(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A dockerd that is ready by the time its exit is seen has started, not failed."""
+    stub_dockerd(scratch, monkeypatch)
+    ready, probes = scratch / 'ready', scratch / 'probes'
+    # The first probe after the launch answers "not ready" only once dockerd is ready and gone.
+    (scratch / 'bin/docker').write_text(
+        f'#!/bin/sh\necho >> {probes}\nif [ "$(wc -l < {probes})" -eq 2 ]; then\n'
+        f'  while [ ! -e {ready} ]; do sleep 0.05; done; sleep 0.2; exit 1\nfi\n[ -e {ready} ]\n'
+    )
+    startup.start_docker()
+    assert 'dockerd started' in startup.DOCKERD_LOG.read_text()

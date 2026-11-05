@@ -40,6 +40,9 @@ them](bugs/ci-publishes-images-before-acceptance.md)
 [~/.claude.json stops being the volume
 symlink](bugs/claude-json-symlink-replaced.md)
 
+[Bug: cloud startup reports a ready dockerd as failed when it
+exits](bugs/cloud-startup-dockerd-ready-race.md)
+
 [Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](bugs/coder-askpass-push-hang.md)
 
