@@ -11,60 +11,75 @@ FROM $FROM_IMAGE
 # provides the fallback baked into the image.
 ARG WORKSPACE_FOLDER=/workspaces/project
 
-# Version of the agentdev catalog staged into the image. The catalog is staged from
-# the build context, so this is a pin the build verifies rather than a version it
-# fetches: .claude-plugin/marketplace.json must declare exactly this version or the
-# provisioning fails. Bump both together when releasing the catalog.
-ARG AGENTDEV_PLUGIN_VERSION=5.0.0
-
-# Where the staged catalog lives. Outside $HOME on purpose: ~/.claude is commonly
-# mounted as a volume, which would shadow anything placed under them.
-ARG AGENTDEV_CATALOG_DIR=/opt/agentdev
-
-# Version of the validate_agent_files CLI installed into the image. Like the catalog
-# version this is a pin the build verifies rather than one it fetches: the package is
-# built from the build context, and provisioning fails unless the version it installs
-# is exactly this. Bump it together with
-# py_packages/validate_agent_files/pyproject.toml.
-ARG VALIDATE_AGENT_FILES_VERSION=1.0.1
-
 # Supplied from the role default by the image workflow. Keeping the value in the
 # role lets Renovate update installation and image metadata together.
 ARG PLAYWRIGHT_VERSION
 
-# Provision the image with Ansible.
-#
-# The build context is the repository root, bind-mounted read-only rather than
-# COPY'd so none of the provisioning sources end up in the final layer. Omitting
-# `source` on the bind mount takes the whole context.
-# `cd` (not WORKDIR) into /provision: that path only exists for the duration of
-# this RUN's bind mount, so WORKDIR would break later build steps. The context
-# root is also where ansible.cfg lives, which is how the playbook resolves its
-# inventory and roles.
+# Three provisioning steps, each bind-mounting only the inputs it reads at its context
+# path under /provision, so a change elsewhere keeps its layer; see spec/agentdev-runtime-images.
+# `cd`, not WORKDIR: /provision exists only during a step. ansible.cfg's log path is read-only.
 # hadolint ignore=DL3003
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,readonly,target=/provision \
+    --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg \
+    --mount=type=bind,readonly,source=ansible,target=/provision/ansible \
     apt-get update \
     && test -n "$PLAYWRIGHT_VERSION" \
     && cd /provision \
-    && ansible-playbook ansible/playbooks/setup-dev.yml \
+    && ANSIBLE_LOG_PATH='' ansible-playbook ansible/playbooks/setup-dev.yml \
       -vvv \
+      --skip-tags validate_agent_files,agent_catalog \
       -e "workspace_folder=$WORKSPACE_FOLDER \
            install_xpra=true \
            install_docker=true \
            install_agentic_tools=true \
            install_playwright_browser=true \
            install_devcontainer_firewall=true \
+           playwright_browser_version=$PLAYWRIGHT_VERSION \
+         "
+
+# A pin the build verifies, not one it fetches: provisioning fails unless the validator
+# built from the context is exactly this version. Bump it together with
+# py_packages/validate_agent_files/pyproject.toml.
+ARG VALIDATE_AGENT_FILES_VERSION=1.0.1
+
+# hadolint ignore=DL3003
+RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg \
+    --mount=type=bind,readonly,source=ansible,target=/provision/ansible \
+    --mount=type=bind,readonly,source=py_packages/validate_agent_files,target=/provision/py_packages/validate_agent_files \
+    cd /provision \
+    && ANSIBLE_LOG_PATH='' ansible-playbook ansible/playbooks/setup-dev.yml \
+      -vvv \
+      --tags validate_agent_files \
+      -e "workspace_folder=$WORKSPACE_FOLDER \
            install_validate_agent_files=true \
-           agentic_tools_stage_catalog=true \
-           agentic_tools_install_catalog=true \
-           agentic_tools_catalog_source_dir=/provision \
-           agentic_tools_plugin_version=$AGENTDEV_PLUGIN_VERSION \
-           agentic_tools_catalog_root=$AGENTDEV_CATALOG_DIR \
            validate_agent_files_source_dir=/provision/py_packages/validate_agent_files \
            validate_agent_files_version=$VALIDATE_AGENT_FILES_VERSION \
-           playwright_browser_version=$PLAYWRIGHT_VERSION \
+         "
+
+# Version of the agentdev catalog staged into the image: a pin the build verifies, not
+# a version it fetches. .claude-plugin/marketplace.json must declare exactly this
+# version or provisioning fails. Bump both together when releasing the catalog.
+ARG AGENTDEV_PLUGIN_VERSION=5.0.0
+
+# Where the staged catalog lives. Outside $HOME on purpose: ~/.claude is commonly
+# mounted as a volume, which would shadow anything placed under them.
+ARG AGENTDEV_CATALOG_DIR=/opt/agentdev
+
+# hadolint ignore=DL3003
+RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg \
+    --mount=type=bind,readonly,source=ansible,target=/provision/ansible \
+    --mount=type=bind,readonly,source=.claude-plugin,target=/provision/.claude-plugin \
+    --mount=type=bind,readonly,source=.agents/plugins,target=/provision/.agents/plugins \
+    cd /provision \
+    && ANSIBLE_LOG_PATH='' ansible-playbook ansible/playbooks/setup-dev.yml \
+      -vvv \
+      --tags agent_catalog \
+      -e "workspace_folder=$WORKSPACE_FOLDER \
+           install_agent_catalog=true \
+           agent_catalog_source_dir=/provision \
+           agent_catalog_plugin_version=$AGENTDEV_PLUGIN_VERSION \
+           agent_catalog_root=$AGENTDEV_CATALOG_DIR \
          "
 
 # Inherited by agentdev-deploy, agentdev-devcontainer, and any direct consumer. The

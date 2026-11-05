@@ -6,7 +6,7 @@ validate_agent_files_source_dir: "{{ role_path }}/../../../py_packages/validate_
 
 # Optional pin. When set, the version actually installed must equal this or the
 # build fails, which is what keeps the image label honest. Same contract as
-# agentic_tools_plugin_version.
+# agent_catalog_plugin_version.
 validate_agent_files_version: ""
 
 # The entry point goes somewhere every user has on PATH.

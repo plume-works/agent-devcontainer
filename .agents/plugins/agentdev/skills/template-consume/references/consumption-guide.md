@@ -1049,19 +1049,24 @@ docker/
 Also retain the image job in `primary-checks.yml` and the corresponding image
 paths in the shared filter action.
 
+`.dockerignore` is an allow-list: the image build context holds only the paths
+it re-includes. When a customized image reads another path from the build
+context — a new role's input, an extra file a Dockerfile copies — add that path
+to `.dockerignore`, or the build never sees it.
+
 Before running the build, inspect `docker/base/agentdev-base.Dockerfile`.
-Its Ansible invocation reads publisher source from the repository build
-context twice: it enables `agentic_tools_stage_catalog` for `.agents/` and
-`.claude-plugin/`, and `install_validate_agent_files` for
-`py_packages/validate_agent_files/`. After the normal publisher-source
-deletion, none of those trees exist and the build fails with an explicit
-message from each role. Choose explicitly whether to:
+It provisions in three steps, each bind-mounting only the inputs it reads, and
+two of them read publisher source from the repository build context: the
+validator step mounts `py_packages/validate_agent_files/`, and the catalog step
+mounts `.claude-plugin/` and `.agents/plugins/`. After the normal
+publisher-source deletion, none of those trees exist and the build fails at
+those mounts. Choose explicitly whether to:
 
 - retain those publisher trees and continue building the complete image;
 - alter the retained build so it stages no local catalog and builds no
-  validator — set `agentic_tools_stage_catalog=false` and
-  `install_validate_agent_files=false`, and drop the `AGENTDEV_PLUGIN_VERSION`
-  and `VALIDATE_AGENT_FILES_VERSION` pins and labels with them; or
+  validator — remove the validator and catalog provisioning steps from
+  `agentdev-base.Dockerfile`, and drop the `AGENTDEV_PLUGIN_VERSION` and
+  `VALIDATE_AGENT_FILES_VERSION` pins and labels with them; or
 - construct a derivative from the published `agentdev-devcontainer` image,
   which already carries both and the managed Dev Container lifecycle; derive
   from `agentdev-base` only for an image that runs no Dev Container.

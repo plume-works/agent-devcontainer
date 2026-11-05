@@ -85,6 +85,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [gh authentication shim](architecture/gh-authentication-shim.md)
 
+[gh wrapper only from the image](architecture/gh-wrapper-image-only.md)
+
 [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)

@@ -3,7 +3,7 @@ type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T20:10:00Z
+  at: 2026-11-05T12:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
@@ -18,6 +18,9 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .github/workflows/ci.yml
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
+- resource: .dockerignore
+- resource: .github/actions/docker/build-push-action/action.yml
+- resource: ansible/roles/github_cli/tasks/main.yml
 ---
 
 # agentdev runtime images
@@ -53,6 +56,55 @@ profile, and lifecycle surface.
 - **WHEN** CI builds an accepted image family
 - **THEN** both runtime images identify the exact base digest produced in that
   run, without deriving either runtime image from the other
+
+### Requirement: image builds read only their declared inputs
+
+The image build context SHALL contain only `ansible.cfg`, `ansible/`, `docker/`,
+`.claude-plugin/`, `.agents/plugins/` without plugin `tests/`,
+`py_packages/validate_agent_files/`, `py_packages/agentdev_runtime/`, and
+`.devcontainer/firewall-allowlist.txt`. `agentdev-base` SHALL provision in three
+steps — Ansible roles, the validator, the catalog — each bind-mounting only the
+inputs it reads, so a change outside a step's inputs SHALL leave that step's
+cached layer valid. `ubuntu-ansible` SHALL carry no per-run labels, so unchanged
+inputs keep its digest. A `clean_build` dispatch or a `[ci:clean_build]` marker
+SHALL build without the layer cache.
+
+#### Scenario: a change outside the image inputs
+
+- **WHEN** an image build runs with the layer cache after a change only to files
+  outside the build context
+- **THEN** every provisioning step is reused from the cache
+
+#### Scenario: a catalog-only change
+
+- **WHEN** only files under `.agents/plugins/` change
+- **THEN** only the catalog step runs again; the roles and validator steps are
+  reused from the cache
+
+#### Scenario: a clean build is requested
+
+- **WHEN** a run is dispatched with `clean_build` or its commit or pull request
+  body carries `[ci:clean_build]`
+- **THEN** no provisioning step is reused from the layer cache
+
+### Requirement: gh resolves to the image's wrapper
+
+The images SHALL install the `gh` authentication wrapper at `/usr/local/bin/gh`
+from the `github_cli` role, and no shell configuration the images or
+`setup-dev.yml` provide SHALL put a path from the workspace checkout ahead of it
+on `PATH`.
+
+#### Scenario: a checkout carries its own gh
+
+- **WHEN** a Dev Container opens a checkout that contains `docker/bin/gh`
+- **THEN** `command -v gh` in an interactive bash or fish shell resolves to
+  `/usr/local/bin/gh`
+
+#### Scenario: a host carries the legacy `github_cli_wrapper` block
+
+- **WHEN** `setup-dev.yml` runs again on a host whose `~/.bashrc` or
+  `config.fish` carries the `github_cli_wrapper` block
+- **THEN** the block is removed
 
 ### Requirement: the Dev Container image owns persistent services
 

@@ -1,11 +1,11 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: medium
 description: The agentdev-base provisioning step bind-mounts the whole repository as its build context, so any change anywhere in the repository invalidates the cached Ansible layer and every image-touching run reprovisions from scratch.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
+  at: 2026-11-05T12:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: .dockerignore
@@ -56,6 +56,18 @@ The build reads only `ansible.cfg`, `ansible/`, `docker/bin/gh`, the catalog
 Make `.dockerignore` an allow-list of the files the build reads, and split the
 provisioning `RUN` so each step bind-mounts only its own inputs. A change to
 `docs/`, `scripts/`, or the tests then leaves the provisioning layers cached.
+
+## Fix
+
+`.dockerignore` is now an allow-list of the inputs the image builds read, and
+the single `agentdev-base` provisioning `RUN` is split into three — the Ansible
+roles, the validator, and a new `agent_catalog` role — each bind-mounting only
+its own inputs and selecting its roles by tag. The Ubuntu base is pinned by
+digest and refreshed weekly by Renovate, `ubuntu-ansible` is built without
+per-run labels so its digest stays stable, and `agentdev-base` starts from its
+per-architecture manifest. A change outside a step's inputs now leaves that step
+`CACHED`; a catalog-only change reruns only the catalog step. Shipped by [Narrow
+the image build context](../plans/20261102-narrow-image-build-context.md).
 
 ## Key references
 

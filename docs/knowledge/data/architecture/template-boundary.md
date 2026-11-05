@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:28:00Z
+  at: 2026-11-04T01:40:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -11,6 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
+- resource: .dockerignore
+- resource: docker/base/agentdev-base.Dockerfile
 ---
 
 # Template boundary
@@ -179,18 +181,22 @@ development image: `ansible/`, `ansible.cfg`, `docker/`,
 `.github/workflows/delete-old-containers.yml`, `.github/actions/docker/`, and
 the matching image paths and job invocation in the shared GitHub files.
 
+`.dockerignore` is an allow-list: it excludes everything and re-includes only
+the inputs the image builds read. A customized image that reads another path
+from the build context extends that list, or the path never reaches the build.
+
 This is the source used to publish the agentdev image family, not a generic
-derivative-image template. The `agentdev-base` Dockerfile reads publisher-only
-source from the build context twice: it sets `agentic_tools_stage_catalog=true`
-for `.claude-plugin/` plus `.agents/`, and `install_validate_agent_files=true`
-for `py_packages/validate_agent_files/`. A full template copy deletes both, so
-the optional image bundle cannot build unchanged afterward. A project retaining
-the bundle must explicitly choose one of these manual directions:
+derivative-image template. The `agentdev-base` Dockerfile provisions in three
+steps, and two of them read publisher-only source from the build context: the
+validator step mounts `py_packages/validate_agent_files/`, and the catalog step
+mounts `.claude-plugin/` and `.agents/plugins/`. A full template copy deletes
+both, so the optional image bundle cannot build unchanged afterward. A project
+retaining the bundle must explicitly choose one of these manual directions:
 
 1. retain the publisher source too and keep building this repository's full
    image;
-2. stop staging a local catalog and stop building the validator — set
-   `agentic_tools_stage_catalog=false` and `install_validate_agent_files=false`,
+2. stop staging a local catalog and stop building the validator — remove the
+   validator and catalog provisioning steps from the `agentdev-base` Dockerfile,
    and adapt the image build accordingly; or
 3. create a derivative build based on the published `agentdev-base` or
    `agentdev-devcontainer` image.

@@ -33,10 +33,27 @@ inputs:
     description: Export digest as artifacts
     required: false
     default: 'true'
+  no-cache:
+    description: >-
+      Build without reading the layer cache, still writing it for later runs. Set for
+      every image build of a clean_build dispatch or a [ci:clean_build] run.
+    required: false
+    default: 'false'
+  stable-labels:
+    description: >-
+      Leave out the created, revision, and version labels, so unchanged inputs keep the
+      image digest. Set for an image another build starts FROM by digest.
+    required: false
+    default: 'false'
 outputs:
   digest:
     description: Digest of the built image
     value: ${{ steps.build.outputs.digest }}
+  platform-digest:
+    description: >-
+      Digest of the image's own manifest for the built architecture. A build FROM it stays
+      cached while the image is unchanged, whatever per-run attestations its index carries.
+    value: ${{ steps.platform.outputs.digest }}
 runs:
   using: composite
   steps:
@@ -54,6 +71,14 @@ runs:
         images: |
           ${{ inputs.image }}
 
+    - name: Select labels
+      id: labels
+      shell: bash
+      env:
+        LABELS: ${{ steps.meta.outputs.labels }}
+        STABLE_LABELS: ${{ inputs.stable-labels }}
+      run: '$GITHUB_ACTION_PATH/select-labels.sh'
+
     - name: Build and push Docker image
       id: build
       uses: docker/build-push-action@v7.4.0
@@ -63,11 +88,20 @@ runs:
       with:
         context: ${{ inputs.context }} # zizmor: ignore[template-injection] context is always a static path literal at all call sites
         file: ${{ inputs.file }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }}
+        labels: ${{ steps.labels.outputs.labels }}
+        cache-from: ${{ inputs.no-cache != 'true' && (env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE) || '' }}
         cache-to: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }},mode=max
         build-args: ${{ inputs.build-args }}
         outputs: type=image,"name=${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=true
+
+    - name: Resolve platform digest
+      id: platform
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+        DIGEST: ${{ steps.build.outputs.digest }}
+        ARCH: ${{ inputs.arch }}
+      run: '$GITHUB_ACTION_PATH/platform-digest.sh'
 
     - name: Export digest
       if: ${{ inputs.export-digest == 'true' }}

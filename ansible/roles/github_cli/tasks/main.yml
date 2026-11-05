@@ -36,55 +36,31 @@
     install_recommends: false
 
 # Wraps the real gh (above) with a transparent auth shim that injects GH_TOKEN
-# from the host's VS Code git credential helper — see docker/bin/gh. Baking it
-# into /usr/local/bin (ahead of /usr/bin on the default PATH) makes it the
-# default everywhere; a live-mounted devcontainer workspace supersedes it via
-# the PATH prepends below.
-- name: Bake default gh wrapper into the image
+# from the host's git credential helper. /usr/local/bin precedes /usr/bin on the
+# default PATH, so this copy is every shell's gh; see architecture/gh-wrapper-image-only.
+- name: Install the gh wrapper
   ansible.builtin.copy:
-    src: "{{ playbook_dir }}/../../docker/bin/gh"
+    src: gh
     dest: /usr/local/bin/gh
     mode: "0755"
     owner: root
     group: root
 
-- name: Ensure devcontainer gh wrapper is on bash PATH ahead of the baked-in default
-  ansible.builtin.blockinfile:
-    path: "{{ user_home }}/.bashrc"
-    create: true
-    mode: "0644"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK: github_cli_wrapper"
-    block: |
-      default_ws={{ workspace_folder | quote }}
-      ws="${DEV_WORKSPACE_FOLDER:-${GITHUB_WORKSPACE:-$default_ws}}"
-      if [ -d "$ws/docker/bin" ]; then
-        case ":$PATH:" in
-          *":$ws/docker/bin:"*) ;;
-          *) export PATH="$ws/docker/bin:$PATH" ;;
-        esac
-      fi
+# A checkout's own gh must never run ahead of the wrapper: see
+# architecture/gh-wrapper-image-only.
+- name: Find the shell configs that may carry the workspace gh PATH prepend
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ user_home }}/.bashrc"
+    - "{{ user_home }}/.config/fish/config.fish"
+  register: github_cli_shell_configs
 
-- name: Ensure fish config directory exists
-  ansible.builtin.file:
-    path: "{{ user_home }}/.config/fish"
-    state: directory
-    mode: "0755"
-
-- name: Ensure devcontainer gh wrapper is on fish PATH ahead of the baked-in default
+- name: Remove the workspace gh PATH prepend
   ansible.builtin.blockinfile:
-    path: "{{ user_home }}/.config/fish/config.fish"
-    create: true
-    mode: "0644"
+    path: "{{ item.stat.path }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: github_cli_wrapper"
-    block: |
-      set -l ws {{ workspace_folder | quote }}
-      if set -q DEV_WORKSPACE_FOLDER
-          set ws $DEV_WORKSPACE_FOLDER
-      else if set -q GITHUB_WORKSPACE
-          set ws $GITHUB_WORKSPACE
-      end
-      if test -d "$ws/docker/bin"
-          if not contains "$ws/docker/bin" $PATH
-              set -gx PATH "$ws/docker/bin" $PATH
-          end
-      end
+    state: absent
+  loop: "{{ github_cli_shell_configs.results | selectattr('stat.exists') | list }}"
+  loop_control:
+    label: "{{ item.item }}"

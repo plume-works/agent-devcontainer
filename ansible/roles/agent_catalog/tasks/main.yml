@@ -1,0 +1,6 @@
+---
+- name: Stage the agent catalog into the image
+  ansible.builtin.import_tasks: stage_catalog.yml
+
+- name: Install the staged catalog into each agent's plugin state
+  ansible.builtin.import_tasks: install_catalog.yml

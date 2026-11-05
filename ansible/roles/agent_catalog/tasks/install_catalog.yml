@@ -1,0 +1,90 @@
+---
+# Mirrors `agentdev-runtime catalog install` so a raw-image consumer resolves
+# agentdev:* skills; see spec/catalog-lifecycle. The marketplace name comes from the
+# staged manifest, so a rename needs no edit here.
+- name: Read the staged Claude marketplace manifest
+  ansible.builtin.slurp:
+    src: "{{ agent_catalog_root }}/{{ agent_catalog_marketplace_manifest }}"
+  register: agent_catalog_install_manifest_raw
+
+- name: Resolve the marketplace name the staged manifest declares
+  ansible.builtin.set_fact:
+    agent_catalog_install_marketplace_name: >-
+      {{ (agent_catalog_install_manifest_raw.content | b64decode | from_json).name }}
+
+- name: Register the staged catalog as a Claude marketplace at user scope
+  ansible.builtin.command:
+    argv:
+      - claude
+      - plugin
+      - marketplace
+      - add
+      - "{{ agent_catalog_root }}"
+      - --scope
+      - user
+  changed_when: true
+
+- name: Install the plugin for Claude at user scope
+  ansible.builtin.command:
+    argv:
+      - claude
+      - plugin
+      - install
+      - "{{ agent_catalog_plugin_name }}@{{ agent_catalog_install_marketplace_name }}"
+      - --scope
+      - user
+  changed_when: true
+
+- name: Register the staged OpenCode bridge plugin in the user's OpenCode config
+  vars:
+    agent_catalog_opencode_bridge: >-
+      {{ agent_catalog_root }}/.agents/plugins/{{ agent_catalog_plugin_name }}/.opencode-plugin
+    agent_catalog_opencode_config: "{{ user_home }}/.config/opencode/opencode.json"
+  block:
+    - name: Stat the staged OpenCode bridge plugin
+      ansible.builtin.stat:
+        path: "{{ agent_catalog_opencode_bridge }}"
+      register: agent_catalog_opencode_bridge_stat
+
+    - name: Ensure the OpenCode config directory exists
+      ansible.builtin.file:
+        path: "{{ agent_catalog_opencode_config | dirname }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      when: agent_catalog_opencode_bridge_stat.stat.isdir | default(false)
+
+    - name: Stat the existing OpenCode config
+      ansible.builtin.stat:
+        path: "{{ agent_catalog_opencode_config }}"
+      register: agent_catalog_opencode_config_stat
+
+    - name: Read the existing OpenCode config
+      ansible.builtin.slurp:
+        src: "{{ agent_catalog_opencode_config }}"
+      register: agent_catalog_opencode_existing_config
+      when: agent_catalog_opencode_config_stat.stat.exists
+
+    - name: Add the staged bridge to the OpenCode plugin list
+      vars:
+        agent_catalog_opencode_current: >-
+          {{
+            agent_catalog_opencode_existing_config.content | b64decode | trim | default('{}', true) | from_json
+            if agent_catalog_opencode_existing_config.content is defined
+            else {}
+          }}
+      ansible.builtin.copy:
+        content: >-
+          {{
+            agent_catalog_opencode_current
+            | combine({'plugin': (agent_catalog_opencode_current.plugin | default([])
+                                  | reject('equalto', agent_catalog_opencode_bridge) | list)
+                                 + [agent_catalog_opencode_bridge]})
+            | to_nice_json
+          }}
+        dest: "{{ agent_catalog_opencode_config }}"
+        owner: root
+        group: root
+        mode: "0644"
+      when: agent_catalog_opencode_bridge_stat.stat.isdir | default(false)
