@@ -3,11 +3,12 @@ type: spec
 description: When and how the agentdev catalog gets installed into the persistent Claude plugin state and the OpenCode user config — during the agentdev-base build and again by the agentdev-devcontainer postCreateCommand.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:25:00Z
+  at: 2026-11-05T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
-- resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
+- resource: ansible/roles/agent_catalog/tasks/install_catalog.yml
+- resource: ansible/roles/agent_catalog/tasks/stage_catalog.yml
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: README.md
@@ -64,6 +65,12 @@ volume, and no image content is folded into it.
   preservation, not byte-identity), the volume mount shadows the image-build
   catalog install, and `postCreateCommand` re-applies that install every time
   the container is created, so it is never silently stale.
+
+## Requirement: the staged catalog holds only the plugin catalog
+
+The staged catalog at `$AGENTDEV_CATALOG_DIR` SHALL contain `.claude-plugin/`
+and `.agents/plugins/` and SHALL NOT contain any plugin `tests/` directory or
+the `.agents/` root instruction files.
 
 ## Requirement: this repository's own checkout overrides the staged catalog on attach
 

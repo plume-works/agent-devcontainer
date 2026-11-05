@@ -3,7 +3,7 @@ type: spec
 description: How the published ubuntu-ansible, agentdev-base, agentdev-deploy, and agentdev-devcontainer images are tagged after acceptance, and pinned and updated by consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T18:00:00Z
+  at: 2026-11-05T12:00:00Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md
@@ -15,6 +15,7 @@ sources:
 - resource: .github/actions/docker/multiarch-merge/action.yml
 - resource: opencode-compose-pins.yml
 - resource: .github/actions/paths-filter/action.yml
+- resource: docker/ansible/Dockerfile
 ---
 
 # Image pinning
@@ -119,6 +120,32 @@ SHALL NOT rebuild or publish the image it names.
 - **THEN** the proposed digest is one CI promoted after acceptance, the
   image-build path filter does not match, and the update does not create a
   publish/pin loop.
+
+## Requirement: the Ubuntu base is pinned by digest and refreshed weekly
+
+The `ubuntu-ansible` build SHALL start from `ubuntu:24.04` pinned by digest in
+`docker/ansible/Dockerfile`'s `BASE_IMAGE` default, and CI SHALL NOT override
+it. Renovate SHALL update only that digest, on a weekly schedule, and SHALL
+automerge the update once required checks pass; the release SHALL NOT move off
+24.04.
+
+### Scenario: a new 24.04 digest is published
+
+- **WHEN** Renovate's weekly run finds a newer `ubuntu:24.04` digest
+- **THEN** it opens one pull request that changes only the digest, the run
+  rebuilds and accepts the images from the new base, and the pull request
+  automerges when its checks pass
+
+### Scenario: a newer Ubuntu release exists
+
+- **WHEN** a release newer than 24.04 is published
+- **THEN** Renovate proposes no update to the base
+
+### Scenario: a pull request builds the images
+
+- **WHEN** a pull request's run builds `ubuntu-ansible`
+- **THEN** it starts from the pinned digest, never from a published
+  `agentdev-base` image
 
 ## Unknowns
 

@@ -18,7 +18,8 @@ sources:
 - resource: ansible/roles/agentic_tools/tasks/main.yml
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: docker/bin/gh
-rank: 50
+stage: done
+completed: 2026-11-05
 ---
 
 # Narrow the image build context
