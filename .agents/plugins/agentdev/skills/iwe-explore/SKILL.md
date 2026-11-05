@@ -152,6 +152,9 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 
 - No code, no implementation, no "quick fix while we're here" — if asked,
   point at the `/agentdev:iwe-plan` skill and stay in the conversation.
+- Never load `/agentdev:iwe-ship` or dispatch `iwe-shipper`, even when an
+  answer leaves a plan apparently complete; shipping is the user's request to
+  make outside Explore.
 - Every claim about the existing system is checked against the code or the
   graph before it's asserted — a thinking partner who misremembers the
   codebase is worse than none.
