@@ -90,8 +90,12 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`
 
-- [ ] `## Rules` says Explore never loads `/agentdev:iwe-ship` or dispatches
+- [x] `## Rules` says Explore never loads `/agentdev:iwe-ship` or dispatches
   `iwe-shipper`.
+  - **Evidence:** commit 20d078b adds the rule to `iwe-explore/SKILL.md`
+    `## Rules`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes on it (62/62 skills, 0 errors).
 
 ### Task 3: Record the decision
 
