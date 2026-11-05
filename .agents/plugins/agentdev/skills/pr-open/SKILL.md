@@ -164,7 +164,7 @@ skill instead of re-implementing merge logic inline.
 4. In create mode, the base is the one `OPEN` dependency's head branch, or
    `main` when none is open, and the dependencies for the body are every
    `DEPENDENCY` number in merge order: the merged ones as listed, then the open
-   one last. Never open it as a draft.
+   one last.
 
 If `update-branch` or the restack reports unresolved conflicts or requires user
 input, stop PR creation and ask the user to resolve or confirm conflict
@@ -308,8 +308,7 @@ gh pr create --title "<title>" --body-file ./.tmp/pr-body.md \
 - `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr.py`,
   which is the configured upstream branch name rather than the local branch
   name whenever the two differ
-- `--draft` (optional): pass when the user wants a draft PR — never for a
-  dependent branch
+- `--draft` (optional): pass when the user wants a draft PR
 - `--repo <owner>/<repo>` (optional): pass when the working directory is not
   the target repository
 
