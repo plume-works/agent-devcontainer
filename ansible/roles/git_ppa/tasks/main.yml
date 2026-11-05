@@ -1,0 +1,74 @@
+---
+# The Git Core PPA's git, fetched from its GitHub release copy: see
+# architecture/no-launchpad-ppas.
+# Images and hosts provisioned while git came straight from the PPA still carry its source.
+- name: Remove the Git Core PPA apt source
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/git-core-ppa.list
+    state: absent
+  register: git_ppa_old_source
+
+- name: Refresh the apt cache without the PPA
+  ansible.builtin.apt:
+    update_cache: true
+  when: git_ppa_old_source is changed
+
+- name: Read the installed git package version
+  ansible.builtin.command:
+    cmd: dpkg-query --show --showformat=${Version} git
+  register: git_ppa_installed
+  changed_when: false
+  failed_when: false
+
+- name: Install git from the cached PPA packages
+  when: git_ppa_installed.stdout | regex_replace('^\d+:', '') | replace('~', '-') != git_ppa_version[1:]
+  block:
+    - name: Create the git download directory
+      ansible.builtin.tempfile:
+        state: directory
+      register: git_ppa_download_dir
+
+    - name: Download the git packages
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "{{ git_ppa_download_dir.path }}/{{ item.url | basename }}"
+        checksum: "sha256:{{ item.checksum }}"
+        mode: "0644"
+      loop:
+        - { url: "{{ git_ppa_download_url }}", checksum: "{{ git_ppa_checksums[system_arch] }}" }
+        - { url: "{{ git_ppa_man_download_url }}", checksum: "{{ git_ppa_man_checksums[system_arch] }}" }
+      loop_control:
+        label: "{{ item.url | basename }}"
+
+    # git requires git-man at its exact version, so both must install in one transaction,
+    # which the apt module's single `deb` cannot do.
+    - name: Install the git packages
+      ansible.builtin.command: # noqa: command-instead-of-module
+        cmd: >-
+          apt-get install --yes --no-install-recommends --allow-downgrades
+          ./{{ git_ppa_man_download_url | basename }} ./{{ git_ppa_download_url | basename }}
+        chdir: "{{ git_ppa_download_dir.path }}"
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      changed_when: true
+
+  always:
+    - name: Remove the git download directory
+      ansible.builtin.file:
+        path: "{{ git_ppa_download_dir.path }}"
+        state: absent
+      when: git_ppa_download_dir.path is defined
+
+- name: Read the git package version now installed
+  ansible.builtin.command:
+    cmd: dpkg-query --show --showformat=${Version} git
+  register: git_ppa_installed
+  changed_when: false
+
+- name: Require the cached PPA build of git
+  ansible.builtin.assert:
+    that:
+      - >-
+        (git_ppa_installed.stdout | regex_replace('^\d+:', '') | replace('~', '-'))
+        == git_ppa_version[1:]
+    fail_msg: "git {{ git_ppa_installed.stdout }} is installed, not {{ git_ppa_version }}"

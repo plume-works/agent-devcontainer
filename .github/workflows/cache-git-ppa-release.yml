@@ -1,0 +1,31 @@
+name: Cache the Git Core PPA build
+
+# Republishes the PPA's newest git build as a pinned-deps/git/<version> release: see
+# architecture/no-launchpad-ppas.
+on:
+  schedule:
+    - cron: '41 2 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  cache:
+    name: Cache the Git Core PPA build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # creates the release and its tag
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Republish the newest build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: python3 -I scripts/cache-git-ppa-release.py

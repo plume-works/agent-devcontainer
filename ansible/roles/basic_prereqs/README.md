@@ -1,6 +1,6 @@
 # Basic Prerequisites Role
 
-This Ansible role installs basic prerequisites required for development, including essential packages, the GNOME Keyring stack, an SSH server, and it enables the Ubuntu universe repository.
+This Ansible role installs basic prerequisites required for development, including essential packages, the GNOME Keyring stack, the SSH client, and it enables the Ubuntu universe repository.
 
 ## Example Usage
 

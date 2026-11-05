@@ -101,6 +101,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
 
+[No Launchpad PPAs](architecture/no-launchpad-ppas.md)
+
 [OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)
 
 [OpenCode full access in the

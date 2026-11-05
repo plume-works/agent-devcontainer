@@ -281,6 +281,9 @@ jobs:
         run: docker pull "$MERGED_IMAGE"
 
       - name: Build and test dev container image
+        # Bake's fs entitlement check off: see architecture/cloud-session-devcontainer.
+        env:
+          BUILDX_BAKE_ENTITLEMENTS_FS: '0'
         uses: devcontainers/ci@v0.3.1900000450
         with:
           configFile: .devcontainer/devcontainer.json
@@ -304,6 +307,7 @@ jobs:
             command -v xpra
             command -v iptables ipset
             command -v gnome-keyring-daemon
+            command -v ssh ssh-keygen
 
             # The image must carry a launchable browser; this command cannot
             # download one when PLAYWRIGHT_BROWSERS_PATH is already populated.
