@@ -1,7 +1,6 @@
 ---
 name: iwe-ship
-description: Close or cancel planned work safely — normal shipping requires a zero-CRITICAL Verify report, merges verified behavior into durable specs, and records idempotent graph transitions; cancellation bypasses implementation and release transitions. Also cuts a release when asked.
-disable-model-invocation: true
+description: Close or cancel planned work safely — normal shipping requires a zero-CRITICAL Verify report, merges verified behavior into durable specs, and records idempotent graph transitions; cancellation bypasses implementation and release transitions. Also cuts a release. Use only when the request names a plan to ship or cancel, or a release to cut; a request that names neither does not match.
 ---
 
 # Ship or cancel finished work
@@ -18,8 +17,9 @@ only builds its prompt and relays its report.
      or its file path. A release cut takes none.
    - **Operation** — `ship`; `cancel` only when the user explicitly abandons
      the plan; `release <X.Y.Z>` only when the user asks for that release.
-   - **Approvals** — each approval the user gave in this request, quoted
-     verbatim, for example a command the Shipper reported needing.
+   - **Approvals** — each approval in the request, quoted verbatim, whether
+     the user gave it in this session or a coordinator's message relays it
+     from the user — for example a command the Shipper reported needing.
 
    Add nothing else: no summary of the conversation, no claim that tests pass
    or tasks are done. If the plan or the operation is unclear, ask the user

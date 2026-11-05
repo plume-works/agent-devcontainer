@@ -110,13 +110,15 @@ describe("config hook", () => {
     expect(config.command[`${namespace}:pr-open`]).toBe(userCommand)
     expect(config.agent["tdd-red"]).toBe(userAgent)
     expect(config.permission.skill["iwe-plan"]).toBe("allow")
-    expect(config.permission.skill["iwe-ship"]).toBe("deny")
+    expect(config.permission.skill["iwe-ship-all"]).toBe("deny")
+    expect(config.permission.skill).not.toHaveProperty("iwe-ship")
   })
 
   test("keeps a user's blanket skill permission ahead of the bridge's denies", async () => {
     const config = await configured({ permission: { skill: "ask" } })
     expect(Object.entries(config.permission.skill)[0]).toEqual(["*", "ask"])
-    expect(config.permission.skill["iwe-ship"]).toBe("deny")
+    expect(config.permission.skill["iwe-ship-all"]).toBe("deny")
+    expect(config.permission.skill).not.toHaveProperty("iwe-ship")
   })
 })
 
