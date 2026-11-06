@@ -28,12 +28,11 @@ SHARED = {
     'keyring',
     'dockerd',
     'docker-gc',
-    'cbm',
     'xpra',
     'opencode',
     'remote-control',
 }
-DEVCONTAINER_REQUIRED = ['dbus', 'keyring', 'dockerd', 'cbm', 'xpra']
+DEVCONTAINER_REQUIRED = ['dbus', 'keyring', 'dockerd', 'xpra']
 
 
 @pytest.fixture(scope='module')
@@ -70,7 +69,7 @@ def test_both_profiles_share_one_service_vocabulary(supervisor):
     deploy = set(names(supervisor.PROFILES['deploy'].services))
     devcontainer = set(names(supervisor.PROFILES['devcontainer'].services))
     assert deploy & devcontainer == SHARED
-    assert deploy - SHARED == {'prepare', 'config', 'project', 'index'}
+    assert deploy - SHARED == {'prepare', 'config', 'project'}
     assert devcontainer - SHARED == {'created'}
 
 
@@ -79,9 +78,6 @@ def test_deploy_gates_opencode_on_project_preparation(supervisor):
     by_name = {service.name: service for service in services}
     assert {'keyring', 'prepare'} <= requires(services, 'opencode')
     assert by_name['opencode'].core and by_name['prepare'].core
-    # Indexing is requested in the background; it never delays OpenCode.
-    assert by_name['index'].after == ('cbm',)
-    assert 'index' not in requires(services, 'opencode')
     assert not supervisor.PROFILES['deploy'].exit_on_latch
 
 
@@ -235,9 +231,9 @@ def test_a_failing_required_probe_withdraws_readiness(devcontainer):
     box = devcontainer()
     box.start()
     box.wait_for(box.ready)
-    box.set('cbm', 'unhealthy', 'cbm is wedged')
+    box.set('xpra', 'unhealthy', 'xpra is wedged')
     result = box.health('ready')
-    assert result.returncode == 1 and 'core probe failed: cbm' in result.stdout
+    assert result.returncode == 1 and 'core probe failed: xpra' in result.stdout
 
 
 @pytest.mark.parametrize('service', DEVCONTAINER_REQUIRED)

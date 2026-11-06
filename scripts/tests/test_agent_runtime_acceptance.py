@@ -372,7 +372,6 @@ TOOLS = (
     'node',
     'zizmor',
     'gh',
-    'codebase-memory-mcp',
     'pre-commit',
     'xpra',
     'docker',
@@ -453,22 +452,7 @@ def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
     assert skipped.sh('pgrep -f "xpra start"', check=False).returncode == 1
 
 
-def test_cbm_secret_service_and_nested_docker_serve_agent_processes(ready_runtime: Runtime):
-    # Startup only submits the index; the daemon builds it in the background.
-    query = (
-        'codebase-memory-mcp cli --json search_graph --project workspaces-project '
-        '--name-pattern answer'
-    )
-    deadline, found = time.monotonic() + 120, ''
-    while time.monotonic() < deadline:
-        found = ready_runtime.sh(query, check=False).stdout
-        indexed = 'answer' in found and 'results: 0' not in found
-        if indexed and '"isError":false' in found.replace(' ', ''):
-            break
-        time.sleep(1)
-    assert 'answer' in found and '"isError":false' in found.replace(' ', ''), found
-    assert 'indexing /workspaces/project in the background' in ready_runtime.logs()
-
+def test_secret_service_and_nested_docker_serve_agent_processes(ready_runtime: Runtime):
     docker('cp', str(TESTS / 'secret_service_client.py'), f'{ready_runtime.name}:/tmp/ssc.py')
     ready_runtime.sh('chmod 755 /tmp/ssc.py', user='root')
     ready_runtime.api(
@@ -824,9 +808,8 @@ def test_unavailable_worktree_metadata_fails_preparation(make_runtime, scratch: 
 
 
 def test_crashed_and_hung_services_recover(ready_runtime: Runtime):
-    ready_runtime.sh('pkill -KILL -f -- --cbm-daemon-internal', user='root')
+    ready_runtime.sh('pkill -KILL -f "xpra start"', user='root')
     ready_runtime.wait_unready_then_ready()
-    ready_runtime.sh('codebase-memory-mcp daemon status >/dev/null')
     ready_runtime.sh('pkill -STOP -f "opencode serve"', user='root')
     ready_runtime.wait_unready_then_ready()
     shipped = ready_runtime.sh('opencode --version').stdout.strip()

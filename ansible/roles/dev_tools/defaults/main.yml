@@ -101,31 +101,6 @@ dev_tools_pinned_tools:
         target: aarch64-unknown-linux-gnu
         checksum: 54e9c22ca422c4aa76bf163dfa564b9cdba43af5e7cb500ebf78fb1e5445b646
 
-  # codebase-memory-mcp ships a per-OS/arch archive containing the binary plus its
-  # own install.sh. That installer re-downloads from GitHub's "latest" alias even
-  # when run from an already-extracted archive, which floats the pinned version —
-  # so this role downloads and verifies the archive itself and unpacks only the
-  # binary. Linux always needs the "-portable" (fully static) variant: the plain
-  # linux build dynamically links glibc 2.38+ and fails on older bases (Debian 11,
-  # Ubuntu 20.04) this image's roles target elsewhere.
-  # Agent config wiring (`codebase-memory-mcp install`) is deliberately left to
-  # container-create time (see `agentdev-runtime lifecycle created`),
-  # because it writes into ~/.claude.json, which a persistent volume
-  # mounts over anything written at image-build time — the same reason
-  # agentic_tools only stages its catalog at build time instead of installing it.
-  - name: codebase-memory-mcp
-    # renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
-    version: v0.12.1
-    url_prefix: https://github.com/DeusData/codebase-memory-mcp/releases/download
-    asset_prefix: codebase-memory-mcp-
-    archives:
-      amd64:
-        target: linux-amd64-portable
-        checksum: 8c3d0341064301e78ecc84cf7348d4e2c6562a0f57448243ea560aaa34de36c1
-      arm64:
-        target: linux-arm64-portable
-        checksum: ed0f1f548cd79b121c401c2e9f7841c189a001af26d3768368088c24f6a53533
-
   # Bun's .zip holds its binary under a directory named after the asset, hence
   # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
   # which runs without AVX2; plain `x64` faults on a host that lacks it.

@@ -22,13 +22,12 @@ SERVICES = (
     'docker-gc',
     'dbus',
     'keyring',
-    'cbm',
     'xpra',
     'opencode',
     'remote-control',
 )
-# The session bus and the CBM rendezvous admit only the account that owns them.
-USER_SERVICES = frozenset({'dbus', 'keyring', 'cbm', 'opencode', 'xpra', 'remote-control'})
+# The session bus admits only the account that owns it.
+USER_SERVICES = frozenset({'dbus', 'keyring', 'opencode', 'xpra', 'remote-control'})
 # -P keeps the probe's working directory, often a checkout, off sys.path.
 SELF = (sys.executable, '-P', '-m', 'agentdev_runtime')
 USAGE = f'usage: agentdev-runtime health {"|".join(SERVICES)}|ready|status'
@@ -79,8 +78,6 @@ def probe(settings: env.Settings, service: str) -> bool:
         )
     if service == 'keyring':
         return _run([*SELF, 'keyring', 'check'], timeout=5)
-    if service == 'cbm':
-        return _run([*SELF, 'cbm', 'check'], timeout=10, stderr=False)
     if service == 'xpra':
         port = settings.get('AGENTDEV_XPRA_PORT')
         return _run(

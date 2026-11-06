@@ -1,9 +1,4 @@
-"""
-Agent state shared by the Dev Container lifecycle and deploy startup.
-
-Deploy makes every step fatal and leaves the CBM install to its own ``cbm`` step; a Dev Container
-keeps CBM nonfatal inside ``create``. Spec: catalog-lifecycle.
-"""
+"""Agent state shared by the Dev Container lifecycle and deploy startup. Spec: catalog-lifecycle."""
 
 from __future__ import annotations
 
@@ -17,7 +12,7 @@ import sys
 import time
 
 from agentdev_runtime import (
-    cbm,
+    cbm_purge,
     claude_state,
     opencode_config,
     settings as env,
@@ -58,7 +53,7 @@ def config_lock(settings: env.Settings) -> Iterator[None]:
 
 
 def link_claude_json(settings: env.Settings) -> None:
-    """Link ``~/.claude.json`` into the ``~/.claude`` volume before CBM folds its entry in."""
+    """Link ``~/.claude.json`` into the ``~/.claude`` volume."""
     claude_dir = settings.path('AGENTDEV_CLAUDE_DIR')
     claude_json = settings.path('AGENTDEV_CLAUDE_JSON')
     target = claude_dir / 'claude.json'
@@ -76,24 +71,6 @@ def link_claude_json(settings: env.Settings) -> None:
     claude_json.symlink_to(target)
 
 
-def install_cbm(settings: env.Settings) -> None:
-    if deploy(settings):
-        try:
-            status = cbm.install(cbm.Daemon(settings))
-        except cbm.CbmError as error:
-            raise StateError(str(error), error.status) from error
-        if status != 0:
-            raise StateError('codebase-memory-mcp install failed', status)
-        return
-    # Nonfatal: a failure here would also skip the rest of the create phase.
-    status = cbm.configure_agents(settings, settings.path('CBM_INSTALL_DIR'))
-    if status != 0:
-        print(
-            f'WARNING: codebase-memory-mcp install failed (exit {status}); continuing without it.',
-            file=sys.stderr,
-        )
-
-
 def ensure_auth_dirs(settings: env.Settings) -> None:
     auth = settings.path('AGENTDEV_AGENTS_AUTH_DIR')
     for agent in AGENTS_WITH_SHARED_AUTH:
@@ -107,8 +84,7 @@ def apply_agent_policy() -> None:
 
 def create(settings: env.Settings) -> None:
     link_claude_json(settings)
-    if not deploy(settings):
-        install_cbm(settings)
+    cbm_purge.purge(settings)
     ensure_auth_dirs(settings)
     claude_state.preapprove(settings)
 
@@ -122,11 +98,8 @@ def main(argv: list[str]) -> int:
         elif argv == ['agent-policy']:
             with config_lock(settings):
                 apply_agent_policy()
-        elif argv == ['cbm']:
-            with config_lock(settings):
-                install_cbm(settings)
         else:
-            print('usage: agentdev-runtime state create|agent-policy|cbm', file=sys.stderr)
+            print('usage: agentdev-runtime state create|agent-policy', file=sys.stderr)
             return 2
     except StateError as error:
         print(f'agentdev-runtime state: {error}', file=sys.stderr)

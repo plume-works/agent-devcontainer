@@ -34,7 +34,6 @@ REQUIRED_TOOLS = (
     'ansible',
     'iwe',
     'xpra',
-    'codebase-memory-mcp',
 )
 # gitleaks prints its version through a subcommand; every other tool takes --version.
 VERSION_ARGS = {'gitleaks': ('version',)}
@@ -182,7 +181,6 @@ def services(report: Report, mode: str, firewall: str) -> None:
         'org.freedesktop.DBus.GetId',
     )
     report.check('keyring', 'agentdev-runtime', 'keyring', 'check')
-    report.check('cbm', 'agentdev-runtime', 'cbm', 'check')
     report.check(
         'xpra http :14500',
         'curl',
@@ -196,7 +194,6 @@ def services(report: Report, mode: str, firewall: str) -> None:
         'http://127.0.0.1:14500/',
     )
     report.check('xpra process', 'bash', '-c', "pgrep -f '[x]pra' >/dev/null")
-    report.check('cbm process', 'bash', '-c', "pgrep -f '[c]odebase-memory' >/dev/null")
     report.check('opencode probe', 'agentdev-runtime', 'opencode', 'probe')
     if mode == env.DEPLOY:
         report.result('mcp-gateway', 'SKIP', 'sidecar is not part of deploy mode')

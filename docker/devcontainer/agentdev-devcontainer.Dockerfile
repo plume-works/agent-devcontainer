@@ -30,7 +30,6 @@ ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus \
     DISPLAY=:100 \
     DOCKER_HOST=unix:///var/run/docker.sock \
-    CBM_CACHE_DIR=/root/.cache/codebase-memory-mcp \
     AGENTDEV_STOP_TIMEOUT=30
 
 # Inherited by every descriptor that selects this image: the stable lifecycle commands,
@@ -46,7 +45,7 @@ LABEL devcontainer.metadata='[{ \
   "waitFor": "postStartCommand" \
 }]'
 LABEL org.opencontainers.image.title="agentdev-devcontainer"
-LABEL org.opencontainers.image.description="Dev Container runtime with supervised Docker, D-Bus, keyring, CBM, and Xpra, and stable lifecycle commands."
+LABEL org.opencontainers.image.description="Dev Container runtime with supervised Docker, D-Bus, keyring, and Xpra, and stable lifecycle commands."
 LABEL org.opencontainers.image.base.name="$FROM_IMAGE"
 
 EXPOSE 14500

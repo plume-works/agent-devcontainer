@@ -105,5 +105,4 @@ def test_numeric_defaults_parse() -> None:
 
 def test_home_derived_defaults_follow_the_caller_home() -> None:
     settings = Settings({'AGENTDEV_RUNTIME_MODE': DEPLOY, 'HOME': '/sandbox'})
-    assert settings.get('CBM_INSTALL_DIR') == '/sandbox/.local/bin'
     assert settings.get('CLAUDE_CONFIG_DIR') == '/sandbox/.claude'

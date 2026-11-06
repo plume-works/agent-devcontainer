@@ -27,7 +27,9 @@ GC_AGE = timedelta(hours=72)
 CACHE_LIMIT = '10GB'
 # Volumes a collection may remove; every other volume is never touched.
 # Spec: devcontainer-docker-storage.
-DISPOSABLE_VOLUME = re.compile(r'(^|_)dind-var-lib-(docker|containerd)-|_agentdev-(cache|codex)$')
+DISPOSABLE_VOLUME = re.compile(
+    r'(^|_)dind-var-lib-(docker|containerd)-|_agentdev-(cache|cbm|codex)$'
+)
 
 
 class DockerError(Exception):

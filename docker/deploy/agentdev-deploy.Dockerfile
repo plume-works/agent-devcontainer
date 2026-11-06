@@ -31,7 +31,6 @@ ENV AGENTDEV_RUNTIME_MODE=deploy \
     CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude \
     AGENTDEV_CLAUDE_DIR=/home/agent/.claude \
     AGENTDEV_CLAUDE_JSON=/home/agent/.claude.json \
-    CBM_CACHE_DIR=/home/agent/.cache/codebase-memory-mcp \
     XDG_RUNTIME_DIR=/run/agentdev/xdg \
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus \
     DISPLAY=:100 \
@@ -44,7 +43,7 @@ ENV AGENTDEV_RUNTIME_MODE=deploy \
     PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin
 
 LABEL org.opencontainers.image.title="agentdev-deploy"
-LABEL org.opencontainers.image.description="Self-starting single-project OpenCode runtime with nested Docker, CBM, keyring, and Xpra."
+LABEL org.opencontainers.image.description="Self-starting single-project OpenCode runtime with nested Docker, keyring, and Xpra."
 LABEL org.opencontainers.image.base.name="$FROM_IMAGE"
 
 WORKDIR /workspaces/project
