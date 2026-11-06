@@ -122,8 +122,8 @@ one dated group per release; nothing else writes here.
   mounted inside the checkout any more.
 - **Update**: [Bug: CBM cache under a checkout another UID
   owns](bugs/cbm-cache-under-foreign-owned-checkout.md) fixed: the Dev Container
-  keeps `CBM_CACHE_DIR` on its own `agentdev-cbm` volume, off the checkout; [CBM
-  daemon lifecycle](architecture/cbm-daemon-lifecycle.md) records why.
+  keeps `CBM_CACHE_DIR` on its own `agentdev-cbm` volume, off the checkout; CBM
+  daemon lifecycle records why.
 - **New**: [Run the Dev Container as a non-root account with one home
   volume](plans/20261030-devcontainer-home-volume.md) plans the [Dev Container
   home volume](features/devcontainer-home-volume.md) feature, now accepted.
@@ -190,10 +190,10 @@ one dated group per release; nothing else writes here.
   implemented and listed under Unreleased Added.
 - **Update**: [Ship a standalone OpenCode
   container](plans/20261017-standalone-opencode-container.md) done; created the
-  [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and [CBM
-  startup integration](spec/cbm-startup-integration.md) specs and merged the
-  standalone requirements into [Catalog lifecycle](spec/catalog-lifecycle.md)
-  and [Image pinning](spec/image-pinning.md); [Standalone OpenCode
+  [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and CBM
+  startup integration specs and merged the standalone requirements into [Catalog
+  lifecycle](spec/catalog-lifecycle.md) and [Image
+  pinning](spec/image-pinning.md); [Standalone OpenCode
   container](features/standalone-opencode-container.md) implemented and listed
   under Unreleased Added.
 - **Update**: bug [Command-result evidence is judged
@@ -510,8 +510,7 @@ one dated group per release; nothing else writes here.
 - **Update**: [Make OpenCode v2 the devcontainer
   default](plans/20261018-opencode-v2-default.md) done; specs synced for the
   [catalog bridge](spec/opencode-catalog-bridge.md), [OpenCode
-  web](spec/opencode-web.md), [workspace CBM
-  indexing](spec/opencode-workspace-cbm-indexing.md), and the [Coder IDE
+  web](spec/opencode-web.md), workspace CBM indexing, and the [Coder IDE
   baseline](spec/coder-ide-baseline.md); its three features stay implemented and
   listed under Unreleased.
 - **Update**: [Port the IWE workflow e2e suite to
@@ -539,9 +538,8 @@ one dated group per release; nothing else writes here.
   OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
   full-access config](features/opencode-full-access-config.md) implemented.
 - **Update**: [Automatically index OpenCode workspaces in
-  CBM](plans/20261018-opencode-workspace-cbm-indexing.md) done; [OpenCode
-  workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md) spec added;
-  [Automatic CBM indexing for OpenCode
+  CBM](plans/20261018-opencode-workspace-cbm-indexing.md) done; OpenCode
+  workspace CBM indexing spec added; [Automatic CBM indexing for OpenCode
   workspaces](features/opencode-workspace-cbm-indexing.md) implemented.
 - **Update**: OpenCode bridge, catalog, and plugin tests maps refreshed for
   workspace registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).

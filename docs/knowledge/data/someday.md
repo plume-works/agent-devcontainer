@@ -34,8 +34,6 @@ filesystem](someday/host-filesystem-dedup.md)
 [Validate correctness candidates on the large
 model](someday/pr-review-large-validator.md)
 
-[Remove codebase-memory-mcp](someday/remove-codebase-memory-mcp.md)
-
 [Calibrate the revision evaluator against human
 review](someday/revision-evaluator-calibration.md)
 

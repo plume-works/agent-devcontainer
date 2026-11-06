@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:30:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -43,8 +43,7 @@ reviews are driven by the `agentdev:pr-review` skill. Because a GitHub Actions
 `container:` job runs no devcontainer lifecycle hooks, the shared responder
 action runs the lifecycle scripts (`postCreate`, `postStart`, `postAttach`)
 itself. That gives it the *branch's own* catalog — a PR that changes a skill is
-reviewed by the skill as changed — plus an indexed codebase-memory-mcp that
-grounds the review. Two lifecycle steps a review job never needs
+reviewed by the skill as changed. Two lifecycle steps a review job never needs
 (`pre-commit install --install-hooks`, Xpra) are skipped through
 `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` guards that default to
 today's behavior, so the devcontainer is unchanged.

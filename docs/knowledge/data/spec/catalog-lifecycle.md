@@ -3,10 +3,11 @@ type: spec
 description: When and how the agentdev catalog gets installed into the persistent Claude plugin state and the OpenCode user config — during the agentdev-base build and again by the agentdev-devcontainer postCreateCommand.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-05T12:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py
 - resource: ansible/roles/agent_catalog/tasks/install_catalog.yml
 - resource: ansible/roles/agent_catalog/tasks/stage_catalog.yml
 - resource: docker/base/agentdev-base.Dockerfile
@@ -28,11 +29,10 @@ config, so a consumer that runs the image without lifecycle commands resolves
 install it, because a mounted `~/.claude` volume shadows what the image build
 wrote. Because the build-time Claude install seeds a real `/root/.claude.json`
 into the image, `postCreateCommand` SHALL establish the
-volume→`/root/.claude.json` symlink before CBM is configured — discarding the
-image's real file, seeding `/root/.claude/claude.json` with `{}` only when the
-volume has none — so the mounted `agentdev-claude` volume remains the source of
-truth for `claude.json`, the CBM install folds its MCP entry back into the
-volume, and no image content is folded into it.
+volume→`/root/.claude.json` symlink — discarding the image's real file, seeding
+`/root/.claude/claude.json` with `{}` only when the volume has none — so the
+mounted `agentdev-claude` volume remains the source of truth for `claude.json`
+and no image content is folded into it.
 
 ### Scenario: the image runs with no volumes and no lifecycle hooks
 
@@ -47,9 +47,8 @@ volume, and no image content is folded into it.
 - **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
   image ships a real `/root/.claude.json`
 - **THEN** `postCreateCommand` discards that image file and symlinks
-  `/root/.claude.json` to a freshly-seeded `/root/.claude/claude.json` before
-  CBM is configured, so the CBM install folds only its MCP entry into the
-  volume's clean `claude.json` with no image content, and the staged catalog is
+  `/root/.claude.json` to a freshly-seeded `/root/.claude/claude.json`, so the
+  volume's `claude.json` holds no image content, and the staged catalog is
   installed into the fresh `agentdev-claude` volume at Claude user scope and
   into the OpenCode user config.
 
@@ -59,12 +58,40 @@ volume, and no image content is folded into it.
   `claude.json` (it persists per devcontainer instance), and the recreated
   container carries the image's `/root/.claude.json`
 - **THEN** `postCreateCommand` discards the image's `/root/.claude.json` and
-  symlinks `/root/.claude.json` to the volume's existing `claude.json` before
-  CBM is configured, so that content is preserved (the CBM install folds its MCP
-  entry back in; Claude may append bootstrap fields, so the guarantee is content
-  preservation, not byte-identity), the volume mount shadows the image-build
-  catalog install, and `postCreateCommand` re-applies that install every time
-  the container is created, so it is never silently stale.
+  symlinks `/root/.claude.json` to the volume's existing `claude.json`, so that
+  content is preserved (Claude may append bootstrap fields, so the guarantee is
+  content preservation, not byte-identity), the volume mount shadows the
+  image-build catalog install, and `postCreateCommand` re-applies that install
+  every time the container is created, so it is never silently stale.
+
+## Requirement: the create phase clears codebase-memory-mcp's leftovers
+
+The create phase of both profiles SHALL remove what
+`codebase-memory-mcp install` wrote into persisted configuration, after
+`~/.claude.json` is linked: its hooks in Claude's `settings.json`, its MCP
+entries in `claude.json` and OpenCode's config, its marked blocks in OpenCode's
+`AGENTS.md` and `plugins/cbm-augment.ts`, its agents, skill, and hook scripts,
+and its binary and cache in the home. It SHALL leave every other entry and file
+in place, SHALL NOT rewrite a file that holds nothing of CBM's, and SHALL NOT
+fail the create phase over a file it cannot read. The decision is [No code-graph
+index](../architecture/no-code-graph.md).
+
+### Scenario: a volume holds a CBM install beside the user's configuration
+
+- **WHEN** the create phase runs on a volume holding CBM's hooks and entries
+  next to the user's own hooks, MCP servers, agents, and instructions
+- **THEN** only CBM's are removed, and `~/.claude.json` stays a symlink.
+
+### Scenario: a home holds nothing of CBM's
+
+- **WHEN** the create phase runs on a home with no CBM install
+- **THEN** no file is rewritten or created.
+
+### Scenario: a configuration file cannot be read
+
+- **WHEN** a file the cleanup edits is malformed
+- **THEN** that file is left as it is, a warning names the failure, the other
+  cleanup steps still run, and the create phase continues.
 
 ## Requirement: the staged catalog holds only the plugin catalog
 

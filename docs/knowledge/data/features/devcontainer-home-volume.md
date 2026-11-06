@@ -4,7 +4,7 @@ stage: accepted
 description: The Dev Container runs as a non-root account matched to the host user, with its whole home on one per-instance volume, replacing the per-directory state volumes under /root and the ~/.claude.json symlink.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:45:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: .devcontainer/devcontainer.json
@@ -19,7 +19,7 @@ sources:
 
 Every piece of per-instance state in the Dev Container needs its own volume
 today, because `/root` lives on the container filesystem: agent configuration,
-OpenCode's database, and the CBM and pre-commit caches each have one, and
+OpenCode's database, and the pre-commit cache each have one, and
 `~/.claude.json` needs a symlink into the `~/.claude` volume. The deploy runtime
 needs none of that: its account's whole home is one volume. This feature gives
 the Dev Container the same model (see [Dev Container home
@@ -36,9 +36,9 @@ passwordless `sudo`.
 
 **One home volume.** `/home/agent` is one per-instance volume that starts empty
 and is claimed by the account on first start. Agent configuration and sessions,
-`~/.claude.json`, OpenCode's database, and the CBM and pre-commit caches live on
-it at their default paths. The per-directory volumes and the `~/.claude.json`
-symlink are gone.
+`~/.claude.json`, OpenCode's database, and the pre-commit cache live on it at
+their default paths. The per-directory volumes and the `~/.claude.json` symlink
+are gone.
 
 **Shared credentials per UID cohort.** Claude and Codex credentials stay on a
 volume shared by every Dev Container instance, mounted where the deploy runtime

@@ -3,7 +3,7 @@ type: spec
 description: How the agentdev catalog's bin/macos-bootstrap.zsh provisions a stock macOS host — Homebrew tools, a uv-provisioned Python first on PATH, pinned checksum-verified release tools, login-shell PATH blocks, the agentdev plugin in Claude Code, and a final check.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T12:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 - resource: .agents/plugins/agentdev/tests/test_macos_bootstrap.py
@@ -55,11 +55,10 @@ default `python3` executable in `~/.local/bin`.
 
 ### Requirement: release-only tools are pinned and checksum-verified
 
-The script SHALL install `iwe`, `iwes`, and `codebase-memory-mcp` into
-`~/.local/bin` from their GitHub release darwin archives, at the versions
-`ansible/roles/dev_tools` pins, which Renovate moves in the same pull request,
-and SHALL verify each archive's SHA-256 before installing anything from it. It
-SHALL NOT install `iwec`.
+The script SHALL install `iwe` and `iwes` into `~/.local/bin` from their GitHub
+release darwin archive, at the version `ansible/roles/dev_tools` pins, which
+Renovate moves in the same pull request, and SHALL verify the archive's SHA-256
+before installing anything from it. It SHALL NOT install `iwec`.
 
 #### Scenario: Checksum mismatch
 

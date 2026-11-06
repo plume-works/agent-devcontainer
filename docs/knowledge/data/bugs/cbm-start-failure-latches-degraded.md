@@ -1,11 +1,11 @@
 ---
 type: bug
-stage: pending
+stage: cancelled
 severity: medium
 description: A standalone agent-opencode container whose CBM daemon fails to start stays degraded and Docker-unhealthy through every recovery attempt, the advertised retry, and a container restart, because the leftover rendezvous artifacts under /tmp survive in the writable layer; only recreating the container clears it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T16:49:05Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/issues/488
 - resource: https://github.com/DeusData/codebase-memory-mcp/issues/2162
@@ -84,6 +84,12 @@ Restoring health must not require deleting index or credential data. One
 direction is to keep CBM's daemon-side diagnostics when a start fails, so the
 upstream race can be confirmed or ruled out. Another is to put the rendezvous
 somewhere a container restart clears.
+
+## Fix
+
+Not fixed: cancelled. codebase-memory-mcp was removed ([No code-graph
+index](../architecture/no-code-graph.md)), so the runtime no longer starts the
+daemon this bug concerns.
 
 ## Key references
 

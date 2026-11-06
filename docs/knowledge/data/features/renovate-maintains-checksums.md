@@ -4,7 +4,7 @@ stage: implemented
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks refresh checksum pins, lock files, and pre-commit output in the same commit as a bump.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - id: roles
   resource: ansible/roles
@@ -20,10 +20,10 @@ sources:
 ## Purpose
 
 Three groups of pins carry a per-architecture SHA-256 beside their version:
-`dev_tools_pinned_tools` (iwe, codebase-memory-mcp, bun, and zizmor), cc-filter,
-and VirtualGL. Renovate can move the version but not the hash next to it, so an
-automated bump would leave a stale checksum and fail the image build at download
-time. They are maintained by hand, and go stale because nothing prompts a bump.
+`dev_tools_pinned_tools` (iwe, bun, and zizmor), cc-filter, and VirtualGL.
+Renovate can move the version but not the hash next to it, so an automated bump
+would leave a stale checksum and fail the image build at download time. They are
+maintained by hand, and go stale because nothing prompts a bump.
 
 The same gap covers every file a bump implies but Renovate does not write
 itself: the pre-commit output for the files a bump touched.
@@ -86,9 +86,8 @@ A recomputed hash is trust-on-first-use. Re-downloading from the same URL and
 hashing the bytes removes the toil, not the trust assumption: for a new version
 there is no prior value to disagree with, and fetching a publisher's own
 checksum file from the same origin proves the same amount. Verifying a
-publisher's signed attestation — codebase-memory-mcp ships a sigstore bundle —
-would be an improvement in verification rather than in effort, and is not part
-of this.
+publisher's signed attestation would be an improvement in verification rather
+than in effort, and is not part of this.
 
 Out of scope: `updatecli` and a repository-local refresh loop, both considered
 and set aside because Renovate already owns dependency updates here; apt
