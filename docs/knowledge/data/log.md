@@ -1233,12 +1233,11 @@ one dated group per release; nothing else writes here.
 - **Creation**: five decision records recovered from the Dr.QP history the
   template was extracted from — [Agent auth
   persistence](architecture/agent-auth-persistence.md), [Nested Docker
-  provisioning](architecture/nested-docker-provisioning.md), [MCP gateway
-  transport](architecture/mcp-gateway-transport.md), [gh authentication
-  shim](architecture/gh-authentication-shim.md), and [Formatter
-  ownership](architecture/formatter-ownership.md). Each records a rejected
-  alternative that the code alone cannot show; every decision was re-verified
-  against this repository before being written.
+  provisioning](architecture/nested-docker-provisioning.md), MCP gateway
+  transport, [gh authentication shim](architecture/gh-authentication-shim.md),
+  and [Formatter ownership](architecture/formatter-ownership.md). Each records a
+  rejected alternative that the code alone cannot show; every decision was
+  re-verified against this repository before being written.
 
 ## 2026-09-03
 

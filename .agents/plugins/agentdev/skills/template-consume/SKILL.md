@@ -31,12 +31,7 @@ git at the consumer repository root:
     "consumed_ref": "<full 40-character commit SHA>",
     "workflow": "A",
     "optional_bundles": ["custom-image", "knowledge-base"],
-    "tracked_paths": [
-      ".devcontainer/",
-      "devcontainer-compose-pins.yml",
-      ".mcp.json",
-      "..."
-    ],
+    "tracked_paths": [".devcontainer/", "devcontainer-compose-pins.yml", "..."],
     "last_synced_at": "<ISO 8601 timestamp>"
   }
 }
@@ -281,7 +276,6 @@ consumer:
 ```text
 .devcontainer/
 devcontainer-compose-pins.yml
-.mcp.json
 AGENTS.md
 CLAUDE.md
 .claude/
