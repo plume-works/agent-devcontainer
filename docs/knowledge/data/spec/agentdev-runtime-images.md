@@ -3,7 +3,7 @@ type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-05T12:00:00Z
+  at: 2026-11-06T00:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
@@ -222,10 +222,9 @@ tools.
 
 ### Requirement: doctor judges a healthy Compose Dev Container healthy
 
-In the devcontainer profile, `agentdev-runtime doctor` SHALL check the
-`mcp-gateway` sidecar only when the Compose `mcp` profile is enabled, and SHALL
-accept the git identity git resolves, including one set through `GIT_AUTHOR_*`
-and `GIT_COMMITTER_*`.
+In the devcontainer profile, `agentdev-runtime doctor` SHALL accept the git
+identity git resolves, including one set through `GIT_AUTHOR_*` and
+`GIT_COMMITTER_*`.
 
 ### Requirement: the agentdev checkout overrides the staged catalog
 

@@ -67,6 +67,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Cloud session devcontainer](architecture/cloud-session-devcontainer.md)
 
+[Cloud session host restarts](architecture/cloud-session-host-restarts.md)
+
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
 
 [Dev Container runtime](architecture/devcontainer-runtime.md)
@@ -94,8 +96,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
 [Manual stacked pull requests](architecture/manual-stacked-prs.md)
-
-[MCP gateway transport](architecture/mcp-gateway-transport.md)
 
 [Module layout](architecture/module-layout.md)
 

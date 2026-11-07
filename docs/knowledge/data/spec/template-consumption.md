@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:28:00Z
+  at: 2026-11-07T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -37,12 +37,12 @@ keep/customize/optional/delete inventory the guide walks.
 
 The default setup SHALL retain every runtime capability the template's
 devcontainer provides — the digest-pinned `agentdev-devcontainer` image with its
-supervised nested Docker, worktree-safe mounts, Xpra/VirtualGL, the MCP gateway
-and secrets socket, persistent agent-state volumes with one shared credentials
-volume, the image-staged `agentdev` catalog, keyring and GitHub authentication,
-uv caching and pre-commit setup, and the opt-in egress firewall. It SHALL NOT
-infer a language, create application code, choose dependencies, or invent CI for
-the consuming project's product.
+supervised nested Docker, worktree-safe mounts, Xpra/VirtualGL, persistent
+agent-state volumes with one shared credentials volume, the image-staged
+`agentdev` catalog, keyring and GitHub authentication, uv caching and pre-commit
+setup, and the opt-in egress firewall. It SHALL NOT infer a language, create
+application code, choose dependencies, or invent CI for the consuming project's
+product.
 
 ## Requirement: an update migrates the consumer to the agentdev image family in one change
 
@@ -414,3 +414,36 @@ decision.
 
 - **WHEN** update mode finds no codebase-map artifact
 - **THEN** it changes nothing for the map and reports nothing about it
+
+## Requirement: an update removes the retired Docker MCP gateway
+
+When a consumer holds Docker MCP gateway artifacts and its choice log does not
+record keeping the gateway, update mode SHALL remove them: the `gateway` server
+in `.mcp.json`, the `mcp__gateway__*` permission in `.claude/settings.json`, and
+any gateway wiring in a customized `.devcontainer/`. It SHALL stop tracking
+`.mcp.json`, delete that file when no server remains, keep every other server,
+report each removal, and tell the user that Docker Desktop MCP Toolkit tools are
+no longer reachable from the container.
+
+### Scenario: `.mcp.json` holds only the gateway
+
+- **WHEN** update mode runs for a consumer whose `.mcp.json` registers only
+  `gateway`
+- **THEN** the file and its `tracked_paths` entry are removed and each removal
+  is reported
+
+### Scenario: `.mcp.json` holds another server
+
+- **WHEN** a consumer's `.mcp.json` registers `gateway` beside its own server
+- **THEN** only `gateway` is removed, the file stays, and its `tracked_paths`
+  entry is removed
+
+### Scenario: the consumer chose to keep the gateway
+
+- **WHEN** the choice log records the consumer keeping the gateway
+- **THEN** update mode leaves the gateway in place and reports that it did
+
+### Scenario: a consumer holds no gateway artifact
+
+- **WHEN** update mode finds no gateway artifact
+- **THEN** it changes nothing for the gateway and reports nothing about it
