@@ -161,9 +161,12 @@ Rejected alternatives, recorded in the architecture note:
 
 ### Task 5: A comment starts nothing
 
-- [ ] After merge, a writer's pull request comment opening with `@claude` starts
+- [x] After merge, a writer's pull request comment opening with `@claude` starts
   no run of `ai-responder.yml`, and an assignee toggle on the same pull request
   still runs a review whose `ai-review-present` passes.
+  - **Evidence:** on #736, comment 6712433638 started no run; the assignment
+    started run 42410073078, whose Claude PR Review Responder and
+    `ai-review-present` succeeded.
 
 ## Spec changes
 
