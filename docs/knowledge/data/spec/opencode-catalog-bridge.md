@@ -142,23 +142,23 @@ user's configured permission rather than being set to `allow`.
 
 #### Scenario: a subagent declares a restricted tool list on v1
 
-- **WHEN** OpenCode v1 dispatches the `tdd-red` subagent, whose `tools:` list is
-  Bash, Read, Edit, Write, Grep, Glob
+- **WHEN** OpenCode v1 dispatches the `iwe-revision-evaluator` subagent, whose
+  `tools:` list is Bash, Read, Grep, Glob
 - **THEN** its `webfetch`, `websearch`, and `task` permissions are `deny`, and
   `bash` follows the user's configured approval setting.
 
 #### Scenario: a subagent declares a restricted tool list on v2
 
-- **WHEN** OpenCode v2 dispatches the `tdd-red` subagent
+- **WHEN** OpenCode v2 dispatches the `iwe-revision-evaluator` subagent
 - **THEN** it is not offered `webfetch`, `websearch`, `subagent`, `skill`, or
   `question`, and `shell` follows the user's configured approval setting.
 
 #### Scenario: a subagent runs under full access on v2
 
-- **WHEN** the user's global permission is `"*": "allow"` and the `tdd-red`
-  subagent calls `webfetch`
-- **THEN** OpenCode refuses the call, and `tdd-red` still reads and edits files
-  without a prompt.
+- **WHEN** the user's global permission is `"*": "allow"` and the
+  `iwe-revision-evaluator` subagent calls `webfetch`
+- **THEN** OpenCode refuses the call, and `iwe-revision-evaluator` still reads
+  files without a prompt.
 
 ### Requirement: user configuration takes precedence
 
@@ -177,6 +177,7 @@ catalog agent's value.
 
 #### Scenario: the user defines an agent with a catalog agent's name
 
-- **WHEN** the user's config defines an agent `tdd-red` with its own prompt
+- **WHEN** the user's config defines an agent `iwe-revision-evaluator` with its
+  own prompt
 - **THEN** OpenCode runs the user's prompt, and the agent may use every tool the
   user's permissions allow, including `webfetch`.
