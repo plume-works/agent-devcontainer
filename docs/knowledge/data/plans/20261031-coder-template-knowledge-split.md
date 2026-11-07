@@ -10,8 +10,8 @@ generated:
   at: 2026-11-07T19:40:11Z
 sources:
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
-- resource: docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md
-- resource: docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
