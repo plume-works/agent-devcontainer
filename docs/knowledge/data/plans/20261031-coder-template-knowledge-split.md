@@ -167,8 +167,11 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
 **Files:** none
 
-- [ ] `iwe normalize` and then `iwe schema validate` pass in the template
+- [x] `iwe normalize` and then `iwe schema validate` pass in the template
   checkout, and the branch is committed and pushed.
+  - **Evidence:** both pass on coder-ide-baseline 251b664, the head pushed as
+    branch `iwe-knowledge-workspace` of [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36).
 
 ### Task 6: Merge the template pull request
 
