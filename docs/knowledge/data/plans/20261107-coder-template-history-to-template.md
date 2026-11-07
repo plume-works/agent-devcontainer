@@ -159,7 +159,9 @@ has here
 `docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md`;
 Modify: every document `iwe delete` updates
 
-- [ ] `iwe delete` removes both documents and their hub entries.
+- [x] `iwe delete` removes both documents and their hub entries.
+  - **Evidence:** `4e1d5743` deletes both documents and their `bugs.md` and
+    `plans.md` entries; `iwe schema validate` passes on it.
 
 ### Task 9: Point the flattened references at the copies
 
