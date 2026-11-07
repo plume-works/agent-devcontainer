@@ -253,7 +253,25 @@ A marker section or legacy marker file exists.
    Then run `iwe normalize` and `iwe schema validate` from the consumer root.
    A consumer with no map artifact gets no change and no report about it.
 
-10. **Advance the marker and progress document**: set `consumed_ref` to the
+10. **Remove the retired Docker MCP gateway**: the template no longer ships it,
+    so a kept `gateway` server fails to connect in every session. Leave it in
+    place and report that only when the choice log records the consumer keeping
+    it. Otherwise, from the consumer root, remove each of these that is present,
+    reporting each removal:
+    - the `gateway` server in `.mcp.json`. When no other server remains, delete
+      the file and its `tracked_paths` entry; other servers are the consumer's,
+      so keep them and the file, and drop the `tracked_paths` entry;
+    - `mcp__gateway__*` in the `.claude/settings.json` permissions;
+    - in a customized `.devcontainer/`, the `mcp-gateway` Compose service, the
+      `devcontainer` service's `HOST_MCP_DIR` and `HOST_SECRETS_SOCKET` mounts
+      and its `DOCKER_SECRETS_ENGINE_SOCKET` and `COMPOSE_PROFILES` variables,
+      and the matching `devcontainer-init.sh` probes.
+
+    Tell the user that Docker Desktop MCP Toolkit tools are no longer reachable
+    from the container. A consumer with no gateway artifact gets no change and
+    no report about it.
+
+11. **Advance the marker and progress document**: set `consumed_ref` to the
     upstream SHA the update
     was taken from (not necessarily the latest — the user may stop partway
     through the changed-paths list) and `last_synced_at` to now. Finish the
