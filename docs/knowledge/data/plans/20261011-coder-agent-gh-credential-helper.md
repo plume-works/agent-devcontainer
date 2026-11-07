@@ -190,10 +190,9 @@ An existing helper SHALL be kept. A failed helper setup SHALL NOT stop
 - `uv run pytest scripts/tests/test_coder_agent_start.py scripts/tests/test_setup_gh_credential_helper.py`
 - `shellcheck .devcontainer/scripts/coder-agent-start.sh`
 - `terraform validate` in `coder-ide-baseline/template`.
-- Task 4's live check. Until [Persist the Coder workspace containerd image
-  store](20261011-persist-coder-workspace-containerd.md) ships, a workspace
-  restart needs the workaround in [Bug: Coder workspace Dev Container is lost on
-  restart](../bugs/coder-devcontainer-lost-on-restart.md).
+- Task 4's live check. Until Persist the Coder workspace containerd image store
+  ships, a workspace restart needs the workaround in Bug: Coder workspace Dev
+  Container is lost on restart.
 
 ## Out of scope
 

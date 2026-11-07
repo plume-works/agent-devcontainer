@@ -27,11 +27,9 @@ The maintainer decided:
 - Every finished document whose work changed the template is in
   `coder-ide-baseline`'s workspace. A document that also covers this repository
   is copied whole; its original stays here.
-- The template-only originals here,
-  [bugs/coder-devcontainer-lost-on-restart](../bugs/coder-devcontainer-lost-on-restart.md)
-  and
-  [plans/20261011-persist-coder-workspace-containerd](20261011-persist-coder-workspace-containerd.md),
-  already copied, are deleted.
+- The template-only originals here, bugs/coder-devcontainer-lost-on-restart and
+  plans/20261011-persist-coder-workspace-containerd, already copied, are
+  deleted.
 - `agent-devcontainer` 2.1.0 is cut before anything is copied, so every copied
   plan carries `released`.
 

@@ -46,9 +46,6 @@ exits](bugs/cloud-startup-dockerd-ready-race.md)
 [Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](bugs/coder-askpass-push-hang.md)
 
-[Bug: Coder workspace Dev Container is lost on
-restart](bugs/coder-devcontainer-lost-on-restart.md)
-
 [Bug: Docker storage accumulates on long-running Coder
 workspaces](bugs/coder-docker-storage-accumulates.md)
 
