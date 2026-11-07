@@ -294,17 +294,19 @@ jobs:
       github.event.pull_request.user.type == 'Bot'
     runs-on: ubuntu-26.04
     timeout-minutes: 5
-    # contents: read lists the branch's push history.
+    environment: plume-works-review
+    # GITHUB_TOKEN only reads: contents: read lists the branch's push history.
+    # Reviews post with the App token.
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
     steps:
-      - name: Approve on behalf of the trusted bot
+      - name: Decide whether to approve
+        id: eligible
         uses: actions/github-script@v9.0.0
         with:
           script: |
-            const { payload } = context;
-            const login = payload.pull_request.user.login;
+            const login = context.payload.pull_request.user.login;
             const trustedBotActors = (process.env.TRUSTED_BOT_ACTORS ?? '')
               .split(',')
               .map((actor) => actor.trim())
@@ -314,9 +316,45 @@ jobs:
               return;
             }
             if (context.actor === 'dependabot[bot]') {
-              core.notice('Run triggered by dependabot[bot] holds a read-only token; skipping the approval.');
+              core.notice('Run triggered by dependabot[bot] cannot read the App secrets; skipping the approval.');
               return;
             }
+            core.setOutput('approve', 'true');
+
+      # No GITHUB_TOKEN fallback: see architecture/responder-app-identity.
+      - name: Require the App secrets
+        if: steps.eligible.outputs.approve == 'true'
+        env:
+          APP_CLIENT_ID: ${{ secrets.QUILL_APP_CLIENT_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
+        run: |
+          missing=()
+          [[ -n "${APP_CLIENT_ID}" ]] || missing+=(QUILL_APP_CLIENT_ID)
+          [[ -n "${APP_PRIVATE_KEY}" ]] || missing+=(QUILL_APP_PRIVATE_KEY)
+          for name in "${missing[@]}"; do
+            echo "::error::The App secret ${name} is empty."
+          done
+          [[ ${#missing[@]} -eq 0 ]]
+
+      - name: Create GitHub App token
+        id: app_token
+        if: steps.eligible.outputs.approve == 'true'
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ secrets.QUILL_APP_CLIENT_ID }}
+          private-key: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
+          permission-pull-requests: write
+
+      - name: Approve on behalf of the trusted bot
+        if: steps.eligible.outputs.approve == 'true'
+        uses: actions/github-script@v9.0.0
+        env:
+          APP_TOKEN: ${{ steps.app_token.outputs.token }}
+        with:
+          script: |
+            const { payload } = context;
+            const login = payload.pull_request.user.login;
+            const app = getOctokit(process.env.APP_TOKEN);
 
             const pullRequest = {
               owner: context.repo.owner,
@@ -328,7 +366,7 @@ jobs:
               per_page: 100,
             });
             const ownApprovals = reviews.filter(
-              (review) => review.user?.login === 'github-actions[bot]' && review.state === 'APPROVED',
+              (review) => review.user?.login === process.env.AI_REVIEWER_LOGIN && review.state === 'APPROVED',
             );
 
             // Approval covers only the bot's own commits, see spec/ai-review-gate.
@@ -387,7 +425,7 @@ jobs:
             }
             if (failure) {
               for (const review of ownApprovals) {
-                await github.rest.pulls.dismissReview({
+                await app.rest.pulls.dismissReview({
                   ...pullRequest,
                   review_id: review.id,
                   message: `Trusted-bot approval withdrawn: ${failure}.`,
@@ -398,11 +436,11 @@ jobs:
             }
 
             if (ownApprovals.length > 0) {
-              core.info('github-actions[bot] already approved this pull request.');
+              core.info(`${process.env.AI_REVIEWER_LOGIN} already approved this pull request.`);
               return;
             }
 
-            await github.rest.pulls.createReview({
+            await app.rest.pulls.createReview({
               ...pullRequest,
               event: 'APPROVE',
               body: `AI review skipped: this pull request is authored by ${login}, a trusted bot. Approving on its behalf.`,
