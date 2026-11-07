@@ -1,11 +1,11 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: medium
 description: The AI task responder pushes with GITHUB_TOKEN, whose GitHub Actions app GitHub refuses as a ruleset bypass actor, so the iwe/** ruleset that blocks merges into dependent branches also rejects every responder push to an iwe/ branch.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml
@@ -46,6 +46,14 @@ the repository's owner; the built-in app is none of these.
 
 Move every responder push onto the organization-owned `plume-works-quill` App,
 then add that App to the `iwe/**` ruleset as a bypass actor in mode `always`.
+
+## Fix
+
+[Drop the free-form `@claude` task
+responder](../plans/20261107-drop-claude-task-responder.md) removed the task
+responder, the only responder job that pushed. No responder job holds
+`contents: write` any more, so no responder push reaches an `iwe/` branch and
+the ruleset needs no responder bypass actor.
 
 ## Key references
 

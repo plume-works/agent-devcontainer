@@ -15,7 +15,8 @@ sources:
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/architecture/dispatched-review-identity.md
 - resource: docs/knowledge/data/backlog/drop-claude-free-form-task-trigger.md
-rank: 900
+stage: done
+completed: 2026-11-07
 ---
 
 # Drop the free-form `@claude` task responder
@@ -161,9 +162,12 @@ Rejected alternatives, recorded in the architecture note:
 
 ### Task 5: A comment starts nothing
 
-- [ ] After merge, a writer's pull request comment opening with `@claude` starts
+- [x] After merge, a writer's pull request comment opening with `@claude` starts
   no run of `ai-responder.yml`, and an assignee toggle on the same pull request
   still runs a review whose `ai-review-present` passes.
+  - **Evidence:** on #736, comment 6712433638 started no run; the assignment
+    started run 42410073078, whose Claude PR Review Responder and
+    `ai-review-present` succeeded.
 
 ## Spec changes
 
@@ -275,6 +279,13 @@ can merge it.
 Removed with the free-form task responder: no comment starts a run, so nothing
 is bridged to the head branch.
 ```
+
+[AI review refresh](../spec/ai-review-refresh.md) — a rationale comment starts
+no workflow run, rather than being one the bridge dispatches nothing for.
+
+[Template consumption](../spec/template-consumption.md) — the AI review gate's
+trust requirement forbids comment, issue, and `workflow_dispatch` triggers in
+place of retaining the `workflow_dispatch` bridge.
 
 ## Verification
 
