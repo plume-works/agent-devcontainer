@@ -148,9 +148,11 @@ has here
 
 **Files:** none (in `plume-works/coder-ide-baseline`)
 
-- [ ] The pull request carrying Tasks 4-6 passes the required
+- [x] The pull request carrying Tasks 4-6 passes the required
   `Docker Build and Push` check and merges to `main`.
   - **Closed by:** the maintainer merging the pull request.
+  - **Evidence:** plume-works/coder-ide-baseline#37 passed
+    `Docker Build and Push` on `b59c4b9` and merged to `main` as `6711547`.
 
 ### Task 8: Delete the template-only originals
 
