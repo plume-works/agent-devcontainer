@@ -27,9 +27,11 @@ The maintainer decided:
 - Every finished document whose work changed the template is in
   `coder-ide-baseline`'s workspace. A document that also covers this repository
   is copied whole; its original stays here.
-- The template-only originals here, bugs/coder-devcontainer-lost-on-restart and
-  plans/20261011-persist-coder-workspace-containerd, already copied, are
-  deleted.
+- The template-only originals here,
+  [bugs/coder-devcontainer-lost-on-restart](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md)
+  and
+  [plans/20261011-persist-coder-workspace-containerd](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md),
+  already copied, are deleted.
 - `agent-devcontainer` 2.1.0 is cut before anything is copied, so every copied
   plan carries `released`.
 
@@ -168,7 +170,8 @@ Modify: every document `iwe delete` updates
 **Files:** Modify: `docs/knowledge/data/log.md`,
 `docs/knowledge/data/releases/2.0.0.md`,
 `docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md`,
-`docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md`
+`docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md`, and this
+plan's `## Context`, which `iwe delete` flattens too
 
 - [ ] Each reference Task 8 flattened to plain text is a link to the
   `coder-ide-baseline` copy on `main`; no other text changes.

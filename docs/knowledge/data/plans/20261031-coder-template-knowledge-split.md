@@ -39,10 +39,12 @@ The maintainer decided:
   template's requirements and runbook move to an IWE workspace in
   `coder-ide-baseline`; this repository keeps what it owes the template.
 - History stays here. Finished plans, fixed bugs, `log.md`, and release notes
-  are not moved or edited. The two documents about template-only work, Bug:
-  Coder restart loses the Dev Container and Persist the Coder workspace
-  containerd store, are copied into the new workspace; the originals stay
-  unchanged.
+  are not moved or edited. The two documents about template-only work, [Bug:
+  Coder restart loses the Dev
+  Container](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md)
+  and [Persist the Coder workspace containerd
+  store](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md),
+  are copied into the new workspace; the originals stay unchanged.
 - The new workspace is bootstrapped, then onboarded with `/agentdev:iwe-setup`.
 
 ## Approach
