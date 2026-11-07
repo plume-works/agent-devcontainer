@@ -80,10 +80,12 @@ Tasks 4-7 run in a `coder-ide-baseline` checkout, from its repository root.
 
 **Files:** none
 
-- [ ] [plume-works/agent-devcontainer#734](https://github.com/plume-works/agent-devcontainer/pull/734)
+- [x] [plume-works/agent-devcontainer#734](https://github.com/plume-works/agent-devcontainer/pull/734)
   is merged, so `20261031-coder-template-knowledge-split` is `stage: done` on
   `main`.
   - **Closed by:** the maintainer merging the pull request.
+  - **Evidence:** #734 merged as `ca519534` on `main`; the plan carries
+    `stage: done` at that commit.
 
 ### Task 2: Cut agent-devcontainer 2.1.0
 
