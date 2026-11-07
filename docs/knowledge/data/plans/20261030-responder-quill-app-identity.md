@@ -119,12 +119,23 @@ Assumptions:
 
 **Files:** Modify: `.github/actions/run-claude-responder/action.yml`
 
-- [ ] The action takes the App client ID and the App private key as inputs, and
+- [x] The action takes the App client ID and the App private key as inputs, and
   fails with a message naming any empty App input before it runs anything else.
-- [ ] After the lifecycle scripts, it mints an installation token with contents
+  - **Evidence:** commit 56b8be80; inputs `app-client-id` and `app-private-key`,
+    and the first step "Require the App secrets" emits an error naming each
+    empty secret and fails; pre-commit `zizmor` passes.
+- [x] After the lifecycle scripts, it mints an installation token with contents
   read, pull requests write, issues write, and actions read, and resolves the
   App's bot user ID from the token's `app-slug`.
-- [ ] The Claude step receives the minted token, `bot_id`, and `bot_name`.
+  - **Evidence:** commit 56b8be80; "Create GitHub App token" follows the
+    lifecycle step with `permission-contents: read`,
+    `permission-pull-requests: write`, `permission-issues: write`,
+    `permission-actions: read`, and "Resolve the App's bot user" reads
+    `/users/<app-slug>[bot]`; pre-commit `zizmor` passes.
+- [x] The Claude step receives the minted token, `bot_id`, and `bot_name`.
+  - **Evidence:** commit 56b8be80; the Claude step passes
+    `steps.app_token.outputs.token`, `bot_id`, and `bot_name` from "Resolve the
+    App's bot user"; pre-commit `zizmor` and `prettier` pass on the action.
 
 ### Task 2: The workflow runs the review responder as the App
 
