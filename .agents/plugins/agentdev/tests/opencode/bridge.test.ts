@@ -92,9 +92,9 @@ describe("config hook", () => {
     }
   })
 
-  test("tdd-red loses web and task tools and keeps bash unset", async () => {
+  test("iwe-revision-evaluator loses web and task tools and keeps bash unset", async () => {
     const config = await configured()
-    const permission = config.agent["tdd-red"].permission
+    const permission = config.agent["iwe-revision-evaluator"].permission
     expect(permission).toMatchObject({ webfetch: "deny", websearch: "deny", task: "deny" })
     expect(permission).not.toHaveProperty("bash")
   })
@@ -104,11 +104,11 @@ describe("config hook", () => {
     const userAgent = { prompt: "mine" }
     const config = await configured({
       command: { [`${namespace}:pr-open`]: userCommand },
-      agent: { "tdd-red": userAgent },
+      agent: { "iwe-revision-evaluator": userAgent },
       permission: { skill: { "iwe-plan": "allow" } },
     })
     expect(config.command[`${namespace}:pr-open`]).toBe(userCommand)
-    expect(config.agent["tdd-red"]).toBe(userAgent)
+    expect(config.agent["iwe-revision-evaluator"]).toBe(userAgent)
     expect(config.permission.skill["iwe-plan"]).toBe("allow")
     expect(config.permission.skill["iwe-ship"]).toBe("deny")
   })
@@ -238,8 +238,8 @@ describe("v2 setup", () => {
       mention: { start: 13, end: 25, text: "@critical.ts" },
     }]
     const agentsRef = [{
-      name: "tdd-red",
-      mention: { start: 26, end: 34, text: "@tdd-red" },
+      name: "explore",
+      mention: { start: 26, end: 34, text: "@explore" },
     }]
     const skillsRef = [{
       id: "iwe-plan",
@@ -249,7 +249,7 @@ describe("v2 setup", () => {
     await commands.get(`${namespace}:iwe-implement`).execute({
       sessionID: "ses_1",
       prompt: {
-        text: "fix critical @critical.ts @tdd-red /iwe-plan\nwithout changing behavior",
+        text: "fix critical @critical.ts @explore /iwe-plan\nwithout changing behavior",
         files,
         agents: agentsRef,
         skills: skillsRef,
@@ -263,14 +263,14 @@ describe("v2 setup", () => {
     })
     expect(prompts).toEqual([{
       sessionID: "ses_1",
-      text: "/agentdev:iwe-implement fix critical @critical.ts @tdd-red /iwe-plan\nwithout changing behavior",
+      text: "/agentdev:iwe-implement fix critical @critical.ts @explore /iwe-plan\nwithout changing behavior",
       files: [{
         uri: "file:///critical.ts",
         mention: { start: 37, end: 49, text: "@critical.ts" },
       }],
       agents: [{
-        name: "tdd-red",
-        mention: { start: 50, end: 58, text: "@tdd-red" },
+        name: "explore",
+        mention: { start: 50, end: 58, text: "@explore" },
       }],
       skills: [{
         id: "iwe-plan",
@@ -289,7 +289,7 @@ describe("v2 setup", () => {
     expect(prompts).toHaveLength(2)
     expect(prompts[0].text).not.toContain("# Implement a plan")
     expect(files[0].mention).toEqual({ start: 13, end: 25, text: "@critical.ts" })
-    expect(agentsRef[0].mention).toEqual({ start: 26, end: 34, text: "@tdd-red" })
+    expect(agentsRef[0].mention).toEqual({ start: 26, end: 34, text: "@explore" })
     expect(skillsRef[0].mention).toEqual({ start: 35, end: 44, text: "/iwe-plan" })
   })
 
@@ -320,10 +320,10 @@ describe("v2 setup", () => {
     }
   })
 
-  test("tdd-red is refused web, subagent, skill, and question calls and keeps shell's approval", async () => {
+  test("iwe-revision-evaluator is refused web, subagent, skill, and question calls and keeps shell's approval", async () => {
     const { hooks } = setUp()
     const evaluate = async (action: string, effect = "allow") => {
-      const input = { sessionID: "s", agent: "tdd-red", action, resources: ["*"], effect }
+      const input = { sessionID: "s", agent: "iwe-revision-evaluator", action, resources: ["*"], effect }
       await hooks["permission.evaluate"](input)
       return input.effect
     }
@@ -337,8 +337,8 @@ describe("v2 setup", () => {
   })
 
   test("leaves non-catalog agents and user-replaced catalog agents unlimited", async () => {
-    const { hooks } = setUp({ agentSystem: { "tdd-red": "the user's own prompt" } })
-    for (const agent of ["tdd-red", "build"]) {
+    const { hooks } = setUp({ agentSystem: { "iwe-revision-evaluator": "the user's own prompt" } })
+    for (const agent of ["iwe-revision-evaluator", "build"]) {
       const context = { agent, tools: Object.fromEntries(v2Tools.map((t) => [t, { description: t, input: {} }])) }
       await hooks["session.context"](context)
       expect(Object.keys(context.tools)).toEqual(v2Tools)

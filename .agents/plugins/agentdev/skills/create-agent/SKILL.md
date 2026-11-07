@@ -45,7 +45,7 @@ model: inherit
 #### **description** (REQUIRED)
 
 - Clearly states the agent's purpose, domain expertise, and **when Claude should delegate to it**
-- Claude uses this description to decide when to hand a task to the agent automatically, so include trigger scenarios ("Use during the Red phase of TDD — before any implementation exists")
+- Claude uses this description to decide when to hand a task to the agent automatically, so include trigger scenarios ("Use after a change is implemented, before it ships")
 - Should be concise (50-250 characters) and actionable
 
 #### **tools** (OPTIONAL)
@@ -91,7 +91,7 @@ The markdown content below the frontmatter defines the agent's behavior, experti
 
 ## Sub-Agent Orchestration
 
-Agents can invoke other agents using the **Agent tool** to orchestrate multi-step workflows (e.g., the Principal Engineer agent orchestrating the TDD Red → Green → Refactor cycle).
+Agents can invoke other agents using the **Agent tool** to orchestrate multi-step workflows.
 
 ### How It Works
 
@@ -111,7 +111,7 @@ Agents can invoke other agents using the **Agent tool** to orchestrate multi-ste
 
 ```text
 Step 1: Write failing tests
-Agent: TDD Red
+Agent: test-specialist
 Prompt: Work on issue #123 in py_packages/example_package.
         Write failing tests for the retry-with-backoff behaviour described in the issue.
         Return: test files created, how each test fails, open questions.
@@ -166,8 +166,8 @@ Prompt: Work on issue #123 in py_packages/example_package.
 1. Create the agent file with proper frontmatter
 2. Run `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci` (also
    enforced by pre-commit and CI)
-3. Test with representative tasks: explicit invocation ("Use the TDD Red
-   agent to…") and automatic delegation
+3. Test with representative tasks: explicit invocation ("Use the
+   test-specialist agent to…") and automatic delegation
 4. Verify tool access works as expected and the agent stays within scope.
    Claude Code detects changes in an existing agents directory
    automatically; restart only if that directory did not exist when the

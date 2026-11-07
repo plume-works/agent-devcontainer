@@ -143,24 +143,24 @@ async function turn(agent: string, tool: string, args: Record<string, unknown>) 
 try {
   configure()
   await startHost("catalog")
-  await until(() => api("agent.list") as { id: string }[], list => list.some(a => a.id === "tdd-red"), "catalog agents")
+  await until(() => api("agent.list") as { id: string }[], list => list.some(a => a.id === "iwe-revision-evaluator"), "catalog agents")
 
-  const fetched = await turn("tdd-red", "webfetch", { url: `http://127.0.0.1:${model.port}/page`, format: "text" })
-  assert(!fetched.tools.includes("webfetch"), `tdd-red is offered webfetch: ${fetched.tools}`)
-  assert(fetched.tools.includes("read"), `tdd-red lost read: ${fetched.tools}`)
+  const fetched = await turn("iwe-revision-evaluator", "webfetch", { url: `http://127.0.0.1:${model.port}/page`, format: "text" })
+  assert(!fetched.tools.includes("webfetch"), `iwe-revision-evaluator is offered webfetch: ${fetched.tools}`)
+  assert(fetched.tools.includes("read"), `iwe-revision-evaluator lost read: ${fetched.tools}`)
   assert.match(fetched.result, /Tool is not available for this request: webfetch|Permission denied: webfetch/, `webfetch was not refused: ${fetched.result}`)
-  assert.doesNotMatch(fetched.result, /mock page/, "webfetch ran for tdd-red")
+  assert.doesNotMatch(fetched.result, /mock page/, "webfetch ran for iwe-revision-evaluator")
 
-  const read = await turn("tdd-red", "read", { path: path.join(workspace, "notes.txt") })
-  assert.match(read.result, /catalog limits fixture/, `tdd-red's read did not run: ${read.result}`)
-  console.log("ok - tdd-red is limited to its declared tools under full access")
+  const read = await turn("iwe-revision-evaluator", "read", { path: path.join(workspace, "notes.txt") })
+  assert.match(read.result, /catalog limits fixture/, `iwe-revision-evaluator's read did not run: ${read.result}`)
+  console.log("ok - iwe-revision-evaluator is limited to its declared tools under full access")
   stopHost()
 
   const userSkill = path.join(configDir, "skills/iwe-plan")
   mkdirSync(userSkill, { recursive: true })
   writeFileSync(path.join(userSkill, "SKILL.md"), "---\nname: iwe-plan\ndescription: the user's iwe-plan\n---\nuser skill body\n")
   configure({
-    agent: { "tdd-red": { description: "the user's tdd-red", prompt: "the user's own prompt", mode: "subagent" } },
+    agent: { "iwe-revision-evaluator": { description: "the user's iwe-revision-evaluator", prompt: "the user's own prompt", mode: "subagent" } },
     command: { "agentdev:pr-open": { description: "the user's pr-open", template: "mine" } },
   })
   await startHost("user")
@@ -169,9 +169,9 @@ try {
   assert.equal(commands.find(c => c.name === "agentdev:pr-open")?.description, "the user's pr-open")
   const skill = (api("skill.list") as { id: string; path: string }[]).find(s => s.id === "iwe-plan")
   assert.equal(skill?.path, path.join(userSkill, "SKILL.md"), "the bridge's iwe-plan replaced the user's")
-  const replaced = await turn("tdd-red", "webfetch", { url: `http://127.0.0.1:${model.port}/page`, format: "text" })
-  assert(replaced.tools.includes("webfetch"), `the user's tdd-red is not offered webfetch: ${replaced.tools}`)
-  assert.match(replaced.result, /mock page/, `the user's tdd-red could not fetch: ${replaced.result}`)
+  const replaced = await turn("iwe-revision-evaluator", "webfetch", { url: `http://127.0.0.1:${model.port}/page`, format: "text" })
+  assert(replaced.tools.includes("webfetch"), `the user's iwe-revision-evaluator is not offered webfetch: ${replaced.tools}`)
+  assert.match(replaced.result, /mock page/, `the user's iwe-revision-evaluator could not fetch: ${replaced.result}`)
   console.log("ok - the user's agent, command, and skill replace the catalog's")
 } finally {
   stopHost()
