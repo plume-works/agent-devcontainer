@@ -3,7 +3,7 @@ type: architecture
 description: The AI review responder and the trusted-bot approval post with per-job installation tokens of the plume-works-quill GitHub App, the AI review gate accepts only that App's login, and GitHub Actions no longer needs to approve pull requests; supersedes Actions approval permission.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T23:30:00Z
+  at: 2026-11-08T00:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml
@@ -37,7 +37,12 @@ AI reviewer login, with no variable or input to repoint it.
 
 The responder runs only on pull request events and pushes nothing (see
 [Pull-request-only AI responder](pull-request-only-responder.md)), so the App
-needs no contents write access and no ruleset bypass.
+needs no ruleset bypass.
+
+The maintainer decided on 2026-11-07 that the App's installation holds contents
+write: the `main` ruleset counts an approval only from a reviewer with write
+access, so a read-only App's approval leaves `reviewDecision` at
+`REVIEW_REQUIRED`.
 
 ## Approach
 
@@ -66,9 +71,11 @@ needs no contents write access and no ruleset bypass.
   approval before it checks them.
 - A job's `permissions:` block bounds only `GITHUB_TOKEN`; the minted token's
   `permission-*` inputs are what bound the App token.
-- The App's installation holds contents read, pull requests read and write,
-  issues read and write, actions read, and metadata read. Without contents write
-  or workflows permission, the App can push nothing.
+- The App's installation holds contents read and write, pull requests read and
+  write, issues read and write, actions read, and metadata read, and no
+  workflows permission. Contents write makes its approval count; no job requests
+  it when minting, so no workflow token can push, and only a holder of the App's
+  private key could.
 - The workflow runs only on pull request, pull request review, and merge group
   events, and the App opens no pull request and pushes nothing, so no App event
   can start a review.

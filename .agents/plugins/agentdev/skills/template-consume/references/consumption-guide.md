@@ -366,9 +366,11 @@ including `github-actions[bot]` and `claude[bot]`, leave the gate red. Two
 prerequisites are **required**:
 
 1. **Register a GitHub App and install it on the repository.** Give its
-   installation contents read, pull requests read and write, issues read and
-   write, actions read, and metadata read — no contents write and no workflows
-   permission, so the App can push nothing.
+   installation contents read and write, pull requests read and write, issues
+   read and write, actions read, and metadata read, and no workflows
+   permission. Contents write is what makes the App's approval count toward a
+   required review; each job mints its token with contents read or none, so no
+   workflow token can push.
 2. **Create the `plume-works-review` environment** named by the
    `claude-respond` and `trusted-bot-approval` jobs' `environment:` key, with no
    deployment branch policy, holding three secrets: `CLAUDE_CODE_OAUTH_TOKEN`,
