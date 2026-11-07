@@ -3,7 +3,7 @@ type: spec
 description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:25:00Z
+  at: 2026-11-06T00:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -39,8 +39,7 @@ tmux/failure semantics.
 of `agentdev-base`, provide linux/amd64 and linux/arm64 images, and start its
 environment without Coder, a Dev Containers client, or project scaffolding. It
 SHALL keep Claude Code available without autostarting it, except Claude Remote
-Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, SHALL NOT install Codex, and
-SHALL omit Docker MCP gateway integration.
+Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL NOT install Codex.
 
 #### Scenario: an ordinary checkout is mounted
 
