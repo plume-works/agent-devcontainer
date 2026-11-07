@@ -204,9 +204,6 @@ environment](plans/20261101-per-checkout-uv-environments.md)
 [Give each Claude worktree its own agentdev
 catalog](plans/20261103-per-worktree-catalog.md)
 
-[Persist the Coder workspace containerd image
-store](plans/20261011-persist-coder-workspace-containerd.md)
-
 [Persist the pre-commit hook cache on the agentdev-cache
 volume](plans/20260902-persist-pre-commit-cache.md)
 
