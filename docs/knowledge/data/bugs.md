@@ -136,6 +136,9 @@ approval](bugs/relayed-approval-unauthenticated.md)
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
 
+[Bug: Remote Control sessions on a workspace receive cloud-session
+instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
+
 [Bug: Remote Control real-tmux tests share one tmux server under
 pytest-xdist](bugs/remote-control-tmux-test-shared-under-xdist.md)
 
