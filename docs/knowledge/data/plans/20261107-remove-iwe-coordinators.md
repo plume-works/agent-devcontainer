@@ -128,13 +128,19 @@ Rejected:
 `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] `iwe-planner`'s description and mode **From the Implement orchestrator**
+- [x] `iwe-planner`'s description and mode **From the Implement orchestrator**
   become "the Implement session" and **From the Implement session**, naming only
   the session running `/agentdev:iwe-implement`; `iwe-revision-evaluator` says
   "the Implement session"; `durable-knowledge-auditor` says "your dispatcher".
-- [ ] `iwe-shipper`'s description names only `iwe-ship` and `iwe-plan` revise as
+  - **Evidence:** commit 631260ca; `grep -nE "coordinator|orchestrator"` on the
+    three agent files prints nothing, and `validate_agent_files` reports 0
+    errors.
+- [x] `iwe-shipper`'s description names only `iwe-ship` and `iwe-plan` revise as
   dispatchers, and `iwe-implement`'s SKILL.md says the rulebook is never
   dispatched and calls this session the Implement session.
+  - **Evidence:** commit 631260ca;
+    `grep -nE "coordinator|ship-all|implement-all|orchestrator|In the user's session"`
+    on `iwe-shipper.agent.md` and `iwe-implement/SKILL.md` prints nothing.
 
 ### Task 4: `pr-merge-stack` runs `pr-merge` itself
 
