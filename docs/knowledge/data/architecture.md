@@ -67,6 +67,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Cloud session devcontainer](architecture/cloud-session-devcontainer.md)
 
+[Cloud session host restarts](architecture/cloud-session-host-restarts.md)
+
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
 
 [Dev Container runtime](architecture/devcontainer-runtime.md)
