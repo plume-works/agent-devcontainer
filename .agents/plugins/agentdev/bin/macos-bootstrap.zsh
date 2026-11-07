@@ -6,13 +6,13 @@ setopt err_exit no_unset pipe_fail
 
 typeset -r PYTHON_VERSION=3.12
 # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-typeset -r IWE_VERSION=iwe-v0.31.0
+typeset -r IWE_VERSION=iwe-v0.32.0
 # renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
 typeset -r CBM_VERSION=v0.12.1
 # Renovate bumps the versions; scripts/refresh-pin-checksums.py rewrites these digests.
 typeset -rA SHA256=(
-  iwe-arm64 8445c3742cdeee7ce0158d9c1532d44f61a8ed41fe1a4b9c39a93f3013bf770d
-  iwe-amd64 cda652cf53b6a898e727d336b109c2e91301eb98aa4a00e3374e422c00f3912b
+  iwe-arm64 a616c3df4b992df568ff5357172e8162b7a72b8a4f8a1d35ba5fe718e0a8786b
+  iwe-amd64 0a168ede305c25632060fe9f9080e7e0964f3c5e7e5037b1b6034b91694036c0
   codebase-memory-mcp-arm64 9bfcbe38414b47969a3e1d1c1999f5357409387c86fa3d24221b5458267660d2
   codebase-memory-mcp-amd64 ca6e64397a8ae80cec898a8205a6aa16750ac798acc05a0c3ed983837944a581
 )
