@@ -114,7 +114,7 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 `docs/knowledge/data/spec/workspace-template.md`; Modify:
 `docs/knowledge/data/spec.md`
 
-- [ ] `spec/workspace-template` holds these requirements of
+- [x] `spec/workspace-template` holds these requirements of
   `agent-devcontainer`'s `spec/coder-ide-baseline`, with all their scenarios, as
   they read once the off-bash migration has shipped:
   `the agent-start command is the repository's only start hook`,
@@ -129,9 +129,18 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
   `main`, and `### Push a version` states the `TEMPLATE_NAME` default that
   `template/push.sh` has on `main` (`coder-ide-baseline`). Its `sources` name
   the `agent-devcontainer` spec at the commit copied.
-- [ ] The spec's introduction links `agent-devcontainer`'s
+  - **Evidence:** coder-ide-baseline 11e00fe in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36): six
+    requirements and `## Working on the template` copied from
+    `spec/coder-ide-baseline` at ba79bda6 by a script that asserts each of the
+    three named substitutions matched once.
+- [x] The spec's introduction links `agent-devcontainer`'s
   `spec/coder-ide-baseline` as the Dev Container repository's side of the
   contract, and `spec.md` links the new spec.
+  - **Evidence:** coder-ide-baseline 11e00fe in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36): the
+    introduction links `spec/coder-ide-baseline` on `main`, and `spec.md` links
+    `spec/workspace-template`.
 
 ### Task 4: Copy the template-only history
 
