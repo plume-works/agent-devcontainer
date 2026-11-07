@@ -43,12 +43,16 @@ The maintainer decided on 2026-10-30:
   `ai-review-present` accepts only its reviews, and the organization setting
   "Allow GitHub Actions to create and approve pull requests" is turned off once
   the App's approval is shown to count;
-- reviews by the previous bot identities are ignored, with no transition period
-  and no dismissals;
+- reviews by `github-actions[bot]` and `claude[bot]` are ignored, with no
+  transition period and no dismissals;
 - the `plume-works-review` environment replaces `claude-review` and holds
   `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY`;
   a job whose App secrets are missing fails, with no `GITHUB_TOKEN` fallback;
 - the App never opens pull requests.
+
+The maintainer decided on 2026-11-07 that `plume-works-quill[bot]` is the only
+AI reviewer login, written as a literal wherever a workflow, action, or catalog
+skill needs it, with no variable or input to repoint it.
 
 The maintainer decided on 2026-11-07 that [Drop the free-form `@claude` task
 responder](20261107-drop-claude-task-responder.md) lands first. With no task
@@ -63,7 +67,7 @@ access and no ruleset bypass.
    claude-respond  lifecycle scripts → mint (contents:read)  → claude-code-action
    trusted-bot approval              → mint (pull-requests:write) → APPROVE
 
- ai-review-present ── accepts AI_REVIEWER_LOGIN only
+ ai-review-present ── accepts plume-works-quill[bot] only
 ```
 
 `run-claude-responder` mints the installation token with
@@ -78,11 +82,11 @@ the missing secret when either App secret is empty.
 resolved from the token's `app-slug` (as `renovate.yml` resolves its git
 author).
 
-The accepted reviewer login moves to a workflow-level `AI_REVIEWER_LOGIN`
-variable, set to `plume-works-quill[bot]`, which `ai-review-status` reads in
-place of its hard-coded set. The workflow runs only on pull request, pull
-request review, and merge group events, and the App opens no pull request and
-pushes nothing, so no App event can start a review.
+`ai-review-status`, the trusted-bot approval job, `pr-request-ai-review`, and
+`pr-eval-review-needed` recognise `plume-works-quill[bot]` as the AI reviewer in
+place of `claude[bot]` and `github-actions[bot]`. The workflow runs only on pull
+request, pull request review, and merge group events, and the App opens no pull
+request and pushes nothing, so no App event can start a review.
 
 The App's installation holds contents read, pull requests read and write, issues
 read and write, actions read, and metadata read; no contents write and no
@@ -107,8 +111,6 @@ Rejected alternatives, recorded in the architecture note:
 
 Assumptions:
 
-- `AI_REVIEWER_LOGIN` is a workflow `env` value, so a consumer repoints it in
-  one place; the template keeps `plume-works-quill[bot]`.
 - The trusted-bot approval job is the one
   [20261030-ai-review-verdicts-and-bot-approval](20261030-ai-review-verdicts-and-bot-approval.md)
   adds; this plan changes only the token it posts with.
@@ -148,9 +150,7 @@ Assumptions:
     `environment: plume-works-review`, passes `secrets.QUILL_APP_CLIENT_ID` and
     `secrets.QUILL_APP_PRIVATE_KEY` as `app-client-id` and `app-private-key`,
     and has no `id-token` permission; actionlint and zizmor pass.
-- [x] A workflow-level `AI_REVIEWER_LOGIN` is `plume-works-quill[bot]`.
-  - **Evidence:** commit 1c517a54; the workflow `env:` sets
-    `AI_REVIEWER_LOGIN: 'plume-works-quill[bot]'`; actionlint passes.
+- [ ] The workflow has no `AI_REVIEWER_LOGIN`.
 - [x] The review prompt carries a line saying the responder never opens a pull
   request.
   - **Evidence:** commit 1c517a54; preflight's "Determine agent prompts" adds
@@ -172,27 +172,17 @@ Assumptions:
     empty `QUILL_APP_CLIENT_ID` or `QUILL_APP_PRIVATE_KEY`, "Create GitHub App
     token" sets only `permission-pull-requests: write`, and the approval and
     dismissals post through `getOctokit(APP_TOKEN)`; actionlint and zizmor pass.
-- [x] Its duplicate-approval check looks for an `APPROVED` review by
-  `AI_REVIEWER_LOGIN` instead of `github-actions[bot]`.
-  - **Evidence:** commit 3d9c3828; `ownApprovals` filters `APPROVED` reviews by
-    `process.env.AI_REVIEWER_LOGIN`; every inline script parses under
-    `bun build --no-bundle`, and actionlint passes.
+- [ ] Its duplicate-approval check looks for an `APPROVED` review by the literal
+  `plume-works-quill[bot]`.
 
 ### Task 4: The gate accepts only the App's review
 
 **Files:** Modify: `.github/actions/ai-review-status/action.yml`,
 `.github/workflows/ai-responder.yml`
 
-- [x] `ai-review-status` takes the accepted reviewer login as an input and
-  accepts a review only from that login; its failure message names it.
-  - **Evidence:** commit 397a5606; the required `reviewer-login` input replaces
-    `claudeLogins`, `isAcceptedReview` compares the login exactly, and the
-    failure reason reads `Expected a review from ${reviewerLogin}`; the script
-    parses under `bun build --no-bundle`, and actionlint and zizmor pass.
-- [x] `ai-review-present` passes `AI_REVIEWER_LOGIN`.
-  - **Evidence:** commit 397a5606; `ai-review-present` and preflight's "Check
-    for an accepted AI review" both pass
-    `reviewer-login: ${{ env.AI_REVIEWER_LOGIN }}`; actionlint passes.
+- [ ] `ai-review-status` accepts a review only from `plume-works-quill[bot]`,
+  with no input to change it; its failure message names that login.
+- [ ] Neither preflight nor `ai-review-present` passes a reviewer login.
 
 ### Task 5: Architecture note records the App identity
 
@@ -221,36 +211,38 @@ Modify: `docs/knowledge/data/architecture.md`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [x] The consumption guide's required prerequisites become: register a GitHub
+- [ ] The consumption guide's required prerequisites become: register a GitHub
   App with the installation permissions under `## Approach` and install it;
   create the `plume-works-review` environment with `CLAUDE_CODE_OAUTH_TOKEN`,
   `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` and no deployment branch
-  policy; set `AI_REVIEWER_LOGIN` to the App's bot login. The optional Claude
-  GitHub App step is removed.
-  - **Evidence:** commit 5e3f5c2f; "AI responder and the review gate" lists the
-    three required prerequisites (App with the `## Approach` permissions,
-    `plume-works-review` with its three secrets and no deployment branch policy,
-    `AI_REVIEWER_LOGIN`), drops the optional Claude GitHub App step, and the
-    Workflow B summary and approval-setting bullet match;
-    `uv run validate_agent_files --recommend . --require-marketplace claude`
-    passes.
-- [x] `README.md` names the App, the environment, and the three secrets where it
-  now names `claude-review` and one secret.
-  - **Evidence:** commit 5e3f5c2f; "Pull-request automation" names the
-    `plume-works-quill` App, the `plume-works-review` environment,
-    `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, `QUILL_APP_PRIVATE_KEY`,
-    and `AI_REVIEWER_LOGIN`; prettier passes.
-- [x] The feature's `## Behaviour` describes the App identity and the gate's
-  single accepted login.
-  - **Evidence:** commit 5e3f5c2f; `## Behaviour` gains "The responder posts as
-    its own GitHub App." and "The gate accepts one login.", naming
-    `plume-works-quill`, `plume-works-review`, `AI_REVIEWER_LOGIN`, and
-    `architecture/responder-app-identity`; `iwe schema validate` passes.
+  policy. It states that the gate accepts only `plume-works-quill[bot]`. The
+  optional Claude GitHub App step is removed.
+- [ ] `README.md` names the App, the `plume-works-review` environment, and the
+  three secrets, and no `AI_REVIEWER_LOGIN`.
+- [ ] The feature's `## Behaviour` describes the App identity and the gate's
+  single accepted login, `plume-works-quill[bot]`.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
   - **Evidence:** commit 5e3f5c2f;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reports 60/60 skills valid, 0 errors.
+
+### Task 10: The catalog and the note name the App's login
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py`,
+`.agents/plugins/agentdev/tests/test_request_review.py`,
+`.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md`,
+`docs/knowledge/data/architecture/responder-app-identity.md`
+
+- [ ] `request-review.py` counts a review as the AI's only when its author is
+  `plume-works-quill[bot]`, and a test shows a `plume-works-quill[bot]` review
+  of the head reports `ALREADY_REVIEWED` while a `github-actions[bot]` one does
+  not.
+- [ ] `pr-eval-review-needed` names `plume-works-quill` (GraphQL) and
+  `plume-works-quill[bot]` (REST) as the AI reviewer.
+- [ ] The architecture note names `plume-works-quill[bot]` as the gate's only
+  login and no `AI_REVIEWER_LOGIN`.
 
 ### Task 7: The App and environment exist
 
@@ -289,9 +281,8 @@ Modify: `docs/knowledge/data/architecture.md`
 ## Requirement: PRs are blocked until an AI review exists
 
 A pull request SHALL NOT be mergeable until Claude has reviewed it. The
-`ai-review-present` check SHALL accept a review only from the login named by
-`AI_REVIEWER_LOGIN`, which this repository sets to `plume-works-quill[bot]`, in
-state `approved`, `changes_requested`, or `commented`.
+`ai-review-present` check SHALL accept a review only from
+`plume-works-quill[bot]`, in state `approved`, `changes_requested`, or `commented`.
 
 The check SHALL NOT require that the review name the pull request's current head
 commit. It asserts that the pull request has been reviewed, not that each pushed
@@ -345,7 +336,7 @@ in that workflow run, and it SHALL evaluate without polling.
 ## Requirement: the responder acts as its own GitHub App
 
 The review responder and the trusted-bot approval SHALL post with an
-installation token of the App whose bot login is `AI_REVIEWER_LOGIN`, minted per
+installation token of the `plume-works-quill` App, minted per
 job with only the permissions that job needs and after any code from the pull
 request head has run. A job whose App secrets are missing SHALL fail and SHALL
 NOT fall back to `GITHUB_TOKEN`. The App's token SHALL NOT carry contents write
@@ -373,6 +364,9 @@ access, and the responder SHALL NOT open a pull request.
   finds nothing.
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+- `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes.
+- `grep -rn "AI_REVIEWER_LOGIN\|reviewer-login" .github .agents README.md docs/knowledge/data/architecture docs/knowledge/data/features`
+  finds nothing.
 - `iwe normalize` and `iwe schema validate` pass.
 - Tasks 7–9 are observed on GitHub in that order; Task 9 runs only after Task 8
   has passed.
@@ -382,7 +376,7 @@ access, and the responder SHALL NOT open a pull request.
 - Changing which review events the reviewer chooses; the dependency owns it.
 - Approving Dependabot pull requests: a run Dependabot triggers cannot read
   environment secrets, so the approval job keeps skipping it.
-- Dismissing or migrating reviews by the previous bot identities.
+- Dismissing or migrating reviews by `github-actions[bot]` or `claude[bot]`.
 - The `Do not push` rule in the responder prompt.
 
 ## Key references
