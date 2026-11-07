@@ -4,10 +4,10 @@ created: 2026-10-30
 release:
 - features/devcontainer-home-volume
 - bugs/claude-json-symlink-replaced
-description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude and Codex credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
+description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
+  at: 2026-11-07T13:00:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -15,11 +15,9 @@ sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer-init.sh
-- resource: .devcontainer/scripts/runtime-bootstrap.sh
-- resource: .devcontainer/scripts/setup-agent-state.sh
-- resource: .devcontainer/scripts/devcontainer-created.sh
-- resource: .devcontainer/scripts/link-codex-auth.sh
-- resource: docs/knowledge/data/bugs/standalone-codex-auth-unshared.md
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py
 - resource: ansible/roles/bash_setup/tasks/main.yml
@@ -37,33 +35,28 @@ feature this plan implements, and [Dev Container home
 volume](../architecture/devcontainer-home-volume.md) records the decision and
 the rejected alternatives. The Dev Container runs as root with `/root` on the
 container filesystem, so every piece of per-instance state has its own volume
-(`agentdev-claude`, `agentdev-codex`, `agentdev-opencode`, `agentdev-uv`, and
-the volume holding the pre-commit cache), and `~/.claude.json` is a symlink into
-the `~/.claude` volume. The deploy runtime has none of this: a non-root account
-whose whole home is one volume.
+(`agentdev-claude`, `agentdev-opencode`, `agentdev-uv`, and the volume holding
+the pre-commit cache), and `~/.claude.json` is a symlink into the `~/.claude`
+volume. The deploy runtime has none of this: a non-root account whose whole home
+is one volume.
 
 The owner's decisions for this plan: a non-root account; the work lands after
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), in that CLI; the account's UID and GID
-match the host user through the devcontainer CLI; Claude and Codex credentials
-move to a new auth volume per UID/GID cohort, so every agent logs in once again;
-existing per-instance state is dropped, not migrated; the sibling checkout
-volume is re-owned once so its uncommitted work survives; uv moves onto the home
-volume in the Dev Container and in the deploy runtime; editor servers persist on
-the home volume with no cleanup, an accepted risk.
+match the host user through the devcontainer CLI; Claude credentials move to a
+new auth volume per UID/GID cohort, so Claude logs in once again; existing
+per-instance state is dropped, not migrated; the sibling checkout volume is
+re-owned once so its uncommitted work survives; uv moves onto the home volume in
+the Dev Container and in the deploy runtime; editor servers persist on the home
+volume with no cleanup, an accepted risk.
 
 Storing `~/.claude.json` as a file on the home volume removes the link that
 [~/.claude.json stops being the volume
 symlink](../bugs/claude-json-symlink-replaced.md) describes, so this plan fixes
-that bug. The cohort auth volume shares Codex's login through the same
-`auth.json` link that [Bug: Codex login stops being shared between standalone
-projects](../bugs/standalone-codex-auth-unshared.md) reports broken, so Task 1
-settles whether a login keeps the link before anything is built on it. The
-account cannot write the root-owned `/workspaces`, so worktree mode relies on
-the fallback parent that [Bug: git-new-branch worktree mode fails on a
-standalone deployment's root-owned
-/workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md) lands
-before this plan.
+that bug. The account cannot write the root-owned `/workspaces`, so worktree
+mode uses the checkout's `.worktrees/` directory, which [Bug: git-new-branch
+worktree fallback checks a runtime mode no image
+sets](../bugs/git-new-branch-worktree-mode-mismatch.md) provides.
 
 ## Approach
 
@@ -99,26 +92,13 @@ the checkout.
 The rejected alternatives are recorded in the architecture document.
 
 Assumption: the devcontainer CLI applies `updateRemoteUserUID` to a
-Compose-based configuration and to image-metadata `remoteUser`. Task 2's tests
-and Task 10's check confirm it; if either fails, the plan returns to revise mode
-before Task 6.
-
-Assumption: a Codex login writes through the `~/.codex/auth.json` link rather
-than replacing it. Task 1 settles it; if a login replaces the link, the plan
-returns to revise mode before Task 4.
+Compose-based configuration and to image-metadata `remoteUser`. Task 1's tests
+and Task 9's check confirm it; if either fails, the plan returns to revise mode
+before Task 5.
 
 ## Implementation Steps
 
-### Task 1: Settle whether a Codex login keeps the auth.json link
-
-**Files:** none (a running Dev Container or deploy container)
-
-- [ ] In a container whose `~/.codex/auth.json` is the link into the shared auth
-  volume, run `codex login` as the runtime user, then
-  `test -L ~/.codex/auth.json`, and record the Codex version and the result
-  under `## Verification results`.
-
-### Task 2: Give the Dev Container image a home-less agent account
+### Task 1: Give the Dev Container image a home-less agent account
 
 **Files:** Modify: `docker/devcontainer/agentdev-devcontainer.Dockerfile`,
 `scripts/tests/test_agentdev_devcontainer_image.py`
@@ -138,7 +118,7 @@ returns to revise mode before Task 4.
   metadata carries the three entries, and `devcontainer up` on a Linux host with
   a checkout owned by a non-1000 UID runs `id -u` in the container as that UID.
 
-### Task 3: Move the base image's shell setup out of root's home
+### Task 2: Move the base image's shell setup out of root's home
 
 **Files:** Modify: `ansible/roles/bash_setup/tasks/main.yml`,
 `ansible/roles/bun_setup/tasks/main.yml`, their `defaults/main.yml`,
@@ -151,7 +131,7 @@ returns to revise mode before Task 4.
   `/etc/fish/conf.d/`, and an interactive shell of an account with an empty home
   has `~/.local/bin` and `bun` on `PATH`.
 
-### Task 4: Bootstrap the Dev Container profile's instance storage
+### Task 3: Bootstrap the Dev Container profile's instance storage
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py`,
 `scripts/tests/test_agent_runtime_identity.py`
@@ -165,7 +145,7 @@ returns to revise mode before Task 4.
   accepted as given, no home claim or sudoers entry), so a consumer overriding
   `AGENTDEV_USER=root` still starts.
 
-### Task 5: Store ~/.claude.json as a file on the home volume
+### Task 4: Store ~/.claude.json as a file on the home volume
 
 **Files:** Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py`,
@@ -180,7 +160,7 @@ returns to revise mode before Task 4.
   codebase-memory-mcp entry behind the link loses the entry from the regular
   file, and a test runs that case.
 
-### Task 6: Re-own the sibling checkout volume once
+### Task 5: Re-own the sibling checkout volume once
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
 `scripts/tests/test_agentdev_devcontainer_lifecycle.py`
@@ -189,13 +169,13 @@ returns to revise mode before Task 4.
   `/workspaces/project` recursively when it is a mount owned by another UID, and
   leaves it untouched when the account already owns it.
 
-### Task 7: Point this repository's descriptor at the home volume
+### Task 6: Point this repository's descriptor at the home volume
 
 **Files:** Modify: `.devcontainer/devcontainer.json`,
 `.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`
 
-- [ ] `devcontainer.json` drops the `agentdev-claude`, `agentdev-codex`,
-  `agentdev-opencode`, `agentdev-uv`, and `agentdev-pre-commit` mounts, and the
+- [ ] `devcontainer.json` drops the `agentdev-claude`, `agentdev-opencode`,
+  `agentdev-uv`, and `agentdev-pre-commit` mounts, and the
   `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `PRE_COMMIT_HOME`, `UV_CACHE_DIR`, and
   `UV_PYTHON_INSTALL_DIR` overrides, so uv's cache and Python installs and
   pre-commit use their defaults under the home. `UV_PROJECT_ENVIRONMENT` is
@@ -206,7 +186,7 @@ returns to revise mode before Task 4.
 - [ ] The MCP directory and secrets-engine socket targets move from `/root` to
   `/home/agent`.
 
-### Task 8: Move the deploy runtime's uv state onto its home volume
+### Task 7: Move the deploy runtime's uv state onto its home volume
 
 **Files:** Modify: `compose.opencode.yml`,
 `docker/deploy/agentdev-deploy.Dockerfile`,
@@ -220,7 +200,7 @@ returns to revise mode before Task 4.
 - [ ] The deploy bootstrap no longer requires or claims a `/uv` mount; the
   compose test's instance targets are `/home/agent` and `/var/lib/docker`.
 
-### Task 9: Migrate template consumers
+### Task 8: Migrate template consumers
 
 **Files:** Modify: the `template-consume` skill's update guidance under
 `.agents/plugins/agentdev/skills/template-consume/`,
@@ -230,7 +210,7 @@ returns to revise mode before Task 4.
   mounts and `/root` paths from the consumer's descriptor and states that agent
   state and logins reset once.
 
-### Task 10: Accept a rebuilt Dev Container on a host-owned checkout
+### Task 9: Accept a rebuilt Dev Container on a host-owned checkout
 
 **Files:** none (a Linux host whose checkout is owned by the host user)
 
@@ -238,11 +218,11 @@ returns to revise mode before Task 4.
 - [ ] After `docker restart`, the supervisor reports its required services
   ready.
 - [ ] `agentdev:*` skills resolve in Claude Code.
-- [ ] Claude and Codex stay logged in across a second rebuild.
+- [ ] Claude stays logged in across a second rebuild.
 - [ ] `git-new-branch --worktree` from the checkout creates its worktree as
   `agent`.
 
-### Task 11: Record the shipped model
+### Task 10: Record the shipped model
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/devcontainer-home-volume.md`,
@@ -264,7 +244,7 @@ returns to revise mode before Task 4.
 
 The `agentdev` catalog staged at `$AGENTDEV_CATALOG_DIR` SHALL be installed into
 each agent's plugin state during the `agentdev-base` build, at Claude user
-scope, via Codex's own registration, and by registering the catalog's OpenCode
+scope and by registering the catalog's OpenCode
 bridge plugin in the user's OpenCode config, so a consumer that runs the image
 without lifecycle commands resolves `agentdev:*` skills.
 `agentdev-devcontainer`'s `postCreateCommand` SHALL also install it into the
@@ -276,14 +256,14 @@ content. `~/.claude.json` SHALL be a regular file on that volume.
 - **WHEN** a container starts from `agentdev-base` without client-state volumes
   and no lifecycle command runs
 - **THEN** the catalog installed during the image build is present, an
-  `agentdev:*` skill resolves in Claude Code and Codex, and OpenCode loads the
+  `agentdev:*` skill resolves in Claude Code, and OpenCode loads the
   staged bridge plugin and lists the catalog's skills.
 
 #### Scenario: a devcontainer starts for the first time on a fresh home volume
 
 - **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
   home volume is empty
-- **THEN** the staged catalog is installed at Claude user scope, into Codex, and
+- **THEN** the staged catalog is installed at Claude user scope and
   into the OpenCode user config on the home volume, and `~/.claude.json` is a
   regular file holding no image content.
 
@@ -339,7 +319,7 @@ decision is [No code-graph index](../architecture/no-code-graph.md).
 
 ### Requirement: only agent credentials are shared across worktrees
 
-The shared auth volume SHALL hold only Claude's and Codex's authentication
+The shared auth volume SHALL hold only Claude's authentication
 state, mounted at `/var/lib/agentdev/auth/<agent>`, and SHALL be named after the
 host user's UID and GID, so only containers whose account has the same IDs
 share it. All other client state SHALL live on each instance's home volume.
@@ -348,7 +328,7 @@ share it. All other client state SHALL live on each instance's home volume.
 
 - **WHEN** both attach as the same host user
 - **THEN** each gets its own catalog install on its own home volume but shares
-  the same logged-in Claude and Codex credentials on the shared auth volume.
+  the same logged-in Claude credentials on the shared auth volume.
 
 #### Scenario: two host users open Dev Containers on one engine
 
@@ -388,8 +368,7 @@ CLI](20261029-off-bash-migration.md)
 - `uv run pytest scripts/tests/test_agent_runtime_compose.py` passes, and a
   deploy container started from `compose.opencode.yml` reaches ready with no
   `/uv` mount and its project venv under `/home/agent/.local/share/uv/venvs`.
-- Task 1's recorded Codex login result.
-- Task 10's acceptance on a Linux host with a host-owned checkout.
+- Task 9's acceptance on a Linux host with a host-owned checkout.
 
 ## Out of scope
 

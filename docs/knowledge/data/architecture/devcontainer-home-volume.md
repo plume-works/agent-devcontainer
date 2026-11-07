@@ -3,7 +3,7 @@ type: architecture
 description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
+  at: 2026-11-07T13:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: compose.opencode.yml
@@ -22,8 +22,8 @@ The Dev Container adopts the deploy runtime's account model (see [Standalone
 OpenCode runtime](standalone-opencode-runtime.md)): a non-root runtime account
 whose home starts empty and is one per-instance volume. Per-instance state —
 agent configuration and sessions, `~/.claude.json`, OpenCode's database, and the
-pre-commit cache — lives on that volume. Only Claude and Codex credentials stay
-on the shared auth volume.
+pre-commit cache — lives on that volume. Only Claude credentials stay on the
+shared auth volume.
 
 The decision was made by the repository owner. Existing instances' per-directory
 state is dropped, not migrated; shared credentials are unaffected.
@@ -31,12 +31,12 @@ state is dropped, not migrated; shared credentials are unaffected.
 ## What it replaces
 
 The Dev Container runs as root with `/root` on the container filesystem, so each
-piece of state needs its own volume: `agentdev-claude`, `agentdev-codex`,
-`agentdev-opencode`, `agentdev-uv`, and the volume holding the pre-commit cache.
-A volume cannot be mounted on a single file, so `~/.claude.json` is kept inside
-the `~/.claude` volume and symlinked (see [Agent auth
-persistence](agent-auth-persistence.md)). With the whole home on one volume, the
-file is an ordinary file and the per-directory mounts go away.
+piece of state needs its own volume: `agentdev-claude`, `agentdev-opencode`,
+`agentdev-uv`, and the volume holding the pre-commit cache. A volume cannot be
+mounted on a single file, so `~/.claude.json` is kept inside the `~/.claude`
+volume and symlinked (see [Agent auth persistence](agent-auth-persistence.md)).
+With the whole home on one volume, the file is an ordinary file and the
+per-directory mounts go away.
 
 ## Constraints
 

@@ -4,7 +4,7 @@ stage: accepted
 description: The Dev Container runs as a non-root account matched to the host user, with its whole home on one per-instance volume, replacing the per-directory state volumes under /root and the ~/.claude.json symlink.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
+  at: 2026-11-07T13:00:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: .devcontainer/devcontainer.json
@@ -40,10 +40,10 @@ and is claimed by the account on first start. Agent configuration and sessions,
 their default paths. The per-directory volumes and the `~/.claude.json` symlink
 are gone.
 
-**Shared credentials per UID cohort.** Claude and Codex credentials stay on a
-volume shared by every Dev Container instance, mounted where the deploy runtime
-mounts it, and named after the host user's UID and GID. Containers with
-different IDs never share one.
+**Shared credentials per UID cohort.** Claude credentials stay on a volume
+shared by every Dev Container instance, mounted where the deploy runtime mounts
+it, and named after the host user's UID and GID. Containers with different IDs
+never share one.
 
 **Shell setup outside the home.** The shell configuration the image gives the
 account today through `/root/.bashrc` (the `~/.local/bin` path, `bun`, history
