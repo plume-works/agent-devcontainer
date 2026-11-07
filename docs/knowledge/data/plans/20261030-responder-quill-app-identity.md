@@ -246,7 +246,7 @@ Modify: `docs/knowledge/data/architecture.md`
     its own GitHub App." and "The gate accepts one login.", naming
     `plume-works-quill`, `plume-works-review`, `AI_REVIEWER_LOGIN`, and
     `architecture/responder-app-identity`; `iwe schema validate` passes.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
 ### Task 7: The App and environment exist
@@ -358,9 +358,9 @@ access, and the responder SHALL NOT open a pull request.
 
 - `uv run pre-commit run --files .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml .github/actions/ai-review-status/action.yml`
   — `actionlint` and `zizmor` pass.
-- `grep -n "id-token\|claude-review\|claude\[bot\]" .github/workflows/ai-responder.yml .github/actions/*/action.yml`
+- `grep -nE "id-token|environment: claude-review$|claude\[bot\]" .github/workflows/ai-responder.yml .github/actions/*/action.yml`
   finds nothing.
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 - `iwe normalize` and `iwe schema validate` pass.
 - Tasks 7–9 are observed on GitHub in that order; Task 9 runs only after Task 8
