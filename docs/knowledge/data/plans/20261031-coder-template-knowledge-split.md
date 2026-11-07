@@ -5,7 +5,7 @@ release: internal
 description: Give plume-works/coder-ide-baseline its own IWE workspace holding the template's requirements and how to work on it, and narrow this repository's Coder spec to what the repository owes the template.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:45:07Z
+  at: 2026-11-07T19:40:11Z
 sources:
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md
@@ -185,15 +185,6 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
     42402042120](https://github.com/plume-works/coder-ide-baseline/actions/runs/42402042120))
     and merged to `main` as 5ff6817.
 
-### Task 7: Point the open bug at the moved requirement
-
-**Files:** Modify:
-`docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md`
-
-- [ ] Its `sources` entry and key reference for the per-workspace volumes
-  requirement name `coder-ide-baseline`'s `spec/workspace-template` URL in place
-  of `spec/coder-ide-baseline.md:83`.
-
 ## Spec changes
 
 [Coder IDE baseline template](../spec/coder-ide-baseline.md) is retitled
@@ -262,7 +253,7 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
 - Every `coder-ide-baseline` URL this plan adds returns the file from
   `gh api repos/plume-works/coder-ide-baseline/contents/<path>`.
 - `git diff` of this plan's changes touches no plan under `data/plans/` other
-  than this one, and no bug other than the one Task 7 names.
+  than this one, and no document under `data/bugs/`.
 
 ## Out of scope
 
@@ -301,8 +292,6 @@ Verified anchor points (line numbers as of 2026-11-07):
   engine link
 - `docs/knowledge/data/spec/opencode-web.md:22` — dashboard app link
 - `docs/knowledge/data/spec.md:33` — hub link to the spec
-- `docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md:13` —
-  `sources` entry; `:85` — key reference into the spec
 - `docs/knowledge/data/plans/20261029-off-bash-migration.md:1037` — its
   `## Spec changes` entry for this spec
 - `docs/knowledge/data/plans/20261029-off-bash-migration.md:385` — Task 7, which
