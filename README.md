@@ -315,19 +315,18 @@ IWE stores product context, architecture, specifications, plans, and releases as
 a Markdown knowledge graph. The catalog provides a
 complete workflow:
 
-| Skill                              | Purpose                                                               |
-| ---------------------------------- | --------------------------------------------------------------------- |
-| `iwe-setup`                        | Onboard an existing project and establish its product context.        |
-| `iwe-explore`                      | Investigate ideas or GitHub issues without changing code.             |
-| `iwe-plan`                         | Plan work with verified anchors and risk-scaled specification impact. |
-| `iwe-capture`                      | File complete, deduplicated bugs, proposed features, and tasks.       |
-| `iwe-implement`                    | Execute plans task by task and record evidence.                       |
-| `iwe-branch-name`                  | Name a plan's next implementation or shipping branch.                 |
-| `iwe-verify`                       | Check implementation claims against code and specifications.          |
-| `iwe-ship`                         | Block CRITICAL findings and record released behavior.                 |
-| `iwe-weekly`                       | Summarize project status and graph health.                            |
-| `iwe-audit`                        | Keep durable documents free of session residue.                       |
-| `iwe-implement-all`/`iwe-ship-all` | Process all eligible plans in sequence.                               |
+| Skill             | Purpose                                                               |
+| ----------------- | --------------------------------------------------------------------- |
+| `iwe-setup`       | Onboard an existing project and establish its product context.        |
+| `iwe-explore`     | Investigate ideas or GitHub issues without changing code.             |
+| `iwe-plan`        | Plan work with verified anchors and risk-scaled specification impact. |
+| `iwe-capture`     | File complete, deduplicated bugs, proposed features, and tasks.       |
+| `iwe-implement`   | Execute plans task by task and record evidence.                       |
+| `iwe-branch-name` | Name a plan's next implementation or shipping branch.                 |
+| `iwe-verify`      | Check implementation claims against code and specifications.          |
+| `iwe-ship`        | Block CRITICAL findings and record released behavior.                 |
+| `iwe-weekly`      | Summarize project status and graph health.                            |
+| `iwe-audit`       | Keep durable documents free of session residue.                       |
 
 Plan checkboxes carry traceable evidence, and behavior-changing plans state their
 intended contract before implementation. Machine-managed dependency pins can be
