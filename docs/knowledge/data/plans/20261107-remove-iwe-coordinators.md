@@ -163,15 +163,27 @@ Rejected:
 `docs/knowledge/data/features/verify-report-cache.md`,
 `docs/knowledge/data/backlog/observe-planned-adversarial-review.md`
 
-- [ ] The two architecture decisions name no coordinator, relayed approval, or
+- [x] The two architecture decisions name no coordinator, relayed approval, or
   dispatched `iwe-implementer`, and call the loop's runner the Implement
   session; the removal of the coordinators and the relay is recorded as a
-  decision with the rejected alternatives in `## Approach`.
-  `adversarial-review.md` says "the Implement session".
-- [ ] The two feature documents drop the `iwe-implement-all` and `iwe-ship-all`
+  decision under `## Decision` with the rejected alternatives under
+  `## Rejected alternatives`. `adversarial-review.md` says "the Implement
+  session".
+  - **Evidence:** commit 8c937584; in both architecture documents
+    `grep -nE "coordinator|relay"` matches only the decision "No coordinator
+    runs workflows across plans or sessions" and entries under
+    `## Rejected alternatives`, `grep -n orchestrator` prints nothing in all
+    three, and `iwe schema validate` passes.
+- [x] The two feature documents drop the `iwe-implement-all` and `iwe-ship-all`
   behavior and edge cases and their `sources:` entries for the deleted skills.
-- [ ] `observe-planned-adversarial-review` drops the `iwe-implement-all` run
+  - **Evidence:** commit 760cac77;
+    `grep -nE "orchestrator|coordinator|implement-all|ship-all"` on both feature
+    documents prints nothing.
+- [x] `observe-planned-adversarial-review` drops the `iwe-implement-all` run
   from what it observes and says "the Implement session".
+  - **Evidence:** commit 760cac77; the task observes one
+    `/agentdev:iwe-implement` run on Claude Code and one on OpenCode, and
+    `grep -nE "orchestrator|implement-all|coordinator"` on it prints nothing.
 
 ### Task 6: A relayed approval is not taken
 
