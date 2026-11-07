@@ -315,21 +315,24 @@ access, and the responder SHALL NOT open a pull request.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
+Verified anchor points (line numbers as of 2026-11-07):
 
-- `.github/actions/run-claude-responder/action.yml:15` — `github_token` input
-- `.github/actions/run-claude-responder/action.yml:95` — lifecycle scripts step
-- `.github/actions/run-claude-responder/action.yml:159` — Claude step
-- `.github/workflows/ai-responder.yml:210` — "Authorize responder requester"
-- `.github/workflows/ai-responder.yml:337` — prompt security rules
-- `.github/workflows/ai-responder.yml:431` — `claude-respond` `id-token: write`
-- `.github/workflows/ai-responder.yml:433` — `claude-respond` environment
-- `.github/workflows/ai-responder.yml:452` — `claude-respond` secrets passed to
+- `.github/actions/run-claude-responder/action.yml:11` — `github_token` input
+- `.github/actions/run-claude-responder/action.yml:28` — lifecycle scripts step
+- `.github/actions/run-claude-responder/action.yml:88` — Claude step
+- `.github/workflows/ai-responder.yml:103` — preflight "Check for an accepted AI
+  review"
+- `.github/workflows/ai-responder.yml:111` — "Authorize the triggering actor"
+- `.github/workflows/ai-responder.yml:186` — prompt security rules
+- `.github/workflows/ai-responder.yml:207` — `claude-respond` `id-token: write`
+- `.github/workflows/ai-responder.yml:209` — `claude-respond` environment
+- `.github/workflows/ai-responder.yml:224` — `claude-respond` secrets passed to
   the action
+- `.github/workflows/ai-responder.yml:284` — `trusted-bot-approval` job
 - `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`
 - `.github/actions/ai-review-status/action.yml:97` — failure message
 - `.github/workflows/renovate.yml:75` — App token mint with explicit permissions
 - `.github/workflows/renovate.yml:90` — App bot identity resolution
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:365`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:361`
   — responder prerequisites
-- `README.md:356` — adopter prerequisites
+- `README.md:351` — adopter prerequisites
