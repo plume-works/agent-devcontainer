@@ -177,8 +177,13 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
 **Files:** none (in `plume-works/coder-ide-baseline`)
 
-- [ ] A pull request carrying Tasks 1-5 passes the required
+- [x] A pull request carrying Tasks 1-5 passes the required
   `Docker Build and Push` check and merges to `main`.
+  - **Evidence:** [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36) passed
+    `Docker Build and Push` ([run
+    42402042120](https://github.com/plume-works/coder-ide-baseline/actions/runs/42402042120))
+    and merged to `main` as 5ff6817.
 
 ### Task 7: Point the open bug at the moved requirement
 
