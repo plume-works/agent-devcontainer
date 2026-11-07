@@ -164,11 +164,19 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] The trusted-bot approval job uses `environment: plume-works-review`, fails
+- [x] The trusted-bot approval job uses `environment: plume-works-review`, fails
   when an App secret is empty, mints a token with only pull requests write, and
   posts its approval with it.
-- [ ] Its duplicate-approval check looks for an `APPROVED` review by
+  - **Evidence:** commit 3d9c3828; the job names
+    `environment: plume-works-review`, "Require the App secrets" fails naming an
+    empty `QUILL_APP_CLIENT_ID` or `QUILL_APP_PRIVATE_KEY`, "Create GitHub App
+    token" sets only `permission-pull-requests: write`, and the approval and
+    dismissals post through `getOctokit(APP_TOKEN)`; actionlint and zizmor pass.
+- [x] Its duplicate-approval check looks for an `APPROVED` review by
   `AI_REVIEWER_LOGIN` instead of `github-actions[bot]`.
+  - **Evidence:** commit 3d9c3828; `ownApprovals` filters `APPROVED` reviews by
+    `process.env.AI_REVIEWER_LOGIN`; every inline script parses under
+    `bun build --no-bundle`, and actionlint passes.
 
 ### Task 4: The gate accepts only the App's review
 
