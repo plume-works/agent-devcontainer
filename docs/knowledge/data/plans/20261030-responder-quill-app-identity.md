@@ -208,11 +208,17 @@ Assumptions:
 **Files:** Create: `docs/knowledge/data/architecture/responder-app-identity.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] The note records the decisions under `## Context`, the token flow and
+- [x] The note records the decisions under `## Context`, the token flow and
   permissions under `## Approach`, the residual lifecycle-script exposure, and
   every rejected alternative, and states that it supersedes [Actions approval
   permission](../architecture/actions-approval-permission.md), which is left
   unedited.
+  - **Evidence:** commit fe8fa496; `architecture/responder-app-identity` carries
+    the decisions under `## Context` including the 2026-11-07 contents write
+    decision, the token flow and installation permissions under `## Approach`,
+    `## Residual exposure`, all four rejected alternatives, and the line
+    superseding `architecture/actions-approval-permission`, which stays
+    unchanged; `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 5b18c551; `data/architecture.md` inclusion-links
     `architecture/responder-app-identity` in key order; `iwe schema validate`
@@ -224,12 +230,19 @@ Modify: `docs/knowledge/data/architecture.md`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The consumption guide's required prerequisites become: register a GitHub
+- [x] The consumption guide's required prerequisites become: register a GitHub
   App with the installation permissions under `## Approach` and install it;
   create the `plume-works-review` environment with `CLAUDE_CODE_OAUTH_TOKEN`,
   `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` and no deployment branch
   policy. It states that the gate accepts only `plume-works-quill[bot]`. The
   optional Claude GitHub App step is removed.
+  - **Evidence:** commit fe8fa496; prerequisite 1 gives the App contents read
+    and write, pull requests read and write, issues read and write, actions
+    read, metadata read, and no workflows permission, and says why contents
+    write is needed; prerequisite 2 is `plume-works-review` with its three
+    secrets and no deployment branch policy; the text states only
+    `plume-works-quill[bot]` is recognised; `validate_agent_files` reports 0
+    errors.
 - [x] `README.md` names the App, the `plume-works-review` environment, and the
   three secrets, and no `AI_REVIEWER_LOGIN`.
   - **Evidence:** commit f2c23937; "Pull-request automation" names the
