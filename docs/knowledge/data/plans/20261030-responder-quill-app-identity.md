@@ -301,16 +301,28 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 8: The App's review satisfies the ruleset
 
-- [ ] After merge, a pull request reviewed by `plume-works-quill[bot]` with
+- [x] After merge, a pull request reviewed by `plume-works-quill[bot]` with
   `APPROVE` reports `reviewDecision: APPROVED` and passes `ai-review-present`.
+  - **Evidence:** PR #741, merged as 8516dea7: `plume-works-quill[bot]` approved
+    head 5d9e6e2b, `gh pr view 741` reported `reviewDecision: APPROVED` and
+    `mergeStateStatus: CLEAN` with `ai-review-present` `SUCCESS` on head
+    fa7c3ad0, and `gh pr merge 741 --squash` merged it without `--admin`.
 
 ### Task 9: GitHub Actions can no longer approve
 
-- [ ] With the organization setting "Allow GitHub Actions to create and approve
+- [x] With the organization setting "Allow GitHub Actions to create and approve
   pull requests" turned off, the repository reports
   `can_approve_pull_request_reviews: false`, the next Renovate pull request is
   approved by `plume-works-quill[bot]` and merges without bypass, and the
   `claude-review` environment is deleted.
+  - **Evidence:** observed 2026-11-07: with the organization setting off,
+    `gh api repos/plume-works/agent-devcontainer/actions/permissions/workflow`
+    reports `can_approve_pull_request_reviews: false`; Renovate PR #745 was
+    approved by `plume-works-quill[bot]` (`reviewDecision: APPROVED`) and
+    auto-merged as 370b9cc6 by `plume-works-renovate`, which is not a `main`
+    ruleset bypass actor;
+    `gh api repos/plume-works/agent-devcontainer/environments` lists only
+    `plume-works-review` and `reformat-commit`.
 
 ## Spec changes
 
