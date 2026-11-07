@@ -199,12 +199,21 @@ Assumptions:
 **Files:** Create: `docs/knowledge/data/architecture/responder-app-identity.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] The note records the decisions under `## Context`, the token flow and
+- [x] The note records the decisions under `## Context`, the token flow and
   permissions under `## Approach`, the residual lifecycle-script exposure, and
   every rejected alternative, and states that it supersedes [Actions approval
   permission](../architecture/actions-approval-permission.md), which is left
   unedited.
-- [ ] The note is linked from `data/architecture.md`.
+  - **Evidence:** commit 5b18c551; `architecture/responder-app-identity` carries
+    the decisions under `## Context`, the token flow and installation
+    permissions under `## Approach`, `## Residual exposure`, all four rejected
+    alternatives, and the line superseding
+    `architecture/actions-approval-permission`, which the commit leaves
+    unchanged; `iwe schema validate` passes.
+- [x] The note is linked from `data/architecture.md`.
+  - **Evidence:** commit 5b18c551; `data/architecture.md` inclusion-links
+    `architecture/responder-app-identity` in key order; `iwe schema validate`
+    passes.
 
 ### Task 6: Consumer setup describes the App
 
