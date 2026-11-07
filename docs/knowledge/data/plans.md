@@ -95,6 +95,9 @@ collection](plans/20261013-docker-storage-gc.md)
 [Collect Docker garbage hourly in both workspace
 engines](plans/20261101-docker-storage-periodic-gc.md)
 
+[Drop the free-form `@claude` task
+responder](plans/20261107-drop-claude-task-responder.md)
+
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 [Explore proposes only for observed

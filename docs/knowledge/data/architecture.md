@@ -118,6 +118,8 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 
 [PR verification sections](architecture/pr-verification-sections.md)
 
+[Pull-request-only AI responder](architecture/pull-request-only-responder.md)
+
 [Renovate config validation](architecture/renovate-config-validation.md)
 
 [Renovate post-upgrade task](architecture/renovate-post-upgrade.md)

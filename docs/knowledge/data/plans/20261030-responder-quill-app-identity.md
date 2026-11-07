@@ -3,11 +3,10 @@ type: plan
 created: 2026-10-30
 release:
 - features/ai-responder-workflows
-- bugs/responder-cannot-bypass-iwe-ruleset
-description: Post every AI responder review, comment, commit, and trusted-bot approval as the plume-works-quill GitHub App, make it the only identity the AI review gate accepts, and retire GitHub Actions' ability to approve pull requests.
+description: Post every AI responder review, comment, and trusted-bot approval as the plume-works-quill GitHub App, make it the only identity the AI review gate accepts, and retire GitHub Actions' ability to approve pull requests.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T13:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml
@@ -25,16 +24,12 @@ rank: 1000
 
 ## Context
 
-Changes [AI responder workflows](../features/ai-responder-workflows.md) and
-fixes [Bug: the AI task responder cannot push to iwe/ branches under their
-ruleset](../bugs/responder-cannot-bypass-iwe-ruleset.md): a ruleset cannot
-exempt the GitHub Actions app `GITHUB_TOKEN` acts as, but it can exempt an App
-the organization owns.
+Changes [AI responder workflows](../features/ai-responder-workflows.md).
 
-The responder posts with the workflow's `GITHUB_TOKEN`, so its reviews,
-comments, and commits appear as `github-actions[bot]`, a login every workflow in
-the organization shares. Under the one-approval `main` ruleset an approval from
-that login satisfies the required review, and [Actions approval
+The responder posts with the workflow's `GITHUB_TOKEN`, so its reviews and
+comments appear as `github-actions[bot]`, a login every workflow in the
+organization shares. Under the one-approval `main` ruleset an approval from that
+login satisfies the required review, and [Actions approval
 permission](../architecture/actions-approval-permission.md) records the
 organization setting this depends on and the reach it grants every workflow.
 
@@ -43,29 +38,29 @@ The maintainer decided on 2026-10-30:
 - the responder posts as a GitHub App named `plume-works-quill`, login
   `plume-works-quill[bot]`, for a recognizable reviewer and for an approval no
   other workflow can give;
-- the App is the only automated approver: the review responder, the task
-  responder, and the trusted-bot approval job all post with its installation
-  token, `ai-review-present` accepts only its reviews, and the organization
-  setting "Allow GitHub Actions to create and approve pull requests" is turned
-  off once the App's approval is shown to count;
+- the App is the only automated approver: the review responder and the
+  trusted-bot approval job both post with its installation token,
+  `ai-review-present` accepts only its reviews, and the organization setting
+  "Allow GitHub Actions to create and approve pull requests" is turned off once
+  the App's approval is shown to count;
 - reviews by the previous bot identities are ignored, with no transition period
   and no dismissals;
 - the `plume-works-review` environment replaces `claude-review` and holds
   `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY`;
   a job whose App secrets are missing fails, with no `GITHUB_TOKEN` fallback;
-- the bridge job keeps dispatching with `GITHUB_TOKEN`, so [Dispatched review
-  identity](../architecture/dispatched-review-identity.md) stays valid;
-- commits the responder makes are signed and attributed to the App;
 - the App never opens pull requests.
+
+The maintainer decided on 2026-11-07 that [Drop the free-form `@claude` task
+responder](20261107-drop-claude-task-responder.md) lands first. With no task
+responder, comment bridge, or responder push, this plan covers only the review
+responder and the trusted-bot approval, and the App needs no contents write
+access and no ruleset bypass.
 
 ## Approach
 
 ```
- bridge ── GITHUB_TOKEN ──► workflow_dispatch      (unchanged)
-
  environment: plume-works-review
    claude-respond  lifecycle scripts → mint (contents:read)  → claude-code-action
-   claude-task     lifecycle scripts → mint (contents:write) → claude-code-action
    trusted-bot approval              → mint (pull-requests:write) → APPROVE
 
  ai-review-present ── accepts AI_REVIEWER_LOGIN only
@@ -79,26 +74,19 @@ the minted token's `permission-*` inputs are what keep the review responder's
 contents access read-only. A preceding step fails the job with a message naming
 the missing secret when either App secret is empty.
 
-`claude-code-action` receives the minted token, `bot_id` and `bot_name` resolved
-from the token's `app-slug` (as `renovate.yml` resolves its git author), and
-`use_commit_signing: true`. Its `allowed_bots` stays `github-actions[bot]`, the
-bridge's dispatching actor. The requesting-comment run link keeps using
-`GITHUB_TOKEN`; it edits a comment and needs no App identity.
+`claude-code-action` receives the minted token, and `bot_id` and `bot_name`
+resolved from the token's `app-slug` (as `renovate.yml` resolves its git
+author).
 
 The accepted reviewer login moves to a workflow-level `AI_REVIEWER_LOGIN`
 variable, set to `plume-works-quill[bot]`, which `ai-review-status` reads in
-place of its hard-coded set and preflight reads for its loop guard. An App
-token's events start workflows, so preflight refuses any request whose author is
-that login. The task prompt gains a rule that the responder never opens a pull
-request.
+place of its hard-coded set. The workflow runs only on pull request, pull
+request review, and merge group events, and the App opens no pull request and
+pushes nothing, so no App event can start a review.
 
-The `iwe/**` ruleset gains the App as a bypass actor in mode `always`, so the
-task responder's pushes to a dependent pull request branch are accepted while
-merges into those branches stay blocked.
-
-The App's installation holds contents read and write, pull requests read and
-write, issues read and write, actions read, and metadata read; no workflows
-permission, so no responder push can change a workflow file.
+The App's installation holds contents read, pull requests read and write, issues
+read and write, actions read, and metadata read; no contents write and no
+workflows permission, so the App can push nothing.
 
 The lifecycle scripts run code from the pull request head in the same job that
 later holds the minted token. `GITHUB_TOKEN` carries the same exposure; the fork
@@ -114,9 +102,6 @@ Rejected alternatives, recorded in the architecture note:
   organization setting has to stay on, so the same gap stays open.
 - **The Claude GitHub App through OIDC (`claude[bot]`)**: an identity this
   organization does not control, shared with every other installation.
-- **Dispatching the bridge with the App token**: the dispatched actor would
-  become the App, changing `allowed_bots` and moving the trust boundary from
-  `main`'s workflows to whoever holds the App key, for no gain.
 - **Falling back to `GITHUB_TOKEN` when the App secrets are missing**: a silent
   fallback reintroduces the shared identity the gate no longer accepts.
 
@@ -134,27 +119,22 @@ Assumptions:
 
 **Files:** Modify: `.github/actions/run-claude-responder/action.yml`
 
-- [ ] The action takes the App client ID, the App private key, and a contents
-  permission (`read` or `write`) as inputs, and fails with a message naming any
-  empty App input before it runs anything else.
-- [ ] After the lifecycle scripts, it mints an installation token with the
-  contents permission it was given plus pull requests write, issues write, and
-  actions read, and resolves the App's bot user ID from the token's `app-slug`.
-- [ ] The Claude step receives the minted token, `bot_id`, `bot_name`, and
-  `use_commit_signing: true`; the run-link step keeps `GITHUB_TOKEN`.
+- [ ] The action takes the App client ID and the App private key as inputs, and
+  fails with a message naming any empty App input before it runs anything else.
+- [ ] After the lifecycle scripts, it mints an installation token with contents
+  read, pull requests write, issues write, and actions read, and resolves the
+  App's bot user ID from the token's `app-slug`.
+- [ ] The Claude step receives the minted token, `bot_id`, and `bot_name`.
 
-### Task 2: The workflow runs the responder jobs as the App
+### Task 2: The workflow runs the review responder as the App
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] `claude-respond` and `claude-task` use `environment: plume-works-review`,
-  pass `QUILL_APP_CLIENT_ID`, `QUILL_APP_PRIVATE_KEY`, and their contents
-  permission (`read` and `write`) to the action, and drop `id-token: write` and
-  its comment.
-- [ ] A workflow-level `AI_REVIEWER_LOGIN` is `plume-works-quill[bot]`, and
-  preflight fails a request whose comment, review, or issue author is that login
-  before any dispatch.
-- [ ] The task prompt carries a line saying the responder never opens a pull
+- [ ] `claude-respond` uses `environment: plume-works-review`, passes
+  `QUILL_APP_CLIENT_ID` and `QUILL_APP_PRIVATE_KEY` to the action, and drops
+  `id-token: write` and its comment.
+- [ ] A workflow-level `AI_REVIEWER_LOGIN` is `plume-works-quill[bot]`.
+- [ ] The review prompt carries a line saying the responder never opens a pull
   request.
 - [ ] `actionlint` and `zizmor` pass through pre-commit.
 
@@ -203,8 +183,8 @@ Modify: `docs/knowledge/data/architecture.md`
   GitHub App step is removed.
 - [ ] `README.md` names the App, the environment, and the three secrets where it
   now names `claude-review` and one secret.
-- [ ] The feature's `## Behaviour` describes the App identity, the gate's single
-  accepted login, and the loop guard.
+- [ ] The feature's `## Behaviour` describes the App identity and the gate's
+  single accepted login.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
 
@@ -219,33 +199,13 @@ Modify: `docs/knowledge/data/architecture.md`
 - [ ] After merge, a pull request reviewed by `plume-works-quill[bot]` with
   `APPROVE` reports `reviewDecision: APPROVED` and passes `ai-review-present`.
 
-### Task 9: A responder commit is signed and attributed
-
-- [ ] The first commit the task responder makes shows as Verified and authored
-  by `plume-works-quill[bot]`, and the plan records whether the ruleset's
-  `require_extra_approval_for_unattributed_changes` asked for another approval
-  on that pull request.
-
-### Task 10: GitHub Actions can no longer approve
+### Task 9: GitHub Actions can no longer approve
 
 - [ ] With the organization setting "Allow GitHub Actions to create and approve
   pull requests" turned off, the repository reports
   `can_approve_pull_request_reviews: false`, the next Renovate pull request is
   approved by `plume-works-quill[bot]` and merges without bypass, and the
   `claude-review` environment is deleted.
-
-### Task 11: The App bypasses the `iwe/**` ruleset
-
-**Files:** none — repository settings
-
-- [ ] `gh api repos/{owner}/{repo}/rulesets/<id>` for the `iwe/**` ruleset lists
-  the `plume-works-quill` App as a bypass actor in mode `always`, beside the
-  Write, Maintain, and Admin repository roles.
-
-### Task 12: A responder push to an `iwe/` branch is accepted
-
-- [ ] A commit the task responder pushes to an `iwe/` pull request branch is
-  accepted, and a merge of that pull request without `--admin` is still refused.
 
 ## Spec changes
 
@@ -312,63 +272,26 @@ in that workflow run, and it SHALL evaluate without polling.
 
 ## Requirement: the responder acts as its own GitHub App
 
-The review responder, the task responder, and the trusted-bot approval SHALL
-post with an installation token of the App whose bot login is
-`AI_REVIEWER_LOGIN`, minted per job with only the permissions that job needs
-and after any code from the pull request head has run. A job whose App secrets
-are missing SHALL fail and SHALL NOT fall back to `GITHUB_TOKEN`. Commits the
-responder makes SHALL be signed and authored by the App's bot user. The
-responder SHALL NOT open a pull request, and preflight SHALL refuse a request
-authored by `AI_REVIEWER_LOGIN`. The comment bridge SHALL keep dispatching with
-`GITHUB_TOKEN`.
+The review responder and the trusted-bot approval SHALL post with an
+installation token of the App whose bot login is `AI_REVIEWER_LOGIN`, minted per
+job with only the permissions that job needs and after any code from the pull
+request head has run. A job whose App secrets are missing SHALL fail and SHALL
+NOT fall back to `GITHUB_TOKEN`. The App's token SHALL NOT carry contents write
+access, and the responder SHALL NOT open a pull request.
 
 ### Scenario: the App secrets are missing
 
 - **WHEN** a responder job runs and `QUILL_APP_CLIENT_ID` or
   `QUILL_APP_PRIVATE_KEY` is empty
 - **THEN** the job fails naming the missing secret, and nothing is posted.
-
-### Scenario: the App's own comment mentions the responder
-
-- **WHEN** a comment authored by `AI_REVIEWER_LOGIN` opens with `@claude`
-- **THEN** preflight fails and no dispatch or responder job runs.
-```
-
-[Stacked PRs](../spec/stacked-prs.md), the requirement the dependency adds:
-
-``` markdown
-## MODIFIED Requirements
-
-### Requirement: Merges into dependent branches are blocked
-
-The repository SHALL have a ruleset on `refs/heads/iwe/**` requiring the status
-check `base-is-main`, with the Write, Maintain, and Admin repository roles and
-the App whose bot login is `AI_REVIEWER_LOGIN` as bypass actors, and no workflow
-SHALL report that check.
-
-#### Scenario: Pull request into an iwe branch
-
-- **WHEN** a pull request based on an `iwe/` branch is merged without `--admin`
-- **THEN** GitHub refuses the merge
-
-#### Scenario: Owner push
-
-- **WHEN** a user with Write access pushes to an `iwe/` branch
-- **THEN** the push is accepted
-
-#### Scenario: Responder push
-
-- **WHEN** the task responder pushes to an `iwe/` branch
-- **THEN** the push is accepted
 ```
 
 ## Depends on
 
 - [AI review verdicts gate merge and trusted bots are
   auto-approved](20261030-ai-review-verdicts-and-bot-approval.md)
-- [Replace gh stack with manual stacked pull
-  requests](20261101-manual-stacked-prs.md) — it creates the `iwe/**` ruleset
-  and the requirement Task 11 modifies.
+- [Drop the free-form `@claude` task
+  responder](20261107-drop-claude-task-responder.md)
 
 ## Verification
 
@@ -379,10 +302,8 @@ SHALL report that check.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
 - `iwe normalize` and `iwe schema validate` pass.
-- Tasks 7–10 are observed on GitHub in that order; Task 10 runs only after Task
-  8 has passed. Tasks 11 and 12 follow Task 7.
-- `gh api repos/{owner}/{repo}/rulesets/<id>` for the `iwe/**` ruleset lists the
-  App among its bypass actors.
+- Tasks 7–9 are observed on GitHub in that order; Task 9 runs only after Task 8
+  has passed.
 
 ## Out of scope
 
@@ -397,20 +318,14 @@ SHALL report that check.
 Verified anchor points (line numbers as of 2026-11-02):
 
 - `.github/actions/run-claude-responder/action.yml:15` — `github_token` input
-- `.github/actions/run-claude-responder/action.yml:43` — run-link step
 - `.github/actions/run-claude-responder/action.yml:95` — lifecycle scripts step
 - `.github/actions/run-claude-responder/action.yml:159` — Claude step
-- `.github/actions/run-claude-responder/action.yml:161` — `allowed_bots`
 - `.github/workflows/ai-responder.yml:210` — "Authorize responder requester"
 - `.github/workflows/ai-responder.yml:337` — prompt security rules
 - `.github/workflows/ai-responder.yml:431` — `claude-respond` `id-token: write`
 - `.github/workflows/ai-responder.yml:433` — `claude-respond` environment
 - `.github/workflows/ai-responder.yml:452` — `claude-respond` secrets passed to
   the action
-- `.github/workflows/ai-responder.yml:478` — `claude-task` `id-token: write`
-- `.github/workflows/ai-responder.yml:480` — `claude-task` environment
-- `.github/workflows/ai-responder.yml:494` — `claude-task` secrets passed to the
-  action
 - `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`
 - `.github/actions/ai-review-status/action.yml:97` — failure message
 - `.github/workflows/renovate.yml:75` — App token mint with explicit permissions
