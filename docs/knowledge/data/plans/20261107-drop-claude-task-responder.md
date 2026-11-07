@@ -15,7 +15,8 @@ sources:
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/architecture/dispatched-review-identity.md
 - resource: docs/knowledge/data/backlog/drop-claude-free-form-task-trigger.md
-rank: 900
+stage: done
+completed: 2026-11-07
 ---
 
 # Drop the free-form `@claude` task responder
