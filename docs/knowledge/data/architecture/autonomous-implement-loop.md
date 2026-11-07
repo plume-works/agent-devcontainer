@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why the Implement verify, fix, and revise loop runs in one orchestrator whose every dispatched agent is a leaf, why the Plan rulebook moved into the iwe-planner agent, why a revision is drafted, audited, and evaluated before it commits, and why the loop acts only on what the plan promised.
+description: Why the Implement verify, fix, and revise loop runs in the Implement session, whose every dispatched agent is a leaf, why the Plan rulebook moved into the iwe-planner agent, why a revision is drafted, audited, and evaluated before it commits, and why the loop acts only on what the plan promised.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T12:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
@@ -11,7 +11,6 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 ---
 
@@ -19,44 +18,41 @@ sources:
 
 ## Decision
 
-**One orchestrator runs the loop, and every agent is a leaf.** The user's
-session is the orchestrator for `/agentdev:iwe-implement`; the
-`/agentdev:iwe-implement-all` coordinator is the orchestrator once per plan.
+**The Implement session runs the loop, and every agent is a leaf.** The
+Implement session is the session that loaded `/agentdev:iwe-implement`.
 `iwe-implementer`, `iwe-verifier`, and `iwe-revision-evaluator` never dispatch,
 so the loop runs on Claude Code and OpenCode without OpenCode's experimental
 depth setting ([Nested subagent dispatch](nested-subagent-dispatch.md)).
 
 **The loop is written once, in the `iwe-implementer` rulebook,** as
-`## Running the loop`, a section only an orchestrator runs. The session already
-follows the rulebook in place; the coordinator reads the same file for that
-section, so the two never drift. A dispatched Implementer that meets a material
-deviation stops and reports it, and the coordinator takes the route.
+`## Running the loop`, which the Implement session runs as it follows the
+rulebook in place.
 
 **The Plan rulebook is the `iwe-planner` catalog agent,** which
 `/agentdev:iwe-plan` follows in place, the pattern Implement already uses.
 `/agentdev:iwe-plan` is explicit-only, and reading a gated skill's file to get
 around the gate is rejected in [Explicit-only workflow
-agents](explicit-only-workflow-agents.md). The orchestrator follows
+agents](explicit-only-workflow-agents.md). The Implement session follows
 `iwe-planner` in its revise mode only, so issue closing — reachable only from
 create mode — keeps its script bundled with the skill.
 
-**A revision is drafted, audited, evaluated, then committed.** The orchestrator
-drafts it under the `iwe-planner` revise rules, including the Durable Knowledge
-Auditor gate and validation, and leaves it uncommitted. `iwe-revision-evaluator`
-then judges the final text: its prompt carries only the plan key and the quoted
-finding, and it reads `git show HEAD:<plan>` and `git diff -- <plan>`. It
-returns:
+**A revision is drafted, audited, evaluated, then committed.** The Implement
+session drafts it under the `iwe-planner` revise rules, including the Durable
+Knowledge Auditor gate and validation, and leaves it uncommitted.
+`iwe-revision-evaluator` then judges the final text: its prompt carries only the
+plan key and the quoted finding, and it reads `git show HEAD:<plan>` and
+`git diff -- <plan>`. It returns:
 
 - `APPROVE` — the revision answers the finding and keeps every specified
-  behavior; the orchestrator commits it and resumes.
+  behavior; the Implement session commits it and resumes.
 - `REJECT` — the revision does not answer the finding, restates the plan to
   match the code, has a hunk that answers no quoted finding, or has a hunk that
   adds or sharpens a claim the code must newly meet.
 - `ESCALATE` — the revision drops, narrows, defers, or accepts an exception to
   specified behavior, changes `release`, or changes text the user approved.
 
-On `REJECT` or `ESCALATE` the orchestrator restores the plan from `HEAD` and
-stops. The evaluator's tools are `Bash, Read, Grep, Glob`.
+On `REJECT` or `ESCALATE` the Implement session restores the plan from `HEAD`
+and stops. The evaluator's tools are `Bash, Read, Grep, Glob`.
 
 **The loop acts only on what the plan promised.** Verify is a conformance check:
 every CRITICAL and WARNING cites the requirement, scenario, task, or
@@ -87,5 +83,5 @@ revision.
 - **Delta-scoped Verify rounds.** They treat the symptom; this decision removes
   its causes, CI timing and unbounded probing, at the source.
 - **Run the loop inside a dispatched `iwe-implementer`.** It would need nested
-  dispatch, and the coordinator could no longer see what its Implementer
-  dispatched.
+  dispatch, and `iwe-implementer` is never dispatched ([Explicit-only workflow
+  agents](explicit-only-workflow-agents.md)).

@@ -3,7 +3,7 @@ type: architecture
 description: Why adversarial review is a separate report-only agent outside Verify, what its two targets are, who may start it, and the alternatives rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T05:02:59Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md
@@ -36,8 +36,8 @@ verbatim.
 **It runs only when asked.** A person may run it, on the plan before the plan is
 finalized or on the code. The planner may add one closing or near-closing task
 that runs it against the code, for a plan whose claims are worth attacking.
-Planning itself never invokes it. In the Implement loop the orchestrator runs
-that task once per plan: a finding that defeats a plan claim takes the code
+Planning itself never invokes it. In the Implement loop the Implement session
+runs that task once per plan: a finding that defeats a plan claim takes the code
 route, and any other finding is filed through `/agentdev:iwe-capture`. The skill
 is model-invocable so that loop can run a planned task.
 

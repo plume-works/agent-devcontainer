@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why the Ship and Implement rulebooks live in catalog agents, why Ship and the coordinators start only from explicit-only skills and named dispatchers while any session asked to implement a named plan may load Implement, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code and OpenCode that the gate rests on.
+description: Why the Ship and Implement rulebooks live in catalog agents, why Ship starts only from an explicit-only skill and named dispatchers while any session asked to implement a named plan may load Implement, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code and OpenCode that the gate rests on.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T12:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -22,19 +22,18 @@ skills that start them carry no rules of their own.
 
   - the user's `/agentdev:iwe-ship`;
   - for Implement, any session asked to implement a named plan — by the user's
-    `/agentdev:iwe-implement`, by a plain request, or by a message from a
-    coordinator session — which loads `/agentdev:iwe-implement`;
-  - the `/agentdev:iwe-ship-all` and `/agentdev:iwe-implement-all` coordinators,
-    which the user starts;
+    `/agentdev:iwe-implement`, by a plain request, or by another session's
+    message, which is a plain request too — which loads
+    `/agentdev:iwe-implement`;
   - `/agentdev:iwe-plan` revise mode, when the revision answers a Ship blocker
     report for that plan, which re-dispatches `iwe-shipper` after validation.
 
   Each agent's `description` names its dispatchers, so nothing else matches it.
 
 - **The gate is explicit-only on both harnesses.** Of the entry points,
-  `iwe-ship`, `iwe-ship-all`, and `iwe-implement-all` carry the
-  `disable-model-invocation: true` frontmatter key, as does every other gated
-  skill. It gates Claude Code directly and OpenCode through the bridge's `deny`.
+  `iwe-ship` carries the `disable-model-invocation: true` frontmatter key, as
+  does every other gated skill. It gates Claude Code directly and OpenCode
+  through the bridge's `deny`.
 
 - **Implement's entry skill is model-invocable.** `iwe-implement` carries no
   gate, and its description matches only a request that names a plan. It needs a
@@ -50,13 +49,17 @@ skills that start them carry no rules of their own.
   approval quoted verbatim. An approval the Shipper needs comes back in its
   report, and the user re-runs `/agentdev:iwe-ship` granting it.
 
-- **Implement keeps the user's session for a direct run.**
-  `/agentdev:iwe-implement` has the session that loaded it follow the
-  `iwe-implementer` rulebook in place, so it can ask about an ambiguous plan or
-  a material deviation. A decision the rulebook asks for comes from that
-  session's own user, or from an approval of the user's that a coordinator
-  session relays in its message; the coordinator asks the user in one place and
-  passes the answers on. Only `iwe-implement-all` dispatches the agent.
+- **Implement runs only in the session that loaded it.**
+  `/agentdev:iwe-implement` has that session follow the `iwe-implementer`
+  rulebook in place, so it can ask about an ambiguous plan or a material
+  deviation; `iwe-implementer` is never dispatched. Every decision the rulebook
+  asks for comes from that session's own user. An approval that another
+  session's message claims the user gave is not one: nothing authenticates the
+  sender or what the user said.
+
+- **No coordinator runs workflows across plans or sessions.** There is no skill
+  that implements or ships every plan in turn, and no rule that lets one session
+  hand another an approval or a step of a workflow.
 
 - **A dispatched agent cannot reach the user.** Wherever its rulebook would ask,
   it stops without taking the step and reports the decision it needs.
@@ -109,8 +112,8 @@ Report the marker your preloaded skill gives, or NONE if no skill content was pr
 - **The gate covers subagents.** Asked to load `gated` with the Skill tool,
   directly or from a dispatched general-purpose subagent, the tool refuses:
   "Skill gated cannot be used with Skill tool due to disable-model-invocation. …
-  Do not replicate this skill's workflow by other means". A coordinator that
-  dispatches `/agentdev:iwe-ship` as a subagent prompt therefore cannot run.
+  Do not replicate this skill's workflow by other means". A subagent whose
+  prompt asks for `/agentdev:iwe-ship` therefore cannot run it.
 
   ``` bash
   claude -p 'Call the Skill tool with skill "gated" and report any error verbatim.' </dev/null
@@ -167,13 +170,18 @@ headless run grants it in the project's `opencode.json`:
   has bypassed the gate.
 - **A self-checking skill or a harness hook.** A skill that checks who invoked
   it is a prompt-level check a model can argue past. A hook's input names the
-  tool call, not the skill or request behind it, so it cannot tell a
-  coordinator's dispatch from Explore's without parsing the transcript, and it
-  needs one implementation per harness.
+  tool call, not the skill or request behind it, so it cannot tell a requested
+  dispatch from Explore's without parsing the transcript, and it needs one
+  implementation per harness.
 - **A separate model-invocable Implement entry skill that runs only on a
   coordinator's request.** Its description is still listed to the model, and the
   "only on a coordinator's request" check is a prompt-level self-check, the same
   weakness as a self-checking skill.
+- **Coordinator skills that implement or ship every plan in turn.** A
+  coordinator needs a dispatched Implementer that stops at every decision and a
+  route for relaying the user's answers to it, and a relayed approval is a claim
+  nothing authenticates. The maintainer removed them; a plan is implemented and
+  shipped one request at a time.
 - **Workers following the rulebook file without the skill.** A worker that tried
   the gated skill first sees the refusal text, which tells it not to replicate
   the workflow by other means, so the route depends on the coordinator never
