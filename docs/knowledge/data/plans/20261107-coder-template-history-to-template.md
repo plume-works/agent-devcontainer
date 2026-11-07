@@ -93,9 +93,12 @@ Tasks 4-7 run in a `coder-ide-baseline` checkout, from its repository root.
 `docs/knowledge/data/releases.md`, `docs/knowledge/data/log.md`, and every done
 plan without `released`
 
-- [ ] `/agentdev:iwe-ship release 2.1.0` cuts the release on a branch from fresh
+- [x] `/agentdev:iwe-ship release 2.1.0` cuts the release on a branch from fresh
   `origin/main`; `20261101-docker-storage-periodic-gc` and
   `20261031-coder-template-knowledge-split` carry `released: 2.1.0`.
+  - **Evidence:** `a50e6888` cuts 2.1.0 on top of `7dab00a1` (`origin/main`);
+    both plans carry `released: 2.1.0`, and the done-without-`released` query
+    prints nothing at that commit.
 
 ### Task 3: Merge the release
 
