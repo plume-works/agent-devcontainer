@@ -116,9 +116,13 @@ plan without `released`
 and the three features under `docs/knowledge/data/features/`, each at the key it
 has here
 
-- [ ] Each document in `## Approach`'s set is copied from `agent-devcontainer`
+- [x] Each document in `## Approach`'s set is copied from `agent-devcontainer`
   `main` after Task 3, with the link and `sources` changes `## Approach` names
   and no other change.
+  - **Evidence:** `plume-works/coder-ide-baseline@55d3df0` adds the twelve
+    copies from `main` at `2612a847`; with link targets and the added `sources`
+    entry blanked, each copy matches its original token for token apart from the
+    table rule `iwe normalize` widened, and `iwe schema validate` passes.
 
 ### Task 5: Link the copies from the hubs
 
