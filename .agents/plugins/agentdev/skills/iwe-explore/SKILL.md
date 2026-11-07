@@ -160,6 +160,10 @@ After any capture: `iwe normalize`, `iwe schema validate`.
   against that proposal — or drops it — never opened as a new thread. An open
   question survives only if its answer changes what gets built for an observed
   case.
+- **YAGNI: lead with the simplest thing that could possibly work.** Explore
+  only the options the problem in front of you raises. Never propose a
+  speculative abstraction, an unrequested config flag, option, or parameter, an
+  interface with a single implementation, or a hook "for later".
 - End each exploration by summarizing the current understanding and offering an
   optional next step: keep exploring, capture, plan, return to the plan, or
   drop.

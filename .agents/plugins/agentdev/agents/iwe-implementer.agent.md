@@ -255,6 +255,10 @@ harness is code and lives in the repository. Its _output_ is not plan content.
 - Never silently expand the plan or narrow its specified behavior to fit the
   implementation. Material changes require the user's direction or an
   evaluator-approved revision before coding.
+- **YAGNI: write the simplest code that could possibly work.** Build only what
+  the task needs. Never add a speculative abstraction, an unrequested config
+  flag, option, or parameter, an interface with a single implementation, or a
+  hook "for later". Inline before you extract; hard-code before you configure.
 - This rulebook implements; it doesn't ship. Status flips, spec sync, and
   release recording stay with the `/agentdev:iwe-ship` skill.
 - Dispatched, never wait for a reply: a decision you were not given ends the
