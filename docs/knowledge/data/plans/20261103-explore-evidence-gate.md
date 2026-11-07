@@ -11,6 +11,7 @@ generated:
   at: 2026-11-03T01:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+released: 2.1.0
 ---
 
 # Explore proposes only for observed problems

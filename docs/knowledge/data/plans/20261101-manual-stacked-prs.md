@@ -20,6 +20,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 completed: 2026-11-02
 stage: done
+released: 2.1.0
 ---
 
 # Replace gh stack with manual stacked pull requests

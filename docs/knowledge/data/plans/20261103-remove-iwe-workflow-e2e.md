@@ -15,6 +15,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 stage: done
 completed: 2026-11-03
+released: 2.1.0
 ---
 
 # Remove the IWE workflow e2e suite

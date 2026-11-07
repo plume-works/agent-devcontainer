@@ -20,6 +20,7 @@ sources:
 - resource: docker/bin/gh
 stage: done
 completed: 2026-11-05
+released: 2.1.0
 ---
 
 # Narrow the image build context

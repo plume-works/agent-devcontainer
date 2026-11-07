@@ -15,6 +15,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 stage: done
 completed: 2026-11-03
+released: 2.1.0
 ---
 
 # Make the Implement loop converge
