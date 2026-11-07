@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow, triggered only by pull request events, gives the repository automated PR review with a read-only review responder and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
+  at: 2026-11-07T23:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -61,13 +61,23 @@ input restores tag-mode tracking comments for custom prompts, but for this
 review workflow it routes findings into a regular PR comment instead of a
 submitted GitHub PR review.
 
-**The gate accepts any Claude review, past or present.** `ai-review-present`
-accepts a review from `claude[bot]` or `github-actions[bot]` in state
-`approved`, `changes_requested`, or `commented`. It asserts the PR has been
-reviewed, not that each pushed commit has been, and never requires the review to
-name the current head commit. Refreshing a review is the author's call: removing
-the pull request's author as assignee and adding them back runs a `pull_request`
-review whose gate counts toward merge, as recorded in [Assignee-triggered AI
+**The responder posts as its own GitHub App.** The review responder and the
+`trusted-bot-approval` job post with installation tokens of the
+`plume-works-quill` App, minted per job with only the permissions that job needs
+and, in the review job, after the lifecycle scripts have run. Their secrets live
+in the `plume-works-review` environment; a job whose App secrets are missing
+fails instead of falling back to `GITHUB_TOKEN`. The App opens no pull request
+and pushes nothing. The decision is recorded in [Responder App
+identity](../architecture/responder-app-identity.md).
+
+**The gate accepts one login.** `ai-review-present` accepts a review only from
+`plume-works-quill[bot]`, in state `approved`, `changes_requested`, or
+`commented`; reviews by `github-actions[bot]` or `claude[bot]` do not count. It
+asserts the PR has been reviewed, not that each pushed commit has been, and
+never requires the review to name the current head commit. Refreshing a review
+is the author's call: removing the pull request's author as assignee and adding
+them back runs a `pull_request` review whose gate counts toward merge, as
+recorded in [Assignee-triggered AI
 re-reviews](../architecture/assignee-review-trigger.md). An `@claude review`
 comment starts nothing.
 
@@ -93,12 +103,12 @@ push since the head branch's latest creation (that creation, pushes, force
 pushes) came from the bot itself. When any commit or push fails that check, the
 job approves nothing, dismisses its standing approval, and posts a notice naming
 the failure, so the pull request needs a human approval. A run triggered by
-`dependabot[bot]` holds a read-only token and is skipped with a notice; a run a
-person triggers on a Dependabot pull request approves it when the check passes.
-The job runs the pull request's own copy of the workflow, so the approval is
-only as strong as the trust in the repository's writers: the checks hold against
-a commit that leaves the workflow unchanged, not against a writer who edits the
-job.
+`dependabot[bot]` cannot read the App secrets and is skipped with a notice; a
+run a person triggers on a Dependabot pull request approves it when the check
+passes. The job runs the pull request's own copy of the workflow, so the
+approval is only as strong as the trust in the repository's writers: the checks
+hold against a commit that leaves the workflow unchanged, not against a writer
+who edits the job.
 
 The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle

@@ -8,8 +8,11 @@ inputs:
   claude-code-oauth-token:
     description: OAuth token for the Claude Code action.
     required: true
-  github_token:
-    description: GitHub token passed to the Claude Code action.
+  app-client-id:
+    description: Client ID of the GitHub App the responder posts as.
+    required: true
+  app-private-key:
+    description: Private key of the GitHub App the responder posts as.
     required: true
   prompt:
     description: Prompt for the Claude responder.
@@ -24,6 +27,21 @@ inputs:
 runs:
   using: composite
   steps:
+    # No GITHUB_TOKEN fallback: see architecture/responder-app-identity.
+    - name: Require the App secrets
+      shell: bash
+      env:
+        APP_CLIENT_ID: ${{ inputs.app-client-id }}
+        APP_PRIVATE_KEY: ${{ inputs.app-private-key }}
+      run: |
+        missing=()
+        [[ -n "${APP_CLIENT_ID}" ]] || missing+=('QUILL_APP_CLIENT_ID (input app-client-id)')
+        [[ -n "${APP_PRIVATE_KEY}" ]] || missing+=('QUILL_APP_PRIVATE_KEY (input app-private-key)')
+        for name in "${missing[@]}"; do
+          echo "::error::The App secret ${name} is empty."
+        done
+        [[ ${#missing[@]} -eq 0 ]]
+
     # See docs/knowledge/data/architecture/ci-agent-plugin-availability.md.
     - name: Run devcontainer lifecycle commands
       shell: bash
@@ -85,12 +103,40 @@ runs:
         fi
         printf 'args=%s\n' "${args}" >>"${GITHUB_OUTPUT}"
 
+    # Minted after the lifecycle scripts so their environment never holds it.
+    # Only these permission inputs bound the token, not the job's permissions.
+    - name: Create GitHub App token
+      id: app_token
+      uses: actions/create-github-app-token@v3.3.0
+      with:
+        client-id: ${{ inputs.app-client-id }}
+        private-key: ${{ inputs.app-private-key }}
+        permission-contents: read
+        permission-pull-requests: write
+        permission-issues: write
+        permission-actions: read
+
+    - name: Resolve the App's bot user
+      id: app_bot
+      shell: bash
+      env:
+        APP_SLUG: ${{ steps.app_token.outputs.app-slug }}
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+      run: |
+        id=$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)
+        {
+          echo "id=${id}"
+          echo "name=${APP_SLUG}[bot]"
+        } >>"$GITHUB_OUTPUT"
+
     - name: Claude Responder
       id: claude_responder
       uses: anthropics/claude-code-action@v1
       with:
         claude_code_oauth_token: ${{ inputs.claude-code-oauth-token }}
-        github_token: ${{ inputs.github_token }}
+        github_token: ${{ steps.app_token.outputs.token }}
+        bot_id: ${{ steps.app_bot.outputs.id }}
+        bot_name: ${{ steps.app_bot.outputs.name }}
         settings: ${{ steps.claude_settings.outputs.json }}
         claude_args: ${{ steps.claude_args.outputs.args }}
         assignee_trigger: 'claude-bot'

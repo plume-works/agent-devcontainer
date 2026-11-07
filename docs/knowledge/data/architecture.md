@@ -127,6 +127,8 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 [Holding the AI review gate during a
 re-review](architecture/rereview-gate-pending.md)
 
+[Responder App identity](architecture/responder-app-identity.md)
+
 [Self-improve consolidation](architecture/self-improve-consolidation.md)
 
 [Self-improve runtime](architecture/self-improve-runtime.md)

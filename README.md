@@ -348,8 +348,10 @@ request branch's own catalog, so changes to agent workflows are reviewed as chan
 To request another review after new work lands, remove the pull request's author as
 assignee and add them back.
 
-Adopters must configure the `CLAUDE_CODE_OAUTH_TOKEN` repository secret and the
-`claude-review` environment before enabling the workflow.
+Reviews and trusted-bot approvals post as the `plume-works-quill` GitHub App, the only
+reviewer the merge gate accepts. Adopters must register and install a GitHub App and
+create the `plume-works-review` environment holding the `CLAUDE_CODE_OAUTH_TOKEN`,
+`QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` secrets before enabling the workflow.
 
 Pull-request descriptions separate completed `Verification` evidence from open
 `Reviewer Handoff` tasks. Repository-specific additions belong in

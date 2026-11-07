@@ -30,6 +30,7 @@ GH_UNAVAILABLE = 6
 PREFLIGHT_ERROR = 2
 
 RESPONDER = 'Claude PR Review Responder'
+AI_REVIEWER = 'plume-works-quill[bot]'
 
 EDITS_QUERY = (
     'query($owner: String!, $name: String!, $number: Int!) {'
@@ -205,7 +206,7 @@ def reviewed(
         )
 
     return any(
-        (item.get('user') or {}).get('login') in ('claude[bot]', 'github-actions[bot]')
+        (item.get('user') or {}).get('login') == AI_REVIEWER
         and str(item.get('state') or '').upper() in ('APPROVED', 'CHANGES_REQUESTED', 'COMMENTED')
         and item.get('commit_id') == head_sha
         and after(item.get('submitted_at'), cutoff)
