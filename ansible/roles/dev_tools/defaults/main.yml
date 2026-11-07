@@ -89,17 +89,17 @@ dev_tools_pinned_tools:
   # The tarball also ships iwec, the MCP server, which no agent config registers.
   - name: iwe
     # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-    version: iwe-v0.31.0
+    version: iwe-v0.32.0
     url_prefix: https://github.com/iwe-org/iwe/releases/download
     asset_prefix: "{version}-"
     binaries: [iwe, iwes]
     archives:
       amd64:
         target: x86_64-unknown-linux-gnu
-        checksum: b002c8fcf72c0c6c8cfece614b8f9228b8178732035a96eb93255ac6880bab8d
+        checksum: 088c1cf013d740acf9d6b7de9152e988a218b804f1a68adecbbf6fcd63eb5fc2
       arm64:
         target: aarch64-unknown-linux-gnu
-        checksum: 54e9c22ca422c4aa76bf163dfa564b9cdba43af5e7cb500ebf78fb1e5445b646
+        checksum: d3e7e24e5885c6f6b368aa9546e46ee8d27e05c39bdbbd6abb35b32038decf82
 
   # codebase-memory-mcp ships a per-OS/arch archive containing the binary plus its
   # own install.sh. That installer re-downloads from GitHub's "latest" alias even
