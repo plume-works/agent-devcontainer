@@ -15,6 +15,7 @@ sources:
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
 stage: done
 completed: 2026-11-02
+released: 2.1.0
 ---
 
 # Re-request an AI review after a title or description edit

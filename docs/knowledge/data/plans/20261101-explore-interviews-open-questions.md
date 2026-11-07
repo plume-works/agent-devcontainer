@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 stage: done
 completed: 2026-11-02
+released: 2.1.0
 ---
 
 # Explore settles open questions one at a time

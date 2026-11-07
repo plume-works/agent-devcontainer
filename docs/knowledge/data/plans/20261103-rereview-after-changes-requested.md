@@ -13,6 +13,7 @@ sources:
 - resource: docs/knowledge/data/architecture/ai-review-event-selection.md
 stage: done
 completed: 2026-11-03
+released: 2.1.0
 ---
 
 # Re-request an AI review after a change request

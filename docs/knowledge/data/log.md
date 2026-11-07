@@ -3,6 +3,30 @@
 The history of this workspace, newest first. The `ship` skill's release cut adds
 one dated group per release; nothing else writes here.
 
+## 2026-11-07
+
+- **Release**: [2.1.0](releases/2.1.0.md) — [Manual stacked pull
+  requests](features/manual-stacked-prs.md) added.
+- **Release**: [2.1.0](releases/2.1.0.md) — [Agentdev IWE workflow
+  skills](features/agentdev-iwe-workflow-skills.md), [AI responder
+  workflows](features/ai-responder-workflows.md), [Docker storage
+  limits](features/docker-storage-limits.md), [Native stacked pull
+  requests](features/native-stacked-prs.md), and [Verify report
+  cache](features/verify-report-cache.md) changed.
+- **Release**: [2.1.0](releases/2.1.0.md) — fixed [Bug: Docker storage
+  accumulates on long-running Coder
+  workspaces](bugs/coder-docker-storage-accumulates.md), [Bug: the re-review
+  evaluation skips a re-review after a change
+  request](bugs/eval-skips-rereview-after-changes-requested.md), [Bug: Image
+  provisioning layer is keyed on the whole
+  repository](bugs/image-build-context-whole-repo.md), [Bug: a metadata-gate
+  review blocks the re-review it asks
+  for](bugs/metadata-gate-review-blocks-rerequest.md), [Bug: the AI task
+  responder cannot push to iwe/ branches under their
+  ruleset](bugs/responder-cannot-bypass-iwe-ruleset.md), and [Bug: the stack
+  guard reverts GitHub's post-merge
+  rebase](bugs/stack-guard-reverts-post-merge-rebase.md).
+
 ## 2026-11-02
 
 - **Update**: [Explore settles open questions one at a

@@ -12,6 +12,7 @@ sources:
 - resource: .iwe/schemas/okf.yaml
 stage: done
 completed: 2026-11-02
+released: 2.1.0
 ---
 
 # Keep the graph an OKF bundle in the spec

@@ -17,6 +17,7 @@ sources:
 - resource: docs/knowledge/data/backlog/drop-claude-free-form-task-trigger.md
 stage: done
 completed: 2026-11-07
+released: 2.1.0
 ---
 
 # Drop the free-form `@claude` task responder

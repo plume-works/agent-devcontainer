@@ -17,6 +17,7 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/.github/workflows/root-container.yml
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/push.sh
+released: 2.1.0
 ---
 
 # Move the Coder template's knowledge into coder-ide-baseline

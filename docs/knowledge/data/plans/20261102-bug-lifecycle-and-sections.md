@@ -19,6 +19,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 stage: done
 completed: 2026-11-02
+released: 2.1.0
 ---
 
 # Bug lifecycle stages and sections

@@ -13,6 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 stage: done
 completed: 2026-11-04
+released: 2.1.0
 ---
 
 # Add an adversarial review for plans and their code
