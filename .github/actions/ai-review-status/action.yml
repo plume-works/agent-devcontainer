@@ -10,6 +10,9 @@ inputs:
   github-token:
     description: GitHub token used to read reviews
     required: true
+  reviewer-login:
+    description: The only login whose review is accepted, such as plume-works-quill[bot]
+    required: true
   trusted-bot-actors:
     description: >-
       Comma-separated bot logins whose pull requests need no AI review.
@@ -34,6 +37,7 @@ runs:
       env:
         PR_NUMBER: ${{ inputs.pr-number }}
         TRUSTED_BOT_ACTORS: ${{ inputs.trusted-bot-actors }}
+        REVIEWER_LOGIN: ${{ inputs.reviewer-login }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -44,6 +48,10 @@ runs:
           };
           if (!Number.isInteger(pullRequest.pull_number) || pullRequest.pull_number <= 0) {
             throw new Error(`pr-number must be a positive integer, got ${JSON.stringify(process.env.PR_NUMBER)}`);
+          }
+          const reviewerLogin = (process.env.REVIEWER_LOGIN ?? '').trim();
+          if (!reviewerLogin) {
+            throw new Error('reviewer-login must name the accepted AI reviewer');
           }
 
           const report = (found, reason) => {
@@ -65,13 +73,12 @@ runs:
           // The rule asserts that the PR has been reviewed, not that its
           // current head has been -- see spec/ai-review-gate. Do not compare
           // review.commit_id against the head SHA.
-          const claudeLogins = new Set(['claude[bot]', 'github-actions[bot]']);
           const acceptedReviewStates = new Set(['approved', 'changes_requested', 'commented']);
 
           const reviewLogin = (review) => review?.user?.login;
           const reviewState = (review) => review?.state?.toLowerCase();
-          const isClaudeReview = (review) =>
-            claudeLogins.has(reviewLogin(review)) && acceptedReviewStates.has(reviewState(review));
+          const isAcceptedReview = (review) =>
+            reviewLogin(review) === reviewerLogin && acceptedReviewStates.has(reviewState(review));
 
           const reviews = await github.paginate(github.rest.pulls.listReviews, {
             ...pullRequest,
@@ -83,16 +90,16 @@ runs:
               .join(', ') || 'none'}`
           );
 
-          const claudeReview = [...reviews].reverse().find(isClaudeReview);
-          if (claudeReview) {
+          const acceptedReview = [...reviews].reverse().find(isAcceptedReview);
+          if (acceptedReview) {
             report(
               true,
-              `Found accepted Claude review by ${claudeReview.user.login} for ${claudeReview.commit_id} with state ${claudeReview.state}.`
+              `Found accepted AI review by ${acceptedReview.user.login} for ${acceptedReview.commit_id} with state ${acceptedReview.state}.`
             );
             return;
           }
 
           report(
             false,
-            'No AI review found. Expected a review from Claude (claude[bot] or github-actions[bot]).'
+            `No AI review found. Expected a review from ${reviewerLogin}.`
           );
