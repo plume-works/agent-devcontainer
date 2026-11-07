@@ -83,7 +83,6 @@ esac
         'docker',
         'gdbus',
         'gemini',
-        'getent',
         'gitleaks',
         'gh',
         'git',
@@ -117,7 +116,6 @@ esac
         'PATH': f'{fake_bin}:/usr/bin:/bin',
         'PROCESSES_PRESENT': str(processes_present).lower(),
         'SLEEP_COMMANDS': ','.join(sorted(sleep_commands)),
-        'COMPOSE_PROFILES': 'mcp',
         **(environ or {}),
     }
     return subprocess.run(
@@ -152,12 +150,9 @@ def test_a_missing_hook_binary_fails_the_toolchain(tmp_path: Path, tool: str) ->
     )
 
 
-def test_deploy_mode_skips_non_applicable_sidecars_and_redacts_auth_output(
-    tmp_path: Path,
-) -> None:
+def test_deploy_mode_redacts_auth_output(tmp_path: Path) -> None:
     result = _run_health(tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
-    assert re.search(r'^mcp-gateway\s+SKIP\b', result.stdout, re.MULTILINE)
     assert 'SHOULD_NOT_APPEAR' not in result.stdout
     assert 'SECRET_VALUE' not in result.stdout
     assert 'claude.json link' in result.stdout
@@ -199,19 +194,10 @@ def test_command_timeout_sets_aggregate_failure(tmp_path: Path) -> None:
     assert 'Overall: FAIL' in result.stdout
 
 
-def test_devcontainer_mode_checks_sidecars(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, mode='devcontainer', environ={'COMPOSE_PROFILES': 'web,mcp'})
+def test_devcontainer_mode_is_healthy(tmp_path: Path) -> None:
+    result = _run_health(tmp_path, mode='devcontainer')
     assert result.returncode == 0, result.stdout + result.stderr
-    assert re.search(r'^mcp-gateway DNS\s+PASS\b', result.stdout, re.MULTILINE)
-    assert re.search(r'^mcp-gateway :8811\s+PASS\b', result.stdout, re.MULTILINE)
-
-
-@pytest.mark.parametrize('profiles', ['', 'web'])
-def test_the_gateway_is_skipped_without_the_mcp_profile(tmp_path: Path, profiles: str) -> None:
-    result = _run_health(tmp_path, mode='devcontainer', environ={'COMPOSE_PROFILES': profiles})
-    assert result.returncode == 0, result.stdout + result.stderr
-    assert re.search(r'^mcp-gateway\s+SKIP\b', result.stdout, re.MULTILINE)
-    assert 'getent hosts mcp-gateway' not in (tmp_path / 'calls.log').read_text()
+    assert 'Overall: PASS' in result.stdout
 
 
 def test_documented_false_firewall_values_are_skipped(tmp_path: Path) -> None:

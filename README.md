@@ -81,7 +81,7 @@ runtime](docs/knowledge/data/architecture/devcontainer-runtime.md).
 
 Run `/agentdev:template-consume` to copy the complete setup or merge selected parts
 into an existing repository. The workflow installs the devcontainer descriptor,
-agent settings, MCP configuration, project tooling, and adaptable GitHub workflows.
+agent settings, project tooling, and adaptable GitHub workflows.
 It also records the adopted revision so future runs can safely propose upstream
 updates.
 

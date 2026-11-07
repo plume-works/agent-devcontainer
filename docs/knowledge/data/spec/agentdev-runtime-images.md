@@ -222,10 +222,9 @@ tools.
 
 ### Requirement: doctor judges a healthy Compose Dev Container healthy
 
-In the devcontainer profile, `agentdev-runtime doctor` SHALL check the
-`mcp-gateway` sidecar only when the Compose `mcp` profile is enabled, and SHALL
-accept the git identity git resolves, including one set through `GIT_AUTHOR_*`
-and `GIT_COMMITTER_*`.
+In the devcontainer profile, `agentdev-runtime doctor` SHALL accept the git
+identity git resolves, including one set through `GIT_AUTHOR_*` and
+`GIT_COMMITTER_*`.
 
 ### Requirement: the agentdev checkout overrides the staged catalog
 

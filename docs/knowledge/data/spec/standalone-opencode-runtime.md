@@ -39,8 +39,7 @@ tmux/failure semantics.
 of `agentdev-base`, provide linux/amd64 and linux/arm64 images, and start its
 environment without Coder, a Dev Containers client, or project scaffolding. It
 SHALL keep Claude Code available without autostarting it, except Claude Remote
-Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, SHALL NOT install Codex, and
-SHALL omit Docker MCP gateway integration.
+Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL NOT install Codex.
 
 #### Scenario: an ordinary checkout is mounted
 

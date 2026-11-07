@@ -138,28 +138,7 @@ def ai_tools(report: Report) -> None:
         report.check_command(tool, tool, '--version')
 
 
-def gateway(report: Report) -> None:
-    """Check the mcp-gateway sidecar when Compose was asked to start it."""
-    # Compose starts it only under the opt-in profile devcontainer-init.sh enables.
-    if 'mcp' not in os.environ.get('COMPOSE_PROFILES', '').split(','):
-        report.result('mcp-gateway', 'SKIP', 'the mcp Compose profile is not enabled')
-        return
-    report.check('mcp-gateway DNS', 'getent', 'hosts', 'mcp-gateway')
-    report.check(
-        'mcp-gateway :8811',
-        'curl',
-        '-fsS',
-        '-o',
-        '/dev/null',
-        '-w',
-        '%{http_code}',
-        '--max-time',
-        '5',
-        'http://mcp-gateway:8811/sse',
-    )
-
-
-def services(report: Report, mode: str, firewall: str) -> None:
+def services(report: Report, firewall: str) -> None:
     print('== Services ==')
     report.check(
         'dockerd',
@@ -195,12 +174,6 @@ def services(report: Report, mode: str, firewall: str) -> None:
     )
     report.check('xpra process', 'bash', '-c', "pgrep -f '[x]pra' >/dev/null")
     report.check('opencode probe', 'agentdev-runtime', 'opencode', 'probe')
-    if mode == env.DEPLOY:
-        report.result('mcp-gateway', 'SKIP', 'sidecar is not part of deploy mode')
-    elif mode == env.DEVCONTAINER:
-        gateway(report)
-    else:
-        report.result('mcp-gateway', 'SKIP', 'runtime mode is invalid')
     if firewall in TRUE_WORDS:
         report.check(
             'runtime firewall',
@@ -268,7 +241,7 @@ def main(argv: list[str]) -> int:
     runtime(report, mode)
     toolchain(report)
     ai_tools(report)
-    services(report, mode, settings.get('ENABLE_FIREWALL'))
+    services(report, settings.get('ENABLE_FIREWALL'))
     auth(report, settings)
     network(report)
     print('== Summary ==')

@@ -1,55 +1,4 @@
 services:
-  mcp-gateway:
-    image: docker/mcp-gateway
-    init: true
-    pull_policy: if_not_present
-    restart: unless-stopped
-    profiles: ['mcp']
-    environment:
-      DOCKER_SECRETS_ENGINE_SOCKET: ${DOCKER_SECRETS_ENGINE_SOCKET:-/root/.cache/docker-secrets-engine/engine.sock}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ${HOST_MCP_DIR:-/tmp/stub-mcp}:${CONTAINER_MCP_DIR:-/tmp/stub-mcp}:ro
-      - ${HOST_SECRETS_SOCKET:-/tmp/stub-secrets-engine.sock}:${DOCKER_SECRETS_ENGINE_SOCKET:-/tmp/stub-secrets-engine.sock}:ro
-    # On a freshly (re)created container, Docker Desktop's per-container DNS proxy can take
-    # a moment to attach. The gateway's image-signature check does an outbound DNS lookup
-    # immediately on startup, and if it loses that race it exits; in-place restarts don't
-    # reliably re-trigger the DNS attach, so `restart: unless-stopped` alone can crash-loop
-    # forever. Wait for DNS to actually work before handing off to the real entrypoint.
-    entrypoint:
-      - sh
-      - -c
-      - |
-        for i in $$(seq 1 30); do
-          nslookup registry-1.docker.io >/dev/null 2>&1 && break
-          echo "mcp-gateway: waiting for network/DNS to be ready ($$i/30)..." >&2
-          sleep 1
-        done
-        exec /docker-mcp gateway run "$$@"
-      - sh
-    command:
-      # Docker Desktop's MCP Toolkit stores configured servers as a "profile" in
-      # ~/.docker/mcp/mcp-toolkit.db (mirrors `docker mcp gateway run --profile default`).
-      # The legacy --catalog/--config/--registry/--tools-config flags read stale/empty
-      # YAML files and also require absolute paths to resolve under the container's
-      # $HOME/.docker/mcp, which ${CONTAINER_MCP_DIR} (mounted to match HOME=/root) satisfies.
-      - --profile=${MCP_GATEWAY_PROFILE:-default}
-      # docker-desktop secrets provider: requires Docker Desktop on the host.
-      # The mcp profile only activates when ~/.docker/mcp exists, which Docker Desktop manages.
-      - --secrets=docker-desktop
-      - --watch=true
-      - --transport=sse
-      - --port=8811
-      # The gateway's bearer-token auth guards against DNS-rebinding attacks from
-      # browser clients hitting a localhost-bound port. The devcontainer instead reaches
-      # this service over the private compose network by service name (mcp-gateway:8811).
-      # It intentionally has no host-published port: every worktree has its own sidecar,
-      # and publishing a fixed host port would make a clean startup fail whenever another
-      # worktree's gateway is already running. The token is also regenerated per container
-      # start, so it can't be pinned in the git-tracked .mcp.json without breaking on
-      # every restart.
-      - --allow-unauthenticated
-
   devcontainer:
     # Tag-only fallback for standalone `docker compose -f .devcontainer/docker-compose.yml`
     # use. The digest pin lives in ../devcontainer-compose-pins.yml, which devcontainer.json layers on
@@ -65,9 +14,6 @@ services:
     privileged: true
 
     environment:
-      DOCKER_SECRETS_ENGINE_SOCKET: ${DOCKER_SECRETS_ENGINE_SOCKET:-/root/.cache/docker-secrets-engine/engine.sock}
-      # agentdev-runtime doctor checks the mcp-gateway sidecar only under its profile.
-      COMPOSE_PROFILES: ${COMPOSE_PROFILES:-}
       GIT_AUTHOR_NAME:
       GIT_AUTHOR_EMAIL:
       GIT_COMMITTER_NAME:
@@ -90,10 +36,6 @@ services:
 
       # The workspace itself, at the path devcontainer.json declares as workspaceFolder.
       - ${LOCAL_WORKSPACE_FOLDER:-$PWD}:/workspaces/${WORKSPACE_BASENAME:-project}:rw
-
-      # Docker mcp setup from host
-      - ${HOST_MCP_DIR:-/tmp/stub-mcp}:${CONTAINER_MCP_DIR:-/tmp/stub-mcp}:ro
-      - ${HOST_SECRETS_SOCKET:-/tmp/stub-secrets-engine.sock}:${DOCKER_SECRETS_ENGINE_SOCKET:-/tmp/stub-secrets-engine.sock}:ro
 
       # Agent auth state, shared across all devcontainer instances (worktrees,
       # Codespaces, etc). Declared with an explicit top-level `name:` below so Compose
