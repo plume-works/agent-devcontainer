@@ -148,7 +148,7 @@ async function catalog(root: string) {
     await Bun.sleep(100)
   }
   const ms = Date.now() - start
-  assert((await list("agent", root)).some(agent => agent.id === "tdd-red"), "Host is missing catalog agents")
+  assert((await list("agent", root)).some(agent => agent.id === "iwe-revision-evaluator"), "Host is missing catalog agents")
   assert((await list("skill", root)).some(skill => skill.id === "iwe-plan"), "Host is missing catalog skills")
   return ms
 }

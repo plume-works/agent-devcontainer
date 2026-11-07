@@ -102,8 +102,7 @@ Skills are namespaced by the plugin name — `/agentdev:pr-open`,
 plugins from colliding. Claude also invokes them on its own when a request
 matches a skill's description, so most of the time you just ask for the work.
 
-Agents are addressed by name (`principal-engineer`, `tdd-red`, `tdd-green`,
-`tdd-refactor`).
+Agents are addressed by name (`principal-engineer`).
 
 In OpenCode the same `/agentdev:<name>` commands appear in the `/` menu, the
 model loads skills by either spelling, and each agent is a subagent limited to
@@ -118,9 +117,6 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | Agent                | Use it for                                               |
 | -------------------- | -------------------------------------------------------- |
 | `principal-engineer` | Architecture, design decisions, implementation strategy. |
-| `tdd-red`            | Write the failing test first.                            |
-| `tdd-green`          | Make the failing test pass with the smallest change.     |
-| `tdd-refactor`       | Clean up once the test is green.                         |
 
 ### Skills
 
@@ -152,6 +148,7 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:extract-github-actions-logs` | Pull failing job logs out of a workflow run.            |
 | `/agentdev:get-codeql-data`             | Fetch CodeQL code-scanning alerts.                      |
 | `/agentdev:semantic-refactor-audit`     | Prove a behavior-preserving rewrite preserved behavior. |
+| `/agentdev:tdd`                         | Run Red, Green, Refactor for executable code logic.     |
 
 #### Specs and escalation
 

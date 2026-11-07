@@ -32,14 +32,14 @@ Systematic approach to resolving all PR feedback including review comments, CI f
 
 Classify the requested change by artifact before delegating:
 
-| Change type                 | Examples                                                                                                                                  | Handling                                                                                                                                                                                      |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime executable behavior | Application/library/CLI code in Python, JavaScript/TypeScript, shell, or C++                                                              | Delegate feature, bug-fix, and critical-logic implementation to the Principal Engineer, which applies TDD when the behavior can be exercised by an automated test.                            |
-| Non-executable artifact     | Documentation, Markdown, configuration, manifests, CI workflows, lockfiles, templates, prompts, agent definitions, and skill instructions | Edit directly. Do not invoke the TDD agents or create behavioral tests solely for the artifact; run its existing formatter, linter, parser, schema, syntax, or repository validation instead. |
-| Mixed change                | A runtime code change plus docs, configuration, or workflow updates                                                                       | Split the work: delegate only the runtime executable behavior, and handle the non-executable artifacts directly with artifact-specific validation.                                            |
+| Change type                 | Examples                                                                                                                                  | Handling                                                                                                                                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime executable behavior | Application/library/CLI code in Python, JavaScript/TypeScript, shell, or C++                                                              | Delegate feature, bug-fix, and critical-logic implementation to the Principal Engineer, which applies TDD when the behavior can be exercised by an automated test.                        |
+| Non-executable artifact     | Documentation, Markdown, configuration, manifests, CI workflows, lockfiles, templates, prompts, agent definitions, and skill instructions | Edit directly. Do not run the TDD cycle or create behavioral tests solely for the artifact; run its existing formatter, linter, parser, schema, syntax, or repository validation instead. |
+| Mixed change                | A runtime code change plus docs, configuration, or workflow updates                                                                       | Split the work: delegate only the runtime executable behavior, and handle the non-executable artifacts directly with artifact-specific validation.                                        |
 
-- **Never invoke** tdd-red, tdd-green, or tdd-refactor agents directly—the
-  Principal Engineer handles them when the runtime-code gate above is met.
+- **Never load** `/agentdev:tdd` directly—the Principal Engineer loads it when
+  the runtime-code gate above is met.
 - **Research before implementing**: use the built-in `Explore` agent when blocked on understanding requirements or locating code.
 - **Plan before implementing**: use the built-in `Plan` agent for complex multi-step remediation.
 - Do not infer that a changed artifact needs a new test merely because the repository
@@ -299,7 +299,7 @@ Add tests for uncovered code.
 
 3. **Write missing tests**: delegate to the Principal Engineer to run the TDD
    cycle (Red: failing test for the uncovered path; Green: make it pass;
-   Refactor: improve test clarity). Do not invoke the TDD sub-agents directly.
+   Refactor: improve test clarity). Do not load `/agentdev:tdd` directly.
 
 4. **Verify coverage improvement**:
 
@@ -540,4 +540,4 @@ Maintain an internal execution log documenting:
 - [Extract GitHub Actions Logs](../extract-github-actions-logs/) - Fetch CI job logs and download test-report artifacts
 - [Get CodeQL Data](../get-codeql-data/) - Fetch PR, branch, or repository CodeQL alerts with `gh api`
 - Coding Conventions in the repository's root `AGENTS.md` - project style, testing, and error-handling rules
-- [Principal Engineer](../../agents/principal-engineer.agent.md) - Runtime executable-code implementation agent with scoped TDD orchestration
+- [Principal Engineer](../../agents/principal-engineer.agent.md) - Runtime executable-code implementation agent with scoped TDD
