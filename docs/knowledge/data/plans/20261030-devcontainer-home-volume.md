@@ -37,8 +37,8 @@ the rejected alternatives. The Dev Container runs as root with `/root` on the
 container filesystem, so every piece of per-instance state has its own volume
 (`agentdev-claude`, `agentdev-opencode`, `agentdev-uv`, and the volume holding
 the pre-commit cache), and `~/.claude.json` is a symlink into the `~/.claude`
-volume. The deploy runtime has none of this: a non-root account whose whole home
-is one volume.
+volume. The deploy runtime is a non-root account whose home is one volume; it
+keeps only the `/uv` volume and the `~/.claude.json` link.
 
 The owner's decisions for this plan: a non-root account; the work lands after
 [Replace the runtime shell scripts with one agentdev-runtime
@@ -54,9 +54,7 @@ Storing `~/.claude.json` as a file on the home volume removes the link that
 [~/.claude.json stops being the volume
 symlink](../bugs/claude-json-symlink-replaced.md) describes, so this plan fixes
 that bug. The account cannot write the root-owned `/workspaces`, so worktree
-mode uses the checkout's `.worktrees/` directory, which [Bug: git-new-branch
-worktree fallback checks a runtime mode no image
-sets](../bugs/git-new-branch-worktree-mode-mismatch.md) provides.
+mode uses the checkout's `.worktrees/` directory.
 
 ## Approach
 
@@ -379,8 +377,8 @@ CLI](20261029-off-bash-migration.md)
   only by dropping the `~/.claude.json` link and the `/uv` volume. A deploy
   instance's existing `/uv` volume is no longer mounted, and its uv cache and
   project venv are rebuilt once.
-- GitHub Actions container jobs, which run as the job's user and keep the root
-  branch of the create phase.
+- GitHub Actions container jobs, which run as root and keep the create phase's
+  root path; Task 3 and Task 5 act only for a non-root account.
 
 ## Key references
 
