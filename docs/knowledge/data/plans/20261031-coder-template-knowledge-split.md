@@ -149,12 +149,19 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 `docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md`;
 Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
-- [ ] Both documents are copied unchanged apart from links: the link between the
+- [x] Both documents are copied unchanged apart from links: the link between the
   two stays relative, and every other relative link becomes an
   `agent-devcontainer` URL on `main`. Each one's `sources` names its original at
   the commit copied.
-- [ ] `bugs.md` links the bug, and `plans.md` links the plan, each as an entry
+  - **Evidence:** coder-ide-baseline 251b664 in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36): the bug and
+    plan copied from b0f0dfed and 95c94b6d; the only body change is the plan's
+    Remote Control link, now an `agent-devcontainer` URL on `main`, and each
+    `sources` names its original.
+- [x] `bugs.md` links the bug, and `plans.md` links the plan, each as an entry
   in the hub's flat sorted list.
+  - **Evidence:** coder-ide-baseline 251b664 in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36).
 
 ### Task 5: Validate and commit the template workspace
 
