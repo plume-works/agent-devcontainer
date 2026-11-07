@@ -17,6 +17,7 @@ VOLUMES = {
     'dind-var-lib-docker-0abc': OLD,
     'proj_devcontainer_dind-var-lib-containerd-0abc': OLD,
     'proj_devcontainer_agentdev-cache': OLD,
+    'proj_devcontainer_agentdev-cbm': OLD,
     'proj_devcontainer_agentdev-codex': OLD,
     'dind-var-lib-docker-1young': YOUNG,
     'agentdev-agents-auth': OLD,
@@ -28,6 +29,7 @@ REMOVED = {
     'dind-var-lib-docker-0abc',
     'proj_devcontainer_dind-var-lib-containerd-0abc',
     'proj_devcontainer_agentdev-cache',
+    'proj_devcontainer_agentdev-cbm',
     'proj_devcontainer_agentdev-codex',
 }
 

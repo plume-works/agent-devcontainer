@@ -3,7 +3,7 @@ type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:28Z
+  at: 2026-11-06T12:00:00Z
 ---
 
 # Module layout
@@ -42,7 +42,7 @@ How the three main surfaces come together for a consumer, per the README's
 ansible/ + docker/ + py_packages/agentdev_runtime/ + catalog publisher source
         -> ghcr.io/plume-works/agentdev-devcontainer  (digest-pinned in devcontainer-compose-pins.yml)
         -> .devcontainer/devcontainer.json + docker-compose.yml
-        -> image entrypoint: supervised dbus, keyring, dockerd, CBM, Xpra
+        -> image entrypoint: supervised dbus, keyring, dockerd, Xpra
         -> postCreateCommand (once, from the image metadata): install the staged
            agentdev catalog into persistent Claude state volumes
         -> postAttachCommand (each attach): workspace catalog override if present

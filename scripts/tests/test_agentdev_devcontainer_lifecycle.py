@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -16,7 +15,7 @@ import pytest
 LIFECYCLE = """
 import os, sys
 from pathlib import Path
-from agentdev_runtime import agent_state, catalog, cbm, git, health, lifecycle, project, workspace
+from agentdev_runtime import agent_state, catalog, git, health, lifecycle, project, workspace
 
 state = Path(os.environ['LIFECYCLE_STATE'])
 
@@ -33,8 +32,6 @@ workspace.Workspace.project = lambda self: record('agentdev-runtime workspace pr
 catalog.install = lambda settings, root, scope: record(
     f'agentdev-runtime catalog install {root}' + (f' --claude-scope {scope}' if scope else '')
 )
-cbm.Daemon.start = lambda self: record('agentdev-runtime cbm start')
-cbm.Daemon.index = lambda self, repo: record(f'agentdev-runtime cbm index {repo}')
 project.sync = lambda settings: record('agentdev-runtime project sync')
 health.ready = lambda settings: 0 if (state / 'ready').exists() else 1
 
@@ -68,7 +65,6 @@ class Lifecycle:
             directory.mkdir(parents=True)
         (root / 'home').mkdir()
         self.stub(self.bin / 'sudo', 'sudo')
-        self.stub(self.bin / 'codebase-memory-mcp', 'codebase-memory-mcp')
 
     def write(self, path: Path, body: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -177,16 +173,6 @@ def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
     assert 'No catalog staged in the image' in result.stdout
 
 
-@pytest.mark.skipif(os.geteuid() != 0, reason='ancestor ownership is claimed only as root')
-def test_create_claims_ancestors_but_never_checkout_contents(lifecycle):
-    (lifecycle.workspace / '.cache').mkdir()
-    assert_ok(lifecycle.run('created'))
-    sudo = [line for line in lifecycle.log.read_text().splitlines() if line.startswith('sudo ')]
-    assert f'sudo chown 0:0 {lifecycle.workspace}' in sudo
-    assert f'sudo chown -R 0:0 {lifecycle.workspace}/.cache' not in sudo
-    assert not any(line.startswith(f'sudo chown -R 0:0 {lifecycle.workspace} ') for line in sudo)
-
-
 def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
     waiter = subprocess.Popen(lifecycle.argv('created', '--wait'), env=lifecycle.env())
     try:
@@ -237,7 +223,6 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     lifecycle.hook('attached', 'refresh')
     assert_ok(lifecycle.run('attached'))
     assert lifecycle.calls() == [
-        f'agentdev-runtime cbm index {lifecycle.workspace}',
         'agentdev-runtime project sync',
         f'agentdev-runtime catalog install {lifecycle.workspace}',
         'hook attached/refresh attached',
@@ -256,14 +241,14 @@ def test_attach_keeps_the_staged_catalog_for_an_incomplete_checkout(lifecycle, m
         target.unlink()
     result = lifecycle.run('attached')
     assert_ok(result)
-    assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}']
+    assert lifecycle.calls() == []
     assert 'keeping the staged catalog' in result.stdout
 
 
 def test_repeated_attach_reruns_only_attach_scoped_work(lifecycle):
     for _ in range(3):
         assert_ok(lifecycle.run('attached'))
-    assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}'] * 3
+    assert lifecycle.calls() == []
     assert not lifecycle.marker.exists()
 
 
@@ -319,6 +304,6 @@ def test_a_hook_root_inside_the_workspace_is_refused(lifecycle):
     assert not (inside / 'attached.d/x.ran').exists()
 
 
-def test_a_start_without_a_supervisor_starts_cbm_before_the_start_steps(lifecycle):
+def test_a_start_without_a_supervisor_runs_the_start_steps(lifecycle):
     assert_ok(lifecycle.run('ready', '--no-wait'))
-    assert lifecycle.calls() == ['agentdev-runtime cbm start', *START_STEPS]
+    assert lifecycle.calls() == START_STEPS

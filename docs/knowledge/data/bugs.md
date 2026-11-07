@@ -91,6 +91,9 @@ lacks](bugs/gh-stack-install-needs-token.md)
 [Bug: gh stack push overwrites a stack layer whose remote is
 ahead](bugs/gh-stack-push-overwrites-remote-layer.md)
 
+[Bug: git-new-branch worktree fallback checks a runtime mode no image
+sets](bugs/git-new-branch-worktree-mode-mismatch.md)
+
 [Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
 /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
 
@@ -132,6 +135,9 @@ approval](bugs/relayed-approval-unauthenticated.md)
 
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: Remote Control sessions on a workspace receive cloud-session
+instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 
 [Bug: Remote Control real-tmux tests share one tmux server under
 pytest-xdist](bugs/remote-control-tmux-test-shared-under-xdist.md)

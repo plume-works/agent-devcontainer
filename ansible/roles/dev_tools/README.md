@@ -5,7 +5,7 @@ This Ansible role installs a general set of development tools: build tooling
 `git_ppa` role),
 Python packaging basics, `pre-commit`, `jq`, `ffmpeg`, `btop`,
 and a list of pinned single-archive tools (currently the `zizmor` GitHub
-Actions auditor, `hadolint`, `shellcheck`, `iwe`, the `codebase-memory-mcp` binary, and the `bun`
+Actions auditor, `hadolint`, `shellcheck`, `iwe`, and the `bun`
 runtime).
 
 ## Pinned single-archive tools
@@ -37,17 +37,6 @@ from what `binaries` (or the default of `name`) can express.
 Each entry's `version` carries a `# renovate:` comment, so Renovate bumps it,
 and its post-upgrade task recomputes the checksums in the same commit; see
 `docs/knowledge/data/features/renovate-maintains-checksums.md`.
-
-### codebase-memory-mcp
-
-For `codebase-memory-mcp`, this role downloads the pinned portable archive
-directly and installs the binary from that archive. Linux always uses the
-`-portable` (statically linked) archive variant for compatibility with older
-glibc bases.
-
-This role installs only the binary. Agent config wiring runs from
-`agentdev-runtime lifecycle created` after volumes mount, alongside
-`agentdev-runtime catalog install`.
 
 ## Example Usage
 

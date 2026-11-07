@@ -3,7 +3,7 @@ type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:58:57Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -46,24 +46,17 @@ a red one.
 ## Which hooks, and why all three
 
 The naming does not match the responsibilities, so the split is worth stating.
-The checkout-scoped catalog install and the CBM *index* both live in
-**postAttach**; postStart only *starts* CBM, and postCreate is what *installs*
-it in the first place.
+The checkout-scoped catalog install lives in **postAttach**.
 
-| hook                                                    | what a review job needs from it                                            |
-| ------------------------------------------------------- | -------------------------------------------------------------------------- |
-| postCreate: `agentdev-runtime lifecycle created`        | **CBM wiring**, auth links, the project sync, image-scoped catalog install |
-| postStart: `agentdev-runtime lifecycle ready --no-wait` | starts the CBM daemon, then the per-start repairs; does not index          |
-| postAttach: `agentdev-runtime lifecycle attached`       | **CBM index**, the project sync, **catalog from this checkout**            |
-
-CBM is spread across all three hooks and no one of them is sufficient:
-`agentdev-runtime cbm install` wires the binary into agent config from
-**postCreate**, postStart starts it, postAttach indexes. Dropping postCreate to
-slim a CI job would leave the responder with no CBM wiring at all.
+| hook                                                    | what a review job needs from it                            |
+| ------------------------------------------------------- | ---------------------------------------------------------- |
+| postCreate: `agentdev-runtime lifecycle created`        | auth links, the project sync, image-scoped catalog install |
+| postStart: `agentdev-runtime lifecycle ready --no-wait` | the per-start repairs                                      |
+| postAttach: `agentdev-runtime lifecycle attached`       | the project sync, **catalog from this checkout**           |
 
 Running only postCreate and postStart would leave the responder with the image's
-catalog and an unindexed CBM — the two things that make the review grounded are
-both in postAttach.
+catalog rather than the branch's, so the review would not be grounded in the
+change under review.
 
 ## What a `container:` job must supply itself
 
@@ -74,7 +67,6 @@ supplies the load-bearing hook environment explicitly:
 | what                     | why                                                                  |
 | ------------------------ | -------------------------------------------------------------------- |
 | `DEV_WORKSPACE_FOLDER`   | workspace root for every lifecycle phase                             |
-| `CBM_CACHE_DIR`          | every `agentdev-runtime cbm` step refuses to run without it          |
 | `UV_PROJECT_ENVIRONMENT` | see below — unset is silent, not fatal                               |
 | `mkdir -p /root/.claude` | the create phase writes `claude.json` where a volume normally mounts |
 
@@ -112,10 +104,9 @@ runs `pre-commit install --install-hooks`, which eagerly builds a virtualenv for
 every hook in the repository — minutes of work for hooks a review job never
 fires. `AGENTDEV_SKIP_PRE_COMMIT` skips it.
 
-With no supervisor, `agentdev-runtime lifecycle ready --no-wait` starts only the
-CBM daemon before the per-start repairs. The keyring, the firewall, Xpra, and
-the other supervised services never start in a `container:` job; a review job
-needs none of them.
+With no supervisor, `agentdev-runtime lifecycle ready --no-wait` runs only the
+per-start repairs. The keyring, the firewall, Xpra, and the other supervised
+services never start in a `container:` job; a review job needs none of them.
 
 `git config --global --add safe.directory` is *not* skippable — a CI checkout is
 owned by a different uid — which is why it runs as its own step,
@@ -148,22 +139,17 @@ Rejected: it duplicates logic the hooks already own and drifts from them. The
 hooks are the tested path.
 
 **Skip the container and run the responder on a bare runner.** Viable, and
-simpler, but it gives up the project toolchain (`uv`, `bun`, the linters) and
-CBM that make a review grounded.
+simpler, but it gives up the project toolchain (`uv`, `bun`, the linters) that
+makes a review grounded.
 
 **Vendor a repository-local `.claude/skills/pr-review/`.** Removes the plugin
 dependency entirely, but forks from the catalog's copy and drifts.
 
 ## Cost of running the hooks
 
-Measured rather than assumed, because the intuition here is wrong in both
-directions:
-
-- **A cold CBM index is ~3.5s** in this repository. It runs from postAttach on
-  every review job and is not worth optimizing or caching.
-- **`pre-commit install --install-hooks` is minutes.** It eagerly builds a
-  virtualenv for every hook in the repository — the single expensive step in the
-  whole lifecycle, and the one a review job least needs, since it never commits.
+`pre-commit install --install-hooks` is minutes. It eagerly builds a virtualenv
+for every hook in the repository — the single expensive step in the whole
+lifecycle, and the one a review job least needs, since it never commits.
 
 The expensive step is the one that looks incidental, which is why the guard
 exists and why upstream's 30-minute job timeout carries over unchanged.

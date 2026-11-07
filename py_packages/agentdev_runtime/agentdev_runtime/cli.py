@@ -55,12 +55,6 @@ def _catalog(argv: list[str]) -> int:
     return catalog.main(argv)
 
 
-def _cbm(argv: list[str]) -> int:
-    from agentdev_runtime import cbm
-
-    return cbm.main(argv)
-
-
 def _coder(argv: list[str]) -> int:
     from agentdev_runtime import coder
 
@@ -136,13 +130,12 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
     'catalog': (_catalog, 'register a catalog root with Claude Code and OpenCode'),
-    'cbm': (_cbm, 'the codebase-memory-mcp daemon, its install, and its index request'),
     'coder': (_coder, "the Coder agent's start"),
     'docker': (_docker, 'the nested Docker engine and its garbage collection'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
     'remote-control': (_remote_control, 'the Claude Remote Control watcher, start, pane, and pin'),
-    'state': (_state, 'agent state: policy, CBM wiring, and pre-approval'),
+    'state': (_state, 'agent state: policy and pre-approval'),
     'xpra': (_xpra, 'the Xpra server with its HTML5 client'),
     'opencode': (_opencode, 'the OpenCode server, its probe, its link, and its Coder start'),
     'keyring': (_keyring, 'the D-Bus session and the GNOME Keyring Secret Service'),

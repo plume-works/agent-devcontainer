@@ -24,7 +24,6 @@ def record(text, code=0):
 
 agent_state.create = lambda settings: record('agentdev-runtime state create')
 agent_state.apply_agent_policy = lambda: record('agentdev-runtime state agent-policy')
-agent_state.install_cbm = lambda settings: record('agentdev-runtime state cbm')
 catalog.install = lambda settings, root, scope: record(
     f'agentdev-runtime catalog install {root} --claude-scope {scope}'
 )
@@ -329,13 +328,12 @@ def test_the_core_phase_prepares_agent_state_but_no_optional_work(runtime: Runti
     ]
 
 
-def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtime):
+def test_the_config_step_registers_the_catalog(runtime: Runtime):
     (runtime.root / 'image-catalog').mkdir()
     result = runtime.run('config')
     assert result.returncode == 0, result.stderr
     assert runtime.calls() == [
         f'agentdev-runtime catalog install {runtime.root / "image-catalog"} --claude-scope user',
-        'agentdev-runtime state cbm',
     ]
 
 

@@ -1,12 +1,11 @@
 ---
 type: architecture
-description: The dependency-free OpenCode catalog bridge that loads in OpenCode v1 and v2, its workspace registration boundary, host contracts, and rejected alternatives.
+description: The dependency-free OpenCode catalog bridge that loads in OpenCode v1 and v2, its host contracts, and rejected alternatives.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T06:31:53Z
+  by: claude-code/opus-5.5
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev
-- resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
 - resource: https://github.com/anomalyco/opencode/tree/0112a92/packages/plugin/src
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/skill/index.ts
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/command/index.ts
@@ -55,10 +54,8 @@ A `tool.execute.before` hook strips an `agentdev:` prefix from the skill tool's
 
 `effect` requires the host's `effect` module and the `fromPromise` adapter from
 `@opencode/plugin/promise/adapter` only when v2 calls it, so v1 never loads
-either. It captures the host's Effect context and runs the bridge's v2 setup
-through `fromPromise`, as the host does for its own setup plugins. The setup
-receives a log adapter bound to that context. Through v2's editors the setup
-registers:
+either. It runs the bridge's v2 setup through `fromPromise`, as the host does
+for its own setup plugins. Through v2's editors the setup registers:
 
 - every skill under its bare frontmatter name, with its `SKILL.md` path and
   body; `disable-model-invocation` sets `autoinvoke: false`;
@@ -95,46 +92,10 @@ The bridge has **no runtime dependencies**. It uses type-only imports and Bun
 built-ins, because the staged catalog in the image is root-owned and read-only,
 so no `node_modules` can be installed next to it.
 
-## Workspace graph registration
-
-The bridge owns active-workspace registration with CBM alongside catalog
-loading. After applying the catalog, its config hook starts an unawaited
-best-effort attempt using OpenCode's active directory. On v2 the setup runs once
-per directory OpenCode opens and registers an `mcp.transform` callback that
-reads the `codebase-memory-mcp` entry without changing it and starts the same
-attempt for that directory. Registration requires an enabled local
-`mcp["codebase-memory-mcp"]` entry with a nonempty command; an entry is disabled
-when v1's `enabled` is `false` or v2's `disabled` is `true`. Missing, disabled,
-or remote CBM and non-Git directories are quiet skips. The bridge appends
-arguments to the configured command and overlays its environment onto the
-inherited environment; it never rewrites MCP settings or broadens allowed roots.
-CBM's generated augmentation plugin remains separate.
-
-Git and realpath resolve the canonical worktree root. The helper follows
-project-list pagination and compares canonical exact roots; a parent repository
-does not cover another checkout, and linked worktrees remain distinct roots. An
-absent root starts or joins the daemon and submits asynchronous indexing with
-CBM's default mode and no repository snapshot persistence. Indexed projects are
-retained. In-process attempts share work per canonical root; cross-process
-requests rely on CBM's join semantics.
-
-Catalog availability does not imply graph readiness. Each subprocess is bounded
-to ten seconds and captured output to a combined 1 MiB. Daemon startup does not
-capture output because a detached daemon can retain startup pipes. Failures
-produce an `agentdev` warning in `opencode.log` and never reject config
-initialization: on v1 through OpenCode's logging client, on v2 through the
-host's Effect logger, at warning level annotated `service: agentdev`, using the
-context `effect` captured. A plugin's own `Effect.runPromise` reaches only the
-server's console, and v2 discards a plugin's `console` output. A failing CBM
-command's diagnostic carries its stdout when stderr is empty, which is where CBM
-writes an MCP error such as a root outside the allowed root. A later workspace
-initialization may retry; there is no completion polling or periodic retry in
-the bridge.
+## Reloading
 
 Quit and restart OpenCode after installing a changed bridge or changing its
-configuration. Existing sessions retain the already-loaded plugin. A host must
-remain alive long enough to submit registration; short-lived debug commands can
-exit before background work runs.
+configuration. Existing sessions retain the already-loaded plugin.
 
 ## Host behavior the design rests on
 

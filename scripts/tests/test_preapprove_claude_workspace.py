@@ -35,13 +35,13 @@ def test_approves_state_and_mcp_preserving_existing_keys_and_denials(tmp_path):
     (workspace / '.claude').mkdir(parents=True)
     local_settings = workspace / '.claude' / 'settings.local.json'
     local_settings.write_text(json.dumps({'disabledMcpjsonServers': ['iwe'], 'keep': 1}))
-    (tmp_path / '.claude.json').write_text(json.dumps({'mcpServers': {'cbm': {}}}))
+    (tmp_path / '.claude.json').write_text(json.dumps({'mcpServers': {'server': {}}}))
 
     result, _ = run_preapprove(tmp_path)
 
     assert result.returncode == 0, result.stderr
     state = json.loads((tmp_path / '.claude.json').read_text())
-    assert state['mcpServers'] == {'cbm': {}}
+    assert state['mcpServers'] == {'server': {}}
     assert state['hasCompletedOnboarding'] is True
     assert state['remoteDialogSeen'] is True
     assert state['projects'][str(workspace)]['hasTrustDialogAccepted'] is True

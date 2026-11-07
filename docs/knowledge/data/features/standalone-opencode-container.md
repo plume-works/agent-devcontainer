@@ -1,10 +1,10 @@
 ---
 type: feature
 stage: implemented
-description: A dedicated agentdev-deploy image starts a persistent single-project agent environment with OpenCode, nested Docker, CBM, keyring, and Xpra without a Dev Containers client.
+description: A dedicated agentdev-deploy image starts a persistent single-project agent environment with OpenCode, nested Docker, keyring, and Xpra without a Dev Containers client.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:44Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/base/agentdev-base.Dockerfile
@@ -27,10 +27,9 @@ client, Coder, or this repository's scaffolding in the project checkout.
   the `agentdev-devcontainer` image.
 - Accept a mounted checkout or clone a configured repository into a persistent
   workspace volume. Reuse an existing checkout without automatic Git updates.
-- Start nested Docker, CBM, an instance-local D-Bus/keyring, and Xpra. Start
-  OpenCode only after required services, initial indexing, and matching project
-  preparation succeed. Run uv sync and install pre-commit hooks when their
-  project configuration exists.
+- Start nested Docker, an instance-local D-Bus/keyring, and Xpra. Start OpenCode
+  only after required services and matching project preparation succeed. Run uv
+  sync and install pre-commit hooks when their project configuration exists.
 - Supervise required services individually, retry failures with bounded backoff,
   and exit the container if recovery is exhausted.
 - Keep Claude Code available, including catalog and auth setup, without
@@ -68,6 +67,6 @@ client, Coder, or this repository's scaffolding in the project checkout.
 
 ## Open questions
 
-No product choices remain open. The implementation must verify CBM lifecycle and
-ownership compatibility, non-root tool availability, and supervised DinD
-operation on both supported architectures before accepting the runtime.
+No product choices remain open. The implementation must verify non-root tool
+availability and supervised DinD operation on both supported architectures
+before accepting the runtime.

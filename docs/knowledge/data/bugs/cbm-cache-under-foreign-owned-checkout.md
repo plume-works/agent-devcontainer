@@ -56,7 +56,7 @@ boot, before any lifecycle hook, so CBM sees whatever owner the host left.
 
 `CBM_CACHE_DIR` is `/root/.cache/codebase-memory-mcp`, on its own per-worktree
 `agentdev-cbm` volume. No ancestor of that path belongs to the host checkout.
-See [CBM daemon lifecycle](../architecture/cbm-daemon-lifecycle.md).
+See CBM daemon lifecycle.
 
 ## Key references
 

@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-06T00:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -57,7 +57,7 @@ ansible/ + docker/ + py_packages/agentdev_runtime/ + catalog publisher source
    agentdev-agents-auth volume, wire host MCP/secrets
                     |
      image entrypoint: supervised dbus, keyring,
-     dockerd, CBM, and Xpra
+     dockerd, and Xpra
                     |
    postCreateCommand / postStartCommand / postAttachCommand
    from the image metadata: client state and the staged

@@ -4,7 +4,7 @@ stage: implemented
 description: Claude Code and OpenCode are the only agent harnesses the images, runtime, agentdev catalog, and CI support; Codex is removed entirely.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T21:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -24,8 +24,7 @@ agent harnesses: Claude Code and OpenCode. Codex is not supported.
 
 - The images do not install the Codex CLI.
 - The runtime does not configure Codex: there is no full-access `config.toml`
-  policy, no CBM Codex hooks repair, no shared Codex `auth.json` link, and no
-  `CODEX_HOME`.
+  policy, no shared Codex `auth.json` link, and no `CODEX_HOME`.
 - The catalog ships no Codex package: no `.codex-plugin/plugin.json`, no
   `.agents/plugins/marketplace.json`, no per-skill `agents/openai.yaml`, and no
   Codex agent installer.

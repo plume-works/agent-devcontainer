@@ -4,7 +4,7 @@ stage: implemented
 description: One zsh bootstrap script in the agentdev catalog turns a stock macOS host into one that runs agentdev natively — the catalog's CLI tools through Homebrew, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T23:34:07Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
@@ -30,8 +30,8 @@ once the plugin is enabled. Each run is idempotent:
   Code through Homebrew, at floating versions.
 - It installs, through uv, the Python version the catalog is tested on as the
   default `python3`.
-- It installs `iwe` and `codebase-memory-mcp` from their release tarballs at the
-  versions the image pins, each checked against a recorded SHA-256.
+- It installs `iwe` from its release tarball at the version the image pins,
+  checked against a recorded SHA-256.
 - It keeps one marker-delimited block in `~/.zprofile` so every new zsh login
   shell resolves `env python3` to the uv-provisioned Python. When fish is
   installed or is the user's `$SHELL`, it keeps the same kind of block in

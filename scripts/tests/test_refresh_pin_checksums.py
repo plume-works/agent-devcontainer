@@ -363,29 +363,21 @@ def test_bare_binary_and_nested_dir_urls_follow_the_install_task(
 BOOTSTRAP = '.agents/plugins/agentdev/bin/macos-bootstrap.zsh'
 DARWIN_TARGETS = {
     'iwe': {'arm64': 'aarch64-apple-darwin', 'amd64': 'x86_64-apple-darwin'},
-    'codebase-memory-mcp': {'arm64': 'darwin-arm64', 'amd64': 'darwin-amd64'},
 }
 
 
-def serve_darwin(server: AssetServer, iwe: str, cbm: str, tag: bytes) -> dict[str, str]:
-    """Serve the bootstrap's darwin archives at two versions and return digests by SHA256 key."""
-    paths = {
-        'iwe': '/iwe-org/iwe/releases/download/{v}/{v}-{t}.tar.gz',
-        'codebase-memory-mcp': (
-            '/DeusData/codebase-memory-mcp/releases/download/{v}/codebase-memory-mcp-{t}.tar.gz'
-        ),
-    }
+def serve_darwin(server: AssetServer, iwe: str, tag: bytes) -> dict[str, str]:
+    """Serve the bootstrap's darwin archives and return digests by SHA256 key."""
     digests = {}
-    for tool, version in (('iwe', iwe), ('codebase-memory-mcp', cbm)):
-        for arch, target in DARWIN_TARGETS[tool].items():
-            body = tag + f'{tool}-{version}-{arch}'.encode()
-            server.assets[paths[tool].format(v=version, t=target)] = body
-            digests[f'{tool}-{arch}'] = sha(body)
+    for arch, target in DARWIN_TARGETS['iwe'].items():
+        body = tag + f'iwe-{iwe}-{arch}'.encode()
+        server.assets[f'/iwe-org/iwe/releases/download/{iwe}/{iwe}-{target}.tar.gz'] = body
+        digests[f'iwe-{arch}'] = sha(body)
     return digests
 
 
-def bootstrap(url: str, iwe: str, cbm: str, digests: dict[str, str]) -> str:
-    """Return the real bootstrap, downloading from ``url``, at the given versions and digests."""
+def bootstrap(url: str, iwe: str, digests: dict[str, str]) -> str:
+    """Return the real bootstrap, downloading from ``url``, at the given version and digests."""
     text = (REPO_ROOT / BOOTSTRAP).read_text().replace('https://github.com', url)
     lines = []
     for line in text.splitlines(keepends=True):
@@ -394,32 +386,29 @@ def bootstrap(url: str, iwe: str, cbm: str, digests: dict[str, str]) -> str:
             line = f'  {key} {digests[key]}\n'
         elif line.startswith('typeset -r IWE_VERSION='):
             line = f'typeset -r IWE_VERSION={iwe}\n'
-        elif line.startswith('typeset -r CBM_VERSION='):
-            line = f'typeset -r CBM_VERSION={cbm}\n'
         lines.append(line)
     return ''.join(lines)
 
 
-def test_bootstrap_bump_rehashes_only_the_bumped_tool(repo: Path, server: AssetServer) -> None:
-    """A bumped bootstrap version gets its darwin digests rewritten; the other tool's stay."""
-    old = serve_darwin(server, 'iwe-v1.0.0', 'v1.0.0', b'old')
-    write(repo, BOOTSTRAP, bootstrap(server.url, 'iwe-v1.0.0', 'v1.0.0', old))
+def test_bootstrap_bump_rehashes_the_bumped_tool(repo: Path, server: AssetServer) -> None:
+    """A bumped bootstrap version gets its darwin digests rewritten."""
+    old = serve_darwin(server, 'iwe-v1.0.0', b'old')
+    write(repo, BOOTSTRAP, bootstrap(server.url, 'iwe-v1.0.0', old))
     commit(repo)
-    new = serve_darwin(server, 'iwe-v2.0.0', 'v1.0.0', b'old')
-    write(repo, BOOTSTRAP, bootstrap(server.url, 'iwe-v2.0.0', 'v1.0.0', old))
+    new = serve_darwin(server, 'iwe-v2.0.0', b'old')
+    write(repo, BOOTSTRAP, bootstrap(server.url, 'iwe-v2.0.0', old))
 
     assert run(repo, BOOTSTRAP) == 0
-    assert (repo / BOOTSTRAP).read_text() == bootstrap(server.url, 'iwe-v2.0.0', 'v1.0.0', new)
-    assert new['codebase-memory-mcp-arm64'] == old['codebase-memory-mcp-arm64']
+    assert (repo / BOOTSTRAP).read_text() == bootstrap(server.url, 'iwe-v2.0.0', new)
 
 
 def test_bootstrap_moved_tag_fails(repo: Path, server: AssetServer) -> None:
     """An unchanged bootstrap version whose archive changed fails with the script kept."""
-    recorded = serve_darwin(server, 'iwe-v1.0.0', 'v1.0.0', b'original')
-    text = bootstrap(server.url, 'iwe-v1.0.0', 'v1.0.0', recorded)
+    recorded = serve_darwin(server, 'iwe-v1.0.0', b'original')
+    text = bootstrap(server.url, 'iwe-v1.0.0', recorded)
     write(repo, BOOTSTRAP, text)
     commit(repo)
-    serve_darwin(server, 'iwe-v1.0.0', 'v1.0.0', b'republished')
+    serve_darwin(server, 'iwe-v1.0.0', b'republished')
 
     assert run(repo, BOOTSTRAP) == 1
     assert (repo / BOOTSTRAP).read_text() == text
