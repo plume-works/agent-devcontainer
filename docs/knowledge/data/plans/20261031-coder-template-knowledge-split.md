@@ -100,8 +100,13 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 **Files:** Modify (in `plume-works/coder-ide-baseline`):
 `docs/knowledge/data/product.md`
 
-- [ ] `/agentdev:iwe-setup` fills `product.md`, with the maintainer answering
+- [x] `/agentdev:iwe-setup` fills `product.md`, with the maintainer answering
   its questions; no ✏️ placeholder remains.
+  - **Evidence:** coder-ide-baseline ce8b1d5 in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36):
+    `product.md` filled from the code and the maintainer's answers,
+    `architecture/template-layout.md` added, examples removed; `grep -c ✏️`
+    prints 0 and `iwe schema validate` passes.
 
 ### Task 3: Write the template spec
 
