@@ -173,8 +173,12 @@ Modify: every document `iwe delete` updates
 `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md`, and this
 plan's `## Context`, which `iwe delete` flattens too
 
-- [ ] Each reference Task 8 flattened to plain text is a link to the
+- [x] Each reference Task 8 flattened to plain text is a link to the
   `coder-ide-baseline` copy on `main`; no other text changes.
+  - **Evidence:** `98674631` links every flattened reference, and restores the
+    `releases/2.0.0.md` entry `iwe delete` removed, to the copies; with link
+    targets blanked, the four named files match their text at `6c67b36f`, and
+    both URLs resolve through `gh api` on `coder-ide-baseline` `main`.
 
 ## Spec changes
 
