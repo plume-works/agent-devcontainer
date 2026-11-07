@@ -97,8 +97,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Manual stacked pull requests](architecture/manual-stacked-prs.md)
 
-[MCP gateway transport](architecture/mcp-gateway-transport.md)
-
 [Module layout](architecture/module-layout.md)
 
 [Nested Docker provisioning](architecture/nested-docker-provisioning.md)
