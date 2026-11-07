@@ -81,27 +81,38 @@ Rejected alternatives, recorded in the architecture note:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] `on:` lists only `pull_request`, `pull_request_review`, and `merge_group`,
+- [x] `on:` lists only `pull_request`, `pull_request_review`, and `merge_group`,
   with their current activity types; the `workflow_dispatch` inputs are gone.
-- [ ] The concurrency group keys runs by pull request number or merge group head
+  - **Evidence:** commit 1ddb464f; the Verification grep for `issue_comment` and
+    `workflow_dispatch` finds nothing.
+- [x] The concurrency group keys runs by pull request number or merge group head
   SHA only.
-- [ ] Preflight's `if:` has no `@claude` clause, its "Determine checkout ref"
+  - **Evidence:** commit 1ddb464f; `pull_request_review` runs key by pull
+    request number and review id, so a review event never cancels a review.
+- [x] Preflight's `if:` has no `@claude` clause, its "Determine checkout ref"
   step has no dispatch branch, "Authorize responder requester" reads
   `context.actor`, and "Determine agent prompts" builds only the review prompt,
   with no `wants_task` output.
-- [ ] The `bridge` and `claude-task` jobs are removed, `claude-respond` passes
+  - **Evidence:** commit 1ddb464f; the step is renamed "Authorize the triggering
+    actor", and `bun build` parses every inline `github-script` body.
+- [x] The `bridge` and `claude-task` jobs are removed, `claude-respond` passes
   no run-link inputs, its checkout comment no longer argues the `issue_comment`
   case, and `ai-review-present` reads only `github.event.pull_request.number`.
+  - **Evidence:** commit 1ddb464f; the Verification grep finds nothing.
 
 ### Task 2: The responder action drops dispatch support
 
 **Files:** Modify: `.github/actions/run-claude-responder/action.yml`,
 `zizmor.yaml`
 
-- [ ] The `append-run-link`, `comment-id`, and `comment-kind` inputs, the
+- [x] The `append-run-link`, `comment-id`, and `comment-kind` inputs, the
   "Append run link to Claude request" step, and `allowed_bots` are removed.
-- [ ] The `dangerous-triggers` ignore entry for `ai-responder.yml:4` is removed,
+  - **Evidence:** commit 1ddb464f; the `pr-number` input, read only by the
+    run-link step, is removed too.
+- [x] The `dangerous-triggers` ignore entry for `ai-responder.yml:4` is removed,
   and `actionlint` and `zizmor` pass through pre-commit.
+  - **Evidence:** commit 1ddb464f; `uv run pre-commit run --files` on the three
+    files passes "Lint GitHub Actions workflow files" and "zizmor".
 
 ### Task 3: Catalog and consumer docs drop the task path
 
@@ -111,19 +122,24 @@ Rejected alternatives, recorded in the architecture note:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`
 
-- [ ] `pr-request-ai-review` says an `@claude review` comment starts nothing,
+- [x] `pr-request-ai-review` says an `@claude review` comment starts nothing,
   and `test_no_review_trigger_comment_on_any_path`'s docstring no longer
   mentions the bridge;
   `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes.
-- [ ] The consumption guide's "AI responder and the review gate" section
+  - **Evidence:** commit e8c42693; 38 passed.
+- [x] The consumption guide's "AI responder and the review gate" section
   describes a workflow that reviews pull requests only: no `@claude` mentions,
   no run-link step, no comment-trigger or `workflow_dispatch` contract, and the
   review refresh is the assignee toggle.
-- [ ] `README.md`'s "Pull-request automation" section names reviews only, and
+  - **Evidence:** commit e8c42693; the comment-trigger bullet now says no
+    comment starts the workflow and forbids adding comment or dispatch triggers.
+- [x] `README.md`'s "Pull-request automation" section names reviews only, and
   its security sentence covers the fork gate and the write-access gate on the
   review.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+  - **Evidence:** commit e8c42693.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** commit e8c42693; 60/60 skills valid, 0 errors.
 
 ### Task 4: Knowledge records the pull-request-only responder
 
@@ -132,13 +148,16 @@ Rejected alternatives, recorded in the architecture note:
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The architecture note records the decisions under `## Context`, the
+- [x] The architecture note records the decisions under `## Context`, the
   trigger set, both rejected alternatives, and that it supersedes [Dispatched
   review identity](../architecture/dispatched-review-identity.md); it is linked
   from `data/architecture.md`.
-- [ ] The feature's `## Purpose`, `## Behaviour`, and `## Edge cases` describe
+  - **Evidence:** commit 4022927c; `iwe schema validate` passes.
+- [x] The feature's `## Purpose`, `## Behaviour`, and `## Edge cases` describe
   no task responder, bridge, or dispatch; the head-branch-without-workflow and
   older-dispatch-input edge cases are removed.
+  - **Evidence:** commit 4022927c; the fork edge case now says preflight is
+    skipped, matching its `pull_request`-only `if:`.
 
 ### Task 5: A comment starts nothing
 
