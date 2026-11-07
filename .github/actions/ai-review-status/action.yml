@@ -10,9 +10,6 @@ inputs:
   github-token:
     description: GitHub token used to read reviews
     required: true
-  reviewer-login:
-    description: The only login whose review is accepted, such as plume-works-quill[bot]
-    required: true
   trusted-bot-actors:
     description: >-
       Comma-separated bot logins whose pull requests need no AI review.
@@ -37,7 +34,6 @@ runs:
       env:
         PR_NUMBER: ${{ inputs.pr-number }}
         TRUSTED_BOT_ACTORS: ${{ inputs.trusted-bot-actors }}
-        REVIEWER_LOGIN: ${{ inputs.reviewer-login }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -48,10 +44,6 @@ runs:
           };
           if (!Number.isInteger(pullRequest.pull_number) || pullRequest.pull_number <= 0) {
             throw new Error(`pr-number must be a positive integer, got ${JSON.stringify(process.env.PR_NUMBER)}`);
-          }
-          const reviewerLogin = (process.env.REVIEWER_LOGIN ?? '').trim();
-          if (!reviewerLogin) {
-            throw new Error('reviewer-login must name the accepted AI reviewer');
           }
 
           const report = (found, reason) => {
@@ -73,6 +65,7 @@ runs:
           // The rule asserts that the PR has been reviewed, not that its
           // current head has been -- see spec/ai-review-gate. Do not compare
           // review.commit_id against the head SHA.
+          const reviewerLogin = 'plume-works-quill[bot]';
           const acceptedReviewStates = new Set(['approved', 'changes_requested', 'commented']);
 
           const reviewLogin = (review) => review?.user?.login;

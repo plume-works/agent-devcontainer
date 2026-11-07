@@ -35,8 +35,6 @@ env:
   CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
   # Bots whose pull requests skip the AI review and are approved instead.
   TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
-  # The App the responder posts as, and the only reviewer the gate accepts.
-  AI_REVIEWER_LOGIN: 'plume-works-quill[bot]'
 
 jobs:
   preflight:
@@ -109,7 +107,6 @@ jobs:
         with:
           pr-number: ${{ steps.checkout_ref.outputs.prNumber }}
           github-token: ${{ github.token }}
-          reviewer-login: ${{ env.AI_REVIEWER_LOGIN }}
 
       - name: Authorize the triggering actor
         if: steps.checkout_ref.outputs.isFork != 'true'
@@ -257,7 +254,6 @@ jobs:
           pr-number: ${{ github.event.pull_request.number }}
           github-token: ${{ github.token }}
           trusted-bot-actors: ${{ env.TRUSTED_BOT_ACTORS }}
-          reviewer-login: ${{ env.AI_REVIEWER_LOGIN }}
 
       - name: Verify AI reviewed PR
         env:
@@ -368,7 +364,7 @@ jobs:
               per_page: 100,
             });
             const ownApprovals = reviews.filter(
-              (review) => review.user?.login === process.env.AI_REVIEWER_LOGIN && review.state === 'APPROVED',
+              (review) => review.user?.login === 'plume-works-quill[bot]' && review.state === 'APPROVED',
             );
 
             // Approval covers only the bot's own commits, see spec/ai-review-gate.
@@ -438,7 +434,7 @@ jobs:
             }
 
             if (ownApprovals.length > 0) {
-              core.info(`${process.env.AI_REVIEWER_LOGIN} already approved this pull request.`);
+              core.info('plume-works-quill[bot] already approved this pull request.');
               return;
             }
 
