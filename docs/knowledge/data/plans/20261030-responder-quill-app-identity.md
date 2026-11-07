@@ -141,13 +141,24 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] `claude-respond` uses `environment: plume-works-review`, passes
+- [x] `claude-respond` uses `environment: plume-works-review`, passes
   `QUILL_APP_CLIENT_ID` and `QUILL_APP_PRIVATE_KEY` to the action, and drops
   `id-token: write` and its comment.
-- [ ] A workflow-level `AI_REVIEWER_LOGIN` is `plume-works-quill[bot]`.
-- [ ] The review prompt carries a line saying the responder never opens a pull
+  - **Evidence:** commit 1c517a54; `claude-respond` names
+    `environment: plume-works-review`, passes `secrets.QUILL_APP_CLIENT_ID` and
+    `secrets.QUILL_APP_PRIVATE_KEY` as `app-client-id` and `app-private-key`,
+    and has no `id-token` permission; actionlint and zizmor pass.
+- [x] A workflow-level `AI_REVIEWER_LOGIN` is `plume-works-quill[bot]`.
+  - **Evidence:** commit 1c517a54; the workflow `env:` sets
+    `AI_REVIEWER_LOGIN: 'plume-works-quill[bot]'`; actionlint passes.
+- [x] The review prompt carries a line saying the responder never opens a pull
   request.
-- [ ] `actionlint` and `zizmor` pass through pre-commit.
+  - **Evidence:** commit 1c517a54; preflight's "Determine agent prompts" adds
+    `Never open a pull request.` to the review prompt; actionlint passes.
+- [x] `actionlint` and `zizmor` pass through pre-commit.
+  - **Evidence:** commit 1c517a54;
+    `uv run pre-commit run --files .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml`
+    passes "Lint GitHub Actions workflow files" (actionlint) and `zizmor`.
 
 ### Task 3: Trusted bots are approved by the App
 
