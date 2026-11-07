@@ -123,9 +123,15 @@ Rejected:
 **Closed by:** the maintainer, observing one session on Claude Code and one on
 OpenCode with the default test models.
 
-- [ ] A plain prompt asking to ship a named plan, with no command, loads the
+- [x] A plain prompt asking to ship a named plan, with no command, loads the
   `iwe-ship` skill and dispatches one `iwe-shipper` whose prompt carries only
   the plan key, the ship operation, and quoted approvals.
+  - **Evidence:** on commit 9dc6928, on the maintainer's instruction, an agent
+    ran one headless session per harness with that commit's catalog: Claude Code
+    2.1.316, and OpenCode 2.2.5 with `openai/gpt-6.1-sol` and
+    `openai/gpt-6-luna`. The maintainer did not watch the sessions. Each session
+    loaded `iwe-ship` and dispatched one `iwe-shipper`, whose whole prompt was
+    the plan key, `Operation: ship`, and `Approvals: none`.
 
 ### Task 5: Observe Explore leaving Ship alone on both harnesses
 
