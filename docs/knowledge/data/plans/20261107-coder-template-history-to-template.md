@@ -1,0 +1,233 @@
+---
+type: plan
+created: 2026-11-07
+release: internal
+description: Copy every finished plan, bug, and feature that changed the coder-ide-baseline template into that repository's IWE workspace, after cutting agent-devcontainer 2.1.0 so each copy carries its release, and delete the two template-only originals here.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-11-07T20:30:00Z
+sources:
+- resource: docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md
+- resource: https://github.com/plume-works/coder-ide-baseline/tree/5ff6817/docs/knowledge
+---
+
+# Move the template's finished history into coder-ide-baseline
+
+## Context
+
+[Move the Coder template's knowledge into
+coder-ide-baseline](20261031-coder-template-knowledge-split.md) gave
+`plume-works/coder-ide-baseline` its own IWE workspace with the template's spec,
+runbook, and the two documents that were only about the template. Every other
+finished document that changed the template stayed here, so the template's own
+memory holds little of the history behind its code.
+
+The maintainer decided:
+
+- Every finished document whose work changed the template is in
+  `coder-ide-baseline`'s workspace. A document that also covers this repository
+  is copied whole; its original stays here.
+- The template-only originals here,
+  [bugs/coder-devcontainer-lost-on-restart](../bugs/coder-devcontainer-lost-on-restart.md)
+  and
+  [plans/20261011-persist-coder-workspace-containerd](20261011-persist-coder-workspace-containerd.md),
+  already copied, are deleted.
+- `agent-devcontainer` 2.1.0 is cut before anything is copied, so every copied
+  plan carries `released`.
+
+## Approach
+
+A finished document is in scope when its work changed `coder-ide-baseline` or
+ran in it: a plan with a task whose files are in that repository, a bug whose
+fix changed it, or a feature whose behavior the template carries part of.
+Finished means plan `stage: done`, bug `stage: done`, feature
+`stage: implemented`. The set, from the current checkout:
+
+- Plans: `20261011-coder-agent-gh-credential-helper`,
+  `20261011-coder-claude-remote-control`, `20261013-docker-storage-gc`,
+  `20261016-opencode-web-coder-autostart`, `20261029-off-bash-migration`,
+  `20261031-coder-template-knowledge-split`, and
+  `20261101-docker-storage-periodic-gc`.
+- Bugs: `coder-askpass-push-hang` and `coder-docker-storage-accumulates`.
+- Features: `coder-remote-control-autostart`, `docker-storage-limits`, and
+  `opencode-web-coder-autostart`.
+
+Each copy is the original at the commit copied, unchanged apart from links and
+one `sources` entry naming that original. A link to a document that exists in
+the template workspace — copied here or earlier, including the two template-only
+documents — becomes relative to it; every other relative link becomes an
+`agent-devcontainer` URL on `main`. Frontmatter keys stay as they are: a copied
+plan's `release` may name a feature or bug that is not copied, and its
+`released` names the `agent-devcontainer` version, which `sources` makes
+traceable.
+
+The release cut comes first because the template workspace's release cut
+collects every done plan without `released`; a copy without it would be claimed
+as a template release. Once every copy merges, the two template-only originals
+here are deleted with `iwe delete`, and each reference it flattens to plain text
+becomes a link to the `coder-ide-baseline` copy on `main`, so history here stays
+navigable.
+
+Rejected: writing a template-only record of each mixed document, which
+paraphrases finished history and leaves two accounts of one change; moving mixed
+documents, which takes this repository's half with them.
+
+## Implementation Steps
+
+Tasks 4-7 run in a `coder-ide-baseline` checkout, from its repository root.
+
+### Task 1: The knowledge split is on main
+
+**Files:** none
+
+- [ ] [plume-works/agent-devcontainer#734](https://github.com/plume-works/agent-devcontainer/pull/734)
+  is merged, so `20261031-coder-template-knowledge-split` is `stage: done` on
+  `main`.
+  - **Closed by:** the maintainer merging the pull request.
+
+### Task 2: Cut agent-devcontainer 2.1.0
+
+**Files:** Create: `docs/knowledge/data/releases/2.1.0.md`; Modify:
+`docs/knowledge/data/releases.md`, `docs/knowledge/data/log.md`, and every done
+plan without `released`
+
+- [ ] `/agentdev:iwe-ship release 2.1.0` cuts the release on a branch from fresh
+  `origin/main`; `20261101-docker-storage-periodic-gc` and
+  `20261031-coder-template-knowledge-split` carry `released: 2.1.0`.
+
+### Task 3: Merge the release
+
+**Files:** none
+
+- [ ] The pull request carrying Task 2 merges to `main`.
+  - **Closed by:** the maintainer merging the pull request.
+
+### Task 4: Copy the documents
+
+**Files:** Create (in `plume-works/coder-ide-baseline`): the seven plans under
+`docs/knowledge/data/plans/`, the two bugs under `docs/knowledge/data/bugs/`,
+and the three features under `docs/knowledge/data/features/`, each at the key it
+has here
+
+- [ ] Each document in `## Approach`'s set is copied from `agent-devcontainer`
+  `main` after Task 3, with the link and `sources` changes `## Approach` names
+  and no other change.
+
+### Task 5: Link the copies from the hubs
+
+**Files:** Modify (in `plume-works/coder-ide-baseline`):
+`docs/knowledge/data/plans.md`, `docs/knowledge/data/bugs.md`,
+`docs/knowledge/data/features.md`
+
+- [ ] Each copy is an entry in its hub's flat sorted list.
+
+### Task 6: Validate and push the template branch
+
+**Files:** none
+
+- [ ] `iwe normalize` and then `iwe schema validate` pass in the template
+  checkout, and the branch is pushed with a pull request open.
+
+### Task 7: Merge the template pull request
+
+**Files:** none (in `plume-works/coder-ide-baseline`)
+
+- [ ] The pull request carrying Tasks 4-6 passes the required
+  `Docker Build and Push` check and merges to `main`.
+  - **Closed by:** the maintainer merging the pull request.
+
+### Task 8: Delete the template-only originals
+
+**Files:** Delete:
+`docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md`,
+`docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md`;
+Modify: every document `iwe delete` updates
+
+- [ ] `iwe delete` removes both documents and their hub entries.
+
+### Task 9: Point the flattened references at the copies
+
+**Files:** Modify: `docs/knowledge/data/log.md`,
+`docs/knowledge/data/releases/2.0.0.md`,
+`docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md`,
+`docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md`
+
+- [ ] Each reference Task 8 flattened to plain text is a link to the
+  `coder-ide-baseline` copy on `main`; no other text changes.
+
+## Spec changes
+
+None — no behavioral change.
+
+## Depends on
+
+- [Move the Coder template's knowledge into
+  coder-ide-baseline](20261031-coder-template-knowledge-split.md)
+
+## Verification
+
+- In the template checkout on `main`: `iwe schema validate` passes, and
+  `iwe find --filter '{type: plan, stage: done, released: {$exists: false}}' -f keys`
+  prints nothing.
+- For each copied document, a diff against its original at the commit its
+  `sources` names shows only rewritten links and the added `sources` entry.
+- Every `agent-devcontainer` URL in the copies returns the file from
+  `gh api repos/plume-works/agent-devcontainer/contents/<path>?ref=main`.
+- Here: `iwe schema validate` passes, `iwe stats` reports no broken links, and
+  `grep -rn 'coder-devcontainer-lost-on-restart\|persist-coder-workspace-containerd' docs/knowledge/data`
+  shows only `coder-ide-baseline` URLs.
+- Here: `git diff` of Tasks 8-9 touches only the deleted documents, their hubs,
+  and the four files Task 9 names.
+
+## Out of scope
+
+- Open work about the template: the active [shared BuildKit
+  plan](20261013-shared-buildkit-workspace.md), the accepted [shared BuildKit
+  builder](../features/shared-buildkit-builder.md) feature, and the pending
+  [supervised Remote Control](../backlog/coder-supervised-remote-control.md)
+  task.
+- Finished documents that mention the template without changing it: the Remote
+  Control plans that name its `coder_script` as a caller,
+  `20261018-opencode-v2-default`, `20261014-expo-eas-template-profile`, the bug
+  `workspace-image-lacks-hook-binaries`, and the features `expo-eas-builds` and
+  `claude-remote-control-server-mode`.
+- Specs and architecture: the specs were split by the knowledge split, and no
+  architecture document here is about the template.
+- Deleting or editing the mixed originals here.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-11-07):
+
+- `docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md:101` —
+  Task 3: Template runs the agent-start script; `:194`, `:196` — links to the
+  two template-only originals
+- `docs/knowledge/data/plans/20261011-coder-claude-remote-control.md:155` — Task
+  4: Template `coder_script` in coder-ide-baseline
+- `docs/knowledge/data/plans/20261013-docker-storage-gc.md:129` — Task 4: Bound
+  the workspace engine in coder-ide-baseline
+- `docs/knowledge/data/plans/20261016-opencode-web-coder-autostart.md:340` —
+  Task 12: Add the OpenCode app to the Coder template
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md:766` — Task 19: The
+  Coder template starts the agent through the CLI
+- `docs/knowledge/data/plans/20261101-docker-storage-periodic-gc.md:196` — Task
+  5: The workspace engine's collector
+- `docs/knowledge/data/bugs/coder-askpass-push-hang.md:62` — `## Fix`
+- `docs/knowledge/data/bugs/coder-docker-storage-accumulates.md:101` — `## Fix`
+- `docs/knowledge/data/features/coder-remote-control-autostart.md:24` — the
+  template's `coder_script`
+- `docs/knowledge/data/features/docker-storage-limits.md:19` — the workspace
+  engine
+- `docs/knowledge/data/features/opencode-web-coder-autostart.md:42` — the
+  dashboard `OpenCode` app
+- `docs/knowledge/data/log.md:668`, `:672` — links to the two template-only
+  originals
+- `docs/knowledge/data/releases/2.0.0.md:148` — link to
+  `bugs/coder-devcontainer-lost-on-restart`
+- `docs/knowledge/data/bugs.md:50`, `docs/knowledge/data/plans.md:208` — hub
+  entries of the two template-only originals
+- `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md:42`,
+  `:44` — links to the two template-only originals
+- `coder-ide-baseline@5ff6817:docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md`
+  and `docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md`
+  — the copies already in the template workspace

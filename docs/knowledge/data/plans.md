@@ -66,6 +66,9 @@ agent](plans/20261011-coder-agent-gh-credential-helper.md)
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)
 
+[Move the template's finished history into
+coder-ide-baseline](plans/20261107-coder-template-history-to-template.md)
+
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
