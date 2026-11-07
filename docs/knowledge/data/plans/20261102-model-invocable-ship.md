@@ -138,9 +138,16 @@ OpenCode with the default test models.
 **Closed by:** the maintainer, observing one session on Claude Code and one on
 OpenCode with the default test models.
 
-- [ ] During `/agentdev:iwe-explore`, a partial answer that leaves a plan
+- [x] During `/agentdev:iwe-explore`, a partial answer that leaves a plan
   apparently complete loads no Ship or Implement skill and dispatches no
   `iwe-shipper`.
+  - **Evidence:** on commit 9dc6928, on the maintainer's instruction, an agent
+    ran one headless two-turn session per harness with that commit's catalog:
+    Claude Code 2.1.316, and OpenCode 2.2.5 with `openai/gpt-6.1-sol` and
+    `openai/gpt-6-luna`. The maintainer did not watch the sessions. The second
+    turn said the open items were answered and nothing else looked open. Neither
+    session loaded a Ship or Implement skill or dispatched `iwe-shipper`, and
+    neither named Implement as a next step.
 
 ## Spec changes
 
