@@ -148,8 +148,6 @@ def test_hooks_keep_their_call_order():
     created = inspect.getsource(lifecycle.created)
     assert created.index('agent_state.create') < created.index('.project()')
     assert created.index('.project()') < created.index('catalog.install')
-    create = inspect.getsource(agent_state.create)
-    assert create.index('link_claude_json') < create.index('cbm_purge.purge')
 
 
 def fake_gh(directory: Path) -> None:

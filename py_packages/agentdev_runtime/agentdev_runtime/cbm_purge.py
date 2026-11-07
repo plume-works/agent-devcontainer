@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -66,25 +67,38 @@ def edit_json(path: Path, strip: Callable[[dict[str, Any]], bool]) -> None:
         print(f'Removed codebase-memory-mcp entries from {path}.')
 
 
+def write_keeping_mode(path: Path, content: str) -> None:
+    """Rewrite the file ``path`` resolves to, keeping that file's permissions."""
+    target = Path(os.path.realpath(path))
+    mode = target.stat().st_mode & 0o7777
+    opencode_config.write_atomically(target, content)
+    target.chmod(mode)
+
+
 def purge_opencode_config(directory: Path) -> None:
     path = opencode_config.config_path(directory)
     config = opencode_config.load_config(path)
     if strip_mcp(config, 'mcp'):
         content = json.dumps(config, indent=2, ensure_ascii=False) + '\n'
-        opencode_config.write_atomically(path, content)
+        write_keeping_mode(path, content)
         print(f'Removed codebase-memory-mcp entries from {path}.')
 
 
 def purge_managed_block(path: Path) -> None:
-    """Remove CBM's marked block, and the file when nothing of the user's remains."""
+    """
+    Remove CBM's marked block, and the file when nothing of the user's remains.
+
+    A symlinked file is edited at its target, and emptied rather than removed, so the link stays.
+    """
     if not path.is_file():
         return
-    text = path.read_text()
+    target = Path(os.path.realpath(path))
+    text = target.read_text()
     remaining = MANAGED_BLOCK.sub('', text)
     if remaining == text:
         return
-    if remaining.strip():
-        opencode_config.write_atomically(path, remaining)
+    if remaining.strip() or path.is_symlink():
+        write_keeping_mode(path, remaining)
     else:
         path.unlink()
     print(f'Removed the codebase-memory-mcp block from {path}.')
