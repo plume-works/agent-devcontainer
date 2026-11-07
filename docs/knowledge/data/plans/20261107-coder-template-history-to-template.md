@@ -139,8 +139,10 @@ has here
 
 **Files:** none
 
-- [ ] `iwe normalize` and then `iwe schema validate` pass in the template
+- [x] `iwe normalize` and then `iwe schema validate` pass in the template
   checkout, and the branch is pushed with a pull request open.
+  - **Evidence:** both pass on `b59c4b9`, which is pushed as the head of
+    plume-works/coder-ide-baseline#37.
 
 ### Task 7: Merge the template pull request
 
