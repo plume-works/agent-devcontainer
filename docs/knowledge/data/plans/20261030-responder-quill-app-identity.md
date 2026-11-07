@@ -254,9 +254,17 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 7: The App and environment exist
 
-- [ ] The `plume-works-quill` App is registered with the installation
+- [x] The `plume-works-quill` App is registered with the installation
   permissions under `## Approach` and installed on this repository, and the
   `plume-works-review` environment holds the three secrets.
+  - **Evidence:** repository settings, observed 2026-11-07:
+    `gh api apps/plume-works-quill` lists only actions read, contents read,
+    issues write, metadata read, pull requests write;
+    `gh api orgs/plume-works/installations` shows installation 179685658 with
+    `repository_selection: all` and the same permissions;
+    `gh api repos/plume-works/agent-devcontainer/environments/plume-works-review/secrets`
+    lists `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and
+    `QUILL_APP_PRIVATE_KEY`.
 
 ### Task 8: The App's review satisfies the ruleset
 
