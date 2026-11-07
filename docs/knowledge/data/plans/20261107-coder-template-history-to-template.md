@@ -9,6 +9,8 @@ generated:
 sources:
 - resource: docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md
 - resource: https://github.com/plume-works/coder-ide-baseline/tree/5ff6817/docs/knowledge
+stage: done
+completed: 2026-11-07
 ---
 
 # Move the template's finished history into coder-ide-baseline
