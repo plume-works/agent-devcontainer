@@ -1,10 +1,10 @@
 ---
 type: feature
 stage: implemented
-description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
+description: One Claude-only GitHub Actions workflow, triggered only by pull request events, gives the repository automated PR review with a read-only review responder and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -14,6 +14,7 @@ sources:
 - resource: data/architecture/pr-review-effort-tiers.md
 - resource: data/architecture/assignee-review-trigger.md
 - resource: data/architecture/ai-review-event-selection.md
+- resource: data/architecture/pull-request-only-responder.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
@@ -23,22 +24,22 @@ sources:
 ## Purpose
 
 The repository had no automated PR review. One workflow, `ai-responder.yml`,
-provides it: a `claude-respond` job reviews PRs, a `claude-task` job answers
-free-form `@claude` tasks, and an `ai-review-present` gate job — in the same
-workflow, depending on the review job — blocks merge until an AI review exists.
-The gate is satisfiable because the review responder produces the review, and it
-stays pending for as long as a review is running in the same run rather than
-polling for one.
+provides it: a `claude-respond` job reviews PRs, and an `ai-review-present` gate
+job — in the same workflow, depending on the review job — blocks merge until an
+AI review exists. The gate is satisfiable because the review responder produces
+the review, and it stays pending for as long as a review is running in the same
+run rather than polling for one.
 
 ## Behaviour
 
-**Responders run with fixed content permissions.** The PR review responder keeps
-`contents: read`; the free-form task responder has `contents: write`. Both jobs
-call the same local composite action after checkout, so the agent setup remains
-shared while GitHub receives a static permission map for each job.
+**Only pull request events start the workflow.** It triggers on `pull_request`,
+`pull_request_review`, and `merge_group`; no comment, issue, or `@claude`
+mention starts a run, and no job holds `contents: write`. The review responder
+keeps `contents: read`. The decision is recorded in [Pull-request-only AI
+responder](../architecture/pull-request-only-responder.md).
 
-**The responder reviews with the branch's own catalog.** The responder jobs must
-run in a container with the project toolchain to produce grounded output, and PR
+**The responder reviews with the branch's own catalog.** The review job must run
+in a container with the project toolchain to produce grounded output, and PR
 reviews are driven by the `agentdev:pr-review` skill. Because a GitHub Actions
 `container:` job runs no devcontainer lifecycle hooks, the shared responder
 action runs the lifecycle scripts (`postCreate`, `postStart`, `postAttach`)
@@ -50,22 +51,15 @@ today's behavior, so the devcontainer is unchanged.
 
 **The responder is Claude-only.** The Codex responder job, the `AI_RESPONDERS`
 variable and its validation, and every ROS-specific element from upstream are
-dropped. The fork gate and the write-access gate are kept verbatim — they are
-the security spine: the responder never checks out or executes code for a fork
-PR, and never acts for an actor without write access. Both gates apply before a
-comment is bridged into a dispatch and again in the dispatched run.
+dropped. The fork gate and the write-access gate are the security spine: the
+responder never checks out or executes code for a fork PR, and never acts for an
+actor without write access.
 
 **Review output stays on the formal review path.** The Claude responder uses a
 custom prompt, but intentionally leaves `track_progress` unset. That action
 input restores tag-mode tracking comments for custom prompts, but for this
 review workflow it routes findings into a regular PR comment instead of a
-submitted GitHub PR review. A `@claude` mention on a pull request is bridged
-into a `workflow_dispatch` on the head branch as a free-form task, so the task
-runs the branch's own file and its checks attach to the head commit; the
-dispatched run appends its Actions run link to the triggering comment before the
-responder starts. A dispatch never reviews. Free-form task prompts instruct
-Claude to post its response back to the issue or pull request thread, quoting
-the original request.
+submitted GitHub PR review.
 
 **The gate accepts any Claude review, past or present.** `ai-review-present`
 accepts a review from `claude[bot]` or `github-actions[bot]` in state
@@ -75,7 +69,7 @@ name the current head commit. Refreshing a review is the author's call: removing
 the pull request's author as assignee and adding them back runs a `pull_request`
 review whose gate counts toward merge, as recorded in [Assignee-triggered AI
 re-reviews](../architecture/assignee-review-trigger.md). An `@claude review`
-comment is rejected with a reply pointing at that toggle.
+comment starts nothing.
 
 **The review's verdict follows its findings.** The review submits `APPROVE` when
 it has no validated finding or only non-blocking ones, and `REQUEST_CHANGES`
@@ -120,7 +114,7 @@ runs the gate without a review. `ai-review-present` never reads the marker: a PR
 body is author-controlled and a skipped job satisfies a required check, so a
 marker the gate honored would be a self-service waiver of the mandatory review.
 A marked PR without an accepted review keeps a red gate, mergeable only by
-ruleset bypass. The marker does not disable free-form `@claude` tasks.
+ruleset bypass.
 
 **A review can be asked to run cheaply.** A `[ci:review-effort=light]` or
 `[ci:review-effort=full]` marker alone on a line of the pull request body is the
@@ -142,12 +136,9 @@ tiers](../architecture/pr-review-effort-tiers.md).
   job is skipped and `ai-review-present` passes on the existing review.
 - **The review job fails or is cancelled.** `ai-review-present` in that run
   fails.
-- **A fork pull request.** Preflight records the fork, issues no dispatch, and
-  skips every responder job before any checkout.
-- **A head branch without `ai-responder.yml`.** The `@claude` bridge fails
-  naming the branch, and no review runs.
-- **A head branch whose workflow predates a dispatch input.** The dispatch
-  carries only the inputs the request supplies, so an older branch still runs.
+- **A fork pull request.** Preflight is skipped, so every responder job is
+  skipped before any checkout, and `ai-review-present` fails for want of a
+  review.
 - **A pull request from a bot outside `TRUSTED_BOT_ACTORS`.** The
   `trusted-bot-approval` job runs, finds the author unlisted, and approves
   nothing; preflight skips every bot-authored pull request, so no review runs

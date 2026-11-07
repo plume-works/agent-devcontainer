@@ -122,7 +122,7 @@ Rejected alternatives, recorded in the architecture note:
 - [ ] `README.md`'s "Pull-request automation" section names reviews only, and
   its security sentence covers the fork gate and the write-access gate on the
   review.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
 ### Task 4: Knowledge records the pull-request-only responder
@@ -163,8 +163,8 @@ job SHALL hold write repository contents access.
 ### Scenario: a fork PR triggers the responder
 
 - **WHEN** the pull request head repository differs from the workflow repository
-- **THEN** preflight records the fork, and every responder job is skipped
-  before any checkout.
+- **THEN** preflight is skipped, and every responder job is skipped before any
+  checkout.
 
 ### Scenario: a user without write access triggers the responder
 
@@ -264,7 +264,7 @@ is bridged to the head branch.
 - `grep -nE "issue_comment|workflow_dispatch|claude-task|bridge|requester|comment_id|allowed_bots|append-run-link" .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml`
   finds nothing.
 - `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes.
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 - `iwe normalize` and `iwe schema validate` pass.
 - Task 5 is observed on GitHub after merge.
