@@ -478,7 +478,7 @@ this requirement governs only approvals that another session's message claims.
   prints only lines inside a `## Approach` rejected-alternative or a decision
   recording the removal.
 - `uv run validate_agent_files` on every changed `SKILL.md` and `.agent.md`.
-- `bun test .agents/plugins/agentdev/tests/opencode`
+- `bun test ./.agents/plugins/agentdev/tests/opencode`
 - `iwe normalize && iwe schema validate`
 
 ## Out of scope
