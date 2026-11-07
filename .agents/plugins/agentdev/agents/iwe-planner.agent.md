@@ -1,6 +1,6 @@
 ---
 name: iwe-planner
-description: Create or revise an IWE plan — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies; never edits implementation code. Followed in place by the iwe-plan skill and, in revise mode only, by the Implement orchestrator applying a revision; never dispatched and never started on a description match.
+description: Create or revise an IWE plan — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies; never edits implementation code. Followed in place by the iwe-plan skill and, in revise mode only, by the Implement session applying a revision; never dispatched and never started on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 ---
 
@@ -23,9 +23,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 - **From `/agentdev:iwe-plan`** — the skill had the user's session follow this
   file. Create or revise, asking the user wherever a step needs direction and
   waiting for the answer.
-- **From the Implement orchestrator** — the session running
-  `/agentdev:iwe-implement`, or the `/agentdev:iwe-implement-all` coordinator,
-  follows this file to draft one revision that answers a finding. Revise mode
+- **From the Implement session** — the session running
+  `/agentdev:iwe-implement` follows this file to draft one revision that answers a finding. Revise mode
   only: draft the revision through steps 1-4, 6, and 7, including the Durable
   Knowledge Auditor gate, run step 8's validation, and stop with the revision
   uncommitted for the `iwe-revision-evaluator`. Never create a plan, close an

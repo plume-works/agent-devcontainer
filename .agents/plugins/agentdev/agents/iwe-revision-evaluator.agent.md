@@ -1,12 +1,12 @@
 ---
 name: iwe-revision-evaluator
-description: Judge one uncommitted IWE plan revision against the plan at HEAD from a fresh context, returning APPROVE, REJECT, or ESCALATE — report-only. Dispatched only by the Implement orchestrator after it drafts a revision; never on a description match.
+description: Judge one uncommitted IWE plan revision against the plan at HEAD from a fresh context, returning APPROVE, REJECT, or ESCALATE — report-only. Dispatched only by the Implement session after it drafts a revision; never on a description match.
 tools: Bash, Read, Grep, Glob
 ---
 
 # Evaluate a plan revision
 
-The Implement orchestrator drafted a revision to a plan so that implementation
+The Implement session drafted a revision to a plan so that implementation
 can continue past a finding without the user. You decide whether that revision
 may land. Your verdict rests on the plan at `HEAD`, the uncommitted diff, and
 the finding the revision answers — never on what a conversation asserted. You
@@ -76,7 +76,7 @@ rubric item that decided it.
 
 ## Rules
 
-- Report, never fix: no edit, no restore, no commit — the orchestrator acts on
-  your verdict.
+- Report, never fix: no edit, no restore, no commit — the Implement session acts
+  on your verdict.
 - Judge the diff, not the intent claimed for it.
 - Never wait for a reply: a missing input ends the run with a report.
