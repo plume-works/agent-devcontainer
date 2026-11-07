@@ -183,9 +183,16 @@ Assumptions:
 **Files:** Modify: `.github/actions/ai-review-status/action.yml`,
 `.github/workflows/ai-responder.yml`
 
-- [ ] `ai-review-status` takes the accepted reviewer login as an input and
+- [x] `ai-review-status` takes the accepted reviewer login as an input and
   accepts a review only from that login; its failure message names it.
-- [ ] `ai-review-present` passes `AI_REVIEWER_LOGIN`.
+  - **Evidence:** commit 397a5606; the required `reviewer-login` input replaces
+    `claudeLogins`, `isAcceptedReview` compares the login exactly, and the
+    failure reason reads `Expected a review from ${reviewerLogin}`; the script
+    parses under `bun build --no-bundle`, and actionlint and zizmor pass.
+- [x] `ai-review-present` passes `AI_REVIEWER_LOGIN`.
+  - **Evidence:** commit 397a5606; `ai-review-present` and preflight's "Check
+    for an accepted AI review" both pass
+    `reviewer-login: ${{ env.AI_REVIEWER_LOGIN }}`; actionlint passes.
 
 ### Task 5: Architecture note records the App identity
 
