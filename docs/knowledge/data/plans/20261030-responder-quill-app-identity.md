@@ -246,8 +246,11 @@ Modify: `docs/knowledge/data/architecture.md`
     its own GitHub App." and "The gate accepts one login.", naming
     `plume-works-quill`, `plume-works-review`, `AI_REVIEWER_LOGIN`, and
     `architecture/responder-app-identity`; `iwe schema validate` passes.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** commit 5e3f5c2f;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 60/60 skills valid, 0 errors.
 
 ### Task 7: The App and environment exist
 
