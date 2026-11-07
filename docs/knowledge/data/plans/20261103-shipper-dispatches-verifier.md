@@ -6,7 +6,7 @@ release:
 description: Give iwe-shipper the Agent tool so its Verify step runs through the iwe-verify skill's dispatch route, keeping every Verify run out of the Shipper's context, and retire the in-place route.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T07:10:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -29,11 +29,10 @@ the Shipper. Once [Nest agent dispatch to depth 5 on both
 harnesses](20261103-nested-dispatch-depth.md) lets a dispatched agent dispatch
 another, the repository owner chose instead that `iwe-shipper` dispatches
 `iwe-verifier` itself. Every route that dispatches the Shipper —
-`/agentdev:iwe-ship`, `/agentdev:iwe-ship-all`, and `/agentdev:iwe-plan`
-answering a Ship blocker report — then gets a fresh-context Verify with no
-change of its own. This reverses the in-place route [Fresh-context
-Verify](../architecture/fresh-context-verify.md) chose to keep the Shipper a
-leaf. The change gives [Verification in the main
+`/agentdev:iwe-ship` and `/agentdev:iwe-plan` answering a Ship blocker report —
+then gets a fresh-context Verify with no change of its own. This reverses the
+in-place route [Fresh-context Verify](../architecture/fresh-context-verify.md)
+chose to keep the Shipper a leaf. The change gives [Verification in the main
 loop](../features/verification-in-the-main-loop.md) new behavior.
 
 ## Approach
@@ -46,8 +45,8 @@ skill's "From inside `iwe-shipper`" route and the `iwe-verifier` rulebook's "In
 place inside `iwe-shipper`" mode are removed.
 
 Rejected: `/agentdev:iwe-ship` dispatching `iwe-verifier` before `iwe-shipper`,
-as the backlog task proposed. `/agentdev:iwe-ship-all` and
-`/agentdev:iwe-plan`'s re-dispatch would each need the same step.
+as the backlog task proposed. `/agentdev:iwe-plan`'s re-dispatch would need the
+same step.
 
 ## Implementation Steps
 
