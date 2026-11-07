@@ -62,6 +62,15 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
     sentence that first uses it. Prefer "who does what to which file" over an
     abstract summary.
 
+11. **YAGNI: do the simplest thing that could possibly work** — when exploring,
+    planning, and building alike. Explore only the options the problem in front
+    of you raises, plan only the tasks the stated goal needs, and build only
+    what the current task needs. Never propose, plan, or add a speculative
+    abstraction, an unrequested config flag, option, or parameter, an interface
+    or base class with a single implementation, or a hook "for later". Inline
+    before you extract; hard-code before you configure. Add the generality when
+    a second real caller or a user request demands it, not before.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
