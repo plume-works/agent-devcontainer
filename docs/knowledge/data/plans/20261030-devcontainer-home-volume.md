@@ -7,7 +7,7 @@ release:
 description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude and Codex credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T12:45:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -21,6 +21,7 @@ sources:
 - resource: .devcontainer/scripts/link-codex-auth.sh
 - resource: docs/knowledge/data/bugs/standalone-codex-auth-unshared.md
 - resource: compose.opencode.yml
+- resource: py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py
 - resource: ansible/roles/bash_setup/tasks/main.yml
 - resource: ansible/roles/bun_setup/tasks/main.yml
 - resource: https://containers.dev/implementors/json_reference/
@@ -37,11 +38,9 @@ volume](../architecture/devcontainer-home-volume.md) records the decision and
 the rejected alternatives. The Dev Container runs as root with `/root` on the
 container filesystem, so every piece of per-instance state has its own volume
 (`agentdev-claude`, `agentdev-codex`, `agentdev-opencode`, `agentdev-uv`, and
-the volumes holding the CBM and pre-commit caches), `~/.claude.json` is a
-symlink into the `~/.claude` volume, and a cache below the bind-mounted checkout
-depends on the checkout's owner, because CBM refuses a cache directory with an
-ancestor another UID owns. The deploy runtime has none of this: a non-root
-account whose whole home is one volume.
+the volume holding the pre-commit cache), and `~/.claude.json` is a symlink into
+the `~/.claude` volume. The deploy runtime has none of this: a non-root account
+whose whole home is one volume.
 
 The owner's decisions for this plan: a non-root account; the work lands after
 [Replace the runtime shell scripts with one agentdev-runtime
@@ -130,8 +129,7 @@ returns to revise mode before Task 4.
 - [ ] The image environment sets `AGENTDEV_USER=agent`,
   `AGENTDEV_HOME=/home/agent`,
   `AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth`,
-  `CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude`,
-  `CBM_CACHE_DIR=/home/agent/.cache/codebase-memory-mcp`, and
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude`, and
   `/home/agent/.local/bin` on `PATH`; no default names `/root`.
 - [ ] `devcontainer.metadata` adds `"remoteUser": "agent"`,
   `"updateRemoteUserUID": true`, and a volume `agentdev-home-${devcontainerId}`
@@ -172,13 +170,15 @@ returns to revise mode before Task 4.
 **Files:** Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py`,
-`py_packages/agentdev_runtime/tests/test_claude_state.py`
+`py_packages/agentdev_runtime/tests/test_claude_state.py`,
+`py_packages/agentdev_runtime/tests/test_cbm_purge.py`
 
 - [ ] `agentdev-runtime state create` no longer links `~/.claude.json`. A home
   where it is a symlink to `~/.claude/claude.json` has the link replaced by a
   regular file with the target's content, and the target removed.
-- [ ] The CBM install edits `~/.claude.json` in place; the fold-back around a
-  symlink is removed.
+- [ ] `cbm_purge.purge` runs after that replacement, so a deploy home holding a
+  codebase-memory-mcp entry behind the link loses the entry from the regular
+  file, and a test runs that case.
 
 ### Task 6: Re-own the sibling checkout volume once
 
@@ -195,11 +195,10 @@ returns to revise mode before Task 4.
 `.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`
 
 - [ ] `devcontainer.json` drops the `agentdev-claude`, `agentdev-codex`,
-  `agentdev-opencode`, `agentdev-uv`, `agentdev-pre-commit`, and `agentdev-cbm`
-  mounts, and the `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`,
-  `PRE_COMMIT_HOME`, `UV_CACHE_DIR`, and `UV_PYTHON_INSTALL_DIR` overrides, so
-  uv's cache and Python installs and pre-commit use their defaults under the
-  home. `UV_PROJECT_ENVIRONMENT` is
+  `agentdev-opencode`, `agentdev-uv`, and `agentdev-pre-commit` mounts, and the
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `PRE_COMMIT_HOME`, `UV_CACHE_DIR`, and
+  `UV_PYTHON_INSTALL_DIR` overrides, so uv's cache and Python installs and
+  pre-commit use their defaults under the home. `UV_PROJECT_ENVIRONMENT` is
   `/home/agent/.local/share/uv/venvs/ws-project`. `agentdev-project` stays.
 - [ ] `devcontainer-init.sh` creates `agentdev-agents-auth-<uid>-<gid>` from the
   host user's `id -u` and `id -g` and writes its name to `.env`, and
@@ -236,7 +235,8 @@ returns to revise mode before Task 4.
 **Files:** none (a Linux host whose checkout is owned by the host user)
 
 - [ ] A rebuilt Dev Container runs as `agent` with the host user's UID and GID.
-- [ ] After `docker restart`, the supervisor reports `cbm` ready.
+- [ ] After `docker restart`, the supervisor reports its required services
+  ready.
 - [ ] `agentdev:*` skills resolve in Claude Code.
 - [ ] Claude and Codex stay logged in across a second rebuild.
 - [ ] `git-new-branch --worktree` from the checkout creates its worktree as
@@ -247,12 +247,11 @@ returns to revise mode before Task 4.
 **Files:** Modify:
 `docs/knowledge/data/architecture/devcontainer-home-volume.md`,
 `docs/knowledge/data/architecture/agent-auth-persistence.md`,
-`docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`,
 `docs/knowledge/data/features/persist-pre-commit-cache.md`
 
 - [ ] The architecture document describes the shipped account and volumes; the
-  auth and CBM documents and the pre-commit feature name the home volume and the
-  cohort auth volume instead of the per-directory volumes.
+  auth document and the pre-commit feature name the home volume and the cohort
+  auth volume instead of the per-directory volumes.
 
 ## Spec changes
 
@@ -270,8 +269,7 @@ bridge plugin in the user's OpenCode config, so a consumer that runs the image
 without lifecycle commands resolves `agentdev:*` skills.
 `agentdev-devcontainer`'s `postCreateCommand` SHALL also install it into the
 runtime account's home volume, which starts empty and receives no image
-content. `~/.claude.json` SHALL be a regular file on that volume, which the CBM
-install edits in place.
+content. `~/.claude.json` SHALL be a regular file on that volume.
 
 #### Scenario: the image runs with no volumes and no lifecycle hooks
 
@@ -287,15 +285,14 @@ install edits in place.
   home volume is empty
 - **THEN** the staged catalog is installed at Claude user scope, into Codex, and
   into the OpenCode user config on the home volume, and `~/.claude.json` is a
-  regular file holding the CBM install's MCP entry and no image content.
+  regular file holding no image content.
 
 #### Scenario: a devcontainer starts with a catalog already installed on its home volume
 
 - **WHEN** the home volume already holds a prior install and `~/.claude.json`,
   and the container is recreated
-- **THEN** `~/.claude.json`'s content is preserved (the CBM install edits its
-  MCP entry; Claude may append bootstrap fields, so the guarantee is content
-  preservation, not byte-identity), and `postCreateCommand` re-applies the
+- **THEN** `~/.claude.json`'s content is preserved (Claude may append bootstrap
+  fields, so the guarantee is content preservation, not byte-identity), and `postCreateCommand` re-applies the
   catalog install every time the container is created, so it is never silently
   stale.
 
@@ -305,10 +302,40 @@ install edits in place.
 - **THEN** it is replaced by a regular file with the link target's content, and
   the target is removed.
 
-#### Scenario: the user has their own Codex agents
+### Requirement: the create phase clears codebase-memory-mcp's leftovers
 
-- **WHEN** `~/.codex/agents/` holds `codebase-memory.toml` before an install
-- **THEN** the file is unchanged after the install.
+The create phase of both profiles SHALL remove what
+`codebase-memory-mcp install` wrote into persisted configuration, after any
+`~/.claude.json` link is replaced by a regular file: its hooks in Claude's
+`settings.json`, its MCP entries in `claude.json` and OpenCode's config, its
+marked blocks in OpenCode's `AGENTS.md` and `plugins/cbm-augment.ts`, its agents,
+skill, and hook scripts, and its binary and cache in the home. It SHALL leave
+every other entry and file in place, SHALL NOT rewrite a file that holds nothing
+of CBM's, and SHALL NOT fail the create phase over a file it cannot read. The
+decision is [No code-graph index](../architecture/no-code-graph.md).
+
+#### Scenario: a volume holds a CBM install beside the user's configuration
+
+- **WHEN** the create phase runs on a volume holding CBM's hooks and entries
+  next to the user's own hooks, MCP servers, agents, and instructions
+- **THEN** only CBM's are removed.
+
+#### Scenario: a home holds a CBM entry behind the ~/.claude.json link
+
+- **WHEN** `~/.claude.json` is a symlink to a file holding CBM's MCP entry
+- **THEN** `~/.claude.json` is a regular file without that entry, and the user's
+  other content is preserved.
+
+#### Scenario: a home holds nothing of CBM's
+
+- **WHEN** the create phase runs on a home with no CBM install
+- **THEN** no file is rewritten or created.
+
+#### Scenario: a configuration file cannot be read
+
+- **WHEN** a file the cleanup edits is malformed
+- **THEN** that file is left as it is, a warning names the failure, the other
+  cleanup steps still run, and the create phase continues.
 
 ### Requirement: only agent credentials are shared across worktrees
 
@@ -378,48 +405,49 @@ CLI](20261029-off-bash-migration.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30). The off-bash migration
-ports each script to the `agentdev_runtime` module named in its plan.
+Verified anchor points (line numbers as of 2026-11-07):
 
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:30` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:27` —
   `AGENTDEV_USER=root`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:31` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:28` —
   `AGENTDEV_HOME=/root`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:36` — `CBM_CACHE_DIR`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:41` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:37` —
   `devcontainer.metadata`
-- `docker/deploy/agentdev-deploy.Dockerfile:16` — `userdel --remove ubuntu`
-- `docker/base/agentdev-base.Dockerfile:92` — `PATH` with `/root/.local/bin`
-- `.devcontainer/scripts/runtime-bootstrap.sh:96` — `claim_instance_dir`
-- `.devcontainer/scripts/runtime-bootstrap.sh:126` — `prepare_shared_auth`
-- `.devcontainer/scripts/runtime-bootstrap.sh:156` — `bootstrap_deploy`
-- `.devcontainer/scripts/runtime-bootstrap.sh:190` — `bootstrap_devcontainer`
-- `.devcontainer/scripts/setup-agent-state.sh:15` — `link_claude_json`
-- `.devcontainer/scripts/runtime-paths.sh:10` — `agentdev_claude_json`
-- `.devcontainer/scripts/devcontainer-created.sh:16` — `claim_ancestors`
-- `.devcontainer/scripts/devcontainer-created.sh:25` — `claim_mounts`
-- `.devcontainer/scripts/devcontainer-created.sh:34` — `cmd_create`
+- `docker/deploy/agentdev-deploy.Dockerfile:10` — `userdel --remove ubuntu`
+- `docker/deploy/agentdev-deploy.Dockerfile:39` — `UV_CACHE_DIR=/uv/cache`
+- `docker/base/agentdev-base.Dockerfile:109` — `PATH` with `/root/.local/bin`
+- `docker/base/agentdev-base.Dockerfile:104` — `WORKDIR`, which creates the
+  root-owned `/workspaces`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:207` —
+  `ensure_sudo`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:226` —
+  `claim_instance_dir`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:243` —
+  `validate_workspace`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:258` —
+  `prepare_shared_auth`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:55` —
+  `link_claude_json`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:85` — `create`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:87` —
+  `cbm_purge.purge`
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py:130` —
+  `AGENTDEV_CLAUDE_JSON`
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:54` —
+  `claim_mounts`
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:67` — `created`
 - `docker/devcontainer/supervisord.conf:54` — `user=%(ENV_AGENTDEV_USER)s`
-- `.devcontainer/devcontainer.json:36` — `CLAUDE_SECURESTORAGE_CONFIG_DIR`
-- `.devcontainer/devcontainer.json:61` — `agentdev-uv` mount
-- `.devcontainer/devcontainer.json:67` — `agentdev-pre-commit` mount
-- `.devcontainer/devcontainer.json:73` — `agentdev-cbm` mount
-- `.devcontainer/devcontainer.json:89` — `agentdev-claude` mount
-- `.devcontainer/devcontainer.json:101` — `agentdev-codex` mount
-- `.devcontainer/devcontainer.json:109` — `agentdev-opencode` mount
-- `.devcontainer/devcontainer.json:116` — `agentdev-project` mount
-- `.devcontainer/docker-compose.yml:103` — `agentdev-agents-auth` mount
+- `.devcontainer/devcontainer.json:30` — `CLAUDE_SECURESTORAGE_CONFIG_DIR`
+- `.devcontainer/devcontainer.json:52` — `agentdev-uv` mount
+- `.devcontainer/devcontainer.json:58` — `agentdev-pre-commit` mount
+- `.devcontainer/devcontainer.json:74` — `agentdev-claude` mount
+- `.devcontainer/devcontainer.json:82` — `agentdev-opencode` mount
+- `.devcontainer/devcontainer.json:89` — `agentdev-project` mount
+- `.devcontainer/docker-compose.yml:105` — `agentdev-agents-auth` mount
 - `.devcontainer/devcontainer-init.sh:24` —
   `docker volume create agentdev-agents-auth`
 - `.devcontainer/devcontainer-init.sh:56` — `CONTAINER_MCP_DIR`
 - `compose.opencode.yml:45` — `uv:/uv` mount
-- `docker/deploy/agentdev-deploy.Dockerfile:45` — `UV_CACHE_DIR=/uv/cache`
-- `.devcontainer/scripts/runtime-bootstrap.sh:166` —
-  `claim_instance_dir "$uv_dir"`
 - `scripts/tests/test_agent_runtime_compose.py:21` — `INSTANCE_TARGETS`
-- `.devcontainer/scripts/link-codex-auth.sh:35` — the `auth.json` link Task 1
-  tests
-- `docker/base/agentdev-base.Dockerfile:84` — `WORKDIR`, which creates the
-  root-owned `/workspaces`
 - `ansible/roles/bash_setup/tasks/main.yml:5` — `.bashrc` target
 - `ansible/roles/bun_setup/tasks/main.yml:30` — `.bashrc` target
