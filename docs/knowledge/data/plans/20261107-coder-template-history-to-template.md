@@ -130,7 +130,10 @@ has here
 `docs/knowledge/data/plans.md`, `docs/knowledge/data/bugs.md`,
 `docs/knowledge/data/features.md`
 
-- [ ] Each copy is an entry in its hub's flat sorted list.
+- [x] Each copy is an entry in its hub's flat sorted list.
+  - **Evidence:** `plume-works/coder-ide-baseline@b59c4b9` links all twelve
+    copies, sorted by key without the date prefix; `iwe stats` there lists only
+    root files as orphans.
 
 ### Task 6: Validate and push the template branch
 
