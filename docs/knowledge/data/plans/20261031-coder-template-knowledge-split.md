@@ -2,6 +2,8 @@
 type: plan
 created: 2026-10-31
 release: internal
+stage: done
+completed: 2026-11-07
 description: Give plume-works/coder-ide-baseline its own IWE workspace holding the template's requirements and how to work on it, and narrow this repository's Coder spec to what the repository owes the template.
 generated:
   by: claude-code/opus-5.5
@@ -15,7 +17,6 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/.github/workflows/root-container.yml
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/push.sh
-rank: 200
 ---
 
 # Move the Coder template's knowledge into coder-ide-baseline
