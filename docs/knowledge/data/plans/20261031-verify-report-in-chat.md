@@ -17,6 +17,7 @@ sources:
 - resource: scripts/e2e/iwe-workflows/scenarios.py
 completed: 2026-11-03
 stage: done
+released: 2.1.0
 ---
 
 # Show the Verify report in the conversation

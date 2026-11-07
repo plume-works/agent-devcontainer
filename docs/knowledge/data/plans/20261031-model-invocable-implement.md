@@ -15,6 +15,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+released: 2.1.0
 ---
 
 # Let any session asked to implement a named plan start Implement

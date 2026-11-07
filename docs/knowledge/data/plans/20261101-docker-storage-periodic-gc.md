@@ -19,6 +19,7 @@ sources:
 - resource: docker/deploy/supervisord.conf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/root-container/Dockerfile
+released: 2.1.0
 ---
 
 # Collect Docker garbage hourly in both workspace engines

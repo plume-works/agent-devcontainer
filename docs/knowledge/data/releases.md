@@ -4,7 +4,7 @@ description: One page per version, aggregating the features it added, the releas
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:40:05Z
+  at: 2026-11-07T20:37:31Z
 ---
 
 # 🚀 Releases
@@ -18,3 +18,5 @@ log](log.md).*
 [1.0.0](releases/1.0.0.md)
 
 [2.0.0](releases/2.0.0.md)
+
+[2.1.0](releases/2.1.0.md)
