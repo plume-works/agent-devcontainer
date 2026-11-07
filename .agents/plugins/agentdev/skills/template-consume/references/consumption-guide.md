@@ -351,8 +351,8 @@ pre-commit hooks and the `docs/knowledge/tests` pytest path.
 
 #### AI responder and the review gate
 
-One workflow file, `ai-responder.yml`, both answers `@claude` mentions and
-reviews pull requests through its `claude-respond` job and contributes the
+One workflow file, `ai-responder.yml`, reviews pull requests through its
+`claude-respond` job and contributes the
 `ai-review-present` merge gate through a job of the same workflow that `needs`
 the review job. Because the gate is a job of the review workflow, it is
 satisfiable only while that workflow is retained: dropping the review job
@@ -375,8 +375,8 @@ secrets.GITHUB_TOKEN }}` explicitly, so the responder authenticates and
 
 The gate checks that the pull request has been reviewed, not that its current
 head commit has. A push after a review does not re-open it; the author
-refreshes the review when they judge it stale, by commenting `@claude
-review`. This is deliberate — a review per commit would be prohibitively
+refreshes the review when they judge it stale, by removing the pull request's
+author as assignee and adding them back. This is deliberate — a review per commit would be prohibitively
 expensive — so treat a copy that compares the review's `commit_id` against
 the head SHA as a change in policy, not a bug fix.
 
@@ -427,10 +427,8 @@ Then adapt the workflows themselves:
 - Do not set `track_progress` on the Claude responder review step. Although
   that input restores the action's progress comment when `prompt` is set, it
   also changes review delivery from a formal GitHub PR review into a regular
-  PR comment. Preserve the review artifact, and keep job-link or status
-  reporting in a separate workflow step, such as a `github-script` step that
-  appends the current Actions run link to comment-triggered `@claude` task
-  requests.
+  PR comment. Preserve the review artifact, and keep any job-link or status
+  reporting in a separate workflow step.
 
 Two trigger behaviors are part of the workflow contract:
 
@@ -441,18 +439,11 @@ Two trigger behaviors are part of the workflow contract:
   review of a reviewed pull request by removing its author as assignee and
   adding them back instead. The `assigned` event reviews whether or not an
   accepted review exists, and `[ci:skip-ai-review]` still outranks it.
-- **Comment triggers only work once the workflow is on the default branch.**
-  `issue_comment` is a repository-level event, and GitHub dispatches it using
-  the workflow file on the default branch — so while the workflow exists only
-  on a feature branch, an `@claude` task mention starts nothing, and an
-  `@claude review` comment gets no rejection reply. The Claude app may still
-  react with 👀, which makes this look like an app or authentication problem
-  when it is purely a trigger-resolution one. Plan for the first end-to-end
-  comment test to happen after the workflow merges. A comment mention on the
-  default branch is bridged into a `workflow_dispatch` of this workflow on the
-  pull request's head branch, so the task runs the branch's own file and its
-  checks attach to the head commit; the `workflow_dispatch` trigger and its
-  inputs are therefore part of the contract and must be retained.
+- **No comment starts the workflow.** It triggers only on `pull_request`,
+  `pull_request_review`, and `merge_group`, so every run uses the pull
+  request's own copy of the file and no privileged comment trigger exists. Do
+  not add `issue_comment`, `issues`, or `workflow_dispatch` triggers: an
+  `@claude` mention, `@claude review` included, is meant to start nothing.
 
 A project that wants neither the responder nor the gate should delete the
 workflow, and must not add `ai-review-present` to its branch protection.

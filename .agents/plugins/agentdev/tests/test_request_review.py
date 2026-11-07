@@ -265,7 +265,7 @@ def test_rationale_is_posted_as_plain_comment(plugin_root: Path, plugin_tmp_path
 
 
 def test_no_review_trigger_comment_on_any_path(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """No path posts an `@claude` comment; the bridge rejects `@claude review`."""
+    """No path posts an `@claude` comment; no comment starts the responder."""
     cases = [
         make_fixture(),
         make_fixture(pr=pull_request(assignees=(AUTHOR,))),

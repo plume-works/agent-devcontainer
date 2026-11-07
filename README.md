@@ -338,12 +338,12 @@ publisher repository's project knowledge.
 
 ## Pull-request automation
 
-The optional `ai-responder.yml` workflow performs Claude-powered reviews and handles
-authorized `@claude` tasks. Its merge gate stays pending while review runs and
-requires an accepted AI review.
+The optional `ai-responder.yml` workflow performs Claude-powered pull request reviews.
+It runs only on pull request events; no comment starts it. Its merge gate stays pending
+while review runs and requires an accepted AI review.
 
 Security gates prevent the responder from checking out or executing untrusted fork
-code and restrict task execution to actors with write access. Reviews use the pull
+code and restrict reviews to pull request events from actors with write access. Reviews use the pull
 request branch's own catalog, so changes to agent workflows are reviewed as changed.
 To request another review after new work lands, remove the pull request's author as
 assignee and add them back.

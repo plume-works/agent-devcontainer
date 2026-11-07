@@ -18,7 +18,7 @@ The responder reviews on a `pull_request` `assigned` event, so the bundled
 script requests a review by toggling the pull request author's assignment: an
 assigned author is removed and added back, an unassigned one is added and
 removed, and the assignees end as the script found them. An `@claude review`
-comment requests nothing; the responder rejects it. The script requests at
+comment requests nothing; no comment starts the responder. The script requests at
 most once per head and title and description; see
 [Post at most once per reviewed input](#post-at-most-once-per-reviewed-input).
 
