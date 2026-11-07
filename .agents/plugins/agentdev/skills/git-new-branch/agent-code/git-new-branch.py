@@ -59,9 +59,9 @@ Options:
                          checkout alone
   --worktree-root <dir>  Parent directory for the worktree (implies --worktree).
                          Default: <main checkout>/.worktrees under
-                         AGENTDEV_RUNTIME_MODE=standalone, else /workspaces
-                         when the main checkout lives directly under it,
-                         otherwise <main checkout>/.worktrees.
+                         AGENTDEV_RUNTIME_MODE=deploy, else /workspaces when
+                         the main checkout lives directly under it and it is
+                         writable, otherwise <main checkout>/.worktrees.
                          The worktree is <parent>/<repo>-<name>; a '/' in <name>
                          stays a directory separator
   --depends-on <pr>      Repeatable. Each pull request must be open. The branch
@@ -153,11 +153,13 @@ def worktree_parent(main_dir: str, runtime_mode: str, worktree_root: str) -> Wor
     """
     Choose the worktree parent: --worktree-root, else by runtime mode and checkout location.
 
-    A standalone runtime mounts only the checkout and leaves /workspaces root-owned.
+    The deploy runtime mounts only the checkout, so nothing else there persists, and a
+    non-root account cannot write the root-owned /workspaces.
     """
     if worktree_root:
         return WorktreeParent(worktree_root, False)
-    if runtime_mode != 'standalone' and os.path.dirname(main_dir) == '/workspaces':
+    sibling = runtime_mode != 'deploy' and os.path.dirname(main_dir) == '/workspaces'
+    if sibling and os.access('/workspaces', os.W_OK):
         return WorktreeParent('/workspaces', False)
     return WorktreeParent(f'{main_dir}/.worktrees', True)
 

@@ -4,7 +4,7 @@ stage: implemented
 description: One agentdev-runtime Python CLI, installed in the runtime images as an embedded uv tool package, replaces the lifecycle shell scripts, the Xpra launcher, and the firewall script, and the Codex Cloud bootstrap is removed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T02:20:03Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -38,7 +38,7 @@ from PyPI at container start.
   lifecycle-neutral and does not carry it.
 - Every supervised program, lifecycle phase, probe, and operator command is a
   subcommand: `supervisor`, `health`, `bootstrap`, `firewall`, `docker`,
-  `keyring`, `xpra`, `cbm`, `state`, `catalog`, `workspace`, `project`, `git`,
+  `keyring`, `xpra`, `state`, `catalog`, `workspace`, `project`, `git`,
   `remote-control`, `opencode`, `coder`, `lifecycle`, and `doctor`. The image
   `ENTRYPOINT`, `HEALTHCHECK`, supervisord program commands, and the
   `devcontainer.metadata` lifecycle commands name these subcommands.
@@ -46,18 +46,17 @@ from PyPI at container start.
   installing supervisor from apt, and no runtime step resolves a dependency over
   the network.
 - The behaviour behind each command is unchanged: profiles, probes, recovery
-  budgets, readiness, the failure latch, the catalog override, CBM daemon
-  handling, Remote Control, and the firewall's default-DROP policy with its
-  self-verification.
+  budgets, readiness, the failure latch, the catalog override, Remote Control,
+  and the firewall's default-DROP policy with its self-verification.
 - One detection is added: `project hooks` warns about each `language: system`
   pre-commit hook whose executable is missing, and `doctor` requires `gitleaks`
   and `actionlint`, as [Bug: a workspace on a pre-pin image has no gitleaks or
   actionlint and nothing says
   so](../bugs/workspace-image-lacks-hook-binaries.md) asks.
 - A container with no supervisor socket, such as a GitHub Actions `container:`
-  job, runs `agentdev-runtime lifecycle ready --no-wait`, which starts only the
-  CBM daemon before the per-start repairs. The shell starters for keyring,
-  firewall, and Xpra outside the supervisor are removed.
+  job, runs `agentdev-runtime lifecycle ready --no-wait`, which runs only the
+  per-start repairs. The shell starters for keyring, firewall, and Xpra outside
+  the supervisor are removed.
 - The runtime verifies its installed distribution against the wheel's recorded
   file hashes in place of a sha256 manifest over `/opt/agentdev-runtime`, which
   no longer exists.
@@ -72,8 +71,7 @@ from PyPI at container start.
   bootstrap's distribution check, as a patched `/opt/agentdev-runtime` fails
   today.
 - A `container:` job has no supervisor and no mounts;
-  `lifecycle ready --no-wait` tolerates the missing mounts and starts CBM
-  itself.
+  `lifecycle ready --no-wait` tolerates the missing mounts.
 - Operator commands named in the READMEs (`runtime-health.sh status`,
   `runtime-supervisor.py retry`) are renamed; a reader following old text gets a
   missing-file error, never silent success.

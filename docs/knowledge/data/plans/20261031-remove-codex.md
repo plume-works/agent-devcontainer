@@ -390,7 +390,7 @@ Codex policy.
 Removed with the Codex configure step it constrained.
 ```
 
-### [CBM startup integration](../spec/cbm-startup-integration.md)
+### CBM startup integration
 
 ``` markdown
 ## REMOVED Requirements

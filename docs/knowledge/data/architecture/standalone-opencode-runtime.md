@@ -3,7 +3,7 @@ type: architecture
 description: agentdev-deploy runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:59:36Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
@@ -34,8 +34,8 @@ the two images share the supervisor, its primitives, and its recovery model.
 
 The image installs the `agentdev_runtime` package and calls the same primitives
 the Dev Container lifecycle commands call: `agentdev-runtime state`, the
-settings module, the CBM, keyring, and Git helpers. Every path those primitives
-touch is overridable, and the defaults are the devcontainer's root layout.
+settings module, the keyring, and Git helpers. Every path those primitives touch
+is overridable, and the defaults are the devcontainer's root layout.
 `AGENTDEV_RUNTIME_MODE=deploy` makes every step fatal where the Dev Container
 lifecycle logs and continues.
 
@@ -125,14 +125,11 @@ The core path is `dbus`, `keyring`, and the `prepare` one-shot (checkout, the
 Claude credential links, agent policy), then `opencode`. The other components
 are optional:
 
-- `config` registers the catalog and then the CBM client configuration. It runs
-  before OpenCode, which reads both when it starts.
-- `cbm` also starts before OpenCode: an MCP client that finds no daemon starts a
-  session-managed one that the runtime cannot adopt as permanent (see [CBM
-  daemon lifecycle](cbm-daemon-lifecycle.md)).
+- `config` registers the catalog. It runs before OpenCode, which reads it when
+  it starts.
 - `xpra` launches together with `opencode`, and neither waits for the other.
-- `dockerd`, the `prune` image prune, the `project` one-shot (uv sync and
-  pre-commit hook registration), and the `index` request follow OpenCode.
+- `dockerd`, the `prune` image prune, and the `project` one-shot (uv sync and
+  pre-commit hook registration) follow OpenCode.
 - `remote-control`, present only when `AGENTDEV_CLAUDE_RC_MODE` is set, follows
   `prepare` (see [Remote Control watcher](#remote-control-watcher)).
 
@@ -179,7 +176,7 @@ and reruns the configuration check and bootstrap. The bootstrap runs in its own
 session, and a failed or timed-out one is killed with every process it started,
 so nothing of it overlaps the retry. A successful retry restarts each client
 that was already serving and reads the retried component at startup: `config`
-and `cbm` refresh `opencode`.
+refreshes `opencode`.
 
 Exiting PID 1 nonzero on every unrecoverable failure was rejected. Under
 Compose's `restart: unless-stopped`, that reruns non-transactional preparation
@@ -196,9 +193,7 @@ controller or supervisord fails, which leaves the restart policy for crashes.
   health; startup failures and post-RUNNING failures share the same budget.
 - When a dependency recovers, its clients are restarted outside their own
   budgets. A replaced session bus takes `gnome-keyring` down with it, so `dbus`
-  refreshes `keyring` and `xpra`. A replaced CBM daemon ends OpenCode's stdio
-  MCP clients (see [CBM daemon lifecycle](cbm-daemon-lifecycle.md)), so `cbm`
-  refreshes `opencode`.
+  refreshes `keyring` and `xpra`.
 - A client failure is charged to the root-most long-running dependency, walked
   transitively through `after`, that fails a probe at that moment. That
   dependency is recovered instead, and its `refresh` list restarts the client
@@ -251,11 +246,11 @@ manual retry or the next container start needs an operator step after the first
 ## Shutdown
 
 supervisord stops program groups one at a time from the highest priority down,
-waiting for each. Priorities put `opencode` first, then `cbm`, `xpra`,
-`keyring`, `dbus`, and `dockerd` last. The controller has the highest priority
-of all, so it is gone before any service stops and never mistakes shutdown for
-failure. `stopasgroup`/`killasgroup` with `AGENTDEV_STOP_TIMEOUT` bound each
-stop and take a program's whole process group with it.
+waiting for each. Priorities put `opencode` first, then `xpra`, `keyring`,
+`dbus`, and `dockerd` last. The controller has the highest priority of all, so
+it is gone before any service stops and never mistakes shutdown for failure.
+`stopasgroup`/`killasgroup` with `AGENTDEV_STOP_TIMEOUT` bound each stop and
+take a program's whole process group with it.
 
 ## Nested Docker
 

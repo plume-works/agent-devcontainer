@@ -3,7 +3,7 @@ type: spec
 description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-06T00:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -83,10 +83,10 @@ persistent workspace, defaulting to /workspaces/project. It SHALL preserve an
 existing checkout without fetch, pull, reset, clean, branch switching, or
 ownership migration. It SHALL authenticate supported GitHub HTTPS operations
 with injected GH_TOKEN/GITHUB_TOKEN without storing those tokens. It SHALL run
-matching uv synchronization, register pre-commit's Git hook scripts without
-building hook environments, and submit a background CBM index request for the
-workspace. None of these SHALL delay OpenCode, and their failure SHALL mark the
-runtime degraded. A checkout that cannot be used SHALL latch the runtime failed.
+matching uv synchronization and register pre-commit's Git hook scripts without
+building hook environments. None of these SHALL delay OpenCode, and their
+failure SHALL mark the runtime degraded. A checkout that cannot be used SHALL
+latch the runtime failed.
 
 #### Scenario: the first clone is private
 
@@ -110,8 +110,8 @@ runtime degraded. A checkout that cannot be used SHALL latch the runtime failed.
 
 #### Scenario: optional preparation fails
 
-- **WHEN** a custom hook conflicts, uv synchronization fails, catalog
-  registration fails, or CBM rejects the index request
+- **WHEN** a custom hook conflicts, uv synchronization fails, or catalog
+  registration fails
 - **THEN** OpenCode starts and serves, and the runtime reports degraded, naming
   the failed step and its retry command.
 
@@ -148,13 +148,13 @@ storage.
 
 ### Requirement: services have supervised bounded recovery
 
-The runtime SHALL supervise OpenCode, DinD, CBM, D-Bus/keyring, enabled Xpra,
-and enabled Remote Control with readiness probes, bounded startup, bounded
+The runtime SHALL supervise OpenCode, DinD, D-Bus/keyring, enabled Xpra, and
+enabled Remote Control with readiness probes, bounded startup, bounded
 per-service retries/backoff, and orderly termination. It SHALL detect actual
 daemon failure even when the public tool daemonizes, mark dependency outages
 unready, and recover affected clients coherently. OpenCode and D-Bus/keyring
-SHALL be core services; DinD, CBM, Xpra, and Remote Control SHALL be optional,
-and OpenCode SHALL NOT wait for Xpra. A core service exhausting its budget SHALL
+SHALL be core services; DinD, Xpra, and Remote Control SHALL be optional, and
+OpenCode SHALL NOT wait for Xpra. A core service exhausting its budget SHALL
 latch the runtime failed; an optional one SHALL mark it degraded while OpenCode
 keeps serving. With `AGENTDEV_STRICT_STARTUP=true`, every optional failure SHALL
 be treated as a core failure. PID 1 SHALL keep running in both states and SHALL
@@ -176,8 +176,8 @@ default with an explicit disable option.
 
 #### Scenario: an optional service keeps failing
 
-- **WHEN** DinD, CBM, Xpra, or Remote Control exhausts its bounded recovery
-  budget without strict startup
+- **WHEN** DinD, Xpra, or Remote Control exhausts its bounded recovery budget
+  without strict startup
 - **THEN** OpenCode keeps serving and the runtime reports degraded, naming that
   service.
 

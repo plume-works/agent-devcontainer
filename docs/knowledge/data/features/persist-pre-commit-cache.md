@@ -4,7 +4,7 @@ stage: implemented
 description: The pre-commit hook cache lives on its own per-worktree agentdev-pre-commit volume via PRE_COMMIT_HOME, outside the checkout, so only the first devcontainer create per worktree pays the cold hook-install cost and every rebuild after starts warm.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:30:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/setup-pre-commit.sh
@@ -31,8 +31,7 @@ rebuild after reuses them and completes in well under a second.
 
 **The cache stays off the checkout.** No cache volume is mounted inside the
 workspace, so the checkout carries no mount point and its owner or filesystem
-never decides whether a cache works. The CBM cache follows the same rule (see
-[CBM daemon lifecycle](../architecture/cbm-daemon-lifecycle.md)).
+never decides whether a cache works.
 
 **The cache is installed fresh, never copied.** pre-commit's store keys each
 hook environment by `(repo, ref)` and records an absolute path it trusts blindly

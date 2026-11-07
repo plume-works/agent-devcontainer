@@ -26,8 +26,6 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Catalog lifecycle](spec/catalog-lifecycle.md)
 
-[CBM startup integration](spec/cbm-startup-integration.md)
-
 [Claude Remote Control](spec/claude-remote-control.md)
 
 [Coder IDE baseline template](spec/coder-ide-baseline.md)
@@ -57,8 +55,6 @@ whenever a plan ships, so this section never drifts from the code.*
 [OpenCode catalog bridge](spec/opencode-catalog-bridge.md)
 
 [OpenCode web](spec/opencode-web.md)
-
-[OpenCode workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md)
 
 [Plan checkbox evidence](spec/plan-checkbox-evidence.md)
 

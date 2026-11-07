@@ -1,10 +1,10 @@
 ---
 type: feature
 description: OpenCode automatically registers a newly opened Git workspace with the shared codebase-memory daemon.
-stage: implemented
+stage: deprecated
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .devcontainer/scripts/codebase-memory-mcp-start.sh
@@ -12,6 +12,10 @@ sources:
 ---
 
 # Automatic CBM indexing for OpenCode workspaces
+
+Deprecated: superseded by [No code-graph
+index](../architecture/no-code-graph.md). The runtime no longer ships
+codebase-memory-mcp; this page records the behavior it had.
 
 ## Purpose
 

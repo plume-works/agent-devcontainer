@@ -601,14 +601,14 @@ def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
     assert git(fixture.work, 'status', '--porcelain') == ''
 
 
-def test_standalone_worktree_mode_uses_the_ignored_worktrees_directory(
+def test_deploy_worktree_mode_uses_the_ignored_worktrees_directory(
     plugin_root: Path,
     fixture: Fixture,
 ) -> None:
-    """The standalone runtime puts the worktree in .worktrees/, which Git then ignores."""
+    """The deploy runtime puts the worktree in .worktrees/, which Git then ignores."""
     # Act
     completed, keys = run_script(
-        plugin_root, fixture.work, 'fixture/topic', '--worktree', runtime_mode='standalone'
+        plugin_root, fixture.work, 'fixture/topic', '--worktree', runtime_mode='deploy'
     )
 
     # Assert
@@ -632,27 +632,49 @@ def load_script(plugin_root: Path) -> ModuleType:
 @pytest.mark.parametrize(
     ('main_dir', 'runtime_mode', 'worktree_root', 'expected'),
     [
-        ('/workspaces/project', 'standalone', '', ('/workspaces/project/.worktrees', True)),
+        ('/workspaces/project', 'deploy', '', ('/workspaces/project/.worktrees', True)),
         ('/workspaces/project', 'devcontainer', '', ('/workspaces', False)),
         ('/workspaces/project', '', '', ('/workspaces', False)),
-        ('/srv/project', 'standalone', '', ('/srv/project/.worktrees', True)),
+        ('/srv/project', 'deploy', '', ('/srv/project/.worktrees', True)),
         ('/srv/project', '', '', ('/srv/project/.worktrees', True)),
-        ('/workspaces/project', 'standalone', '/elsewhere', ('/elsewhere', False)),
+        ('/workspaces/project', 'deploy', '/elsewhere', ('/elsewhere', False)),
         ('/workspaces/project', '', 'relative/root', ('relative/root', False)),
         ('/workspaces/nested/project', '', '', ('/workspaces/nested/project/.worktrees', True)),
     ],
 )
 def test_worktree_parent_follows_root_runtime_mode_and_location(
     plugin_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
     main_dir: str,
     runtime_mode: str,
     worktree_root: str,
     expected: tuple[str, bool],
 ) -> None:
-    """--worktree-root wins; standalone keeps .worktrees/; else a /workspaces sibling."""
+    """--worktree-root wins; deploy keeps .worktrees/; else a /workspaces sibling."""
     script = load_script(plugin_root)
+    monkeypatch.setattr(script.os, 'access', lambda _path, _mode: True)
 
     assert tuple(script.worktree_parent(main_dir, runtime_mode, worktree_root)) == expected
+
+
+@pytest.mark.parametrize('runtime_mode', ['devcontainer', ''])
+def test_an_unwritable_workspaces_falls_back_to_the_checkout(
+    plugin_root: Path, monkeypatch: pytest.MonkeyPatch, runtime_mode: str
+) -> None:
+    """An account that cannot write /workspaces keeps the worktree in .worktrees/."""
+    script = load_script(plugin_root)
+    checked: list[tuple[str, int]] = []
+
+    def denied(path: str, mode: int) -> bool:
+        checked.append((path, mode))
+        return False
+
+    monkeypatch.setattr(script.os, 'access', denied)
+
+    parent = script.worktree_parent('/workspaces/project', runtime_mode, '')
+
+    assert tuple(parent) == ('/workspaces/project/.worktrees', True)
+    assert checked == [('/workspaces', script.os.W_OK)]
 
 
 def test_unreachable_remote_reports_fetch_failed(plugin_root: Path, fixture: Fixture) -> None:

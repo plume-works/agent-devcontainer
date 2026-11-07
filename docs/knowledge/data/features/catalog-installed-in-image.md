@@ -4,7 +4,7 @@ stage: implemented
 description: The agent-desktop image installs the agentdev catalog into each agent's plugin state at build time, so a consumer running the raw image with no devcontainer lifecycle hooks still resolves agentdev:* skills; postCreate installs again because mounted volumes shadow the build-time install.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:01:06Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -41,10 +41,8 @@ plugins, so the build-time install is invisible there; `postCreateCommand.sh`
 installs again on every create, so the workspace's catalog is never silently
 stale.
 
-**The `~/.claude.json` handoff runs before cbm-install.** The build-time Claude
-install seeds a real `/root/.claude.json` into the image.
-`codebase-memory-mcp-install.sh` folds its MCP entry back into the volume only
-when `/root/.claude.json` is already a symlink, so `postCreateCommand.sh`
+**The `~/.claude.json` handoff runs first.** The build-time Claude install seeds
+a real `/root/.claude.json` into the image, so `postCreateCommand.sh`
 establishes the volume→`/root/.claude.json` symlink up front — discarding the
 image's real file, seeding `/root/.claude/claude.json` with `{}` only when the
 volume has none. An existing volume's `claude.json` content is preserved across
@@ -62,9 +60,7 @@ responder workflows, which use the branch checkout and do not depend on it.
 
 Rejected: having each raw-image consumer install the catalog itself (duplicates
 lifecycle-script logic and leaves the image carrying a catalog that looks
-installed but is not); an unconditional `rm` of the image's `/root/.claude.json`
-before cbm-install (clobbers an existing volume by severing cbm-install's only
-path back to the volume's content).
+installed but is not).
 
 ## Edge cases
 

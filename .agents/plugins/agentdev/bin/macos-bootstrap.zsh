@@ -7,14 +7,10 @@ setopt err_exit no_unset pipe_fail
 typeset -r PYTHON_VERSION=3.12
 # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
 typeset -r IWE_VERSION=iwe-v0.32.0
-# renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
-typeset -r CBM_VERSION=v0.12.1
 # Renovate bumps the versions; scripts/refresh-pin-checksums.py rewrites these digests.
 typeset -rA SHA256=(
   iwe-arm64 a616c3df4b992df568ff5357172e8162b7a72b8a4f8a1d35ba5fe718e0a8786b
   iwe-amd64 0a168ede305c25632060fe9f9080e7e0964f3c5e7e5037b1b6034b91694036c0
-  codebase-memory-mcp-arm64 9bfcbe38414b47969a3e1d1c1999f5357409387c86fa3d24221b5458267660d2
-  codebase-memory-mcp-amd64 ca6e64397a8ae80cec898a8205a6aa16750ac798acc05a0c3ed983837944a581
 )
 
 typeset -r MARKETPLACE_REPO=plume-works/agent-devcontainer
@@ -41,9 +37,8 @@ usage() {
   print -r -- "Usage: macos-bootstrap.zsh [--skip-plugins]
 
 Install the tools the agentdev catalog needs on macOS: Homebrew packages, a
-uv-managed Python $PYTHON_VERSION as the default python3, iwe and
-codebase-memory-mcp in ~/.local/bin, a PATH block in ~/.zprofile, and the
-$PLUGIN plugin for Claude Code. When fish is installed, the same PATH setup
+uv-managed Python $PYTHON_VERSION as the default python3, iwe in ~/.local/bin,
+a PATH block in ~/.zprofile, and the $PLUGIN plugin for Claude Code. When fish is installed, the same PATH setup
 goes in ~/.config/fish/conf.d/agentdev.fish.
 
   --skip-plugins  Leave Claude Code's plugins untouched."
@@ -150,7 +145,7 @@ verify() {
   local -a failures
   local tool output
   step "Verifying from a fresh login shell"
-  for tool in uv jq gh shellcheck bun pre-commit iwe iwes codebase-memory-mcp claude; do
+  for tool in uv jq gh shellcheck bun pre-commit iwe iwes claude; do
     # iwes is a language server without --version; --skip-plugins promises no claude call.
     if [[ $tool == iwes ]] || { (( skip_plugins )) && [[ $tool == claude ]] }; then
       output=$(login_shell "command -v $tool") || { failures+=($tool); continue }
@@ -200,9 +195,6 @@ main() {
   install_release iwe-$arch \
     https://github.com/iwe-org/iwe/releases/download/$IWE_VERSION/$IWE_VERSION-$iwe_target.tar.gz \
     iwe iwes
-  install_release codebase-memory-mcp-$arch \
-    https://github.com/DeusData/codebase-memory-mcp/releases/download/$CBM_VERSION/codebase-memory-mcp-darwin-$arch.tar.gz \
-    codebase-memory-mcp
   write_path_blocks
   (( skip_plugins )) || install_plugins
   verify

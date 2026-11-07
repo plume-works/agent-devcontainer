@@ -3,7 +3,7 @@ type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-06T00:00:00Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
@@ -108,10 +108,10 @@ on `PATH`.
 
 ### Requirement: the Dev Container image owns persistent services
 
-`agentdev-devcontainer` SHALL start Docker, D-Bus, keyring, CBM, and enabled
-Xpra through its supervised entrypoint, SHALL publish readiness only after
-required services are healthy, and SHALL recover or fail with the bounded policy
-shared with deploy.
+`agentdev-devcontainer` SHALL start Docker, D-Bus, keyring, and enabled Xpra
+through its supervised entrypoint, SHALL publish readiness only after required
+services are healthy, and SHALL recover or fail with the bounded policy shared
+with deploy.
 
 #### Scenario: an editor attaches to a healthy runtime
 

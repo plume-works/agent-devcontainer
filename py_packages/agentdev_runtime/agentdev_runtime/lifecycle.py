@@ -12,7 +12,6 @@ import contextlib
 import io
 import os
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 import time
@@ -20,7 +19,6 @@ import time
 from agentdev_runtime import (
     agent_state,
     catalog,
-    cbm,
     git,
     health,
     hooks,
@@ -53,13 +51,6 @@ def created_marker(settings: env.Settings) -> Path:
     return settings.path('AGENTDEV_LIFECYCLE_DIR') / 'created'
 
 
-def claim_ancestors(owner: str, directory: str) -> None:
-    """Own a checkout's or home's ancestors; CBM rejects one another UID owns."""
-    while directory and directory != '/':
-        subprocess.run(['sudo', 'chown', owner, directory], check=True)
-        directory = os.path.dirname(directory)
-
-
 def claim_mounts(owner: str) -> None:
     """Named volumes are created root-owned; claim /uv only when it is mounted."""
     if UV_MOUNT.exists():
@@ -75,11 +66,8 @@ def check(status: int, step: str) -> None:
 
 def created(settings: env.Settings) -> None:
     """Run the create phase, idempotently, then mark it done."""
-    folder = workspace_of(settings)
+    workspace_of(settings)
     owner = f'{os.getuid()}:{os.getgid()}'
-    if os.getuid() == 0:
-        claim_ancestors(owner, folder)
-        claim_ancestors(owner, str(Path.home()))
     claim_mounts(owner)
     # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
     git.safe_directory(settings)
@@ -127,24 +115,11 @@ def wait_ready(settings: env.Settings) -> None:
     print(f"{PREFIX}: the runtime's required services are ready", flush=True)
 
 
-def start_cbm(settings: env.Settings) -> None:
-    """Start the CBM daemon a start with no supervisor has, when the image ships CBM."""
-    if shutil.which('codebase-memory-mcp') is None:
-        print('codebase-memory-mcp is not installed; skipping the CBM daemon start.')
-        return
-    try:
-        cbm.Daemon(settings).start()
-    except cbm.CbmError as error:
-        raise LifecycleError(f'the CBM daemon did not start: {error}') from error
-
-
 def ready(settings: env.Settings, wait: bool) -> None:
-    """Run the start phase; without a supervisor, start CBM, then repair per-start state."""
+    """Run the start phase: wait for a supervisor when there is one, then repair per-start state."""
     workspace_of(settings)
     if wait:
         wait_ready(settings)
-    else:
-        start_cbm(settings)
     git.safe_directory(settings)
     # After the keyring: gh may keep its login there.
     check(git.credential_helper(settings), 'the git credential helper setup')
@@ -154,14 +129,9 @@ def ready(settings: env.Settings, wait: bool) -> None:
 
 
 def attached(settings: env.Settings) -> None:
-    """Run the attach phase: index request, project environment, catalog, attached hooks."""
+    """Run the attach phase: project environment, catalog, attached hooks."""
     folder = workspace_of(settings)
     subprocess.run(['git', 'config', '--global', 'gpg.ssh.program', 'ssh-keygen'], check=True)
-    if shutil.which('codebase-memory-mcp') is not None:
-        try:
-            cbm.Daemon(settings).index(folder)
-        except cbm.CbmError as error:
-            raise LifecycleError(str(error)) from error
     if (Path(folder) / 'pyproject.toml').is_file():
         check(project.sync(settings), 'uv sync')
     if catalog.complete(Path(folder)):

@@ -3,7 +3,7 @@ type: architecture
 description: agentdev-devcontainer owns the Dev Container lifecycle and its supervised services, so a repository references or derives from the image instead of copying lifecycle scripts; consumers extend it only through hook directories and documented environment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -45,9 +45,9 @@ alias only adds a second name to maintain. Full-adoption consumers move through
 
 `AGENTDEV_RUNTIME_MODE` selects one supervisor profile per image; both share the
 service adapters, dependency ordering, health probes, bounded recovery, and
-shutdown. The devcontainer profile makes `dbus`, `keyring`, `dockerd`, `cbm`,
-and `xpra` core. `opencode` and `remote-control` are opt-in clients that wait
-for the `created` one-shot, which only waits for the create phase to finish.
+shutdown. The devcontainer profile makes `dbus`, `keyring`, `dockerd`, and
+`xpra` core. `opencode` and `remote-control` are opt-in clients that wait for
+the `created` one-shot, which only waits for the create phase to finish.
 
 A latched failure ends a Dev Container, where a deploy container stays up for an
 explicit retry: an editor has no retry command, and a container that keeps
@@ -63,7 +63,7 @@ label so every descriptor that selects the image inherits them:
 | ------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `postCreateCommand` | `agentdev-runtime lifecycle created`  | Once per container: client state, project dependencies and hooks, the staged catalog.          |
 | `postStartCommand`  | `agentdev-runtime lifecycle ready`    | Every start: waits for the core services, repairs per-start state. It is the `waitFor` target. |
-| `postAttachCommand` | `agentdev-runtime lifecycle attached` | Every attach: CBM index request, project environment, a complete checkout catalog.             |
+| `postAttachCommand` | `agentdev-runtime lifecycle attached` | Every attach: project environment, a complete checkout catalog.                                |
 
 The editor therefore never attaches to a container whose required services
 failed. The label also sets `overrideCommand: false`, so the client keeps the

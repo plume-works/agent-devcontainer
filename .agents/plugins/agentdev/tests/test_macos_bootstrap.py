@@ -151,8 +151,8 @@ class Host:
     def trust_archives(self) -> None:
         """Make the shasum stub report each archive's recorded SHA-256."""
         for archive in (self.stub_dir / 'archives').iterdir():
-            key = 'iwe-arm64' if archive.name.startswith('iwe-') else 'codebase-memory-mcp-arm64'
-            (self.stub_dir / 'sha256' / archive.name).write_text(recorded_sha256(self.script, key))
+            digest = recorded_sha256(self.script, 'iwe-arm64')
+            (self.stub_dir / 'sha256' / archive.name).write_text(digest)
 
 
 @pytest.fixture
@@ -184,10 +184,6 @@ def host(plugin_root: Path, plugin_tmp_path: Path) -> Host:
     tarball(
         stub_dir / 'archives' / f'{iwe}-aarch64-apple-darwin.tar.gz',
         {name: f'echo "{name} 0.0.0"' for name in ('iwe', 'iwes', 'iwec')},
-    )
-    tarball(
-        stub_dir / 'archives' / 'codebase-memory-mcp-darwin-arm64.tar.gz',
-        {'codebase-memory-mcp': 'echo "codebase-memory-mcp 0.0.0"', 'install.sh': 'exit 1'},
     )
     return stubbed
 
@@ -240,9 +236,7 @@ def test_checksum_mismatch_rejects_the_archive(host: Host) -> None:
     assert result.returncode != 0
     assert 'SHA-256' in result.stderr
     bin_dir = host.home / '.local' / 'bin'
-    assert not any(
-        (bin_dir / name).exists() for name in ('iwe', 'iwes', 'iwec', 'codebase-memory-mcp')
-    )
+    assert not any((bin_dir / name).exists() for name in ('iwe', 'iwes', 'iwec'))
 
 
 def test_only_iwe_and_iwes_are_installed_from_the_iwe_archive(host: Host) -> None:
@@ -255,8 +249,6 @@ def test_only_iwe_and_iwes_are_installed_from_the_iwe_archive(host: Host) -> Non
     assert (bin_dir / 'iwe').exists()
     assert (bin_dir / 'iwes').exists()
     assert not (bin_dir / 'iwec').exists()
-    assert (bin_dir / 'codebase-memory-mcp').exists()
-    assert not (bin_dir / 'install.sh').exists()
 
 
 def test_rerun_keeps_one_marker_block_and_preserves_other_content(host: Host) -> None:

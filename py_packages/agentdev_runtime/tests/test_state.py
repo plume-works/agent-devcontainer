@@ -87,5 +87,5 @@ def test_run_files_live_under_the_run_dir(tmp_path: Path) -> None:
     files = state.RunFiles(tmp_path)
     assert files.state == tmp_path / 'state.json'
     assert files.retry == tmp_path / 'retry-request.json'
-    assert files.output('cbm') == tmp_path / 'output/cbm.json'
+    assert files.output('xpra') == tmp_path / 'output/xpra.json'
     assert state.failure_record(tmp_path) == tmp_path / '.local/state/agentdev/last-failure.json'

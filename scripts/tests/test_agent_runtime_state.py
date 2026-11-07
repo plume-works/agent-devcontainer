@@ -10,7 +10,7 @@ import subprocess
 import sys
 import time
 
-from agentdev_runtime import agent_state, catalog, cbm, claude_state, lifecycle
+from agentdev_runtime import agent_state, catalog, cbm_purge, claude_state, lifecycle
 from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
 import pytest
 
@@ -37,26 +37,20 @@ def runtime_env(root: Path, **extra: str) -> dict[str, str]:
 
 
 class Recorder:
-    """Stands in for the CBM install and the pre-approval, recording each call in order."""
+    """Stands in for the CBM purge and the pre-approval, recording each call in order."""
 
     def __init__(self, monkeypatch: pytest.MonkeyPatch, settings: Settings) -> None:
         self.calls: list[str] = []
-        self.cbm_status = 0
         self.claude_json = Path(settings.get('AGENTDEV_CLAUDE_JSON'))
 
         def link_state() -> str:
             return 'symlink' if self.claude_json.is_symlink() else 'plain'
 
-        def configure_agents(_settings: Settings, _install_dir: Path, _path: str = '') -> int:
-            self.calls.append(f'cbm configure claude.json={link_state()}')
-            return self.cbm_status
-
-        def install(_daemon: cbm.Daemon) -> int:
-            self.calls.append(f'cbm install claude.json={link_state()}')
-            return self.cbm_status
-
-        monkeypatch.setattr(cbm, 'configure_agents', configure_agents)
-        monkeypatch.setattr(cbm, 'install', install)
+        monkeypatch.setattr(
+            cbm_purge,
+            'purge',
+            lambda _settings: self.calls.append(f'purge claude.json={link_state()}'),
+        )
         monkeypatch.setattr(
             claude_state, 'preapprove', lambda _settings: self.calls.append('preapprove')
         )
@@ -98,14 +92,14 @@ def test_standalone_create_order_migrates_the_users_claude_json(
 
     assert (home / '.claude/claude.json').read_text() == '{"user": true}'
     assert os.readlink(home / '.claude.json') == str(home / '.claude/claude.json')
-    assert recorder.calls == ['preapprove']
+    assert recorder.calls == ['purge claude.json=symlink', 'preapprove']
     assert mode(tmp_path / 'auth/claude') == 0o700
     assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude']
     assert not (home / '.local/share/opencode/auth.json').exists()
 
 
-def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+def test_devcontainer_create_discards_the_image_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     home = tmp_path / 'home'
     (home / '.claude').mkdir(parents=True)
@@ -113,32 +107,11 @@ def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
     (home / '.claude.json').write_text('{"image": true}')
     settings = settings_for(tmp_path)
     recorder = Recorder(monkeypatch, settings)
-    recorder.cbm_status = 1
 
     agent_state.create(settings)
 
-    assert 'codebase-memory-mcp install failed' in capsys.readouterr().err
     assert (home / '.claude.json').read_text() == '{"volume": true}'
-    assert recorder.calls == ['cbm configure claude.json=symlink', 'preapprove']
-
-
-def test_standalone_cbm_step_installs_after_create_links_claude_json(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    settings = settings_for(tmp_path, DEPLOY)
-    recorder = Recorder(monkeypatch, settings)
-    agent_state.create(settings)
-    agent_state.install_cbm(settings)
-    assert recorder.calls[-1] == 'cbm install claude.json=symlink'
-
-
-def test_standalone_cbm_step_fails_when_cbm_install_fails(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    settings = settings_for(tmp_path, DEPLOY)
-    Recorder(monkeypatch, settings).cbm_status = 1
-    with pytest.raises(agent_state.StateError):
-        agent_state.install_cbm(settings)
+    assert recorder.calls == ['purge claude.json=symlink', 'preapprove']
 
 
 def test_catalog_passes_the_scope_only_to_claude(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
@@ -175,8 +148,6 @@ def test_hooks_keep_their_call_order():
     created = inspect.getsource(lifecycle.created)
     assert created.index('agent_state.create') < created.index('.project()')
     assert created.index('.project()') < created.index('catalog.install')
-    create = inspect.getsource(agent_state.create)
-    assert create.index('link_claude_json') < create.index('install_cbm')
 
 
 def fake_gh(directory: Path) -> None:
@@ -262,15 +233,14 @@ with agent_state.config_lock(settings.Settings()):
 """
 
 
-@pytest.mark.parametrize('second', ['agent-policy', 'cbm'])
-def test_concurrent_config_writers_take_turns(tmp_path: Path, second: str):
+def test_concurrent_config_writers_take_turns(tmp_path: Path):
     log = tmp_path / 'calls.log'
-    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy', AGENTDEV_CBM_BIN='/nonexistent')
+    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy')
     first = subprocess.Popen([sys.executable, '-c', HOLD_LOCK, str(log)], env=env)
     deadline = time.monotonic() + 10
     while not log.exists() and time.monotonic() < deadline:
         time.sleep(0.05)
-    subprocess.run([*STATE, second], env=env, capture_output=True, text=True)
+    subprocess.run([*STATE, 'agent-policy'], env=env, capture_output=True, text=True)
     finished = time.time()
     assert first.wait(timeout=30) == 0
     assert log.read_text().splitlines() == ['begin', 'end']

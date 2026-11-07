@@ -35,8 +35,6 @@ rejected are as valuable as the one you picked.*
 
 [Catalog script language](architecture/catalog-script-language.md)
 
-[CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
-
 [CI agent plugin availability](architecture/ci-agent-plugin-availability.md)
 
 [Claude Remote Control archived pre-created
@@ -102,6 +100,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 [Nested Docker provisioning](architecture/nested-docker-provisioning.md)
 
 [Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
+
+[No code-graph index](architecture/no-code-graph.md)
 
 [No Launchpad PPAs](architecture/no-launchpad-ppas.md)
 

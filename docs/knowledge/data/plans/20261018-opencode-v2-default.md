@@ -45,9 +45,8 @@ The current design is in [OpenCode catalog
 bridge](../architecture/opencode-catalog-bridge.md) and [Agent auth
 persistence](../architecture/agent-auth-persistence.md); the contracts are
 [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md), [OpenCode
-web](../spec/opencode-web.md), [OpenCode workspace CBM
-indexing](../spec/opencode-workspace-cbm-indexing.md), and [Coder IDE baseline
-template](../spec/coder-ide-baseline.md).
+web](../spec/opencode-web.md), OpenCode workspace CBM indexing, and [Coder IDE
+baseline template](../spec/coder-ide-baseline.md).
 
 [OpenCode full-access config](../features/opencode-full-access-config.md) writes
 a v1-shaped `permission` block into `opencode.json` on every start
@@ -790,7 +789,7 @@ and the generated server password, SHALL live on the per-instance
 - **THEN** it sees none of the first worktree's provider logins or sessions.
 ```
 
-- [OpenCode workspace CBM indexing](../spec/opencode-workspace-cbm-indexing.md):
+- OpenCode workspace CBM indexing:
 
 ``` markdown
 ## MODIFIED Requirements

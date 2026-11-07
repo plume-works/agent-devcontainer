@@ -75,9 +75,9 @@ Options:
 - `--worktree` creates the branch in a new worktree `<repo>-<branch>` (a `/`
   in the branch stays a directory separator) and leaves the current checkout
   alone. Its parent is `<main checkout>/.worktrees/` when
-  `AGENTDEV_RUNTIME_MODE` is `standalone`; otherwise it is `/workspaces` when
-  the main checkout lives directly under `/workspaces`, and
-  `<main checkout>/.worktrees/` when it does not. The script adds `.worktrees/`
+  `AGENTDEV_RUNTIME_MODE` is `deploy`; otherwise it is `/workspaces` when the
+  main checkout lives directly under `/workspaces` and the account can write
+  it, and `<main checkout>/.worktrees/` when not. The script adds `.worktrees/`
   to `.git/info/exclude` unless Git already ignores it.
 - `--worktree-root <dir>` overrides the worktree parent and implies
   `--worktree`.

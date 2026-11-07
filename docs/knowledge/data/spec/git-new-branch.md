@@ -3,7 +3,7 @@ type: spec
 description: How the git-new-branch skill starts a work branch at the fetched remote base, and how git-commit and pre-commit keep commits off the default branch.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T07:39:19Z
+  at: 2026-11-07T12:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
@@ -99,9 +99,10 @@ entry until any conflicts it produces are resolved.
 In worktree mode the git-new-branch skill SHALL create the branch in a new
 worktree named `<repo>-<branch>`, with any `/` in the branch kept as a directory
 separator, under the checkout's ignored `.worktrees/` directory when
-`AGENTDEV_RUNTIME_MODE` is `standalone`, otherwise under `/workspaces` when the
-main checkout lives there and under the checkout's ignored `.worktrees/`
-directory when it does not, and SHALL NOT change the current checkout.
+`AGENTDEV_RUNTIME_MODE` is `deploy`, otherwise under `/workspaces` when the main
+checkout lives there and the account can write it, and under the checkout's
+ignored `.worktrees/` directory when not, and SHALL NOT change the current
+checkout.
 
 #### Scenario: Repository outside /workspaces
 
@@ -109,10 +110,17 @@ directory when it does not, and SHALL NOT change the current checkout.
 - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
   directory is ignored by Git
 
-#### Scenario: Standalone runtime
+#### Scenario: Deploy runtime
 
-- **WHEN** `AGENTDEV_RUNTIME_MODE` is `standalone`, whether or not the main
-  checkout is directly under `/workspaces`
+- **WHEN** `AGENTDEV_RUNTIME_MODE` is `deploy`, whether or not the main checkout
+  is directly under `/workspaces`
+- **THEN** the worktree is created under `<checkout>/.worktrees/` and that
+  directory is ignored by Git
+
+#### Scenario: An account that cannot write /workspaces
+
+- **WHEN** the main checkout is directly under `/workspaces` and the account
+  cannot write `/workspaces`
 - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
   directory is ignored by Git
 

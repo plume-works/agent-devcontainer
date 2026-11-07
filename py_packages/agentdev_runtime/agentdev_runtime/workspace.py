@@ -171,10 +171,8 @@ class Workspace:
             agent_state.apply_agent_policy()
 
     def config(self) -> None:
-        """Register the catalog, then CBM."""
+        """Register the catalog."""
         self.catalog()
-        with agent_state.config_lock(self.settings):
-            agent_state.install_cbm(self.settings)
 
 
 def main(argv: list[str]) -> int:

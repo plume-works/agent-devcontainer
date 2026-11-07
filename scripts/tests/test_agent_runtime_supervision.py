@@ -29,17 +29,15 @@ STARTUP_ORDER = [
     'keyring',
     'prepare',
     'config',
-    'cbm',
     'opencode',
     'xpra',
     'dockerd',
     'docker-gc',
     'project',
-    'index',
 ]
-STOP_ORDER = ['opencode', 'cbm', 'xpra', 'docker-gc', 'keyring', 'dbus', 'dockerd']
-ONESHOTS = {'prepare', 'config', 'project', 'index'}
-OPTIONAL = ['config', 'cbm', 'xpra', 'dockerd', 'docker-gc', 'project', 'index']
+STOP_ORDER = ['opencode', 'xpra', 'docker-gc', 'keyring', 'dbus', 'dockerd']
+ONESHOTS = {'prepare', 'config', 'project'}
+OPTIONAL = ['config', 'xpra', 'dockerd', 'docker-gc', 'project']
 
 FAKE_SERVICE = """#!/usr/bin/env bash
 name="$1"; state="$STATE_DIR"
@@ -452,11 +450,11 @@ def test_a_crashed_service_recovers_without_rerunning_preparation(make):
     box = make()
     box.start()
     box.wait_for(box.ready)
-    box.set('cbm', 'crash')
-    box.wait_for(lambda: started(box.events()).count('cbm') == 2 and box.ready())
+    box.set('xpra', 'crash')
+    box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
     runs = started(box.events())
-    assert runs.count('prepare') == 1 and runs.count('index') == 1
-    assert runs.count('opencode') == 2, 'OpenCode reconnects to the replacement CBM daemon'
+    assert runs.count('prepare') == 1 and runs.count('project') == 1
+    assert runs.count('opencode') == 1
 
 
 def test_readiness_loss_counts_as_failure(make):
@@ -665,8 +663,8 @@ def test_budget_resets_after_a_healthy_period(make):
     box.start()
     box.wait_for(box.ready)
     for count in (2, 3):
-        box.set('cbm', 'crash')
-        box.wait_for(lambda c=count: started(box.events()).count('cbm') == c and box.ready())
+        box.set('xpra', 'crash')
+        box.wait_for(lambda c=count: started(box.events()).count('xpra') == c and box.ready())
         time.sleep(1.2)
     assert box.process is not None and box.process.poll() is None
 
@@ -693,7 +691,7 @@ def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
 
 def test_shutdown_is_bounded_when_a_service_ignores_sigterm(make):
     box = make()
-    box.set('cbm', 'mode', 'ignore-term')
+    box.set('xpra', 'mode', 'ignore-term')
     box.start()
     box.wait_for(box.ready)
     started_at = time.monotonic()

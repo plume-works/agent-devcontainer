@@ -78,7 +78,6 @@ esac
         'clang-format',
         'claude',
         'cmake',
-        'codebase-memory-mcp',
         'copilot',
         'curl',
         'docker',
@@ -174,7 +173,6 @@ def test_absent_processes_fail_without_printing_command_lines(tmp_path: Path) ->
     result = _run_health(tmp_path, processes_present=False)
     assert result.returncode == 1
     assert re.search(r'^xpra process\s+FAIL\b', result.stdout, re.MULTILINE)
-    assert re.search(r'^cbm process\s+FAIL\b', result.stdout, re.MULTILINE)
     assert 'pgrep -f' not in result.stdout
 
 

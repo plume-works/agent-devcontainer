@@ -94,8 +94,8 @@ for prerequisites and the full-copy and selective-copy workflows.
 
 `agentdev-deploy` runs one project with no Dev Containers client, Coder, or project
 scaffolding. On start it creates its runtime account, prepares the workspace, and
-starts the OpenCode server, with nested Docker, an instance-local keyring, Codebase
-Memory MCP, and the Xpra desktop around it. Each service is supervised and recovered
+starts the OpenCode server, with nested Docker, an instance-local keyring, and the
+Xpra desktop around it. Each service is supervised and recovered
 within a bounded budget. Claude Code is installed and configured but not started.
 
 ### Launch
@@ -152,13 +152,13 @@ volume must use the same IDs; a container with other IDs latches failed rather t
 change the volume. A bind-mounted checkout must be writable by those IDs, and its
 ownership is never changed.
 
-| Path                     | Volume                   | Holds                                                  |
-| ------------------------ | ------------------------ | ------------------------------------------------------ |
-| `/workspaces/project`    | `workspace` or the bind  | The checkout                                           |
-| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring, CBM |
-| `/uv`                    | `uv`                     | uv cache, Python installs, project venv                |
-| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store           |
-| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude Code logins                              |
+| Path                     | Volume                   | Holds                                             |
+| ------------------------ | ------------------------ | ------------------------------------------------- |
+| `/workspaces/project`    | `workspace` or the bind  | The checkout                                      |
+| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring |
+| `/uv`                    | `uv`                     | uv cache, Python installs, project venv           |
+| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store      |
+| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude Code logins                         |
 
 Back up `home`, `workspace`, and the auth volume to keep an instance's state; `uv` and
 `docker` can be rebuilt. Removing the container keeps every volume. `docker compose
@@ -171,16 +171,12 @@ The core path is the root bootstrap (account, volumes, and the opt-in firewall),
 session bus and keyring, then the core phase (checkout, the Claude credential links,
 agent policy), then OpenCode. Everything else is optional work:
 
-- before OpenCode, which reads them when it starts: catalog registration, the
-  Codebase Memory MCP client configuration, and the CBM daemon its MCP client
-  connects to;
+- before OpenCode, which reads it when it starts: catalog registration;
 - beside OpenCode: Xpra, which neither waits for OpenCode nor delays it;
-- after OpenCode: nested Docker and its image prune, uv sync, pre-commit hook
-  registration, and a background index request.
+- after OpenCode: nested Docker and its image prune, uv sync, and pre-commit hook
+  registration.
 
-Hook environments build on first use rather than at startup. The index request returns
-once CBM accepts the job, and the daemon indexes in the background, so a large
-workspace never delays startup.
+Hook environments build on first use rather than at startup.
 
 The runtime reports one state:
 
@@ -233,7 +229,7 @@ retry` resumes a latched runtime from
 | ------------- | ------------------------------------------------------------------------------------ |
 | Python        | `uv`, system Python, and `pre-commit`                                                |
 | JavaScript    | Bun, Node.js 24, and Yarn                                                            |
-| Agents        | Claude Code, OpenCode, MCP Inspector, and Codebase Memory MCP                        |
+| Agents        | Claude Code, OpenCode, and MCP Inspector                                             |
 | Build tooling | `build-essential`, Kitware CMake, Ninja, and `pkg-config`                            |
 | Quality       | Ruff, ShellCheck, Zizmor, Ansible Lint, Prettier, Hadolint, Gitleaks, and Actionlint |
 | GitHub        | Git, Git LFS, `gh`, and a transparent host-token wrapper                             |
@@ -242,9 +238,8 @@ retry` resumes a latched runtime from
 | Credentials   | Headless GNOME Keyring and shared agent authentication                               |
 | Security      | An opt-in egress firewall with an allowlist and startup checks                       |
 
-Python commands run through `uv run`. Python environments, agent state, Codebase
-Memory data, and pre-commit environments persist across container rebuilds and remain
-isolated per worktree. Authentication is shared so opening another worktree does not
+Python commands run through `uv run`. Python environments, agent state, and pre-commit
+environments persist across container rebuilds and remain isolated per worktree. Authentication is shared so opening another worktree does not
 require signing in again.
 
 ### Upgrading from an image with Codex

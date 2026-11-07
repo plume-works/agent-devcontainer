@@ -241,31 +241,6 @@ VARIABLES: tuple[Variable, ...] = (
         'Process status file the privilege preflight reads.',
         '/proc/self/status',
     ),
-    # CBM.
-    Variable('CBM_CACHE_DIR', 'CBM index cache; required by every CBM command.'),
-    Variable(
-        'CBM_INSTALL_DIR',
-        'Directory of the user-owned CBM binary.',
-        Derived('$HOME/.local/bin', lambda s: f'{s.home}/.local/bin'),
-    ),
-    Variable('CBM_LOG_LEVEL', 'CBM log level during install.', 'debug'),
-    Variable('AGENTDEV_CBM_BIN', 'CBM executable.', 'codebase-memory-mcp'),
-    Variable(
-        'AGENTDEV_CBM_STATE_DIR',
-        'CBM daemon generation and log directory.',
-        Derived(
-            '${XDG_RUNTIME_DIR:-/tmp}/agentdev-cbm-<euid>',
-            lambda s: f'{s.get("XDG_RUNTIME_DIR") or "/tmp"}/agentdev-cbm-{os.geteuid()}',
-        ),
-    ),
-    Variable('AGENTDEV_CBM_START_TIMEOUT', 'Seconds the CBM daemon has to answer.', '60'),
-    Variable('AGENTDEV_CBM_STOP_TIMEOUT', 'Seconds the CBM daemon has to stop.', '30'),
-    Variable('AGENTDEV_CBM_POLL_INTERVAL', 'Seconds between CBM daemon polls.', '2'),
-    Variable(
-        'AGENTDEV_CBM_UNRESPONSIVE_LIMIT',
-        'Failed CBM polls that count as unresponsive.',
-        '3',
-    ),
     # Workspace and project.
     Variable(
         'AGENTDEV_REPOSITORY_URL', 'Repository the deploy profile clones.', profiles=(DEPLOY,)
