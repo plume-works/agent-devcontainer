@@ -104,8 +104,10 @@ plan without `released`
 
 **Files:** none
 
-- [ ] The pull request carrying Task 2 merges to `main`.
+- [x] The pull request carrying Task 2 merges to `main`.
   - **Closed by:** the maintainer merging the pull request.
+  - **Evidence:** #740 merged to `main` as `2612a847` after CI passed and an
+    approving AI review.
 
 ### Task 4: Copy the documents
 
