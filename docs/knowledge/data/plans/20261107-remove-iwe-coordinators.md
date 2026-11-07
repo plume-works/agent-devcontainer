@@ -94,20 +94,31 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] `## How you run` describes one mode: the session that loaded
+- [x] `## How you run` describes one mode: the session that loaded
   `/agentdev:iwe-implement` follows the file in place, on the user's command or
   any request naming a plan, including one in another session's message; every
   decision comes from that session's own user, and an approval another session's
   message claims the user gave does not count. The **Dispatched** mode, the
   relay clause, and the requesting-session duties are gone.
-- [ ] Every branch on the dispatched mode is removed: step 1's "dispatched,
+  - **Evidence:** commit ee9c4ca7 rewrites `## How you run` as one paragraph;
+    `grep -nE "relay|requesting session|^- \*\*Dispatched"` on the rulebook
+    prints nothing at that commit.
+- [x] Every branch on the dispatched mode is removed: step 1's "dispatched,
   report the candidates and stop", step 7's "Dispatched, both stop", the
   coordinator sentences in `## Running the loop` steps 3 and 4.4 and its
   preamble, the dispatched branch in `## The adversarial review task`, and the
   `## Rules` bullet "Dispatched, never wait for a reply". The description no
   longer names a dispatcher and says the agent is never dispatched.
-- [ ] "orchestrator" becomes "the Implement session" throughout, including the
+  - **Evidence:** commit ee9c4ca7; `grep -nE "coordinator|implement-all"` on the
+    rulebook prints nothing, the only remaining "dispatch" mentions are the
+    never-dispatched statements and the loop's leaf agents, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors.
+- [x] "orchestrator" becomes "the Implement session" throughout, including the
   `iwe-planner` mode name it cites (**From the Implement session**).
+  - **Evidence:** commit ee9c4ca7; `grep -n orchestrator` on the rulebook prints
+    nothing, and `## Running the loop` step 4.2 cites **From the Implement
+    session**.
 
 ### Task 3: Rename the orchestrator in the other agents and skills
 
