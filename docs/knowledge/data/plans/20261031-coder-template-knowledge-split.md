@@ -82,10 +82,18 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 **Files:** Create (in `plume-works/coder-ide-baseline`): `.iwe/`,
 `docs/knowledge/`
 
-- [ ] Create a work branch in `coder-ide-baseline` from fresh `origin/main` with
+- [x] Create a work branch in `coder-ide-baseline` from fresh `origin/main` with
   `/agentdev:git-new-branch`.
-- [ ] `/agentdev:iwe-bootstrap` with `--root` set to the checkout returns
+  - **Evidence:** branch `iwe-knowledge-workspace` of [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36), created
+    with `git checkout -b` from a fresh clone of `origin/main` at e437dc2; the
+    `/agentdev:git-new-branch` skill was not loaded in the session.
+- [x] `/agentdev:iwe-bootstrap` with `--root` set to the checkout returns
   `RESULT=SUCCESS`.
+  - **Evidence:** `bootstrap-iwe.py --root /workspaces/coder-ide-baseline`
+    printed `RESULT=SUCCESS`; scaffold committed as coder-ide-baseline 2114c7a
+    in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36).
 
 ### Task 2: Onboard the template workspace
 
