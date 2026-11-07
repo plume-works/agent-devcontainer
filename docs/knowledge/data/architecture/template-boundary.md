@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
+  at: 2026-11-06T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -93,17 +93,15 @@ the image's `agentdev-runtime`, so no lifecycle script is part of it:
 | Path                                   | Responsibility                                                                                  |
 | -------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `.devcontainer/devcontainer.json`      | Dev Container entry point, mounts, ports, environment, and editor configuration.                |
-| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent agent volumes.               |
+| `.devcontainer/docker-compose.yml`     | Devcontainer service, worktree mounts, and persistent agent volumes.                            |
 | `.devcontainer/devcontainer-init.sh`   | Generates host-specific Compose state and creates shared agent volumes before startup.          |
 | `.devcontainer/firewall-allowlist.txt` | Project-owned allowlist read when the opt-in firewall starts.                                   |
 | `devcontainer-compose-pins.yml`        | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`. |
-| `.mcp.json`                            | Points repository agents at the MCP gateway sidecar.                                            |
 
 The default runtime intentionally retains all capabilities currently supplied
-here: supervised nested Docker; Xpra and VirtualGL desktop access; the Docker
-Desktop MCP gateway and secret socket integration; shared Claude authentication
-and per-instance agent configuration volumes; image-staged `agentdev`
-installation; the opt-in egress firewall; and worktree-safe mounts.
+here: supervised nested Docker; Xpra and VirtualGL desktop access; shared Claude
+authentication and per-instance agent configuration volumes; image-staged
+`agentdev` installation; the opt-in egress firewall; and worktree-safe mounts.
 
 ### Agent-facing repository configuration
 
@@ -276,10 +274,10 @@ A macOS host that runs agents natively, with no devcontainer, consumes the
 `agentdev` catalog only. `bin/macos-bootstrap.zsh`, shipped inside the catalog,
 provisions it: Homebrew tools, a uv-managed Python, the release-only tools the
 image pins, and the plugin install. None of the `.devcontainer/` runtime surface
-applies to such a host — no image, lifecycle commands, MCP gateway, egress
-firewall, or shared agent volumes — and it takes no template paths. A repository
-that also keeps the devcontainer for other hosts keeps the Template surface as
-usual; the macOS host simply never starts it.
+applies to such a host — no image, lifecycle commands, egress firewall, or
+shared agent volumes — and it takes no template paths. A repository that also
+keeps the devcontainer for other hosts keeps the Template surface as usual; the
+macOS host simply never starts it.
 
 ## Publisher-only source
 

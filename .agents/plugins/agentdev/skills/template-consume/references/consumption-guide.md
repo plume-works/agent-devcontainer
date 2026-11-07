@@ -20,8 +20,7 @@ The steps below walk that classification path by path.
 The default setup SHALL retain all runtime capabilities provided by the
 template's devcontainer: the digest-pinned `agentdev-devcontainer` image
 with its supervised nested Docker; worktree-safe workspace mounts;
-Xpra/VirtualGL desktop access; the Docker Desktop MCP gateway and secrets
-socket integration; persistent state volumes (one shared volume holding Claude
+Xpra/VirtualGL desktop access; persistent state volumes (one shared volume holding Claude
 Code's credentials, the rest of each agent's state scoped per devcontainer
 instance); the `agentdev` catalog staged in the image and installed after
 volume mounts; keyring and GitHub
@@ -207,8 +206,8 @@ nothing.
 
 ### 6. Review the devcontainer configuration
 
-Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
-`.mcp.json`. Then review these project-owned values:
+Keep the complete `.devcontainer/` tree and `devcontainer-compose-pins.yml`.
+Then review these project-owned values:
 
 1. Change `name` in `.devcontainer/devcontainer.json`.
 2. Keep `workspaceFolder`, `DEV_WORKSPACE_FOLDER`, and the Compose workspace
@@ -550,7 +549,6 @@ Copy all of these paths, preserving executable bits:
 ```text
 .devcontainer/
 devcontainer-compose-pins.yml
-.mcp.json
 ```
 
 Do not copy only the two visible devcontainer configuration files. The
@@ -1187,3 +1185,10 @@ every `data/codebase/` document and the `data/codebase.md` hub through
 no key; and any CI step or pre-commit hook that runs `stale-map-docs.py`. It
 reports each removal, then runs `iwe normalize` and `iwe schema validate` from
 the consumer root. A consumer that never adopted the map sees no change.
+
+The Docker MCP gateway is retired from the template, and `.mcp.json` with it.
+Update mode removes the `gateway` server, its `mcp__gateway__*` permission, and
+any gateway wiring left in a customized `.devcontainer/`, and stops tracking
+`.mcp.json`. Servers a consumer added to `.mcp.json` stay, and a consumer whose
+choice log records keeping the gateway keeps it. Docker Desktop MCP Toolkit
+tools are not reachable from the container after this update.
