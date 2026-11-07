@@ -2,10 +2,12 @@
 type: plan
 created: 2026-10-31
 release: internal
+stage: done
+completed: 2026-11-07
 description: Give plume-works/coder-ide-baseline its own IWE workspace holding the template's requirements and how to work on it, and narrow this repository's Coder spec to what the repository owes the template.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:45:07Z
+  at: 2026-11-07T19:40:11Z
 sources:
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md
@@ -15,7 +17,6 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/.github/workflows/root-container.yml
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/push.sh
-rank: 200
 ---
 
 # Move the Coder template's knowledge into coder-ide-baseline
@@ -82,18 +83,31 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 **Files:** Create (in `plume-works/coder-ide-baseline`): `.iwe/`,
 `docs/knowledge/`
 
-- [ ] Create a work branch in `coder-ide-baseline` from fresh `origin/main` with
+- [x] Create a work branch in `coder-ide-baseline` from fresh `origin/main` with
   `/agentdev:git-new-branch`.
-- [ ] `/agentdev:iwe-bootstrap` with `--root` set to the checkout returns
+  - **Evidence:** branch `iwe-knowledge-workspace` of [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36), created
+    with `git checkout -b` from a fresh clone of `origin/main` at e437dc2; the
+    `/agentdev:git-new-branch` skill was not loaded in the session.
+- [x] `/agentdev:iwe-bootstrap` with `--root` set to the checkout returns
   `RESULT=SUCCESS`.
+  - **Evidence:** `bootstrap-iwe.py --root /workspaces/coder-ide-baseline`
+    printed `RESULT=SUCCESS`; scaffold committed as coder-ide-baseline 2114c7a
+    in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36).
 
 ### Task 2: Onboard the template workspace
 
 **Files:** Modify (in `plume-works/coder-ide-baseline`):
 `docs/knowledge/data/product.md`
 
-- [ ] `/agentdev:iwe-setup` fills `product.md`, with the maintainer answering
+- [x] `/agentdev:iwe-setup` fills `product.md`, with the maintainer answering
   its questions; no ✏️ placeholder remains.
+  - **Evidence:** coder-ide-baseline ce8b1d5 in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36):
+    `product.md` filled from the code and the maintainer's answers,
+    `architecture/template-layout.md` added, examples removed; `grep -c ✏️`
+    prints 0 and `iwe schema validate` passes.
 
 ### Task 3: Write the template spec
 
@@ -101,7 +115,7 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 `docs/knowledge/data/spec/workspace-template.md`; Modify:
 `docs/knowledge/data/spec.md`
 
-- [ ] `spec/workspace-template` holds these requirements of
+- [x] `spec/workspace-template` holds these requirements of
   `agent-devcontainer`'s `spec/coder-ide-baseline`, with all their scenarios, as
   they read once the off-bash migration has shipped:
   `the agent-start command is the repository's only start hook`,
@@ -116,9 +130,18 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
   `main`, and `### Push a version` states the `TEMPLATE_NAME` default that
   `template/push.sh` has on `main` (`coder-ide-baseline`). Its `sources` name
   the `agent-devcontainer` spec at the commit copied.
-- [ ] The spec's introduction links `agent-devcontainer`'s
+  - **Evidence:** coder-ide-baseline 11e00fe in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36): six
+    requirements and `## Working on the template` copied from
+    `spec/coder-ide-baseline` at ba79bda6 by a script that asserts each of the
+    three named substitutions matched once.
+- [x] The spec's introduction links `agent-devcontainer`'s
   `spec/coder-ide-baseline` as the Dev Container repository's side of the
   contract, and `spec.md` links the new spec.
+  - **Evidence:** coder-ide-baseline 11e00fe in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36): the
+    introduction links `spec/coder-ide-baseline` on `main`, and `spec.md` links
+    `spec/workspace-template`.
 
 ### Task 4: Copy the template-only history
 
@@ -127,34 +150,41 @@ Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 `docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md`;
 Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
-- [ ] Both documents are copied unchanged apart from links: the link between the
+- [x] Both documents are copied unchanged apart from links: the link between the
   two stays relative, and every other relative link becomes an
   `agent-devcontainer` URL on `main`. Each one's `sources` names its original at
   the commit copied.
-- [ ] `bugs.md` links the bug, and `plans.md` links the plan under `## Done`.
+  - **Evidence:** coder-ide-baseline 251b664 in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36): the bug and
+    plan copied from b0f0dfed and 95c94b6d; the only body change is the plan's
+    Remote Control link, now an `agent-devcontainer` URL on `main`, and each
+    `sources` names its original.
+- [x] `bugs.md` links the bug, and `plans.md` links the plan, each as an entry
+  in the hub's flat sorted list.
+  - **Evidence:** coder-ide-baseline 251b664 in [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36).
 
 ### Task 5: Validate and commit the template workspace
 
 **Files:** none
 
-- [ ] `iwe normalize` and then `iwe schema validate` pass in the template
+- [x] `iwe normalize` and then `iwe schema validate` pass in the template
   checkout, and the branch is committed and pushed.
+  - **Evidence:** both pass on coder-ide-baseline 251b664, the head pushed as
+    branch `iwe-knowledge-workspace` of [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36).
 
 ### Task 6: Merge the template pull request
 
 **Files:** none (in `plume-works/coder-ide-baseline`)
 
-- [ ] A pull request carrying Tasks 1-5 passes the required
+- [x] A pull request carrying Tasks 1-5 passes the required
   `Docker Build and Push` check and merges to `main`.
-
-### Task 7: Point the open bug at the moved requirement
-
-**Files:** Modify:
-`docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md`
-
-- [ ] Its `sources` entry and key reference for the per-workspace volumes
-  requirement name `coder-ide-baseline`'s `spec/workspace-template` URL in place
-  of `spec/coder-ide-baseline.md:83`.
+  - **Evidence:** [coder-ide-baseline
+    #36](https://github.com/plume-works/coder-ide-baseline/pull/36) passed
+    `Docker Build and Push` ([run
+    42402042120](https://github.com/plume-works/coder-ide-baseline/actions/runs/42402042120))
+    and merged to `main` as 5ff6817.
 
 ## Spec changes
 
@@ -224,7 +254,7 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
 - Every `coder-ide-baseline` URL this plan adds returns the file from
   `gh api repos/plume-works/coder-ide-baseline/contents/<path>`.
 - `git diff` of this plan's changes touches no plan under `data/plans/` other
-  than this one, and no bug other than the one Task 7 names.
+  than this one, and no document under `data/bugs/`.
 
 ## Out of scope
 
@@ -241,45 +271,42 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
+Verified anchor points (line numbers as of 2026-11-07):
 
-- `docs/knowledge/data/spec/coder-ide-baseline.md:28` — Requirement: the
-  agent-start script is the repository's only start hook
-- `docs/knowledge/data/spec/coder-ide-baseline.md:52` — Requirement: Coder user
+- `docs/knowledge/data/spec/coder-ide-baseline.md:29` — Requirement: the
+  agent-start command is the repository's only start hook
+- `docs/knowledge/data/spec/coder-ide-baseline.md:69` — Requirement: Coder user
   secrets reach only agent-started processes
-- `docs/knowledge/data/spec/coder-ide-baseline.md:65` — Requirement: start
+- `docs/knowledge/data/spec/coder-ide-baseline.md:82` — Requirement: start
   scripts never wait for the Dev Container
-- `docs/knowledge/data/spec/coder-ide-baseline.md:78` — Requirement: workspace
+- `docs/knowledge/data/spec/coder-ide-baseline.md:95` — Requirement: workspace
   state lives in per-workspace volumes
-- `docs/knowledge/data/spec/coder-ide-baseline.md:94` — Requirement: the
+- `docs/knowledge/data/spec/coder-ide-baseline.md:111` — Requirement: the
   workspace engine bounds its own storage
-- `docs/knowledge/data/spec/coder-ide-baseline.md:115` — Requirement: the
+- `docs/knowledge/data/spec/coder-ide-baseline.md:134` — Requirement: the
   template offers an OpenCode app
-- `docs/knowledge/data/spec/coder-ide-baseline.md:135` — Requirement: an active
+- `docs/knowledge/data/spec/coder-ide-baseline.md:154` — Requirement: an active
   template version comes from `main`
-- `docs/knowledge/data/spec/coder-ide-baseline.md:148` —
+- `docs/knowledge/data/spec/coder-ide-baseline.md:167` —
   `## Working on the template`
-- `docs/knowledge/data/spec/devcontainer-docker-storage.md:24` — workspace
+- `docs/knowledge/data/spec/devcontainer-docker-storage.md:25` — workspace
   engine link
-- `docs/knowledge/data/spec/opencode-web.md:23` — dashboard app link
-- `docs/knowledge/data/spec.md:43` — hub link to the spec
-- `docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md:13` —
-  `sources` entry; `:83` — key reference into the spec
-- `docs/knowledge/data/plans/20261029-off-bash-migration.md:615` — its row for
-  this spec
-- `.devcontainer/scripts/coder-agent-start.sh:1` — the agent-start entry point
-  the off-bash migration deletes
-- `docs/knowledge/data/plans/20261029-off-bash-migration.md:297` —
-  `agentdev-runtime coder start` task; its Task 19
+- `docs/knowledge/data/spec/opencode-web.md:22` — dashboard app link
+- `docs/knowledge/data/spec.md:33` — hub link to the spec
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md:1037` — its
+  `## Spec changes` entry for this spec
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md:385` — Task 7, which
+  adds `agentdev-runtime coder start`; `:766` — Task 19
   (`The Coder template starts the agent through the CLI`) and its MODIFIED
   requirement `the agent-start command is the repository's only start hook`
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh` —
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py` —
   bootstrap helper, `--root <dir>`
-- `coder-ide-baseline@4a2d980:template/main.tf:104` — `agent_start_script`
-  parameter, default `agentdev-runtime coder start` at `:110`; `:260` —
-  `coder_script.agent_start`; `:239` — `coder_app.opencode`; `:330`, `:356`,
-  `:381`, `:406` — state volumes; `:146` — image prune
-- `coder-ide-baseline@4a2d980:template/push.sh:6` — `TEMPLATE_NAME` defaults to
+- `coder-ide-baseline@e437dc2:template/main.tf:104` — `agent_start_script`
+  parameter, default `agentdev-runtime coder start` at `:110`; `:257` —
+  `coder_script.agent_start`; `:236` — `coder_app.opencode`; `:327`, `:353`,
+  `:378`, `:403` — state volumes; `:144` — startup script leaves garbage
+  collection to `docker-gc.timer`
+- `coder-ide-baseline@e437dc2:template/push.sh:6` — `TEMPLATE_NAME` defaults to
   `coder-ide-baseline`
-- `coder-ide-baseline@4a2d980:.github/workflows/root-container.yml:1` —
+- `coder-ide-baseline@e437dc2:.github/workflows/root-container.yml:1` —
   `Docker Build and Push`, runs on every pull request to `main`

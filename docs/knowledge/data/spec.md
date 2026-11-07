@@ -28,7 +28,7 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Claude Remote Control](spec/claude-remote-control.md)
 
-[Coder IDE baseline template](spec/coder-ide-baseline.md)
+[Coder IDE baseline contract](spec/coder-ide-baseline.md)
 
 [Dependency updates](spec/dependency-updates.md)
 

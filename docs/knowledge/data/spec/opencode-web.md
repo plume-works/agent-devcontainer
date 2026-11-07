@@ -18,8 +18,8 @@ sources:
 The OpenCode web UI server that the Coder agent start runs in every Dev
 Container. Credentials and per-instance state follow [Agent auth
 persistence](../architecture/agent-auth-persistence.md); the dashboard app that
-opens the server is part of the [Coder IDE baseline
-template](coder-ide-baseline.md).
+opens the server is part of the `coder-ide-baseline` template's
+[`spec/workspace-template`](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/spec/workspace-template.md).
 
 ## Requirements
 
