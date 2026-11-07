@@ -146,9 +146,12 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`
 
-- [ ] Step 2 runs `pr-merge` on the bottom pull request with no
+- [x] Step 2 runs `pr-merge` on the bottom pull request with no
   coordinator-session or child-session branch, and step 4 drops "— never by a
   child session —".
+  - **Evidence:** commit 4bd10a3d; `grep -nE "coordinator|child session"` on
+    `pr-merge-stack/SKILL.md` prints nothing, and `validate_agent_files` reports
+    0 errors.
 
 ### Task 5: Graph documents stop describing coordinators
 
