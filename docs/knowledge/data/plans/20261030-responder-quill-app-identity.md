@@ -378,22 +378,24 @@ access, and the responder SHALL NOT open a pull request.
 
 Verified anchor points (line numbers as of 2026-11-07):
 
-- `.github/actions/run-claude-responder/action.yml:11` — `github_token` input
-- `.github/actions/run-claude-responder/action.yml:28` — lifecycle scripts step
-- `.github/actions/run-claude-responder/action.yml:88` — Claude step
-- `.github/workflows/ai-responder.yml:103` — preflight "Check for an accepted AI
+- `.github/actions/run-claude-responder/action.yml:11` — `app-client-id` input
+- `.github/actions/run-claude-responder/action.yml:46` — lifecycle scripts step
+- `.github/actions/run-claude-responder/action.yml:108` — App token mint
+- `.github/actions/run-claude-responder/action.yml:132` — Claude step
+- `.github/workflows/ai-responder.yml:39` — `AI_REVIEWER_LOGIN`
+- `.github/workflows/ai-responder.yml:105` — preflight "Check for an accepted AI
   review"
-- `.github/workflows/ai-responder.yml:111` — "Authorize the triggering actor"
-- `.github/workflows/ai-responder.yml:186` — prompt security rules
-- `.github/workflows/ai-responder.yml:207` — `claude-respond` `id-token: write`
-- `.github/workflows/ai-responder.yml:209` — `claude-respond` environment
-- `.github/workflows/ai-responder.yml:224` — `claude-respond` secrets passed to
-  the action
-- `.github/workflows/ai-responder.yml:284` — `trusted-bot-approval` job
-- `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`
-- `.github/actions/ai-review-status/action.yml:97` — failure message
+- `.github/workflows/ai-responder.yml:192` — prompt rule against opening a pull
+  request
+- `.github/workflows/ai-responder.yml:212` — `claude-respond` environment
+- `.github/workflows/ai-responder.yml:228` — `claude-respond` App secrets passed
+  to the action
+- `.github/workflows/ai-responder.yml:252` — `ai-review-present` gate step
+- `.github/workflows/ai-responder.yml:289` — `trusted-bot-approval` job
+- `.github/actions/ai-review-status/action.yml:13` — `reviewer-login` input
+- `.github/actions/ai-review-status/action.yml:104` — failure message
 - `.github/workflows/renovate.yml:75` — App token mint with explicit permissions
 - `.github/workflows/renovate.yml:90` — App bot identity resolution
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:361`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:363`
   — responder prerequisites
 - `README.md:351` — adopter prerequisites
