@@ -3,7 +3,7 @@ type: architecture
 description: The AI review responder and the trusted-bot approval post with per-job installation tokens of the plume-works-quill GitHub App, the AI review gate accepts only that App's login, and GitHub Actions no longer needs to approve pull requests; supersedes Actions approval permission.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T22:00:00Z
+  at: 2026-11-07T23:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml
@@ -32,6 +32,9 @@ The maintainer decided on 2026-10-30:
   a job whose App secrets are missing fails, with no `GITHUB_TOKEN` fallback;
 - the App never opens pull requests.
 
+The maintainer decided on 2026-11-07 that `plume-works-quill[bot]` is the only
+AI reviewer login, with no variable or input to repoint it.
+
 The responder runs only on pull request events and pushes nothing (see
 [Pull-request-only AI responder](pull-request-only-responder.md)), so the App
 needs no contents write access and no ruleset bypass.
@@ -43,13 +46,13 @@ needs no contents write access and no ruleset bypass.
    claude-respond  lifecycle scripts → mint (contents:read)  → claude-code-action
    trusted-bot approval              → mint (pull-requests:write) → APPROVE
 
- ai-review-present ── accepts AI_REVIEWER_LOGIN only
+ ai-review-present ── accepts plume-works-quill[bot] only
 ```
 
-- `AI_REVIEWER_LOGIN`, a workflow-level `env` value in `ai-responder.yml`, names
-  the App's bot login. `ai-review-status` takes it as its required
-  `reviewer-login` input, so preflight's review lookup and `ai-review-present`
-  accept a review only from that login. A consumer repoints it in one place.
+- `plume-works-quill[bot]` is the only AI reviewer login, written as a literal
+  in `ai-review-status`, the trusted-bot approval job, `pr-request-ai-review`,
+  and `pr-eval-review-needed`; no variable or input repoints it. Preflight's
+  review lookup and `ai-review-present` accept a review only from that login.
 - `run-claude-responder` fails first when either App secret is empty, then mints
   the token with `actions/create-github-app-token` after the devcontainer
   lifecycle scripts and immediately before the Claude step, with contents read,

@@ -358,9 +358,12 @@ the review job. Because the gate is a job of the review workflow, it is
 satisfiable only while that workflow is retained: dropping the review job
 leaves the required check with nothing able to satisfy it.
 
-The review responder and the `trusted-bot-approval` job post as a GitHub App
-the consumer owns, and the gate accepts a review from that App's bot login
-only. Three prerequisites are **required**:
+The review responder and the `trusted-bot-approval` job post as a GitHub App.
+The gate, the `trusted-bot-approval` job, and the catalog's
+`pr-request-ai-review` and `pr-eval-review-needed` skills recognise only
+`plume-works-quill[bot]` as the AI reviewer; reviews by any other login,
+including `github-actions[bot]` and `claude[bot]`, leave the gate red. Two
+prerequisites are **required**:
 
 1. **Register a GitHub App and install it on the repository.** Give its
    installation contents read, pull requests read and write, issues read and
@@ -374,11 +377,6 @@ only. Three prerequisites are **required**:
    private key. A job naming an environment that does not exist does not run,
    and a job whose App secrets are empty fails rather than falling back to
    `GITHUB_TOKEN`.
-3. **Set `AI_REVIEWER_LOGIN`** in `ai-responder.yml`'s workflow `env:` to the
-   App's bot login (`<app-slug>[bot]`). The template's value,
-   `plume-works-quill[bot]`, names this repository's App; reviews by any other
-   login, including `github-actions[bot]` and `claude[bot]`, leave the gate
-   red.
 
 The gate checks that the pull request has been reviewed, not that its current
 head commit has. A push after a review does not re-open it; the author
@@ -708,11 +706,10 @@ it is consumer-created state, not a template-owned upstream diff input. See
 evaluation while preserving an existing guidance file unless the user explicitly
 replaces or removes it.
 
-If the AI responder workflows are among the files taken, their three
-prerequisites apply here too — the consumer's own GitHub App, the
-`plume-works-review` environment with its three secrets, and the
-`AI_REVIEWER_LOGIN` value. Copying the files alone is not enough, and the App and
-the environment are not visible in a diff.
+If the AI responder workflows are among the files taken, their two
+prerequisites apply here too — the GitHub App and the `plume-works-review`
+environment with its three secrets. Copying the files alone is not enough, and
+neither is visible in a diff.
 
 ### 5. Set up project memory
 

@@ -349,10 +349,9 @@ To request another review after new work lands, remove the pull request's author
 assignee and add them back.
 
 Reviews and trusted-bot approvals post as the `plume-works-quill` GitHub App, the only
-reviewer the merge gate accepts. Adopters must register and install their own GitHub App,
+reviewer the merge gate accepts. Adopters must register and install a GitHub App and
 create the `plume-works-review` environment holding the `CLAUDE_CODE_OAUTH_TOKEN`,
-`QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` secrets, and set `AI_REVIEWER_LOGIN` in
-`ai-responder.yml` to the App's bot login before enabling the workflow.
+`QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` secrets before enabling the workflow.
 
 Pull-request descriptions separate completed `Verification` evidence from open
 `Reviewer Handoff` tasks. Repository-specific additions belong in
