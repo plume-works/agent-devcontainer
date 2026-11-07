@@ -150,7 +150,10 @@ Assumptions:
     `environment: plume-works-review`, passes `secrets.QUILL_APP_CLIENT_ID` and
     `secrets.QUILL_APP_PRIVATE_KEY` as `app-client-id` and `app-private-key`,
     and has no `id-token` permission; actionlint and zizmor pass.
-- [ ] The workflow has no `AI_REVIEWER_LOGIN`.
+- [x] The workflow has no `AI_REVIEWER_LOGIN`.
+  - **Evidence:** commit d8c80b7b removes the workflow `env:` entry and both
+    `reviewer-login` inputs; the Verification grep for `AI_REVIEWER_LOGIN` finds
+    nothing; actionlint passes.
 - [x] The review prompt carries a line saying the responder never opens a pull
   request.
   - **Evidence:** commit 1c517a54; preflight's "Determine agent prompts" adds
@@ -172,17 +175,27 @@ Assumptions:
     empty `QUILL_APP_CLIENT_ID` or `QUILL_APP_PRIVATE_KEY`, "Create GitHub App
     token" sets only `permission-pull-requests: write`, and the approval and
     dismissals post through `getOctokit(APP_TOKEN)`; actionlint and zizmor pass.
-- [ ] Its duplicate-approval check looks for an `APPROVED` review by the literal
+- [x] Its duplicate-approval check looks for an `APPROVED` review by the literal
   `plume-works-quill[bot]`.
+  - **Evidence:** commit d8c80b7b; `ownApprovals` compares `review.user?.login`
+    with `'plume-works-quill[bot]'`; every inline script parses under
+    `bun build --no-bundle`, and actionlint passes.
 
 ### Task 4: The gate accepts only the App's review
 
 **Files:** Modify: `.github/actions/ai-review-status/action.yml`,
 `.github/workflows/ai-responder.yml`
 
-- [ ] `ai-review-status` accepts a review only from `plume-works-quill[bot]`,
+- [x] `ai-review-status` accepts a review only from `plume-works-quill[bot]`,
   with no input to change it; its failure message names that login.
-- [ ] Neither preflight nor `ai-review-present` passes a reviewer login.
+  - **Evidence:** commit d8c80b7b; the `reviewer-login` input is gone,
+    `reviewerLogin` is the literal `plume-works-quill[bot]`, and the failure
+    reason names it; the script parses under `bun build --no-bundle`, and
+    actionlint and zizmor pass.
+- [x] Neither preflight nor `ai-review-present` passes a reviewer login.
+  - **Evidence:** commit d8c80b7b; both `ai-review-status` calls pass only
+    `pr-number`, `github-token`, and, for the gate, `trusted-bot-actors`;
+    actionlint passes.
 
 ### Task 5: Architecture note records the App identity
 
@@ -211,16 +224,26 @@ Modify: `docs/knowledge/data/architecture.md`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The consumption guide's required prerequisites become: register a GitHub
+- [x] The consumption guide's required prerequisites become: register a GitHub
   App with the installation permissions under `## Approach` and install it;
   create the `plume-works-review` environment with `CLAUDE_CODE_OAUTH_TOKEN`,
   `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` and no deployment branch
   policy. It states that the gate accepts only `plume-works-quill[bot]`. The
   optional Claude GitHub App step is removed.
-- [ ] `README.md` names the App, the `plume-works-review` environment, and the
+  - **Evidence:** commit f2c23937; "AI responder and the review gate" lists two
+    required prerequisites (the App with the `## Approach` permissions, and
+    `plume-works-review` with its three secrets and no deployment branch policy)
+    and states that only `plume-works-quill[bot]` is recognised; the Claude
+    GitHub App step stays removed; `validate_agent_files` reports 0 errors.
+- [x] `README.md` names the App, the `plume-works-review` environment, and the
   three secrets, and no `AI_REVIEWER_LOGIN`.
-- [ ] The feature's `## Behaviour` describes the App identity and the gate's
+  - **Evidence:** commit f2c23937; "Pull-request automation" names the
+    `plume-works-quill` App, `plume-works-review`, and the three secrets, with
+    no `AI_REVIEWER_LOGIN`; prettier passes.
+- [x] The feature's `## Behaviour` describes the App identity and the gate's
   single accepted login, `plume-works-quill[bot]`.
+  - **Evidence:** commit f2c23937; "The gate accepts one login." names
+    `plume-works-quill[bot]` with no variable; `iwe schema validate` passes.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
   - **Evidence:** commit 5e3f5c2f;
@@ -235,14 +258,25 @@ Modify: `docs/knowledge/data/architecture.md`
 `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md`,
 `docs/knowledge/data/architecture/responder-app-identity.md`
 
-- [ ] `request-review.py` counts a review as the AI's only when its author is
+- [x] `request-review.py` counts a review as the AI's only when its author is
   `plume-works-quill[bot]`, and a test shows a `plume-works-quill[bot]` review
   of the head reports `ALREADY_REVIEWED` while a `github-actions[bot]` one does
   not.
-- [ ] `pr-eval-review-needed` names `plume-works-quill` (GraphQL) and
+  - **Evidence:** commit 8e197a76; `reviewed()` compares the author with
+    `AI_REVIEWER = 'plume-works-quill[bot]'`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes
+    39 tests, including `test_accepted_review_on_head_toggles_nothing` and
+    `test_review_by_unaccepted_author_on_head_still_toggles[github-actions[bot]]`.
+- [x] `pr-eval-review-needed` names `plume-works-quill` (GraphQL) and
   `plume-works-quill[bot]` (REST) as the AI reviewer.
-- [ ] The architecture note names `plume-works-quill[bot]` as the gate's only
+  - **Evidence:** commit 8e197a76; "Establish what the last review saw" names
+    `plume-works-quill` and `plume-works-quill[bot]`; `validate_agent_files`
+    reports 0 errors.
+- [x] The architecture note names `plume-works-quill[bot]` as the gate's only
   login and no `AI_REVIEWER_LOGIN`.
+  - **Evidence:** commit f2c23937; `architecture/responder-app-identity` records
+    the 2026-11-07 decision and names the literal login, with no
+    `AI_REVIEWER_LOGIN`; `iwe schema validate` passes.
 
 ### Task 7: The App and environment exist
 
