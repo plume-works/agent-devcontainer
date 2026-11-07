@@ -54,11 +54,15 @@ The maintainer decided on 2026-11-07 that `plume-works-quill[bot]` is the only
 AI reviewer login, written as a literal wherever a workflow, action, or catalog
 skill needs it, with no variable or input to repoint it.
 
+The maintainer decided on 2026-11-07 that the App's installation holds contents
+write: the `main` ruleset counts an approval only from a reviewer with write
+access, so a read-only App's approval leaves `reviewDecision` at
+`REVIEW_REQUIRED`. Every token a job mints stays at contents read or below.
+
 The maintainer decided on 2026-11-07 that [Drop the free-form `@claude` task
 responder](20261107-drop-claude-task-responder.md) lands first. With no task
 responder, comment bridge, or responder push, this plan covers only the review
-responder and the trusted-bot approval, and the App needs no contents write
-access and no ruleset bypass.
+responder and the trusted-bot approval, and the App needs no ruleset bypass.
 
 ## Approach
 
@@ -88,9 +92,11 @@ place of `claude[bot]` and `github-actions[bot]`. The workflow runs only on pull
 request, pull request review, and merge group events, and the App opens no pull
 request and pushes nothing, so no App event can start a review.
 
-The App's installation holds contents read, pull requests read and write, issues
-read and write, actions read, and metadata read; no contents write and no
-workflows permission, so the App can push nothing.
+The App's installation holds contents read and write, pull requests read and
+write, issues read and write, actions read, and metadata read, and no workflows
+permission. Contents write is what makes its approval count; no job requests it
+when minting, so no workflow token can push, and only a holder of the App's
+private key could.
 
 The lifecycle scripts run code from the pull request head in the same job that
 later holds the minted token. `GITHUB_TOKEN` carries the same exposure; the fork
@@ -202,17 +208,11 @@ Assumptions:
 **Files:** Create: `docs/knowledge/data/architecture/responder-app-identity.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [x] The note records the decisions under `## Context`, the token flow and
+- [ ] The note records the decisions under `## Context`, the token flow and
   permissions under `## Approach`, the residual lifecycle-script exposure, and
   every rejected alternative, and states that it supersedes [Actions approval
   permission](../architecture/actions-approval-permission.md), which is left
   unedited.
-  - **Evidence:** commit 5b18c551; `architecture/responder-app-identity` carries
-    the decisions under `## Context`, the token flow and installation
-    permissions under `## Approach`, `## Residual exposure`, all four rejected
-    alternatives, and the line superseding
-    `architecture/actions-approval-permission`, which the commit leaves
-    unchanged; `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 5b18c551; `data/architecture.md` inclusion-links
     `architecture/responder-app-identity` in key order; `iwe schema validate`
@@ -224,17 +224,12 @@ Modify: `docs/knowledge/data/architecture.md`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [x] The consumption guide's required prerequisites become: register a GitHub
+- [ ] The consumption guide's required prerequisites become: register a GitHub
   App with the installation permissions under `## Approach` and install it;
   create the `plume-works-review` environment with `CLAUDE_CODE_OAUTH_TOKEN`,
   `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` and no deployment branch
   policy. It states that the gate accepts only `plume-works-quill[bot]`. The
   optional Claude GitHub App step is removed.
-  - **Evidence:** commit f2c23937; "AI responder and the review gate" lists two
-    required prerequisites (the App with the `## Approach` permissions, and
-    `plume-works-review` with its three secrets and no deployment branch policy)
-    and states that only `plume-works-quill[bot]` is recognised; the Claude
-    GitHub App step stays removed; `validate_agent_files` reports 0 errors.
 - [x] `README.md` names the App, the `plume-works-review` environment, and the
   three secrets, and no `AI_REVIEWER_LOGIN`.
   - **Evidence:** commit f2c23937; "Pull-request automation" names the
@@ -280,17 +275,9 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 7: The App and environment exist
 
-- [x] The `plume-works-quill` App is registered with the installation
+- [ ] The `plume-works-quill` App is registered with the installation
   permissions under `## Approach` and installed on this repository, and the
   `plume-works-review` environment holds the three secrets.
-  - **Evidence:** repository settings, observed 2026-11-07:
-    `gh api apps/plume-works-quill` lists only actions read, contents read,
-    issues write, metadata read, pull requests write;
-    `gh api orgs/plume-works/installations` shows installation 179685658 with
-    `repository_selection: all` and the same permissions;
-    `gh api repos/plume-works/agent-devcontainer/environments/plume-works-review/secrets`
-    lists `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and
-    `QUILL_APP_PRIVATE_KEY`.
 
 ### Task 8: The App's review satisfies the ruleset
 
