@@ -83,9 +83,12 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-ship-all/`; Modify:
 `.agents/plugins/agentdev/README.md`, `README.md`
 
-- [ ] Both skill directories are deleted, and the catalog README's
+- [x] Both skill directories are deleted, and the catalog README's
   `/agentdev:iwe-implement-all` and `/agentdev:iwe-ship-all` rows and the root
   README's `iwe-implement-all`/`iwe-ship-all` row are removed.
+  - **Evidence:** commit 18547707; `test ! -e` on both skill directories passes
+    and `grep -n "implement-all\|ship-all"` on both READMEs prints nothing at
+    that commit.
 
 ### Task 2: `iwe-implementer` runs in one mode
 
