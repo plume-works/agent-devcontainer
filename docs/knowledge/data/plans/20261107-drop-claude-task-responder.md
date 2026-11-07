@@ -276,6 +276,13 @@ Removed with the free-form task responder: no comment starts a run, so nothing
 is bridged to the head branch.
 ```
 
+[AI review refresh](../spec/ai-review-refresh.md) — a rationale comment starts
+no workflow run, rather than being one the bridge dispatches nothing for.
+
+[Template consumption](../spec/template-consumption.md) — the AI review gate's
+trust requirement forbids comment, issue, and `workflow_dispatch` triggers in
+place of retaining the `workflow_dispatch` bridge.
+
 ## Verification
 
 - `uv run pre-commit run --files .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml zizmor.yaml`

@@ -3,7 +3,7 @@ type: spec
 description: When the agentdev pr-* skills evaluate whether a reviewed pull request needs a fresh AI review, how they request one at most once per head commit and its title and description, and how they judge a requested review's progress.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-02T03:30:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
@@ -122,7 +122,7 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 
 - **WHEN** the script toggles with `--rationale`
 - **THEN** it posts one comment opening `AI review requested for <sha>:` with
-  the rationale, and the bridge dispatches nothing for it.
+  the rationale, and no workflow run starts for it.
 
 ## Requirement: a requested review's status is read from the head commit's checks
 

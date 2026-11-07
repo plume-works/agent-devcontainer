@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T00:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: data/architecture/ai-review-event-selection.md
 - resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
+- resource: data/plans/20261107-drop-claude-task-responder.md
 ---
 
 # AI review gate
@@ -66,27 +67,21 @@ in that workflow run, and it SHALL evaluate without polling.
 ## Requirement: the responder only acts for authorized same-repository requests
 
 The responder SHALL NOT check out or execute code for a pull request originating
-from a fork, and SHALL NOT act on a request from an actor without write access.
-Both gates SHALL apply before a dispatch is issued for a comment and again in
-the dispatched run.
-
-The PR review responder SHALL run with read-only repository contents access.
-Free-form task requests that may edit repository contents SHALL run in a
-separate job with write repository contents access. A free-form task responder
-prompt SHALL instruct Claude to post its response back to the issue or pull
-request thread, quoting the original request.
+from a fork, and SHALL NOT act for an actor without write access. The PR review
+responder SHALL run with read-only repository contents access, and no responder
+job SHALL hold write repository contents access.
 
 ### Scenario: a fork PR triggers the responder
 
 - **WHEN** the pull request head repository differs from the workflow repository
-- **THEN** preflight records the fork, no dispatch is issued, and every
-  responder job is skipped before any checkout.
+- **THEN** preflight is skipped, and every responder job is skipped before any
+  checkout.
 
-### Scenario: a user without write access mentions @claude
+### Scenario: a user without write access triggers the responder
 
-- **WHEN** the requesting actor's permission is not `admin`, `maintain`, or
-  `write`
-- **THEN** preflight fails, no dispatch is issued, and no responder job runs.
+- **WHEN** the actor of a `pull_request` event has a permission other than
+  `admin`, `maintain`, or `write`
+- **THEN** preflight fails and no responder job runs.
 
 ## Requirement: a review runs on first push and on explicit request
 
@@ -94,11 +89,14 @@ The review job SHALL run when a pull request is opened, marked ready for review,
 reopened, or assigned, and on a push to a pull request that has no accepted
 review. An assignment SHALL run a review whether or not an accepted review
 exists. The review job SHALL NOT run for a `pull_request` event on a draft pull
-request, and SHALL NOT run for a `workflow_dispatch`. A `workflow_dispatch`
-SHALL carry a free-form task, and one whose task is empty SHALL fail preflight.
+request.
+
+The workflow SHALL be triggered only by pull request, pull request review, and
+merge group events: a comment, an issue, or a mention of `@claude` SHALL start
+no run, and the workflow SHALL accept no `workflow_dispatch`.
 
 The `ai-review-present` gate SHALL run for pull request, pull request review,
-and merge group events. It SHALL NOT run for `workflow_dispatch` events.
+and merge group events.
 
 ### Scenario: a draft is opened
 
@@ -112,17 +110,17 @@ and merge group events. It SHALL NOT run for `workflow_dispatch` events.
 - **THEN** a `pull_request` run reviews the pull request, and its
   `ai-review-present` reports that review.
 
-### Scenario: a dispatch carries no task
+### Scenario: a writer comments `@claude`
 
-- **WHEN** `ai-responder.yml` is dispatched with an empty `task`
-- **THEN** preflight fails and no review runs.
+- **WHEN** a writer opens a pull request comment, review comment, or issue with
+  `@claude`
+- **THEN** no run of the workflow starts.
 
 ## Requirement: a pull request can opt out of the AI review run
 
 A pull request whose body carries `[ci:skip-ai-review]` alone on a line SHALL
 skip the review responder, whatever event started the run, an assignment
-included. The marker SHALL NOT waive the `ai-review-present` gate, and SHALL NOT
-disable free-form responder tasks.
+included. The marker SHALL NOT waive the `ai-review-present` gate.
 
 The marker SHALL be recognized only as a whole line, so that a body discussing
 it — documentation, a migration note, a review comment quoted into the
@@ -161,12 +159,6 @@ can merge it.
   own line
 - **THEN** no review runs, and `ai-review-present` reports on the existing
   reviews.
-
-### Scenario: a marked pull request requests a free-form task
-
-- **WHEN** a writer requests a free-form `@claude` task on a pull request whose
-  body carries `[ci:skip-ai-review]`
-- **THEN** the task responder runs.
 
 ## Requirement: a pull request review runs at a requested effort tier
 
@@ -210,44 +202,6 @@ check or the durable-knowledge pass, which run at both tiers.
 - **WHEN** no body marker requests a tier
 - **THEN** the review sizes itself from the diff and runs with the session's
   configured model.
-
-## Requirement: comment mentions run the pull request branch's workflow
-
-A `@claude` mention opening a comment, review, or review comment on a pull
-request SHALL be answered by a `workflow_dispatch` of this workflow on the pull
-request's head branch, carrying the mention as a free-form task, so the run
-executes the branch's own workflow file. The dispatched responder run SHALL
-append its run link to the requesting comment, review, or review comment before
-Claude starts.
-
-A mention that opens with `@claude review`, matched case-insensitively, SHALL
-NOT be dispatched. The bridge SHALL post the following message as a comment on
-the pull request and fail with the same message:
-
-`@claude review` is no longer supported. To request an AI review, remove the
-pull request's author as assignee and add them back.
-
-### Scenario: a writer requests a free-form task on a pull request
-
-- **WHEN** a writer opens a pull request comment with `@claude` followed by a
-  task
-- **THEN** a run of this workflow starts on the head branch, runs the task, and
-  appends its run link to the comment.
-
-### Scenario: a writer comments `@claude review`
-
-- **WHEN** a writer opens a pull request comment with `@claude review`
-- **THEN** no run is dispatched, the message above is posted on the pull
-  request, and the bridge job fails.
-
-A dispatch SHALL carry only the inputs the request actually supplies. A head
-branch's workflow file declares its own inputs, and a dispatch naming one the
-branch does not declare is rejected on the key alone, whatever its value.
-
-### Scenario: the head branch has no workflow file
-
-- **WHEN** the pull request's head branch does not carry `ai-responder.yml`
-- **THEN** the bridge fails naming the branch, and no task runs.
 
 ## Requirement: the AI review verdict follows its findings
 

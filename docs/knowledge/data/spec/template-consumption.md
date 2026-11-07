@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T00:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -106,9 +106,8 @@ trusted-bot approval job SHALL approve, only for the bot logins listed in
 gate checks that the pull request has a review, not that its head commit does —
 a copy comparing the review's `commit_id` to the head SHA is a policy change.
 The fork gate and write-access gate SHALL be preserved as written; the owner
-gate SHALL be repointed at the consumer. The `workflow_dispatch` bridge SHALL be
-retained so default-branch comment events can run the pull request head branch's
-workflow and attach checks to that head.
+gate SHALL be repointed at the consumer. The workflow SHALL NOT gain a comment,
+issue, or `workflow_dispatch` trigger, so no comment starts it.
 
 ## Requirement: adoption is recorded for later updates
 
