@@ -221,16 +221,31 @@ Modify: `docs/knowledge/data/architecture.md`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The consumption guide's required prerequisites become: register a GitHub
+- [x] The consumption guide's required prerequisites become: register a GitHub
   App with the installation permissions under `## Approach` and install it;
   create the `plume-works-review` environment with `CLAUDE_CODE_OAUTH_TOKEN`,
   `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` and no deployment branch
   policy; set `AI_REVIEWER_LOGIN` to the App's bot login. The optional Claude
   GitHub App step is removed.
-- [ ] `README.md` names the App, the environment, and the three secrets where it
+  - **Evidence:** commit 5e3f5c2f; "AI responder and the review gate" lists the
+    three required prerequisites (App with the `## Approach` permissions,
+    `plume-works-review` with its three secrets and no deployment branch policy,
+    `AI_REVIEWER_LOGIN`), drops the optional Claude GitHub App step, and the
+    Workflow B summary and approval-setting bullet match;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
+- [x] `README.md` names the App, the environment, and the three secrets where it
   now names `claude-review` and one secret.
-- [ ] The feature's `## Behaviour` describes the App identity and the gate's
+  - **Evidence:** commit 5e3f5c2f; "Pull-request automation" names the
+    `plume-works-quill` App, the `plume-works-review` environment,
+    `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, `QUILL_APP_PRIVATE_KEY`,
+    and `AI_REVIEWER_LOGIN`; prettier passes.
+- [x] The feature's `## Behaviour` describes the App identity and the gate's
   single accepted login.
+  - **Evidence:** commit 5e3f5c2f; `## Behaviour` gains "The responder posts as
+    its own GitHub App." and "The gate accepts one login.", naming
+    `plume-works-quill`, `plume-works-review`, `AI_REVIEWER_LOGIN`, and
+    `architecture/responder-app-identity`; `iwe schema validate` passes.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
 
