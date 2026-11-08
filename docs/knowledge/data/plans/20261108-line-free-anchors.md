@@ -141,7 +141,9 @@ shape they read, and the exemption needs its own rule).
   - **Evidence:** commit `e316306f` adds the resolver;
     `uv run pytest scripts/tests/test_check_anchors.py` passes 54 tests at that
     commit, and `uv run scripts/check-anchors.py` resolves all eleven of this
-    plan's `## Key references` anchors.
+    plan's `## Key references` anchors. Commit `6f31df25` makes the closed-plan
+    cases hold an anchor that does not resolve, and adds an active-plan case
+    where the same anchor fails; 55 tests pass.
 
 ### Task 3: The rule in AGENTS.md
 
