@@ -298,6 +298,21 @@ def test_blocked_pull_request_with_waiting_request_adds_nothing(
     assert calls == []
 
 
+def test_blocked_pull_request_already_reviewed_queues_nothing(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A blocked pull request whose head is already reviewed gets no label to run on unblock."""
+    fixture = make_fixture(
+        pr=pull_request(labels=(BLOCK_LABEL,)),
+        reviews=[review(AI_REVIEWER, HEAD_SHA, 'COMMENTED')],
+    )
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (3, 'RESULT=ALREADY_REVIEWED')
+    assert calls == []
+
+
 def test_label_waiting_for_a_run_is_already_requested(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:

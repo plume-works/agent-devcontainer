@@ -48,7 +48,8 @@ The maintainer decided on 2026-11-08:
   `request-ai-review` added meanwhile stays on the pull request; removing
   `block-ai-reviews` starts a run that reviews a waiting request;
 - `request-review.py` adds `request-ai-review` to a blocked pull request, so the
-  request waits visibly, and reports `BLOCKED`;
+  request waits visibly, and reports `BLOCKED`, unless the input is already
+  reviewed or requested;
 - the `[ci:review-effort=light|full]` marker and requested effort tiers are
   removed; every review sizes itself;
 - every run in the pull request's `pr-<n>` concurrency group takes a

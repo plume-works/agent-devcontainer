@@ -289,18 +289,9 @@ def run(arguments: list[str]) -> int:
         print_error(f'Pull request {repo}#{pr_number} is {state}.')
         return finish('', '', PR_NOT_OPEN)
 
-    # No review runs while the block is on; the request waits, visibly, for its removal.
-    if BLOCK_LABEL in names:
-        if not labelled:
-            labels = f'repos/{repo}/issues/{pr_number}/labels'
-            if gh('api', '-X', 'POST', labels, '-f', f'labels[]={REQUEST_LABEL}').returncode:
-                print_error(f'Could not add {REQUEST_LABEL} to {repo}#{pr_number}.')
-                return GH_UNAVAILABLE
-        print_error(f'{repo}#{pr_number} carries {BLOCK_LABEL}; the review waits for its removal.')
-        return finish('', '', BLOCKED)
-
+    blocked = BLOCK_LABEL in names
     # A run in the pull request's group takes the label; with none left to run, it is stale.
-    if labelled:
+    if labelled and not blocked:
         workflow_runs = fetch_list(
             f'repos/{repo}/actions/workflows/ai-responder.yml/runs',
             'workflow_runs',
@@ -342,6 +333,16 @@ def run(arguments: list[str]) -> int:
         return finish(existing_url, '', ALREADY_REQUESTED)
 
     labels = f'repos/{repo}/issues/{pr_number}/labels'
+    # No review runs while the block is on; the request waits, visibly, for its removal.
+    if blocked:
+        if (
+            not labelled
+            and gh('api', '-X', 'POST', labels, '-f', f'labels[]={REQUEST_LABEL}').returncode
+        ):
+            print_error(f'Could not add {REQUEST_LABEL} to {repo}#{pr_number}.')
+            return GH_UNAVAILABLE
+        print_error(f'{repo}#{pr_number} carries {BLOCK_LABEL}; the review waits for its removal.')
+        return finish('', '', BLOCKED)
     if labelled and gh('api', '-X', 'DELETE', f'{labels}/{REQUEST_LABEL}').returncode:
         print_error(f'Could not remove the stale {REQUEST_LABEL} from {repo}#{pr_number}.')
         return GH_UNAVAILABLE

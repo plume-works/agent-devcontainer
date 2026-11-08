@@ -24,8 +24,8 @@ label with no unfinished responder run on the head branch to take it, the label
 is stale: the script removes and re-adds it, which sends the request again.
 Re-adding a label by hand sends nothing, because GitHub fires no event for a
 label already present. While the pull request carries `block-ai-reviews`, no
-review runs: the script adds `request-ai-review` so the request waits visibly,
-reports `BLOCKED`, and removing `block-ai-reviews` later runs the waiting
+review runs: where it would otherwise request one, the script adds
+`request-ai-review` so the request waits visibly, reports `BLOCKED`, and removing `block-ai-reviews` later runs the waiting
 review. Assigning someone, requesting a reviewer, and an `@claude review`
 comment request nothing. The script requests at
 most once per head and title and description; see
