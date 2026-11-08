@@ -160,6 +160,14 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
+      # Always runs: a code rename anywhere can break a live anchor. See spec/line-free-anchors.
+      - id: check-anchors
+        name: check-anchors
+        entry: uv run scripts/check-anchors.py
+        language: system
+        always_run: true
+        pass_filenames: false
+
       # The graph diverges from OKF only by never setting `status`; see
       # spec/iwe-workflow-skills.
       - id: no-status-field
