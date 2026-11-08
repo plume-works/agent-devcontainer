@@ -366,7 +366,7 @@ controls.
   — AI responder prerequisites
 - `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-review-runs-on-first-push-and-on-explicit-request`
   — the review-request requirement;
-  `docs/knowledge/data/spec/ai-review-gate.md#scenario-a-writer-re-requests-a-review-by-assignment`
-  — the re-request-by-assignment scenario
+  `docs/knowledge/data/spec/ai-review-gate.md#scenario-a-writer-requests-a-review-with-the-label`
+  — the request-by-label scenario
 - `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "is the author's call: adding the"`
   — re-review by the `request-ai-review` label
