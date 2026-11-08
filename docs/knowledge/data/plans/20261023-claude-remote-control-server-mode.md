@@ -282,21 +282,19 @@ stored conversation ID.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
-
-- `.devcontainer/scripts/claude-remote-control-start.sh:29` — `session`, the
-  tmux session and socket name
-- `.devcontainer/scripts/claude-remote-control-start.sh:32` — `pane_command`,
-  the pinned-pane command and its workspace-name argument
-- `.devcontainer/scripts/claude-remote-control-start.sh:37` — the live-session
-  reuse check
-- `.devcontainer/scripts/claude-remote-control-start.sh:43` — `tmux_start`, the
-  `exec env -u CLAUDE_CODE_OAUTH_TOKEN` launch
-- `.devcontainer/scripts/coder-agent-start.sh:21` — the Coder agent's exec of
-  the start script
-- `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`,
-  the fake-tmux harness
-- `scripts/tests/test_claude_remote_control_start.py:82` —
-  `test_names_session_after_coder_workspace`
-- `scripts/tests/test_claude_remote_control_start.py:116` —
-  `test_reuses_existing_session`
+- `.devcontainer/scripts/claude-remote-control-start.sh › "exit 0"` — `session`,
+  the tmux session and socket name
+- `.devcontainer/scripts/claude-remote-control-start.sh › "No claude.ai login (auth method: $auth_method); skipping"`
+  — `pane_command`, the pinned-pane command and its workspace-name argument
+- `.devcontainer/scripts/claude-remote-control-start.sh › "${DEV_WORKSPACE_FOLDER:-$PWD}"`
+  — the live-session reuse check
+- `.devcontainer/scripts/claude-remote-control-start.sh › "claude remote-control --spawn same-dir"`
+  — `tmux_start`, the `exec env -u CLAUDE_CODE_OAUTH_TOKEN` launch
+- `.devcontainer/scripts/coder-agent-start.sh › "$script_dir/claude-remote-control-start.sh"`
+  — the Coder agent's exec of the start script
+- `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux` —
+  `run_with_fake_tmux`, the fake-tmux harness
+- `scripts/tests/test_claude_remote_control_start.py::test_starts_on_claude_ai_login_and_removes_setup_token_from_claude`
+  — `test_names_session_after_coder_workspace`
+- `scripts/tests/test_claude_remote_control_start.py::test_server_mode_starts_remote_control_server`
+  — `test_reuses_existing_session`

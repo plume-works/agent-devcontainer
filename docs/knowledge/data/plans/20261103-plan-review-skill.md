@@ -182,14 +182,13 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:151` — step 7, Audit the
-  plan from a fresh context
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:170` — the revision
-  step's Durable Knowledge Auditor gate
-- `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md:4` —
-  `tools:`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:333` — Requirement: Implement
-  verifies its own work and acts on the report; `:419` — Requirement: Plans
-  record intent, not the path taken to it
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Audit the plan from a fresh context.** In both create and"`
+  — step 7, Audit the plan from a fresh context
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its Durable Knowledge Auditor gate and validation, and leave"`
+  — the revision step's Durable Knowledge Auditor gate
+- `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md › "tools: Bash, Read, Grep, Glob, Skill"`
+  — `tools:`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
+  — Requirement: Implement verifies its own work and acts on the report;
+  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-record-intent-not-the-path-taken-to-it`
+  — Requirement: Plans record intent, not the path taken to it

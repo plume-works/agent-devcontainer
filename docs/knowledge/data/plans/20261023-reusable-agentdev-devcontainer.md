@@ -885,33 +885,39 @@ container](20261017-standalone-opencode-container.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
-
-- `.github/workflows/ci.yml:30` — image-name environment for the image family
-- `.github/workflows/ci.yml:68` — `build-dev-image`, the per-architecture family
-  build
-- `.github/workflows/ci.yml:442` — `promote-dev-image`, moving-tag promotion
-  after acceptance
-- `docker/base/agentdev-base.Dockerfile:96` — lifecycle-neutral base entrypoint
-- `docker/deploy/agentdev-deploy.Dockerfile:22` — runtime-script packaging
-  boundary
-- `docker/deploy/agentdev-deploy.Dockerfile:64` — deploy supervised entrypoint
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:60` — Dev Container
-  supervised entrypoint
-- `docker/deploy/supervisord.conf:37` — deploy service definitions
-- `.devcontainer/scripts/runtime-supervisor.py:317` — `PROFILES`, the service
-  graphs
-- `.devcontainer/scripts/runtime-supervisor.py:1099` — `main`, the supervisor
+- `.github/workflows/ci.yml#env.ANSIBLE_IMAGE_NAME` — image-name environment for
+  the image family
+- `.github/workflows/ci.yml#jobs.build-dev-image` — `build-dev-image`, the
+  per-architecture family build
+- `.github/workflows/ci.yml#jobs.devcontainer-acceptance.steps.Run Dev Container fixtures on the native architecture.env.AGENTDEV_DEVCONTAINER_TEST_IMAGE`
+  — `promote-dev-image`, moving-tag promotion after acceptance
+- `docker/base/agentdev-base.Dockerfile › "/entrypoint.sh"` — lifecycle-neutral
+  base entrypoint
+- `docker/deploy/agentdev-deploy.Dockerfile › "COPY --chmod=0755 .devcontainer/scripts/"`
+  — runtime-script packaging boundary
+- `docker/deploy/agentdev-deploy.Dockerfile › "/opt/agentdev-runtime/runtime-supervisor.py"`
+  — deploy supervised entrypoint
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "/opt/agentdev-runtime/runtime-supervisor.py"`
+  — Dev Container supervised entrypoint
+- `docker/deploy/supervisord.conf › "program:dockerd]"` — deploy service
+  definitions
+- `.devcontainer/scripts/runtime-supervisor.py::PROFILES` — `PROFILES`, the
+  service graphs
+- `.devcontainer/scripts/runtime-supervisor.py::main` — `main`, the supervisor
   entrypoint
-- `.devcontainer/scripts/devcontainer-created.sh:37` — `cmd_create`, the create
-  phase
-- `.devcontainer/devcontainer.json:21` — workspace configuration
-- `.devcontainer/docker-compose.yml:57` — development image selection
-- `devcontainer-compose-pins.yml:14` — the Dev Container digest pin
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:134` — update mode
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:206`
+- `.devcontainer/scripts/devcontainer-created.sh::cmd_create` — `cmd_create`,
+  the create phase
+- `.devcontainer/devcontainer.json › "/workspaces/${localWorkspaceFolderBasename}"`
+  — workspace configuration
+- `.devcontainer/docker-compose.yml#services.devcontainer.image` — development
+  image selection
+- `devcontainer-compose-pins.yml#services.devcontainer.image` — the Dev
+  Container digest pin
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode` —
+  update mode
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#5-adapt-pre-commit-and-lint-configuration › "nothing."`
   — devcontainer review step
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1053`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-expo-setup`
   — custom-image setup
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1098`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-custom-image-setup › "devcontainer-compose-pins.yml"`
   — ongoing maintenance

@@ -193,15 +193,17 @@ CLI](20261029-off-bash-migration.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30). The runtime CLI plan
-ports `coder-agent-start.sh` to `agentdev-runtime coder start` and the Docker
-scripts to `agentdev_runtime/docker.py`.
+The runtime CLI plan ported `coder-agent-start.sh` to
+`agentdev-runtime coder start` and the Docker scripts to
+`agentdev_runtime/docker.py`.
 
-- `.devcontainer/scripts/coder-agent-start.sh:13` — credential helper call, a
-  warning on failure; `:21` — `exec` of `claude-remote-control-start.sh`
-- `scripts/tests/test_coder_agent_start.py:70` —
-  `test_remote_control_starts_when_helper_setup_fails`
-- `.devcontainer/scripts/runtime-supervisor.py:309` — `dockerd`, the Dev
-  Container engine whose builder changes
-- `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:259` —
-  `coder_script.agent_start`; `:435` — `docker_container.workspace`
+- `py_packages/agentdev_runtime/agentdev_runtime/coder.py::STEPS` — credential
+  helper call, a warning on failure;
+  `py_packages/agentdev_runtime/agentdev_runtime/coder.py::start` — `exec` of
+  Remote Control
+- `scripts/tests/test_coder_agent_start.py::test_remote_control_starts_when_helper_setup_fails`
+  — `test_remote_control_starts_when_helper_setup_fails`
+- `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py › "Service('dockerd', core=True)"`
+  — `dockerd`, the Dev Container engine whose builder changes
+- `coder-ide-baseline`'s `template/main.tf` — `coder_agent.dev`,
+  `coder_script.agent_start`, and `docker_container.workspace`

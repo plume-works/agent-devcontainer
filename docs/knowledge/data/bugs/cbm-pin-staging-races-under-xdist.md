@@ -43,10 +43,9 @@ to an inode another worker is executing.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `scripts/tests/cbm_pin.py:31` — `stage_pinned_cbm`
-- `scripts/tests/cbm_pin.py:42` — reuse of a current staged binary
-- `scripts/tests/cbm_pin.py:45` — private staging directory
-- `scripts/tests/cbm_pin.py:62` — the atomic rename into place
-- `scripts/tests/scratch.py:5` — `TMP_ROOT`, shared by every worker
+- `scripts/tests/cbm_pin.py::stage_pinned_cbm` — `stage_pinned_cbm`
+- `scripts/tests/cbm_pin.py::stage_pinned_cbm` — reuse of a current staged
+  binary
+- `scripts/tests/cbm_pin.py::stage_pinned_cbm` — private staging directory
+- `scripts/tests/cbm_pin.py::stage_pinned_cbm` — the atomic rename into place
+- `scripts/tests/scratch.py::TMP_ROOT` — `TMP_ROOT`, shared by every worker

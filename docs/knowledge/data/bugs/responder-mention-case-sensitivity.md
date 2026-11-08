@@ -42,14 +42,19 @@ review job that ran to a published review.
 
 Two admission tests disagree about case.
 
-The preflight `if:` gate at `.github/workflows/ai-responder.yml:107-118` uses
-the workflow expression language's `startsWith`, which compares strings
-case-insensitively, so `@Claude` opens a run. Every test downstream is
-JavaScript `String.prototype.startsWith` or a case-sensitive regex against the
-literal `@claude`: the bridge's review-versus-task split at `:401`, the effort
-label at `:402`, and `mentions()` at `:300-307`. A mention the gate admits is
-therefore classified as though it carried no mention at all, which for a pull
-request comment means a free-form task.
+The preflight `if:` gate at
+`.github/workflows/ai-responder.yml#jobs.preflight.if` uses the workflow
+expression language's `startsWith`, which compares strings case-insensitively,
+so `@Claude` opens a run. Every test downstream is JavaScript
+`String.prototype.startsWith` or a case-sensitive regex against the literal
+`@claude`: the bridge's review-versus-task split at
+`.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script`,
+the effort label at
+`.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script`,
+and `mentions()` at
+`.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`.
+A mention the gate admits is therefore classified as though it carried no
+mention at all, which for a pull request comment means a free-form task.
 
 The bridge's `task:` test predates the effort tiers; the `review_effort` regex
 inherited its case sensitivity rather than introducing the defect.
@@ -72,10 +77,9 @@ than the behavior the spec already described.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-21):
-
-- `.github/workflows/ai-responder.yml:107-118` — the case-insensitive `if:` gate
-  that sets the rule
-- `.github/workflows/ai-responder.yml:298-306` — `opensWith` and `mentions()`
-- `.github/workflows/ai-responder.yml:401-403` — the bridge's review-versus-task
-  split and the effort label
+- `.github/workflows/ai-responder.yml#jobs.preflight.if` — the case-insensitive
+  `if:` gate that sets the rule
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — `opensWith` and `mentions()`
+- `.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script`
+  — the bridge's review-versus-task split and the effort label

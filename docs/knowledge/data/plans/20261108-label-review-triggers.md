@@ -814,38 +814,41 @@ absence, and reported for a person rather than retried.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-08):
-
-- `.github/workflows/ai-responder.yml:16` — `unlabeled` among the `pull_request`
-  types
-- `.github/workflows/ai-responder.yml:24` — concurrency group with the
+- `.github/workflows/ai-responder.yml#on.pull_request.types` — `unlabeled` among
+  the `pull_request` types
+- `.github/workflows/ai-responder.yml#concurrency` — concurrency group with the
   `label-<run id>` branch
-- `.github/workflows/ai-responder.yml:45` — preflight job and its label-event
-  condition
-- `.github/workflows/ai-responder.yml:115` — `blockAiReviews` from the live
-  labels
-- `.github/workflows/ai-responder.yml:168` — `wantsReview`
-- `.github/workflows/ai-responder.yml:248` — `claude-respond` passes the request
-  label
-- `.github/workflows/ai-responder.yml:253` — `ai-review-present`
-- `.github/actions/run-claude-responder/action.yml:20` — `remove-request-label`
-  input
-- `.github/actions/run-claude-responder/action.yml:142` — "Take the review
-  request label" after the Claude step
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:36`
+- `.github/workflows/ai-responder.yml#jobs.preflight` — preflight job and its
+  label-event condition
+- `.github/workflows/ai-responder.yml › "core.setOutput('blockAiReviews', labels.some((label) =>"`
+  — `blockAiReviews` from the live labels
+- `.github/workflows/ai-responder.yml › "const wantsReview = (() =>"` —
+  `wantsReview`
+- `.github/workflows/ai-responder.yml › "remove-request-label: $"` —
+  `claude-respond` passes the request label
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present`
+- `.github/actions/run-claude-responder/action.yml#inputs.remove-request-label`
+  — `remove-request-label` input
+- `.github/actions/run-claude-responder/action.yml › "name: Take the review request label"`
+  — "Take the review request label" after the Claude step
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::BLOCK_LABEL`
   — `BLOCK_LABEL`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:337`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::run`
   — `BLOCKED` path
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:294`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::run`
   — stale-label check
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:15` — "Post the
-  request"
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:196` — "AI Review Recovery"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:76` — "Effort Tiers"
-- `README.md:347` — re-review instructions
-- `docs/knowledge/data/spec/ai-review-gate.md:106` — "a review runs on first
-  push and on explicit request"
-- `docs/knowledge/data/spec/ai-review-gate.md:139` — "a pull request can opt out
-  of the AI review run"
-- `docs/knowledge/data/spec/ai-review-refresh.md:53` — "one AI review trigger
-  per head commit"
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-the-request`
+  — "Post the request"
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery` — "AI
+  Review Recovery"
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers` — "Effort
+  Tiers"
+- `README.md#pull-request-automation › "To request another review after new work lands, add the"`
+  — re-review instructions
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-review-runs-on-first-push-and-on-explicit-request`
+  — "a review runs on first push and on explicit request"
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-pull-request-can-opt-out-of-the-ai-review-run`
+  — "a pull request can opt out of the AI review run"
+- `docs/knowledge/data/spec/ai-review-refresh.md#requirement-one-ai-review-trigger-per-head-commit`
+  — "one AI review trigger per head commit"

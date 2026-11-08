@@ -59,11 +59,13 @@ edit](../plans/20261102-rereview-after-metadata-edit.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:132`
-  — `reviewed`; `:210` — the `ALREADY_REVIEWED` return
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:116` — Step 3, the
-  metadata gate that stops the review
-- `docs/knowledge/data/spec/ai-review-refresh.md:45` — Requirement: one AI
-  review trigger per head commit; `:69` — Scenario: the head is already reviewed
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::reviewed`
+  — `reviewed`;
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::run`
+  — the `ALREADY_REVIEWED` return
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "as a relevance and completeness check against the current PR"`
+  — Step 3, the metadata gate that stops the review
+- `docs/knowledge/data/spec/ai-review-refresh.md#requirement-one-ai-review-trigger-per-head-commit`
+  — Requirement: one AI review trigger per head commit;
+  `docs/knowledge/data/spec/ai-review-refresh.md#scenario-the-head-is-already-reviewed`
+  — Scenario: the head is already reviewed

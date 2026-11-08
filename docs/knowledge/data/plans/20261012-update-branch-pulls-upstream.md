@@ -322,36 +322,34 @@ resolved merge as done and continue with the next one.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-12):
-
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:10`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh › "3=ALREADY_UP_TO_DATE"`
   — `RESULT_CODES` (unchanged)
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:15`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh::usage`
   — `usage` help text
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:90`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh › "usage >&2"`
   — fetch of `--remote`
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:104`
-  — up-to-date check, to move after the sync
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:113`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh` —
+  up-to-date check, to move after the sync
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh › "printf 'REMOTE=%s\n"`
   — `exec` delegation to `git-merge-resolve.sh`, to replace
-- `.agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.sh:115`
+- `.agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.sh › "printf 'DESTINATION=%s\n"`
   — `DESTINATION=` / `SOURCE=` output
-- `.agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.sh:129`
+- `.agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.sh › "if git merge --no-ff"`
   — `git merge --no-ff`, result codes `0`/`2`/`4`
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:179` —
-  diverged-upstream refusal this plan prevents
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:3` — frontmatter
-  `description`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:31` —
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh › "${behind_count}"`
+  — diverged-upstream refusal this plan prevents
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md › "description: 'Update the current Git feature branch: fetch"`
+  — frontmatter `description`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#safety-rules` —
   `## Safety Rules`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:39` —
-  `## Bundled Script`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:82` —
-  `## Workflow 2: Handle the Result`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:113` —
-  `## Completion Criteria`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:121` —
-  `## Troubleshooting`
-- `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
-  `initialize_repository` fixture
-- `.agents/plugins/agentdev/tests/git_fixtures.py:19` — `git` helper
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#safety-rules › "NEVER rebase or reset to bring in the upstream; diverged"`
+  — `## Bundled Script`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-0-refuse-a-stack-branch › "repos/{owner}/{repo}/pulls/$pr"`
+  — `## Workflow 2: Handle the Result`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#rerun-after-a-conflict`
+  — `## Completion Criteria`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-3-push-the-updated-branch`
+  — `## Troubleshooting`
+- `.agents/plugins/agentdev/tests/test_update_branch.py › "from git_fixtures import FIXTURE_ENV, git, outcome"`
+  — `initialize_repository` fixture
+- `.agents/plugins/agentdev/tests/git_fixtures.py::git` — `git` helper

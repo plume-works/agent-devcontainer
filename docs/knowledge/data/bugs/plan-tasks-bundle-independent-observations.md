@@ -82,18 +82,16 @@ The rule exists only as prose, and neither gate tests it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
-
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:216` — "One task is one
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` — "One task is one
   outcome", and external evidence stands alone
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:121` — step 6, check
-  coherence
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:125` — step 7, the
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` — step 6, check coherence
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` — step 7, the
   fresh-context Durable Knowledge Auditor gate
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:41` — plan scope, limited
-  to durable-knowledge residue
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:70` — partial work
-  stays unchecked, with no evidence line
-- `docs/knowledge/data/plans/20261020-gate-image-publication.md:122` — Task 5,
-  the bundled checkbox; `:179` — `## Verification results`, where its observed
-  half was recorded
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope › "is a plan, the candidate set is every plan"`
+  — plan scope, limited to durable-knowledge residue
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Partial work, deferred behavior, or a failing required test"`
+  — partial work stays unchecked, with no evidence line
+- `docs/knowledge/data/plans/20261020-gate-image-publication.md#task-4-observe-gated-promotion-on-the-pull-request › "), with revision label"`
+  — Task 5, the bundled checkbox;
+  `docs/knowledge/data/plans/20261020-gate-image-publication.md#verification › "uv run pytest scripts/tests/test_agent_runtime_ci.py"`
+  — `## Verification results`, where its observed half was recorded

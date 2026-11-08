@@ -59,9 +59,10 @@ force the ordering:
 - `codebase-memory-mcp-install.sh` *re-creates* `/root/.claude.json` as a real
   file when it writes its MCP entry, and its existing materialization guard
   folds the result back into the symlink target **only when `/root/.claude.json`
-  is already a symlink** when it runs (`codebase-memory-mcp-install.sh:56-61`).
-  If it is a real file at that point, cbm-install edits that file in place and
-  the volume is never consulted.
+  is already a symlink** when it runs
+  (`.devcontainer/scripts/codebase-memory-mcp-install.sh › "$claude_json"`). If
+  it is a real file at that point, cbm-install edits that file in place and the
+  volume is never consulted.
 
 So the volume can only stay authoritative if the volume→`/root/.claude.json`
 symlink is established **before** cbm-install runs. postCreate does the full
@@ -119,9 +120,10 @@ Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
     `install_catalog.yml` immediately after the `stage_catalog.yml` import,
     under
     `when: [agentic_tools_stage_catalog | bool, agentic_tools_install_catalog | bool]`.
-- [x] Correct the comments in `stage_catalog.yml:2-7` and on
-  `agentic_tools_stage_catalog` that assert the install cannot happen at build
-  time
+- [x] Correct the comments in
+  `ansible/roles/agentic_tools/tasks/stage_catalog.yml › "Stage the agent catalog into the image."`
+  and on `agentic_tools_stage_catalog` that assert the install cannot happen at
+  build time
   - **Evidence:** `stage_catalog.yml`'s header now says staging is a plain copy
     that `install_catalog.yml` installs from at build time so a raw-image
     consumer resolves with no hooks; the `agentic_tools_stage_catalog` comment
@@ -146,8 +148,8 @@ Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
     `agentic_tools_install_catalog=true` on the line after
     `agentic_tools_stage_catalog=true` in the `ansible-playbook -e` block.
 - [x] Correct the `ENV AGENTDEV_CATALOG_DIR` comment block
-  (`agent-desktop.Dockerfile:62-67`), which states the catalog is "only staged
-  here, never installed"
+  (`docker/desktop/agent-desktop.Dockerfile › "Inherited by any consumer of this image, including one that"`),
+  which states the catalog is "only staged here, never installed"
   - **Evidence:** the `ENV AGENTDEV_CATALOG_DIR` comment now states the catalog
     is staged and installed at build time so a raw-image consumer resolves with
     no hooks, and that a devcontainer's mounted volumes shadow that install so
@@ -170,11 +172,12 @@ The image now ships a real `/root/.claude.json`. The volume can only stay
 authoritative if the volume→`/root/.claude.json` symlink is in place **before**
 `codebase-memory-mcp-install.sh` runs: cbm-install re-creates the file and only
 folds its MCP entry back into the symlink target when the file is already a
-symlink (`codebase-memory-mcp-install.sh:56-61`); a `! -L` guard cannot spare an
-existing volume, because on a rebuild `/root/.claude.json` is the image's real
-file, not a symlink. Move the full `~/.claude.json` handoff up front, ahead of
-the cbm-install call, and remove the now-dead in-place handoff block that
-follows it.
+symlink
+(`.devcontainer/scripts/codebase-memory-mcp-install.sh › "$claude_json"`); a
+`! -L` guard cannot spare an existing volume, because on a rebuild
+`/root/.claude.json` is the image's real file, not a symlink. Move the full
+`~/.claude.json` handoff up front, ahead of the cbm-install call, and remove the
+now-dead in-place handoff block that follows it.
 
 - [x] Ahead of the `codebase-memory-mcp-install.sh` call, perform the handoff:
   discard a real (non-symlink) image `/root/.claude.json` without `mv`-ing it
@@ -184,14 +187,15 @@ follows it.
   seeded clean with no image content. Remove the later in-place handoff block
   (now redundant — the file is already a symlink when it is reached), and
   comment why the handoff must precede cbm-install. `shellcheck` clean.
-  - **Evidence:** `.devcontainer/scripts/postCreateCommand.sh:53-62` now runs
-    the full up-front handoff before the `codebase-memory-mcp-install.sh` call
-    at line 66 — it `rm -f`s a real (non-symlink) image `/root/.claude.json`,
-    seeds `/root/.claude/claude.json` with `{}` when the volume has none, then
-    `ln -sf`s the symlink into place; the superseded `rm`-only block and the
-    dead in-place move-and-symlink block below cbm-install are both removed,
-    with the volume-backing rationale folded into the up-front comment
-    (`Spec: catalog-lifecycle`).
+  - **Evidence:**
+    `.devcontainer/scripts/postCreateCommand.sh › "Symlink ~/.claude.json into the volume BEFORE cbm-install so"`
+    now runs the full up-front handoff before the
+    `codebase-memory-mcp-install.sh` call — it `rm -f`s a real (non-symlink)
+    image `/root/.claude.json`, seeds `/root/.claude/claude.json` with `{}` when
+    the volume has none, then `ln -sf`s the symlink into place; the superseded
+    `rm`-only block and the dead in-place move-and-symlink block below
+    cbm-install are both removed, with the volume-backing rationale folded into
+    the up-front comment (`Spec: catalog-lifecycle`).
     `shellcheck .devcontainer/scripts/postCreateCommand.sh` is clean. Committed
     on `skills-updates` in this task's commit.
 
@@ -364,39 +368,38 @@ checkout instead, so neither blocks the other and they touch no common files.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-01; postCreateCommand.sh
-re-verified after Task 3):
-
-- `ansible/roles/agentic_tools/tasks/main.yml:26,30` — the `stage_catalog.yml`
+- `ansible/roles/agentic_tools/tasks/main.yml#name` — the `stage_catalog.yml`
   import and, right after it, the `install_catalog.yml` import Task 1 added
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:2-7` — the header
-  comment, corrected by Task 1 to say `install_catalog.yml` installs from the
-  staged copy
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:123` —
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml › "Stage the agent catalog into the image."`
+  — the header comment, corrected by Task 1 to say `install_catalog.yml`
+  installs from the staged copy
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml#name` —
   `Make the staged catalog root-owned and read-only`, the last staging task
-- `ansible/roles/agentic_tools/defaults/main.yml:25` —
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_stage_catalog` —
   `agentic_tools_stage_catalog`
-- `ansible/roles/agentic_tools/defaults/main.yml:32` —
-  `agentic_tools_install_catalog`, added by Task 1
-- `ansible/roles/agentic_tools/defaults/main.yml:53` —
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_install_catalog`
+  — `agentic_tools_install_catalog`, added by Task 1
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_catalog_root` —
   `agentic_tools_catalog_root: /opt/agentdev`
-- `ansible/roles/extra_facts/tasks/main.yml:16` — `user_home` resolves from
-  `ansible_facts['env'].HOME`, i.e. `/root`
-- `docker/desktop/agent-desktop.Dockerfile:54-55` —
-  `agentic_tools_stage_catalog=true` and `agentic_tools_install_catalog=true`
-- `docker/desktop/agent-desktop.Dockerfile:68` — the `ENV AGENTDEV_CATALOG_DIR`
-  declaration whose comment block Task 2 corrected
-- `.devcontainer/scripts/postCreateCommand.sh:53-62` — the up-front
-  `~/.claude.json` handoff Task 3 added (discard the image file, seed `{}` when
-  fresh, `ln -sf` the volume symlink), replacing the superseded `rm`-only block
-- `.devcontainer/scripts/postCreateCommand.sh:66` —
-  `codebase-memory-mcp-install.sh`, which the handoff now precedes so the
+- `ansible/roles/extra_facts/tasks/main.yml › "ansible_facts['env'].HOME }}"` —
+  `user_home` resolves from `ansible_facts['env'].HOME`, i.e. `/root`
+- `docker/desktop/agent-desktop.Dockerfile › "agentic_tools_stage_catalog=true"`
+  — `agentic_tools_stage_catalog=true` and `agentic_tools_install_catalog=true`
+- `docker/desktop/agent-desktop.Dockerfile › "ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR"`
+  — the `ENV AGENTDEV_CATALOG_DIR` declaration whose comment block Task 2
+  corrected
+- `.devcontainer/scripts/postCreateCommand.sh › "Symlink ~/.claude.json into the volume BEFORE cbm-install so"`
+  — the up-front `~/.claude.json` handoff Task 3 added (discard the image file,
+  seed `{}` when fresh, `ln -sf` the volume symlink), replacing the superseded
+  `rm`-only block
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/codebase-memory-mcp-install.sh"`
+  — `codebase-memory-mcp-install.sh`, which the handoff now precedes so the
   symlink exists when cbm-install runs
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:56-61` — cbm-install's
-  symlink-materialization guard (`if [[ -L … ]]`), which folds its edit back
-  into the volume only when `/root/.claude.json` is already a symlink — the
-  reason the handoff must precede this call
-- `.devcontainer/scripts/postCreateCommand.sh:91` — the existing lifecycle
-  catalog install this one mirrors
-- `.github/actions/paths-filter/action.yml:38` — `ansible/**`, so the change
-  triggers a CI image rebuild
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › "$claude_json"` —
+  cbm-install's symlink-materialization guard (`if [[ -L … ]]`), which folds its
+  edit back into the volume only when `/root/.claude.json` is already a symlink
+  — the reason the handoff must precede this call
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/reinstall-agentdev-claude.sh"`
+  — the existing lifecycle catalog install this one mirrors
+- `.github/actions/paths-filter/action.yml#runs.steps.Build filters.run.image` —
+  `ansible/**`, so the change triggers a CI image rebuild

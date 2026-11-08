@@ -122,9 +122,11 @@ be revisited if first-create-per-worktree cost becomes a pain.
   `"${PRE_COMMIT_HOME:-$HOME/.cache/pre-commit}/pre-commit.log"` so a failing
   install reports the log where it actually lives, whether or not
   `PRE_COMMIT_HOME` is set.
-  - **Evidence:** `.devcontainer/scripts/setup-pre-commit.sh:20` failure branch
-    now tails `${PRE_COMMIT_HOME:-$HOME/.cache/pre-commit}/pre-commit.log`;
-    shellcheck passed in the pre-commit run for commit `a53276a`.
+  - **Evidence:**
+    `.devcontainer/scripts/setup-pre-commit.sh › "pre-commit install --install-hooks --hook-type pre-commit"`
+    failure branch now tails
+    `${PRE_COMMIT_HOME:-$HOME/.cache/pre-commit}/pre-commit.log`; shellcheck
+    passed in the pre-commit run for commit `a53276a`.
 
 ## Spec changes
 
@@ -135,18 +137,17 @@ where the cache and its failure log reside.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-02):
-
-- `.devcontainer/devcontainer.json:17` — `containerEnv` block (insertion point)
-- `.devcontainer/devcontainer.json:33` — `CBM_CACHE_DIR`, existing consumer of
-  the same volume
-- `.devcontainer/devcontainer.json:59-60` — `agentdev-cache` volume mounted at
-  `workspace/.cache`
-- `.devcontainer/scripts/setup-pre-commit.sh:20` —
-  `pre-commit install --install-hooks`; hardcoded
+- `.devcontainer/devcontainer.json › "containerEnv"` — `containerEnv` block
+  (insertion point)
+- `.devcontainer/devcontainer.json › "// agentdev-cache (mounted at workspace/.cache) persists"`
+  — `CBM_CACHE_DIR`, existing consumer of the same volume
+- `.devcontainer/devcontainer.json › "agentdev-uv"` — `agentdev-cache` volume
+  mounted at `workspace/.cache`
+- `.devcontainer/scripts/setup-pre-commit.sh › "pre-commit install --install-hooks --hook-type pre-commit"`
+  — `pre-commit install --install-hooks`; hardcoded
   `$HOME/.cache/pre-commit/pre-commit.log` in the failure branch
-- `.devcontainer/scripts/postCreateCommand.sh:45` — chown loop over
-  `$workspace/.cache` (covers the new subdir for free)
+- `.devcontainer/scripts/postCreateCommand.sh › "for mount_point in"` — chown
+  loop over `$workspace/.cache` (covers the new subdir for free)
 
 ## Verification
 

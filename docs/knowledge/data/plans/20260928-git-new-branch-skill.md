@@ -157,7 +157,8 @@ changes are never stashed without user approval (`update-branch`'s
     .worktrees/"; `validate_agent_files` 0 errors.
 - [x] `.worktrees/` in `.gitignore` next to the `.tmp/` scratch entry
   - **Evidence:** commit "docs(agentdev): list git-new-branch and ignore
-    .worktrees/"; `git check-ignore -v .worktrees/x` matches `.gitignore:12`.
+    .worktrees/"; `git check-ignore -v .worktrees/x` matches
+    `.gitignore › ".worktrees/"`.
 
 ### Task 4: Route pr-open through git-new-branch
 
@@ -539,28 +540,28 @@ continue on the current branch otherwise.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
-
-- `.agents/plugins/agentdev/skills/update-branch/scripts/update-branch.sh:1` —
-  sibling script whose preflight and fetch handling the new script mirrors
-- `.agents/plugins/agentdev/skills/update-branch/scripts/__common.sh:15` —
-  `require_git_repo`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:72` —
-  `PROTECTED_BRANCH` row
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:112` — "Current branch
-  is default" troubleshooting row
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:105` — `PROTECTED_BRANCH`
-  row
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:315` — `git checkout -b` in
-  the "Not on a feature branch" message
-- `.agents/plugins/agentdev/skills/pr-open/scripts/find-branch-pr.sh:106` —
-  rejects a branch tracking `main`
-- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:13` — "When to Use
-  This Skill" list
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:30` — step 3, "Check
-  `## Depends on`"
-- `.agents/plugins/agentdev/bin/result-codes.sh:15` — `RESULT_CODES` base table
-- `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
-  `initialize_repository` fixture pattern
-- `.agents/plugins/agentdev/README.md:69` — "Pull requests and git" table
-- `.gitignore:11` — `.tmp/` scratch entry
+- `.agents/plugins/agentdev/skills/update-branch/scripts/update-branch.sh › "#!/usr/bin/env bash"`
+  — sibling script whose preflight and fetch handling the new script mirrors
+- `.agents/plugins/agentdev/skills/update-branch/scripts/__common.sh::require_git_repo`
+  — `require_git_repo`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-2-handle-the-result › "then retry. Do not merge into the default branch. |"`
+  — `PROTECTED_BRANCH` row
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#troubleshooting › "| Current branch is default | Incorrect checkout | With user"`
+  — "Current branch is default" troubleshooting row
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#2-existing-pull-request-detection › "then rerun — see the error handling section below. |"`
+  — `PROTECTED_BRANCH` row
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#10-error-handling › "freshly fetched remote base and pushes it with its own"`
+  — `git checkout -b` in the "Not on a feature branch" message
+- `.agents/plugins/agentdev/skills/pr-open/scripts/find-branch-pr.sh › "]] && is_default_branch"`
+  — rejects a branch tracking `main`
+- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md#when-to-use-this-skill`
+  — "When to Use This Skill" list
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#steps › "Every prerequisite plan must carry"`
+  — step 3, "Check `## Depends on`"
+- `.agents/plugins/agentdev/bin/result-codes.sh › "RESULT_CODES="` —
+  `RESULT_CODES` base table
+- `.agents/plugins/agentdev/tests/test_update_branch.py::initialize_repository`
+  — `initialize_repository` fixture pattern
+- `.agents/plugins/agentdev/README.md#pull-requests-and-git` — "Pull requests
+  and git" table
+- `.gitignore › ".tmp/"` — `.tmp/` scratch entry

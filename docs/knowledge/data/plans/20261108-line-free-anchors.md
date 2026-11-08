@@ -10,6 +10,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/AGENTS.md
 - resource: .pre-commit-config.yaml
+stage: done
+completed: 2026-11-08
 ---
 
 # Replace line-number anchors with symbol, heading, key, and quote anchors
@@ -89,7 +91,7 @@ shape they read, and the exemption needs its own rule).
 **Files:** Create: `scripts/check-anchors.py`,
 `scripts/tests/test_check_anchors.py`
 
-- [ ] `scripts/check-anchors.py` reports, and exits non-zero on, every
+- [x] `scripts/check-anchors.py` reports, and exits non-zero on, every
   line-number reference in the scanned files: `file.ext:N` and `file.ext:N-M`,
   an extensionless `Dockerfile…:N`, `Makefile…:N`, or `Containerfile…:N`, a
   `#LN` URL fragment, and prose `line N` / `lines N` (any case). It scans
@@ -99,19 +101,22 @@ shape they read, and the exemption needs its own rule).
   trees under the tests' `TMP_ROOT` (`scripts/tests/scratch.py`): each form
   fails, an anchor-syntax reference and a `host:port` without a file extension
   pass.
+  - **Evidence:** commit `a97465fb` adds the gate;
+    `uv run pytest scripts/tests/test_check_anchors.py` passes 18 tests at that
+    commit.
 
 ### Task 2: Anchor resolver
 
 **Files:** Modify: `scripts/check-anchors.py`,
 `scripts/tests/test_check_anchors.py`
 
-- [ ] The same script resolves the anchors in its resolver scope:
+- [x] The same script resolves the anchors in its resolver scope:
   `## Key references` of every plan without `stage`, the whole body of every bug
   and backlog item with `stage: pending` or `stage: planned`, and every document
   under `docs/knowledge/data/architecture/`. An anchor is a back-ticked span
-  holding a relative path with `::` or `#`, or a back-ticked path followed by
-  ` › "…"`; an all-digit fragment (`#123`, `owner/repo#123`) and a URL are not
-  anchors. Resolution rules:
+  holding a relative path with `::` or `#`, or a relative path and ` › "…"` in
+  one back-ticked span (`path#slug › "quote"`); an all-digit fragment (`#123`,
+  `owner/repo#123`) and a URL are not anchors. Resolution rules:
 
   - `path::A.b` in Python: `ast` finds class, function, or module- and
     class-level assignment `A`, then `b` inside it. In any other file: each
@@ -132,11 +137,18 @@ shape they read, and the exemption needs its own rule).
   fail, and an unresolvable anchor in a closed plan, a done bug, or a plan's
   `## Implementation Steps` passes.
 
+  - **Evidence:** commit `e316306f` adds the resolver;
+    `uv run pytest scripts/tests/test_check_anchors.py` passes 54 tests at that
+    commit, and `uv run scripts/check-anchors.py` resolves all eleven of this
+    plan's `## Key references` anchors. Commit `6f31df25` makes the closed-plan
+    cases hold an anchor that does not resolve, and adds an active-plan case
+    where the same anchor fails; 55 tests pass.
+
 ### Task 3: The rule in AGENTS.md
 
 **Files:** Modify: `AGENTS.md`
 
-- [ ] Add the rule as Best Practice 12, after item 11, in this wording:
+- [x] Add the rule as Best Practice 12, after item 11, in this wording:
 
   ``` markdown
   12. **NEVER RECORD LINE NUMBERS.** A line number is wrong the next time its
@@ -156,6 +168,9 @@ shape they read, and the exemption needs its own rule).
       the graph and the catalog.
   ```
 
+  - **Evidence:** commit `2ec90546` adds item 12 to `AGENTS.md`; a `diff` of
+    that item against the fenced block above reports no difference.
+
 ### Task 4: Knowledge templates, workspace and bootstrap copies
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`, `docs/knowledge/STRUCTURE.md`,
@@ -163,31 +178,44 @@ shape they read, and the exemption needs its own rule).
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/`, plus
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/plans/20260701-focus-sessions.example.md`
 
-- [ ] In both copies of each file: the `AGENTS.md` **Code anchors** bullet, the
+- [x] In both copies of each file: the `AGENTS.md` **Code anchors** bullet, the
   `STRUCTURE.md` **Code anchors are dated** paragraph, and the `SCHEMA.md` plan
   body list describe `## Key references` as anchors in the Approach syntax,
   taken from the current checkout, with no line number and no date stamp. The
   bootstrap copies state the rule themselves, since a consuming repository's
   `AGENTS.md` does not carry it. Each workspace file stays byte-identical to its
   bootstrap copy.
-- [ ] The example plan's `## Key references` drops its stamp and reads
+  - **Evidence:** commit `458c93f0` rewrites the three rules in both copies;
+    `cmp` of each workspace file against its bootstrap copy reports no
+    difference at that commit.
+- [x] The example plan's `## Key references` drops its stamp and reads
   `src/store/sessions.ts::appendSession` — the log writer, and
   `src/main.ts::bootstrap` — window/tray bootstrap where the view mounts.
+  - **Evidence:** commit `458c93f0` rewrites the example plan's
+    `## Key references`; `uv run scripts/check-anchors.py` reports no line
+    number in the bootstrap assets at that commit.
 
 ### Task 5: Planner and implementer rules
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] `iwe-planner`: step 3 collects anchors, not line numbers; step 4's
+- [x] `iwe-planner`: step 3 collects anchors, not line numbers; step 4's
   `## Key references` bullet is an anchor list in the Approach syntax with no
   stamp; revise mode re-resolves affected anchors with no date to refresh; the
   **Rules** bullet on code anchors drops the date stamp. The rulebook states
   that a plan never records a line number anywhere in its body.
-- [ ] `iwe-implementer`: step 5 confirms each `## Key references` anchor still
+  - **Evidence:** commit `81d78ff6` rewrites steps 3 and 4, revise mode, and the
+    **Rules** bullet;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
+- [x] `iwe-implementer`: step 5 confirms each `## Key references` anchor still
   names its target in the current checkout and corrects a renamed or removed
   one, with no date to refresh; evidence written under a ticked task names code
   by anchor, never by line.
+  - **Evidence:** commit `81d78ff6` rewrites step 5 and step 6's evidence rule;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 
 ### Task 6: Skill and agent reports
 
@@ -200,7 +228,7 @@ shape they read, and the exemption needs its own rule).
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`,
 `.agents/plugins/agentdev/skills/get-codeql-data/SKILL.md`
 
-- [ ] Every `path:line` / `file:line` evidence, citation, or table column in
+- [x] Every `path:line` / `file:line` evidence, citation, or table column in
   these files becomes an anchor in the Approach syntax: the verifier's
   correctness mapping, finding format, and evidence rule; the shipper's blocker
   evidence; the adversarial reviewer's **Evidence** field; `iwe-audit`'s
@@ -209,18 +237,29 @@ shape they read, and the exemption needs its own rule).
   `iwe-audit` table mapping, and its Step 8 fallback comment;
   `pr-feedback-resolution`'s location notes and coverage-gap summary;
   `get-codeql-data`'s extracted locations as presented to the user.
-- [ ] `pr-review` keeps the inline comment's `line` as a machine position: it
+  - **Evidence:** commit `b540e482` rewrites every listed citation, field, and
+    column; `uv run scripts/check-anchors.py` reports no line number under
+    `.agents/plugins/agentdev/` and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
+- [x] `pr-review` keeps the inline comment's `line` as a machine position: it
   places the comment by locating the anchored or quoted line in the diff, and
   the comment text and every review body use anchors. Its constraint against
   prose locations is reworded without a numeric example.
+  - **Evidence:** commit `b540e482` places inline comments on the diff line
+    holding the quoted text, names fallback locations by anchor, and rewords the
+    constraint without a numeric example.
 
 ### Task 7: Architecture prose
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/pr-review-scenario-validation.md`
 
-- [ ] The three-part scenario's **Path** is an anchor chain, not a `file:line`
+- [x] The three-part scenario's **Path** is an anchor chain, not a `file:line`
   chain.
+  - **Evidence:** commits `5ee57f76` and `1e748f13` make the **Path** an anchor
+    chain; `uv run scripts/check-anchors.py` reports nothing for the document at
+    `1e748f13`.
 
 ### Task 8: Rewrite the live documents' references
 
@@ -253,54 +292,76 @@ shape they read, and the exemption needs its own rule).
 `data/architecture/assignee-review-trigger`,
 `data/architecture/pr-verification-sections`
 
-- [ ] Every line-number reference in these documents becomes an anchor that
+- [x] Every line-number reference in these documents becomes an anchor that
   resolves in the current checkout, each `Verified anchor points` stamp is
   removed, and the resolver passes on the whole resolver scope. A document that
   gained a reference since this list was written is in scope too.
+  - **Evidence:** commit `58e0f2cd` rewrites every reference in the listed
+    documents and removes their stamps; `uv run scripts/check-anchors.py`
+    reports no line number in any active plan, open bug or backlog item, or
+    architecture document, and no unresolved anchor, at that commit.
 
 ### Task 9: Rewrite the closed plans' references
 
 **Files:** Modify: every plan under `docs/knowledge/data/plans/` with
 `stage: done` or `stage: cancelled` that carries a line-number reference
 
-- [ ] Every line-number reference becomes an anchor in the Approach syntax and
+- [x] Every line-number reference becomes an anchor in the Approach syntax and
   every `Verified anchor points` stamp is removed; the gate reports nothing
   under `docs/knowledge/data/plans/`. An anchor in a closed plan names what the
   reference named — its symbol, heading, key, or quoted text — and need not
   resolve: a file the plan cites may since have been deleted.
+  - **Evidence:** commit `851f545e` rewrites the references and removes the
+    stamps in every closed plan, bare `:N` continuations included;
+    `uv run scripts/check-anchors.py` reports nothing under
+    `docs/knowledge/data/plans/` at that commit.
 
 ### Task 10: Rewrite the remaining closed documents' references
 
 **Files:** Modify: every other document under `docs/knowledge/data/` that
 carries a line-number reference (closed bugs and backlog items)
 
-- [ ] Same rewrite as Task 9; the gate reports nothing anywhere in its scan
+- [x] Same rewrite as Task 9; the gate reports nothing anywhere in its scan
   scope.
+  - **Evidence:** commit `ac54dd7f` rewrites the references and removes the
+    stamps in the 51 closed bugs and backlog items;
+    `uv run scripts/check-anchors.py` exits 0 on the whole checkout at that
+    commit.
 
 ### Task 11: Wire the hook
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] A local `check-anchors` hook runs `uv run scripts/check-anchors.py` with
+- [x] A local `check-anchors` hook runs `uv run scripts/check-anchors.py` with
   `always_run: true` and `pass_filenames: false`, beside the `plan-checkboxes`
   hook, and `uv run pre-commit run check-anchors --all-files` passes.
+  - **Evidence:** commit `874d23d9` adds the always-run hook beside
+    `plan-checkboxes`; `uv run pre-commit run check-anchors --all-files` passes
+    at that commit and fails naming the document when a `path:N` reference is
+    planted in an architecture document. This plan's own `## Key references`
+    resolve.
 
 ### Task 12: Record the decision
 
 **Files:** Create: `docs/knowledge/data/architecture/line-free-anchors.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] The architecture document records the decision, the anchor syntax by
+- [x] The architecture document records the decision, the anchor syntax by
   reference to `spec/line-free-anchors`, the resolver's scope and its limits,
   and the rejected alternatives from `## Approach`; it is linked from the
   architecture hub.
+  - **Evidence:** commit `ed493d66` adds `architecture/line-free-anchors` with
+    the decision, the syntax by reference to `spec/line-free-anchors`, the
+    resolver's scope and limits, and the rejected alternatives, linked from the
+    architecture hub; `iwe schema validate` and
+    `uv run scripts/check-anchors.py` pass at that commit.
 
 ## Spec changes
 
-A new spec, `spec/line-free-anchors`, and a modified requirement in [IWE
-workflow skills](../spec/iwe-workflow-skills.md).
+A new spec, [Line-free anchors](../spec/line-free-anchors.md), and a modified
+requirement in [IWE workflow skills](../spec/iwe-workflow-skills.md).
 
-`spec/line-free-anchors`:
+[Line-free anchors](../spec/line-free-anchors.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -445,8 +506,8 @@ Verify.
 - `uv run pytest scripts/tests/test_check_anchors.py` passes.
 - `uv run scripts/check-anchors.py` exits 0 on the checkout.
 - `uv run pre-commit run check-anchors --all-files` passes.
-- `grep -rn "Verified anchor points\|line numbers as of" docs/knowledge .agents/plugins/agentdev`
-  finds nothing.
+- `grep -rnE '^Verified anchor points \(line numbers as of' docs/knowledge .agents/plugins/agentdev`
+  finds no stamp line; prose that mentions the stamp does not match.
 - `cmp` of each of `docs/knowledge/AGENTS.md`, `STRUCTURE.md`, and `SCHEMA.md`
   against its copy under
   `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/` reports
@@ -468,19 +529,19 @@ Verify.
 
 ## Key references
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "their current line numbers"`
-  — step 3, discovery
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Verified anchor points"`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Discover."` —
+  step 3, discovery
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "a list of anchors, each with a short note"`
   — step 4, the `## Key references` template
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md › "Re-verify the anchors"`
   — step 5
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md › "Every claim cites"`
   — the evidence rule
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints › "Never write location references"`
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints › "Never write a location as a line number"`
   — the prose-location constraint
 - `docs/knowledge/AGENTS.md#conventions › "Code anchors"` — the workspace rule
-- `docs/knowledge/STRUCTURE.md › "Code anchors are dated"` — the template
-  rationale
+- `docs/knowledge/STRUCTURE.md › "Code anchors name, never count"` — the
+  template rationale
 - `docs/knowledge/tests/test_plan_checkboxes.py::Violation` — the existing
   gate's report shape
 - `.pre-commit-config.yaml › "id: plan-checkboxes"` — the neighbouring hook

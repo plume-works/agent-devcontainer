@@ -156,7 +156,8 @@ Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 - [x] Insert this approved line verbatim right after the "IGNORE import
   ordering…" bullet in the Compliance focus list:
   - **Evidence:** commit "fix(pr-open): check the map on a head the upstream
-    already has" carries the conditional wording; `pr-review/SKILL.md:44`
+    already has" carries the conditional wording;
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "no longer matches their sources) when the repository's CI"`
     matches the fenced line below byte for byte.
 
 ``` markdown
@@ -262,40 +263,40 @@ repository's CI runs the staleness check, which then owns it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-01):
-
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:9` —
-  `RESULT_CODES+=` declared results
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:17` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh › "3=NOT_FAST_FORWARD"`
+  — `RESULT_CODES+=` declared results
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh::usage` —
   `usage()`
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:87` —
-  `check_map_freshness`, the map gate
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:201` —
-  `ACTION=push`, existing-upstream push path
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:219` —
-  `ACTION=push-with-upstream` path
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:207` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh::check_map_freshness`
+  — `check_map_freshness`, the map gate
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh › "printf 'ACTION=push\n"`
+  — `ACTION=push`, existing-upstream push path
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh › "printf 'ACTION=push-with-upstream\n"`
+  — `ACTION=push-with-upstream` path
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch` —
   `### 8. Push the Branch`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:245` — non-`SUCCESS`
-  handling of `push-branch.sh`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:89` — Workflow 3 push
-  through the `pr-open` push helper
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:225` — "Push
-  to PR branch" through the push helper
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:46` —
-  `switch -c pr-merge-worktree/<pr>`, followed by its upstream at `:47`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:165` — "commit, and push
-  the focused repair" through the push helper
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:179` — "Commit, then push
-  with" the push helper
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:43` — "IGNORE import
-  ordering" bullet
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:122` — refresh mode
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:60` —
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch › "display the script's actionable error"`
+  — non-`SUCCESS` handling of `push-branch.sh`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-3-push-the-updated-branch › "Push with the [pr-open](../pr-open/SKILL.md) push helper"`
+  — Workflow 3 push through the `pr-open` push helper
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-4-fix-ci-test-failures › "Push to PR branch with the [pr-open](../pr-open/SKILL.md)"`
+  — "Push to PR branch" through the push helper
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "git -C ./.tmp/pr-merge-<pr> switch -c pr-merge-worktree/<pr>"`
+  — `switch -c pr-merge-worktree/<pr>`, followed by its upstream at
+  `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "git -C ./.tmp/pr-merge-<pr> branch"`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "implement, test, commit, and push the focused repair through"`
+  — "commit, and push the focused repair" through the push helper
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "Commit, then push with the [pr-open](../pr-open/SKILL.md)"`
+  — "Commit, then push with" the push helper
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "IGNORE import ordering, that is handled by"`
+  — "IGNORE import ordering" bullet
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps › "${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py"`
+  — refresh mode
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::USAGE` —
   `Results (RESULT / exit code)`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:277` —
-  `masked_hash`, reads working-tree contents
-- `.github/workflows/validate-agent-files.yml:92` —
-  `Check codebase map docs against their sources`
-- `.agents/plugins/agentdev/tests/git_fixtures.py:11` — `FIXTURE_ENV` shared git
-  fixture identity
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::masked_hash`
+  — `masked_hash`, reads working-tree contents
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.name`
+  — `Check codebase map docs against their sources`
+- `.agents/plugins/agentdev/tests/git_fixtures.py::FIXTURE_ENV` — `FIXTURE_ENV`
+  shared git fixture identity

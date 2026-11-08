@@ -210,20 +210,19 @@ the skill body.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
-
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:132` — `rebaseMentions`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:277` — v2 command
-  registration
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:283` — executor building
-  the full invocation text
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:200` — `fakeV2`
-  context
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:277` — v2 command
-  payload test
-- `docs/knowledge/data/spec/opencode-catalog-bridge.md:56` — namespaced-command
-  requirement
-- `docs/knowledge/data/architecture/opencode-catalog-bridge.md:66` — v2 command
-  design
-- `docs/knowledge/data/features/opencode-catalog-host.md:33` — catalog command
-  behavior
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "function rebaseMentions(references: V2PromptReference[] |"`
+  — `rebaseMentions`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "void ctx.command.transform((editor) =>"`
+  — v2 command registration
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "execute: async ({ sessionID, prompt, delivery }) =>"`
+  — executor building the full invocation text
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "function fakeV2(options: { registration?: Promise<unknown>"`
+  — `fakeV2` context
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "adds every skill as a namespaced command that re-prompts"`
+  — v2 command payload test
+- `docs/knowledge/data/spec/opencode-catalog-bridge.md#requirement-every-skill-is-a-namespaced-slash-command`
+  — namespaced-command requirement
+- `docs/knowledge/data/architecture/opencode-catalog-bridge.md#on-opencode-v2 › "re-prompts the session"`
+  — v2 command design
+- `docs/knowledge/data/features/opencode-catalog-host.md#behaviour › "OpenCode sees the catalog the way the other hosts do."`
+  — catalog command behavior

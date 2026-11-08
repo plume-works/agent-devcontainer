@@ -37,8 +37,8 @@ appears.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `scripts/tests/test_opencode_web_start.py:188` — `run_with_real_tmux`
-- `scripts/tests/test_opencode_web_start.py:204` — per-test `TMUX_TMPDIR`
-- `scripts/tests/test_opencode_web_start.py:216` — result poll
+- `scripts/tests/test_opencode_web_start.py::run_with_real_tmux` —
+  `run_with_real_tmux`
+- `scripts/tests/test_opencode_web_start.py::run_with_real_tmux` — per-test
+  `TMUX_TMPDIR`
+- `scripts/tests/test_opencode_web_start.py::run_with_real_tmux` — result poll

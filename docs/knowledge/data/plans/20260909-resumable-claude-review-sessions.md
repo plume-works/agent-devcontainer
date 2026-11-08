@@ -512,38 +512,48 @@ ruleset bypass can merge it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-08):
-
-- `.github/workflows/ai-responder.yml:15` — `labeled` among the `pull_request`
-  trigger types
-- `.github/workflows/ai-responder.yml:24` — workflow concurrency group; `:36` —
+- `.github/workflows/ai-responder.yml#on.pull_request.types › "labeled"` —
+  `labeled` among the `pull_request` trigger types
+- `.github/workflows/ai-responder.yml#concurrency` — workflow concurrency group;
+  `.github/workflows/ai-responder.yml#concurrency.cancel-in-progress` —
   `cancel-in-progress` only on `synchronize`
-- `.github/workflows/ai-responder.yml:55` — preflight runs only for routed label
-  events
-- `.github/workflows/ai-responder.yml:63` — preflight outputs; `:115` — live
-  label read
-- `.github/workflows/ai-responder.yml:168` — `wantsReview`
-- `.github/workflows/ai-responder.yml:214` — `claude-respond` job; `:221` — its
+- `.github/workflows/ai-responder.yml#jobs.preflight.if` — preflight runs only
+  for routed label events
+- `.github/workflows/ai-responder.yml#jobs.preflight.outputs` — preflight
+  outputs;
+  `.github/workflows/ai-responder.yml › "label.name === 'block-ai-reviews'"` —
+  live label read
+- `.github/workflows/ai-responder.yml › "const wantsReview"` — `wantsReview`
+- `.github/workflows/ai-responder.yml#jobs.claude-respond` — `claude-respond`
+  job; `.github/workflows/ai-responder.yml#jobs.claude-respond.runs-on` — its
   `runs-on`
-- `.github/workflows/ai-responder.yml:253` — `ai-review-present`
-- `.github/actions/run-claude-responder/action.yml:4` — composite action inputs;
-  `:20` — `remove-request-label`
-- `.github/actions/run-claude-responder/action.yml:92` — `claude_args` assembly
-- `.github/actions/run-claude-responder/action.yml:126` — Claude invocation
-- `.github/actions/run-claude-responder/action.yml:141` — "Take the review
-  request label"
-- `.github/actions/run-claude-responder/action.yml:162` — execution output
-  upload
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:115` — parallel review
-  passes
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:135` — pending-review
-  creation
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:143` — Waiting on Parallel
-  Passes
-- `.github/workflows/validate-agent-files.yml:54` — agent-file validation job
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:382`
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present`
+- `.github/actions/run-claude-responder/action.yml#inputs` — composite action
+  inputs;
+  `.github/actions/run-claude-responder/action.yml#inputs.remove-request-label`
+  — `remove-request-label`
+- `.github/actions/run-claude-responder/action.yml › "id: claude_args"` —
+  `claude_args` assembly
+- `.github/actions/run-claude-responder/action.yml › "id: claude_responder"` —
+  Claude invocation
+- `.github/actions/run-claude-responder/action.yml › "name: Take the review request label"`
+  — "Take the review request label"
+- `.github/actions/run-claude-responder/action.yml › "uses: actions/upload-artifact@v7.0.2"`
+  — execution output upload
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Run the independent initial-review passes the effort"`
+  — parallel review passes
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "create_pending_pull_request_review"`
+  — pending-review creation
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#waiting-on-parallel-passes`
+  — Waiting on Parallel Passes
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files` —
+  agent-file validation job
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate`
   — the review labels prerequisite
-- `docs/knowledge/data/spec/ai-review-gate.md:107` — the review-request
-  requirement; `:195` — the block requirement
-- `docs/knowledge/data/features/ai-responder-workflows.md:74` — review requests
-  by label
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-review-runs-on-first-push-and-on-explicit-request`
+  — the review-request requirement;
+  `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-pull-request-can-block-every-ai-review`
+  — the block requirement
+- `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "is the author's call: adding the"`
+  — review requests by label

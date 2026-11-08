@@ -77,15 +77,13 @@ session URL.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
-
-- `.devcontainer/scripts/claude-remote-control-session.sh:5` — `id_file`, the
+- `.devcontainer/scripts/claude-remote-control-session.sh` — `id_file`, the
   pin's path.
-- `.devcontainer/scripts/claude-remote-control-session.sh:15` — the resume of
-  the stored ID.
-- `.devcontainer/scripts/claude-remote-control-session.sh:21` — the only write
-  of the pin, before `exec claude`.
-- `docs/knowledge/data/spec/claude-remote-control.md:51` — the requirement that
-  the pane resume the stored ID.
-- `docs/knowledge/data/architecture/claude-remote-control-resume.md:27` — "The
-  transcript carries the binding."
+- `.devcontainer/scripts/claude-remote-control-session.sh › "stored_id="` — the
+  resume of the stored ID.
+- `.devcontainer/scripts/claude-remote-control-session.sh` — the only write of
+  the pin, before `exec claude`.
+- `docs/knowledge/data/spec/claude-remote-control.md#requirement-remote-control-autostarts-only-on-a-live-claudeai-login › "CLAUDE_CODE_OAUTH_TOKEN"`
+  — the requirement that the pane resume the stored ID.
+- `docs/knowledge/data/architecture/claude-remote-control-resume.md#decision › "with no health check."`
+  — "The transcript carries the binding."

@@ -64,21 +64,24 @@ images".
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
-
-- `.github/workflows/ci.yml:182` — `merge-dev-image`, with merge steps at
-  `:199`, `:207`, and `:216`
-- `.github/workflows/ci.yml:231-233` — `dev-container-ci`, which needs
-  `merge-dev-image`
-- `.github/workflows/ci.yml:309-311` — `opencode-acceptance`, which needs
-  `merge-dev-image`
-- `.github/workflows/ci.yml:105-113` — clean builds on `main` and release tags
-- `.github/actions/docker/multiarch-merge/action.yml:96` — `imagetools create`
-  with every derived tag
-- `.github/actions/docker/metadata-action/action.yml:56-59` — `pr`, `semver`,
-  and `edge` tag rules
-- `.github/workflows/primary-checks.yml:21-23` — `concurrency` with
-  `cancel-in-progress: true`
+- `.github/workflows/ci.yml#jobs.merge-dev-image` — `merge-dev-image`, with
+  merge steps at
+  `.github/workflows/ci.yml#jobs.merge-dev-image.steps.uses.with`,
+  `.github/workflows/ci.yml#jobs.merge-dev-image.steps.Merge and push ubuntu ansible image.with.image`,
+  and
+  `.github/workflows/ci.yml#jobs.merge-dev-image.steps.Merge and push agent desktop image.with.image`
+- `.github/workflows/ci.yml#jobs.merge-dev-image.steps.Log debug stats.if` —
+  `dev-container-ci`, which needs `merge-dev-image`
+- `.github/workflows/ci.yml#jobs.dev-container-ci.steps.Log debug stats.if` —
+  `opencode-acceptance`, which needs `merge-dev-image`
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.Set base image refs.env.IS_MAIN`
+  — clean builds on `main` and release tags
+- `.github/actions/docker/multiarch-merge/action.yml#runs.steps.Create manifest list and push.run`
+  — `imagetools create` with every derived tag
+- `.github/actions/docker/metadata-action/action.yml#runs.steps.uses.with` —
+  `pr`, `semver`, and `edge` tag rules
+- `.github/workflows/primary-checks.yml › "main queues instead of cancelling, so edge keeps advancing"`
+  — `concurrency` with `cancel-in-progress: true`
 
 Related: [Bug: Image rebuild lost when a later push to main cancels its
 run](main-image-rebuild-lost-on-cancel.md), which keeps a cancelled commit's

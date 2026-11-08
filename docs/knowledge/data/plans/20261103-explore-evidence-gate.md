@@ -212,17 +212,16 @@ given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:54` — `## The stance`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:56` —
-  `**Grounded, not theoretical**`, the current first stance bullet
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:69` —
-  `**Honest about unknowns**`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:89` —
-  `**Evidence before argument**`, the interview-time evidence rule
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:145` — `## Rules`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:150` —
-  `Every claim about the existing system is checked`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:45` —
-  `Requirement: Explore remains an adaptive thinking mode`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance` —
+  `## The stance`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance › "— before proposing directions, check what"`
+  — `**Grounded, not theoretical**`, the current first stance bullet
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance › "— surface risks, gaps, and what would need a"`
+  — `**Honest about unknowns**`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#settling-open-questions › "When a choice hinges on how the system behaves"`
+  — `**Evidence before argument**`, the interview-time evidence rule
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#rules` — `## Rules`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#rules › "Every claim about the existing system is checked against the"`
+  — `Every claim about the existing system is checked`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`
+  — `Requirement: Explore remains an adaptive thinking mode`

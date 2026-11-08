@@ -282,46 +282,47 @@ unchanged.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:24`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::USAGE`
   — module docstring naming the shape
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:62`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::USAGE`
   — `NOT_A_WORK_BRANCH` row of the usage table
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:81`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::WORK_BRANCH`
   — `WORK_BRANCH` regex
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:131`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::parse_work_branch`
   — `parse_work_branch` (group order follows the regex)
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:335`
-  — `pull_request_heads`, `head:` search at line 342
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:355`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::pull_request_heads`
+  — `pull_request_heads`, `head:` search
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::next_iteration`
   — `next_iteration`, the `(phase, slug)` filter
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:386`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::run_next`
   — `run_next` printing `NEXT`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:448`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::run_parse`
   — `run_parse` error message
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py:18` — accepted
-  names; line 38 — rejected names
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:106` —
-  `test_next_ignores_names_off_the_shape_and_the_other_phase`, whose other-phase
-  expectation inverts
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:163` —
-  `test_next_follows_the_plan_state`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md:3` — description;
-  line 16 — `## The Name Shape`; line 78 — `NOT_A_WORK_BRANCH` row
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:53` — step 4 `next`
-  call
-- `.agents/plugins/agentdev/README.md:153`, `docs/knowledge/AGENTS.md:229`,
-  `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md:229`
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py › "iwe/focus-timer/iter-1-impl', 'impl', 'focus-timer', '1')"`
+  — accepted and rejected names
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py::test_next_ignores_names_off_the_shape`
+  — `test_next_ignores_names_off_the_shape_and_the_other_phase`, whose
+  other-phase expectation inverts
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py::test_next_with_phase_does_not_need_the_plan`
+  — `test_next_follows_the_plan_state`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md › "Name the next work branch for an IWE plan —"`
+  — description, `## The Name Shape`, and the `NOT_A_WORK_BRANCH` row
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "/agentdev:iwe-branch-name next <plan-key> --phase impl"`
+  — step 4 `next` call
+- `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "iteration branch. |"`,
+  `docs/knowledge/AGENTS.md#workspace-skills › "iteration branch, never creates it |"`,
+  `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md#workspace-skills › "iteration branch, never creates it |"`
   — skill table rows naming `impl/` or `ship/`
-- `scripts/e2e/iwe-workflows/scenarios.py:15` — `BRANCH_WORK`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:221` and
-  `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:248` — `head:`
-  assertions
-- `scripts/tests/test_e2e_iwe_workflows_clone.py:154` — `NEXT` assertion
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:243` — "Implementation starts
-  on main" scenario
-- `docs/knowledge/data/backlog/pr-merge-post-merge-cleanup.md:23` and lines
-  42–43 — stated name shape
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:125` — map
-  paragraph
+- `scripts/e2e/iwe-workflows/scenarios.py::BRANCH_WORK` — `BRANCH_WORK`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement_on_main`
+  and
+  `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement_on_main`
+  — `head:` assertions
+- `scripts/tests/test_e2e_iwe_workflows_clone.py::test_main_clone_has_a_remote_and_a_stub_gh`
+  — `NEXT` assertion
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-implementation-starts-on-main › "iwe/<slug>/iter-<N>-impl"`
+  — "Implementation starts on main" scenario
+- `docs/knowledge/data/backlog/pr-merge-post-merge-cleanup.md#clean-up-the-local-checkout-after-pr-merge › "and the lookup of a plan's state at the"`
+  and its stated name shape
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md#how-it-works › "names a plan's work branches"`
+  — map paragraph

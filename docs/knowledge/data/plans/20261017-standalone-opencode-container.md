@@ -2013,161 +2013,225 @@ Recorded 2026-10-18 at `afae3a2`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
-
-- `docker/desktop/agent-desktop.Dockerfile:41-68` — build-time Ansible and
-  immutable catalog; `:73-86` — WORKDIR, copied launchers, entrypoint/CMD.
-- `.dockerignore:6-11` — ignored Git, user state, devcontainer, and scratch
+- `docker/desktop/agent-desktop.Dockerfile › "RUN --mount=type=cache,target=/var/cache/apt,sharing=locked"`
+  — build-time Ansible and immutable catalog;
+  `docker/desktop/agent-desktop.Dockerfile › "WORKDIR $WORKSPACE_FOLDER"` —
+  WORKDIR, copied launchers, entrypoint/CMD.
+- `.dockerignore › ".git"` — ignored Git, user state, devcontainer, and scratch
   sources.
-- `.devcontainer/devcontainer.json:12-18` — feature-managed DinD/SSH; `:20-50` —
-  runtime environment; `:60-108` — per-instance mounts including OpenCode.
-- `.devcontainer/scripts/postAttachCommand.sh:8-16` — indexing, uv sync,
-  checkout catalog registration.
-- `.devcontainer/scripts/link-codex-auth.sh:19-31` — hardcoded root credential
-  paths and link repair.
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:22-28` — cache and
-  install paths; `:54-82` — symlink restoration and native installation.
-- `.devcontainer/scripts/codebase-memory-mcp-start.sh:9-19` — required
-  environment, detached daemon, initial index.
-- `.devcontainer/scripts/setup-keyring.sh:31-35` — checkout-relative environment
-  file and user keyring; `:66-82` — non-destructive initialization; `:111-135` —
-  background services/readiness.
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:7-30` — keyring
-  environment and existing-helper-preserving GitHub setup.
-- `.devcontainer/scripts/uv-sync.sh:16-32` — managed `.venv` migration and
+- `.devcontainer/devcontainer.json › "features"` — feature-managed DinD/SSH;
+  `.devcontainer/devcontainer.json › "containerEnv"` — runtime environment;
+  `.devcontainer/devcontainer.json › "mounts"` — per-instance mounts including
+  OpenCode.
+- `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/codebase-memory-mcp-index.sh"`
+  — indexing, uv sync, checkout catalog registration.
+- `.devcontainer/scripts/link-codex-auth.sh › "/root/.agents-auth/codex"` —
+  hardcoded root credential paths and link repair.
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › "if [[ -z ${CBM_CACHE_DIR:-} ]]; then"`
+  — cache and install paths;
+  `.devcontainer/scripts/codebase-memory-mcp-install.sh › "$HOME/.claude.json"`
+  — symlink restoration and native installation.
+- `.devcontainer/scripts/codebase-memory-mcp-start.sh › "if [[ -z ${CBM_CACHE_DIR:-} ]]; then"`
+  — required environment, detached daemon, initial index.
+- `.devcontainer/scripts/setup-keyring.sh › "${BASH_SOURCE[0]}"` —
+  checkout-relative environment file and user keyring;
+  `.devcontainer/scripts/setup-keyring.sh::ensure_login_keyring` —
+  non-destructive initialization;
+  `.devcontainer/scripts/setup-keyring.sh › "$(dbus-daemon --session --fork --print-address=1"`
+  — background services/readiness.
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "Written by setup-keyring.sh; lets gh reach a login stored in"`
+  — keyring environment and existing-helper-preserving GitHub setup.
+- `.devcontainer/scripts/uv-sync.sh` — managed `.venv` migration and
   unconditional sync.
-- `.devcontainer/scripts/setup-pre-commit.sh:8-20` — skip and hook setup/error
-  behavior.
-- `.devcontainer/scripts/coder-agent-start.sh:9-21` —
-  prune/helper/OpenCode/Remote Control ordering.
-- `.devcontainer/scripts/docker-image-prune.sh:12-20` — nonfatal 72-hour image
-  prune.
-- `.devcontainer/scripts/configure-codex.py:18-26` — policy and HOME/CODEX_HOME
-  resolution.
-- `docker/desktop/start-xpra.sh:188-244` — foreground/background mode, lifecycle
-  checks, bind and D-Bus options; `:251-278` — launch paths.
-- `ansible/roles/install_docker/tasks/main.yml:34-63` — Docker packages and 10
-  GB BuildKit policy.
-- `ansible/roles/devcontainer_firewall/files/init-firewall.sh:14-33` — allowlist
-  and rule flush; `:123-163` — DROP/IPv6/self-check policy.
-- `ansible/roles/agentic_tools/defaults/main.yml:75-86` — catalog location and
-  staged trees.
-- `ansible/roles/agentic_tools/tasks/main.yml:23-37` — global CLIs in
-  /usr/local.
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:85-145` — Codex agents
+- `.devcontainer/scripts/setup-pre-commit.sh › "A caller that never commits — the CI responder job — can opt"`
+  — skip and hook setup/error behavior.
+- `.devcontainer/scripts/coder-agent-start.sh › "$script_dir/docker-image-prune.sh"`
+  — prune/helper/OpenCode/Remote Control ordering.
+- `.devcontainer/scripts/docker-image-prune.sh › "if ! docker info >/dev/null 2>&1; then"`
+  — nonfatal 72-hour image prune.
+- `.devcontainer/scripts/configure-codex.py::MANAGED_SETTINGS` — policy and
+  HOME/CODEX_HOME resolution.
+- `docker/desktop/start-xpra.sh › "$BACKGROUND"` — foreground/background mode,
+  lifecycle checks, bind and D-Bus options;
+  `docker/desktop/start-xpra.sh › "$BACKGROUND"` — launch paths.
+- `ansible/roles/install_docker/tasks/main.yml#name` — Docker packages and 10 GB
+  BuildKit policy.
+- `ansible/roles/devcontainer_firewall/files/init-firewall.sh` — allowlist and
+  rule flush;
+  `ansible/roles/devcontainer_firewall/files/init-firewall.sh › "Default DROP policy (IPv4)"`
+  — DROP/IPv6/self-check policy.
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_catalog_root` —
+  catalog location and staged trees.
+- `ansible/roles/agentic_tools/tasks/main.yml#name` — global CLIs in /usr/local.
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml#name` — Codex agents
   and root OpenCode bridge config.
-- `ansible/roles/github_cli/tasks/main.yml:43-49` — baked gh wrapper; `:94-123`
-  — user-home gh-stack registration.
-- `ansible/roles/dev_tools/defaults/main.yml:58-69` — shipped CBM
-  version/checksums.
-- `.github/workflows/ci.yml:146-158` — desktop build with same-run base digest;
-  `:166-197` — manifest merge; `:246-302` — current acceptance/completion gate.
-- `.github/actions/paths-filter/action.yml:35-48` — image-build input filter.
-- `.github/actions/docker/build-push-action/action.yml:57-95` — per-arch digest
-  publishing/artifacts.
-- `.github/actions/docker/multiarch-merge/action.yml:67-120` — manifest and
-  pinned output.
-- `.github/actions/docker/metadata-action/action.yml:50-59` — existing
+- `ansible/roles/github_cli/tasks/main.yml#name` — baked gh wrapper;
+  `ansible/roles/github_cli/tasks/main.yml#name` — user-home gh-stack
+  registration.
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name` —
+  shipped CBM version/checksums.
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` — desktop build
+  with same-run base digest; `.github/workflows/ci.yml#jobs.merge-dev-image` —
+  manifest merge; `.github/workflows/ci.yml#jobs.dev-container-ci.steps.name` —
+  current acceptance/completion gate.
+- `.github/actions/paths-filter/action.yml#runs.steps.Build filters.run.image` —
+  image-build input filter.
+- `.github/actions/docker/build-push-action/action.yml#runs.steps.name` —
+  per-arch digest publishing/artifacts.
+- `.github/actions/docker/multiarch-merge/action.yml#runs.steps.name` — manifest
+  and pinned output.
+- `.github/actions/docker/metadata-action/action.yml#runs.steps.uses` — existing
   publication tag conventions.
-- `.github/renovate.json:5-32` — post-upgrade filters and Compose pin discovery;
-  `:42-49` — current image grouping.
-- `docs/knowledge/data/spec/catalog-lifecycle.md:20-134` — current catalog
-  installation and shared-agent-auth scope.
-- `docs/knowledge/data/spec/image-pinning.md:16-65` — digest policy and pin-loop
-  avoidance.
-- `docs/knowledge/data/architecture/nested-docker-provisioning.md:21-39` —
-  feature-owned DinD decision.
-- `README.md:25-69` — current images, adoption, and digest policy.
-
-Verified anchor points (line numbers as of 2026-10-19):
-
-- `.devcontainer/scripts/postCreateCommand.sh:56` —
-  `setup-agent-state.sh create`; `:70` — staged-catalog install.
-- `.devcontainer/scripts/postStartCommand.sh:27` — `setup-agent-state.sh links`;
-  `:30` — `agent-policy`.
-- `.devcontainer/scripts/setup-agent-state.sh:41` — `ensure_auth_dirs`; `:65` —
-  `link_auth`; `:69` — `cmd_create`.
-- `.devcontainer/scripts/opencode-web-command.sh:10` — generated password file;
-  `:19` — `link`; `:29` — `coder_hostname`; `:39` — `coder_pane`; `:52` —
-  `coder_note`; `:63` — `probe`, reading the authenticated `/api/info`; `:77` —
-  `serve`.
-- `.devcontainer/scripts/opencode-web-start.sh:14-37` — helper calls, session
-  reuse, and the tmux launch.
-- `.devcontainer/scripts/runtime-health.sh:33` — the `opencode` probe.
-- `ansible/roles/agentic_tools/defaults/main.yml:10` —
-  `agentic_tools_opencode_version`.
-- `scripts/tests/test_agent_runtime_state.py:111` —
-  `test_links_explicit_roots_on_fresh_volumes`; `:122` —
-  `test_migrates_regular_credentials_and_preserves_other_config`; `:143` —
-  `test_repairs_destroyed_and_wrong_links`.
-- `scripts/tests/test_agent_runtime_ingress.py:91` —
-  `test_coder_pane_serves_without_display`; `:153` — `opencode_server`; `:177` —
-  `test_opencode_rejects_api_requests_without_its_password`; `:191` —
-  `test_opencode_serves_its_web_ui_and_websockets_at_the_root`.
-- `scripts/tests/test_agent_runtime_acceptance.py:174` — `Runtime.api`; `:389` —
-  `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`; `:534`
+- `.github/renovate.json › "postUpgradeTasks"` — post-upgrade filters and
+  Compose pin discovery;
+  `.github/renovate.json › "agent-desktop is built by this repository's own pipeline."`
+  — current image grouping.
+- `docs/knowledge/data/spec/catalog-lifecycle.md#requirement-the-catalog-is-installed-at-image-build-time-and-again-by-postcreatecommand`
+  — current catalog installation and shared-agent-auth scope.
+- `docs/knowledge/data/spec/image-pinning.md#requirement-images-are-pinned-by-tag-and-digest-never-a-bare-moving-tag`
+  — digest policy and pin-loop avoidance.
+- `docs/knowledge/data/architecture/nested-docker-provisioning.md#decision › "The nested Docker engine is provided by the upstream"`
+  — feature-owned DinD decision.
+- `README.md#what-you-get › "The repository publishes two images"` — current
+  images, adoption, and digest policy.
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/setup-agent-state.sh"`
+  — `setup-agent-state.sh create`;
+  `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/setup-agent-state.sh"`
+  — staged-catalog install.
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-agent-state.sh"`
+  — `setup-agent-state.sh links`;
+  `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-agent-state.sh"`
+  — `agent-policy`.
+- `.devcontainer/scripts/setup-agent-state.sh::ensure_auth_dirs` —
+  `ensure_auth_dirs`; `.devcontainer/scripts/setup-agent-state.sh::link_auth` —
+  `link_auth`; `.devcontainer/scripts/setup-agent-state.sh::cmd_create` —
+  `cmd_create`.
+- `.devcontainer/scripts/opencode-web-command.sh › "$HOME/.local/share/opencode/agentdev-server-password"`
+  — generated password file;
+  `.devcontainer/scripts/opencode-web-command.sh::link` — `link`;
+  `.devcontainer/scripts/opencode-web-command.sh::coder_hostname` —
+  `coder_hostname`; `.devcontainer/scripts/opencode-web-command.sh::coder_pane`
+  — `coder_pane`; `.devcontainer/scripts/opencode-web-command.sh::coder_note` —
+  `coder_note`; `.devcontainer/scripts/opencode-web-command.sh::probe` —
+  `probe`, reading the authenticated `/api/info`;
+  `.devcontainer/scripts/opencode-web-command.sh › "serve)"` — `serve`.
+- `.devcontainer/scripts/opencode-web-start.sh › "${BASH_SOURCE[0]%/*}/opencode-web-command.sh"`
+  — helper calls, session reuse, and the tmux launch.
+- `.devcontainer/scripts/runtime-health.sh › "$script_dir/opencode-web-command.sh"`
+  — the `opencode` probe.
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_opencode_version`
+  — `agentic_tools_opencode_version`.
+- `scripts/tests/test_agent_runtime_state.py::test_links_explicit_roots_on_fresh_volumes`
+  — `test_links_explicit_roots_on_fresh_volumes`;
+  `scripts/tests/test_agent_runtime_state.py::test_migrates_regular_credentials_and_preserves_other_config`
+  — `test_migrates_regular_credentials_and_preserves_other_config`;
+  `scripts/tests/test_agent_runtime_state.py::test_repairs_destroyed_and_wrong_links`
+  — `test_repairs_destroyed_and_wrong_links`.
+- `scripts/tests/test_agent_runtime_ingress.py::test_coder_pane_serves_without_display`
+  — `test_coder_pane_serves_without_display`;
+  `scripts/tests/test_agent_runtime_ingress.py::opencode_server` —
+  `opencode_server`;
+  `scripts/tests/test_agent_runtime_ingress.py::test_opencode_rejects_api_requests_without_its_password`
+  — `test_opencode_rejects_api_requests_without_its_password`;
+  `scripts/tests/test_agent_runtime_ingress.py::test_opencode_serves_its_web_ui_and_websockets_at_the_root`
+  — `test_opencode_serves_its_web_ui_and_websockets_at_the_root`.
+- `scripts/tests/test_agent_runtime_acceptance.py::Runtime.api` — `Runtime.api`;
+  `scripts/tests/test_agent_runtime_acceptance.py::test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`
+  — `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`;
+  `scripts/tests/test_agent_runtime_acceptance.py::test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images`
   —
   `test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images`;
-  `:568` — `test_upgrade_from_the_previous_image_keeps_user_state`; `:585` —
-  `test_concurrent_projects_share_codex_auth_but_not_sessions`; `:626` —
-  `test_crashed_and_hung_services_recover`.
-- `README.md:114-118` — login sharing; `:137` — the auth volume's storage row.
-- `docs/knowledge/data/architecture/standalone-opencode-runtime.md:53-58` — the
-  shared-credential decision.
-
-Verified anchor points (line numbers as of 2026-10-20):
-
+  `scripts/tests/test_agent_runtime_acceptance.py::test_upgrade_from_the_previous_image_keeps_user_state`
+  — `test_upgrade_from_the_previous_image_keeps_user_state`;
+  `scripts/tests/test_agent_runtime_acceptance.py::test_concurrent_projects_share_codex_auth_but_not_sessions`
+  — `test_concurrent_projects_share_codex_auth_but_not_sessions`;
+  `scripts/tests/test_agent_runtime_acceptance.py::test_crashed_and_hung_services_recover`
+  — `test_crashed_and_hung_services_recover`.
+- `README.md#proxy-password-and-logins › "Claude Code and Codex logins live on the shared"`
+  — login sharing;
+  `README.md#identity-and-storage › "| Shared Claude and Codex logins |"` — the
+  auth volume's storage row.
+- `docs/knowledge/data/architecture/standalone-opencode-runtime.md#identity-and-state › "copying files into it, and is initialized after mounts."`
+  — the shared-credential decision.
 - `.github/workflows/opencode-runtime-checks.yml` — the pinned-acceptance
   workflow Task 23 removes.
-- `.github/renovate.json:55` — the `agent-opencode` rule's description, naming
-  that workflow.
-- `scripts/tests/test_agent_runtime_ci.py:14-15` — `CHECKS`; `:57` —
-  `test_the_runtime_builds_on_the_same_run_desktop_digest`; `:70` —
-  `test_the_runtime_gets_its_own_manifest_and_native_acceptance`; `:86` and
-  `:100` — the pin-check tests.
-- `README.md:86` — the pin's Renovate sentence.
-
-Verified anchor points (line numbers as of 2026-10-23):
-
-- `.devcontainer/scripts/runtime-supervisor.py:71` — `skip_xpra`, truthy on any
-  nonempty value; `:93-102` — `SERVICES`, with `index` gating `xpra` and
-  `opencode`; `:203-216` — `run_oneshot` raising `TerminalFailure`; `:255-271` —
-  `recover`; `:274-286` — `startup`; `:322-326` — `fail_terminally`; `:352-397`
-  — `run`, which clears the failure and ready files and exits `1`.
-- `.devcontainer/scripts/runtime-workspace.sh:73-84` — `cmd_project`; `:107-115`
+- `.github/renovate.json › "agent-opencode is built by this repository's own pipeline"`
+  — the `agent-opencode` rule's description, naming that workflow.
+- `scripts/tests/test_agent_runtime_ci.py::CHECKS_PATH` — `CHECKS`;
+  `scripts/tests/test_agent_runtime_ci.py::test_deployment_files_do_not_trigger_the_image_build`
+  — `test_the_runtime_builds_on_the_same_run_desktop_digest`;
+  `scripts/tests/test_agent_runtime_ci.py::test_the_runtime_builds_on_the_same_run_desktop_digest`
+  — `test_the_runtime_gets_its_own_manifest_and_native_acceptance`;
+  `scripts/tests/test_agent_runtime_ci.py::test_the_runtime_gets_its_own_manifest_and_native_acceptance`
+  and
+  `scripts/tests/test_agent_runtime_ci.py::test_the_merge_pushes_only_the_candidate_tag`
+  — the pin-check tests.
+- `README.md#launch › "](opencode-compose-pins.yml), which Renovate advances to"`
+  — the pin's Renovate sentence.
+- `.devcontainer/scripts/runtime-supervisor.py::read_json` — `skip_xpra`, truthy
+  on any nonempty value;
+  `.devcontainer/scripts/runtime-supervisor.py::SettingsParser.boolean` —
+  `SERVICES`, with `index` gating `xpra` and `opencode`;
+  `.devcontainer/scripts/runtime-supervisor.py::Captured.__init__` —
+  `run_oneshot` raising `TerminalFailure`;
+  `.devcontainer/scripts/runtime-supervisor.py::SERVICES` — `recover`;
+  `.devcontainer/scripts/runtime-supervisor.py::Latched` — `startup`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.stop` —
+  `fail_terminally`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.publish` — `run`,
+  which clears the failure and ready files and exits `1`.
+- `.devcontainer/scripts/runtime-workspace.sh::cmd_checkout` — `cmd_project`;
+  `.devcontainer/scripts/runtime-workspace.sh › "The supervisor's core phase: OpenCode starts only once this"`
   — `cmd_prepare`.
-- `.devcontainer/scripts/runtime-health.sh:34` — `ready`, a marker-file check.
-- `.devcontainer/scripts/setup-agent-state.sh:31-39` — `install_cbm`; `:69-78` —
-  `cmd_create`, installing CBM before the Codex link; `:80-85` — `cmd_catalog`.
-- `.devcontainer/scripts/reinstall-agentdev-codex.sh:58-64` — unconditional
-  marketplace and plugin remove and re-add.
-- `.devcontainer/scripts/setup-pre-commit.sh:18-33` — standalone
-  `pre-commit install --install-hooks`.
-- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47-70` — `repair`,
-  returning unchanged content without both markers.
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:79` — repair call; `:82`
+- `.devcontainer/scripts/runtime-health.sh › "esac"` — `ready`, a marker-file
+  check.
+- `.devcontainer/scripts/setup-agent-state.sh::link_claude_json` —
+  `install_cbm`; `.devcontainer/scripts/setup-agent-state.sh::link_auth` —
+  `cmd_create`, installing CBM before the Codex link;
+  `.devcontainer/scripts/setup-agent-state.sh::cmd_create` — `cmd_catalog`.
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh › "$(jq -er '.plugins[0].source.path"`
+  — unconditional marketplace and plugin remove and re-add.
+- `.devcontainer/scripts/setup-pre-commit.sh › "Standalone startup fails on any hook problem instead of"`
+  — standalone `pre-commit install --install-hooks`.
+- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py::canonical_tables` —
+  `repair`, returning unchanged content without both markers.
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › "${CODEX_HOME:-$HOME/.codex}"`
+  — repair call;
+  `.devcontainer/scripts/codebase-memory-mcp-install.sh › "-e $codex_home/hooks.json ]] || echo '{}' >"`
   — `codebase-memory-mcp install -y --force`.
-- `.devcontainer/scripts/codebase-memory-mcp-index.sh:16` and
-  `.devcontainer/scripts/codebase-memory-mcp-start.sh:19` — blocking
-  `index_repository`; `.devcontainer/scripts/postAttachCommand.sh:8` — the index
-  call.
-- `.devcontainer/scripts/runtime-cbm.sh:18` — `AGENTDEV_CBM_INDEX_TIMEOUT`;
-  `:154-158` — `cmd_index`.
-- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:112` — the
-  bridge's `--async true` index request.
-- `docker/opencode/supervisord.conf:23-34` — controller listener; `:130-144` —
-  the `index` program.
-- `docker/opencode/agent-opencode.Dockerfile:61-62` — `HEALTHCHECK` with a 30m
-  start period.
-- `compose.opencode.yml:8` — `restart: unless-stopped`; `:21` —
-  `ENABLE_FIREWALL` defaulting to `false`.
-- `.pre-commit-config.yaml:52-60` — Go-language gitleaks and actionlint hooks.
-- `ansible/roles/dev_tools/defaults/main.yml:18-29` — `dev_tools_pinned_tools`
-  and the zizmor entry; `ansible/roles/dev_tools/tasks/install_pinned_tool.yml`
-  — its installer.
-- `scripts/validate-super-linter-tool-versions.sh:165-169` — gitleaks and
-  actionlint read from pre-commit revisions, zizmor from the dev-tools defaults.
-- `scripts/tests/test_agent_runtime_supervision.py:224`, `:238`, `:267`, `:278`
-  — the exit-`1` assertions Task 25 replaces.
-- `scripts/tests/test_agent_runtime_acceptance.py:447` — the CBM query check;
-  `:524` — `test_preparation_failure_keeps_opencode_unavailable`.
+- `.devcontainer/scripts/codebase-memory-mcp-index.sh` and
+  `.devcontainer/scripts/codebase-memory-mcp-start.sh › ")/codebase-memory-mcp-index.sh"`
+  — blocking `index_repository`;
+  `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/codebase-memory-mcp-index.sh"`
+  — the index call.
+- `.devcontainer/scripts/runtime-cbm.sh › "${AGENTDEV_CBM_POLL_INTERVAL:-2}"` —
+  `AGENTDEV_CBM_INDEX_TIMEOUT`;
+  `.devcontainer/scripts/runtime-cbm.sh::cmd_index` — `cmd_index`.
+- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts › "response(await run([...command"`
+  — the bridge's `--async true` index request.
+- `docker/opencode/supervisord.conf › "serverurl=unix:///run/agentdev/supervisor.sock"`
+  — controller listener;
+  `docker/opencode/supervisord.conf › "redirect_stderr=true"` — the `index`
+  program.
+- `docker/opencode/agent-opencode.Dockerfile › "Healthy only while a live controller reports ready and the"`
+  — `HEALTHCHECK` with a 30m start period.
+- `compose.opencode.yml#services.opencode.restart` — `restart: unless-stopped`;
+  `compose.opencode.yml#services.opencode.environment` — `ENABLE_FIREWALL`
+  defaulting to `false`.
+- `.pre-commit-config.yaml#repos.repo` — Go-language gitleaks and actionlint
+  hooks.
+- `ansible/roles/dev_tools/defaults/main.yml › "have none: they move only with the Super-Linter tool-version"`
+  — `dev_tools_pinned_tools` and the zizmor entry;
+  `ansible/roles/dev_tools/tasks/install_pinned_tool.yml` — its installer.
+- `scripts/validate-super-linter-tool-versions.sh › "configured_versions[gitleaks]=$(pre_commit_rev"`
+  — gitleaks and actionlint read from pre-commit revisions, zizmor from the
+  dev-tools defaults.
+- `scripts/tests/test_agent_runtime_supervision.py::Supervision.wait_for`,
+  `scripts/tests/test_agent_runtime_supervision.py::Supervision.wait_exit`,
+  `scripts/tests/test_agent_runtime_supervision.py::make`,
+  `scripts/tests/test_agent_runtime_supervision.py::started` — the exit-`1`
+  assertions Task 25 replaces.
+- `scripts/tests/test_agent_runtime_acceptance.py::test_enabled_xpra_needs_its_password_to_start`
+  — the CBM query check;
+  `scripts/tests/test_agent_runtime_acceptance.py::test_a_failed_uv_sync_degrades_while_opencode_serves_until_retried`
+  — `test_preparation_failure_keeps_opencode_unavailable`.

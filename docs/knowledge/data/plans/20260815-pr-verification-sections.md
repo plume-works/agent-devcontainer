@@ -91,10 +91,10 @@ assume the neighbouring site does.
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`
 
 - [x] **1. Make the Step 7 section list authoritative and add the two
-  sections.** Rewrite `:100` so the skill states the structure rather than
-  discovering one: drop "Locate the repository's pull request template … start
-  from it" and the no-template fallback wording. In the list at `:105`, replace
-  the `How to Test` entry with `Verification` (closed items, `- [x]` +
+  sections.** Rewrite Step 7's opening so the skill states the structure rather
+  than discovering one: drop "Locate the repository's pull request template …
+  start from it" and the no-template fallback wording. In its section list,
+  replace the `How to Test` entry with `Verification` (closed items, `- [x]` +
   `**Evidence:**`) and `Reviewer Handoff` (open items, `- [ ]` +
   `**Closed by:**`), each defined by tense, and note that `## Verification` is
   often empty when CI covers the change.
@@ -114,28 +114,28 @@ assume the neighbouring site does.
     skill's structure was used and their template was not consulted, and never
     merge or silently ignore. Validator clean (35/35).
 - [x] **3. Rewrite Step 5 to select rather than inventory.** Replace the "Assess
-  Testing Strategy" line (`:88-90`) with instructions to read
-  `.github/workflows/` for what CI already runs on the branch, then keep only
-  what survives both filters — no linter, formatter, image build, or test suite
-  CI executes, and no restatement of a plan's own verification record.
+  Testing Strategy" line with instructions to read `.github/workflows/` for what
+  CI already runs on the branch, then keep only what survives both filters — no
+  linter, formatter, image build, or test suite CI executes, and no restatement
+  of a plan's own verification record.
   - **Evidence:** Step 5 is now "Select What Needs Stating" — reads
     `.github/workflows/`, states both filters (no CI-executed linter, formatter,
     image build or test suite; reference rather than restate a plan's record),
     and sorts the residue by tense into the two Step 7 sections.
 - [x] **4. Add the empty-section and unclosable-item edge cases.** In
-  `## Edge Cases` (`:114-121`), record that an empty `## Verification` under
-  green CI is the expected outcome rather than a gap to fill, and that an item
-  no reviewer can close still belongs under `## Reviewer Handoff` with its
-  closer named. Reconcile the existing "**No tests**: Warn incomplete testing
-  section" bullet, which otherwise contradicts both.
+  `## Edge Cases`, record that an empty `## Verification` under green CI is the
+  expected outcome rather than a gap to fill, and that an item no reviewer can
+  close still belongs under `## Reviewer Handoff` with its closer named.
+  Reconcile the existing "**No tests**: Warn incomplete testing section" bullet,
+  which otherwise contradicts both.
   - **Evidence:** `## Edge Cases` gains **Empty `## Verification`** (expected
     under green CI, not a gap) and **An item nobody reviewing can close** (stays
     in `## Reviewer Handoff` with its closer named). The contradicting **No
     tests** bullet is replaced by **No test covers a change**, which routes to
     `## Reviewer Handoff` and drops the warn-on-thin-section instruction.
-- [x] **5. Update the skill's own template references.** The intro at `:9` and
-  the `## Related Resources` entry at `:125` both name the repository template
-  as the source of structure; both must instead point at the Step 7 list.
+- [x] **5. Update the skill's own template references.** The intro and the
+  `## Related Resources` entry both name the repository template as the source
+  of structure; both must instead point at the Step 7 list.
   - **Evidence:** the intro now says the structure is "defined by Step 7 below,
     which is this skill's own and does not come from any repository file", and
     the `## Related Resources` template bullet is replaced by "The section
@@ -174,7 +174,7 @@ environment location](../architecture/uv-environment-location.md)).
 `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md`
 
 - [x] **7. Rewrite the worked example.** Replace step 4 of
-  `### Recommended Template` (`:75-83`) — the `## How to Test` heading and its
+  `### Recommended Template` — the `## How to Test` heading and its
   three-command example — with both sections in the required shape. The example
   is what most readers copy, so it must show an `**Evidence:**` line and a
   `**Closed by:**` line rather than describe them.
@@ -183,10 +183,10 @@ environment location](../architecture/uv-environment-location.md)).
     `**Closed by:**` item, followed by the rule that neither section may hold
     the other's box type. `validate_agent_files` 35/35, 0 errors;
     `uv run pytest .agents/plugins/agentdev/tests` 14 passed.
-- [x] **8. Update the feedback-loop instruction.** At `:180`, "Update 'How to
-  Test' if testing changes" becomes an instruction naming both sections, and
-  states the direction items travel: work closed since the last review moves
-  from `## Reviewer Handoff` to `## Verification` with its evidence, never the
+- [x] **8. Update the feedback-loop instruction.** "Update 'How to Test' if
+  testing changes" becomes an instruction naming both sections, and states the
+  direction items travel: work closed since the last review moves from
+  `## Reviewer Handoff` to `## Verification` with its evidence, never the
   reverse.
   - **Evidence:** the bullet in `## Responding To Review Feedback` now names
     both sections and states the one-way direction of travel — closed work moves
@@ -197,7 +197,7 @@ environment location](../architecture/uv-environment-location.md)).
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
 
 - [x] **9. Reclassify the template row in the GitHub surface table.** The
-  `.github/pull_request_template.md` row at `:137` currently reads
+  `.github/pull_request_template.md` row currently reads
   `Template | General pull request structure`. It is no longer structure: change
   its coupling text to say it is a stub pointing at the `agentdev` catalog,
   where PR structure now lives. A consumer copying it gets a pointer, not a
@@ -290,29 +290,27 @@ cannot be closed by the session doing the work — see `## Out of scope`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-15):
-
-- `.github/pull_request_template.md:16` — `## How to Test` heading, in the file
-  this plan deletes
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:9` — intro naming
-  the repository template as what the skill fills
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:88-90` — Step 5,
-  "Assess Testing Strategy"
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:100` — Step 7's
-  "Locate the repository's pull request template … start from it", the deference
-  this plan inverts
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:105` — the
-  `**How to Test**: Actual verification performed` entry in the Step 7 section
-  list
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:125` —
-  `## Related Resources` entry pointing at the repository template
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:114-121` —
+- `.github/pull_request_template.md#how-to-test` — `## How to Test` heading, in
+  the file this plan deletes
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#generate-pull-request-description › ". Use [code-review-standards](../code-review-standards/) for"`
+  — intro naming the repository template as what the skill fills
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-5-assess-testing-strategy`
+  — Step 5, "Assess Testing Strategy"
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-7-generate-the-description › "— and start from it, following the wording rules from"`
+  — Step 7's "Locate the repository's pull request template … start from it",
+  the deference this plan inverts
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-7-generate-the-description › "Actual verification performed"`
+  — the `**How to Test**: Actual verification performed` entry in the Step 7
+  section list
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#related-resources › "The repository's pull request template"`
+  — `## Related Resources` entry pointing at the repository template
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#edge-cases` —
   `## Edge Cases`, including the `**No tests**` bullet
-- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:75-83` — step
-  4 of `### Recommended Template`, the worked `## How to Test` example
-- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:180` —
-  `Update "How to Test" if testing changes`, in
+- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#recommended-template › "section with verification steps"`
+  — step 4 of `### Recommended Template`, the worked `## How to Test` example
+- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#responding-to-review-feedback › "if testing changes"`
+  — `Update "How to Test" if testing changes`, in
   `## Responding To Review Feedback`
-- `docs/knowledge/data/architecture/template-boundary.md:137` — the
-  `.github/pull_request_template.md` row in the GitHub surface table, classed
-  `Template`
+- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "| Template | General pull request structure. |"`
+  — the `.github/pull_request_template.md` row in the GitHub surface table,
+  classed `Template`

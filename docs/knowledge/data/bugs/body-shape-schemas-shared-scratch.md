@@ -19,7 +19,7 @@ intermittently while another run of the same suite is in progress:
 
 ``` text
 E       AssertionError: section 'Root cause' not found
-docs/knowledge/tests/test_body_shape_schemas.py:48: AssertionError
+`docs/knowledge/tests/test_body_shape_schemas.py::_section`: AssertionError
 FAILED docs/knowledge/tests/test_body_shape_schemas.py::test_malformed_body_is_rejected[bug-missing-section]
 ```
 
@@ -57,16 +57,16 @@ and no per-run directory was left behind.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `docs/knowledge/tests/test_body_shape_schemas.py:22` — `TMP_ROOT`
-- `docs/knowledge/tests/test_body_shape_schemas.py:82` — `workspace`, the fixed
-  `body-shape-schemas` root and its `rmtree`
-- `docs/knowledge/tests/test_body_shape_schemas.py:92` — `document`, which
-  mutates and restores the lane's first document in place
-- `docs/knowledge/tests/test_plan_release_schema.py:57` — fixed
+- `docs/knowledge/tests/test_body_shape_schemas.py::TMP_ROOT` — `TMP_ROOT`
+- `docs/knowledge/tests/test_body_shape_schemas.py::workspace` — `workspace`,
+  the fixed `body-shape-schemas` root and its `rmtree`
+- `docs/knowledge/tests/test_body_shape_schemas.py::document` — `document`,
+  which mutates and restores the lane's first document in place
+- `docs/knowledge/tests/test_plan_release_schema.py::workspace` — fixed
   `plan-release-schema` root
-- `docs/knowledge/tests/test_iwe_seed.py:76` — fixed `iwe-seed-consumer` root
-- `docs/knowledge/tests/test_pin_metadata_masks.py:94` — the per-run `uuid4`
-  root to follow
-- `.pre-commit-config.yaml:106` — `plan-checkboxes`, which runs the suite
+- `docs/knowledge/tests/test_iwe_seed.py::consumer_workspace` — fixed
+  `iwe-seed-consumer` root
+- `docs/knowledge/tests/test_pin_metadata_masks.py::workspace` — the per-run
+  `uuid4` root to follow
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `plan-checkboxes`, which runs
+  the suite

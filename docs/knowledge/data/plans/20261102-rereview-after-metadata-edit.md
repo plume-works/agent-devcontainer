@@ -291,22 +291,33 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:33`
-  — `USAGE`; `:132` — `reviewed`; `:142` — `requesting_check`; `:162` — `run`;
-  `:211` — the `ALREADY_REVIEWED` return; `:219` — the `ALREADY_REQUESTED`
-  return
-- `.agents/plugins/agentdev/tests/test_request_review.py:29` — `GH_STUB`; `:250`
-  — `test_accepted_review_on_head_toggles_nothing`; `:291` —
-  `test_responder_check_on_head_counts_as_request`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:34` — the
-  `ALREADY_REVIEWED` row
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:230` — "at most once per
-  head SHA"; `:234` — the `ALREADY_REVIEWED` handling in Step 3
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:123` — a
-  metadata-gate body is feedback: update the description, re-request review
-- `docs/knowledge/data/spec/ai-review-refresh.md:45` — Requirement: one AI
-  review trigger per head commit
-- `.github/actions/ai-review-status/action.yml:69` — the gate's accepted states,
-  which include `changes_requested`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::RESPONDER`
+  — `USAGE`;
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::fetch_list`
+  — `reviewed`;
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::finish`
+  — `requesting_check`;
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::edit_times`
+  — `run`;
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::reviewed`
+  — the `ALREADY_REVIEWED` return;
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::requesting_check`
+  — the `ALREADY_REQUESTED` return
+- `.agents/plugins/agentdev/tests/test_request_review.py::STARTED_AT` —
+  `GH_STUB`;
+  `.agents/plugins/agentdev/tests/test_request_review.py::test_assigned_author_is_removed_then_added_back`
+  — `test_accepted_review_on_head_toggles_nothing`;
+  `.agents/plugins/agentdev/tests/test_request_review.py::test_accepted_review_on_head_toggles_nothing`
+  — `test_responder_check_on_head_counts_as_request`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-the-request`
+  — the `ALREADY_REVIEWED` row
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery › "toggles the author's assignment at most once per head"`
+  — "at most once per head SHA";
+  `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery › "accepted review newer than the last title or description"`
+  — the `ALREADY_REVIEWED` handling in Step 3
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "stops before its inline passes when the PR"`
+  — a metadata-gate body is feedback: update the description, re-request review
+- `docs/knowledge/data/spec/ai-review-refresh.md#requirement-one-ai-review-trigger-per-head-commit`
+  — Requirement: one AI review trigger per head commit
+- `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
+  — the gate's accepted states, which include `changes_requested`

@@ -534,75 +534,105 @@ ships after this plan.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py:35-40` —
-  `MAP_STALE`, `MAP_CHECK_FAILED`, `MAP_CHECK_SCRIPT`
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py:47-76` —
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py::MAP_STALE`
+  — `MAP_STALE`, `MAP_CHECK_FAILED`, `MAP_CHECK_SCRIPT`
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py::USAGE` —
   usage text, `--skip-map-check`, `MAP_CHECK=` output, result codes 6 and 7
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py:101` —
-  `--skip-map-check` parsing
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py:132-179` —
-  `check_map_freshness`
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py:310-311` —
-  result names
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:224-258` — map check note,
-  result codes, `--skip-map-check`, `MAP_STALE` refresh
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:136` — `MAP_STALE`
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:43` — stale-map IGNORE
-  rule
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:113-117` — stale map
-  docs audit item
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:29-32` — map deferral
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md:30`, `:57`, `:90` —
-  `iwe-map` as a next step
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:36`
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py::parse_arguments`
+  — `--skip-map-check` parsing
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py::check_map_freshness`
+  — `check_map_freshness`
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py › "MAP_STALE: 'MAP_STALE"`
+  — result names
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch › "no remote commit would be lost, and runs no codebase-map"`
+  — map check note, result codes, `--skip-map-check`, `MAP_STALE` refresh
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-3-push-the-updated-branch › "which refreshes the codebase map"`
+  — `MAP_STALE`
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "no longer matches their sources) when the repository's CI"`
+  — stale-map IGNORE rule
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "doc, commits touching its"`
+  — stale map docs audit item
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps › "where you'd be guessing. (The deep"`
+  — map deferral
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md#safety-rules › "from this skill, and"`,
+  `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md#workflow-3-handle-the-result › "and validated | Report the root. When"`,
+  `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md#completion-criteria › "are reported as next steps and"`
+  — `iwe-map` as a next step
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py::NEXT_SKILLS`
   — `NEXT_SKILLS`
-- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:171` — `NEXT_SKILLS`
-  assertion
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:111`, `:233-245` —
-  setup onboarding, update step 8
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:878`,
-  `:898-901`, `:910-913`, `:1182-1184` — map onboarding, greenfield deferral,
-  verification, update-mode note
-- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:330` —
-  `iwe-map` fixture key
-- `.github/workflows/validate-agent-files.yml:45-52` — map-source paths filter
-- `.github/workflows/validate-agent-files.yml:104-105` — staleness CI step
-- `.iwe/config.toml:78-79`, `:101` — codebase schema binding and hub match
-- `docs/knowledge/AGENTS.md:62-66`, `:103-104`, `:224` — refresh loop item,
-  provenance clause, skill row
-- `docs/knowledge/SCHEMA.md:33-41`, `:156-177` — map field examples, map section
-- `docs/knowledge/STRUCTURE.md:25`, `:32`, `:94-107` — schema list, hub list,
-  derived-truth paragraph
-- `docs/knowledge/README.md:81` — `codebase.md codebase/` tree line
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/index.md:32`,
-  `data/log.md:15` — scaffold hub mentions
-- `README.md:304-311`, `.agents/plugins/agentdev/README.md:141`, `:147` — map
-  descriptions and skill rows
-- `docs/knowledge/data/architecture/agent-metadata-files.md:14-34`, `:140-158` —
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py::test_fresh_install_creates_the_packaged_scaffold`
+  — `NEXT_SKILLS` assertion
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "initialized workspace invoke"`,
+  `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "Never re-initialize or re-onboard."`
+  — setup onboarding, update step 8
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#onboard-the-consumers-project-memory`,
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#onboard-the-consumers-project-memory › "the tracker schema; it is not a design decision or a"`,
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#onboard-the-consumers-project-memory › "interview alone, and report mapping as deferred until code"`,
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ongoing-maintenance › "what this skill's update mode is for. After bootstrap"`
+  — map onboarding, greenfield deferral, verification, update-mode note
+- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py::test_check_updates_reports_no_marker_when_section_is_absent`
+  — `iwe-map` fixture key
+- `.github/workflows/validate-agent-files.yml#jobs.paths-filter.steps.Filters.with.extra-filter`
+  — map-source paths filter
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.name`
+  — staleness CI step
+- `.iwe/config.toml › "schemas.codebase]"`, `.iwe/config.toml › "data/codebase"`
+  — codebase schema binding and hub match
+- `docs/knowledge/AGENTS.md#the-operating-loop › "Code structure changed (module added, split, or moved) → the"`,
+  `docs/knowledge/AGENTS.md#conventions › "and no stage; codebase-map docs carry"`,
+  `docs/knowledge/AGENTS.md#workspace-skills › "| Codebase archaeology: writes and refreshes the"`
+  — refresh loop item, provenance clause, skill row
+- `docs/knowledge/SCHEMA.md#fields-every-type-carries › "may be a URL or a repo path, so a codebase map cites"`,
+  `docs/knowledge/SCHEMA.md#codebase-map--datacodebasecanonical-pathmd` — map
+  field examples, map section
+- `docs/knowledge/STRUCTURE.md#layout › "schemas/ # validation schemas: plan, feature, bug, release"`,
+  `docs/knowledge/STRUCTURE.md#layout › "codebase, releases, backlog, someday (+ milestone.md)"`,
+  `docs/knowledge/STRUCTURE.md#design-decisions › "The codebase map is derived truth."`
+  — schema list, hub list, derived-truth paragraph
+- `docs/knowledge/README.md#whats-inside › "├── codebase.md codebase/ # the code map: a component tree +"`
+  — `codebase.md codebase/` tree line
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/index.md#reference › "Codebase](codebase.md) - Codebase maps derived from the"`,
+  `docs/knowledge/data/log.md#2026-10-31 › "lifecycle-scripts doc, and refreshes the Docker, Dev"`
+  — scaffold hub mentions
+- `README.md#iwe-project-memory › "IWE stores product context, architecture, specifications"`,
+  `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "and codebase-map documents. They are the project's memory"`,
+  `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "| Codebase archaeology: writes and refreshes the"`
+  — map descriptions and skill rows
+- `docs/knowledge/data/architecture/agent-metadata-files.md#decision`,
+  `docs/knowledge/data/architecture/agent-metadata-files.md#consumers` —
   decision, consumers, references
-- `docs/knowledge/data/architecture/template-boundary.md:76-78` — root `iwe-map`
-  rules
-- `docs/knowledge/data/architecture/pr-review-correctness-bar.md:54-55` — map
-  review-ignore item
-- `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md:19`, `:33-39`,
-  `:62-63` — source, skill list and Map lane, Setup edge case
-- `docs/knowledge/data/features/consumer-iwe-seed.md:44-48` — onboarding names
-  `iwe-map`
-- `docs/knowledge/data/features/native-stacked-prs.md:68-69` — map check edge
-  case
-- `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md:36-46` —
-  map refresh steps and pin sweep
-- `docs/knowledge/data/backlog/resilient-task-evidence.md:53-55` —
-  `source_digest` alternative
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:654`, `:694`, `:728`, `:792`
+- `docs/knowledge/data/architecture/template-boundary.md#adoption-state › "is classified per top-level key, unlike"`
+  — root `iwe-map` rules
+- `docs/knowledge/data/architecture/pr-review-correctness-bar.md#rule-checking-noise-is-separate › "codebase-map metadata needs a broader review-ignore boundary"`
+  — map review-ignore item
+- `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md › "resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md"`,
+  `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md#behaviour › "The nine workflow skills live in the plugin."`,
+  `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md#edge-cases › "Setup runs on a workspace with code."`
+  — source, skill list and Map lane, Setup edge case
+- `docs/knowledge/data/features/consumer-iwe-seed.md#behaviour › "Onboarding stays separate."`
+  — onboarding names `iwe-map`
+- `docs/knowledge/data/features/native-stacked-prs.md#edge-cases › "A stack branch is pushed."`
+  — map check edge case
+- `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md#scope › "Refresh [agentdev](../codebase/agents/plugins/agentdev.md)"`
+  — map refresh steps and pin sweep
+- `docs/knowledge/data/backlog/resilient-task-evidence.md#make-plan-task-evidence-survive-history-rewrites › "already solved the same problem for map"`
+  — `source_digest` alternative
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-map-derives-the-codebase-lane-from-the-code-and-refreshes-it-incrementally`,
+  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-map-staleness-reflects-described-content`,
+  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-map-masks-a-version-only-change-before-refreshing`,
+  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-an-agent-push-carries-a-fresh-codebase-map`
   — the four removed requirements
-- `docs/knowledge/data/spec/iwe-bootstrap.md:66-77` — onboarding separation
-- `docs/knowledge/data/spec/template-consumption.md:322-352` — fresh adoption
-- `.iwe/schemas/task.yaml:11-13` — task `stage` enum
-- `docs/knowledge/SCHEMA.md:46-55`, `:146` — `stage` versus `status` table, task
-  stage comment
-- `docs/knowledge/AGENTS.md:63-64`, `:97` — task-finished loop item, backlog
-  stage vocabulary
-- `docs/knowledge/data/backlog.md:49`, `:63` — stamper link, `## Done`
+- `docs/knowledge/data/spec/iwe-bootstrap.md#scenario-installation-is-interrupted › "a later invocation can safely remove or complete only that"`
+  — onboarding separation
+- `docs/knowledge/data/spec/template-consumption.md#requirement-fresh-iwe-adoption-initializes-consumer-memory`
+  — fresh adoption
+- `.iwe/schemas/task.yaml#frontmatter.properties.stage` — task `stage` enum
+- `docs/knowledge/SCHEMA.md#stage-versus-status › "value | set"`,
+  `docs/knowledge/SCHEMA.md#backlog-tasks--databacklogslugmd › "type: task # required"`
+  — `stage` versus `status` table, task stage comment
+- `docs/knowledge/AGENTS.md#the-operating-loop › "on the task doc, link moved to"`,
+  `docs/knowledge/AGENTS.md#conventions › "proposed|accepted|implemented|deprecated|cancelled"`
+  — task-finished loop item, backlog stage vocabulary
+- `docs/knowledge/data/backlog.md#low › "Smoke-test the agentdev-base catalog without lifecycle"`,
+  `docs/knowledge/data/backlog.md#done › "Exercise the saved Verify report end to"`
+  — stamper link, `## Done`

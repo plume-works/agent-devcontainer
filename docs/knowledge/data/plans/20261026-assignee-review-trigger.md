@@ -179,8 +179,8 @@ Rejected:
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
   - **Evidence:** commit "Document the assignee toggle as the AI re-review
-    trigger" — `pr-review/SKILL.md` lines 14 and 87; the validator reported
-    64/64 skills valid, 0 errors, 0 warnings.
+    trigger" — `pr-review/SKILL.md`'s description and re-review step; the
+    validator reported 64/64 skills valid, 0 errors, 0 warnings.
 
 ### Task 5: Assignment reviews on a live pull request
 
@@ -474,31 +474,38 @@ branch does not declare is rejected on the key alone, whatever its value.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
-
-- `.github/workflows/ai-responder.yml:95` — preflight `if:`, excluding
-  bot-authored and fork `pull_request` events
-- `.github/workflows/ai-responder.yml:253` — preflight failure for an empty-task
-  dispatch
-- `.github/workflows/ai-responder.yml:261` — skip-marker check
-- `.github/workflows/ai-responder.yml:267` — actions that always review,
-  including `assigned`
-- `.github/workflows/ai-responder.yml:275` — `reviewEffort` from the body marker
-- `.github/workflows/ai-responder.yml:348` — `bridge` job
-- `.github/workflows/ai-responder.yml:360` — bridge `pull-requests: write`
-- `.github/workflows/ai-responder.yml:376` — bridge rejection of
-  `@claude review`
-- `.github/workflows/ai-responder.yml:400` — bridge task dispatch
-- `.github/workflows/ai-responder.yml:507` — `ai-review-present` `if:`
-- `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`, the only
-  accepted reviewers
-- `.github/actions/ai-review-status/action.yml:97` — failure message
-- `README.md:318` — assignee-toggle re-review instruction
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:420`
+- `.github/workflows/ai-responder.yml#jobs.preflight.if` — preflight `if:`,
+  excluding bot-authored and fork `pull_request` events
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — preflight failure for an empty-task dispatch
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — skip-marker check
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — actions that always review, including `assigned`
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — `reviewEffort` from the body marker
+- `.github/workflows/ai-responder.yml#jobs.bridge` — `bridge` job
+- `.github/workflows/ai-responder.yml#jobs.bridge.permissions.pull-requests` —
+  bridge `pull-requests: write`
+- `.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script`
+  — bridge rejection of `@claude review`
+- `.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script.task`
+  — bridge task dispatch
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.if` —
+  `ai-review-present` `if:`
+- `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
+  — `claudeLogins`, the only accepted reviewers
+- `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
+  — failure message
+- `README.md#pull-request-automation › "request branch's own catalog, so changes to agent workflows"`
+  — assignee-toggle re-review instruction
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate › "AI review and stays blocked, mergeable only by a user with"`
   — untrusted-bot note
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:448`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate › "a blanket review-every-push would be prohibitively"`
   — re-review by assignee toggle
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:14` — trigger example
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:87` — effort-tier source
-- `docs/knowledge/data/features/ai-responder-workflows.md:70` — gate acceptance
-  and re-review paragraph
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#when-to-use-this-skill › "Someone explicitly asks for a review of a pull request (for"`
+  — trigger example
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "marker alone on a line of the PR body, its only source, and"`
+  — effort-tier source
+- `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "The gate accepts any Claude review, past or present."`
+  — gate acceptance and re-review paragraph

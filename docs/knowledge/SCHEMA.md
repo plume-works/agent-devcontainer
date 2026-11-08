@@ -87,8 +87,8 @@ version; a done plan without `released` waits for the next cut.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
 `**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
-`## Verification`, `## Out of scope`, `## Key references` (dated
-`path:line — symbol` anchors). Its link in `data/plans.md` never moves.
+`## Verification`, `## Out of scope`, `## Key references` (anchors, never line
+numbers). Its link in `data/plans.md` never moves.
 
 ## Features — `data/features/<slug>.md`
 

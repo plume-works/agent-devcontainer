@@ -649,64 +649,74 @@ anchor format; re-locate every anchor below once they have shipped.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-08):
-
-- `.iwe/schemas/task.yaml:8` — `required: [type, stage, created]`
-- `.iwe/schemas/task.yaml:11` — `stage` enum
-- `.iwe/schemas/bug.yaml:38` — `enum: [pending, planned, done, cancelled]`
-- `.iwe/schemas/plan.yaml:15` — `rank`
-- `.iwe/schemas/plan.yaml:27` — `released`
-- `.iwe/schemas/plan.yaml:31` — `release`
-- `.iwe/schemas/tracker.yaml:11` — `stage: { const: living }`
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:52` — step 2 "Resolve
-  decisions"
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:62` — step 4 "Write
-  planning state" (frontmatter with `release`)
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:134` — step 5 "File a
-  created plan" (rank, features accepted, bugs planned, task done)
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:49` — step 1 "Select the
-  operation and inspect current state"
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:64` — step 2 "Cancel
-  without shipping"
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:129` — step 6 "Apply
-  frontmatter transitions idempotently"
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:150` — step 8 "Cut a
-  release only when the operation is `release <X.Y.Z>`"
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:18` — release cut input
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:49` — step 3 **task**
-  gate
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:57` — step 4 "Write the
-  document"
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:94` —
-  `## Promoting a someday idea`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:44` — step 3 "Check
-  `## Depends on`"
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:45` — step 2 "Select
-  the plan"
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:132` — "Ready to build"
-  handoff
-- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:14` — "Shipped" query
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:47` — onboarding task
-  closing step
-- `docs/knowledge/SCHEMA.md:42` — `## The build order — rank`
-- `docs/knowledge/SCHEMA.md:72` — `## Plans`
-- `docs/knowledge/SCHEMA.md:112` — `## Bugs`
-- `docs/knowledge/SCHEMA.md:156` — `## Backlog tasks`
-- `docs/knowledge/STRUCTURE.md:64` — "The funnel"
-- `docs/knowledge/STRUCTURE.md:87` — "Milestones are plans of plans"
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:211` — Requirement: Plans
-  declare their release impact
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:902` — Requirement: Capture
-  files complete inbox documents
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:957` — Requirement: Bug and
-  feature documents keep the SCHEMA.md shape
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:133` — Requirement: The
-  checkbox format is mechanically gated
-- `docs/knowledge/tests/test_plan_checkboxes.py:198` — the `stage == 'done'`
-  branch
-- `docs/knowledge/tests/test_released_stamp.py:45` —
-  `test_stamps_name_a_release_and_cover_every_older_plan`
-- `docs/knowledge/tests/test_plan_release_schema.py:100` —
-  `test_active_plan_without_valid_release_is_rejected`
-- `docs/knowledge/tests/test_rank_and_base_schemas.py:77` — lane parameters
-  `['plans', 'bugs', 'backlog']`
+- `.iwe/schemas/task.yaml#frontmatter.required` —
+  `required: [type, stage, created]`
+- `.iwe/schemas/task.yaml#frontmatter.properties.stage` — `stage` enum
+- `.iwe/schemas/bug.yaml#frontmatter.properties.stage.enum` —
+  `enum: [pending, planned, done, cancelled]`
+- `.iwe/schemas/plan.yaml#frontmatter.properties.rank` — `rank`
+- `.iwe/schemas/plan.yaml#frontmatter.properties.released` — `released`
+- `.iwe/schemas/plan.yaml#frontmatter.properties.release` — `release`
+- `.iwe/schemas/tracker.yaml#frontmatter.properties.stage` —
+  `stage: { const: living }`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "A choice is material when it affects scope"`
+  — step 2 "Resolve decisions"
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Write planning state."`
+  — step 4 "Write planning state" (frontmatter with `release`)
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "In create mode, add an inclusion link at its"`
+  — step 5 "File a created plan" (rank, features accepted, bugs planned, task
+  done)
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Select the operation and inspect current state."`
+  — step 1 "Select the operation and inspect current state"
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Do not verify implementation, synchronize"`
+  — step 2 "Cancel without shipping"
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "and skip a result that is already correct."`
+  — step 6 "Apply frontmatter transitions idempotently"
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Cut a release only when the operation is"`
+  — step 8 "Cut a release only when the operation is `release <X.Y.Z>`"
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#steps › "or its file path. A release cut takes none."`
+  — release cut input
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "— an H1, a body that states the work and why it matters, a"`
+  — step 3 **task** gate
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "data/features/<slug>.md"`
+  — step 4 "Write the document"
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#promoting-a-someday-idea`
+  — `## Promoting a someday idea`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Every prerequisite plan must carry"`
+  — step 3 "Check `## Depends on`"
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "If the plan key resolves to no plan or to more than"`
+  — step 2 "Select the plan"
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing › "Ready to build → hand off to the"`
+  — "Ready to build" handoff
+- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "Plans completed in the last 7 days"`
+  — "Shipped" query
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps › "iwe update -k data/backlog/<slug> --set stage=done --set"`
+  — onboarding task closing step
+- `docs/knowledge/SCHEMA.md#the-build-order--rank › "yaml"` —
+  `## The build order — rank`
+- `docs/knowledge/SCHEMA.md#plans--dataplansyyyymmdd-slugmd › "type: plan # required"`
+  — `## Plans`
+- `docs/knowledge/SCHEMA.md#bugs--databugsslugmd › "type: bug # required"` —
+  `## Bugs`
+- `docs/knowledge/SCHEMA.md#backlog-tasks--databacklogslugmd › "type: task # required"`
+  — `## Backlog tasks`
+- `docs/knowledge/STRUCTURE.md#design-decisions › "Ideas harden stepwise"` —
+  "The funnel"
+- `docs/knowledge/STRUCTURE.md#design-decisions › "An aggregator plan inclusion-links its child"`
+  — "Milestones are plans of plans"
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-declare-their-release-impact › "or a non-empty list of the"`
+  — Requirement: Plans declare their release impact
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-capture-files-complete-inbox-documents › "backlog-task documents, SHALL refuse a document missing any"`
+  — Requirement: Capture files complete inbox documents
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-bug-and-feature-documents-keep-the-schemamd-shape › "H1 and its Symptom, Reproduction, and Root cause sections"`
+  — Requirement: Bug and feature documents keep the SCHEMA.md shape
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-the-checkbox-format-is-mechanically-gated › "not only the first. It SHALL run from the repository's"`
+  — Requirement: The checkbox format is mechanically gated
+- `docs/knowledge/tests/test_plan_checkboxes.py::check_plan` — the
+  `stage == 'done'` branch
+- `docs/knowledge/tests/test_released_stamp.py::test_stamps_name_a_release_and_cover_every_older_plan`
+  — `test_stamps_name_a_release_and_cover_every_older_plan`
+- `docs/knowledge/tests/test_plan_release_schema.py::test_active_plan_without_valid_release_is_rejected`
+  — `test_active_plan_without_valid_release_is_rejected`
+- `docs/knowledge/tests/test_rank_and_base_schemas.py › "@pytest.fixture(params=['plans', 'bugs', 'backlog'])"`
+  — lane parameters `['plans', 'bugs', 'backlog']`

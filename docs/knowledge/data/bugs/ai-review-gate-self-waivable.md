@@ -57,11 +57,9 @@ The contract is in [AI review gate](../spec/ai-review-gate.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-12):
-
-- `.github/workflows/ai-responder.yml:184-185` — the marker read, now output as
-  `skipAiReview`
-- `.github/workflows/ai-responder.yml:251-259` — the only consumer: the review
-  responder's `wantsReview`
-- `.github/workflows/ai-responder.yml:477-480` — the gate's `if:`, with no
-  marker term
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine checkout ref.with.script`
+  — the marker read, now output as `skipAiReview`
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — the only consumer: the review responder's `wantsReview`
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.if` — the gate's
+  `if:`, with no marker term

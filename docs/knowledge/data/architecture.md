@@ -92,6 +92,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Label review triggers](architecture/label-review-triggers.md)
 
+[Line-free anchors](architecture/line-free-anchors.md)
+
 [Manual stacked pull requests](architecture/manual-stacked-prs.md)
 
 [Module layout](architecture/module-layout.md)

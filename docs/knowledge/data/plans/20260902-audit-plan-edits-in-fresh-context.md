@@ -294,15 +294,23 @@ the audit scope and the plan file, before the edit is validated.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-02, re-verified 2026-09-02):
-
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:29 — Do not audit: data/plans/ (exclusion to reconcile)`
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:34 — Diff scope (caller-scoped report-only precedent)`
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:98 — Diff scope stops here (report-only contract)`
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:107 — Step 6 Check coherence`
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:111 — Step 7 Validate and stop (gate goes before this)`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:42 — Evidence child, "specifically enough that a later session can go look"`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:101 — the only route that may edit plan intent`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:36 — untraceable evidence is a CRITICAL`
-- `.agents/plugins/agentdev/agents/tdd-red.agent.md:10 — autonomous-subagent stance to reuse`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:175 — Requirement: Plans record intent, not the path taken to it`
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope › "data/releases/"`
+  — Do not audit: data/plans/ (exclusion to reconcile)`
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope › "When a caller runs this skill over a diff, the candidate set"`
+  — Diff scope (caller-scoped report-only precedent)`
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#4-report-then-apply › "In diff mode the skill is report-only: it produces"`
+  — Diff scope stops here (report-only contract)`
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "Re-read the complete plan as a future implementer."`
+  — Step 6 Check coherence`
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "iwe schema validate"`
+  — Step 7 Validate and stop (gate goes before this)`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#steps › "look. Cite what survives the session, not what it produced"`
+  — Evidence child, "specifically enough that a later session can go look"`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#capturing-what-implementation-turns-up › "skill (Step 6), which is the only route that may edit"`
+  — the only route that may edit plan intent`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#steps › "traceable evidence: raw command stdout transcribed as"`
+  — untraceable evidence is a CRITICAL`
+- `.agents/plugins/agentdev/agents/tdd-red.agent.md#tdd-red-phase---write-failing-tests-first › "any implementation exists. You run autonomously as a"`
+  — autonomous-subagent stance to reuse`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-record-intent-not-the-path-taken-to-it`
+  — Requirement: Plans record intent, not the path taken to it`

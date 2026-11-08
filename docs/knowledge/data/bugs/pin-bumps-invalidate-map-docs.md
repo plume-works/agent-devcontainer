@@ -93,14 +93,12 @@ happens to hold a digest.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
-
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:123-138` —
-  `source_digest_for_paths`, the whole-file `git hash-object` fingerprint
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:192-194` —
-  the digest comparison that emits `STALE`
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:203` — why the digest is not
-  a commit SHA
-- `.github/renovate.json:9-27` — the two automerged bump classes
-- `docs/knowledge/data/codebase/devcontainer.md:4-6` — a directory-scoped
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::scalar_field`
+  — `source_digest_for_paths`, the whole-file `git hash-object` fingerprint
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::read_metadata`
+  — the digest comparison that emits `STALE`
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#frontmatter › "sources"` —
+  why the digest is not a commit SHA
+- `.github/renovate.json › "packageRules"` — the two automerged bump classes
+- `docs/knowledge/data/codebase/devcontainer.md › "source"` — a directory-scoped
   `source` listing the pin file

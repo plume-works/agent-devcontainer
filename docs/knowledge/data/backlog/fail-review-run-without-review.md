@@ -50,9 +50,7 @@ concurrent run's review cannot satisfy that check.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
-
-- `.github/workflows/ai-responder.yml:74` — `concurrency`, the per-comment and
-  per-PR groups, with `cancel-in-progress` at line 82
-- `.github/workflows/ai-responder.yml:509` — `ai-review-present`, the gate that
-  accepts an earlier review
+- `.github/workflows/ai-responder.yml#concurrency` — `concurrency`, the
+  per-comment and per-PR groups, with `cancel-in-progress`
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present`, the gate that accepts an earlier review

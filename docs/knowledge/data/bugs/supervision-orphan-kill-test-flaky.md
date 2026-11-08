@@ -66,17 +66,16 @@ matches the bootstrap-kill test, which already waited that way.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-27):
-
-- `scripts/tests/test_agent_runtime_supervision.py:51` — the fake service's
-  `with-child` mode
-- `scripts/tests/test_agent_runtime_supervision.py:695` —
-  `test_recovery_kills_what_a_crashed_service_left_in_its_group`; `:703` — the
-  wait for the orphan to stop running
-- `scripts/tests/test_agent_runtime_supervision.py:638` —
-  `test_sigterm_stops_in_dependency_order_and_reaps_process_groups`
-- `scripts/tests/test_agent_runtime_supervision.py:827` — `running`
-- `.devcontainer/scripts/runtime-supervisor.py:349` — `Controller.restart`'s
-  `os.killpg`
-- `.devcontainer/scripts/runtime-supervisor.py:227` — `Captured.wait` joining
-  the output reader
+- `scripts/tests/test_agent_runtime_supervision.py::FAKE_SERVICE` — the fake
+  service's `with-child` mode
+- `scripts/tests/test_agent_runtime_supervision.py::test_recovery_kills_what_a_crashed_service_left_in_its_group`
+  — `test_recovery_kills_what_a_crashed_service_left_in_its_group`;
+  `scripts/tests/test_agent_runtime_supervision.py::test_recovery_kills_what_a_crashed_service_left_in_its_group`
+  — the wait for the orphan to stop running
+- `scripts/tests/test_agent_runtime_supervision.py::test_sigterm_stops_in_dependency_order_and_reaps_process_groups`
+  — `test_sigterm_stops_in_dependency_order_and_reaps_process_groups`
+- `scripts/tests/test_agent_runtime_supervision.py::running` — `running`
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.restart` —
+  `Controller.restart`'s `os.killpg`
+- `.devcontainer/scripts/runtime-supervisor.py::Captured.wait` — `Captured.wait`
+  joining the output reader

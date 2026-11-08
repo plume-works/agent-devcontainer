@@ -517,26 +517,38 @@ lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
-
-- `.devcontainer/scripts/coder-agent-start.sh:9-21` — prune, credential helper,
-  OpenCode start, `exec` of Remote Control
-- `.devcontainer/scripts/opencode-web-start.sh:13` — `workspace`; `:29-32` —
-  live-session reuse; `:48` — start message
-- `.devcontainer/scripts/claude-remote-control-start.sh:29` — `session`; `:37` —
-  live-session check; `:43` — `tmux_start`
-- `.devcontainer/scripts/link-codex-auth.sh:19-31` — move-then-symlink of a
-  shared `auth.json`
-- `.devcontainer/scripts/postCreateCommand.sh:72-73` — shared auth
-  subdirectories; `:79` — `link-codex-auth.sh`
-- `.devcontainer/scripts/postStartCommand.sh:27` — `link-codex-auth.sh`
-- `.devcontainer/devcontainer.json:60` — `mounts`; `:97-99` — `agentdev-codex`
-  mount
-- `scripts/tests/test_coder_agent_start.py:14` — `run_agent_start`; `:47` —
-  call-order test
-- `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`
-- `docs/knowledge/data/spec/catalog-lifecycle.md:122` — credential-sharing
-  requirement
-- plume-works/coder-ide-baseline `template/main.tf:207-211` (commit 473d64a) —
-  `coder_devcontainer.repo`; `:215-223` — `module "vscode-web"` on the
-  sub-agent; `:227-239` — `coder_script.agent_start`
+- `.devcontainer/scripts/coder-agent-start.sh › "$script_dir/docker-image-prune.sh"`
+  — prune, credential helper, OpenCode start, `exec` of Remote Control
+- `.devcontainer/scripts/opencode-web-start.sh › "${DEV_WORKSPACE_FOLDER:-$PWD}"`
+  — `workspace`;
+  `.devcontainer/scripts/opencode-web-start.sh › "2>/dev/null; then"` —
+  live-session reuse;
+  `.devcontainer/scripts/opencode-web-start.sh › "Started OpenCode web in tmux session '$session' on"`
+  — start message
+- `.devcontainer/scripts/claude-remote-control-start.sh › "claude-remote"` —
+  `session`;
+  `.devcontainer/scripts/claude-remote-control-start.sh › "2>/dev/null; then"` —
+  live-session check;
+  `.devcontainer/scripts/claude-remote-control-start.sh › "start-server \; new-session -d -s"`
+  — `tmux_start`
+- `.devcontainer/scripts/link-codex-auth.sh › "/root/.agents-auth/codex"` —
+  move-then-symlink of a shared `auth.json`
+- `.devcontainer/scripts/postCreateCommand.sh › "mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex"`
+  — shared auth subdirectories;
+  `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/link-codex-auth.sh"`
+  — `link-codex-auth.sh`
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/link-codex-auth.sh"`
+  — `link-codex-auth.sh`
+- `.devcontainer/devcontainer.json › "mounts"` — `mounts`;
+  `.devcontainer/devcontainer.json › "agentdev-codex"` — `agentdev-codex` mount
+- `scripts/tests/test_coder_agent_start.py::run_agent_start` —
+  `run_agent_start`;
+  `scripts/tests/test_coder_agent_start.py::test_prune_helper_and_opencode_run_before_remote_control`
+  — call-order test
+- `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux` —
+  `run_with_fake_tmux`
+- `docs/knowledge/data/spec/catalog-lifecycle.md#requirement-only-agent-credentials-are-shared-across-worktrees`
+  — credential-sharing requirement
+- plume-works/coder-ide-baseline `template/main.tf` (commit 473d64a) —
+  `coder_devcontainer.repo`, `module "vscode-web"` on the sub-agent, and
+  `coder_script.agent_start`

@@ -22,10 +22,11 @@ byte-identical digests and emits identical `RESULT=` lines is provable against
 the suite that already exists; once it is in, any digest mismatch in the masking
 work is unambiguously a masking defect.
 
-The port also removes a duplicate. `test_stale_map_docs.py:38-61` reimplements
-the digest algorithm in Python so it can assert against the bash original — a
-second copy that masking would have to grow too. A Python script lets the test
-import the function instead.
+The port also removes a duplicate.
+`.agents/plugins/agentdev/tests/test_stale_map_docs.py::git` reimplements the
+digest algorithm in Python so it can assert against the bash original — a second
+copy that masking would have to grow too. A Python script lets the test import
+the function instead.
 
 `stale-map-docs.sh` is the first script in the catalog that wants Python; every
 other script under `skills/*/scripts/` is bash, and the ones that report a
@@ -87,7 +88,7 @@ and inline Python inside bash is neither testable nor lintable.
 - [x] Install HUP/INT/TERM handlers that emit the result, restore
   `signal.SIG_DFL`, and re-raise with `os.kill`, so the caller sees `-SIGINT`
   rather than a normal exit of 130 — matching `report_signal` at
-  `bin/result-codes.sh:62-72`.
+  `.agents/plugins/agentdev/bin/result-codes.sh::report_signal`.
   - **Evidence:** `test_python_result_codes_preserve_terminating_signals`
     asserts the same `(-signal, 129/130/143, RESULT=SIGNAL_*)` triples as the
     bash case.
@@ -98,8 +99,9 @@ and inline Python inside bash is neither testable nor lintable.
 
 - [x] Add a case asserting the Python helper produces the same
   `(returncode, shell_status, stdout)` triples the existing bash case asserts at
-  `test_result_codes.py:42-46`: negative return codes for HUP/INT/TERM, statuses
-  129/130/143, and the matching `RESULT=SIGNAL_*` line.
+  `.agents/plugins/agentdev/tests/test_result_codes.py::test_canonical_result_codes_preserve_terminating_signals`:
+  negative return codes for HUP/INT/TERM, statuses 129/130/143, and the matching
+  `RESULT=SIGNAL_*` line.
   - **Evidence:** `test_python_result_codes_preserve_terminating_signals` in
     `tests/test_result_codes.py`, asserting the identical triple dict.
 - [x] Assert `RESULT=` is last on a normal-exit path and on an uncaught
@@ -115,15 +117,19 @@ and inline Python inside bash is neither testable nor lintable.
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh`
 
 - [x] Reproduce every stdout line and count key from `usage()` at
-  `stale-map-docs.sh:16-46`: `MAP_DIR`, the per-doc `FRESH`/`STALE`/
+  `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::usage`:
+  `MAP_DIR`, the per-doc `FRESH`/`STALE`/
   `GONE`/`UNKNOWN_COMMIT`/`EXPIRED`/`NO_COMMIT` lines with their exact field
   order, then `DOC_COUNT`, `FRESH_COUNT`, `STALE_COUNT`, `GONE_COUNT`,
   `EXPIRED_COUNT`, then `RESULT=`. Register `3=STALE_FOUND` and `4=NO_MAP_DOCS`
-  as `stale-map-docs.sh:14` does.
+  as
+  `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh › "RESULT_CODES+="`
+  does.
   - **Evidence:** Both scripts run on this checkout produce byte-identical
     stdout over 26 docs (15 fresh, 11 stale) and the same exit 3, in the commit
     that ports the script.
-- [x] Reproduce `source_digest_for_paths` exactly (`stale-map-docs.sh:141-162`):
+- [x] Reproduce `source_digest_for_paths` exactly
+  (`.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::source_digest_for_paths`):
   `git ls-files -z` over the source paths, deduplicated and sorted bytewise,
   each entry contributing `<path>\0<git hash-object output>\0` — or `MISSING`
   for a listed path absent from the worktree — hashed with sha256 and prefixed
@@ -134,7 +140,8 @@ and inline Python inside bash is neither testable nor lintable.
 - [x] Preserve `--library` and `-h/--help`, help text on stdout exiting
   `SUCCESS`, and unknown arguments to stderr exiting `PREFLIGHT_ERROR`. Preserve
   the `.iwe/config.toml` `[library].path` lookup and the not-a-repo and
-  missing-config preflight errors (`stale-map-docs.sh:70-95`).
+  missing-config preflight errors
+  (`.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh › "quit_by_code 2"`).
   - **Evidence:** `--help`, `--bogus`, a valueless `--library`, an explicit
     `--library docs/knowledge`, and a run outside any repository each match the
     shell original's exit code, stdout, and stderr; the only difference is the
@@ -142,12 +149,14 @@ and inline Python inside bash is neither testable nor lintable.
     and `test_missing_iwe_config_is_a_preflight_error`.
 - [x] Preserve the legacy `commit` fallback for docs without `source_digest`,
   including `UNKNOWN_COMMIT` via `git cat-file -e` and the
-  `git log --oneline <commit>..HEAD` touch count (`stale-map-docs.sh:210-232`).
+  `git log --oneline <commit>..HEAD` touch count
+  (`.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh`).
   - **Evidence:** `test_commit_touching_a_source_marks_the_doc_stale` and
     `test_unknown_commit_and_past_stale_after_are_flagged` pass unchanged.
 - [x] Parse frontmatter with a reader that handles quoted scalars containing
   colons and the three `source` shapes (scalar, flow list, block list) that
-  `source_paths` handles at `stale-map-docs.sh:123-139`.
+  `source_paths` handles at
+  `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::source_paths`.
   - **Evidence:** `source_paths` covers all three shapes; the suite exercises
     scalar, flow-list, and block-list `source` values and passes unchanged.
 
@@ -155,14 +164,15 @@ and inline Python inside bash is neither testable nor lintable.
 
 **Files:** Modify: `.agents/plugins/agentdev/tests/test_stale_map_docs.py`
 
-- [x] Change `SCRIPT_PATH` at `test_stale_map_docs.py:11` to the `.py` file.
-  Every existing behavior test passes unchanged — that is the port's acceptance
-  criterion, so do not adjust assertions to fit the port.
+- [x] Change `SCRIPT_PATH` at
+  `.agents/plugins/agentdev/tests/test_stale_map_docs.py › "import sys"` to the
+  `.py` file. Every existing behavior test passes unchanged — that is the port's
+  acceptance criterion, so do not adjust assertions to fit the port.
   - **Evidence:** `uv run pytest .agents/plugins/agentdev/tests` — 48 passed;
     `git diff HEAD` over the test file shows no changed assertion lines.
 - [x] Replace the reimplemented `source_digest` helper at
-  `test_stale_map_docs.py:38-61` with an import of the ported function, so the
-  algorithm has one definition.
+  `.agents/plugins/agentdev/tests/test_stale_map_docs.py::git` with an import of
+  the ported function, so the algorithm has one definition.
   - **Evidence:** the test's `source_digest` now delegates to
     `stale_map_docs.source_digest_for_paths`, loaded by `_load_script_module`.
 
@@ -172,10 +182,14 @@ and inline Python inside bash is neither testable nor lintable.
 `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`;
 `docs/knowledge/data/spec/iwe-workflow-skills.md`; `docs/knowledge/AGENTS.md`
 
-- [x] Rename the script in `iwe-map/SKILL.md` at lines 115, 123, 149, 193, and
-  229, in `iwe-verify/SKILL.md:85`, in `AGENTS.md:60`, and in the `sources:`
-  entry of `data/spec/iwe-workflow-skills.md:13`.
-  `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)` at `iwe-map/SKILL.md:5`
+- [x] Rename the script in `iwe-map/SKILL.md`, in
+  `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#steps › "stale-map-docs.py"`,
+  in
+  `AGENTS.md#comments › "line already shows is noise, and goes stale the moment the"`,
+  and in the `sources:` entry of
+  `docs/knowledge/data/spec/iwe-workflow-skills.md › "resource"`.
+  `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)` at
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md › "allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)"`
   already admits a `.py` file and needs no change.
   - **Evidence:** all eight references renamed (five in `iwe-map/SKILL.md`, one
     each in the other three files); `grep stale-map-docs\.sh` over those four
@@ -231,7 +245,9 @@ plan, which is what makes the port provable.
 - The pre-commit ruff hook accepts the new Python: `uv run ruff check` and
   `uv run ruff format --check` on both new files.
 - `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py` ends `RESULT=SUCCESS` on the
-  current checkout, as `iwe-map/SKILL.md:229` requires before a map commit.
+  current checkout, as
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#rules › "plausible fiction, and a role you cannot state from the code"`
+  requires before a map commit.
 - No forward-looking document anchors the deleted script. Grepping
   `stale-map-docs\.sh:` across the bug, the digest-masks plan, and
   `data/architecture/agent-metadata-files.md` returns nothing once Task 6 lands.
@@ -249,32 +265,32 @@ plan, which is what makes the port provable.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-05):
-
-- `.agents/plugins/agentdev/bin/result-codes.sh:15-23` — `RESULT_CODES`, the
-  canonical code-to-name table
-- `.agents/plugins/agentdev/bin/result-codes.sh:26-49` — `emit_result` and
-  `quit_by_code`
-- `.agents/plugins/agentdev/bin/result-codes.sh:62-72` — `report_signal`, which
-  restores the default handler and re-raises
-- `.agents/plugins/agentdev/bin/result-codes.sh:74-77` — the EXIT and signal
-  trap installation
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:14` — the
-  script's own `STALE_FOUND` and `NO_MAP_DOCS` registrations
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:16-46` —
+- `.agents/plugins/agentdev/bin/result-codes.sh › "RESULT_CODES="` —
+  `RESULT_CODES`, the canonical code-to-name table
+- `.agents/plugins/agentdev/bin/result-codes.sh::emit_result` — `emit_result`
+  and `quit_by_code`
+- `.agents/plugins/agentdev/bin/result-codes.sh::report_signal` —
+  `report_signal`, which restores the default handler and re-raises
+- `.agents/plugins/agentdev/bin/result-codes.sh › "trap report_unhandled_exit EXIT"`
+  — the EXIT and signal trap installation
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh › "RESULT_CODES+="`
+  — the script's own `STALE_FOUND` and `NO_MAP_DOCS` registrations
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::usage` —
   `usage`, which documents every output line the port must reproduce
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:109-139` —
-  `frontmatter_of`, `scalar_field`, and `source_paths`, the awk parsers
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:141-162` —
-  `source_digest_for_paths`, the algorithm the port must preserve exactly
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:215-232` —
-  the legacy `commit` fallback
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:11` — `SCRIPT_PATH`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:38-61` — the
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::frontmatter_of`
+  — `frontmatter_of`, `scalar_field`, and `source_paths`, the awk parsers
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::source_digest_for_paths`
+  — `source_digest_for_paths`, the algorithm the port must preserve exactly
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` — the
+  legacy `commit` fallback
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py › "import sys"` —
+  `SCRIPT_PATH`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py::git` — the
   reimplemented digest the port replaces with an import
-- `.agents/plugins/agentdev/tests/test_result_codes.py:42-46` — the signal
-  triples the Python helper must match
-- `.agents/plugins/agentdev/tests/conftest.py:21-24` — the `plugin_root`
-  fixture, which resolves from the plugin tree rather than this repository
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:5` — `allowed-tools`, whose
-  glob already admits a `.py` script
+- `.agents/plugins/agentdev/tests/test_result_codes.py::test_canonical_result_codes_preserve_terminating_signals`
+  — the signal triples the Python helper must match
+- `.agents/plugins/agentdev/tests/conftest.py › "@pytest.fixture"` — the
+  `plugin_root` fixture, which resolves from the plugin tree rather than this
+  repository
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md › "allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)"`
+  — `allowed-tools`, whose glob already admits a `.py` script

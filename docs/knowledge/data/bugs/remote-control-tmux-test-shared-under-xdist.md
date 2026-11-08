@@ -55,16 +55,15 @@ default socket before the command runs.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `scripts/tests/test_claude_remote_control_start.py:210` —
-  `test_real_tmux_starts_claude_without_setup_token`
-- `scripts/tests/test_claude_remote_control_start.py:226` — per-test
-  `TMUX_TMPDIR`
-- `scripts/tests/test_claude_remote_control_start.py:244` — result poll
-- `scripts/tests/test_claude_remote_control_start.py:252` — teardown
-  `kill-server` on both sockets
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:25` —
+- `scripts/tests/test_claude_remote_control_start.py::test_real_tmux_starts_claude_without_setup_token`
+  — `test_real_tmux_starts_claude_without_setup_token`
+- `scripts/tests/test_claude_remote_control_start.py::test_real_tmux_starts_claude_without_setup_token`
+  — per-test `TMUX_TMPDIR`
+- `scripts/tests/test_claude_remote_control_start.py::test_real_tmux_starts_claude_without_setup_token`
+  — result poll
+- `scripts/tests/test_claude_remote_control_start.py::test_real_tmux_starts_claude_without_setup_token`
+  — teardown `kill-server` on both sockets
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::SESSION` —
   `SESSION = 'claude-remote'`
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:132` —
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::start` —
   `start()` returns early when `live()`

@@ -133,9 +133,9 @@ whose frontmatter sets either key
     `pre-commit run banned-frontmatter-keys --all-files` passed
 - [x] The comment above the hook names all three banned keys and points at
   `spec/iwe-workflow-skills`
-  - **Evidence:** commit 1cbfa638; `.pre-commit-config.yaml:163-164` reads "The
-    graph never sets `status`, `generated`, or `verified`; see
-    spec/iwe-workflow-skills."
+  - **Evidence:** commit 1cbfa638;
+    `.pre-commit-config.yaml › "The graph never sets"` reads "The graph never
+    sets `status`, `generated`, or `verified`; see spec/iwe-workflow-skills."
 
 ### Task 4: The manuals and Capture stop stamping provenance
 
@@ -152,8 +152,9 @@ whose frontmatter sets either key
      code or an external page — a `sources` entry naming that path or URL.
   ```
 
-  - **Evidence:** commit c573dbd6; `docs/knowledge/AGENTS.md:77-79` holds this
-    text byte for byte
+  - **Evidence:** commit c573dbd6;
+    `docs/knowledge/AGENTS.md#the-operating-loop › "— every document you create or meaningfully change gets a"`
+    holds this text byte for byte
 
 - [x] The `AGENTS.md` convention on OKF divergence reads:
 
@@ -164,8 +165,9 @@ whose frontmatter sets either key
     `verified`: source control records when and by whom a document changed.
   ```
 
-  - **Evidence:** commit c573dbd6; `docs/knowledge/AGENTS.md:122-125` holds this
-    text byte for byte
+  - **Evidence:** commit c573dbd6;
+    `docs/knowledge/AGENTS.md#conventions › "The workspace diverges from OKF only to cut merge and upkeep"`
+    holds this text byte for byte
 
 - [x] `SCHEMA.md` loses its `generated` and `verified` bullets under
   `## Fields every type carries`, and the paragraph after them ends:
@@ -179,13 +181,14 @@ whose frontmatter sets either key
   ```
 
   - **Evidence:** commit c573dbd6; both bullets are gone and
-    `docs/knowledge/SCHEMA.md:30-33` holds these words, rewrapped by
-    `iwe normalize`
+    `docs/knowledge/SCHEMA.md#fields-every-type-carries › "is the only lifecycle field: the per-type enums below. A"`
+    holds these words, rewrapped by `iwe normalize`
 
 - [x] `README.md` describes provenance as `sources` alone: "carries a `type`,
   provenance (`sources`) and lifecycle (`stage`,"
 
-  - **Evidence:** commit c573dbd6; `docs/knowledge/README.md:20` reads "carries
+  - **Evidence:** commit c573dbd6;
+    `docs/knowledge/README.md#dev-workspace › ") and lifecycle"` reads "carries
     a `type`, provenance (`sources`) and lifecycle (`stage`, `rank`,"
 
 - [x] `iwe-capture/SKILL.md` step 3's stamp bullet reads:
@@ -195,8 +198,9 @@ whose frontmatter sets either key
        issue URL the item was derived from.
   ```
 
-  - **Evidence:** commit c573dbd6; `iwe-capture/SKILL.md:65-66` holds this text
-    byte for byte
+  - **Evidence:** commit c573dbd6;
+    `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "naming every code path, page, and GitHub"`
+    holds this text byte for byte
 
 - [x] Each scaffold copy is byte-identical to its workspace file
 
@@ -210,8 +214,9 @@ whose frontmatter sets either key
 - [x] Under `## [Unreleased]` → `### Added`, the OKF families bullet no longer
   names `generated`
 
-  - **Evidence:** commit f8b25123; `docs/knowledge/CHANGELOG.md:30-32` lists
-    `description`, `sources`, `resource`, `stale_after`, and `tags`
+  - **Evidence:** commit f8b25123;
+    `docs/knowledge/CHANGELOG.md#added › "OKF's optional families on every type"`
+    lists `description`, `sources`, `resource`, `stale_after`, and `tags`
 
 - [x] Under `### Migration`, step 3 (convert `verified:`) and step 6 (add
   `description` and `generated`) are deleted, the steps are renumbered, and a
@@ -224,8 +229,9 @@ whose frontmatter sets either key
   ```
 
   - **Evidence:** commit f8b25123; the old steps 3 and 6 are gone, steps 1-4 are
-    renumbered, and `docs/knowledge/CHANGELOG.md:116-118` holds this text as
-    step 5
+    renumbered, and
+    `docs/knowledge/CHANGELOG.md#migration › "schema-binding key."` holds this
+    text as step 5
 
 - [x] The scaffold copy is byte-identical to the workspace file
 
@@ -241,13 +247,17 @@ whose frontmatter sets either key
   `docs/knowledge/tests/test_plan_checkboxes.py` in the knowledge-base path list
   of `template-consume/SKILL.md` `## Default Template Surface` and of the
   consumption guide's `### Reusable scaffold`
-  - **Evidence:** commit 48da7ed1; `template-consume/SKILL.md:331` and
-    `consumption-guide.md:777` list it right after `test_plan_checkboxes.py`
+  - **Evidence:** commit 48da7ed1;
+    `.agents/plugins/agentdev/skills/template-consume/SKILL.md#default-template-surface › "docs/knowledge/tests/test_banned_frontmatter_keys.py"`
+    and
+    `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#reusable-scaffold › "text"`
+    list it right after `test_plan_checkboxes.py`
 - [x] The consumption guide's `### Reusable scaffold` tells the consumer to copy
   both test files after bootstrap and lists the `banned-frontmatter-keys`
   pre-commit hook among the validation to retain
-  - **Evidence:** commit 48da7ed1; `consumption-guide.md:782-791` names both
-    test files to copy and lists the `banned-frontmatter-keys` hook
+  - **Evidence:** commit 48da7ed1;
+    `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#reusable-scaffold › "docs/knowledge/SCHEMA.md"`
+    names both test files to copy and lists the `banned-frontmatter-keys` hook
 
 ## Spec changes
 
@@ -388,30 +398,51 @@ when `optional_bundles` includes `"knowledge-base"`, adoption SHALL track
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-08):
-
-- `.iwe/schemas/okf.yaml:13` — `generated`; `:27` — `verified`
-- `.iwe/schemas/spec.yaml:23` — `generated`; `:38` — `verified`; `:73` —
+- `.iwe/schemas/okf.yaml#frontmatter.properties.sources` — `generated`;
+  `.iwe/schemas/okf.yaml#frontmatter.properties.usage_window.properties` —
+  `verified`
+- `.iwe/schemas/spec.yaml#frontmatter.properties.sources` — `generated`;
+  `.iwe/schemas/spec.yaml#frontmatter.properties.sources.items.properties.resource.description`
+  — `verified`;
+  `.iwe/schemas/spec.yaml#frontmatter.properties.usage_window.properties.to` —
   `verification` definition (the other per-type schemas match)
-- `docs/knowledge/AGENTS.md:77` — step 5 **Stamp**
-- `docs/knowledge/AGENTS.md:124` — the OKF divergence convention
-- `docs/knowledge/SCHEMA.md:24` — `generated` bullet; `:34` — `verified` bullet;
-  `:40` — the `status` sentence
-- `docs/knowledge/README.md:20` — provenance (`generated`, `sources`)
-- `docs/knowledge/CHANGELOG.md:30` — OKF families bullet; `:113` — Migration
-  step 3; `:118` — Migration step 6
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:65` — the stamp bullet
-- `docs/knowledge/tests/test_no_status_field.py:17` — `GRAPHS`; `:32` —
-  `STATUS_KEY`; `:35` — `documents_with_status`; `:51` —
-  `test_a_status_key_is_named`
-- `.pre-commit-config.yaml:163` — comment above the hook; `:165` —
-  `no-status-field` hook
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:330` —
-  knowledge-base tracked `test_plan_checkboxes.py`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:776`
-  — `### Reusable scaffold` path list; `:781` — copy-the-tests sentence
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:902` — Requirement: Capture
-  files complete inbox documents; `:984` — Requirement: Workflow improvements
-  preserve the IWE and OKF model
+- `docs/knowledge/AGENTS.md#the-operating-loop › "— every document you create or meaningfully change gets a"`
+  — step 5 **Stamp**
+- `docs/knowledge/AGENTS.md#conventions › "state change edits one field in one file. It never sets"`
+  — the OKF divergence convention
+- `docs/knowledge/SCHEMA.md#fields-every-type-carries › "— the materials a document derives from, each"`
+  — `generated` bullet;
+  `docs/knowledge/SCHEMA.md#fields-every-type-carries › "changed."` — `verified`
+  bullet;
+  `docs/knowledge/SCHEMA.md#the-build-order--rank › "three types, lower first."`
+  — the `status` sentence
+- `docs/knowledge/README.md#dev-workspace › ") and lifecycle"` — provenance
+  (`generated`, `sources`)
+- `docs/knowledge/CHANGELOG.md#added › "OKF's optional families on every type"`
+  — OKF families bullet;
+  `docs/knowledge/CHANGELOG.md#migration › "source control records when and by whom a document changed"`
+  — Migration step 3;
+  `docs/knowledge/CHANGELOG.md#migration › "schema-binding key."` — Migration
+  step 6
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "naming every code path, page, and GitHub"`
+  — the stamp bullet
+- `docs/knowledge/tests/test_banned_frontmatter_keys.py::GRAPHS`,
+  `docs/knowledge/tests/test_banned_frontmatter_keys.py::BANNED_KEY`,
+  `docs/knowledge/tests/test_banned_frontmatter_keys.py::banned_keys_in`, and
+  `docs/knowledge/tests/test_banned_frontmatter_keys.py::test_a_banned_key_is_named`
+  — the gate, renamed from `test_no_status_field.py`
+- `.pre-commit-config.yaml › "The graph never sets"` — comment above the hook;
+  `.pre-commit-config.yaml › "id: banned-frontmatter-keys"` — `no-status-field`
+  hook
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#default-template-surface › "docs/knowledge/tests/test_plan_checkboxes.py"`
+  — knowledge-base tracked `test_plan_checkboxes.py`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#reusable-scaffold › "template-owned knowledge paths update mode tracks"`
+  — `### Reusable scaffold` path list;
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#reusable-scaffold › "docs/knowledge/README.md"`
+  — copy-the-tests sentence
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-capture-files-complete-inbox-documents › "backlog-task documents, SHALL refuse a document missing any"`
+  — Requirement: Capture files complete inbox documents;
+  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-workflow-improvements-preserve-the-iwe-and-okf-model › "workflow, graph links, durable specs, existing stage and"`
+  — Requirement: Workflow improvements preserve the IWE and OKF model
 - `docs/knowledge/data/spec/iwe-bootstrap.md` — Requirement: bootstrap and
   onboarding are separate operations

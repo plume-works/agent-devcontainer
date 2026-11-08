@@ -191,14 +191,18 @@ when every item is `confirmed` or `N/A`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:20` — `## Inputs`;
-  `:124` — step 6, Apply frontmatter transitions; `:140` — step 7, Validate,
-  commit, and report; `:180` — `## Report`
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — step 2, Dispatch
-  `iwe-shipper`; `:29` — step 3, Re-post its report
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:158` — step 8
-  re-dispatches `iwe-shipper` for a Ship blocker report
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:679` — Requirement: Ship and
-  Implement start only from an explicit request or a named dispatcher
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#inputs` — `## Inputs`;
+  `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Apply frontmatter transitions idempotently.** A work"`
+  — step 6, Apply frontmatter transitions;
+  `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Validate, commit, and report.** Run"`
+  — step 7, Validate, commit, and report;
+  `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report` — `## Report`
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#steps › "with that prompt and wait for its report."`
+  — step 2, Dispatch `iwe-shipper`;
+  `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#steps › "Re-post its report verbatim.** When it reports"`
+  — step 3, Re-post its report
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Validate, close the issue, re-ship a blocked plan, and"`
+  — step 8 re-dispatches `iwe-shipper` for a Ship blocker report
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-and-implement-start-only-from-an-explicit-request-or-a-named-dispatcher`
+  — Requirement: Ship and Implement start only from an explicit request or a
+  named dispatcher

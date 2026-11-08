@@ -162,32 +162,31 @@ this plan fixes.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
-
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:51` —
-  Workflow 1: Collect All Feedback Sources
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:55` — Resolve
-  merge conflicts first
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:76` — step 1,
-  Fetch PR review comments
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:320` —
-  Workflow 7 completion checklist
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:521` —
-  Success Criteria
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:534` —
-  Related Resources
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:129` — Monitoring Loop
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:139` — refresh step reading
-  `mergeStateStatus`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:143` — conflict and UNKNOWN
-  routing step
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:165` — check classification
-  routing to pr-feedback-resolution
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:56` — Workflow 1: Run
-  the Update Script
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:62` — guidance on
-  supplying `--remote` and `--base`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:77` — Workflow 3: Push
-  the Updated Branch
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:56` — base
-  merge with a judgment call needs re-review
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources`
+  — Workflow 1: Collect All Feedback Sources
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "Before any feedback edit, read the PR's merge"`
+  — Resolve merge conflicts first
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "Fetch PR review comments"`
+  — step 1, Fetch PR review comments
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-7-final-verification › "Ensure all feedback is addressed before requesting"`
+  — Workflow 7 completion checklist
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#problem-review-comment-asks-for-significant-refactor › "Assess scope vs PR goals. If out of scope, propose"`
+  — Success Criteria
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#success-criteria › "] Timeline met (30 minutes agent time; CI waits excluded)"`
+  — Related Resources
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#completion-criteria › "GitHub reports the PR as merged."`
+  — Monitoring Loop
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "Refresh the PR and capture its head SHA and merge state"`
+  — refresh step reading `mergeStateStatus`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop` — conflict
+  and UNKNOWN routing step
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "checks or reviews."`
+  — check classification routing to pr-feedback-resolution
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-1-run-the-update-script`
+  — Workflow 1: Run the Update Script
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-1-run-the-update-script › "The script defaults to"`
+  — guidance on supplying `--remote` and `--base`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-3-push-the-updated-branch`
+  — Workflow 3: Push the Updated Branch
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#what-counts-as-beyond-the-feedback › "Merged the base branch and resolved conflicts by making a"`
+  — base merge with a judgment call needs re-review

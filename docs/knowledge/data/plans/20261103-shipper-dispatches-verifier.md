@@ -229,15 +229,17 @@ SHALL be a CRITICAL finding.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:4` — `tools:`; `:71` —
-  step 3, Run Verify for normal shipping
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:79` — the "From inside
-  `iwe-shipper`" section; `:88` — `## From a session`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:36` — the "In place
-  inside `iwe-shipper`" mode
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:459` — Requirement: Normal
-  shipping requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md:35` — the Shipper's
-  in-place route
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md › "tools: Bash, Read, Edit, Write, Grep, Glob, Skill"`
+  — `tools:`;
+  `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
+  — step 3, Run Verify for normal shipping
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-inside-iwe-shipper`
+  — the "From inside `iwe-shipper`" section;
+  `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session` —
+  `## From a session`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run › "— the Shipper, already a fresh context"`
+  — the "In place inside `iwe-shipper`" mode
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
+  — Requirement: Normal shipping requires a clean independent verification
+- `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "— the Shipper is already a fresh context and"`
+  — the Shipper's in-place route

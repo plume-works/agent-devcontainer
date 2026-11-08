@@ -46,13 +46,13 @@ configuring an already-configured file leaves it byte-identical.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py:44` —
-  `apply_policy`; `:62` — the order-preserving rebuild
-- `py_packages/agentdev_runtime/tests/test_opencode_config.py:35` —
-  `test_a_configured_file_keeps_its_key_order`
-- `scripts/tests/test_agent_runtime_acceptance.py:731` —
-  `test_restarts_leave_the_opencode_config_byte_identical`
-- `docs/knowledge/data/spec/catalog-lifecycle.md:151` — the unchanged-catalog
-  restart scenario
+- `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py::apply_policy`
+  — `apply_policy`;
+  `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py::apply_policy`
+  — the order-preserving rebuild
+- `py_packages/agentdev_runtime/tests/test_opencode_config.py::test_a_configured_file_keeps_its_key_order`
+  — `test_a_configured_file_keeps_its_key_order`
+- `scripts/tests/test_agent_runtime_acceptance.py::test_restarts_leave_the_opencode_config_byte_identical`
+  — `test_restarts_leave_the_opencode_config_byte_identical`
+- `docs/knowledge/data/spec/catalog-lifecycle.md#scenario-the-container-restarts-with-an-unchanged-catalog › "every client's configuration file is byte-identical"`
+  — the unchanged-catalog restart scenario

@@ -34,13 +34,14 @@ dies with the conversation.
 **Verify's unchecked-box recommendation is no longer exhaustive.** It reads
 "complete it, or tick it if already done". Since [Verification in the main
 loop](../features/verification-in-the-main-loop.md) made a zero-CRITICAL Verify
-report a hard precondition of normal Ship — `.claude/skills/ship/SKILL.md:40`,
+report a hard precondition of normal Ship —
+`.claude/skills/ship/SKILL.md#steps › "the report contains any CRITICAL finding, make no shipping"`,
 "there is no CRITICAL override" — a task the user has decided not to do now
 blocks shipping outright. Ticking it is forbidden by
-`.claude/skills/implement/SKILL.md:57-60`, and completing it is exactly what the
-user declined. That feature's resolved decisions name two ways out, fix or
-cancel the whole plan; revising the plan to drop the task is the proportionate
-third, and no skill mentions it.
+`.claude/skills/implement/SKILL.md#steps › "if completing the task would add scope or drop"`,
+and completing it is exactly what the user declined. That feature's resolved
+decisions name two ways out, fix or cancel the whole plan; revising the plan to
+drop the task is the proportionate third, and no skill mentions it.
 
 ## Approach
 
@@ -62,10 +63,10 @@ have to contradict it.
 Verify's existing recommendation gains the third route, pointing at the plan
 skill's revise mode and inheriting its materiality test rather than inventing a
 parallel one — dropping a task changes scope, so
-`.claude/skills/plan/SKILL.md:32-37` already requires user direction for it. The
-rejected alternative was softening ship's no-override rule, which is the
-explicit resolved decision of an implemented feature and not this plan's to
-reverse.
+`.claude/skills/plan/SKILL.md#steps › "A choice is material when it affects scope"`
+already requires user direction for it. The rejected alternative was softening
+ship's no-override rule, which is the explicit resolved decision of an
+implemented feature and not this plan's to reverse.
 
 The feature doc is updated in the same plan because leaving it listing two
 routes while verify lists three creates precisely the doc↔code drift verify's
@@ -78,28 +79,31 @@ own audit mode exists to catch.
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
 - [x] **1. Add the defect destination to `## Capturing`.** Insert a bullet after
-  the principle bullet (`.claude/skills/explore/SKILL.md:57-58`) and before
-  "Ready to build": a defect the exploration established — code that contradicts
-  a `data/spec/` doc, or any reproducible wrong behavior — goes to
+  the principle bullet
+  (`.claude/skills/explore/SKILL.md#capturing › "A principle that should outlive this conversation →"`)
+  and before "Ready to build": a defect the exploration established — code that
+  contradicts a `data/spec/` doc, or any reproducible wrong behavior — goes to
   `data/bugs/<slug>.md` in the Symptom / Reproduction / Root cause / Fix shape
   with `path:line` anchors, linked from `data/bugs.md`. Name the boundary with
-  `## During implementation` (`.claude/skills/explore/SKILL.md:39-45`) so a
-  finding that belongs to a plan already in flight is handed back to plan or
-  implement instead of becoming a bug doc. Preserve the section's "offer once —
-  don't file unprompted" discipline; this adds a destination, not an obligation.
+  `## During implementation`
+  (`.claude/skills/explore/SKILL.md#during-implementation`) so a finding that
+  belongs to a plan already in flight is handed back to plan or implement
+  instead of becoming a bug doc. Preserve the section's "offer once — don't file
+  unprompted" discipline; this adds a destination, not an obligation.
 
 ### Task 2: Verify names the third route
 
 **Files:** Modify: `.claude/skills/verify/SKILL.md`
 
 - [x] **2. Extend the unchecked-box recommendation to three routes.** At
-  `.claude/skills/verify/SKILL.md:25-26`, keep the CRITICAL severity and the two
-  existing routes, and add the third: revise the plan to drop the task, via the
-  plan skill's revise mode, which treats dropping a task as a material scope
-  change needing user direction. State why the third route exists — ship refuses
-  any CRITICAL with no override, so an unchecked task the user has decided
-  against is otherwise unshippable — so the rule survives editing. Keep "Report,
-  never fix" intact: verify names the route, it does not take it.
+  `.claude/skills/verify/SKILL.md#steps › "task is a CRITICAL, with three"`,
+  keep the CRITICAL severity and the two existing routes, and add the third:
+  revise the plan to drop the task, via the plan skill's revise mode, which
+  treats dropping a task as a material scope change needing user direction.
+  State why the third route exists — ship refuses any CRITICAL with no override,
+  so an unchecked task the user has decided against is otherwise unshippable —
+  so the rule survives editing. Keep "Report, never fix" intact: verify names
+  the route, it does not take it.
 
 ### Task 3: The feature doc lists the same routes as the skill
 
@@ -172,23 +176,23 @@ loop](../features/verification-in-the-main-loop.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-16):
-
-- `.claude/skills/explore/SKILL.md:47-62` — `## Capturing`, its four destination
-  bullets and the closing validate line
-- `.claude/skills/explore/SKILL.md:39-45` — `## During implementation`, the
-  plan-in-flight handoff Task 1 must not contradict
-- `.claude/skills/verify/SKILL.md:25-26` — the unchecked-box CRITICAL and its
-  two-route recommendation
-- `.claude/skills/verify/SKILL.md:68-69` — "Report, never fix", the boundary
-  Task 2 preserves
-- `.claude/skills/verify/SKILL.md:70-71` — zero CRITICAL as Ship's required
-  handoff
-- `.claude/skills/ship/SKILL.md:35-41` — Ship step 3, "there is no CRITICAL
-  override"
-- `.claude/skills/implement/SKILL.md:57-60` — the rule forbidding a tick for
-  deferred behavior, which closes the second route
-- `.claude/skills/plan/SKILL.md:23-30` — revise mode and its materially-same
-  test
-- `.claude/skills/plan/SKILL.md:32-37` — the materiality definition a dropped
-  task must clear
+- `.claude/skills/explore/SKILL.md#capturing` — `## Capturing`, its four
+  destination bullets and the closing validate line
+- `.claude/skills/explore/SKILL.md#during-implementation` —
+  `## During implementation`, the plan-in-flight handoff Task 1 must not
+  contradict
+- `.claude/skills/verify/SKILL.md#steps › "task is a CRITICAL, with three"` —
+  the unchecked-box CRITICAL and its two-route recommendation
+- `.claude/skills/verify/SKILL.md#steps › "— the same discipline over the whole graph, against the"`
+  — "Report, never fix", the boundary Task 2 preserves
+- `.claude/skills/verify/SKILL.md#steps › "Specs whose requirements the code now contradicts (sample"`
+  — zero CRITICAL as Ship's required handoff
+- `.claude/skills/ship/SKILL.md#steps › "Invoke the report-only workflow in"` —
+  Ship step 3, "there is no CRITICAL override"
+- `.claude/skills/implement/SKILL.md#steps › "narrow, defer, or accept an exception to specified behavior"`
+  — the rule forbidding a tick for deferred behavior, which closes the second
+  route
+- `.claude/skills/plan/SKILL.md#steps › "when the user requests a change to an existing active"`
+  — revise mode and its materially-same test
+- `.claude/skills/plan/SKILL.md#steps › "A choice is material when it affects scope"`
+  — the materiality definition a dropped task must clear

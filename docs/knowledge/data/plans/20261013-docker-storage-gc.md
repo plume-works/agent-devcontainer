@@ -310,18 +310,19 @@ helper.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-13):
-
-- `ansible/roles/install_docker/tasks/main.yml:46` — `Configure Docker daemon`
+- `ansible/roles/install_docker/tasks/main.yml#name` — `Configure Docker daemon`
   writes `/etc/docker/daemon.json`
-- `.devcontainer/devcontainer.json:17` — docker-in-docker feature
-- `.devcontainer/scripts/coder-agent-start.sh:9` — `docker-image-prune.sh` call;
-  `:13` — credential helper call; `:17` — `exec` of
-  `claude-remote-control-start.sh`
+- `.devcontainer/devcontainer.json › "ghcr.io/devcontainers/features/docker-in-docker:4.1.3"`
+  — docker-in-docker feature
+- `.devcontainer/scripts/coder-agent-start.sh › "$script_dir/docker-image-prune.sh"`
+  — `docker-image-prune.sh` call;
+  `.devcontainer/scripts/coder-agent-start.sh › "$script_dir/setup-gh-credential-helper.sh"`
+  — credential helper call;
+  `.devcontainer/scripts/coder-agent-start.sh › "$script_dir/claude-remote-control-start.sh"`
+  — `exec` of `claude-remote-control-start.sh`
 - `.devcontainer/scripts/docker-image-prune.sh` — the Dev Container engine prune
-- `scripts/tests/test_coder_agent_start.py:43` —
-  `test_prune_and_helper_setup_run_before_remote_control`
-- `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:136` —
-  Docker readiness wait in `startup_script`
-- `coder-ide-baseline` `root-container/Dockerfile:47` —
-  `systemctl enable docker`
+- `scripts/tests/test_coder_agent_start.py::test_prune_and_helper_setup_run_before_remote_control`
+  — `test_prune_and_helper_setup_run_before_remote_control`
+- `coder-ide-baseline` `template/main.tf` — `coder_agent.dev` and the Docker
+  readiness wait in `startup_script`
+- `coder-ide-baseline` `root-container/Dockerfile` — `systemctl enable docker`

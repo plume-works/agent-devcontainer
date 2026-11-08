@@ -68,8 +68,9 @@ project would add packaging surface for no reciprocal guarantee.
   the Codex manifest publishes one plugin by design, and a comment is cheaper
   than speculative generality that no caller exercises.
   - **Evidence:** commit `a229d43`; the three-line comment sits above the
-    `.plugins[0].name` read at `reinstall-agentdev-codex.sh:26`. `shellcheck`
-    clean.
+    `.plugins[0].name` read at
+    `.devcontainer/scripts/reinstall-agentdev-codex.sh › "The Codex manifest publishes one plugin by design"`.
+    `shellcheck` clean.
 
 ### Task 2: Move the plugin tree
 
@@ -298,9 +299,11 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   `skills/<name>/SKILL.md`, so such a target is rejected as `bad_kind`.
   - **Evidence:** commit `5a48d8c`;
     `data/bugs/self-improve-unstageable-routing-option` records it against the
-    code as it stands — `SKILL.md:60` offers the option, `allowlist.py:47`
-    resolves three kinds, and `allowlist.py:76` raises `bad_kind` for everything
-    else.
+    code as it stands — `SKILL.md` offers the option,
+    `.agents/plugins/self-improve/selfimprove/allowlist.py::candidate_paths`
+    resolves three kinds, and
+    `.agents/plugins/self-improve/selfimprove/allowlist.py::candidate_paths`
+    raises `bad_kind` for everything else.
 
 ### Task 9: Merge the operating rules
 
@@ -458,23 +461,23 @@ names it nowhere, and the Ansible role still stages `agentdev` alone, its
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-09):
-
-- `.devcontainer/scripts/reinstall-agentdev-claude.sh:27` — `plugin_name` read,
-  the single-plugin assumption Task 1 removes
-- `.devcontainer/scripts/reinstall-agentdev-codex.sh:26` — the same read, which
-  stays
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:22` — `selectattr` name
-  filter; selects rather than indexes, so a second plugin is invisible
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:31` — the assertion that
-  exactly one entry matches that name
-- `ansible/roles/agentic_tools/defaults/main.yml:41` —
+- `.devcontainer/scripts/reinstall-agentdev-claude.sh › "mapfile -t plugin_names < <(jq -er '.plugins[].name"`
+  — `plugin_name` read, the single-plugin assumption Task 1 removes
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh › "The Codex manifest publishes one plugin by design"`
+  — the same read, which stays
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml › "| selectattr('name', 'equalto', agentic_tools_plugin_name)"`
+  — `selectattr` name filter; selects rather than indexes, so a second plugin is
+  invisible
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml › "agentic_tools_catalog_plugin_entries | length == 1"`
+  — the assertion that exactly one entry matches that name
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_plugin_name` —
   `agentic_tools_plugin_name`, the selector that filter uses
-- `py_packages/validate_agent_files/validate_agent_files/paths.py:54` —
-  `find_plugin_roots`, which already enumerates every published plugin
-- `py_packages/validate_agent_files/validate_agent_files/validators/marketplace.py:73`
+- `py_packages/validate_agent_files/validate_agent_files/paths.py::find_plugin_roots`
+  — `find_plugin_roots`, which already enumerates every published plugin
+- `py_packages/validate_agent_files/validate_agent_files/validators/marketplace.py::_validate_ecosystem`
   — `_validate_ecosystem`, which validates each entry and skips an ecosystem a
   plugin does not ship for
-- `.github/workflows/validate-agent-files.yml:85` — the CI invocation whose
-  `--require-marketplace claude codex` the asymmetric manifests must satisfy
-- `pyproject.toml:29` — `testpaths`, which Task 3 extends
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps` —
+  the CI invocation whose `--require-marketplace claude codex` the asymmetric
+  manifests must satisfy
+- `pyproject.toml › "testpaths ="` — `testpaths`, which Task 3 extends

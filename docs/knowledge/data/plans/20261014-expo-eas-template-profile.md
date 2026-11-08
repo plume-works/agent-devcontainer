@@ -291,9 +291,10 @@ above requires.
 
 - [x] In `## Optional Expo setup`, the `**GitHub Codespaces:**` token bullet is
   replaced by this bullet, verbatim:
-  - **Evidence:** committed with this tick — `consumption-guide.md:989` holds
-    the Coder bullet below byte for byte in place of the Codespaces bullet;
-    `validate_agent_files` reports 62/62 skills valid, 0 errors.
+  - **Evidence:** committed with this tick —
+    `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-expo-setup › "add a Coder user secret named"`
+    holds the Coder bullet below byte for byte in place of the Codespaces
+    bullet; `validate_agent_files` reports 62/62 skills valid, 0 errors.
 
 ``` markdown
 - **Coder (`coder-ide-baseline`):** add a Coder user secret named
@@ -396,34 +397,41 @@ receive a secret added after the workspace started.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-16):
-
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:50` —
-  `optional_bundles` row of the marker table
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:96` — setup step 3,
-  the scope questions
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:241` —
-  `## Default Template Surface`; `:271` the `custom-image` path addition
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:227`
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#the-marker-file › "when the Ansible/Docker publishing bundle was retained"`
+  — `optional_bundles` row of the marker table
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "the guide's own steps depend on: keep custom-image"`
+  — setup step 3, the scope questions
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#default-template-surface`
+  — `## Default Template Surface`;
+  `.agents/plugins/agentdev/skills/template-consume/SKILL.md#default-template-surface › ".dockerignore"`
+  the `custom-image` path addition
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#6-review-the-devcontainer-configuration › ".devcontainer/firewall-allowlist.txt"`
   — Workflow A step 6 item 6, the firewall allowlist review
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:583`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#2-merge-agent-facing-configuration`
   — Workflow B `### 2. Merge agent-facing configuration`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1000`
-  — `## Optional custom-image setup`; `:1045` `## Ongoing maintenance`
-- `.devcontainer/devcontainer.json:20` — `containerEnv` block; `:30`
-  `EXPO_TOKEN`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
-  — `## Optional Expo setup`; `:980` the token paragraph; `:989` the Coder
-  (`coder-ide-baseline`) bullet that Task 11 wrote
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:199` — update-mode
-  bun-pin check for `"expo"` consumers
-- `docs/knowledge/data/architecture/template-boundary.md:254` —
-  `## Optional Expo profile`
-- `.claude/settings.json:48` — `enabledPlugins`, already holding
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-custom-image-setup`
+  — `## Optional custom-image setup`;
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ongoing-maintenance`
+  `## Ongoing maintenance`
+- `.devcontainer/devcontainer.json › "containerEnv"` — `containerEnv` block;
+  `.devcontainer/devcontainer.json › "${localEnv:EXPO_TOKEN}"` `EXPO_TOKEN`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-expo-setup`
+  — `## Optional Expo setup`;
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-expo-setup › "The template devcontainer already passes"`
+  the token paragraph;
+  `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-expo-setup › "add a Coder user secret named"`
+  the Coder (`coder-ide-baseline`) bullet that Task 11 wrote
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "and an applied change touches"`
+  — update-mode bun-pin check for `"expo"` consumers
+- `docs/knowledge/data/architecture/template-boundary.md#optional-expo-profile`
+  — `## Optional Expo profile`
+- `.claude/settings.json › "enabledPlugins"` — `enabledPlugins`, already holding
   `claude-plugins-official` entries
-- `docs/knowledge/data/spec/template-consumption.md:81` — Requirement: adoption
-  is recorded for later updates
-- `docs/knowledge/data/architecture/template-boundary.md:196` —
-  `## Optional custom-image bundle`; `:222` `## Optional knowledge-base bundle`
-- `docs/knowledge/data/spec/coder-ide-baseline.md:51` — Requirement: Coder user
-  secrets reach only agent-started processes
+- `docs/knowledge/data/spec/template-consumption.md#requirement-adoption-is-recorded-for-later-updates`
+  — Requirement: adoption is recorded for later updates
+- `docs/knowledge/data/architecture/template-boundary.md#optional-custom-image-bundle`
+  — `## Optional custom-image bundle`;
+  `docs/knowledge/data/architecture/template-boundary.md#optional-knowledge-base-bundle`
+  `## Optional knowledge-base bundle`
+- `docs/knowledge/data/spec/coder-ide-baseline.md#requirement-coder-user-secrets-reach-only-agent-started-processes`
+  — Requirement: Coder user secrets reach only agent-started processes

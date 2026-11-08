@@ -321,26 +321,29 @@ stop before it and report the approval it needs.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
-
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:14` — `## Steps`, the
-  rulebook that moves (Steps 1–5 through line 92)
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:94` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:4` — the Shipper's
-  `tools:`, without `Agent`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, "Run
-  Verify for normal shipping"
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:13` — the
-  plugin-relative link to an agent rulebook that the skill follows in place
-- `.agents/plugins/agentdev/bin/install-codex-agents.py:73` — `render_agent`,
-  which derives `sandbox_mode` from `Edit`/`Write` in the tools
-- `scripts/e2e/iwe-workflows/scenarios.py:19` — `SHIPPER`
-- `scripts/e2e/iwe-workflows/harness_claude.py:85` — `shipper_prompts`
-- `scripts/e2e/iwe-workflows/harness_codex.py:167` — `shipper_spawns`
-- `scripts/e2e/iwe-workflows/harness_codex.py:171` — `fresh_spawns`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:35` — the
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-inside-iwe-shipper`
+  — `## Steps`, the rulebook that moves (Steps 1–5)
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#rules › "Report-only: neither route fixes code, ticks a box, or"`
+  — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md › "tools: Bash, Read, Edit, Write, Grep, Glob, Skill"`
+  — the Shipper's `tools:`, without `Agent`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping."`
+  — step 3, "Run Verify for normal shipping"
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#implement-a-plan › "Read [the iwe-implementer"`
+  — the plugin-relative link to an agent rulebook that the skill follows in
+  place
+- `.agents/plugins/agentdev/bin/install-codex-agents.py::render_agent` —
+  `render_agent`, which derives `sandbox_mode` from `Edit`/`Write` in the tools
+- `scripts/e2e/iwe-workflows/scenarios.py::EXPLORE` — `SHIPPER`
+- `scripts/e2e/iwe-workflows/harness_claude.py::ClaudeTranscript.agent_prompts`
+  — `shipper_prompts`
+- `scripts/e2e/iwe-workflows/harness_codex.py::CodexTranscript.descendants` —
+  `shipper_spawns`
+- `scripts/e2e/iwe-workflows/harness_codex.py::CodexTranscript.descendants` —
+  `fresh_spawns`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::run` — the
   `iwe-shipper` subagent prompt filter
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:318` — "Normal shipping
-  requires a clean independent verification"
-- `docs/knowledge/data/features/verification-in-the-main-loop.md:25` —
-  `## Behaviour`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-finding-recurs` —
+  "Normal shipping requires a clean independent verification"
+- `docs/knowledge/data/features/verification-in-the-main-loop.md#purpose › "normal shipping."`
+  — `## Behaviour`

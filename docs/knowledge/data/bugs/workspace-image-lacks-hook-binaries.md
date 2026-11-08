@@ -67,17 +67,21 @@ failure to the first commit (commit 4773feb).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
-
-- `.pre-commit-config.yaml:56` — `gitleaks` hook, `language: system` at `:59`
-- `.pre-commit-config.yaml:62` — `actionlint` hook, `language: system` at `:65`
-- `ansible/roles/dev_tools/defaults/main.yml:33` — `gitleaks` pin
-- `ansible/roles/dev_tools/defaults/main.yml:45` — `actionlint` pin
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:50` — install to
-  `/usr/local/bin`
-- `.devcontainer/scripts/environment-health.sh:79` — required toolchain list
-  without the two tools
-- `.devcontainer/scripts/setup-pre-commit.sh:41` — hook install with no
-  executable check
-- `docs/knowledge/data/spec/coder-ide-baseline.md:83` — a restart keeps the
-  built Dev Container image
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `gitleaks` hook,
+  `language: system` at
+  `.pre-commit-config.yaml#repos.repo.hooks.gitleaks.language`
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `actionlint` hook,
+  `language: system` at
+  `.pre-commit-config.yaml#repos.repo.hooks.actionlint.language`
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name` —
+  `gitleaks` pin
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name` —
+  `actionlint` pin
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml › "/usr/local/bin/{{ item }}"`
+  — install to `/usr/local/bin`
+- `.devcontainer/scripts/environment-health.sh › "for tool in uv bun python3 node git gh docker jq shellcheck"`
+  — required toolchain list without the two tools
+- `.devcontainer/scripts/setup-pre-commit.sh › "pre-commit install --install-hooks --hook-type pre-commit"`
+  — hook install with no executable check
+- `docs/knowledge/data/spec/coder-ide-baseline.md#requirement-workspace-state-lives-in-per-workspace-volumes › "never replace them and a restart keeps the built Dev"`
+  — a restart keeps the built Dev Container image

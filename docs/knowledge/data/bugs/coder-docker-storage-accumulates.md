@@ -107,24 +107,24 @@ removes unused volumes with disposable names created more than 72 hours ago.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/docker.py:23` — `PRUNE_AGE`;
-  `:113` — `prune`; `:122` — the `docker image prune -af --filter until=72h`
-  call
-- `py_packages/agentdev_runtime/agentdev_runtime/coder.py:16` — `STEPS`, which
-  runs the prune once per agent start
-- `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:219` — the
-  one-shot `prune` service after `dockerd`
-- `ansible/roles/install_docker/tasks/main.yml:60` — the Dev Container engine's
-  `defaultMaxUsedSpace` of `10GB`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:41` — the
-  `dind-var-lib-docker-${devcontainerId}` volume mount
-- `docs/knowledge/data/spec/devcontainer-docker-storage.md:45` — Requirement:
-  the Dev Container engine limits its build cache; `:55` — Requirement: the
-  agent start prunes unused Dev Container images
-- `docs/knowledge/data/spec/coder-ide-baseline.md:111` — Requirement: the
-  workspace engine bounds its own storage
-- `plume-works/coder-ide-baseline@4a2d980` `template/main.tf:146` — the startup
-  script's image prune; `root-container/daemon.json:5` — the workspace engine's
+- `py_packages/agentdev_runtime/agentdev_runtime/docker.py::PREFIX` —
+  `PRUNE_AGE`; `py_packages/agentdev_runtime/agentdev_runtime/docker.py::run` —
+  `prune`; `py_packages/agentdev_runtime/agentdev_runtime/docker.py::_docker` —
+  the `docker image prune -af --filter until=72h` call
+- `py_packages/agentdev_runtime/agentdev_runtime/coder.py::STEPS` — `STEPS`,
+  which runs the prune once per agent start
+- `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py::DEPLOY_SERVICES`
+  — the one-shot `prune` service after `dockerd`
+- `ansible/roles/install_docker/tasks/main.yml › "defaultMaxUsedSpace"` — the
+  Dev Container engine's `defaultMaxUsedSpace` of `10GB`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "dind-var-lib-docker-${devcontainerId}"`
+  — the `dind-var-lib-docker-${devcontainerId}` volume mount
+- `docs/knowledge/data/spec/devcontainer-docker-storage.md#requirement-the-dev-container-engine-limits-its-build-cache`
+  — Requirement: the Dev Container engine limits its build cache;
+  `docs/knowledge/data/spec/devcontainer-docker-storage.md#requirement-the-agent-start-prunes-unused-dev-container-images`
+  — Requirement: the agent start prunes unused Dev Container images
+- `docs/knowledge/data/spec/coder-ide-baseline.md#requirement-the-workspace-engine-bounds-its-own-storage`
+  — Requirement: the workspace engine bounds its own storage
+- `plume-works/coder-ide-baseline@4a2d980` `template/main.tf` — the startup
+  script's image prune; `root-container/daemon.json` — the workspace engine's
   `defaultMaxUsedSpace`

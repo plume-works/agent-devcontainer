@@ -57,11 +57,9 @@ pull request, so a clean re-review always replaces an earlier change request.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:149` — Step 9 event
-  selection
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:152` — the `COMMENT`
-  branch
-- `docs/knowledge/data/architecture/ai-review-event-selection.md:36` — "Why
-  prefer COMMENT over REQUEST_CHANGES for anchored findings"
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "from the validated findings that survived Step 6"`
+  — Step 9 event selection
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Otherwise (every blocking finding is attached inline, or"`
+  — the `COMMENT` branch
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#why-prefer-comment-over-request_changes-for-anchored-findings`
+  — "Why prefer COMMENT over REQUEST_CHANGES for anchored findings"

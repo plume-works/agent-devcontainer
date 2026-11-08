@@ -95,9 +95,9 @@ runs in one of two modes:
      the delta would silently drop a scenario this change does not affect.
      Every `### Requirement:` in the effective contract has implementation
      evidence in the codebase — search for it; none found is a CRITICAL.
-   - **Correctness** — map each requirement to `path:line` evidence and judge
+   - **Correctness** — map each requirement to anchored evidence and judge
      whether the implementation matches its SHALL statement (divergence is a
-     WARNING with the file and lines to review). For each `#### Scenario:`,
+     WARNING naming the anchors to review). For each `#### Scenario:`,
      check the condition is handled in code and covered by a test, judged by
      the `iwe-planner` coverage rule: a test covers a scenario only when it
      runs the behaviour.
@@ -143,8 +143,8 @@ then:
 - **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding opens
   with its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for
   SUGGESTION, numbered from 1 per severity in report order — then its
-  `path:line` evidence or the label "unverified", and its recommendation. A
-  `path` is relative to the repository root, never absolute, so the report
+  anchored evidence or the label "unverified", and its recommendation. An
+  anchor is `path::symbol`, `path#heading-slug`, `path#key.path`, or one of them plus ` › "verbatim quote"`, never a line number. Its `path` is relative to the repository root, never absolute, so the report
   reads the same from any checkout. Audit mode numbers its findings the same
   way.
 - **Outstanding observations** — each unticked task carrying a
@@ -160,7 +160,8 @@ then:
   commit, so the audit trail stays clean.
 - Zero CRITICAL findings are the required handoff for normal Ship; Verify
   supplies that verdict but never performs Ship's spec or lifecycle mutations.
-- Every claim cites `path:line` evidence or is explicitly labeled
+- Every claim cites anchored evidence, never a line number, or is explicitly
+  labeled
   "unverified" — a requirement you couldn't trace is unverified, not failed,
   and says so.
 - Run only the verification commands the plan itself names (tests, builds). A

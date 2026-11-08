@@ -187,18 +187,19 @@ produce, and SHALL NOT modify any other file in that directory.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-07):
-
-- `.devcontainer/scripts/reinstall-agentdev-codex.sh:65` — `codex plugin add`
-- `.devcontainer/scripts/postCreateCommand.sh:92` — reinstall with the staged
-  catalog
-- `.devcontainer/scripts/postAttachCommand.sh:14` — reinstall with the workspace
-  catalog
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:74` — "Install the
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh › "$plugin_name@$marketplace_name"`
+  — `codex plugin add`
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/reinstall-agentdev-codex.sh"`
+  — reinstall with the staged catalog
+- `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/reinstall-agentdev-codex.sh"`
+  — reinstall with the workspace catalog
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml#name` — "Install the
   plugin for Codex"
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:92` — bridge names each
-  subagent by `<stem>`
-- `.agents/plugins/agentdev/bin/result_codes.py:1` — Python result-code helpers
-- `docs/knowledge/data/architecture/module-layout.md:74` — single-source catalog
-  decision
-- `docs/knowledge/data/spec/catalog-lifecycle.md:18` — install requirement
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "catalog.agents[file.slice(0, -"`
+  — bridge names each subagent by `<stem>`
+- `.agents/plugins/agentdev/bin/result_codes.py › "#!/usr/bin/env python3"` —
+  Python result-code helpers
+- `docs/knowledge/data/architecture/module-layout.md#key-design-decisions › "Codex consumes its skills directly, with no"`
+  — single-source catalog decision
+- `docs/knowledge/data/spec/catalog-lifecycle.md#catalog-lifecycle` — install
+  requirement

@@ -49,13 +49,11 @@ reconnects the successor with merges, so no branch is pushed with force.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py:215` —
-  `side_patch_keys`, the verbatim patch-id comparison
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py:242` —
-  `remote_only_commits`, which excludes the trunk
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py:369` —
-  `push_layers`, the leased force-push of every differing layer
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py:552` —
-  `publish`
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py::Guard.side_patch_keys`
+  — `side_patch_keys`, the verbatim patch-id comparison
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py::Guard.remote_only_commits`
+  — `remote_only_commits`, which excludes the trunk
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py::Guard.push_layers`
+  — `push_layers`, the leased force-push of every differing layer
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py::Guard.publish`
+  — `publish`

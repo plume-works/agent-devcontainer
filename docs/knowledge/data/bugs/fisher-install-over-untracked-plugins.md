@@ -46,17 +46,15 @@ case `fisher install` rejects.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
-
-- `ansible/roles/fish_setup/tasks/main.yml:30` —
+- `ansible/roles/fish_setup/tasks/main.yml#name` —
   `Collect the pinned fish plugin specs`, the wanted list the role converges to
-- `ansible/roles/fish_setup/tasks/main.yml:44` —
+- `ansible/roles/fish_setup/tasks/main.yml#name` —
   `Collect the installed fish plugin specs`, the guard's view of what is
   installed
-- `ansible/roles/fish_setup/tasks/main.yml:60` —
+- `ansible/roles/fish_setup/tasks/main.yml#name` —
   `Record the pinned fish plugin list`, writing the specs into `fish_plugins`
-- `ansible/roles/fish_setup/tasks/main.yml:69` —
+- `ansible/roles/fish_setup/tasks/main.yml#name` —
   `Reconcile the installed fish plugins with the pinned list`, the
   `fisher update` that replaced the install
-- `ansible/roles/fish_setup/defaults/main.yml:5` — `fish_setup_fisher_version`,
-  with `fish_setup_bass_ref` at line 10
+- `ansible/roles/fish_setup/defaults/main.yml#fish_setup_fisher_version` —
+  `fish_setup_fisher_version`, with `fish_setup_bass_ref`

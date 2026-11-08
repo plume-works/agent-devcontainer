@@ -196,9 +196,13 @@ Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 - [x] `iwe-branch-name` rows in the plugin README's IWE table, the root README's
   skill table, and the `## Workspace skills` table of the workspace operating
   manual
-  - **Evidence:** the rows are at `.agents/plugins/agentdev/README.md:152`,
-    `README.md:296`, and `docs/knowledge/AGENTS.md:227` as of 2026-10-25;
-    `prettier` and `iwe normalize` passed in the commit that adds them.
+  - **Evidence:** the rows are at
+    `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "| Executes a plan task-by-task, ticking boxes with evidence."`,
+    `README.md#iwe-project-memory › "| Name a plan's next implementation or shipping branch. |"`,
+    and
+    `docs/knowledge/AGENTS.md#workspace-skills › "iteration branch, never creates it |"`
+    as of 2026-10-25; `prettier` and `iwe normalize` passed in the commit that
+    adds them.
 
 ### Task 5: Implementer names its branch through iwe-branch-name
 
@@ -365,8 +369,9 @@ reports stale after Tasks 8–12
 
 - [x] `WORK_BRANCH`, the `NEXT=` line, the `--help` text, and the
   `NOT_A_WORK_BRANCH` message use `<phase>/<slug>/iter-<N>`
-  - **Evidence:** `iwe-branch-name.py` lines 24, 62, 81, 386, and 448 in the
-    commit that renames the suffix; `python-lint-check.sh` clean on 2026-10-25.
+  - **Evidence:** `iwe-branch-name.py`'s `--help` text, `WORK_BRANCH`, `NEXT=`
+    line, and `NOT_A_WORK_BRANCH` message in the commit that renames the suffix;
+    `python-lint-check.sh` clean on 2026-10-25.
 - [x] `parse` and `next` tests use `iter-<N>` names, and a `parse` test reports
   `NOT_A_WORK_BRANCH` for an `iteration-<N>` name; a `next` test shows an
   `iteration-<N>` branch is not counted
@@ -581,53 +586,52 @@ and SHALL continue on the current branch otherwise.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:260`
-  — `task_checkboxes`; `classify_plan` at line 281, `pull_request_heads` at line
-  335; `WORK_BRANCH` at line 81, the `NEXT=` line at line 386, the
-  `NOT_A_WORK_BRANCH` message at line 448, and the `--help` shape at lines 24
-  and 62
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py:23` —
-  `test_parse_splits_a_work_branch`; `test_parse_rejects_a_name_off_the_shape`
-  at line 43
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:106` —
-  `test_next_ignores_names_off_the_shape_and_the_other_phase`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md:16` — the name
-  shape; description at line 3, `NOT_A_WORK_BRANCH` row at line 78
-- `scripts/e2e/iwe-workflows/scenarios.py:11` — `BRANCH_WORK`
-- `scripts/tests/test_e2e_iwe_workflows_clone.py:126` —
-  `test_main_clone_has_a_remote_and_a_stub_gh`; expected `NEXT=` at line 149
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:109` — the
-  name shape in the codebase map
-- `scripts/e2e/iwe-workflows/clone.py:31` — `_ACTIVE_LINKS`; `FIXTURE_PLANS` at
-  line 23, `build_fixture_repo` at line 129, `make_clone` at line 233
-- `scripts/e2e/iwe-workflows/conftest.py:55` — `base_clone`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:60` — `isolated_env`;
-  `start_server` at line 265
-- `scripts/e2e/iwe-workflows/harness_claude.py:20` — `allowed_tools`;
-  `run_claude` at line 112
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:75`,
-  `test_iwe_workflows_claude.py:70`, `test_iwe_workflows_codex.py:104` —
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::task_checkboxes`
+  — `task_checkboxes`; `classify_plan`, `pull_request_heads`; `WORK_BRANCH`, the
+  `NEXT=` line, the `NOT_A_WORK_BRANCH` message, and the `--help` shape and 62
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py::test_parse_splits_a_work_branch`
+  — `test_parse_splits_a_work_branch`; `test_parse_rejects_a_name_off_the_shape`
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py::test_next_ignores_names_off_the_shape_and_the_other_phase`
+  — `test_next_ignores_names_off_the_shape_and_the_other_phase`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md#the-name-shape › "<phase>/<slug>/iter-<N>"`
+  — the name shape; description, `NOT_A_WORK_BRANCH` row
+- `scripts/e2e/iwe-workflows/scenarios.py::BRANCH_WORK` — `BRANCH_WORK`
+- `scripts/tests/test_e2e_iwe_workflows_clone.py::test_main_clone_has_a_remote_and_a_stub_gh`
+  — `test_main_clone_has_a_remote_and_a_stub_gh`; expected `NEXT=`
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md#how-it-works › "the first falls back to it when"`
+  — the name shape in the codebase map
+- `scripts/e2e/iwe-workflows/clone.py::_ACTIVE_LINKS` — `_ACTIVE_LINKS`;
+  `FIXTURE_PLANS`, `build_fixture_repo`, `make_clone`
+- `scripts/e2e/iwe-workflows/conftest.py::base_clone` — `base_clone`
+- `scripts/e2e/iwe-workflows/harness_opencode.py::isolated_env` —
+  `isolated_env`; `start_server`
+- `scripts/e2e/iwe-workflows/harness_claude.py::allowed_tools` —
+  `allowed_tools`; `run_claude`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement`,
+  `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement`,
+  `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py::test_implement` —
   `test_implement`
-- `scripts/tests/test_e2e_iwe_workflows_clone.py:43` —
-  `test_fixtures_are_the_only_active_plans`
-- `docs/knowledge/tests/test_plan_checkboxes.py:31` — `TASK_SECTIONS`, the two
-  task headings
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:48` — step 4, "Start
-  on a work branch"
-- `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md:36` — "Choose the
-  Name"; table at line 41, IWE plan row at line 43
-- `.agents/plugins/agentdev/bin/result_codes.py:89` — `run`
-- `.agents/plugins/agentdev/bin/git-default-branch.sh:12` —
+- `scripts/tests/test_e2e_iwe_workflows_clone.py::test_fixtures_are_the_only_active_plans`
+  — `test_fixtures_are_the_only_active_plans`
+- `docs/knowledge/tests/test_plan_checkboxes.py::TASK_SECTIONS` —
+  `TASK_SECTIONS`, the two task headings
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "When the checkout is on the repository's"`
+  — step 4, "Start on a work branch"
+- `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md#choose-the-name` —
+  "Choose the Name"; table, IWE plan row
+- `.agents/plugins/agentdev/bin/result_codes.py::run` — `run`
+- `.agents/plugins/agentdev/bin/git-default-branch.sh::remote_default_branch` —
   `remote_default_branch`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:21` —
-  plugin `bin/` import; `library_from_config` at line 446
-- `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`;
-  `plugin_tmp_path` at line 28
-- `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/README.md:143` — IWE skills table
-- `README.md:299` — skill table, `iwe-weekly` row
-- `docs/knowledge/AGENTS.md:230` — `## Workspace skills` table, `iwe-weekly` row
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:229` — "Implement starts work
-  on its own branch"
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py › "sys.path.insert(0, str(Path(__file__).resolve().parents[3] /"`
+  — plugin `bin/` import; `library_from_config`
+- `.agents/plugins/agentdev/tests/conftest.py::plugin_root` — `plugin_root`;
+  `plugin_tmp_path`
+- `.agents/plugins/agentdev/tests/git_fixtures.py::stub_gh` — `stub_gh`
+- `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "and codebase-map documents. They are the project's memory"`
+  — IWE skills table
+- `README.md#iwe-project-memory › "| Summarize project status and graph health. |"`
+  — skill table, `iwe-weekly` row
+- `docs/knowledge/AGENTS.md#workspace-skills › "| Read-only digest: shipped, in flight, bugs, backlog, graph"`
+  — `## Workspace skills` table, `iwe-weekly` row
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-starts-work-on-its-own-branch`
+  — "Implement starts work on its own branch"

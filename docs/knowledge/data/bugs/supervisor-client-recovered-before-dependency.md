@@ -112,30 +112,45 @@ in practice. The fix covers any client that exits.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.devcontainer/scripts/runtime-supervisor.py:742` — `Controller.check_once`;
-  `:748` — an exited service counts as failed at once; `:752` — the
-  probe-failure debounce; `:765` — the escalation to a failing dependency
-- `.devcontainer/scripts/runtime-supervisor.py:620` —
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` —
+  `Controller.check_once`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` — an
+  exited service counts as failed at once;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` — the
+  probe-failure debounce;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` — the
+  escalation to a failing dependency
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.failing_dependency` —
   `Controller.failing_dependency`
-- `.devcontainer/scripts/runtime-supervisor.py:658` — `Controller.recover`;
-  `:665` — it skips a dependent in the `refresh` list
-- `.devcontainer/scripts/runtime-supervisor.py:674` —
-  `Controller.refresh_clients`; `:677` — it restarts only a `ready` client
-- `.devcontainer/scripts/runtime-supervisor.py:560` — `Controller.pause`, woken
-  early by a process-state event; `:891` — `control`, which queues every event
-- `.devcontainer/scripts/runtime-health.sh:38` — the D-Bus probe; `:42` — the
-  keyring probe
-- `.devcontainer/scripts/runtime-supervisor.py:637` —
-  `Controller.restart_until_ready`, which charges the service's own budget
-- `.devcontainer/scripts/runtime-supervisor.py:290` — `dbus` refreshes `keyring`
-  and `xpra`; `:291` — `keyring` is core and runs `after` `dbus`
-- `.devcontainer/scripts/runtime-supervisor.py:143` — `Settings.probe_failures`
-  default
-- `scripts/tests/test_agent_runtime_supervision.py:634` —
-  `test_dependency_outage_recovers_clients_outside_their_budget`; `:645` —
-  `test_a_client_failure_escalates_to_its_failing_dependency`
-- `scripts/tests/test_agent_runtime_supervision.py:58` — the fake service's
-  `wedge` trigger; `:65` — it exits once a service it needs loses readiness
-- `scripts/tests/test_agent_runtime_supervision.py:79` — `FAKE_HEALTH`
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.recover` —
+  `Controller.recover`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.recover` — it skips a
+  dependent in the `refresh` list
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.refresh_clients` —
+  `Controller.refresh_clients`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.refresh_clients` — it
+  restarts only a `ready` client
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.pause` —
+  `Controller.pause`, woken early by a process-state event;
+  `.devcontainer/scripts/runtime-supervisor.py::control` — `control`, which
+  queues every event
+- `.devcontainer/scripts/runtime-health.sh › "dbus)"` — the D-Bus probe;
+  `.devcontainer/scripts/runtime-health.sh › "$script_dir/runtime-keyring.sh"` —
+  the keyring probe
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.restart_until_ready`
+  — `Controller.restart_until_ready`, which charges the service's own budget
+- `.devcontainer/scripts/runtime-supervisor.py::DEPLOY_SERVICES` — `dbus`
+  refreshes `keyring` and `xpra`;
+  `.devcontainer/scripts/runtime-supervisor.py::DEPLOY_SERVICES` — `keyring` is
+  core and runs `after` `dbus`
+- `.devcontainer/scripts/runtime-supervisor.py::Settings` —
+  `Settings.probe_failures` default
+- `scripts/tests/test_agent_runtime_supervision.py::test_dependency_outage_recovers_clients_outside_their_budget`
+  — `test_dependency_outage_recovers_clients_outside_their_budget`;
+  `scripts/tests/test_agent_runtime_supervision.py::test_a_client_failure_escalates_to_its_failing_dependency`
+  — `test_a_client_failure_escalates_to_its_failing_dependency`
+- `scripts/tests/test_agent_runtime_supervision.py::FAKE_SERVICE` — the fake
+  service's `wedge` trigger;
+  `scripts/tests/test_agent_runtime_supervision.py::FAKE_SERVICE` — it exits
+  once a service it needs loses readiness
+- `scripts/tests/test_agent_runtime_supervision.py::FAKE_HEALTH` — `FAKE_HEALTH`

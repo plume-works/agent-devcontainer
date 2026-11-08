@@ -90,21 +90,21 @@ daemon this bug concerns.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-28):
-
-- `.devcontainer/scripts/runtime-cbm.sh:117` — `cmd_start`'s `daemon start`
-  call, the only start path; it inspects no rendezvous state
-- `.devcontainer/scripts/runtime-cbm.sh:120` —
+- `.devcontainer/scripts/runtime-cbm.sh::cmd_start` — `cmd_start`'s
+  `daemon start` call, the only start path; it inspects no rendezvous state
+- `.devcontainer/scripts/runtime-cbm.sh::cmd_start` —
   `daemon start failed with exit code` log line from the incident
-- `.devcontainer/scripts/runtime-cbm.sh:182` — `cmd_run` calls `cmd_start`, so
-  every supervised restart repeats it
-- `.devcontainer/scripts/runtime-supervisor.py:544` — `restart_until_ready`, the
-  bounded recovery that raises `exhausted N recovery attempts`
-- `.devcontainer/scripts/runtime-supervisor.py:973` — `retry`, the advertised
+- `.devcontainer/scripts/runtime-cbm.sh::cmd_run` — `cmd_run` calls `cmd_start`,
+  so every supervised restart repeats it
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.restart_until_ready`
+  — `restart_until_ready`, the bounded recovery that raises
+  `exhausted N recovery attempts`
+- `.devcontainer/scripts/runtime-supervisor.py::retry` — `retry`, the advertised
   operator retry
-- `.devcontainer/scripts/runtime-health.sh:43` — `cbm` readiness probe behind
-  the image health check
-- `docker/opencode/supervisord.conf:164` — `[program:cbm]` runs
-  `runtime-cbm.sh run`, with no `CBM_RUNTIME_DIR` in its environment
-- `docker/opencode/agent-opencode.Dockerfile:63` — `HEALTHCHECK` with the
-  10-minute start period
+- `.devcontainer/scripts/runtime-health.sh › "$script_dir/runtime-cbm.sh"` —
+  `cbm` readiness probe behind the image health check
+- `docker/opencode/supervisord.conf › "command=/opt/agentdev-runtime/runtime-supervisor.py exec cbm"`
+  — `[program:cbm]` runs `runtime-cbm.sh run`, with no `CBM_RUNTIME_DIR` in its
+  environment
+- `docker/opencode/agent-opencode.Dockerfile › "HEALTHCHECK --interval=15s --timeout=10s --start-period=10m"`
+  — `HEALTHCHECK` with the 10-minute start period

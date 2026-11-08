@@ -52,17 +52,17 @@ claims the user gave is not one.
    `/agentdev:iwe-branch-name next <plan-key> --phase impl`, following that
    skill's result table, and create the `NEXT` it prints through the
    `/agentdev:git-new-branch` skill. On any other branch, continue where it is.
-5. **Re-verify the anchors.** The plan's `## Key references` line numbers were
-   true when written; re-locate each symbol in the current checkout before
-   relying on it. If lines moved, update the anchor list and its
-   "verified as of" date — that edit is part of this session's work.
+5. **Re-verify the anchors.** Confirm each `## Key references` anchor still
+   names its target in the current checkout before relying on it, and correct
+   a renamed or removed one — that edit is part of this session's work. An
+   anchor carries no date to refresh.
 6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
    the code; run every test and check required for that task; commit the code.
    Closing it is then a single edit that ticks `- [ ]` → `- [x]` _and_ writes
    the task's indented `- **Evidence:**` child naming what closed it — the
    commit that holds the code, the test run and its result, the CI run —
-   specifically enough that a later session can go look; commit that edit next,
-   on its own. A check and its result count only together with the commit that
+   specifically enough that a later session can go look, and naming code by
+   anchor, never by line number; commit that edit next, on its own. A check and its result count only together with the commit that
    holds the change they check. Cite what survives the session, not what it
    produced: a check cited without that commit, raw command stdout transcribed
    as evidence, an ephemeral identifier that will not exist next session (a

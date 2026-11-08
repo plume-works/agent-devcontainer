@@ -220,15 +220,13 @@ run with no policy auto-rejected the `external_directory` permission request.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
-
-- `.devcontainer/scripts/postStartCommand.sh:25-31` — agent config and auth
-  steps at the end of each container start
-- `.devcontainer/scripts/reinstall-agentdev-opencode.sh:21-38` — OpenCode
-  config-directory resolution and existing JSON merge/write behavior
-- `scripts/tests/test_configure_codex.py:21-90` — neighboring devcontainer
-  configuration test structure
-- `docs/knowledge/data/architecture/template-boundary.md:89-114` — tracked
-  devcontainer runtime inventory
-- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md:29-47` — current
-  postStart lifecycle sequence
+- `.devcontainer/scripts/postStartCommand.sh › "Repairs the shared auth.json symlink if a"`
+  — agent config and auth steps at the end of each container start
+- `.devcontainer/scripts/reinstall-agentdev-opencode.sh › "$catalog_root$bridge_suffix"`
+  — OpenCode config-directory resolution and existing JSON merge/write behavior
+- `scripts/tests/test_configure_codex.py › "@pytest.fixture"` — neighboring
+  devcontainer configuration test structure
+- `docs/knowledge/data/architecture/template-boundary.md#adoption-state › "tracked in git, survives template updates, and never appears"`
+  — tracked devcontainer runtime inventory
+- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md#trace › "and creates the shared"`
+  — current postStart lifecycle sequence

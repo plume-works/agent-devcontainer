@@ -509,33 +509,39 @@ At commit 786e72b of `iwe/catalog-scripts-python/iter-1-impl`, after Task 12:
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:22` —
-  `sys.path` to `bin/`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:191`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py › "sys.path.insert(0, str(Path(__file__).resolve().parents[3] /"`
+  — `sys.path` to `bin/`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::remote_default_branch`
   — `remote_default_branch`, which calls the `bin/git_default_branch.py` module
-- `.agents/plugins/agentdev/bin/result_codes.py:49` — Python `quit_by_code`
-- `.agents/plugins/agentdev/bin/result_codes.py:83` — `_excepthook`, which hands
-  an escaping exception to the default traceback printer Task 12 replaces
-- `.agents/plugins/agentdev/tests/test_result_codes.py:34` — Python contract
-  tests
-- `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
-- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:91` — the Python
-  implementation rules
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:34` — `stack-guard.py` link
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py:124`
+- `.agents/plugins/agentdev/bin/result_codes.py::quit_by_code` — Python
+  `quit_by_code`
+- `.agents/plugins/agentdev/bin/result_codes.py::_excepthook` — `_excepthook`,
+  which hands an escaping exception to the default traceback printer Task 12
+  replaces
+- `.agents/plugins/agentdev/tests/test_result_codes.py::test_python_result_codes_preserve_terminating_signals`
+  — Python contract tests
+- `.agents/plugins/agentdev/tests/conftest.py::plugin_root` — `plugin_root`
+- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation` — the
+  Python implementation rules
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md#the-push-guard › "stack-guard.py](agent-code/stack-guard.py), and its own"`
+  — `stack-guard.py` link
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py::usage`
   — `worktree_parent`
-- `docs/knowledge/data/spec/git-new-branch.md:97` — the worktree requirement
-- `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md:51` —
-  `git-new-branch.py` link
-- `.github/workflows/reformat.yml:207` — `super_linter.py env --autofix`
-- `.github/workflows/reformat.yml:246` — `super_linter.py env`
-- `.github/workflows/reformat.yml:269` —
-  `validate-super-linter-tool-versions.py`
-- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md:34` —
+- `docs/knowledge/data/spec/git-new-branch.md#requirement-worktree-mode-leaves-the-current-checkout-alone`
+  — the worktree requirement
+- `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md#bundled-script › "Use [git-new-branch.sh](agent-code/git-new-branch.sh)"`
+  — `git-new-branch.py` link
+- `.github/workflows/reformat.yml#jobs.super-linter.steps.Load Super-Linter autofix configuration.run`
+  — `super_linter.py env --autofix`
+- `.github/workflows/reformat.yml#jobs.super-linter.steps.Load Super-Linter check configuration.run`
+  — `super_linter.py env`
+- `.github/workflows/reformat.yml#jobs.super-linter.steps.Validate pre-commit and local tool versions.run`
+  — `validate-super-linter-tool-versions.py`
+- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md#prerequisites` —
   `super_linter.py` link
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:152` — `close-issue.py`
-  in the rulebook
-- `AGENTS.md:7` — force-push exception naming `stack-guard.py`
-- `docs/knowledge/data/product.md:132` — the same exception
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "agent-code/close-issue.py"`
+  — `close-issue.py` in the rulebook
+- `AGENTS.md#agents-guidelines › "docs/knowledge/data/architecture/stacked-prs.md"`
+  — force-push exception naming `stack-guard.py`
+- `docs/knowledge/data/product.md#authoring-rules › "stack-guard.sh publish"` —
+  the same exception

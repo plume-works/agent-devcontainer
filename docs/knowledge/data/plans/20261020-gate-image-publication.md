@@ -207,23 +207,39 @@ NOT cancel one another.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
-
-- `.github/workflows/ci.yml:64` — `build-dev-image`, pushing per-arch images by
-  digest; `:182` — `merge-dev-image`, with merge steps `merge_ansible`, `merge`,
-  and `merge_opencode` at `:204`, `:213`, and `:222`; `:236` —
-  `dev-container-ci`; `:314` — `opencode-acceptance`; `:352` —
-  `promote-dev-image`; `:403` — `finished`.
-- `.github/workflows/primary-checks.yml:22-24` — `concurrency`, cancelling in
-  progress except on `main`.
-- `.github/actions/docker/multiarch-merge/action.yml:66` — `candidate: 'true'`;
-  `:97` — `imagetools create` with the `sha-<commit>` tag only.
-- `.github/actions/docker/metadata-action/action.yml:15` — `candidate` input;
-  `:59-64` — the tag rules, split by `candidate`.
-- `.github/actions/docker/promote/action.yml:55` — revision label read; `:61` —
-  descendant skip; `:73` — `imagetools create` with the moving tags.
-- `.github/actions/docker/build-push-action/action.yml:70` — `push-by-digest`
-  per-arch output.
-- `scripts/tests/test_agent_runtime_ci.py:74` —
-  `test_the_runtime_gets_its_own_manifest_and_native_acceptance`; `:90`, `:101`,
-  `:118` — the candidate-tag and promotion tests.
+- `.github/workflows/ci.yml#jobs.build-dev-image` — `build-dev-image`, pushing
+  per-arch images by digest; `.github/workflows/ci.yml#jobs.merge-dev-image` —
+  `merge-dev-image`, with merge steps `merge_ansible`, `merge`, and
+  `merge_opencode` at
+  `.github/workflows/ci.yml#jobs.merge-dev-image.steps.Merge and push ubuntu ansible image.id`,
+  `.github/workflows/ci.yml#jobs.merge-dev-image.steps.Merge and push agent desktop image.id`,
+  and
+  `.github/workflows/ci.yml#jobs.merge-dev-image.steps.Merge and push agent opencode image.id`;
+  `.github/workflows/ci.yml#jobs.dev-container-ci` — `dev-container-ci`;
+  `.github/workflows/ci.yml#jobs.opencode-acceptance` — `opencode-acceptance`;
+  `.github/workflows/ci.yml#jobs.promote-dev-image` — `promote-dev-image`;
+  `.github/workflows/ci.yml#jobs.finished` — `finished`.
+- `.github/workflows/primary-checks.yml#concurrency` — `concurrency`, cancelling
+  in progress except on `main`.
+- `.github/actions/docker/multiarch-merge/action.yml#runs.steps.Extract metadata (tags, labels) for docker image.with.candidate`
+  — `candidate: 'true'`;
+  `.github/actions/docker/multiarch-merge/action.yml#runs.steps.Create manifest list and push.run`
+  — `imagetools create` with the `sha-<commit>` tag only.
+- `.github/actions/docker/metadata-action/action.yml#inputs.candidate` —
+  `candidate` input;
+  `.github/actions/docker/metadata-action/action.yml#runs.steps.uses.with.tags`
+  — the tag rules, split by `candidate`.
+- `.github/actions/docker/promote/action.yml#runs.steps.Point moving tags at the tested digest.run`
+  — revision label read;
+  `.github/actions/docker/promote/action.yml#runs.steps.Point moving tags at the tested digest.run`
+  — descendant skip;
+  `.github/actions/docker/promote/action.yml#runs.steps.Point moving tags at the tested digest.run`
+  — `imagetools create` with the moving tags.
+- `.github/actions/docker/build-push-action/action.yml#runs.steps.Build and push Docker image.with.outputs`
+  — `push-by-digest` per-arch output.
+- `scripts/tests/test_agent_runtime_ci.py::test_the_runtime_gets_its_own_manifest_and_native_acceptance`
+  — `test_the_runtime_gets_its_own_manifest_and_native_acceptance`;
+  `scripts/tests/test_agent_runtime_ci.py::test_the_merge_pushes_only_the_candidate_tag`,
+  `scripts/tests/test_agent_runtime_ci.py::test_promotion_waits_for_both_test_jobs_and_reuses_the_merged_digests`,
+  `scripts/tests/test_agent_runtime_ci.py::test_promotion_never_moves_a_tag_back_or_rebuilds`
+  — the candidate-tag and promotion tests.

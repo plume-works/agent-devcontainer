@@ -561,40 +561,44 @@ creates `iwe-verifier`, which this plan dispatches.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
-
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:15` —
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#how-you-run` —
   `## How you run`, the two modes
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:74` — step 7,
-  classify deviations
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:84` — the material
-  deviation branch
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:101` — step 9,
-  Finish, which suggests `/agentdev:iwe-verify`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:142` — `## Rules`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:13` — the in-place
-  follow of the implementer rulebook
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — the per-plan
-  `iwe-implementer` dispatch
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:19` — `## Steps`, the
-  rulebook that moves
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:125` — step 7, the Durable
-  Knowledge Auditor gate
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:155` —
-  `## Closing the issue`
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:212` — `## Rules`
-- `scripts/e2e/iwe-workflows/clone.py:23` — `FIXTURE_PLANS`
-- `scripts/e2e/iwe-workflows/clone.py:148` — fixture plans copied into the clone
-- `scripts/e2e/iwe-workflows/scenarios.py:8` — `GREET_KEY`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:99` — `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:130` — `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:103` —
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Classify deviations before coding past them."`
+  — step 7, classify deviations
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "as written."`
+  — the material deviation branch
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Dispatched, both stop: report the needed change, and the"`
+  — step 9, Finish, which suggests `/agentdev:iwe-verify`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "— a finding about code or evidence. Fix it under the Steps"`
+  — `## Rules`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#implement-a-plan › "Read [the iwe-implementer"`
+  — the in-place follow of the implementer rulebook
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md#implement-all-active-plans-in-the-iwe-graph › "agent once per plan, sequentially, in dependency"`
+  — the per-plan `iwe-implementer` dispatch
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#create-or-revise-a-plan › "issue-closing step runs this skill's bundled"`
+  — `## Steps`, the rulebook that moves
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#create-or-revise-a-plan › "issue-closing step runs this skill's bundled"`
+  — step 7, the Durable Knowledge Auditor gate
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#create-or-revise-a-plan › "issue-closing step runs this skill's bundled"`
+  — `## Closing the issue`
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#create-or-revise-a-plan › "issue-closing step runs this skill's bundled"`
+  — `## Rules`
+- `scripts/e2e/iwe-workflows/clone.py::DATA` — `FIXTURE_PLANS`
+- `scripts/e2e/iwe-workflows/clone.py::_activate_fixtures` — fixture plans
+  copied into the clone
+- `scripts/e2e/iwe-workflows/scenarios.py::GREET_KEY` — `GREET_KEY`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_ship_all` —
   `test_implement`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:249` — "Implement never hides
-  a material deviation"
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:400` — "Ship and Implement
-  start only from an explicit request or a named dispatcher"
-- `docs/knowledge/data/features/verification-in-the-main-loop.md:50` — the
-  Behaviour property that Implement does not invoke Verify
-- `docs/knowledge/data/features/verification-in-the-main-loop.md:88` — the
-  matching resolved decision
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py::test_ship_approved` —
+  `test_implement`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_ship_approved`
+  — `test_implement`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-implementation-starts-on-a-feature-branch`
+  — "Implement never hides a material deviation"
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-session-narrates-its-attempts-into-a-plan › "failed attempts, CI run identifiers, per-attempt tables"`
+  — "Ship and Implement start only from an explicit request or a named
+  dispatcher"
+- `docs/knowledge/data/features/verification-in-the-main-loop.md#behaviour › "Report, never fix"`
+  — the Behaviour property that Implement does not invoke Verify
+- `docs/knowledge/data/features/verification-in-the-main-loop.md#resolved-decisions`
+  — the matching resolved decision

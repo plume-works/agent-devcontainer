@@ -523,46 +523,44 @@ absence, and reported for a person rather than retried.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-27):
-
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:3` —
-  frontmatter `description` naming the assignee toggle
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:15` —
-  `## Post the request`, running `request-review.sh`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:56` —
-  `## Confirm it started`, causes read from the `pull_request` run
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:92` —
-  `## Post at most once per head SHA`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:110` —
-  `## Related Skills`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:20`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md › "description: 'Request a fresh AI review of an open pull"`
+  — frontmatter `description` naming the assignee toggle
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-the-request`
+  — `## Post the request`, running `request-review.sh`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-the-request › "after it."`
+  — `## Confirm it started`, causes read from the `pull_request` run
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#confirm-it-started › "the check is simply still pending, say so plainly instead of"`
+  — `## Post at most once per head SHA`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-at-most-once-per-head-sha › "requesting again."`
+  — `## Related Skills`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh::usage`
   — `usage()`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:156`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh › "quit_by_code 6"`
   — accepted reviewers, Claude only
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:162`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh › "]] || finish"`
   — responder check runs on the head
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:174`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh › "${existing_url}"`
   — the assignment toggle
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:195`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh`
   — the rationale comment body
-- `.agents/plugins/agentdev/tests/test_request_review.py:29` — `GH_STUB`, the
-  stub `gh` that logs write calls
-- `.agents/plugins/agentdev/tests/test_request_review.py:96` — `pull_request()`
-  and `make_fixture()` builders
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:242` —
+- `.agents/plugins/agentdev/tests/test_request_review.py::GH_STUB` — `GH_STUB`,
+  the stub `gh` that logs write calls
+- `.agents/plugins/agentdev/tests/test_request_review.py::pull_request` —
+  `pull_request()` and `make_fixture()` builders
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery` —
   `## AI Review Recovery`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:244` — introduction naming
-  the assignee toggle
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:261` — step 3, request
-  through `pr-request-ai-review`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery › "check accepts a submitted review from Claude. A review is"`
+  — introduction naming the assignee toggle
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery › "Otherwise request the review through"`
+  — step 3, request through `pr-request-ai-review`
 - `.agents/plugins/agentdev/bin/result-codes.sh` — shared result helpers
-- `.github/workflows/ai-responder.yml:82` — `preflight`, whose `if:` excludes
-  bot-authored and fork `pull_request` events
-- `.github/workflows/ai-responder.yml:267` — `assigned` among the actions that
-  always review
-- `.github/workflows/ai-responder.yml:502` — `ai-review-present`, needing
-  `claude-respond`
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:31` — family
-  table
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md:1` — plugin
-  tests map
+- `.github/workflows/ai-responder.yml#jobs.preflight` — `preflight`, whose `if:`
+  excludes bot-authored and fork `pull_request` events
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — `assigned` among the actions that always review
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present`, needing `claude-respond`
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md#public-surface`
+  — family table
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md` — plugin tests
+  map

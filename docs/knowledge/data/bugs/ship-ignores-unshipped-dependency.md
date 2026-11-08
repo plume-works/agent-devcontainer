@@ -48,11 +48,9 @@ mirrors the implementer's check.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-08):
-
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:49` — step 1, select the
-  operation and inspect current state (no dependency check)
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
-  for normal shipping
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:44` — step 3, Check
-  `## Depends on`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Select the operation and inspect current state.** Take the"`
+  — step 1, select the operation and inspect current state (no dependency check)
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
+  — step 3, Run Verify for normal shipping
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › ".** Every prerequisite plan must carry"`
+  — step 3, Check `## Depends on`

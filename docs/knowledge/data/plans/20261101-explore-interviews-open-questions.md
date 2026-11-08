@@ -182,12 +182,11 @@ each answer verbatim as it is given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:54` — `## The stance`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:64` — the
-  `**Curious, not prescriptive**` bullet (through line 66)
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:77` —
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance` —
+  `## The stance`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance › "— ask the questions that emerge, challenge"`
+  — the `**Curious, not prescriptive**` bullet
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#during-implementation` —
   `## During implementation`, the section the new one precedes
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:45` —
-  `### Requirement: Explore remains an adaptive thinking mode`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`
+  — `### Requirement: Explore remains an adaptive thinking mode`

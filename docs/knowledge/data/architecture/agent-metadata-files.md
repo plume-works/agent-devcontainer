@@ -139,9 +139,7 @@ removes the portability that motivates colocation.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `docs/knowledge/data/architecture/template-boundary.md:19-25` — the
-  classification a colocated file inherits from its directory
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:22` — the root
-  marker's `template-consume` section
+- `docs/knowledge/data/architecture/template-boundary.md#classification › "| Class | Meaning |"`
+  — the classification a colocated file inherits from its directory
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#the-marker-file` —
+  the root marker's `template-consume` section

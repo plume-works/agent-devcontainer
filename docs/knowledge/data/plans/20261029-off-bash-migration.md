@@ -1156,71 +1156,96 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:97` —
+- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py::allowlist_path` —
   `allowlist_path`: `FIREWALL_ALLOWLIST` first, in both profiles
-- `py_packages/agentdev_runtime/tests/test_firewall_allowlist.py:67` —
-  `test_deploy_reads_the_image_copy_or_the_setting`; `:76` —
-  `test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer`
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:249` — a seen
-  session that is gone ends the watcher; `:258` — a start that never comes up
-  ends it
-- `scripts/tests/test_runtime_remote_control.py:187` —
-  `test_a_session_that_disappears_ends_the_watcher`; `:197` —
-  `test_a_start_that_never_comes_up_ends_the_watcher`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:14` — the
+- `py_packages/agentdev_runtime/tests/test_firewall_allowlist.py::test_deploy_reads_the_image_copy_or_the_setting`
+  — `test_deploy_reads_the_image_copy_or_the_setting`;
+  `py_packages/agentdev_runtime/tests/test_firewall_allowlist.py::test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer`
+  — `test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer`
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run` — a
+  seen session that is gone ends the watcher;
+  `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run` — a
+  start that never comes up ends it
+- `scripts/tests/test_runtime_remote_control.py::test_a_session_that_disappears_ends_the_watcher`
+  — `test_a_session_that_disappears_ends_the_watcher`;
+  `scripts/tests/test_runtime_remote_control.py::test_a_start_that_never_comes_up_ends_the_watcher`
+  — `test_a_start_that_never_comes_up_ends_the_watcher`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile` — the
   `agentdev_runtime` uv tool install
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:38` —
-  `devcontainer.metadata` lifecycle commands
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:54` — `HEALTHCHECK`
-  command
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:57` — `ENTRYPOINT`
-- `docker/deploy/agentdev-deploy.Dockerfile:19` — the `agentdev_runtime` uv tool
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "LABEL devcontainer.metadata="`
+  — `devcontainer.metadata` lifecycle commands
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "HEALTHCHECK --interval=15s --timeout=10s --start-period=5m"`
+  — `HEALTHCHECK` command
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "/usr/local/bin/agentdev-runtime"`
+  — `ENTRYPOINT`
+- `docker/deploy/agentdev-deploy.Dockerfile` — the `agentdev_runtime` uv tool
   install
-- `docker/deploy/agentdev-deploy.Dockerfile:62` — `HEALTHCHECK` command
-- `docker/deploy/agentdev-deploy.Dockerfile:65` — `ENTRYPOINT`
-- `docker/devcontainer/supervisord.conf:25` — controller listener command
-- `docker/devcontainer/supervisord.conf:38` — first service `command=`
-- `docker/deploy/supervisord.conf:84` — `prepare` one-shot
-- `.github/workflows/ai-responder.yml:424` — review job `container:` block
-- `.github/actions/run-claude-responder/action.yml:159` — composite
-  `claude-code-action` step
-- `.github/actions/run-claude-responder/action.yml:95` — lifecycle step
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:141` — `ready`:
-  the no-supervisor branch starts CBM through `start_cbm` (`:130`)
-- `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install the
+- `docker/deploy/agentdev-deploy.Dockerfile › "HEALTHCHECK --interval=15s --timeout=10s --start-period=10m"`
+  — `HEALTHCHECK` command
+- `docker/deploy/agentdev-deploy.Dockerfile › "/usr/local/bin/agentdev-runtime"`
+  — `ENTRYPOINT`
+- `docker/devcontainer/supervisord.conf › "command=/opt/agentdev-runtime/runtime-supervisor.py control"`
+  — controller listener command
+- `docker/devcontainer/supervisord.conf › "command=/opt/agentdev-runtime/runtime-supervisor.py exec"`
+  — first service `command=`
+- `docker/deploy/supervisord.conf › "command=/opt/agentdev-runtime/runtime-supervisor.py exec"`
+  — `prepare` one-shot
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.container` — review
+  job `container:` block
+- `.github/actions/run-claude-responder/action.yml#runs.steps.Claude Responder.uses`
+  — composite `claude-code-action` step
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` — lifecycle
+  step
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::ready` — `ready`:
+  the no-supervisor branch starts CBM through `start_cbm`
+  (`py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::start_cbm`)
+- `ansible/roles/validate_agent_files/tasks/main.yml#name` — uv tool install the
   runtime images mirror
-- `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
-- `.github/workflows/ci.yml:325` — `agentdev-runtime health ready` in the Dev
-  Container image check
-- `.github/workflows/ci.yml:399` — the acceptance suite through `uv run pytest`
-- `.github/renovate.json:6` — `postUpgradeTasks.commands`
-- `.github/workflows/renovate.yml:110` — `RENOVATE_ALLOWED_COMMANDS`
-- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:29` — module-function
-  stubs recording each step
-- `AGENTS.md:13` — `agentdev-runtime project sync` reference
-- `README.md:205` — `agentdev-runtime health status` operator command
-- `docker/deploy/README.md:101` — `agentdev-runtime health status` operator
-  command
-- `docs/knowledge/data/product.md:112` — firewall constraint
-- `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
-- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:55` — `verify`:
-  changed, missing, or added package files against `RECORD`
-- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:351` — the
+- `ansible/roles/validate_agent_files/defaults/main.yml#validate_agent_files_tool_dir`
+  — `/opt/uv-tools`
+- `.github/workflows/ci.yml#jobs.dev-container-ci.steps.Build and test dev container image.with.runCmd`
+  — `agentdev-runtime health ready` in the Dev Container image check
+- `.github/workflows/ci.yml#jobs.deploy-acceptance.steps.Run container acceptance on the native architecture.run`
+  — the acceptance suite through `uv run pytest`
+- `.github/renovate.json › "scripts/renovate-post-upgrade.sh"` —
+  `postUpgradeTasks.commands`
+- `.github/workflows/renovate.yml#jobs.renovate.steps.Run Renovate.env.RENOVATE_ALLOWED_COMMANDS`
+  — `RENOVATE_ALLOWED_COMMANDS`
+- `scripts/tests/test_agentdev_devcontainer_lifecycle.py::LIFECYCLE` —
+  module-function stubs recording each step
+- `AGENTS.md#best-practices-for-agents › "inside the runtime images) after changing dependencies."`
+  — `agentdev-runtime project sync` reference
+- `README.md#operating-it › "docker exec <container> agentdev-runtime health status"`
+  — `agentdev-runtime health status` operator command
+- `docker/deploy/README.md#4-start-the-project › "docker exec myproject-opencode-1 agentdev-runtime health"`
+  — `agentdev-runtime health status` operator command
+- `docs/knowledge/data/product.md#constraints › "run as root by the runtime bootstrap, is"`
+  — firewall constraint
+- `docs/knowledge/data/architecture/template-boundary.md#agent-facing-repository-configuration › "| Customize | Codex Cloud bootstrap and explanation of where"`
+  — `.codex/` row
+- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py::verify` —
+  `verify`: changed, missing, or added package files against `RECORD`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::main` — the
   bootstrap's integrity call
-- `docs/knowledge/data/spec/agentdev-runtime-images.md:97` — the hook scenario
-  naming `/opt/agentdev-runtime`
-- `docs/knowledge/data/spec/coder-ide-baseline.md:28` — the agent-start script
-  requirement the Task 19 delta removes
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:142` — `gateway`:
-  `mcp-gateway` checked only when `COMPOSE_PROFILES` names `mcp`; `:233` —
-  `git user` resolving identity through `git var`
-- `.devcontainer/docker-compose.yml:70` — `COMPOSE_PROFILES` passed into the
-  `devcontainer` service
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:19` —
-  `REQUIRED_TOOLS`, with `gitleaks` (`:30`) and `actionlint` (`:31`)
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`:
-  deploy and devcontainer hook registration; `:46` — `missing_executables`
-- `.pre-commit-config.yaml:56` — `gitleaks`, a `language: system` hook; `:62` —
+- `docs/knowledge/data/spec/agentdev-runtime-images.md#scenario-a-direct-consumer-has-no-lifecycle-scripts › "its descriptor selects the image, mounts, workspace, and"`
+  — the hook scenario naming `/opt/agentdev-runtime`
+- `docs/knowledge/data/spec/coder-ide-baseline.md#requirements` — the
+  agent-start script requirement the Task 19 delta removes
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::gateway` —
+  `gateway`: `mcp-gateway` checked only when `COMPOSE_PROFILES` names `mcp`;
+  `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` — `git user`
+  resolving identity through `git var`
+- `.devcontainer/docker-compose.yml#services.devcontainer.environment.COMPOSE_PROFILES`
+  — `COMPOSE_PROFILES` passed into the `devcontainer` service
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::REQUIRED_TOOLS` —
+  `REQUIRED_TOOLS`, with `gitleaks`
+  (`py_packages/agentdev_runtime/agentdev_runtime/doctor.py::REQUIRED_TOOLS`)
+  and `actionlint`
+  (`py_packages/agentdev_runtime/agentdev_runtime/doctor.py::REQUIRED_TOOLS`)
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::hooks` — `hooks`:
+  deploy and devcontainer hook registration;
+  `py_packages/agentdev_runtime/agentdev_runtime/project.py::missing_executables`
+  — `missing_executables`
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `gitleaks`, a
+  `language: system` hook; `.pre-commit-config.yaml#repos.repo.hooks.id` —
   `actionlint`

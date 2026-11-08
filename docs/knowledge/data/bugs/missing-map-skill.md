@@ -24,8 +24,9 @@ accurate: the only skill that can see the problem is forbidden to repair it, and
 the skill it names does not exist.
 
 The visible result in this workspace: `data/codebase.md` is a hub with no
-members. `data/index.md:32` advertises it, and `iwe tree -k data/codebase`
-renders nothing.
+members.
+`docs/knowledge/data/index.md#reference › "Codebase](codebase.md) - Codebase maps derived from the"`
+advertises it, and `iwe tree -k data/codebase` renders nothing.
 
 ## Reproduction
 
@@ -88,15 +89,16 @@ operating loop at it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
-
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:81-85` — stale-map audit,
-  handing off to `/agentdev:iwe-map`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:96` — "Report, never
-  fix", which is why the handoff needs a real owner
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-32` — per-module map
-  deferred to the map skill's initial mode
-- `docs/knowledge/AGENTS.md:57-61` — Record step routes refreshes to the skill
-- `docs/knowledge/SCHEMA.md:144-166` — the codebase-map authoring contract
-- `docs/knowledge/data/codebase.md:22` — `## Getting around`, filled
-- `docs/knowledge/data/index.md:32` — the hub advertised to readers
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#steps › "doc, commits touching its"`
+  — stale-map audit, handing off to `/agentdev:iwe-map`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#rules › "Report, never fix — even a one-character hub-section fix is"`
+  — "Report, never fix", which is why the handoff needs a real owner
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps › "is out of scope for setup — it is"`
+  — per-module map deferred to the map skill's initial mode
+- `docs/knowledge/AGENTS.md#the-operating-loop › "Code structure changed (module added, split, or moved) → the"`
+  — Record step routes refreshes to the skill
+- `docs/knowledge/SCHEMA.md#codebase-map--datacodebasecanonical-pathmd` — the
+  codebase-map authoring contract
+- `docs/knowledge/data/codebase.md#getting-around` — `## Getting around`, filled
+- `docs/knowledge/data/index.md#reference › "Codebase](codebase.md) - Codebase maps derived from the"`
+  — the hub advertised to readers

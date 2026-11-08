@@ -269,42 +269,42 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-07):
-
-- `docs/knowledge/data/spec/coder-ide-baseline.md:29` — Requirement: the
-  agent-start command is the repository's only start hook
-- `docs/knowledge/data/spec/coder-ide-baseline.md:69` — Requirement: Coder user
-  secrets reach only agent-started processes
-- `docs/knowledge/data/spec/coder-ide-baseline.md:82` — Requirement: start
-  scripts never wait for the Dev Container
-- `docs/knowledge/data/spec/coder-ide-baseline.md:95` — Requirement: workspace
-  state lives in per-workspace volumes
-- `docs/knowledge/data/spec/coder-ide-baseline.md:111` — Requirement: the
-  workspace engine bounds its own storage
-- `docs/knowledge/data/spec/coder-ide-baseline.md:134` — Requirement: the
-  template offers an OpenCode app
-- `docs/knowledge/data/spec/coder-ide-baseline.md:154` — Requirement: an active
-  template version comes from `main`
-- `docs/knowledge/data/spec/coder-ide-baseline.md:167` —
-  `## Working on the template`
-- `docs/knowledge/data/spec/devcontainer-docker-storage.md:25` — workspace
-  engine link
-- `docs/knowledge/data/spec/opencode-web.md:22` — dashboard app link
-- `docs/knowledge/data/spec.md:33` — hub link to the spec
-- `docs/knowledge/data/plans/20261029-off-bash-migration.md:1037` — its
-  `## Spec changes` entry for this spec
-- `docs/knowledge/data/plans/20261029-off-bash-migration.md:385` — Task 7, which
-  adds `agentdev-runtime coder start`; `:766` — Task 19
-  (`The Coder template starts the agent through the CLI`) and its MODIFIED
-  requirement `the agent-start command is the repository's only start hook`
+- `docs/knowledge/data/spec/coder-ide-baseline.md#requirements` — Requirement:
+  the agent-start command is the repository's only start hook
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — Requirement: Coder user secrets reach only agent-started processes
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — Requirement: start scripts never wait for the Dev Container
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — Requirement: workspace state lives in per-workspace volumes
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — Requirement: the workspace engine bounds its own storage
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — Requirement: the template offers an OpenCode app
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — Requirement: an active template version comes from `main`
+- `docs/knowledge/data/spec/coder-ide-baseline.md#scenario-setup-needs-a-user-secret › "agentdev-runtime coder start"`
+  — `## Working on the template`
+- `docs/knowledge/data/spec/devcontainer-docker-storage.md#devcontainer-docker-storage`
+  — workspace engine link
+- `docs/knowledge/data/spec/opencode-web.md#opencode-web` — dashboard app link
+- `docs/knowledge/data/spec.md#-spec › "Dependency updates](spec/dependency-updates.md)"`
+  — hub link to the spec
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md#specs-that-name-a-script › "Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19"`
+  — its `## Spec changes` entry for this spec
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md#task-7-opencode-and-the-coder-start`
+  — Task 7, which adds `agentdev-runtime coder start`;
+  `docs/knowledge/data/plans/20261029-off-bash-migration.md#task-19-the-coder-template-starts-the-agent-through-the-cli`
+  — Task 19 (`The Coder template starts the agent through the CLI`) and its
+  MODIFIED requirement
+  `the agent-start command is the repository's only start hook`
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py` —
   bootstrap helper, `--root <dir>`
-- `coder-ide-baseline@e437dc2:template/main.tf:104` — `agent_start_script`
-  parameter, default `agentdev-runtime coder start` at `:110`; `:257` —
-  `coder_script.agent_start`; `:236` — `coder_app.opencode`; `:327`, `:353`,
-  `:378`, `:403` — state volumes; `:144` — startup script leaves garbage
-  collection to `docker-gc.timer`
-- `coder-ide-baseline@e437dc2:template/push.sh:6` — `TEMPLATE_NAME` defaults to
+- `coder-ide-baseline@e437dc2:template/main.tf` — `agent_start_script`
+  parameter, default `agentdev-runtime coder start`; `coder_script.agent_start`;
+  `coder_app.opencode`; the state volumes; and the startup script, which leaves
+  garbage collection to `docker-gc.timer`
+- `coder-ide-baseline@e437dc2:template/push.sh` — `TEMPLATE_NAME` defaults to
   `coder-ide-baseline`
-- `coder-ide-baseline@e437dc2:.github/workflows/root-container.yml:1` —
+- `coder-ide-baseline@e437dc2:.github/workflows/root-container.yml` —
   `Docker Build and Push`, runs on every pull request to `main`

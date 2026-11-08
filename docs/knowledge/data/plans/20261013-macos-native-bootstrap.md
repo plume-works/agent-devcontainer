@@ -538,35 +538,61 @@ Python](20261029-catalog-scripts-python.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `pyproject.toml:4` — `requires-python = ">=3.12"`, the recorded Python version
-- `ansible/roles/dev_tools/defaults/main.yml:58` — `iwe` entry (`iwe-v0.29.3`,
-  `binaries: [iwe, iwes]` at `:63`)
-- `ansible/roles/dev_tools/defaults/main.yml:84` — `codebase-memory-mcp` entry
-  (`v0.12.1`)
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:9` — the staged Claude
-  marketplace manifest, the image's equivalent of the plugin step
-- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:52`
-  `validate-agent-files` job; `:78` agentdev plugin test step; `:102`
+- `pyproject.toml › "requires-python ="` — `requires-python = ">=3.12"`, the
+  recorded Python version
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name` —
+  `iwe` entry (`iwe-v0.29.3`, `binaries: [iwe, iwes]` at
+  `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.iwe.binaries`)
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name` —
+  `codebase-memory-mcp` entry (`v0.12.1`)
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml#name` — the staged
+  Claude marketplace manifest, the image's equivalent of the plugin step
+- `.github/workflows/validate-agent-files.yml#jobs.paths-filter` —
+  `paths-filter` job;
+  `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files`
+  `validate-agent-files` job;
+  `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.name`
+  agentdev plugin test step;
+  `.github/workflows/validate-agent-files.yml#jobs.macos-bootstrap`
   `macos-bootstrap` job
-- `.pre-commit-config.yaml:51` — the `shellcheck` hook
-- `AGENTS.md:95` — the Shell convention: bash and `shellcheck`
-- `.agents/plugins/agentdev/README.md:114` — `bin/` is on `PATH` while the
-  plugin is enabled; `:60` — `## Native macOS`; `:83` — its fish bullet
-- `docs/knowledge/data/architecture/template-boundary.md:284` — Publisher-only
-  source section listing `.agents/`; `:273` — `## Native macOS host`
-- `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
-  cache, resolving scripts through `plugin_root`; `:36` — every `bin/` and
-  `agent-code/` script is standard-library-only Python
-- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh:91` — `write_block`; `:115`
-  — `write_path_blocks`; `:126` — `check_python`; `:136` — `install_plugins`;
-  `:146` — `verify`
-- `.agents/plugins/agentdev/tests/test_macos_bootstrap.py:88` — `CODEX_STUB`;
-  `:295` — `test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content`;
-  `:333` — `test_user_shell_resolving_another_python_fails_its_check`; `:383` —
-  `test_plugin_step_never_invokes_codex_on_path`; `:394` —
-  `test_skip_plugins_does_not_invoke_claude`
-- `.github/workflows/validate-agent-files.yml:117` — the `Install fish` step
-- `docs/knowledge/data/features/macos-native-bootstrap.md:23` — `## Behaviour`;
-  `:47` — `## Edge cases`
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — the `shellcheck` hook
+- `AGENTS.md#shell` — the Shell convention: bash and `shellcheck`
+- `.agents/plugins/agentdev/README.md#using-it › "while the plugin is enabled, so you can run e.g."`
+  — `bin/` is on `PATH` while the plugin is enabled;
+  `.agents/plugins/agentdev/README.md#native-macos` — `## Native macOS`;
+  `.agents/plugins/agentdev/README.md#native-macos › "~/.config/fish/conf.d/agentdev.fish"`
+  — its fish bullet
+- `docs/knowledge/data/architecture/template-boundary.md#publisher-only-source`
+  — Publisher-only source section listing `.agents/`;
+  `docs/knowledge/data/architecture/template-boundary.md#native-macos-host` —
+  `## Native macOS host`
+- `.agents/AGENTS.md#validation-and-test-ownership › "Plugin tests must pass from a consumer's plugin cache."`
+  — plugin tests must pass from a consumer's plugin cache, resolving scripts
+  through `plugin_root`;
+  `.agents/AGENTS.md#catalog-locations-and-portability › "Every script under the agentdev plugin's"`
+  — every `bin/` and `agent-code/` script is standard-library-only Python
+- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh::write_block` —
+  `write_block`;
+  `.agents/plugins/agentdev/bin/macos-bootstrap.zsh::write_path_blocks` —
+  `write_path_blocks`;
+  `.agents/plugins/agentdev/bin/macos-bootstrap.zsh::check_python` —
+  `check_python`;
+  `.agents/plugins/agentdev/bin/macos-bootstrap.zsh::install_plugins` —
+  `install_plugins`; `.agents/plugins/agentdev/bin/macos-bootstrap.zsh::verify`
+  — `verify`
+- `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::CODEX_STUB` —
+  `CODEX_STUB`;
+  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content`
+  — `test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content`;
+  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_user_shell_resolving_another_python_fails_its_check`
+  — `test_user_shell_resolving_another_python_fails_its_check`;
+  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_never_invokes_codex_on_path`
+  — `test_plugin_step_never_invokes_codex_on_path`;
+  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_skip_plugins_does_not_invoke_claude`
+  — `test_skip_plugins_does_not_invoke_claude`
+- `.github/workflows/validate-agent-files.yml#jobs.macos-bootstrap.steps.name` —
+  the `Install fish` step
+- `docs/knowledge/data/features/macos-native-bootstrap.md#behaviour` —
+  `## Behaviour`;
+  `docs/knowledge/data/features/macos-native-bootstrap.md#edge-cases` —
+  `## Edge cases`

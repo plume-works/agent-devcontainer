@@ -191,16 +191,20 @@ each skill's handoffs were settled before the next skill referenced them.
   exploratory actions, and mid-implementation handling, preserving its no-code
   boundary, IWE grounding, capture destinations, and closing summary.
   *Evidence:* `0d4d37b` — `explore/SKILL.md` +26/-8; added
-  `## During implementation` (`explore/SKILL.md:39`).
+  `## During implementation`
+  (`.claude/skills/explore/SKILL.md#during-implementation`).
 - [x] **2.2 Update Plan** with the planning-only authorization boundary, shared
   material-ambiguity criteria, minor-assumption recording, existing-plan
   collision handling, and a final whole-plan coherence check. *Evidence:*
-  `0d4d37b` — `plan/SKILL.md` +64/-9; materiality at `plan/SKILL.md:32-37`,
-  coherence pass at `plan/SKILL.md:84-87`.
+  `0d4d37b` — `plan/SKILL.md` +64/-9; materiality at
+  `.claude/skills/plan/SKILL.md#steps › "A choice is material when it affects scope"`,
+  coherence pass at
+  `.claude/skills/plan/SKILL.md#steps › "or left describing the old intent while the tasks around it"`.
 - [x] **2.3 Add create and revise modes to Plan** so a requested active-plan
   revision is reconciled bidirectionally, affected anchors are re-verified,
   materially different intent becomes distinct work, and no implementation code
-  is edited. *Evidence:* `0d4d37b` — mode selection at `plan/SKILL.md:17-30`.
+  is edited. *Evidence:* `0d4d37b` — mode selection at
+  `.claude/skills/plan/SKILL.md#steps › "Consult and select a mode."`.
 
 ### Task 3: Strengthen implementation and verification handoffs
 
@@ -211,15 +215,17 @@ each skill's handoffs were settled before the next skill referenced them.
   deviations, pause before silently expanding or narrowing specified behavior,
   and keep the one-task-at-a-time default. *Evidence:* `61cce13` —
   `implement/SKILL.md` +37/-14; deviation classification at
-  `implement/SKILL.md:35-45`.
+  `.claude/skills/implement/SKILL.md#steps › "date — that edit is part of this session's work."`.
 - [x] **3.2 Tighten Implement's checkbox and status-report contract** so
   partial, deferred, or failing work stays unchecked and completion reports
   identify actual code, tests, and checks as evidence. *Evidence:* `61cce13` —
-  the rule at `implement/SKILL.md:56-60`.
+  the rule at
+  `.claude/skills/implement/SKILL.md#steps › "if completing the task would add scope or drop"`.
 - [x] **3.3 Update Verify** only as needed to make its report-only,
   independently invocable behavior and zero-CRITICAL Ship handoff explicit,
   without duplicating Ship's state transitions. *Evidence:* `61cce13` —
-  `verify/SKILL.md` +13/-4; handoff at `verify/SKILL.md:70-71`.
+  `verify/SKILL.md` +13/-4; handoff at
+  `.claude/skills/verify/SKILL.md#steps › "Specs whose requirements the code now contradicts (sample"`.
 
 ### Task 4: Make shipping verified and restart-safe
 
@@ -229,17 +235,22 @@ each skill's handoffs were settled before the next skill referenced them.
   first, make normal shipping invoke Verify and stop on every CRITICAL, and keep
   cancellation free of implementation verification, spec synchronization, and
   release transitions. *Evidence:* `fcdd45a` — `ship/SKILL.md` +98/-47; step 1
-  at `ship/SKILL.md:16`, cancellation at `ship/SKILL.md:29`, "there is no
-  CRITICAL override" at `ship/SKILL.md:35-41`.
+  at
+  `.claude/skills/ship/SKILL.md#steps › "Select the operation and inspect current state."`,
+  cancellation at
+  `.claude/skills/ship/SKILL.md#steps › "Do not verify implementation, synchronize"`,
+  "there is no CRITICAL override" at
+  `.claude/skills/ship/SKILL.md#steps › "Invoke the report-only workflow in"`.
 - [x] **4.2 Rewrite Ship's spec-sync as an intelligent merge** from verified
   behavior: preserve unaffected requirements and scenarios, handle explicit
   retirement through `iwe delete`, re-read every planned spec, and refuse
   durable completion on any mismatch or validation failure. *Evidence:*
-  `fcdd45a` — `ship/SKILL.md:42-60`.
+  `fcdd45a` —
+  `.claude/skills/ship/SKILL.md#steps › "Merge every planned durable spec."`.
 - [x] **4.3 Make every Ship mutation inspect current state first** and avoid
   duplicate plan-hub, feature/bug, unreleased, and log entries, so an
   interrupted invocation can resume safely. *Evidence:* `fcdd45a` —
-  `ship/SKILL.md:61-78`.
+  `.claude/skills/ship/SKILL.md#steps › "back-ticked name with a real link. Check for each result"`.
 
 ### Task 5: Reconcile durable project memory
 
@@ -325,27 +336,30 @@ Discovered after this work and owned elsewhere:
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-16):
-
-- `.claude/skills/explore/SKILL.md:39` — `## During implementation`, added by
-  task 2.1
-- `.claude/skills/explore/SKILL.md:47` — `## Capturing` and its destinations
-- `.claude/skills/plan/SKILL.md:17-30` — step 1, create/revise mode selection
-  and collision handling (task 2.3)
-- `.claude/skills/plan/SKILL.md:32-37` — step 2, the shared materiality
-  threshold (task 2.2)
-- `.claude/skills/plan/SKILL.md:84-87` — step 6, the whole-plan coherence pass
-- `.claude/skills/implement/SKILL.md:35-45` — step 6, deviation classification
-  (task 3.1)
-- `.claude/skills/implement/SKILL.md:56-60` — the never-tick rule (task 3.2)
-- `.claude/skills/verify/SKILL.md:66-71` — `## Rules`, "Report, never fix" and
-  the zero-CRITICAL Ship handoff (task 3.3)
-- `.claude/skills/ship/SKILL.md:16-28` — step 1, operation selection and state
-  inspection (task 4.1)
-- `.claude/skills/ship/SKILL.md:29-34` — step 2, cancellation without shipping
-- `.claude/skills/ship/SKILL.md:35-41` — step 3, "there is no CRITICAL override"
-  (task 4.1)
-- `.claude/skills/ship/SKILL.md:42-60` — steps 4-5, the spec merge and its
-  pre-lifecycle verification (task 4.2)
-- `.claude/skills/ship/SKILL.md:61-78` — step 6, idempotent graph transitions
-  (task 4.3)
+- `.claude/skills/explore/SKILL.md#during-implementation` —
+  `## During implementation`, added by task 2.1
+- `.claude/skills/explore/SKILL.md#capturing` — `## Capturing` and its
+  destinations
+- `.claude/skills/plan/SKILL.md#steps › "Consult and select a mode."` — step 1,
+  create/revise mode selection and collision handling (task 2.3)
+- `.claude/skills/plan/SKILL.md#steps › "A choice is material when it affects scope"`
+  — step 2, the shared materiality threshold (task 2.2)
+- `.claude/skills/plan/SKILL.md#steps › "or left describing the old intent while the tasks around it"`
+  — step 6, the whole-plan coherence pass
+- `.claude/skills/implement/SKILL.md#steps › "date — that edit is part of this session's work."`
+  — step 6, deviation classification (task 3.1)
+- `.claude/skills/implement/SKILL.md#steps › "if completing the task would add scope or drop"`
+  — the never-tick rule (task 3.2)
+- `.claude/skills/verify/SKILL.md#steps › "invoke Ship, or perform any shipping state transition. A"`
+  — `## Rules`, "Report, never fix" and the zero-CRITICAL Ship handoff (task
+  3.3)
+- `.claude/skills/ship/SKILL.md#steps › "Select the operation and inspect current state."`
+  — step 1, operation selection and state inspection (task 4.1)
+- `.claude/skills/ship/SKILL.md#steps › "Do not verify implementation, synchronize"`
+  — step 2, cancellation without shipping
+- `.claude/skills/ship/SKILL.md#steps › "Invoke the report-only workflow in"` —
+  step 3, "there is no CRITICAL override" (task 4.1)
+- `.claude/skills/ship/SKILL.md#steps › "Merge every planned durable spec."` —
+  steps 4-5, the spec merge and its pre-lifecycle verification (task 4.2)
+- `.claude/skills/ship/SKILL.md#steps › "back-ticked name with a real link. Check for each result"`
+  — step 6, idempotent graph transitions (task 4.3)

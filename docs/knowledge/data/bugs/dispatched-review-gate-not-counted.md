@@ -84,23 +84,24 @@ assignment — so every review's `ai-review-present` result lands on the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.github/workflows/ai-responder.yml:33` — `workflow_dispatch` trigger the
-  bridge targets
-- `.github/workflows/ai-responder.yml:363` — `bridge` job
-- `.github/workflows/ai-responder.yml:412` — `createWorkflowDispatch` on the
-  head branch
-- `.github/workflows/ai-responder.yml:509` — `ai-review-present` job
-- `.github/workflows/ai-responder.yml:513` — `needs: claude-respond`, which
-  couples the gate to the review only within one run
-- `.github/workflows/ai-responder.yml:517` — the gate's condition admitting an
-  empty-task `workflow_dispatch`
-- `docs/knowledge/data/spec/ai-review-gate.md:31` — the gate is pending while a
-  review runs "in that workflow run"
-- `docs/knowledge/data/spec/ai-review-gate.md:122` — an explicit request
-  outranks the skip marker
-- `docs/knowledge/data/spec/ai-review-gate.md:228` — dispatched checks "attach
-  to the head commit"
-- `docs/knowledge/data/plans/20260903-single-ai-review-workflow.md:33` — the
-  in-flight-review gap that plan set out to close
+- `.github/workflows/ai-responder.yml#on.workflow_dispatch` —
+  `workflow_dispatch` trigger the bridge targets
+- `.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.uses`
+  — `bridge` job
+- `.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script`
+  — `createWorkflowDispatch` on the head branch
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.if` —
+  `ai-review-present` job
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.permissions.contents`
+  — `needs: claude-respond`, which couples the gate to the review only within
+  one run
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.steps.name` — the
+  gate's condition admitting an empty-task `workflow_dispatch`
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-prs-are-blocked-until-an-ai-review-exists › "it, so that it is pending for as long as a review of the"`
+  — the gate is pending while a review runs "in that workflow run"
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-pull-request-can-opt-out-of-the-ai-review-run › "An explicit review request SHALL outrank the marker: a"`
+  — an explicit request outranks the skip marker
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-comment-mentions-run-the-pull-request-branchs-workflow › "its checks attach to the head commit. The dispatched"`
+  — dispatched checks "attach to the head commit"
+- `docs/knowledge/data/plans/20260903-single-ai-review-workflow.md#context › "The gate is green while a review is in flight."`
+  — the in-flight-review gap that plan set out to close

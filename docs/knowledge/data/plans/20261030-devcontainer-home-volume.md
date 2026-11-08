@@ -379,49 +379,62 @@ CLI](20261029-off-bash-migration.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-07):
-
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:27` —
-  `AGENTDEV_USER=root`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:28` —
-  `AGENTDEV_HOME=/root`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:37` —
-  `devcontainer.metadata`
-- `docker/deploy/agentdev-deploy.Dockerfile:10` — `userdel --remove ubuntu`
-- `docker/deploy/agentdev-deploy.Dockerfile:39` — `UV_CACHE_DIR=/uv/cache`
-- `docker/base/agentdev-base.Dockerfile:109` — `PATH` with `/root/.local/bin`
-- `docker/base/agentdev-base.Dockerfile:104` — `WORKDIR`, which creates the
-  root-owned `/workspaces`
-- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:207` —
-  `ensure_sudo`
-- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:226` —
-  `claim_instance_dir`
-- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:243` —
-  `validate_workspace`
-- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:258` —
-  `prepare_shared_auth`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:55` —
-  `link_claude_json`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:85` — `create`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:87` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_USER=root"`
+  — `AGENTDEV_USER=root`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_HOME=/root"`
+  — `AGENTDEV_HOME=/root`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "LABEL devcontainer.metadata="`
+  — `devcontainer.metadata`
+- `docker/deploy/agentdev-deploy.Dockerfile › "RUN userdel --remove ubuntu"` —
+  `userdel --remove ubuntu`
+- `docker/deploy/agentdev-deploy.Dockerfile › "UV_CACHE_DIR=/uv/cache"` —
+  `UV_CACHE_DIR=/uv/cache`
+- `docker/base/agentdev-base.Dockerfile › "/root/.local/bin:$PATH"` — `PATH`
+  with `/root/.local/bin`
+- `docker/base/agentdev-base.Dockerfile › "WORKDIR $WORKSPACE_FOLDER"` —
+  `WORKDIR`, which creates the root-owned `/workspaces`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::Deploy.ensure_sudo`
+  — `ensure_sudo`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::Deploy.claim_instance_dir`
+  — `claim_instance_dir`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::Deploy.validate_workspace`
+  — `validate_workspace`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::Deploy.prepare_shared_auth`
+  — `prepare_shared_auth`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::link_claude_json`
+  — `link_claude_json`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::create` —
+  `create`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::create` —
   `cbm_purge.purge`
-- `py_packages/agentdev_runtime/agentdev_runtime/settings.py:130` —
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `AGENTDEV_CLAUDE_JSON`
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:54` —
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::claim_mounts` —
   `claim_mounts`
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:67` — `created`
-- `docker/devcontainer/supervisord.conf:54` — `user=%(ENV_AGENTDEV_USER)s`
-- `.devcontainer/devcontainer.json:30` — `CLAUDE_SECURESTORAGE_CONFIG_DIR`
-- `.devcontainer/devcontainer.json:52` — `agentdev-uv` mount
-- `.devcontainer/devcontainer.json:58` — `agentdev-pre-commit` mount
-- `.devcontainer/devcontainer.json:74` — `agentdev-claude` mount
-- `.devcontainer/devcontainer.json:82` — `agentdev-opencode` mount
-- `.devcontainer/devcontainer.json:89` — `agentdev-project` mount
-- `.devcontainer/docker-compose.yml:105` — `agentdev-agents-auth` mount
-- `.devcontainer/devcontainer-init.sh:24` —
-  `docker volume create agentdev-agents-auth`
-- `.devcontainer/devcontainer-init.sh:56` — `CONTAINER_MCP_DIR`
-- `compose.opencode.yml:45` — `uv:/uv` mount
-- `scripts/tests/test_agent_runtime_compose.py:21` — `INSTANCE_TARGETS`
-- `ansible/roles/bash_setup/tasks/main.yml:5` — `.bashrc` target
-- `ansible/roles/bun_setup/tasks/main.yml:30` — `.bashrc` target
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::created` —
+  `created`
+- `docker/devcontainer/supervisord.conf › "user=%(ENV_AGENTDEV_USER)s"` —
+  `user=%(ENV_AGENTDEV_USER)s`
+- `.devcontainer/devcontainer.json › "CLAUDE_SECURESTORAGE_CONFIG_DIR"` —
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR`
+- `.devcontainer/devcontainer.json › "agentdev-uv"` — `agentdev-uv` mount
+- `.devcontainer/devcontainer.json › "agentdev-pre-commit"` —
+  `agentdev-pre-commit` mount
+- `.devcontainer/devcontainer.json › "agentdev-claude"` — `agentdev-claude`
+  mount
+- `.devcontainer/devcontainer.json › "agentdev-opencode"` — `agentdev-opencode`
+  mount
+- `.devcontainer/devcontainer.json › "agentdev-project"` — `agentdev-project`
+  mount
+- `.devcontainer/docker-compose.yml#volumes.agentdev-agents-auth.external` —
+  `agentdev-agents-auth` mount
+- `.devcontainer/devcontainer-init.sh › "docker volume create agentdev-agents-auth >/dev/null"`
+  — `docker volume create agentdev-agents-auth`
+- `.devcontainer/devcontainer-init.sh` — `CONTAINER_MCP_DIR`
+- `compose.opencode.yml › "uv:/uv"` — `uv:/uv` mount
+- `scripts/tests/test_agent_runtime_compose.py::INSTANCE_TARGETS` —
+  `INSTANCE_TARGETS`
+- `ansible/roles/bash_setup/tasks/main.yml › "user_home }}/.bashrc"` — `.bashrc`
+  target
+- `ansible/roles/bun_setup/tasks/main.yml › "user_home }}/.bashrc"` — `.bashrc`
+  target

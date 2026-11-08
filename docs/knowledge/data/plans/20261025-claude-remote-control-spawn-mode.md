@@ -345,24 +345,23 @@ spawn-on-demand server, if its wording no longer fits.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.devcontainer/scripts/claude-remote-control-start.sh:4` — `mode`, read from
-  `AGENTDEV_CLAUDE_RC_MODE`, validated through line 9
-- `.devcontainer/scripts/claude-remote-control-start.sh:11` — `spawn`, read from
-  `AGENTDEV_CLAUDE_RC_SPAWN` in server mode only, validated through line 16
-- `.devcontainer/scripts/claude-remote-control-start.sh:19` — the `claude` and
-  `tmux` availability check the spawn validation precedes
-- `.devcontainer/scripts/claude-remote-control-start.sh:50` — the server-mode
-  branch; line 51 passes `--spawn $spawn`
-- `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`;
-  lines 65-72 pop and set `AGENTDEV_CLAUDE_RC_MODE` and
+- `.devcontainer/scripts/claude-remote-control-start.sh › "${AGENTDEV_CLAUDE_RC_MODE-session}"`
+  — `mode`, read from `AGENTDEV_CLAUDE_RC_MODE`, then validated
+- `.devcontainer/scripts/claude-remote-control-start.sh › "${AGENTDEV_CLAUDE_RC_SPAWN-worktree}"`
+  — `spawn`, read from `AGENTDEV_CLAUDE_RC_SPAWN` in server mode only, then
+  validated
+- `.devcontainer/scripts/claude-remote-control-start.sh › "for command in claude tmux; do"`
+  — the `claude` and `tmux` availability check the spawn validation precedes
+- `.devcontainer/scripts/claude-remote-control-start.sh › "]]; then"` — the
+  server-mode branch, which passes `--spawn $spawn`
+- `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux` —
+  `run_with_fake_tmux`, which pops and sets `AGENTDEV_CLAUDE_RC_MODE` and
   `AGENTDEV_CLAUDE_RC_SPAWN`
-- `scripts/tests/test_claude_remote_control_start.py:125` —
-  `test_server_mode_starts_remote_control_server`, over the spawn modes
-- `scripts/tests/test_claude_remote_control_start.py:157` —
-  `test_unrecognized_spawn_fails_in_server_mode_without_tmux`
-- `scripts/tests/test_claude_remote_control_start.py:167` —
-  `test_session_mode_ignores_unrecognized_spawn`
-- `.claude/.gitignore:2` — `worktrees/`, the spawned worktrees Claude Code
-  creates
+- `scripts/tests/test_claude_remote_control_start.py::test_server_mode_starts_remote_control_server`
+  — `test_server_mode_starts_remote_control_server`, over the spawn modes
+- `scripts/tests/test_claude_remote_control_start.py::test_unrecognized_spawn_fails_in_server_mode_without_tmux`
+  — `test_unrecognized_spawn_fails_in_server_mode_without_tmux`
+- `scripts/tests/test_claude_remote_control_start.py::test_session_mode_ignores_unrecognized_spawn`
+  — `test_session_mode_ignores_unrecognized_spawn`
+- `.claude/.gitignore › "worktrees/"` — `worktrees/`, the spawned worktrees
+  Claude Code creates

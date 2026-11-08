@@ -88,20 +88,19 @@ does not help, because the installer then refuses with `op=mcp_install`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-10):
-
-- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47` — `repair`
-- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:18` — `OWNED_HEADER`,
-  the tables cbm owns inside the block
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:79` — repair call ahead
-  of the installer
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:82` —
-  `codebase-memory-mcp install -y --force`
-- `.devcontainer/scripts/postCreateCommand.sh:67` — non-fatal cbm install call
-- `.devcontainer/scripts/postCreateCommand.sh:93` —
-  `reinstall-agentdev-codex.sh`, a Codex config write after the install
-- `.devcontainer/scripts/postAttachCommand.sh:14` —
-  `reinstall-agentdev-codex.sh` again
-- `.devcontainer/scripts/postStartCommand.sh:9` —
-  `codebase-memory-mcp-start.sh`, skipped whenever postCreate fails
+- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py::repair` — `repair`
+- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py::OWNED_HEADER` —
+  `OWNED_HEADER`, the tables cbm owns inside the block
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › ")/repair-codex-cbm-hooks-block.py"`
+  — repair call ahead of the installer
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › "codebase-memory-mcp install -y --force || install_status=$?"`
+  — `codebase-memory-mcp install -y --force`
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/codebase-memory-mcp-install.sh"`
+  — non-fatal cbm install call
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/reinstall-agentdev-codex.sh"`
+  — `reinstall-agentdev-codex.sh`, a Codex config write after the install
+- `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/reinstall-agentdev-codex.sh"`
+  — `reinstall-agentdev-codex.sh` again
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/codebase-memory-mcp-start.sh"`
+  — `codebase-memory-mcp-start.sh`, skipped whenever postCreate fails
 - `scripts/tests/test_repair_codex_cbm_hooks_block.py` — repair behavior

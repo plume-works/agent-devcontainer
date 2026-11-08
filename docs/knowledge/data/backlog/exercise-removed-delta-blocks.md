@@ -50,9 +50,12 @@ than leaving an unmet bullet standing in a shipped plan.
 ## Why it is not urgent
 
 The operation is fully specified and carried by all four skills — Plan
-`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:146-147`, Implement `:25`,
-Verify `:48`, Ship `:46` and `:71`. Nothing is missing from the contract; what
-is missing is a worked instance proving the four agree in practice. The risk is
-that the three operations were written together and only two were ever
-pressure-tested, so a disagreement about `REMOVED` would first surface during a
-real retirement.
+`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`, Implement
+`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`, Verify
+`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`, Ship
+`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` and
+`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`. Nothing is missing from the
+contract; what is missing is a worked instance proving the four agree in
+practice. The risk is that the three operations were written together and only
+two were ever pressure-tested, so a disagreement about `REMOVED` would first
+surface during a real retirement.

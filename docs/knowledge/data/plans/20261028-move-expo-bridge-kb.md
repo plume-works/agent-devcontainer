@@ -309,8 +309,8 @@ and its link to `features/vscode-expo-bridge`
   trust granted by setup; linked to the extension repository by URL. Stamp
   `generated` and add the extension repository to `sources`.
   - **Evidence:** the Task 11 commit adds "The profile wires in the Mac-host
-    bridge" to the Behaviour of `features/expo-eas-builds`, matching
-    `architecture/template-boundary` line 272's paragraph, with the extension
+    bridge" to the Behaviour of `features/expo-eas-builds`, matching the
+    `architecture/template-boundary` paragraph on it, with the extension
     repository linked by URL and listed in `sources`; `iwe schema validate`
     exits 0.
 
@@ -345,7 +345,7 @@ and its link to `features/vscode-expo-bridge`
     `iwe schema validate` exits 0, and `iwe stats` has no `## Broken Links`
     section; the grep, minus URLs, the extension ID, the repository name, the
     `.tmp/expo-bridge/` path, and this plan, leaves only
-    `plans/20261016-release-impact-at-plan-time.md:116`;
+    `docs/knowledge/data/plans/20261016-release-impact-at-plan-time.md#task-3-every-plan-the-schema-validates-declares-release › "features/vscode-expo-bridge"`;
     `uv run pytest docs/knowledge/tests` passes 58 tests.
 
 ## Spec changes
@@ -381,27 +381,33 @@ extension repository by URL and its Expo profile requirement is unchanged.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
-
-- `docs/knowledge/data/releases/unreleased.md:43` — `features/expo-eas-builds`
-  under `## Added`
-- `docs/knowledge/data/architecture/template-boundary.md:272` — Expo profile
-  paragraph, linking the extension repository's
+- `docs/knowledge/data/releases/unreleased.md#added › "Expo apps build for iOS through"`
+  — `features/expo-eas-builds` under `## Added`
+- `docs/knowledge/data/architecture/template-boundary.md#optional-expo-profile › "the profile lists the [VS Code Expo"`
+  — Expo profile paragraph, linking the extension repository's
   `architecture/vscode-expo-bridge` by URL
-- `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md:8` —
-  `sources` entry, and `:14` the prose link to
-  `plans/20261015-vscode-expo-bridge`
-- `docs/research/vscode-vulnerability/deep-technical.md:6` — link to
-  `plans/20261015-vscode-expo-bridge`
+- `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md › "resource"`
+  — `sources` entry, and
+  `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md#narrow-the-devcontainers-forwarded-agent-exposure`
+  the prose link to `plans/20261015-vscode-expo-bridge`
+- `docs/research/vscode-vulnerability/deep-technical.md#container-to-host-reach-through-a-vs-code-dev-containers-window › "Expo"`
+  — link to `plans/20261015-vscode-expo-bridge`
 - `docs/knowledge/data/log.md` — 24 links to moved documents
-- `docs/knowledge/data/features/expo-eas-builds.md:47` — the Behaviour paragraph
-  on the bridge wiring
-- `docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md:293` —
-  first of the links to `../pr-eval-review-needed/SKILL.md` (also `:304`), and
-  `:330` the link to `../pr-request-ai-review/SKILL.md`
-- `docs/knowledge/data/spec/template-consumption.md:203` — already links the
-  extension repository by URL
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md:44` — Workflow 2,
-  `bootstrap-iwe.sh [--root <dir>]`
-- vscode-expo-bridge `README.md:126` — `## Versioning`, the patch bump rule
-- vscode-expo-bridge `package.json:14` — `lint` is `prettier --check .`
+- `docs/knowledge/data/features/expo-eas-builds.md#behaviour › "The profile wires in the Mac-host bridge."`
+  — the Behaviour paragraph on the bridge wiring
+- `docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md#task-5-pr-open-evaluates-on-every-update › "always apply"`
+  — first of the links to `../pr-eval-review-needed/SKILL.md` (also
+  `docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md#task-6-pr-merge-evaluates-ci-fix-pushes › ".agents/plugins/agentdev/skills/pr-merge/SKILL.md"`),
+  and
+  `docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md#task-7-pr-merge-recovers-the-ai-review-from-the-head-commits-checks › "Determine checkout"`
+  the link to `../pr-request-ai-review/SKILL.md`
+- `docs/knowledge/data/spec/template-consumption.md#requirement-an-expo-consumer-can-build-ios-on-a-mac-host-through-the-bridge › "](https://github.com/plume-works/vscode-expo-bridge)"`
+  — already links the extension repository by URL
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md#workflow-2-run-the-helper › "agent-code/bootstrap-iwe.sh [--root <dir>]"`
+  — Workflow 2, `bootstrap-iwe.sh [--root <dir>]`
+- vscode-expo-bridge
+  `README.md#proxy-password-and-logins › "pass through only when set."` —
+  `## Versioning`, the patch bump rule
+- vscode-expo-bridge
+  `.agents/plugins/agentdev/.opencode-plugin/package.json › "index.ts"` — `lint`
+  is `prettier --check .`

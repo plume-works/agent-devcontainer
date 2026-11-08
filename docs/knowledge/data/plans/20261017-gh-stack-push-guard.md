@@ -30,14 +30,14 @@ released: 2.0.0
 ahead](../bugs/gh-stack-push-overwrites-remote-layer.md). In `gh-stack` v0.2.1,
 `push` and `submit` fetch every layer and only then build each
 `--force-with-lease` value from the tracking ref they just updated
-(`cmd/push.go:106`, `internal/git/gitops.go:257-276`). The lease therefore
-always passes, and a stale local layer replaces newer remote commits. No manual
-`git fetch` is involved. Upstream tracks this as github/gh-stack#380.
+(`cmd/push.go`, `internal/git/gitops.go`). The lease therefore always passes,
+and a stale local layer replaces newer remote commits. No manual `git fetch` is
+involved. Upstream tracks this as github/gh-stack#380.
 
 `gh stack sync` does not close the gap:
 
 - it fast-forwards a layer only when the local tip is an ancestor of the remote
-  (`cmd/utils.go:896-925`) and skips a diverged layer;
+  (`cmd/utils.go`) and skips a diverged layer;
 - when it rebases (trunk moved, a layer was fast-forwarded, or a layer merged),
   it force-pushes with the same fresh lease and loses the remote-only commits;
 - when it does not rebase, its plain push is rejected, yet it prints
@@ -87,8 +87,8 @@ our `SKILL.md` overrides it. A re-vendor replaces only `references/upstream/`.
 **`gh stack sync` leaves our workflows.** A post-merge or trunk refresh becomes
 `begin`, then `gh stack rebase`, then `publish`. `rebase` already fetches,
 fast-forwards layers that are behind, skips merged layers and refreshes PR state
-(`cmd/rebase.go:181-215`), but it never pushes. Every push therefore passes
-through `publish`, and `sync`'s exit `0` after a failed push leaves the path.
+(`cmd/rebase.go`), but it never pushes. Every push therefore passes through
+`publish`, and `sync`'s exit `0` after a failed push leaves the path.
 
 Rejected:
 
@@ -233,7 +233,10 @@ worktree with untracked files.
   `## Authoring rules` mirror says the same.
   - **Evidence:** commit
     `docs: name the gh-stack guard in the force-push exception`, which changes
-    `AGENTS.md:6`, `AGENTS.md:11`, and `docs/knowledge/data/product.md:123-129`.
+    `AGENTS.md#agents-guidelines › "docs/knowledge/data/architecture/stacked-prs.md"`,
+    `AGENTS.md#best-practices-for-agents › "NEVER change git config on local or global level unless"`,
+    and
+    `docs/knowledge/data/product.md#authoring-rules › "Never force-push, except"`.
 
 ### Task 5: Record the decision and the gh-stack behavior
 
@@ -481,33 +484,33 @@ SHALL NOT be updated.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
-
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:326` —
-  `push_layers`, the only force-push
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:365` —
-  `plan_link`, create vs add mode
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:431` —
-  `record_stack`, the checkout after a link
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:487` —
-  `run_begin`
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:498` —
-  `run_publish`
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-70` — § The push guard,
-  with the result table
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220` — stack branches
-  published with the guard's `publish`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:203-204` — stacked PR
-  remediation through `begin`, `rebase --upstack`, `publish`
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:23` — force-push rule
-  naming the guarded `publish`
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:65-66` —
-  stacked PR conflict through the guarded refresh
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:89` — Workflow 0
-  directing to the guarded refresh
-- `docs/knowledge/data/spec/pr-merge-conflicts.md:32-33` — requirement naming
-  `stack-guard.sh begin` and `publish`
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh::push_layers`
+  — `push_layers`, the only force-push
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh::plan_link`
+  — `plan_link`, create vs add mode
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh::record_stack`
+  — `record_stack`, the checkout after a link
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh::run_begin`
+  — `run_begin`
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh::run_publish`
+  — `run_publish`
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md#the-push-guard` — § The
+  push guard, with the result table
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch › "If either prints anything, publish the stack with the"`
+  — stack branches published with the guard's `publish`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "On a stacked PR, run the guard's"`
+  — stacked PR remediation through `begin`, `rebase --upstack`, `publish`
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md#input-and-safety-boundaries › ". Never force-push otherwise, and never update a ref"`
+  — force-push rule naming the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "its branch and refresh the stack with the guard's"`
+  — stacked PR conflict through the guarded refresh
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-0-refuse-a-stack-branch › ". A branch with no open pull request and"`
+  — Workflow 0 directing to the guarded refresh
+- `docs/knowledge/data/spec/pr-merge-conflicts.md#requirement-feedback-resolution-resolves-merge-conflicts-first › "gh-stack skill's guarded refresh"`
+  — requirement naming `stack-guard.sh begin` and `publish`
 - `.agents/plugins/agentdev/tests/test_gh_stack_guard.py` — the stub-backed
   guard suite
-- `AGENTS.md:6` — force-push exception naming the guard
-- `docs/knowledge/data/product.md:124` — Authoring rules mirror of the exception
+- `AGENTS.md#agents-guidelines › "docs/knowledge/data/architecture/stacked-prs.md"`
+  — force-push exception naming the guard
+- `docs/knowledge/data/product.md#authoring-rules › "stack-guard.sh publish"` —
+  Authoring rules mirror of the exception

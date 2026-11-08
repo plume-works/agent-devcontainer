@@ -66,16 +66,16 @@ the artifact, which means the prose rules in `implement` have nothing to bite
 on. Nothing in `plan` specifies where verification evidence is written either —
 the `## Verification results` section in the plan above was improvised by the
 session, correctly but unprompted, because
-`.claude/skills/implement/SKILL.md:41` says to "report the results" without
-naming a destination.
+`.claude/skills/implement/SKILL.md#steps › "When the last box ticks, run the plan's"`
+says to "report the results" without naming a destination.
 
 **Verify audits under-claiming, not over-claiming.**
-`.claude/skills/verify/SKILL.md:24` makes every `- [ ]` a CRITICAL. There is no
-rule for `- [x]`. This inverts the skills' own stated severity: `implement`
-calls the unchecked-but-done box "a nuisance" and the checked-but-not-done box
-"a lie", and only the nuisance is audited. Because verify is the loop's last
-gate before ship, the most dangerous claim in the document is the one nothing
-tests.
+`.claude/skills/verify/SKILL.md#steps › "task is a CRITICAL"` makes every
+`- [ ]` a CRITICAL. There is no rule for `- [x]`. This inverts the skills' own
+stated severity: `implement` calls the unchecked-but-done box "a nuisance" and
+the checked-but-not-done box "a lie", and only the nuisance is audited. Because
+verify is the loop's last gate before ship, the most dangerous claim in the
+document is the one nothing tests.
 
 The consequence reaches further than this incident: the proposed [Verification
 in the main loop](../features/verification-in-the-main-loop.md) would make ship
@@ -95,18 +95,17 @@ its evidence.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
-
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:37` — Step 5, a tick
-  and its `- **Evidence:**` child written in one edit
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:123` — the
-  one-checkbox-per-edit rule
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:62` — the evidence child in
-  the plan format
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:197` — one task is one
-  outcome
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:33` — a ticked task
-  without traceable evidence is a CRITICAL
-- `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`, the shape
-  gate for evidence and completeness
-- `.pre-commit-config.yaml:102` — the `plan-checkboxes` hook that runs the gate
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#steps › "Execute the next unchecked task."`
+  — Step 5, a tick and its `- **Evidence:**` child written in one edit
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#rules › "actually done is a nuisance; a checked box that isn't done"`
+  — the one-checkbox-per-edit rule
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "child once it is ticked, naming the"`
+  — the evidence child in the plan format
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#rules › "One task is one outcome; if the task could ever be described"`
+  — one task is one outcome
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#steps › "task whose indented"`
+  — a ticked task without traceable evidence is a CRITICAL
+- `docs/knowledge/tests/test_plan_checkboxes.py::check_plan` — `check_plan`, the
+  shape gate for evidence and completeness
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — the `plan-checkboxes` hook
+  that runs the gate

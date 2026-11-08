@@ -267,22 +267,21 @@ start/attach indexing.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
-
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:37` — BridgeConfig.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:125` — bridge config and
-  tool hooks.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:150` — plugin server
-  forwards PluginInput to the bridge.
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — configured test
-  helper.
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:119` — skill-hook
-  regression tests.
-- `.devcontainer/scripts/codebase-memory-mcp-start.sh:17` — daemon start and
-  original-workspace index.
-- `.devcontainer/scripts/codebase-memory-mcp-index.sh:16` — attach-time
-  original-workspace index.
-- `.devcontainer/scripts/reinstall-agentdev-opencode.sh:14` — catalog bridge
-  registration gate.
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:82` — upstream
-  client/plugin installation.
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "interface BridgeConfig extends WorkspaceConfig"`
+  — BridgeConfig.
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "export async function bridge"`
+  — bridge config and tool hooks.
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "export default"` —
+  plugin server forwards PluginInput to the bridge.
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "async function configured(config: Record<string, any> = {})"`
+  — configured test helper.
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "tool.execute.before hook"`
+  — skill-hook regression tests.
+- `.devcontainer/scripts/codebase-memory-mcp-start.sh › "codebase-memory-mcp daemon start"`
+  — daemon start and original-workspace index.
+- `.devcontainer/scripts/codebase-memory-mcp-index.sh › "codebase-memory-mcp cli index_repository --repo-path"`
+  — attach-time original-workspace index.
+- `.devcontainer/scripts/reinstall-agentdev-opencode.sh › "Only a catalog that ships the bridge has anything to"`
+  — catalog bridge registration gate.
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › "codebase-memory-mcp install -y --force || install_status=$?"`
+  — upstream client/plugin installation.

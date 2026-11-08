@@ -20,12 +20,14 @@ writes an argparse destination nothing reads, and `CrossReferenceValidator`
 stores `show_warnings` without consulting it. The net effect is that
 `--recommend` produces no output of its own on any run.
 
-This matters now because `README.md:358` and
-`.github/workflows/validate-agent-files.yml:85` both instruct contributors to
-run `--recommend`, so the repository advertises a skill-quality signal it does
-not actually compute. The bug doc establishes the validators were never wired in
-— they arrived orphaned in the initial extraction commit `c1dce21` — so this is
-a first wiring with no prior decision to reverse.
+This matters now because
+`README.md#iterating-and-validating › "uv run validate_agent_files --recommend ."`
+and
+`.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.Validate Agent Files.run`
+both instruct contributors to run `--recommend`, so the repository advertises a
+skill-quality signal it does not actually compute. The bug doc establishes the
+validators were never wired in — they arrived orphaned in the initial extraction
+commit `c1dce21` — so this is a first wiring with no prior decision to reverse.
 
 ## Approach
 
@@ -54,9 +56,10 @@ own definition, a comment, and prose in two knowledge docs.
 `py_packages/validate_agent_files/validate_agent_files/core.py`
 
 Construct both validators in `ValidationEngine.validate`, after the
-`UniquenessValidator` call at `core.py:116-119` where `frontmatter` and `body`
-are already bound. Run them only when warnings are enabled and append only their
-warning-level findings.
+`UniquenessValidator` call at
+`py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+where `frontmatter` and `body` are already bound. Run them only when warnings
+are enabled and append only their warning-level findings.
 
 - [x] `SkillFrontmatterValidator().validate(frontmatter, show_warnings=True)`
   and `SkillStructureValidator().validate(body, show_warnings=True)` run when
@@ -93,7 +96,9 @@ names from the code under test per the package's `AGENTS.md`.
 `py_packages/validate_agent_files/validate_agent_files/cli.py`,
 `py_packages/validate_agent_files/validate_agent_files/main.py`
 
-Delete the `--no-warnings` argument at `cli.py:65-71`. In `main.py:19-24`, drop
+Delete the `--no-warnings` argument at
+`py_packages/validate_agent_files/validate_agent_files/cli.py::parse_arguments`.
+In `py_packages/validate_agent_files/validate_agent_files/main.py::main`, drop
 the `no_warnings` lookup and read `parsed_args.recommend` and
 `parsed_args.errors_only` as plain attributes — the parser always defines both,
 so a `getattr` default would mask a destination rename instead of raising.
@@ -105,8 +110,9 @@ so a `getattr` default would mask a destination rename instead of raising.
     `--no-warnings` rather than ignoring it
 - [x] `main.py` reads `parsed_args.recommend` and `parsed_args.errors_only`
   directly, with no `getattr` default on either
-  - **Evidence:** `main.py:20` — a single
-    `parsed_args.recommend and not parsed_args.errors_only`; pinned by
+  - **Evidence:**
+    `py_packages/validate_agent_files/validate_agent_files/main.py::main` — a
+    single `parsed_args.recommend and not parsed_args.errors_only`; pinned by
     `test_parser_exposes_recommend_and_errors_only_destinations`, isolated suite
     green at 159 passed
 
@@ -234,35 +240,33 @@ gitignored paths, so a `.tmp/` fixture reports
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-08):
-
-- `py_packages/validate_agent_files/validate_agent_files/core.py:80` —
-  `ValidationEngine`
-- `py_packages/validate_agent_files/validate_agent_files/core.py:87` —
-  `ValidationEngine.validate`, the wiring point
-- `py_packages/validate_agent_files/validate_agent_files/core.py:116` —
-  `UniquenessValidator` call, where `frontmatter` and `body` are bound
-- `py_packages/validate_agent_files/validate_agent_files/core.py:121` —
-  warning-only skill-validator gate
-- `py_packages/validate_agent_files/validate_agent_files/core.py:290` —
-  `ValidationEngine` construction from `CustomizationsValidationEngine`
-- `py_packages/validate_agent_files/validate_agent_files/core.py:133,352,401` —
-  skill, agent, and prompt `CrossReferenceValidator` sites
-- `py_packages/validate_agent_files/validate_agent_files/cli.py:54` —
-  `--recommend`
-- `py_packages/validate_agent_files/validate_agent_files/cli.py:66` —
-  `--errors-only`
-- `py_packages/validate_agent_files/validate_agent_files/main.py:22` —
+- `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine`
+  — `ValidationEngine`
+- `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+  — `ValidationEngine.validate`, the wiring point
+- `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+  — `UniquenessValidator` call, where `frontmatter` and `body` are bound
+- `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+  — warning-only skill-validator gate
+- `py_packages/validate_agent_files/validate_agent_files/core.py::CustomizationsValidationEngine._validate_skill_files`
+  — `ValidationEngine` construction from `CustomizationsValidationEngine`
+- `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+  — skill, agent, and prompt `CrossReferenceValidator` sites
+- `py_packages/validate_agent_files/validate_agent_files/cli.py::parse_arguments`
+  — `--recommend`
+- `py_packages/validate_agent_files/validate_agent_files/cli.py::parse_arguments`
+  — `--errors-only`
+- `py_packages/validate_agent_files/validate_agent_files/main.py::main` —
   `show_warnings` derivation
-- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py:11`
+- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillFrontmatterValidator`
   — `SkillFrontmatterValidator`
-- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py:92`
+- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillFrontmatterValidator.validate`
   — vague-description check
-- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py:123`
+- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillStructureValidator`
   — `SkillStructureValidator`
-- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py:151`
+- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillStructureValidator.validate`
   — short-section check
-- `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py:81`
+- `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py::CrossReferenceValidator.validate`
   — the independent cross-reference warning path
-- `py_packages/validate_agent_files/validate_agent_files/types.py:55` —
-  `ValidationResult.is_valid`, error-only
+- `py_packages/validate_agent_files/validate_agent_files/types.py::ValidationResult.is_valid`
+  — `ValidationResult.is_valid`, error-only

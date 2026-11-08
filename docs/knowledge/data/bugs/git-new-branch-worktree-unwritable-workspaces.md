@@ -56,19 +56,20 @@ sibling default.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh:211`
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh › "$(dirname --"`
   — worktree parent default chosen by `dirname` alone
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh:229`
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh › "if ! git worktree add --no-track -b"`
   — `git worktree add`, which fails and triggers `CREATE_FAILED`
-- `.agents/plugins/agentdev/tests/test_git_new_branch.py:581` — `skipif` on an
-  unwritable `/workspaces` for
+- `.agents/plugins/agentdev/tests/test_git_new_branch.py › "@pytest.mark.skipif"`
+  — `skipif` on an unwritable `/workspaces` for
   `test_worktree_mode_under_workspaces_defaults_to_a_sibling`
-- `docker/desktop/agent-desktop.Dockerfile:82` — `WORKDIR $WORKSPACE_FOLDER`
-  creates root-owned `/workspaces`
-- `docker/opencode/agent-opencode.Dockerfile:57` — `WORKDIR /workspaces/project`
-- `compose.opencode.yml:44` — only `/workspaces/project` is a volume
-- `compose.opencode.bind.yml:9` — the bind variant mounts the same single path
+- `docker/desktop/agent-desktop.Dockerfile › "WORKDIR $WORKSPACE_FOLDER"` —
+  `WORKDIR $WORKSPACE_FOLDER` creates root-owned `/workspaces`
+- `docker/opencode/agent-opencode.Dockerfile › "WORKDIR /workspaces/project"` —
+  `WORKDIR /workspaces/project`
+- `compose.opencode.yml#services.opencode.volumes.workspace` — only
+  `/workspaces/project` is a volume
+- `compose.opencode.bind.yml#services.opencode.volumes.type.target` — the bind
+  variant mounts the same single path
 - [git-new-branch spec](../spec/git-new-branch.md) — the worktree-mode
   requirement that names `/workspaces` as the parent

@@ -469,38 +469,45 @@ Verification checks, 2026-10-19 at `5c0a5a2`:
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
-
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:97` — `build_clone`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:129` —
-  `cancel_active_plans`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:154` — `reset_to`;
-  clone facts follow at 161–175
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:184` — `claude_run`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:209` — `run_claude`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:305` — `codex_run`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:312` — `codex_catalog`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:318` — `run_codex`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:385` —
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::build_clone` —
+  `build_clone`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::cancel_active_plans`
+  — `cancel_active_plans`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::reset_to` —
+  `reset_to`; clone facts follow at 161–175
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::claude_run` —
+  `claude_run`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_claude` —
+  `run_claude`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::codex_run` —
+  `codex_run`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::codex_catalog` —
+  `codex_catalog`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_codex` —
+  `run_codex`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::opencode_messages` —
   `opencode_messages`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:397` — `opencode_wait`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:405` — `opencode_run`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:445` — `run_opencode`
-- `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/bin/publish-e2e.sh:5`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::opencode_wait` —
+  `opencode_wait`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::opencode_run` —
+  `opencode_run`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_opencode` —
+  `run_opencode`
+- `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/bin/publish-e2e.sh › "$(git rev-parse --show-toplevel)/../published.marker"`
   — marker written beside the clone
-- `.agents/plugins/self-improve/tests/conftest.py:25` — `LIVE_MARKERS`,
-  `LIVE_OPT_IN_ENV`, `LIVE_OPT_OUT_VALUES` (25–29)
-- `.agents/plugins/self-improve/tests/conftest.py:38` —
-  `pytest_collection_modifyitems`
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:33` —
-  isolated server environment
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:108` —
-  `opencode serve` spawn
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:143` —
-  `catalog`, polling for the bridge
-- `.devcontainer/scripts/opencode-web-start.sh:23` — web UI server port and
+- `.agents/plugins/self-improve/tests/conftest.py::LIVE_MARKERS` —
+  `LIVE_MARKERS`, `LIVE_OPT_IN_ENV`, `LIVE_OPT_OUT_VALUES` (25–29)
+- `.agents/plugins/self-improve/tests/conftest.py::pytest_collection_modifyitems`
+  — `pytest_collection_modifyitems`
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts › "const env: NodeJS.ProcessEnv = { ...process.env"`
+  — isolated server environment
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts › "String(port)], { cwd: fixture, env, detached: true, stdio"`
+  — `opencode serve` spawn
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts › "async function catalog(root: string)"`
+  — `catalog`, polling for the bridge
+- `.devcontainer/scripts/opencode-web-start.sh` — web UI server port and
   password source (23–38)
-- `ansible/roles/agentic_tools/defaults/main.yml:10` —
-  `agentic_tools_opencode_version`
-- `pyproject.toml:29` — `testpaths`
-- `pyproject.toml:36` — `markers`
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_opencode_version`
+  — `agentic_tools_opencode_version`
+- `pyproject.toml › "tool.uv.sources]"` — `testpaths`
+- `pyproject.toml › "docs/knowledge/tests"` — `markers`

@@ -537,29 +537,38 @@ modifies.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-27):
-
-- `.devcontainer/scripts/runtime-supervisor.py:118` — `Settings`
-- `.devcontainer/scripts/runtime-supervisor.py:138` — `Settings.from_env`
-- `.devcontainer/scripts/runtime-supervisor.py:229` — `Service`
-- `.devcontainer/scripts/runtime-supervisor.py:246` — `SERVICES`
-- `.devcontainer/scripts/runtime-supervisor.py:289` — `Controller.__init__`
-  service filter
-- `.devcontainer/scripts/runtime-supervisor.py:805` — `preflight`
-- `.devcontainer/scripts/runtime-health.sh:28` — runtime-user probe list
-- `.devcontainer/scripts/runtime-health.sh:58` — `status`
-- `.devcontainer/scripts/claude-remote-control-start.sh:4` — mode default
-- `.devcontainer/scripts/claude-remote-control-start.sh:62` — live-session reuse
-- `docker/opencode/supervisord.conf:195` — `[program:opencode]`
-- `docker/opencode/agent-opencode.Dockerfile:37` —
+- `.devcontainer/scripts/runtime-supervisor.py::SettingsParser.count` —
+  `Settings`
+- `.devcontainer/scripts/runtime-supervisor.py::Settings` — `Settings.from_env`
+- `.devcontainer/scripts/runtime-supervisor.py::Captured.wait` — `Service`
+- `.devcontainer/scripts/runtime-supervisor.py::Service` — `SERVICES`
+- `.devcontainer/scripts/runtime-supervisor.py › "@dataclass"` —
+  `Controller.__init__` service filter
+- `.devcontainer/scripts/runtime-supervisor.py::watch_controller` — `preflight`
+- `.devcontainer/scripts/runtime-health.sh › "dbus | keyring | cbm | opencode | xpra | remote-control)"`
+  — runtime-user probe list
+- `.devcontainer/scripts/runtime-health.sh › "done"` — `status`
+- `.devcontainer/scripts/claude-remote-control-start.sh › "${AGENTDEV_CLAUDE_RC_MODE-session}"`
+  — mode default
+- `.devcontainer/scripts/claude-remote-control-start.sh › "2>/dev/null; then"` —
+  live-session reuse
+- `docker/opencode/supervisord.conf › "program:opencode]"` —
+  `[program:opencode]`
+- `docker/opencode/agent-opencode.Dockerfile` —
   `CLAUDE_SECURESTORAGE_CONFIG_DIR`
-- `docker/opencode/agent-opencode.Dockerfile:42` — `XDG_RUNTIME_DIR`
-- `compose.opencode.yml:30` — `AGENTDEV_STRICT_STARTUP`
-- `docker/opencode/runtime.env.example:53` — `AGENTDEV_STRICT_STARTUP`
-- `docker/opencode/README.md:146` — `## 6. Log in`
-- `scripts/tests/test_agent_runtime_supervision.py:97` — `build_config`
-- `scripts/tests/test_agent_runtime_supervision.py:685` —
-  `test_every_supervised_service_has_a_real_probe`
-- `scripts/tests/test_agent_runtime_compose.py:137` —
-  `test_env_example_documents_every_interpolated_setting`
-- `scripts/tests/test_agent_runtime_acceptance.py:261` — `make_runtime`
+- `docker/opencode/agent-opencode.Dockerfile › "XDG_RUNTIME_DIR=/run/agentdev/xdg"`
+  — `XDG_RUNTIME_DIR`
+- `compose.opencode.yml#services.opencode.environment.AGENTDEV_STRICT_STARTUP` —
+  `AGENTDEV_STRICT_STARTUP`
+- `docker/opencode/runtime.env.example › "AGENTDEV_STRICT_STARTUP=false"` —
+  `AGENTDEV_STRICT_STARTUP`
+- `docker/opencode/README.md#5-route-the-proxy-to-it › "settings. Another project adds two more site blocks naming"`
+  — `## 6. Log in`
+- `scripts/tests/test_agent_runtime_supervision.py::write_executable` —
+  `build_config`
+- `scripts/tests/test_agent_runtime_supervision.py::test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout`
+  — `test_every_supervised_service_has_a_real_probe`
+- `scripts/tests/test_agent_runtime_compose.py::test_xpra_password_reaches_the_container_and_is_checked_at_start_not_render`
+  — `test_env_example_documents_every_interpolated_setting`
+- `scripts/tests/test_agent_runtime_acceptance.py::make_runtime` —
+  `make_runtime`

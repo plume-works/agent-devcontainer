@@ -202,24 +202,30 @@ with both distinct desktops successfully.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
-
-- `docker/desktop/start-xpra.sh:7` — default port
-- `docker/desktop/start-xpra.sh:22` — port usage text
-- `docker/desktop/start-xpra.sh:152` — --port parsing
-- `docker/desktop/start-xpra.sh:224` — printed client URL
-- `docker/desktop/start-xpra.sh:231` — Xpra TCP bind argument
-- `docker/desktop/agent-desktop.Dockerfile:76` — startup script copied into
-  image
-- `docker/desktop/agent-desktop.Dockerfile:78` — exposed-port documentation
-- `.devcontainer/devcontainer.json:51` — forwarding configuration
-- `.devcontainer/docker-compose.yml:53` — devcontainer service
-- `.devcontainer/scripts/postStartCommand.sh:20` — background startup entry
-  point
-- `devcontainer-compose-pins.yml:14` — image digest override
-- `README.md:213` — Xpra desktop access instructions
-- `docs/knowledge/data/architecture/module-layout.md:89` — port-derivation
-  detail
-- `docs/knowledge/data/codebase/docker.md:46` — startup-script map
-- `docs/knowledge/data/codebase/api-image-runtime.md:44` — ID-to-port contract
-- `docs/knowledge/data/codebase/devcontainer.md:36` — forwarding public surface
+- `docker/desktop/start-xpra.sh › "PORT=14500"` — default port
+- `docker/desktop/start-xpra.sh::print_usage` — port usage text
+- `docker/desktop/start-xpra.sh › "--port)"` — --port parsing
+- `docker/desktop/start-xpra.sh › "HTML5 container address: http://$HOST:$PORT"`
+  — printed client URL
+- `docker/desktop/start-xpra.sh › "# Bind HTML5/websocket server to host:port"`
+  — Xpra TCP bind argument
+- `docker/desktop/agent-desktop.Dockerfile › "COPY --chmod=755 docker/desktop/start-xpra.sh /start-xpra.sh"`
+  — startup script copied into image
+- `docker/desktop/agent-desktop.Dockerfile › "Default Xpra HTML5 container port."`
+  — exposed-port documentation
+- `.devcontainer/devcontainer.json › "forwardPorts"` — forwarding configuration
+- `.devcontainer/docker-compose.yml#services.devcontainer` — devcontainer
+  service
+- `.devcontainer/scripts/postStartCommand.sh › "/start-xpra.sh --background"` —
+  background startup entry point
+- `devcontainer-compose-pins.yml#services.devcontainer.image` — image digest
+  override
+- `README.md#reaching-the-xpra-desktop` — Xpra desktop access instructions
+- `docs/knowledge/data/architecture/module-layout.md#unknowns › "The Xpra/VirtualGL desktop subsystem's internal wiring"`
+  — port-derivation detail
+- `docs/knowledge/data/codebase/docker.md#how-it-works › "serves the HTML5 client on container port"`
+  — startup-script map
+- `docs/knowledge/data/codebase/api-image-runtime.md#environment-the-image-reads › "| bind host, encoders, log path |"`
+  — ID-to-port contract
+- `docs/knowledge/data/codebase/devcontainer.md#public-surface › "PRE_COMMIT_HOME"`
+  — forwarding public surface

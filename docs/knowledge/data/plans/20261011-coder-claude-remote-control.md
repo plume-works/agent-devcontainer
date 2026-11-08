@@ -97,7 +97,8 @@ Runtime behavior: implement through the Principal Engineer with TDD.
   skip messages; run `has-session`, `start-server`, and `new-session` against
   `tmux -L claude-remote`.
   - **Evidence:** commit "Start Remote Control ungated on a dedicated tmux
-    server" (`claude-remote-control-start.sh:13,25,32,38,42`).
+    server"
+    (`.devcontainer/scripts/claude-remote-control-start.sh › "Claude is not logged in; skipping Remote Control."`).
 - [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_start.py` green.
   - **Evidence:** commit "Start Remote Control ungated on a dedicated tmux
@@ -132,7 +133,7 @@ Runtime behavior: implement through the Principal Engineer with TDD.
   finds only the spec text Ship replaces.
   - **Evidence:** at commit "map: refresh devcontainer docs for coder_script
     Remote Control", the grep (excluding `.git` and `.tmp`) matches only
-    `data/spec/claude-remote-control.md:36,86,101,106`.
+    `docs/knowledge/data/spec/claude-remote-control.md#requirement-remote-control-autostarts-only-on-a-live-claudeai-login › "AGENTDEV_CLAUDE_AUTOSTART=1"`.
 
 ### Task 3: Refresh the codebase map
 
@@ -356,34 +357,33 @@ verification commands attach and list with `tmux -L claude-remote`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-11):
-
-- `.devcontainer/scripts/claude-remote-control-start.sh:13,25` — login-gate skip
-  messages
-- `.devcontainer/scripts/claude-remote-control-start.sh:29-50` — session name,
-  `tmux -L claude-remote` `has-session` reuse, `tmux_start` launch
-- `.devcontainer/devcontainer.json:256` — `"waitFor": "postStartCommand"`
-- `scripts/tests/test_claude_remote_control_start.py:32-64` —
+- `.devcontainer/scripts/claude-remote-control-start.sh › "Claude is not logged in; skipping Remote Control."`
+  — login-gate skip messages
+- `.devcontainer/scripts/claude-remote-control-start.sh › "claude-remote"` —
+  session name, `tmux -L claude-remote` `has-session` reuse, `tmux_start` launch
+- `.devcontainer/devcontainer.json › "postStartCommand"` —
+  `"waitFor": "postStartCommand"`
+- `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux` —
   `run_with_fake_tmux`
-- `scripts/tests/test_claude_remote_control_start.py:77-80` —
+- `scripts/tests/test_claude_remote_control_start.py::assert_dedicated_socket` —
   `assert_dedicated_socket`
-- `scripts/tests/test_claude_remote_control_start.py:83-95` —
-  `test_skips_without_live_claude_ai_login`
-- `scripts/tests/test_claude_remote_control_start.py:98-99` —
-  `test_compose_does_not_pass_setup_token`
-- `scripts/tests/test_claude_remote_control_start.py:110-158` —
-  `test_real_tmux_starts_claude_without_setup_token`
-- `scripts/tests/test_preapprove_claude_workspace.py:18` — environment ignore
-  set
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:42` — scripts table row
-- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md:44-50,71-75` —
-  Remote Control lifecycle notes
-- `coder-ide-baseline@577b5fa:template/main.tf:8` — `coder/coder` provider
+- `scripts/tests/test_claude_remote_control_start.py › "@pytest.mark.parametrize"`
+  — `test_skips_without_live_claude_ai_login`
+- `scripts/tests/test_claude_remote_control_start.py::test_compose_does_not_pass_setup_token`
+  — `test_compose_does_not_pass_setup_token`
+- `scripts/tests/test_claude_remote_control_start.py › "@pytest.mark.skipif(shutil.which('tmux') is None"`
+  — `test_real_tmux_starts_claude_without_setup_token`
+- `scripts/tests/test_preapprove_claude_workspace.py::run_preapprove` —
+  environment ignore set
+- `docs/knowledge/data/codebase/devcontainer/scripts.md#public-surface › "by hand | with a claude.ai login, run"`
+  — scripts table row
+- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md#trace › "every start): CBM daemon and index, git"`
+  — Remote Control lifecycle notes
+- `coder-ide-baseline@577b5fa:template/main.tf` — `coder/coder` provider
   constraint
-- `coder-ide-baseline@577b5fa:template/main.tf:12` — `kreuzwerker/docker`
-  provider constraint
-- `coder-ide-baseline@577b5fa:template/main.tf:186` — `code-server` module
-  version
-- `coder-ide-baseline@577b5fa:template/main.tf:44` — `local.repo_dir`
-- `coder-ide-baseline@577b5fa:template/main.tf:193` — `coder_devcontainer.repo`
-- `coder-ide-baseline@577b5fa:template/main.tf:202` — `coder_script.second_repo`
+- `coder-ide-baseline@577b5fa:template/main.tf` — `kreuzwerker/docker` provider
+  constraint
+- `coder-ide-baseline@577b5fa:template/main.tf` — `code-server` module version
+- `coder-ide-baseline@577b5fa:template/main.tf` — `local.repo_dir`
+- `coder-ide-baseline@577b5fa:template/main.tf` — `coder_devcontainer.repo`
+- `coder-ide-baseline@577b5fa:template/main.tf` — `coder_script.second_repo`

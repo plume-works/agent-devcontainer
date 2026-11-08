@@ -255,22 +255,21 @@ running `/remote-control` in the session restores it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
-
-- `.devcontainer/scripts/claude-remote-control-session.sh:5` — `id_file`, the
-  pin path.
-- `.devcontainer/scripts/claude-remote-control-session.sh:15` — the resume of
-  the stored ID.
-- `.devcontainer/scripts/claude-remote-control-session.sh:21` — the pin write
+- `.devcontainer/scripts/claude-remote-control-session.sh` — `id_file`, the pin
+  path.
+- `.devcontainer/scripts/claude-remote-control-session.sh › "stored_id="` — the
+  resume of the stored ID.
+- `.devcontainer/scripts/claude-remote-control-session.sh` — the pin write
   before the fresh start.
-- `.devcontainer/scripts/claude-remote-control-session.sh:22` — `exec claude`
-  with `--session-id`.
-- `scripts/tests/test_claude_remote_control_session.py:14` — `FAKE_CLAUDE`, the
-  argument-logging fake.
-- `scripts/tests/test_claude_remote_control_session.py:29` — `run_session`.
-- `docs/knowledge/data/spec/claude-remote-control.md:37` — Requirement: Remote
-  Control autostarts only on a live claude.ai login.
-- `docs/knowledge/data/architecture/claude-remote-control-resume.md:15` —
+- `.devcontainer/scripts/claude-remote-control-session.sh` — `exec claude` with
+  `--session-id`.
+- `scripts/tests/test_claude_remote_control_session.py::STORED_ID` —
+  `FAKE_CLAUDE`, the argument-logging fake.
+- `scripts/tests/test_claude_remote_control_session.py::test_dir` —
+  `run_session`.
+- `docs/knowledge/data/spec/claude-remote-control.md#requirements` —
+  Requirement: Remote Control autostarts only on a live claude.ai login.
+- `docs/knowledge/data/architecture/claude-remote-control-resume.md` —
   `## Decision`.
-- `docs/knowledge/data/architecture/claude-remote-control-resume.md:48` —
-  `## Rejected alternatives`.
+- `docs/knowledge/data/architecture/claude-remote-control-resume.md#claude-code-behavior-the-decision-relies-on › "Control documentation describes"`
+  — `## Rejected alternatives`.

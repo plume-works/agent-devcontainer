@@ -57,17 +57,15 @@ non-zero exit.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:240` — `run`:
-  login re-check when the credential signature changes
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:249` — a seen
-  session that is gone ends the watcher
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:253` — the
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run` —
+  `run`: login re-check when the credential signature changes
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run` — a
+  seen session that is gone ends the watcher
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run` — the
   `start()` call
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:257` — a
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run` — a
   start that leaves no live session ends the watcher
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:115` —
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::start` —
   `start`'s own `claude auth status` check, which returns 0 when it skips
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:143` —
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::start` —
   `tmux new-session`, which returns before the pane's process runs

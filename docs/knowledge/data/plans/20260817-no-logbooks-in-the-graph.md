@@ -34,14 +34,15 @@ session — is what needs to change.
 
 The checkbox discipline held perfectly. All 27 ticks carried evidence lines,
 one-to-one, and survived the cleanup untouched. Every rule
-`.claude/skills/implement/SKILL.md:73-89` states is about checkboxes, evidence,
+`.claude/skills/implement/SKILL.md#rules` states is about checkboxes, evidence,
 commits, and deviations; the damage landed entirely in `## Context`,
 `## Approach`, and task rationale prose, which no rule in either skill governs.
 
-One clause actively invites it. `.claude/skills/plan/SKILL.md:69-71` defines
-`## Verification results` as "narrative evidence for the plan as a whole,
-written as the work happens rather than reconstructed at the end", and [Plan
-checkbox evidence](../spec/plan-checkbox-evidence.md) reinforces it with a
+One clause actively invites it.
+`.claude/skills/plan/SKILL.md#steps › "— narrative evidence for the plan as a whole"`
+defines `## Verification results` as "narrative evidence for the plan as a
+whole, written as the work happens rather than reconstructed at the end", and
+[Plan checkbox evidence](../spec/plan-checkbox-evidence.md) reinforces it with a
 scenario covering results "or discovers something that changes what the plan
 claims". Both are correct and deliberately scoped. But read mid-implementation
 they land as a general licence to write narrative into the plan as things
@@ -62,9 +63,9 @@ and it is why the cleanup went smoothly once triggered: the minimal-contract
 table moved to [CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md) and fit as though
 written for it. But `implement` never cites that rule, and `explore` has a whole
-`## Capturing` section (`.claude/skills/explore/SKILL.md:47`) that `implement`
-lacks. The skill that generates the most findings has the least guidance on
-where they belong.
+`## Capturing` section (`.claude/skills/explore/SKILL.md#capturing`) that
+`implement` lacks. The skill that generates the most findings has the least
+guidance on where they belong.
 
 The behavior is not specific to plans or to this repository's graph. The
 maintainer reports the same residue in READMEs, code comments, skill files, and
@@ -93,7 +94,8 @@ docstrings, and issue and PR bodies.
 **Extract the durable-knowledge definition into that rule.** The
 `**Durable knowledge only.**` block currently sits under `## Project memory`,
 which scopes it by its parent heading to `docs/knowledge/data/`. Its text is
-shared vocabulary — `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:14-20`
+shared vocabulary —
+`.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#durable-vs-not › "Durable — the decision and who made it, the constraint it"`
 carries the two bullets and the "rewritten from scratch" test verbatim — so it
 moves word-for-word, changing only list indentation, and the two places that
 pointed at its old location are repointed.
@@ -155,14 +157,17 @@ the edit.
 
 **Files:** Modify: `AGENTS.md`
 
-- [x] Insert this item verbatim after item 7 (`AGENTS.md:21`) and before
+- [x] Insert this item verbatim after item 7
+  (`AGENTS.md#best-practices-for-agents › "and never escalate to"`) and before
   `### When in Doubt`, as a new numbered item 8. The second half is the
   `**Durable knowledge only.**` block extracted from `## Project memory`
-  (`AGENTS.md:96-107`) — word-for-word, with only the three-space list indent
-  and the resulting line wraps changed
-  - **Evidence:** `AGENTS.md:23-46` now carries item 8; a scripted diff of the
-    applied text against this task's fenced block reports an exact match, and a
-    whitespace-normalized diff of the pre-edit `AGENTS.md:96-107` against the
+  (`AGENTS.md#c › "per [.clang-format](.clang-format)"`) — word-for-word, with
+  only the three-space list indent and the resulting line wraps changed
+  - **Evidence:**
+    `AGENTS.md#best-practices-for-agents › "Never write a working logbook — in any text you produce."`
+    now carries item 8; a scripted diff of the applied text against this task's
+    fenced block reports an exact match, and a whitespace-normalized diff of the
+    pre-edit `AGENTS.md#c › "per [.clang-format](.clang-format)"` against the
     applied `**Durable knowledge only.**` half confirms it moved word-for-word.
 
 ``` markdown
@@ -196,11 +201,12 @@ the edit.
 
 **Files:** Modify: `AGENTS.md`
 
-- [x] Delete `AGENTS.md:96-107` — the block Task 1 moved — and leave this single
-  line in its place, so `## Project memory` still names the rule without
-  restating it
+- [x] Delete `AGENTS.md#c › "per [.clang-format](.clang-format)"` — the block
+  Task 1 moved — and leave this single line in its place, so `## Project memory`
+  still names the rule without restating it
   - **Evidence:** the twelve-line block is gone from `## Project memory`,
-    replaced by the single approved pointer line at `AGENTS.md:120`;
+    replaced by the single approved pointer line at
+    `AGENTS.md#project-memory › "— see Best Practice 8 for the definition and the test."`;
     `grep -n "see Project memory" AGENTS.md` returns nothing, so no reference to
     the old location dangles.
 
@@ -208,11 +214,13 @@ the edit.
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
 ```
 
-- [x] Replace the closing sentence of `### Comments` (`AGENTS.md:43-45`), whose
-  "see Project memory" pointer no longer resolves to the definition
+- [x] Replace the closing sentence of `### Comments`
+  (`AGENTS.md#best-practices-for-agents › "The test: _would this still be true if the code were"`),
+  whose "see Project memory" pointer no longer resolves to the definition
   - **Evidence:** `### Comments` now closes with the approved sentence pointing
-    at Best Practice 8 (`AGENTS.md:67-69`), matching this task's fenced block
-    word-for-word.
+    at Best Practice 8
+    (`AGENTS.md#comments › "A pointer to where a decision is recorded usually earns its"`),
+    matching this task's fenced block word-for-word.
 
 ``` markdown
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
@@ -225,9 +233,9 @@ Practice 8.
 **Files:** Modify: `docs/knowledge/AGENTS.md`
 
 - [x] Insert this section verbatim after `## Conventions`
-  (`docs/knowledge/AGENTS.md:74-144`) and before `## iwe basics`
-  (`docs/knowledge/AGENTS.md:145`). It states the exceptions only; Best Practice
-  8 states the prohibition
+  (`docs/knowledge/AGENTS.md#conventions`) and before `## iwe basics`
+  (`docs/knowledge/AGENTS.md#where-narrative-is-the-format`). It states the
+  exceptions only; Best Practice 8 states the prohibition
   - **Evidence:** `## Where narrative is the format` now sits between
     `## Conventions` and `## iwe basics` in `docs/knowledge/AGENTS.md`, matching
     this task's fenced block word-for-word; it names only the three carve-outs
@@ -260,10 +268,11 @@ the implement skill's `## Capturing`) and cut the narration.
 
 - [x] Replace the `## Verification results` bullet with exactly this text,
   preserving its three-space list indentation in the surrounding section list
-  - **Evidence:** `.claude/skills/plan/SKILL.md:69-74` now carries the scoped
-    bullet, word-for-word against this task's fenced block except for the
-    trailing pointer, which this task directs be resolved to `AGENTS.md` Best
-    Practice 8 instead of the dangling `## Rules`.
+  - **Evidence:**
+    `.claude/skills/plan/SKILL.md#steps › "change, written in whichever of the three forms below fits"`
+    now carries the scoped bullet, word-for-word against this task's fenced
+    block except for the trailing pointer, which this task directs be resolved
+    to `AGENTS.md` Best Practice 8 instead of the dangling `## Rules`.
 
 ``` markdown
    - `## Verification results` — narrative evidence for the plan as a whole,
@@ -275,7 +284,7 @@ the implement skill's `## Capturing`) and cut the narration.
 ```
 
 The trailing pointer needs one resolution the approved draft left open: plan's
-`## Rules` (`.claude/skills/plan/SKILL.md:145-164`) carries no narration rule
+`## Rules` (`.claude/skills/plan/SKILL.md#rules`) carries no narration rule
 today, so `see ## Rules` currently dangles. Point it at `AGENTS.md` Best
 Practice 8 instead — that is where Task 1 puts the rule. This is the only change
 to approved wording anywhere in this plan, and it resolves a pointer the draft
@@ -286,7 +295,7 @@ left open rather than altering a sentence.
 **Files:** Modify: `.claude/skills/implement/SKILL.md`
 
 - [x] Insert this section verbatim between `## Steps` and `## Rules`
-  (`.claude/skills/implement/SKILL.md:73`)
+  (`.claude/skills/implement/SKILL.md#rules`)
   - **Evidence:** `## Capturing what implementation turns up` now sits between
     `## Steps` and `## Rules`, matching this task's fenced block word-for-word.
     Read end to end, the two sections do not overlap — `## Rules` governs
@@ -327,10 +336,11 @@ harness is code and lives in the repository. Its *output* is not plan content.
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md`
 
 - [x] Replace `## Scope` and its two paragraphs
-  (`.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:22-29`) with this text
-  verbatim. Leave the skill's own `## Durable vs not` block (`:14-20`) untouched
-  — it is the same shared vocabulary Task 1 moves, and the two copies must stay
-  identical
+  (`.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope`) with this text
+  verbatim. Leave the skill's own `## Durable vs not` block
+  (`.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#durable-vs-not › "Durable — the decision and who made it, the constraint it"`)
+  untouched — it is the same shared vocabulary Task 1 moves, and the two copies
+  must stay identical
   - **Evidence:** `## Scope` now matches this task's fenced block word-for-word,
     naming the non-graph surfaces and excluding commit messages;
     `## Durable vs not` was not edited. A scripted comparison confirms both
@@ -358,9 +368,11 @@ move, not a deletion.
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
 - [x] Correct `docs/knowledge/data/AGENTS.md` to `docs/knowledge/AGENTS.md` in
-  `AGENTS.md:116` and `docs/knowledge/data/product.md:155` — the file has never
-  existed at the referenced path, so the manual Task 3's exceptions live in is
-  currently pointed at by two dead references
+  `AGENTS.md#project-memory › "query relevant project memory before planning or"`
+  and
+  `docs/knowledge/data/product.md#authoring-rules › "durable project knowledge; follow"`
+  — the file has never existed at the referenced path, so the manual Task 3's
+  exceptions live in is currently pointed at by two dead references
   - **Evidence:** both references now name `docs/knowledge/AGENTS.md`, which
     exists; `grep -rn "data/AGENTS.md" AGENTS.md docs/` returns matches only
     inside this plan document, where the tasks and verification describe the fix
@@ -466,7 +478,7 @@ remain the Plan skill's to own.
   owns the syntax, this plan owns the wording
 - Confirm the two copies of the durable-knowledge vocabulary still agree:
   `AGENTS.md` item 8 and
-  `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:14-20`
+  `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#durable-vs-not › "Durable — the decision and who made it, the constraint it"`
 - Confirm no pointer to the extracted block dangles:
   `grep -n "see Project memory" AGENTS.md` returns nothing
 - Re-read the cleaned [AI responder
@@ -496,38 +508,40 @@ remain the Plan skill's to own.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-24):
-
-- `AGENTS.md:21` — the end of item 7 in `## Best Practices for Agents`, after
-  which Task 1 inserts item 8
-- `AGENTS.md:43-45` — the `### Comments` closing sentence whose "see Project
-  memory" pointer Task 2 repoints
-- `AGENTS.md:96-107` — the `**Durable knowledge only.**` block Task 1 extracts
-  and Task 2 replaces with a pointer
-- `AGENTS.md:116` — the dead `docs/knowledge/data/AGENTS.md` reference Task 7
-  fixes
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:14-20` — the second copy
-  of the durable-knowledge vocabulary, which stays untouched and must keep
-  matching item 8
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:22-29` — `## Scope`, the
+- `AGENTS.md#best-practices-for-agents › "and never escalate to"` — the end of
+  item 7 in `## Best Practices for Agents`, after which Task 1 inserts item 8
+- `AGENTS.md#best-practices-for-agents › "The test: _would this still be true if the code were"`
+  — the `### Comments` closing sentence whose "see Project memory" pointer Task
+  2 repoints
+- `AGENTS.md#c › "per [.clang-format](.clang-format)"` — the
+  `**Durable knowledge only.**` block Task 1 extracts and Task 2 replaces with a
+  pointer
+- `AGENTS.md#project-memory › "query relevant project memory before planning or"`
+  — the dead `docs/knowledge/data/AGENTS.md` reference Task 7 fixes
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#durable-vs-not › "Durable — the decision and who made it, the constraint it"`
+  — the second copy of the durable-knowledge vocabulary, which stays untouched
+  and must keep matching item 8
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope` — `## Scope`, the
   two paragraphs Task 6 replaces
-- `docs/knowledge/AGENTS.md:74` — `## Conventions`, after which Task 3 inserts
-- `docs/knowledge/AGENTS.md:145` — `## iwe basics`, the section Task 3's
-  insertion precedes
-- `.claude/skills/plan/SKILL.md:69-71` — the `## Verification results` bullet
-  that Task 4 scopes
-- `.claude/skills/implement/SKILL.md:73` — `## Rules`, the boundary Task 5's new
-  section is inserted before
-- `.claude/skills/implement/SKILL.md:44-56` — Step 6's tactical-correction and
-  material-deviation split, which Task 5 cross-references rather than restates
-- `.claude/skills/explore/SKILL.md:47` — `## Capturing`, the section Task 5
-  mirrors
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:127` —
-  `Requirement: Implement never hides a material deviation`, the neighbor the
+- `docs/knowledge/AGENTS.md#conventions` — `## Conventions`, after which Task 3
+  inserts
+- `docs/knowledge/AGENTS.md#where-narrative-is-the-format` — `## iwe basics`,
+  the section Task 3's insertion precedes
+- `.claude/skills/plan/SKILL.md#steps › "— narrative evidence for the plan as a whole"`
+  — the `## Verification results` bullet that Task 4 scopes
+- `.claude/skills/implement/SKILL.md#steps › "pre-ship check, then the ship skill."`
+  — `## Rules`, the boundary Task 5's new section is inserted before
+- `.claude/skills/implement/SKILL.md#steps › "evidence line. If you cannot name the evidence, the box is"`
+  — Step 6's tactical-correction and material-deviation split, which Task 5
+  cross-references rather than restates
+- `.claude/skills/explore/SKILL.md#capturing` — `## Capturing`, the section Task
+  5 mirrors
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-never-hides-a-material-deviation`
+  — `Requirement: Implement never hides a material deviation`, the neighbor the
   new requirement sits beside
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:92-104` — the narrative
-  evidence requirement whose scope Task 4 clarifies
-- `docs/knowledge/tests/test_plan_checkboxes.py:26` — `PLANS_DIR`, the existing
-  shape gate Task 8's backlog entry considers extending
-- `docs/knowledge/data/product.md:155` — the second dead
-  `docs/knowledge/data/AGENTS.md` reference Task 7 fixes
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-plans-record-narrative-verification-evidence`
+  — the narrative evidence requirement whose scope Task 4 clarifies
+- `docs/knowledge/tests/test_plan_checkboxes.py::PLANS_DIR` — `PLANS_DIR`, the
+  existing shape gate Task 8's backlog entry considers extending
+- `docs/knowledge/data/product.md#authoring-rules › "durable project knowledge; follow"`
+  — the second dead `docs/knowledge/data/AGENTS.md` reference Task 7 fixes

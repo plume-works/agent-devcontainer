@@ -274,23 +274,21 @@ after it succeeds.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-04):
-
-- `.github/workflows/primary-checks.yml:21-24` — workflow-level `concurrency`,
-  queueing on `main`
-- `.github/workflows/primary-checks.yml:32-36` — `pre-commit` job and its
-  permissions
-- `.github/workflows/primary-checks.yml:55-57` — `Select the range` step running
-  `scripts/pre-commit-ci-range.py`
-- `.github/workflows/primary-checks.yml:79-90` — `ci` job calling
+- `.github/workflows/primary-checks.yml › "main queues instead of cancelling, so edge keeps advancing"`
+  — workflow-level `concurrency`, queueing on `main`
+- `.github/workflows/primary-checks.yml#jobs.pre-commit` — `pre-commit` job and
+  its permissions
+- `.github/workflows/primary-checks.yml › "name: Select the range"` —
+  `Select the range` step running `scripts/pre-commit-ci-range.py`
+- `.github/workflows/primary-checks.yml#jobs.ci` — `ci` job calling
   `.github/workflows/ci.yml`
-- `.github/actions/paths-filter/action.yml:67-86` — `last-pass`, the existing
-  lookup of the last passing push run
-- `scripts/pre-commit-ci-range.py:33` — `_event_range`, the `push` branch
-  returning `before..after`
-- `scripts/pre-commit-ci-range.py:61` — `outputs`
-- `scripts/pre-commit-ci-range.py:77` — `main`
-- `docs/knowledge/data/spec/image-pinning.md:72-101` — Requirement: published
-  tags name only tested images
-- `docs/knowledge/data/spec/pre-commit-gate.md:19-41` — Requirement: CI runs the
-  pre-commit hooks as the lint gate
+- `.github/actions/paths-filter/action.yml#runs.steps` — `last-pass`, the
+  existing lookup of the last passing push run
+- `scripts/pre-commit-ci-range.py::_event_range` — `_event_range`, the `push`
+  branch returning `before..after`
+- `scripts/pre-commit-ci-range.py::outputs` — `outputs`
+- `scripts/pre-commit-ci-range.py::main` — `main`
+- `docs/knowledge/data/spec/image-pinning.md#requirement-published-tags-name-only-tested-images`
+  — Requirement: published tags name only tested images
+- `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
+  — Requirement: CI runs the pre-commit hooks as the lint gate

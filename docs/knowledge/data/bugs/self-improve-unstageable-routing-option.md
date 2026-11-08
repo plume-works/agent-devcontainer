@@ -22,7 +22,8 @@ options presented as equivalent, and one of them has no destination.
 
 ## Reproduction
 
-`skills/improve/SKILL.md:60` offers:
+`.agents/plugins/self-improve/skills/improve/SKILL.md#2-find-the-owner › "Add or patch a linked reference** owned by such an"`
+offers:
 
 ``` text
 3. **Add or patch a linked reference** owned by such an umbrella.
@@ -57,11 +58,9 @@ that changes no behavior.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-09):
-
-- `.agents/plugins/self-improve/skills/improve/SKILL.md:60` — the routing option
-  that cannot be staged
-- `.agents/plugins/self-improve/selfimprove/allowlist.py:47` — `candidate_paths`
-  and the three kinds it resolves
-- `.agents/plugins/self-improve/selfimprove/allowlist.py:76` — the `bad_kind`
-  rejection every other target reaches
+- `.agents/plugins/self-improve/skills/improve/SKILL.md#2-find-the-owner › "Add or patch a linked reference** owned by such an"`
+  — the routing option that cannot be staged
+- `.agents/plugins/self-improve/selfimprove/allowlist.py::candidate_paths` —
+  `candidate_paths` and the three kinds it resolves
+- `.agents/plugins/self-improve/selfimprove/allowlist.py::candidate_paths` — the
+  `bad_kind` rejection every other target reaches

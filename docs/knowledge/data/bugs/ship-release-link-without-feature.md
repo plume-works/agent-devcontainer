@@ -49,9 +49,7 @@ field is missing or names no document. Ship never creates a feature.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
-
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:115` — set the linked
-  feature or bug; new-feature clause
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:119` — exactly one
-  unreleased inclusion link for a feature or a bug
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Set the linked feature to"`
+  — set the linked feature or bug; new-feature clause
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "contains exactly one inclusion link"`
+  — exactly one unreleased inclusion link for a feature or a bug

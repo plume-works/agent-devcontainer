@@ -470,49 +470,47 @@ given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
-
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:4` —
-  `disable-model-invocation: true`
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:24` — dispatch prompt
-  carries nothing else
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — dispatch
-  `iwe-shipper`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:13` — follow the
-  `iwe-implementer` rulebook in place
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:34` — stopping for a
-  decision
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:166` — Ship blocker
-  report
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:15` — session and
-  dispatched modes
-- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — dispatch
-  `iwe-shipper` per plan
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — dispatch
-  `iwe-implementer` per plan
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:136` — revise answering a
-  Ship blocker re-dispatches the Shipper
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:71` — Verify never
-  invokes Ship
-- `.agents/plugins/agentdev/skills/create-skill/SKILL.md:48` —
-  `policy.allow_implicit_invocation`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:77` — explicit-only skills
-  collected for `deny`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:92` — catalog agents
-  registered as subagents
-- `.agents/plugins/agentdev/tests/test_explicit_only_parity.py:33` — Claude and
-  Codex gate parity
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:58` — gate
-  fixture
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:158` —
-  OpenCode `external_directory` grant for the catalog
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:264` — normal shipping
-  requirement
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:101` — `build_clone`,
-  which lists the fixtures under `## Active`
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:214` — Claude ship-all
-  dispatch count
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:331` — Codex ship-all
-  spawn count
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:411` — OpenCode
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md › "disable-model-invocation: true"`
+  — `disable-model-invocation: true`
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#steps › "Add nothing else: no summary of the conversation, no claim"`
+  — dispatch prompt carries nothing else
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#steps › "with that prompt and wait for its report."`
+  — dispatch `iwe-shipper`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#implement-a-plan › "Read [the iwe-implementer"`
+  — follow the `iwe-implementer` rulebook in place
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#stopping-for-a-decision`
+  — stopping for a decision
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report › "and lists every blocker — each"`
+  — Ship blocker report
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#how-you-run` —
+  session and dispatched modes
+- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md#ship-all-implemented-plans-in-the-iwe-graph › "agent once per plan, sequentially, in dependency"`
+  — dispatch `iwe-shipper` per plan
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md#implement-all-active-plans-in-the-iwe-graph › "agent once per plan, sequentially, in dependency"`
+  — dispatch `iwe-implementer` per plan
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "When a revision answers the Ship blocker report the"`
+  — revise answering a Ship blocker re-dispatches the Shipper
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#steps › "invoke Ship, or perform any shipping state transition. A"`
+  — Verify never invokes Ship
+- `.agents/plugins/agentdev/skills/create-skill/SKILL.md#frontmatter-follows-the-agent-skills-spec-and-there-is-no-agentsopenaiyaml › "for something frontmatter genuinely cannot express —"`
+  — `policy.allow_implicit_invocation`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "] === true) catalog.explicitOnly.push(name)"`
+  — explicit-only skills collected for `deny`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "catalog.agents[file.slice(0, -"`
+  — catalog agents registered as subagents
+- `.agents/plugins/agentdev/tests/test_explicit_only_parity.py::parity_mismatches`
+  — Claude and Codex gate parity
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#fixture` —
+  gate fixture
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#opencode › "therefore needs OpenCode's"`
+  — OpenCode `external_directory` grant for the catalog
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
+  — normal shipping requirement
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::build_clone` —
+  `build_clone`, which lists the fixtures under `## Active`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_claude` — Claude
   ship-all dispatch count
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_codex` — Codex
+  ship-all spawn count
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_opencode` —
+  OpenCode ship-all dispatch count

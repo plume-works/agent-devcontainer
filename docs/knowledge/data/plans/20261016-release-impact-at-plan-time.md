@@ -373,28 +373,27 @@ from that value and SHALL never create a feature.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-16):
-
-- `.iwe/schemas/plan.yaml:12` — `stage` property
-- `.iwe/schemas/plan.yaml:93` — `if` / `then` requiring `completed` on a done
-  plan
-- `docs/knowledge/SCHEMA.md:68` — `## Plans` frontmatter and body
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:46` — step 4, write
-  planning state
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:105` — step 5, file a
-  created plan; proposed feature set to `accepted`
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:3` — description naming
-  Capture's callers
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:54` — step 1, read the
-  linked feature or bug
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:115` — step 6,
-  new-feature clause
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:119` — step 6, one
-  unreleased link per work
-- `docs/knowledge/tests/test_body_shape_schemas.py:100` —
-  `test_unmodified_graph_validates`, the graph-copy fixture pattern
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:233` —
+- `.iwe/schemas/plan.yaml#frontmatter.properties.stage` — `stage` property
+- `.iwe/schemas/plan.yaml#frontmatter.properties.usage_window.properties.to` —
+  `if` / `then` requiring `completed` on a done plan
+- `docs/knowledge/SCHEMA.md#plans--dataplansyyyymmdd-slugmd` — `## Plans`
+  frontmatter and body
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "Write planning state."`
+  — step 4, write planning state
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "split this pass exists to prevent. What you are updating is"`
+  — step 5, file a created plan; proposed feature set to `accepted`
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md › "description: File a finished inbox item in the IWE graph — a"`
+  — description naming Capture's callers
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Read the current plan frontmatter and its exact hub section"`
+  — step 1, read the linked feature or bug
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Apply graph transitions idempotently."`
+  — step 6, new-feature clause
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "single inclusion link is under"`
+  — step 6, one unreleased link per work
+- `docs/knowledge/tests/test_body_shape_schemas.py::test_unmodified_graph_validates`
+  — `test_unmodified_graph_validates`, the graph-copy fixture pattern
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh::run_claude` —
   `claude ship approved: publish ran`
-- `templates/iwe/data/plans/20260720-streak-widget.example.md:1` — active seed
+- `templates/iwe/data/plans/20260720-streak-widget.example.md` — active seed
   plan frontmatter
-- `templates/iwe/data/plans/mvp.example.md:1` — milestone seed plan frontmatter
+- `templates/iwe/data/plans/mvp.example.md` — milestone seed plan frontmatter

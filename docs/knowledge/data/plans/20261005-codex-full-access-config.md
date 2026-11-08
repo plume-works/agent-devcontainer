@@ -198,15 +198,15 @@ run through `uv`, independent of the workspace `pyproject.toml`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
-
-- `.devcontainer/scripts/postStartCommand.sh:29-31` — `link-codex-auth.sh` call,
-  the new step goes after it
-- `.devcontainer/scripts/postStartCommand.sh:9` — `codebase-memory-mcp-start.sh`
-- `.devcontainer/firewall-allowlist.txt:30-31` — `pypi.org`,
+- `.devcontainer/scripts/postStartCommand.sh › "Repairs the shared auth.json symlink if a"`
+  — `link-codex-auth.sh` call, the new step goes after it
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/codebase-memory-mcp-start.sh"`
+  — `codebase-memory-mcp-start.sh`
+- `.devcontainer/firewall-allowlist.txt › "pypi.org"` — `pypi.org`,
   `files.pythonhosted.org`
-- `docs/knowledge/data/architecture/template-boundary.md:95-111` — tracked
-  `.devcontainer/` path inventory
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:30` — postStart row
-- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md:45-49` —
-  postStart sequence
+- `docs/knowledge/data/architecture/template-boundary.md#devcontainer-runtime › "| Path | Responsibility |"`
+  — tracked `.devcontainer/` path inventory
+- `docs/knowledge/data/codebase/devcontainer/scripts.md#public-surface › "| every start | CBM daemon + index, git safe.directory, auth"`
+  — postStart row
+- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md#trace › "every start): CBM daemon and index, git"`
+  — postStart sequence

@@ -62,19 +62,17 @@ on the head shows a review was requested, enforcing one request per head SHA.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
-
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:266` — step 9, create or
-  update the pull request; update mode ends here
-- `.agents/plugins/agentdev/skills/pr-sync/SKILL.md:8` — delegates to pr-open
-  update mode
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:199` — step 5, CI-fix
-  commit and push
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:259` — AI Review Recovery's
-  in-conversation per-head-SHA trigger ledger
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:338` — the
-  eval's only caller
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:31` — the
-  session-relative test
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:67` — "Post at
-  most once per head SHA", prose only
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#9-create-or-update-the-pull-request`
+  — step 9, create or update the pull request; update mode ends here
+- `.agents/plugins/agentdev/skills/pr-sync/SKILL.md#sync-pr-description › "Invoke /agentdev:pr-open with additional instructions to"`
+  — delegates to pr-open update mode
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "After a code change, run the narrowest relevant local"`
+  — step 5, CI-fix commit and push
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery › "starting a duplicate review. Maintain a per-head-SHA trigger"`
+  — AI Review Recovery's in-conversation per-head-SHA trigger ledger
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-7-final-verification › "Decide whether a fresh AI review is needed"`
+  — the eval's only caller
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#the-test › "Ask: did I change anything the reviewer did not direct?"`
+  — the session-relative test
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-at-most-once-per-head-sha`
+  — "Post at most once per head SHA", prose only

@@ -141,20 +141,21 @@ request rather than from the session that made the change.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:3` —
-  `description`
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:28` —
-  `## The test`; `:47` — the **No** branch
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:74` — "do not
-  request a review when" list
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:83` —
-  `## Establish what the last review saw`
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:125` —
-  `## Report the decision`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:208`
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md › "Decide whether work just pushed to an open pull request"`
+  — `description`
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#the-test` —
+  `## The test`;
+  `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#the-test › "— the diff only applies what those threads and comments"`
+  — the **No** branch
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#what-counts-as-beyond-the-feedback › "Unless an AI change request is pending, do not request a"`
+  — "do not request a review when" list
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#establish-what-the-last-review-saw`
+  — `## Establish what the last review saw`
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#report-the-decision`
+  — `## Report the decision`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::reviewed`
   — accepted AI reviewer logins
-- `docs/knowledge/data/spec/ai-review-refresh.md:23` — Requirement: every push
-  to a reviewed pull request is evaluated; `:42` — Scenario: an update only
-  applies requested feedback
+- `docs/knowledge/data/spec/ai-review-refresh.md#requirement-every-push-to-a-reviewed-pull-request-is-evaluated`
+  — Requirement: every push to a reviewed pull request is evaluated;
+  `docs/knowledge/data/spec/ai-review-refresh.md#scenario-an-update-only-applies-requested-feedback`
+  — Scenario: an update only applies requested feedback

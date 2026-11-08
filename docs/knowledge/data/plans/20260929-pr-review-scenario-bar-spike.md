@@ -61,14 +61,14 @@ the most per run and its many findings dilute the signal.
 
 ### Known-bug key
 
-| ID  | PR   | Head      | Location                                                 | Bug                                                                                                     | Found by |
-| --- | ---- | --------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- |
-| K1  | #199 | `7e0413d` | `.github/workflows/renovate.yml:48`                      | Split concurrency groups let a checkbox run and a push or scheduled run write the same branches at once | Greptile |
-| K2  | #203 | `84d4584` | `.devcontainer/docker-compose.yml:70`                    | Unset `GIT_*` host variables are injected as empty strings, and Git refuses the empty identity          | Both     |
-| K3  | #203 | `84d4584` | `.devcontainer/devcontainer-init.sh:36`                  | Every restart rewrites the credential transfer files, and only post-create removes them                 | Both     |
-| K4  | #203 | `84d4584` | `.devcontainer/scripts/postStartCommand.sh:12`           | The `gh` credential helper checks login before `setup-keyring.sh` starts the keyring                    | Greptile |
-| K5  | #203 | `84d4584` | `docs/knowledge/data/spec/devcontainer-agent-auth.md:32` | The spec says the token is not a substitute; the launcher falls back to it                              | Claude   |
-| K6  | #203 | `84d4584` | `docs/knowledge/data/spec/devcontainer-agent-auth.md:71` | A start-time seeding scenario the code performs only at create                                          | Claude   |
+| ID  | PR   | Head      | Location                                                                                                                                           | Bug                                                                                                     | Found by |
+| --- | ---- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- |
+| K1  | #199 | `7e0413d` | `.github/workflows/renovate.yml#jobs.renovate.concurrency.group`                                                                                   | Split concurrency groups let a checkbox run and a push or scheduled run write the same branches at once | Greptile |
+| K2  | #203 | `84d4584` | `.devcontainer/docker-compose.yml#services.devcontainer.environment.GIT_AUTHOR_NAME`                                                               | Unset `GIT_*` host variables are injected as empty strings, and Git refuses the empty identity          | Both     |
+| K3  | #203 | `84d4584` | `.devcontainer/devcontainer-init.sh › "$script_dir/scripts/prepare-agent-auth-seed.sh"`                                                            | Every restart rewrites the credential transfer files, and only post-create removes them                 | Both     |
+| K4  | #203 | `84d4584` | `.devcontainer/scripts/postStartCommand.sh › "initializeCommand rewrites the transfer files on every"`                                             | The `gh` credential helper checks login before `setup-keyring.sh` starts the keyring                    | Greptile |
+| K5  | #203 | `84d4584` | `docs/knowledge/data/spec/devcontainer-agent-auth.md#devcontainer-agent-authentication-and-claude-remote-control › "logins."`                      | The spec says the token is not a substitute; the launcher falls back to it                              | Claude   |
+| K6  | #203 | `84d4584` | `docs/knowledge/data/spec/devcontainer-agent-auth.md#requirement-live-credentials-are-seeded-once › "start, so post-start consumes them as well."` | A start-time seeding scenario the code performs only at create                                          | Claude   |
 
 `84d4584` is a formatter-only commit on top of `79d848a`, the head Greptile
 reviewed, so every #203 bug is present at it.
@@ -243,34 +243,34 @@ validation. The K3 finding in each #203 variant also covers K6: it identifies
 both the residual plaintext seed and the missing per-start consumer promised by
 the specification.
 
-| ID  | Run             | Location                                 | Unmatched finding                                                              |
-| --- | --------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
-| U1  | #199 baseline 1 | `data/codebase/github.md:51`             | The generated timestamp was not refreshed.                                     |
-| U2  | #199 baseline 1 | `data/codebase/github/workflows.md:55`   | The generated timestamp was not refreshed.                                     |
-| U3  | #199 baseline 1 | `renovate.yml:12`                        | The trigger comment records rationale and an invariant in code.                |
-| U4  | #199 baseline 1 | `renovate.yml:29`                        | The sender-filter comment restates code and records loop-prevention rationale. |
-| U5  | #199 baseline 1 | `renovate.yml:45`                        | The concurrency comment restates settings and records queueing rationale.      |
-| U6  | #199 variant 2  | `renovate.yml:12`                        | The trigger comment duplicates durable rationale and an invariant.             |
-| U7  | #199 variant 2  | `renovate.yml:29`                        | The sender-filter comment duplicates App-token loop-prevention rationale.      |
-| U8  | #199 variant 2  | `renovate.yml:45`                        | The concurrency comment duplicates queueing rationale and invariants.          |
-| U9  | #203 baseline 1 | `devcontainer-init.sh:36`                | The credential-transfer directory violates the repository's `./.tmp` rule.     |
-| U10 | #203 baseline 1 | `test_claude_remote_control_start.py:21` | A helper lacks type hints and a docstring.                                     |
-| U11 | #203 baseline 1 | `test_seed_agent_auth.py:15`             | A helper lacks a return annotation and docstring.                              |
-| U12 | #203 baseline 1 | `test_setup_gh_credential_helper.py:13`  | A helper lacks parameter/return annotations and a docstring.                   |
-| U13 | #203 baseline 1 | `devcontainer-init.sh:32`                | A comment duplicates transfer lifecycle rationale from the auth spec.          |
-| U14 | #203 baseline 1 | `docker-compose.yml:106`                 | A comment duplicates transfer-directory invariants from the auth spec.         |
-| U15 | #203 baseline 1 | `claude-remote-control-start.sh:38`      | A comment paraphrases the adjacent command.                                    |
-| U16 | #203 baseline 1 | `setup-gh-credential-helper.sh:2`        | A comment duplicates helper-selection rationale from the auth spec.            |
-| U17 | #203 baseline 1 | `test_claude_remote_control_start.py:56` | A test lacks a return annotation and docstring.                                |
-| U18 | #203 baseline 1 | `test_seed_agent_auth.py:44`             | A test lacks parameter/return annotations and a docstring.                     |
-| U19 | #203 baseline 1 | `test_setup_gh_credential_helper.py:50`  | A test lacks parameter/return annotations and a docstring.                     |
-| U20 | #203 variant 1  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
-| U21 | #203 variant 1  | `data/spec.md:6`                         | The spec hub has the wrong generated-by value.                                 |
-| U22 | #203 variant 1  | `spec/devcontainer-agent-auth.md:5`      | The new spec has the wrong generated-by value.                                 |
-| U23 | #203 variant 1  | `test_claude_remote_control_start.py:21` | Added helpers and tests lack type hints.                                       |
-| U24 | #203 variant 1  | `test_seed_agent_auth.py:15`             | Added helpers and tests lack type hints.                                       |
-| U25 | #203 variant 1  | `test_setup_gh_credential_helper.py:13`  | Added helpers and tests lack type hints.                                       |
-| U26 | #203 variant 2  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
+| ID  | Run             | Location                                                                                                                         | Unmatched finding                                                              |
+| --- | --------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| U1  | #199 baseline 1 | `docs/knowledge/data/codebase/github.md#how-it-works`                                                                            | The generated timestamp was not refreshed.                                     |
+| U2  | #199 baseline 1 | `docs/knowledge/data/codebase/github/workflows.md#how-it-works › "variables. A person's edit of the Dependency Dashboard issue"` | The generated timestamp was not refreshed.                                     |
+| U3  | #199 baseline 1 | `.github/workflows/renovate.yml#on`                                                                                              | The trigger comment records rationale and an invariant in code.                |
+| U4  | #199 baseline 1 | `.github/workflows/renovate.yml#jobs.renovate`                                                                                   | The sender-filter comment restates code and records loop-prevention rationale. |
+| U5  | #199 baseline 1 | `.github/workflows/renovate.yml#jobs.renovate`                                                                                   | The concurrency comment restates settings and records queueing rationale.      |
+| U6  | #199 variant 2  | `.github/workflows/renovate.yml#on`                                                                                              | The trigger comment duplicates durable rationale and an invariant.             |
+| U7  | #199 variant 2  | `.github/workflows/renovate.yml#jobs.renovate`                                                                                   | The sender-filter comment duplicates App-token loop-prevention rationale.      |
+| U8  | #199 variant 2  | `.github/workflows/renovate.yml#jobs.renovate`                                                                                   | The concurrency comment duplicates queueing rationale and invariants.          |
+| U9  | #203 baseline 1 | `.devcontainer/devcontainer-init.sh › "$script_dir/scripts/prepare-agent-auth-seed.sh"`                                          | The credential-transfer directory violates the repository's `./.tmp` rule.     |
+| U10 | #203 baseline 1 | `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux`                                                          | A helper lacks type hints and a docstring.                                     |
+| U11 | #203 baseline 1 | `scripts/tests/test_seed_agent_auth.py::COMPOSE`                                                                                 | A helper lacks a return annotation and docstring.                              |
+| U12 | #203 baseline 1 | `scripts/tests/test_setup_gh_credential_helper.py::run_setup`                                                                    | A helper lacks parameter/return annotations and a docstring.                   |
+| U13 | #203 baseline 1 | `.devcontainer/devcontainer-init.sh › "Coder injects auth JSON only into initializeCommand; see"`                                | A comment duplicates transfer lifecycle rationale from the auth spec.          |
+| U14 | #203 baseline 1 | `.devcontainer/docker-compose.yml#services.devcontainer.volumes`                                                                 | A comment duplicates transfer-directory invariants from the auth spec.         |
+| U15 | #203 baseline 1 | `.devcontainer/scripts/claude-remote-control-start.sh › "printf 'Failed to start Claude Remote Control: %s\n"`                   | A comment paraphrases the adjacent command.                                    |
+| U16 | #203 baseline 1 | `.devcontainer/scripts/setup-gh-credential-helper.sh › "HTTPS git reuses gh's login; see"`                                       | A comment duplicates helper-selection rationale from the auth spec.            |
+| U17 | #203 baseline 1 | `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux`                                                          | A test lacks a return annotation and docstring.                                |
+| U18 | #203 baseline 1 | `scripts/tests/test_seed_agent_auth.py::run_seeder`                                                                              | A test lacks parameter/return annotations and a docstring.                     |
+| U19 | #203 baseline 1 | `scripts/tests/test_setup_gh_credential_helper.py::run_setup`                                                                    | A test lacks parameter/return annotations and a docstring.                     |
+| U20 | #203 variant 1  | `.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"`                                                           | Host-side `sha256sum` is unavailable on stock macOS.                           |
+| U21 | #203 variant 1  | `docs/knowledge/data/spec.md › "by: hermes-agent/gpt-5.6"`                                                                       | The spec hub has the wrong generated-by value.                                 |
+| U22 | #203 variant 1  | `docs/knowledge/data/spec/devcontainer-agent-auth.md › "by: claude-code/opus-5"`                                                 | The new spec has the wrong generated-by value.                                 |
+| U23 | #203 variant 1  | `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux`                                                          | Added helpers and tests lack type hints.                                       |
+| U24 | #203 variant 1  | `scripts/tests/test_seed_agent_auth.py::COMPOSE`                                                                                 | Added helpers and tests lack type hints.                                       |
+| U25 | #203 variant 1  | `scripts/tests/test_setup_gh_credential_helper.py::run_setup`                                                                    | Added helpers and tests lack type hints.                                       |
+| U26 | #203 variant 2  | `.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"`                                                           | Host-side `sha256sum` is unavailable on stock macOS.                           |
 
 ### Maintainer judgments
 
@@ -347,37 +347,37 @@ shipped correctness bar stays unchanged.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-03):
-
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — "Scan only the diff
-  itself" correctness rule
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:57` — "definitely produce
-  wrong results regardless of inputs"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:63` — "Potential issues
-  that depend on specific inputs or state"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:129` — correctness pass
-  dispatch
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` — the single
-  validator prompt
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — the validator
-  re-derives the claim
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:96` — Codex model mapping
-  for large and light review slots
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:103` — full-effort slot
-  matrix
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:133` — Codex pass dispatch
-  behavior
-- `7e0413d:.github/workflows/renovate.yml:48` — `concurrency:` split by event
-  (K1)
-- `84d4584:.devcontainer/docker-compose.yml:70` —
-  `GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-}` (K2)
-- `84d4584:.devcontainer/devcontainer-init.sh:36` — `AGENTDEV_AUTH_SEED_DIR`
-  transfer directory (K3)
-- `84d4584:.devcontainer/scripts/postStartCommand.sh:12` —
-  `setup-gh-credential-helper.sh` before `setup-keyring.sh` at `:14` (K4)
-- `84d4584:docs/knowledge/data/spec/devcontainer-agent-auth.md:32` —
-  "`CLAUDE_CODE_OAUTH_TOKEN` is not a substitute" (K5)
-- `84d4584:.devcontainer/scripts/claude-remote-control-start.sh:12` — token
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "Scan only the diff itself, without pulling in extra context"`
+  — "Scan only the diff itself" correctness rule
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "The code will definitely produce wrong results regardless of"`
+  — "definitely produce wrong results regardless of inputs"
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "Potential issues that depend on specific inputs or state"`
+  — "Potential issues that depend on specific inputs or state"
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "— audit the diff against the Correctness focus list. 2x at"`
+  — correctness pass dispatch
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "It carries the candidate's file and line, the added text"`
+  — the single validator prompt
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "from the files rather than trust the candidate's assertion"`
+  — the validator re-derives the claim
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers` — Codex
+  model mapping for large and light review slots
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers` —
+  full-effort slot matrix
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "tool offers no foreground option, run the passes"`
+  — Codex pass dispatch behavior
+- `7e0413d:.github/workflows/renovate.yml#jobs.renovate.concurrency.group` —
+  `concurrency:` split by event (K1)
+- `84d4584:.devcontainer/docker-compose.yml#services.devcontainer.environment.GIT_AUTHOR_NAME`
+  — `GIT_AUTHOR_NAME: ${GIT_AUTHOR_NAME:-}` (K2)
+- `84d4584:.devcontainer/devcontainer-init.sh › "$script_dir/scripts/prepare-agent-auth-seed.sh"`
+  — `AGENTDEV_AUTH_SEED_DIR` transfer directory (K3)
+- `84d4584:.devcontainer/scripts/postStartCommand.sh › "initializeCommand rewrites the transfer files on every"`
+  — `setup-gh-credential-helper.sh` before `setup-keyring.sh` at
+  `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-pre-commit.sh"`
+  (K4)
+- `84d4584:docs/knowledge/data/spec/devcontainer-agent-auth.md#devcontainer-agent-authentication-and-claude-remote-control › "logins."`
+  — "`CLAUDE_CODE_OAUTH_TOKEN` is not a substitute" (K5)
+- `84d4584:.devcontainer/scripts/claude-remote-control-start.sh` — token
   fallback branch (K5)
-- `84d4584:docs/knowledge/data/spec/devcontainer-agent-auth.md:71` —
-  later-container-start scenario (K6)
+- `84d4584:docs/knowledge/data/spec/devcontainer-agent-auth.md#requirement-live-credentials-are-seeded-once › "start, so post-start consumes them as well."`
+  — later-container-start scenario (K6)

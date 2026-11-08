@@ -247,24 +247,23 @@ decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:3` — `description`
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:4` —
-  `disable-model-invocation: true`
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:37` — "Never perform a Ship
-  step in this session"
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:71` — explicit-only
-  skills map to `deny`
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:113` — `iwe-ship`
-  expected `deny`
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:119` — `iwe-ship`
-  expected `deny`
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
-  may start them**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
-  gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:157` —
-  **Drop the gate and rely on descriptions, for Ship**
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:804` — Ship and Implement
-  start requirement
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md › "description: Close or cancel planned work safely — normal"`
+  — `description`
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md › "disable-model-invocation: true"`
+  — `disable-model-invocation: true`
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#rules › "Never perform a Ship step in this session — no spec merge"`
+  — "Never perform a Ship step in this session"
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "const expected = Object.fromEntries(explicitOnly.map(({ meta"`
+  — explicit-only skills map to `deny`
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "expect(config.permission.skill"`
+  — `iwe-ship` expected `deny`
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "expect(config.permission.skill"`
+  — `iwe-ship` expected `deny`
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "Who may start them."`
+  — **Who may start them**
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "The gate is explicit-only on both harnesses."`
+  — the gate bullet
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#rejected-alternatives › "Drop the gate and rely on descriptions, for Ship."`
+  — **Drop the gate and rely on descriptions, for Ship**
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-shipping-resumes-after-partial-graph-updates › "incomplete operation"`
+  — Ship and Implement start requirement

@@ -52,8 +52,8 @@ postStart; postStart only *starts* CBM. All three hooks are therefore needed:
 | postAttach | **CBM index**, `uv-sync`, **catalog from this checkout**        |
 
 CBM needs all three: it is *installed* into agent config from postCreate
-(`postCreateCommand.sh:52`), *started* by postStart, and *indexed* by
-postAttach.
+(`.devcontainer/scripts/postCreateCommand.sh › "done"`), *started* by postStart,
+and *indexed* by postAttach.
 
 Two postStart steps are pure cost in a review job and get `AGENTDEV_*` guards,
 defaulting to today's behavior so the devcontainer is unchanged:
@@ -107,7 +107,9 @@ skipping safe.directory — the responder needs the latter (its checkout is owne
 by a different uid) and never needs the former.
 
 - [x] Move `git config --global --add safe.directory` and its `command -v git`
-  check out of `setup-pre-commit.sh:8-11` into `setup-git-safe-directory.sh`
+  check out of
+  `.devcontainer/scripts/setup-pre-commit.sh › "A caller that never commits — the CI responder job — can opt"`
+  into `setup-git-safe-directory.sh`
   - **Evidence:** `.devcontainer/scripts/setup-git-safe-directory.sh` created
     with the `command -v git` check and the `safe.directory` config; both lines
     removed from `setup-pre-commit.sh`.
@@ -116,7 +118,7 @@ by a different uid) and never needs the former.
   - **Evidence:** `postStartCommand.sh` now calls `setup-git-safe-directory.sh`
     on the line above `setup-pre-commit.sh`.
 - [x] Remove the leftover `git status` troubleshooting line
-  (`setup-pre-commit.sh:12`)
+  (`.devcontainer/scripts/setup-pre-commit.sh › "AGENTDEV_SKIP_PRE_COMMIT is set; skipping pre-commit hook"`)
   - **Evidence:** `setup-pre-commit.sh` no longer contains `git status`; the
     file is now 13 lines, ending at the `pre-commit install` call.
 - [x] Confirm `shellcheck` passes on both scripts
@@ -138,7 +140,8 @@ only a caller that opts in skips anything.
   - **Evidence:** early `exit 0` added to `setup-pre-commit.sh` when the
     variable is non-empty; run with it set prints the skip message and exits 0,
     run with it unset still reaches `pre-commit install --install-hooks`.
-- [x] Guard `/start-xpra.sh --background` in `postStartCommand.sh:14` behind
+- [x] Guard `/start-xpra.sh --background` in
+  `.devcontainer/scripts/postStartCommand.sh › "$script_dir/firewall.sh"` behind
   `AGENTDEV_SKIP_XPRA`
   - **Evidence:** `if/else` around the call in `postStartCommand.sh`; the guard
     block sourced with the variable set prints only the skip message, and unset
@@ -158,7 +161,8 @@ change, and Task 4 cannot be exercised until it is done.
 
 The Claude GitHub App is **not** required: the workflow passes `github_token`
 explicitly, so the app only changes whether the review is attributed to
-`claude[bot]` or `github-actions[bot]`, and `require-ai-review.yml:71-74`
+`claude[bot]` or `github-actions[bot]`, and
+`.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.Verify AI reviewed PR.with.script`
 accepts both. All three items are documented for template consumers, with the
 app marked optional, in [Template consumption](../spec/template-consumption.md).
 
@@ -251,9 +255,10 @@ app marked optional, in [Template consumption](../spec/template-consumption.md).
 
 **Files:** Modify: `.devcontainer/scripts/postCreateCommand.sh`
 
-`postCreateCommand.sh:35-37` chowns `$workspace/.cache` and `/uv`. Both exist in
-a devcontainer only because `devcontainer.json:52-60` mounts them, so `set -e`
-kills the script wherever they are absent.
+`.devcontainer/scripts/postCreateCommand.sh › "root:root"` chowns
+`$workspace/.cache` and `/uv`. Both exist in a devcontainer only because
+`.devcontainer/devcontainer.json › "mounts"` mounts them, so `set -e` kills the
+script wherever they are absent.
 
 Chowning only what exists keeps the devcontainer path identical in effect (every
 target is a mount and always present there) while letting a mountless caller
@@ -294,8 +299,10 @@ themselves is a separate question, deliberately not decided here.
     are needed and which one fails silently.
 - [x] Create `/root/.claude` and `/root/.codex` before running the hooks
   - **Evidence:** `mkdir -p /root/.claude /root/.codex` added as the step's
-    first command; without it `postCreateCommand.sh:67` fails with
-    `/root/.claude/claude.json: No such file or directory`, reproduced locally.
+    first command; without it
+    `.devcontainer/scripts/postCreateCommand.sh › "/root/.claude/claude.json"`
+    fails with `/root/.claude/claude.json: No such file or directory`,
+    reproduced locally.
 - [x] Confirm the whole sequence passes locally through
   `.devcontainer/scripts/ci-hooks-repro.sh` with no volumes and no `.venv` leak
   - **Evidence:** harness added and run against
@@ -475,41 +482,42 @@ scripts.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-17):
-
-- `.devcontainer/scripts/postAttachCommand.sh:8` —
-  `codebase-memory-mcp-index.sh`; a cold index measures ~3.5s in this repository
-- `.devcontainer/scripts/postAttachCommand.sh:14-15` — the checkout-scoped
-  catalog reinstall; this, not postCreate, is what gives the responder the
-  branch's own skills
-- `.devcontainer/scripts/postStartCommand.sh:9` —
-  `codebase-memory-mcp-start.sh`, which starts CBM but does not index
-- `.devcontainer/scripts/postStartCommand.sh:11` —
-  `setup-git-safe-directory.sh`, the split-out call added by Task 1
-- `.devcontainer/scripts/postStartCommand.sh:12` — `setup-pre-commit.sh`, the
-  call site the `AGENTDEV_SKIP_PRE_COMMIT` guard protects
-- `.devcontainer/scripts/postStartCommand.sh:16-21` — the `AGENTDEV_SKIP_XPRA`
-  guard around `/start-xpra.sh --background`
-- `.devcontainer/scripts/setup-git-safe-directory.sh:11` —
-  `git config --global --add safe.directory`, the call a CI checkout needs and
+- `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/codebase-memory-mcp-index.sh"`
+  — `codebase-memory-mcp-index.sh`; a cold index measures ~3.5s in this
+  repository
+- `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/reinstall-agentdev-codex.sh"`
+  — the checkout-scoped catalog reinstall; this, not postCreate, is what gives
+  the responder the branch's own skills
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/codebase-memory-mcp-start.sh"`
+  — `codebase-memory-mcp-start.sh`, which starts CBM but does not index
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-git-safe-directory.sh"`
+  — `setup-git-safe-directory.sh`, the split-out call added by Task 1
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-pre-commit.sh"`
+  — `setup-pre-commit.sh`, the call site the `AGENTDEV_SKIP_PRE_COMMIT` guard
+  protects
+- `.devcontainer/scripts/postStartCommand.sh › "nothing will connect to. Unset (the devcontainer default)"`
+  — the `AGENTDEV_SKIP_XPRA` guard around `/start-xpra.sh --background`
+- `.devcontainer/scripts/setup-git-safe-directory.sh › "command -v git || echo"`
+  — `git config --global --add safe.directory`, the call a CI checkout needs and
   the pre-commit guard must not skip
-- `.devcontainer/scripts/setup-pre-commit.sh:11-14` — the
-  `AGENTDEV_SKIP_PRE_COMMIT` early exit
-- `.devcontainer/scripts/setup-pre-commit.sh:20` —
-  `pre-commit install --install-hooks`, the minutes-long step
-- `.devcontainer/scripts/setup-keyring.sh:99-105` — the graceful skip that makes
-  a keyring guard unnecessary
-- `.devcontainer/scripts/reinstall-agentdev-claude.sh:14-15` — the no-argument
-  default that resolves the catalog root to this checkout
-- `.github/workflows/ci.yml:31` — `DESKTOP_IMAGE_NAME: agent-desktop`, the image
-  the responder job runs in
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:22` — the
-  `CBM_CACHE_DIR` dereference that fails under `set -u` when unset
-- `.devcontainer/scripts/postCreateCommand.sh:63-69` — the `claude.json` write
-  that assumes `/root/.claude` exists
-- `.devcontainer/scripts/uv-sync.sh:32` — `uv sync`, which silently creates an
-  in-tree `.venv` when `UV_PROJECT_ENVIRONMENT` is unset
-- `.devcontainer/devcontainer.json:33` — `CBM_CACHE_DIR` in `containerEnv`, the
+- `.devcontainer/scripts/setup-pre-commit.sh › "${AGENTDEV_SKIP_PRE_COMMIT:-}"`
+  — the `AGENTDEV_SKIP_PRE_COMMIT` early exit
+- `.devcontainer/scripts/setup-pre-commit.sh › "pre-commit install --install-hooks --hook-type pre-commit"`
+  — `pre-commit install --install-hooks`, the minutes-long step
+- `.devcontainer/scripts/setup-keyring.sh › "Skip gracefully when the GNOME keyring stack is unavailable."`
+  — the graceful skip that makes a keyring guard unnecessary
+- `.devcontainer/scripts/reinstall-agentdev-claude.sh › "$script_dir/../.."` —
+  the no-argument default that resolves the catalog root to this checkout
+- `.github/workflows/ci.yml#env.DESKTOP_IMAGE_NAME` —
+  `DESKTOP_IMAGE_NAME: agent-desktop`, the image the responder job runs in
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh › "if [[ -z $CBM_CACHE_DIR ]]; then"`
+  — the `CBM_CACHE_DIR` dereference that fails under `set -u` when unset
+- `.devcontainer/scripts/postCreateCommand.sh › "~/.claude.json can't be backed directly by a named volume"`
+  — the `claude.json` write that assumes `/root/.claude` exists
+- `.devcontainer/scripts/uv-sync.sh › "uv sync --all-groups --all-extras"` —
+  `uv sync`, which silently creates an in-tree `.venv` when
+  `UV_PROJECT_ENVIRONMENT` is unset
+- `.devcontainer/devcontainer.json` — `CBM_CACHE_DIR` in `containerEnv`, the
   devcontainer-only source of the contract a `container:` job must supply itself
 - `.devcontainer/scripts/ci-hooks-repro.sh` — the local `container:`
   reproduction

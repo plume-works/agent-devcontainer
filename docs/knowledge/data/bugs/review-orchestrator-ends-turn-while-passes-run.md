@@ -129,11 +129,9 @@ review](../backlog/fail-review-run-without-review.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
-
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — Step 4, the
-  parallel pass dispatch, with the Claude Code foreground rule at line 133
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:159` —
-  `Waiting on Parallel Passes`, with the foreground dispatch rule at line 177
-- `.github/workflows/ai-responder.yml:509` — `ai-review-present`, the gate that
-  accepts an earlier review
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "— each pass sees only the diff, the PR title, the PR"`
+  — Step 4, the parallel pass dispatch, with the Claude Code foreground rule
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#waiting-on-parallel-passes`
+  — `Waiting on Parallel Passes`, with the foreground dispatch rule
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present`, the gate that accepts an earlier review
