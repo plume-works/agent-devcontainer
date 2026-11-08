@@ -173,16 +173,25 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] Every preflight run outside a `label-<run id>` group removes
+- [x] Every preflight run outside a `label-<run id>` group removes
   `request-ai-review` when the pull request carries it, before authorization,
   with `GITHUB_TOKEN` holding `issues: write`.
+  - **Evidence:** commit f89608a9; "Determine checkout ref" reports
+    `requestLabel` from the live labels, and "Take the review request label"
+    runs before authorization whenever it is set unless the event added another
+    label, removing it and treating a 404 as taken by another run; preflight's
+    `GITHUB_TOKEN` holds `issues: write`; actionlint and zizmor pass.
 - [x] Preflight reads the pull request's current labels from the API.
   - **Evidence:** commit ebfe8ab4; "Determine checkout ref" pages
     `github.rest.issues.listLabelsOnIssue` for the pull request; actionlint
     passes.
-- [ ] `wantsReview` is true when the run removed `request-ai-review`, whatever
+- [x] `wantsReview` is true when the run removed `request-ai-review`, whatever
   other labels the pull request carries, and false for a `labeled` event for any
   other label.
+  - **Evidence:** commit f89608a9; `wantsReview` returns true when "Take the
+    review request label" set `requested`, before the skip check and after the
+    draft check, and false for any other `labeled` event; every inline script
+    parses under `bun build --no-bundle`.
 - [x] `skip-ai-review` makes `wantsReview` false for `opened`,
   `ready_for_review`, `reopened`, and `synchronize`; the `[ci:skip-ai-review]`
   body regex is removed.
