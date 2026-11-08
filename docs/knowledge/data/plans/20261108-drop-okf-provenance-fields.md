@@ -162,7 +162,7 @@ whose frontmatter sets either key
     `verified`: source control records when and by whom a document changed.
   ```
 
-  - **Evidence:** commit c573dbd6; `docs/knowledge/AGENTS.md:124-127` holds this
+  - **Evidence:** commit c573dbd6; `docs/knowledge/AGENTS.md:122-125` holds this
     text byte for byte
 
 - [x] `SCHEMA.md` loses its `generated` and `verified` bullets under
