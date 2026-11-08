@@ -192,11 +192,21 @@ Assumptions:
 `.github/actions/run-claude-responder/action.yml`,
 `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] The workflow has no `[ci:review-effort=…]` regex, `review_effort` output,
+- [x] The workflow has no `[ci:review-effort=…]` regex, `review_effort` output,
   `REQUESTED REVIEW EFFORT` prompt line, or light-tier `model` override.
-- [ ] `run-claude-responder` has no `model` input.
-- [ ] `pr-review`'s `## Effort Tiers` drops the requested-tier route and says
+  - **Evidence:** commit e6171e7e; the effort regex, the `review_effort` output,
+    the `REQUESTED REVIEW EFFORT` prompt line, and the `claude-sonnet-5`
+    override are gone; every inline script parses under `bun build --no-bundle`,
+    and actionlint passes.
+- [x] `run-claude-responder` has no `model` input.
+  - **Evidence:** commit e6171e7e; the `model` input is gone and "Compose Claude
+    arguments" emits only `--allowedTools`; zizmor passes.
+- [x] `pr-review`'s `## Effort Tiers` drops the requested-tier route and says
   the review always sizes itself, keeping the effort matrix it sizes with.
+  - **Evidence:** commit e6171e7e; `## Effort Tiers` says nothing requests a
+    tier, drops "A requested tier is absolute", keeps the size and slot tables,
+    and the validation bullet names a self-sized review; `validate_agent_files`
+    reports 0 errors.
 
 ### Task 4: The catalog requests a review with the label
 
