@@ -290,10 +290,12 @@ Assumptions:
     `test_assignees_are_never_touched`.
 - [x] With `block-ai-reviews` on the pull request, it adds `request-ai-review`
   unless already present and reports `BLOCKED`, with a test.
-  - **Evidence:** commit e359da43; `run()` checks `block-ai-reviews` after the
-    open check, POSTs `request-ai-review` unless present, and returns `BLOCKED`
-    (7); `test_blocked_pull_request_queues_the_request` and
-    `test_blocked_pull_request_with_waiting_request_adds_nothing` pass among 42.
+  - **Evidence:** commits e359da43 and 79d47811; `run()` reports
+    `ALREADY_REVIEWED` or `ALREADY_REQUESTED` first, then on a blocked pull
+    request POSTs `request-ai-review` unless present and returns `BLOCKED` (7);
+    `test_blocked_pull_request_queues_the_request`,
+    `test_blocked_pull_request_with_waiting_request_adds_nothing`, and
+    `test_blocked_pull_request_already_reviewed_queues_nothing` pass among 43.
 - [x] `SKILL.md` describes the label request, the re-sent stale label, the
   `BLOCKED` result, and its confirmation.
   - **Evidence:** commit e359da43; "Post the request" describes the block, the
@@ -395,8 +397,11 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 10: The block label and the queue behave as decided
 
-- [ ] A pull request running this plan's workflow and created with
+- [x] A pull request running this plan's workflow and created with
   `gh pr create --label block-ai-reviews` runs no review on open.
+  - **Evidence:** pull request #763 at 5b38ff87, created with
+    `--label block-ai-reviews`: runs 42461972700 and 42461972665 both skipped
+    `Claude PR Review Responder`, no review was posted, and the label stayed on.
 - [x] Adding `request-ai-review` to a pull request carrying `block-ai-reviews`
   runs no review and leaves the request label on.
   - **Evidence:** pull request #758 at 076e9610, carrying `block-ai-reviews`:
@@ -415,8 +420,13 @@ Modify: `docs/knowledge/data/architecture.md`
     `documentation` started run 42454039608, which ran preflight and
     `ai-review-present` without a review and finished while 42454017435 stayed
     pending.
-- [ ] A push during a requested review re-reviews: the cancelled review leaves
+- [x] A push during a requested review re-reviews: the cancelled review leaves
   `request-ai-review`, and the push's run reviews the new head and removes it.
+  - **Evidence:** pull request #758: the push of 5fe15e9c at 08:12 cancelled
+    request run 42461809176 before its review started, `request-ai-review`
+    (added at 07:59:00) stayed on, and the push's run 42461906440 reviewed
+    5fe15e9c at 08:18:21; `plume-works-quill[bot]` removed `request-ai-review`
+    at 08:18:29.
 - [x] A push queued behind a pending `request-ai-review` run takes the request:
   its review job removes the label and reviews.
   - **Closed by:** the maintainer, on a pull request running this workflow.
