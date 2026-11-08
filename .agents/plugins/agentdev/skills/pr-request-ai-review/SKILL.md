@@ -17,7 +17,7 @@ once that answer is yes.
 The responder reviews when the `request-ai-review` label is added, so the
 bundled script requests a review by adding it. The responder removes the label
 as soon as a run picks the request up, so a label still on the pull request is a
-request no run has accepted yet. An assignment, a reviewer request, and an
+request no run has accepted yet. Assigning someone, requesting a reviewer, and an
 `@claude review` comment request nothing. The script requests at
 most once per head and title and description; see
 [Post at most once per reviewed input](#post-at-most-once-per-reviewed-input).
