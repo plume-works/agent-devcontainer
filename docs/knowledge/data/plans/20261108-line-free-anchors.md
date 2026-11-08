@@ -227,7 +227,7 @@ shape they read, and the exemption needs its own rule).
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`,
 `.agents/plugins/agentdev/skills/get-codeql-data/SKILL.md`
 
-- [ ] Every `path:line` / `file:line` evidence, citation, or table column in
+- [x] Every `path:line` / `file:line` evidence, citation, or table column in
   these files becomes an anchor in the Approach syntax: the verifier's
   correctness mapping, finding format, and evidence rule; the shipper's blocker
   evidence; the adversarial reviewer's **Evidence** field; `iwe-audit`'s
@@ -236,6 +236,11 @@ shape they read, and the exemption needs its own rule).
   `iwe-audit` table mapping, and its Step 8 fallback comment;
   `pr-feedback-resolution`'s location notes and coverage-gap summary;
   `get-codeql-data`'s extracted locations as presented to the user.
+  - **Evidence:** commit `b540e482` rewrites every listed citation, field, and
+    column; `uv run scripts/check-anchors.py` reports no line number under
+    `.agents/plugins/agentdev/` and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 - [ ] `pr-review` keeps the inline comment's `line` as a machine position: it
   places the comment by locating the anchored or quoted line in the diff, and
   the comment text and every review body use anchors. Its constraint against
