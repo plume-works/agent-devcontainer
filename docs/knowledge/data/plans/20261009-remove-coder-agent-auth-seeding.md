@@ -99,7 +99,8 @@ Rejected:
   `AGENTDEV_CLAUDE_AUTOSTART` and the four `GIT_*` passthroughs in
   `docker-compose.yml` stay.
   - **Evidence:** commit "Delete Coder agent auth seeding" on `ai-autostart`;
-    `docker-compose.yml:69-73` keeps the autostart and `GIT_*` entries.
+    `.devcontainer/docker-compose.yml#services.devcontainer.environment.AGENTDEV_CLAUDE_AUTOSTART`
+    keeps the autostart and `GIT_*` entries.
 - [x] `grep -rn 'AGENTDEV_CLAUDE_JSON\|AGENTDEV_CODEX_JSON\|AUTH_SEED\|seed-agent-auth\|workspace-seed-key\|prepare-agent-auth-seed' .devcontainer scripts .github`
   prints nothing; `shellcheck` passes on the edited scripts.
   - **Evidence:** commit "Delete Coder agent auth seeding": `git grep` of the
@@ -120,9 +121,11 @@ Rejected:
   before calling `claude`. Drop the `AGENTDEV_CLAUDE_AUTH_PATH` /
   `CLAUDE_SECURESTORAGE_CONFIG_DIR` path logic.
   - **Evidence:** commit "Gate Remote Control autostart on a live claude.ai
-    login" (`claude-remote-control-start.sh:16-32`); `shellcheck` clean; with
-    `CLAUDE_CONFIG_DIR` and `CLAUDE_SECURESTORAGE_CONFIG_DIR` on an empty
-    directory the script prints the not-logged-in skip and exits 0.
+    login"
+    (`.devcontainer/scripts/claude-remote-control-start.sh › "$(env -u CLAUDE_CODE_OAUTH_TOKEN claude auth status --json"`);
+    `shellcheck` clean; with `CLAUDE_CONFIG_DIR` and
+    `CLAUDE_SECURESTORAGE_CONFIG_DIR` on an empty directory the script prints
+    the not-logged-in skip and exits 0.
 - [x] Tests drive a fake `claude` that prints a chosen status document: starts
   on a claude.ai login; skips when autostart is unset, when `loggedIn` is false,
   when `authMethod` is not `claude.ai`, and when `claude auth status` fails;
@@ -144,12 +147,13 @@ Rejected:
   `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is non-empty; update its spec-key comments
   to `spec/claude-remote-control`.
   - **Evidence:** commit "Pre-approve Claude workspace state in every container"
-    (`preapprove-claude-workspace.sh:3,6,50`); `shellcheck` clean.
+    (`.devcontainer/scripts/preapprove-claude-workspace.sh › "workspace trust, and project MCP approval. Spec"`);
+    `shellcheck` clean.
 - [x] Set `AGENTDEV_SKIP_CLAUDE_PREAPPROVE: '1'` in the responder's "Run
   devcontainer lifecycle scripts" step.
   - **Evidence:** commit "Pre-approve Claude workspace state in every container"
-    (`run-claude-responder/action.yml:101`), asserted by
-    `test_ci_responder_opts_out`.
+    (`.github/actions/run-claude-responder/action.yml#runs.steps.Run devcontainer lifecycle scripts.env.AGENTDEV_SKIP_CLAUDE_PREAPPROVE`),
+    asserted by `test_ci_responder_opts_out`.
 - [x] Tests: pre-approval runs with autostart unset; skips when the opt-out is
   set; the post-create ordering test asserts the call follows the
   `~/.claude.json` symlink instead of the deleted seeding call; a test asserts
@@ -168,7 +172,8 @@ Rejected:
 - [x] Its comment points at `spec/devcontainer-git-credentials`;
   `grep -rn 'devcontainer-agent-auth' .devcontainer scripts` prints nothing.
   - **Evidence:** commit "Point the gh credential helper at its new spec"
-    (`setup-gh-credential-helper.sh:2`); the `grep` prints nothing;
+    (`.devcontainer/scripts/setup-gh-credential-helper.sh › "HTTPS git reuses gh's login; see"`);
+    the `grep` prints nothing;
     `uv run pytest scripts/tests/test_setup_gh_credential_helper.py` 6 passed.
 
 ### Task 5: Record the shared-volume refresh race
@@ -338,27 +343,28 @@ its step-2 paragraph on supplying the `GIT_*` values through Coder.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
-
-- `.devcontainer/docker-compose.yml:69-73` — `AGENTDEV_CLAUDE_AUTOSTART` and
-  `GIT_*` passthroughs (kept)
-- `.devcontainer/scripts/postCreateCommand.sh:72` —
-  `preapprove-claude-workspace.sh` call
-- `.devcontainer/scripts/postStartCommand.sh:25` —
-  `claude-remote-control-start.sh` call
-- `.devcontainer/scripts/claude-remote-control-start.sh:16-32` — login gate
-- `.devcontainer/scripts/claude-remote-control-start.sh:43-44` — tmux start
-  without `CLAUDE_CODE_OAUTH_TOKEN`
-- `.devcontainer/scripts/preapprove-claude-workspace.sh:3,6,50` — spec comment,
-  opt-out gate, MCP comment
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:2` — spec comment
-- `.github/actions/run-claude-responder/action.yml:95-107` — lifecycle step env
-- `scripts/tests/test_claude_remote_control_start.py:32,69,88` —
+- `.devcontainer/docker-compose.yml#services.devcontainer.environment.AGENTDEV_CLAUDE_AUTOSTART`
+  — `AGENTDEV_CLAUDE_AUTOSTART` and `GIT_*` passthroughs (kept)
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/preapprove-claude-workspace.sh"`
+  — `preapprove-claude-workspace.sh` call
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/claude-remote-control-start.sh"`
+  — `claude-remote-control-start.sh` call
+- `.devcontainer/scripts/claude-remote-control-start.sh › "$(env -u CLAUDE_CODE_OAUTH_TOKEN claude auth status --json"`
+  — login gate
+- `.devcontainer/scripts/claude-remote-control-start.sh › "tmux_start=(tmux start-server \; new-session -d -s"`
+  — tmux start without `CLAUDE_CODE_OAUTH_TOKEN`
+- `.devcontainer/scripts/preapprove-claude-workspace.sh › "workspace trust, and project MCP approval. Spec"`
+  — spec comment, opt-out gate, MCP comment
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "HTTPS git reuses gh's login; see"`
+  — spec comment
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` — lifecycle
+  step env
+- `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux` —
   `run_with_fake_tmux`, start and skip tests
-- `scripts/tests/test_preapprove_claude_workspace.py:67,75,83,89` —
-  `test_runs_without_autostart`, `test_skips_when_opted_out`,
+- `scripts/tests/test_preapprove_claude_workspace.py::test_runs_without_autostart`
+  — `test_runs_without_autostart`, `test_skips_when_opted_out`,
   `test_post_create_runs_after_state_symlink`, `test_ci_responder_opts_out`
-- `docs/knowledge/data/spec/claude-remote-control.md:32-95` — successor
-  requirements for the login gate and pre-approval
-- `docs/knowledge/data/spec/devcontainer-git-credentials.md:18-34` — successor
-  requirements for git identity and HTTPS credentials
+- `docs/knowledge/data/spec/claude-remote-control.md#requirement-remote-control-autostarts-only-on-a-live-claudeai-login`
+  — successor requirements for the login gate and pre-approval
+- `docs/knowledge/data/spec/devcontainer-git-credentials.md#requirement-git-identity-reaches-the-nested-container`
+  — successor requirements for git identity and HTTPS credentials

@@ -38,7 +38,7 @@ Facts this design rests on, from OpenCode 1.18.34 source:
   skill tool and skill-derived commands append the skill's base directory and
   state that relative paths resolve against it.
 - **Commands.** Skill-derived commands are excluded from the `/` autocomplete
-  (`autocomplete.tsx:451`). Ordinary commands are listed, matched with fuzzysort
+  (`autocomplete.tsx`). Ordinary commands are listed, matched with fuzzysort
   over name and description, and capped at 10 results.
 - **Plugin hooks.** A v1 plugin's `config` hook receives the resolved config and
   may add `skills.paths`, `command`, `agent`, and `permission` entries.
@@ -497,9 +497,10 @@ that the user's OpenCode configuration already defines under the same key.
 ## Out of scope
 
 - **self-improve on OpenCode.** Its reviewer builds a Claude-only command line
-  (`reviewer.py:62-89`), and its seven hook events need OpenCode equivalents,
-  including one for the typed-command authorization that `UserPromptExpansion`
-  provides. Both are their own design question.
+  (`.agents/plugins/self-improve/selfimprove/reviewer.py::build_command`), and
+  its seven hook events need OpenCode equivalents, including one for the
+  typed-command authorization that `UserPromptExpansion` provides. Both are
+  their own design question.
 - **Hook mapping for agentdev.** agentdev ships no hooks, so the bridge maps
   none.
 - **Sharing OpenCode credentials** across worktrees through the
@@ -511,38 +512,38 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-04):
-
-- `ansible/roles/agentic_tools/defaults/main.yml:1-18` — pinned agent CLIs and
+- `ansible/roles/agentic_tools/defaults/main.yml` — pinned agent CLIs and
   `agentic_tools_bun_packages`
-- `ansible/roles/agentic_tools/defaults/main.yml:71-89` — staged catalog root
-  `/opt/agentdev`, staged trees (`.agents` copied whole), prune list
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:27-81` — build-time
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_catalog_root` —
+  staged catalog root `/opt/agentdev`, staged trees (`.agents` copied whole),
+  prune list
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml#name` — build-time
   Claude and Codex installs
-- `ansible/roles/agentic_tools/tasks/main.yml:44-51` — staging and install gates
-- `.devcontainer/scripts/reinstall-agentdev-codex.sh:12-28` — catalog-root
-  argument and no-manifest quiet exit to mirror
-- `.devcontainer/scripts/postCreateCommand.sh:85-96` — staged-catalog install
-  branch
-- `.devcontainer/scripts/postAttachCommand.sh:12-15` — workspace re-registration
-- `.github/workflows/validate-agent-files.yml:62-90` — `validate-agent-files`
-  job steps
-- `.agents/plugins/agentdev/agents/tdd-red.agent.md:1-5` — agent frontmatter
-  shape (`name`, `description`, `tools`)
-- `.agents/plugins/self-improve/selfimprove/reviewer.py:62-89` — Claude-only
-  reviewer argv
-- `docs/knowledge/data/spec/catalog-lifecycle.md:17-83` — the two requirements
-  this plan modifies
-- OpenCode `packages/plugin/src/index.ts:225-280` (0112a92) — v1 `config`,
+- `ansible/roles/agentic_tools/tasks/main.yml › "ansible.builtin.import_tasks: stage_catalog.yml"`
+  — staging and install gates
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh › "${BASH_SOURCE[0]}"` —
+  catalog-root argument and no-manifest quiet exit to mirror
+- `.devcontainer/scripts/postCreateCommand.sh › "Install the catalog staged in the image. This has to happen"`
+  — staged-catalog install branch
+- `.devcontainer/scripts/postAttachCommand.sh › "Refresh the workspace catalog on every editor attachment so"`
+  — workspace re-registration
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.name` —
+  `validate-agent-files` job steps
+- `.agents/plugins/agentdev/agents/tdd-red.agent.md` — agent frontmatter shape
+  (`name`, `description`, `tools`)
+- `.agents/plugins/self-improve/selfimprove/reviewer.py::build_command` —
+  Claude-only reviewer argv
+- `docs/knowledge/data/spec/catalog-lifecycle.md#requirement-the-catalog-is-installed-at-image-build-time-and-again-by-postcreatecommand`
+  — the two requirements this plan modifies
+- OpenCode `packages/plugin/src/index.ts` (0112a92) — v1 `config`,
   `tool.execute.before`, `command.execute.before` hooks
-- OpenCode `packages/opencode/src/skill/index.ts:211-220` — `skills.paths`
-  discovery
-- OpenCode `packages/opencode/src/command/index.ts:134-150` — skill-derived
-  commands, user and config commands taking precedence
-- OpenCode `packages/tui/src/component/prompt/autocomplete.tsx:447-528` —
-  command list, skill exclusion, fuzzysort with `limit: 10`
-- OpenCode `packages/core/src/v1/config/agent.ts:20-38` — agent `prompt`,
-  deprecated `tools`, `mode`, `permission`
-- OpenCode `packages/core/src/v1/config/permission.ts:17-33` — permission keys
-- OpenCode `packages/opencode/src/plugin/shared.ts:171-173` — `isPathPluginSpec`
-  accepts `file://`, relative, and absolute plugin paths
+- OpenCode `packages/opencode/src/skill/index.ts` — `skills.paths` discovery
+- OpenCode `packages/opencode/src/command/index.ts` — skill-derived commands,
+  user and config commands taking precedence
+- OpenCode `packages/tui/src/component/prompt/autocomplete.tsx` — command list,
+  skill exclusion, fuzzysort with `limit: 10`
+- OpenCode `packages/core/src/v1/config/agent.ts` — agent `prompt`, deprecated
+  `tools`, `mode`, `permission`
+- OpenCode `packages/core/src/v1/config/permission.ts` — permission keys
+- OpenCode `packages/opencode/src/plugin/shared.ts` — `isPathPluginSpec` accepts
+  `file://`, relative, and absolute plugin paths

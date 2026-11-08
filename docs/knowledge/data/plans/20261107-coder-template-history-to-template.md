@@ -228,38 +228,42 @@ None — no behavioral change.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-07):
-
-- `docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md:101` —
-  Task 3: Template runs the agent-start script; `:194`, `:197` — links to the
-  two template-only originals
-- `docs/knowledge/data/plans/20261011-coder-claude-remote-control.md:155` — Task
-  4: Template `coder_script` in coder-ide-baseline
-- `docs/knowledge/data/plans/20261013-docker-storage-gc.md:129` — Task 4: Bound
-  the workspace engine in coder-ide-baseline
-- `docs/knowledge/data/plans/20261016-opencode-web-coder-autostart.md:340` —
-  Task 12: Add the OpenCode app to the Coder template
-- `docs/knowledge/data/plans/20261029-off-bash-migration.md:766` — Task 19: The
-  Coder template starts the agent through the CLI
-- `docs/knowledge/data/plans/20261101-docker-storage-periodic-gc.md:196` — Task
-  5: The workspace engine's collector
-- `docs/knowledge/data/bugs/coder-askpass-push-hang.md:62` — `## Fix`
-- `docs/knowledge/data/bugs/coder-docker-storage-accumulates.md:101` — `## Fix`
-- `docs/knowledge/data/features/coder-remote-control-autostart.md:24` — the
-  template's `coder_script`
-- `docs/knowledge/data/features/docker-storage-limits.md:19` — the workspace
-  engine
-- `docs/knowledge/data/features/opencode-web-coder-autostart.md:42` — the
-  dashboard `OpenCode` app
-- `docs/knowledge/data/log.md:692`, `:696` — links to the two template-only
+- `docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md#task-3-template-runs-the-agent-start-script`
+  — Task 3: Template runs the agent-start script;
+  `docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md#verification`,
+  `docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md#verification`
+  — links to the two template-only originals
+- `docs/knowledge/data/plans/20261011-coder-claude-remote-control.md#task-4-template-coder_script-in-coder-ide-baseline`
+  — Task 4: Template `coder_script` in coder-ide-baseline
+- `docs/knowledge/data/plans/20261013-docker-storage-gc.md#task-4-bound-the-workspace-engine-in-coder-ide-baseline`
+  — Task 4: Bound the workspace engine in coder-ide-baseline
+- `docs/knowledge/data/plans/20261016-opencode-web-coder-autostart.md#task-12-add-the-opencode-app-to-the-coder-template`
+  — Task 12: Add the OpenCode app to the Coder template
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md#task-19-the-coder-template-starts-the-agent-through-the-cli`
+  — Task 19: The Coder template starts the agent through the CLI
+- `docs/knowledge/data/plans/20261101-docker-storage-periodic-gc.md#task-5-the-workspace-engines-collector`
+  — Task 5: The workspace engine's collector
+- `docs/knowledge/data/bugs/coder-askpass-push-hang.md#fix` — `## Fix`
+- `docs/knowledge/data/bugs/coder-docker-storage-accumulates.md#fix` — `## Fix`
+- `docs/knowledge/data/features/coder-remote-control-autostart.md#behaviour › "template attaches a"`
+  — the template's `coder_script`
+- `docs/knowledge/data/features/docker-storage-limits.md#purpose › "A Coder workspace runs two Docker engines — the workspace"`
+  — the workspace engine
+- `docs/knowledge/data/features/opencode-web-coder-autostart.md#behaviour › "app that opens the same address. OpenCode v2's web"`
+  — the dashboard `OpenCode` app
+- `docs/knowledge/data/log.md#2026-10-12`,
+  `docs/knowledge/data/log.md#2026-10-12` — links to the two template-only
   originals
-- `docs/knowledge/data/releases/2.0.0.md:148` — link to
-  `bugs/coder-devcontainer-lost-on-restart`
+- `docs/knowledge/data/releases/2.0.0.md#fixed › "restart](../bugs/coder-devcontainer-lost-on-restart.md)"`
+  — link to `bugs/coder-devcontainer-lost-on-restart`
 - `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md` — hub entries of
   the two template-only originals, removed by Task 8
-- `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md:44`,
-  `:46` — links; `:13`, `:14` — `sources` entries naming them to the two
-  template-only originals
+- `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md#context`,
+  `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md#context`
+  — links;
+  `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md › "resource"`,
+  `docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md › "resource"`
+  — `sources` entries naming them to the two template-only originals
 - `coder-ide-baseline@5ff6817:docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md`
   and `docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md`
   — the copies already in the template workspace

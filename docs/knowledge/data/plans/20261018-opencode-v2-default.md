@@ -931,18 +931,22 @@ through the logging client on v1 and through the host's logger on v2.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
-
-- `.devcontainer/scripts/opencode-web-start.sh:15,20,30,37` — the link it reads
-  and prints on a reuse (`:20,30`) or a start (`:37`)
-- `.devcontainer/scripts/opencode-web-command.sh:19-24` — `link`, which prints
-  the server's root URL; `:28-34` — bind choice; `:38-49` — pane command
-- `scripts/tests/test_opencode_web_start.py:13-14` — expected pane commands
-- `scripts/tests/test_opencode_web_start.py:16-18` — `PROXY_URI`, `CODER_LINK`,
-  `LOCAL_LINK`; `:160-182` — the link and skip tests
-- `docs/knowledge/data/features/opencode-web-coder-autostart.md:4,42-44,59-62` —
-  the printed link to the web UI's home, and the once-per-browser project add
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:52` —
-  `opencode-web-command.sh` row
-- `docs/knowledge/data/spec/coder-ide-baseline.md:119` — the `OpenCode` app URL,
-  the server root
+- `.devcontainer/scripts/opencode-web-start.sh › "$command_helper"` — the link
+  it reads and prints on a reuse
+  (`.devcontainer/scripts/opencode-web-start.sh › "OpenCode web tmux session '$session' is already running"`,30`) or a start (`.devcontainer/scripts/opencode-web-start.sh
+  › "Started OpenCode web in tmux session '$session' on"`)
+- `.devcontainer/scripts/opencode-web-command.sh::link` — `link`, which prints
+  the server's root URL;
+  `.devcontainer/scripts/opencode-web-command.sh::coder_hostname` — bind choice;
+  `.devcontainer/scripts/opencode-web-command.sh::coder_pane` — pane command
+- `scripts/tests/test_opencode_web_start.py::SERVE` — expected pane commands
+- `scripts/tests/test_opencode_web_start.py::PROXY_URI` — `PROXY_URI`,
+  `CODER_LINK`, `LOCAL_LINK`;
+  `scripts/tests/test_opencode_web_start.py::test_prints_the_coder_server_url` —
+  the link and skip tests
+- `docs/knowledge/data/features/opencode-web-coder-autostart.md › "description: On Coder workspaces, the agent-start script"`
+  — the printed link to the web UI's home, and the once-per-browser project add
+- `docs/knowledge/data/codebase/devcontainer/scripts.md#public-surface › "| the two OpenCode launchers, health | print the server's"`
+  — `opencode-web-command.sh` row
+- `docs/knowledge/data/spec/coder-ide-baseline.md#requirement-the-template-offers-an-opencode-app › "repository. Its URL SHALL be the server root"`
+  — the `OpenCode` app URL, the server root

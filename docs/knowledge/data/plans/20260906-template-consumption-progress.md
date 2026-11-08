@@ -140,8 +140,8 @@ this way; the root file stays the live record.
     classified per top-level key.
 - [x] Classify `.agentdev-template-progress.md` as Customize / consumer-created,
   tracked in git, and never a `tracked_paths` member — the same treatment
-  `.github/pr-description-guidance.md` already receives at line 156. Neither it
-  nor `.agent.metadata.json` is currently classified anywhere in the document.
+  `.github/pr-description-guidance.md` already receives. Neither it nor
+  `.agent.metadata.json` is currently classified anywhere in the document.
   - **Evidence:** `iwe schema validate` passed with the progress document
     classified as consumer-created Customize state outside `tracked_paths`.
 
@@ -178,18 +178,18 @@ this way; the root file stays the live record.
 
 - [x] Repoint the scripts at `.agent.metadata.json`, reading the fields from the
   `template-consume` object. The filename is centralized in `__common.sh`'s
-  `marker_file_name` (line 29), so the path itself changes in one place; the
-  `jq` expressions in `check-updates.sh` change alongside it. Keep every
-  `RESULT` code and exit status as it is: `INVALID_MARKER` for malformed JSON or
-  a missing `consumed_ref`, and `NO_MARKER` when the file is absent or carries
-  no `template-consume` section. Update the `--help` text, which names the
-  marker file literally at lines 35 and 47.
+  `marker_file_name`, so the path itself changes in one place; the `jq`
+  expressions in `check-updates.sh` change alongside it. Keep every `RESULT`
+  code and exit status as it is: `INVALID_MARKER` for malformed JSON or a
+  missing `consumed_ref`, and `NO_MARKER` when the file is absent or carries no
+  `template-consume` section. Update the `--help` text, which names the marker
+  file literally.
   - **Evidence:**
     `uv run pytest .agents/plugins/agentdev/tests/test_template_consume_check_updates.py`
     passed with the nested metadata section and unchanged result codes.
-- [x] Rewrite `## The Marker File` (line 21) as the `template-consume` section
-  of `.agent.metadata.json`, keeping the field table intact and noting the
-  section is read root-only.
+- [x] Rewrite `## The Marker File` as the `template-consume` section of
+  `.agent.metadata.json`, keeping the field table intact and noting the section
+  is read root-only.
   - **Evidence:** `validate_agent_files` passed with the marker documented as a
     root-only namespaced section and the field table retained.
 - [x] Add a migration to update mode, before its existing legacy-marker
@@ -210,15 +210,15 @@ this way; the root file stays the live record.
   context with an explicit note that the marker owns the authoritative ref.
   - **Evidence:** `validate_agent_files` passed with the progress document's
     task, evidence, choice, and SHA-ownership shape defined.
-- [x] Insert a step into `## Setup Mode` (line 55), after the workflow question
-  at line 63 and before the scope questions at line 68, that generates the task
-  list for the chosen workflow and writes the file. The workflow question must
-  stay first: Workflow A and Workflow B have different step lists, so the list
-  cannot be generated before the workflow is known.
+- [x] Insert a step into `## Setup Mode`, after the workflow question and before
+  the scope questions, that generates the task list for the chosen workflow and
+  writes the file. The workflow question must stay first: Workflow A and
+  Workflow B have different step lists, so the list cannot be generated before
+  the workflow is known.
   - **Evidence:** `validate_agent_files` passed with progress persisted between
     workflow selection and the scope interview.
-- [x] Amend setup mode's step 6 (line 87) so the marker and the completed
-  progress document are committed together.
+- [x] Amend setup mode's step 6 so the marker and the completed progress
+  document are committed together.
   - **Evidence:** `validate_agent_files` passed with setup's final step coupling
     the marker and completed progress document in one commit.
 - [x] State that a setup mode run finding an existing progress document resumes
@@ -230,9 +230,9 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
 
-- [x] Add a step at the start of `## Update Mode` (line 99) that reads the
-  progress document's choice log, and point step 3's customized-path warning at
-  it so a recorded choice is looked up rather than re-derived.
+- [x] Add a step at the start of `## Update Mode` that reads the progress
+  document's choice log, and point step 3's customized-path warning at it so a
+  recorded choice is looked up rather than re-derived.
   - **Evidence:** `validate_agent_files` passed with update mode reading settled
     choices before evaluating changed paths.
 - [x] Specify how update mode extends the file: a new `## Update <date>` task
@@ -245,8 +245,8 @@ this way; the root file stays the live record.
   from the marker, and record the rest as unknown rather than guessed.
   - **Evidence:** `validate_agent_files` passed with pre-progress adoptions
     recovering only explicit marker choices and labeling the rest unknown.
-- [x] Amend step 7 (line 170) so the advanced marker and the extended progress
-  document are committed together.
+- [x] Amend step 7 so the advanced marker and the extended progress document are
+  committed together.
   - **Evidence:** `validate_agent_files` passed with update completion coupling
     the advanced marker and extended progress record.
 
@@ -265,10 +265,10 @@ this way; the root file stays the live record.
     limited to adoption context and a pointer to the live checklist.
 - [x] Choose and record the summary's document key and `type`. `tracker` fits
   the schema's own description of a living document edited in place, but
-  `[schemas.tracker]` in `.iwe/config.toml` (line 110) matches only
-  `data/product` and `data/milestone`, so adopting it means adding a third match
-  to the seeded config. Decide between that and an existing bound type, and
-  state the reason in the guide.
+  `[schemas.tracker]` in `.iwe/config.toml` matches only `data/product` and
+  `data/milestone`, so adopting it means adding a third match to the seeded
+  config. Decide between that and an existing bound type, and state the reason
+  in the guide.
   - **Evidence:** `iwe schema validate` passed with `data/template-adoption`
     bound as a living `tracker` document.
 - [x] Specify that update mode refreshes this summary at the end of each
@@ -285,9 +285,9 @@ this way; the root file stays the live record.
   progress document is generated from, so two sessions produce the same list.
   - **Evidence:** `validate_agent_files` passed with deterministic ten-item and
     six-item manifests matching the two workflow procedures.
-- [x] Point the existing "Onboarding interrupted" paragraph (line 814) at the
-  progress document, so a pending report names the file that holds the state
-  instead of only describing what is outstanding.
+- [x] Point the existing "Onboarding interrupted" paragraph at the progress
+  document, so a pending report names the file that holds the state instead of
+  only describing what is outstanding.
   - **Evidence:** `validate_agent_files` passed with interrupted onboarding
     reports naming the progress document and its unticked tasks.
 - [x] Record in `## Ongoing maintenance` that the progress document is
@@ -414,47 +414,45 @@ schema decision may add a match to the `.iwe/config.toml` it ships.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
-
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:22` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#the-marker-file` —
   `## The Marker File`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:74` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode` —
   `## Setup Mode`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:82` — setup step 1,
-  the workflow question
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:87` — setup step 2,
-  the scope questions
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:106` — setup step
-  6, writing the marker
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:118` —
-  `## Update Mode`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:196` — update step
-  8, advancing the marker
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:202` —
-  `## Default Template Surface`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:791`
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "already exists with unticked setup tasks"`
+  — setup step 1, the workflow question
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "unavailable): Workflow A (a fresh full copy — GitHub"`
+  — setup step 2, the scope questions
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "When IWE was kept, run the guide's Optional knowledge-base"`
+  — setup step 6, writing the marker
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "checkout you copied from or merged from"`
+  — `## Update Mode`
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "consumer's own edits."`
+  — update step 8, advancing the marker
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › ".github/pull_request_template.md"`
+  — `## Default Template Surface`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#seed-the-consumers-data › "Decide whether the consumer has knowledge already."`
   — `### Onboard the consumer's project memory`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:814`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#seed-the-consumers-data › "written only under the target. The publisher's own"`
   — the "Onboarding interrupted" paragraph
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:893`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-custom-image-setup › "text"`
   — `## Ongoing maintenance`
-- `docs/knowledge/data/spec/template-consumption.md:80` —
-  `## Requirement: adoption is recorded for later updates`
-- `docs/knowledge/data/architecture/template-boundary.md:75` —
-  `## Default template surface`
-- `docs/knowledge/data/architecture/template-boundary.md:167` — the
-  `.github/pr-description-guidance.md` consumer-created row
-- `.iwe/config.toml:110` — `[schemas.tracker]`, matching only `data/product` and
-  `data/milestone`
+- `docs/knowledge/data/spec/template-consumption.md#requirement-adoption-is-recorded-for-later-updates`
+  — `## Requirement: adoption is recorded for later updates`
+- `docs/knowledge/data/architecture/template-boundary.md#default-template-surface`
+  — `## Default template surface`
+- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "§4 captures a consumer's PR-template extras and the template"`
+  — the `.github/pr-description-guidance.md` consumer-created row
+- `.iwe/config.toml › "schemas.tracker]"` — `[schemas.tracker]`, matching only
+  `data/product` and `data/milestone`
 - `.agent.metadata.json` — the root file, currently carrying only an `iwe-map`
   section
-- `docs/knowledge/data/architecture/agent-metadata-files.md:36` —
+- `docs/knowledge/data/architecture/agent-metadata-files.md#resolution` —
   `## Resolution`, the accumulation contract Task 3 extends
-- `docs/knowledge/data/architecture/agent-metadata-files.md:95` —
-  `## Relationship to the template boundary`
-- `docs/knowledge/data/architecture/agent-metadata-files.md:132` —
+- `docs/knowledge/data/architecture/agent-metadata-files.md#relationship-to-the-template-boundary`
+  — `## Relationship to the template boundary`
+- `docs/knowledge/data/architecture/agent-metadata-files.md#consumers` —
   `## Consumers`
-- `.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh:29` —
-  `marker_file_name`, the single definition of the marker filename
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:130-140`
+- `.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh::marker_file_name`
+  — `marker_file_name`, the single definition of the marker filename
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh › "].consumed_ref // empty"`
   — the `jq` reads of `consumed_ref` and `tracked_paths`

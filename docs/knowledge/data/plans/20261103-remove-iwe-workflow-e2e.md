@@ -254,29 +254,29 @@ session from adding such a test.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `scripts/e2e/conftest.py:1` — the `E2E_RUN_LIVE` gate
-- `scripts/tests/test_e2e_live_gate.py:16` — loads `scripts/e2e/conftest.py`
-- `pyproject.toml:41` — the `e2e` marker
-- `AGENTS.md:50` — Best Practice 9
-- `AGENTS.md:98` — `### Tests`
-- `docs/knowledge/data/product.md:151` — the OpenCode default-model authoring
-  rule
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:264` — "A scenario is
-  covered by a test only when"
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:272` — Plans test behaviour
-  requirement
-- `docs/knowledge/data/features/claude-and-opencode-only-harnesses.md:35` — the
-  e2e Behaviour bullet
-- `docs/knowledge/data/architecture/supported-harnesses.md:29` — the CI and e2e
-  bullet
-- `docs/knowledge/data/someday/revision-evaluator-calibration.md:18` — the e2e
-  suite sentence
-- `docs/knowledge/data/architecture/fresh-context-verify.md:57` — "test and e2e
-  runs"
-- `docs/knowledge/data/features/verify-report-cache.md:23` — "full test suites
-  and e2e runs"
-- `docs/knowledge/data/backlog/incremental-re-verify.md:23` — "full test suites
-  and e2e runs"
+- `scripts/e2e/conftest.py` — the `E2E_RUN_LIVE` gate
+- `scripts/tests/test_e2e_live_gate.py::_spec` — loads `scripts/e2e/conftest.py`
+- `pyproject.toml › "smoke: drives a real Claude Code session and spends model"`
+  — the `e2e` marker
+- `AGENTS.md#best-practices-for-agents › "When a test or check runs OpenCode, use"`
+  — Best Practice 9
+- `AGENTS.md#tests` — `### Tests`
+- `docs/knowledge/data/product.md#authoring-rules › "small model); a costlier model only when the user names"`
+  — the OpenCode default-model authoring rule
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#rules` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#rules › "A scenario is covered by a test only when the test runs the"`
+  — "A scenario is covered by a test only when"
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-test-behaviour-and-leave-ci-to-the-merge-gate`
+  — Plans test behaviour requirement
+- `docs/knowledge/data/features/claude-and-opencode-only-harnesses.md#behaviour › "package keeps its Codex ecosystem"`
+  — the e2e Behaviour bullet
+- `docs/knowledge/data/architecture/supported-harnesses.md#decision › "CI validates the catalog with"`
+  — the CI and e2e bullet
+- `docs/knowledge/data/someday/revision-evaluator-calibration.md#calibrate-the-revision-evaluator-against-human-review › "any of its verdicts with a human verdict."`
+  — the e2e suite sentence
+- `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "repeating its test runs. The lookup and save are a bundled"`
+  — "test and e2e runs"
+- `docs/knowledge/data/features/verify-report-cache.md#purpose › "commands — full test suites. The"`
+  — "full test suites and e2e runs"
+- `docs/knowledge/data/backlog/incremental-re-verify.md#re-verify-incrementally-from-a-saved-report › "command — full test suites — even when the fix was a"`
+  — "full test suites and e2e runs"

@@ -515,36 +515,35 @@ that mechanism Plan knows.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:86` —
-  `## Implementation Steps` bullet
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:102` — `## Verification`
-  bullet
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:59` — Completeness
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:104` —
-  uncovered-scenario sentence
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:137` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:153` — loop step 2,
-  findings to act on
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:164` — loop step 4,
-  revision route
-- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:52` —
-  `REJECT`
-- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:62` —
-  `APPROVE`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Verify for
-  normal shipping
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:200` — Ship blocker
-  report
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md:20` —
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "## Implementation Steps"`
+  — `## Implementation Steps` bullet
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "— how a session proves the work is done: commands"`
+  — `## Verification` bullet
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#rules` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "task carrying a"`
+  — Completeness
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "An uncovered scenario is a WARNING only when a test of that"`
+  — uncovered-scenario sentence
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#report` — `## Report`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "every CRITICAL, and a WARNING only when its"`
+  — loop step 2, findings to act on
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "— a finding about the plan's intent, such as a"`
+  — loop step 4, revision route
+- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md#rubric › "— the revision may not land as drafted. Any revision that"`
+  — `REJECT`
+- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md#rubric › "— everything else, provided every specified behavior"`
+  — `APPROVE`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping."`
+  — step 3, Verify for normal shipping
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report › "names the plan, and lists every"`
+  — Ship blocker report
+- `docs/knowledge/data/architecture/autonomous-implement-loop.md#decision` —
   `## Decision`
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md:76` —
-  `## Rejected alternatives`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:333` — Implement verifies
-  requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:379` — Implement revises
-  requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:459` — Normal shipping
-  requirement
+- `docs/knowledge/data/architecture/autonomous-implement-loop.md#rejected-alternatives`
+  — `## Rejected alternatives`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-implementation-starts-on-a-feature-branch › "Implement begins with a branch other than"`
+  — Implement verifies requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
+  — Implement revises requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-the-evaluator-approves-an-added-task › "revision adds a task that covers it, and the evaluator"`
+  — Normal shipping requirement

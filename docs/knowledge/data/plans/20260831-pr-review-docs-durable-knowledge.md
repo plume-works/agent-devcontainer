@@ -107,8 +107,8 @@ by both scopes.
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
 Add a **Documentation focus** block to the Review Focus section (after
-Correctness focus, currently ending at line 65). It applies to docs under
-`data/`, `README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`,
+Correctness focus, currently ending). It applies to docs under `data/`,
+`README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`,
 `*.agent.md`), and docstrings. Instead of restating criteria, it directs the
 lens to run `/agentdev:iwe-audit` in diff mode over the changed docs/skills
 files, take the returned `file:line | verdict | replacement | evidence` table,
@@ -131,10 +131,10 @@ lens uses — so exhaustive iwe-audit findings are filtered to review-worthy one
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-In the Severity tiers block (lines 67–70), add durable-knowledge findings to the
-**Blocking (critical/P1)** tier alongside correctness. Clarify — reusing the
-existing Step-9 wording — that the tier governs Step-5 dedup priority and inline
-emphasis only, and never changes the submit event (still `COMMENT`, never
+In the Severity tiers block, add durable-knowledge findings to the **Blocking
+(critical/P1)** tier alongside correctness. Clarify — reusing the existing
+Step-9 wording — that the tier governs Step-5 dedup priority and inline emphasis
+only, and never changes the submit event (still `COMMENT`, never
 `REQUEST_CHANGES`).
 
 - [x] Blocking tier lists durable-knowledge findings; the note that tier does
@@ -149,12 +149,12 @@ emphasis only, and never changes the submit event (still `COMMENT`, never
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-Update Step 3 (lines 81–86): keep the always-on 2 compliance + 2 correctness
-passes, and add a **durable-knowledge pass that runs only when the diff contains
-docs/skills files**. State the file-following rule: correctness passes scan code
-files, the durable-knowledge pass scans docs/skills files, each ignoring files
-outside its lens; on a mixed diff both lenses run against their own file subsets
-in the same review. Update the "four independent" framing to "four or five".
+Update Step 3: keep the always-on 2 compliance + 2 correctness passes, and add a
+**durable-knowledge pass that runs only when the diff contains docs/skills
+files**. State the file-following rule: correctness passes scan code files, the
+durable-knowledge pass scans docs/skills files, each ignoring files outside its
+lens; on a mixed diff both lenses run against their own file subsets in the same
+review. Update the "four independent" framing to "four or five".
 
 - [x] Step 3 documents the conditional 5th durable-knowledge pass and the
   per-file lens split.
@@ -170,10 +170,10 @@ in the same review. Update the "four independent" framing to "four or five".
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-In "Waiting on Parallel Passes" (lines 100–117), extend the pass-count language
-from "4" to "4 or 5" (line 117 completion-count status line; the "per Step-3
-pass" budget at line 116). The durable-knowledge pass gets the same 16-minute
-ceiling as the other Step-3 passes.
+In "Waiting on Parallel Passes", extend the pass-count language from "4" to "4
+or 5" (the completion-count status line; the "per Step-3 pass" budget). The
+durable-knowledge pass gets the same 16-minute ceiling as the other Step-3
+passes.
 
 - [x] Budget and completion-count wording accommodate the optional 5th pass at
   the same 16-minute ceiling.
@@ -241,32 +241,31 @@ review policy and adds a report-only scope to iwe-audit — neither of which any
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-31):
-
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:22` — `## Scope`
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope` — `## Scope`
   (diff-mode candidate-set note goes here)
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:34` —
-  `## 1. Collect candidates` (grep patterns shared by both scopes)
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:88` —
-  `## 4. Report, then apply` (report-only stop for diff mode)
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:90` — "Output a table
-  before editing anything" — the report/apply phase boundary
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:74` — Step 1 Gate
-  (draft/closed check)
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:75` — "docs-only,
-  version-only, or generated-file-only" enumeration to narrow
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:46` — Correctness focus
-  block (new Documentation focus follows)
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:67` — Severity tiers block
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:80` — Step 2
-  convention-source selection (per-file skill mapping)
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:81` — Step 3 "four
-  independent initial-review passes"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:108` — Step 9 event rule
-  (APPROVE/COMMENT)
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:116` — per-pass 16-minute
-  budget
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:117` — "4 initial passes"
-  completion-count status line
-- `docs/knowledge/data/spec/ai-review-gate.md:14` — ai-review-gate requirement
-  (unchanged by this plan)
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope › "When a caller runs this skill over a diff, the candidate set"`
+  — `## 1. Collect candidates` (grep patterns shared by both scopes)
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#3-verify-before-promoting › "or it asserts nothing checkable at all. A sentence that"`
+  — `## 4. Report, then apply` (report-only stop for diff mode)
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#3-verify-before-promoting › "introduce load-bearing prohibitions as often as"`
+  — "Output a table before editing anything" — the report/apply phase boundary
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "title/description relevance) — use"`
+  — Step 1 Gate (draft/closed check)
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "Compare the current PR title and description from Step 1"`
+  — "docs-only, version-only, or generated-file-only" enumeration to narrow
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "bug-hunting) — use the strongest available reasoning"`
+  — Correctness focus block (new Documentation focus follows)
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "durable-knowledge adherence) — applies to docs under"`
+  — Severity tiers block
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "carried through Steps 4–9 on every candidate/validated"`
+  — Step 2 convention-source selection (per-file skill mapping)
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "session residue a rule forbids). Governs Step-5 dedup"`
+  — Step 3 "four independent initial-review passes"
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "from the validated findings that survived Step 6"`
+  — Step 9 event rule (APPROVE/COMMENT)
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "and all validated inline findings as"`
+  — per-pass 16-minute budget
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "and all validated inline findings as"`
+  — "4 initial passes" completion-count status line
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-prs-are-blocked-until-an-ai-review-exists`
+  — ai-review-gate requirement (unchanged by this plan)

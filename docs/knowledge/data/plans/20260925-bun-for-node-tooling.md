@@ -160,7 +160,7 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 **Files:** Modify: `Makefile`
 
 - [x] Replace the upgrade hint in the `validate` target with:
-  - **Evidence:** commit `66bfede` (PR #289); `Makefile:157` prints the
+  - **Evidence:** commit `66bfede` (PR #289); `Makefile#validate` prints the
     `bun add` hint, and `make -n validate` parses.
 
 ``` make
@@ -200,17 +200,19 @@ The rest of the step is unchanged.
 - [x] In both codebase map docs, point the
   `.github/workflows/validate-renovate-config.yml` citation at the validator's
   `run` step as it stands after Task 3.
-  - **Evidence:** commit `e943209` (PR #289); the step still spans lines 69-75
-    after Task 3, so both citations stand, and the prose beside them now names
-    the hook's `bunx` pin instead of its `rev`, as does `codebase/github.md`.
+  - **Evidence:** commit `e943209` (PR #289); the step still spans the same
+    lines after Task 3, so both citations stand, and the prose beside them now
+    names the hook's `bunx` pin instead of its `rev`, as does
+    `codebase/github.md`.
 
 ### Task 6: Record the bun-only rule for future work
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
 - [x] In `AGENTS.md`, Best Practice 1 becomes:
-  - **Evidence:** commit `d68c4ea` (PR #289); `AGENTS.md:12` carries the text
-    below verbatim.
+  - **Evidence:** commit `d68c4ea` (PR #289);
+    `AGENTS.md#best-practices-for-agents › ") after changing dependencies. Never install packages"`
+    carries the text below verbatim.
 
 ``` markdown
 1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
@@ -290,31 +292,34 @@ after the first bot run on `main`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08, at `5ce848b`):
-
-- `.pre-commit-config.yaml:14` — `mirrors-prettier` repo block
-- `.pre-commit-config.yaml:71` — `renovatebot/pre-commit-hooks` repo block
-- `.pre-commit-config.yaml:82` — existing `repo: local` block
-- `.github/renovate.json:75` — `pre-commit/mirrors-prettier` in the Super-Linter
+- `.pre-commit-config.yaml#repos.repo` — `mirrors-prettier` repo block
+- `.pre-commit-config.yaml#repos.repo.hooks.prettier.files` —
+  `renovatebot/pre-commit-hooks` repo block
+- `.pre-commit-config.yaml#repos.repo.hooks.zizmor.entry` — existing
+  `repo: local` block
+- `.github/renovate.json › "pre-commit/mirrors-clang-format"` —
+  `pre-commit/mirrors-prettier` in the Super-Linter rule
+- `.github/renovate.json › "matchManagers"` — Prettier `additional_dependencies`
   rule
-- `.github/renovate.json:88` — Prettier `additional_dependencies` rule
-- `.github/renovate.json:140` — "Commit pins in the Ansible roles' defaults"
-  custom manager
-- `.github/workflows/validate-renovate-config.yml:67-75` — validator call; reads
-  the hook `rev` and runs `bunx --package "renovate@${rev}"`
-- `.github/workflows/renovate.yml:62-70` — `Read the Renovate version` step;
-  reads the hook `rev`
-- `Makefile:157` — `npm install -g` upgrade hint
-- `AGENTS.md:12` — Best Practice 1, `uv` and `bun` toolchain rule
-- `docs/knowledge/data/product.md:129` — authoring-rules mirror of Best Practice
-  1
-- `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md:29`
+- `.github/renovate.json › "# renovate: datasource=(?<datasource>[a-z-]+)"` —
+  "Commit pins in the Ansible roles' defaults" custom manager
+- `.github/workflows/validate-renovate-config.yml#jobs.validate.steps` —
+  validator call; reads the hook `rev` and runs
+  `bunx --package "renovate@${rev}"`
+- `.github/workflows/renovate.yml#jobs.renovate.steps` —
+  `Read the Renovate version` step; reads the hook `rev`
+- `Makefile#validate` — `npm install -g` upgrade hint
+- `AGENTS.md#best-practices-for-agents › ") after changing dependencies. Never install packages"`
+  — Best Practice 1, `uv` and `bun` toolchain rule
+- `docs/knowledge/data/product.md#authoring-rules › "for JavaScript; run through"`
+  — authoring-rules mirror of Best Practice 1
+- `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md#workflow › "additional_dependencies"`
   — Prettier `additional_dependencies` wording
-- `docs/knowledge/data/architecture/renovate-config-validation.md:21` — the
-  one-pin decision: the hook `rev` is the Renovate version everywhere
-- `scripts/validate-super-linter-tool-versions.sh:157-158` — Prettier version
-  extraction regex
-- `docs/knowledge/data/codebase/flow-pull-request-checks.md:55-61` — validator
-  step and its line citation
-- `docs/knowledge/data/codebase/github/workflows.md:129-131` — validator line
-  citations
+- `docs/knowledge/data/architecture/renovate-config-validation.md#decision › "bunx --package renovate@<version>"`
+  — the one-pin decision: the hook `rev` is the Renovate version everywhere
+- `scripts/validate-super-linter-tool-versions.sh › "configured_versions[prettier]=$(sed -nE"`
+  — Prettier version extraction regex
+- `docs/knowledge/data/codebase/flow-pull-request-checks.md#trace › "validate-renovate-config.yml"`
+  — validator step and its line citation
+- `docs/knowledge/data/codebase/github/workflows.md#key-references › "bridge's review-versus-task split and effort label"`
+  — validator line citations

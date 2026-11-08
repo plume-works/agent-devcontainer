@@ -122,9 +122,10 @@ composite action so preflight and the gate evaluate the same rule.
     set; committed as "feat(ai-responder): preflight computes the trigger
     decision once".
 - [x] Create `.github/actions/ai-review-status` as a composite action wrapping
-  the acceptance logic now at `require-ai-review.yml:66-172` — inputs
-  `pr-number`, `github-token`, `trusted-bot-actors`; outputs `found` and
-  `reason` — with no sleep loop
+  the acceptance logic now at
+  `.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.Verify AI reviewed PR.with.script`
+  — inputs `pr-number`, `github-token`, `trusted-bot-actors`; outputs `found`
+  and `reason` — with no sleep loop
   - **Evidence:** `.github/actions/ai-review-status/action.yml` — one
     `github-script` step, the three inputs, `found`/`reason` outputs, a single
     pass over reviews then reactions; same commit as above.
@@ -266,10 +267,13 @@ composite action so preflight and the gate evaluate the same rule.
 **Files:** Modify: `README.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [x] Rewrite `README.md:141-145` so it describes one workflow contributing
-  `ai-review-present`, and drop the `require-ai-review.yml` row from
-  `template-boundary.md:159-160`, folding its "satisfiable only with the
-  responder" note into the `ai-responder.yml` row
+- [x] Rewrite
+  `README.md#ai-pull-request-review › "provides automated review: its"` so it
+  describes one workflow contributing `ai-review-present`, and drop the
+  `require-ai-review.yml` row from
+  `docs/knowledge/data/architecture/template-boundary.md#github-surface › "merge gate, satisfiable only while the responder job is"`,
+  folding its "satisfiable only with the responder" note into the
+  `ai-responder.yml` row
   - **Evidence:** `README.md` "AI pull request review" opens with the
     one-workflow description and its trigger paragraph now states the
     push-without-review and comment-bridge behavior; `template-boundary.md`
@@ -480,37 +484,41 @@ requirement for comment mentions.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
-
-- `.github/workflows/ai-responder.yml:3-22` — the `on:` block the
+- `.github/workflows/ai-responder.yml#on` — the `on:` block the
   `workflow_dispatch` and gate triggers join
-- `.github/workflows/ai-responder.yml:25` — the concurrency group Task 2 rekeys
-- `.github/workflows/ai-responder.yml:46-62` — preflight `if:`, the owner and
-  `startsWith('@claude')` gates
-- `.github/workflows/ai-responder.yml:75-110` — `Determine checkout ref`, the PR
-  resolution and fork gate preflight extends for `workflow_dispatch`
-- `.github/workflows/ai-responder.yml:112-135` —
+- `.github/workflows/ai-responder.yml#on.pull_request.types` — the concurrency
+  group Task 2 rekeys
+- `.github/workflows/ai-responder.yml#on.workflow_dispatch.inputs.comment_id.required`
+  — preflight `if:`, the owner and `startsWith('@claude')` gates
+- `.github/workflows/ai-responder.yml#jobs.preflight` —
+  `Determine checkout ref`, the PR resolution and fork gate preflight extends
+  for `workflow_dispatch`
+- `.github/workflows/ai-responder.yml#jobs.preflight.outputs.checkout_ref` —
   `Authorize responder requester`, the write-access gate the bridge reuses
-- `.github/workflows/ai-responder.yml:137-201` — `Determine agent prompts`,
-  where `inputs.task` joins the prompt selection
-- `.github/workflows/ai-responder.yml:203-220` — `claude-respond` job header,
-  `if:`, permissions, `timeout-minutes: 30`, environment
-- `.github/workflows/ai-responder.yml:222-253` — the run-link footer step that
-  moves to the dispatch inputs
-- `.github/workflows/ai-responder.yml:315` — `github_token`, the reason a Claude
-  review fires no workflow event
-- `.github/workflows/require-ai-review.yml:3-19` — the gate's trigger set merged
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine checkout ref.with.script.owner`
+  — `Determine agent prompts`, where `inputs.task` joins the prompt selection
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Authorize responder requester.with.script.username`
+  — `claude-respond` job header, `if:`, permissions, `timeout-minutes: 30`,
+  environment
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.env.PR_NUMBER`
+  — the run-link footer step that moves to the dispatch inputs
+- `.github/workflows/ai-responder.yml#jobs.bridge.runs-on` — `github_token`, the
+  reason a Claude review fires no workflow event
+- `.github/workflows/require-ai-review.yml#on` — the gate's trigger set merged
   into the responder
-- `.github/workflows/require-ai-review.yml:30-33` — `ai-review-present`, the job
-  name and `timeout-minutes: 10` that carry over
-- `.github/workflows/require-ai-review.yml:45,66-74` — the trusted-bot waiver
-- `.github/workflows/require-ai-review.yml:90-172` — the acceptance predicates
-  the composite action absorbs
-- `.github/workflows/require-ai-review.yml:209-243` — the 8-minute poll that is
-  dropped
-- `.github/workflows/require-ai-review.yml:249-253` — `log-debug-stats`, kept
-- `README.md:141-145` — the two-workflow description Task 5 rewrites
-- `docs/knowledge/data/architecture/template-boundary.md:159-160` — the two
-  workflow rows Task 5 merges
-- `docs/knowledge/data/spec/template-consumption.md:323-343` — the matched-pair
-  section the spec change rewrites
+- `.github/workflows/require-ai-review.yml#jobs.ai-review-present` —
+  `ai-review-present`, the job name and `timeout-minutes: 10` that carry over
+- `.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.Verify AI reviewed PR.env.TRUSTED_BOT_ACTORS`
+  — the trusted-bot waiver
+- `.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.Verify AI reviewed PR.with.script`
+  — the acceptance predicates the composite action absorbs
+- `.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.Verify AI reviewed PR.with.script`
+  — the 8-minute poll that is dropped
+- `.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.name` —
+  `log-debug-stats`, kept
+- `README.md#ai-pull-request-review › "provides automated review: its"` — the
+  two-workflow description Task 5 rewrites
+- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "merge gate, satisfiable only while the responder job is"`
+  — the two workflow rows Task 5 merges
+- `docs/knowledge/data/spec/template-consumption.md#ai-responder-and-the-review-gate`
+  — the matched-pair section the spec change rewrites

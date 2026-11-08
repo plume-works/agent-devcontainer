@@ -752,64 +752,71 @@ report at any point that needs a user decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:22` —
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::CLAUDE_SCOPES` —
   `CODEX_MANIFEST`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:34` — `complete`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:120` —
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::complete` —
+  `complete`
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::opencode.spec` —
   `codex_registered`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:156` — `codex`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:223` — `install`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:27` —
-  `AGENTS_WITH_SHARED_AUTH`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:124` —
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::main` — `codex`
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::main` — `install`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::StateError.__init__`
+  — `AGENTS_WITH_SHARED_AUTH`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::main` —
   `link_codex_auth`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:146` —
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::main` —
   `apply_agent_policy`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:168` — `main`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::main` — `main`
   (`links` subcommand)
-- `py_packages/agentdev_runtime/agentdev_runtime/cbm.py:363` — Codex
-  `hooks.json` and `codex_hooks.repair_config` in the CBM install
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:152` —
+- `py_packages/agentdev_runtime/agentdev_runtime/cbm.py::configure_agents` —
+  Codex `hooks.json` and `codex_hooks.repair_config` in the CBM install
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::main` —
   `link_codex_auth` call in `ready`
-- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:28` — `AGENTS`
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:42` — `AI_TOOLS`
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:252` —
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::AGENTS` —
+  `AGENTS`
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::DETAIL_LIMIT` —
+  `AI_TOOLS`
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` —
   `codex auth link` check
-- `py_packages/agentdev_runtime/agentdev_runtime/settings.py:149` — `CODEX_HOME`
-  variable
-- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:173` — `config`
-- `py_packages/agentdev_runtime/agentdev_runtime/codex_config.py:1` — module to
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
+  `CODEX_HOME` variable
+- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.config`
+  — `config`
+- `py_packages/agentdev_runtime/agentdev_runtime/codex_config.py` — module to
   delete
-- `py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py:1` — module to
+- `py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py` — module to
   delete
-- `ansible/roles/agentic_tools/defaults/main.yml:7` — `@openai/codex` Renovate
-  pin
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:15` — Codex
-  marketplace, plugin, and agent install tasks (through line 90)
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:47` — Codex manifest
-  version check
-- `.devcontainer/devcontainer.json:101` — `agentdev-codex` volume
-- `.devcontainer/docker-compose.yml:100` — Codex auth-link comment
-- `.devcontainer/firewall-allowlist.txt:22` — OpenAI hosts
-- `docker/deploy/agentdev-deploy.Dockerfile:39` — `CODEX_HOME`
-- `.github/workflows/validate-agent-files.yml:94` —
-  `--require-marketplace claude codex`
-- `.github/workflows/validate-agent-files.yml:42` — `.codex/agents/**` filter
-- `.github/actions/run-claude-responder/action.yml:105` —
-  `mkdir -p /root/.codex`
-- `.pre-commit-config.yaml:100` — hook `files` pattern naming `.codex/agents`
-- `scripts/e2e/iwe-workflows/scenarios.py:44` — `CODEX_BUDGET`
-- `.agents/plugins/agentdev/.codex-plugin/plugin.json:1` — Codex plugin manifest
-- `.agents/plugins/agentdev/bin/install-codex-agents.py:1` — Codex agent
-  installer
-- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md:39` — Codex
-  managed-sandbox section
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:24` — Codex review tool
-  option
-- `.agents/plugins/agentdev/skills/create-skill/SKILL.md:45` — `openai.yaml`
-  guidance
-- `py_packages/validate_agent_files/validate_agent_files/paths.py:43` — `codex`
-  ecosystem (kept)
-- `docs/knowledge/data/product.md:155` — `.codex/` authoring rule
+- `ansible/roles/agentic_tools/defaults/main.yml › "renovate: datasource=npm depName=@openai/codex"`
+  — `@openai/codex` Renovate pin
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml#name` — Codex
+  marketplace, plugin, and agent install tasks
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml › "that"` — Codex
+  manifest version check
+- `.devcontainer/devcontainer.json › "volume"` — `agentdev-codex` volume
+- `.devcontainer/docker-compose.yml#services.devcontainer.volumes.agentdev-agents-auth`
+  — Codex auth-link comment
+- `.devcontainer/firewall-allowlist.txt › "OpenAI / Codex"` — OpenAI hosts
+- `docker/deploy/agentdev-deploy.Dockerfile › "CBM_CACHE_DIR=/home/agent/.cache/codebase-memory-mcp"`
+  — `CODEX_HOME`
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.Validate Agent Files.run`
+  — `--require-marketplace claude codex`
+- `.github/workflows/validate-agent-files.yml#jobs.paths-filter.steps.Filters.with.extra-filter`
+  — `.codex/agents/**` filter
+- `.github/actions/run-claude-responder/action.yml#runs.steps.Run devcontainer lifecycle scripts.run`
+  — `mkdir -p /root/.codex`
+- `.pre-commit-config.yaml#repos.repo.hooks.validate-agent-files.files` — hook
+  `files` pattern naming `.codex/agents`
+- `scripts/e2e/iwe-workflows/scenarios.py::CODEX_BUDGET` — `CODEX_BUDGET`
+- `.agents/plugins/agentdev/.codex-plugin/plugin.json` — Codex plugin manifest
+- `.agents/plugins/agentdev/bin/install-codex-agents.py › "#!/usr/bin/env python3"`
+  — Codex agent installer
+- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md#codex-managed-sandbox-execution`
+  — Codex managed-sandbox section
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#prerequisites › "— submit the pending review with an"`
+  — Codex review tool option
+- `.agents/plugins/agentdev/skills/create-skill/SKILL.md#frontmatter-follows-the-agent-skills-spec-and-there-is-no-agentsopenaiyaml › "that Codex's guide recommends and its"`
+  — `openai.yaml` guidance
+- `py_packages/validate_agent_files/validate_agent_files/paths.py::ECOSYSTEMS` —
+  `codex` ecosystem (kept)
+- `docs/knowledge/data/product.md#authoring-rules › "reads the canonical plugin tree directly."`
+  — `.codex/` authoring rule

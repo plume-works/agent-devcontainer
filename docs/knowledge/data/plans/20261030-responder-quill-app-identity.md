@@ -435,28 +435,39 @@ access, and the responder SHALL NOT open a pull request.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-07):
-
-- `.github/actions/run-claude-responder/action.yml:11` — `app-client-id` input
-- `.github/actions/run-claude-responder/action.yml:46` — lifecycle scripts step
-- `.github/actions/run-claude-responder/action.yml:108` — App token mint
-- `.github/actions/run-claude-responder/action.yml:132` — Claude step
-- `.github/workflows/ai-responder.yml:103` — preflight "Check for an accepted AI
-  review"
-- `.github/workflows/ai-responder.yml:189` — prompt rule against opening a pull
-  request
-- `.github/workflows/ai-responder.yml:209` — `claude-respond` environment
-- `.github/workflows/ai-responder.yml:225` — `claude-respond` App secrets passed
-  to the action
-- `.github/workflows/ai-responder.yml:249` — `ai-review-present` gate step
-- `.github/workflows/ai-responder.yml:285` — `trusted-bot-approval` job
-- `.github/workflows/ai-responder.yml:367` — duplicate-approval check
-- `.github/actions/ai-review-status/action.yml:68` — accepted reviewer login
-- `.github/actions/ai-review-status/action.yml:97` — failure message
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:33`
+- `.github/actions/run-claude-responder/action.yml#inputs.app-client-id` —
+  `app-client-id` input
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` — lifecycle
+  scripts step
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` — App token
+  mint
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` — Claude
+  step
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.name` — preflight
+  "Check for an accepted AI review"
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — prompt rule against opening a pull request
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.environment` —
+  `claude-respond` environment
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.steps.Run Claude responder.with.app-client-id`
+  — `claude-respond` App secrets passed to the action
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.steps.name` —
+  `ai-review-present` gate step
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval` —
+  `trusted-bot-approval` job
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — duplicate-approval check
+- `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
+  — accepted reviewer login
+- `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
+  — failure message
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::AI_REVIEWER`
   — `AI_REVIEWER`
-- `.github/workflows/renovate.yml:75` — App token mint with explicit permissions
-- `.github/workflows/renovate.yml:90` — App bot identity resolution
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:361`
+- `.github/workflows/renovate.yml#jobs.renovate.steps.name` — App token mint
+  with explicit permissions
+- `.github/workflows/renovate.yml#jobs.renovate.steps.name` — App bot identity
+  resolution
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate › "The review responder and the"`
   — responder prerequisites
-- `README.md:351` — adopter prerequisites
+- `README.md#pull-request-automation › "Reviews and trusted-bot approvals post as the"`
+  — adopter prerequisites

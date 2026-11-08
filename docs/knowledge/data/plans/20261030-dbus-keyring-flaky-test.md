@@ -149,26 +149,41 @@ runtime "recover affected clients coherently".
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.devcontainer/scripts/runtime-supervisor.py:260` — `Service`; `:265` —
-  `after`; `:268` — `refresh`
-- `.devcontainer/scripts/runtime-supervisor.py:290` — deploy profile: `dbus`
-  refreshes `keyring` and `xpra`; `:291` — `keyring` runs `after` `dbus`; `:307`
-  — the devcontainer profile's equivalent
-- `.devcontainer/scripts/runtime-supervisor.py:540` — `Controller.probe`; `:557`
-  — `Controller.healthy`
-- `.devcontainer/scripts/runtime-supervisor.py:620` —
+- `.devcontainer/scripts/runtime-supervisor.py::Service` — `Service`;
+  `.devcontainer/scripts/runtime-supervisor.py::Service` — `after`;
+  `.devcontainer/scripts/runtime-supervisor.py::Service` — `refresh`
+- `.devcontainer/scripts/runtime-supervisor.py::DEPLOY_SERVICES` — deploy
+  profile: `dbus` refreshes `keyring` and `xpra`;
+  `.devcontainer/scripts/runtime-supervisor.py::DEPLOY_SERVICES` — `keyring`
+  runs `after` `dbus`;
+  `.devcontainer/scripts/runtime-supervisor.py::DEVCONTAINER_SERVICES` — the
+  devcontainer profile's equivalent
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.probe` —
+  `Controller.probe`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.healthy` —
+  `Controller.healthy`
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.failing_dependency` —
   `Controller.failing_dependency`
-- `.devcontainer/scripts/runtime-supervisor.py:637` —
-  `Controller.restart_until_ready`, which charges the service's own budget
-- `.devcontainer/scripts/runtime-supervisor.py:658` — `Controller.recover`;
-  `:674` — `Controller.refresh_clients`, which restarts only a `ready` client
-- `.devcontainer/scripts/runtime-supervisor.py:742` — `Controller.check_once`;
-  `:748` — an exited service counts as failed at once; `:752` — the
-  probe-failure debounce; `:770` — the `recover` call
-- `scripts/tests/test_agent_runtime_supervision.py:41` — `FAKE_SERVICE`; `:55` —
-  its `crash` trigger; `:58` — its `wedge` trigger
-- `scripts/tests/test_agent_runtime_supervision.py:634` —
-  `test_dependency_outage_recovers_clients_outside_their_budget`; `:645` —
-  `test_a_client_failure_escalates_to_its_failing_dependency`
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.restart_until_ready`
+  — `Controller.restart_until_ready`, which charges the service's own budget
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.recover` —
+  `Controller.recover`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.refresh_clients` —
+  `Controller.refresh_clients`, which restarts only a `ready` client
+- `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` —
+  `Controller.check_once`;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` — an
+  exited service counts as failed at once;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` — the
+  probe-failure debounce;
+  `.devcontainer/scripts/runtime-supervisor.py::Controller.check_once` — the
+  `recover` call
+- `scripts/tests/test_agent_runtime_supervision.py::FAKE_SERVICE` —
+  `FAKE_SERVICE`;
+  `scripts/tests/test_agent_runtime_supervision.py::FAKE_SERVICE` — its `crash`
+  trigger; `scripts/tests/test_agent_runtime_supervision.py::FAKE_SERVICE` — its
+  `wedge` trigger
+- `scripts/tests/test_agent_runtime_supervision.py::test_dependency_outage_recovers_clients_outside_their_budget`
+  — `test_dependency_outage_recovers_clients_outside_their_budget`;
+  `scripts/tests/test_agent_runtime_supervision.py::test_a_client_failure_escalates_to_its_failing_dependency`
+  — `test_a_client_failure_escalates_to_its_failing_dependency`

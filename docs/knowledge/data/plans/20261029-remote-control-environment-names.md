@@ -177,20 +177,23 @@ and its `sources` gain `.devcontainer/devcontainer-init.sh` and
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.devcontainer/devcontainer-init.sh:32` — short host, domain dropped
-- `.devcontainer/devcontainer-init.sh:35` — Coder branch, checked first
-- `.devcontainer/devcontainer-init.sh:37` — VS Code detection
-- `.devcontainer/devcontainer-init.sh:44` — 63-character limit
-- `.devcontainer/devcontainer-init.sh:52` — `CONTAINER_HOSTNAME` written to
-  `.env`
-- `.devcontainer/docker-compose.yml:59` — `devcontainer` service `hostname`
-- `.devcontainer/scripts/claude-remote-control-start.sh:53` — session `--name`
-  and prefix, which this plan leaves unchanged
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1138`
+- `.devcontainer/devcontainer-init.sh › "${HOSTNAME:-$(hostname)}"` — short
+  host, domain dropped
+- `.devcontainer/devcontainer-init.sh › "${CODER_WORKSPACE_NAME:-}"` — Coder
+  branch, checked first
+- `.devcontainer/devcontainer-init.sh › "${VSCODE_IPC_HOOK:-}"` — VS Code
+  detection
+- `.devcontainer/devcontainer-init.sh › "${container_hostname:0:63}"` —
+  63-character limit
+- `.devcontainer/devcontainer-init.sh › "CONTAINER_HOSTNAME=$container_hostname"`
+  — `CONTAINER_HOSTNAME` written to `.env`
+- `.devcontainer/docker-compose.yml#services.devcontainer.hostname` —
+  `devcontainer` service `hostname`
+- `.devcontainer/scripts/claude-remote-control-start.sh › "--name $workspace_name --remote-control-session-name-prefix"`
+  — session `--name` and prefix, which this plan leaves unchanged
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#migrating-to-the-agentdev-image-family › ".devcontainer/scripts/"`
   — the migration deletes `.devcontainer/scripts/`
-- `scripts/tests/test_container_hostname.py:20` — `checkout`, the scratch
-  checkout the tests run the init script in
-- `scripts/tests/test_template_consume_migration.py:39` —
-  `test_the_migrated_descriptor_runs_no_copied_script`
+- `scripts/tests/test_container_hostname.py › "@pytest.fixture"` — `checkout`,
+  the scratch checkout the tests run the init script in
+- `scripts/tests/test_template_consume_migration.py::test_the_migrated_descriptor_runs_no_copied_script`
+  — `test_the_migrated_descriptor_runs_no_copied_script`

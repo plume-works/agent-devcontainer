@@ -95,11 +95,13 @@ rather than described. Apply the blocks exactly as given.
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
 - [x] Insert this bullet verbatim after the "Ready to build" bullet
-  (`.claude/skills/explore/SKILL.md:66-67`) and before the `After any capture:`
-  line at `:69`
+  (`.claude/skills/explore/SKILL.md#capturing › "Ready to build → hand off to the plan skill; the exploration"`)
+  and before the `After any capture:` line at
+  `.claude/skills/explore/SKILL.md#capturing › "iwe schema validate"`
   - **Evidence:** commit 52ddd06; the bullet is present at
-    `.claude/skills/explore/SKILL.md:68-75`, byte-identical to Block 1 of
-    `.tmp/approved-wording-explore-handoff.md` (substring check passed)
+    `.claude/skills/explore/SKILL.md#capturing › ".tmp/approved-wording-<slug>.md"`,
+    byte-identical to Block 1 of `.tmp/approved-wording-explore-handoff.md`
+    (substring check passed)
 
 ``` markdown
 - Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
@@ -117,10 +119,10 @@ rather than described. Apply the blocks exactly as given.
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
 - [x] Append this bullet verbatim to the `## Rules` list
-  (`.claude/skills/explore/SKILL.md:71-80`), after the existing three bullets
+  (`.claude/skills/explore/SKILL.md#rules`), after the existing three bullets
   - **Evidence:** commit 52ddd06; the bullet closes the `## Rules` list at
-    `.claude/skills/explore/SKILL.md:89-93`, byte-identical to Block 2 of
-    `.tmp/approved-wording-explore-handoff.md`
+    `.claude/skills/explore/SKILL.md#rules › "End each exploration by summarizing the current"`,
+    byte-identical to Block 2 of `.tmp/approved-wording-explore-handoff.md`
 
 ``` markdown
 - **Approved text is never paraphrased.** Once the user has agreed to specific
@@ -135,13 +137,15 @@ rather than described. Apply the blocks exactly as given.
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
 - [x] Replace the `## Implementation Steps` bullet
-  (`.claude/skills/plan/SKILL.md:57-61`) with exactly this text, preserving its
-  three-space list indentation in Step 4's section list
+  (`.claude/skills/plan/SKILL.md#steps › "## Implementation Steps"`) with
+  exactly this text, preserving its three-space list indentation in Step 4's
+  section list
   - **Evidence:** commit 52ddd06; the extended bullet sits at
-    `.claude/skills/plan/SKILL.md:57-67` with its three-space indentation
-    intact. Content matches Block 1 of `.tmp/approved-wording-plan-side.md`; the
-    pre-commit prettier hook rewrote the two `*emphasis*` spans to `_emphasis_`,
-    the repo-wide markdown convention, leaving the rendered wording unchanged
+    `.claude/skills/plan/SKILL.md#steps › "rejected, in a few sentences"` with
+    its three-space indentation intact. Content matches Block 1 of
+    `.tmp/approved-wording-plan-side.md`; the pre-commit prettier hook rewrote
+    the two `*emphasis*` spans to `_emphasis_`, the repo-wide markdown
+    convention, leaving the rendered wording unchanged
 
 ``` markdown
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
@@ -161,10 +165,11 @@ rather than described. Apply the blocks exactly as given.
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
 - [x] Append this bullet verbatim to the end of the `## Rules` list
-  (`.claude/skills/plan/SKILL.md:148-167`), after the existing final bullet
+  (`.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes › "operation. A rename is an explicit removal plus an"`),
+  after the existing final bullet
   - **Evidence:** commit 52ddd06; the bullet closes the `## Rules` list at
-    `.claude/skills/plan/SKILL.md:173-179`, byte-identical to Block 2 of
-    `.tmp/approved-wording-plan-side.md`
+    `.claude/skills/plan/SKILL.md#rules › "described above, but never application code or"`,
+    byte-identical to Block 2 of `.tmp/approved-wording-plan-side.md`
 
 ``` markdown
 - **Approved text is copied, never described.** A plan that says what wording
@@ -184,9 +189,13 @@ rather than described. Apply the blocks exactly as given.
   authorization to decide alone, and add a new Best Practice 5 requiring the
   delta against approved input to be reported before handover. Both are the
   maintainer's own wording, applied verbatim
-  - **Evidence:** commit 1456034; `AGENTS.md:14` carries the extended item 4 and
-    `AGENTS.md:15` the new item 5. The insertion renumbers the two items below
-    it (old 5 → 6, old 6 → 7), which is what makes `AGENTS.md:21` the end of
+  - **Evidence:** commit 1456034;
+    `AGENTS.md#best-practices-for-agents › "). Where it is unavailable, ask in prose and stop — a"`
+    carries the extended item 4 and
+    `AGENTS.md#best-practices-for-agents › "Before handing over an artifact derived from something the"`
+    the new item 5. The insertion renumbers the two items below it (old 5 → 6,
+    old 6 → 7), which is what makes
+    `AGENTS.md#best-practices-for-agents › "and never escalate to"` the end of
     item 7 that [Never write a working
     logbook](20260817-no-logbooks-in-the-graph.md) Task 1 anchors on
 
@@ -196,10 +205,12 @@ rather than described. Apply the blocks exactly as given.
 these skills. Two existing requirements already own the behavior this work
 changes, so both are modified rather than joined by a peer:
 `Requirement: Explore remains an adaptive thinking mode`
-(`iwe-workflow-skills.md:25-46`) covers capture and handoff, and
+(`docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`)
+covers capture and handoff, and
 `Requirement: Plan creates or revises planning state without implementing`
-(`iwe-workflow-skills.md:47-85`) covers what a plan must contain. Every existing
-scenario is unchanged and reproduced below; one scenario is added to each.
+(`docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plan-creates-or-revises-planning-state-without-implementing`)
+covers what a plan must contain. Every existing scenario is unchanged and
+reproduced below; one scenario is added to each.
 
 ```
 MODIFIED Requirement: Explore remains an adaptive thinking mode
@@ -317,28 +328,27 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-24):
-
-- `.claude/skills/explore/SKILL.md:47` — `## Capturing`, the section Task 1
-  extends
-- `.claude/skills/explore/SKILL.md:66-67` — the "Ready to build" bullet Task 1
-  inserts after
-- `.claude/skills/explore/SKILL.md:69` — the `After any capture:` line that
-  bounds the insertion
-- `.claude/skills/explore/SKILL.md:71-80` — `## Rules`, the three-bullet list
+- `.claude/skills/explore/SKILL.md#capturing` — `## Capturing`, the section Task
+  1 extends
+- `.claude/skills/explore/SKILL.md#capturing › "Ready to build → hand off to the plan skill; the exploration"`
+  — the "Ready to build" bullet Task 1 inserts after
+- `.claude/skills/explore/SKILL.md#capturing › "iwe schema validate"` — the
+  `After any capture:` line that bounds the insertion
+- `.claude/skills/explore/SKILL.md#rules` — `## Rules`, the three-bullet list
   Task 2 appends to
-- `.claude/skills/plan/SKILL.md:57-61` — the `## Implementation Steps` bullet
-  Task 3 replaces; the task-format template the approved text was reshaped to
-  fit
-- `.claude/skills/plan/SKILL.md:148-167` — `## Rules`, the six-bullet list Task
-  4 appends to
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:25-46` —
-  `Requirement: Explore remains an adaptive thinking mode`, one of the two
+- `.claude/skills/plan/SKILL.md#steps › "## Implementation Steps"` — the
+  `## Implementation Steps` bullet Task 3 replaces; the task-format template the
+  approved text was reshaped to fit
+- `.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes › "operation. A rename is an explicit removal plus an"`
+  — `## Rules`, the six-bullet list Task 4 appends to
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`
+  — `Requirement: Explore remains an adaptive thinking mode`, one of the two
   requirements `## Spec changes` modifies
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:47-85` —
-  `Requirement: Plan creates or revises planning state without implementing`,
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plan-creates-or-revises-planning-state-without-implementing`
+  — `Requirement: Plan creates or revises planning state without implementing`,
   the other requirement `## Spec changes` modifies
-- `AGENTS.md:4` — the mandate to use `./.tmp` for temporary files
+- `AGENTS.md#agents-guidelines › "relative to the repo root) for temporary files; create it"`
+  — the mandate to use `./.tmp` for temporary files
 - `.gitignore:11` — `.tmp/`, confirming the carrier is untracked
-- `docs/knowledge/AGENTS.md:74` — `## Conventions`, which closes the hub set and
-  grounds the rejection of a `data/drafts/` hub
+- `docs/knowledge/AGENTS.md#conventions` — `## Conventions`, which closes the
+  hub set and grounds the rejection of a `data/drafts/` hub

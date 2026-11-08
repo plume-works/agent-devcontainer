@@ -355,24 +355,25 @@ checkout stayed clean throughout.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
-
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:55` — setup mode.
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:99` — update mode.
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:105` — legacy broad
-  knowledge tracking, now narrowed before diffing.
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:209` — the
-  knowledge-base tracked-path inventory.
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:343`
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#the-marker-file › "is what it diffs. Both must stay accurate — a stale"`
+  — setup mode.
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "volume default? Keeping project memory pulls in the seed and"`
+  — update mode.
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "config without the user's go-ahead)."`
+  — legacy broad knowledge tracking, now narrowed before diffing.
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "docs/knowledge/data/"`
+  — the knowledge-base tracked-path inventory.
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#agent-file-validation › "prints nothing when everything passes and the full report"`
   — knowledge validation adoption.
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:525`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#10-verify-the-copied-project › "post-start commands finish successfully."`
   — Workflow B.
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:714`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#the-pull-request-template › "merge or rename those two sections."`
   — the shared knowledge-base adoption procedure.
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:170`
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh › "quit_by_code 4"`
   — tracked-path diff loop.
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:13` — onboarding steps.
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:22` — initial mapping and
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps` — onboarding steps.
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps` — initial mapping and
   confirmation.
-- `.iwe/config.toml:17` — consumer library path.
-- `.iwe/schemas/codebase.yaml:11` — required source_digest metadata.
+- `.iwe/config.toml › "docs/knowledge"` — consumer library path.
+- `.iwe/schemas/codebase.yaml#frontmatter.required` — required source_digest
+  metadata.

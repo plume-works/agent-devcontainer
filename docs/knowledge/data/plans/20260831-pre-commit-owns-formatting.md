@@ -86,9 +86,9 @@ without extra prose.
 
 **Files:** Modify: `.devcontainer/scripts/setup-pre-commit.sh`
 
-- [x] Add `--hook-type pre-merge-commit` to the `pre-commit install` invocation
-  at line 20, keeping the existing `pre-commit` and `pre-push` types and the
-  surrounding failure-logging behavior.
+- [x] Add `--hook-type pre-merge-commit` to the `pre-commit install` invocation,
+  keeping the existing `pre-commit` and `pre-push` types and the surrounding
+  failure-logging behavior.
   - **Evidence:** `bash -n .devcontainer/scripts/setup-pre-commit.sh` passed and
     the installation command retains both existing hook types and failure
     logging.
@@ -101,13 +101,13 @@ without extra prose.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [x] Delete the responsibility bullet at line 52 ("delegating mandatory
-  formatting and validation to the `local-reformat` skill").
+- [x] Delete the responsibility bullet ("delegating mandatory formatting and
+  validation to the `local-reformat` skill").
   - **Evidence:** `grep -n "local-reformat" pr-open/SKILL.md` shows the
-    responsibility list at lines 48-55 no longer names formatting; only the
-    `update-branch` delegation remains.
-- [x] Delete the `### 3. Mandatory Local Reformat` section (lines 121-130) in
-  full, renumbering the sections that follow.
+    responsibility list no longer names formatting; only the `update-branch`
+    delegation remains.
+- [x] Delete the `### 3. Mandatory Local Reformat` section in full, renumbering
+  the sections that follow.
   - **Evidence:** `grep -n "^### [0-9]" pr-open/SKILL.md` shows the section is
     gone and the following sections renumber contiguously 3-11 with no
     "Mandatory Local Reformat" heading.
@@ -117,9 +117,8 @@ without extra prose.
   - **Evidence:** the section (now `### 3. Commit Any Uncommitted PR Scope`)
     opens "Inspect `git status`." and notes the pre-commit hooks format staged
     files as part of the commit; no `local-reformat` precondition remains.
-- [x] Delete the `### 6. Post-sync Formatter and Commit Check` section (lines
-  155-160), whose premise is that a formatter must be re-run after
-  `update-branch`.
+- [x] Delete the `### 6. Post-sync Formatter and Commit Check` section, whose
+  premise is that a formatter must be re-run after `update-branch`.
   - **Evidence:** `grep -in "Post-sync\|reformat" pr-open/SKILL.md` returns no
     hits; the section is removed and the Branch Sync section (now `### 4`) is
     followed directly by Optional Issue Linking (now `### 6`).
@@ -128,20 +127,20 @@ without extra prose.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md`
 
-- [x] Delete step 2 of `## Workflow 4` (lines 169-171), which invokes
-  `local-reformat`, and renumber the remaining steps. The merge commit created
-  by step 1 now runs the hooks itself via `pre-merge-commit`.
+- [x] Delete step 2 of `## Workflow 4`, which invokes `local-reformat`, and
+  renumber the remaining steps. The merge commit created by step 1 now runs the
+  hooks itself via `pre-merge-commit`.
   - **Evidence:** Workflow 4 now runs `git commit`, targeted checks,
     conflict-marker verification, then return-to-caller as steps 1-4;
     `grep -in reformat git-merge-resolve/SKILL.md` returns no hits.
-- [x] Delete the completion criterion at line 206 ("The mandatory local reformat
-  workflow completed successfully after a merge").
+- [x] Delete the completion criterion ("The mandatory local reformat workflow
+  completed successfully after a merge").
   - **Evidence:** the `## Completion Criteria` list no longer contains the
     reformat bullet; it runs from the confidence-threshold bullet directly to
     "Relevant targeted validation passes".
-- [x] Check the `SUCCESS` row of the exit-code table at line 88, which sends the
-  reader to "Workflow 4 for the required reformat and validation", and restate
-  it in terms of the validation that remains.
+- [x] Check the `SUCCESS` row of the exit-code table, which sends the reader to
+  "Workflow 4 for the required reformat and validation", and restate it in terms
+  of the validation that remains.
   - **Evidence:** the `SUCCESS` row now reads "Continue with Workflow 4 for
     targeted validation of the merged files."
 
@@ -152,20 +151,21 @@ without extra prose.
 `.agents/plugins/agentdev/agents/tdd-refactor.agent.md`
 
 - [x] Delete the `**Repo-wide formatting**` bullet at
-  `principal-engineer.agent.md:74`.
+  `.agents/plugins/agentdev/agents/principal-engineer.agent.md#working-in-this-repo › "the same tools run in CI)."`.
   - **Evidence:**
     `grep -in "Repo-wide formatting\|local-reformat" principal-engineer.agent.md`
     returns no hits.
 - [x] Rewrite the `**Python style**` bullet at
-  `principal-engineer.agent.md:72-73` so it no longer links the deleted skill,
-  keeping the `python-lint-check.sh` reference.
+  `.agents/plugins/agentdev/agents/principal-engineer.agent.md#working-in-this-repo › "— ruff formats and autofixes via the pre-commit hooks"`
+  so it no longer links the deleted skill, keeping the `python-lint-check.sh`
+  reference.
   - **Evidence:** the `**Python style**` bullet now reads "ruff formats and
     autofixes via the pre-commit hooks; verify with `python-lint-check.sh`" with
     no `python-format-lint` link.
 - [x] Remove the `python-format-lint` link from the `**Python**` bullet at
-  `tdd-refactor.agent.md:40-43`, keeping the `python-lint-check.sh` verification
-  and the existing pre-commit sentence. The checklist item at line 61 is
-  unaffected.
+  `.agents/plugins/agentdev/agents/tdd-refactor.agent.md#format--lint-gates › "ruff, non-mutating)."`,
+  keeping the `python-lint-check.sh` verification and the existing pre-commit
+  sentence. The checklist item is unaffected.
   - **Evidence:** the `**Python**` bullet keeps the `python-lint-check.sh`
     verification and the `pre-commit run --files <paths>` sentence; the trailing
     "See the python-format-lint skill." sentence is gone.
@@ -183,9 +183,10 @@ Modify: `AGENTS.md`
     reports "No such file or directory"; the directory and its `SKILL.md` are
     gone.
 
-- [x] Replace the ruff bullet at `AGENTS.md:75` so it drops the
-  `/agentdev:python-format-lint` pointer and absorbs the skill's two unique
-  rules. Use this text verbatim:
+- [x] Replace the ruff bullet at
+  `AGENTS.md#python › "their defaults (79-char limit, double quotes, different"`
+  so it drops the `/agentdev:python-format-lint` pointer and absorbs the skill's
+  two unique rules. Use this text verbatim:
 
   ````
   ```markdown
@@ -193,11 +194,13 @@ Modify: `AGENTS.md`
   ```
   ````
 
-  - **Evidence:** `AGENTS.md:75` now matches the verbatim block above. The live
-    bullet also carried a `super-linter-local.sh` clause the plan's quote
-    predated; the mandated verbatim text omits it, so this replacement drops it
-    (Super-Linter's CI role is stated as "Super-Linter runs the same tools in
-    CI"). `grep -n python-format-lint AGENTS.md` returns no hits.
+  - **Evidence:**
+    `AGENTS.md#python › "their defaults (79-char limit, double quotes, different"`
+    now matches the verbatim block above. The live bullet also carried a
+    `super-linter-local.sh` clause the plan's quote predated; the mandated
+    verbatim text omits it, so this replacement drops it (Super-Linter's CI role
+    is stated as "Super-Linter runs the same tools in CI").
+    `grep -n python-format-lint AGENTS.md` returns no hits.
 
 ### Task 6: Update the remaining references to the deleted skill
 
@@ -207,26 +210,29 @@ Modify: `AGENTS.md`
 `.agents/plugins/agentdev/skills/local-reformat/SKILL.md`
 
 - [x] Delete the `/agentdev:python-format-lint` row from the skill table at
-  `README.md:95`.
+  `README.md#the-catalog-ships-with-the-image › "docker inspect -f '{{ index .Config.Labels"`.
   - **Evidence:** the skill table now runs `local-reformat` directly to
     `semantic-refactor-audit`; `grep -n python-format-lint README.md` returns no
     hits.
-- [x] In `pr-review/SKILL.md:80`, drop the clause adding the
-  `/agentdev:python-format-lint` skill for Python diffs. The same sentence
-  already states that the Coding Conventions section of `AGENTS.md` always
-  applies, which is where Task 5 puts the policy.
+- [x] In
+  `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "carried through Steps 4–9 on every candidate/validated"`,
+  drop the clause adding the `/agentdev:python-format-lint` skill for Python
+  diffs. The same sentence already states that the Coding Conventions section of
+  `AGENTS.md` always applies, which is where Task 5 puts the policy.
   - **Evidence:** Step 2's convention-source sentence now reads "…always
     applies; add `/agentdev:create-agent` for `*.agent.md` changes, and
     `/agentdev:create-skill` for `SKILL.md` changes." — no Python clause.
-- [x] In `semantic-refactor-audit/SKILL.md:3`, remove
-  `/agentdev:python-format-lint` from the `description` frontmatter, leaving
-  `/agentdev:local-reformat` as the routing target for formatting and lint
-  fixes. This field drives skill discovery, so keep the sentence well-formed
-  rather than leaving a dangling conjunction.
+- [x] In
+  `.agents/plugins/agentdev/skills/semantic-refactor-audit/SKILL.md › "description: Prove that a behavior-preserving change"`,
+  remove `/agentdev:python-format-lint` from the `description` frontmatter,
+  leaving `/agentdev:local-reformat` as the routing target for formatting and
+  lint fixes. This field drives skill discovery, so keep the sentence
+  well-formed rather than leaving a dangling conjunction.
   - **Evidence:** the `description` closes "…lint fixes, which belong to
     /agentdev:local-reformat." — well-formed, single routing target; validator
     reports the file `✓`.
-- [x] Delete the closing cross-reference at `local-reformat/SKILL.md:175-176`
+- [x] Delete the closing cross-reference at
+  `.agents/plugins/agentdev/skills/local-reformat/SKILL.md#related-entry-points › "| [super-linter-env.sh](../../bin/super-linter-env.sh) |"`
   that points at the deleted skill.
   - **Evidence:** the `## CI-Equivalent Entry Points` table is now the last
     content; the "For a fast, Docker-free Python check… python-format-lint"
@@ -236,12 +242,11 @@ Modify: `AGENTS.md`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/local-reformat/SKILL.md`
 
-- [x] Rewrite the `## Codex Managed-Sandbox Execution` section (lines 39-48) so
-  the escalated permission is described as what the skill needs when it is
-  invoked, not as a required step. Drop "approved, required local validation
-  action", "Do not omit this step or substitute a partial lint command when
-  opening a pull request", and "must run with the same elevated sandbox
-  permission".
+- [x] Rewrite the `## Codex Managed-Sandbox Execution` section so the escalated
+  permission is described as what the skill needs when it is invoked, not as a
+  required step. Drop "approved, required local validation action", "Do not omit
+  this step or substitute a partial lint command when opening a pull request",
+  and "must run with the same elevated sandbox permission".
   - **Evidence:** the section now reads "The Super-Linter container needs Docker
     daemon access… so when this skill runs under Codex, invoke
     `super-linter-local.sh` with `sandbox_permissions: \"require_escalated\"`";
@@ -260,9 +265,9 @@ Modify: `AGENTS.md`
 
 **Files:** Modify: `docs/knowledge/data/spec/template-consumption.md`
 
-- [x] Rewrite item 5 of `## 5. Adapt pre-commit and lint configuration` (lines
-  160-164) so it states that the `zizmor` hook is `language: system` and expects
-  `zizmor` on `PATH`, which the development image provides — matching the
+- [x] Rewrite item 5 of `## 5. Adapt pre-commit and lint configuration` so it
+  states that the `zizmor` hook is `language: system` and expects `zizmor` on
+  `PATH`, which the development image provides — matching the
   `validate-agent-files` hook directly above it. Remove the
   `zizmorcore/zizmor-pre-commit` substitution, which exists to make
   `pre-commit run --all-files` work on a bare host and would add a second
@@ -331,8 +336,9 @@ spec this plan touches.
 - Deleting `local-reformat`, `super-linter-local.sh`, `super-linter-env.sh`, or
   `scripts/validate-super-linter-tool-versions.sh`. Super-Linter remains the CI
   formatter, so all four stay.
-- Deleting `python-lint-check.sh` or its `.claude/settings.json:36` permission.
-  Only the skill that documented it is removed.
+- Deleting `python-lint-check.sh` or its
+  `.claude/settings.json › "Bash(python3 -m pytest *)"` permission. Only the
+  skill that documented it is removed.
 - Adding hook-failure guidance to `git-commit`. Considered and rejected in
   `## Approach`.
 - Re-installing hooks in existing devcontainers. Task 1 changes the setup
@@ -342,42 +348,42 @@ spec this plan touches.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-31):
-
-- `.devcontainer/scripts/setup-pre-commit.sh:18-20` — the comment and the
-  `pre-commit install --install-hooks` call listing hook types
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:52` — the mandatory
-  formatting responsibility bullet
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:121-130` —
-  `### 3. Mandatory Local Reformat`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:132-134` — the `### 4.`
-  opening that depends on it
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:155-160` —
-  `### 6. Post-sync Formatter and Commit Check`
-- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:88` — the
-  `SUCCESS` exit-code row pointing at "the required reformat"
-- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:169-171` —
-  Workflow 4 step 2, the `local-reformat` invocation
-- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:206` — the
-  reformat completion criterion
-- `.agents/plugins/agentdev/agents/principal-engineer.agent.md:72-74` — the
-  Python style and repo-wide formatting bullets
-- `.agents/plugins/agentdev/agents/tdd-refactor.agent.md:40-43` — the Python
-  format/lint gate bullet
-- `AGENTS.md:75` — the ruff formatting bullet in `### Python`
-- `.agents/plugins/agentdev/README.md:95` — the `python-format-lint` skill-table
-  row
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:80` — the
-  convention-source sentence naming the skill
-- `.agents/plugins/agentdev/skills/semantic-refactor-audit/SKILL.md:3` — the
-  `description` frontmatter naming the skill
-- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md:39-48` —
-  `## Codex Managed-Sandbox Execution`
-- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md:175-176` — the
-  closing cross-reference to `python-format-lint`
-- `docs/knowledge/data/spec/template-consumption.md:160-164` — §5 item 5, the
-  bare-host zizmor substitution
-- `.agents/plugins/agentdev/bin/super-linter-env.sh:47-66` — the `VALIDATE_*`
-  flags the pre-commit hooks mirror
-- `scripts/validate-super-linter-tool-versions.sh:158-166` — the per-tool
-  version comparison that keeps the two runners equal
+- `.devcontainer/scripts/setup-pre-commit.sh › "Install the repository's hooks for this checkout. Re-running"`
+  — the comment and the `pre-commit install --install-hooks` call listing hook
+  types
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#pr-description-source-of-truth › "delegating staging and commit creation to the"`
+  — the mandatory formatting responsibility bullet
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#3-commit-any-uncommitted-pr-scope`
+  — `### 3. Mandatory Local Reformat`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#4-branch-sync-with-the-base-branch`
+  — the `### 4.` opening that depends on it
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#5-optional-issue-linking › "GitHub issue URLs containing issue numbers"`
+  — `### 6. Post-sync Formatter and Commit Check`
+- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md#workflow-2-start-the-merge › "| The merge commit was created | Continue with Workflow 4"`
+  — the `SUCCESS` exit-code row pointing at "the required reformat"
+- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md#workflow-4-complete-and-validate-the-merge › "Run targeted build, test, lint, or static checks for files"`
+  — Workflow 4 step 2, the `local-reformat` invocation
+- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md#troubleshooting` —
+  the reformat completion criterion
+- `.agents/plugins/agentdev/agents/principal-engineer.agent.md#working-in-this-repo › "— ruff formats and autofixes via the pre-commit hooks"`
+  — the Python style and repo-wide formatting bullets
+- `.agents/plugins/agentdev/agents/tdd-refactor.agent.md#format--lint-gates › "ruff, non-mutating)."`
+  — the Python format/lint gate bullet
+- `AGENTS.md#python › "their defaults (79-char limit, double quotes, different"`
+  — the ruff formatting bullet in `### Python`
+- `.agents/plugins/agentdev/README.md#review-ci-and-formatting › "| Prove a behavior-preserving rewrite preserved behavior. |"`
+  — the `python-format-lint` skill-table row
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "carried through Steps 4–9 on every candidate/validated"`
+  — the convention-source sentence naming the skill
+- `.agents/plugins/agentdev/skills/semantic-refactor-audit/SKILL.md › "description: Prove that a behavior-preserving change"`
+  — the `description` frontmatter naming the skill
+- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md#codex-managed-sandbox-execution`
+  — `## Codex Managed-Sandbox Execution`
+- `.agents/plugins/agentdev/skills/local-reformat/SKILL.md#related-entry-points › "| [super-linter-env.sh](../../bin/super-linter-env.sh) |"`
+  — the closing cross-reference to `python-format-lint`
+- `docs/knowledge/data/spec/template-consumption.md#5-adapt-pre-commit-and-lint-configuration › "entry: validate_agent_files"`
+  — §5 item 5, the bare-host zizmor substitution
+- `.agents/plugins/agentdev/bin/super-linter-env.sh › "$enable_all_checks"` —
+  the `VALIDATE_*` flags the pre-commit hooks mirror
+- `scripts/validate-super-linter-tool-versions.sh › "s/.*prettier@v?([0-9.]+).*/\1/p"`
+  — the per-tool version comparison that keeps the two runners equal

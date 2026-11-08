@@ -209,26 +209,33 @@ document mentions the symlink, and no specified behavior changes.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-14):
-
-- `.devcontainer/devcontainer.json:37` — `UV_PROJECT_ENVIRONMENT`
-- `.devcontainer/devcontainer.json:51` — `agentdev-uv` volume mount
-- `.devcontainer/devcontainer.json:140` — `python.defaultInterpreterPath`
-- `.devcontainer/devcontainer.json:155-157` — the three `ansible.*` paths
-- `.devcontainer/scripts/uv-sync.sh:8-19` — comment, `rm -rf`, `uv sync`,
-  `ln -s`
-- `.devcontainer/scripts/postCreateCommand.sh:66-68` — stale `.venv` comment and
-  the `uv-sync.sh` call
-- `.devcontainer/scripts/postAttachCommand.sh:10` — second `uv-sync.sh` call
-- `.devcontainer/docker-compose.yml:103-109` — the `volumes:` block that pins
+- `.devcontainer/devcontainer.json › "// The agentdev-uv volume is Compose-project-scoped (only"`
+  — `UV_PROJECT_ENVIRONMENT`
+- `.devcontainer/devcontainer.json › "onAutoForward"` — `agentdev-uv` volume
+  mount
+- `.devcontainer/devcontainer.json › "IWE.iwe"` —
+  `python.defaultInterpreterPath`
+- `.devcontainer/devcontainer.json › "ruff.fixAll"` — the three `ansible.*`
+  paths
+- `.devcontainer/scripts/uv-sync.sh › "UV_PROJECT_ENVIRONMENT keeps the environment on the /uv"`
+  — comment, `rm -rf`, `uv sync`, `ln -s`
+- `.devcontainer/scripts/postCreateCommand.sh › "Sync the project environment on the /uv volume so that"`
+  — stale `.venv` comment and the `uv-sync.sh` call
+- `.devcontainer/scripts/postAttachCommand.sh › "$script_dir/uv-sync.sh"` —
+  second `uv-sync.sh` call
+- `.devcontainer/docker-compose.yml#volumes` — the `volumes:` block that pins
   only `agentdev-agents-auth` to a literal name
-- `.agents/plugins/agentdev/bin/python-lint-check.sh:31-44` — activate branch,
-  PATH fallback, the two `ruff` invocations
-- `ansible/roles/fish_setup/templates/dev.fish.j2:1` — `find_up`
-- `ansible/roles/fish_setup/templates/dev.fish.j2:21-30` — `venv_activate`
-- `ansible/roles/fish_setup/README.md:5-6` — advertised helper list
-- `.agents/plugins/agentdev/skills/python-format-lint/SKILL.md:57-58,79-80`
-- `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md:34`
-- `docs/knowledge/data/architecture/template-boundary.md:76` — `uv-sync.sh` row
-- `docs/knowledge/data/architecture/template-boundary.md:215` — generated-state
-  list (unchanged)
+- `.agents/plugins/agentdev/bin/python-lint-check.sh › "shellcheck disable=SC2154 # exported by __utils.sh"`
+  — activate branch, PATH fallback, the two `ruff` invocations
+- `ansible/roles/fish_setup/templates/dev.fish.j2 › "function find_up"` —
+  `find_up`
+- `ansible/roles/fish_setup/templates/dev.fish.j2 › "if status is-interactive"`
+  — `venv_activate`
+- `ansible/roles/fish_setup/README.md#fish-shell-setup-role › "conf.d/dev.fish"`
+  — advertised helper list
+- `.agents/plugins/agentdev/skills/python-format-lint/SKILL.md#workflow › "uv run ruff format path/to/file.py"`
+- `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md#microvm-sandbox › "does this, syncing into the cached"`
+- `docs/knowledge/data/architecture/template-boundary.md#devcontainer-runtime › "volume ([why](uv-environment-location.md)). |"`
+  — `uv-sync.sh` row
+- `docs/knowledge/data/architecture/template-boundary.md#generated-and-local-only-state › "and tool caches"`
+  — generated-state list (unchanged)

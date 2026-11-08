@@ -205,20 +205,19 @@ An existing helper SHALL be kept. A failed helper setup SHALL NOT stop
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-12):
-
-- `.devcontainer/scripts/postStartCommand.sh:15` — post-start runs
-  `setup-gh-credential-helper.sh` after the keyring
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:19` — the
-  `gh auth status` gate that skips without a login
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:24` — keeps an existing
-  github.com helper
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:30` — `gh auth setup-git`
-- `scripts/tests/test_setup_gh_credential_helper.py:92` —
-  `test_post_start_runs_setup_after_keyring`
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:103` — the keyring
-  ordering note for the helper script
-- `plume-works/coder-ide-baseline` `template/main.tf:95` (at `1e3ace5`) —
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-gh-credential-helper.sh"`
+  — post-start runs `setup-gh-credential-helper.sh` after the keyring
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "if ! gh auth status --hostname github.com >/dev/null 2>&1"`
+  — the `gh auth status` gate that skips without a login
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "$(git config --get-urlmatch credential.helper"`
+  — keeps an existing github.com helper
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "gh auth setup-git"` —
+  `gh auth setup-git`
+- `scripts/tests/test_setup_gh_credential_helper.py::test_post_start_runs_setup_after_keyring`
+  — `test_post_start_runs_setup_after_keyring`
+- `docs/knowledge/data/codebase/devcontainer/scripts.md#invariants--gotchas › "setup-gh-credential-helper.sh"`
+  — the keyring ordering note for the helper script
+- `plume-works/coder-ide-baseline` `template/main.tf` (at `1e3ace5`) —
   `data.coder_parameter.second_repo`, the parameter shape to copy
-- `plume-works/coder-ide-baseline` `template/main.tf:213` (at `1e3ace5`) —
+- `plume-works/coder-ide-baseline` `template/main.tf` (at `1e3ace5`) —
   `coder_script.claude_remote_control`, the resource Task 3 replaces

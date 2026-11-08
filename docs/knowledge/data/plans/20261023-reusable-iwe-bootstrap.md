@@ -465,40 +465,40 @@ bootstrap and scaffold suites also pass with the pinned 0.29.1.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:142`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh › "Removes OWNER last, so a partial discard never leaves owned"`
   — `transaction_phase`, recognition of helper-owned transaction state
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:219`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh::configured_workspace_path`
   — `required_files`, the structural files a complete workspace keeps
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md:26` —
-  scaffold ownership and import attribution
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:107` —
-  full-adoption bootstrap and onboarding handoff
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:772`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md#ownership`
+  — scaffold ownership and import attribution
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#setup-mode › "When IWE was kept, run the guide's Optional knowledge-base"`
+  — full-adoption bootstrap and onboarding handoff
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#reusable-scaffold`
   — retained knowledge paths after bootstrap
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:826`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#initialize-the-consumers-knowledge`
   — knowledge initialization through bootstrap
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:864`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#onboard-the-consumers-project-memory`
   — setup-then-map onboarding sequence
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:9` — setup's assumption
-  that a blank workspace already exists
-- `docs/knowledge/tests/test_iwe_seed.py:28` — `SCAFFOLD`, the packaged asset
-  root the seed tests copy
-- `docs/knowledge/tests/test_iwe_seed.py:110` —
-  `test_scaffold_support_files_match_the_publisher_workspace`
-- `py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py:29`
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#workspace-setup › "Turn the blank workspace into this project's memory. The"`
+  — setup's assumption that a blank workspace already exists
+- `docs/knowledge/tests/test_iwe_seed.py::SCAFFOLD` — `SCAFFOLD`, the packaged
+  asset root the seed tests copy
+- `docs/knowledge/tests/test_iwe_seed.py::test_scaffold_support_files_match_the_publisher_workspace`
+  — `test_scaffold_support_files_match_the_publisher_workspace`
+- `py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py::SKILL_ASSETS_DIR`
   — `SKILL_ASSETS_DIR`, the skill asset tree the reference scan skips
-- `.github/workflows/validate-agent-files.yml:82` — pinned `iwe` install for the
-  plugin tests
-- `.iwe/config.toml:17` — root-relative IWE workspace path contract
-- `docs/knowledge/data/spec/template-consumption.md:279` — current reusable seed
-  requirement
-- `docs/knowledge/data/spec/template-consumption.md:292` — current fresh IWE
-  adoption requirement
-- `docs/knowledge/data/spec/template-consumption.md:321` — current
-  consumer-knowledge survival requirement, including the IWE-declined scenario
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:225` — update
-  mode's bar on bootstrap and on publisher-data and scaffold changes
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:912`
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.name`
+  — pinned `iwe` install for the plugin tests
+- `.iwe/config.toml › "docs/knowledge"` — root-relative IWE workspace path
+  contract
+- `docs/knowledge/data/spec/template-consumption.md#scenario-guidance-may-not-break-the-tense-split › "tense split regardless of the guidance"`
+  — current reusable seed requirement
+- `docs/knowledge/data/spec/template-consumption.md#scenario-agent-devcontainer-source-is-unavailable › "adoption makes no request to another repository"`
+  — current fresh IWE adoption requirement
+- `docs/knowledge/data/spec/template-consumption.md#scenario-required-onboarding-input-is-pending`
+  — current consumer-knowledge survival requirement, including the IWE-declined
+  scenario
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "Never re-initialize or re-onboard."`
+  — update mode's bar on bootstrap and on publisher-data and scaffold changes
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#when-iwe-is-declined`
   — declining IWE skips bootstrap and onboarding

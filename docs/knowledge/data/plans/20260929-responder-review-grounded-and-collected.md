@@ -217,24 +217,24 @@ document by Task 4.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-07):
-
-- `.github/actions/run-claude-responder/action.yml:95` —
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` —
   `Run devcontainer lifecycle scripts`, which writes the user-scope settings
-- `.github/actions/run-claude-responder/action.yml:112` —
-  `Merge Claude settings`, the three-layer merge at line 124
-- `.github/actions/run-claude-responder/action.yml:147` — `Claude Responder`,
-  with the `settings:` input at line 154
-- `.devcontainer/scripts/reinstall-agentdev-claude.sh:15` — local scope by
-  default; the marketplace guard at line 21
-- `.devcontainer/scripts/postCreateCommand.sh:91` — the user-scope install
-- `.claude/settings.json:49` — the project `enabledPlugins` block
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:134` — Step 4's Claude
-  Code foreground dispatch bullet; collect bullet at line 135
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:144` — Step 6's runner
-  reference, with the validator ceiling scoped to Codex
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:157` —
-  `Waiting on Parallel Passes`; foreground dispatch at line 175, Codex budget at
-  177, Codex hard fallback at 178
-- `.github/workflows/ai-responder.yml:437` — `claude-respond`
-  `timeout-minutes: 30`
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` —
+  `Merge Claude settings`, the three-layer merge
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` —
+  `Claude Responder`, with the `settings:` input
+- `.devcontainer/scripts/reinstall-agentdev-claude.sh › "${2:-local}"` — local
+  scope by default; the marketplace guard
+- `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/reinstall-agentdev-claude.sh"`
+  — the user-scope install
+- `.claude/settings.json › "enabledPlugins"` — the project `enabledPlugins`
+  block
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "On Claude Code the foreground dispatch returns with every"`
+  — Step 4's Claude Code foreground dispatch bullet; collect bullet
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "carrying every surviving candidate at once and returning a"`
+  — Step 6's runner reference, with the validator ceiling scoped to Codex
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "and all validated inline findings as"`
+  — `Waiting on Parallel Passes`; foreground dispatch, Codex budget at 177,
+  Codex hard fallback at 178
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.timeout-minutes` —
+  `claude-respond` `timeout-minutes: 30`

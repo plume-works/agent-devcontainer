@@ -435,49 +435,60 @@ PR documentation states that cross-fork stacks are not supported.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
-
-- `AGENTS.md:5` — no GitHub API ref updates
-- `AGENTS.md:6` — never force-push, except `gh stack` on stack branches
-- `AGENTS.md:11` — Best Practice 0, no git config changes except the `gh stack`
-  pair
-- `docs/knowledge/data/product.md:119` — authoring rule, no API ref updates
-- `docs/knowledge/data/product.md:123` — authoring rule, force-push exception
-- `docs/knowledge/data/product.md:125` — authoring rule, git config exception
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:42` — stack detection and
-  the lowest-unmerged-layer test
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — never force-push
-  outside `gh stack push`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:111` — Disable Auto-Merge
-  Once
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:217` — Final Squash Merge
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:230` —
-  `gh stack merge <pr> --yes --squash`
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:72` — the single
-  stack merge
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:63` —
-  conflicted stacked PR resolved with `gh stack rebase`
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:68` —
-  conflicted PR outside a stack merges its `baseRefName`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:33` — never force-push
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:57` — Workflow 0,
-  refuse a stack branch
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220` — stack branch pushed
-  with `gh stack push`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:260` — never force-push
-  outside `gh stack push`
-- `.agents/plugins/agentdev/README.md:76` — gh-stack row
-- `.agents/plugins/agentdev/README.md:85` — pr-merge row
-- `.agents/plugins/agentdev/README.md:86` — pr-merge-stack row
-- `.agents/plugins/agentdev/tests/test_gh_stack_vendored_version.py:22` —
-  vendored-version test
-- `ansible/roles/github_cli/defaults/main.yml:5` — `github_cli_gh_stack_version`
-- `ansible/roles/github_cli/tasks/main.yml:93` — Install the pinned gh-stack
+- `AGENTS.md#agents-guidelines › "NEVER use GitHub API or GitHub MCP tools to update branch"`
+  — no GitHub API ref updates
+- `AGENTS.md#agents-guidelines › "docs/knowledge/data/architecture/stacked-prs.md"`
+  — never force-push, except `gh stack` on stack branches
+- `AGENTS.md#best-practices-for-agents › "NEVER change git config on local or global level unless"`
+  — Best Practice 0, no git config changes except the `gh stack` pair
+- `docs/knowledge/data/product.md#authoring-rules › "Never use the GitHub API/MCP tools to update branch refs or"`
+  — authoring rule, no API ref updates
+- `docs/knowledge/data/product.md#authoring-rules › "Never force-push, except"`
+  — authoring rule, force-push exception
+- `docs/knowledge/data/product.md#authoring-rules › "Never change git config (local or global) or switch/change"`
+  — authoring rule, git config exception
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "--jq '{stack: .stack.number, trunk: .stack.base.ref, base"`
+  — stack detection and the lowest-unmerged-layer test
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "and never update its base branch unless"`
+  — never force-push outside `gh stack push`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#disable-auto-merge-once` —
+  Disable Auto-Merge Once
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#final-squash-merge` — Final
+  Squash Merge
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#final-squash-merge › "gh stack merge <pr> --yes --squash"`
+  — `gh stack merge <pr> --yes --squash`
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md#land-the-stack › "gh stack merge <top-pr> --yes --squash"`
+  — the single stack merge
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "mergeStateStatus"`
+  — conflicted stacked PR resolved with `gh stack rebase`
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "mergeStateStatus"`
+  — conflicted PR outside a stack merges its `baseRefName`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#safety-rules › "NEVER force-push as part of this workflow."`
+  — never force-push
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-0-refuse-a-stack-branch`
+  — Workflow 0, refuse a stack branch
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch › "If either prints anything, push the stack with"`
+  — stack branch pushed with `gh stack push`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch › "and never update the branch ref"`
+  — never force-push outside `gh stack push`
+- `.agents/plugins/agentdev/README.md#using-it › "commands appear in the"` —
+  gh-stack row
+- `.agents/plugins/agentdev/README.md#agents` — pr-merge row
+- `.agents/plugins/agentdev/README.md#agents › "| Agent | Use it for |"` —
+  pr-merge-stack row
+- `.agents/plugins/agentdev/tests/test_gh_stack_vendored_version.py::test_vendored_skill_matches_pinned_extension`
+  — vendored-version test
+- `ansible/roles/github_cli/defaults/main.yml#github_cli_gh_stack_version` —
+  `github_cli_gh_stack_version`
+- `ansible/roles/github_cli/tasks/main.yml#name` — Install the pinned gh-stack
   extension
-- `.github/workflows/reformat.yml:367` — git-auto-commit push to the PR head
-- `.github/workflows/ai-responder.yml:19` — `pull_request` triggers, including
-  `synchronize`
-- `.github/workflows/ai-responder.yml:509` — `ai-review-present` gate job
-- `docs/knowledge/data/spec/pr-merge-conflicts.md:50` — Scenario: Stacked PR
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:31` — skills
-  map row for pull-request skills
+- `.github/workflows/reformat.yml#jobs.commit-format-changes.steps.Commit Super-Linter patch.uses`
+  — git-auto-commit push to the PR head
+- `.github/workflows/ai-responder.yml#on.pull_request` — `pull_request`
+  triggers, including `synchronize`
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present` gate job
+- `docs/knowledge/data/spec/pr-merge-conflicts.md#scenario-stacked-pr` —
+  Scenario: Stacked PR
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md#public-surface › "| Git and pull requests | 15 |"`
+  — skills map row for pull-request skills

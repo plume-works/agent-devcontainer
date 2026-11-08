@@ -89,14 +89,14 @@ claim is split into the three parts using only what the claim itself states; a
 part the claim does not state stays empty, and the prompt carries the parts in
 place of the claim.
 
-| ID  | Source run      | Location                                       | Claim (verbatim)                                                                                                                                                                                                                                                                       | Expected under A+B+C                  |
-| --- | --------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| F1  | #199 variant 1  | `.github/workflows/renovate.yml:52`            | The new `checkbox`/`main` concurrency-group split removes mutual exclusion between Renovate invocations. A scheduled, push, or manual run can overlap a checkbox-triggered run, allowing both write-capable Renovate jobs to operate on the same repository and branches concurrently. | Discarded at Step 5: no Outcome       |
-| F2  | #199 variant 2  | `.github/workflows/renovate.yml:51`            | Splitting checkbox edits into Renovate-checkbox while schedule, push, and manual runs use Renovate-main removes serialization of the same write-capable Renovate job, allowing concurrent runs to race on Renovate branches, PR bodies, and the dashboard.                             | `CONFIRM`                             |
-| F3  | #203 variant 1  | `.devcontainer/scripts/postStartCommand.sh:12` | The gh authentication check runs before the GNOME Keyring session is established or loaded, so keyring-backed authentication is missed and the Git credential helper remains unconfigured.                                                                                             | `CONFIRM`                             |
-| F4  | #203 variant 1  | `.devcontainer/devcontainer-init.sh:35`        | The host-side initializeCommand unconditionally invokes sha256sum, so devcontainer startup fails on stock macOS hosts where only shasum is available.                                                                                                                                  | `CONFIRM`                             |
-| F5  | #203 variant 2  | `.devcontainer/scripts/seed-agent-auth.sh:13`  | When no seed is supplied, the early return skips repairing permissions on an existing credential.                                                                                                                                                                                      | Discarded at Step 5: no Outcome       |
-| F6  | #203 baseline 1 | `.devcontainer/devcontainer-init.sh:36`        | Uses `/tmp` for the credential-transfer directory despite the repository rule requiring `./.tmp`.                                                                                                                                                                                      | No more confirms than the current arm |
+| ID  | Source run      | Location                                                                                               | Claim (verbatim)                                                                                                                                                                                                                                                                       | Expected under A+B+C                  |
+| --- | --------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| F1  | #199 variant 1  | `.github/workflows/renovate.yml#jobs.renovate`                                                         | The new `checkbox`/`main` concurrency-group split removes mutual exclusion between Renovate invocations. A scheduled, push, or manual run can overlap a checkbox-triggered run, allowing both write-capable Renovate jobs to operate on the same repository and branches concurrently. | Discarded at Step 5: no Outcome       |
+| F2  | #199 variant 2  | `.github/workflows/renovate.yml#jobs.renovate`                                                         | Splitting checkbox edits into Renovate-checkbox while schedule, push, and manual runs use Renovate-main removes serialization of the same write-capable Renovate job, allowing concurrent runs to race on Renovate branches, PR bodies, and the dashboard.                             | `CONFIRM`                             |
+| F3  | #203 variant 1  | `.devcontainer/scripts/postStartCommand.sh › "initializeCommand rewrites the transfer files on every"` | The gh authentication check runs before the GNOME Keyring session is established or loaded, so keyring-backed authentication is missed and the Git credential helper remains unconfigured.                                                                                             | `CONFIRM`                             |
+| F4  | #203 variant 1  | `.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"`                                 | The host-side initializeCommand unconditionally invokes sha256sum, so devcontainer startup fails on stock macOS hosts where only shasum is available.                                                                                                                                  | `CONFIRM`                             |
+| F5  | #203 variant 2  | `.devcontainer/scripts/seed-agent-auth.sh::seed_credential`                                            | When no seed is supplied, the early return skips repairing permissions on an existing credential.                                                                                                                                                                                      | Discarded at Step 5: no Outcome       |
+| F6  | #203 baseline 1 | `.devcontainer/devcontainer-init.sh › "$script_dir/scripts/prepare-agent-auth-seed.sh"`                | Uses `/tmp` for the credential-transfer directory despite the repository rule requiring `./.tmp`.                                                                                                                                                                                      | No more confirms than the current arm |
 
 F1–F5 are correctness candidates and F6 is a compliance candidate. F6 was
 confirmed in the #203 baseline but judged noise by the maintainer. The
@@ -112,16 +112,20 @@ F5:
 - **Trigger:** `postCreateCommand.sh` runs `seed-agent-auth.sh` with no seed
   file while an agent credential already exists at the target path with a mode
   looser than `0600`.
-- **Path:** `.devcontainer/scripts/seed-agent-auth.sh:13-16` returns before the
-  `chmod 600 "$target"` at `:25`.
+- **Path:** `.devcontainer/scripts/seed-agent-auth.sh::seed_credential` returns
+  before the `chmod 600 "$target"` at
+  `.devcontainer/scripts/seed-agent-auth.sh::seed_credential`.
 - **Outcome:** the existing credential stays readable beyond its owner.
 
 F5′'s Outcome is false as written, so it is expected to drop naming `outcome`:
-at `84d4584`, `postCreateCommand.sh:71` sets both credential parent directories
-to `0700` before `:72` runs `seed-agent-auth.sh`, so a loose-mode credential is
-not readable beyond its owner. F5′ is therefore a natural negative control, and
-F2 is the only confirmed counterpart of a discarded candidate. The maintainer
-excludes F5′ from evaluation; see `## Verification`.
+at `84d4584`,
+`.devcontainer/scripts/postCreateCommand.sh › "chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex"`
+sets both credential parent directories to `0700` before
+`.devcontainer/scripts/postCreateCommand.sh › "$script_dir/seed-agent-auth.sh"`
+runs `seed-agent-auth.sh`, so a loose-mode credential is not readable beyond its
+owner. F5′ is therefore a natural negative control, and F2 is the only confirmed
+counterpart of a discarded candidate. The maintainer excludes F5′ from
+evaluation; see `## Verification`.
 
 A finding is **real** when the pull request as merged contains a fix that
 matches it; a finding with no matching merged fix is judged by the maintainer.
@@ -132,15 +136,18 @@ The spike produced no correctness candidate judged noise, so the new arm's
 negative controls are real findings with exactly one part broken. Each must be
 dropped, and the drop must name the broken part:
 
-| ID  | Built from | Broken part | Replaced with                                                                                                   |
-| --- | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------- |
-| M1  | F4         | Trigger     | `initializeCommand` runs on a Linux host with GNU coreutils installed.                                          |
-| M2  | F3         | Path        | `postStartCommand.sh:14` runs `setup-gh-credential-helper.sh` after `setup-keyring.sh` has started the keyring. |
-| M3  | F2         | Outcome     | The checkbox and main runs appear under separate concurrency-group names in the Actions run list.               |
+| ID  | Built from | Broken part | Replaced with                                                                                                                                                          |
+| --- | ---------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M1  | F4         | Trigger     | `initializeCommand` runs on a Linux host with GNU coreutils installed.                                                                                                 |
+| M2  | F3         | Path        | `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-pre-commit.sh"` runs `setup-gh-credential-helper.sh` after `setup-keyring.sh` has started the keyring. |
+| M3  | F2         | Outcome     | The checkbox and main runs appear under separate concurrency-group names in the Actions run list.                                                                      |
 
 At `84d4584`, GNU `sha256sum` is present on such a host, the helper runs at
-`postStartCommand.sh:12` and the keyring at `:14`, and separate group names are
-harmless, so each mutant fails only in its broken part.
+`.devcontainer/scripts/postStartCommand.sh › "initializeCommand rewrites the transfer files on every"`
+and the keyring at
+`.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-pre-commit.sh"`,
+and separate group names are harmless, so each mutant fails only in its broken
+part.
 
 ## Implementation Steps
 
@@ -150,7 +157,7 @@ harmless, so each mutant fails only in its broken part.
   expected verdict in the frozen-candidate table. Closed by: the maintainer.
   - **Evidence:** F5 is real under the merged-fix rule in `## Approach`: the
     #203 squash merge `a5bf422` adds the `chmod 600` repair to the early return
-    at `.devcontainer/scripts/seed-agent-auth.sh:13`.
+    at `.devcontainer/scripts/seed-agent-auth.sh::seed_credential`.
 
 ### Task 2: Ship the reachable-scenario correctness bar
 
@@ -270,9 +277,11 @@ harmless, so each mutant fails only in its broken part.
 - [x] Each unmatched correctness finding is marked real or noise by the
   merged-fix rule in `## Approach`, and by the maintainer where no merged fix
   matches. Closed by: the maintainer.
-  - **Evidence:** the maintainer judged both `devcontainer-init.sh:35` findings
-    real and the `seed-agent-auth.sh:13` finding the F5 fault with an overstated
-    outcome, recorded under `### Full replays` in the
+  - **Evidence:** the maintainer judged both
+    `.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"`
+    findings real and the
+    `.devcontainer/scripts/seed-agent-auth.sh::seed_credential` finding the F5
+    fault with an overstated outcome, recorded under `### Full replays` in the
     `docs(plan): record the maintainer's full-replay judgments` commit.
 
 ### Task 9: Record the decision
@@ -319,9 +328,9 @@ The change ships when all of the following hold:
 By the maintainer's decision, two checks do not gate shipping:
 
 - **Permission findings are excluded from evaluation:** F5′ and the
-  `seed-agent-auth.sh:13` full-replay finding. Whether a loose-mode credential
-  is exposed depends on directory modes set by another script, and validators do
-  not resolve that consistently.
+  `.devcontainer/scripts/seed-agent-auth.sh::seed_credential` full-replay
+  finding. Whether a loose-mode credential is exposed depends on directory modes
+  set by another script, and validators do not resolve that consistently.
 - **The M1–M3 negative controls are recorded, not gating:** validators judge
   whether the fault is real rather than whether each stated part holds (see
   `### Validator-only replay, parts as written`).
@@ -401,24 +410,26 @@ Each run used `codex exec` with `gpt-5.6-sol`, medium model reasoning,
 skill; a run interrupted by a usage limit resumed in its own session. Session
 records keep every pass and validator, with validators on `gpt-5.6-terra`.
 
-| Run    | Candidates | Validated | Known-key matches  | Unmatched correctness                              |
-| ------ | ---------- | --------- | ------------------ | -------------------------------------------------- |
-| #199 1 | 19         | 9         | K1                 | None                                               |
-| #199 2 | 8          | 5         | K1                 | None                                               |
-| #203 1 | 23         | 11        | K2, K3, K4, K5, K6 | `devcontainer-init.sh:35`; `seed-agent-auth.sh:13` |
-| #203 2 | 42         | 34        | K2, K3, K4, K5, K6 | `devcontainer-init.sh:35`                          |
+| Run    | Candidates | Validated | Known-key matches  | Unmatched correctness                                                                                                               |
+| ------ | ---------- | --------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| #199 1 | 19         | 9         | K1                 | None                                                                                                                                |
+| #199 2 | 8          | 5         | K1                 | None                                                                                                                                |
+| #203 1 | 23         | 11        | K2, K3, K4, K5, K6 | `.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"`; `.devcontainer/scripts/seed-agent-auth.sh::seed_credential` |
+| #203 2 | 42         | 34        | K2, K3, K4, K5, K6 | `.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"`                                                              |
 
 As in the spike's scoring, a K3 finding naming the missing per-start consumer
 also covers K6, and K5 is matched by its launcher fallback at
-`claude-remote-control-start.sh:12`. No correctness candidate was dropped. The
-maintainer judged the unmatched findings:
+`.devcontainer/scripts/claude-remote-control-start.sh`. No correctness candidate
+was dropped. The maintainer judged the unmatched findings:
 
-- **`devcontainer-init.sh:35` (#203 1 and 2): real.** `a5bf422` adds the
-  `shasum` fallback in `workspace-seed-key.sh:5-8`.
-- **`seed-agent-auth.sh:13` (#203 1): real, with an overstated outcome.** It is
-  the F5 fault, which `a5bf422` repairs, but its stated outcome — the credential
-  readable by other users — is F5′'s, and `postCreateCommand.sh:71` prevents it.
-  The validator confirmed an Outcome that is false as written.
+- **`.devcontainer/devcontainer-init.sh › "export AGENTDEV_AUTH_SEED_DIR"` (#203
+  1 and 2): real.** `a5bf422` adds the `shasum` fallback in
+  `.devcontainer/scripts/workspace-seed-key.sh › "if command -v sha256sum >/dev/null 2>&1; then"`.
+- **`.devcontainer/scripts/seed-agent-auth.sh::seed_credential` (#203 1): real,
+  with an overstated outcome.** It is the F5 fault, which `a5bf422` repairs, but
+  its stated outcome — the credential readable by other users — is F5′'s, and
+  `.devcontainer/scripts/postCreateCommand.sh › "chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex"`
+  prevents it. The validator confirmed an Outcome that is false as written.
 
 None is noise, so the full-replay criteria in `## Verification` hold.
 
@@ -435,36 +446,38 @@ None is noise, so the full-replay criteria in `## Verification` hold.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
-
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:47` — Correctness focus
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — read beyond the diff
-  at the head commit
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:57` — reachable-scenario
-  condition
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:65` — three-part scenario:
-  Trigger, Path, Outcome
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:109` — validation row of
-  the slot matrix
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — Step 4 pass
-  dispatch and output shape
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:135` — Step 5 discard of
-  incomplete scenarios, merge, and deduplicate
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:137` — the single
-  validator prompt
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` — the validator
-  re-derives the claim; bar by candidate shape
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — part-by-part
-  scenario bar
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:141` — stated intent is
-  evidence, not a verdict
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:142` — "Never argue the
-  verdict in the prompt"
-- `docs/knowledge/data/architecture/pr-review-effort-tiers.md:98` — "Validation
-  runs light at every effort level"
-- `7e0413d:.github/workflows/renovate.yml:46` — comment presenting the
-  concurrency split as deliberate (K1)
-- `84d4584:.devcontainer/scripts/postCreateCommand.sh:71` — `chmod 700` on both
-  credential parent directories, before `:72` runs `seed-agent-auth.sh` (F5′)
-- `84d4584:.devcontainer/scripts/seed-agent-auth.sh:13` — early return with no
-  seed, before the `chmod 600 "$target"` at `:25` (F5, F5′)
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "bug-hunting) — runs on the model the effort matrix gives"`
+  — Correctness focus
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "Start from the diff, then read at the head commit the code"`
+  — read beyond the diff at the head commit
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "A reachable scenario produces a wrong outcome: you can name"`
+  — reachable-scenario condition
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "Flag only significant bugs; ignore nitpicks and likely false"`
+  — three-part scenario: Trigger, Path, Outcome
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "| validation | one batch, light | per-candidate, light |"`
+  — validation row of the slot matrix
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "— each pass sees the diff, the PR title, the PR description"`
+  — Step 4 pass dispatch and output shape
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Collect the candidate findings from all passes that"`
+  — Step 5 discard of incomplete scenarios, merge, and deduplicate
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "It carries the candidate's file and line, the added text"`
+  — the single validator prompt
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "from the files rather than trust it. The bar follows the"`
+  — the validator re-derives the claim; bar by candidate shape
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "against the head commit, in order: the Trigger can actually"`
+  — part-by-part scenario bar
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "A code comment or PR description presenting a behavior as"`
+  — stated intent is evidence, not a verdict
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Supplying reasons a candidate might not hold, or casting the"`
+  — "Never argue the verdict in the prompt"
+- `docs/knowledge/data/architecture/pr-review-effort-tiers.md#validation-runs-light-at-every-effort-level`
+  — "Validation runs light at every effort level"
+- `7e0413d:.github/workflows/renovate.yml#jobs.renovate` — comment presenting
+  the concurrency split as deliberate (K1)
+- `84d4584:.devcontainer/scripts/postCreateCommand.sh › "chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex"`
+  — `chmod 700` on both credential parent directories, before
+  `.devcontainer/scripts/postCreateCommand.sh › "$script_dir/seed-agent-auth.sh"`
+  runs `seed-agent-auth.sh` (F5′)
+- `84d4584:.devcontainer/scripts/seed-agent-auth.sh::seed_credential` — early
+  return with no seed, before the `chmod 600 "$target"` at
+  `.devcontainer/scripts/seed-agent-auth.sh::seed_credential` (F5, F5′)

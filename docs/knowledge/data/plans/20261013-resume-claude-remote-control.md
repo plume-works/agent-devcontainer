@@ -91,7 +91,8 @@ stored ID".
 - [x] Script: replace `claude_command` with the pane script, located relative to
   `claude-remote-control-start.sh`.
   - **Evidence:** commit "Start the Remote Control pane through the session
-    script": `pane_command` at `claude-remote-control-start.sh:31-35`.
+    script": `pane_command` at
+    `.devcontainer/scripts/claude-remote-control-start.sh › "${BASH_SOURCE[0]}"`.
 - [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_start.py scripts/tests/test_claude_remote_control_session.py`
   green.
@@ -231,20 +232,20 @@ with Remote Control off; running `/remote-control` in the session restores it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-13):
-
-- `.devcontainer/scripts/claude-remote-control-start.sh:29-35` — `session`,
-  `workspace`, `pane_command` running `claude-remote-control-session.sh` with
-  the optional `CODER_WORKSPACE_NAME` name
-- `.devcontainer/scripts/claude-remote-control-start.sh:42-44` — `tmux_start`,
-  the pane command with `env -u CLAUDE_CODE_OAUTH_TOKEN`
-- `.devcontainer/scripts/claude-remote-control-session.sh:5` — `id_file`, the
+- `.devcontainer/scripts/claude-remote-control-start.sh › "claude-remote"` —
+  `session`, `workspace`, `pane_command` running
+  `claude-remote-control-session.sh` with the optional `CODER_WORKSPACE_NAME`
+  name
+- `.devcontainer/scripts/claude-remote-control-start.sh › "Setup tokens cannot establish Remote Control; keep one out"`
+  — `tmux_start`, the pane command with `env -u CLAUDE_CODE_OAUTH_TOKEN`
+- `.devcontainer/scripts/claude-remote-control-session.sh` — `id_file`, the
   stored conversation ID
-- `.devcontainer/devcontainer.json:83-84` — the `agentdev-claude` volume mounted
-  at `/root/.claude`
-- `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`
-- `scripts/tests/test_claude_remote_control_start.py:84` —
-  `test_names_session_after_coder_workspace`
-- `scripts/tests/test_claude_remote_control_start.py:128` —
-  `test_real_tmux_starts_claude_without_setup_token`, whose fake `claude`
+- `.devcontainer/devcontainer.json › "agentdev-claude"` — the `agentdev-claude`
+  volume mounted at `/root/.claude`
+- `scripts/tests/test_claude_remote_control_start.py::run_with_fake_tmux` —
+  `run_with_fake_tmux`
+- `scripts/tests/test_claude_remote_control_start.py::test_names_session_after_coder_workspace`
+  — `test_names_session_after_coder_workspace`
+- `scripts/tests/test_claude_remote_control_start.py::test_real_tmux_starts_claude_without_setup_token`
+  — `test_real_tmux_starts_claude_without_setup_token`, whose fake `claude`
   requires `--remote-control` as its first argument

@@ -287,34 +287,39 @@ At `dc890e2`:
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
-
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:122` — step 8, refresh mode
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:168` — step 8's finish
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:173` — `## Script results`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:26` —
-  `USAGE`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —
-  `MetadataResolver`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:299` —
-  `MetadataResolver._for_directory`, the working-tree metadata read
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:355` —
-  `masked_hash`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:364` —
-  `source_digest_for_paths`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:408` —
-  `fold_in_masks`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:444` —
-  `parse_arguments`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:487` —
-  `classify`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:688` —
-  `main`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:43` — `commit_file`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:65` — `build_workspace`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:79` — `write_map_doc`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:86` — `run_script`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
-  `write_metadata`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:507` — Requirement: Map
-  staleness reflects described content
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps › "agent-code/stale-map-docs.py"`
+  — step 8, refresh mode
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps › "rewrite what no longer holds."`
+  — step 8's finish
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps › "also hides a major-version change — an Ubuntu base moving"`
+  — `## Script results`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::USAGE`
+  — `USAGE`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::MetadataResolver`
+  — `MetadataResolver`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::MetadataResolver._for_directory`
+  — `MetadataResolver._for_directory`, the working-tree metadata read
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::universal_newlines`
+  — `masked_hash`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::masked_hash`
+  — `source_digest_for_paths`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::source_digest_for_paths`
+  — `fold_in_masks`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::fold_in_masks`
+  — `parse_arguments`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::parse_arguments`
+  — `classify`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::replay_verdict`
+  — `main`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py::commit_file` —
+  `commit_file`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py::build_workspace` —
+  `build_workspace`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py::write_map_doc` —
+  `write_map_doc`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py::run_script` —
+  `run_script`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py::write_metadata`
+  — `write_metadata`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-map-staleness-reflects-described-content`
+  — Requirement: Map staleness reflects described content

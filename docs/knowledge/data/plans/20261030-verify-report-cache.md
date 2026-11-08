@@ -473,50 +473,55 @@ be a CRITICAL finding.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:1` — frontmatter
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md` — frontmatter
   (`allowed-tools` added)
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:13` —
-  `## From inside iwe-shipper`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:21` — `## From a session`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:40` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:91` — run the plan's
-  `## Verification` commands
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:130` —
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#verify-implementation-against-the-graph › "commit Verify already judged gets that verdict back without"`
+  — `## From inside iwe-shipper`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "in audit mode."`
+  — `## From a session`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "miss printed, the verdict its lead line names —"`
+  — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "scenario is a WARNING). Run the plan's"`
+  — run the plan's `## Verification` commands
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop` —
   `## Running the loop`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:138` — step 1,
-  dispatch `iwe-verifier`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:147` — step 3,
-  dispatch `iwe-verifier` again
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:165` — step 4,
-  Verify again
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:19` — loop summary
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:166` — Verify verdict
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "once the plan's last task closes, through the"`
+  — step 1, dispatch `iwe-verifier`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "/agentdev:iwe-ship"`
+  — step 3, dispatch `iwe-verifier` again
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "conversation turns."`
+  — step 4, Verify again
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#implement-a-plan › "it runs Verify through"`
+  — loop summary
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping."`
+  — step 3, Run Verify
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report` — Verify verdict
   report line
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:19`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py › "sys.path.insert(0, str(Path(__file__).resolve().parents[3] /"`
   — `bin/` path insertion for `result_codes`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:369` —
-  `source_digest_for_paths`, not reused
-- `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root` fixture
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:293` — Implement verifies its
-  own work
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:419` — Normal shipping
-  requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md:15` — `## Decision`
-- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:125` —
-  `parse_arguments`
-- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:173` —
-  `read_frontmatter`
-- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:213` —
-  `run_save`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:39` — the save step
-- `scripts/e2e/iwe-workflows/scenarios.py:17` — `APPROVAL`
-- `scripts/e2e/iwe-workflows/clone.py:266` — `Clone.marker`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:56` —
-  `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:98` —
-  `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:71` —
-  `test_verify_approved`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py::source_digest_for_paths`
+  — `source_digest_for_paths`, not reused
+- `.agents/plugins/agentdev/tests/conftest.py::plugin_root` — `plugin_root`
+  fixture
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-work-is-partial-or-its-evidence-fails › "failing evidence"`
+  — Implement verifies its own work
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-plan-edit-is-audited-before-validation › "children are left out of that audit"`
+  — Normal shipping requires a clean independent verification
+- `docs/knowledge/data/architecture/fresh-context-verify.md#fresh-context-verify`
+  — `## Decision`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py::parse_arguments`
+  — `parse_arguments`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py::read_frontmatter`
+  — `read_frontmatter`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py::run_save`
+  — `run_save`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "the report the run produced, verbatim on stdin, with the"`
+  — the save step
+- `scripts/e2e/iwe-workflows/scenarios.py::APPROVAL` — `APPROVAL`
+- `scripts/e2e/iwe-workflows/clone.py::Clone.gh_calls` — `Clone.marker`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_verify_approved`
+  — `test_verify_approved`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py::test_verify_approved`
+  — `test_verify_approved`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_verify_approved`
+  — `test_verify_approved`

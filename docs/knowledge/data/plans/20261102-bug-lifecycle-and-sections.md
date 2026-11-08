@@ -535,44 +535,56 @@ allowing additional sections. The bug schema SHALL require a `stage` of
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `.iwe/schemas/bug.yaml:15` — `&order-hint` naming the body order
-- `.iwe/schemas/bug.yaml:22` — `Fix` section entry
-- `.iwe/schemas/bug.yaml:25` — `Key references` section entry
-- `.iwe/schemas/bug.yaml:32` — frontmatter `required: [type]`
-- `.iwe/schemas/bug.yaml:36` — `stage` enum `[done, cancelled]`
-- `.iwe/schemas/task.yaml:12` — `stage` enum `[planned, done, cancelled]`
-- `docs/knowledge/SCHEMA.md:44` — `rank` paragraph naming open bugs and planned
-  tasks
-- `docs/knowledge/SCHEMA.md:112` — `## Bugs` section
-- `docs/knowledge/SCHEMA.md:151` — task `stage: planned` line
-- `docs/knowledge/AGENTS.md:22` — build-order sentence
-- `docs/knowledge/AGENTS.md:42` — actionable item `stage: planned`
-- `docs/knowledge/AGENTS.md:50` — work ships bullet
-- `docs/knowledge/AGENTS.md:56` — bug found bullet
-- `docs/knowledge/AGENTS.md:105` — stage vocabularies
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:37` — bug gate in step 3
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:57` — step 4 `stage` per
-  type
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:136` — step 5 sets
-  listed features to `accepted`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:64` — step 2 cancel
-  without shipping
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:128` — step 6 sets
-  listed bugs to `done`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:114` — audit mode's
-  open-bugs bullet
-- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:23` — open-bugs query
-- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:26` — backlog-head query
-- `docs/knowledge/tests/test_body_shape_schemas.py:112` — `bug-out-of-order`
-  case moving `Fix`
-- `docs/knowledge/tests/test_iwe_seed.py:189` — onboarding task stage assertion
-- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:209` — onboarding task
-  stage assertion
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:197` — Requirement: Plans
-  declare their release impact
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:666` — Requirement: Capture
-  files complete inbox documents
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:712` — Requirement: Bug and
-  feature documents keep the SCHEMA.md shape
+- `.iwe/schemas/bug.yaml#sections.header.sections.header.description` —
+  `&order-hint` naming the body order
+- `.iwe/schemas/bug.yaml#sections.header.sections.header` — `Fix` section entry
+- `.iwe/schemas/bug.yaml#sections.header.sections.header.description` —
+  `Key references` section entry
+- `.iwe/schemas/bug.yaml#frontmatter` — frontmatter `required: [type]`
+- `.iwe/schemas/bug.yaml#frontmatter.properties.type` — `stage` enum
+  `[done, cancelled]`
+- `.iwe/schemas/task.yaml#frontmatter.properties.stage.enum` — `stage` enum
+  `[planned, done, cancelled]`
+- `docs/knowledge/SCHEMA.md#the-build-order--rank › "Active plans, pending and planned bugs, and pending backlog"`
+  — `rank` paragraph naming open bugs and planned tasks
+- `docs/knowledge/SCHEMA.md#bugs--databugsslugmd` — `## Bugs` section
+- `docs/knowledge/SCHEMA.md#releases--datareleasesversionmd` — task
+  `stage: planned` line
+- `docs/knowledge/AGENTS.md#start-of-every-session › "active plans, open bugs, and pending tasks together, lowest"`
+  — build-order sentence
+- `docs/knowledge/AGENTS.md#the-operating-loop › "priority), linked from"` —
+  actionable item `stage: planned`
+- `docs/knowledge/AGENTS.md#the-operating-loop › "stage: planned"` — work ships
+  bullet
+- `docs/knowledge/AGENTS.md#the-operating-loop › "removed (it stays listed —"` —
+  bug found bullet
+- `docs/knowledge/AGENTS.md#conventions › "lower first. Ranks step by 100 and an"`
+  — stage vocabularies
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "— an H1 starting"`
+  — bug gate in step 3
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "data/features/<slug>.md"`
+  — step 4 `stage` per type
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › ". Set every proposed feature the plan lists to"`
+  — step 5 sets listed features to `accepted`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Do not verify implementation, synchronize"`
+  — step 2 cancel without shipping
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "rank"` — step 6
+  sets listed bugs to `done`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "Open bugs"` —
+  audit mode's open-bugs bullet
+- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "iwe find --filter '{type: bug, stage: {$in: [pending"`
+  — open-bugs query
+- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "iwe find --filter '{type: task, stage: pending, priority"`
+  — backlog-head query
+- `docs/knowledge/tests/test_body_shape_schemas.py::workspace` —
+  `bug-out-of-order` case moving `Fix`
+- `docs/knowledge/tests/test_iwe_seed.py::test_onboarding_tasks_are_present_and_open`
+  — onboarding task stage assertion
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py::test_installed_graph_carries_what_iwe_setup_needs`
+  — onboarding task stage assertion
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-declare-their-release-impact`
+  — Requirement: Plans declare their release impact
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-capture-files-complete-inbox-documents`
+  — Requirement: Capture files complete inbox documents
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-bug-and-feature-documents-keep-the-schemamd-shape`
+  — Requirement: Bug and feature documents keep the SCHEMA.md shape

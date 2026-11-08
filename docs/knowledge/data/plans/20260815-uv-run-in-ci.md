@@ -30,8 +30,9 @@ practices two:
 - `.github/actions/setup-python-venv` still builds an in-tree virtualenv,
   activates it, and exports `VIRTUAL_ENV` and `GITHUB_PATH` so its callers can
   invoke bare tools.
-- `validate-agent-files.yml:70-76` duly calls bare `pytest` and bare
-  `validate_agent_files`, which work *only* because of that activation.
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.Test validate_agent_files.run`
+  duly calls bare `pytest` and bare `validate_agent_files`, which work *only*
+  because of that activation.
 
 A parallel branch (`no-venv-openspec`, PR #60) reached the same destination from
 the other end — it rewrote CI and left richer analysis behind. This plan takes
@@ -61,11 +62,11 @@ developer's `pyproject.toml` can legitimately be mid-edit, so a *check* can
 mutate the environment as a side effect.
 
 Verified against this branch while writing:
-`.devcontainer/docker-compose.yml:108` pins a literal `name:` only for
-`agentdev-agents-auth`, so the `agentdev-uv` volume is Compose-project-scoped
-and the fixed `/uv/venvs/ws-project` path holds. `pyproject.toml` declares no
-`[project.optional-dependencies]`, so `--all-extras` is a consistency flag
-rather than a behavior change.
+`.devcontainer/docker-compose.yml#volumes.agentdev-agents-auth.name` pins a
+literal `name:` only for `agentdev-agents-auth`, so the `agentdev-uv` volume is
+Compose-project-scoped and the fixed `/uv/venvs/ws-project` path holds.
+`pyproject.toml` declares no `[project.optional-dependencies]`, so
+`--all-extras` is a consistency flag rather than a behavior change.
 
 ## Approach
 
@@ -98,10 +99,11 @@ stay different; only the *invocation* contract is unified.
 
 - [x] **1. Stop activating the environment in `setup-python-venv`.** Delete the
   `Restore venv cache`, `Create venv`, and `Activate venv` steps from
-  `.github/actions/setup-python-venv/action.yml:26-45`, along with the
-  `zizmor: ignore[github-env]` comment that only existed to permit the
-  `VIRTUAL_ENV` export. Update `description:` to say the action provisions
-  Python, uv, and a synced environment, and that callers must use `uv run`.
+  `.github/actions/setup-python-venv/action.yml#runs.steps.Install uv.with`,
+  along with the `zizmor: ignore[github-env]` comment that only existed to
+  permit the `VIRTUAL_ENV` export. Update `description:` to say the action
+  provisions Python, uv, and a synced environment, and that callers must use
+  `uv run`.
 - [x] **2. Move caching from the environment to uv's package cache.** Set
   `enable-cache: true` on the `astral-sh/setup-uv` step and delete the
   `# we just cache the venv-dir directly` comment above it, which Task 1 makes
@@ -118,15 +120,17 @@ stay different; only the *invocation* contract is unified.
   putting the interpreter on `PATH`, the job fails outright rather than silently
   downloading one.
 - [x] **4. Route `validate-agent-files.yml` through `uv run`.** Prefix the three
-  steps at `.github/workflows/validate-agent-files.yml:70-76` — `pytest` ×2 and
+  steps at
+  `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files.steps.Test validate_agent_files.run`
+  — `pytest` ×2 and
   `validate_agent_files --recommend . --require-marketplace claude codex` — with
   `uv run`. Must land with Tasks 1–3; bare tools break the moment activation is
   gone.
 - [x] **5. Align the in-container sync in `ci.yml`.** At
-  `.github/workflows/ci.yml:272`, make it
-  `uv sync --locked --all-groups --all-extras` to match Task 3. Then correct the
-  comment at lines 265-267: it claims the `validate_agent_files` identity check
-  must run *before* `uv sync` "so the project environment cannot mask a missing
+  `.github/workflows/ci.yml#jobs.dev-container-ci.steps.Build and test dev container image.with.runCmd`,
+  make it `uv sync --locked --all-groups --all-extras` to match Task 3. Then
+  correct the comment: it claims the `validate_agent_files` identity check must
+  run *before* `uv sync` "so the project environment cannot mask a missing
   install". Nothing activates an environment any more, so the environment can no
   longer mask the image's copy — the ordering constraint it documents no longer
   exists, though the check itself stays.

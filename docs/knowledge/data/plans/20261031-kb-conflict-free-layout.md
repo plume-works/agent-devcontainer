@@ -614,67 +614,75 @@ convention.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `.iwe/config.toml:93` — hub schema binding over every directory hub
-- `.iwe/config.toml:113` — OKF bindings `okf`, `okf-index`, `okf-log`
-- `.iwe/schemas/hub.yaml:1` — hub schema, frontmatter only
-- `.iwe/schemas/plan.yaml:12` — plan `stage`
-- `.iwe/schemas/task.yaml:14` — task `priority`
-- `.iwe/schemas/release.yaml:15` — release `stage` enum with `unreleased`
-- `.iwe/schemas/okf-log.yaml:1` — date-grouped log body schema
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:54` — Ship reads the hub
-  section, unreleased page, and today's log group
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:65` — cancellation moves
-  the hub link to `## Cancelled`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:123` — graph
-  transitions: hub move, unreleased link, log bullet
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:150` — release cut
-  renames the unreleased page
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:69` — hub link under a
-  priority section
-- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md:96` — someday promotion
-  moves the hub link
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:39` — active plans by
-  `--included-by data/plans`
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:128` — plan filed under
-  `## Active`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:32` — plan choice
-  from `## Active`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:46` — plan choice from
-  `## Active`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:118` — audit checks
-  done plans under `## Active`
-- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:15` — shipped plans by
-  `--included-by data/plans`
-- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:18` — in-flight plans
-  from `## Active`
-- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:22` — backlog head from
-  `## High`
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:50` — onboarding tasks
-  moved to `## Done`
-- `docs/knowledge/AGENTS.md:35` — the Record step's hub and log transitions
-- `docs/knowledge/AGENTS.md:83` — inclusion-link, `data/index.md`, dual
-  representation, and OKF conventions
-- `docs/knowledge/AGENTS.md:202` — cheatsheet `--included-by` queries
-- `docs/knowledge/SCHEMA.md:42` — `stage` versus OKF `status`
-- `docs/knowledge/SCHEMA.md:60` — reserved files `data/index.md` and
+- `.iwe/config.toml › "Directory hubs. OKF conformance requires every non-reserved"`
+  — hub schema binding over every directory hub
+- `.iwe/config.toml › "OKF v0.2 conformance (SPEC §11). okf stacks on top of the"`
+  — OKF bindings `okf`, `okf-index`, `okf-log`
+- `.iwe/schemas/hub.yaml › "$schema: https://document-schema.org/draft/2026-06/schema"`
+  — hub schema, frontmatter only
+- `.iwe/schemas/plan.yaml#frontmatter.properties.stage` — plan `stage`
+- `.iwe/schemas/task.yaml#frontmatter.properties.priority` — task `priority`
+- `.iwe/schemas/release.yaml#frontmatter.properties.stage` — release `stage`
+  enum with `unreleased`
+- `.iwe/schemas/okf-log.yaml › "$schema: https://document-schema.org/draft/2026-06/schema"`
+  — date-grouped log body schema
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Read the current plan frontmatter and its exact hub section"`
+  — Ship reads the hub section, unreleased page, and today's log group
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Do not verify implementation, synchronize"`
+  — cancellation moves the hub link to `## Cancelled`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Apply graph transitions idempotently."`
+  — graph transitions: hub move, unreleased link, log bullet
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Cut a release only when the operation is"`
+  — release cut renames the unreleased page
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps › "with an inclusion link — a markdown link on its own"`
+  — hub link under a priority section
+- `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#promoting-a-someday-idea › "iwe rename data/someday/<slug> data/backlog/<slug>"`
+  — someday promotion moves the hub link
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "iwe find --included-by data/plans -f keys"`
+  — active plans by `--included-by data/plans`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › ". A plan whose work users see but that no"`
+  — plan filed under `## Active`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "most recently created first) and ask"`
+  — plan choice from `## Active`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "one, list the plans under"`
+  — plan choice from `## Active`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "Consistency: plans with"`
+  — audit checks done plans under `## Active`
+- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "iwe find --filter '{stage: done}' --included-by data/plans"`
+  — shipped plans by `--included-by data/plans`
+- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "Active plans (no"`
+  — in-flight plans from `## Active`
+- `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "data/backlog.md"`
+  — backlog head from `## High`
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps › "and move their links in"`
+  — onboarding tasks moved to `## Done`
+- `docs/knowledge/AGENTS.md#the-operating-loop › "— write the state back"` — the
+  Record step's hub and log transitions
+- `docs/knowledge/AGENTS.md#conventions › "= a markdown link on its own line — it makes the target a"`
+  — inclusion-link, `data/index.md`, dual representation, and OKF conventions
+- `docs/knowledge/AGENTS.md#iwe-cli-cheatsheet › "iwe find --included-by data/plans -f keys # all docs under a"`
+  — cheatsheet `--included-by` queries
+- `docs/knowledge/SCHEMA.md#stage-versus-status` — `stage` versus OKF `status`
+- `docs/knowledge/SCHEMA.md#reserved-files` — reserved files `data/index.md` and
   `data/log.md`
-- `docs/knowledge/SCHEMA.md:188` — hubs and their sections
-- `docs/knowledge/STRUCTURE.md:37` — hub membership is a link
-- `docs/knowledge/tests/test_iwe_seed.py:110` — scaffold support files must
-  match the publisher workspace
-- `docs/knowledge/tests/test_iwe_seed.py:178` — onboarding tasks are present and
-  open
-- `scripts/e2e/iwe-workflows/clone.py:34` — `UNRELEASED` accumulator path
-- `scripts/e2e/iwe-workflows/clone.py:325` — `unreleased_diff`
-- `.github/workflows/validate-knowledge-base.yml:93` — schema validation and
-  normalization steps
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:185` — Requirement: Plans
-  declare their release impact
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:537` — Requirement: Ship
-  synchronizes durable specs by intelligent merge
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:834` — Requirement: Capture
-  files complete inbox documents
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:893` — Requirement: Workflow
-  improvements preserve the IWE and OKF model
+- `docs/knowledge/SCHEMA.md#hubs-and-the-trackers` — hubs and their sections
+- `docs/knowledge/STRUCTURE.md#design-decisions › "Hub + directory; membership is a link."`
+  — hub membership is a link
+- `docs/knowledge/tests/test_iwe_seed.py::test_scaffold_is_complete` — scaffold
+  support files must match the publisher workspace
+- `docs/knowledge/tests/test_iwe_seed.py::test_checked_in_seed_matches_normalized_output`
+  — onboarding tasks are present and open
+- `scripts/e2e/iwe-workflows/clone.py::UNRELEASED` — `UNRELEASED` accumulator
+  path
+- `scripts/e2e/iwe-workflows/clone.py::Clone.unreleased_diff` —
+  `unreleased_diff`
+- `.github/workflows/validate-knowledge-base.yml#jobs.validate-knowledge-base.steps.Validate every document against its schemas.run`
+  — schema validation and normalization steps
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-declare-their-release-impact`
+  — Requirement: Plans declare their release impact
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-synchronizes-durable-specs-by-intelligent-merge`
+  — Requirement: Ship synchronizes durable specs by intelligent merge
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-capture-files-complete-inbox-documents`
+  — Requirement: Capture files complete inbox documents
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-workflow-improvements-preserve-the-iwe-and-okf-model`
+  — Requirement: Workflow improvements preserve the IWE and OKF model

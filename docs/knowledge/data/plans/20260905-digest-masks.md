@@ -211,8 +211,9 @@ files](../architecture/agent-metadata-files.md). Alternatives to masking itself:
 - [x] Register `5=BROKEN_METADATA` in the code-to-name mapping
   `bin/result_codes.py` provides, alongside the `3=STALE_FOUND` and
   `4=NO_MAP_DOCS` the ported script already declares. 5 is the next free code:
-  `bin/result-codes.sh:5-14` reserves 0, 1, 2, 129, 130 and 143 and leaves 3
-  through 125 to the script, and this script has taken 3 and 4.
+  `.agents/plugins/agentdev/bin/result-codes.sh › "by each consuming script after it loads these defaults."`
+  reserves 0, 1, 2, 129, 130 and 143 and leaves 3 through 125 to the script, and
+  this script has taken 3 and 4.
   - **Evidence:** `rc.RESULT_CODES[BROKEN_METADATA] = 'BROKEN_METADATA'` beside
     the existing two registrations; the broken-metadata tests observe
     `RESULT=BROKEN_METADATA`.
@@ -268,7 +269,7 @@ files](../architecture/agent-metadata-files.md). Alternatives to masking itself:
   leaves an unrelated doc `FRESH`.
   - **Evidence:** `test_editing_a_mask_invalidates_only_the_docs_it_reaches`.
 - [x] Keep the fixtures independent of this repository's identity, as
-  `conftest.py:21-24` establishes for the suite.
+  `conftest.py` establishes for the suite.
   - **Evidence:** the fixtures build their own repositories through
     `build_workspace` with invented paths (`deploy/`, `stack/`,
     `example.invalid/app`) and resolve the script through the `plugin_root`
@@ -288,8 +289,9 @@ moves)
     `github/workflows` — identified by comparing each doc's masked and unmasked
     digest, so only mask-caused movement was re-recorded. Only the
     `source_digest` line changed in each.
-- [x] Rerun until `RESULT=SUCCESS`, which `iwe-map/SKILL.md:229` requires before
-  any map commit.
+- [x] Rerun until `RESULT=SUCCESS`, which
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#rules › "plausible fiction, and a role you cannot state from the code"`
+  requires before any map commit.
   - **Evidence:** `stale-map-docs.py` ends `RESULT=SUCCESS` with `DOC_COUNT=26`,
     `FRESH_COUNT=26`, and every other count zero. The six docs stale for content
     reasons were refreshed through the map skill's refresh mode, which re-read
@@ -300,11 +302,12 @@ moves)
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-map/SKILL.md`;
 `docs/knowledge/data/spec/iwe-workflow-skills.md`
 
-- [x] Extend the `source_digest` paragraph at `iwe-map/SKILL.md:203` to state
-  that machine-managed content is masked before hashing, and point at [Agent
-  metadata files](../architecture/agent-metadata-files.md) for where the masks
-  live and how they resolve. Add `--explain` and the `BROKEN` verdict to the
-  script's documented interface.
+- [x] Extend the `source_digest` paragraph at
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#frontmatter › "sources"` to
+  state that machine-managed content is masked before hashing, and point at
+  [Agent metadata files](../architecture/agent-metadata-files.md) for where the
+  masks live and how they resolve. Add `--explain` and the `BROKEN` verdict to
+  the script's documented interface.
   - **Evidence:** the `source_digest` paragraph now states the placeholder
     normalization and names the `iwe-map.digest_ignore` key and the
     agent-metadata-files document in prose — a plugin file cannot link outside
@@ -422,35 +425,34 @@ moves in Task 6 is attributable to a mask and nothing else.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
-
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:123-138` —
-  `source_digest_for_paths`, the whole-file fingerprint the masks filter
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:175-215` —
-  `classify`, the per-document verdict function the `BROKEN` verdict joins,
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::scalar_field`
+  — `source_digest_for_paths`, the whole-file fingerprint the masks filter
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::Mask.__init__`
+  — `classify`, the per-document verdict function the `BROKEN` verdict joins,
   alongside `GONE`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:59-60` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::USAGE` —
   the `STALE_FOUND = 3` and `NO_MAP_DOCS = 4` constants, the two codes already
   taken, which is why the new verdict is `5`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:48-56` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::USAGE` —
   the usage block's result table Task 4 extends
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:265-273` —
-  the counter block and the exit selection the new code slots into
-- `.agents/plugins/agentdev/bin/result-codes.sh:5-14` — the contract reserving
-  0, 1, 2, 129, 130, 143 and assigning 3 through 125 to the script
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:203` — the `source_digest`
-  paragraph Task 7 extends
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:229` — the
-  `RESULT=SUCCESS`-before-commit rule Task 6 must satisfy
-- `.agents/plugins/agentdev/tests/conftest.py:21-24` — `plugin_root`, the
-  fixture keeping the suite independent of this repository
-- `.github/renovate.json:9-27` — the two automerged bump classes
-- `devcontainer-compose-pins.yml:14` — the `@sha256:` pin the root file's mask
-  targets
-- `.github/actions/setup-python-venv/action.yml:22-24` — the `setup-uv@v10.0.1`
-  reference and its `version: '0.12.10'` input, both masked by the `.github`
-  file
-- `docs/knowledge/data/codebase/devcontainer.md:4-6` — a directory-scoped
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py::MetadataResolver.masks_for`
+  — the counter block and the exit selection the new code slots into
+- `.agents/plugins/agentdev/bin/result-codes.sh › "by each consuming script after it loads these defaults."`
+  — the contract reserving 0, 1, 2, 129, 130, 143 and assigning 3 through 125 to
+  the script
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#frontmatter › "sources"` —
+  the `source_digest` paragraph Task 7 extends
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#rules › "plausible fiction, and a role you cannot state from the code"`
+  — the `RESULT=SUCCESS`-before-commit rule Task 6 must satisfy
+- `.agents/plugins/agentdev/tests/conftest.py › "@pytest.fixture"` —
+  `plugin_root`, the fixture keeping the suite independent of this repository
+- `.github/renovate.json › "packageRules"` — the two automerged bump classes
+- `devcontainer-compose-pins.yml#services.devcontainer.image` — the `@sha256:`
+  pin the root file's mask targets
+- `.github/actions/setup-python-venv/action.yml#runs.steps.Install uv.uses` —
+  the `setup-uv@v10.0.1` reference and its `version: '0.12.10'` input, both
+  masked by the `.github` file
+- `docs/knowledge/data/codebase/devcontainer.md › "source"` — a directory-scoped
   `source` listing the pin file
-- `docs/knowledge/data/architecture/template-boundary.md:19-25` — the
-  classification a colocated metadata file inherits from its directory
+- `docs/knowledge/data/architecture/template-boundary.md#classification › "| Class | Meaning |"`
+  — the classification a colocated metadata file inherits from its directory

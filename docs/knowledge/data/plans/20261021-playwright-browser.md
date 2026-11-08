@@ -176,18 +176,23 @@ project's independently versioned Playwright dependency.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `ansible/playbooks/setup-dev.yml:33` — Bun and Node role ordering
-- `ansible/playbooks/setup-dev.yml:35` — opt-in Playwright capability
-- `ansible/roles/playwright_browser/defaults/main.yml:2` — Renovate-managed
-  Playwright pin
-- `ansible/roles/playwright_browser/tasks/main.yml:21` — exact Bun package
+- `ansible/playbooks/setup-dev.yml#Setup development environment.roles` — Bun
+  and Node role ordering
+- `ansible/playbooks/setup-dev.yml#Setup development environment.roles` — opt-in
+  Playwright capability
+- `ansible/roles/playwright_browser/defaults/main.yml › "renovate: datasource=npm depName=playwright"`
+  — Renovate-managed Playwright pin
+- `ansible/roles/playwright_browser/tasks/main.yml#name` — exact Bun package
   installation
-- `ansible/roles/playwright_browser/tasks/main.yml:45` — Chromium and dependency
-  installation
-- `docker/desktop/agent-desktop.Dockerfile:45` — Ansible provisioning layer
-- `docker/desktop/agent-desktop.Dockerfile:53` — published-image role inputs
-- `.github/workflows/ci.yml:248` — native devcontainer image acceptance
-- `.github/workflows/ci.yml:315` — Playwright CLI and Chromium smoke checks
-- `.devcontainer/docker-compose.yml:57` — published image runtime service
+- `ansible/roles/playwright_browser/tasks/main.yml#name` — Chromium and
+  dependency installation
+- `docker/desktop/agent-desktop.Dockerfile › "RUN --mount=type=cache,target=/var/cache/apt,sharing=locked"`
+  — Ansible provisioning layer
+- `docker/desktop/agent-desktop.Dockerfile › "workspace_folder=$WORKSPACE_FOLDER"`
+  — published-image role inputs
+- `.github/workflows/ci.yml#jobs.dev-container-ci` — native devcontainer image
+  acceptance
+- `.github/workflows/ci.yml#jobs.dev-container-ci.steps.Build and test dev container image.with.runCmd`
+  — Playwright CLI and Chromium smoke checks
+- `.devcontainer/docker-compose.yml#services.devcontainer.image` — published
+  image runtime service

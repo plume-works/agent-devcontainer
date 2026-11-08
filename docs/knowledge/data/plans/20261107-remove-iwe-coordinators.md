@@ -480,51 +480,52 @@ this requirement governs only approvals that another session's message claims.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-07):
-
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:1` — the
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md` — the
   implement-all coordinator
-- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:1` — the ship-all
+- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md` — the ship-all
   coordinator
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:3` — description
-  naming the coordinator
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:17` —
-  `## How you run`, both modes and the relay clause (lines 20-32)
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:42` — step 1
-  dispatched branch
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:113` — step 7
-  "Dispatched, both stop"
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:139` —
-  `## Running the loop`, preamble at 141-145, coordinator at 161 and 179
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:198` —
-  `## The adversarial review task`, dispatched branch at 201-203
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:260` — rule
-  "Dispatched, never wait for a reply"
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:3` — description naming
-  the Implement orchestrator
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:26` — mode **From the
-  Implement orchestrator**
-- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:3` — "the
-  Implement orchestrator" in description, also lines 9 and 79
-- `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md:15` — "the
-  orchestrator", also lines 22 and 25
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:3` — description naming
-  the ship-all coordinator
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:15` — "only
-  `/agentdev:iwe-implement-all` does that", orchestrator at 17
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:42` — coordinator
-  session branch of step 2; "never by a child session" at 50
-- `.agents/plugins/agentdev/README.md:176` — implement-all row; ship-all at 181
-- `README.md:330` — coordinators row
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:389` — Implement loop
-  requirement; 450 revision; 662 Verify verbatim; 751 adversarial review; 846
-  start requirement
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:17` —
-  `## Decision` callers and relay (lines 17-62)
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md:22` —
-  `## Decision` orchestrator and coordinator
-- `docs/knowledge/data/features/autonomous-implement-loop.md:27` — orchestrator
-  behaviour; implement-all edge case at 76
-- `docs/knowledge/data/features/verify-report-cache.md:47` — ship-all caller
-- `docs/knowledge/data/backlog/observe-planned-adversarial-review.md:29` —
-  implement-all run to observe
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md › "description: Execute an active IWE plan task by task —"`
+  — description naming the coordinator
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#how-you-run › "follows this file in place —"`
+  — `## How you run`, both modes and the relay clause
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "merges that intent. Both bind the code, and where they"`
+  — step 1 dispatched branch
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "continuous run — with the verification results. With every"`
+  — step 7 "Dispatched, both stop"
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "meet. File every other WARNING through the"`
+  — `## Running the loop`, preamble at 141-145, coordinator at 161 and 179
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#capturing-what-implementation-turns-up › "A durable design fact — a constraint, a boundary, why the"`
+  — `## The adversarial review task`, dispatched branch at 201-203
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "release recording stay with the"`
+  — rule "Dispatched, never wait for a reply"
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md › "description: Create or revise an IWE plan — discovery in the"`
+  — description naming the Implement orchestrator
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#how-you-run › "From the Implement session"`
+  — mode **From the Implement orchestrator**
+- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md › "description: Judge one uncommitted IWE plan revision against"`
+  — "the Implement orchestrator" in description and twice in the body
+- `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md#durable-knowledge-auditor › "message goes to your dispatcher, not a human. Never wait for"`
+  — "the orchestrator", twice
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md › "description: Ship, cancel, or cut a release for an IWE plan"`
+  — description naming the ship-all coordinator
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#implement-a-plan › "as a subagent: the rulebook is never dispatched."`
+  — "only `/agentdev:iwe-implement-all` does that", orchestrator at 17
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md#the-loop › "pr-merge itself."`
+  — coordinator session branch of step 2; "never by a child session" at 50
+- `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "iteration branch. |"`
+  — implement-all row; ship-all at 181
+- `README.md#iwe-project-memory › "| Keep durable documents free of session residue. |"`
+  — coordinators row
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
+  — Implement loop requirement; 450 revision; 662 Verify verbatim; 751
+  adversarial review; 846 start requirement
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "The Ship and Implement workflows are each defined once, as"`
+  — `## Decision` callers and relay
+- `docs/knowledge/data/architecture/autonomous-implement-loop.md#decision › "Implement session is the session that loaded"`
+  — `## Decision` orchestrator and coordinator
+- `docs/knowledge/data/features/autonomous-implement-loop.md#behaviour › "is the session that loaded"`
+  — orchestrator behaviour; implement-all edge case at 76
+- `docs/knowledge/data/features/verify-report-cache.md#behaviour › "— so a Ship blocker report routes a Verify CRITICAL by"`
+  — ship-all caller
+- `docs/knowledge/data/backlog/observe-planned-adversarial-review.md#observe-a-planned-adversarial-review-task-through-the-implement-loop › "run on Claude Code and one on OpenCode. Done when each"`
+  — implement-all run to observe

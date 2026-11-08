@@ -320,59 +320,65 @@ evidence, each blocker Ship found outside Verify.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:126` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:132` — **Findings**
-  bullet
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:38` — lookup `HIT` row
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:72` — save `SUCCESS` row
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:92` — session step 1,
-  `HIT` re-post
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:110` — session step 5,
-  re-post
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:180` — `## Report`
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:186` — **Verify report**
-  bullet
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:197` — Ship blocker
-  report
-- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:18` — Shipper re-post
-  line
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:189` — step 6,
-  Report once
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:25` — rollup
-  re-post line
-- `docs/knowledge/data/features/verify-report-cache.md:28` — `## Behaviour`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:457` — Normal shipping
-  requires a clean independent verification
-- `scripts/e2e/iwe-workflows/harness_claude.py:54` — `ClaudeTranscript.results`
-- `scripts/e2e/iwe-workflows/harness_claude.py:98` —
-  `ClaudeTranscript.agent_results`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:96` —
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#report` — `## Report`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#report › "— CRITICAL, then WARNING, then SUGGESTION, each with its"`
+  — **Findings** bullet
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "names and return its body verbatim in your final message"`
+  — lookup `HIT` row
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "| Return the report verbatim in your final message text. |"`
+  — save `SUCCESS` row
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session › "is clear from the request, ask the user first. On a"`
+  — session step 1, `HIT` re-post
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session › "in your final message text: the subagent's"`
+  — session step 5, re-post
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping."`
+  — step 3, Run Verify
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report` — `## Report`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report › "— whenever Verify produced a report, carry it verbatim"`
+  — **Verify report** bullet
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report › "names the plan, and lists every"`
+  — Ship blocker report
+- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md#ship-all-implemented-plans-in-the-iwe-graph › "Re-post each Shipper's Verify verdict and outcome here, one"`
+  — Shipper re-post line
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "The Finish rollup; then the last Verify report verbatim"`
+  — step 6, Report once
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md#implement-all-active-plans-in-the-iwe-graph › "Re-post each plan's rollup here, with each Verify verdict"`
+  — rollup re-post line
+- `docs/knowledge/data/features/verify-report-cache.md#behaviour` —
+  `## Behaviour`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-plan-edit-is-audited-before-validation › "children are left out of that audit"`
+  — Normal shipping requires a clean independent verification
+- `scripts/e2e/iwe-workflows/harness_claude.py::ClaudeTranscript.results` —
+  `ClaudeTranscript.results`
+- `scripts/e2e/iwe-workflows/harness_claude.py::ClaudeTranscript.agent_results`
+  — `ClaudeTranscript.agent_results`
+- `scripts/e2e/iwe-workflows/harness_opencode.py::Transcript.assistant_parts` —
   `Transcript.assistant_parts`
-- `scripts/e2e/iwe-workflows/clone.py:296` — `Clone.saved_report`
-- `scripts/e2e/iwe-workflows/scenarios.py:57` — `mentions`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:71` —
+- `scripts/e2e/iwe-workflows/clone.py::Clone.saved_report` —
+  `Clone.saved_report`
+- `scripts/e2e/iwe-workflows/scenarios.py › "measured at the worker cap. OPENCODE_BUDGET, plus server"`
+  — `mentions`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_verify` —
   `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:98` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_ship` —
   `test_ship_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:116` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_ship_approved` —
   `test_ship_reuses_saved_report`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:184` — `test_ship_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:238` —
-  `test_implement_verifies`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:265` —
-  `test_implement_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:90` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_needs_decision_not_reused`
+  — `test_ship_all`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_plan_does_not_implement`
+  — `test_implement_verifies`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement_revises`
+  — `test_implement_all`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_verify` —
   `test_verify_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:117` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_ship` —
   `test_ship_approved`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:135` —
-  `test_ship_reuses_saved_report`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:211` —
-  `test_ship_all`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:270` —
-  `test_implement_verifies`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:303` —
-  `test_implement_all`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_ship_approved`
+  — `test_ship_reuses_saved_report`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_needs_decision_not_reused`
+  — `test_ship_all`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_plan_does_not_implement`
+  — `test_implement_verifies`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement_revises`
+  — `test_implement_all`

@@ -61,7 +61,8 @@ person who pushed, opened, or assigned.
 only so a run dispatched by the bridge's token could act.
 
 With no `issue_comment` trigger, the `dangerous-triggers` ignore for
-`ai-responder.yml:4` in `zizmor.yaml` goes too.
+`.github/workflows/ai-responder.yml#on.pull_request_review` in `zizmor.yaml`
+goes too.
 
 A new architecture note records that the responder runs only on pull request
 events and supersedes [Dispatched review
@@ -111,8 +112,9 @@ Rejected alternatives, recorded in the architecture note:
   "Append run link to Claude request" step, and `allowed_bots` are removed.
   - **Evidence:** commit 1ddb464f; the `pr-number` input, read only by the
     run-link step, is removed too.
-- [x] The `dangerous-triggers` ignore entry for `ai-responder.yml:4` is removed,
-  and `actionlint` and `zizmor` pass through pre-commit.
+- [x] The `dangerous-triggers` ignore entry for
+  `.github/workflows/ai-responder.yml#on.pull_request_review` is removed, and
+  `actionlint` and `zizmor` pass through pre-commit.
   - **Evidence:** commit 1ddb464f; `uv run pre-commit run --files` on the three
     files passes "Lint GitHub Actions workflow files" and "zizmor".
 
@@ -311,27 +313,46 @@ place of retaining the `workflow_dispatch` bridge.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-07):
-
-- `.github/workflows/ai-responder.yml:4` — `issue_comment`; `:7` —
-  `pull_request_review_comment`; `:10` — `issues`; `:33` — `workflow_dispatch`
-- `.github/workflows/ai-responder.yml:67` — `concurrency`
-- `.github/workflows/ai-responder.yml:130` — `wants_task` output
-- `.github/workflows/ai-responder.yml:137` — `DISPATCH_PR_NUMBER`
-- `.github/workflows/ai-responder.yml:202` — "Authorize responder requester"
-- `.github/workflows/ai-responder.yml:230` — "Determine agent prompts"
-- `.github/workflows/ai-responder.yml:342` — `bridge`
-- `.github/workflows/ai-responder.yml:430` — CodeQL TOCTOU checkout comment
-- `.github/workflows/ai-responder.yml:450` — `claude-respond` run-link inputs
-- `.github/workflows/ai-responder.yml:455` — `claude-task`
-- `.github/workflows/ai-responder.yml:516` — `ai-review-present` `pr-number`
-- `.github/actions/run-claude-responder/action.yml:5` — `append-run-link`; `:21`
-  — `comment-id`; `:25` — `comment-kind`; `:43` — run-link step; `:160` —
-  `allowed_bots`
-- `zizmor.yaml:6` — `ai-responder.yml:4` ignore
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:20` —
-  `@claude review` sentence
-- `.agents/plugins/agentdev/tests/test_request_review.py:268` — bridge docstring
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:352`
+- `.github/workflows/ai-responder.yml#on.pull_request_review` — `issue_comment`;
+  `.github/workflows/ai-responder.yml#on.pull_request_review.types` —
+  `pull_request_review_comment`;
+  `.github/workflows/ai-responder.yml#on.pull_request.types` — `issues`;
+  `.github/workflows/ai-responder.yml#env` — `workflow_dispatch`
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine checkout ref.id`
+  — `concurrency`
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Authorize the triggering actor.with.script`
+  — `wants_task` output
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.name` —
+  `DISPATCH_PR_NUMBER`
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.permissions` —
+  "Authorize responder requester"
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.steps.Run Claude responder.with.model`
+  — "Determine agent prompts"
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script.per_page`
+  — `bridge`
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — CodeQL TOCTOU checkout comment
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — `claude-respond` run-link inputs
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — `claude-task`
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — `ai-review-present` `pr-number`
+- `.github/actions/run-claude-responder/action.yml#inputs.artifact-name` —
+  `append-run-link`;
+  `.github/actions/run-claude-responder/action.yml#inputs.model.required` —
+  `comment-id`; `.github/actions/run-claude-responder/action.yml#runs.using` —
+  `comment-kind`;
+  `.github/actions/run-claude-responder/action.yml#runs.steps.Run devcontainer lifecycle commands.run`
+  — run-link step;
+  `.github/actions/run-claude-responder/action.yml#runs.steps.Fail on Claude usage limit.run`
+  — `allowed_bots`
+- `zizmor.yaml#rules.known-vulnerable-actions.disable` —
+  `.github/workflows/ai-responder.yml#on.pull_request_review` ignore
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#post-the-request › "removed, and the assignees end as the script found them. An"`
+  — `@claude review` sentence
+- `.agents/plugins/agentdev/tests/test_request_review.py::test_no_review_trigger_comment_on_any_path`
+  — bridge docstring
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate`
   — "AI responder and the review gate"
-- `README.md:339` — "Pull-request automation"
+- `README.md#pull-request-automation` — "Pull-request automation"

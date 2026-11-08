@@ -192,12 +192,12 @@ own claims.
     `agentdev:iwe-adversarial-reviewer` with a prompt of only plan key, target
     `code`, and approvals; the reviewer made three read-only `Bash` calls and no
     edit or dispatch; its report names "Slugs cannot leave the plans directory"
-    with `scripts/slug_guard.py:6`; `git status --porcelain` empty before and
+    with `scripts/slug_guard.py`; `git status --porcelain` empty before and
     after. OpenCode (`openai/gpt-6.1-sol`), session
     `ses_e5825cbeeffenHmG7Bgao3qB4h`: one `subagent` call to
     `iwe-adversarial-reviewer` with the same three-line prompt; its report names
     the same requirement and the "A nested slug is refused" scenario with
-    `scripts/slug_guard.py:6`; the session's worktree snapshot is unchanged with
+    `scripts/slug_guard.py`; the session's worktree snapshot is unchanged with
     no files changed.
 
 ### Task 6: Observe planning leaving the review alone on both harnesses
@@ -281,14 +281,12 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-05):
-
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:1` — the entry-skill
-  shape to follow
-- `.agents/plugins/agentdev/README.md:182` — skill table, `/agentdev:iwe-verify`
-  row
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:248` — `## Rules`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:214` —
-  `## Capturing what implementation turns up`
-- `docs/knowledge/data/architecture.md:18` — first entry,
-  `actions-approval-permission`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md` — the entry-skill shape
+  to follow
+- `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "| Pre-ship gate and drift audit: graph claims checked"`
+  — skill table, `/agentdev:iwe-verify` row
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#rules` — `## Rules`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#capturing-what-implementation-turns-up`
+  — `## Capturing what implementation turns up`
+- `docs/knowledge/data/architecture.md#-architecture › "Actions approval"` —
+  first entry, `actions-approval-permission`

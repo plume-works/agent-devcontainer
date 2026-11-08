@@ -482,43 +482,50 @@ on this plan: its shell-setup task (Task 3) puts no checkout path on `PATH`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-04, at commit d88b298; Task
-6's anchors at commit 1cbd4e1):
-
-- `docker/base/agentdev-base.Dockerfile:22-84` — the three provisioning `RUN`
-  steps, their mounts, and their tag selections (Task 6)
-- `docker/base/agentdev-base.Dockerfile:96` — `COPY` of
-  `docker/desktop/entrypoint.sh`
-- `docker/ansible/Dockerfile:1` — `ARG BASE_IMAGE=ubuntu:24.04`
-- `docker/ansible/Dockerfile:7` — `source=..` setup-script mount
+- `docker/base/agentdev-base.Dockerfile › "RUN --mount=type=cache,target=/var/cache/apt,sharing=locked"`
+  — the three provisioning `RUN` steps, their mounts, and their tag selections
+  (Task 6)
+- `docker/base/agentdev-base.Dockerfile › "NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt"`
+  — `COPY` of `docker/desktop/entrypoint.sh`
+- `docker/ansible/Dockerfile › "ARG BASE_IMAGE=ubuntu:24.04"` —
+  `ARG BASE_IMAGE=ubuntu:24.04`
+- `docker/ansible/Dockerfile › "--mount=type=bind,readonly,source=..,target=/scripts"`
+  — `source=..` setup-script mount
 - `.dockerignore:1-3` — header naming the consumed inputs
-- `.github/workflows/ci.yml:11-15` — `clean_build` input
-- `.github/workflows/ci.yml:87-96` — `[ci:clean_build]` marker check
-- `.github/workflows/ci.yml:103-131` — `Set base image refs`, edge warm start
-- `.github/workflows/ci.yml:142-154` — `Build ubuntu ansible image`,
-  `BASE_IMAGE` build argument
-- `.github/workflows/primary-checks.yml:15` — dispatch `clean_build` input
-- `.github/actions/docker/build-push-action/action.yml:61-68` — `cache-from` and
-  `cache-to`
-- `.github/actions/docker/build-push-action/action.yml:56-72` — `meta` step
-  labels applied to the build (Task 12)
-- `.github/workflows/ci.yml:109-120` — `Build ubuntu ansible image` (Task 12)
-- `.github/renovate.json:66-72` — `ubuntu` rule, `enabled: false`
-- `ansible/playbooks/setup-dev.yml:18-44` — the role list and tags (Task 6),
-  from the `always`-tagged `perm_probe` and `extra_facts` to the final
-  `perm_probe`
-- `ansible/roles/agentic_tools/tasks/main.yml:41-49` — catalog stage and install
+- `.github/workflows/ci.yml#on.workflow_call.inputs.clean_build` — `clean_build`
+  input
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —
+  `[ci:clean_build]` marker check
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —
+  `Set base image refs`, edge warm start
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —
+  `Build ubuntu ansible image`, `BASE_IMAGE` build argument
+- `.github/workflows/primary-checks.yml#on.workflow_dispatch.inputs.clean_build`
+  — dispatch `clean_build` input
+- `.github/actions/docker/build-push-action/action.yml#runs.steps.Build and push Docker image.env.REGISTRY_CACHE`
+  — `cache-from` and `cache-to`
+- `.github/actions/docker/build-push-action/action.yml#outputs.platform-digest.value`
+  — `meta` step labels applied to the build (Task 12)
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —
+  `Build ubuntu ansible image` (Task 12)
+- `.github/renovate.json › "The 24.04 base's digest moves weekly, which is the images"`
+  — `ubuntu` rule, `enabled: false`
+- `ansible/playbooks/setup-dev.yml#Setup development environment.roles` — the
+  role list and tags (Task 6), from the `always`-tagged `perm_probe` and
+  `extra_facts` to the final `perm_probe`
+- `ansible/roles/agentic_tools/tasks/main.yml#name` — catalog stage and install
   imports
-- `ansible/roles/agentic_tools/defaults/main.yml:45-84` — catalog switches,
-  source dir, trees, prune names
-- `ansible/roles/validate_agent_files/defaults/main.yml:9` — comment naming
-  `agentic_tools_plugin_version`
-- `ansible/roles/github_cli/tasks/main.yml:43-89` — wrapper copy from
+- `ansible/roles/agentic_tools/defaults/main.yml#agentic_tools_stage_catalog` —
+  catalog switches, source dir, trees, prune names
+- `ansible/roles/validate_agent_files/defaults/main.yml › "agentic_tools_plugin_version."`
+  — comment naming `agentic_tools_plugin_version`
+- `ansible/roles/github_cli/tasks/main.yml#name` — wrapper copy from
   `docker/bin/gh` and the bash and fish PATH blocks
-- `ansible.cfg:6` — `log_path=ansible/ansible.log`
-- `scripts/tests/test_playwright_browser_provisioning.py:16` — reads
+- `ansible.cfg › "log_path=ansible/ansible.log"` —
+  `log_path=ansible/ansible.log`
+- `scripts/tests/test_playwright_browser_provisioning.py::DOCKERFILE` — reads
   `agentdev-base.Dockerfile`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1049-1072`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-custom-image-setup › "Also retain the image job in"`
   — image-build opt-out through `agentic_tools_stage_catalog`
-- `docs/knowledge/data/architecture/template-boundary.md:178-182` — custom image
-  path set
+- `docs/knowledge/data/architecture/template-boundary.md#optional-custom-image-bundle › "Keep these paths together only when a project needs to build"`
+  — custom image path set

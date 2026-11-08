@@ -331,34 +331,32 @@ from the pull request template itself.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
-
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:112` —
-  `### Step 7: Generate The Description`
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:143` —
-  template-reporting paragraph ("Check whether the repository has its own pull
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-7-generate-the-description`
+  — `### Step 7: Generate The Description`
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-7-generate-the-description › "Check whether the repository has its own pull request"`
+  — template-reporting paragraph ("Check whether the repository has its own pull
   request template")
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:153` —
-  `no-template` marker exception
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:184` —
-  `## Related Resources`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:620`
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-7-generate-the-description › "<!-- pr-gen-description: no-template -->"`
+  — `no-template` marker exception
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#related-resources`
+  — `## Related Resources`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#4-merge-github-configuration`
   — `### 4. Merge GitHub configuration`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:627`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#the-pull-request-template`
   — `#### The pull request template`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:90` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode` —
   `## Update Mode`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:137` —
-  `## Default Template Surface`
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:173`
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md#default-template-surface`
+  — `## Default Template Surface`
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh › "${consumed_ref}:${changed_path}"`
   — consumer-deleted descendant filter for changed paths
-- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:116` —
-  tracked `.github/` directory regression
-- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:162` —
-  consumer-deleted descendant regression
-- `docs/knowledge/data/spec/template-consumption.md:90` — guidance-file
-  requirement
-- `docs/knowledge/data/architecture/template-boundary.md:149` —
+- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py::test_check_updates_reports_files_inside_a_tracked_github_directory`
+  — tracked `.github/` directory regression
+- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py::test_check_updates_filters_consumer_deleted_descendants_but_keeps_new_upstream_files`
+  — consumer-deleted descendant regression
+- `docs/knowledge/data/spec/template-consumption.md#requirement-a-consumer-may-customize-generated-pr-descriptions-through-a-guidance-file`
+  — guidance-file requirement
+- `docs/knowledge/data/architecture/template-boundary.md#github-surface` —
   `### GitHub surface`
-- `docs/knowledge/data/architecture/template-boundary.md:155` —
-  `pull_request_template.md` row
+- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "catalog, which owns PR structure. Copy-ready precisely"`
+  — `pull_request_template.md` row

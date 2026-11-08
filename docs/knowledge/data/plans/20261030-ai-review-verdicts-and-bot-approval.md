@@ -179,17 +179,19 @@ Assumptions:
   `renovate[bot],plume-works-renovate[bot],dependabot[bot]`, and
   `ai-review-present` passes it to `ai-review-status` instead of the inline
   literal.
-  - **Evidence:** commit `06d3beb` — `ai-responder.yml:81` defines the env;
+  - **Evidence:** commit `06d3beb` —
+    `.github/workflows/ai-responder.yml#env.TRUSTED_BOT_ACTORS` defines the env;
     `ai-review-present` passes `${{ env.TRUSTED_BOT_ACTORS }}` at
-    `ai-responder.yml:533`.
+    `.github/workflows/ai-responder.yml#jobs.ai-review-present.steps.Check for an accepted AI review.with.trusted-bot-actors`.
 - [x] A new job approves a `pull_request` (`opened`, `reopened`, `synchronize`,
   `ready_for_review`) whose author is a `Bot` listed exactly in
   `TRUSTED_BOT_ACTORS`, on a same-repository head, under the existing
   `repository_owner` gate, with `pull-requests: write` only and no checkout.
   - **Evidence:** commit `06d3beb` — job `trusted-bot-approval`
-    (`ai-responder.yml:562`) gates on owner, the four actions, same-repository
-    head, and `user.type == 'Bot'`, matches the login exactly against
-    `TRUSTED_BOT_ACTORS`, with `pull-requests: write` only and no checkout.
+    (`.github/workflows/ai-responder.yml#jobs.trusted-bot-approval`) gates on
+    owner, the four actions, same-repository head, and `user.type == 'Bot'`,
+    matches the login exactly against `TRUSTED_BOT_ACTORS`, with
+    `pull-requests: write` only and no checkout.
 - [x] The job skips with a notice when `github.actor` is `dependabot[bot]`, and
   skips when `github-actions[bot]` already has an `APPROVED` review on the pull
   request.
@@ -491,38 +493,44 @@ branch's workflow and attach checks to that head.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:27` — Codex single-call
-  `action` values
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:79` — severity tier
-  definitions
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:125` — Step 3 metadata
-  gate
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:149` — Step 9 event
-  selection
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:153` — self-owned
-  `APPROVE`/`REQUEST_CHANGES` retry
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:190` — fallback script
-  `--event`
-- `.github/workflows/ai-responder.yml:77` — workflow `env`
-- `.github/workflows/ai-responder.yml:98` — preflight owner gate and bot skip
-- `.github/workflows/ai-responder.yml:504` — `ai-review-present` job
-- `.github/workflows/ai-responder.yml:533` — `trusted-bot-actors` read from
-  `TRUSTED_BOT_ACTORS`
-- `.github/workflows/ai-responder.yml:562` — `trusted-bot-approval` job
-- `.github/workflows/ai-responder.yml:591` — Dependabot actor skip
-- `.github/workflows/ai-responder.yml:625` — push-history check
-- `.github/workflows/ai-responder.yml:651` — commit check
-- `.github/workflows/ai-responder.yml:680` — `createReview` approval
-- `.github/actions/ai-review-status/action.yml:60` — trusted-bot waiver
-- `docs/knowledge/data/architecture/ai-review-event-selection.md:16` —
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#prerequisites › "APPROVE"`
+  — Codex single-call `action` values
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "carried through Steps 4–9 on every candidate/validated"`
+  — severity tier definitions
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "as a relevance and completeness check against the current PR"`
+  — Step 3 metadata gate
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "from the validated findings that survived Step 6"`
+  — Step 9 event selection
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "and note in the body that the account cannot approve or"`
+  — self-owned `APPROVE`/`REQUEST_CHANGES` retry
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#fallback-single-call-script › "agent-code/post-review.py --pr <PR_NUMBER> --event"`
+  — fallback script `--event`
+- `.github/workflows/ai-responder.yml#env` — workflow `env`
+- `.github/workflows/ai-responder.yml#jobs.preflight.if` — preflight owner gate
+  and bot skip
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present` job
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.steps.Check for an accepted AI review.with.trusted-bot-actors`
+  — `trusted-bot-actors` read from `TRUSTED_BOT_ACTORS`
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval` —
+  `trusted-bot-approval` job
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — Dependabot actor skip
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — push-history check
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — commit check
+- `.github/workflows/ai-responder.yml#jobs.trusted-bot-approval.steps.Approve on behalf of the trusted bot.with.script`
+  — `createReview` approval
+- `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
+  — trusted-bot waiver
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#decision` —
   `## Decision`
-- `docs/knowledge/data/architecture/ai-review-event-selection.md:73` —
-  `## Trusted-bot approval covers only the bot's commits and pushes`
-- `docs/knowledge/data/architecture/ai-review-event-selection.md:107` —
-  `## Alternatives rejected`
-- `docs/knowledge/data/spec/template-consumption.md:99` — "the AI review gate's
-  trust is explicit"
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:413`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#trusted-bot-approval-covers-only-the-bots-commits-and-pushes`
+  — `## Trusted-bot approval covers only the bot's commits and pushes`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#alternatives-rejected`
+  — `## Alternatives rejected`
+- `docs/knowledge/data/spec/template-consumption.md#requirement-the-ai-review-gates-trust-is-explicit`
+  — "the AI review gate's trust is explicit"
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate › "Keep the two bot gates as they are: the responder does not"`
   — trusted-bot guidance

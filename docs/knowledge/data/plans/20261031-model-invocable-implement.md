@@ -517,50 +517,57 @@ SHALL stop and report at any point that needs a user decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:3` — `description`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:20` — **In the
-  user's session** mode
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:28` — **Dispatched**
-  mode
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:15` — "report readiness,
-  and stop before editing implementation code"
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:179` — step 8's report
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:102` —
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md › "description: Execute an active plan task-by-task with state"`
+  — `description`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#how-you-run › "/agentdev:iwe-implement"`
+  — **In the user's session** mode
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#how-you-run › "/agentdev:iwe-implement-all"`
+  — **Dispatched** mode
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#create-or-revise-a-plan › "readiness, and stop before editing implementation code. Plan"`
+  — "report readiness, and stop before editing implementation code"
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Report whether the plan was created or revised, any"`
+  — step 8's report
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#during-implementation` —
   `## During implementation` handoff
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:151` — `## Rules`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:166` — `explicitOnly` read
-  from the frontmatter
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:220` — skill `deny`
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:71` — deny test
-- `scripts/e2e/iwe-workflows/scenarios.py:42` — `WORKFLOW_SKILL`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:218` — `OpenCodeServer.run`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:222` — `OpenCodeServer.prompt`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:208` —
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#rules` — `## Rules`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "disable-model-invocation"`
+  — `explicitOnly` read from the frontmatter
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts › "for (const { name } of explicitOnly) skill[name] ??="`
+  — skill `deny`
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "const expected = Object.fromEntries(explicitOnly.map(({ meta"`
+  — deny test
+- `scripts/e2e/iwe-workflows/scenarios.py::WORKFLOW_SKILL` — `WORKFLOW_SKILL`
+- `scripts/e2e/iwe-workflows/harness_opencode.py::OpenCodeServer.run` —
+  `OpenCodeServer.run`
+- `scripts/e2e/iwe-workflows/harness_opencode.py::OpenCodeServer.prompt` —
+  `OpenCodeServer.prompt`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement` —
   `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:354` — `test_explore`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:237` —
-  `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:399` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_explore` —
   `test_explore`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:214` —
-  `test_implement_requested`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:243` —
-  `test_implement_requested`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:223` —
-  `test_implement_coordinator_requested`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:255` —
-  `test_implement_coordinator_requested`
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:21` — **Who
-  may start them**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:34` — the
-  gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:53` —
-  **Implement keeps the user's session**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:157` —
-  **Drop the gate and rely on descriptions, for Ship**
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:45` — Explore requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:112` — Plan requirement
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:677` — Ship and Implement
-  start requirement
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement` —
+  `test_implement`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_explore` —
+  `test_explore`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement_requested`
+  — `test_implement_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement_requested`
+  — `test_implement_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement_coordinator_requested`
+  — `test_implement_coordinator_requested`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement_coordinator_requested`
+  — `test_implement_coordinator_requested`
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "Who may start them."`
+  — **Who may start them**
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "The gate is explicit-only on both harnesses."`
+  — the gate bullet
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "Implement keeps the user's session for a direct run."`
+  — **Implement keeps the user's session**
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#rejected-alternatives › "Drop the gate and rely on descriptions, for Ship."`
+  — **Drop the gate and rely on descriptions, for Ship**
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`
+  — Explore requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plan-creates-or-revises-planning-state-without-implementing`
+  — Plan requirement
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-durable-spec-is-retired › "and does not leave an empty or orphaned spec document"`
+  — Ship and Implement start requirement

@@ -417,8 +417,8 @@ loop:
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [x] `AGENTS.md` line 7 becomes:
-  - **Evidence:** commit `adebf714` replaces `AGENTS.md` line 7 with the two
+- [x] `AGENTS.md`'s never-force-push rule becomes:
+  - **Evidence:** commit `adebf714` replaces that `AGENTS.md` rule with the two
     approved lines verbatim.
 
 ``` text
@@ -428,7 +428,7 @@ NEVER rebase or reset a branch that has been pushed; bring in other history with
 
 - [x] Best Practice 0 becomes its pre-stack text (`a1c1563c^`):
   - **Evidence:** commit `adebf714` sets Best Practice 0 to the approved text,
-    identical to `git show a1c1563c^:AGENTS.md` line 10.
+    identical to its text in `git show a1c1563c^:AGENTS.md`.
 
 ``` text
 0. NEVER change git config on local or global level unless explicitly instructed. NEVER switch/change remote.
@@ -792,66 +792,79 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `AGENTS.md:7` — the force-push exception for `gh stack`
-- `AGENTS.md:12` — Best Practice 0 with the `rerere`/`pushDefault` exception
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:37` — stack detection
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:62` — `gh stack checkout`
-  in the worktree setup
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — force-push rule
-  naming the guarded `publish`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:171` — guarded re-sync
-  after a fix commit
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:198` — `gh stack merge`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:90` — §2 Existing Pull
-  Request Detection, create mode's `main` base
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:132` — §4 Branch Sync with
-  the Base Branch
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:212` — §8 stack detection
-  before the push
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:251` — §9 Create or Update
-  the Pull Request
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:1` — the native-stack
+- `AGENTS.md#agents-guidelines › "docs/knowledge/data/architecture/stacked-prs.md"`
+  — the force-push exception for `gh stack`
+- `AGENTS.md#best-practices-for-agents › "NEVER change git config on local or global level unless"`
+  — Best Practice 0 with the `rerere`/`pushDefault` exception
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "Check whether the PR belongs to a GitHub stack and, if so"`
+  — stack detection
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "For a stacked PR, create the worktree detached and run"`
+  — `gh stack checkout` in the worktree setup
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#prerequisites-and-scope › "and ask for clarification in that review thread."`
+  — force-push rule naming the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#monitoring-loop › "for an in-progress review agent before declaring success."`
+  — guarded re-sync after a fix commit
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#ai-review-recovery › "check accepts a submitted review from Claude. A review is"`
+  — `gh stack merge`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#2-existing-pull-request-detection`
+  — §2 Existing Pull Request Detection, create mode's `main` base
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#4-branch-sync-with-the-base-branch`
+  — §4 Branch Sync with the Base Branch
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#8-push-the-branch › "First check whether the branch belongs to a GitHub stack"`
+  — §8 stack detection before the push
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md#9-create-or-update-the-pull-request`
+  — §9 Create or Update the Pull Request
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md` — the native-stack
   skill to rewrite
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:29` — stack
-  prerequisite
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:75` — Workflow 0:
-  Refuse a Stack Branch
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:159` — stack
-  troubleshooting row
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:60` — stack
-  branch of the merge-conflict step
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py:138`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#prerequisites › "Current branch belongs to no GitHub stack (Workflow 0)"`
+  — stack prerequisite
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-0-refuse-a-stack-branch`
+  — Workflow 0: Refuse a Stack Branch
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#troubleshooting › "| Branch belongs to a stack | Stacked pull request | Stop"`
+  — stack troubleshooting row
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-1-collect-all-feedback-sources › "repos/{owner}/{repo}/pulls/<pr-number>"`
+  — stack branch of the merge-conflict step
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py::parse_arguments`
   — `parse_arguments`
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py:455`
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py::main`
   — `main`
-- `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md:49` — Bundled Script
-  options
-- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:160` — Step 8:
-  Review and Validate
-- `.agents/plugins/agentdev/skills/pr-sync/SKILL.md:8` — delegation to `pr-open`
-- `.agents/plugins/agentdev/bin/result_codes.py:1` — shared result codes
-- `.agents/plugins/agentdev/bin/skill_common.py:80` — `require_git_repo`
-- `.agents/plugins/agentdev/README.md:136` — `gh-stack` catalog row
-- `.agents/plugins/agentdev/README.md:145` — `pr-merge-stack` catalog row
-- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:1` — guard tests
+- `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md#bundled-script` —
+  Bundled Script options
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-8-review-and-validate`
+  — Step 8: Review and Validate
+- `.agents/plugins/agentdev/skills/pr-sync/SKILL.md#sync-pr-description › "Invoke /agentdev:pr-open with additional instructions to"`
+  — delegation to `pr-open`
+- `.agents/plugins/agentdev/bin/result_codes.py › "#!/usr/bin/env python3"` —
+  shared result codes
+- `.agents/plugins/agentdev/bin/skill_common.py::require_git_repo` —
+  `require_git_repo`
+- `.agents/plugins/agentdev/README.md#pull-requests-and-git › "non-interactively; vendored from"`
+  — `gh-stack` catalog row
+- `.agents/plugins/agentdev/README.md#pull-requests-and-git › "| Bring every layer of a GitHub stack to green, then merge"`
+  — `pr-merge-stack` catalog row
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py › "#!/usr/bin/env python3"`
+  — guard tests
 - `.prettierignore:14` — gh-stack exclusion
-- `ansible/roles/github_cli/defaults/main.yml:2` — gh-stack pin block
-- `ansible/roles/github_cli/tasks/main.yml:94` — gh-stack install tasks
-- `docker/deploy/agentdev-deploy.Dockerfile:9` — gh-stack copy out of root's
-  home
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:104` —
-  `register_user_tools`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:129` — its call
-  in `create`
-- `py_packages/agentdev_runtime/agentdev_runtime/settings.py:96` —
+- `ansible/roles/github_cli/defaults/main.yml › "gh-stack: GitHub native stacked pull requests"`
+  — gh-stack pin block
+- `ansible/roles/github_cli/tasks/main.yml#name` — gh-stack install tasks
+- `docker/deploy/agentdev-deploy.Dockerfile › "gh-stack moves out of root's home so any runtime account can"`
+  — gh-stack copy out of root's home
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::register_user_tools`
+  — `register_user_tools`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::create` — its
+  call in `create`
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `AGENTDEV_GH_STACK_DIR`
-- `py_packages/agentdev_runtime/README.md:33` — `AGENTDEV_GH_STACK_DIR` row
-- `scripts/refresh-pin-checksums.py:119` — gh-stack pin entry
-- `scripts/tests/test_agent_runtime_acceptance.py:392` — `gh stack --help`
-- `docs/knowledge/data/product.md:130` — force-push and git config rules
-- `docs/knowledge/data/architecture.md:123` — stacked-prs and stack-push-guard
-  links
-- `docs/knowledge/data/features.md:69` — native stacked PRs link
-- `docs/knowledge/data/backlog.md:72` — pr-merge-stack cleanup link
+- `py_packages/agentdev_runtime/README.md#settings › "| | devcontainer, deploy | Image copy of the gh-stack"`
+  — `AGENTDEV_GH_STACK_DIR` row
+- `scripts/refresh-pin-checksums.py::PIN_FILES` — gh-stack pin entry
+- `scripts/tests/test_agent_runtime_acceptance.py::test_runtime_user_tool_inventory`
+  — `gh stack --help`
+- `docs/knowledge/data/product.md#authoring-rules › "or GitHub native stacked pull requests"`
+  — force-push and git config rules
+- `docs/knowledge/data/architecture.md#-architecture › "syntax](architecture/self-repository-uses.md)"`
+  — stacked-prs and stack-push-guard links
+- `docs/knowledge/data/features.md#-features › "Native stacked pull"` — native
+  stacked PRs link
+- `docs/knowledge/data/backlog.md#-backlog` — pr-merge-stack cleanup link

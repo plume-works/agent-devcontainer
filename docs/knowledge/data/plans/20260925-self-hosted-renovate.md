@@ -284,7 +284,8 @@ options as `RENOVATE_*` environment variables instead.
   `devcontainer-compose-pins.yml`, written as a literal string — the
   `github-actions` manager cannot read an expression.
   - **Evidence:** the commit carrying this tick pins
-    `.github/workflows/ai-responder.yml:430` and `:477`; a
+    `.github/workflows/ai-responder.yml#jobs.claude-respond.container.image` and
+    `.github/workflows/ai-responder.yml#jobs.claude-task.container.image`; a
     `renovate@44.106.0 --platform=local --dry-run=lookup` run extracts both with
     the compose pin's digest.
 - [x] A group rule keeps every `ghcr.io/plume-works/agent-desktop` dependency,
@@ -387,9 +388,10 @@ options as `RENOVATE_*` environment variables instead.
   opens pull requests as, so its pull requests automerge on the same terms the
   hosted app's did.
   - **Evidence:** the commit carrying this tick lists the login at
-    `.github/workflows/ai-responder.yml:540`; the REST author of the App's pull
-    request #189 is `plume-works-renovate[bot]` with type `Bot`, the exact pair
-    the waiver matches. Task 19 closes on the gate passing.
+    `.github/workflows/ai-responder.yml#jobs.ai-review-present.steps.Check for an accepted AI review.with.trusted-bot-actors`;
+    the REST author of the App's pull request #189 is
+    `plume-works-renovate[bot]` with type `Bot`, the exact pair the waiver
+    matches. Task 19 closes on the gate passing.
 
 ### Task 15: Mask pre-commit hook revisions
 
@@ -582,50 +584,59 @@ imply, produced by the same toolchain contributors use.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
-
-- `.github/renovate.json:3` — `extends`
-- `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
-- `.github/renovate.json:22-27` — `lockFileMaintenance`
-- `.github/renovate.json:39-47` — agent-desktop automerge group
-- `.github/renovate.json:93-101` — provisioning-tools automerge group
-- `.github/renovate.json:111` — `customManagers`
-- `.pre-commit-config.yaml:71-80` — `renovate-config-validator` hook; `rev` is
-  the Renovate version
-- `.github/workflows/validate-renovate-config.yml:3-12` — triggers
-- `.github/workflows/validate-renovate-config.yml:26-49` — `paths-filter` job
-- `.github/workflows/validate-renovate-config.yml:58-59` — digest-pinned
-  container image
-- `.github/workflows/validate-renovate-config.yml:67-75` — hook-rev read and
-  `bunx` validator run
-- `.github/workflows/validate-renovate-config.yml:77-101` — always-reporting
-  `finished` job
-- `.github/workflows/validate-agent-files.yml:101-108` — always-reporting
+- `.github/renovate.json › "config:recommended"` — `extends`
+- `.github/renovate.json › "postUpgradeTasks"` — `postUpgradeTasks` and its
+  `fileFilters`
+- `.github/renovate.json › "lockFileMaintenance"` — `lockFileMaintenance`
+- `.github/renovate.json › "platformAutomerge"` — agent-desktop automerge group
+- `.github/renovate.json › "enabled"` — provisioning-tools automerge group
+- `.github/renovate.json › "customManagers"` — `customManagers`
+- `.pre-commit-config.yaml#repos.repo` — `renovate-config-validator` hook; `rev`
+  is the Renovate version
+- `.github/workflows/validate-renovate-config.yml#on` — triggers
+- `.github/workflows/validate-renovate-config.yml#jobs.paths-filter` —
+  `paths-filter` job
+- `.github/workflows/validate-renovate-config.yml#jobs.validate.container` —
+  digest-pinned container image
+- `.github/workflows/validate-renovate-config.yml#jobs.validate.steps` —
+  hook-rev read and `bunx` validator run
+- `.github/workflows/validate-renovate-config.yml#jobs.finished` —
+  always-reporting `finished` job
+- `.github/workflows/validate-agent-files.yml#jobs.finished` — always-reporting
   `finished` job pattern
-- `.github/workflows/ai-responder.yml:430`, `:477` — digest-pinned container
-  images
-- `.github/actions/paths-filter/action.yml:35-44` — `image` filter; excludes
-  `.github/workflows/`
-- `ansible/roles/dev_tools/defaults/main.yml:18` — `dev_tools_pinned_tools`;
-  zizmor at `:19`, iwe at `:33` with its `asset_prefix` at `:37`
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13-36` — URL assembly
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.container.image`,
+  `.github/workflows/ai-responder.yml#jobs.claude-task.container.image` —
+  digest-pinned container images
+- `.github/actions/paths-filter/action.yml#runs.steps.Build filters.run.image` —
+  `image` filter; excludes `.github/workflows/`
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools` —
+  `dev_tools_pinned_tools`; zizmor at
+  `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name`, iwe
+  at `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.name`
+  with its `asset_prefix` at
+  `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools.iwe.asset_prefix`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml#name` — URL assembly
   and checksum use
-- `ansible/roles/agentic_tools/defaults/main.yml:22-34` — cc-filter version,
-  URL, and checksums
-- `ansible/roles/xpra_setup/defaults/main.yml:4-11` — VirtualGL version,
-  checksums, and download URL
+- `ansible/roles/agentic_tools/defaults/main.yml › "renovate: datasource=github-releases"`
+  — cc-filter version, URL, and checksums
+- `ansible/roles/xpra_setup/defaults/main.yml › "renovate: datasource=github-releases"`
+  — VirtualGL version, checksums, and download URL
 - `scripts/refresh-pin-checksums.py` — `PIN_FILES`, the pin files it refreshes
 - `scripts/renovate-post-upgrade.sh` — the post-upgrade task
 - `.github/workflows/renovate.yml` — the self-hosted Renovate job
 - `ansible/roles/.agent.metadata.json` — role pin digest mask
 - `.github/.agent.metadata.json` — runner-label and `@sha256:` digest masks
 - `.agent.metadata.json` — compose-pin digest and hook `rev:` masks
-- `.github/workflows/ai-responder.yml:540` — `trusted-bot-actors`
-- `.github/workflows/reformat.yml:321-325` — Renovate commit skip in
-  `commit-format-changes`; `RENOVATE_BOT_ACTORS` at `:343`
-- `.github/workflows/primary-checks.yml:46` — `caller_pr_author`
-- `pyproject.toml:29` — pytest `testpaths`
-- `.devcontainer/devcontainer.json:16-17` — feature references the lock follows
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.steps.Check for an accepted AI review.with.trusted-bot-actors`
+  — `trusted-bot-actors`
+- `.github/workflows/reformat.yml#jobs.commit-format-changes.steps.Verify if not recursive commit.run`
+  — Renovate commit skip in `commit-format-changes`; `RENOVATE_BOT_ACTORS` at
+  `.github/workflows/reformat.yml#jobs.commit-format-changes.steps.Verify if not recursive commit.env.RENOVATE_BOT_ACTORS`
+- `.github/workflows/primary-checks.yml#jobs.reformat.with.caller_pr_author` —
+  `caller_pr_author`
+- `pyproject.toml › "testpaths ="` — pytest `testpaths`
+- `.devcontainer/devcontainer.json › "ghcr.io/devcontainers/features/sshd:1"` —
+  feature references the lock follows
 - `.devcontainer/.agent.metadata.json` — feature pin and lock masks
 - `scripts/tests/test_reformat_renovate_skip.py` — runs `reformat.yml`'s
   `verify` and gate `compute` scripts

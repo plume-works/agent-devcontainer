@@ -480,50 +480,60 @@ Super-Linter module and version check it ported.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `.github/workflows/primary-checks.yml:32` — `reformat` job calling
+- `.github/workflows/primary-checks.yml#jobs.reformat` — `reformat` job calling
   `reformat.yml`
-- `.github/workflows/primary-checks.yml:54` — `ci` job, `needs: [reformat]`
-- `.github/workflows/reformat.yml:209` — `Run Super-Linter autofixes` step
-- `.github/workflows/validate-renovate-config.yml:60` — a job running in the
-  digest-pinned devcontainer image
-- `devcontainer-compose-pins.yml:14` — the `agentdev-devcontainer` pin
-- `.pre-commit-config.yaml:2` — `pre-commit/pre-commit-hooks` remote repo
-- `.pre-commit-config.yaml:14` — `mirrors-clang-format`
-- `.pre-commit-config.yaml:20` — `ansible-lint` remote repo
-- `.pre-commit-config.yaml:35` — `hadolint-docker`
-- `.pre-commit-config.yaml:38` — `ruff-pre-commit` at `v0.15.17`
-- `.pre-commit-config.yaml:47` — `shellcheck-py`
-- `.pre-commit-config.yaml:58` — `gitleaks` hook, `--pre-commit --staged`
-- `.pre-commit-config.yaml:70` — `prettier` `bunx` pin
-- `pyproject.toml:8` — `dev` dependency group
-- `ansible/roles/dev_tools/defaults/main.yml:18` — header saying three tools
-  move with the Super-Linter sync
-- `ansible/roles/dev_tools/defaults/main.yml:19` — `dev_tools_pinned_tools`
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13` — asset and
+- `.github/workflows/primary-checks.yml#jobs.ci` — `ci` job, `needs: [reformat]`
+- `.github/workflows/reformat.yml#jobs.super-linter.steps.name` —
+  `Run Super-Linter autofixes` step
+- `.github/workflows/validate-renovate-config.yml#jobs.validate.container.image`
+  — a job running in the digest-pinned devcontainer image
+- `devcontainer-compose-pins.yml#services.devcontainer.image` — the
+  `agentdev-devcontainer` pin
+- `.pre-commit-config.yaml#repos.repo` — `pre-commit/pre-commit-hooks` remote
+  repo
+- `.pre-commit-config.yaml#repos.repo` — `mirrors-clang-format`
+- `.pre-commit-config.yaml#repos.repo` — `ansible-lint` remote repo
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `hadolint-docker`
+- `.pre-commit-config.yaml#repos.repo` — `ruff-pre-commit` at `v0.15.17`
+- `.pre-commit-config.yaml#repos.repo` — `shellcheck-py`
+- `.pre-commit-config.yaml#repos.repo.hooks.gitleaks.entry` — `gitleaks` hook,
+  `--pre-commit --staged`
+- `.pre-commit-config.yaml#repos.repo.hooks` — `prettier` `bunx` pin
+- `pyproject.toml › "dev ="` — `dev` dependency group
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools` — header
+  saying three tools move with the Super-Linter sync
+- `ansible/roles/dev_tools/defaults/main.yml#dev_tools_pinned_tools` —
+  `dev_tools_pinned_tools`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml#name` — asset and
   extension resolution
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:46` — `Extract archive`
-- `ansible/roles/dev_tools/tasks/main.yml:29` — apt `xz-utils`, which unpacks
-  the shellcheck release
-- `scripts/refresh-pin-checksums.py:47` — `ToolListPins`
-- `scripts/refresh-pin-checksums.py:108` — `PIN_FILES`
-- `.github/renovate.json:80` — Super-Linter sync rule
-- `.github/renovate.json:148` — npm regex manager for `bunx` pins
-- `scripts/renovate-post-upgrade.py:77` — post-upgrade `pre-commit run`
-- `scripts/tests/test_paths_filter_last_pass.py:117` —
-  `test_primary_checks_grants_actions_read_to_the_reusable_workflows`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:85` — Reformat Workflow
-  Synchronization
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:53` — `reformat.yml`
-  commit case
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:125` — "reformat and
-  targeted validation"
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:270`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml#name` —
+  `Extract archive`
+- `ansible/roles/dev_tools/tasks/main.yml › "xz-utils # extracts the shellcheck release archive"`
+  — apt `xz-utils`, which unpacks the shellcheck release
+- `scripts/refresh-pin-checksums.py::ToolListPins` — `ToolListPins`
+- `scripts/refresh-pin-checksums.py::PIN_FILES` — `PIN_FILES`
+- `.github/renovate.json › "pin: it is the Renovate version the bot and the validation"`
+  — Super-Linter sync rule
+- `.github/renovate.json › ". Prettier is excluded: its version follows the Super-Linter"`
+  — npm regex manager for `bunx` pins
+- `scripts/renovate-post-upgrade.py::main` — post-upgrade `pre-commit run`
+- `scripts/tests/test_paths_filter_last_pass.py::test_primary_checks_grants_actions_read_to_the_reusable_workflows`
+  — `test_primary_checks_grants_actions_read_to_the_reusable_workflows`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md#reformat-workflow-synchronization`
+  — Reformat Workflow Synchronization
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md#keep-the-layers-above-in-sync › "commit — leaves every layer above it without the new tip."`
+  — `reformat.yml` commit case
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md#workflow-3-push-the-updated-branch › "reformat and targeted validation"`
+  — "reformat and targeted validation"
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#primary-checks-and-reformatting`
   — Primary checks and reformatting
-- `.agents/plugins/agentdev/README.md:122` — `local-reformat` row
-- `AGENTS.md:83` — "Super-Linter runs the same tools in CI"
-- `.ansible-lint.yml:2` — Super-Linter defaults framing
-- `.ansible-lint.yml:19` — Super-Linter collections comment
-- `docs/knowledge/data/spec/template-consumption.md:75` — publisher-only source
-  requirement
+- `.agents/plugins/agentdev/README.md#review-ci-and-formatting › "| Run the full reformat workflow locally via Super-Linter. |"`
+  — `local-reformat` row
+- `AGENTS.md#python › "their defaults (79-char limit, double quotes, different"`
+  — "Super-Linter runs the same tools in CI"
+- `.ansible-lint.yml › "Mirrors Super-Linter's bundled defaults, which this file"`
+  — Super-Linter defaults framing
+- `.ansible-lint.yml › "The Super-Linter image ships no Ansible collections, so"`
+  — Super-Linter collections comment
+- `docs/knowledge/data/spec/template-consumption.md#requirement-publisher-only-source-never-survives-adoption`
+  — publisher-only source requirement

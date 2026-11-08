@@ -176,15 +176,13 @@ field; a pre-commit check SHALL reject a document that sets it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:781` — Requirement: Workflow
-  improvements preserve the IWE model
-- `.pre-commit-config.yaml:154` — `plan-checkboxes`, the local pytest hook to
-  follow
-- `.pre-commit-config.yaml:173` — `iwe-schema-validate`
-- `docs/knowledge/tests/test_rank_and_base_schemas.py:132` —
-  `test_no_schema_declares_status`
-- `.iwe/schemas/okf.yaml:3` — the OKF frontmatter schema, which accepts
-  undeclared fields
-- `.iwe/config.toml:110` — `[schemas.okf]` binding
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-plan-ships-on-the-day-of-a-cut › "a plan ships after a release cut on the same day"`
+  — Requirement: Workflow improvements preserve the IWE model
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `plan-checkboxes`, the local
+  pytest hook to follow
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `iwe-schema-validate`
+- `docs/knowledge/tests/test_rank_and_base_schemas.py::test_no_schema_declares_status`
+  — `test_no_schema_declares_status`
+- `.iwe/schemas/okf.yaml#frontmatter` — the OKF frontmatter schema, which
+  accepts undeclared fields
+- `.iwe/config.toml › "schemas.okf]"` — `[schemas.okf]` binding

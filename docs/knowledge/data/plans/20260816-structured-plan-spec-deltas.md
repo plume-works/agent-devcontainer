@@ -109,13 +109,14 @@ Rejected alternatives:
   - **Evidence:** both dependencies verified `stage: done` /
     `completed: 2026-08-16`; all four prompts re-read at that state; three moved
     anchors refreshed under `## Key references`
-    (`plan/SKILL.md:99-102`→`111-114`, `implement/SKILL.md:20-45`→`20-50`,
-    `verify/SKILL.md:20-40`→`23-43`), seven re-confirmed unchanged; the ten-row
-    scenario-to-owner checklist and the intactness check for the evidence and
-    unchecked-task-routing contracts are recorded under
-    `## Verification results`. `iwe normalize` left the fenced `## Spec changes`
-    delta byte-identical (`git diff` touches only the two edited sections);
-    `iwe schema validate` and
+    (`.claude/skills/plan/SKILL.md#steps › "Confirm its context, approach, tasks, spec impact"`→`111-114`,
+    `.claude/skills/implement/SKILL.md#steps › "Read the full plan, the specs in its"`→`20-50`,
+    `.claude/skills/verify/SKILL.md#steps › ". Read the full plan, every spec named in its"`→`23-43`),
+    seven re-confirmed unchanged; the ten-row scenario-to-owner checklist and
+    the intactness check for the evidence and unchecked-task-routing contracts
+    are recorded under `## Verification results`. `iwe normalize` left the
+    fenced `## Spec changes` delta byte-identical (`git diff` touches only the
+    two edited sections); `iwe schema validate` and
     `uv run validate_agent_files --kind skills .claude/skills --ci` both exit 0.
 
 ### Task 2: Make Plan author risk-scaled spec contracts
@@ -131,30 +132,36 @@ Rejected alternatives:
   blocks under `ADDED` and `MODIFIED`, including every surviving scenario, and a
   reason under `REMOVED`. Keep future spec keys back-ticked until Ship creates
   them.
-  - **Evidence:** `.claude/skills/plan/SKILL.md:107-143` adds
+  - **Evidence:**
+    `.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes` adds
     `## The three forms of ## Spec changes` — form 1 keeps
     `None — no behavioral change`, form 2 requires a linked spec plus a concise
     normative outcome, form 3 requires the fenced delta and names the
     compatibility / acceptance-criteria / security-privacy-data-loss /
     scenario-set threshold; `ADDED` and `MODIFIED` are required to carry every
     surviving scenario, `REMOVED` a retirement reason, with `RENAMED` explicitly
-    excluded and future spec keys kept back-ticked until Ship. `:62-64` routes
-    the body contract to those forms and `:157-160` makes an under-scaled form a
-    Verify CRITICAL.
+    excluded and future spec keys kept back-ticked until Ship.
+    `.claude/skills/plan/SKILL.md#steps › "doc this work will create or"` routes
+    the body contract to those forms and
+    `.claude/skills/plan/SKILL.md#rules › "is mandatory thinking, even when its honest content is"`
+    makes an under-scaled form a Verify CRITICAL.
     `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 - [x] **3. Reconcile deltas during Plan revision.** Extend the existing
   bidirectional coherence pass so a decision affecting behavior updates the
   delta, tasks, verification, and out-of-scope boundaries together. State that
   the delta describes intended behavior while the durable spec remains current
   truth until Ship succeeds.
-  - **Evidence:** `.claude/skills/plan/SKILL.md:76-86` extends the revise-mode
-    reconciliation pass — a behavior-changing decision moves `## Spec changes`
-    in the same pass, may escalate its form, and carries the dependent tasks,
-    verification, and out-of-scope boundaries with it; it names the split it
-    prevents (a delta edited alone or left on old intent) and states that the
-    revision updates intent while the durable spec keeps describing released
-    behavior until Ship succeeds. The same intent-versus-truth boundary opens
-    the forms section at `:107-112`, so the two statements agree.
+  - **Evidence:**
+    `.claude/skills/plan/SKILL.md#steps › "In revise mode, apply the requested decision and reconcile"`
+    extends the revise-mode reconciliation pass — a behavior-changing decision
+    moves `## Spec changes` in the same pass, may escalate its form, and carries
+    the dependent tasks, verification, and out-of-scope boundaries with it; it
+    names the split it prevents (a delta edited alone or left on old intent) and
+    states that the revision updates intent while the durable spec keeps
+    describing released behavior until Ship succeeds. The same
+    intent-versus-truth boundary opens the forms section at
+    `.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes`, so the two
+    statements agree.
     `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 3: Bind implementation and verification to the effective contract
@@ -168,16 +175,19 @@ Rejected alternatives:
   outcome; any change to a normative outcome, operation, requirement, or
   scenario is a material deviation requiring user direction and Plan revision
   before coding continues.
-  - **Evidence:** `.claude/skills/implement/SKILL.md:20-28` loads the plan's
-    chosen form — `None`, concise normative outcome, or fenced
+  - **Evidence:**
+    `.claude/skills/implement/SKILL.md#steps › "Read the full plan, the specs in its"`
+    loads the plan's chosen form — `None`, concise normative outcome, or fenced
     `ADDED`/`MODIFIED`/`REMOVED` delta — against the current durable spec, and
-    states which of the two binds when they differ. `:49-55` limits tactical
-    corrections to those leaving the recorded outcome exactly as written, and
-    `:56-63` makes any change to a normative outcome, delta operation,
-    requirement, or scenario material by definition, forbids editing the delta
-    to match what was built, and routes it through Plan revise mode with user
-    direction. `uv run validate_agent_files --kind skills .claude/skills --ci`
-    exits 0.
+    states which of the two binds when they differ.
+    `.claude/skills/implement/SKILL.md#steps › "if a stale anchor, task breakdown, or other plan"`
+    limits tactical corrections to those leaving the recorded outcome exactly as
+    written, and
+    `.claude/skills/implement/SKILL.md#steps › "if completing the task would add scope or drop"`
+    makes any change to a normative outcome, delta operation, requirement, or
+    scenario material by definition, forbids editing the delta to match what was
+    built, and routes it through Plan revise mode with user direction.
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 - [x] **5. Make Verify evaluate the effective pre-ship contract.** Replace the
   requirement that durable specs already reflect the unshipped change. For a
   structured delta, compare implementation evidence with the current durable
@@ -187,15 +197,16 @@ Rejected alternatives:
   supplies the required planned contract. Report a CRITICAL when the selected
   form is too weak for the risk, the implementation contradicts the delta, or
   the delta would silently discard an unaffected scenario.
-  - **Evidence:** `.claude/skills/verify/SKILL.md:39-52` replaces the "spec
-    exists and reflects the change" check with the effective contract (current
-    durable spec plus the plan's recorded intent). A back-ticked not-yet-created
-    spec is now valid when the plan introduces it and supplies its planned
-    contract; the per-form checks cover fenced delta, concise normative outcome,
-    and `None`; and the three named CRITICALs are an under-scaled form, an
-    implementation contradicting recorded intent, and a delta silently dropping
-    an unaffected scenario. Requirement-evidence search now runs over the
-    effective contract rather than the durable spec alone.
+  - **Evidence:**
+    `.claude/skills/verify/SKILL.md#steps › "is judged against the"` replaces
+    the "spec exists and reflects the change" check with the effective contract
+    (current durable spec plus the plan's recorded intent). A back-ticked
+    not-yet-created spec is now valid when the plan introduces it and supplies
+    its planned contract; the per-form checks cover fenced delta, concise
+    normative outcome, and `None`; and the three named CRITICALs are an
+    under-scaled form, an implementation contradicting recorded intent, and a
+    delta silently dropping an unaffected scenario. Requirement-evidence search
+    now runs over the effective contract rather than the durable spec alone.
     `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 4: Make Ship consume deltas without pretending to compile them
@@ -208,29 +219,40 @@ Rejected alternatives:
   zero-CRITICAL report, and stop for Plan revision when the delta and verified
   implementation disagree. Do not silently rewrite the delta from code or
   present the merge as programmatic/deterministic.
-  - **Evidence:** `.claude/skills/ship/SKILL.md:42-50` names the recorded form
-    as reviewed intent and the zero-CRITICAL report as the evidence it was
-    built, merges only what both support, and forbids describing or performing
-    the merge as a parser, fixed operation order, or mechanical conflict
-    resolution. `:55-58` stops on intent/evidence disagreement with no lifecycle
-    transition and no rewriting intent from code; `:127-130` repeats that as a
-    rule. The existing read-before-write and restart-safe rules are untouched
-    (`:51-53`, `:79`, `:131-133`, and the preamble at `:10-12`).
+  - **Evidence:**
+    `.claude/skills/ship/SKILL.md#steps › "Merge every planned durable spec."`
+    names the recorded form as reviewed intent and the zero-CRITICAL report as
+    the evidence it was built, merges only what both support, and forbids
+    describing or performing the merge as a parser, fixed operation order, or
+    mechanical conflict resolution.
+    `.claude/skills/ship/SKILL.md#steps › "Make no lifecycle transition, do not rewrite the plan's"`
+    stops on intent/evidence disagreement with no lifecycle transition and no
+    rewriting intent from code;
+    `.claude/skills/ship/SKILL.md#rules › "Reviewed intent and verified behavior must agree before"`
+    repeats that as a rule. The existing read-before-write and restart-safe
+    rules are untouched
+    (`.claude/skills/ship/SKILL.md#steps › "Read the current spec before editing. Merge the verified"`,
+    `.claude/skills/ship/SKILL.md#steps › "Apply graph transitions idempotently."`,
+    `.claude/skills/ship/SKILL.md#rules › "Inspect before every mutation so rerunning Ship cannot"`,
+    and the preamble at
+    `.claude/skills/ship/SKILL.md#ship-or-cancel-finished-work › "invalidated still describe the old behavior. Every operation"`).
     `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 - [x] **7. Verify the delta is fully represented before lifecycle changes.** In
   addition to re-reading every touched durable spec, compare the result with
   every operation and post-change requirement/scenario in the plan. Preserve
   unaffected content, reject a partial merge, and retain the existing
   graph-aware whole-spec retirement rules.
-  - **Evidence:** `.claude/skills/ship/SKILL.md:66-78` adds a second pass over
-    the recorded intent that must account for every `ADDED`/`MODIFIED`/
-    `REMOVED` operation, post-change requirement, scenario, and concise
-    normative outcome; states that a mostly-landed merge is a failed merge and
-    an unfound operation is a mismatch to report; and requires confirming that
-    content the delta never mentioned survived untouched. The graph-aware
-    whole-spec retirement rule using `iwe delete` is retained unchanged at
-    `:62-65`. `uv run validate_agent_files --kind skills .claude/skills --ci`
-    exits 0.
+  - **Evidence:**
+    `.claude/skills/ship/SKILL.md#steps › "Verify the complete spec merge before lifecycle changes."`
+    adds a second pass over the recorded intent that must account for every
+    `ADDED`/`MODIFIED`/ `REMOVED` operation, post-change requirement, scenario,
+    and concise normative outcome; states that a mostly-landed merge is a failed
+    merge and an unfound operation is a mismatch to report; and requires
+    confirming that content the delta never mentioned survived untouched. The
+    graph-aware whole-spec retirement rule using `iwe delete` is retained
+    unchanged at
+    `.claude/skills/ship/SKILL.md#steps › "Retire a whole spec only when the plan explicitly requires"`.
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 5: Reconcile the operating documentation
 
@@ -243,17 +265,24 @@ Rejected alternatives:
   acknowledgment only as needed. Keep the distinctions explicit: one plan
   document, no separate change bundle, durable specs update only during Ship,
   and no deterministic application engine.
-  - **Evidence:** `docs/knowledge/AGENTS.md:115-125` adds the three forms to the
-    conventions, names Plan as owner of the threshold, and states
-    intent-versus-truth plus the four exclusions; `:40-42` routes plan creation
-    to the risk-appropriate form. `docs/knowledge/STRUCTURE.md:73-82` adds "Spec
-    impact scales with risk"; `:128-134` moves delta headers into *adopted* as a
-    representation; `:147-153` replaces the old blanket rejection with a
-    rejection of the *application engine* specifically (no parser, order,
-    conflict rules, or postconditions) and explains why there is no `RENAMED`.
-    `docs/knowledge/README.md:107-111` extends the OpenSpec acknowledgment to
-    the notation while disclaiming change bundles and programmatic application.
-    `iwe normalize` then `iwe schema validate` exit 0.
+  - **Evidence:**
+    `docs/knowledge/AGENTS.md#conventions › "A plan states its spec impact at the fidelity the risk"`
+    adds the three forms to the conventions, names Plan as owner of the
+    threshold, and states intent-versus-truth plus the four exclusions;
+    `docs/knowledge/AGENTS.md#the-operating-loop › "data/plans/YYYYMMDD-<slug>.md"`
+    routes plan creation to the risk-appropriate form.
+    `docs/knowledge/STRUCTURE.md#design-decisions › "Spec impact scales with risk."`
+    adds "Spec impact scales with risk";
+    `docs/knowledge/STRUCTURE.md#influences-openspec › "## ADDED/MODIFIED/REMOVED Requirements"`
+    moves delta headers into *adopted* as a representation;
+    `docs/knowledge/STRUCTURE.md#influences-openspec › "* — no parser, no fixed operation order, no"`
+    replaces the old blanket rejection with a rejection of the *application
+    engine* specifically (no parser, order, conflict rules, or postconditions)
+    and explains why there is no `RENAMED`.
+    `docs/knowledge/README.md#acknowledgments › "The spec-sync-at-ship discipline, the Requirement/Scenario"`
+    extends the OpenSpec acknowledgment to the notation while disclaiming change
+    bundles and programmatic application. `iwe normalize` then
+    `iwe schema validate` exit 0.
 
 ### Task 6: Validate the complete workflow
 
@@ -278,14 +307,24 @@ Rejected alternatives:
   Weekly remain unchanged; and no OpenSpec store, change directory, archive
   move, or separate delta document entered the IWE workflow.
   - **Evidence:** all five claims checked against the tree, not asserted. (a)
-    All four skills carry all three forms — Plan `plan/SKILL.md:107-143`,
-    Implement `:20-28`, Verify `:39-52`, Ship `:42-50`; the "normative outcome"
-    wording was aligned in Plan `:116-119` during this read-back so the four
-    share one vocabulary. (b) Verify's old "spec exists and reflects the change"
-    / "not-yet-created spec still pending is a CRITICAL" text is absent (grep
-    returns nothing), replaced by the effective-contract check. (c) Ship stops
-    on disagreement at `ship/SKILL.md:54` and `:76`, with the rule at
-    `:127-130`. (d)
+    All four skills carry all three forms — Plan
+    `.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes`, Implement
+    `.claude/skills/plan/SKILL.md#steps › "docs, and whether an active plan already covers this"`,
+    Verify
+    `.claude/skills/plan/SKILL.md#steps › "the functions to modify, and their current line numbers —"`,
+    Ship `.claude/skills/plan/SKILL.md#steps › "Write planning state."`; the
+    "normative outcome" wording was aligned in Plan
+    `.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes › "— link the affected spec and state a concise"`
+    during this read-back so the four share one vocabulary. (b) Verify's old
+    "spec exists and reflects the change" / "not-yet-created spec still pending
+    is a CRITICAL" text is absent (grep returns nothing), replaced by the
+    effective-contract check. (c) Ship stops on disagreement at
+    `.claude/skills/ship/SKILL.md#steps › "If the recorded intent and the verified implementation"`
+    and
+    `.claude/skills/ship/SKILL.md#steps › ". If any planned update is incomplete, disagrees with"`,
+    with the rule at
+    `.claude/skills/ship/SKILL.md#rules › "Reviewed intent and verified behavior must agree before"`.
+    (d)
     `git diff --quiet 4f0f3ad..HEAD -- .claude/skills/setup .claude/skills/weekly`
     reports no changes. (e) The branch touches nine files — the four skills,
     three knowledge docs, this plan, and `docs/knowledge/.markdownlint.yml`; the
@@ -451,12 +490,17 @@ contract.
 **Task 1 — rebase and scenario-to-owner checklist (2026-08-16).** Both
 dependency plans carry `stage: done` / `completed: 2026-08-16`. The prompts were
 re-read at that state; the checkbox-evidence contract is intact
-(`.claude/skills/plan/SKILL.md:57-61` and `:68-70`,
-`.claude/skills/implement/SKILL.md:30-39` and `:66-71`,
-`.claude/skills/verify/SKILL.md:31-38`, `docs/knowledge/AGENTS.md:117-121`), and
-Verify's unchecked-task routing with its three named routes is intact
-(`.claude/skills/verify/SKILL.md:25-31`). Three anchors had moved and were
-refreshed under `## Key references`; the other seven still resolve.
+(`.claude/skills/plan/SKILL.md#steps › "## Implementation Steps"` and
+`.claude/skills/plan/SKILL.md#steps › "tests, manual checks"`,
+`.claude/skills/implement/SKILL.md#steps › "if one doesn't, say so and stop — building on an unshipped"`
+and
+`.claude/skills/implement/SKILL.md#steps › "the actual code changed and tests/checks run as evidence"`,
+`.claude/skills/verify/SKILL.md#steps › "the plan is unshippable. Naming a route is not taking it."`,
+`docs/knowledge/AGENTS.md#conventions › "linked spec plus a concise normative outcome; or a fenced"`),
+and Verify's unchecked-task routing with its three named routes is intact
+(`.claude/skills/verify/SKILL.md#steps › "task is a CRITICAL, with three"`).
+Three anchors had moved and were refreshed under `## Key references`; the other
+seven still resolve.
 
 Each new rule gets exactly one primary owner; the other skills reference it
 rather than restating it:
@@ -504,24 +548,24 @@ rather than restating it:
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-16, refreshed by Task 1 after
-both dependency plans shipped):
-
-- `.claude/skills/plan/SKILL.md:52-67` — plan body contract, including the
-  current name-only `## Spec changes` rule
-- `.claude/skills/plan/SKILL.md:111-114` — mandatory spec-impact thinking and
-  progressive-rigor rules
-- `.claude/skills/implement/SKILL.md:20-50` — spec loading and tactical versus
-  material deviation handling
-- `.claude/skills/verify/SKILL.md:23-43` — the current pre-ship checks,
-  including the requirement that durable specs already reflect the change
-- `.claude/skills/ship/SKILL.md:42-60` — intelligent merge and post-merge
-  verification before lifecycle transitions
-- `docs/knowledge/AGENTS.md:40-53` — plan creation and spec-at-ship operating
-  loop
-- `docs/knowledge/AGENTS.md:109-113` — durable-spec format and progressive rigor
-- `docs/knowledge/STRUCTURE.md:67-70` — current name-only spec-sync design
-- `docs/knowledge/STRUCTURE.md:102-130` — OpenSpec influences and the explicit
-  rejection of delta headers
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:148-199` — intelligent Ship
-  merge and the current prohibition on delta-spec machinery
+- `.claude/skills/plan/SKILL.md#steps › "Body sections, in order (omit a section only when it's"`
+  — plan body contract, including the current name-only `## Spec changes` rule
+- `.claude/skills/plan/SKILL.md#the-three-forms-of--spec-changes › "the spec documents keep describing current released behavior"`
+  — mandatory spec-impact thinking and progressive-rigor rules
+- `.claude/skills/implement/SKILL.md#steps › "Read the full plan, the specs in its"`
+  — spec loading and tactical versus material deviation handling
+- `.claude/skills/verify/SKILL.md#steps › "collecting issues as CRITICAL / WARNING /"`
+  — the current pre-ship checks, including the requirement that durable specs
+  already reflect the change
+- `.claude/skills/ship/SKILL.md#steps › "Merge every planned durable spec."` —
+  intelligent merge and post-merge verification before lifecycle transitions
+- `docs/knowledge/AGENTS.md#the-operating-loop › "data/plans/YYYYMMDD-<slug>.md"`
+  — plan creation and spec-at-ship operating loop
+- `docs/knowledge/AGENTS.md#conventions › "hand-writing link targets."` —
+  durable-spec format and progressive rigor
+- `docs/knowledge/STRUCTURE.md#design-decisions › "A plan names the specs it will touch"`
+  — current name-only spec-sync design
+- `docs/knowledge/STRUCTURE.md#design-decisions › "against that code) — because provenance is what makes"`
+  — OpenSpec influences and the explicit rejection of delta headers
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-completing-a-task-requires-a-material-change › "and waits for user direction before coding past it"`
+  — intelligent Ship merge and the current prohibition on delta-spec machinery

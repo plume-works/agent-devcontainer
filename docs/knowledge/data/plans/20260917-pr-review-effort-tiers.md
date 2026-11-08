@@ -119,12 +119,13 @@ latest release.
   ```
 
   - **Evidence:** commit "Resolve the review effort tier in preflight"; the
-    marker regex at `.github/workflows/ai-responder.yml:194` carries the same
-    `^[^\S\r\n]*...[^\S\r\n]*\r?$/m` anchoring as the skip-marker read two lines
-    above it. Eight body cases checked under `node`: a bare marker, one between
-    other lines, one padded with spaces, and a CRLF body all resolve a tier; a
-    marker in a code span, one mid-sentence, an unknown label (`=huge`), and a
-    body without one all resolve empty.
+    marker regex at
+    `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine checkout ref.with.script`
+    carries the same `^[^\S\r\n]*...[^\S\r\n]*\r?$/m` anchoring as the
+    skip-marker read two lines above it. Eight body cases checked under `node`:
+    a bare marker, one between other lines, one padded with spaces, and a CRLF
+    body all resolve a tier; a marker in a code span, one mid-sentence, an
+    unknown label (`=huge`), and a body without one all resolve empty.
 
 - [x] Recognize this comment trigger, and keep it classified as a review request
   rather than a free-form task where the bridge decides between them:
@@ -135,11 +136,12 @@ latest release.
   ```
 
   - **Evidence:** commit "Resolve the review effort tier in preflight"; the
-    label is extracted at `.github/workflows/ai-responder.yml:403`, beside the
-    `task:` line that empties a `@claude review` body — so a labelled mention
-    still dispatches as a review, not a free-form task. Six comment cases
-    checked under `node`: `@claude review light` and `@claude review full` with
-    trailing prose resolve their label; a bare `@claude review`,
+    label is extracted at
+    `.github/workflows/ai-responder.yml#jobs.bridge.steps.Dispatch the responder on the head branch.with.script`,
+    beside the `task:` line that empties a `@claude review` body — so a labelled
+    mention still dispatches as a review, not a free-form task. Six comment
+    cases checked under `node`: `@claude review light` and `@claude review full`
+    with trailing prose resolve their label; a bare `@claude review`,
     `@claude review lightly`, a free-form `@claude review the auth changes`, and
     `@claude fix the tests` all resolve empty.
 
@@ -151,11 +153,12 @@ latest release.
   ```
 
   - **Evidence:** commit "Resolve the review effort tier in preflight";
-    `.github/workflows/ai-responder.yml:285-291` validates each channel through
-    `asEffort`, which admits only `light` and `full`, then ORs the dispatch
-    input — the channel a bridged `@claude review <label>` arrives on — ahead of
-    the body marker. An unrecognized label on either channel falls through to
-    the empty value rather than resolving a tier.
+    `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+    validates each channel through `asEffort`, which admits only `light` and
+    `full`, then ORs the dispatch input — the channel a bridged
+    `@claude review <label>` arrives on — ahead of the body marker. An
+    unrecognized label on either channel falls through to the empty value rather
+    than resolving a tier.
 
 - [x] Expose the resolved tier as a preflight output and carry it in the review
   prompt, leaving `wantsReview`, the skip marker, fork, authorization, and gate
@@ -163,12 +166,14 @@ latest release.
 
   - **Evidence:** commit "Resolve the review effort tier in preflight"; the
     `review_effort` preflight output is declared at
-    `.github/workflows/ai-responder.yml:134`, and the review branch of
-    `promptFor` appends a `REQUESTED REVIEW EFFORT:` line at `:346` only when a
-    tier resolved, so the no-override prompt is byte-identical to today's. The
-    diff adds to `wantsReview`, the skip-marker read, the fork and authorization
-    steps, and `ai-review-present` not at all — every existing line in them is
-    untouched. `actionlint` and `zizmor` pass on the file.
+    `.github/workflows/ai-responder.yml#jobs.preflight.outputs.review_effort`,
+    and the review branch of `promptFor` appends a `REQUESTED REVIEW EFFORT:`
+    line at
+    `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+    only when a tier resolved, so the no-override prompt is byte-identical to
+    today's. The diff adds to `wantsReview`, the skip-marker read, the fork and
+    authorization steps, and `ai-review-present` not at all — every existing
+    line in them is untouched. `actionlint` and `zizmor` pass on the file.
 
 ### Task 2: Pass the orchestrator model through the responder action
 
@@ -181,12 +186,12 @@ latest release.
 
   - **Evidence:** commit "Pass an optional responder model through
     `claude_args`"; the `model` input at
-    `.github/actions/run-claude-responder/action.yml:33` defaults to empty, and
-    the composing step appends `--model` only under `[[ -n "${MODEL}" ]]`. Both
-    branches run against the real `CLAUDE_PR_REVIEW_ARGS` value: with no model
-    the composed string is byte-identical to the literal the action passed
-    before this change, and with `claude-sonnet-5` it gains exactly
-    `--model 'claude-sonnet-5'`.
+    `.github/actions/run-claude-responder/action.yml#inputs.model` defaults to
+    empty, and the composing step appends `--model` only under
+    `[[ -n "${MODEL}" ]]`. Both branches run against the real
+    `CLAUDE_PR_REVIEW_ARGS` value: with no model the composed string is
+    byte-identical to the literal the action passed before this change, and with
+    `claude-sonnet-5` it gains exactly `--model 'claude-sonnet-5'`.
 
 - [x] Compose `claude_args` so further flags can be appended independently; it
   is a single string that more than one change adds to.
@@ -194,10 +199,10 @@ latest release.
   - **Evidence:** commit "Pass an optional responder model through
     `claude_args`"; the value moved out of the `with:` literal into a
     `Compose Claude arguments` step at
-    `.github/actions/run-claude-responder/action.yml:130`, which builds the
-    string by appending one flag at a time and publishes it as a step output the
-    responder step reads. A further flag is one more append, with no other line
-    to re-derive.
+    `.github/actions/run-claude-responder/action.yml#runs.steps.name`, which
+    builds the string by appending one flag at a time and publishes it as a step
+    output the responder step reads. A further flag is one more append, with no
+    other line to re-derive.
 
 - [x] Supply this value for the `light` tier, and nothing for `full` or for an
   unresolved tier:
@@ -209,10 +214,10 @@ latest release.
   - **Evidence:** commit "Pass an optional responder model through
     `claude_args`"; the review job supplies `model:` from
     `review_effort == 'light' && 'claude-sonnet-5' || ''` at
-    `.github/workflows/ai-responder.yml:458`, so only the light tier resolves an
-    identifier — `full` and an unresolved tier both yield the empty string and
-    pass no `--model`. The free-form task job supplies no `model:` at all and
-    keeps the input default.
+    `.github/workflows/ai-responder.yml#jobs.claude-respond.steps.Run Claude responder.with.github_token`,
+    so only the light tier resolves an identifier — `full` and an unresolved
+    tier both yield the empty string and pass no `--model`. The free-form task
+    job supplies no `model:` at all and keeps the input default.
 
 ### Task 3: Define the two tiers and harden model selection in the skill
 
@@ -230,10 +235,10 @@ latest release.
 
   - **Evidence:** commit "Define the review effort tiers in the skill"; the
     table sits under a new `## Effort Tiers` section at
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:95`, introduced as
-    unversioned names that each resolve to that model's latest release. The
-    `light` Claude name matches the identifier the workflow passes for the light
-    tier.
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "| Size | Claude | Codex |"`,
+    introduced as unversioned names that each resolve to that model's latest
+    release. The `light` Claude name matches the identifier the workflow passes
+    for the light tier.
 
 - [x] Record this effort matrix, and state its one-line rule — at full effort
   everything is `large` except compliance and validation, which stay `light` at
@@ -251,14 +256,16 @@ latest release.
   ```
 
   - **Evidence:** commit "Define the review effort tiers in the skill"; the
-    matrix is at `.agents/plugins/agentdev/skills/pr-review/SKILL.md:102` and
-    the one-line rule directly under it at `:111`, which also records that the
-    orchestrator row is set by the workflow's `--model` rather than from the
-    skill. Step 4's pass list now derives its counts from the matrix instead of
-    a fixed `2x`/`2x`. Commit "Hold findings validation at the light model"
-    moved the validation slot to `light` at both tiers and rewrote the one-line
-    rule to match; the rationale is in [PR review effort
-    tiers](../architecture/pr-review-effort-tiers.md).
+    matrix is at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "| Slot | light effort | full effort |"`
+    and the one-line rule directly under it at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "not from this skill — the rest are yours to pass."`,
+    which also records that the orchestrator row is set by the workflow's
+    `--model` rather than from the skill. Step 4's pass list now derives its
+    counts from the matrix instead of a fixed `2x`/`2x`. Commit "Hold findings
+    validation at the light model" moved the validation slot to `light` at both
+    tiers and rewrote the one-line rule to match; the rationale is in [PR review
+    effort tiers](../architecture/pr-review-effort-tiers.md).
 
 - [x] Replace the prose model advice at Step 4 with a model argument on every
   dispatch at Steps 4 and 6, so the size named in the matrix is the size that
@@ -267,34 +274,41 @@ latest release.
   - **Evidence:** commit "Define the review effort tiers in the skill"; Step 4's
     Claude Code and Codex dispatch bullets now carry the slot's model instead of
     "use a fast model ... and the strongest available model", with the reason
-    stated at `.agents/plugins/agentdev/skills/pr-review/SKILL.md:131` — a
-    dispatch without the argument runs at the session model whatever the matrix
-    says. Step 6 names the validation slot's model at `:136`. The two Review
-    Focus lines that carried the same unenforced advice, `:39` and `:46`, now
-    defer to the matrix, so no prose model advice competes with it.
+    stated at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "A dispatch that carries no model argument runs at the"`
+    — a dispatch without the argument runs at the session model whatever the
+    matrix says. Step 6 names the validation slot's model at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "A validator must confirm with high confidence that a"`.
+    The two Review Focus lines that carried the same unenforced advice,
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "model at both tiers, per the effort matrix"`
+    and
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "bug-hunting) — runs on the model the effort matrix gives"`,
+    now defer to the matrix, so no prose model advice competes with it.
 
 - [x] Define what the skill does with a tier it was handed versus none: obey an
   explicit tier exactly, and otherwise judge pass count, per-slot model, and the
   durable-knowledge pass's model and depth from the diff.
 
   - **Evidence:** commit "Define the review effort tiers in the skill";
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:89` states that a
-    requested tier is absolute — no escalation, no refusal, no failing the
-    review over the tier's fit for the diff — and `:91` gives the no-tier path
-    the three judgments by name. The section also names the prompt line the
-    workflow sends, `REQUESTED REVIEW EFFORT`, so the skill reads the tier from
-    the channel preflight writes.
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "Run the tier you were handed, exactly. Never escalate to the"`
+    states that a requested tier is absolute — no escalation, no refusal, no
+    failing the review over the tier's fit for the diff — and
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "from the diff you already hold: how many passes to run"`
+    gives the no-tier path the three judgments by name. The section also names
+    the prompt line the workflow sends, `REQUESTED REVIEW EFFORT`, so the skill
+    reads the tier from the channel preflight writes.
 
 - [x] Keep the metadata gate and the durable-knowledge pass running at both
   tiers, and keep the Step 1 mechanical fast-approve and its docs-only exclusion
   as they are.
 
   - **Evidence:** commit "Define the review effort tiers in the skill";
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:113` states that both
-    checks run at `light` exactly as at `full` and that the tier does not touch
-    the Step 1 fast-approve or its docs-only exclusion. Step 3's text is
-    unchanged, Step 1's is unchanged, and the durable-knowledge bullet in Step 4
-    keeps its `1x` at both tiers — the matrix varies only its model.
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "the light tier is a cheaper review, not a weaker one. The"`
+    states that both checks run at `light` exactly as at `full` and that the
+    tier does not touch the Step 1 fast-approve or its docs-only exclusion. Step
+    3's text is unchanged, Step 1's is unchanged, and the durable-knowledge
+    bullet in Step 4 keeps its `1x` at both tiers — the matrix varies only its
+    model.
 
 A per-dispatch model argument is the highest-priority term in Claude Code's
 [subagent model order](https://code.claude.com/docs/en/sub-agents), above a
@@ -312,26 +326,30 @@ one.
   instead of one per candidate, keeping the existing rule that a validator is
   never told which pass raised a finding.
   - **Evidence:** commit "Batch light-effort validation into one dispatch";
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` sends every
-    surviving candidate in one dispatch returning a confirm-or-drop verdict per
-    candidate. The "never told which pass raised a finding" rule moved up to
-    Step 6's lead sentence at `:136`, stated for both tiers, so batching cannot
-    drop it along with the per-candidate isolation.
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "from the files rather than trust the candidate's assertion"`
+    sends every surviving candidate in one dispatch returning a confirm-or-drop
+    verdict per candidate. The "never told which pass raised a finding" rule
+    moved up to Step 6's lead sentence at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "A validator must confirm with high confidence that a"`,
+    stated for both tiers, so batching cannot drop it along with the
+    per-candidate isolation.
 - [x] Leave full-effort validation one dispatch per candidate, unchanged.
   - **Evidence:** commit "Batch light-effort validation into one dispatch";
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:137` keeps one dispatch
-    per candidate at full effort, each seeing only its own candidate, and says
-    why the isolation is not traded away at that tier. Its 5-minute ceiling and
-    drop-on-timeout behavior are the same ones the step carried before.
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "It carries the candidate's file and line, the added text"`
+    keeps one dispatch per candidate at full effort, each seeing only its own
+    candidate, and says why the isolation is not traded away at that tier. Its
+    5-minute ceiling and drop-on-timeout behavior are the same ones the step
+    carried before.
 - [x] Reconcile the "Waiting on parallel passes" budget with a batched
   validation call, whose ceiling cannot be the current per-candidate five
   minutes.
   - **Evidence:** commit "Batch light-effort validation into one dispatch"; the
-    budget at `.agents/plugins/agentdev/skills/pr-review/SKILL.md:168` now gives
-    the light-effort batch the 16-minute Step-4 ceiling and keeps 5 minutes for
-    a full-effort per-candidate validation. Step 6 no longer restates a cap of
-    its own — it defers to that one budget line, and names the timeout
-    consequence for a batch: every candidate in it is dropped.
+    budget at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md#waiting-on-parallel-passes › "about to produce is a sentence about outstanding passes"`
+    now gives the light-effort batch the 16-minute Step-4 ceiling and keeps 5
+    minutes for a full-effort per-candidate validation. Step 6 no longer
+    restates a cap of its own — it defers to that one budget line, and names the
+    timeout consequence for a batch: every candidate in it is dropped.
 
 ### Task 5: Record the decision and its rejected alternatives
 
@@ -344,38 +362,38 @@ Modify: `docs/knowledge/data/architecture.md`,
   and why preflight rather than the skill resolves the tier.
   - **Evidence:** commit "Record the PR review effort tier decision";
     `docs/knowledge/data/architecture/pr-review-effort-tiers.md` gives each one
-    its own section — what the two tiers fix at `:18`, why a requested tier is
-    absolute at `:35`, why the no-request path is judgment rather than a
-    configured default at `:46`, and why preflight owns resolution at `:58`.
-    `:74` records the subagent model order that makes a per-dispatch argument
-    the term in force. The document is linked from the hub at
-    `docs/knowledge/data/architecture.md:52`, and
-    `iwe find --included-by data/architecture` lists it.
+    its own section — what the two tiers fix, why a requested tier is absolute,
+    why the no-request path is judgment rather than a configured default, and
+    why preflight owns resolution. Another section records the subagent model
+    order that makes a per-dispatch argument the term in force. The document is
+    linked from the hub at
+    `docs/knowledge/data/architecture.md#-architecture › "PR review effort"`,
+    and `iwe find --included-by data/architecture` lists it.
 - [x] Carry every alternative under `## Approach` above into the architecture
   document with its reason intact, so the reasoning outlives this plan.
   - **Evidence:** commit "Record the PR review effort tier decision";
-    `docs/knowledge/data/architecture/pr-review-effort-tiers.md:93` carries all
-    five — whole-tier auto-escalation, the documentation-line threshold,
-    dropping the metadata gate and durable-knowledge pass at light effort,
-    batching full-effort validation, and the model alias — each with the reason
-    this plan recorded for rejecting it. The sixth, resolving the tier inside
-    the skill, is listed there and its reason stated in full under "Why
+    `docs/knowledge/data/architecture/pr-review-effort-tiers.md#compliance-runs-light-at-both-tiers › ". Compliance work is quoting a rule"`
+    carries all five — whole-tier auto-escalation, the documentation-line
+    threshold, dropping the metadata gate and durable-knowledge pass at light
+    effort, batching full-effort validation, and the model alias — each with the
+    reason this plan recorded for rejecting it. The sixth, resolving the tier
+    inside the skill, is listed there and its reason stated in full under "Why
     preflight resolves the tier" rather than duplicated.
 - [x] Record that compliance runs on the light model at both tiers.
   - **Evidence:** commit "Record the PR review effort tier decision";
-    `docs/knowledge/data/architecture/pr-review-effort-tiers.md:85` records
-    compliance as the one slot that does not move between tiers, and why —
-    quoting a rule and checking a diff against it is instruction-following, and
-    the review's own high-signal bar already requires the exact rule text.
+    `docs/knowledge/data/architecture/pr-review-effort-tiers.md#per-dispatch-models-are-what-put-the-matrix-in-force › "definition's frontmatter, the"`
+    records compliance as the one slot that does not move between tiers, and why
+    — quoting a rule and checking a diff against it is instruction-following,
+    and the review's own high-signal bar already requires the exact rule text.
 - [x] Extend the feature description with the effort markers and their
   precedence, beside the existing skip-marker paragraph.
   - **Evidence:** commit "Record the PR review effort tier decision";
-    `docs/knowledge/data/features/ai-responder-workflows.md:92` adds the effort
-    paragraph directly after the skip-marker one, naming both channels, the
-    comment-outranks-marker precedence, the own-line matching, that a requested
-    tier is obeyed exactly, and that neither tier waives `ai-review-present` or
-    drops the metadata check or durable-knowledge pass. It links the
-    architecture document for the reasoning.
+    `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "disable free-form"`
+    adds the effort paragraph directly after the skip-marker one, naming both
+    channels, the comment-outranks-marker precedence, the own-line matching,
+    that a requested tier is obeyed exactly, and that neither tier waives
+    `ai-review-present` or drops the metadata check or durable-knowledge pass.
+    It links the architecture document for the reasoning.
 
 ### Task 6: Prove the tiers on real pull requests
 
@@ -526,36 +544,43 @@ check or the durable-knowledge pass, which run at both tiers.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-17):
-
-- `.claude/settings.json:2` — the `"model": "opus"` pin the responder merges
-- `.github/workflows/ai-responder.yml:79` — `CLAUDE_PR_REVIEW_ARGS`
-- `.github/workflows/ai-responder.yml:126` — preflight `wants_review` output
-- `.github/workflows/ai-responder.yml:184` — the `[ci:skip-ai-review]` own-line
-  marker read
-- `.github/workflows/ai-responder.yml:251` — `wantsReview` resolution
-- `.github/workflows/ai-responder.yml:300` — `promptFor`
-- `.github/workflows/ai-responder.yml:319` — the `agentdev:pr-review`
-  instruction
-- `.github/workflows/ai-responder.yml:373` — the bridge's review-versus-task
-  classification
-- `.github/actions/run-claude-responder/action.yml:123` — the Claude Responder
-  step
-- `.github/actions/run-claude-responder/action.yml:130` — the `settings` input
-- `.github/actions/run-claude-responder/action.yml:131` — `claude_args`
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:46` — correctness wants
-  the strongest reviewer
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:87` — Step 1 gate and
-  fast-approve
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:95` — Step 3 metadata gate
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:96` — Step 4 initial
-  passes
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:102` — the Claude Code
-  dispatch line carrying the unenforced model advice
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:105` — Step 6
-  per-candidate validation
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:118` — Waiting on Parallel
-  Passes
-- `docs/knowledge/data/spec/ai-review-gate.md:113` — the skip-marker requirement
-- `docs/knowledge/data/features/ai-responder-workflows.md:83` — the skip marker
-  in the feature description
+- `.claude/settings.json › "model"` — the `"model": "opus"` pin the responder
+  merges
+- `.github/workflows/ai-responder.yml#concurrency.group` —
+  `CLAUDE_PR_REVIEW_ARGS`
+- `.github/workflows/ai-responder.yml#jobs.preflight.outputs.checkout_ref` —
+  preflight `wants_review` output
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine checkout ref.with.script`
+  — the `[ci:skip-ai-review]` own-line marker read
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.env.SKIP_AI_REVIEW`
+  — `wantsReview` resolution
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — `promptFor`
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — the `agentdev:pr-review` instruction
+- `.github/workflows/ai-responder.yml#jobs.bridge.permissions.actions` — the
+  bridge's review-versus-task classification
+- `.github/actions/run-claude-responder/action.yml#runs.steps.Merge Claude settings.run`
+  — the Claude Responder step
+- `.github/actions/run-claude-responder/action.yml#runs.steps.name` — the
+  `settings` input
+- `.github/actions/run-claude-responder/action.yml#runs.steps.Compose Claude arguments.id`
+  — `claude_args`
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus › "bug-hunting) — runs on the model the effort matrix gives"`
+  — correctness wants the strongest reviewer
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "marker alone on a line of the PR body, and hands it to this"`
+  — Step 1 gate and fast-approve
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "| Size | Claude | Codex |"`
+  — Step 3 metadata gate
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers` — Step 4
+  initial passes
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "| Slot | light effort | full effort |"`
+  — the Claude Code dispatch line carrying the unenforced model advice
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers › "| metadata gate | light | large |"`
+  — Step 6 per-candidate validation
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "closed/merged, stop. For a version-only or"`
+  — Waiting on Parallel Passes
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-pull-request-can-opt-out-of-the-ai-review-run › "A pull request whose body carries"`
+  — the skip-marker requirement
+- `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "Pull requests can opt out of the review run, not out of the"`
+  — the skip marker in the feature description

@@ -301,40 +301,52 @@ Open questions sections — in that order, while allowing additional sections.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
-
-- `docs/knowledge/SCHEMA.md:98` — feature body sections
-- `docs/knowledge/SCHEMA.md:102` — bug H1 `Bug:` rule
-- `docs/knowledge/SCHEMA.md:111` — bug body sections
-- `docs/knowledge/SCHEMA.md:131` — backlog task frontmatter
-- `.iwe/schemas/bug.yaml:5` — `maxDepth`, where body rules join the frontmatter
-  schema
-- `.iwe/schemas/feature.yaml:5` — `maxDepth`, same
-- `.iwe/config.toml:66` — schema bindings for features, bugs (69), and backlog
-  (75)
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:86` — `## Capturing`
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md:99` — inline bug recipe
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:99` — inline bug
-  recipe
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:102` — inline backlog
-  recipe
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:127` — `close-issue.sh`
-  invocation
-- `.agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh:110` —
-  view-state and close steps to share
-- `.agents/plugins/agentdev/bin/github-issue.sh:10` — `parse_issue_ref`, the
-  shared issue helpers
-- `.agents/plugins/agentdev/tests/test_close_issue.py:15` — `SCRIPT_PATH`
-- `docs/knowledge/AGENTS.md:36` — Record step: idea, actionable item
-- `docs/knowledge/AGENTS.md:49` — Record step: bug found
-- `docs/knowledge/AGENTS.md:216` — workspace skills table
-- `docs/knowledge/STRUCTURE.md:26` — skill list
-- `.agents/plugins/agentdev/README.md:117` — knowledge-graph workflow table
-- `docs/knowledge/data/someday.md:14` — promotion note
-- `docs/knowledge/data/backlog.md:17` — priority sections
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:392` — last requirement;
-  Capture requirements precede it
-- `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — version
-- `.agents/plugins/agentdev/.codex-plugin/plugin.json:3` — version
-- `.claude-plugin/marketplace.json:13` — agentdev version
-- `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`
+- `docs/knowledge/SCHEMA.md#features--datafeaturesslugmd › "## Open questions"`
+  — feature body sections
+- `docs/knowledge/SCHEMA.md#bugs--databugsslugmd › "Bug reports and investigations. H1 starts with"`
+  — bug H1 `Bug:` rule
+- `docs/knowledge/SCHEMA.md#bugs--databugsslugmd › "## Reproduction"` — bug body
+  sections
+- `docs/knowledge/SCHEMA.md#backlog-tasks--databacklogslugmd` — backlog task
+  frontmatter
+- `.iwe/schemas/bug.yaml#maxDepth` — `maxDepth`, where body rules join the
+  frontmatter schema
+- `.iwe/schemas/feature.yaml#maxDepth` — `maxDepth`, same
+- `.iwe/config.toml › "schemas.feature]"` — schema bindings for features, bugs
+  (69), and backlog (75)
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing` —
+  `## Capturing`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing › "doc, or any reproducible wrong behavior — a feature worth"`
+  — inline bug recipe
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#capturing-what-implementation-turns-up › "A defect in shipped behavior, not caused by this work → hand"`
+  — inline bug recipe
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md#capturing-what-implementation-turns-up › "instead."`
+  — inline backlog recipe
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "${CLAUDE_SKILL_DIR}/scripts/close-issue.sh"`
+  — `close-issue.sh` invocation
+- `.agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh › "quit_by_code 0"`
+  — view-state and close steps to share
+- `.agents/plugins/agentdev/bin/github-issue.sh::parse_issue_ref` —
+  `parse_issue_ref`, the shared issue helpers
+- `.agents/plugins/agentdev/tests/test_close_issue.py::SCRIPT_PATH` —
+  `SCRIPT_PATH`
+- `docs/knowledge/AGENTS.md#the-operating-loop › "Idea (not a commitment) →"` —
+  Record step: idea, actionable item
+- `docs/knowledge/AGENTS.md#the-operating-loop › "against the code), then ship skill: specs synced first, then"`
+  — Record step: bug found
+- `docs/knowledge/AGENTS.md#iwe-cli-cheatsheet › "--roots"` — workspace skills
+  table
+- `docs/knowledge/STRUCTURE.md#layout › ".agents/plugins/agentdev/skills/iwe-*/ # state workflows"`
+  — skill list
+- `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "| Brownfield onboarding: drafts the product and architecture"`
+  — knowledge-graph workflow table
+- `docs/knowledge/data/someday.md#-someday › "an idea gets real, promote it to a backlog task with"`
+  — promotion note
+- `docs/knowledge/data/backlog.md#high` — priority sections
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-an-unreadable-designation-breaks-only-its-own-subtree › "as broken, naming it, rather than computing a fingerprint"`
+  — last requirement; Capture requirements precede it
+- `.agents/plugins/agentdev/.claude-plugin/plugin.json › "version"` — version
+- `.agents/plugins/agentdev/.codex-plugin/plugin.json › "version"` — version
+- `.claude-plugin/marketplace.json › "version"` — agentdev version
+- `docker/desktop/agent-desktop.Dockerfile › "ARG AGENTDEV_PLUGIN_VERSION=3.4.0"`
+  — `AGENTDEV_PLUGIN_VERSION`

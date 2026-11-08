@@ -259,24 +259,41 @@ skill's depth budget.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03, tree `d132a6c`):
-
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:22` — `## Steps`; `:122`
-  refresh mode; `:158` canonical keys; `:180` frontmatter; `:204` rules
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:14` —
-  declared results; `:146` the per-doc loop; `:206` `STALE_FOUND` exit
-- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:76-206` — the seven
-  contract tests
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-32` — the deferred
-  per-module map, now naming the skill
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:81-85` — stale-map audit
-  handoff
-- `docs/knowledge/AGENTS.md:57-61` — Record step for code-structure changes
-- `docs/knowledge/AGENTS.md:217` — the skill's row in the workspace table
-- `docs/knowledge/STRUCTURE.md:26-27` — skill list in the layout block
-- `.agents/plugins/agentdev/README.md:109-127` — knowledge-graph workflow table
-- `docs/knowledge/SCHEMA.md:144-166` — codebase-map authoring contract
-- `.iwe/schemas/codebase.yaml:13-25` — `source`, `source_digest` pattern
-- `docs/knowledge/data/codebase.md:22,66` — `## Getting around`, `## Components`
-- `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`
-- `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps` — `## Steps`;
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#steps › "candidate architecture docs, and what stayed unmapped."`
+  refresh mode;
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#script-results › "lines as in step 8. |"`
+  canonical keys;
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#canonical-keys › "store/streak"`
+  frontmatter;
+  `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#frontmatter › "not a commit SHA. That keeps map provenance valid across"`
+  rules
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh › "RESULT_CODES+="`
+  — declared results;
+  `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh::source_digest_for_paths`
+  the per-doc loop;
+  `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh › "printf 'FRESH %s\n"`
+  `STALE_FOUND` exit
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py::build_workspace` — the
+  seven contract tests
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps › "is out of scope for setup — it is"`
+  — the deferred per-module map, now naming the skill
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#steps › "doc, commits touching its"`
+  — stale-map audit handoff
+- `docs/knowledge/AGENTS.md#the-operating-loop › "Code structure changed (module added, split, or moved) → the"`
+  — Record step for code-structure changes
+- `docs/knowledge/AGENTS.md#workspace-skills › "| Codebase archaeology: writes and refreshes the"`
+  — the skill's row in the workspace table
+- `docs/knowledge/STRUCTURE.md#layout › ".agents/plugins/agentdev/skills/iwe-*/ # state workflows"`
+  — skill list in the layout block
+- `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe` —
+  knowledge-graph workflow table
+- `docs/knowledge/SCHEMA.md#codebase-map--datacodebasecanonical-pathmd` —
+  codebase-map authoring contract
+- `.iwe/schemas/codebase.yaml#frontmatter.properties.type` — `source`,
+  `source_digest` pattern
+- `docs/knowledge/data/codebase.md#getting-around` — `## Getting around`,
+  `## Components`
+- `docker/desktop/agent-desktop.Dockerfile › "ARG AGENTDEV_PLUGIN_VERSION=3.3.0"`
+  — `AGENTDEV_PLUGIN_VERSION`
+- `.agents/plugins/agentdev/bin/result-codes.sh::quit_by_code` — `quit_by_code`

@@ -434,21 +434,29 @@ How `--max-used-space` counts, measured on workspace engines running Docker
 
 Anchor points at 644ebc40, the plan's base commit:
 
-- `py_packages/agentdev_runtime/agentdev_runtime/docker.py:23` — `PRUNE_AGE`;
-  `:113` — `prune`; `:138` — `main`
-- `py_packages/agentdev_runtime/agentdev_runtime/cli.py:141` — the `docker`
-  command entry
-- `py_packages/agentdev_runtime/agentdev_runtime/coder.py:15` — `STEPS`
-- `py_packages/agentdev_runtime/agentdev_runtime/settings.py:190` — the
-  `Variable` table entry pattern; `:350` — `positive`
-- `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:210` —
-  `DEPLOY_SERVICES`; `:219` — the `prune` service; `:227` —
-  `DEVCONTAINER_SERVICES`
-- `docker/deploy/supervisord.conf:115` — `program:prune`
-- `docker/devcontainer/supervisord.conf:37` — `program:dockerd`
-- `scripts/tests/test_agent_runtime_docker.py:136` —
-  `test_the_image_prune_runs_once_the_nested_engine_is_up`
-- `scripts/tests/test_coder_agent_start.py:9` — `IMAGE_PRUNE`
-- `plume-works/coder-ide-baseline@4a2d980` `template/main.tf:146` — the startup
-  script's prune; `root-container/Dockerfile:47` — `systemctl enable docker`;
-  `:50` — the `daemon.json` copy
+- `py_packages/agentdev_runtime/agentdev_runtime/docker.py::PREFIX` —
+  `PRUNE_AGE`; `py_packages/agentdev_runtime/agentdev_runtime/docker.py::run` —
+  `prune`; `py_packages/agentdev_runtime/agentdev_runtime/docker.py::_step` —
+  `main`
+- `py_packages/agentdev_runtime/agentdev_runtime/cli.py::PASSTHROUGH` — the
+  `docker` command entry
+- `py_packages/agentdev_runtime/agentdev_runtime/coder.py::STEPS` — `STEPS`
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` — the
+  `Variable` table entry pattern;
+  `py_packages/agentdev_runtime/agentdev_runtime/settings.py::Settings.boolean`
+  — `positive`
+- `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py::DEPLOY_SERVICES`
+  — `DEPLOY_SERVICES`;
+  `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py::DEPLOY_SERVICES`
+  — the `prune` service;
+  `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py › "lifecycle commands, so clients wait for the create phase."`
+  — `DEVCONTAINER_SERVICES`
+- `docker/deploy/supervisord.conf › "program:docker-gc]"` — `program:prune`
+- `docker/devcontainer/supervisord.conf › "program:dockerd]"` —
+  `program:dockerd`
+- `scripts/tests/test_agent_runtime_docker.py::test_refuses_a_second_engine_but_clears_a_stale_pid_file`
+  — `test_the_image_prune_runs_once_the_nested_engine_is_up`
+- `scripts/tests/test_coder_agent_start.py::HELPER_SETUP` — `IMAGE_PRUNE`
+- `plume-works/coder-ide-baseline@4a2d980` `template/main.tf` — the startup
+  script's prune; `root-container/Dockerfile` — `systemctl enable docker` and
+  the `daemon.json` copy
