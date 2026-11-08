@@ -331,9 +331,14 @@ carries a line-number reference (closed bugs and backlog items)
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] A local `check-anchors` hook runs `uv run scripts/check-anchors.py` with
+- [x] A local `check-anchors` hook runs `uv run scripts/check-anchors.py` with
   `always_run: true` and `pass_filenames: false`, beside the `plan-checkboxes`
   hook, and `uv run pre-commit run check-anchors --all-files` passes.
+  - **Evidence:** commit `874d23d9` adds the always-run hook beside
+    `plan-checkboxes`; `uv run pre-commit run check-anchors --all-files` passes
+    at that commit and fails naming the document when a `path:N` reference is
+    planted in an architecture document. This plan's own `## Key references`
+    resolve.
 
 ### Task 12: Record the decision
 
