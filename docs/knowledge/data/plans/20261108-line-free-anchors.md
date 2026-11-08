@@ -493,8 +493,8 @@ Verify.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints › "Never write location references"`
   — the prose-location constraint
 - `docs/knowledge/AGENTS.md#conventions › "Code anchors"` — the workspace rule
-- `docs/knowledge/STRUCTURE.md › "Code anchors are dated"` — the template
-  rationale
+- `docs/knowledge/STRUCTURE.md › "Code anchors name, never count"` — the
+  template rationale
 - `docs/knowledge/tests/test_plan_checkboxes.py::Violation` — the existing
   gate's report shape
 - `.pre-commit-config.yaml › "id: plan-checkboxes"` — the neighbouring hook
