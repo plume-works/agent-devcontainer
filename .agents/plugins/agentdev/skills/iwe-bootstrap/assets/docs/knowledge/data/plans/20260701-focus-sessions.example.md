@@ -74,10 +74,8 @@ independence requirements written from this plan's behavior.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-07-01):
-
-- `src/store/sessions.ts:15` — `appendSession()`, the log writer
-- `src/main.ts:31` — window/tray bootstrap where the view mounts
+- `src/store/sessions.ts::appendSession` — the log writer
+- `src/main.ts::bootstrap` — window/tray bootstrap where the view mounts
 
 *Convention notes: `stage: done` requires `completed` (schema-enforced), and a
 shipped plan carries no `rank`; its link in the plans hub never moved.

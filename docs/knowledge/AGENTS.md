@@ -143,9 +143,12 @@ software project's memory and system of record. The division of labor:
   synced. The delta lives inside the one plan document — there is no change
   bundle, no separate delta file, and no engine that applies it; ship reads it
   and merges deliberately, and stops when intent and verified behavior disagree.
-- **Code anchors**: `path:line — symbol` lists under `## Key references`,
-  stamped `Verified anchor points (line numbers as of YYYY-MM-DD):` — always
-  from the current checkout, never from memory.
+- **Code anchors**: `## Key references` lists the code a plan touches as anchors
+  taken from the current checkout, never from memory — `path::symbol` in code,
+  `path#heading-slug` in Markdown, `path#key.path` in YAML, JSON, and TOML,
+  `path#target` in a Makefile or Dockerfile, and the anchor plus
+  ` › "verbatim quote"` for a spot inside one. Never record a line number,
+  anywhere: it is wrong the next time the file changes.
 - **A ticked task carries the evidence that closed it**: every `- [x]` under a
   plan's `## Implementation Steps` has an indented `- **Evidence:**` child
   naming the commit, test run, or CI run behind it, written in the same edit as

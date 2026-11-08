@@ -89,11 +89,12 @@ plans as one flat list; their `rank` sets the build order, and dependencies stay
 in prose. `milestone.md` links the aggregators. No special milestone machinery —
 the graph already does it.
 
-**Code anchors are dated.** `path:line — symbol` lists under
-`## Key references`, stamped `Verified anchor points (line numbers as of ...)`.
-Line numbers rot; the stamp tells the reader how much to trust them, and the
-rule ("from the current checkout, never from memory") keeps them honest at write
-time.
+**Code anchors name, never count.** `## Key references` lists anchors —
+`path::symbol` in code, `path#heading-slug` in Markdown, `path#key.path` in
+YAML, JSON, and TOML, plus a short verbatim quote for a spot inside one — taken
+from the current checkout, never from memory. An anchor stays true until its
+target is renamed or removed, and then it stops resolving, so it carries no
+date. A line number gives no such signal and is never recorded.
 
 **Authoring rules travel with the product doc.** `data/product.md` carries an
 optional `## Authoring rules` section — per-document-type constraints the plan
