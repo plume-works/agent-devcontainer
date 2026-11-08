@@ -633,6 +633,11 @@ ruleset bypass can merge it.
 
 Removed: every review sizes itself from the diff; no marker or label requests a
 tier.
+
+### Requirement: a pull request can opt out of the AI review run
+
+Removed: replaced by "a pull request can block every AI review"; the
+`[ci:skip-ai-review]` body marker and its scenarios are gone.
 ```
 
 [AI review refresh](../spec/ai-review-refresh.md):
@@ -817,9 +822,9 @@ Verified anchor points (line numbers as of 2026-11-08):
   request label" after the Claude step
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:36`
   — `BLOCK_LABEL`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:293`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:337`
   — `BLOCKED` path
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:303`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:294`
   — stale-label check
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:15` — "Post the
   request"
