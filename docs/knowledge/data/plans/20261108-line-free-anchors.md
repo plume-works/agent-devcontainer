@@ -92,7 +92,7 @@ shape they read, and the exemption needs its own rule).
 **Files:** Create: `scripts/check-anchors.py`,
 `scripts/tests/test_check_anchors.py`
 
-- [ ] `scripts/check-anchors.py` reports, and exits non-zero on, every
+- [x] `scripts/check-anchors.py` reports, and exits non-zero on, every
   line-number reference in the scanned files: `file.ext:N` and `file.ext:N-M`,
   an extensionless `Dockerfile…:N`, `Makefile…:N`, or `Containerfile…:N`, a
   `#LN` URL fragment, and prose `line N` / `lines N` (any case). It scans
@@ -102,6 +102,9 @@ shape they read, and the exemption needs its own rule).
   trees under the tests' `TMP_ROOT` (`scripts/tests/scratch.py`): each form
   fails, an anchor-syntax reference and a `host:port` without a file extension
   pass.
+  - **Evidence:** commit `a97465fb` adds the gate;
+    `uv run pytest scripts/tests/test_check_anchors.py` passes 18 tests at that
+    commit.
 
 ### Task 2: Anchor resolver
 
