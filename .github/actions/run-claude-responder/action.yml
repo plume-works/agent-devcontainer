@@ -122,24 +122,6 @@ runs:
           echo "name=${APP_SLUG}[bot]"
         } >>"$GITHUB_OUTPUT"
 
-    # The review takes the request: see spec/ai-review-gate. Another run may
-    # already have taken it, so a missing label is not an error.
-    - name: Take the review request label
-      if: inputs.remove-request-label == 'true'
-      shell: bash
-      env:
-        GH_TOKEN: ${{ steps.app_token.outputs.token }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-      run: |
-        if ! output=$(gh api -X DELETE \
-          "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/request-ai-review" 2>&1); then
-          if [[ "${output}" != *"HTTP 404"* ]]; then
-            echo "${output}" >&2
-            exit 1
-          fi
-          echo 'Another run already took request-ai-review.'
-        fi
-
     - name: Claude Responder
       id: claude_responder
       uses: anthropics/claude-code-action@v1
@@ -153,6 +135,28 @@ runs:
         assignee_trigger: 'claude-bot'
         show_full_output: true
         prompt: ${{ inputs.prompt }}
+
+    # The finished review takes the request: see spec/ai-review-gate. A
+    # cancelled review keeps the label for the run that replaced it, and another
+    # run may already have taken it, so a missing label is not an error.
+    - name: Take the review request label
+      if: |
+        !cancelled() &&
+        inputs.remove-request-label == 'true' &&
+        contains(fromJSON('["success", "failure"]'), steps.claude_responder.outcome)
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        if ! output=$(gh api -X DELETE \
+          "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/request-ai-review" 2>&1); then
+          if [[ "${output}" != *"HTTP 404"* ]]; then
+            echo "${output}" >&2
+            exit 1
+          fi
+          echo 'Another run already took request-ai-review.'
+        fi
 
     - name: Attach responder output file
       if: always() && steps.claude_responder.outputs.execution_file != ''
