@@ -115,9 +115,9 @@ shape they read, and the exemption needs its own rule).
   `## Key references` of every plan without `stage`, the whole body of every bug
   and backlog item with `stage: pending` or `stage: planned`, and every document
   under `docs/knowledge/data/architecture/`. An anchor is a back-ticked span
-  holding a relative path with `::` or `#`, or a back-ticked path followed by
-  ` › "…"`; an all-digit fragment (`#123`, `owner/repo#123`) and a URL are not
-  anchors. Resolution rules:
+  holding a relative path with `::` or `#`, or a relative path and ` › "…"` in
+  one back-ticked span (`path#slug › "quote"`); an all-digit fragment (`#123`,
+  `owner/repo#123`) and a URL are not anchors. Resolution rules:
 
   - `path::A.b` in Python: `ast` finds class, function, or module- and
     class-level assignment `A`, then `b` inside it. In any other file: each
