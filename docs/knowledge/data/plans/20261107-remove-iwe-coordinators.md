@@ -7,9 +7,6 @@ release:
 - features/verify-report-cache
 - bugs/relayed-approval-unauthenticated
 description: Remove the iwe-implement-all and iwe-ship-all coordinators, every coordinator, child-session, and relayed-approval rule from the agentdev catalog, and rename the Implement orchestrator to the Implement session, so Implement runs only in place and takes decisions only from its own user.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T05:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md

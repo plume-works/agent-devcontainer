@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agentdev-base image, rather than published to PyPI or installed another way.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T04:31:48Z
 sources:
 - resource: docs/agents/specs/template-reuse-validation/ (folded and removed)
 ---

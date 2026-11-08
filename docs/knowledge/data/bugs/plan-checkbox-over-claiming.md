@@ -1,9 +1,6 @@
 ---
 type: bug
 description: Plan checkboxes can be ticked in bulk with no evidence and no gate, so a plan can assert work that never happened; verify audits unchecked boxes but takes ticked ones on faith.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

@@ -1,9 +1,6 @@
 ---
 type: spec
 description: validate_agent_files directory discovery uses git ignore rules inside work trees and caller-supplied directory pruning outside work trees.
-generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:46:35Z
 sources:
 - resource: py_packages/validate_agent_files/validate_agent_files/loaders.py
 - resource: py_packages/validate_agent_files/tests/test_gitignore_discovery.py

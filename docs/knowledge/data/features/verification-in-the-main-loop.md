@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Ship invokes report-only Verify for every normal plan shipment and refuses all CRITICAL findings, while cancellation remains exempt.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-26T13:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: What iwe-verifier and the pr-review flow each catch on a plan's change, measured on one plan — Verify finds code that contradicts the plan, pr-review finds a plan whose specified behaviour is itself wrong — so neither replaces the other.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T08:13:54Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md

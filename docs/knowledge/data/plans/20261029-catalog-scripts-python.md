@@ -4,9 +4,6 @@ created: 2026-10-29
 release:
 - bugs/git-new-branch-worktree-unwritable-workspaces
 description: Port every bundled shell script in the agentdev catalog, its shared bin helpers, and the publisher's Super-Linter version check to stdlib-only Python behind unchanged RESULT contracts, with a test for each script and the skill-scripts contract rewritten Python-first.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T07:39:53Z
 sources:
 - resource: .agents/plugins/agentdev/bin/result_codes.py
 - resource: .agents/plugins/agentdev/bin/result-codes.sh

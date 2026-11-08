@@ -4,9 +4,6 @@ created: 2026-11-08
 release:
 - features/ai-responder-workflows
 description: Request an AI re-review with a request-ai-review label and block every AI review with a block-ai-reviews label, replacing the assignee trigger, the [ci:skip-ai-review] body marker, and the [ci:review-effort=…] tiers.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T01:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml

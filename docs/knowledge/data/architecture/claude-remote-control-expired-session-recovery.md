@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Once the claude.ai service deletes a stopped Remote Control server's environment, its sessions cannot be reopened from claude.ai or the Claude app, but their transcripts survive on the agentdev-claude volume and `claude --resume <id> --remote-control` brings each back with its history as a new claude.ai session.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-27T06:20:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: https://code.claude.com/docs/en/remote-control

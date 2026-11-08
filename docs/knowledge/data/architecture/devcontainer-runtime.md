@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: agentdev-devcontainer owns the Dev Container lifecycle and its supervised services, so a repository references or derives from the image instead of copying lifecycle scripts; consumers extend it only through hook directories and documented environment.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile

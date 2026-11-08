@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: One zsh bootstrap script in the agentdev catalog turns a stock macOS host into one that runs agentdev natively — the catalog's CLI tools through Homebrew, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh

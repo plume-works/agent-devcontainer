@@ -5,9 +5,6 @@ stage: done
 priority: medium
 created: 2026-10-02
 completed: 2026-10-02
-generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-02T14:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The runtime images trust a TLS-intercepting proxy's CA by having the root bootstrap install an extra PEM bundle into the system store, and the base image points the per-tool CA variables at that store; the Dev Container host hands its bundle over through devcontainer-init.sh.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T20:10:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/trust.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py

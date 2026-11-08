@@ -4,9 +4,6 @@ created: 2026-11-02
 release:
 - bugs/metadata-gate-review-blocks-rerequest
 description: Let request-review.py request a fresh AI review of an already-reviewed head when the pull request's title or description changed after that head's review, so a metadata-gate stop is answered by fixing the description instead of pushing a commit.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T03:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md

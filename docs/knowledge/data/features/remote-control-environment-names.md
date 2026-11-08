@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The dev container's hostname names where it was launched from — a Coder workspace, VS Code on a machine, or the devcontainer CLI on a machine — so Claude Remote Control environments are told apart in the Claude apps.
-generated:
-  by: claude-code/opus-5
-  at: 2026-10-30T12:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer-init.sh

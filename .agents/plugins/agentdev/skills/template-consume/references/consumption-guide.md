@@ -785,17 +785,21 @@ docs/knowledge/SCHEMA.md
 docs/knowledge/STRUCTURE.md
 docs/knowledge/CHANGELOG.md
 docs/knowledge/tests/test_plan_checkboxes.py
+docs/knowledge/tests/test_banned_frontmatter_keys.py
 ```
 
 `docs/knowledge/LICENSE.md` is installed by bootstrap and consumer-owned
 afterward, like `docs/knowledge/data/`. Bootstrap installs no tests, CI, or
-hooks: copy `docs/knowledge/tests/test_plan_checkboxes.py` from the checkout
-after bootstrap succeeds, and retain the validation the workspace depends on:
+hooks: copy `docs/knowledge/tests/test_plan_checkboxes.py` and
+`docs/knowledge/tests/test_banned_frontmatter_keys.py` from the checkout after
+bootstrap succeeds, and retain the validation the workspace depends on:
 
 - `.github/workflows/validate-knowledge-base.yml` (see [Knowledge-base
   validation](#knowledge-base-validation));
 - the `iwe-schema-validate` and `iwe-normalize` pre-commit hooks, which need
   the `iwe` binary on PATH — the devcontainer image provides it;
+- the `banned-frontmatter-keys` pre-commit hook, which rejects a graph document
+  that sets `status`, `generated`, or `verified`;
 - `docs/knowledge/tests` in `pyproject.toml`'s `testpaths`.
 
 #### Requirement: only one formatter owns `docs/knowledge/`

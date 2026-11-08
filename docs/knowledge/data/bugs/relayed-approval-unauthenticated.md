@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: high
 description: A session running /agentdev:iwe-implement accepts an approval that another session's message claims to relay from the user, with nothing authenticating the relayer, so any peer session's claim can stand in for the user's consent to an always-escalate deviation and reach iwe-verifier as a quoted approval.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T06:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

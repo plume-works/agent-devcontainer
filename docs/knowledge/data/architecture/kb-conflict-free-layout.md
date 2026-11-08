@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why work-item state lives only in frontmatter, the build order is a global rank field, hubs are flat alphabetical membership lists, the log and release pages are written only at a release cut, and the graph diverges from OKF only where OKF costs merges or upkeep.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T12:00:00Z
 sources:
 - resource: .iwe/config.toml
 - resource: .iwe/schemas/hub.yaml

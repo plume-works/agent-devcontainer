@@ -4,9 +4,6 @@ description: Add a CI check that runs agentdev-base with no client-state volumes
 stage: pending
 priority: low
 created: 2026-10-29
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:01:15Z
 sources:
 - resource: docs/knowledge/data/spec/catalog-lifecycle.md
 - resource: docker/base/agentdev-base.Dockerfile

@@ -4,9 +4,6 @@ created: 2026-10-28
 stage: pending
 priority: medium
 description: Explore a way for plan task evidence to stay traceable after rebases and squash merges, since evidence lines name commits whose ids those operations rewrite or erase.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md

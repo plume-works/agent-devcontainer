@@ -2,9 +2,6 @@
 type: hub
 description: System design notes and the reasoning behind them, rejected alternatives included.
 stage: living
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:18:50Z
 ---
 
 # 🏛️ Architecture

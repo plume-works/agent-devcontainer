@@ -2,9 +2,6 @@
 type: plan
 created: 2026-08-15
 description: Make a ticked plan checkbox carry the evidence that closed it, split tasks that bundle outcomes, teach verify to test ticked boxes, and gate the format mechanically.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

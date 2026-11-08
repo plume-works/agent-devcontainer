@@ -28,10 +28,9 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   shapes of the reserved files). They stack on top of the per-type schemas, so a
   document is checked by both.
 - OKF's optional families on every type: `description` (one sentence, on all 32
-  documents), `generated` (who wrote it and when), `sources` (what it was
-  derived from — a codebase map cites the code path it describes), `resource`,
-  `stale_after` (set on codebase maps, which go stale when the code moves), and
-  `tags`.
+  documents), `sources` (what it was derived from — a codebase map cites the
+  code path it describes), `resource`, `stale_after` (set on codebase maps,
+  which go stale when the code moves), and `tags`.
 - `data/log.md` — a date-grouped history of the workspace. The release cut
   appends one dated group per release.
 - A GitHub Actions workflow that runs `iwe schema validate` and checks that
@@ -63,10 +62,6 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   (`draft | stable | deprecated`), so the workflow field moved to `stage` in all
   schemas and every document. OKF's `status` is optional and never set: `stage`
   is the one lifecycle field, so a state change edits one field.
-- **Codebase maps use OKF's `verified`.** The date-valued `verified: 2026-07-25`
-  became `verified: { by: <actor>, at: <ISO 8601> }`, which is what the field
-  always meant — who last confirmed the doc against the code. `source` and
-  `commit` are unchanged.
 - **Reference documents are validated.** The "hub documents stay unvalidated by
   design" exemption is deliberately retired: OKF conformance requires a `type`
   everywhere. Reference types still carry no `stage` — nothing about them is a
@@ -110,12 +105,12 @@ If you cloned an earlier copy of this template, in your workspace:
 2. Add `type:` to every document under `data/` — the type name matching its
    directory (`plan`, `feature`, `bug`, `release`, `task`, `codebase`, `spec`,
    `architecture`, `concept`, `someday`, `hub`, `tracker`).
-3. Convert `verified:` on codebase maps from a date to `{ by, at }`.
-4. Set `refs_extension = ".md"` in `.iwe/config.toml` and run `iwe normalize`
+3. Set `refs_extension = ".md"` in `.iwe/config.toml` and run `iwe normalize`
    from inside the workspace directory.
-5. Copy the new schemas and their `[schemas.*]` bindings from this template into
+4. Copy the new schemas and their `[schemas.*]` bindings from this template into
    your `.iwe/`.
-6. Add `description` and `generated` to your documents — the agent can backfill
-   these in one pass.
+5. Delete `generated:` and `verified:` from every document under `data/` —
+   source control records when and by whom a document changed, and the
+   `banned-frontmatter-keys` pre-commit check rejects both.
 
 Requires an `iwe` build with the `exclude` schema-binding key.

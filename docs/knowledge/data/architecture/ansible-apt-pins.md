@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the Ansible roles install apt packages unpinned, and why per-release, per-architecture apt pin files maintained by Renovate were rejected.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
 sources:
 - resource: ansible/roles
 - resource: .github/renovate.json

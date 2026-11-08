@@ -2,9 +2,6 @@
 type: plan
 created: 2026-10-07
 description: Install every agentdev catalog agent into Codex as a generated TOML agent, at image build and on every Codex reinstall, so skills that dispatch a catalog agent work on Codex.
-generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-07T12:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh

@@ -4,9 +4,6 @@ created: 2026-09-19
 stage: pending
 priority: medium
 description: Give the responder workflow's inline github-script logic executable regression coverage, which no test harness in this repository currently reaches.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T16:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/tests/

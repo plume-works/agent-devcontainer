@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: A consuming repository captures its extra pull request template sections as instructions in a consumer-owned .github/pr-description-guidance.md, which pr-gen-description reads with precedence over its own section generation.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md

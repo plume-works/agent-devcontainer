@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The workflow gate that admits an `@claude` mention folds case while the JavaScript that classified it did not, so `@Claude review` started the free-form task responder instead of a review and resolved no effort tier.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/163

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: claude remote-control --continue cannot be combined with server-mode flags and runs a single session, so server mode keeps starting without it.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 ---

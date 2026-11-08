@@ -5,9 +5,6 @@ created: 2026-08-16
 completed: 2026-09-02
 released: 1.0.0
 description: Relocate the seven IWE workflow skills from .claude/skills/ into the agentdev plugin under iwe- prefixed names, making them plugin-portable and shipping them to catalog consumers.
-generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:54:56Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md

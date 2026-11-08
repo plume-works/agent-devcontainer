@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Claude Code and OpenCode are the two agent harnesses the images, runtime, catalog, and CI support; Codex is not supported, while validate_agent_files keeps its Codex ecosystem for other repositories.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T21:00:00Z
 sources:
 - resource: docs/knowledge/data/features/claude-and-opencode-only-harnesses.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py

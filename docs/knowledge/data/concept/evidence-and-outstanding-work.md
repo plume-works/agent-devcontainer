@@ -1,9 +1,6 @@
 ---
 type: concept
 description: Evidence and outstanding work never share a heading, a status claims only what a command in this session proved, and an artifact never restates what an automated check or another document already asserts.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
 sources:
 - resource: docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
 - resource: .github/pull_request_template.md

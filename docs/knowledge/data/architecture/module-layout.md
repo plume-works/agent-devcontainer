@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 ---
 
 # Module layout

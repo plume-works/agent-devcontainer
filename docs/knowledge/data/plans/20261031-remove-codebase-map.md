@@ -6,9 +6,6 @@ release:
 - features/consumer-iwe-seed
 - features/resumable-template-consumption
 description: Remove the data/codebase/ map, the iwe-map skill, its staleness check and push gate from the catalog, this workspace, and the bootstrap scaffold, and have a template update remove the map from a consumer.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py

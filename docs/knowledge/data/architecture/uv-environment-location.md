@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the uv environment lives out of tree on the /uv volume at a fixed path, rather than as an in-tree .venv or a symlink to one.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py

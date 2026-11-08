@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Run a sibling repository's build and tests in its own devcontainer through bunx, with explicit workspace targeting and isolated registry diagnostics.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T19:31:33Z
 sources:
 - resource: .agents/plugins/agentdev/skills/devcontainer-sandbox/SKILL.md
 - resource: AGENTS.md

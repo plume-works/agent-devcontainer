@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-27
 description: Add the iwe-capture skill as the single writer of bug, feature, and task documents, enforce the SCHEMA.md body shape for bugs and features in the iwe schemas, and bring the existing documents into conformance.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T08:43:08Z
 sources:
 - resource: docs/knowledge/data/backlog/capture-skill.md
 - resource: docs/knowledge/SCHEMA.md

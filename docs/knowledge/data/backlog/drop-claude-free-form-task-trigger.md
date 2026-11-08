@@ -4,9 +4,6 @@ stage: done
 priority: low
 created: 2026-10-26
 description: Remove the free-form `@claude <prompt>` task responder — the comment, review, and issue mentions that dispatch a Claude task — once review re-requests move to the assignee trigger.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-26T03:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md

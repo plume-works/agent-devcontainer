@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The iwe-branch-name skill names a plan's work branches as iwe/<plan-slug>/iter-<N>-<plan|impl|ship>, with one iteration counter across every phase, and reads a plan's state at the remote default branch, so callers create the next branch through git-new-branch.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md

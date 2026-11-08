@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The self-improve experiential-learning plugin ships from this repository's Claude marketplace as a second catalog plugin, published but not enabled by default.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:44Z
 sources:
 - resource: .claude-plugin/marketplace.json
 - resource: .agents/plugins/self-improve

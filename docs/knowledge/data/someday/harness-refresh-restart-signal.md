@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Have the attach phase (agentdev-runtime lifecycle attached) signal long-running harness sessions started by the Coder agent through a marker file, so every harness restarts onto the catalog it just re-registered.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:01:06Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py

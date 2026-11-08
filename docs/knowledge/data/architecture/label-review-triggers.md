@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: AI reviews are requested with a request-ai-review label and held by a standing block-ai-reviews label; assignment, reviewer requests, the body markers, and requested effort tiers no longer start or shape a review. Supersedes assignee-triggered re-reviews and PR review effort tiers.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T09:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py

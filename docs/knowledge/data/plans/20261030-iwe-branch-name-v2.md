@@ -4,9 +4,6 @@ created: 2026-10-30
 release:
 - features/iwe-branch-name
 description: Rename a plan's work branches to iwe/<slug>/iter-<N>-<phase>, with one iteration counter shared by both phases so the numbers run in order across the plan's whole lifecycle.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: How work that depends on an open pull request is built, kept current, and reconnected after a squash merge with merges only — no rebase, no force-push, no gh stack.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/bin/depends_on.py
 - resource: .agents/plugins/agentdev/bin/pr_restack_all.py

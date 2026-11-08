@@ -1,9 +1,6 @@
 ---
 type: spec
 description: How the agentdev catalog's bin/macos-bootstrap.zsh provisions a stock macOS host — Homebrew tools, a uv-provisioned Python first on PATH, pinned checksum-verified release tools, login-shell PATH blocks, the agentdev plugin in Claude Code, and a final check.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 - resource: .agents/plugins/agentdev/tests/test_macos_bootstrap.py

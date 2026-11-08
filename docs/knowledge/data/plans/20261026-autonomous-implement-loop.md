@@ -5,9 +5,6 @@ description: Have the Implement orchestrator dispatch iwe-verifier after the tas
 release:
 - features/autonomous-implement-loop
 - features/verification-in-the-main-loop
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-26T05:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

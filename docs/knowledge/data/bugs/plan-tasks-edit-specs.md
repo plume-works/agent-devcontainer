@@ -3,9 +3,6 @@ type: bug
 stage: pending
 severity: medium
 description: Plan accepts implementation tasks that create or edit data/spec/ documents, which only Ship may change, and the plan-scope audit does not flag them.
-generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:22:37Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md

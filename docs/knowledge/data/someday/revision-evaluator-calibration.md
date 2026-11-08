@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Measure how often iwe-revision-evaluator approves a plan revision a human reviewer would reject, once a named hypothesis about a missed revision class gives the measurement a question to answer.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
 ---

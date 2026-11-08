@@ -5,9 +5,6 @@ stage: done
 completed: 2026-10-26
 priority: high
 description: Run Verify from a fresh context on every entry point, by moving its rulebook into an iwe-verifier catalog agent that the verify skill dispatches and the Shipper follows in place.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T18:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md

@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: medium
 description: git-new-branch chose its worktree fallback on AGENTDEV_RUNTIME_MODE=standalone, a value no image sets, so a deploy runtime defaulted to the root-owned /workspaces, and a non-root Dev Container would too.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
 - resource: .agents/plugins/agentdev/tests/test_git_new_branch.py

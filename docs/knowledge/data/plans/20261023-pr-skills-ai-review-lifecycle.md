@@ -4,9 +4,6 @@ created: 2026-10-23
 release:
 - bugs/pr-update-skips-review-eval
 description: Make every push to a reviewed pull request run the re-review evaluation, request an AI review by toggling the pull request author's assignment at most once per head SHA through a bundled script, and retire the pr-* skill logic that assumed comment-requested reviews ran invisibly on the default branch, deleting pr-discover-ai-responder.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-27T08:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-sync/SKILL.md

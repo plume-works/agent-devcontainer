@@ -7,9 +7,6 @@ release:
 - bugs/coder-docker-storage-accumulates
 - features/docker-storage-limits
 description: Replace the start-only image prune in both Docker engines of a Coder workspace with an hourly garbage collection that also trims the build cache to its 10 GB cap and removes old, unused, disposable volumes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T21:45:00Z
 sources:
 - resource: docs/knowledge/data/bugs/coder-docker-storage-accumulates.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py

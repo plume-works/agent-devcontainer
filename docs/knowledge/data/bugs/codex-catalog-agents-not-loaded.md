@@ -1,9 +1,6 @@
 ---
 type: bug
 description: Codex never loads the agentdev catalog's agents/*.agent.md files, so every skill step that dispatches a catalog agent — iwe-plan's Durable Knowledge Auditor gate, pr-feedback-resolution's Principal Engineer delegation — cannot run as written on Codex.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:11:11Z
 sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: .agents/plugins/agentdev/.codex-plugin/plugin.json
