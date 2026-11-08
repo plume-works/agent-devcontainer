@@ -48,9 +48,10 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-26.04
+    # issues: write removes the one-shot request-ai-review label.
     permissions:
       contents: read
-      issues: read
+      issues: write
       pull-requests: read
     outputs:
       checkout_ref: ${{ steps.checkout_ref.outputs.ref }}
@@ -64,6 +65,27 @@ jobs:
       review_effort: ${{ steps.agent_prompts.outputs.reviewEffort }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
+      # Cleared before authorization, so a rejected request is cleared too.
+      # Label lifecycle: see spec/ai-review-gate.
+      - name: Clear the review request label
+        if: github.event.action == 'labeled' && github.event.label.name == 'request-ai-review'
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                name: 'request-ai-review',
+              });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+              core.info('request-ai-review was already removed.');
+            }
+
       - name: Determine checkout ref
         id: checkout_ref
         uses: actions/github-script@v9.0.0
@@ -94,10 +116,17 @@ jobs:
             core.setOutput('isFork', isFork);
             core.setOutput('isPullRequest', Boolean(pullRequest));
             core.setOutput('isDraft', Boolean(pullRequest?.draft));
-            // Own-line match: a body that discusses the marker inline is prose,
-            // not a directive. See spec/ai-review-gate.
-            const skipAiReview = /^[^\S\r\n]*\[ci:skip-ai-review\][^\S\r\n]*\r?$/m;
-            core.setOutput('skipAiReview', skipAiReview.test(pullRequest?.body ?? ''));
+            // Read live, not from the payload, so a label added just after the
+            // pull request was created still counts.
+            const labels = pullRequest
+              ? await github.paginate(github.rest.issues.listLabelsOnIssue, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pullRequest.number,
+                  per_page: 100,
+                })
+              : [];
+            core.setOutput('skipAiReview', labels.some((label) => label.name === 'skip-ai-review'));
             const reviewEffort = /^[^\S\r\n]*\[ci:review-effort=(light|full)\][^\S\r\n]*\r?$/m;
             core.setOutput('bodyReviewEffort', reviewEffort.exec(pullRequest?.body ?? '')?.[1] ?? '');
 
@@ -152,13 +181,16 @@ jobs:
             // When the review job runs: see spec/ai-review-gate, "a review
             // runs on first push and on explicit request".
             const wantsReview = (() => {
-              if (process.env.SKIP_AI_REVIEW === 'true') {
-                return false;
-              }
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
                 return false;
               }
-              if (['opened', 'ready_for_review', 'reopened', 'assigned'].includes(payload.action)) {
+              if (payload.action === 'labeled') {
+                return payload.label?.name === 'request-ai-review';
+              }
+              if (process.env.SKIP_AI_REVIEW === 'true') {
+                return false;
+              }
+              if (['opened', 'ready_for_review', 'reopened'].includes(payload.action)) {
                 return true;
               }
               return payload.action === 'synchronize' && process.env.REVIEW_EXISTS !== 'true';
