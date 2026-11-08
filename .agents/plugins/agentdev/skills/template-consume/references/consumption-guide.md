@@ -379,13 +379,14 @@ prerequisites are **required**:
    private key. A job naming an environment that does not exist does not run,
    and a job whose App secrets are empty fails rather than falling back to
    `GITHUB_TOKEN`.
-3. **Create the `request-ai-review` and `skip-ai-review` labels.** Adding
+3. **Create the `request-ai-review` and `block-ai-reviews` labels.** Adding
    `request-ai-review` requests a review; the review job removes it, as the
    App, once the review finishes; a push that cancels the review leaves it for
-   the push's run. `skip-ai-review` stays until removed and stops the
-   automatic reviews on open, ready for review, reopen, and push, but never an
-   explicit `request-ai-review`, and never the gate: a labelled pull request
-   without an accepted review still needs ruleset bypass to merge.
+   the push's run. While `block-ai-reviews` is on, no review runs at all, an
+   explicit `request-ai-review` included; a request added meanwhile stays on,
+   and removing `block-ai-reviews` runs it. The block never waives the gate: a
+   blocked pull request without an accepted review still needs ruleset bypass
+   to merge.
 
 The gate checks that the pull request has been reviewed, not that its current
 head commit has. A push after a review does not re-open it; the author
@@ -452,10 +453,10 @@ Two trigger behaviors are part of the workflow contract:
   a pull request that has no accepted review yet; a push to an already-reviewed
   pull request runs the gate alone, which passes on the existing review. Adding
   a blanket review-every-push would be prohibitively expensive; re-request a
-  review of a reviewed pull request by adding `request-ai-review` instead. That
-  label reviews whether or not an accepted review exists, and outranks
-  `skip-ai-review`. Assigning someone or requesting a reviewer starts no run.
-  Any other label starts a run in its own concurrency group, so it cannot
+  review of a reviewed pull request by adding `request-ai-review` instead. That label reviews whether or not an accepted review exists, unless
+  `block-ai-reviews` is on. Assigning someone or requesting a reviewer starts
+  no run. Removing `block-ai-reviews` starts a run that reviews a waiting
+  request; any other label change starts a run in its own concurrency group, so it cannot
   replace a queued review, and its gate reports on the existing reviews.
 - **No comment starts the workflow.** It triggers only on `pull_request`,
   `pull_request_review`, and `merge_group`, so every run uses the pull
@@ -720,7 +721,7 @@ replaces or removes it.
 If the AI responder workflows are among the files taken, their three
 prerequisites apply here too — the GitHub App, the `plume-works-review`
 environment with its three secrets, and the `request-ai-review` and
-`skip-ai-review` labels. Copying the files alone is not enough, and none of them
+`block-ai-reviews` labels. Copying the files alone is not enough, and none of them
 is visible in a diff.
 
 ### 5. Set up project memory

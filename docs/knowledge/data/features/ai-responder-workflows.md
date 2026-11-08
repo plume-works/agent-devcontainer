@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow, triggered only by pull request events, gives the repository automated PR review with a read-only review responder and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-08T08:00:00Z
+  at: 2026-11-08T09:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -120,14 +120,15 @@ scripts and the workflow that supplies their devcontainer contract is recorded
 in [CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md).
 
-**Pull requests can opt out of the automatic review, not out of the gate.** The
-`skip-ai-review` label stops the review responder on open, ready for review,
-reopen, and push; preflight reads the labels when it runs, so a label added
-after it read them does not apply to that run. An explicit `request-ai-review`
-still runs a review. `ai-review-present` never reads the label: a skipped job
-satisfies a required check, so a label the gate honoured would be a waiver of
-the mandatory review for anyone who can label a pull request. A labelled PR
-without an accepted review keeps a red gate, mergeable only by ruleset bypass.
+**Pull requests can block every review, not the gate.** While the
+`block-ai-reviews` label is on, no review runs, an explicit `request-ai-review`
+included; a request added meanwhile stays on the pull request, and removing
+`block-ai-reviews` starts a run that reviews it. Preflight reads the labels when
+it runs, so a label added after it read them does not apply to that run.
+`ai-review-present` never reads the label: a skipped job satisfies a required
+check, so a label the gate honoured would be a waiver of the mandatory review
+for anyone who can label a pull request. A blocked PR without an accepted review
+keeps a red gate, mergeable only by ruleset bypass.
 
 **Every review sizes itself.** No marker, label, or prompt line requests an
 effort tier; the review chooses its passes and models from the diff and keeps
