@@ -173,14 +173,10 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [x] Every preflight run outside a `label-<run id>` group removes
+- [ ] Every preflight run outside a `label-<run id>` group removes
   `request-ai-review` when the pull request carries it, before authorization,
-  with `GITHUB_TOKEN` holding `issues: write`.
-  - **Evidence:** commit f89608a9; "Determine checkout ref" reports
-    `requestLabel` from the live labels, and "Take the review request label"
-    runs before authorization whenever it is set unless the event added another
-    label, removing it and treating a 404 as taken by another run; preflight's
-    `GITHUB_TOKEN` holds `issues: write`; actionlint and zizmor pass.
+  with `GITHUB_TOKEN` holding `pull-requests: write`, which removing a label
+  from a pull request needs.
 - [x] Preflight reads the pull request's current labels from the API.
   - **Evidence:** commit ebfe8ab4; "Determine checkout ref" pages
     `github.rest.issues.listLabelsOnIssue` for the pull request; actionlint
