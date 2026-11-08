@@ -328,6 +328,7 @@ docs/knowledge/SCHEMA.md
 docs/knowledge/STRUCTURE.md
 docs/knowledge/CHANGELOG.md
 docs/knowledge/tests/test_plan_checkboxes.py
+docs/knowledge/tests/test_banned_frontmatter_keys.py
 ```
 
 `docs/knowledge/data/` is deliberately absent. It is the publisher's project
