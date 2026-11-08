@@ -18,6 +18,9 @@ instead.*
 [Let Implement verify, fix, and revise on its
 own](backlog/autonomous-implement-loop.md)
 
+[Resolve bare-path anchors or narrow the live-anchor
+requirement](backlog/bare-path-anchors.md)
+
 [Smoke-test the agentdev-base catalog without lifecycle
 commands](backlog/base-image-catalog-smoke-test.md)
 
