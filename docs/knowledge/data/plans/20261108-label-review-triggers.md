@@ -652,14 +652,16 @@ The catalog SHALL request an AI review only through `pr-request-ai-review`'s
 label to the pull request. The catalog SHALL NOT change the pull request's
 assignees to request a review, and SHALL NOT post an `@claude review` comment.
 
-While the pull request carries `block-ai-reviews`, the script SHALL add
+While the pull request carries `block-ai-reviews`, the script SHALL first
+report `ALREADY_REVIEWED` or `ALREADY_REQUESTED` where the rules below find the
+input reviewed or a responder check requesting it; otherwise it SHALL add
 `request-ai-review` unless it is already present, and SHALL report `BLOCKED`,
 because no review can run until the block is lifted.
 
 A review's input is the head commit together with the pull request's title and
 description, which a review run reads when it starts. While the pull request
-already carries the label, the script SHALL NOT add it when a run of
-`ai-responder.yml` on the head branch is unfinished, because a run in the pull
+already carries the label and is not blocked, the script SHALL NOT add it
+when a run of `ai-responder.yml` on the head branch is unfinished, because a run in the pull
 request's concurrency group takes the label; with no unfinished run the label
 is stale, and the script SHALL remove it and add it again. The script SHALL NOT
 add the label for a head commit that
@@ -686,15 +688,24 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 
 ### Scenario: the label is waiting for a run
 
-- **WHEN** the pull request carries `request-ai-review` and a run of
-  `ai-responder.yml` on the head branch is unfinished
+- **WHEN** the pull request carries `request-ai-review`, does not carry
+  `block-ai-reviews`, and a run of `ai-responder.yml` on the head branch is
+  unfinished
 - **THEN** the script adds no label and reports `ALREADY_REQUESTED`.
 
 ### Scenario: the pull request is blocked
 
-- **WHEN** the pull request carries `block-ai-reviews`
+- **WHEN** the pull request carries `block-ai-reviews`, and no accepted review
+  or responder check covers its input
 - **THEN** the script adds `request-ai-review` unless it is already present, and
   reports `BLOCKED`.
+
+### Scenario: a blocked pull request that is already reviewed
+
+- **WHEN** the pull request carries `block-ai-reviews`, and an accepted AI
+  review already names its head after the latest title or description edit
+- **THEN** the script adds no label and reports `ALREADY_REVIEWED`, so lifting
+  the block does not review the same input again.
 
 ### Scenario: the label is stale
 
