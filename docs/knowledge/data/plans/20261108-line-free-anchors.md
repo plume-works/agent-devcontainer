@@ -305,11 +305,15 @@ shape they read, and the exemption needs its own rule).
 **Files:** Modify: every plan under `docs/knowledge/data/plans/` with
 `stage: done` or `stage: cancelled` that carries a line-number reference
 
-- [ ] Every line-number reference becomes an anchor in the Approach syntax and
+- [x] Every line-number reference becomes an anchor in the Approach syntax and
   every `Verified anchor points` stamp is removed; the gate reports nothing
   under `docs/knowledge/data/plans/`. An anchor in a closed plan names what the
   reference named — its symbol, heading, key, or quoted text — and need not
   resolve: a file the plan cites may since have been deleted.
+  - **Evidence:** commit `851f545e` rewrites the references and removes the
+    stamps in every closed plan, bare `:N` continuations included;
+    `uv run scripts/check-anchors.py` reports nothing under
+    `docs/knowledge/data/plans/` at that commit.
 
 ### Task 10: Rewrite the remaining closed documents' references
 
