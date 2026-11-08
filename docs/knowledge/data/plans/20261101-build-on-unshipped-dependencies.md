@@ -7,11 +7,10 @@ release:
 description: Let Implement start a plan whose dependency has not shipped by stacking its branch on the dependency's open pull requests, and make Ship refuse a plan until every dependency has shipped.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T14:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
 rank: 500
 ---
@@ -81,16 +80,12 @@ every dependent plan behind a full ship cycle.
 
 ### Task 2: Implement stacks on an unshipped dependency
 
-**Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`,
-`.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md`
+**Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
 - [ ] Step 3 accepts an unshipped dependency that has an open pull request and
   stops only on one without; step 4 runs Task 1's script and passes each printed
   pull request to `git-new-branch --depends-on`, or cuts from `main` when none
   is printed
-- [ ] `iwe-implement-all` no longer says a plan stops at an unshipped
-  dependency, and dispatches a dependent plan once its dependency has an open
-  pull request
 
 ### Task 3: Ship refuses a plan before its dependencies ship
 
@@ -169,12 +164,6 @@ no state change.
 - **WHEN** Ship runs on a plan whose dependency is still active
 - **THEN** it returns a blocker report naming the dependency and leaves the plan
   active
-
-#### Scenario: Dependency blocked earlier in a ship-all run
-
-- **WHEN** iwe-ship-all ships a dependency that comes back blocked, then a plan
-  depending on it
-- **THEN** the dependent plan is not shipped
 ```
 
 ## Depends on
@@ -196,7 +185,6 @@ dependency is unmerged.
 
 ## Out of scope
 
-- Ship ordering inside `iwe-ship-all` beyond the Shipper's own check.
 - Restacking a plan branch after its dependency merges; `pr-restack-all` and the
   rewritten `pr-merge-stack` of the dependency plan own that.
 
@@ -212,10 +200,6 @@ Verified anchor points (line numbers as of 2026-11-01):
   operation and inspect current state
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
   for normal shipping
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:16` — a plan stops
-  at its own dependency check
-- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — dispatch in
-  dependency order
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:283`
   — `read_plan_state`
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:327`

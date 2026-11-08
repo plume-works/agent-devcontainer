@@ -6,7 +6,7 @@ release:
 description: Add the iwe-plan-review skill, which dispatches the Durable Knowledge Auditor and iwe-ship-reviewer in plan mode on one plan and returns both reports, and have iwe-planner step 7 run it on every plan edit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T07:40:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md
@@ -35,7 +35,7 @@ model-invocable so `iwe-planner` can run it.
 `Durable Knowledge Auditor` dispatch. It applies the auditor's verdicts as
 today, and fixes the plan for each `iwe-ship-reviewer` finding, asking the user
 where a fix is a material choice. Every mode of the rulebook runs it, so the
-Implement orchestrator's revisions are reviewed the same way.
+Implement session's revisions are reviewed the same way.
 
 Rejected: widening the `Durable Knowledge Auditor` agent's rubric to Ship's
 obligations. `iwe-ship-reviewer` has to exist for its ship mode anyway, and one
@@ -125,13 +125,12 @@ mode for what Ship will need.
 
 ### Requirement: Implement verifies its own work and acts on the report
 
-When a plan's last task closes, the Implement orchestrator — the user's session
-for `/agentdev:iwe-implement`, and the `iwe-implement-all` coordinator for each
-plan it runs — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
+When a plan's last task closes, the Implement session — the session that loaded
+`/agentdev:iwe-implement` — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
 every CRITICAL finding and every WARNING that names a concrete route, reporting
 SUGGESTIONs only. A code or evidence finding SHALL be fixed under the Implement
 rules and verified again, and a finding about the plan's intent SHALL go through
-an evaluated revision. The orchestrator SHALL stop when a finding recurs after a
+an evaluated revision. The Implement session SHALL stop when a finding recurs after a
 fix attempt, after three Verify rounds, or after one approved revision in the
 run. No agent the loop dispatches SHALL dispatch another, except the two
 agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
@@ -146,13 +145,13 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 #### Scenario: Verify finds a code defect
 
 - **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
-- **THEN** the orchestrator fixes it under the Implement rules, closes it with
-  evidence, and runs Verify again through `/agentdev:iwe-verify`
+- **THEN** the Implement session fixes it under the Implement rules, closes it
+  with evidence, and runs Verify again through `/agentdev:iwe-verify`
 
 #### Scenario: A finding recurs
 
-- **WHEN** a finding the orchestrator already tried to fix appears in the next
-  Verify report
+- **WHEN** a finding the Implement session already tried to fix appears in the
+  next Verify report
 - **THEN** the run stops and reports the finding, the fix it attempted, and the
   Verify report
 
@@ -162,13 +161,6 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
   working tree
 - **THEN** the run stops and names the approval, which the user grants by
   re-running the skill
-
-#### Scenario: The coordinator implements every active plan
-
-- **WHEN** the user runs `/agentdev:iwe-implement-all`
-- **THEN** the coordinator dispatches `iwe-implementer` once per plan in
-  dependency order, runs the same loop for that plan before the next, and
-  re-posts each rollup with its Verify and evaluator verdicts
 ```
 
 ## Depends on

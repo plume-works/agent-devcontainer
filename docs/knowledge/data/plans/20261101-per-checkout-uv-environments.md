@@ -7,7 +7,7 @@ release:
 description: Give every checkout in a devcontainer its own uv environment — a .venv link into a per-checkout directory on the /uv volume, hardlinked to the cache there — created by one agentdev-runtime subcommand that git's post-checkout hook, the agentdev plugin's SessionStart and SubagentStart hooks, and the attach phase call.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T03:30:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
@@ -27,9 +27,9 @@ in a devcontainer — the main one and each `.claude/worktrees/*` — uses
 `/uv/venvs/ws-project`, and each `uv run` repoints its editable installs and
 exact-synced dependencies at the invoking checkout, so concurrent sessions run
 each other's code. Agent sessions create worktrees on their own: a session
-started from claude.ai, a subagent dispatched with `isolation: worktree` by
-implement-all, or a merge of an unrelated pull request. This applies to Mac
-checkouts as much as to Coder workspaces.
+started from claude.ai, a subagent dispatched with `isolation: worktree`, or a
+merge of an unrelated pull request. This applies to Mac checkouts as much as to
+Coder workspaces.
 
 This plan changes [uv-run-only
 environment](../features/uv-run-only-environment.md): the environment stops

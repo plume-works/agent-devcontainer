@@ -6,11 +6,10 @@ release:
 description: Add the iwe-ship-reviewer catalog agent with a plan mode and a ship mode, give iwe-shipper a fix operation, and have every route that ships a plan review the result and fix its gaps up to three times, stamping the plan with a Ship review checklist.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T07:30:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/657
 ---
@@ -53,7 +52,6 @@ ship while a bug its `release` lists has no `## Fix`.
 `iwe-ship-reviewer` in ship mode with the plan key. On a gap list it dispatches
 `iwe-shipper` with `fix` and the gaps quoted, then reviews again, for at most 3
 fix rounds, and reports the remaining gaps if any are left.
-`/agentdev:iwe-ship-all` runs the same loop for each plan it ships.
 
 Rejected: `iwe-shipper` dispatching `iwe-ship-reviewer` as its last step. The
 repository owner put the loop in `/agentdev:iwe-ship`.
@@ -113,13 +111,11 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 ### Task 3: Ship runs the review loop
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md`,
-`.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
 - [ ] `/agentdev:iwe-ship` dispatches `iwe-ship-reviewer` in ship mode after a
   shipped plan, dispatches `iwe-shipper` with `fix` on a gap list for at most 3
   rounds, and reports the reviewer's outcome and any remaining gaps.
-- [ ] `/agentdev:iwe-ship-all` runs that loop for each plan it ships.
 - [ ] `iwe-planner` step 8, after it re-dispatches `iwe-shipper` for a Ship
   blocker report and the plan ships, runs the same review loop.
 
@@ -141,8 +137,8 @@ the review.
 ### Requirement: Every ship is reviewed against Ship's obligations
 
 `iwe-shipper` SHALL NOT commit a ship while a bug its plan's `release` lists has
-no `## Fix`. After `iwe-shipper` ships a plan, `/agentdev:iwe-ship`, the
-`iwe-ship-all` coordinator, and Plan revise mode answering a Ship blocker report
+no `## Fix`. After `iwe-shipper` ships a plan, `/agentdev:iwe-ship` and Plan revise
+mode answering a Ship blocker report
 SHALL dispatch `iwe-ship-reviewer` in ship mode with
 the plan key. When it reports gaps, they SHALL dispatch `iwe-shipper` with the
 operation `fix` and the gaps quoted, which SHALL perform only those operations
@@ -205,8 +201,6 @@ Verified anchor points (line numbers as of 2026-11-03):
   commit, and report; `:180` — `## Report`
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — step 2, Dispatch
   `iwe-shipper`; `:29` — step 3, Re-post its report
-- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — dispatches
-  `iwe-shipper` once per plan
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:158` — step 8
   re-dispatches `iwe-shipper` for a Ship blocker report
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:679` — Requirement: Ship and

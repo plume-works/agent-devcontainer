@@ -173,12 +173,10 @@ documents. They are the project's memory across sessions.
 | `/agentdev:iwe-plan`               | Files a plan with verified anchors and its spec impact.             |
 | `/agentdev:iwe-capture`            | Files a complete bug, proposed feature, or task, deduplicated.      |
 | `/agentdev:iwe-implement`          | Executes a plan task-by-task, ticking boxes with evidence.          |
-| `/agentdev:iwe-implement-all`      | Implements every active plan in turn.                               |
 | `/agentdev:iwe-branch-name`        | Names a plan's next `iwe/` iteration branch.                        |
 | `/agentdev:iwe-verify`             | Pre-ship gate and drift audit: graph claims checked against code.   |
 | `/agentdev:iwe-adversarial-review` | Tries to defeat a plan's design or its code; runs only when asked.  |
 | `/agentdev:iwe-ship`               | Closes the loop: spec sync, stage flips, release recording.         |
-| `/agentdev:iwe-ship-all`           | Ships every implemented plan in turn.                               |
 | `/agentdev:iwe-weekly`             | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |
 | `/agentdev:iwe-audit`              | Prunes session residue from documents and comments.                 |
 

@@ -12,7 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
-rank: 193
+stage: cancelled
 ---
 
 # Let any session asked to ship a named plan start Ship
