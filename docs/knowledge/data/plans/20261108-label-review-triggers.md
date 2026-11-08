@@ -239,15 +239,32 @@ Assumptions:
   - **Evidence:** commit 996fd4b7; the script POSTs `labels[]=request-ai-review`
     to `issues/<n>/labels` and has no assignee call;
     `test_request_adds_the_label` and `test_assignees_are_never_touched` pass.
-- [ ] With `request-ai-review` already on the pull request, it reports
+- [x] With `request-ai-review` already on the pull request, it reports
   `ALREADY_REQUESTED` while a run of `ai-responder.yml` on the head branch is
   unfinished, and otherwise removes and re-adds the label and reports `SUCCESS`.
-- [ ] Tests cover a present label with an unfinished run, a stale label being
+  - **Evidence:** commit 34f6546e; with the label present, `run()` lists
+    `ai-responder.yml` runs on the head branch, returns `ALREADY_REQUESTED`
+    while one is unfinished, and otherwise DELETEs and re-POSTs the label before
+    reporting `SUCCESS`; the three stale-label tests pass.
+- [x] Tests cover a present label with an unfinished run, a stale label being
   removed and re-added, and a failing removal.
-- [ ] Tests cover the label being added, the label already present, and that no
+  - **Evidence:** commit 34f6546e;
+    `test_label_waiting_for_a_run_is_already_requested`,
+    `test_stale_label_is_removed_and_added_again`, and
+    `test_failing_stale_label_removal_is_gh_unavailable` pass among the 40.
+- [x] Tests cover the label being added, the label already present, and that no
   assignee call is made.
-- [ ] `SKILL.md` describes the label request, the re-sent stale label, and its
+  - **Evidence:** commit 34f6546e;
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes
+    40 tests, including `test_request_adds_the_label`,
+    `test_label_waiting_for_a_run_is_already_requested`, and
+    `test_assignees_are_never_touched`.
+- [x] `SKILL.md` describes the label request, the re-sent stale label, and its
   confirmation.
+  - **Evidence:** commit 34f6546e; "Post the request" says any responder run
+    takes the label, that the script re-sends a stale one, and that re-adding by
+    hand sends nothing, and the result table matches; `validate_agent_files`
+    reports 0 errors, prettier passes.
 
 ### Task 5: Merge and evaluation skills follow the label
 
