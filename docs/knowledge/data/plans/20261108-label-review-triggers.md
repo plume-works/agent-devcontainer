@@ -141,11 +141,16 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] The `pull_request` types are `opened`, `reopened`, `ready_for_review`,
+- [x] The `pull_request` types are `opened`, `reopened`, `ready_for_review`,
   `synchronize`, and `labeled`.
-- [ ] The concurrency group of a `labeled` event for a label other than
+  - **Evidence:** commit 4b349b9b; `on.pull_request.types` lists `opened`,
+    `reopened`, `ready_for_review`, `synchronize`, `labeled`; actionlint passes.
+- [x] The concurrency group of a `labeled` event for a label other than
   `request-ai-review` is unique to its run, and every other `pull_request` event
   keeps `pr-<n>`.
+  - **Evidence:** commit 4b349b9b; the group expression maps a `labeled` event
+    whose `github.event.label.name` is not `request-ai-review` to
+    `label-<run id>` before the `pr-<n>` branch; actionlint and zizmor pass.
 
 ### Task 2: Preflight honours the two labels
 
