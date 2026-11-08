@@ -505,8 +505,8 @@ Verify.
 - `uv run pytest scripts/tests/test_check_anchors.py` passes.
 - `uv run scripts/check-anchors.py` exits 0 on the checkout.
 - `uv run pre-commit run check-anchors --all-files` passes.
-- `grep -rn "Verified anchor points\|line numbers as of" docs/knowledge .agents/plugins/agentdev`
-  finds nothing.
+- `grep -rnE '^Verified anchor points \(line numbers as of' docs/knowledge .agents/plugins/agentdev`
+  finds no stamp line; prose that mentions the stamp does not match.
 - `cmp` of each of `docs/knowledge/AGENTS.md`, `STRUCTURE.md`, and `SCHEMA.md`
   against its copy under
   `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/` reports
