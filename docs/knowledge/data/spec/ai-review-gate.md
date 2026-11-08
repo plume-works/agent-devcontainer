@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
+  at: 2026-11-08T00:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -13,6 +13,7 @@ sources:
 - resource: data/architecture/ai-review-event-selection.md
 - resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
 - resource: data/plans/20261107-drop-claude-task-responder.md
+- resource: data/plans/20261030-responder-quill-app-identity.md
 ---
 
 # AI review gate
@@ -20,8 +21,9 @@ sources:
 ## Requirement: PRs are blocked until an AI review exists
 
 A pull request SHALL NOT be mergeable until Claude has reviewed it. The
-`ai-review-present` check SHALL accept a review from `claude[bot]` or
-`github-actions[bot]` in state `approved`, `changes_requested`, or `commented`.
+`ai-review-present` check SHALL accept a review only from
+`plume-works-quill[bot]`, in state `approved`, `changes_requested`, or
+`commented`.
 
 The check SHALL NOT require that the review name the pull request's current head
 commit. It asserts that the pull request has been reviewed, not that each pushed
@@ -63,6 +65,27 @@ in that workflow run, and it SHALL evaluate without polling.
 - **WHEN** the review job did not run in a run and no accepted review exists on
   the pull request
 - **THEN** `ai-review-present` fails, blocking merge.
+
+### Scenario: only another identity has reviewed
+
+- **WHEN** the pull request's only reviews are by `github-actions[bot]` or
+  `claude[bot]`
+- **THEN** `ai-review-present` treats it as unreviewed.
+
+## Requirement: the responder acts as its own GitHub App
+
+The review responder and the trusted-bot approval SHALL post with an
+installation token of the `plume-works-quill` App, minted per job with only the
+permissions that job needs and after any code from the pull request head has
+run. A job whose App secrets are missing SHALL fail and SHALL NOT fall back to
+`GITHUB_TOKEN`. The App's token SHALL NOT carry contents write access, and the
+responder SHALL NOT open a pull request.
+
+### Scenario: the App secrets are missing
+
+- **WHEN** a responder job runs and `QUILL_APP_CLIENT_ID` or
+  `QUILL_APP_PRIVATE_KEY` is empty
+- **THEN** the job fails naming the missing secret, and nothing is posted.
 
 ## Requirement: the responder only acts for authorized same-repository requests
 
@@ -236,7 +259,8 @@ creation and every push and force push since. When any commit or update fails
 that check it SHALL NOT approve, and SHALL dismiss its own standing approval. It
 SHALL NOT check out the pull request, SHALL NOT approve a pull request that
 already carries its approval, and SHALL skip a run triggered by
-`dependabot[bot]`, whose token cannot approve.
+`dependabot[bot]`, which cannot read the App secrets in the `plume-works-review`
+environment.
 
 ### Scenario: Renovate opens a pull request
 
