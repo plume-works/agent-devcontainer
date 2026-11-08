@@ -215,13 +215,28 @@ Assumptions:
 `.agents/plugins/agentdev/tests/test_request_review.py`,
 `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md`
 
-- [ ] `request-review.py` requests a review by adding `request-ai-review` and no
+- [x] `request-review.py` requests a review by adding `request-ai-review` and no
   longer touches assignees.
-- [ ] It reports `ALREADY_REQUESTED` when `request-ai-review` is already on the
+  - **Evidence:** commit 996fd4b7; the script POSTs `labels[]=request-ai-review`
+    to `issues/<n>/labels` and has no assignee call;
+    `test_request_adds_the_label` and `test_assignees_are_never_touched` pass.
+- [x] It reports `ALREADY_REQUESTED` when `request-ai-review` is already on the
   pull request.
-- [ ] Tests cover the label being added, the label already present, and that no
+  - **Evidence:** commit 996fd4b7; `run()` returns `ALREADY_REQUESTED` when the
+    pull request's `labels` include `request-ai-review`, before any write;
+    `test_label_already_present_is_already_requested` passes.
+- [x] Tests cover the label being added, the label already present, and that no
   assignee call is made.
-- [ ] `SKILL.md` describes the label request and its confirmation.
+  - **Evidence:** commit 996fd4b7;
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes
+    38 tests, including `test_request_adds_the_label`,
+    `test_label_already_present_is_already_requested`, and
+    `test_assignees_are_never_touched`.
+- [x] `SKILL.md` describes the label request and its confirmation.
+  - **Evidence:** commit 996fd4b7; "Post the request" and "Confirm it started"
+    describe adding `request-ai-review`, the label as a pending request, and the
+    causes when no review starts; `validate_agent_files` reports 0 errors,
+    prettier passes.
 
 ### Task 5: Merge and evaluation skills follow the label
 
