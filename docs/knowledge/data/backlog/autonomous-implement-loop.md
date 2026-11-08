@@ -5,9 +5,6 @@ stage: done
 completed: 2026-10-26
 priority: high
 description: Let Implement run Verify itself, act on its findings, and revise its own plan after a fresh-context evaluator approves the revision, escalating to the user only for narrowing, dropping, or release changes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T18:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md

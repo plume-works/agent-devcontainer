@@ -1,9 +1,6 @@
 ---
 type: bug
 description: Pushing new work to an already-reviewed pull request through pr-sync, pr-open's update mode, or pr-merge's CI-fix push never evaluates whether a fresh AI review is needed, and the once-per-head trigger rule lives only in conversation memory.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-sync/SKILL.md

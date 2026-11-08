@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: pr-feedback-resolution resolves a pull request's merge conflict with its base before any feedback edit, and pr-merge routes a conflicted PR there, so CI runs on the merged head.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261002-pr-feedback-resolve-merge-conflicts.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md

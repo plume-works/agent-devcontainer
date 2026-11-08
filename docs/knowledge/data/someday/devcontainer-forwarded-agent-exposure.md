@@ -1,9 +1,6 @@
 ---
 type: someday
 description: A VS Code Dev Containers window forwards the Mac's SSH and GPG agent sockets into the container, so any container process can sign and authenticate with the user's keys; research whether this can be narrowed without breaking the workflows that rely on it.
-generated:
-  by: claude-code/opus-4.8
-  at: 2026-10-21T00:00:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 ---

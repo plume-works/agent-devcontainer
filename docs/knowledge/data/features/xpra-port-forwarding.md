@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Xpra listens on container port 14500, which the devcontainer forwards explicitly, and VS Code chooses the local port, so each devcontainer's remote desktop opens from the Ports panel.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20260905-xpra-vscode-port-forwarding.md
 - resource: .devcontainer/devcontainer.json

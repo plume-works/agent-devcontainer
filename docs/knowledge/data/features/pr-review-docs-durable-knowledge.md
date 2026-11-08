@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: pr-review reviews docs and skills critically for durable-knowledge adherence by invoking iwe-audit in a report-only diff mode, running a conditional file-following durable-knowledge pass, while only version-only and generated-file-only diffs stay fast-approved.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md

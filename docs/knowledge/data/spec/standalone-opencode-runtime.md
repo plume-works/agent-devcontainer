@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py

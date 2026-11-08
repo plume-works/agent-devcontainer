@@ -1,9 +1,6 @@
 ---
 type: spec
 description: How the published ubuntu-ansible, agentdev-base, agentdev-deploy, and agentdev-devcontainer images are tagged after acceptance, and pinned and updated by consumers.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-05T12:00:00Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md

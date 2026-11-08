@@ -1,9 +1,6 @@
 ---
 type: spec
 description: How self-hosted Renovate keeps checksums, lock files, and pre-commit output in the same change as the version bump that implies them.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
 sources:
 - resource: .github/renovate.json
 - resource: .github/workflows/renovate.yml

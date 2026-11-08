@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: A dedicated agentdev-deploy image starts a persistent single-project agent environment with OpenCode, nested Docker, keyring, and Xpra without a Dev Containers client.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/base/agentdev-base.Dockerfile

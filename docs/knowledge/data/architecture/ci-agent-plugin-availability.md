@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py

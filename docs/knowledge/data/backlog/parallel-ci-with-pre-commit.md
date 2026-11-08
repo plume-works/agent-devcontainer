@@ -4,9 +4,6 @@ created: 2026-10-31
 stage: pending
 priority: low
 description: Decide from the pre-commit job's recorded step timings whether Primary checks should start the ci job in parallel with the pre-commit job instead of after it, and drop the needs gate if so.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T19:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
 rank: 2000

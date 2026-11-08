@@ -1,9 +1,6 @@
 ---
 type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T00:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml

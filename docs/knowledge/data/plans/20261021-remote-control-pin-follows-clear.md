@@ -4,9 +4,6 @@ created: 2026-10-21
 release:
 - bugs/remote-control-pin-ignores-clear
 description: Keep the claude-remote pane's pinned conversation ID on the conversation the pane is running, through a SessionStart hook supplied only to the pane, so a workspace restart after /clear resumes the post-clear conversation under the same claude.ai session URL.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T01:50:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: scripts/tests/test_claude_remote_control_session.py

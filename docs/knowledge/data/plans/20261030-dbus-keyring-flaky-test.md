@@ -4,9 +4,6 @@ created: 2026-10-30
 release:
 - bugs/supervisor-client-recovered-before-dependency
 description: Make the runtime controller recover the failing long-running dependency, not the client, when a client fails while a service it depends on fails a probe, so a D-Bus outage restarts D-Bus and refreshes keyring instead of latching the runtime on keyring's budget.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T01:34:47Z
 sources:
 - resource: docs/knowledge/data/bugs/supervisor-client-recovered-before-dependency.md
 - resource: .devcontainer/scripts/runtime-supervisor.py

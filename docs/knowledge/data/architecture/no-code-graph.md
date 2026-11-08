@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The runtime ships no code-graph index; codebase-memory-mcp was removed because agents never chose it and gained no accuracy when told to use it, and the create phase clears what it left in persisted configuration.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The image's baked gh wrapper at /usr/local/bin/gh is the only gh shim, and no checkout path precedes it on PATH, because a checkout's own gh would otherwise run with the token the wrapper injects.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T01:30:00Z
 sources:
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: ansible/roles/github_cli/files/gh

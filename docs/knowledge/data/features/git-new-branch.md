@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The git-new-branch skill starts every work branch at the freshly fetched remote base with its own upstream, and git-commit plus a pre-commit hook keep commits off the default branch.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-29T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-commit/SKILL.md

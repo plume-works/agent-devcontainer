@@ -5,9 +5,6 @@ release:
 - features/agentdev-iwe-workflow-skills
 - bugs/ship-ignores-unshipped-dependency
 description: Let Implement start a plan whose dependency has not shipped by stacking its branch on the dependency's open pull requests, and make Ship refuse a plan until every dependency has shipped.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md

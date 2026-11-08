@@ -1,9 +1,6 @@
 ---
 type: spec
 description: Git identity passes from the outer workspace into the nested devcontainer, and HTTPS git reuses the gh login.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
 - resource: scripts/tests/test_coder_agent_start.py

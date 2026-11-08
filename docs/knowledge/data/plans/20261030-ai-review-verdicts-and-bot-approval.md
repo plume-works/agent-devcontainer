@@ -5,9 +5,6 @@ release:
 - features/ai-responder-workflows
 - bugs/ai-rereview-comment-keeps-changes-requested
 description: Make the AI reviewer approve unless a blocking finding survives, request changes on any blocking finding, and have the AI responder workflow approve pull requests from trusted bots, so the one-approval main ruleset is satisfiable without bypass.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T19:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml

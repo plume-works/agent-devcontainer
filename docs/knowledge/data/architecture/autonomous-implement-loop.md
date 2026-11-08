@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the Implement verify, fix, and revise loop runs in the Implement session, whose every dispatched agent is a leaf, why the Plan rulebook moved into the iwe-planner agent, why a revision is drafted, audited, and evaluated before it commits, and why the loop acts only on what the plan promised.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md

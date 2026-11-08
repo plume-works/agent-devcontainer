@@ -2,9 +2,6 @@
 type: feature
 stage: deprecated
 description: Every agent push runs the codebase-map staleness check first and refreshes a stale map before the branch leaves the machine, and the AI review leaves map staleness to CI.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md

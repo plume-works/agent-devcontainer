@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Agents sign in inside the devcontainer instead of from seeded Coder-secret credentials, Remote Control autostarts only on a live claude.ai login, and Claude workspace pre-approval runs in every container with an opt-out.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:01:06Z
 sources:
 - resource: docs/knowledge/data/plans/20261009-remove-coder-agent-auth-seeding.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh

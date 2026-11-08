@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The agentdev runtime is one Python package, agentdev_runtime, installed as a uv tool in the two runtime images and run as the agentdev-runtime CLI; its integrity is the installed distribution's RECORD, the firewall runs from the bootstrap, and a container with no supervisor starts nothing and only runs the per-start repairs.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py

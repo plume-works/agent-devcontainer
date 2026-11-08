@@ -1,9 +1,6 @@
 ---
 type: bug
 description: In the devcontainer of a Claude Code cloud session, the zizmor pre-commit hook fails with a 401 on any change to a GitHub workflow or action, because its online audits send the session's placeholder GH_TOKEN for repositories outside the session's GitHub scope.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T18:22:32Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .claude/startup.py

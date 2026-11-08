@@ -1,9 +1,6 @@
 ---
 type: spec
 description: How the git-new-branch skill starts a work branch at the fetched remote base, and how git-commit and pre-commit keep commits off the default branch.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py

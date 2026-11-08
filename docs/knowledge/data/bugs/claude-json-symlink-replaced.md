@@ -3,9 +3,6 @@ type: bug
 stage: planned
 severity: high
 description: Claude's saved state stops reaching the persistent volume once ~/.claude.json is replaced by a regular file, so trust, MCP, and session state written after that point are lost when the container is recreated.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-28T21:20:00Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/codebase-memory-mcp-install.sh

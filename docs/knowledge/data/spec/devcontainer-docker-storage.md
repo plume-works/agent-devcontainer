@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The agentdev-devcontainer image supervises its nested Docker engine on persistent non-overlay storage, caps its BuildKit cache at 10 GB, and collects its garbage hourly, removing unused images older than 72 hours, unshared build cache over 10 GB, and old unused disposable volumes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
 sources:
 - resource: ansible/roles/install_docker/tasks/main.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py

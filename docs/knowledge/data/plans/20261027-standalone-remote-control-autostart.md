@@ -4,9 +4,6 @@ created: 2026-10-27
 release:
 - features/standalone-remote-control-autostart
 description: Opt the standalone agent-opencode runtime into Claude Remote Control with AGENTDEV_CLAUDE_RC_MODE, through a supervised remote-control watcher that waits for a claude.ai login, starts claude-remote, and restarts it within the recovery budget.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-28T00:31:59Z
 sources:
 - resource: docs/knowledge/data/backlog/standalone-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh

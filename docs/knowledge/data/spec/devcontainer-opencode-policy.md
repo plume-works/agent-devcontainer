@@ -1,9 +1,6 @@
 ---
 type: spec
 description: Devcontainer OpenCode sessions allow every action and every external directory, configured in the user's OpenCode config on every start by a runtime command that needs nothing from the consumer project.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py

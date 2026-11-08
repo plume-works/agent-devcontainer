@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The pinned Playwright CLI and matching Chromium browser the published agentdev-base image provides to both runtime images, and the boundary with project-owned Playwright dependencies.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
 sources:
 - resource: ansible/roles/playwright_browser/defaults/main.yml
 - resource: ansible/roles/playwright_browser/tasks/main.yml

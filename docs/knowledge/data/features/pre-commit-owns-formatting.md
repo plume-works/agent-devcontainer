@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The pre-commit git hooks are the single local formatting path, extended to merge commits, with the skill- and agent-level formatting mandates removed and the redundant python-format-lint skill retired into AGENTS.md.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T05:09:26Z
 sources:
 - resource: .devcontainer/scripts/setup-pre-commit.sh
 - resource: .pre-commit-config.yaml

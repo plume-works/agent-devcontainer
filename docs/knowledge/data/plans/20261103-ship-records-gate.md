@@ -3,9 +3,6 @@ type: plan
 created: 2026-11-03
 release: internal
 description: Add a checker CLI that a pre-commit hook runs over bug and plan documents, failing a done bug with no Fix section and a Ship review section whose shape is not the fixed one, in every pre-commit mode.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T07:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .iwe/schemas/bug.yaml

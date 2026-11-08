@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: A Claude Code cloud session's host is reclaimed after a few idle minutes and cold-boots on the next inbound event, keeping its disk and losing every process; the cost lands on whatever must be restarted on each boot.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-05T05:10:00Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/CLAUDE.cloud.md

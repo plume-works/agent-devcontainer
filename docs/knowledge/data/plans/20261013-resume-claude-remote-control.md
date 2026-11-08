@@ -2,9 +2,6 @@
 type: plan
 created: 2026-10-13
 description: Make the autostarted Claude Remote Control resume its own pinned conversation on every start, so a workspace restart or rebuild reattaches the same claude.ai/code session, falling back to a fresh pinned conversation when the resume exits non-zero.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-13T07:26:35Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/devcontainer.json

@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Both Docker engines of a Coder workspace bound their storage — a 10 GB BuildKit cache limit in each daemon and an hourly garbage collection of unused images, build cache and disposable volumes — so workspaces sharing one host disk do not fill it.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261013-docker-storage-gc.md
 - resource: ansible/roles/install_docker/tasks/main.yml

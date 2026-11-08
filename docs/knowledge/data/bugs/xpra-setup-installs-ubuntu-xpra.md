@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: medium
 description: The xpra_setup role never enables an Xpra apt repository, so agent-desktop and agent-opencode ship Ubuntu's xpra 3.1.5 instead of an Xpra 6.x build.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T23:09:19Z
 sources:
 - resource: ansible/roles/xpra_setup/tasks/main.yml
 - resource: docker/desktop/start-xpra.sh

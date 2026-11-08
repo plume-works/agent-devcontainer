@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The agentdev-devcontainer runtime supervises the nested dockerd instead of the Docker-in-Docker feature, on a per-container /var/lib/docker volume, and the container runs no SSH server.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T01:28:00Z
 sources:
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py

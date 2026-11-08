@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: One Claude-only GitHub Actions workflow, triggered only by pull request events, gives the repository automated PR review with a read-only review responder and a gate job that depends on the review job and blocks merge until an AI review exists.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T23:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml

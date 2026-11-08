@@ -2,9 +2,6 @@
 type: plan
 created: 2026-08-15
 description: Adopt OpenSpec's behavioral prompt language into the five IWE workflow skills — authorization boundaries, materiality thresholds, evidence rules, mandatory pre-ship verification, and restart-safe spec merge — without importing OpenSpec's change-bundle machinery.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-16T02:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md

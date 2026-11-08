@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the reachable-scenario correctness bar remains experimental after a mixed replay result, and why validator strictness must be isolated before changing the shipped PR review skill.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: data/plans/20260929-pr-review-scenario-bar-spike.md

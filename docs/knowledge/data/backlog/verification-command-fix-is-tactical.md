@@ -4,9 +4,6 @@ created: 2026-11-03
 stage: pending
 priority: high
 description: Treat a corrected `## Verification` command that runs the same check as a tactical correction, so a command broken by its own invocation no longer costs a full revision round.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T08:13:26Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
