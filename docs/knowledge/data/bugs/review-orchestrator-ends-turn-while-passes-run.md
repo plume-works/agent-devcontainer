@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: high
 description: The review orchestrator can end its turn while its dispatched passes are still running, so the responder job finishes green having published no review, and the gate accepts an older review instead of catching the miss.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml

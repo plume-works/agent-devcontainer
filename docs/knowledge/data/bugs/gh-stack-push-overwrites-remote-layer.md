@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The gh-stack skill pushes every stack layer without first reconciling each local branch with its remote, so a layer whose remote gained commits is overwritten by the stale local branch under --force-with-lease.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T09:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: AGENTS.md

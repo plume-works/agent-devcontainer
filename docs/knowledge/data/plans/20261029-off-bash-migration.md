@@ -7,9 +7,6 @@ release:
 - bugs/remote-control-watcher-start-loop
 - bugs/doctor-fails-healthy-coder-devcontainer
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:00Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile

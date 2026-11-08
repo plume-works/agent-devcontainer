@@ -1,9 +1,6 @@
 ---
 type: someday
 description: 'Example someday idea: a companion watch app, captured without committing to it.'
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 ---
 
 # Watch app

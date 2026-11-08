@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: medium
 description: The image build installed gh-stack with `gh extension install`, which demands GitHub authentication even for a public extension, so any gh-stack pin bump failed the development image build.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-10T08:00:00Z
 sources:
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: ansible/roles/github_cli/defaults/main.yml

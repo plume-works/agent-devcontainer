@@ -2,9 +2,6 @@
 type: hub
 description: Product vision and the principles that outlive any single release.
 stage: living
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 ---
 
 # 💡 Concept

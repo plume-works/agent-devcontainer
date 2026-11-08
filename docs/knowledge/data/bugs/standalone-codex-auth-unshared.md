@@ -1,9 +1,6 @@
 ---
 type: bug
 description: In a standalone agent-opencode deployment, a project held a regular ~/.codex/auth.json instead of the symlink into the shared auth volume, so a second project with the same identity was not logged in to Codex until link-codex-auth.sh ran; which Codex action replaced the symlink is not yet settled.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:56:59Z
 sources:
 - resource: .devcontainer/scripts/link-codex-auth.sh
 - resource: .devcontainer/scripts/setup-agent-state.sh

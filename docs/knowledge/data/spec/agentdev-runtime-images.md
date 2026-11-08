@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile

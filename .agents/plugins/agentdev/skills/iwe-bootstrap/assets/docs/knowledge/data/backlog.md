@@ -2,9 +2,6 @@
 type: hub
 description: Prioritized single-topic work items waiting to become a plan or a quick fix.
 stage: living
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 ---
 
 # 📋 Backlog

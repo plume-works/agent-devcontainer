@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Every formatter has exactly one owner, every hook tool has exactly one version owner that Renovate bumps, and CI gates on the same pre-commit hooks inside the digest-pinned devcontainer image, so local runs cannot disagree with CI.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T04:31:05Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/workflows/primary-checks.yml

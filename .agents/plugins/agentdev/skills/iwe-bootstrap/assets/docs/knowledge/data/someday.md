@@ -2,9 +2,6 @@
 type: hub
 description: Ideas and POCs that are not commitments yet.
 stage: living
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 ---
 
 # 💭 Someday

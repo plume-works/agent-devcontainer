@@ -5,9 +5,6 @@ stage: done
 completed: 2026-10-01
 priority: medium
 description: Remove the agentdev plugin's SessionStart hook, which never brought up a working devcontainer, and release the catalog as 4.0.0.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: .agents/plugins/agentdev/hooks/hooks.json
 - resource: .agents/plugins/agentdev/hooks/session-start.sh

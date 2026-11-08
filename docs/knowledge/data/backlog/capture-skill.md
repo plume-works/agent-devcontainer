@@ -4,9 +4,6 @@ description: Write a capture skill that creates the three inbox lanes — backlo
 stage: done
 priority: medium
 created: 2026-08-15
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/AGENTS.md

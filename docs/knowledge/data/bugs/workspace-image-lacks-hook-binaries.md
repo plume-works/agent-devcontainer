@@ -1,9 +1,6 @@
 ---
 type: bug
 description: A Coder workspace keeps the Dev Container image it was built with, so one built before gitleaks and actionlint were pinned fails every commit and push on those pre-commit hooks while the health report says nothing is missing.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: ansible/roles/dev_tools/defaults/main.yml

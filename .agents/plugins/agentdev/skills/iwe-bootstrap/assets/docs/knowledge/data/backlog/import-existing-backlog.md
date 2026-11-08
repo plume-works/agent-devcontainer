@@ -4,9 +4,6 @@ description: 'Wherever your pending work currently lives — issue tracker, TODO
 stage: pending
 priority: medium
 created: 2026-08-01
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 rank: 300
 ---
 

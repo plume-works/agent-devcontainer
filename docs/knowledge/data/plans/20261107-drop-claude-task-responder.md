@@ -5,9 +5,6 @@ release:
 - features/ai-responder-workflows
 - bugs/responder-cannot-bypass-iwe-ruleset
 description: Remove the free-form `@claude` task responder and every comment, issue, and dispatch trigger of ai-responder.yml, so the workflow runs only on pull request, pull request review, and merge group events.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml

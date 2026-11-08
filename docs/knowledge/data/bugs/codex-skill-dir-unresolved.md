@@ -1,9 +1,6 @@
 ---
 type: bug
 description: Codex shows agentdev skill bodies verbatim and never defines CLAUDE_SKILL_DIR, so every bundled-script step written as ${CLAUDE_SKILL_DIR}/scripts/... resolves to /scripts/... unless the model repairs the path itself.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:11:11Z
 sources:
 - resource: .agents/AGENTS.md
 - resource: .agents/plugins/agentdev/skills

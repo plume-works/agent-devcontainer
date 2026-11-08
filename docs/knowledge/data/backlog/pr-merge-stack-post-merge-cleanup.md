@@ -4,9 +4,6 @@ created: 2026-10-20
 stage: cancelled
 priority: low
 description: Plan the post-merge local cleanup for pr-merge-stack, which lands several layers with one gh stack merge.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md

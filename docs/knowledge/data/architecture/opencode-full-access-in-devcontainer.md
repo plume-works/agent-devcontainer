@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why devcontainer OpenCode sessions allow every action and external filesystem path, and how the policy is merged into JSON or JSONC on every start.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py

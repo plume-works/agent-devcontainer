@@ -2,9 +2,6 @@
 type: feature
 stage: proposed
 description: Claude Code cloud sessions run the project toolchain directly on the session host, so an idle reboot costs only the processes that stopped, while the host dockerd and the devcontainer stay for Docker image builds and tests.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T15:00:00Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/CLAUDE.cloud.md

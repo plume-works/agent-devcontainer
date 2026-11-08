@@ -4,9 +4,6 @@ created: 2026-09-02
 release:
 - features/agentdev-iwe-workflow-skills
 description: Add a fresh-context durable-knowledge auditor that gates every plan-intent edit in the Plan skill and shares its residue vocabulary with the Evidence checks in Implement and Verify, so the residue caught only in PR 88 review is caught before submission.
-generated:
-  by: claude-code/opus-4.8
-  at: 2026-09-02T00:00:00Z
 stage: done
 completed: 2026-09-02
 released: 1.0.0

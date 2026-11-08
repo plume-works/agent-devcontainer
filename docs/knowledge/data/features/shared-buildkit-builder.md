@@ -2,9 +2,6 @@
 type: feature
 stage: accepted
 description: Every Dev Container in a Coder workspace builds through one shared BuildKit daemon running in a dedicated Coder workspace, so workspaces share one build cache, and falls back to its local builder when the shared one is unreachable.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261013-shared-buildkit-workspace.md
 ---

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why .github/renovate.json is validated by a pre-commit hook and a workflow at the one Renovate version the self-hosted bot runs, why both pass --no-global, and why the workflow runs in the pinned agentdev-devcontainer image.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-29T22:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/workflows/validate-renovate-config.yml

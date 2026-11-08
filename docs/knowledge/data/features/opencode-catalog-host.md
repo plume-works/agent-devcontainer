@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: OpenCode loads the agentdev catalog from the same tree as Claude Code through a dependency-free bridge plugin, with namespaced slash commands and tool-limited subagents, installed by the image build, postCreate, and postAttach.
-generated:
-  by: codex/gpt-5
-  at: 2026-10-21T06:31:53Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The AI reviewer picks its review event from finding severity alone — APPROVE for no or only non-blocking findings, REQUEST_CHANGES for any blocking finding — because the one-approval main ruleset needs its approval and only its own APPROVE lifts its earlier change request.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T02:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml

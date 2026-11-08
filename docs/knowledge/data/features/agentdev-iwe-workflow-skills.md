@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The IWE workflow skills are part of the agentdev catalog as iwe-prefixed, plugin-portable skills rather than repository-local Claude skills.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/knowledge/data/plans/20260816-move-iwe-skills-to-agentdev.md
 - resource: docs/knowledge/data/spec/template-consumption.md

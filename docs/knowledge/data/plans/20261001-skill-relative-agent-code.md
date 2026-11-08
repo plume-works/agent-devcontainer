@@ -2,9 +2,6 @@
 type: plan
 created: 2026-10-01
 description: Rename every bundled scripts/ directory in the agentdev and self-improve plugins to agent-code/, reference skill scripts by a path relative to the skill directory instead of ${CLAUDE_SKILL_DIR}, and keep the variable only in Claude's allowed-tools field.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-01T12:00:00Z
 sources:
 - resource: .agents/AGENTS.md
 - resource: .agents/plugins/agentdev/skills

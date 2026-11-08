@@ -1,9 +1,6 @@
 ---
 type: someday
 description: When a standalone-runtime dependency such as D-Bus recovers, stop its dependents first and restart them in order, verifying a real client operation.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 ---

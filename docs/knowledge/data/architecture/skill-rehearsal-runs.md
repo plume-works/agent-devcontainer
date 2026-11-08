@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: How to rehearse a catalog skill whose session must dispatch a subagent — where that session can run, the fixture it needs, how to run and read it, and why a rehearsal never closes an observation task.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T17:00:00Z
 sources:
 - resource: https://code.claude.com/docs/en/sub-agents
 - resource: https://code.claude.com/docs/en/cli-reference

@@ -2,9 +2,6 @@
 type: hub
 description: One page per version, aggregating the features it added, the released features it changed, and the fixes it shipped.
 stage: living
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T20:37:31Z
 ---
 
 # 🚀 Releases

@@ -5,9 +5,6 @@ completed: 2026-11-03
 priority: high
 created: 2026-11-03
 description: Let a dispatched catalog agent dispatch another catalog agent, which every IWE workflow avoids today by keeping agents as leaves, if a workflow appears that a leaf design cannot express.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T06:05:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md

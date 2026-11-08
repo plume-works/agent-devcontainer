@@ -2,9 +2,6 @@
 type: tracker
 description: What the product is, who it is for, and the decisions every plan and spec derives from.
 stage: living
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T20:30:00Z
 ---
 
 # Product

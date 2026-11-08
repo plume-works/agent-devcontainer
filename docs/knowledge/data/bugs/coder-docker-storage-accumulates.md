@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: high
 description: Coder workspaces that run for days pile up unused Docker images, build cache, and volumes despite the storage limits of spec/devcontainer-docker-storage and spec/coder-ide-baseline, because the image prune runs only at agent start and only on images older than 72 hours, the build-cache cap cannot free cache that kept images share, and nothing removes volumes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T05:30:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py

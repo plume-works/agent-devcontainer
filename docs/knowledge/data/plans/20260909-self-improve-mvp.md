@@ -2,9 +2,6 @@
 type: plan
 description: The hook-driven experiential-learning MVP and its pty wake harness, as implemented in the merge source before consolidation.
 created: 2026-09-09
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement at e94031a, specs 0001 and 0002

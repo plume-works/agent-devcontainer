@@ -4,9 +4,6 @@ created: 2026-10-25
 release:
 - features/claude-remote-control-server-mode
 description: Let AGENTDEV_CLAUDE_RC_SPAWN choose the spawn mode of Remote Control server mode, worktree by default and same-dir on request, and keep spawned worktrees out of the main checkout's git status.
-generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T18:00:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: scripts/tests/test_claude_remote_control_start.py

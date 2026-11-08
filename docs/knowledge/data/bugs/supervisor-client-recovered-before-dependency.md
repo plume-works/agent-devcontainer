@@ -1,9 +1,6 @@
 ---
 type: bug
 description: When D-Bus crashes, the standalone runtime controller can find keyring exited before it confirms the D-Bus failure, restart keyring on keyring's own budget against a dead bus, and latch the runtime failed.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T14:09:49Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: scripts/tests/test_agent_runtime_supervision.py

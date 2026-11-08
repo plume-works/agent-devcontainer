@@ -4,9 +4,6 @@ created: 2026-11-03
 release:
 - features/ship-review
 description: Add the iwe-ship-reviewer catalog agent with a plan mode and a ship mode, give iwe-shipper a fix operation, and have every route that ships a plan review the result and fix its gaps up to three times, stamping the plan with a Ship review checklist.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md

@@ -4,9 +4,6 @@ created: 2026-10-23
 release:
 - features/consumer-iwe-seed
 description: Extract a self-contained IWE bootstrap skill and make full template adoption reuse it without overwriting consumer knowledge.
-generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:17:32Z
 sources:
 - resource: docs/knowledge/data/features/consumer-iwe-seed.md
 - resource: docs/knowledge/data/spec/template-consumption.md

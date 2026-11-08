@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: validate_agent_files skips gitignored files during repository-wide discovery while preserving explicit-file validation and plain-directory fallbacks.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
 sources:
 - resource: docs/knowledge/data/plans/20260901-gitignore-aware-discovery.md
 - resource: docs/knowledge/data/spec/agent-file-discovery.md

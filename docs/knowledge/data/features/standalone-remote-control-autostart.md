@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: In the standalone agent-opencode runtime, setting AGENTDEV_CLAUDE_RC_MODE to session or server runs a supervised watcher that starts Claude Remote Control once a claude.ai login exists, keeps the session alive, and reports that it is waiting while no login exists; unset leaves Remote Control off.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-27T12:00:00Z
 sources:
 - resource: docs/knowledge/data/backlog/standalone-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh

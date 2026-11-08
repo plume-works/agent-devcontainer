@@ -3,9 +3,6 @@ type: bug
 stage: pending
 severity: medium
 description: Sessions spawned by `claude remote-control` on an agentdev container receive Claude Code's cloud-session instructions, which wrongly state that the session runs in Anthropic's cloud without `gh`, and those instructions override this repository's own workflow.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T14:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: .claude/startup.py

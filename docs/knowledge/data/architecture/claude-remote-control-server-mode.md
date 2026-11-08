@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: AGENTDEV_CLAUDE_RC_MODE=server opts the claude-remote pane into `claude remote-control` in place of the pinned interactive pane, which stays the default; AGENTDEV_CLAUDE_RC_SPAWN picks the worktree (default) or same-dir spawn mode, and an unrecognized value of either fails startup.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: https://code.claude.com/docs/en/remote-control

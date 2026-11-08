@@ -6,9 +6,6 @@ release:
 - features/opencode-web-coder-autostart
 - features/opencode-workspace-cbm-indexing
 description: Ship OpenCode v2 as the image's OpenCode, serve the agentdev catalog and workspace CBM registration to it through a bridge that loads in both v1 and v2, run the Coder web UI with v2's always-on server password, and keep OpenCode logins per worktree.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T04:02:29Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts

@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Template consumers can resume interrupted setup and preserve settled choices across later update episodes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
 sources:
 - resource: docs/knowledge/data/plans/20260906-template-consumption-progress.md
 - resource: docs/knowledge/data/spec/template-consumption.md

@@ -4,9 +4,6 @@ description: Replace the Coder agent's one-shot Remote Control start with a supe
 stage: pending
 priority: medium
 created: 2026-10-28
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T04:39:39Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py

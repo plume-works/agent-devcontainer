@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Reformat the Coder Docker host's data disk with a deduplicating filesystem so identical image layers across workspace and Dev Container engines are stored once.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-13T00:00:00Z
 ---
 
 # Deduplicate Docker storage at the host filesystem

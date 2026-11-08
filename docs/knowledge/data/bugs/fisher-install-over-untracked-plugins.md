@@ -1,9 +1,6 @@
 ---
 type: bug
 description: Pinning the fish plugins by spec made fish_setup fail on any host whose plugins were installed unpinned, because fisher refuses to install over files it does not track.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
 sources:
 - resource: ansible/roles/fish_setup/tasks/main.yml
 stage: done

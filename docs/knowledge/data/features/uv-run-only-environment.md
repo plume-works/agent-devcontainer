@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Reach the Python environment exclusively through `uv run` — in the devcontainer, with no in-tree .venv symlink and a fixed out-of-tree path, and in CI, which provisions without activating.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/uv-sync.sh

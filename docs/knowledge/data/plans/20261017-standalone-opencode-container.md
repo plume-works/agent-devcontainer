@@ -4,9 +4,6 @@ created: 2026-10-17
 release:
 - features/standalone-opencode-container
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-28T02:36:16Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore

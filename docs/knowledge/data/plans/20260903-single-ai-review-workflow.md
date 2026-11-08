@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-03
 description: Merge the AI responder and the ai-review-present gate into one workflow whose gate job depends on the review job, and bridge PR comment mentions into a workflow_dispatch on the PR head branch.
-generated:
-  by: claude-code/fable-5-1
-  at: 2026-09-03T01:30:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/issues/95
 - resource: .github/workflows/ai-responder.yml

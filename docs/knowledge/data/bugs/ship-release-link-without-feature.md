@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: medium
 description: Ship's release-link rule assumes every plan links a feature or bug, so for a plan that links neither, one model ships without an unreleased entry and another stops for a decision.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T18:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md

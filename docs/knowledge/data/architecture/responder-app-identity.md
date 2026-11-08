@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The AI review responder and the trusted-bot approval post with per-job installation tokens of the plume-works-quill GitHub App, the AI review gate accepts only that App's login, and GitHub Actions no longer needs to approve pull requests; supersedes Actions approval permission.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T00:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml

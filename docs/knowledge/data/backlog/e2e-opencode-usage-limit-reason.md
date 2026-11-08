@@ -4,9 +4,6 @@ description: Make an OpenCode e2e test whose seeded ChatGPT login is over its us
 stage: done
 priority: low
 created: 2026-10-20
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T00:15:10Z
 sources:
 - resource: scripts/e2e/iwe-workflows/harness_opencode.py
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py

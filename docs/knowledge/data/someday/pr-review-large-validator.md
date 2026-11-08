@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Validate pr-review's scenario-carrying correctness candidates on the large model at full effort, pending a cost/benefit evaluation against the recorded light-validator decision.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-05T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 ---

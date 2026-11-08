@@ -4,9 +4,6 @@ created: 2026-10-30
 description: Cache the last Verify report per plan in the iwe-verify skill, keyed by the clean commit it ran on and the active catalog digest, so the Shipper and every other caller reuse a verdict instead of re-running the plan's test and e2e commands.
 release:
 - features/verify-report-cache
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T16:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

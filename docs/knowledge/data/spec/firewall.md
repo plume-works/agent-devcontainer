@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The opt-in egress firewall's default-DROP policy and its self-verification check.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/firewall.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py

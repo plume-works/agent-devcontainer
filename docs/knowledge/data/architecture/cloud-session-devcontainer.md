@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: In a Claude Code cloud session .claude/startup.py brings the devcontainer up on the session host and lets it reach the session's loopback agent proxy through a relay on the host Docker bridge, moved off 172.17.0.0/16, so gh and git authenticate inside the container.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T18:22:32Z
 sources:
 - resource: .claude/startup.py
 - resource: .claude/agent-proxy-relay.py

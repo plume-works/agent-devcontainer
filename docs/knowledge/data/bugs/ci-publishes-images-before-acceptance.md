@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: high
 description: CI/CD moves the published tags of ubuntu-ansible, agent-desktop, and agent-opencode before the devcontainer and runtime acceptance jobs test the images, so a failed or cancelled run leaves edge naming an untested build.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T19:00:00Z
 sources:
 - resource: .github/workflows/ci.yml
 - resource: .github/workflows/primary-checks.yml

@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The pre-commit hooks are the CI lint gate — the commit range they check, when every file is checked, and how gitleaks scans a range.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T18:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/workflows/ci.yml

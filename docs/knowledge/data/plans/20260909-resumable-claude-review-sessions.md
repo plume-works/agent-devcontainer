@@ -4,9 +4,6 @@ created: 2026-09-09
 release:
 - features/ai-responder-workflows
 description: Resume an interrupted Claude pull-request review from a persistent local session when a writer adds the one-shot ai-review-resume label.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T21:30:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/actions/runs/34403145254/job/102639842076?pr=134
   title: Interrupted PR 134 review
