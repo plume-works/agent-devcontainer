@@ -373,9 +373,13 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 8: The repository has both labels
 
-- [ ] `gh label list` shows `request-ai-review` and `block-ai-reviews`, and no
+- [x] `gh label list` shows `request-ai-review` and `block-ai-reviews`, and no
   `skip-ai-review`.
   - **Closed by:** the maintainer, before this plan's pull request merges.
+  - **Evidence:** repository settings, observed 2026-11-08: `skip-ai-review` was
+    renamed to `block-ai-reviews` with the maintainer's approval;
+    `gh label list` shows `request-ai-review` and `block-ai-reviews` and no
+    `skip-ai-review`.
 
 ### Task 9: A requested review counts toward merge
 
