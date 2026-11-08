@@ -62,10 +62,6 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   (`draft | stable | deprecated`), so the workflow field moved to `stage` in all
   schemas and every document. OKF's `status` is optional and never set: `stage`
   is the one lifecycle field, so a state change edits one field.
-- **Codebase maps use OKF's `verified`.** The date-valued `verified: 2026-07-25`
-  became `verified: { by: <actor>, at: <ISO 8601> }`, which is what the field
-  always meant — who last confirmed the doc against the code. `source` and
-  `commit` are unchanged.
 - **Reference documents are validated.** The "hub documents stay unvalidated by
   design" exemption is deliberately retired: OKF conformance requires a `type`
   everywhere. Reference types still carry no `stage` — nothing about them is a
