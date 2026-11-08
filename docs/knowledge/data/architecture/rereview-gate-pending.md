@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: How the required ai-review-present check could read pending while a re-review runs, so a merge or auto-merge waits for it; a separate commit status is the leading candidate, and the marker-commit trigger and a merged review-and-gate job are rejected.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T04:32:55Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml

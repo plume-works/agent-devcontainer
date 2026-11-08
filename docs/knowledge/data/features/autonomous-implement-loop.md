@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Implement runs a fresh-context Verify itself, acts on its findings, and revises its own plan once an independent evaluator approves the revision, leaving the user only the decisions that narrow, drop, or re-word what was agreed.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

@@ -1,9 +1,6 @@
 ---
 type: spec
 description: This repository's side of the plume-works/coder-ide-baseline Coder template contract — it ships the agent-start command the template defaults to, and keeps Coder user secrets out of Dev Container lifecycle hooks.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T20:00:00Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/template/main.tf

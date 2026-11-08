@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: On Coder workspaces, Claude Remote Control starts from a template coder_script on the Dev Container's sub-agent, so the session inherits Coder user secrets and the agent's git credentials.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261011-coder-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh

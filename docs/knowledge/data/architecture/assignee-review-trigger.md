@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: AI re-reviews are requested by assigning the pull request, because only a pull_request-event run's ai-review-present is counted by the PR rollup and the main ruleset; the @claude review comment trigger and Codex review acceptance are dropped.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-26T04:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml

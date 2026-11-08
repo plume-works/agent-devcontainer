@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Give the ephemeral implementation document a name that says it tracks implementation progress for one story or bug, rather than "plan".
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md

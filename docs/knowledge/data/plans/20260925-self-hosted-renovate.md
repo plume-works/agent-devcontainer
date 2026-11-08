@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-25
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks can refresh checksum pins, lock files, and pre-commit output in the same commit as the bump.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-28T21:30:00Z
 sources:
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-renovate-config.yml

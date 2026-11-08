@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: How the self-hosted Renovate's one post-upgrade task produces the checksums and pre-commit output a bump implies, and the constraints that keep its output in Renovate's commit.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T01:40:00Z
 sources:
 - resource: .github/renovate.json
 - resource: scripts/renovate-post-upgrade.py

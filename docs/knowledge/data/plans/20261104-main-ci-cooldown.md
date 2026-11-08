@@ -3,9 +3,6 @@ type: plan
 created: 2026-11-04
 release: internal
 description: Hold each Primary checks run on main in a cancellable cooldown so back-to-back merges build once, cap the cooldown so a steady merge stream still builds, and widen the main pre-commit range to the last passing run so skipped commits are still checked.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T12:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/actions/paths-filter/action.yml

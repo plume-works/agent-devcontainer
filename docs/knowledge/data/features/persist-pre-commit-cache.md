@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The pre-commit hook cache lives on its own per-worktree agentdev-pre-commit volume via PRE_COMMIT_HOME, outside the checkout, so only the first devcontainer create per worktree pays the cold hook-install cost and every rebuild after starts warm.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/setup-pre-commit.sh

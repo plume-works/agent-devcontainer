@@ -4,9 +4,6 @@ created: 2026-10-23
 release:
 - features/claude-remote-control-server-mode
 description: Let AGENTDEV_CLAUDE_RC_MODE=server make claude-remote-control-start.sh run `claude remote-control --spawn same-dir` in the claude-remote tmux session in place of the pinned interactive pane, keeping the pinned pane as the default.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-24T01:35:48Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: scripts/tests/test_claude_remote_control_start.py

@@ -4,9 +4,6 @@ created: 2026-11-02
 release:
 - features/agentdev-iwe-workflow-skills
 description: Give bugs an explicit stage lifecycle (pending, planned, done, cancelled) and a required severity, split the bug's Fix into an optional Potential solution and a Fix written only once fixed, stop requiring Key references, and rename the task stage planned to pending.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T18:00:00Z
 sources:
 - resource: .iwe/schemas/bug.yaml
 - resource: .iwe/schemas/task.yaml

@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: high
 description: Behind a TLS-intercepting egress proxy, every TLS client inside the runtime containers rejected the proxy's certificates, so nested image pulls, uv sync, and package downloads failed.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T20:10:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/trust.py
 - resource: .devcontainer/devcontainer-init.sh

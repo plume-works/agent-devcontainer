@@ -2,9 +2,6 @@
 type: feature
 stage: accepted
 description: The Dev Container runs as a non-root account matched to the host user, with its whole home on one per-instance volume, replacing the per-directory state volumes under /root and the ~/.claude.json symlink.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T13:00:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: .devcontainer/devcontainer.json

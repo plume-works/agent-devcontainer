@@ -5,9 +5,6 @@ release:
 - features/devcontainer-home-volume
 - bugs/claude-json-symlink-replaced
 description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T13:00:00Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile

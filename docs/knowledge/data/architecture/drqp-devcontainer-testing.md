@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Apply the sibling-devcontainer workflow to Dr.QP's ROS environment, colcon build and tests, generated Python requirements, and volume-backed logs.
-generated:
-  by: opencode/openai-gpt-6.1-sol
-  at: 2026-10-18T19:34:45Z
 sources:
 - resource: https://github.com/Dr-QP/Dr.QP/blob/main/AGENTS.md
 - resource: https://github.com/Dr-QP/Dr.QP/blob/main/.devcontainer/devcontainer.json

@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-03
 description: Add the iwe-map skill that writes and refreshes data/codebase/ — the codebase-map lane every other skill hands off to but nothing populates — and map this repository with it.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
 sources:
 - resource: https://github.com/iwe-org/dev-workspace/issues/1
   title: Missing "map" skill — verify and setup both refer to it, data/codebase/ has no writer

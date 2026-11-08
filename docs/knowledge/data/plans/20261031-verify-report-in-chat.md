@@ -4,9 +4,6 @@ created: 2026-10-31
 description: Every caller of Verify — the session route, the Implement loop and its coordinator, the Shipper and the ship-all coordinator — shows the Verify report verbatim in the conversation, with numbered findings that a Ship blocker report routes by ID instead of restating.
 release:
 - features/verify-report-cache
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T05:39:03Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md

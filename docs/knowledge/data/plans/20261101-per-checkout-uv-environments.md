@@ -5,9 +5,6 @@ release:
 - bugs/shared-uv-environment-across-worktrees
 - features/uv-run-only-environment
 description: Give every checkout in a devcontainer its own uv environment — a .venv link into a per-checkout directory on the /uv volume, hardlinked to the cache there — created by one agentdev-runtime subcommand that git's post-checkout hook, the agentdev plugin's SessionStart and SubagentStart hooks, and the attach phase call.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py

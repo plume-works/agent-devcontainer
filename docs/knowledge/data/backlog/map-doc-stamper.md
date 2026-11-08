@@ -4,9 +4,6 @@ description: Bundle a script with the iwe-map skill that writes a refreshed map 
 stage: cancelled
 priority: low
 created: 2026-10-29
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:46:08Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py

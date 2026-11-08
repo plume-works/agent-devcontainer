@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The cloud session startup script reported a failed Docker start when dockerd exited after it had already become ready, which made its stubbed-daemon tests fail at random in CI.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-05T00:30:00Z
 sources:
 - resource: .claude/startup.py
 - resource: scripts/tests/test_cloud_startup.py

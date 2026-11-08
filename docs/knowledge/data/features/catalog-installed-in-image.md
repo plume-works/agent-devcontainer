@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The agent-desktop image installs the agentdev catalog into each agent's plugin state at build time, so a consumer running the raw image with no devcontainer lifecycle hooks still resolves agentdev:* skills; postCreate installs again because mounted volumes shadow the build-time install.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/desktop/agent-desktop.Dockerfile

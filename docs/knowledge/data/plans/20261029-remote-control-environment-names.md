@@ -7,9 +7,6 @@ released: 2.0.0
 release:
 - features/remote-control-environment-names
 description: Give the dev container a hostname derived from its launcher — coder-<workspace>, vscode-<host>-<checkout>, or cli-<host>-<checkout> — so Claude Remote Control environments are identifiable.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T02:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer-init.sh

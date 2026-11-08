@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why Verify's rulebook lives in the iwe-verifier catalog agent, which the iwe-verify skill dispatches with a conversation-free prompt and iwe-shipper follows in place, so every Verify run judges the code from a fresh context.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md

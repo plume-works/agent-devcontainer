@@ -4,9 +4,6 @@ created: 2026-11-08
 release:
 - features/agentdev-iwe-workflow-skills
 description: Make plans ephemeral implementation documents that Ship deletes, and track planned work only as ready stories (backlog tasks with acceptance criteria) and bugs, with decisions in architecture docs and the iteration goal in milestone.md.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md

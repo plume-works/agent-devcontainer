@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The dependency-free OpenCode catalog bridge that loads in OpenCode v1 and v2, its host contracts, and rejected alternatives.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev
 - resource: https://github.com/anomalyco/opencode/tree/0112a92/packages/plugin/src

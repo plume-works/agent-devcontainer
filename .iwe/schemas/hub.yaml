@@ -22,26 +22,6 @@ frontmatter:
       type: string
       format: date
       description: the day this content goes stale; set it on anything that rots
-    generated:
-      type: object
-      required: [by]
-      description: how the current content was produced — write it on every edit
-      properties:
-        by:
-          {
-            type: string,
-            description: 'actor — <producer>/<version>, human:<id>, or process:<id>',
-          }
-        at:
-          {
-            type: string,
-            description: ISO 8601 datetime of the last meaningful change,
-          }
-    verified:
-      description: who confirmed the content against its sources; one mapping or a list
-      anyOf:
-        - $ref: '#/$defs/verification'
-        - { type: array, items: { $ref: '#/$defs/verification' } }
     sources:
       type: array
       description: the materials this document derives from; cite per claim with a footnote keyed to an entry id
@@ -71,10 +51,3 @@ frontmatter:
       properties:
         from: { type: string, format: date }
         to: { type: string, format: date }
-  $defs:
-    verification:
-      type: object
-      required: [by]
-      properties:
-        by: { type: string, description: 'actor' }
-        at: { type: string, description: ISO 8601 datetime }

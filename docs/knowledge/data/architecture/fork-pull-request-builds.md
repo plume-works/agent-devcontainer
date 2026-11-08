@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the image build is not made fork-compatible by publishing nothing — it is the first stage of CI, not a leaf, and every stage after it consumes the image it published.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-17T00:00:00Z
 sources:
 - resource: .github/workflows/ci.yml
 - resource: https://github.com/plume-works/coder-ide-baseline/pull/3

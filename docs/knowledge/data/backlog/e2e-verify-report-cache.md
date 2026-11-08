@@ -4,9 +4,6 @@ created: 2026-10-30
 stage: done
 priority: medium
 description: Add IWE workflow e2e scenarios that prove the Shipper reuses a saved Verify report without running verification commands, and that Verify stops on a dirty worktree before any dispatch.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T15:00:00Z
 sources:
 - resource: scripts/e2e/iwe-workflows/scenarios.py
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py

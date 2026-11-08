@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the self-improvement plugin lives in this repository as a second catalog plugin, and the constraints that placement creates.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T04:32:17Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement, merged at e94031a

@@ -1,9 +1,6 @@
 ---
 type: spec
 description: A ticked plan checkbox must carry the evidence that closed it, tasks must be atomic, and a mechanical gate enforces the shape on every commit and CI run.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-16T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

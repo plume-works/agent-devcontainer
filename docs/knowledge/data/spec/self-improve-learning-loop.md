@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The self-improve plugin's durable behavior — hook design, the meaningful-event gate, reviewer isolation and output, routing and the path allowlist, the mutation protocol, state and privacy, and failure behavior.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
 sources:
 - resource: .agents/plugins/self-improve/hooks/hooks.json
 - resource: .agents/plugins/self-improve/selfimprove/gate.py

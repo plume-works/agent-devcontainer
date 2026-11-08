@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Every script the agentdev catalog ships under bin/ and skills/*/agent-code/ is standard-library-only Python that reaches the shared bin/ modules through sys.path, because the catalog runs from any consuming repository's plugin cache on a host that installs nothing for it; the zsh macOS bootstrap, which provisions that Python, is the one exception.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T04:32:17Z
 sources:
 - resource: .agents/plugins/agentdev/bin/result_codes.py
 - resource: .agents/plugins/agentdev/bin/skill_common.py

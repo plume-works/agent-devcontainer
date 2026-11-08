@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Evaluate replacing both actionlint and zizmor with jactionlint, an actionlint fork whose security rules follow zizmor's audits.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T16:37:47Z
 sources:
 - resource: https://github.com/jdx/jactionlint
 - resource: https://jactionlint.jdx.dev/zizmor-parity

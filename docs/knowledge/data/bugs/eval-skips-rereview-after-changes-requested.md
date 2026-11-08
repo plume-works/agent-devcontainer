@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: medium
 description: pr-eval-review-needed decides by scope alone, so after a push that applies exactly what a CHANGES_REQUESTED AI review asked for it requests no re-review, and the pull request stays blocked because only that reviewer's own APPROVE lifts its change request.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T04:08:09Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md

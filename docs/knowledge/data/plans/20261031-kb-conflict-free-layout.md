@@ -8,9 +8,6 @@ release:
 - features/agentdev-iwe-workflow-skills
 - features/consumer-iwe-seed
 description: Keep work-item state only in frontmatter, order active work by a global rank field, flatten the hubs into alphabetical membership lists, write the log and release pages only at a release cut, and drop OKF conformance, in this workspace and the bootstrap scaffold.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T14:00:00Z
 sources:
 - resource: .iwe/config.toml
 - resource: .iwe/schemas/hub.yaml

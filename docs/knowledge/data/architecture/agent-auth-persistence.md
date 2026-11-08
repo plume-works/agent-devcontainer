@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Claude Code credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while OpenCode's logins and the rest of each agent's state are mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer.json

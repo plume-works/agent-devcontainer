@@ -4,9 +4,6 @@ created: 2026-11-03
 release:
 - features/verification-in-the-main-loop
 description: Give iwe-shipper the Agent tool so its Verify step runs through the iwe-verify skill's dispatch route, keeping every Verify run out of the Shipper's context, and retire the in-place route.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

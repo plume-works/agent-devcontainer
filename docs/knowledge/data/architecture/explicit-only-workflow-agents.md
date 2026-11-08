@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the Ship and Implement rulebooks live in catalog agents, why Ship starts only from an explicit-only skill and named dispatchers while any session asked to implement a named plan may load Implement, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code and OpenCode that the gate rests on.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Consolidate all agentdev catalog code — the shared bin/ modules and every skill's agent-code scripts — into one proper Python module tree.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T15:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/bin/
 - resource: docs/knowledge/data/architecture/catalog-script-language.md

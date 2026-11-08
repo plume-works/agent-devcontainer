@@ -4,9 +4,6 @@ created: 2026-08-17
 release:
 - features/preserved-approved-wording
 description: Make approved wording survive the explore-to-plan handoff by writing it to .tmp/ at approval time and binding both skills against paraphrase, so a cold session starting from the written plan can reproduce the agreed bytes.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-17T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md

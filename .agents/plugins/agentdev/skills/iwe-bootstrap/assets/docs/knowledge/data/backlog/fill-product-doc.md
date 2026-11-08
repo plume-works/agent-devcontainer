@@ -4,9 +4,6 @@ description: 'Complete every ✏️ block in data/product.md: the one-liner, use
 stage: pending
 priority: high
 created: 2026-08-01
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 rank: 100
 ---
 

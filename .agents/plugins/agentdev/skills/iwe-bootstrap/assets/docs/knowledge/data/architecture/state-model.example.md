@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: 'Example architecture note: how session state is modelled and why the rejected alternatives lost.'
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 sources:
 - id: store
   resource: src/store

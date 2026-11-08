@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Verify saves its last report per plan, keyed by the commit it ran on and the active catalog digest, and returns that report instead of re-running when invoked again on the same clean commit, so Ship reuses the Implement loop's Verify instead of repeating its test runs.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

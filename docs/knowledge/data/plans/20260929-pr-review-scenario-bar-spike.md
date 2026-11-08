@@ -5,9 +5,6 @@ stage: done
 completed: 2026-10-05
 released: 2.0.0
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
-generated:
-  by: codex/gpt-6
-  at: 2026-10-04T22:06:48Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199

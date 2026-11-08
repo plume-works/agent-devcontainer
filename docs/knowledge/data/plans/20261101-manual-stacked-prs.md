@@ -6,9 +6,6 @@ release:
 - features/native-stacked-prs
 - bugs/stack-guard-reverts-post-merge-rebase
 description: Remove gh stack and GitHub native stacks and replace them with manual stacked pull requests — branches cut from their predecessor, kept current only with merges, and restacked after a squash merge by one pr-restack-all run.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T02:00:00Z
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md

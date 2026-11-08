@@ -2,9 +2,6 @@
 type: feature
 stage: accepted
 description: Agents in the devcontainer can dispatch subagents that dispatch further subagents, up to depth 5, on both Claude Code and OpenCode.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T06:45:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 - resource: .devcontainer/docker-compose.yml

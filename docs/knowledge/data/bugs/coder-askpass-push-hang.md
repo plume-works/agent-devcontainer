@@ -1,9 +1,6 @@
 ---
 type: bug
 description: In a Coder workspace whose only gh login is a session GITHUB_TOKEN, post-start installs no git credential helper, so HTTPS git push falls through to Coder's GIT_ASKPASS and hangs.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-12T23:30:00Z
 sources:
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/postStartCommand.sh

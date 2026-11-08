@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: agentdev-deploy runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/health.py

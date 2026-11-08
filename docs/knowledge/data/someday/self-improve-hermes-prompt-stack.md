@@ -1,9 +1,6 @@
 ---
 type: someday
 description: Adapting Hermes's prompt stack — active correction handling, the fact/procedure split, owner-first routing, a class-level name veto, and negative-learning rules — to the MVP's no-tools reviewer.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement at e94031a, spec 0006

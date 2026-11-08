@@ -1,9 +1,6 @@
 ---
 type: bug
 description: In the devcontainer of a Claude Code cloud session, agentdev-runtime doctor fails its gh auth, git credential helper and github.com checks although gh and git authenticate through the session's agent proxy.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T03:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .claude/startup.py

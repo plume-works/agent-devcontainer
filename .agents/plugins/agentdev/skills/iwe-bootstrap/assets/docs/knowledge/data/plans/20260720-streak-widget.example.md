@@ -5,9 +5,6 @@ created: 2026-07-20
 rank: 500
 release:
 - features/streak-widget.example
-generated:
-  by: human:author
-  at: 2026-07-20T00:00:00Z
 ---
 
 # Streak widget

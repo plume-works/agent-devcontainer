@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Agents reach the IWE graph through the iwe CLI only; the repository registers no IWE MCP server and the image does not install iwec.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T00:00:00Z
 sources:
 - resource: ansible/roles/dev_tools/defaults/main.yml
 ---

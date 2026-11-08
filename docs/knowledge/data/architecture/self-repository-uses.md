@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Every same-repository action and reusable-workflow reference uses GitHub's `$/` self-repository syntax, so it loads from the running commit without depending on a checkout.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T16:45:12Z
 sources:
 - resource: .github/workflows
 - resource: .github/actions

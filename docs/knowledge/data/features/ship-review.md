@@ -2,9 +2,6 @@
 type: feature
 stage: accepted
 description: A fresh-context reviewer checks every plan against what Ship will need, and every shipped plan against what Ship had to do, stamping the shipped plan with a fixed Ship review checklist.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T07:20:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md

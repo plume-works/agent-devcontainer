@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why the AI pull request review has two named effort tiers, why an explicitly requested tier is absolute, and why the responder's preflight job rather than the review skill resolves it.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-18T00:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml

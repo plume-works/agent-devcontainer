@@ -2,9 +2,6 @@
 type: hub
 description: System design notes and the reasoning behind them, rejected alternatives included.
 stage: living
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:18:50Z
 ---
 
 # 🏛️ Architecture
@@ -92,6 +89,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
+
+[Label review triggers](architecture/label-review-triggers.md)
 
 [Manual stacked pull requests](architecture/manual-stacked-prs.md)
 

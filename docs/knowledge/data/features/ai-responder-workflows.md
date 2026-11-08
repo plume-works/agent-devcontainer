@@ -2,17 +2,13 @@
 type: feature
 stage: implemented
 description: One Claude-only GitHub Actions workflow, triggered only by pull request events, gives the repository automated PR review with a read-only review responder and a gate job that depends on the review job and blocks merge until an AI review exists.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T23:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: data/plans/20260816-ai-responder-workflows.md
 - resource: data/plans/20260903-single-ai-review-workflow.md
-- resource: data/architecture/pr-review-effort-tiers.md
-- resource: data/architecture/assignee-review-trigger.md
+- resource: data/architecture/label-review-triggers.md
 - resource: data/architecture/ai-review-event-selection.md
 - resource: data/architecture/pull-request-only-responder.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
@@ -75,11 +71,15 @@ identity](../architecture/responder-app-identity.md).
 `commented`; reviews by `github-actions[bot]` or `claude[bot]` do not count. It
 asserts the PR has been reviewed, not that each pushed commit has been, and
 never requires the review to name the current head commit. Refreshing a review
-is the author's call: removing the pull request's author as assignee and adding
-them back runs a `pull_request` review whose gate counts toward merge, as
-recorded in [Assignee-triggered AI
-re-reviews](../architecture/assignee-review-trigger.md). An `@claude review`
-comment starts nothing.
+is the author's call: adding the `request-ai-review` label runs a `pull_request`
+review whose gate counts toward merge, and the review job removes the label, as
+`plume-works-quill`, just before the review starts, so the label is on a pull
+request only while a request waits for a review. A request on a draft, or from
+someone without write access, waits for a later run that can review. Assigning
+someone, requesting a reviewer, and an `@claude review` comment start nothing,
+and any other label runs only the gate, outside the pull request's concurrency
+group. The design is recorded in [Label review
+triggers](../architecture/label-review-triggers.md).
 
 **The review's verdict follows its findings.** The review submits `APPROVE` when
 it has no validated finding or only non-blocking ones, and `REQUEST_CHANGES`
@@ -116,27 +116,18 @@ scripts and the workflow that supplies their devcontainer contract is recorded
 in [CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md).
 
-**Pull requests can opt out of the review run, not out of the gate.** A
-`[ci:skip-ai-review]` marker alone on a line of the pull request body skips the
-review responder — matched as a whole line, so a body that merely discusses the
-marker stays prose. The marker outranks an assignment, so assigning a marked PR
-runs the gate without a review. `ai-review-present` never reads the marker: a PR
-body is author-controlled and a skipped job satisfies a required check, so a
-marker the gate honored would be a self-service waiver of the mandatory review.
-A marked PR without an accepted review keeps a red gate, mergeable only by
-ruleset bypass.
+**Pull requests can opt out of the automatic review, not out of the gate.** The
+`skip-ai-review` label stops the review responder on open, ready for review,
+reopen, and push; preflight reads the labels when it runs, so a label added
+after it read them does not apply to that run. An explicit `request-ai-review`
+still runs a review. `ai-review-present` never reads the label: a skipped job
+satisfies a required check, so a label the gate honoured would be a waiver of
+the mandatory review for anyone who can label a pull request. A labelled PR
+without an accepted review keeps a red gate, mergeable only by ruleset bypass.
 
-**A review can be asked to run cheaply.** A `[ci:review-effort=light]` or
-`[ci:review-effort=full]` marker alone on a line of the pull request body is the
-only way to request one of two effort tiers, matched as a whole line for the
-same reason the skip marker is. Preflight resolves the tier and the responder
-sizes the review session from it. A requested tier is obeyed exactly — the
-review never escalates it, refuses, or fails over the diff it finds — and with
-no request the review sizes itself and keeps the session's configured model. An
-effort tier changes what a review costs, never whether one is required: both
-tiers run the metadata check and the durable-knowledge pass, and neither waives
-`ai-review-present`. The reasoning is recorded in [PR review effort
-tiers](../architecture/pr-review-effort-tiers.md).
+**Every review sizes itself.** No marker, label, or prompt line requests an
+effort tier; the review chooses its passes and models from the diff and keeps
+the session's configured model.
 
 ## Edge cases
 

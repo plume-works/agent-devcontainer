@@ -362,7 +362,7 @@ The review responder and the `trusted-bot-approval` job post as a GitHub App.
 The gate, the `trusted-bot-approval` job, and the catalog's
 `pr-request-ai-review` and `pr-eval-review-needed` skills recognise only
 `plume-works-quill[bot]` as the AI reviewer; reviews by any other login,
-including `github-actions[bot]` and `claude[bot]`, leave the gate red. Two
+including `github-actions[bot]` and `claude[bot]`, leave the gate red. Three
 prerequisites are **required**:
 
 1. **Register a GitHub App and install it on the repository.** Give its
@@ -379,11 +379,17 @@ prerequisites are **required**:
    private key. A job naming an environment that does not exist does not run,
    and a job whose App secrets are empty fails rather than falling back to
    `GITHUB_TOKEN`.
+3. **Create the `request-ai-review` and `skip-ai-review` labels.** Adding
+   `request-ai-review` requests a review; the review job removes it, as the
+   App, just before the review starts. `skip-ai-review` stays until removed and stops the
+   automatic reviews on open, ready for review, reopen, and push, but never an
+   explicit `request-ai-review`, and never the gate: a labelled pull request
+   without an accepted review still needs ruleset bypass to merge.
 
 The gate checks that the pull request has been reviewed, not that its current
 head commit has. A push after a review does not re-open it; the author
-refreshes the review when they judge it stale, by removing the pull request's
-author as assignee and adding them back. This is deliberate — a review per commit would be prohibitively
+refreshes the review when they judge it stale, by adding the
+`request-ai-review` label. This is deliberate — a review per commit would be prohibitively
 expensive — so treat a copy that compares the review's `commit_id` against
 the head SHA as a change in policy, not a bug fix.
 
@@ -445,9 +451,11 @@ Two trigger behaviors are part of the workflow contract:
   a pull request that has no accepted review yet; a push to an already-reviewed
   pull request runs the gate alone, which passes on the existing review. Adding
   a blanket review-every-push would be prohibitively expensive; re-request a
-  review of a reviewed pull request by removing its author as assignee and
-  adding them back instead. The `assigned` event reviews whether or not an
-  accepted review exists, and `[ci:skip-ai-review]` still outranks it.
+  review of a reviewed pull request by adding `request-ai-review` instead. That
+  label reviews whether or not an accepted review exists, and outranks
+  `skip-ai-review`. Assigning someone or requesting a reviewer starts no run.
+  Any other label starts a run in its own concurrency group, so it cannot
+  replace a queued review, and its gate reports on the existing reviews.
 - **No comment starts the workflow.** It triggers only on `pull_request`,
   `pull_request_review`, and `merge_group`, so every run uses the pull
   request's own copy of the file and no privileged comment trigger exists. Do
@@ -708,10 +716,11 @@ it is consumer-created state, not a template-owned upstream diff input. See
 evaluation while preserving an existing guidance file unless the user explicitly
 replaces or removes it.
 
-If the AI responder workflows are among the files taken, their two
-prerequisites apply here too — the GitHub App and the `plume-works-review`
-environment with its three secrets. Copying the files alone is not enough, and
-neither is visible in a diff.
+If the AI responder workflows are among the files taken, their three
+prerequisites apply here too — the GitHub App, the `plume-works-review`
+environment with its three secrets, and the `request-ai-review` and
+`skip-ai-review` labels. Copying the files alone is not enough, and none of them
+is visible in a diff.
 
 ### 5. Set up project memory
 
@@ -774,17 +783,21 @@ docs/knowledge/SCHEMA.md
 docs/knowledge/STRUCTURE.md
 docs/knowledge/CHANGELOG.md
 docs/knowledge/tests/test_plan_checkboxes.py
+docs/knowledge/tests/test_banned_frontmatter_keys.py
 ```
 
 `docs/knowledge/LICENSE.md` is installed by bootstrap and consumer-owned
 afterward, like `docs/knowledge/data/`. Bootstrap installs no tests, CI, or
-hooks: copy `docs/knowledge/tests/test_plan_checkboxes.py` from the checkout
-after bootstrap succeeds, and retain the validation the workspace depends on:
+hooks: copy `docs/knowledge/tests/test_plan_checkboxes.py` and
+`docs/knowledge/tests/test_banned_frontmatter_keys.py` from the checkout after
+bootstrap succeeds, and retain the validation the workspace depends on:
 
 - `.github/workflows/validate-knowledge-base.yml` (see [Knowledge-base
   validation](#knowledge-base-validation));
 - the `iwe-schema-validate` and `iwe-normalize` pre-commit hooks, which need
   the `iwe` binary on PATH — the devcontainer image provides it;
+- the `banned-frontmatter-keys` pre-commit hook, which rejects a graph document
+  that sets `status`, `generated`, or `verified`;
 - `docs/knowledge/tests` in `pyproject.toml`'s `testpaths`.
 
 #### Requirement: only one formatter owns `docs/knowledge/`
