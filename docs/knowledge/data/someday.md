@@ -34,6 +34,8 @@ filesystem](someday/host-filesystem-dedup.md)
 [Validate correctness candidates on the large
 model](someday/pr-review-large-validator.md)
 
+[Rename the plan document](someday/rename-plan-document.md)
+
 [Calibrate the revision evaluator against human
 review](someday/revision-evaluator-calibration.md)
 
