@@ -190,10 +190,15 @@ Assumptions:
   - **Evidence:** commit 3306a331; preflight has no label-removal step and holds
     `contents: read`, `issues: read`, `pull-requests: read`; actionlint and
     zizmor pass.
-- [ ] `run-claude-responder` removes `request-ai-review` with the minted App
+- [x] `run-claude-responder` removes `request-ai-review` with the minted App
   token after the Claude step, unless the job was cancelled, when
   `claude-respond` passes it the label preflight found; a label another run
   already removed is not an error.
+  - **Evidence:** commit 4d5ccbc8; "Take the review request label" runs after
+    "Claude Responder" when `remove-request-label` is `true`, the Claude step
+    finished with `success` or `failure`, and the job is not cancelled; it
+    deletes the label with the App token and treats `HTTP 404` as taken by
+    another run; the step passes shellcheck, and zizmor passes.
 - [x] Preflight reads the pull request's current labels from the API.
   - **Evidence:** commit ebfe8ab4; "Determine checkout ref" pages
     `github.rest.issues.listLabelsOnIssue` for the pull request; actionlint
@@ -272,8 +277,12 @@ Assumptions:
     40 tests, including `test_request_adds_the_label`,
     `test_label_waiting_for_a_run_is_already_requested`, and
     `test_assignees_are_never_touched`.
-- [ ] `SKILL.md` describes the label request, the re-sent stale label, and its
+- [x] `SKILL.md` describes the label request, the re-sent stale label, and its
   confirmation.
+  - **Evidence:** commit 40985c69; "Post the request" says the review job
+    removes the label as `plume-works-quill` once the review finishes and never
+    when it is cancelled, and that the script re-sends a stale label;
+    `validate_agent_files` reports 0 errors.
 
 ### Task 5: Merge and evaluation skills follow the label
 
@@ -293,15 +302,24 @@ Assumptions:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The consumption guide adds creating the `request-ai-review` and
+- [x] The consumption guide adds creating the `request-ai-review` and
   `skip-ai-review` labels to the required prerequisites and describes requesting
   and skipping a review with them.
+  - **Evidence:** commit 21a2c0a3; prerequisite 3 creates `request-ai-review`
+    and `skip-ai-review` and says the review job removes the request label as
+    the App once the review finishes, a cancelling push leaving it for the
+    push's run; `validate_agent_files` reports 0 errors.
 - [x] `README.md` says to add `request-ai-review` to request another review.
   - **Evidence:** commit ba52ceed; "Pull-request automation" says to add
     `request-ai-review` to request another review and lists both labels among
     the adopter prerequisites; prettier passes.
-- [ ] The feature's `## Behaviour` describes both labels, drops the assignee
+- [x] The feature's `## Behaviour` describes both labels, drops the assignee
   trigger, the body markers, and requested tiers, and links the new note.
+  - **Evidence:** commit 21a2c0a3; `## Behaviour` says the review job removes
+    `request-ai-review` as `plume-works-quill` once the review finishes and a
+    push that cancels it leaves the label for the push's run, describes
+    `skip-ai-review`, and links `architecture/label-review-triggers`;
+    `iwe schema validate` passes.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
   - **Evidence:** commit ba52ceed;
@@ -323,10 +341,15 @@ Modify: `docs/knowledge/data/architecture.md`
     `## Known limits`, all five rejected alternatives, and the line superseding
     `assignee-review-trigger` and `pr-review-effort-tiers`, which the commit
     leaves unchanged; `iwe schema validate` passes.
-- [ ] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
+- [x] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
   cancelled request run, that the review job removes it as `plume-works-quill`,
   and that `request-review.py` re-sends a stale label, and lists the remaining
   cases among its known limits.
+  - **Evidence:** commit 2e36ed29; `architecture/label-review-triggers` records
+    removal by the review job after the Claude step and never on cancellation,
+    the pickup by every `pr-<n>` run, and the stale-label re-send, and lists the
+    cancelled run and the unauthorised request among its known limits;
+    `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 38389c9b; `data/architecture.md` inclusion-links
     `architecture/label-review-triggers` in key order, before
