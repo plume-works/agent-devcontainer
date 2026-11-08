@@ -383,12 +383,17 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 9: A requested review counts toward merge
 
-- [ ] On a pull request running this plan's workflow, adding `request-ai-review`
+- [x] On a pull request running this plan's workflow, adding `request-ai-review`
   to a reviewed pull request has `plume-works-quill` remove the label within the
   run, runs `Claude PR Review Responder`, and leaves `ai-review-present` from
   that `pull_request` run on the head commit, counted by
   `gh pr view --json statusCheckRollup`.
   - **Closed by:** the maintainer, on a pull request running this workflow.
+  - **Evidence:** pull request #758 at 076e9610: the waiting `request-ai-review`
+    was reviewed by run 42460733010, whose review job removed the label as
+    `plume-works-quill[bot]` at 07:57:39 after the 07:57:32 review, and whose
+    `ai-review-present` passed; `gh pr view 758 --json statusCheckRollup` listed
+    `ai-review-present` as `SUCCESS`.
 
 ### Task 10: The block label and the queue behave as decided
 
@@ -399,8 +404,12 @@ Modify: `docs/knowledge/data/architecture.md`
   - **Evidence:** pull request #758 at 076e9610, carrying `block-ai-reviews`:
     `request-ai-review` added at 07:54:22 started run 42460672914, which skipped
     `Claude PR Review Responder`, and the label stayed on the pull request.
-- [ ] Removing `block-ai-reviews` from that pull request runs the waiting
+- [x] Removing `block-ai-reviews` from that pull request runs the waiting
   review, whose job then removes `request-ai-review`.
+  - **Evidence:** pull request #758 at 076e9610: removing `block-ai-reviews` at
+    07:55:17 started run 42460733010, which ran `Claude PR Review Responder`;
+    `plume-works-quill[bot]` posted its review at 07:57:32 and removed
+    `request-ai-review` at 07:57:39.
 - [x] Adding an unrelated label while a requested review is queued leaves that
   review queued.
   - **Evidence:** pull request #752: with `request-ai-review` run 42453979498
