@@ -48,11 +48,11 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-26.04
-    # issues: write removes the one-shot request-ai-review label.
+    # pull-requests: write removes the one-shot request-ai-review label.
     permissions:
       contents: read
-      issues: write
-      pull-requests: read
+      issues: read
+      pull-requests: write
     outputs:
       checkout_ref: ${{ steps.checkout_ref.outputs.ref }}
       head_ref: ${{ steps.checkout_ref.outputs.headRef }}
