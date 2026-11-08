@@ -187,9 +187,12 @@ shape they read, and the exemption needs its own rule).
   - **Evidence:** commit `458c93f0` rewrites the three rules in both copies;
     `cmp` of each workspace file against its bootstrap copy reports no
     difference at that commit.
-- [ ] The example plan's `## Key references` drops its stamp and reads
+- [x] The example plan's `## Key references` drops its stamp and reads
   `src/store/sessions.ts::appendSession` — the log writer, and
   `src/main.ts::bootstrap` — window/tray bootstrap where the view mounts.
+  - **Evidence:** commit `458c93f0` rewrites the example plan's
+    `## Key references`; `uv run scripts/check-anchors.py` reports no line
+    number in the bootstrap assets at that commit.
 
 ### Task 5: Planner and implementer rules
 
