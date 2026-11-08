@@ -241,10 +241,13 @@ shape they read, and the exemption needs its own rule).
     `.agents/plugins/agentdev/` and
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reports 0 errors at that commit.
-- [ ] `pr-review` keeps the inline comment's `line` as a machine position: it
+- [x] `pr-review` keeps the inline comment's `line` as a machine position: it
   places the comment by locating the anchored or quoted line in the diff, and
   the comment text and every review body use anchors. Its constraint against
   prose locations is reworded without a numeric example.
+  - **Evidence:** commit `b540e482` places inline comments on the diff line
+    holding the quoted text, names fallback locations by anchor, and rewords the
+    constraint without a numeric example.
 
 ### Task 7: Architecture prose
 
