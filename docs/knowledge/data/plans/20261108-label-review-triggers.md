@@ -177,11 +177,17 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] The `pull_request` types are `opened`, `reopened`, `ready_for_review`,
+- [x] The `pull_request` types are `opened`, `reopened`, `ready_for_review`,
   `synchronize`, `labeled`, and `unlabeled`.
-- [ ] The concurrency group of every label event is unique to its run, except
+  - **Evidence:** commit 95c6732d; `on.pull_request.types` lists `opened`,
+    `reopened`, `ready_for_review`, `synchronize`, `labeled`, `unlabeled`;
+    actionlint passes.
+- [x] The concurrency group of every label event is unique to its run, except
   adding `request-ai-review` and removing `block-ai-reviews`, which keep
   `pr-<n>` like every other `pull_request` event.
+  - **Evidence:** commit 95c6732d; the group expression sends a `labeled` or
+    `unlabeled` event to `label-<run id>` unless it adds `request-ai-review` or
+    removes `block-ai-reviews`; actionlint and zizmor pass.
 
 ### Task 2: Preflight honours the two labels
 
@@ -206,15 +212,29 @@ Assumptions:
   - **Evidence:** commit ebfe8ab4; "Determine checkout ref" pages
     `github.rest.issues.listLabelsOnIssue` for the pull request; actionlint
     passes.
-- [ ] `wantsReview` is true when the pull request carries `request-ai-review`
+- [x] `wantsReview` is true when the pull request carries `request-ai-review`
   and not `block-ai-reviews`, for a run in `pr-<n>`, and false for a label event
   outside `pr-<n>`.
-- [ ] `block-ai-reviews` on the pull request makes `wantsReview` false for every
+  - **Evidence:** commit 95c6732d; `wantsReview` returns false outside `pr-<n>`
+    or when `BLOCK_AI_REVIEWS` is set, then true when `REQUEST_LABEL` is set;
+    every inline script parses under `bun build --no-bundle`.
+- [x] `block-ai-reviews` on the pull request makes `wantsReview` false for every
   event, a waiting `request-ai-review` included, and leaves that label in place;
   the `[ci:skip-ai-review]` body regex is removed.
-- [ ] Removing `block-ai-reviews` starts a run in `pr-<n>` that reviews when
+  - **Evidence:** commit 95c6732d; "Determine checkout ref" sets
+    `blockAiReviews` from the live labels, `wantsReview` returns false whenever
+    it is set, before the request check, and no step removes `request-ai-review`
+    in that case; the `[ci:skip-ai-review]` regex is gone; every inline script
+    parses under `bun build --no-bundle`.
+- [x] Removing `block-ai-reviews` starts a run in `pr-<n>` that reviews when
   `request-ai-review` is on the pull request.
-- [ ] `ai-review-present` runs for every `labeled` and `unlabeled` event.
+  - **Evidence:** commit 95c6732d; `unlabeled` is a `pull_request` type,
+    removing `block-ai-reviews` keeps `pr-<n>`, and `wantsReview` returns true
+    for it when `request-ai-review` is present; actionlint passes.
+- [x] `ai-review-present` runs for every `labeled` and `unlabeled` event.
+  - **Evidence:** commit 95c6732d; the gate's `if:` is `always()` for every
+    `pull_request` event, and both label actions are `pull_request` types;
+    actionlint passes.
 
 ### Task 3: Requested effort tiers are removed
 
@@ -270,18 +290,29 @@ Assumptions:
     40 tests, including `test_request_adds_the_label`,
     `test_label_waiting_for_a_run_is_already_requested`, and
     `test_assignees_are_never_touched`.
-- [ ] With `block-ai-reviews` on the pull request, it adds `request-ai-review`
+- [x] With `block-ai-reviews` on the pull request, it adds `request-ai-review`
   unless already present and reports `BLOCKED`, with a test.
-- [ ] `SKILL.md` describes the label request, the re-sent stale label, the
+  - **Evidence:** commit e359da43; `run()` checks `block-ai-reviews` after the
+    open check, POSTs `request-ai-review` unless present, and returns `BLOCKED`
+    (7); `test_blocked_pull_request_queues_the_request` and
+    `test_blocked_pull_request_with_waiting_request_adds_nothing` pass among 42.
+- [x] `SKILL.md` describes the label request, the re-sent stale label, the
   `BLOCKED` result, and its confirmation.
+  - **Evidence:** commit e359da43; "Post the request" describes the block, the
+    result table lists `BLOCKED`, and "Confirm it started" names
+    `block-ai-reviews` among the reasons a label stays; `validate_agent_files`
+    reports 0 errors.
 
 ### Task 5: Merge and evaluation skills follow the label
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] `## AI Review Recovery` describes requesting with `request-ai-review`,
+- [x] `## AI Review Recovery` describes requesting with `request-ai-review`,
   treats an added label, a started run, or a pending review as not yet complete,
   and reports `BLOCKED` for a person instead of waiting.
+  - **Evidence:** commit 98da9a59; step 3 reports `BLOCKED` as a merge blocker
+    for a person and stops waiting; the rest of the recovery requests with
+    `request-ai-review`.
 
 ### Task 6: Consumer docs describe the labels
 
@@ -289,13 +320,22 @@ Assumptions:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The consumption guide adds creating the `request-ai-review` and
+- [x] The consumption guide adds creating the `request-ai-review` and
   `block-ai-reviews` labels to the required prerequisites and describes
   requesting and blocking reviews with them.
-- [ ] `README.md` says to add `request-ai-review` to request another review and
+  - **Evidence:** commit 3dd70bd5; prerequisite 3 creates `request-ai-review`
+    and `block-ai-reviews` and describes both, and the trigger bullets and
+    Workflow B summary match; `validate_agent_files` reports 0 errors.
+- [x] `README.md` says to add `request-ai-review` to request another review and
   `block-ai-reviews` to stop every review.
-- [ ] The feature's `## Behaviour` describes both labels, drops the assignee
+  - **Evidence:** commit 3dd70bd5; "Pull-request automation" says to add
+    `request-ai-review` and that `block-ai-reviews` stops every review, and
+    lists both labels among the prerequisites; prettier passes.
+- [x] The feature's `## Behaviour` describes both labels, drops the assignee
   trigger, the body markers, and requested tiers, and links the new note.
+  - **Evidence:** commit 3dd70bd5; `## Behaviour` describes `request-ai-review`
+    and "Pull requests can block every review, not the gate.", and links
+    `architecture/label-review-triggers`; `iwe schema validate` passes.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
   - **Evidence:** commit ba52ceed;
@@ -317,11 +357,15 @@ Modify: `docs/knowledge/data/architecture.md`
     `## Known limits`, all five rejected alternatives, and the line superseding
     `assignee-review-trigger` and `pr-review-effort-tiers`, which the commit
     leaves unchanged; `iwe schema validate` passes.
-- [ ] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
+- [x] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
   cancelled request run, that the review job removes it as `plume-works-quill`,
   that `block-ai-reviews` holds every review and its removal runs a waiting
   request, and that `request-review.py` re-sends a stale label, and lists the
   remaining cases among its known limits.
+  - **Evidence:** commit e90b55ff; `architecture/label-review-triggers` records
+    the block, the unblock run, removal after the review, the pickup, and the
+    stale-label re-send, and its known limits and rejected alternatives match
+    the plan; `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 38389c9b; `data/architecture.md` inclusion-links
     `architecture/label-review-triggers` in key order, before
