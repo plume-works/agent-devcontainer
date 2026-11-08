@@ -395,9 +395,14 @@ Modify: `docs/knowledge/data/architecture.md`
     `documentation` started run 42454039608, which ran preflight and
     `ai-review-present` without a review and finished while 42454017435 stayed
     pending.
-- [ ] A push queued behind a pending `request-ai-review` run takes the request:
+- [x] A push queued behind a pending `request-ai-review` run takes the request:
   its review job removes the label and reviews.
   - **Closed by:** the maintainer, on a pull request running this workflow.
+  - **Evidence:** pull request #752: with run 42455065884 reviewing and request
+    run 42455169059 pending in `pr-752`, the push of e572ef51 started run
+    42455195990, which cancelled both, took `request-ai-review` (removed by
+    `plume-works-quill[bot]` at 06:34:39), ran `Claude PR Review Responder`, and
+    passed `ai-review-present` with the 06:36:14 approval.
 
 ## Spec changes
 
