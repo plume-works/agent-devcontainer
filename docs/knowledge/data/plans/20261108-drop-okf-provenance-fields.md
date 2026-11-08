@@ -110,17 +110,30 @@ whose frontmatter sets either key
 `docs/knowledge/tests/test_banned_frontmatter_keys.py`; Modify:
 `.pre-commit-config.yaml`
 
-- [ ] A document whose frontmatter sets `status`, `generated`, or `verified`
+- [x] A document whose frontmatter sets `status`, `generated`, or `verified`
   makes the test fail, naming the document and the key; a key nested under
   another mapping and body text are not reported. The fixture that nests
   `status` under `generated` nests it under a key that stays allowed
-- [ ] The scaffold graph's case is skipped when its directory is absent, and the
+  - **Evidence:** commit 1cbfa638;
+    `uv run pytest docs/knowledge/tests/test_banned_frontmatter_keys.py` passed
+    (5 tests, `test_a_banned_key_is_named` once per key, nesting under
+    `sources`), and with `generated:` added to `features/consumer-iwe-seed.md`
+    the workspace case failed naming `features/consumer-iwe-seed.md: generated`
+- [x] The scaffold graph's case is skipped when its directory is absent, and the
   workspace graph's case always runs
-- [ ] The `no-status-field` hook is renamed `banned-frontmatter-keys`, runs the
+  - **Evidence:** commit 1cbfa638; the test file copied alone into a scratch
+    repository with only `docs/knowledge/data/` passed 4 and skipped the
+    scaffold case as absent
+- [x] The `no-status-field` hook is renamed `banned-frontmatter-keys`, runs the
   renamed test on the same `files` pattern, and
   `pre-commit run banned-frontmatter-keys --all-files` passes
-- [ ] The comment above the hook names all three banned keys and points at
+  - **Evidence:** commit 1cbfa638;
+    `pre-commit run banned-frontmatter-keys --all-files` passed
+- [x] The comment above the hook names all three banned keys and points at
   `spec/iwe-workflow-skills`
+  - **Evidence:** commit 1cbfa638; `.pre-commit-config.yaml:163-164` reads "The
+    graph never sets `status`, `generated`, or `verified`; see
+    spec/iwe-workflow-skills."
 
 ### Task 4: The manuals and Capture stop stamping provenance
 
