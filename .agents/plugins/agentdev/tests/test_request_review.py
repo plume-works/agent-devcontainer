@@ -25,6 +25,7 @@ RESPONDER = 'Claude PR Review Responder'
 AI_REVIEWER = 'plume-works-quill[bot]'
 CHECK_URL = 'https://github.com/octo/repo/runs/700'
 POSTED_URL = 'https://github.com/octo/repo/pull/42#issuecomment-900'
+REQUEST_LABEL = 'request-ai-review'
 RATIONALE = 'Reworked the retry backoff beyond the thread.'
 EARLIER = '2026-01-01T09:00:00Z'
 STARTED_AT = '2026-01-01T09:30:00Z'
@@ -98,8 +99,8 @@ elif endpoint == base + 'pulls/42/reviews':
 elif endpoint == base + 'commits/' + fixture['pr']['head']['sha'] + '/check-runs':
     runs = fixture['check_runs']
     print(json.dumps({'total_count': len(runs), 'check_runs': runs}))
-elif endpoint == base + 'issues/42/assignees' and method in ('POST', 'DELETE'):
-    print(json.dumps({'number': 42}))
+elif endpoint == base + 'issues/42/labels' and method == 'POST':
+    print(json.dumps([{'name': fields.get('labels[]')}]))
 elif endpoint == base + 'issues/42/comments' and method == 'POST':
     print(json.dumps({'html_url': fixture['posted_url']}))
 else:
@@ -108,13 +109,16 @@ else:
 """
 
 
-def pull_request(*, state: str = 'open', assignees: tuple[str, ...] = ()) -> dict[str, Any]:
+def pull_request(
+    *, state: str = 'open', assignees: tuple[str, ...] = (), labels: tuple[str, ...] = ()
+) -> dict[str, Any]:
     """Build a pull request as the pulls endpoint returns it."""
     return {
         'state': state,
         'head': {'sha': HEAD_SHA},
         'user': {'login': AUTHOR},
         'assignees': [{'login': login} for login in assignees],
+        'labels': [{'name': name} for name in labels],
     }
 
 
@@ -208,13 +212,18 @@ def outcome(completed: subprocess.CompletedProcess[str]) -> tuple[int, str]:
     return completed.returncode, completed.stdout.splitlines()[-1]
 
 
-def toggle_calls(calls: list[list[Any]]) -> list[tuple[str, str]]:
-    """Return the method and assignee of each assignees call, in order."""
+def request_calls(calls: list[list[Any]]) -> list[str]:
+    """Return each label the script added, in order."""
     return [
-        (method, fields['assignees[]'])
-        for method, endpoint, fields in calls
-        if endpoint.endswith('/issues/42/assignees')
+        fields['labels[]']
+        for _, endpoint, fields in calls
+        if endpoint.endswith('/issues/42/labels')
     ]
+
+
+def assignee_calls(calls: list[list[Any]]) -> list[list[Any]]:
+    """Return every call that touched the pull request's assignees."""
+    return [call for call in calls if 'assignees' in call[1]]
 
 
 def comment_bodies(calls: list[list[Any]]) -> list[str]:
@@ -222,8 +231,8 @@ def comment_bodies(calls: list[list[Any]]) -> list[str]:
     return [fields['body'] for _, endpoint, fields in calls if endpoint.endswith('/comments')]
 
 
-def test_unassigned_author_is_added_then_removed(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """Adding fires the review; removing restores the assignees the script found."""
+def test_request_adds_the_label(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """Adding the request label is the whole request."""
     # Arrange
     fixture = make_fixture()
 
@@ -232,7 +241,7 @@ def test_unassigned_author_is_added_then_removed(plugin_root: Path, plugin_tmp_p
 
     # Assert
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls) == [('POST', AUTHOR), ('DELETE', AUTHOR)]
+    assert request_calls(calls) == [REQUEST_LABEL]
     assert comment_bodies(calls) == []
     lines = completed.stdout.splitlines()
     assert f'PR_NUMBER={PR_NUMBER}' in lines
@@ -241,16 +250,27 @@ def test_unassigned_author_is_added_then_removed(plugin_root: Path, plugin_tmp_p
     assert 'COMMENT_URL=' in lines
 
 
-def test_assigned_author_is_removed_then_added_back(
-    plugin_root: Path, plugin_tmp_path: Path
-) -> None:
-    """An assigned author is removed first, so adding them back fires the event."""
+def test_assignees_are_never_touched(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """An assignment no longer requests a review, so the script leaves assignees alone."""
     fixture = make_fixture(pr=pull_request(assignees=('someone', AUTHOR)))
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls) == [('DELETE', AUTHOR), ('POST', AUTHOR)]
+    assert request_calls(calls) == [REQUEST_LABEL]
+    assert assignee_calls(calls) == []
+
+
+def test_label_already_present_is_already_requested(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A request label still on the pull request is a request no run has picked up."""
+    fixture = make_fixture(pr=pull_request(labels=('bug', REQUEST_LABEL)))
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (4, 'RESULT=ALREADY_REQUESTED')
+    assert calls == []
 
 
 def test_rationale_is_posted_as_plain_comment(plugin_root: Path, plugin_tmp_path: Path) -> None:
@@ -262,7 +282,7 @@ def test_rationale_is_posted_as_plain_comment(plugin_root: Path, plugin_tmp_path
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert comment_bodies(calls) == [f'AI review requested for {HEAD_SHA}: {RATIONALE}']
     assert f'COMMENT_URL={POSTED_URL}' in completed.stdout.splitlines()
-    assert toggle_calls(calls) == [('POST', AUTHOR), ('DELETE', AUTHOR)]
+    assert request_calls(calls) == [REQUEST_LABEL]
 
 
 def test_no_review_trigger_comment_on_any_path(plugin_root: Path, plugin_tmp_path: Path) -> None:
@@ -282,7 +302,9 @@ def test_no_review_trigger_comment_on_any_path(plugin_root: Path, plugin_tmp_pat
         assert not any(body.lower().startswith('@claude') for body in comment_bodies(calls))
 
 
-def test_accepted_review_on_head_toggles_nothing(plugin_root: Path, plugin_tmp_path: Path) -> None:
+def test_accepted_review_on_head_requests_nothing(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
     """The AI reviewer's review of the head means no request is needed."""
     fixture = make_fixture(reviews=[review(AI_REVIEWER, HEAD_SHA, 'COMMENTED')])
 
@@ -292,7 +314,7 @@ def test_accepted_review_on_head_toggles_nothing(plugin_root: Path, plugin_tmp_p
     assert calls == []
 
 
-def test_accepted_review_on_older_commit_still_toggles(
+def test_accepted_review_on_older_commit_still_requests(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
     """A review of an earlier head does not cover the current one."""
@@ -301,13 +323,13 @@ def test_accepted_review_on_older_commit_still_toggles(
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls)
+    assert request_calls(calls)
 
 
 @pytest.mark.parametrize(
     'login', ['octocat', 'chatgpt-codex-connector[bot]', 'claude[bot]', 'github-actions[bot]']
 )
-def test_review_by_unaccepted_author_on_head_still_toggles(
+def test_review_by_unaccepted_author_on_head_still_requests(
     plugin_root: Path, plugin_tmp_path: Path, login: str
 ) -> None:
     """A review of the head by anyone but the AI reviewer is not an accepted AI review."""
@@ -316,7 +338,7 @@ def test_review_by_unaccepted_author_on_head_still_toggles(
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls)
+    assert request_calls(calls)
 
 
 @pytest.mark.parametrize(
@@ -337,7 +359,7 @@ def test_responder_check_on_head_counts_as_request(
 
 
 @pytest.mark.parametrize('conclusion', ['skipped', 'cancelled'])
-def test_skipped_or_cancelled_responder_still_toggles(
+def test_skipped_or_cancelled_responder_still_requests(
     plugin_root: Path, plugin_tmp_path: Path, conclusion: str
 ) -> None:
     """A skipped responder is the gate-only run of a push; doubt resolves toward requesting."""
@@ -346,11 +368,11 @@ def test_skipped_or_cancelled_responder_still_toggles(
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls)
+    assert request_calls(calls)
 
 
 @pytest.mark.parametrize('edited', ['body', 'title'])
-def test_review_on_head_before_metadata_edit_still_toggles(
+def test_review_on_head_before_metadata_edit_still_requests(
     plugin_root: Path, plugin_tmp_path: Path, edited: str
 ) -> None:
     """A review that saw an older title or description does not cover the head's input."""
@@ -361,10 +383,10 @@ def test_review_on_head_before_metadata_edit_still_toggles(
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls)
+    assert request_calls(calls)
 
 
-def test_review_on_head_after_metadata_edit_toggles_nothing(
+def test_review_on_head_after_metadata_edit_requests_nothing(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
     """A review submitted after the latest edit saw the current title and description."""
@@ -378,7 +400,7 @@ def test_review_on_head_after_metadata_edit_toggles_nothing(
     assert calls == []
 
 
-def test_responder_check_completed_before_metadata_edit_still_toggles(
+def test_responder_check_completed_before_metadata_edit_still_requests(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
     """The metadata gate's own finished run does not count as a request for the edited input."""
@@ -391,7 +413,7 @@ def test_responder_check_completed_before_metadata_edit_still_toggles(
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls)
+    assert request_calls(calls)
 
 
 @pytest.mark.parametrize('status', ['queued', 'in_progress'])
@@ -443,7 +465,7 @@ def test_review_from_a_run_started_before_the_edit_does_not_count(
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == expected
-    assert bool(toggle_calls(calls)) == (expected[0] == 0)
+    assert bool(request_calls(calls)) == (expected[0] == 0)
 
 
 def test_edit_time_query_sends_owner_and_name_as_strings(
@@ -469,14 +491,14 @@ def test_failing_edit_time_query_is_gh_unavailable(
     assert calls == []
 
 
-def test_other_check_on_head_still_toggles(plugin_root: Path, plugin_tmp_path: Path) -> None:
+def test_other_check_on_head_still_requests(plugin_root: Path, plugin_tmp_path: Path) -> None:
     """Only the responder check shows that a review was requested."""
     fixture = make_fixture(check_runs=[check_run('in_progress', name='ai-review-present')])
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert toggle_calls(calls)
+    assert request_calls(calls)
 
 
 def test_closed_pull_request_is_not_open(plugin_root: Path, plugin_tmp_path: Path) -> None:
@@ -508,33 +530,17 @@ def test_failing_gh_call_is_gh_unavailable(plugin_root: Path, plugin_tmp_path: P
     assert calls == []
 
 
-def test_failing_first_toggle_call_is_gh_unavailable(
-    plugin_root: Path, plugin_tmp_path: Path
-) -> None:
-    """A toggle that never started changes nothing and stops before the second call."""
+def test_failing_label_call_is_gh_unavailable(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A label that could not be added is reported, and no rationale is posted."""
     fixture = make_fixture(fail_writes=[1])
 
-    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+    completed, calls = run_script(
+        plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER, '--rationale', RATIONALE
+    )
 
     assert outcome(completed) == (6, 'RESULT=GH_UNAVAILABLE')
-    assert toggle_calls(calls) == [('POST', AUTHOR)]
-
-
-@pytest.mark.parametrize(
-    ('assignees', 'unrestored'),
-    [((), f'{AUTHOR} is still assigned'), ((AUTHOR,), f'{AUTHOR} is no longer assigned')],
-)
-def test_failing_second_toggle_call_names_unrestored_assignment(
-    plugin_root: Path, plugin_tmp_path: Path, assignees: tuple[str, ...], unrestored: str
-) -> None:
-    """A half-done toggle reports which assignment it could not restore."""
-    fixture = make_fixture(pr=pull_request(assignees=assignees), fail_writes=[2])
-
-    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
-
-    assert outcome(completed) == (6, 'RESULT=GH_UNAVAILABLE')
-    assert len(toggle_calls(calls)) == 2
-    assert unrestored in completed.stderr
+    assert request_calls(calls) == [REQUEST_LABEL]
+    assert comment_bodies(calls) == []
 
 
 def test_missing_gh_is_gh_unavailable(plugin_root: Path, plugin_tmp_path: Path) -> None:

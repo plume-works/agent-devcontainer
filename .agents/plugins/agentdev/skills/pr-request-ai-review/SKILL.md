@@ -1,24 +1,24 @@
 ---
 name: pr-request-ai-review
-description: 'Request a fresh AI review of an open pull request by toggling its author''s assignment, then confirm a run actually picked it up. Use when asked to request, re-request, or trigger an AI, Claude, or bot review of a PR, to ask for a re-review after new work landed, or to check whether a requested review ever started — including indirect phrasings such as "ping the reviewer again" or "get the bot to take another look". This is the posting playbook, not the judgment call: whether new work warrants a re-review belongs to pr-eval-review-needed, and merge-time review recovery belongs to pr-merge.'
+description: 'Request a fresh AI review of an open pull request by adding the request-ai-review label, then confirm a run actually picked it up. Use when asked to request, re-request, or trigger an AI, Claude, or bot review of a PR, to ask for a re-review after new work landed, or to check whether a requested review ever started — including indirect phrasings such as "ping the reviewer again" or "get the bot to take another look". This is the posting playbook, not the judgment call: whether new work warrants a re-review belongs to pr-eval-review-needed, and merge-time review recovery belongs to pr-merge.'
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Request an AI Review
 
-Request a fresh AI review of an open pull request by toggling its author's
-assignment, then confirm a run actually picked it up. Whether the newest work needs a review at
+Request a fresh AI review of an open pull request by adding the
+`request-ai-review` label, then confirm a run actually picked it up. Whether the newest work needs a review at
 all is a separate call, owned by
 [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md); this skill starts
 once that answer is yes.
 
 ## Post the request
 
-The responder reviews on a `pull_request` `assigned` event, so the bundled
-script requests a review by toggling the pull request author's assignment: an
-assigned author is removed and added back, an unassigned one is added and
-removed, and the assignees end as the script found them. An `@claude review`
-comment requests nothing; no comment starts the responder. The script requests at
+The responder reviews when the `request-ai-review` label is added, so the
+bundled script requests a review by adding it. The responder removes the label
+as soon as a run picks the request up, so a label still on the pull request is a
+request no run has accepted yet. An assignment, a reviewer request, and an
+`@claude review` comment request nothing. The script requests at
 most once per head and title and description; see
 [Post at most once per reviewed input](#post-at-most-once-per-reviewed-input).
 
@@ -30,19 +30,19 @@ It prints `PR_NUMBER`, `HEAD_SHA`, `CHECK_URL` — the responder check already
 covering this head — and `COMMENT_URL` — the posted rationale — and ends with a
 `RESULT=` line:
 
-| RESULT              | Exit                | What to do                                                                                                                                         |
-| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`           | 0                   | Report the toggle and any `COMMENT_URL`, then confirm the review started.                                                                          |
-| `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                                    |
-| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL`, running or started after the last edit, covers the head. Report it and confirm that one; do not retry.         |
-| `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                 |
-| `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, the toggle included. Stop and report stderr, which names any assignment left unrestored.              |
-| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                               |
-| `SCRIPT_FAILURE`    | 1                   | Unhandled error. Stop and report stderr.                                                                                                           |
-| `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM. Stop; check the pull request's assignees, since an interrupted toggle can leave the author's assignment changed. |
+| RESULT              | Exit                | What to do                                                                                                                                   |
+| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`           | 0                   | Report the added label and any `COMMENT_URL`, then confirm the review started.                                                               |
+| `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                              |
+| `ALREADY_REQUESTED` | 4                   | The label is still on the pull request, or the responder check at `CHECK_URL` covers the head. Report it and confirm that one; do not retry. |
+| `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                           |
+| `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, adding the label included. Stop and report stderr.                                              |
+| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                         |
+| `SCRIPT_FAILURE`    | 1                   | Unhandled error. Stop and report stderr.                                                                                                     |
+| `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM. Stop; check the pull request's labels and checks before requesting again.                                  |
 
 Run it with a token whose events start workflows, such as your own `gh` login.
-An assignment made with an Actions `GITHUB_TOKEN` starts no run.
+A label added with an Actions `GITHUB_TOKEN` starts no run.
 
 The rationale, when given, is posted as a plain comment,
 `AI review requested for <sha>: <rationale>`. It does not steer the review —
@@ -58,8 +58,8 @@ after it.
 
 ## Confirm it started
 
-A toggled assignment is not a started review. The toggle starts a
-`pull_request` run of `ai-responder.yml` on the head branch, and that run files
+An added label is not a started review. The label starts a `pull_request`
+run of `ai-responder.yml` on the head branch, and that run files
 its checks on the head commit, so `gh pr checks` lists them:
 
 ```bash
@@ -68,7 +68,7 @@ gh pr checks <pr> --json name,state,link
 
 A pending `Claude PR Review Responder` or `ai-review-present` check on the head
 means the review started. Report that check. When neither appears, read the
-`pull_request` run the toggle started on the head branch:
+`pull_request` run the label started on the head branch:
 
 ```bash
 gh run list --workflow ai-responder.yml --event pull_request --branch <head-branch> \
@@ -78,14 +78,14 @@ gh run view <run-id> --json jobs --jq '.jobs[] | {name, conclusion}'
 
 The shape of that run points at the cause:
 
-- **No run** — the toggle was made with a token whose events start no
-  workflow, such as an Actions `GITHUB_TOKEN`.
-- **Preflight skipped** — its `if:` excluded the pull request: it is
-  bot-authored or comes from a fork. `ai-review-present` still runs.
-- **Preflight failed** — the person whose token made the toggle lacks write
+- **No run, label still on** — the label was added with a token whose events
+  start no workflow, such as an Actions `GITHUB_TOKEN`.
+- **Label still on after the run** — the pull request is bot-authored or comes
+  from a fork, so no preflight ran to accept the request.
+- **Preflight failed** — the person whose token added the label lacks write
   access.
-- **Preflight passed, then the review job skipped** — the pull request body
-  carries the `[ci:skip-ai-review]` marker.
+- **Preflight passed, then the review job skipped** — the pull request is a
+  draft.
 - **A review check completed without a review** — report that review run's
   failure from its log.
 
