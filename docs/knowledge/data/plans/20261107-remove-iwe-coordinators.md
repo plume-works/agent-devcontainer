@@ -5,6 +5,7 @@ release:
 - features/agentdev-iwe-workflow-skills
 - features/autonomous-implement-loop
 - features/verify-report-cache
+- bugs/relayed-approval-unauthenticated
 description: Remove the iwe-implement-all and iwe-ship-all coordinators, every coordinator, child-session, and relayed-approval rule from the agentdev catalog, and rename the Implement orchestrator to the Implement session, so Implement runs only in place and takes decisions only from its own user.
 generated:
   by: claude-code/opus-5.5
@@ -38,6 +39,11 @@ Two mechanisms carry the coordinator role today:
   owes a requesting session a status and the rollup. `pr-merge-stack` step 2
   lets a coordinator session hand the bottom pull request's merge to the child
   session that owns it.
+
+The relay rule is [Implement takes a peer session's claim as the user's
+approval](../bugs/relayed-approval-unauthenticated.md): nothing authenticates
+the relayer, so a peer's claim can stand in for the user's consent to an
+always-escalate deviation. Removing the rule fixes it.
 
 The released behavior is in [IWE workflow skills in the agentdev
 catalog](../features/agentdev-iwe-workflow-skills.md), [Autonomous Implement

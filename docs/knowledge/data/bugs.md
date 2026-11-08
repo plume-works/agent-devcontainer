@@ -127,6 +127,9 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 [Bug: runtime containers reject a TLS-intercepting proxy's
 certificates](bugs/proxy-ca-untrusted-in-runtime-containers.md)
 
+[Bug: Implement takes a peer session's claim as the user's
+approval](bugs/relayed-approval-unauthenticated.md)
+
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
 
