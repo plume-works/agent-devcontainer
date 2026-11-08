@@ -82,7 +82,7 @@ architecture/ ◄── ## Decisions ──────┘   │
 - **Specs stay.** The plan lifts the story's acceptance scenarios into its
   `## Spec changes`; Ship merges them as today.
 
-**Switch.** All 14 active plans ship under the old rules first, then one last
+**Switch.** Every active plan ships under the old rules first, then one last
 old-rules release cut stamps every done plan. Only then does this plan's
 implementation migrate the graph: done and cancelled plans are deleted with
 every inbound link repointed to a GitHub permalink at the last commit that holds
@@ -143,9 +143,9 @@ links one (features, bugs, architecture, someday, spec `sources:`, `log.md`)
 
 - [ ] For each task: `iwe rename data/backlog/<slug> data/someday/<slug>`,
   rewrite its frontmatter to `type: someday` (dropping `stage`, `priority`,
-  `rank`, `created`, `completed`; keeping `description`, `generated`,
-  `sources`), and move its hub link to its sorted position in `data/someday.md`.
-  `data/backlog/` is empty; `iwe schema validate` and
+  `rank`, `created`, `completed`; keeping `description` and `sources`), and move
+  its hub link to its sorted position in `data/someday.md`. `data/backlog/` is
+  empty; `iwe schema validate` and
   `uv run pytest docs/knowledge/tests/test_hub_order.py` pass.
 
 ### Task 4: Switch the schemas and convert the open items
@@ -481,8 +481,8 @@ filed document from its hub and end with `iwe normalize` and
 - **WHEN** Capture is invoked for a bug, feature, or story whose required
   sections and fields are all supplied, and no likely duplicate exists
 - **THEN** Capture writes the document at its lane's key with the `stage`
-  `SCHEMA.md` derives for it, stamps `generated` and `sources`, links it from
-  its hub at its sorted position, and validates the graph
+  `SCHEMA.md` derives for it, stamps `sources`, links it from its hub at its
+  sorted position, and validates the graph
 
 #### Scenario: A bug fixed in the same change is captured
 
@@ -606,6 +606,8 @@ stamps every done plan; Task 1 checks both. The active plans at filing:
 - [Shipper dispatches verifier](20261103-shipper-dispatches-verifier.md)
 - [Main CI cooldown](20261104-main-ci-cooldown.md)
 - [Line-free anchors](20261108-line-free-anchors.md)
+- [Drop OKF provenance fields](20261108-drop-okf-provenance-fields.md)
+- [Label review triggers](20261108-label-review-triggers.md)
 
 Several of these edit `iwe-planner.agent.md`, `iwe-shipper.agent.md`, and the
 anchor format; re-locate every anchor below once they have shipped.
