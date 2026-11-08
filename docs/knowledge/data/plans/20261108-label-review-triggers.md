@@ -286,12 +286,20 @@ Assumptions:
 **Files:** Create: `docs/knowledge/data/architecture/label-review-triggers.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] The note records the decisions under `## Context`, the routing under
+- [x] The note records the decisions under `## Context`, the routing under
   `## Approach`, its known limits, and every rejected alternative, and states
   that it supersedes [Assignee-triggered AI
   re-reviews](../architecture/assignee-review-trigger.md) and [PR review effort
   tiers](../architecture/pr-review-effort-tiers.md), which are left unedited.
-- [ ] The note is linked from `data/architecture.md`.
+  - **Evidence:** commit 38389c9b; `architecture/label-review-triggers` carries
+    the decisions under `## Context`, the routing under `## Approach`,
+    `## Known limits`, all five rejected alternatives, and the line superseding
+    `assignee-review-trigger` and `pr-review-effort-tiers`, which the commit
+    leaves unchanged; `iwe schema validate` passes.
+- [x] The note is linked from `data/architecture.md`.
+  - **Evidence:** commit 38389c9b; `data/architecture.md` inclusion-links
+    `architecture/label-review-triggers` in key order, before
+    `manual-stacked-prs`; `iwe schema validate` passes.
 
 ### Task 8: The repository has both labels
 
