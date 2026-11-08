@@ -13,18 +13,22 @@ on:
       - ready_for_review
       - synchronize
       - labeled
+      - unlabeled
   merge_group:
     types:
       - checks_requested
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
-# review of an older head. Any other label gets its own group, so adding it
-# never replaces a queued review: see architecture/label-review-triggers.
+# review of an older head. Other label changes get their own group, so they
+# never replace a queued review: see architecture/label-review-triggers.
 concurrency:
   group: >-
     ${{ github.workflow }}-${{
-      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
-        github.event.label.name != 'request-ai-review' && format('label-{0}', github.run_id)) ||
+      (github.event_name == 'pull_request' &&
+        contains(fromJSON('["labeled", "unlabeled"]'), github.event.action) &&
+        !(github.event.action == 'labeled' && github.event.label.name == 'request-ai-review') &&
+        !(github.event.action == 'unlabeled' && github.event.label.name == 'block-ai-reviews') &&
+        format('label-{0}', github.run_id)) ||
       (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) ||
       (github.event_name == 'merge_group' && format('merge-group-{0}', github.event.merge_group.head_sha)) ||
       format('review-{0}-{1}', github.event.pull_request.number, github.event.review.id)
@@ -104,7 +108,7 @@ jobs:
                   per_page: 100,
                 })
               : [];
-            core.setOutput('skipAiReview', labels.some((label) => label.name === 'skip-ai-review'));
+            core.setOutput('blockAiReviews', labels.some((label) => label.name === 'block-ai-reviews'));
             core.setOutput('requestLabel', labels.some((label) => label.name === 'request-ai-review'));
 
       - name: Check for an accepted AI review
@@ -148,7 +152,7 @@ jobs:
         env:
           PR_NUMBER: ${{ steps.checkout_ref.outputs.prNumber }}
           IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
-          SKIP_AI_REVIEW: ${{ steps.checkout_ref.outputs.skipAiReview }}
+          BLOCK_AI_REVIEWS: ${{ steps.checkout_ref.outputs.blockAiReviews }}
           REQUEST_LABEL: ${{ steps.checkout_ref.outputs.requestLabel }}
           REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
         with:
@@ -161,18 +165,21 @@ jobs:
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
                 return false;
               }
-              // Any run in pr-<n> takes a waiting request; another label's run
-              // never does. Label lifecycle: see spec/ai-review-gate.
-              if (payload.action === 'labeled' && payload.label?.name !== 'request-ai-review') {
+              // Any run in pr-<n> takes a waiting request unless reviews are
+              // blocked; a run in a label-<run id> group never does. Label
+              // lifecycle: see spec/ai-review-gate.
+              const labelEvent = ['labeled', 'unlabeled'].includes(payload.action);
+              const inPrGroup =
+                !labelEvent ||
+                (payload.action === 'labeled' && payload.label?.name === 'request-ai-review') ||
+                (payload.action === 'unlabeled' && payload.label?.name === 'block-ai-reviews');
+              if (!inPrGroup || process.env.BLOCK_AI_REVIEWS === 'true') {
                 return false;
               }
               if (process.env.REQUEST_LABEL === 'true') {
                 return true;
               }
-              if (payload.action === 'labeled') {
-                return false;
-              }
-              if (process.env.SKIP_AI_REVIEW === 'true') {
+              if (labelEvent) {
                 return false;
               }
               if (['opened', 'ready_for_review', 'reopened'].includes(payload.action)) {
