@@ -199,11 +199,15 @@ shape they read, and the exemption needs its own rule).
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] `iwe-planner`: step 3 collects anchors, not line numbers; step 4's
+- [x] `iwe-planner`: step 3 collects anchors, not line numbers; step 4's
   `## Key references` bullet is an anchor list in the Approach syntax with no
   stamp; revise mode re-resolves affected anchors with no date to refresh; the
   **Rules** bullet on code anchors drops the date stamp. The rulebook states
   that a plan never records a line number anywhere in its body.
+  - **Evidence:** commit `81d78ff6` rewrites steps 3 and 4, revise mode, and the
+    **Rules** bullet;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 - [ ] `iwe-implementer`: step 5 confirms each `## Key references` anchor still
   names its target in the current checkout and corrects a renamed or removed
   one, with no date to refresh; evidence written under a ticked task names code
