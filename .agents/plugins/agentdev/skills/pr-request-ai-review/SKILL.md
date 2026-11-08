@@ -16,8 +16,10 @@ once that answer is yes.
 
 The responder reviews when the `request-ai-review` label is added, so the
 bundled script requests a review by adding it. Any responder run of the pull request that reviews takes the label: its review
-job removes it as `plume-works-quill` just before the review starts. A label
-still on the pull request is a request no review has started for yet. When the script finds the
+job removes it as `plume-works-quill` once the review finishes, and never when
+the review is cancelled, so a push that cancels a requested review leaves the
+request for the push's run. A label still on the pull request is a request no
+review has finished yet. When the script finds the
 label with no unfinished responder run on the head branch to take it, the label
 is stale: the script removes and re-adds it, which sends the request again.
 Re-adding a label by hand sends nothing, because GitHub fires no event for a
