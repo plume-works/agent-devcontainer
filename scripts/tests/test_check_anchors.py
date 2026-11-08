@@ -121,3 +121,146 @@ def test_fenced_blocks_are_scanned_and_every_violation_listed(write: Write, run:
     result = run()
     assert result.returncode == 1
     assert len(result.stdout.splitlines()) == 3
+
+
+TARGETS = {
+    'src/tool.py': (
+        'LIMIT = 3\n\n\nclass Store:\n    """Store."""\n\n'
+        '    def append(self) -> None:\n        """Append."""\n\n\n'
+        'def main() -> int:\n    """Run."""\n    return 0\n'
+    ),
+    'src/run.sh': '#!/usr/bin/env bash\nsetup_env() {\n  :\n}\n',
+    'docs/guide.md': (
+        '# Guide\n\n## Workflow 2: Handle the Result\n\nNever reset   it.\n\n'
+        '## Notes\n\nA note.\n\n## Notes\n\nAnother.\n\n```\n## Not a heading\n```\n'
+    ),
+    '.github/workflows/ci.yml': (
+        'on:\n  push:\njobs:\n  ci:\n    steps:\n      - id: lint\n        run: x\n'
+        '      - name: Build\n        run: y\n'
+    ),
+    'config.json': '{"a": {"b": 1}}\n',
+    'pyproject.toml': '[tool.ruff]\nline-length = 99\n',
+    'Makefile': 'build:\n\techo hi\n',
+    'docker/app.Dockerfile': 'FROM python:3 AS builder\nRUN true\n',
+}
+
+ACTIVE_PLAN = 'docs/knowledge/data/plans/20260101-demo.md'
+
+
+def plan(references: str, stage: str = '', steps: str = '') -> str:
+    """Return a plan document with the given Key references body."""
+    front = f'---\ntype: plan\n{stage}---\n'
+    return (
+        f'{front}\n# Demo\n\n## Implementation Steps\n\n{steps}\n\n'
+        f'## Key references\n\n{references}\n\n## Trailer\n\n`missing.py::gone`\n'
+    )
+
+
+@pytest.fixture
+def targets(write: Write) -> None:
+    """Write the files anchors point at."""
+    for relative, text in TARGETS.items():
+        write(relative, text)
+
+
+@pytest.mark.usefixtures('targets')
+@pytest.mark.parametrize(
+    'anchor',
+    [
+        '`src/tool.py::main`',
+        '`src/tool.py::Store.append`',
+        '`src/tool.py::LIMIT`',
+        '`src/run.sh::setup_env`',
+        '`docs/guide.md#workflow-2-handle-the-result`',
+        '`docs/guide.md#notes-1`',
+        '`docs/guide.md#workflow-2-handle-the-result › "Never reset it"`',
+        '`docs/guide.md › "Another."`',
+        '`.github/workflows/ci.yml#jobs.ci.steps.lint`',
+        '`.github/workflows/ci.yml#jobs.ci.steps.Build`',
+        '`.github/workflows/ci.yml#on.push`',
+        '`config.json#a.b`',
+        '`pyproject.toml#tool.ruff.line-length`',
+        '`Makefile#build`',
+        '`docker/app.Dockerfile#builder`',
+        '`owner/repo#123`',
+    ],
+)
+def test_anchor_forms_resolve(write: Write, run: Run, anchor: str) -> None:
+    """Each anchor form resolves against its target."""
+    write(ACTIVE_PLAN, plan(f'- {anchor} — target'))
+    result = run()
+    assert result.returncode == 0, result.stdout
+
+
+@pytest.mark.usefixtures('targets')
+@pytest.mark.parametrize(
+    ('anchor', 'reason'),
+    [
+        ('`src/tool.py::run`', 'symbol `run` not found'),
+        ('`src/tool.py::Store.drop`', 'symbol `Store.drop` not found'),
+        ('`src/run.sh::teardown`', 'symbol `teardown` not found'),
+        ('`docs/guide.md#workflow-3`', 'heading `#workflow-3` not found'),
+        ('`docs/guide.md#not-a-heading`', 'heading `#not-a-heading` not found'),
+        ('`docs/guide.md#notes › "Another."`', 'quote "Another." not found'),
+        ('`.github/workflows/ci.yml#jobs.ci.steps.test`', 'key path'),
+        ('`config.json#a.c`', 'key path'),
+        ('`Makefile#install`', 'target or stage'),
+        ('`docker/app.Dockerfile#runtime`', 'target or stage'),
+        ('`src/gone.py::main`', 'file not found'),
+    ],
+)
+def test_broken_anchors_fail(write: Write, run: Run, anchor: str, reason: str) -> None:
+    """A renamed symbol, removed heading, missing key, reworded quote, or missing file fails."""
+    write(ACTIVE_PLAN, plan(f'- {anchor} — target'))
+    result = run()
+    assert result.returncode == 1
+    assert f'{ACTIVE_PLAN}:' in result.stdout
+    assert '[anchor]' in result.stdout
+    assert reason in result.stdout
+
+
+@pytest.mark.usefixtures('targets')
+def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
+    """A quote matches across line wraps in the anchor and the target."""
+    write(
+        ACTIVE_PLAN, plan('- `docs/guide.md#workflow-2-handle-the-result › "Never\n  reset it"`')
+    )
+    assert run().returncode == 0
+
+
+@pytest.mark.usefixtures('targets')
+@pytest.mark.parametrize(
+    ('relative', 'text'),
+    [
+        (ACTIVE_PLAN, plan('- `src/tool.py::main`', stage='stage: done\ncompleted: 2026-01-02\n')),
+        (ACTIVE_PLAN, plan('- `src/tool.py::main`', stage='stage: cancelled\n')),
+        (ACTIVE_PLAN, plan('- `src/tool.py::main`', steps='- [ ] Create `src/new.py::main`')),
+        ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py::b`\n'),
+        ('docs/knowledge/data/spec/thing.md', '---\ntype: spec\n---\n`a.py::b`\n'),
+    ],
+)
+def test_out_of_scope_anchors_are_not_resolved(
+    write: Write, run: Run, relative: str, text: str
+) -> None:
+    """Closed plans, a plan's tasks and other sections, done bugs, and specs are not resolved."""
+    write(relative, text)
+    assert run().returncode == 0, run().stdout
+
+
+@pytest.mark.usefixtures('targets')
+@pytest.mark.parametrize(
+    'relative',
+    [
+        'docs/knowledge/data/bugs/open.md',
+        'docs/knowledge/data/backlog/item.md',
+        'docs/knowledge/data/architecture/design.md',
+    ],
+)
+def test_live_documents_resolve_everywhere(write: Write, run: Run, relative: str) -> None:
+    """Open bugs and backlog items and architecture documents resolve their whole body."""
+    stage = '' if 'architecture' in relative else 'stage: pending\n'
+    text = f'---\ntype: x\n{stage}---\n\nSee `src/tool.py::gone`.\n'
+    write(relative, text)
+    result = run()
+    assert result.returncode == 1
+    assert f'{relative}:{text.count(chr(10))} [anchor]' in result.stdout
