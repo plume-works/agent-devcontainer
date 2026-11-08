@@ -147,7 +147,7 @@ shape they read, and the exemption needs its own rule).
 
 **Files:** Modify: `AGENTS.md`
 
-- [ ] Add the rule as Best Practice 12, after item 11, in this wording:
+- [x] Add the rule as Best Practice 12, after item 11, in this wording:
 
   ``` markdown
   12. **NEVER RECORD LINE NUMBERS.** A line number is wrong the next time its
@@ -166,6 +166,9 @@ shape they read, and the exemption needs its own rule).
       never quotes with its line numbers. `scripts/check-anchors.py` enforces
       the graph and the catalog.
   ```
+
+  - **Evidence:** commit `2ec90546` adds item 12 to `AGENTS.md`; a `diff` of
+    that item against the fenced block above reports no difference.
 
 ### Task 4: Knowledge templates, workspace and bootstrap copies
 
