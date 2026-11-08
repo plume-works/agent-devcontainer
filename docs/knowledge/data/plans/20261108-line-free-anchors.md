@@ -503,7 +503,7 @@ Verify.
   — step 5
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md › "Every claim cites"`
   — the evidence rule
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints › "Never write location references"`
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints › "Never write a location as a line number"`
   — the prose-location constraint
 - `docs/knowledge/AGENTS.md#conventions › "Code anchors"` — the workspace rule
 - `docs/knowledge/STRUCTURE.md › "Code anchors name, never count"` — the
