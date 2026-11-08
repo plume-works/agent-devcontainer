@@ -841,7 +841,8 @@ this work starts, cut the branch with `--depends-on 611`; otherwise from `main`.
   — `pr-merge-stack` catalog row
 - `.agents/plugins/agentdev/tests/test_gh_stack_guard.py › "#!/usr/bin/env python3"`
   — guard tests
-- `.prettierignore:14` — gh-stack exclusion
+- `.prettierignore › "Vendored byte for byte from github/gh-stack; a pytest pins"`
+  — gh-stack exclusion
 - `ansible/roles/github_cli/defaults/main.yml › "gh-stack: GitHub native stacked pull requests"`
   — gh-stack pin block
 - `ansible/roles/github_cli/tasks/main.yml#name` — gh-stack install tasks

@@ -560,7 +560,8 @@ modifies.
   — `XDG_RUNTIME_DIR`
 - `compose.opencode.yml#services.opencode.environment.AGENTDEV_STRICT_STARTUP` —
   `AGENTDEV_STRICT_STARTUP`
-- `docker/opencode/runtime.env.example:53` — `AGENTDEV_STRICT_STARTUP`
+- `docker/opencode/runtime.env.example › "AGENTDEV_STRICT_STARTUP=false"` —
+  `AGENTDEV_STRICT_STARTUP`
 - `docker/opencode/README.md#5-route-the-proxy-to-it › "settings. Another project adds two more site blocks naming"`
   — `## 6. Log in`
 - `scripts/tests/test_agent_runtime_supervision.py::write_executable` —

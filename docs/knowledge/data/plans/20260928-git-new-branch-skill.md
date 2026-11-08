@@ -157,7 +157,8 @@ changes are never stashed without user approval (`update-branch`'s
     .worktrees/"; `validate_agent_files` 0 errors.
 - [x] `.worktrees/` in `.gitignore` next to the `.tmp/` scratch entry
   - **Evidence:** commit "docs(agentdev): list git-new-branch and ignore
-    .worktrees/"; `git check-ignore -v .worktrees/x` matches `.gitignore:12`.
+    .worktrees/"; `git check-ignore -v .worktrees/x` matches
+    `.gitignore › ".worktrees/"`.
 
 ### Task 4: Route pr-open through git-new-branch
 
@@ -563,4 +564,4 @@ continue on the current branch otherwise.
   — `initialize_repository` fixture pattern
 - `.agents/plugins/agentdev/README.md#pull-requests-and-git` — "Pull requests
   and git" table
-- `.gitignore:11` — `.tmp/` scratch entry
+- `.gitignore › ".tmp/"` — `.tmp/` scratch entry

@@ -66,6 +66,13 @@ GRAPH_DOC = 'docs/knowledge/data/bugs/example.md'
         'https://github.com/o/r/blob/main/x.py#L42',
         'at line 42 of the file',
         'Lines 3 and 4',
+        'the `.gitignore:4` entry',
+        'the `.clang-format:5` key',
+        'the `.dockerignore:3` entry',
+        'see `agent-devcontainer-and-project.code-workspace:7`',
+        'see `docker/deploy/runtime.env.example:12`',
+        'the `agent.service:3` unit',
+        'the `App.svelte:12` component',
     ],
 )
 def test_line_number_forms_fail(write: Write, run: Run, reference: str) -> None:
@@ -84,7 +91,12 @@ def test_line_number_forms_fail(write: Write, run: Run, reference: str) -> None:
         '`.github/workflows/ci.yml#jobs.ci.steps.lint`',
         '`SKILL.md#workflow-2 › "never reset it"`',
         'listens on localhost:8080',
+        'proxied through http://host.docker.internal:3128',
         'a line-number reference',
+        'starts at 10:30',
+        'with DISPLAY=:100 set',
+        'the bare `:21` suffix',
+        '`.gitignore#build`',
     ],
 )
 def test_anchors_pass(write: Write, run: Run, reference: str) -> None:
@@ -139,6 +151,7 @@ TARGETS = {
         '      - name: Build\n        run: y\n'
     ),
     'config.json': '{"a": {"b": 1}}\n',
+    '.devcontainer/devcontainer.json': '{\n  // comment\n  "build": {"args": {"V": "1",},},\n}\n',
     'pyproject.toml': '[tool.ruff]\nline-length = 99\n',
     'Makefile': 'build:\n\techo hi\n',
     'docker/app.Dockerfile': 'FROM python:3 AS builder\nRUN true\n',
@@ -179,6 +192,7 @@ def targets(write: Write) -> None:
         '`.github/workflows/ci.yml#jobs.ci.steps.Build`',
         '`.github/workflows/ci.yml#on.push`',
         '`config.json#a.b`',
+        '`.devcontainer/devcontainer.json#build.args.V`',
         '`pyproject.toml#tool.ruff.line-length`',
         '`Makefile#build`',
         '`docker/app.Dockerfile#builder`',
@@ -273,3 +287,26 @@ def test_the_same_anchor_fails_in_an_active_plan(write: Write, run: Run) -> None
     result = run()
     assert result.returncode == 1
     assert 'file not found' in result.stdout
+
+
+@pytest.mark.parametrize(
+    ('relative', 'content', 'anchor'),
+    [
+        ('broken.json', b'{"a": [1,, }\n', '`broken.json#a`'),
+        ('broken.yml', b'a: [1, 2\nb: {\n', '`broken.yml#a`'),
+        ('broken.toml', b'[a\nb = \n', '`broken.toml#a`'),
+        ('broken.py', b'def main(:\n', '`broken.py::main`'),
+        ('latin.md', b'# Caf\xe9\n', '`latin.md › "Caf"`'),
+    ],
+)
+def test_unparseable_target_is_an_unresolved_anchor(
+    tree: Path, write: Write, run: Run, relative: str, content: bytes, anchor: str
+) -> None:
+    """A target that cannot be parsed or decoded fails its anchor, and the run goes on."""
+    (tree / relative).write_bytes(content)
+    write(ACTIVE_PLAN, plan(f'- {anchor} — target\n- `src/gone.py::main` — other'))
+    result = run()
+    assert result.returncode == 1
+    assert 'Traceback' not in result.stderr, result.stderr
+    assert f'{anchor} does not resolve: cannot parse file (' in result.stdout
+    assert '`src/gone.py::main` does not resolve: file not found' in result.stdout

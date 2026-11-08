@@ -64,10 +64,10 @@ bullet forbids describing approved text in place of reproducing it, and names
 the recovery routes when the text is not at hand.
 
 `.tmp/` is the carrier rather than a new graph location because root `AGENTS.md`
-already mandates it for temporary files, it is gitignored (`.gitignore:11`), and
-the maintainer notes it avoids the sandbox restrictions that other temporary
-paths can hit. The window it spans is short by design: once the plan exists, its
-fenced task blocks are the durable copy.
+already mandates it for temporary files, it is gitignored
+(`.gitignore › ".tmp/"`), and the maintainer notes it avoids the sandbox
+restrictions that other temporary paths can hit. The window it spans is short by
+design: once the plan exists, its fenced task blocks are the durable copy.
 
 Rejected: a `data/drafts/` hub. The hub set is closed by design
 (`docs/knowledge/AGENTS.md` `## Conventions` requires a `data/index.md` entry
@@ -346,6 +346,6 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
   the other requirement `## Spec changes` modifies
 - `AGENTS.md#agents-guidelines › "relative to the repo root) for temporary files; create it"`
   — the mandate to use `./.tmp` for temporary files
-- `.gitignore:11` — `.tmp/`, confirming the carrier is untracked
+- `.gitignore › ".tmp/"` — `.tmp/`, confirming the carrier is untracked
 - `docs/knowledge/AGENTS.md#conventions` — `## Conventions`, which closes the
   hub set and grounds the rejection of a `data/drafts/` hub

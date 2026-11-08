@@ -488,7 +488,8 @@ on this plan: its shell-setup task (Task 3) puts no checkout path on `PATH`.
   `ARG BASE_IMAGE=ubuntu:24.04`
 - `docker/ansible/Dockerfile › "--mount=type=bind,readonly,source=..,target=/scripts"`
   — `source=..` setup-script mount
-- `.dockerignore:1-3` — header naming the consumed inputs
+- `.dockerignore › "The image build context is the repository root; keep it"` —
+  header naming the consumed inputs
 - `.github/workflows/ci.yml#on.workflow_call.inputs.clean_build` — `clean_build`
   input
 - `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —

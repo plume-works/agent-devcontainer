@@ -19,6 +19,7 @@ dev = [
   "python-frontmatter>=1.1.0",
   "agentdev_runtime",
   "validate_agent_files",
+  "json5>=0.17.3",
 ]
 
 [tool.uv]

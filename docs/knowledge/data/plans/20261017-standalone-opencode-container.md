@@ -2017,7 +2017,7 @@ Recorded 2026-10-18 at `afae3a2`.
   — build-time Ansible and immutable catalog;
   `docker/desktop/agent-desktop.Dockerfile › "WORKDIR $WORKSPACE_FOLDER"` —
   WORKDIR, copied launchers, entrypoint/CMD.
-- `.dockerignore:6-11` — ignored Git, user state, devcontainer, and scratch
+- `.dockerignore › ".git"` — ignored Git, user state, devcontainer, and scratch
   sources.
 - `.devcontainer/devcontainer.json › "features"` — feature-managed DinD/SSH;
   `.devcontainer/devcontainer.json › "containerEnv"` — runtime environment;

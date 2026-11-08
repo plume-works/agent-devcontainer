@@ -17,6 +17,7 @@ import re
 import sys
 import tomllib
 
+import json5
 import yaml
 
 SCAN_GLOBS = (
@@ -28,7 +29,7 @@ DATA = Path('docs/knowledge/data')
 OPEN_STAGES = frozenset({'pending', 'planned'})
 
 LINE_NUMBER_FORMS = (
-    re.compile(r'[\w./-]*[\w-]\.[A-Za-z][A-Za-z0-9]{0,4}:\d+'),
+    re.compile(r'(?<![\w./:-])(?!//)[\w./-]*\.[A-Za-z][\w-]*:\d+'),
     re.compile(r'[\w./-]*(?:Dockerfile|Makefile|Containerfile)[\w.-]*:\d+'),
     re.compile(r'#L\d+'),
     re.compile(r'\blines? \d+', re.IGNORECASE),
@@ -44,6 +45,7 @@ HEADING = re.compile(r'^(?P<hashes>#{1,6})\s+(?P<title>.*?)\s*#*\s*$')
 FENCE = re.compile(r'^\s*(?:```|~~~)')
 KEY_REFERENCES = re.compile(r'^## Key references\s*$(?P<body>.*?)(?=^## |\Z)', re.M | re.S)
 DATA_FORMATS = frozenset({'.yml', '.yaml', '.json', '.toml'})
+PARSE_ERRORS = (UnicodeDecodeError, ValueError, SyntaxError, yaml.YAMLError)
 BUILD_FILES = ('Makefile', 'Dockerfile', 'Containerfile')
 
 
@@ -145,9 +147,14 @@ def words_in_order(text: str, names: list[str]) -> bool:
 
 
 def load_data(path: Path) -> object:
-    """Parse a YAML, JSON, or TOML file."""
+    """Parse a YAML, JSON (JSONC accepted), or TOML file."""
     if path.suffix == '.json':
-        return json.loads(path.read_text())
+        text = path.read_text()
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            # The stdlib parser is far faster; json5 only for JSONC files it rejects.
+            return json5.loads(text)
     if path.suffix == '.toml':
         return tomllib.loads(path.read_text())
     return yaml.safe_load(path.read_text())
@@ -188,6 +195,15 @@ def resolve(root: Path, match: re.Match[str]) -> str | None:
     path = root / match['path']
     if not path.is_file():
         return 'file not found'
+    try:
+        return resolve_in(path, match)
+    except PARSE_ERRORS as error:
+        reason = str(error).splitlines()[0] if str(error) else ''
+        return f'cannot parse file ({type(error).__name__}: {reason})'
+
+
+def resolve_in(path: Path, match: re.Match[str]) -> str | None:
+    """Return why the anchor does not resolve in the existing file ``path``."""
     text = path.read_text()
     region = text
     separator, fragment = match['sep'], match['fragment']

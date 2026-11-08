@@ -363,5 +363,5 @@ spawn-on-demand server, if its wording no longer fits.
   — `test_unrecognized_spawn_fails_in_server_mode_without_tmux`
 - `scripts/tests/test_claude_remote_control_start.py::test_session_mode_ignores_unrecognized_spawn`
   — `test_session_mode_ignores_unrecognized_spawn`
-- `.claude/.gitignore:2` — `worktrees/`, the spawned worktrees Claude Code
-  creates
+- `.claude/.gitignore › "worktrees/"` — `worktrees/`, the spawned worktrees
+  Claude Code creates

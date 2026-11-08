@@ -70,7 +70,8 @@ the image build context](../plans/20261102-narrow-image-build-context.md).
 
 - `docker/base/agentdev-base.Dockerfile › "RUN --mount=type=cache,target=/var/cache/apt,sharing=locked"`
   — provisioning `RUN` with the whole-context bind mount at `/provision`
-- `.dockerignore:1-3` — header listing the inputs the build consumes
+- `.dockerignore › "The image build context is the repository root; keep it"` —
+  header listing the inputs the build consumes
 - `.github/actions/docker/build-push-action/action.yml#runs.steps.Build and push Docker image.env.REGISTRY_CACHE`
   — GHA and registry layer cache wiring
 - `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —
