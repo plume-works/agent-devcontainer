@@ -54,14 +54,17 @@ when `git var GIT_AUTHOR_IDENT` and `GIT_COMMITTER_IDENT` both resolve (commit
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:142` — `gateway`: the
-  `mcp-gateway` checks, skipped unless `COMPOSE_PROFILES` names `mcp` (`:145`)
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:233` — `git user`
-  resolves identity through `git var`; `:240` — its FAIL
-- `.devcontainer/docker-compose.yml:70` — `COMPOSE_PROFILES` passed into the
-  `devcontainer` service
-- `.devcontainer/devcontainer-init.sh:57` — `COMPOSE_PROFILES=mcp` (`:61`)
-  written only when `~/.docker/mcp` exists
-- `.devcontainer/docker-compose.yml:7` — the sidecar's `profiles: ['mcp']`
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::gateway` —
+  `gateway`: the `mcp-gateway` checks, skipped unless `COMPOSE_PROFILES` names
+  `mcp` (`py_packages/agentdev_runtime/agentdev_runtime/doctor.py::gateway`)
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` — `git user`
+  resolves identity through `git var`;
+  `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` — its FAIL
+- `.devcontainer/docker-compose.yml#services.devcontainer.environment.COMPOSE_PROFILES`
+  — `COMPOSE_PROFILES` passed into the `devcontainer` service
+- `.devcontainer/devcontainer-init.sh › "$HOST_MCP_DIR"` —
+  `COMPOSE_PROFILES=mcp`
+  (`.devcontainer/devcontainer-init.sh › "COMPOSE_PROFILES=mcp"`) written only
+  when `~/.docker/mcp` exists
+- `.devcontainer/docker-compose.yml#services.mcp-gateway.profiles` — the
+  sidecar's `profiles: ['mcp']`

@@ -70,14 +70,15 @@ request](../plans/20261103-rereview-after-changes-requested.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:28` —
-  `## The test`; `:39` — the **No** branch
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:65` — "Do not
-  request a review when" list
-- `docs/knowledge/data/spec/ai-review-refresh.md:23` — Requirement: every push
-  to a reviewed pull request is evaluated; `:39` — Scenario: an update only
-  applies requested feedback
-- `docs/knowledge/data/architecture/ai-review-event-selection.md:46` — a pending
-  `CHANGES_REQUESTED` blocks merge until the same reviewer approves
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#the-test` —
+  `## The test`;
+  `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#the-test › "review saw."`
+  — the **No** branch
+- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#what-counts-as-beyond-the-feedback › "outside the one raised."`
+  — "Do not request a review when" list
+- `docs/knowledge/data/spec/ai-review-refresh.md#requirement-every-push-to-a-reviewed-pull-request-is-evaluated`
+  — Requirement: every push to a reviewed pull request is evaluated;
+  `docs/knowledge/data/spec/ai-review-refresh.md#scenario-pr-sync-pushes-undirected-behavior › "asked for and"`
+  — Scenario: an update only applies requested feedback
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#why-the-verdict-follows-severity › "blocks merge until the same reviewer approves or"`
+  — a pending `CHANGES_REQUESTED` blocks merge until the same reviewer approves

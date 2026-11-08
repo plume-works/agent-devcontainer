@@ -37,15 +37,14 @@ Established from Codex source (`openai/codex` at `444da31`; the image ships
 
 1. Codex wraps a selected skill as
    `<skill><name>…</name><path>…/SKILL.md</path>{contents}</skill>`, with the
-   `SKILL.md` contents unchanged
-   (`codex-rs/ext/skills/src/fragments.rs:92-107`).
+   `SKILL.md` contents unchanged (`codex-rs/ext/skills/src/fragments.rs`).
 2. `CLAUDE_SKILL_DIR` occurs nowhere in `codex-rs` outside tests. The only
    Claude-named variables Codex sets are `CLAUDE_PLUGIN_ROOT` and
    `CLAUDE_PLUGIN_DATA`, and only in the environment of plugin hooks
-   (`codex-rs/hooks/src/engine/discovery.rs:265-270`).
+   (`codex-rs/hooks/src/engine/discovery.rs`).
 3. Codex's skill instructions tell the model to resolve paths such as
    `scripts/foo.py` against the directory holding `SKILL.md`
-   (`codex-rs/ext/skills/src/catalog_prompt.rs:29`); they say nothing about
+   (`codex-rs/ext/skills/src/catalog_prompt.rs`); they say nothing about
    `${CLAUDE_SKILL_DIR}`.
 
 A live run settles it: in Codex with the agentdev plugin enabled, invoke
@@ -75,11 +74,9 @@ agent-code paths](../plans/20261001-skill-relative-agent-code.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-01):
-
-- `.agents/AGENTS.md:33-35` — rule requiring `${CLAUDE_SKILL_DIR}/...` for a
-  path inside a skill
-- `.agents/plugins/agentdev/skills/git-commit/SKILL.md:33-34` — bundled-script
-  steps written with the variable
-- `.agents/plugins/agentdev/skills/git-commit/SKILL.md:4` — Claude-only
-  `allowed-tools` use, unaffected
+- `.agents/AGENTS.md#catalog-locations-and-portability › "Never write a repository-relative catalog path inside the"`
+  — rule requiring `${CLAUDE_SKILL_DIR}/...` for a path inside a skill
+- `.agents/plugins/agentdev/skills/git-commit/SKILL.md#create-the-commit-through-the-script › "${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -m"`
+  — bundled-script steps written with the variable
+- `.agents/plugins/agentdev/skills/git-commit/SKILL.md › "allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)"`
+  — Claude-only `allowed-tools` use, unaffected

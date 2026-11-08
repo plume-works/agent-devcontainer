@@ -35,7 +35,7 @@ Running the tests with `GIT_INDEX_FILE` set to an absolute path in the outer
 
 `git commit -a` builds the commit in a temporary index and exports its
 **absolute** path as `GIT_INDEX_FILE` to hooks. `_git` in
-`docs/knowledge/tests/test_devcontainer_metadata_mask.py:43` runs git in a
+`docs/knowledge/tests/test_devcontainer_metadata_mask.py::_git` runs git in a
 nested repository under `.tmp/` with the inherited environment, so the fixture's
 `git add` and `git commit` read and write the outer repository's index instead
 of their own. A plain `git commit` exports the relative `.git/index`, which
@@ -49,13 +49,11 @@ subprocess all resolve the fixture repository regardless of the caller.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
-
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:43` — `_git`, the
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py::_git` — `_git`, the
   fixture's git runner
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` —
-  `production_mask_workspace`
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:72` — the loop that
-  removes every `GIT_*` variable
-- `.pre-commit-config.yaml:102` — `plan-checkboxes`, the hook that runs the
-  suite under `git commit`
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py::production_mask_workspace`
+  — `production_mask_workspace`
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py::production_mask_workspace`
+  — the loop that removes every `GIT_*` variable
+- `.pre-commit-config.yaml#repos.repo.hooks.id` — `plan-checkboxes`, the hook
+  that runs the suite under `git commit`

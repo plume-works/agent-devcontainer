@@ -63,10 +63,9 @@ gate](../spec/ai-review-gate.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-12):
-
-- `.github/workflows/ai-responder.yml:184-185` — the own-line marker match
-- `.github/workflows/ai-responder.yml:251-259` — `wantsReview`, dispatch branch
-  above the marker early-return
-- `.github/workflows/ai-responder.yml:335-342` — the bridge, which never
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine checkout ref.with.script`
+  — the own-line marker match
+- `.github/workflows/ai-responder.yml#jobs.preflight.steps.Determine agent prompts.with.script`
+  — `wantsReview`, dispatch branch above the marker early-return
+- `.github/workflows/ai-responder.yml#jobs.bridge` — the bridge, which never
   consulted the marker and already dispatched for a marked pull request

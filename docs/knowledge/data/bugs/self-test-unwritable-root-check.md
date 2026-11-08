@@ -66,11 +66,9 @@ and does not modify it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-09):
-
-- `.agents/plugins/self-improve/tests/integration/test_dispatcher.py:42-52` —
-  the root skip and the `mode=0o500` directory the test relies on
-- `.agents/plugins/self-improve/selfimprove/commands.py:396-414` — the state
+- `.agents/plugins/self-improve/tests/integration/test_dispatcher.py › "os.getuid() == 0"`
+  — the root skip and the `mode=0o500` directory the test relies on
+- `.agents/plugins/self-improve/selfimprove/commands.py::self_test` — the state
   root checks that cannot fail for UID 0
-- `.agents/plugins/self-improve/selfimprove/paths.py:13` — `DIR_MODE`, the mode
-  `ensure_dir` restores before the probe runs
+- `.agents/plugins/self-improve/selfimprove/paths.py::DIR_MODE` — `DIR_MODE`,
+  the mode `ensure_dir` restores before the probe runs

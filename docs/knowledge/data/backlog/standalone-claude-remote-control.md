@@ -20,11 +20,11 @@ sources:
 # Start Claude Remote Control in the standalone runtime when asked
 
 Only the Coder agent starts Claude Remote Control today
-(`coder-agent-start.sh:21`). The standalone `agent-opencode` runtime has no
-component for it, so a project container never starts it, even after a claude.ai
-login. The [standalone OpenCode container
-plan](../plans/20261017-standalone-opencode-container.md) left Remote Control
-autostart out of scope, and [Claude Remote
+(`.devcontainer/scripts/coder-agent-start.sh › "$script_dir/claude-remote-control-start.sh"`).
+The standalone `agent-opencode` runtime has no component for it, so a project
+container never starts it, even after a claude.ai login. The [standalone
+OpenCode container plan](../plans/20261017-standalone-opencode-container.md)
+left Remote Control autostart out of scope, and [Claude Remote
 Control](../spec/claude-remote-control.md) scopes autostart to the Coder agent.
 The maintainer has asked for standalone support, gated on
 `AGENTDEV_CLAUDE_RC_MODE`.
@@ -34,8 +34,9 @@ The maintainer has asked for standalone support, gated on
 - **Gate.** A nonempty `AGENTDEV_CLAUDE_RC_MODE` (`session` or `server`) turns
   the component on, and unset or empty leaves it off. The gate belongs in the
   runtime, not the start script: the script treats an unset mode as `session`
-  (`claude-remote-control-start.sh:4`). An unrecognized value latches a
-  configuration failure, as the other settings do.
+  (`.devcontainer/scripts/claude-remote-control-start.sh › "${AGENTDEV_CLAUDE_RC_MODE-session}"`).
+  An unrecognized value latches a configuration failure, as the other settings
+  do.
 - **Component.** Add an optional `remote-control` one-shot to `SERVICES` and
   `supervisord.conf` that runs `claude-remote-control-start.sh` as the runtime
   user, after `prepare`. The script starts a detached `tmux -L claude-remote`

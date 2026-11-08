@@ -40,8 +40,11 @@ Pull request #208 (`renovate/ubuntu-26.x`) edits
 `.github/workflows/ai-responder.yml` and `.github/workflows/reformat.yml`.
 Running
 `pre-commit run actionlint --files .github/workflows/ai-responder.yml .github/workflows/reformat.yml`
-on that branch reports the unknown label at `ai-responder.yml:120`, `:371`,
-`:518` and `reformat.yml:192`.
+on that branch reports the unknown label at
+`.github/workflows/ai-responder.yml#jobs.preflight.runs-on`,
+`.github/workflows/ai-responder.yml#jobs.bridge.runs-on`,
+`.github/workflows/reformat.yml#jobs.gate.steps.Log debug stats.with.github-token`
+and `.github/workflows/reformat.yml#jobs.super-linter.runs-on`.
 
 ## Root cause
 
@@ -68,17 +71,20 @@ fix.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
-
-- `.github/workflows/ai-responder.yml:120`, `:371`, `:518` — literal
+- `.github/workflows/ai-responder.yml#jobs.preflight.runs-on`,
+  `.github/workflows/ai-responder.yml#jobs.bridge.runs-on`,
+  `.github/workflows/ai-responder.yml#jobs.ai-review-present.runs-on` — literal
   `runs-on: ubuntu-24.04` labels Renovate rewrites
-- `.github/workflows/ai-responder.yml:428`, `:475` — expression-form labels
-  Renovate does not extract
-- `.github/workflows/reformat.yml:192` — literal `runs-on: 'ubuntu-24.04'`
-- `.github/workflows/reformat.yml:213` — Super-Linter `slim@v8.7.0`
-- `.pre-commit-config.yaml:63-66` — actionlint hook at `v1.7.12`
-- `.github/actionlint.yml:4-6` — `self-hosted-runner.labels`
-- `.agents/plugins/agentdev/bin/super-linter-env.sh:44` —
-  `GITHUB_ACTIONS_CONFIG_FILE`
-- `.github/renovate.json:48-54` — the Ubuntu rule, which disables only the
-  `dockerfile` base image, not runner labels
+- `.github/workflows/ai-responder.yml#jobs.claude-respond.runs-on`,
+  `.github/workflows/ai-responder.yml#jobs.claude-task.runs-on` —
+  expression-form labels Renovate does not extract
+- `.github/workflows/reformat.yml#jobs.super-linter.runs-on` — literal
+  `runs-on: 'ubuntu-24.04'`
+- `.github/workflows/reformat.yml#jobs.super-linter.steps.Run Super-Linter autofixes.uses`
+  — Super-Linter `slim@v8.7.0`
+- `.pre-commit-config.yaml#repos.repo` — actionlint hook at `v1.7.12`
+- `.github/actionlint.yml#self-hosted-runner` — `self-hosted-runner.labels`
+- `.agents/plugins/agentdev/bin/super-linter-env.sh › "echo GITHUB_ACTIONS_CONFIG_FILE="`
+  — `GITHUB_ACTIONS_CONFIG_FILE`
+- `.github/renovate.json › "platformAutomerge"` — the Ubuntu rule, which
+  disables only the `dockerfile` base image, not runner labels

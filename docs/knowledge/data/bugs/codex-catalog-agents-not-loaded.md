@@ -68,15 +68,13 @@ Codex](../plans/20261007-codex-catalog-agents.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-07):
-
-- `.agents/plugins/agentdev/.codex-plugin/plugin.json:22` — `"skills"`, the only
-  content field the Codex manifest publishes
-- `.devcontainer/scripts/reinstall-agentdev-codex.sh:65` — `codex plugin add`,
-  the install step that carries no agents
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:114` — step 7, the Durable
-  Knowledge Auditor dispatch
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:37` —
-  Principal Engineer delegation
-- `docs/knowledge/data/architecture/module-layout.md:74` — "no `.codex/agents`
-  trampoline"
+- `.agents/plugins/agentdev/.codex-plugin/plugin.json › "./skills/"` —
+  `"skills"`, the only content field the Codex manifest publishes
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh › "$plugin_name@$marketplace_name"`
+  — `codex plugin add`, the install step that carries no agents
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md#steps › "Audit the plan from a fresh context."`
+  — step 7, the Durable Knowledge Auditor dispatch
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#when-to-delegate › "| Runtime executable behavior | Application/library/CLI code"`
+  — Principal Engineer delegation
+- `docs/knowledge/data/architecture/module-layout.md#key-design-decisions › "Codex consumes its skills directly, with no"`
+  — "no `.codex/agents` trampoline"

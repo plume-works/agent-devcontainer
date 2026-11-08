@@ -71,12 +71,11 @@ the image build context](../plans/20261102-narrow-image-build-context.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `docker/base/agentdev-base.Dockerfile:45-47` — provisioning `RUN` with the
-  whole-context bind mount at `/provision`
+- `docker/base/agentdev-base.Dockerfile › "RUN --mount=type=cache,target=/var/cache/apt,sharing=locked"`
+  — provisioning `RUN` with the whole-context bind mount at `/provision`
 - `.dockerignore:1-3` — header listing the inputs the build consumes
-- `.github/actions/docker/build-push-action/action.yml:61-68` — GHA and registry
-  layer cache wiring
-- `.github/workflows/ci.yml:103-129` — `Set base image refs`, clean build on
-  `main`, warm start from `agentdev-base:edge` elsewhere
+- `.github/actions/docker/build-push-action/action.yml#runs.steps.Build and push Docker image.env.REGISTRY_CACHE`
+  — GHA and registry layer cache wiring
+- `.github/workflows/ci.yml#jobs.build-dev-image.steps.name` —
+  `Set base image refs`, clean build on `main`, warm start from
+  `agentdev-base:edge` elsewhere

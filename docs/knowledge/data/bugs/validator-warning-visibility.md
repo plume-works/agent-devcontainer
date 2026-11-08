@@ -46,27 +46,35 @@ Three independent breaks sit on the same wire:
 
 1. **`--recommend` cannot produce recommendations.** `show_warnings` is read in
    exactly two places: `SkillFrontmatterValidator.validate`
-   (`validators/skill.py:91`, the vague-description check) and
-   `SkillStructureValidator.validate` (`validators/skill.py:150`, the
-   section-content check). Neither class is imported anywhere in the package
+   (`py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillFrontmatterValidator.validate`,
+   the vague-description check) and `SkillStructureValidator.validate`
+   (`py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillStructureValidator.validate`,
+   the section-content check). Neither class is imported anywhere in the package
    outside its own module — the engine never reaches them. The tests that cover
    them construct the validators directly, masking the gap. This is the
    load-bearing break: not a flag that fails to disable output, but a feature
    that produces none.
-2. **`--no-warnings` writes an attribute nothing reads.** `cli.py:65-71`
+2. **`--no-warnings` writes an attribute nothing reads.**
+   `py_packages/validate_agent_files/validate_agent_files/cli.py::parse_arguments`
    declares the flag as `action='store_false', dest='warnings', default=True`,
-   so argparse sets `args.warnings`. `main.py:23` reads
+   so argparse sets `args.warnings`.
+   `py_packages/validate_agent_files/validate_agent_files/main.py::main` reads
    `getattr(parsed_args, 'no_warnings', False)` — an attribute the parser never
    creates. The `getattr` default silently swallows the mismatch, so the branch
-   is permanently `False`. `--recommend` (`main.py:22`) and `--errors-only`
-   (`main.py:23`) are both read correctly and do reach `show_warnings`; the
-   CLI-to-engine plumbing is intact for those two, and still changes nothing
-   downstream per (1) and (3).
+   is permanently `False`. `--recommend`
+   (`py_packages/validate_agent_files/validate_agent_files/main.py::main`) and
+   `--errors-only`
+   (`py_packages/validate_agent_files/validate_agent_files/main.py::main`) are
+   both read correctly and do reach `show_warnings`; the CLI-to-engine plumbing
+   is intact for those two, and still changes nothing downstream per (1) and
+   (3).
 3. **`CrossReferenceValidator` stores `show_warnings` and never reads it.**
-   `core.py:98` passes `show_warnings` into `CrossReferenceValidator`, which
-   assigns `self.show_warnings` at `validators/cross_reference.py:44` and never
-   consults it again — the only path by which `show_warnings` currently leaves
-   the engine, terminating in a dead field.
+   `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+   passes `show_warnings` into `CrossReferenceValidator`, which assigns
+   `self.show_warnings` at
+   `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py::CrossReferenceValidator.__init__`
+   and never consults it again — the only path by which `show_warnings`
+   currently leaves the engine, terminating in a dead field.
 
 The two orphaned validators were never wired in. `SkillFrontmatterValidator` and
 `SkillStructureValidator` entered in the initial extraction commit (`c1dce21`)
@@ -87,15 +95,17 @@ their stricter error checks do not expand the default validation contract.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27), under
-`py_packages/validate_agent_files/validate_agent_files/`:
+Under `py_packages/validate_agent_files/validate_agent_files/`:
 
-- `core.py:121` — `ValidationEngine.validate` runs `SkillFrontmatterValidator`
-  and `SkillStructureValidator` when `show_warnings` is set, keeping only their
+- `py_packages/validate_agent_files/validate_agent_files/core.py::ValidationEngine.validate`
+  — `ValidationEngine.validate` runs `SkillFrontmatterValidator` and
+  `SkillStructureValidator` when `show_warnings` is set, keeping only their
   warning-level issues
-- `main.py:22` — `show_warnings` derived from `--recommend` and `--errors-only`
-- `cli.py:54` — `--recommend`, with `--errors-only` at line 66
-- `validators/skill.py:91` — the vague-description warning; the section-content
-  warning is at line 150
-- `validators/cross_reference.py:37` — `CrossReferenceValidator.__init__`, which
-  no longer takes `show_warnings`
+- `py_packages/validate_agent_files/validate_agent_files/main.py::main` —
+  `show_warnings` derived from `--recommend` and `--errors-only`
+- `py_packages/validate_agent_files/validate_agent_files/cli.py::parse_arguments`
+  — `--recommend`, with `--errors-only`
+- `py_packages/validate_agent_files/validate_agent_files/validators/skill.py::SkillFrontmatterValidator.validate`
+  — the vague-description warning; the section-content warning is
+- `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py::CrossReferenceValidator.__init__`
+  — `CrossReferenceValidator.__init__`, which no longer takes `show_warnings`

@@ -63,14 +63,16 @@ server keeps the display locked and every recovery attempt fails.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
-
-- `ansible/roles/xpra_setup/tasks/main.yml:14` — the Xpra stable repository
-- `ansible/roles/xpra_setup/tasks/main.yml:23` — `apt: xpra`
-- `ansible/roles/xpra_setup/tasks/main.yml:31` — upgrade of a preinstalled
-  `xpra`
-- `ansible/roles/xpra_setup/tasks/main.yml:46` — the Xpra 6 version assertion
-- `docker/desktop/start-xpra.sh:74` — `reclaim_orphaned_display`, matching both
-  X server names at `:80`
-- `setup.py:744-806` (Xpra `831ccc2b`) — `install_repo`, relative `cp` and
-  unchecked `subprocess.run`, which the role no longer calls
+- `ansible/roles/xpra_setup/tasks/main.yml#Install Xpra and related packages.block.name`
+  — the Xpra stable repository
+- `ansible/roles/xpra_setup/tasks/main.yml#Install Xpra and related packages.block.name`
+  — `apt: xpra`
+- `ansible/roles/xpra_setup/tasks/main.yml#Install Xpra and related packages.block.name`
+  — upgrade of a preinstalled `xpra`
+- `ansible/roles/xpra_setup/tasks/main.yml#Install Xpra and related packages.block.name`
+  — the Xpra 6 version assertion
+- `docker/desktop/start-xpra.sh::reclaim_orphaned_display` —
+  `reclaim_orphaned_display`, matching both X server names at
+  `docker/desktop/start-xpra.sh::reclaim_orphaned_display`
+- `setup.py` (Xpra `831ccc2b`) — `install_repo`, relative `cp` and unchecked
+  `subprocess.run`, which the role no longer calls

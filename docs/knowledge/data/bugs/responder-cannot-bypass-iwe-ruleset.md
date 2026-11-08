@@ -57,11 +57,9 @@ the ruleset needs no responder bypass actor.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `.github/workflows/ai-responder.yml:463` — `claude-task`, the job holding
-  `contents: write`
-- `.github/workflows/ai-responder.yml:495` — `github_token` passed as
+- `.github/workflows/ai-responder.yml#jobs.claude-task.container` —
+  `claude-task`, the job holding `contents: write`
+- `.github/workflows/ai-responder.yml#jobs` — `github_token` passed as
   `secrets.GITHUB_TOKEN`
-- `.github/actions/run-claude-responder/action.yml:163` — the token handed to
-  `claude-code-action`
+- `.github/actions/run-claude-responder/action.yml#runs.steps.Claude Responder.with.github_token`
+  — the token handed to `claude-code-action`

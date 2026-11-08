@@ -71,13 +71,13 @@ Post-start still runs the setup for logins stored outside Coder.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-10):
-
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:19` — auth gate that
-  skips helper setup
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:30` — `gh auth setup-git`
-- `.devcontainer/scripts/postStartCommand.sh:15` — post-start call site
-- `docs/knowledge/data/spec/devcontainer-git-credentials.md:29` — Requirement:
-  HTTPS git uses the gh login
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "if ! gh auth status --hostname github.com >/dev/null 2>&1"`
+  — auth gate that skips helper setup
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "gh auth setup-git"` —
+  `gh auth setup-git`
+- `.devcontainer/scripts/postStartCommand.sh › "$script_dir/setup-gh-credential-helper.sh"`
+  — post-start call site
+- `docs/knowledge/data/spec/devcontainer-git-credentials.md#requirement-https-git-uses-the-gh-login`
+  — Requirement: HTTPS git uses the gh login
 - `docker/bin/gh:55` — the `gh` wrapper uses `GH_TOKEN`/`GITHUB_TOKEN` when
   either is set

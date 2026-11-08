@@ -65,15 +65,14 @@ workflow running it, grants `actions: read` for the lookup.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-14):
-
-- `.github/workflows/primary-checks.yml:21-23` — `concurrency` with
+- `.github/workflows/primary-checks.yml#concurrency` — `concurrency` with
   `cancel-in-progress: true`
-- `.github/actions/paths-filter/action.yml:67-86` — `last-pass`, the lookup of
-  the last passing push run
-- `.github/actions/paths-filter/action.yml:88-93` — `filter-base`, filtering
-  from `last-pass` or the base branch
-- `.github/workflows/ci.yml:67` — image job gate on the filter or `force_run`
+- `.github/actions/paths-filter/action.yml#runs.steps.name` — `last-pass`, the
+  lookup of the last passing push run
+- `.github/actions/paths-filter/action.yml#runs.steps.name` — `filter-base`,
+  filtering from `last-pass` or the base branch
+- `.github/workflows/ci.yml#jobs.build-dev-image.if` — image job gate on the
+  filter or `force_run`
 
 ## Verification
 

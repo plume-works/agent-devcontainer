@@ -107,22 +107,22 @@ shows the rule being followed, not a rejection rate.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-28):
-
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:66` — Step 6, a
-  check counts only together with the commit that holds the change
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:218` — code is
-  committed before the checkbox flip and evidence line
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:63` — the same rule on
-  the verifier side, a check without its commit listed as residue
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:35` — Requirement: A
-  ticked task carries the evidence that closed it
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:48` — Scenario: Evidence
-  names only a check
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:75` — Scenario: A tick
-  lands in a commit
-- `docs/knowledge/AGENTS.md:139` — the convention where every session loads it
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:21` — the
-  coordinator's fix-round re-dispatch that a rejection triggers
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:208` — the e2e check
-  that allows more than one implementer round per plan
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "on its own. A check and its result count only together with"`
+  — Step 6, a check counts only together with the commit that holds the change
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "A task's code is committed before its checkbox flip and"`
+  — code is committed before the checkbox flip and evidence line
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › ". A check and its result count only together"`
+  — the same rule on the verifier side, a check without its commit listed as
+  residue
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-a-ticked-task-carries-the-evidence-that-closed-it › "specifically enough that a later session can go and look. A"`
+  — Requirement: A ticked task carries the evidence that closed it
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md#scenario-evidence-names-only-a-check`
+  — Scenario: Evidence names only a check
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md#scenario-a-tick-lands-in-a-commit`
+  — Scenario: A tick lands in a commit
+- `docs/knowledge/AGENTS.md#conventions › "the tick. A check and its result count only together with"`
+  — the convention where every session loads it
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md#implement-all-active-plans-in-the-iwe-graph › "for each plan before the next dispatch. Where it fixes code"`
+  — the coordinator's fix-round re-dispatch that a rejection triggers
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py::test_implement_all` —
+  the e2e check that allows more than one implementer round per plan

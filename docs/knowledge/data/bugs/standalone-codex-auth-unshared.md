@@ -60,11 +60,12 @@ shares a Codex login and the link this bug concerns no longer exists.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.devcontainer/scripts/link-codex-auth.sh:30` — a regular local file is moved
-  over the shared target; `:35` — the symlink
-- `.devcontainer/scripts/setup-agent-state.sh:78` — `link_auth` in `create`;
-  `:101` — the `links` command
-- `.devcontainer/scripts/runtime-workspace.sh:110` — standalone preparation runs
-  `create` on every start
+- `.devcontainer/scripts/link-codex-auth.sh › "$codex_auth_local"` — a regular
+  local file is moved over the shared target;
+  `.devcontainer/scripts/link-codex-auth.sh › "$codex_auth_target"` — the
+  symlink
+- `.devcontainer/scripts/setup-agent-state.sh::cmd_create` — `link_auth` in
+  `create`; `.devcontainer/scripts/setup-agent-state.sh › "links) link_auth"` —
+  the `links` command
+- `.devcontainer/scripts/runtime-workspace.sh::cmd_prepare` — standalone
+  preparation runs `create` on every start

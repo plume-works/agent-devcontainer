@@ -58,15 +58,19 @@ that needs a run-unique offset from the xdist controller
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-02):
-
-- `scripts/tests/test_agent_runtime_ingress.py:34` — `DISPLAY_BASE`,
-  `DISPLAY_BLOCK`, `ROTATING_SLOTS`
-- `scripts/tests/test_agent_runtime_ingress.py:39` — `worker_display`
-- `scripts/tests/test_agent_runtime_ingress.py:249` — `supervised_xpra`
-- `scripts/tests/test_agent_runtime_ingress.py:253` — rotating display per test
-- `scripts/tests/test_agent_runtime_ingress.py:333` — crash test's fixed slot
-- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:66` — `session_running`
-- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:235` — duplicate
+- `scripts/tests/test_agent_runtime_ingress.py › "DISPLAY_BASE, DISPLAY_BLOCK, ROTATING_SLOTS = 200, 20, 10"`
+  — `DISPLAY_BASE`, `DISPLAY_BLOCK`, `ROTATING_SLOTS`
+- `scripts/tests/test_agent_runtime_ingress.py::worker_display` —
+  `worker_display`
+- `scripts/tests/test_agent_runtime_ingress.py::supervised_xpra` —
+  `supervised_xpra`
+- `scripts/tests/test_agent_runtime_ingress.py::supervised_xpra` — rotating
+  display per test
+- `scripts/tests/test_agent_runtime_ingress.py::test_supervised_xpra_reclaims_the_display_after_a_crash`
+  — crash test's fixed slot
+- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py::session_running` —
+  `session_running`
+- `py_packages/agentdev_runtime/agentdev_runtime/xpra.py::main` — duplicate
   refusal
-- `.github/workflows/ci.yml:357` — CI's `pytest -n 8`
+- `.github/workflows/ci.yml#jobs.dev-container-ci.steps.Build and test dev container image.with.runCmd`
+  — CI's `pytest -n 8`

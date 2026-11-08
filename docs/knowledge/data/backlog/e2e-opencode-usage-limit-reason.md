@@ -27,11 +27,9 @@ run-completed assertion name it as the reason, the way it already names an
 expired login. A reader of the test output then knows to wait for the limit to
 reset instead of debugging the suite.
 
-Verified anchor points (line numbers as of 2026-10-20):
-
-- `scripts/e2e/iwe-workflows/harness_opencode.py:109` —
+- `scripts/e2e/iwe-workflows/harness_opencode.py::Transcript.completed` —
   `Transcript.usage_limited`
-- `scripts/e2e/iwe-workflows/harness_opencode.py:113` —
+- `scripts/e2e/iwe-workflows/harness_opencode.py::Transcript.completed` —
   `Transcript.failure_reason`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:27` — `run`, the
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::run` — `run`, the
   run-completed assertion

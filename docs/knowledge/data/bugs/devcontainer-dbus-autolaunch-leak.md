@@ -68,14 +68,18 @@ a stale socket, reruns setup to show the bus is reused, and has a client with
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-24):
-
-- `.devcontainer/devcontainer.json:28` — the fixed `DBUS_SESSION_BUS_ADDRESS`
-- `.devcontainer/scripts/setup-keyring.sh:38` — the fixed address is detected;
-  `:48` — `load_saved_session`, skipped for it; `:103` — the stale socket is
-  replaced and the bus started at the address
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:11` — the only consumer
-  of the saved session file
-- `scripts/tests/test_agent_runtime_keyring.py:216` — the fixed-address test
-- `docker/opencode/agent-opencode.Dockerfile:43` — the image's fixed address
-- `scripts/tests/test_agent_runtime_acceptance.py:497` — the runtime check
+- `.devcontainer/devcontainer.json › "unix:path=/tmp/agentdev-dbus/bus"` — the
+  fixed `DBUS_SESSION_BUS_ADDRESS`
+- `.devcontainer/scripts/setup-keyring.sh › "fixed_socket="` — the fixed address
+  is detected; `.devcontainer/scripts/setup-keyring.sh::load_saved_session` —
+  `load_saved_session`, skipped for it;
+  `.devcontainer/scripts/setup-keyring.sh › "$fixed_socket"` — the stale socket
+  is replaced and the bus started at the address
+- `.devcontainer/scripts/setup-gh-credential-helper.sh › "$keyring_env"` — the
+  only consumer of the saved session file
+- `scripts/tests/test_agent_runtime_keyring.py::test_a_fixed_address_gets_one_bus_that_every_client_reuses`
+  — the fixed-address test
+- `docker/opencode/agent-opencode.Dockerfile › "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus"`
+  — the image's fixed address
+- `scripts/tests/test_agent_runtime_acceptance.py::test_every_shell_names_the_runtime_bus_and_gh_launches_none`
+  — the runtime check

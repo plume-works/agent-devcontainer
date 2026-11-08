@@ -50,13 +50,11 @@ Renovate's post-upgrade task recomputes the checksums on every bump.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-10):
-
-- `ansible/roles/github_cli/tasks/main.yml:102` — Download the pinned gh-stack
+- `ansible/roles/github_cli/tasks/main.yml#name` — Download the pinned gh-stack
   extension binary
-- `ansible/roles/github_cli/tasks/main.yml:111` — Register gh-stack as a pinned
+- `ansible/roles/github_cli/tasks/main.yml#name` — Register gh-stack as a pinned
   binary extension
-- `ansible/roles/github_cli/defaults/main.yml:11` —
+- `ansible/roles/github_cli/defaults/main.yml#github_cli_gh_stack_checksums` —
   `github_cli_gh_stack_checksums`
-- `scripts/refresh-pin-checksums.py:119` — `PIN_FILES` entry for the
+- `scripts/refresh-pin-checksums.py::PIN_FILES` — `PIN_FILES` entry for the
   `github_cli` defaults
