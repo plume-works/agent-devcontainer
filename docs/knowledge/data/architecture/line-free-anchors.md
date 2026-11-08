@@ -47,6 +47,10 @@ Limits the maintainer accepted:
   in order, so a symbol moved into a comment still resolves.
 - Chat reports, code comments, and PR bodies are outside the gate's reach and
   rest on the catalog's instructions.
+- A link into another repository's file at a pinned commit keeps its line
+  fragment: the target cannot change, and an anchor names only this repository's
+  code. The research case studies under `docs/research/` cite sources this way
+  and are outside the gate.
 - A placeholder written as a real path in an architecture document or open bug
   is resolved like any anchor; write placeholders in angle brackets.
 
