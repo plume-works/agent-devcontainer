@@ -28,10 +28,8 @@ Changes [AI responder workflows](../features/ai-responder-workflows.md).
 
 A re-review is requested today by removing the pull request's author as assignee
 and adding them back ([Assignee-triggered AI
-re-reviews](../architecture/assignee-review-trigger.md)). The maintainer's goal,
-in their words: "Using assignee feels weird. Comment was a good flow from
-product perspective but nightmare from scripting and coding. The goal is to have
-an easy way to request re-review in a trusted explicit way".
+re-reviews](../architecture/assignee-review-trigger.md)). The maintainer's goal
+is an easy, trusted, explicit way to request a re-review.
 
 A label applied to a pull request fires `pull_request`/`labeled`, a
 `pull_request` event like `assigned`, so its run is counted by the `main`
@@ -45,6 +43,8 @@ The maintainer decided on 2026-11-08:
   or rejects it, and preflight removes it with `GITHUB_TOKEN` when the run
   starts;
 - `assigned` no longer requests a review, so an assignee means ownership only;
+- `review_requested` and `review_request_removed` are no longer triggers: no
+  review comes from them, and each started a run;
 - a `skip-ai-review` label replaces the `[ci:skip-ai-review]` body marker; it
   stays until someone removes it and suppresses only the automatic reviews on
   open, ready-for-review, reopen, and push; an explicit `request-ai-review`
@@ -78,14 +78,14 @@ because `ai-review-present` still requires an accepted review.
  * push only while no accepted review exists
 ```
 
-`ai-responder.yml` adds `labeled` and drops `assigned` from its `pull_request`
-types. The workflow-level concurrency group sends a `labeled` event for any
-label other than `request-ai-review` to a group of its own, keyed by run id, so
-adding an unrelated label never replaces a review queued in `pr-<n>`.
-`ai-review-present` keeps running in those runs and evaluates the existing
-reviews: a job skipped by its own `if:` satisfies a required check, so skipping
-the gate for an unrelated label would let anyone with triage access turn it
-green.
+`ai-responder.yml` adds `labeled` and drops `assigned`, `review_requested`, and
+`review_request_removed` from its `pull_request` types. The workflow-level
+concurrency group sends a `labeled` event for any label other than
+`request-ai-review` to a group of its own, keyed by run id, so adding an
+unrelated label never replaces a review queued in `pr-<n>`. `ai-review-present`
+keeps running in those runs and evaluates the existing reviews: a job skipped by
+its own `if:` satisfies a required check, so skipping the gate for an unrelated
+label would let anyone with triage access turn it green.
 
 Preflight removes `request-ai-review` in its first step, before authorization,
 so a request is cleared whether the run accepts it or rejects it. It reads the
@@ -124,9 +124,10 @@ Rejected alternatives:
 - **A persistent `ai-review-requested` state label removed after the review
   posts**: a failed review leaves the label on, and it must be removed by hand
   before the next request.
-- **Labels for the effort tier**: no observed use; every review sizes itself.
-- **A repository-wide review pause**: one observed outage; a per-PR label covers
-  it, and a pause would still need bypass merges unless it waived the gate.
+- **Labels for the effort tier**: every review sizes itself.
+- **A repository-wide review pause**: a per-PR `skip-ai-review` label covers a
+  Claude outage, and a pause would still need bypass merges unless it waived the
+  gate.
 
 Assumptions:
 
@@ -140,7 +141,8 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] The `pull_request` types list `labeled` and not `assigned`.
+- [ ] The `pull_request` types are `opened`, `reopened`, `ready_for_review`,
+  `synchronize`, and `labeled`.
 - [ ] The concurrency group of a `labeled` event for a label other than
   `request-ai-review` is unique to its run, and every other `pull_request` event
   keeps `pr-<n>`.
@@ -312,7 +314,8 @@ or reopened, on a push to a pull request that has no accepted review, and when
 the `request-ai-review` label is added. The label SHALL run a review whether or
 not an accepted review exists, and preflight SHALL remove it before authorizing
 the request, so the label is on a pull request only until a run accepts or
-rejects it. An assignment SHALL NOT run a review. The review job SHALL NOT run
+rejects it. An assignment, a reviewer request, and a reviewer request's removal
+SHALL NOT start a run. The review job SHALL NOT run
 for a `pull_request` event on a draft pull request.
 
 A `labeled` event for any other label SHALL NOT run a review and SHALL NOT share
@@ -346,6 +349,12 @@ review, and merge group event, a `labeled` event for any label included.
 ### Scenario: a writer assigns a pull request
 
 - **WHEN** a writer assigns a reviewed pull request
+- **THEN** no run of the workflow starts.
+
+### Scenario: a reviewer is requested
+
+- **WHEN** a writer requests a reviewer on a pull request, or removes that
+  request
 - **THEN** no run of the workflow starts.
 
 ### Scenario: an unrelated label is added
@@ -401,8 +410,8 @@ ruleset bypass can merge it.
 
 ### Requirement: a pull request review runs at a requested effort tier
 
-Removed: the `[ci:review-effort=…]` marker had no observed use, and every review
-now sizes itself from the diff.
+Removed: every review sizes itself from the diff; no marker or label requests a
+tier.
 ```
 
 [AI review refresh](../spec/ai-review-refresh.md):
@@ -515,7 +524,7 @@ absence, and reported for a person rather than retried.
 
 - `uv run pre-commit run --files .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml`
   — `actionlint` and `zizmor` pass.
-- `grep -nE "ci:skip-ai-review|ci:review-effort|REQUESTED REVIEW EFFORT|- assigned$" .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml .agents/plugins/agentdev/skills/pr-review/SKILL.md`
+- `grep -nE "ci:skip-ai-review|ci:review-effort|REQUESTED REVIEW EFFORT|- assigned$|review_request" .github/workflows/ai-responder.yml .github/actions/run-claude-responder/action.yml .agents/plugins/agentdev/skills/pr-review/SKILL.md`
   finds nothing.
 - `grep -niE "assignee|assignment|ci:skip-ai-review|ci:review-effort" .agents/plugins/agentdev/skills/pr-request-ai-review .agents/plugins/agentdev/skills/pr-merge/SKILL.md README.md docs/knowledge/data/features/ai-responder-workflows.md`
   finds nothing.
@@ -543,6 +552,8 @@ Verified anchor points (line numbers as of 2026-11-08):
 
 - `.github/workflows/ai-responder.yml:10` — `pull_request` types
 - `.github/workflows/ai-responder.yml:13` — `assigned`
+- `.github/workflows/ai-responder.yml:16` — `review_requested` and
+  `review_request_removed`
 - `.github/workflows/ai-responder.yml:24` — concurrency group
 - `.github/workflows/ai-responder.yml:44` — preflight `if:`
 - `.github/workflows/ai-responder.yml:50` — preflight permissions
