@@ -319,9 +319,15 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 10: The skip label behaves as decided
 
-- [ ] After merge, a pull request created with
+- [x] After merge, a pull request created with
   `gh pr create --label skip-ai-review` runs no review on open, and the plan
   records whether the `opened` run's preflight saw the label.
+  - **Evidence:** pull request #753, opened with
+    `gh pr create --label skip-ai-review` on a branch carrying this plan's
+    workflow; its `opened` and `labeled` runs (42451125942, 42451126179) both
+    passed preflight, skipped `Claude PR Review Responder`, and failed
+    `ai-review-present` with no accepted review; the label stayed on and no
+    review was posted.
 - [ ] Adding `request-ai-review` to a pull request carrying `skip-ai-review`
   runs a review.
 - [ ] Adding an unrelated label while a requested review is queued leaves that
@@ -616,6 +622,12 @@ absence, and reported for a person rather than retried.
   `bun build --no-bundle`.
 - `iwe normalize` and `iwe schema validate` pass.
 - Tasks 9 and 10 are observed on GitHub after merge; Task 8 before it.
+
+## Verification results
+
+- A `skip-ai-review` label added by `gh pr create --label` one second after the
+  pull request was created was seen by the `opened` run's preflight: the run
+  skipped the review (pull request #753).
 
 ## Out of scope
 
