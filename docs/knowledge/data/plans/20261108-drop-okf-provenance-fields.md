@@ -142,7 +142,7 @@ whose frontmatter sets either key
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/`, and
 `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md`
 
-- [ ] `AGENTS.md` step 5 reads:
+- [x] `AGENTS.md` step 5 reads:
 
   ``` markdown
   5. **Stamp** — every document you create or meaningfully change gets a
@@ -150,7 +150,10 @@ whose frontmatter sets either key
      code or an external page — a `sources` entry naming that path or URL.
   ```
 
-- [ ] The `AGENTS.md` convention on OKF divergence reads:
+  - **Evidence:** commit c573dbd6; `docs/knowledge/AGENTS.md:77-79` holds this
+    text byte for byte
+
+- [x] The `AGENTS.md` convention on OKF divergence reads:
 
   ``` markdown
   - **The workspace diverges from OKF only to cut merge and upkeep cost.** It
@@ -159,7 +162,10 @@ whose frontmatter sets either key
     `verified`: source control records when and by whom a document changed.
   ```
 
-- [ ] `SCHEMA.md` loses its `generated` and `verified` bullets under
+  - **Evidence:** commit c573dbd6; `docs/knowledge/AGENTS.md:124-127` holds this
+    text byte for byte
+
+- [x] `SCHEMA.md` loses its `generated` and `verified` bullets under
   `## Fields every type carries`, and the paragraph after them ends:
 
   ``` markdown
@@ -170,17 +176,30 @@ whose frontmatter sets either key
   document changed.
   ```
 
-- [ ] `README.md` describes provenance as `sources` alone: "carries a `type`,
+  - **Evidence:** commit c573dbd6; both bullets are gone and
+    `docs/knowledge/SCHEMA.md:30-33` holds these words, rewrapped by
+    `iwe normalize`
+
+- [x] `README.md` describes provenance as `sources` alone: "carries a `type`,
   provenance (`sources`) and lifecycle (`stage`,"
 
-- [ ] `iwe-capture/SKILL.md` step 3's stamp bullet reads:
+  - **Evidence:** commit c573dbd6; `docs/knowledge/README.md:20` reads "carries
+    a `type`, provenance (`sources`) and lifecycle (`stage`, `rank`,"
+
+- [x] `iwe-capture/SKILL.md` step 3's stamp bullet reads:
 
   ``` markdown
      - `description` and `sources` naming every code path, page, and GitHub
        issue URL the item was derived from.
   ```
 
-- [ ] Each scaffold copy is byte-identical to its workspace file
+  - **Evidence:** commit c573dbd6; `iwe-capture/SKILL.md:65-66` holds this text
+    byte for byte
+
+- [x] Each scaffold copy is byte-identical to its workspace file
+
+  - **Evidence:** commit c573dbd6; `diff -q` between each of `AGENTS.md`,
+    `SCHEMA.md`, `README.md` and its scaffold copy reports no difference
 
 ### Task 5: The template changelog drops the fields and tells consumers to delete them
 
