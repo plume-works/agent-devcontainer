@@ -101,6 +101,9 @@ engines](plans/20261101-docker-storage-periodic-gc.md)
 [Drop the free-form `@claude` task
 responder](plans/20261107-drop-claude-task-responder.md)
 
+[Drop OKF provenance fields from the
+graph](plans/20261108-drop-okf-provenance-fields.md)
+
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 [Explore proposes only for observed
