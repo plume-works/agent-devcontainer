@@ -132,7 +132,6 @@ runs:
         bot_name: ${{ steps.app_bot.outputs.name }}
         settings: ${{ steps.claude_settings.outputs.json }}
         claude_args: ${{ steps.claude_args.outputs.args }}
-        assignee_trigger: 'claude-bot'
         show_full_output: true
         prompt: ${{ inputs.prompt }}
 
