@@ -242,8 +242,13 @@ Assumptions:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] `## AI Review Recovery` describes requesting with `request-ai-review` and
+- [x] `## AI Review Recovery` describes requesting with `request-ai-review` and
   treats an added label, a started run, or a pending review as not yet complete.
+  - **Evidence:** commit f8602763; `## AI Review Recovery` says a review is
+    requested by adding `request-ai-review`, reads `ALREADY_REQUESTED` as a
+    waiting label or a covering check, and does not treat an added label, a
+    started run, or a pending review as completion; `validate_agent_files`
+    passes in the pre-commit hook.
 
 ### Task 6: Consumer docs describe the labels
 
