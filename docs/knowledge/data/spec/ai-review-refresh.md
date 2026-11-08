@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .github/workflows/ai-responder.yml
+- resource: data/plans/20261108-label-review-triggers.md
 ---
 
 # AI review refresh
@@ -53,22 +54,31 @@ from the session that made the change.
 ## Requirement: one AI review trigger per head commit
 
 The catalog SHALL request an AI review only through `pr-request-ai-review`'s
-`request-review.py`, and SHALL request it by toggling the pull request author's
-assignment: an assigned author is removed and added back, and an unassigned
-author is added and removed, so the assignees end as they were found. The
-catalog SHALL NOT post an `@claude review` comment.
+`request-review.py`, and SHALL request it by adding the `request-ai-review`
+label to the pull request. The catalog SHALL NOT change the pull request's
+assignees to request a review, and SHALL NOT post an `@claude review` comment.
+
+While the pull request carries `block-ai-reviews`, the script SHALL first report
+`ALREADY_REVIEWED` or `ALREADY_REQUESTED` where the rules below find the input
+reviewed or a responder check requesting it; otherwise it SHALL add
+`request-ai-review` unless it is already present, and SHALL report `BLOCKED`,
+because no review can run until the block is lifted.
 
 A review's input is the head commit together with the pull request's title and
-description, which a review run reads when it starts. The script SHALL NOT
-toggle for a head commit that an accepted AI review already names, submitted
-after the latest title or description edit by a run that started after it, or
-that carries a `Claude PR Review Responder` check run that is queued, in
-progress, or started after that edit and completed with a conclusion other than
-`skipped` or `cancelled`, whoever started it. A review submitted while a
-responder run that started before the edit was running SHALL NOT count. When the
-pull request was never edited, every such review and check counts. Accepted
-reviews are those the AI review gate names, by author and state; a reaction
-names no commit and is not counted.
+description, which a review run reads when it starts. While the pull request
+already carries the label and is not blocked, the script SHALL NOT add it when a
+run of `ai-responder.yml` on the head branch is unfinished, because a run in the
+pull request's concurrency group takes the label; with no unfinished run the
+label is stale, and the script SHALL remove it and add it again. The script
+SHALL NOT add the label for a head commit that an accepted AI review already
+names, submitted after the latest title or description edit by a run that
+started after it, or that carries a `Claude PR Review Responder` check run that
+is queued, in progress, or started after that edit and completed with a
+conclusion other than `skipped` or `cancelled`, whoever started it. A review
+submitted while a responder run that started before the edit was running SHALL
+NOT count. When the pull request was never edited, every such review and check
+counts. Accepted reviews are those the AI review gate names, by author and
+state; a reaction names no commit and is not counted.
 
 A rationale, when given, SHALL be posted as a pull request comment that opens
 with `AI review requested for <sha>:` and carries no `@claude` mention.
@@ -78,14 +88,41 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 - **WHEN** a `Claude PR Review Responder` check on the head is queued, in
   progress, or started after the latest title or description edit and completed
   with a failure
-- **THEN** the script toggles nothing and reports `ALREADY_REQUESTED` with that
+- **THEN** the script adds no label and reports `ALREADY_REQUESTED` with that
   check's URL.
+
+### Scenario: the label is waiting for a run
+
+- **WHEN** the pull request carries `request-ai-review`, does not carry
+  `block-ai-reviews`, and a run of `ai-responder.yml` on the head branch is
+  unfinished
+- **THEN** the script adds no label and reports `ALREADY_REQUESTED`.
+
+### Scenario: the pull request is blocked
+
+- **WHEN** the pull request carries `block-ai-reviews`, and no accepted review
+  or responder check covers its input
+- **THEN** the script adds `request-ai-review` unless it is already present, and
+  reports `BLOCKED`.
+
+### Scenario: a blocked pull request that is already reviewed
+
+- **WHEN** the pull request carries `block-ai-reviews`, and an accepted AI
+  review already names its head after the latest title or description edit
+- **THEN** the script adds no label and reports `ALREADY_REVIEWED`, so lifting
+  the block does not review the same input again.
+
+### Scenario: the label is stale
+
+- **WHEN** the pull request carries `request-ai-review` and no run of
+  `ai-responder.yml` on the head branch is unfinished
+- **THEN** the script removes the label, adds it again, and reports `SUCCESS`.
 
 ### Scenario: the head is already reviewed
 
 - **WHEN** an accepted AI review submitted after the latest title or description
   edit names the head commit
-- **THEN** the script toggles nothing and reports `ALREADY_REVIEWED`.
+- **THEN** the script adds no label and reports `ALREADY_REVIEWED`.
 
 ### Scenario: the description changed after the head's review
 
@@ -93,31 +130,24 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
   title or description edit, every accepted AI review naming the head was
   submitted before that edit or by one of those runs, and no responder check on
   the head is queued or in progress
-- **THEN** the script toggles the author's assignment and reports `SUCCESS`.
+- **THEN** the script adds `request-ai-review` and reports `SUCCESS`.
 
 ### Scenario: the description changed while a review was running
 
 - **WHEN** the title or description is edited after a responder run on the head
   started, and that run finishes and submits its review after the edit
 - **THEN** neither the run's check nor its review counts, and once no responder
-  check is queued or in progress the script toggles the author's assignment and
-  reports `SUCCESS`.
+  check is queued or in progress the script adds `request-ai-review` and reports
+  `SUCCESS`.
 
 ### Scenario: a push to a reviewed pull request
 
 - **WHEN** the only `Claude PR Review Responder` check on the head was skipped
-- **THEN** the script toggles the author's assignment and reports `SUCCESS`.
-
-### Scenario: an unassigned author
-
-- **WHEN** the script requests a review on a pull request whose author is not
-  assigned
-- **THEN** it adds the author, then removes them, and the pull request ends with
-  the assignees it had.
+- **THEN** the script adds `request-ai-review` and reports `SUCCESS`.
 
 ### Scenario: a request with a rationale
 
-- **WHEN** the script toggles with `--rationale`
+- **WHEN** the script adds the label with `--rationale`
 - **THEN** it posts one comment opening `AI review requested for <sha>:` with
   the rationale, and no workflow run starts for it.
 
@@ -128,23 +158,21 @@ The catalog SHALL judge a requested review as running when
 request's head commit, and as finished when the latest `ai-review-present` run
 on the head completes, reading both from `gh pr checks`. It SHALL NOT look up
 the review workflow by name or follow a run by id to decide either. When a
-toggle produces no review check on the head, the cause SHALL be read from the
+request produces no review check on the head, the cause SHALL be read from the
 `pull_request` run of `ai-responder.yml` on the head branch, or from its
 absence, and reported for a person rather than retried.
 
 ### Scenario: confirming a request
 
-- **WHEN** the script toggles the assignment and `Claude PR Review Responder` is
-  pending on the head commit
+- **WHEN** the script adds the label and `Claude PR Review Responder` is pending
+  on the head commit
 - **THEN** the agent reports the review as started and waits on the head's
   checks instead of requesting again.
 
-### Scenario: a toggle that reviewed nothing
+### Scenario: a request that reviewed nothing
 
-- **WHEN** no review check runs on the head because the toggle started no
-  `pull_request` run, or that run skipped or failed its preflight, or its
-  preflight passed and its review job skipped
+- **WHEN** no review check runs on the head because adding the label started no
+  `pull_request` run, or that run skipped or failed its preflight
 - **THEN** the agent reports, respectively, a token whose events start no
-  workflow, a bot-authored or fork pull request, a requester without write
-  access, or the `[ci:skip-ai-review]` marker as needing a person, and requests
-  no further review.
+  workflow, a bot-authored or fork pull request, or a requester without write
+  access as needing a person, and requests no further review.
