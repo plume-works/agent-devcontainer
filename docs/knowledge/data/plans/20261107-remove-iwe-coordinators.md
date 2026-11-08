@@ -14,6 +14,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
+stage: done
+completed: 2026-11-08
 ---
 
 # Remove the IWE coordinators and relayed approvals

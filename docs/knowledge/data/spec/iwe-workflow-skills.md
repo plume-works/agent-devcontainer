@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-04T12:00:00Z
+  at: 2026-11-08T12:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -22,8 +22,6 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -388,18 +386,17 @@ evidence.
 
 ### Requirement: Implement verifies its own work and acts on the report
 
-When a plan's last task closes, the Implement orchestrator — the user's session
-for `/agentdev:iwe-implement`, and the `iwe-implement-all` coordinator for each
-plan it runs — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
-every CRITICAL finding, and on a WARNING only when its fix fits a task the plan
-already has and adds no claim the code must newly meet. It SHALL file every
-other WARNING through `/agentdev:iwe-capture`, report SUGGESTIONs only, and
-SHALL not stop for an outstanding observation. A code or evidence finding SHALL
-be fixed under the Implement rules and verified again, and a finding about the
-plan's intent SHALL go through an evaluated revision. The orchestrator SHALL
-stop when a finding recurs after a fix attempt, after three Verify rounds, or
-after one approved revision in the run. No agent the loop dispatches SHALL
-dispatch another.
+When a plan's last task closes, the Implement session — the session that loaded
+`/agentdev:iwe-implement` — SHALL run Verify through `/agentdev:iwe-verify` and
+SHALL act on every CRITICAL finding, and on a WARNING only when its fix fits a
+task the plan already has and adds no claim the code must newly meet. It SHALL
+file every other WARNING through `/agentdev:iwe-capture`, report SUGGESTIONs
+only, and SHALL not stop for an outstanding observation. A code or evidence
+finding SHALL be fixed under the Implement rules and verified again, and a
+finding about the plan's intent SHALL go through an evaluated revision. The
+Implement session SHALL stop when a finding recurs after a fix attempt, after
+three Verify rounds, or after one approved revision in the run. No agent the
+loop dispatches SHALL dispatch another.
 
 #### Scenario: Verify finds nothing to act on
 
@@ -411,14 +408,14 @@ dispatch another.
 #### Scenario: Verify finds a code defect
 
 - **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
-- **THEN** the orchestrator fixes it under the Implement rules, closes it with
-  evidence, and runs Verify again through `/agentdev:iwe-verify`
+- **THEN** the Implement session fixes it under the Implement rules, closes it
+  with evidence, and runs Verify again through `/agentdev:iwe-verify`
 
 #### Scenario: A warning would add work
 
 - **WHEN** Verify reports a WARNING whose fix needs a new task or a new claim
-- **THEN** the orchestrator files it through `/agentdev:iwe-capture`, names it
-  in the report, and does not act on it in this run
+- **THEN** the Implement session files it through `/agentdev:iwe-capture`, names
+  it in the report, and does not act on it in this run
 
 #### Scenario: An observation is outstanding
 
@@ -428,8 +425,8 @@ dispatch another.
 
 #### Scenario: A finding recurs
 
-- **WHEN** a finding the orchestrator already tried to fix appears in the next
-  Verify report
+- **WHEN** a finding the Implement session already tried to fix appears in the
+  next Verify report
 - **THEN** the run stops and reports the finding, the fix it attempted, and the
   Verify report
 
@@ -440,20 +437,13 @@ dispatch another.
 - **THEN** the run stops and names the approval, which the user grants by
   re-running the skill
 
-#### Scenario: The coordinator implements every active plan
-
-- **WHEN** the user runs `/agentdev:iwe-implement-all`
-- **THEN** the coordinator dispatches `iwe-implementer` once per plan in
-  dependency order, runs the same loop for that plan before the next, and
-  re-posts each rollup with its Verify and evaluator verdicts
-
 ### Requirement: Implement revises its plan only after an independent evaluation
 
 The Plan rulebook SHALL be defined once, as the catalog agent `iwe-planner`,
-which `/agentdev:iwe-plan` follows in place. The Implement orchestrator SHALL
-revise a plan only by drafting the revision under the `iwe-planner` revise
-rules, including its fresh-context audit and validation, changing only lines
-that answer the quoted finding, leaving it uncommitted, and dispatching
+which `/agentdev:iwe-plan` follows in place. The Implement session SHALL revise
+a plan only by drafting the revision under the `iwe-planner` revise rules,
+including its fresh-context audit and validation, changing only lines that
+answer the quoted finding, leaving it uncommitted, and dispatching
 `iwe-revision-evaluator` with a prompt carrying only the plan key and the
 finding the revision answers, quoted as reported. It SHALL commit the revision
 only on the evaluator's `APPROVE`. On `REJECT` or `ESCALATE` it SHALL restore
@@ -474,15 +464,15 @@ must newly meet.
 #### Scenario: The evaluator escalates a narrowing
 
 - **WHEN** a drafted revision would narrow specified behavior
-- **THEN** the evaluator returns `ESCALATE`, the orchestrator restores the plan
-  from `HEAD`, and the run stops for the user's direction
+- **THEN** the evaluator returns `ESCALATE`, the Implement session restores the
+  plan from `HEAD`, and the run stops for the user's direction
 
 #### Scenario: The evaluator rejects a restatement
 
 - **WHEN** a drafted revision rewrites the plan's intent to describe the code
   without answering the quoted finding
-- **THEN** the evaluator returns `REJECT`, the orchestrator restores the plan
-  from `HEAD`, and the run stops with the evaluator's reasons
+- **THEN** the evaluator returns `REJECT`, the Implement session restores the
+  plan from `HEAD`, and the run stops with the evaluator's reasons
 
 #### Scenario: The evaluator rejects a stray hunk
 
@@ -498,7 +488,7 @@ must newly meet.
 
 #### Scenario: The evaluator sees no conversation
 
-- **WHEN** the orchestrator dispatches `iwe-revision-evaluator`
+- **WHEN** the Implement session dispatches `iwe-revision-evaluator`
 - **THEN** the prompt holds the plan key and the quoted finding and nothing else
   from the conversation
 
@@ -665,13 +655,12 @@ Every Verify report SHALL number its findings by severity in report order —
 `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION — and every
 caller of Verify SHALL show the report verbatim in its final message text:
 `/agentdev:iwe-verify` on the session route, on a saved hit and after a save;
-`iwe-shipper` ahead of its Ship summary; `iwe-ship-all` by re-posting each
-Shipper's report verbatim; the Implement orchestrator for the last Verify round
-of a run; and `iwe-implement-all` for each plan's last round. A path to the
-saved report, or the report appearing only in a tool call or tool result, SHALL
-not count as showing it. A Ship blocker report SHALL route each Verify CRITICAL
-by its ID without restating it, and SHALL state in full, with `path:line`
-evidence, each blocker Ship found outside Verify.
+`iwe-shipper` ahead of its Ship summary; and the Implement session for the last
+Verify round of a run. A path to the saved report, or the report appearing only
+in a tool call or tool result, SHALL not count as showing it. A Ship blocker
+report SHALL route each Verify CRITICAL by its ID without restating it, and
+SHALL state in full, with `path:line` evidence, each blocker Ship found outside
+Verify.
 
 #### Scenario: A session verifies a plan
 
@@ -699,12 +688,6 @@ evidence, each blocker Ship found outside Verify.
 - **WHEN** `iwe-shipper` ships a plan
 - **THEN** its final message carries the Verify report verbatim before the
   completed and preserved operations and the commit
-
-#### Scenario: The ship-all coordinator ships several plans
-
-- **WHEN** the user runs `/agentdev:iwe-ship-all`
-- **THEN** the coordinator re-posts each Shipper's report verbatim, one plan per
-  entry, followed by the summary across plans
 
 #### Scenario: The Implement loop runs several Verify rounds
 
@@ -765,8 +748,8 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 - **WHEN** Implement reaches a task that runs
   `/agentdev:iwe-adversarial-review <plan> code` and the report names a defeated
   plan claim
-- **THEN** the orchestrator fixes it under the Implement rules, and files every
-  finding that names no plan claim
+- **THEN** the Implement session fixes it under the Implement rules, and files
+  every finding that names no plan claim
 
 #### Scenario: A person reviews a plan
 
@@ -846,19 +829,21 @@ to resume after a partial prior attempt.
 ### Requirement: Ship and Implement start only from an explicit request or a named dispatcher
 
 The Ship and Implement workflows SHALL each be defined once, as the catalog
-agents `iwe-shipper` and `iwe-implementer`. Ship's user entry skill and the
-`iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
-Claude Code and OpenCode. Implement's entry skill SHALL be model-invocable on
-both, so a session asked to implement a named plan may load it, including on a
-message from a coordinator session. Only those skills, those coordinators, and
-Plan revise mode answering a Ship blocker report SHALL start the workflows. Ship
-SHALL always run as a dispatched `iwe-shipper` whose prompt carries only the
-plan key, the operation, and the user's approvals quoted verbatim, so its
-verification rests on the code and the graph alone. Implement started through
-its entry skill SHALL run in the session that loaded it and SHALL take every
-decision from that session's own user or from an approval of the user's that a
-coordinator session relays. A dispatched workflow SHALL stop and report at any
-point that needs a user decision it was not given.
+agents `iwe-shipper` and `iwe-implementer`. Ship's user entry skill SHALL be
+explicit-only on Claude Code and OpenCode. Implement's entry skill SHALL be
+model-invocable on both, so a session asked to implement a named plan may load
+it; a request in another session's message SHALL be handled as a plain request.
+Only those skills and Plan revise mode answering a Ship blocker report SHALL
+start the workflows. Ship SHALL always run as a dispatched `iwe-shipper` whose
+prompt carries only the plan key, the operation, and the user's approvals quoted
+verbatim, so its verification rests on the code and the graph alone.
+`iwe-implementer` SHALL never be dispatched: Implement SHALL run in the session
+that loaded its entry skill and SHALL take every decision from that session's
+own user, and an approval that another session's message claims the user gave
+SHALL not count as one. A dispatched `iwe-shipper` SHALL stop and report at any
+point that needs a user decision it was not given. Nothing authenticates who
+typed a message in the session's own conversation; this requirement governs only
+approvals that another session's message claims.
 
 #### Scenario: The user ships a plan directly
 
@@ -889,23 +874,9 @@ point that needs a user decision it was not given.
 - **THEN** the session loads `/agentdev:iwe-implement` and follows the
   `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
 
-#### Scenario: A coordinator asks a session to implement a plan
+#### Scenario: A dispatched Shipper reaches a user decision
 
-- **WHEN** a coordinator session sends a session a message asking it to
-  implement a named plan
-- **THEN** the session loads `/agentdev:iwe-implement` and follows the
-  `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
-
-#### Scenario: A coordinator ships every implemented plan
-
-- **WHEN** the user runs `/agentdev:iwe-ship-all`
-- **THEN** it dispatches one `iwe-shipper` agent per implemented plan in
-  dependency order and re-posts each one's Verify verdict and outcome.
-
-#### Scenario: A dispatched workflow reaches a user decision
-
-- **WHEN** a dispatched `iwe-shipper` or `iwe-implementer` reaches a point that
-  needs the user
+- **WHEN** a dispatched `iwe-shipper` reaches a point that needs the user
 - **THEN** it stops without taking that step and reports what it needs.
 
 #### Scenario: Explore hears a partial answer to an open question
@@ -913,8 +884,7 @@ point that needs a user decision it was not given.
 - **WHEN** during `/agentdev:iwe-explore` the user answers an open question in a
   way that leaves a plan apparently complete
 - **THEN** Explore neither dispatches `iwe-shipper` nor loads a Ship or
-  Implement skill or coordinator, and names a next step for the user other than
-  Implement.
+  Implement skill, and names a next step for the user other than Implement.
 
 #### Scenario: A revision answers a Ship blocker
 
@@ -925,8 +895,8 @@ point that needs a user decision it was not given.
 
 #### Scenario: The model tries to start a gated skill
 
-- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` or either
-  coordinator without a user request
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` without a
+  user request
 - **THEN** the harness withholds it.
 
 ### Requirement: Capture files complete inbox documents
