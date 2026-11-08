@@ -488,9 +488,9 @@ Verify.
 
 ## Key references
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "their current line numbers"`
-  — step 3, discovery
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Verified anchor points"`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Discover."` —
+  step 3, discovery
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "a list of anchors, each with a short note"`
   — step 4, the `## Key references` template
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md › "Re-verify the anchors"`
   — step 5
