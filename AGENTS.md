@@ -71,6 +71,15 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
     before you extract; hard-code before you configure. Add the generality when
     a second real caller or a user request demands it, not before.
 
+12. **Never debug workflow behaviour with real AI reviews or full CI.** Triggers,
+    concurrency groups, label handling, and gate results depend on the workflow
+    wiring, not on the model. Test them on a scratch branch or a scratch
+    repository whose workflow has the Claude action commented out and replaced
+    by a step that hard-codes the outcome under test, with every unrelated
+    workflow kept from running (`[skip ci]` in the commit message, or disabled
+    triggers in the scratch copy). A real review runs only once the wiring is
+    proven, and only when a pull request needs it to merge.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,

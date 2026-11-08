@@ -16,13 +16,18 @@ once that answer is yes.
 
 The responder reviews when the `request-ai-review` label is added, so the
 bundled script requests a review by adding it. Any responder run of the pull request that reviews takes the label: its review
-job removes it as `plume-works-quill` just before the review starts. A label
-still on the pull request is a request no review has started for yet. When the script finds the
+job removes it as `plume-works-quill` once the review finishes, and never when
+the review is cancelled, so a push that cancels a requested review leaves the
+request for the push's run. A label still on the pull request is a request no
+review has finished yet. When the script finds the
 label with no unfinished responder run on the head branch to take it, the label
 is stale: the script removes and re-adds it, which sends the request again.
 Re-adding a label by hand sends nothing, because GitHub fires no event for a
-label already present. Assigning someone, requesting a reviewer, and an
-`@claude review` comment request nothing. The script requests at
+label already present. While the pull request carries `block-ai-reviews`, no
+review runs: where it would otherwise request one, the script adds
+`request-ai-review` so the request waits visibly, reports `BLOCKED`, and removing `block-ai-reviews` later runs the waiting
+review. Assigning someone, requesting a reviewer, and an `@claude review`
+comment request nothing. The script requests at
 most once per head and title and description; see
 [Post at most once per reviewed input](#post-at-most-once-per-reviewed-input).
 
@@ -34,16 +39,17 @@ It prints `PR_NUMBER`, `HEAD_SHA`, `CHECK_URL` — the responder check already
 covering this head — and `COMMENT_URL` — the posted rationale — and ends with a
 `RESULT=` line:
 
-| RESULT              | Exit                | What to do                                                                                                                                                 |
-| ------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`           | 0                   | Report the added or re-sent label and any `COMMENT_URL`, then confirm the review started.                                                                  |
-| `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                                            |
-| `ALREADY_REQUESTED` | 4                   | The label is waiting for an unfinished responder run, or the responder check at `CHECK_URL` covers the head. Report it and confirm that one; do not retry. |
-| `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                         |
-| `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, adding the label included. Stop and report stderr.                                                            |
-| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                                       |
-| `SCRIPT_FAILURE`    | 1                   | Unhandled error. Stop and report stderr.                                                                                                                   |
-| `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM. Stop; check the pull request's labels and checks before requesting again.                                                |
+| RESULT              | Exit                | What to do                                                                                                                                                         |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SUCCESS`           | 0                   | Report the added or re-sent label and any `COMMENT_URL`, then confirm the review started.                                                                          |
+| `ALREADY_REVIEWED`  | 3                   | An accepted AI review newer than the last title or description edit names the head. Report it; request nothing.                                                    |
+| `ALREADY_REQUESTED` | 4                   | The label is waiting for an unfinished responder run, or the responder check at `CHECK_URL` covers the head. Report it and confirm that one; do not retry.         |
+| `BLOCKED`           | 7                   | The pull request carries `block-ai-reviews`; the request label is on and waits for the block's removal. Report it for a person; do not wait for a review or retry. |
+| `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                                 |
+| `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, adding the label included. Stop and report stderr.                                                                    |
+| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                                               |
+| `SCRIPT_FAILURE`    | 1                   | Unhandled error. Stop and report stderr.                                                                                                                           |
+| `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM. Stop; check the pull request's labels and checks before requesting again.                                                        |
 
 Run it with a token whose events start workflows, such as your own `gh` login.
 A label added with an Actions `GITHUB_TOKEN` starts no run.
@@ -87,8 +93,8 @@ The shape of that run points at the cause:
 - **Label still on after the run** — the run did not review: the pull request
   is bot-authored or comes from a fork, so no preflight ran; the person whose
   token added the label lacks write access, so preflight failed; or the pull
-  request is a draft, so the review job skipped. The label waits for a later
-  run that can review.
+  request is a draft, so the review job skipped; or it carries
+  `block-ai-reviews`. The label waits for a later run that can review.
 - **A review check completed without a review** — report that review run's
   failure from its log.
 

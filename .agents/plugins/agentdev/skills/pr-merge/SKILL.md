@@ -219,8 +219,10 @@ it are filed on the head commit and listed by `gh pr checks`.
    for a run or a responder check already covers this head: confirm it started as that skill describes and
    wait on the head's checks; never request again. On `ALREADY_REVIEWED`, an
    accepted review newer than the last title or description edit already names
-   the head and the failed gate predates it; report that instead of
-   requesting.
+   the head and the failed gate predates it; report that instead of requesting.
+   On `BLOCKED`, the pull request carries `block-ai-reviews`, so no review can
+   run until a person removes it: report that as a merge blocker and stop
+   waiting.
 
 4. Wait until the latest `ai-review-present` run on the head completes — it
    finishes in the same run as the review — then refresh both `gh pr checks`

@@ -345,14 +345,14 @@ Security gates prevent the responder from checking out or executing untrusted fo
 code and restrict reviews to pull request events from actors with write access. Reviews use the pull
 request branch's own catalog, so changes to agent workflows are reviewed as changed.
 To request another review after new work lands, add the `request-ai-review` label; the
-workflow removes it when the review starts. The `skip-ai-review` label stops the automatic
-review on open and push.
+workflow removes it when the review finishes. While the `block-ai-reviews` label is on, no
+review runs, requested ones included; removing it runs a waiting request.
 
 Reviews and trusted-bot approvals post as the `plume-works-quill` GitHub App, the only
 reviewer the merge gate accepts. Adopters must register and install a GitHub App and
 create the `plume-works-review` environment holding the `CLAUDE_CODE_OAUTH_TOKEN`,
 `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` secrets, and create the
-`request-ai-review` and `skip-ai-review` labels before enabling the workflow.
+`request-ai-review` and `block-ai-reviews` labels before enabling the workflow.
 
 Pull-request descriptions separate completed `Verification` evidence from open
 `Reviewer Handoff` tasks. Repository-specific additions belong in

@@ -73,13 +73,14 @@ asserts the PR has been reviewed, not that each pushed commit has been, and
 never requires the review to name the current head commit. Refreshing a review
 is the author's call: adding the `request-ai-review` label runs a `pull_request`
 review whose gate counts toward merge, and the review job removes the label, as
-`plume-works-quill`, just before the review starts, so the label is on a pull
-request only while a request waits for a review. A request on a draft, or from
-someone without write access, waits for a later run that can review. Assigning
-someone, requesting a reviewer, and an `@claude review` comment start nothing,
-and any other label runs only the gate, outside the pull request's concurrency
-group. The design is recorded in [Label review
-triggers](../architecture/label-review-triggers.md).
+`plume-works-quill`, once the review finishes, so the label is on a pull request
+only while a request waits for a finished review. A push that cancels a
+requested review leaves the label, and the push's run reviews the new head. A
+request on a draft, or from someone without write access, waits for a later run
+that can review. Assigning someone, requesting a reviewer, and an
+`@claude review` comment start nothing, and any other label runs only the gate,
+outside the pull request's concurrency group. The design is recorded in [Label
+review triggers](../architecture/label-review-triggers.md).
 
 **The review's verdict follows its findings.** The review submits `APPROVE` when
 it has no validated finding or only non-blocking ones, and `REQUEST_CHANGES`
@@ -116,14 +117,15 @@ scripts and the workflow that supplies their devcontainer contract is recorded
 in [CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md).
 
-**Pull requests can opt out of the automatic review, not out of the gate.** The
-`skip-ai-review` label stops the review responder on open, ready for review,
-reopen, and push; preflight reads the labels when it runs, so a label added
-after it read them does not apply to that run. An explicit `request-ai-review`
-still runs a review. `ai-review-present` never reads the label: a skipped job
-satisfies a required check, so a label the gate honoured would be a waiver of
-the mandatory review for anyone who can label a pull request. A labelled PR
-without an accepted review keeps a red gate, mergeable only by ruleset bypass.
+**Pull requests can block every review, not the gate.** While the
+`block-ai-reviews` label is on, no review runs, an explicit `request-ai-review`
+included; a request added meanwhile stays on the pull request, and removing
+`block-ai-reviews` starts a run that reviews it. Preflight reads the labels when
+it runs, so a label added after it read them does not apply to that run.
+`ai-review-present` never reads the label: a skipped job satisfies a required
+check, so a label the gate honoured would be a waiver of the mandatory review
+for anyone who can label a pull request. A blocked PR without an accepted review
+keeps a red gate, mergeable only by ruleset bypass.
 
 **Every review sizes itself.** No marker, label, or prompt line requests an
 effort tier; the review chooses its passes and models from the diff and keeps
