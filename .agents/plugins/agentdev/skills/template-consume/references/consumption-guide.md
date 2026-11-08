@@ -381,7 +381,8 @@ prerequisites are **required**:
    `GITHUB_TOKEN`.
 3. **Create the `request-ai-review` and `skip-ai-review` labels.** Adding
    `request-ai-review` requests a review; the review job removes it, as the
-   App, just before the review starts. `skip-ai-review` stays until removed and stops the
+   App, once the review finishes; a push that cancels the review leaves it for
+   the push's run. `skip-ai-review` stays until removed and stops the
    automatic reviews on open, ready for review, reopen, and push, but never an
    explicit `request-ai-review`, and never the gate: a labelled pull request
    without an accepted review still needs ruleset bypass to merge.

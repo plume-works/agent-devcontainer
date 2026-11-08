@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow, triggered only by pull request events, gives the repository automated PR review with a read-only review responder and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-08T07:00:00Z
+  at: 2026-11-08T08:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -76,13 +76,14 @@ asserts the PR has been reviewed, not that each pushed commit has been, and
 never requires the review to name the current head commit. Refreshing a review
 is the author's call: adding the `request-ai-review` label runs a `pull_request`
 review whose gate counts toward merge, and the review job removes the label, as
-`plume-works-quill`, just before the review starts, so the label is on a pull
-request only while a request waits for a review. A request on a draft, or from
-someone without write access, waits for a later run that can review. Assigning
-someone, requesting a reviewer, and an `@claude review` comment start nothing,
-and any other label runs only the gate, outside the pull request's concurrency
-group. The design is recorded in [Label review
-triggers](../architecture/label-review-triggers.md).
+`plume-works-quill`, once the review finishes, so the label is on a pull request
+only while a request waits for a finished review. A push that cancels a
+requested review leaves the label, and the push's run reviews the new head. A
+request on a draft, or from someone without write access, waits for a later run
+that can review. Assigning someone, requesting a reviewer, and an
+`@claude review` comment start nothing, and any other label runs only the gate,
+outside the pull request's concurrency group. The design is recorded in [Label
+review triggers](../architecture/label-review-triggers.md).
 
 **The review's verdict follows its findings.** The review submits `APPROVE` when
 it has no validated finding or only non-blocking ones, and `REQUEST_CHANGES`
