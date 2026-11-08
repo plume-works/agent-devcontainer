@@ -26,6 +26,7 @@ AI_REVIEWER = 'plume-works-quill[bot]'
 CHECK_URL = 'https://github.com/octo/repo/runs/700'
 POSTED_URL = 'https://github.com/octo/repo/pull/42#issuecomment-900'
 REQUEST_LABEL = 'request-ai-review'
+HEAD_REF = 'feature/retry'
 RATIONALE = 'Reworked the retry backoff beyond the thread.'
 EARLIER = '2026-01-01T09:00:00Z'
 STARTED_AT = '2026-01-01T09:30:00Z'
@@ -101,6 +102,12 @@ elif endpoint == base + 'commits/' + fixture['pr']['head']['sha'] + '/check-runs
     print(json.dumps({'total_count': len(runs), 'check_runs': runs}))
 elif endpoint == base + 'issues/42/labels' and method == 'POST':
     print(json.dumps([{'name': fields.get('labels[]')}]))
+elif endpoint == base + 'issues/42/labels/request-ai-review' and method == 'DELETE':
+    print(json.dumps([]))
+elif endpoint == base + 'actions/workflows/ai-responder.yml/runs' and method == 'GET':
+    if fields.get('branch') != fixture['pr']['head']['ref']:
+        sys.exit(1)
+    print(json.dumps({'workflow_runs': fixture.get('workflow_runs', [])}))
 elif endpoint == base + 'issues/42/comments' and method == 'POST':
     print(json.dumps({'html_url': fixture['posted_url']}))
 else:
@@ -115,7 +122,7 @@ def pull_request(
     """Build a pull request as the pulls endpoint returns it."""
     return {
         'state': state,
-        'head': {'sha': HEAD_SHA},
+        'head': {'sha': HEAD_SHA, 'ref': HEAD_REF},
         'user': {'login': AUTHOR},
         'assignees': [{'login': login} for login in assignees],
         'labels': [{'name': name} for name in labels],
@@ -221,6 +228,13 @@ def request_calls(calls: list[list[Any]]) -> list[str]:
     ]
 
 
+def label_removals(calls: list[list[Any]]) -> list[str]:
+    """Return the endpoint of each label the script removed, in order."""
+    return [
+        endpoint for method, endpoint, _ in calls if method == 'DELETE' and '/labels/' in endpoint
+    ]
+
+
 def assignee_calls(calls: list[list[Any]]) -> list[list[Any]]:
     """Return every call that touched the pull request's assignees."""
     return [call for call in calls if 'assignees' in call[1]]
@@ -261,16 +275,45 @@ def test_assignees_are_never_touched(plugin_root: Path, plugin_tmp_path: Path) -
     assert assignee_calls(calls) == []
 
 
-def test_label_already_present_is_already_requested(
+def test_label_waiting_for_a_run_is_already_requested(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
-    """A request label still on the pull request is a request no run has picked up."""
-    fixture = make_fixture(pr=pull_request(labels=('bug', REQUEST_LABEL)))
+    """An unfinished run in the pull request's group will take the label, so nothing is sent."""
+    fixture = make_fixture(
+        pr=pull_request(labels=('bug', REQUEST_LABEL)),
+        workflow_runs=[{'status': 'completed'}, {'status': 'pending'}],
+    )
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
     assert outcome(completed) == (4, 'RESULT=ALREADY_REQUESTED')
     assert calls == []
+
+
+def test_stale_label_is_removed_and_added_again(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A label no unfinished run will take is re-sent, which fires a new labeled event."""
+    fixture = make_fixture(
+        pr=pull_request(labels=(REQUEST_LABEL,)), workflow_runs=[{'status': 'completed'}]
+    )
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert label_removals(calls) == [f'repos/octo/repo/issues/42/labels/{REQUEST_LABEL}']
+    assert request_calls(calls) == [REQUEST_LABEL]
+    assert [call[0] for call in calls] == ['DELETE', 'POST']
+
+
+def test_failing_stale_label_removal_is_gh_unavailable(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A stale label that could not be removed is reported, and nothing is added."""
+    fixture = make_fixture(pr=pull_request(labels=(REQUEST_LABEL,)), fail_writes=[1])
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (6, 'RESULT=GH_UNAVAILABLE')
+    assert request_calls(calls) == []
 
 
 def test_rationale_is_posted_as_plain_comment(plugin_root: Path, plugin_tmp_path: Path) -> None:

@@ -55,14 +55,16 @@ Options:
   --repo <owner/repo>    Repository. Default: the current checkout's repository.
   -h, --help             Show this help text.
 
-The responder removes the label when a run picks the request up, so a label
-still on the pull request is a pending request. A review covers the head
+A run of the responder removes the label when it picks the request up. A label
+still on the pull request while a responder run on the head branch is
+unfinished is a pending request; with no unfinished run it is stale, and the
+script removes and re-adds it. A review covers the head
 together with the title and description it saw, which its run reads when it
 starts. Only responder runs started after the latest title or description edit,
 and the reviews they submit, count. The request is refused when such an
 accepted AI review names the head, or a Claude PR Review Responder check on the
 head is queued, in progress, or started after that edit and completed other
-than skipped or cancelled, or the label is already on the pull request.
+than skipped or cancelled, or the label is waiting for an unfinished run.
 
 Output:
   RESULT is always the last line of stdout.
@@ -72,12 +74,12 @@ Output:
   COMMENT_URL  the posted rationale comment; empty when none was posted
 
 Results (RESULT / exit code):
-  SUCCESS            0  The request-ai-review label was added for the head
+  SUCCESS            0  The request-ai-review label was added, or re-sent, for the head
   ALREADY_REVIEWED   3  An accepted AI review newer than the last title or description edit
                         names the head
-  ALREADY_REQUESTED  4  The label is already on the pull request, or a Claude PR Review
-                        Responder check on the head counts as a request: running, or
-                        started after the last title or description edit
+  ALREADY_REQUESTED  4  The label waits for an unfinished responder run, or a Claude PR
+                        Review Responder check on the head counts as a request: running,
+                        or started after the last title or description edit
   PR_NOT_OPEN        5  The pull request is closed, merged, or not found
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or an API call failed, the label too
   PREFLIGHT_ERROR    2  Missing --pr, unknown argument, or multi-line rationale
@@ -128,9 +130,9 @@ def json_values(text: str) -> list[Any]:
         values.append(value)
 
 
-def fetch_list(endpoint: str, key: str | None) -> list[Any] | None:
+def fetch_list(endpoint: str, key: str | None, *options: str) -> list[Any] | None:
     """Collect every page of a list endpoint; `key` names the item list inside each page."""
-    pages = gh('api', '--paginate', endpoint)
+    pages = gh('api', '--paginate', *options, endpoint)
     if pages.returncode != 0:
         return None
     items: list[Any] = []
@@ -282,8 +284,25 @@ def run(arguments: list[str]) -> int:
         print_error(f'Pull request {repo}#{pr_number} is {state}.')
         return finish('', '', PR_NOT_OPEN)
 
+    # A run in the pull request's group takes the label; with none left to run, it is stale.
     if labelled:
-        return finish('', '', ALREADY_REQUESTED)
+        workflow_runs = fetch_list(
+            f'repos/{repo}/actions/workflows/ai-responder.yml/runs',
+            'workflow_runs',
+            '-X',
+            'GET',
+            '-f',
+            f'branch={jq_raw((pull.get("head") or {}).get("ref"))}',
+            '-f',
+            'event=pull_request',
+            '-f',
+            'per_page=50',
+        )
+        if workflow_runs is None:
+            print_error(f'Could not read the responder runs of {repo}#{pr_number}.')
+            return GH_UNAVAILABLE
+        if any(item.get('status') != 'completed' for item in workflow_runs):
+            return finish('', '', ALREADY_REQUESTED)
 
     edits = edit_times(repo, pr_number)
     if edits is None:
@@ -308,6 +327,9 @@ def run(arguments: list[str]) -> int:
         return finish(existing_url, '', ALREADY_REQUESTED)
 
     labels = f'repos/{repo}/issues/{pr_number}/labels'
+    if labelled and gh('api', '-X', 'DELETE', f'{labels}/{REQUEST_LABEL}').returncode:
+        print_error(f'Could not remove the stale {REQUEST_LABEL} from {repo}#{pr_number}.')
+        return GH_UNAVAILABLE
     if gh('api', '-X', 'POST', labels, '-f', f'labels[]={REQUEST_LABEL}').returncode:
         print_error(f'Could not add {REQUEST_LABEL} to {repo}#{pr_number}.')
         return GH_UNAVAILABLE
