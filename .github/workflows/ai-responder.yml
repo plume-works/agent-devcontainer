@@ -62,7 +62,6 @@ jobs:
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
       review_exists: ${{ steps.review_status.outputs.found }}
       wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
-      review_effort: ${{ steps.agent_prompts.outputs.reviewEffort }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
       # Cleared before authorization, so a rejected request is cleared too.
@@ -127,8 +126,6 @@ jobs:
                 })
               : [];
             core.setOutput('skipAiReview', labels.some((label) => label.name === 'skip-ai-review'));
-            const reviewEffort = /^[^\S\r\n]*\[ci:review-effort=(light|full)\][^\S\r\n]*\r?$/m;
-            core.setOutput('bodyReviewEffort', reviewEffort.exec(pullRequest?.body ?? '')?.[1] ?? '');
 
       - name: Check for an accepted AI review
         id: review_status
@@ -173,7 +170,6 @@ jobs:
           IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
           SKIP_AI_REVIEW: ${{ steps.checkout_ref.outputs.skipAiReview }}
           REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
-          BODY_REVIEW_EFFORT: ${{ steps.checkout_ref.outputs.bodyReviewEffort }}
         with:
           script: |
             const { eventName, payload } = context;
@@ -196,19 +192,11 @@ jobs:
               return payload.action === 'synchronize' && process.env.REVIEW_EXISTS !== 'true';
             })();
             core.setOutput('wantsReview', wantsReview);
-            // The body marker is the only tier source (see spec/ai-review-gate);
-            // empty means the orchestrator sizes the review.
-            const reviewEffort = process.env.BODY_REVIEW_EFFORT ?? '';
-            core.setOutput('reviewEffort', reviewEffort);
             // Fully qualified on purpose. An unqualified "pr-review skill" also
             // matches Claude Code's built-in `code-review` skill, whose
             // `ReportFindings` is a no-op in a headless action.
-            const reviewRequest = [
-              'Review this pull request using the `agentdev:pr-review` skill (invoke it via the Skill tool with skill: "agentdev:pr-review"). Do not use the built-in `code-review` skill: its findings are never posted to the PR.',
-              reviewEffort
-                ? `REQUESTED REVIEW EFFORT: ${reviewEffort}. This tier was requested explicitly. Obey it exactly: do not escalate to another tier, refuse, or fail on account of the diff you find.`
-                : '',
-            ].filter(Boolean).join('\n');
+            const reviewRequest =
+              'Review this pull request using the `agentdev:pr-review` skill (invoke it via the Skill tool with skill: "agentdev:pr-review"). Do not use the built-in `code-review` skill: its findings are never posted to the PR.';
             const prompt = [
               `REPOSITORY: ${context.repo.owner}/${context.repo.repo}`,
               `EVENT TYPE: ${eventName}`,
@@ -258,9 +246,6 @@ jobs:
           app-client-id: ${{ secrets.QUILL_APP_CLIENT_ID }}
           app-private-key: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
-          # Only the light tier downgrades; full and an unresolved tier pass
-          # nothing and keep the settings pin. See spec/ai-review-gate.
-          model: ${{ needs.preflight.outputs.review_effort == 'light' && 'claude-sonnet-5' || '' }}
 
   # Depends on the review job so the check stays pending while a review runs.
   # Acceptance rule: see spec/ai-review-gate.
