@@ -1,6 +1,6 @@
 ---
 name: iwe-shipper
-description: Ship, cancel, or cut a release for an IWE plan from a fresh context — Verify gate, spec merge, idempotent graph transitions. Dispatched only by the iwe-ship skill, the iwe-ship-all coordinator, and iwe-plan revise answering a Ship blocker report; never on a description match.
+description: Ship, cancel, or cut a release for an IWE plan from a fresh context — Verify gate, spec merge, idempotent graph transitions. Dispatched only by the iwe-ship skill and iwe-plan revise answering a Ship blocker report; never on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 ---
 

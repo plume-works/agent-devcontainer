@@ -4,14 +4,12 @@ stage: implemented
 description: Verify saves its last report per plan, keyed by the commit it ran on and the active catalog digest, and returns that report instead of re-running when invoked again on the same clean commit, so Ship reuses the Implement loop's Verify instead of repeating its test runs.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T21:00:00Z
+  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 ---
 
 # Verify report cache
@@ -44,12 +42,10 @@ a commit it has already judged.
 - The Shipper's Verify step and the Implement loop both go through the skill, so
   both read and write the same saved report.
 - Every caller shows the Verify report verbatim in the conversation, as message
-  text: the session route, the Shipper ahead of its Ship summary, the ship-all
-  coordinator re-posting each Shipper's report, and the Implement loop and its
-  coordinator for each plan's last Verify round. Findings are numbered by
-  severity — `C<n>`, `W<n>`, `S<n>` — so a Ship blocker report routes a Verify
-  CRITICAL by its ID. The saved file is a cache, never the only place the report
-  appears.
+  text: the session route, the Shipper ahead of its Ship summary, and the
+  Implement loop for its last Verify round. Findings are numbered by severity —
+  `C<n>`, `W<n>`, `S<n>` — so a Ship blocker report routes a Verify CRITICAL by
+  its ID. The saved file is a cache, never the only place the report appears.
 
 ## Edge cases
 

@@ -264,6 +264,9 @@ autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
 
+[Remove the IWE coordinators and relayed
+approvals](plans/20261107-remove-iwe-coordinators.md)
+
 [Remove the IWE workflow e2e suite](plans/20261103-remove-iwe-workflow-e2e.md)
 
 [Re-request an AI review after a change
