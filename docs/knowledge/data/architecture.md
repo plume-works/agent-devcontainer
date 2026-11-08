@@ -93,6 +93,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
+[Line-free anchors](architecture/line-free-anchors.md)
+
 [Manual stacked pull requests](architecture/manual-stacked-prs.md)
 
 [Module layout](architecture/module-layout.md)
