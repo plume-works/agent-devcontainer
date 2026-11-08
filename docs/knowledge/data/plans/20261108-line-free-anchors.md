@@ -177,13 +177,16 @@ shape they read, and the exemption needs its own rule).
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/`, plus
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/plans/20260701-focus-sessions.example.md`
 
-- [ ] In both copies of each file: the `AGENTS.md` **Code anchors** bullet, the
+- [x] In both copies of each file: the `AGENTS.md` **Code anchors** bullet, the
   `STRUCTURE.md` **Code anchors are dated** paragraph, and the `SCHEMA.md` plan
   body list describe `## Key references` as anchors in the Approach syntax,
   taken from the current checkout, with no line number and no date stamp. The
   bootstrap copies state the rule themselves, since a consuming repository's
   `AGENTS.md` does not carry it. Each workspace file stays byte-identical to its
   bootstrap copy.
+  - **Evidence:** commit `458c93f0` rewrites the three rules in both copies;
+    `cmp` of each workspace file against its bootstrap copy reports no
+    difference at that commit.
 - [ ] The example plan's `## Key references` drops its stamp and reads
   `src/store/sessions.ts::appendSession` — the log writer, and
   `src/main.ts::bootstrap` — window/tray bootstrap where the view mounts.
