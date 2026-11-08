@@ -55,10 +55,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    before committing a plan with material ambiguity. For a minor unspecified
    detail that changes none of those, make a reasonable assumption and record
    it in the plan.
-3. **Discover.** Read the code the plan will touch. Collect the entry points,
-   the functions to modify, and their current line numbers — these become
-   `## Key references`, and they must come from the current checkout, not
-   memory.
+3. **Discover.** Read the code the plan will touch. Collect the entry points
+   and the functions to modify as anchors — these become `## Key references`,
+   and they must come from the current checkout, not memory.
 4. **Write planning state.** In create mode, run
    `iwe new --key data/plans/<YYYYMMDD>-<slug>` (today's date,
    kebab slug), then write:
@@ -112,8 +111,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      change what the plan claims. Not a running account of attempts — see
      `AGENTS.md` Best Practice 8.
    - `## Out of scope` — what this plan deliberately does not do
-   - `## Key references` — `path:line — symbol` list under a line
-     `Verified anchor points (line numbers as of <today>):`
+   - `## Key references` — a list of anchors, each with a short note:
+     `path::symbol` in code, `path#heading-slug` in Markdown, `path#key.path`
+     in YAML, JSON, and TOML, `path#target` in a Makefile or Dockerfile, and
+     the anchor plus ` › "verbatim quote"` for a spot inside one. No date
+     stamp. A plan never records a line number anywhere in its body.
 
    In revise mode, apply the requested decision and reconcile every affected
    section in either direction: Context, Approach, Implementation Steps, Spec
@@ -127,7 +129,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    split this pass exists to prevent. What you are updating is intent: the
    durable spec keeps describing current released behavior until Ship succeeds.
    A change of intent moves `release` with it. Re-locate every affected code
-   anchor in the current checkout and refresh its date. Identify checked tasks or existing implementation evidence made stale
+   anchor in the current checkout. Identify checked tasks or existing implementation evidence made stale
    by the revision and report them; do not rewrite that implementation from
    this skill.
 
@@ -259,8 +261,8 @@ Ship creates the document and replaces the key with a real link.
   cannot close it. The failure this prevents is a bundled task ticked for the
   half that was done locally, which then reads as a claim about the half that
   was not.
-- Code anchors are verified against the current checkout and stamped with the
-  date — never cite from memory.
+- Code anchors are verified against the current checkout, never cited from
+  memory, and never carry a line number.
 - A plan carries no task or `## Verification` step whose only claim is that CI
   passes: `pr-merge` gates every merge on CI.
 - A plan may carry one task, closing or near-closing, that runs
