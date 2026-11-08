@@ -360,12 +360,17 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 9: A requested review counts toward merge
 
-- [ ] On a pull request running this plan's workflow, adding `request-ai-review`
+- [x] On a pull request running this plan's workflow, adding `request-ai-review`
   to a reviewed pull request has `plume-works-quill` remove the label within the
   run, runs `Claude PR Review Responder`, and leaves `ai-review-present` from
   that `pull_request` run on the head commit, counted by
   `gh pr view --json statusCheckRollup`.
   - **Closed by:** the maintainer, on a pull request running this workflow.
+  - **Evidence:** pull request #752 at 0d73e2a2: `request-ai-review` added at
+    06:26:49 started run 42454778642, whose review job removed the label as
+    `plume-works-quill[bot]` at 06:28:27, ran `Claude PR Review Responder`, and
+    passed `ai-review-present`; `gh pr view 752 --json statusCheckRollup` listed
+    `ai-review-present` as `SUCCESS`.
 
 ### Task 10: The skip label behaves as decided
 
@@ -378,8 +383,11 @@ Modify: `docs/knowledge/data/architecture.md`
     passed preflight, skipped `Claude PR Review Responder`, and failed
     `ai-review-present` with no accepted review; the label stayed on and no
     review was posted.
-- [ ] Adding `request-ai-review` to a pull request carrying `skip-ai-review`
+- [x] Adding `request-ai-review` to a pull request carrying `skip-ai-review`
   runs a review.
+  - **Evidence:** pull request #752, carrying `skip-ai-review`: run 42454778642,
+    started by adding `request-ai-review`, ran `Claude PR Review Responder` and
+    posted the 06:29:25 review.
 - [x] Adding an unrelated label while a requested review is queued leaves that
   review queued.
   - **Evidence:** pull request #752: with `request-ai-review` run 42453979498
