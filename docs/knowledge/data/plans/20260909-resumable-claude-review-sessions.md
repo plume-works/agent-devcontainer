@@ -180,8 +180,9 @@ metadata.
   lacks were lost with the prior process and must be run again, and that
   completed work must not be duplicated.
 - [ ] After a resumed Claude step finishes with success or failure, remove
-  `resume-ai-review` and any `request-ai-review` with the App token, as "Take
-  the review request label" does now; a cancelled job removes neither.
+  `resume-ai-review` and any `request-ai-review` with the App token, under the
+  same `!cancelled()` success-or-failure condition as the "Take the review
+  request label" step; a cancelled job removes neither.
 - [ ] Keep the current fork, writer-authorization, immutable-head checkout,
   content-permission, and `ai-review-present` gates in force for resume runs.
 
