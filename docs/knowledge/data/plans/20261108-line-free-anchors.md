@@ -254,8 +254,11 @@ shape they read, and the exemption needs its own rule).
 **Files:** Modify:
 `docs/knowledge/data/architecture/pr-review-scenario-validation.md`
 
-- [ ] The three-part scenario's **Path** is an anchor chain, not a `file:line`
+- [x] The three-part scenario's **Path** is an anchor chain, not a `file:line`
   chain.
+  - **Evidence:** commits `5ee57f76` and `1e748f13` make the **Path** an anchor
+    chain; `uv run scripts/check-anchors.py` reports nothing for the document at
+    `1e748f13`.
 
 ### Task 8: Rewrite the live documents' references
 
