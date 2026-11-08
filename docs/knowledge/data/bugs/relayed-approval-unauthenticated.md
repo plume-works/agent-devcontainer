@@ -1,11 +1,11 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: high
 description: A session running /agentdev:iwe-implement accepts an approval that another session's message claims to relay from the user, with nothing authenticating the relayer, so any peer session's claim can stand in for the user's consent to an always-escalate deviation and reach iwe-verifier as a quoted approval.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-03T19:14:19Z
+  at: 2026-11-08T06:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -131,3 +131,13 @@ requesting session what it is waiting on. Apply the same rule before
 A plan that fixes this adds no end-to-end test that drives a session against a
 live model; the fix's behaviour is an observation task naming who closes it, per
 the `### Tests` rule in the repository `AGENTS.md`.
+
+## Fix
+
+[Remove the IWE coordinators and relayed
+approvals](../plans/20261107-remove-iwe-coordinators.md) removed the relay rule
+with the coordinators. `iwe-implementer` now runs only in the session that
+loaded `/agentdev:iwe-implement` and takes every decision from that session's
+own user; a request in another session's message is a plain request, and an
+approval it claims the user gave does not count. No catalog skill or agent
+relays an approval between sessions any more.
