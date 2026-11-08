@@ -371,8 +371,13 @@ Modify: `docs/knowledge/data/architecture.md`
   - **Evidence:** pull request #752, carrying `skip-ai-review` since 05:56:58:
     run 42453664719, started by adding `request-ai-review`, ran
     `Claude PR Review Responder` and posted the 06:14:04 approval.
-- [ ] Adding an unrelated label while a requested review is queued leaves that
+- [x] Adding an unrelated label while a requested review is queued leaves that
   review queued.
+  - **Evidence:** pull request #752: with `request-ai-review` run 42453979498
+    reviewing and request run 42454017435 pending in `pr-752`, adding
+    `documentation` started run 42454039608, which ran preflight and
+    `ai-review-present` without a review and finished while 42454017435 stayed
+    pending.
 - [ ] A push queued behind a pending `request-ai-review` run takes the request:
   its run removes the label and reviews.
   - **Closed by:** the maintainer, on GitHub after merge.
