@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: AI reviews are requested with a one-shot request-ai-review label and suppressed with a standing skip-ai-review label; assignment, reviewer requests, the body markers, and requested effort tiers no longer start or shape a review. Supersedes assignee-triggered re-reviews and PR review effort tiers.
+description: AI reviews are requested with a request-ai-review label and held by a standing block-ai-reviews label; assignment, reviewer requests, the body markers, and requested effort tiers no longer start or shape a review. Supersedes assignee-triggered re-reviews and PR review effort tiers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-08T08:00:00Z
+  at: 2026-11-08T09:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
@@ -25,10 +25,12 @@ The maintainer decided on 2026-11-08:
   requested review leaves the request for the push's run;
 - `assigned` no longer requests a review, so an assignee means ownership only;
 - `review_requested` and `review_request_removed` are no longer triggers;
-- a `skip-ai-review` label replaces the `[ci:skip-ai-review]` body marker; it
-  stays until someone removes it and suppresses only the automatic reviews on
-  open, ready for review, reopen, and push; an explicit `request-ai-review`
-  always runs a review;
+- a `block-ai-reviews` label replaces the `[ci:skip-ai-review]` body marker;
+  while it is on, no AI review runs, explicit requests included, and a
+  `request-ai-review` added meanwhile stays on the pull request; removing
+  `block-ai-reviews` starts a run that reviews a waiting request;
+- `request-review.py` adds `request-ai-review` to a blocked pull request, so the
+  request waits visibly, and reports `BLOCKED`;
 - the `[ci:review-effort=light|full]` marker and requested effort tiers are
   removed; every review sizes itself;
 - every run in the pull request's `pr-<n>` concurrency group takes a
@@ -36,7 +38,7 @@ The maintainer decided on 2026-11-08:
   unfinished run is left to take; a request on a draft or from someone without
   write access stays until a later run reviews it.
 
-A `skip-ai-review` label saves the review runs that would fail while Claude is
+A `block-ai-reviews` label saves the review runs that would fail while Claude is
 unavailable. It does not let a pull request merge without ruleset bypass,
 because `ai-review-present` still requires an accepted review.
 
@@ -45,11 +47,14 @@ because `ai-review-present` still requires an accepted review.
 ```
  add request-ai-review ──► pull_request/labeled ──► concurrency pr-<n>
                                                      │
- add any other label ────► pull_request/labeled ──► concurrency label-<run id>
+ remove block-ai-reviews ► pull_request/unlabeled ► concurrency pr-<n>
+                                                     │
+ any other label change ─► labeled/unlabeled ─────► concurrency label-<run id>
                                                      │
   preflight ── reads current labels from the API (GITHUB_TOKEN, read-only)
-          ├── wantsReview: request-ai-review in pr-<n>  → yes (skip label ignored)
-          │                opened/ready/reopened/push*   → yes unless skip-ai-review
+          ├── wantsReview: block-ai-reviews on            → no (request label kept)
+          │                request-ai-review in pr-<n>   → yes
+          │                opened/ready/reopened/push*   → yes
           │                anything else                 → no
           ▼
   claude-respond (if wantsReview) ── mint App token ── Claude review
@@ -63,16 +68,21 @@ because `ai-review-present` still requires an accepted review.
   head commit, as [Assignee-triggered AI re-reviews](assignee-review-trigger.md)
   records for `assigned`.
 - `ai-responder.yml`'s `pull_request` types are `opened`, `reopened`,
-  `ready_for_review`, `synchronize`, and `labeled`.
-- A `labeled` event for any label other than `request-ai-review` takes a
-  concurrency group keyed by its run id, so it never replaces a review queued in
-  `pr-<n>`.
+  `ready_for_review`, `synchronize`, `labeled`, and `unlabeled`.
+- Every label event takes a concurrency group keyed by its run id, except adding
+  `request-ai-review` and removing `block-ai-reviews`, which join `pr-<n>`, so
+  an unrelated label change never replaces a review queued in `pr-<n>`. The
+  review job removing `request-ai-review` fires an `unlabeled` event that runs
+  in its own group and reviews nothing.
 - `ai-review-present` runs on every event, a label of any name included. A job
   skipped by its own `if:` satisfies a required check, so skipping the gate for
   an unrelated label would let anyone with triage access turn it green.
-- Preflight reads the pull request's labels from the API, so a `skip-ai-review`
-  added just after creation still counts when it lands before preflight reads
-  it.
+- While `block-ai-reviews` is on, preflight reviews nothing, and a waiting
+  `request-ai-review` stays; the run its removal starts in `pr-<n>` reviews the
+  waiting request.
+- Preflight reads the pull request's labels from the API, so a
+  `block-ai-reviews` added just after creation still counts when it lands before
+  preflight reads it.
 - Every run in `pr-<n>` takes a `request-ai-review` it finds: preflight reviews
   when it is present, and `run-claude-responder` removes it with the minted App
   token after the Claude step, whether the review succeeded or failed, so the
@@ -102,7 +112,7 @@ because `ai-review-present` still requires an accepted review.
   `request-ai-review` added there stays until someone removes it; no review can
   run on them either way.
 - An `opened` run whose preflight reads the labels before a creation-time
-  `skip-ai-review` lands still reviews.
+  `block-ai-reviews` lands still reviews.
 - A request run cancelled before its review job finishes leaves
   `request-ai-review` on the pull request until the next run in `pr-<n>` takes
   it or `request-review.py` re-sends it.
@@ -122,8 +132,11 @@ because `ai-review-present` still requires an accepted review.
 - **A persistent `ai-review-requested` state label removed after the review
   posts**: a failed review leaves the label on, and it must be removed by hand
   before the next request.
+- **A skip label that an explicit request overrides**: a label named for
+  skipping reviews that still lets a request through reads as broken, so the
+  label blocks every review and a waiting request runs once it is removed.
 - **Labels for the effort tier**: every review sizes itself.
-- **A repository-wide review pause**: a per-PR `skip-ai-review` label covers a
+- **A repository-wide review pause**: a per-PR `block-ai-reviews` label covers a
   Claude outage, and a pause would still need bypass merges unless it waived the
   gate.
 
