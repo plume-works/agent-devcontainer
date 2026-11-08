@@ -235,13 +235,17 @@ whose frontmatter sets either key
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] `docs/knowledge/tests/test_banned_frontmatter_keys.py` follows
+- [x] `docs/knowledge/tests/test_banned_frontmatter_keys.py` follows
   `docs/knowledge/tests/test_plan_checkboxes.py` in the knowledge-base path list
   of `template-consume/SKILL.md` `## Default Template Surface` and of the
   consumption guide's `### Reusable scaffold`
-- [ ] The consumption guide's `### Reusable scaffold` tells the consumer to copy
+  - **Evidence:** commit 48da7ed1; `template-consume/SKILL.md:331` and
+    `consumption-guide.md:777` list it right after `test_plan_checkboxes.py`
+- [x] The consumption guide's `### Reusable scaffold` tells the consumer to copy
   both test files after bootstrap and lists the `banned-frontmatter-keys`
   pre-commit hook among the validation to retain
+  - **Evidence:** commit 48da7ed1; `consumption-guide.md:782-791` names both
+    test files to copy and lists the `banned-frontmatter-keys` hook
 
 ## Spec changes
 
