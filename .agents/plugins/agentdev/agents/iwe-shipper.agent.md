@@ -203,7 +203,7 @@ its ID and route only — `C2: /agentdev:iwe-implement` — because the Verify
 report above already states it. Each blocker Ship found on its own — an
 intent-versus-implementation mismatch, a failed spec merge, a missing or
 unresolvable `release` declaration — is written out in full with its
-`path:line` evidence and route, because no Verify report holds it.
+anchored evidence — never a line number — and route, because no Verify report holds it.
 
 - **Code or verification failure** — a failing `## Verification` command, a
   requirement or task with no implementation, missing evidence:

@@ -12,7 +12,8 @@ Use this skill to retrieve CodeQL code scanning alerts and related metadata with
 - List open CodeQL alerts for a pull request
 - Inspect security findings for a branch, commit, or repository
 - Collect alert metadata for triage, review, or remediation
-- Extract file paths, line numbers, severities, and alert URLs
+- Extract file paths, severities, and alert URLs; turn each alert's `start_line` into the
+  enclosing symbol and present the location as an anchor (`path::symbol`), never a line number
 
 ## Prerequisites
 

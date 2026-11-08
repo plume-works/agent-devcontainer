@@ -62,7 +62,8 @@ Lead with one line — `Adversarial review: <plan key> — <target>` — then:
   - **Defeats** — the plan claim the finding defeats, quoted or named by its
     requirement, scenario, or task title. A `code` finding that defeats no
     claim says `none`; a `plan` finding names the claim it weakens or `none`.
-  - **Evidence** — `path:line` relative to the repository root, the command
+  - **Evidence** — an anchor relative to the repository root (`path::symbol`, `path#heading-slug`, `path#key.path`, or one of them plus ` › "verbatim quote"`; never
+    a line number), the command
     and its result that demonstrate it, or the label "unverified".
   - **How** — the input, state, or sequence that defeats it, in one or two
     sentences.

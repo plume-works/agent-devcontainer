@@ -137,7 +137,7 @@ After fetching, **filter out resolved threads** using these rules (apply in orde
 3. **Get CodeQL security findings**:
    - Use the [get-codeql-data](../get-codeql-data/) skill to fetch PR-scoped or repository-scoped CodeQL alerts with `gh api`
    - Review severity and CWE classifications
-   - Note file locations and line numbers
+   - Note each location as an anchor (`path::symbol`), never a line number
 
 4. **Get Codecov patch coverage**:
    - Access Codecov report for PR
@@ -462,7 +462,7 @@ Maintain an internal execution log documenting:
 - **Comment tracking**: Review comment URL → confidence score → action taken → resolution status
 - **CI failures**: Check name → failure reason → fix applied → verification result
 - **Security findings**: CodeQL ID → severity → remediation → test added
-- **Coverage gaps**: File:lines → tests added → coverage delta
+- **Coverage gaps**: uncovered code by anchor → tests added → coverage delta
 - **Evidence trail**: All links to commits, CI runs, comments, findings
 
 ## Quality Standards
