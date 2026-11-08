@@ -26,8 +26,8 @@ rank: 950
 
 Changes [AI responder workflows](../features/ai-responder-workflows.md).
 
-A re-review is requested today by removing the pull request's author as assignee
-and adding them back ([Assignee-triggered AI
+Before this plan, a re-review was requested by removing the pull request's
+author as assignee and adding them back ([Assignee-triggered AI
 re-reviews](../architecture/assignee-review-trigger.md)). The maintainer's goal
 is an easy, trusted, explicit way to request a re-review.
 
@@ -51,6 +51,10 @@ The maintainer decided on 2026-11-08:
   always runs a review;
 - the `[ci:review-effort=light|full]` marker and requested effort tiers are
   removed; every review sizes itself;
+- every run in the pull request's `pr-<n>` concurrency group takes a
+  `request-ai-review` it finds, so a request whose own run was cancelled while
+  pending is taken by the run that replaced it, and `request-review.py` re-sends
+  a label that no unfinished run is left to take;
 - this plan lands before [Resume interrupted Claude PR review
   sessions](20260909-resumable-claude-review-sessions.md), which is revised
   afterwards to build on the `labeled` trigger and concurrency split this plan
@@ -67,9 +71,9 @@ because `ai-review-present` still requires an accepted review.
                                                      │
  add any other label ────► pull_request/labeled ──► concurrency label-<run id>
                                                      │
- preflight ── removes request-ai-review (GITHUB_TOKEN, issues: write)
-          ├── reads current labels from the API
-          ├── wantsReview: request-ai-review            → yes (skip label ignored)
+ preflight ── reads current labels from the API
+          ├── in pr-<n>, removes request-ai-review if present (GITHUB_TOKEN)
+          ├── wantsReview: removed request-ai-review    → yes (skip label ignored)
           │                opened/ready/reopened/push*   → yes unless skip-ai-review
           │                anything else                 → no
           ▼
@@ -87,20 +91,27 @@ keeps running in those runs and evaluates the existing reviews: a job skipped by
 its own `if:` satisfies a required check, so skipping the gate for an unrelated
 label would let anyone with triage access turn it green.
 
-Preflight removes `request-ai-review` in its first step, before authorization,
-so a request is cleared whether the run accepts it or rejects it. It reads the
-pull request's labels from the API rather than the event payload, so a
-`skip-ai-review` label added right after the pull request was created is seen by
-the `opened` run whenever it lands before preflight reads it.
+Every run in `pr-<n>` takes a `request-ai-review` it finds on the pull request:
+preflight removes the label before authorization and the run reviews, so a
+request is cleared whether the run accepts it or rejects it. A request whose own
+run was cancelled while pending in `pr-<n>`, because a later event replaced it
+there, is taken by the replacing run. A run started by another label leaves
+`request-ai-review` in place. Preflight reads the pull request's labels from the
+API rather than the event payload, so a `skip-ai-review` label added right after
+the pull request was created is seen by the `opened` run whenever it lands
+before preflight reads it.
 
 The effort marker, the `review_effort` output, the light-tier model override,
 and `run-claude-responder`'s `model` input are removed. `pr-review` keeps its
 internal effort matrix for self-sizing and loses only the requested-tier route.
 
-`request-review.py` requests a review by adding `request-ai-review`, and treats
-the label already being on the pull request as a pending request. Every catalog
-skill, the specs, the feature doc, the README, and the consumption guide follow.
-A new architecture note supersedes `assignee-review-trigger` and
+`request-review.py` requests a review by adding `request-ai-review`. When the
+label is already on the pull request, it reports `ALREADY_REQUESTED` while a run
+of `ai-responder.yml` on the head branch is unfinished, since a run in `pr-<n>`
+will take the label; with no unfinished run, the label is stale, and the script
+removes and re-adds it, which fires a new `labeled` event. Every catalog skill,
+the specs, the feature doc, the README, and the consumption guide follow. A new
+architecture note supersedes `assignee-review-trigger` and
 `pr-review-effort-tiers`, which are left unedited.
 
 Known limits:
@@ -113,6 +124,12 @@ Known limits:
   run on them either way.
 - An `opened` run whose preflight reads the labels before a creation-time
   `skip-ai-review` lands still reviews.
+- A request run cancelled by hand before preflight leaves `request-ai-review` on
+  the pull request until the next run in `pr-<n>` takes it or
+  `request-review.py` re-sends it; a person re-adding the label sends nothing.
+- An unfinished run started by another label also makes `request-review.py`
+  report `ALREADY_REQUESTED`; the next call after it finishes re-sends the
+  label.
 
 Rejected alternatives:
 
@@ -156,23 +173,16 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [x] Preflight's first step removes `request-ai-review` from the pull request
-  when the event added it, with `GITHUB_TOKEN` holding `issues: write`.
-  - **Evidence:** commit ebfe8ab4; the first preflight step, "Clear the review
-    request label", runs when the event added `request-ai-review` and calls
-    `github.rest.issues.removeLabel`, tolerating a 404; preflight's
-    `GITHUB_TOKEN` holds `issues: write`; actionlint and zizmor pass.
+- [ ] Every preflight run outside a `label-<run id>` group removes
+  `request-ai-review` when the pull request carries it, before authorization,
+  with `GITHUB_TOKEN` holding `issues: write`.
 - [x] Preflight reads the pull request's current labels from the API.
   - **Evidence:** commit ebfe8ab4; "Determine checkout ref" pages
     `github.rest.issues.listLabelsOnIssue` for the pull request; actionlint
     passes.
-- [x] `wantsReview` is true for a `labeled` event adding `request-ai-review`,
-  whatever other labels the pull request carries, and false for every other
-  `labeled` event.
-  - **Evidence:** commit ebfe8ab4; `wantsReview` returns
-    `payload.label?.name === 'request-ai-review'` for every `labeled` event
-    before the skip check, after the draft check; every inline script parses
-    under `bun build --no-bundle`.
+- [ ] `wantsReview` is true when the run removed `request-ai-review`, whatever
+  other labels the pull request carries, and false for a `labeled` event for any
+  other label.
 - [x] `skip-ai-review` makes `wantsReview` false for `opened`,
   `ready_for_review`, `reopened`, and `synchronize`; the `[ci:skip-ai-review]`
   body regex is removed.
@@ -220,23 +230,15 @@ Assumptions:
   - **Evidence:** commit 996fd4b7; the script POSTs `labels[]=request-ai-review`
     to `issues/<n>/labels` and has no assignee call;
     `test_request_adds_the_label` and `test_assignees_are_never_touched` pass.
-- [x] It reports `ALREADY_REQUESTED` when `request-ai-review` is already on the
-  pull request.
-  - **Evidence:** commit 996fd4b7; `run()` returns `ALREADY_REQUESTED` when the
-    pull request's `labels` include `request-ai-review`, before any write;
-    `test_label_already_present_is_already_requested` passes.
-- [x] Tests cover the label being added, the label already present, and that no
+- [ ] With `request-ai-review` already on the pull request, it reports
+  `ALREADY_REQUESTED` while a run of `ai-responder.yml` on the head branch is
+  unfinished, and otherwise removes and re-adds the label and reports `SUCCESS`.
+- [ ] Tests cover a present label with an unfinished run, a stale label being
+  removed and re-added, and a failing removal.
+- [ ] Tests cover the label being added, the label already present, and that no
   assignee call is made.
-  - **Evidence:** commit 996fd4b7;
-    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` passes
-    38 tests, including `test_request_adds_the_label`,
-    `test_label_already_present_is_already_requested`, and
-    `test_assignees_are_never_touched`.
-- [x] `SKILL.md` describes the label request and its confirmation.
-  - **Evidence:** commit 996fd4b7; "Post the request" and "Confirm it started"
-    describe adding `request-ai-review`, the label as a pending request, and the
-    causes when no review starts; `validate_agent_files` reports 0 errors,
-    prettier passes.
+- [ ] `SKILL.md` describes the label request, the re-sent stale label, and its
+  confirmation.
 
 ### Task 5: Merge and evaluation skills follow the label
 
@@ -296,6 +298,9 @@ Modify: `docs/knowledge/data/architecture.md`
     `## Known limits`, all five rejected alternatives, and the line superseding
     `assignee-review-trigger` and `pr-review-effort-tiers`, which the commit
     leaves unchanged; `iwe schema validate` passes.
+- [ ] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
+  cancelled request run and that `request-review.py` re-sends a stale label, and
+  lists the remaining cases among its known limits.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 38389c9b; `data/architecture.md` inclusion-links
     `architecture/label-review-triggers` in key order, before
@@ -332,6 +337,8 @@ Modify: `docs/knowledge/data/architecture.md`
   runs a review.
 - [ ] Adding an unrelated label while a requested review is queued leaves that
   review queued.
+- [ ] A push queued behind a pending `request-ai-review` run takes the request:
+  its run removes the label and reviews.
   - **Closed by:** the maintainer, on GitHub after merge.
 
 ## Spec changes
@@ -399,9 +406,14 @@ in that workflow run, and it SHALL evaluate without polling.
 The review job SHALL run when a pull request is opened, marked ready for review,
 or reopened, on a push to a pull request that has no accepted review, and when
 the `request-ai-review` label is added. The label SHALL run a review whether or
-not an accepted review exists, and preflight SHALL remove it before authorizing
-the request, so the label is on a pull request only until a run accepts or
-rejects it. An assignment, a reviewer request, and a reviewer request's removal
+not an accepted review exists. Every run in the pull request's concurrency group
+SHALL take a `request-ai-review` it finds on the pull request: preflight SHALL
+remove the label before authorizing the request, and the run SHALL review when
+the request is authorized. A request whose own run was cancelled while pending
+is therefore taken by the run that replaced it. A run started by another label
+SHALL leave the label in place. A request run cancelled by hand before preflight
+leaves the label until the next run in that group, or until `request-review.py`
+re-sends it. An assignment, a reviewer request, and a reviewer request's removal
 SHALL NOT start a run. The review job SHALL NOT run
 for a `pull_request` event on a draft pull request.
 
@@ -427,6 +439,12 @@ review, and merge group event, a `labeled` event for any label included.
 - **WHEN** a writer adds `request-ai-review` to a reviewed pull request
 - **THEN** preflight removes the label, a `pull_request` run reviews the pull
   request, and its `ai-review-present` reports that review.
+
+### Scenario: a push replaces a pending request
+
+- **WHEN** `request-ai-review` is added while another run of the pull request
+  is in progress, and a push queues before the request's run starts
+- **THEN** the push's run removes the label and reviews the pull request.
 
 ### Scenario: a user without write access adds the label
 
@@ -514,8 +532,12 @@ label to the pull request. The catalog SHALL NOT change the pull request's
 assignees to request a review, and SHALL NOT post an `@claude review` comment.
 
 A review's input is the head commit together with the pull request's title and
-description, which a review run reads when it starts. The script SHALL NOT add
-the label while the pull request already carries it, or for a head commit that
+description, which a review run reads when it starts. While the pull request
+already carries the label, the script SHALL NOT add it when a run of
+`ai-responder.yml` on the head branch is unfinished, because a run in the pull
+request's concurrency group takes the label; with no unfinished run the label
+is stale, and the script SHALL remove it and add it again. The script SHALL NOT
+add the label for a head commit that
 an accepted AI review already names, submitted after the latest title or
 description edit by a run that started after it, or that carries a
 `Claude PR Review Responder` check run that is queued, in progress, or started
@@ -537,10 +559,17 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 - **THEN** the script adds no label and reports `ALREADY_REQUESTED` with that
   check's URL.
 
-### Scenario: the label is already on the pull request
+### Scenario: the label is waiting for a run
 
-- **WHEN** the pull request carries `request-ai-review`
+- **WHEN** the pull request carries `request-ai-review` and a run of
+  `ai-responder.yml` on the head branch is unfinished
 - **THEN** the script adds no label and reports `ALREADY_REQUESTED`.
+
+### Scenario: the label is stale
+
+- **WHEN** the pull request carries `request-ai-review` and no run of
+  `ai-responder.yml` on the head branch is unfinished
+- **THEN** the script removes the label, adds it again, and reports `SUCCESS`.
 
 ### Scenario: the head is already reviewed
 
