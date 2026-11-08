@@ -320,8 +320,12 @@ shape they read, and the exemption needs its own rule).
 **Files:** Modify: every other document under `docs/knowledge/data/` that
 carries a line-number reference (closed bugs and backlog items)
 
-- [ ] Same rewrite as Task 9; the gate reports nothing anywhere in its scan
+- [x] Same rewrite as Task 9; the gate reports nothing anywhere in its scan
   scope.
+  - **Evidence:** commit `ac54dd7f` rewrites the references and removes the
+    stamps in the 51 closed bugs and backlog items;
+    `uv run scripts/check-anchors.py` exits 0 on the whole checkout at that
+    commit.
 
 ### Task 11: Wire the hook
 
