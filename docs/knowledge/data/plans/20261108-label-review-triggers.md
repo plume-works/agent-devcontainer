@@ -156,16 +156,35 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] Preflight's first step removes `request-ai-review` from the pull request
+- [x] Preflight's first step removes `request-ai-review` from the pull request
   when the event added it, with `GITHUB_TOKEN` holding `issues: write`.
-- [ ] Preflight reads the pull request's current labels from the API.
-- [ ] `wantsReview` is true for a `labeled` event adding `request-ai-review`,
+  - **Evidence:** commit ebfe8ab4; the first preflight step, "Clear the review
+    request label", runs when the event added `request-ai-review` and calls
+    `github.rest.issues.removeLabel`, tolerating a 404; preflight's
+    `GITHUB_TOKEN` holds `issues: write`; actionlint and zizmor pass.
+- [x] Preflight reads the pull request's current labels from the API.
+  - **Evidence:** commit ebfe8ab4; "Determine checkout ref" pages
+    `github.rest.issues.listLabelsOnIssue` for the pull request; actionlint
+    passes.
+- [x] `wantsReview` is true for a `labeled` event adding `request-ai-review`,
   whatever other labels the pull request carries, and false for every other
   `labeled` event.
-- [ ] `skip-ai-review` makes `wantsReview` false for `opened`,
+  - **Evidence:** commit ebfe8ab4; `wantsReview` returns
+    `payload.label?.name === 'request-ai-review'` for every `labeled` event
+    before the skip check, after the draft check; every inline script parses
+    under `bun build --no-bundle`.
+- [x] `skip-ai-review` makes `wantsReview` false for `opened`,
   `ready_for_review`, `reopened`, and `synchronize`; the `[ci:skip-ai-review]`
   body regex is removed.
-- [ ] `ai-review-present` runs for every `labeled` event.
+  - **Evidence:** commit ebfe8ab4; "Determine checkout ref" sets `skipAiReview`
+    from the `skip-ai-review` label and the `[ci:skip-ai-review]` regex is gone;
+    `wantsReview` returns false for `opened`, `ready_for_review`, `reopened`,
+    and `synchronize` when it is set; every inline script parses under
+    `bun build --no-bundle`.
+- [x] `ai-review-present` runs for every `labeled` event.
+  - **Evidence:** commit ebfe8ab4 with b0b10399; the gate's `if:` is `always()`
+    for every `pull_request` event and `labeled` is a `pull_request` type, so no
+    label skips it; actionlint passes.
 
 ### Task 3: Requested effort tiers are removed
 
