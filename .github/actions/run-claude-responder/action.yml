@@ -17,12 +17,12 @@ inputs:
   prompt:
     description: Prompt for the Claude responder.
     required: true
-  model:
+  remove-request-label:
     description: >-
-      Model for the responder session; empty keeps the model the merged
-      settings pin.
+      'true' when the pull request carries request-ai-review, which this review
+      takes by removing it as the App.
     required: false
-    default: ''
+    default: 'false'
 
 runs:
   using: composite
@@ -88,20 +88,13 @@ runs:
           echo 'CLAUDE_SETTINGS_EOF'
         } >>"$GITHUB_OUTPUT"
 
-    # claude_args is one string that several inputs contribute to; each flag
-    # appends to it so another can be added without re-deriving the rest.
     - name: Compose Claude arguments
       id: claude_args
       shell: bash
       env:
         ALLOWED_TOOLS: ${{ env.CLAUDE_PR_REVIEW_ARGS }}
-        MODEL: ${{ inputs.model }}
       run: |
-        args="--allowedTools '${ALLOWED_TOOLS}'"
-        if [[ -n "${MODEL}" ]]; then
-          args="${args} --model '${MODEL}'"
-        fi
-        printf 'args=%s\n' "${args}" >>"${GITHUB_OUTPUT}"
+        printf 'args=%s\n' "--allowedTools '${ALLOWED_TOOLS}'" >>"${GITHUB_OUTPUT}"
 
     # Minted after the lifecycle scripts so their environment never holds it.
     # Only these permission inputs bound the token, not the job's permissions.
@@ -128,6 +121,24 @@ runs:
           echo "id=${id}"
           echo "name=${APP_SLUG}[bot]"
         } >>"$GITHUB_OUTPUT"
+
+    # The review takes the request: see spec/ai-review-gate. Another run may
+    # already have taken it, so a missing label is not an error.
+    - name: Take the review request label
+      if: inputs.remove-request-label == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        if ! output=$(gh api -X DELETE \
+          "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/request-ai-review" 2>&1); then
+          if [[ "${output}" != *"HTTP 404"* ]]; then
+            echo "${output}" >&2
+            exit 1
+          fi
+          echo 'Another run already took request-ai-review.'
+        fi
 
     - name: Claude Responder
       id: claude_responder

@@ -10,20 +10,21 @@ on:
     types:
       - opened
       - reopened
-      - assigned
       - ready_for_review
       - synchronize
-      - review_requested
-      - review_request_removed
+      - labeled
   merge_group:
     types:
       - checks_requested
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
-# review of an older head.
+# review of an older head. Any other label gets its own group, so adding it
+# never replaces a queued review: see architecture/label-review-triggers.
 concurrency:
   group: >-
     ${{ github.workflow }}-${{
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
+        github.event.label.name != 'request-ai-review' && format('label-{0}', github.run_id)) ||
       (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) ||
       (github.event_name == 'merge_group' && format('merge-group-{0}', github.event.merge_group.head_sha)) ||
       format('review-{0}-{1}', github.event.pull_request.number, github.event.review.id)
@@ -60,7 +61,7 @@ jobs:
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
       review_exists: ${{ steps.review_status.outputs.found }}
       wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
-      review_effort: ${{ steps.agent_prompts.outputs.reviewEffort }}
+      request_label: ${{ steps.checkout_ref.outputs.requestLabel }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
       - name: Determine checkout ref
@@ -93,12 +94,18 @@ jobs:
             core.setOutput('isFork', isFork);
             core.setOutput('isPullRequest', Boolean(pullRequest));
             core.setOutput('isDraft', Boolean(pullRequest?.draft));
-            // Own-line match: a body that discusses the marker inline is prose,
-            // not a directive. See spec/ai-review-gate.
-            const skipAiReview = /^[^\S\r\n]*\[ci:skip-ai-review\][^\S\r\n]*\r?$/m;
-            core.setOutput('skipAiReview', skipAiReview.test(pullRequest?.body ?? ''));
-            const reviewEffort = /^[^\S\r\n]*\[ci:review-effort=(light|full)\][^\S\r\n]*\r?$/m;
-            core.setOutput('bodyReviewEffort', reviewEffort.exec(pullRequest?.body ?? '')?.[1] ?? '');
+            // Read live, not from the payload, so a label added just after the
+            // pull request was created still counts.
+            const labels = pullRequest
+              ? await github.paginate(github.rest.issues.listLabelsOnIssue, {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pullRequest.number,
+                  per_page: 100,
+                })
+              : [];
+            core.setOutput('skipAiReview', labels.some((label) => label.name === 'skip-ai-review'));
+            core.setOutput('requestLabel', labels.some((label) => label.name === 'request-ai-review'));
 
       - name: Check for an accepted AI review
         id: review_status
@@ -142,8 +149,8 @@ jobs:
           PR_NUMBER: ${{ steps.checkout_ref.outputs.prNumber }}
           IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
           SKIP_AI_REVIEW: ${{ steps.checkout_ref.outputs.skipAiReview }}
+          REQUEST_LABEL: ${{ steps.checkout_ref.outputs.requestLabel }}
           REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
-          BODY_REVIEW_EFFORT: ${{ steps.checkout_ref.outputs.bodyReviewEffort }}
         with:
           script: |
             const { eventName, payload } = context;
@@ -151,31 +158,34 @@ jobs:
             // When the review job runs: see spec/ai-review-gate, "a review
             // runs on first push and on explicit request".
             const wantsReview = (() => {
-              if (process.env.SKIP_AI_REVIEW === 'true') {
-                return false;
-              }
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
                 return false;
               }
-              if (['opened', 'ready_for_review', 'reopened', 'assigned'].includes(payload.action)) {
+              // Any run in pr-<n> takes a waiting request; another label's run
+              // never does. Label lifecycle: see spec/ai-review-gate.
+              if (payload.action === 'labeled' && payload.label?.name !== 'request-ai-review') {
+                return false;
+              }
+              if (process.env.REQUEST_LABEL === 'true') {
+                return true;
+              }
+              if (payload.action === 'labeled') {
+                return false;
+              }
+              if (process.env.SKIP_AI_REVIEW === 'true') {
+                return false;
+              }
+              if (['opened', 'ready_for_review', 'reopened'].includes(payload.action)) {
                 return true;
               }
               return payload.action === 'synchronize' && process.env.REVIEW_EXISTS !== 'true';
             })();
             core.setOutput('wantsReview', wantsReview);
-            // The body marker is the only tier source (see spec/ai-review-gate);
-            // empty means the orchestrator sizes the review.
-            const reviewEffort = process.env.BODY_REVIEW_EFFORT ?? '';
-            core.setOutput('reviewEffort', reviewEffort);
             // Fully qualified on purpose. An unqualified "pr-review skill" also
             // matches Claude Code's built-in `code-review` skill, whose
             // `ReportFindings` is a no-op in a headless action.
-            const reviewRequest = [
-              'Review this pull request using the `agentdev:pr-review` skill (invoke it via the Skill tool with skill: "agentdev:pr-review"). Do not use the built-in `code-review` skill: its findings are never posted to the PR.',
-              reviewEffort
-                ? `REQUESTED REVIEW EFFORT: ${reviewEffort}. This tier was requested explicitly. Obey it exactly: do not escalate to another tier, refuse, or fail on account of the diff you find.`
-                : '',
-            ].filter(Boolean).join('\n');
+            const reviewRequest =
+              'Review this pull request using the `agentdev:pr-review` skill (invoke it via the Skill tool with skill: "agentdev:pr-review"). Do not use the built-in `code-review` skill: its findings are never posted to the PR.';
             const prompt = [
               `REPOSITORY: ${context.repo.owner}/${context.repo.repo}`,
               `EVENT TYPE: ${eventName}`,
@@ -224,10 +234,8 @@ jobs:
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           app-client-id: ${{ secrets.QUILL_APP_CLIENT_ID }}
           app-private-key: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
+          remove-request-label: ${{ needs.preflight.outputs.request_label }}
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
-          # Only the light tier downgrades; full and an unresolved tier pass
-          # nothing and keep the settings pin. See spec/ai-review-gate.
-          model: ${{ needs.preflight.outputs.review_effort == 'light' && 'claude-sonnet-5' || '' }}
 
   # Depends on the review job so the check stays pending while a review runs.
   # Acceptance rule: see spec/ai-review-gate.

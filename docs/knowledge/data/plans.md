@@ -139,6 +139,9 @@ pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
 
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
+[AI reviews are requested and skipped with
+labels](plans/20261108-label-review-triggers.md)
+
 [Replace line-number anchors with symbol, heading, key, and quote
 anchors](plans/20261108-line-free-anchors.md)
 

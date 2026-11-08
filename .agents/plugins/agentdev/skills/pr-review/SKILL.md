@@ -75,11 +75,9 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 ## Effort Tiers
 
-The review runs at one of two effort tiers, `light` or `full`. The responder workflow resolves the tier from a `[ci:review-effort=light]`/`[ci:review-effort=full]` marker alone on a line of the PR body, its only source, and hands it to this skill as a `REQUESTED REVIEW EFFORT` line in the prompt.
+The review runs at one of two effort tiers, `light` or `full`. Nothing requests a tier: no PR body marker, label, or prompt line selects one.
 
-**A requested tier is absolute.** Run the tier you were handed, exactly. Never escalate to the other tier, refuse the review, or fail it because the diff looks like a poor fit for the tier — that call belongs to whoever requested it.
-
-**With no tier in the prompt, size the review yourself** from the diff you already hold: how many passes to run, which model each slot gets, and how deep the durable-knowledge pass goes. This is the same judgment Step 1 makes when it fast-approves a mechanical diff. The validation slot is the one exception — Step 6 fixes it at every effort level, self-sized included.
+**Size the review yourself** from the diff you already hold: how many passes to run, which model each slot gets, and how deep the durable-knowledge pass goes. This is the same judgment Step 1 makes when it fast-approves a mechanical diff. The validation slot is the one exception — Step 6 fixes it at every effort level, self-sized included.
 
 Model sizes, unversioned so each name resolves to that model's latest release:
 
@@ -99,7 +97,7 @@ Which size each slot gets, and how many of it run:
 | iwe-audit     | light            | large                |
 | validation    | one batch, light | per-candidate, light |
 
-The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator row is set by the workflow's `--model`, not from this skill — the rest are yours to pass.
+The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
 
 Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` exactly as they do at `full`: the light tier is a cheaper review, not a weaker one. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
 
@@ -132,7 +130,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **Never argue the verdict in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the verdict before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
    - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
    - **Light effort: one batched dispatch** carrying every surviving candidate at once and returning a confirm-or-drop verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
-   - **Batching is the light tier's trade and nothing else's.** A review that was handed no tier validates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
+   - **Batching is the light tier's trade and nothing else's.** A self-sized review validates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
    - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below.
 7. Create a pending review with `create_pending_pull_request_review`.
 8. For every validated finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) stating the file/line in prose and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
