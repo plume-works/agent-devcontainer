@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T23:59:00Z
+  at: 2026-11-08T00:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -259,7 +259,8 @@ creation and every push and force push since. When any commit or update fails
 that check it SHALL NOT approve, and SHALL dismiss its own standing approval. It
 SHALL NOT check out the pull request, SHALL NOT approve a pull request that
 already carries its approval, and SHALL skip a run triggered by
-`dependabot[bot]`, whose token cannot approve.
+`dependabot[bot]`, which cannot read the App secrets in the `plume-works-review`
+environment.
 
 ### Scenario: Renovate opens a pull request
 
