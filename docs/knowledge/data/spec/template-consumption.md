@@ -346,6 +346,20 @@ skill's confirmation gates SHALL remain in force.
 - **THEN** adoption reports pending work, preserves current data, and does not
   declare onboarding complete or reset it on resumption
 
+## Requirement: an adopted knowledge base keeps its graph checks
+
+When `optional_bundles` includes `"knowledge-base"`, adoption SHALL track
+`docs/knowledge/tests/test_plan_checkboxes.py` and
+`docs/knowledge/tests/test_banned_frontmatter_keys.py` and SHALL retain the
+`banned-frontmatter-keys` pre-commit hook. A repository initialized by
+`iwe-bootstrap` alone gets no such check, because bootstrap adds no hooks.
+
+### Scenario: a consumer keeps the knowledge base
+
+- **WHEN** adoption retains the knowledge-base bundle
+- **THEN** both test files are tracked paths and the `banned-frontmatter-keys`
+  hook stays in the consumer's pre-commit configuration
+
 ## Requirement: consumer knowledge survives adoption and updates
 
 Adoption SHALL preserve pre-existing consumer knowledge, send partial or

@@ -103,6 +103,9 @@ graph](plans/20261108-drop-okf-provenance-fields.md)
 
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
+[Plans as ephemeral implementation documents; stories as the planned
+work](plans/20261108-ephemeral-plans-and-stories.md)
+
 [Explore proposes only for observed
 problems](plans/20261103-explore-evidence-gate.md)
 
