@@ -741,40 +741,36 @@ absence, and reported for a person rather than retried.
 
 Verified anchor points (line numbers as of 2026-11-08):
 
-- `.github/workflows/ai-responder.yml:10` — `pull_request` types
-- `.github/workflows/ai-responder.yml:13` — `assigned`
-- `.github/workflows/ai-responder.yml:16` — `review_requested` and
-  `review_request_removed`
-- `.github/workflows/ai-responder.yml:24` — concurrency group
-- `.github/workflows/ai-responder.yml:44` — preflight `if:`
-- `.github/workflows/ai-responder.yml:50` — preflight permissions
-- `.github/workflows/ai-responder.yml:63` — `review_effort` output
-- `.github/workflows/ai-responder.yml:98` — `[ci:skip-ai-review]` regex
-- `.github/workflows/ai-responder.yml:100` — `[ci:review-effort=…]` regex
-- `.github/workflows/ai-responder.yml:153` — `wantsReview`
-- `.github/workflows/ai-responder.yml:160` — actions that always review
-- `.github/workflows/ai-responder.yml:175` — `REQUESTED REVIEW EFFORT` prompt
-- `.github/workflows/ai-responder.yml:230` — light-tier model override
-- `.github/workflows/ai-responder.yml:239` — `ai-review-present` `if:`
-- `.github/actions/run-claude-responder/action.yml:20` — `model` input
-- `.github/actions/run-claude-responder/action.yml:98` — `MODEL` in "Compose
-  Claude arguments"
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:277`
-  — author assignment lookup
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:307`
-  — assignee toggle
+- `.github/workflows/ai-responder.yml:15` — `labeled` among the `pull_request`
+  types
+- `.github/workflows/ai-responder.yml:23` — concurrency group with the
+  `label-<run id>` branch
+- `.github/workflows/ai-responder.yml:41` — preflight job
+- `.github/workflows/ai-responder.yml:108` — `requestLabel` from the live labels
+- `.github/workflows/ai-responder.yml:160` — `wantsReview`
+- `.github/workflows/ai-responder.yml:187` — review prompt request
+- `.github/workflows/ai-responder.yml:242` — `ai-review-present`
+- `.github/actions/run-claude-responder/action.yml:20` — `remove-request-label`
+  input
+- `.github/actions/run-claude-responder/action.yml:127` — "Take the review
+  request label"
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:34`
+  — `REQUEST_LABEL`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:288`
+  — stale-label check
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py:329`
+  — label request and re-send
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:15` — "Post the
   request"
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:196` — "AI Review Recovery"
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:76` — "Effort Tiers"
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:385`
-  — review refresh by assignment
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:444`
-  — trigger behaviour bullets
-- `README.md:348` — re-review instructions
-- `docs/knowledge/data/features/ai-responder-workflows.md:78` — refresh by
-  assignment
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:382`
+  — label prerequisite
+- `README.md:347` — re-review instructions
+- `docs/knowledge/data/features/ai-responder-workflows.md:77` — refresh by label
 - `docs/knowledge/data/spec/ai-review-gate.md:109` — "a review runs on first
   push and on explicit request"
+- `docs/knowledge/data/spec/ai-review-gate.md:142` — "a pull request can opt out
+  of the AI review run"
 - `docs/knowledge/data/spec/ai-review-refresh.md:56` — "one AI review trigger
   per head commit"
