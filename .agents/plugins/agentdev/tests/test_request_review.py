@@ -22,6 +22,7 @@ AUTHOR = 'octocat'
 HEAD_SHA = 'a' * 40
 OLD_SHA = 'b' * 40
 RESPONDER = 'Claude PR Review Responder'
+AI_REVIEWER = 'plume-works-quill[bot]'
 CHECK_URL = 'https://github.com/octo/repo/runs/700'
 POSTED_URL = 'https://github.com/octo/repo/pull/42#issuecomment-900'
 RATIONALE = 'Reworked the retry backoff beyond the thread.'
@@ -269,7 +270,7 @@ def test_no_review_trigger_comment_on_any_path(plugin_root: Path, plugin_tmp_pat
     cases = [
         make_fixture(),
         make_fixture(pr=pull_request(assignees=(AUTHOR,))),
-        make_fixture(reviews=[review('claude[bot]', HEAD_SHA)]),
+        make_fixture(reviews=[review(AI_REVIEWER, HEAD_SHA)]),
         make_fixture(check_runs=[check_run('in_progress')]),
     ]
     for index, fixture in enumerate(cases):
@@ -281,12 +282,9 @@ def test_no_review_trigger_comment_on_any_path(plugin_root: Path, plugin_tmp_pat
         assert not any(body.lower().startswith('@claude') for body in comment_bodies(calls))
 
 
-@pytest.mark.parametrize('login', ['claude[bot]', 'github-actions[bot]'])
-def test_accepted_review_on_head_toggles_nothing(
-    plugin_root: Path, plugin_tmp_path: Path, login: str
-) -> None:
-    """An accepted reviewer's review of the head means no request is needed."""
-    fixture = make_fixture(reviews=[review(login, HEAD_SHA, 'COMMENTED')])
+def test_accepted_review_on_head_toggles_nothing(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """The AI reviewer's review of the head means no request is needed."""
+    fixture = make_fixture(reviews=[review(AI_REVIEWER, HEAD_SHA, 'COMMENTED')])
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
@@ -298,7 +296,7 @@ def test_accepted_review_on_older_commit_still_toggles(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
     """A review of an earlier head does not cover the current one."""
-    fixture = make_fixture(reviews=[review('claude[bot]', OLD_SHA)])
+    fixture = make_fixture(reviews=[review(AI_REVIEWER, OLD_SHA)])
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
@@ -306,11 +304,13 @@ def test_accepted_review_on_older_commit_still_toggles(
     assert toggle_calls(calls)
 
 
-@pytest.mark.parametrize('login', ['octocat', 'chatgpt-codex-connector[bot]'])
+@pytest.mark.parametrize(
+    'login', ['octocat', 'chatgpt-codex-connector[bot]', 'claude[bot]', 'github-actions[bot]']
+)
 def test_review_by_unaccepted_author_on_head_still_toggles(
     plugin_root: Path, plugin_tmp_path: Path, login: str
 ) -> None:
-    """A human or a bot other than Claude reviewing the head is not an accepted AI review."""
+    """A review of the head by anyone but the AI reviewer is not an accepted AI review."""
     fixture = make_fixture(reviews=[review(login, HEAD_SHA)])
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
@@ -355,7 +355,7 @@ def test_review_on_head_before_metadata_edit_still_toggles(
 ) -> None:
     """A review that saw an older title or description does not cover the head's input."""
     fixture = make_fixture(
-        reviews=[review('claude[bot]', HEAD_SHA, 'CHANGES_REQUESTED')], edits={edited: LATER}
+        reviews=[review(AI_REVIEWER, HEAD_SHA, 'CHANGES_REQUESTED')], edits={edited: LATER}
     )
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
@@ -369,7 +369,7 @@ def test_review_on_head_after_metadata_edit_toggles_nothing(
 ) -> None:
     """A review submitted after the latest edit saw the current title and description."""
     fixture = make_fixture(
-        reviews=[review('claude[bot]', HEAD_SHA)], edits={'body': EARLIER, 'title': EARLIER}
+        reviews=[review(AI_REVIEWER, HEAD_SHA)], edits={'body': EARLIER, 'title': EARLIER}
     )
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
@@ -383,7 +383,7 @@ def test_responder_check_completed_before_metadata_edit_still_toggles(
 ) -> None:
     """The metadata gate's own finished run does not count as a request for the edited input."""
     fixture = make_fixture(
-        reviews=[review('claude[bot]', HEAD_SHA, 'CHANGES_REQUESTED')],
+        reviews=[review(AI_REVIEWER, HEAD_SHA, 'CHANGES_REQUESTED')],
         check_runs=[check_run('completed', 'success')],
         edits={'body': LATER},
     )
@@ -431,7 +431,7 @@ def test_review_from_a_run_started_before_the_edit_does_not_count(
 ) -> None:
     """A run reads the title and description when it starts, whenever it finishes."""
     fixture = make_fixture(
-        reviews=[review('claude[bot]', HEAD_SHA, submitted_at='2026-01-01T11:20:00Z')],
+        reviews=[review(AI_REVIEWER, HEAD_SHA, submitted_at='2026-01-01T11:20:00Z')],
         check_runs=[
             check_run(
                 'completed', 'success', started_at=started_at, completed_at='2026-01-01T11:30:00Z'
@@ -461,7 +461,7 @@ def test_failing_edit_time_query_is_gh_unavailable(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
     """Without the edit times the script cannot tell what the head's review saw."""
-    fixture = make_fixture(reviews=[review('claude[bot]', HEAD_SHA)], fail_graphql=True)
+    fixture = make_fixture(reviews=[review(AI_REVIEWER, HEAD_SHA)], fail_graphql=True)
 
     completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
 
@@ -592,7 +592,7 @@ def test_result_is_last_stdout_line_on_every_path(
     """Every run ends stdout with exactly one RESULT line."""
     cases = [
         make_fixture(),
-        make_fixture(reviews=[review('claude[bot]', HEAD_SHA)]),
+        make_fixture(reviews=[review(AI_REVIEWER, HEAD_SHA)]),
         make_fixture(check_runs=[check_run('in_progress')]),
         make_fixture(pr=pull_request(state='closed')),
         make_fixture(fail=True),

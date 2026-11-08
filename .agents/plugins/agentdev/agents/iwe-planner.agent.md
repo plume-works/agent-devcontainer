@@ -248,6 +248,11 @@ Ship creates the document and replaces the key with a real link.
 
 - One plan per topic; if the plan needs two unrelated verification stories,
   it's two plans.
+- **YAGNI: plan the simplest thing that could possibly work.** Plan only the
+  tasks the stated goal needs. Never plan a speculative abstraction, an
+  unrequested config flag, option, or parameter, an interface with a single
+  implementation, or a hook "for later"; generality waits for a second real
+  caller or a user request.
 - One task is one outcome; if the task could ever be described as half-done,
   split it. A task whose evidence is external — a CI run, a deploy, a review, a
   published artifact — always stands alone, because the session writing the code

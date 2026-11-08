@@ -358,20 +358,27 @@ the review job. Because the gate is a job of the review workflow, it is
 satisfiable only while that workflow is retained: dropping the review job
 leaves the required check with nothing able to satisfy it.
 
-Two prerequisites live outside the repository and are **required**; a third
-changes only how the review is attributed:
+The review responder and the `trusted-bot-approval` job post as a GitHub App.
+The gate, the `trusted-bot-approval` job, and the catalog's
+`pr-request-ai-review` and `pr-eval-review-needed` skills recognise only
+`plume-works-quill[bot]` as the AI reviewer; reviews by any other login,
+including `github-actions[bot]` and `claude[bot]`, leave the gate red. Two
+prerequisites are **required**:
 
-1. **Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret**, which
-   `anthropics/claude-code-action` authenticates with.
-2. **Create the `claude-review` environment** named by the `claude-respond`
-   job's `environment:` key. A job naming an environment that does not exist
-   does not run.
-3. Optionally install the Claude GitHub App
-   (`https://github.com/apps/claude`). The workflow passes `github_token: ${{
-secrets.GITHUB_TOKEN }}` explicitly, so the responder authenticates and
-   posts without it; installing the app makes comments appear as Claude
-   rather than as `github-actions[bot]`. The gate's `claudeLogins` set accepts
-   both, so either attribution satisfies `ai-review-present`.
+1. **Register a GitHub App and install it on the repository.** Give its
+   installation contents read and write, pull requests read and write, issues
+   read and write, actions read, and metadata read, and no workflows
+   permission. Contents write is what makes the App's approval count toward a
+   required review; each job mints its token with contents read or none, so no
+   workflow token can push.
+2. **Create the `plume-works-review` environment** named by the
+   `claude-respond` and `trusted-bot-approval` jobs' `environment:` key, with no
+   deployment branch policy, holding three secrets: `CLAUDE_CODE_OAUTH_TOKEN`,
+   which `anthropics/claude-code-action` authenticates with, and
+   `QUILL_APP_CLIENT_ID` and `QUILL_APP_PRIVATE_KEY`, the App's client ID and
+   private key. A job naming an environment that does not exist does not run,
+   and a job whose App secrets are empty fails rather than falling back to
+   `GITHUB_TOKEN`.
 
 The gate checks that the pull request has been reviewed, not that its current
 head commit has. A push after a review does not re-open it; the author
@@ -413,10 +420,12 @@ Then adapt the workflows themselves:
   that login here; the one list drives both the gate waiver and the approval.
   Widening it to every bot restores the old blanket exemption and hands a green
   required check and an approval to any app that can open a pull request.
-- A ruleset that requires an approving review needs the organization setting
-  **Allow GitHub Actions to create and approve pull requests**, inherited by
-  the repository. Both the AI reviewer's verdict and the trusted-bot approval
-  post with the workflow's `GITHUB_TOKEN`, which cannot approve without it.
+- A ruleset that requires an approving review is satisfied by the App's
+  approval. Both the AI reviewer's verdict and the trusted-bot approval post
+  with the App's installation token, so the organization setting **Allow GitHub
+  Actions to create and approve pull requests** can stay off, and should: with
+  it on, any workflow's `GITHUB_TOKEN` can approve and count toward the
+  required review.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's
   own lifecycle scripts. It exists because a `container:` job runs no
@@ -699,11 +708,10 @@ it is consumer-created state, not a template-owned upstream diff input. See
 evaluation while preserving an existing guidance file unless the user explicitly
 replaces or removes it.
 
-If the AI responder workflows are among the files taken, their three
-out-of-repository prerequisites apply here too — the Claude GitHub App
-installation, the `CLAUDE_CODE_OAUTH_TOKEN` secret, and the `claude-review`
-environment. Copying the files alone is not enough, and none of the three is
-visible in a diff.
+If the AI responder workflows are among the files taken, their two
+prerequisites apply here too — the GitHub App and the `plume-works-review`
+environment with its three secrets. Copying the files alone is not enough, and
+neither is visible in a diff.
 
 ### 5. Set up project memory
 

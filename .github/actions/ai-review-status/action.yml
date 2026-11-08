@@ -65,13 +65,13 @@ runs:
           // The rule asserts that the PR has been reviewed, not that its
           // current head has been -- see spec/ai-review-gate. Do not compare
           // review.commit_id against the head SHA.
-          const claudeLogins = new Set(['claude[bot]', 'github-actions[bot]']);
+          const reviewerLogin = 'plume-works-quill[bot]';
           const acceptedReviewStates = new Set(['approved', 'changes_requested', 'commented']);
 
           const reviewLogin = (review) => review?.user?.login;
           const reviewState = (review) => review?.state?.toLowerCase();
-          const isClaudeReview = (review) =>
-            claudeLogins.has(reviewLogin(review)) && acceptedReviewStates.has(reviewState(review));
+          const isAcceptedReview = (review) =>
+            reviewLogin(review) === reviewerLogin && acceptedReviewStates.has(reviewState(review));
 
           const reviews = await github.paginate(github.rest.pulls.listReviews, {
             ...pullRequest,
@@ -83,16 +83,16 @@ runs:
               .join(', ') || 'none'}`
           );
 
-          const claudeReview = [...reviews].reverse().find(isClaudeReview);
-          if (claudeReview) {
+          const acceptedReview = [...reviews].reverse().find(isAcceptedReview);
+          if (acceptedReview) {
             report(
               true,
-              `Found accepted Claude review by ${claudeReview.user.login} for ${claudeReview.commit_id} with state ${claudeReview.state}.`
+              `Found accepted AI review by ${acceptedReview.user.login} for ${acceptedReview.commit_id} with state ${acceptedReview.state}.`
             );
             return;
           }
 
           report(
             false,
-            'No AI review found. Expected a review from Claude (claude[bot] or github-actions[bot]).'
+            `No AI review found. Expected a review from ${reviewerLogin}.`
           );

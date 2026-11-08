@@ -90,9 +90,8 @@ gh pr view <pr> --json reviews,headRefOid \
   --jq '{head: .headRefOid, reviews: [.reviews[] | {author: .author.login, state, submittedAt, commit: .commit.oid}]}'
 ```
 
-The AI reviewer is the author the `ai-review-present` gate accepts: `claude` or
-`github-actions` in this query, `claude[bot]` or `github-actions[bot]` in the
-REST API. Its newest verdict is its latest review in state `APPROVED` or
+The AI reviewer is the one author the `ai-review-present` gate accepts:
+`plume-works-quill` in this query, `plume-works-quill[bot]` in the REST API. Its newest verdict is its latest review in state `APPROVED` or
 `CHANGES_REQUESTED`; a later `COMMENTED` review does not replace it.
 
 Then diff the newest reviewed commit against the current head to see exactly
