@@ -394,8 +394,11 @@ Modify: `docs/knowledge/data/architecture.md`
 
 - [ ] A pull request running this plan's workflow and created with
   `gh pr create --label block-ai-reviews` runs no review on open.
-- [ ] Adding `request-ai-review` to a pull request carrying `block-ai-reviews`
+- [x] Adding `request-ai-review` to a pull request carrying `block-ai-reviews`
   runs no review and leaves the request label on.
+  - **Evidence:** pull request #758 at 076e9610, carrying `block-ai-reviews`:
+    `request-ai-review` added at 07:54:22 started run 42460672914, which skipped
+    `Claude PR Review Responder`, and the label stayed on the pull request.
 - [ ] Removing `block-ai-reviews` from that pull request runs the waiting
   review, whose job then removes `request-ai-review`.
 - [x] Adding an unrelated label while a requested review is queued leaves that
