@@ -11,6 +11,8 @@ sources:
 - resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
 - resource: data/plans/20261107-drop-claude-task-responder.md
 - resource: data/plans/20261030-responder-quill-app-identity.md
+- resource: data/architecture/label-review-triggers.md
+- resource: data/plans/20261108-label-review-triggers.md
 ---
 
 # AI review gate
@@ -26,8 +28,7 @@ The check SHALL NOT require that the review name the pull request's current head
 commit. It asserts that the pull request has been reviewed, not that each pushed
 commit has been: reviewing every commit is prohibitively expensive, and neither
 AI nor human reviewers work that way. Refreshing a review is the author's call,
-requested by removing the pull request's author as assignee and adding them
-back, the way a human re-review is re-requested.
+requested by adding the `request-ai-review` label.
 
 The check SHALL be a job of the same workflow as the review job, depending on
 it, so that it is pending for as long as a review of the pull request is running
@@ -106,29 +107,84 @@ job SHALL hold write repository contents access.
 ## Requirement: a review runs on first push and on explicit request
 
 The review job SHALL run when a pull request is opened, marked ready for review,
-reopened, or assigned, and on a push to a pull request that has no accepted
-review. An assignment SHALL run a review whether or not an accepted review
-exists. The review job SHALL NOT run for a `pull_request` event on a draft pull
-request.
+or reopened, on a push to a pull request that has no accepted review, and when
+the `request-ai-review` label is added. The label SHALL run a review whether or
+not an accepted review exists. Every run in the pull request's concurrency group
+SHALL take a `request-ai-review` it finds on the pull request: the run SHALL
+review when the request is authorized and the pull request is not a draft, and
+while the pull request carries no `block-ai-reviews`, and the review job SHALL
+remove the label with the reviewer App's token once the review finishes, whether
+it succeeded or failed, and SHALL NOT remove it when the review is cancelled. A
+request whose own run was cancelled while pending is therefore taken by the run
+that replaced it. A run that does not review SHALL leave the label for a later
+run in that group, as SHALL a run started by another label. A cancelled review
+therefore leaves the label until the next run in that group takes it, or until
+`request-review.py` re-sends it. An assignment, a reviewer request, and a
+reviewer request's removal SHALL NOT start a run. The review job SHALL NOT run
+for a `pull_request` event on a draft pull request.
+
+Removing `block-ai-reviews` SHALL start a run in the pull request's concurrency
+group, which takes a waiting `request-ai-review`. Every other label event,
+adding or removing any other label, SHALL NOT run a review and SHALL NOT share
+the pull request's concurrency group, so it never replaces a queued review run.
+Preflight does not run on a fork or bot-authored pull request, so a
+`request-ai-review` label added there is not removed.
 
 The workflow SHALL be triggered only by pull request, pull request review, and
 merge group events: a comment, an issue, or a mention of `@claude` SHALL start
 no run, and the workflow SHALL accept no `workflow_dispatch`.
 
-The `ai-review-present` gate SHALL run for pull request, pull request review,
-and merge group events.
+The `ai-review-present` gate SHALL run for every pull request, pull request
+review, and merge group event, every label event included.
 
 ### Scenario: a draft is opened
 
 - **WHEN** a pull request is opened as a draft
 - **THEN** no review runs until the pull request is marked ready for review.
 
-### Scenario: a writer re-requests a review by assignment
+### Scenario: a writer requests a review with the label
 
-- **WHEN** a writer removes a reviewed pull request's author as assignee and
-  adds them back
-- **THEN** a `pull_request` run reviews the pull request, and its
-  `ai-review-present` reports that review.
+- **WHEN** a writer adds `request-ai-review` to a reviewed pull request
+- **THEN** a `pull_request` run reviews the pull request, its review job then
+  removes the label as `plume-works-quill`, and its `ai-review-present` reports
+  that review.
+
+### Scenario: a push replaces a pending request
+
+- **WHEN** `request-ai-review` is added while another run of the pull request is
+  in progress, and a push queues before the request's run starts
+- **THEN** the push's run reviews the pull request, its review job removing the
+  label.
+
+### Scenario: a push lands during a requested review
+
+- **WHEN** a push cancels a review that `request-ai-review` started
+- **THEN** the label stays, and the push's run reviews the new head and removes
+  it.
+
+### Scenario: a user without write access adds the label
+
+- **WHEN** a user with triage but not write access adds `request-ai-review`
+- **THEN** preflight fails, no review runs, and the label stays until a run a
+  writer starts reviews the pull request.
+
+### Scenario: a writer assigns a pull request
+
+- **WHEN** a writer assigns a reviewed pull request
+- **THEN** no run of the workflow starts.
+
+### Scenario: a reviewer is requested
+
+- **WHEN** a writer requests a reviewer on a pull request, or removes that
+  request
+- **THEN** no run of the workflow starts.
+
+### Scenario: an unrelated label is added
+
+- **WHEN** a label other than `request-ai-review` is added while a requested
+  review is queued
+- **THEN** no review runs for the label, the queued review keeps its place, and
+  `ai-review-present` in the label's run reports on the existing reviews.
 
 ### Scenario: a writer comments `@claude`
 
@@ -136,92 +192,49 @@ and merge group events.
   `@claude`
 - **THEN** no run of the workflow starts.
 
-## Requirement: a pull request can opt out of the AI review run
+## Requirement: a pull request can block every AI review
 
-A pull request whose body carries `[ci:skip-ai-review]` alone on a line SHALL
-skip the review responder, whatever event started the run, an assignment
-included. The marker SHALL NOT waive the `ai-review-present` gate.
+While a pull request carries the `block-ai-reviews` label, no review SHALL run
+for it, whatever event starts the run, an explicit `request-ai-review` included.
+A `request-ai-review` added while the block is on SHALL stay on the pull
+request, and removing `block-ai-reviews` SHALL start a run that reviews it. The
+label SHALL NOT waive the `ai-review-present` gate.
 
-The marker SHALL be recognized only as a whole line, so that a body discussing
-it — documentation, a migration note, a review comment quoted into the
-description — reads as prose rather than as a directive. A substring match makes
-every pull request that explains the feature disable review on itself.
+Preflight SHALL read the pull request's labels when it runs, not from the event
+payload. A label added after a run's preflight read them does not apply to that
+run.
 
-The gate SHALL NOT read the marker, because a pull request body is
-author-controlled and a job skipped by its own `if:` satisfies a required status
-check. A marker that reached the gate would therefore let any author, fork
-contributors included, self-waive the mandatory review. A marked pull request
-with no accepted review keeps a red gate, and only a user with ruleset bypass
-can merge it.
+The gate SHALL NOT read the label, because a job skipped by its own `if:`
+satisfies a required status check, and a label the gate honoured would let
+anyone who can label a pull request self-waive the mandatory review. A blocked
+pull request with no accepted review keeps a red gate, and only a user with
+ruleset bypass can merge it.
 
-### Scenario: a marked pull request triggers the workflow
+### Scenario: a blocked pull request triggers the workflow
 
-- **WHEN** a pull request body carries `[ci:skip-ai-review]` on its own line and
+- **WHEN** a pull request carrying `block-ai-reviews` is opened or pushed to and
   no accepted review exists
 - **THEN** no review responder runs, and `ai-review-present` runs and fails.
 
-### Scenario: a marked pull request already has an accepted review
+### Scenario: a blocked pull request already has an accepted review
 
-- **WHEN** a pull request body carries `[ci:skip-ai-review]` on its own line and
-  an accepted review exists on it
+- **WHEN** a pull request carrying `block-ai-reviews` has an accepted review and
+  receives a push
 - **THEN** no review responder runs, and `ai-review-present` passes on the
   existing review.
 
-### Scenario: a body mentions the marker inline
+### Scenario: a writer requests a review on a blocked pull request
 
-- **WHEN** a pull request body names `[ci:skip-ai-review]` inside a sentence or
-  a code span rather than alone on a line
-- **THEN** the marker does not apply and the review responder runs normally.
+- **WHEN** a writer adds `request-ai-review` to a pull request carrying
+  `block-ai-reviews`
+- **THEN** no review runs, and `request-ai-review` stays on the pull request.
 
-### Scenario: a writer assigns a marked pull request
+### Scenario: the block is lifted with a request waiting
 
-- **WHEN** a writer assigns a pull request whose body carries the marker on its
-  own line
-- **THEN** no review runs, and `ai-review-present` reports on the existing
-  reviews.
-
-## Requirement: a pull request review runs at a requested effort tier
-
-The review responder SHALL support two effort tiers, `light` and `full`, which
-select how many review passes run and which model size each pass uses. A tier
-SHALL be requested by a `[ci:review-effort=light]` or `[ci:review-effort=full]`
-marker alone on a line of the pull request body, and the marker SHALL be
-recognized only as a whole line.
-
-A requested tier SHALL be obeyed exactly. The review SHALL NOT escalate to a
-higher tier, refuse, or fail on account of the diff it finds, whatever the
-tier's fit for that diff.
-
-When no tier is requested, the review SHALL size itself from the diff, and the
-responder SHALL NOT override the model configured for the session.
-
-An effort tier SHALL NOT change whether a review is required, SHALL NOT waive
-the `ai-review-present` gate, and SHALL NOT suppress the pull request metadata
-check or the durable-knowledge pass, which run at both tiers.
-
-### Scenario: a body marker requests a tier
-
-- **WHEN** a pull request body carries `[ci:review-effort=light]` on its own
-  line
-- **THEN** the review runs at the light tier.
-
-### Scenario: a body mentions the effort marker inline
-
-- **WHEN** a pull request body names `[ci:review-effort=light]` inside a
-  sentence or a code span rather than alone on a line
-- **THEN** the marker does not apply.
-
-### Scenario: a light tier is requested for a large documentation change
-
-- **WHEN** a pull request body requests the light tier and the diff is a large
-  documentation rewrite
-- **THEN** the review runs at the light tier, neither escalating nor failing.
-
-### Scenario: no tier is requested
-
-- **WHEN** no body marker requests a tier
-- **THEN** the review sizes itself from the diff and runs with the session's
-  configured model.
+- **WHEN** `block-ai-reviews` is removed from a pull request carrying
+  `request-ai-review`
+- **THEN** a run reviews the pull request, and its review job then removes
+  `request-ai-review`.
 
 ## Requirement: the AI review verdict follows its findings
 

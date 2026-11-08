@@ -14,7 +14,8 @@ sources:
 - resource: docs/knowledge/data/architecture/pr-review-effort-tiers.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
-rank: 950
+completed: 2026-11-08
+stage: done
 ---
 
 # AI reviews are requested and skipped with labels
