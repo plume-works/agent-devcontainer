@@ -111,7 +111,7 @@ shape they read, and the exemption needs its own rule).
 **Files:** Modify: `scripts/check-anchors.py`,
 `scripts/tests/test_check_anchors.py`
 
-- [ ] The same script resolves the anchors in its resolver scope:
+- [x] The same script resolves the anchors in its resolver scope:
   `## Key references` of every plan without `stage`, the whole body of every bug
   and backlog item with `stage: pending` or `stage: planned`, and every document
   under `docs/knowledge/data/architecture/`. An anchor is a back-ticked span
@@ -137,6 +137,11 @@ shape they read, and the exemption needs its own rule).
   a removed heading, a missing key, a reworded quote, and a missing file each
   fail, and an unresolvable anchor in a closed plan, a done bug, or a plan's
   `## Implementation Steps` passes.
+
+  - **Evidence:** commit `e316306f` adds the resolver;
+    `uv run pytest scripts/tests/test_check_anchors.py` passes 54 tests at that
+    commit, and `uv run scripts/check-anchors.py` resolves all eleven of this
+    plan's `## Key references` anchors.
 
 ### Task 3: The rule in AGENTS.md
 
