@@ -345,10 +345,15 @@ carries a line-number reference (closed bugs and backlog items)
 **Files:** Create: `docs/knowledge/data/architecture/line-free-anchors.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] The architecture document records the decision, the anchor syntax by
+- [x] The architecture document records the decision, the anchor syntax by
   reference to `spec/line-free-anchors`, the resolver's scope and its limits,
   and the rejected alternatives from `## Approach`; it is linked from the
   architecture hub.
+  - **Evidence:** commit `ed493d66` adds `architecture/line-free-anchors` with
+    the decision, the syntax by reference to `spec/line-free-anchors`, the
+    resolver's scope and limits, and the rejected alternatives, linked from the
+    architecture hub; `iwe schema validate` and
+    `uv run scripts/check-anchors.py` pass at that commit.
 
 ## Spec changes
 
