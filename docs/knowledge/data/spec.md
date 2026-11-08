@@ -50,6 +50,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [IWE workflow skills](spec/iwe-workflow-skills.md)
 
+[Line-free anchors](spec/line-free-anchors.md)
+
 [macOS native bootstrap](spec/macos-native-bootstrap.md)
 
 [OpenCode catalog bridge](spec/opencode-catalog-bridge.md)

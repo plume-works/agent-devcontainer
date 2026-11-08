@@ -13,6 +13,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/AGENTS.md
 - resource: .pre-commit-config.yaml
+stage: done
+completed: 2026-11-08
 ---
 
 # Replace line-number anchors with symbol, heading, key, and quote anchors
@@ -359,10 +361,10 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-A new spec, `spec/line-free-anchors`, and a modified requirement in [IWE
-workflow skills](../spec/iwe-workflow-skills.md).
+A new spec, [Line-free anchors](../spec/line-free-anchors.md), and a modified
+requirement in [IWE workflow skills](../spec/iwe-workflow-skills.md).
 
-`spec/line-free-anchors`:
+[Line-free anchors](../spec/line-free-anchors.md):
 
 ``` markdown
 ## ADDED Requirements

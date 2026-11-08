@@ -659,7 +659,7 @@ caller of Verify SHALL show the report verbatim in its final message text:
 Verify round of a run. A path to the saved report, or the report appearing only
 in a tool call or tool result, SHALL not count as showing it. A Ship blocker
 report SHALL route each Verify CRITICAL by its ID without restating it, and
-SHALL state in full, with `path:line` evidence, each blocker Ship found outside
+SHALL state in full, with anchored evidence, each blocker Ship found outside
 Verify.
 
 #### Scenario: A session verifies a plan
@@ -681,7 +681,7 @@ Verify.
 - **WHEN** Verify reports zero CRITICAL findings and the spec merge finds an
   intent-versus-implementation mismatch
 - **THEN** the Shipper's final message carries the Verify report verbatim and
-  states the mismatch in full with its `path:line` evidence and route
+  states the mismatch in full with its anchored evidence and route
 
 #### Scenario: A plan ships
 
