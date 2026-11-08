@@ -208,10 +208,13 @@ shape they read, and the exemption needs its own rule).
     **Rules** bullet;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reports 0 errors at that commit.
-- [ ] `iwe-implementer`: step 5 confirms each `## Key references` anchor still
+- [x] `iwe-implementer`: step 5 confirms each `## Key references` anchor still
   names its target in the current checkout and corrects a renamed or removed
   one, with no date to refresh; evidence written under a ticked task names code
   by anchor, never by line.
+  - **Evidence:** commit `81d78ff6` rewrites step 5 and step 6's evidence rule;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors at that commit.
 
 ### Task 6: Skill and agent reports
 
