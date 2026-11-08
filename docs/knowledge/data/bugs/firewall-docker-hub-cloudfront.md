@@ -47,11 +47,9 @@ as its default allowlist, so the fix covers both runtimes.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
-
-- `.devcontainer/firewall-allowlist.txt:52` —
+- `.devcontainer/firewall-allowlist.txt › "production.cloudflare.docker.com"` —
   `production.cloudflare.docker.com`, the only Docker CDN entry
-- `ansible/roles/devcontainer_firewall/files/init-firewall.sh:136` — the final
-  `OUTPUT` REJECT rule
-- `scripts/tests/test_agent_runtime_firewall.py:150` — the test allowlist that
-  adds the CloudFront host
+- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py::apply_policy` —
+  the final `OUTPUT` REJECT rule
+- `scripts/tests/test_agent_runtime_firewall.py::RUNTIME_SCRIPT` — the test
+  allowlist that adds the CloudFront host

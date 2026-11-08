@@ -61,17 +61,15 @@ that routes back to `/agentdev:iwe-plan` revise mode.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
-
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:69` —
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` —
   `## Implementation Steps` authoring instructions, with no spec-document
   exclusion
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:212` — `## Rules`, which
-  never forbid a task from editing `data/spec/`
-- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:41` — plan scope, limited
-  to residue patterns
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:157` — "spec sync
-  ... stay with the `/agentdev:iwe-ship` skill", with no instruction for a task
-  that asks for it
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:350` — Requirement: Ship
-  synchronizes durable specs by intelligent merge
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` — `## Rules`, which never
+  forbid a task from editing `data/spec/`
+- `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope › "is a plan, the candidate set is every plan"`
+  — plan scope, limited to residue patterns
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "This rulebook implements; it doesn't ship. Status flips"`
+  — "spec sync ... stay with the `/agentdev:iwe-ship` skill", with no
+  instruction for a task that asks for it
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-synchronizes-durable-specs-by-intelligent-merge`
+  — Requirement: Ship synchronizes durable specs by intelligent merge

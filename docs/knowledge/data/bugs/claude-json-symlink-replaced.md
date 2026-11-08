@@ -60,10 +60,9 @@ target the same path.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
-
-- `.devcontainer/scripts/postCreateCommand.sh:62` — `ln -sf` creating the link
-- `.devcontainer/scripts/codebase-memory-mcp-install.sh:64` —
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::link_claude_json`
+  — creates the link
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh` —
   `restore_claude_json_symlink`
-- `.devcontainer/scripts/preapprove-claude-workspace.sh:13` — `state_file`,
-  written through the link at post-create
+- `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py::preapprove` —
+  the state file, written through the link at post-create

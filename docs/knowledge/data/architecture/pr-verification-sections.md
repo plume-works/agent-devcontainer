@@ -163,6 +163,7 @@ not close, turning the section into a dialogue.
   5's testing-strategy prompt, Step 7's now-authoritative section list, the
   `## Edge Cases` entries, and the intro and `## Related Resources` template
   references) and
-  `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:75-83` (the
-  worked example) and `:180` (the feedback loop's "update How to Test"
-  instruction).
+  `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#recommended-template`
+  (the worked example) and
+  `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#responding-to-review-feedback`
+  (the feedback loop's "update How to Test" instruction).

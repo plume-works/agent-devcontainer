@@ -332,32 +332,44 @@ controls.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
-
-- `.github/workflows/ai-responder.yml:19` — `pull_request` trigger types
-- `.github/workflows/ai-responder.yml:67` — workflow concurrency group; `:75` —
+- `.github/workflows/ai-responder.yml#on.pull_request` — `pull_request` trigger
+  types
+- `.github/workflows/ai-responder.yml#concurrency` — workflow concurrency group;
+  `.github/workflows/ai-responder.yml#concurrency.cancel-in-progress` —
   `cancel-in-progress` only on `synchronize`
-- `.github/workflows/ai-responder.yml:118` — preflight outputs
-- `.github/workflows/ai-responder.yml:185` — the `[ci:skip-ai-review]` marker
-- `.github/workflows/ai-responder.yml:236` — `Determine agent prompts`; `:267` —
-  the actions that always review, `assigned` among them
-- `.github/workflows/ai-responder.yml:414` — `claude-respond` job
-- `.github/workflows/ai-responder.yml:502` — `ai-review-present`
-- `.github/actions/run-claude-responder/action.yml:4` — composite action inputs
-- `.github/actions/run-claude-responder/action.yml:132` — `claude_args` assembly
-- `.github/actions/run-claude-responder/action.yml:150` — Claude invocation
-- `.github/actions/run-claude-responder/action.yml:163` — execution output
-  upload
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — parallel review
-  passes
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:159` — Waiting on Parallel
-  Passes, the outstanding-pass barrier
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:147` — pending-review
-  creation
-- `.github/workflows/validate-agent-files.yml:61` — agent-file validation job
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:373`
+- `.github/workflows/ai-responder.yml#jobs.preflight.outputs` — preflight
+  outputs
+- `.github/workflows/ai-responder.yml › "const skipAiReview ="` — the
+  `[ci:skip-ai-review]` marker
+- `.github/workflows/ai-responder.yml › "name: Determine agent prompts"` —
+  `Determine agent prompts`;
+  `.github/workflows/ai-responder.yml › "if (['opened', 'ready_for_review', 'reopened"`
+  — the actions that always review, `assigned` among them
+- `.github/workflows/ai-responder.yml#jobs.claude-respond` — `claude-respond`
+  job
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present` —
+  `ai-review-present`
+- `.github/actions/run-claude-responder/action.yml#inputs` — composite action
+  inputs
+- `.github/actions/run-claude-responder/action.yml#runs.steps` — `claude_args`
+  assembly
+- `.github/actions/run-claude-responder/action.yml › "uses: anthropics/claude-code-action@v1"`
+  — Claude invocation
+- `.github/actions/run-claude-responder/action.yml › "uses: actions/upload-artifact@v7.0.2"`
+  — execution output upload
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Run the independent initial-review passes the effort"`
+  — parallel review passes
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#waiting-on-parallel-passes`
+  — Waiting on Parallel Passes, the outstanding-pass barrier
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "create_pending_pull_request_review"`
+  — pending-review creation
+- `.github/workflows/validate-agent-files.yml#jobs.validate-agent-files` —
+  agent-file validation job
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate`
   — AI responder prerequisites
-- `docs/knowledge/data/spec/ai-review-gate.md:88` — the review-request
-  requirement; `:105` — the re-request-by-assignment scenario
-- `docs/knowledge/data/features/ai-responder-workflows.md:75` — re-review by
-  assignment
+- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-review-runs-on-first-push-and-on-explicit-request`
+  — the review-request requirement;
+  `docs/knowledge/data/spec/ai-review-gate.md#scenario-a-writer-re-requests-a-review-by-assignment`
+  — the re-request-by-assignment scenario
+- `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "the pull request's author as assignee and adding them back"`
+  — re-review by assignment

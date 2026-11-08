@@ -164,13 +164,12 @@ no `N/A` on the plan-stage item.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.pre-commit-config.yaml:154` — the `plan-checkboxes` hook, beside which [Gate
-  done bugs and Ship reviews in pre-commit](20261103-ship-records-gate.md) adds
-  the `ship-records` hook
-- `.github/workflows/ci.yml:400` — pre-commit with `--all-files`
-- `.github/workflows/primary-checks.yml:76` — pre-commit over the pull request's
-  range
-- `docs/knowledge/data/spec/pre-commit-gate.md:19` — Requirement: CI runs the
-  pre-commit hooks as the lint gate
+- `.pre-commit-config.yaml › "id: plan-checkboxes"` — the `plan-checkboxes`
+  hook, beside which [Gate done bugs and Ship reviews in
+  pre-commit](20261103-ship-records-gate.md) adds the `ship-records` hook
+- `.github/workflows/ci.yml › "run: uv run pre-commit run --all-files"` —
+  pre-commit with `--all-files`
+- `.github/workflows/primary-checks.yml › "uv run pre-commit run --from-ref"` —
+  pre-commit over the pull request's range
+- `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
+  — Requirement: CI runs the pre-commit hooks as the lint gate

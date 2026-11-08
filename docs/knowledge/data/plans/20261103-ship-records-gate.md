@@ -171,14 +171,15 @@ structure, and SHALL report every violation with `path:line`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `.pre-commit-config.yaml:154` — the `plan-checkboxes` hook; `:163` — the
-  `no-status-field` hook; `:173` — `iwe-schema-validate`
-- `.iwe/schemas/bug.yaml:26` — `Fix` at `minContains: 0`
-- `.github/workflows/primary-checks.yml:76` — pre-commit over the pull request's
-  range
-- `.github/workflows/ci.yml:400` — pre-commit with `--all-files`
+- `.pre-commit-config.yaml › "id: plan-checkboxes"` — the `plan-checkboxes`
+  hook; `.pre-commit-config.yaml › "id: no-status-field"` — the
+  `no-status-field` hook; `.pre-commit-config.yaml › "id: iwe-schema-validate"`
+  — `iwe-schema-validate`
+- `.iwe/schemas/bug.yaml › "header: { const: Fix }"` — `Fix` at `minContains: 0`
+- `.github/workflows/primary-checks.yml › "uv run pre-commit run --from-ref"` —
+  pre-commit over the pull request's range
+- `.github/workflows/ci.yml › "run: uv run pre-commit run --all-files"` —
+  pre-commit with `--all-files`
 - `scripts/tests/scratch.py` — `TMP_ROOT`, the test scratch root
-- `docs/knowledge/data/spec/pre-commit-gate.md:19` — Requirement: CI runs the
-  pre-commit hooks as the lint gate
+- `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
+  — Requirement: CI runs the pre-commit hooks as the lint gate

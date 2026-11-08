@@ -99,15 +99,13 @@ name on the head commit. Merge state, the pull request's status rollup, and
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
-
-- `.github/workflows/ai-responder.yml:74` — concurrency group, cancelling only
-  on `synchronize`
-- `.github/workflows/ai-responder.yml:269` — the skip marker, checked before the
-  action rules
-- `.github/workflows/ai-responder.yml:275` — `assigned` among the actions that
-  always review
-- `.github/workflows/ai-responder.yml:509` — `ai-review-present`, needing
-  `claude-respond`
-- `.github/actions/ai-review-status/action.yml:68` — Codex logins accepted by
-  the gate
+- `.github/workflows/ai-responder.yml#concurrency.group` — concurrency group,
+  cancelling only on `synchronize`
+- `.github/workflows/ai-responder.yml › "return true"` — the skip marker,
+  checked before the action rules
+- `.github/workflows/ai-responder.yml › "const reviewEffort = process.env.BODY_REVIEW_EFFORT ??"`
+  — `assigned` among the actions that always review
+- `.github/workflows/ai-responder.yml#jobs.ai-review-present.if` —
+  `ai-review-present`, needing `claude-respond`
+- `.github/actions/ai-review-status/action.yml` — Codex logins accepted by the
+  gate

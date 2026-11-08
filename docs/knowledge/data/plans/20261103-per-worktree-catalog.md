@@ -328,20 +328,22 @@ named `wt-<worktree name>`, and SHALL NOT load the shared catalog's plugins.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:156` — `attached`
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:169` —
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
+  `attached`
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
   `catalog.install(settings, folder, None)`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:31` — `complete`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:70` — `claude`
-- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:136` — `install`
-- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:149` —
-  `Workspace.select_catalog`
-- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:159` —
-  `Workspace.catalog`
-- `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py:18` —
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::complete` —
+  `complete`
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — `claude`
+- `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::install` —
+  `install`
+- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.select_catalog`
+  — `Workspace.select_catalog`
+- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.catalog`
+  — `Workspace.catalog`
+- `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py::update_json` —
   `update_json`
-- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:76` —
-  `config_dir`
-- `py_packages/agentdev_runtime/agentdev_runtime/cli.py:124` — `PASSTHROUGH`
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::config_dir`
+  — `config_dir`
+- `py_packages/agentdev_runtime/agentdev_runtime/cli.py::PASSTHROUGH` —
+  `PASSTHROUGH`

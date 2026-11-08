@@ -98,11 +98,9 @@ minutes of model usage.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-09):
-
-- `.agents/plugins/self-improve/tests/smoke/test_wake_pty.py:407` — the wake
-  check
-- `.agents/plugins/self-improve/tests/smoke/test_wake_pty.py:512` — the negative
-  control, which discards the hook's exit code
+- `.agents/plugins/self-improve/tests/smoke/test_wake_pty.py › "@live"` — the
+  wake check
+- `.agents/plugins/self-improve/tests/smoke/test_wake_pty.py › "@live"` — the
+  negative control, which discards the hook's exit code
 - `.agents/plugins/self-improve/selfimprove/gate.py` — the gate that journalled
   `explicit_retention` identically for both

@@ -268,22 +268,23 @@ workspace folder. Attach SHALL remove environments that no listed checkout uses.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `.devcontainer/devcontainer.json:49` — `UV_PROJECT_ENVIRONMENT`
-- `.devcontainer/devcontainer.json:172` — `python.defaultInterpreterPath`
-- `.devcontainer/devcontainer.json:187` — `ansible.ansible.path`, with the two
-  other `ansible.*` paths below it
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:21` — `HOOK_TYPES`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:23` —
-  `MANAGED_VENV_PREFIX`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:31` — `sync`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py:142` — `main`
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:168` — `attached`
-  calls `project.sync`
-- `py_packages/agentdev_runtime/agentdev_runtime/settings.py:284` —
+- `.devcontainer/devcontainer.json › "UV_PROJECT_ENVIRONMENT"` —
+  `UV_PROJECT_ENVIRONMENT`
+- `.devcontainer/devcontainer.json › "ruff.lint.enable"` —
+  `python.defaultInterpreterPath`
+- `.devcontainer/devcontainer.json › "cmake.exportCompileCommandsFile"` —
+  `ansible.ansible.path`, with the two other `ansible.*` paths below it
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::HOOK_TYPES` —
+  `HOOK_TYPES`
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::MANAGED_VENV_PREFIX`
+  — `MANAGED_VENV_PREFIX`
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::sync` — `sync`
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::hooks` — `hooks`
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::main` — `main`
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
+  `attached` calls `project.sync`
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `UV_PROJECT_ENVIRONMENT` setting
-- `scripts/tests/test_agent_runtime_workspace.py:259` —
-  `test_standalone_skips_the_venv_migration`
-- `.pre-commit-config.yaml:52` — `repo: local`
+- `scripts/tests/test_agent_runtime_workspace.py::test_standalone_skips_the_venv_migration`
+  — `test_standalone_skips_the_venv_migration`
+- `.pre-commit-config.yaml › "repo: local"` — `repo: local`

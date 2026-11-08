@@ -31,11 +31,10 @@ and so hides a broken build-time install that a base-image consumer would hit.
 **Work:** add a check to CI's acceptance that runs the merged `agentdev-base`
 candidate with no volumes and no lifecycle command, then checks both clients.
 
-Verified anchor points (line numbers as of 2026-10-31):
-
-- `docker/base/agentdev-base.Dockerfile:61` —
-  `agentic_tools_install_catalog=true`
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:19` — Claude
-  marketplace at user scope; `:42` — OpenCode bridge registration
-- `scripts/tests/test_agentdev_devcontainer_image.py:143-145` — the
-  lifecycle-based catalog check
+- `docker/base/agentdev-base.Dockerfile` — `agentic_tools_install_catalog=true`
+- `ansible/roles/agent_catalog/tasks/install_catalog.yml › "Register the staged catalog as a Claude marketplace at user scope"`
+  — Claude marketplace at user scope;
+  `ansible/roles/agent_catalog/tasks/install_catalog.yml › "Register the staged OpenCode bridge plugin"`
+  — OpenCode bridge registration
+- `scripts/tests/test_agentdev_devcontainer_image.py::test_a_direct_consumer_gets_the_managed_runtime_without_lifecycle_scripts`
+  — the lifecycle-based catalog check

@@ -67,13 +67,12 @@ helper, and probe a repository path on `github.com` instead of the bare root.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-04):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:227` — `gh auth`
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` — `gh auth`
   through `gh auth status`
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:228` — the
-  `credential.https://github.com.helper` lookup; `:231` — its FAIL
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:258` — the
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` — the
+  `credential.https://github.com.helper` lookup;
+  `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::auth` — its FAIL
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::network` — the
   `https://github.com` probe
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:111` — runtime mode
-  checked against `PROFILES` (`deploy`, `devcontainer`)
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py::runtime` — runtime
+  mode checked against `PROFILES` (`deploy`, `devcontainer`)

@@ -190,20 +190,18 @@ dependency is unmerged.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-01):
-
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:45` — step 3, Check
-  `## Depends on`
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:48` — step 4, Start
-  on a work branch
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:49` — step 1, select the
-  operation and inspect current state
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:71` — step 3, Run Verify
-  for normal shipping
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:283`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › ".** Every prerequisite plan must carry"`
+  — step 3, Check `## Depends on`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Start on a work branch.** When the checkout is on the"`
+  — step 4, Start on a work branch
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Select the operation and inspect current state.** Take the"`
+  — step 1, select the operation and inspect current state
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
+  — step 3, Run Verify for normal shipping
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::read_plan_state`
   — `read_plan_state`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:327`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::pull_request_heads`
   — `pull_request_heads`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md:231` — Requirement: Implement
-  starts work on its own branch
-- `docs/knowledge/data/bugs/ship-ignores-unshipped-dependency.md:48` — `## Fix`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-starts-work-on-its-own-branch`
+  — Requirement: Implement starts work on its own branch
+- `docs/knowledge/data/bugs/ship-ignores-unshipped-dependency.md` — `## Fix`

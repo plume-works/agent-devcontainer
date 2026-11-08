@@ -194,20 +194,21 @@ host's value when it is set, and to `5` otherwise.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-11-03):
-
-- `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py:44` —
-  `apply_policy`; `:83` — `configure`
-- `.devcontainer/docker-compose.yml:67` — the `devcontainer` service's
-  `environment:` block
-- `compose.opencode.yml:11` — the `opencode` service's `environment:` block
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py:104` —
-  `apply_agent_policy`
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:152` — the `ready`
-  step calls `apply_agent_policy`
-- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:171` — the
-  standalone core phase calls `apply_agent_policy`
-- `docs/knowledge/data/spec/devcontainer-opencode-policy.md:26` — Requirement:
-  devcontainer OpenCode runs with unrestricted filesystem access
-- `docs/knowledge/data/architecture/nested-subagent-dispatch.md:18` —
+- `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py::apply_policy`
+  — `apply_policy`;
+  `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py::configure`
+  — `configure`
+- `.devcontainer/docker-compose.yml#services.devcontainer.environment` — the
+  `devcontainer` service's `environment:` block
+- `compose.opencode.yml#services.opencode.environment` — the `opencode`
+  service's `environment:` block
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::apply_agent_policy`
+  — `apply_agent_policy`
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::ready` — the
+  `ready` step calls `apply_agent_policy`
+- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.prepare`
+  — the standalone core phase calls `apply_agent_policy`
+- `docs/knowledge/data/spec/devcontainer-opencode-policy.md#requirement-devcontainer-opencode-runs-with-unrestricted-filesystem-access`
+  — Requirement: devcontainer OpenCode runs with unrestricted filesystem access
+- `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior` —
   `## Host behavior`
