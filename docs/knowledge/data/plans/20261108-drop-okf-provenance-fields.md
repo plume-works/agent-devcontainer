@@ -76,9 +76,14 @@ near-copy of the same file.
 and the same twelve under
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/.iwe/schemas/`
 
-- [ ] The `generated` and `verified` properties and the `verification`
+- [x] The `generated` and `verified` properties and the `verification`
   definition `verified` references are gone from all 24 schema files, and the
   workspace and scaffold copies of each schema stay byte-identical
+  - **Evidence:** commit ecb2f299;
+    `grep -nE 'generated|verified|verification|\$defs'` over both schema
+    directories finds nothing, `diff -r` between them reports no difference,
+    `iwe schema validate` exits 0, and `uv run pytest docs/knowledge/tests`
+    passed (88 tests)
 
 ### Task 2: No graph document sets `generated` or `verified`
 
