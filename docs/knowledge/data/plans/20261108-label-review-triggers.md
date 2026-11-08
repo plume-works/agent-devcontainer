@@ -303,8 +303,11 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ### Task 8: The repository has both labels
 
-- [ ] `gh label list` shows `request-ai-review` and `skip-ai-review`.
+- [x] `gh label list` shows `request-ai-review` and `skip-ai-review`.
   - **Closed by:** the maintainer, before this plan's pull request merges.
+  - **Evidence:** repository settings, observed 2026-11-08: `gh label list` on
+    plume-works/agent-devcontainer shows `request-ai-review` and
+    `skip-ai-review`, created with the maintainer's approval before merge.
 
 ### Task 9: A requested review counts toward merge
 
