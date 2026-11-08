@@ -45,12 +45,16 @@ jobs:
   preflight:
     name: AI responder preflight
     # Only a pull_request event can start a review. Bot-authored pull requests
-    # get no automatic review, see spec/template-consumption.
+    # get no automatic review, see spec/template-consumption. A label change
+    # outside pr-<n> never reviews, so only the gate runs for it.
     if: |
       github.repository_owner == 'plume-works' &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.user.type != 'Bot'
+      github.event.pull_request.user.type != 'Bot' &&
+      (!contains(fromJSON('["labeled", "unlabeled"]'), github.event.action) ||
+        (github.event.action == 'labeled' && github.event.label.name == 'request-ai-review') ||
+        (github.event.action == 'unlabeled' && github.event.label.name == 'block-ai-reviews'))
     runs-on: ubuntu-26.04
     permissions:
       contents: read
