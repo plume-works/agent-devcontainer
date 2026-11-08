@@ -205,10 +205,13 @@ whose frontmatter sets either key
 
 **Files:** Modify: `docs/knowledge/CHANGELOG.md` and its scaffold copy
 
-- [ ] Under `## [Unreleased]` → `### Added`, the OKF families bullet no longer
+- [x] Under `## [Unreleased]` → `### Added`, the OKF families bullet no longer
   names `generated`
 
-- [ ] Under `### Migration`, step 3 (convert `verified:`) and step 6 (add
+  - **Evidence:** commit f8b25123; `docs/knowledge/CHANGELOG.md:30-32` lists
+    `description`, `sources`, `resource`, `stale_after`, and `tags`
+
+- [x] Under `### Migration`, step 3 (convert `verified:`) and step 6 (add
   `description` and `generated`) are deleted, the steps are renumbered, and a
   final step reads:
 
@@ -218,7 +221,14 @@ whose frontmatter sets either key
   `banned-frontmatter-keys` pre-commit check rejects both.
   ```
 
-- [ ] The scaffold copy is byte-identical to the workspace file
+  - **Evidence:** commit f8b25123; the old steps 3 and 6 are gone, steps 1-4 are
+    renumbered, and `docs/knowledge/CHANGELOG.md:116-118` holds this text as
+    step 5
+
+- [x] The scaffold copy is byte-identical to the workspace file
+
+  - **Evidence:** commit f8b25123; `diff -q` between
+    `docs/knowledge/CHANGELOG.md` and its scaffold copy reports no difference
 
 ### Task 6: Template adoption ships the check
 
