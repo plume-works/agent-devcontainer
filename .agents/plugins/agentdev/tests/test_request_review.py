@@ -26,6 +26,7 @@ AI_REVIEWER = 'plume-works-quill[bot]'
 CHECK_URL = 'https://github.com/octo/repo/runs/700'
 POSTED_URL = 'https://github.com/octo/repo/pull/42#issuecomment-900'
 REQUEST_LABEL = 'request-ai-review'
+BLOCK_LABEL = 'block-ai-reviews'
 HEAD_REF = 'feature/retry'
 RATIONALE = 'Reworked the retry backoff beyond the thread.'
 EARLIER = '2026-01-01T09:00:00Z'
@@ -273,6 +274,28 @@ def test_assignees_are_never_touched(plugin_root: Path, plugin_tmp_path: Path) -
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert request_calls(calls) == [REQUEST_LABEL]
     assert assignee_calls(calls) == []
+
+
+def test_blocked_pull_request_queues_the_request(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A blocked pull request gets the request label so it waits visibly, and reports BLOCKED."""
+    fixture = make_fixture(pr=pull_request(labels=(BLOCK_LABEL,)))
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (7, 'RESULT=BLOCKED')
+    assert request_calls(calls) == [REQUEST_LABEL]
+
+
+def test_blocked_pull_request_with_waiting_request_adds_nothing(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A request already waiting on a blocked pull request is left as it is."""
+    fixture = make_fixture(pr=pull_request(labels=(BLOCK_LABEL, REQUEST_LABEL)))
+
+    completed, calls = run_script(plugin_root, plugin_tmp_path, fixture, '--pr', PR_NUMBER)
+
+    assert outcome(completed) == (7, 'RESULT=BLOCKED')
+    assert calls == []
 
 
 def test_label_waiting_for_a_run_is_already_requested(
@@ -626,6 +649,7 @@ def test_help_lists_options_keys_and_results(plugin_root: Path, plugin_tmp_path:
         'HEAD_SHA',
         'ALREADY_REVIEWED',
         'ALREADY_REQUESTED',
+        'BLOCKED',
         'PR_NOT_OPEN',
         'GH_UNAVAILABLE',
         'SIGNAL_HUP',
