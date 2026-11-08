@@ -1,9 +1,6 @@
 ---
 type: bug
 description: An evidence line that names a check command and says it passed, with no commit, is accepted by one iwe-verifier run and rejected as residue by the next, because the evidence rule leaves such a line undecided and asks for the commit to be named from inside that same commit.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-28T10:45:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

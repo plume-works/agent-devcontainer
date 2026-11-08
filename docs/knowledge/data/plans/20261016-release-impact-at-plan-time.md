@@ -8,9 +8,6 @@ description: Every active plan declares its release impact in a schema-required 
 release:
 - bugs/ship-release-link-without-feature
 - features/agentdev-iwe-workflow-skills
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T18:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md

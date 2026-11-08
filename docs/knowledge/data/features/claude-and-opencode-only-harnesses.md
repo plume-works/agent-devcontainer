@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Claude Code and OpenCode are the only agent harnesses the images, runtime, agentdev catalog, and CI support; Codex is removed entirely.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-06T12:00:00Z
 sources:
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py

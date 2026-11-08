@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: A repository-wide authoring rule against working-logbook prose, stated once in AGENTS.md as Best Practice 8, with the graph's three narrative exceptions, a capture-and-route section for Implement, a widened iwe-audit scope, and a fresh-context audit gate that enforces the rule on every plan-intent edit.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
 sources:
 - resource: AGENTS.md
 - resource: docs/knowledge/AGENTS.md

@@ -1,9 +1,6 @@
 ---
 type: bug
 description: test_recovery_kills_what_a_crashed_service_left_in_its_group failed intermittently because it treated a killed orphan that its adopting PID 1 had not yet reaped as alive, and its fake child held the exec wrapper's output, so supervisord's group stop rather than the controller's group kill did the killing.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-27T18:00:00Z
 stage: done
 severity: low
 sources:

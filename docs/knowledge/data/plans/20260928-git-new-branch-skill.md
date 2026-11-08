@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-28
 description: Add the git-new-branch skill, which creates a work branch at the freshly fetched remote base with its real upstream, and route every "get onto a feature branch" instruction in the catalog through it.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-29T07:13:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md

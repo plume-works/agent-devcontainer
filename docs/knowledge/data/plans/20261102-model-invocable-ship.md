@@ -4,9 +4,6 @@ created: 2026-11-02
 release:
 - features/agentdev-iwe-workflow-skills
 description: Drop the explicit-only gate on the iwe-ship skill so a session or coordinator asked to ship a named plan can start Ship, which still runs as a fresh iwe-shipper subagent, while Explore never starts it and the coordinators stay explicit-only.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T19:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md

@@ -4,9 +4,6 @@ created: 2026-11-02
 stage: cancelled
 priority: high
 description: Add the Git Core PPA in the dev_tools role as an explicit repository entry with a pinned signing key instead of the ppa:git-core/ppa shorthand, so building the image no longer depends on the Launchpad API.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T15:58:06Z
 sources:
 - resource: ansible/roles/dev_tools/tasks/main.yml
 - resource: ansible/roles/github_cli/tasks/main.yml

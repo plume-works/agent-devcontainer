@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-29
 description: Make every agent push run the codebase-map staleness check first and refresh a stale map before the branch leaves the machine, and tell the AI review not to report map staleness, which the CI step already owns.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md

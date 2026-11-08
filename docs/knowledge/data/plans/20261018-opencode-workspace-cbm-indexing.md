@@ -4,9 +4,6 @@ description: Add non-blocking, repository-aware CBM registration to the agentdev
 created: 2026-10-18
 release:
 - features/opencode-workspace-cbm-indexing
-generated:
-  by: claude-code/opus-5
-  at: 2026-10-18T21:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts

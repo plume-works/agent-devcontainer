@@ -2,9 +2,6 @@
 type: plan
 created: 2026-10-14
 description: EXPO_TOKEN passthrough in the template devcontainer, plus an opt-in Expo profile in the template-consume skill that prepares an adopted devcontainer for Expo's official Claude plugin and EAS cloud iOS builds — Expo firewall hosts, a bun pin in eas.json, and an AGENTS.md merge rule.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-15T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md

@@ -4,9 +4,6 @@ created: 2026-10-13
 release:
 - features/macos-native-bootstrap
 description: A zsh bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — Homebrew tools including uv, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T23:31:23Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml

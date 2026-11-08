@@ -4,9 +4,6 @@ stage: pending
 priority: medium
 created: 2026-11-08
 description: Make the anchor resolver check bare-path anchors, or narrow the "Live anchors resolve" requirement to `::`, `#`, and quoted anchors, so the code and the spec agree.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T19:00:00Z
 sources:
 - resource: scripts/check-anchors.py
 - resource: docs/knowledge/data/plans/20261108-line-free-anchors.md

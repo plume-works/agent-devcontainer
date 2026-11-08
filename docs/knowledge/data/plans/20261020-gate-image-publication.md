@@ -7,9 +7,6 @@ released: 2.0.0
 release:
 - bugs/ci-publishes-images-before-acceptance
 description: Publish ubuntu-ansible, agent-desktop, and agent-opencode under their moving tags only after the same run's devcontainer checks and runtime acceptance pass.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T12:00:00Z
 sources:
 - resource: .github/workflows/ci.yml
 - resource: .github/workflows/primary-checks.yml

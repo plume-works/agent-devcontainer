@@ -1,9 +1,6 @@
 ---
 type: bug
 description: A review that stopped at the PR metadata gate counts as the head's AI review, so after the author fixes the description request-review.py reports ALREADY_REVIEWED and offers no override; the full review cannot run without a new commit.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T03:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md

@@ -21,23 +21,17 @@ OKF's optional families (SPEC §4.1, §5), declared on every schema and checked 
 
 - `description` — one sentence. Every document has one; it is what an OKF
   consumer and `data/index.md` show before opening the file.
-- `generated` — `{ by, at }`. Write it on **every** edit. `by` is an actor in
-  the form [OKF SPEC
-  §7](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md#7-actor-convention)
-  defines: `<producer>/<model-version>` for agent writes — the agent and the
-  model version that wrote the content; `human:<handle>` for hand-authored or
-  human-confirmed content; `process:<id>` for automation.
 - `sources` — the materials a document derives from, each
   `{ id, resource, title, author, usage_count, last_modified }` with `resource`
   required. A `resource` may be a URL or a repo path. Attribute individual
   claims with a markdown footnote keyed to an entry's `id`.
-- `verified` — `{ by, at }` or a list, recording who confirmed the content
-  against its sources.
 - `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
 `stage` is the only lifecycle field: the per-type enums below. A work item's
 state lives only in its own frontmatter; no hub section repeats it. OKF's
-optional `status` is never set, so a state change edits one field.
+optional `status` is never set, so a state change edits one field. Nor are OKF's
+`generated` and `verified`: source control records when and by whom a document
+changed.
 
 ## The build order — `rank`
 

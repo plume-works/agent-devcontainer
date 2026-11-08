@@ -2,9 +2,6 @@
 type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:18:50Z
 ---
 
 # ✨ Features

@@ -5,9 +5,6 @@ release:
 - features/ai-responder-workflows
 - bugs/dispatched-review-gate-not-counted
 description: Make a pull_request assignment the only way to request an AI re-review, reject `@claude review` comments with a pointer to the assignee toggle, stop dispatched runs from reviewing, take the effort tier from the body marker alone, and drop Codex from the AI review gate.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-26T05:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml

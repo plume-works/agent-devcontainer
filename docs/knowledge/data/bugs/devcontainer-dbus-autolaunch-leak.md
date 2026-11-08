@@ -3,9 +3,6 @@ type: bug
 stage: done
 severity: medium
 description: In the devcontainer, processes started outside a shell that sourced the keyring session had no DBUS_SESSION_BUS_ADDRESS, so every gh call autolaunched a session bus and a gnome-keyring-daemon that never exited; a fixed containerEnv address now gives every process the one bus setup-keyring.sh starts.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-24T02:48:59Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/setup-keyring.sh

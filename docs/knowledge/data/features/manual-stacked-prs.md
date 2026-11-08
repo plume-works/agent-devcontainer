@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Work that depends on an open pull request is a normal pull request based on its predecessor's branch, kept current with merges and never rewritten, restacked after a squash merge by one pr-restack-all run.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md

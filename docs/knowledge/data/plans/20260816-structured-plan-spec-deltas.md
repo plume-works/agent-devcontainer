@@ -4,9 +4,6 @@ created: 2026-08-16
 release:
 - features/risk-scaled-spec-deltas
 description: Add risk-scaled, plan-local spec deltas so behavior-changing IWE plans carry a reviewable pre-ship contract without importing OpenSpec change bundles or claiming deterministic application.
-generated:
-  by: codex
-  at: 2026-08-16T01:27:59Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

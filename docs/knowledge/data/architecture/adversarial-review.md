@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Why adversarial review is a separate report-only agent outside Verify, what its two targets are, who may start it, and the alternatives rejected.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md

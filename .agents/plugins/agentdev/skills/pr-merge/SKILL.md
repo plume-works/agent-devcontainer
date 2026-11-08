@@ -196,7 +196,7 @@ otherwise report the concrete error as a blocker.
 ## AI Review Recovery
 
 The `ai-review-present` check accepts a submitted review from Claude. A review is
-requested by toggling the pull request author's assignment, which starts a
+requested by adding the `request-ai-review` label, which starts a
 `pull_request` run of the AI responder workflow: the review's
 `Claude PR Review Responder` check and the `ai-review-present` gate that waits on
 it are filed on the head commit and listed by `gh pr checks`.
@@ -214,9 +214,9 @@ it are filed on the head commit and listed by `gh pr checks`.
 
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
-   `request-review.py` toggles the author's assignment at most once per head
-   and title and description. On `ALREADY_REQUESTED`, a responder check
-   already covers this head: confirm it started as that skill describes and
+   `request-review.py` adds the `request-ai-review` label at most once per head
+   and title and description. On `ALREADY_REQUESTED`, the label is still waiting
+   for a run or a responder check already covers this head: confirm it started as that skill describes and
    wait on the head's checks; never request again. On `ALREADY_REVIEWED`, an
    accepted review newer than the last title or description edit already names
    the head and the failed gate predates it; report that instead of
@@ -224,7 +224,7 @@ it are filed on the head commit and listed by `gh pr checks`.
 
 4. Wait until the latest `ai-review-present` run on the head completes — it
    finishes in the same run as the review — then refresh both `gh pr checks`
-   and PR reviews. Do not treat a toggled assignment, a started run, or a pending
+   and PR reviews. Do not treat an added label, a started run, or a pending
    review as completion.
 5. If the responder publishes actionable feedback, return to the review step
    in the monitoring loop and use `pr-feedback-resolution` to address all of
@@ -249,5 +249,5 @@ evidenced.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
   AI responder workflow.
 - [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — request the
-  review by assignee toggle, at most once per head and title and description,
-  and confirm it started.
+  review with the `request-ai-review` label, at most once per head and title
+  and description, and confirm it started.

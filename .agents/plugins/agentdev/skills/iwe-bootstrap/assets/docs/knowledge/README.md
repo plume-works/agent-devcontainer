@@ -17,10 +17,10 @@ It is also a conformant [Open Knowledge
 Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 v0.2 bundle — an open standard for agent-maintained knowledge — so your project
 graph is portable to any OKF consumer, not locked to one tool. Every document
-carries a `type`, provenance (`generated`, `sources`) and lifecycle (`stage`,
-`rank`, `stale_after`) live in frontmatter, and conformance is checked in CI on
-every commit. Hubs are flat sorted lists and a work item's state lives only in
-its own file, so parallel pull requests rarely conflict in the graph.
+carries a `type`, provenance (`sources`) and lifecycle (`stage`, `rank`,
+`stale_after`) live in frontmatter, and conformance is checked in CI on every
+commit. Hubs are flat sorted lists and a work item's state lives only in its own
+file, so parallel pull requests rarely conflict in the graph.
 
 ## Quickstart
 

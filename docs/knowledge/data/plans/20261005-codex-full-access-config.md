@@ -4,9 +4,6 @@ created: 2026-10-05
 release:
 - features/codex-full-access-config
 description: Add a postStart script that writes Codex's full-access sandbox and never-approve policy into config.toml, using tomlkit with PEP 723 inline dependencies so it keeps other tools' comment markers and needs nothing from a consumer's pyproject.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-09T00:00:00Z
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/firewall-allowlist.txt

@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: A colocated per-directory file carrying agent tooling metadata, resolved root-to-leaf with accumulating namespaced sections.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: docs/knowledge/data/architecture/template-boundary.md

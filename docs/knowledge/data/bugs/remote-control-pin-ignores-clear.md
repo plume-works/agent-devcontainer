@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The pinned Remote Control conversation ID is written only when the claude-remote pane starts, so after a /clear a workspace restart resumes the pre-clear conversation and Claude Code mints a new claude.ai session URL for it.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T03:00:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh

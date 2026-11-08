@@ -2,9 +2,6 @@
 type: plan
 created: 2026-08-16
 description: Give explore a destination for a defect it establishes, and give verify's unchecked-box CRITICAL the third route that ship's no-override rule now requires.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-16T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md

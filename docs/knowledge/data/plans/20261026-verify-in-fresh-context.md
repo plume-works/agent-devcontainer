@@ -4,9 +4,6 @@ created: 2026-10-26
 description: Move Verify's rulebook into an iwe-verifier catalog agent that /agentdev:iwe-verify dispatches with a conversation-free prompt and that iwe-shipper follows in place, so every Verify run judges the code from a fresh context.
 release:
 - features/verification-in-the-main-loop
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-27T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md

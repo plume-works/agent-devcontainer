@@ -4,9 +4,6 @@ created: 2026-10-30
 release:
 - features/ai-responder-workflows
 description: Post every AI responder review, comment, and trusted-bot approval as the plume-works-quill GitHub App, make it the only identity the AI review gate accepts, and retire GitHub Actions' ability to approve pull requests.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml

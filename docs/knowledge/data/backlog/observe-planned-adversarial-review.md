@@ -4,9 +4,6 @@ created: 2026-11-04
 stage: pending
 priority: low
 description: Observe Implement running a plan's adversarial review task end to end — fixing each finding that defeats a plan claim and filing the rest — on Claude Code and OpenCode, the first time a real plan carries one.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md

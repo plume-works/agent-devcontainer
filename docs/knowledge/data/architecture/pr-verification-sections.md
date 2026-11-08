@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Replace the PR template's How to Test with a Verification section of closed items carrying evidence and a Reviewer Handoff section of open items naming who can close them.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
 sources:
 - resource: .github/pull_request_template.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md

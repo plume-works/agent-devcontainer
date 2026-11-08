@@ -2,9 +2,6 @@
 type: plan
 created: 2026-10-11
 description: Run setup-gh-credential-helper.sh from a repo-owned Coder agent-start script that the template coder_script calls, so a Coder workspace whose gh login is only GITHUB_TOKEN gets gh as its github.com git credential helper; post-start keeps running it too.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-11T21:30:00Z
 sources:
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/postStartCommand.sh

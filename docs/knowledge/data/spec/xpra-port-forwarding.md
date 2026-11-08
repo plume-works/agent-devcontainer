@@ -1,9 +1,6 @@
 ---
 type: spec
 description: Xpra uses a fixed container port while VS Code handles local port conflicts.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/xpra.py
 - resource: .devcontainer/devcontainer.json

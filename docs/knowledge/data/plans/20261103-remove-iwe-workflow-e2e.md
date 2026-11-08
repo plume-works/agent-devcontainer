@@ -4,9 +4,6 @@ created: 2026-11-03
 release:
 - features/agentdev-iwe-workflow-skills
 description: Delete the IWE workflow e2e suite under scripts/e2e/ with its unit tests and pytest marker, drop e2e claims from living project memory, and add a standing rule that plans add no live-model end-to-end test of the workflow skills.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T19:34:21Z
 sources:
 - resource: scripts/e2e/conftest.py
 - resource: scripts/e2e/iwe-workflows/scenarios.py

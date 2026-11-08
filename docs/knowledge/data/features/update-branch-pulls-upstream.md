@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: update-branch brings in the commits the branch's own upstream gained on the remote — fast-forward or merge — before it merges the base, so the update pushes without a second merge.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
 sources:
 - resource: docs/knowledge/data/plans/20261012-update-branch-pulls-upstream.md
 - resource: .agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py

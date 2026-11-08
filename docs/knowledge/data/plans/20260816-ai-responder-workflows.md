@@ -2,9 +2,6 @@
 type: plan
 created: 2026-08-16
 description: Import Dr-QP's AI responder and required-AI-review workflows, Claude-only, with the responder running the devcontainer lifecycle hooks so it reviews using the branch's own agentdev catalog and an indexed CBM.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-17T18:10:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 stage: done

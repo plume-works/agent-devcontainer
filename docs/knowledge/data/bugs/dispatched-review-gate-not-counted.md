@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The ai-review-present check that a comment-requested review's workflow_dispatch run files on the head commit is not counted by the merge ruleset, so that review neither holds a merge while it runs nor unblocks a red gate when it lands.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T19:10:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md

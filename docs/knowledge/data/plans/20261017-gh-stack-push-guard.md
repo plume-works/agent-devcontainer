@@ -5,9 +5,6 @@ description: Route every stack branch update through a two-phase guard script â€
 release:
 - bugs/gh-stack-push-overwrites-remote-layer
 - features/native-stacked-prs
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-18T17:45:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md

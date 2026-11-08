@@ -2,9 +2,6 @@
 type: plan
 description: Wire the two orphaned skill validators into the engine so --recommend produces recommendations, fix the flag plumbing, and remove the redundant --no-warnings flag.
 created: 2026-09-07
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
 sources:
 - resource: py_packages/validate_agent_files/
 stage: done

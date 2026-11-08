@@ -4,9 +4,6 @@ created: 2026-11-02
 release:
 - features/agentdev-iwe-workflow-skills
 description: Add an adversarial review — a report-only catalog agent and its entry skill — that looks for ways to defeat a plan's design or its implemented code, runs only when a plan task or the user asks, and leaves Verify a conformance check.
-generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-11-05T02:56:13Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md

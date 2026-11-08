@@ -1,9 +1,6 @@
 ---
 type: bug
 description: source_digest hashes whole files, so an automerged Renovate version-pin bump marks map docs stale even though no described behavior changed.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
 - resource: .github/renovate.json

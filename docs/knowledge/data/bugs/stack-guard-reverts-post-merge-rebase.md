@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The gh-stack guard's publish force-pushes a stack layer back to a stale local copy after GitHub rebased that layer on the server, because the guard treats the rebased commits as already present and pushes layers adopted from other worktrees.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T13:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md

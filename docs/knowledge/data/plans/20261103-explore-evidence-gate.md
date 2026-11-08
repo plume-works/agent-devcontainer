@@ -6,9 +6,6 @@ created: 2026-11-03
 release:
 - features/agentdev-iwe-workflow-skills
 description: Make Explore propose a change only for a problem it can show has occurred, list imagined cases as not observed, and weigh a risk its own proposal creates against that proposal instead of opening it as a new question.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T01:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 released: 2.1.0

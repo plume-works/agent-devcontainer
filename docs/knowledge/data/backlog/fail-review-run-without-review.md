@@ -4,9 +4,6 @@ created: 2026-10-08
 stage: pending
 priority: medium
 description: Fail a Claude PR review responder run that published no review of its own, by tying the published review to the run through an identity rather than a time window.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
 sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .github/workflows/ai-responder.yml

@@ -2,9 +2,6 @@
 type: plan
 created: 2026-08-15
 description: Finish the uv-run-only migration in CI — stop activating the environment, enforce the interpreter, and fail on lockfile drift at provisioning.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
 sources:
 - resource: .github/actions/setup-python-venv/action.yml
 - resource: .github/workflows/validate-agent-files.yml

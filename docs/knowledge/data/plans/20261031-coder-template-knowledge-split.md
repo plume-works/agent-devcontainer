@@ -5,9 +5,6 @@ release: internal
 stage: done
 completed: 2026-11-07
 description: Give plume-works/coder-ide-baseline its own IWE workspace holding the template's requirements and how to work on it, and narrow this repository's Coder spec to what the repository owes the template.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T19:40:11Z
 sources:
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md

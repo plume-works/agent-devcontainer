@@ -3,9 +3,6 @@ type: plan
 created: 2026-11-07
 release: internal
 description: Copy every finished plan, bug, and feature that changed the coder-ide-baseline template into that repository's IWE workspace, after cutting agent-devcontainer 2.1.0 so each copy carries its release, and delete the two template-only originals here.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T23:30:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261031-coder-template-knowledge-split.md
 - resource: https://github.com/plume-works/coder-ide-baseline/tree/5ff6817/docs/knowledge

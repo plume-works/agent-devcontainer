@@ -1,9 +1,6 @@
 ---
 type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T12:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md

@@ -1,9 +1,6 @@
 ---
 type: bug
 description: When claude-remote-control-start.sh succeeds but the claude-remote pane exits before the watcher's live check, the standalone Remote Control watcher re-runs the start every interval, with two claude auth status calls each time, and never reaches the controller's recovery budget.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: scripts/tests/test_runtime_remote_control.py

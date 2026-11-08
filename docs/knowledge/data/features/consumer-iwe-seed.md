@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Any repository can receive a blank IWE workspace from the installed agentdev catalog, directly or through template adoption, without overwriting existing knowledge.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/knowledge/data/plans/20260905-consumer-iwe-seed.md
 - resource: docs/knowledge/data/plans/20261023-reusable-iwe-bootstrap.md

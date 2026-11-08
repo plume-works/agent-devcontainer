@@ -6,9 +6,6 @@ created: 2026-10-31
 release:
 - features/agentdev-iwe-workflow-skills
 description: Drop the explicit-only gate on the iwe-implement skill so any session asked to implement a named plan — including one a coordinator asks — can load it, take decisions from its own user or from approvals a coordinator relays from the user, and have Plan and Explore neither start Implement nor name it as a next step.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T07:33:14Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md

@@ -4,9 +4,6 @@ created: 2026-09-09
 release:
 - features/ai-responder-workflows
 description: Resume an interrupted Claude pull-request review from a persistent local session when a writer adds the one-shot ai-review-resume label.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T21:30:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/actions/runs/34403145254/job/102639842076?pr=134
   title: Interrupted PR 134 review
@@ -339,8 +336,8 @@ controls.
   `cancel-in-progress` only on `synchronize`
 - `.github/workflows/ai-responder.yml#jobs.preflight.outputs` — preflight
   outputs
-- `.github/workflows/ai-responder.yml › "const skipAiReview ="` — the
-  `[ci:skip-ai-review]` marker
+- `.github/workflows/ai-responder.yml › "label.name === 'skip-ai-review'"` — the
+  `skip-ai-review` label check
 - `.github/workflows/ai-responder.yml › "name: Determine agent prompts"` —
   `Determine agent prompts`;
   `.github/workflows/ai-responder.yml › "if (['opened', 'ready_for_review', 'reopened"`
@@ -371,5 +368,5 @@ controls.
   — the review-request requirement;
   `docs/knowledge/data/spec/ai-review-gate.md#scenario-a-writer-re-requests-a-review-by-assignment`
   — the re-request-by-assignment scenario
-- `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "the pull request's author as assignee and adding them back"`
-  — re-review by assignment
+- `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "is the author's call: adding the"`
+  — re-review by the `request-ai-review` label

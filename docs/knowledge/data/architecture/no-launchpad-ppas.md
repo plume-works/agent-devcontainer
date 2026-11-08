@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Building the image contacts no Launchpad host; the Git Core PPA's git builds come from unchanged copies released in this repository, which a daily workflow publishes after verifying the PPA's signed index.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-05T00:20:00Z
 sources:
 - resource: ansible/roles/git_ppa/tasks/main.yml
 - resource: ansible/roles/git_ppa/defaults/main.yml

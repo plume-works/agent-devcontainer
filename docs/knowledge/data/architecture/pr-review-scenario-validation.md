@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: pr-review ships the reachable-scenario correctness bar with three-part scenarios validated part by part; the light validator judges whether a fault is real rather than whether each stated part holds, so a DROP's named part is diagnostic and a confirmed Outcome may overstate the harm.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T21:00:28Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: data/plans/20261005-pr-review-scenario-validation.md

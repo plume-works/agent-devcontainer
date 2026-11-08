@@ -2,9 +2,6 @@
 type: hub
 description: One page per version, aggregating the features it added, the released features it changed, and the fixes it shipped.
 stage: living
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 ---
 
 # 🚀 Releases

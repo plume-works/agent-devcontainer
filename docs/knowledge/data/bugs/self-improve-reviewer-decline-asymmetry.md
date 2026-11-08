@@ -3,9 +3,6 @@ type: bug
 stage: pending
 severity: low
 description: The reviewer declines a stated user directive far more often on the wake harness's negative control than on the wake check itself, on an identically scripted exchange, with no mechanism identified.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement at e94031a, spec 0005

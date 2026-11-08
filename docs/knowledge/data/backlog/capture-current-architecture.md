@@ -4,9 +4,6 @@ description: 'Write the first data/architecture/ documents: the module layout, t
 stage: done
 priority: medium
 created: 2026-08-01
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 completed: 2026-08-12
 ---
 

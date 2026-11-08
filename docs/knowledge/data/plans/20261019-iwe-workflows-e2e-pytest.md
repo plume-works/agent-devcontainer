@@ -3,9 +3,6 @@ type: plan
 created: 2026-10-19
 release: internal
 description: Port the agent-owned Ship/Implement e2e suite from bash to a pytest suite at scripts/e2e/iwe-workflows/, with one clone and, on OpenCode, one isolated server per test, gated by E2E_RUN_LIVE, OpenCode first and then Claude Code and Codex.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T00:00:00Z
 sources:
 - resource: scripts/e2e/20261007-agent-owned-ship-implement/run.sh
 - resource: .agents/plugins/self-improve/tests/conftest.py

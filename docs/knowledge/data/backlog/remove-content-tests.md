@@ -5,9 +5,6 @@ priority: medium
 created: 2026-11-02
 completed: 2026-11-03
 description: Delete the tests that check file contents or another tool's work instead of running behaviour, as the AGENTS.md Tests rule requires.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T21:20:00Z
 sources:
 - resource: AGENTS.md
 - resource: scripts/tests/test_agent_runtime_ci.py

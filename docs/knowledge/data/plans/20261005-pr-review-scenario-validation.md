@@ -4,9 +4,6 @@ release:
 - features/ai-responder-workflows
 type: plan
 description: Ship pr-review's reachable-scenario correctness bar together with a validator that checks each scenario's trigger, path, and outcome separately, gated on a frozen-candidate validator replay and two full replays per pull request.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-05T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 stage: done

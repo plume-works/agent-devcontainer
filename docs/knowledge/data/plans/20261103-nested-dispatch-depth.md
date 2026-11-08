@@ -4,9 +4,6 @@ created: 2026-11-03
 release:
 - features/nested-agent-dispatch
 description: Set Claude Code's and OpenCode's subagent nesting limit to 5 in the devcontainer and the standalone runtime, so a dispatched catalog agent can dispatch another on both harnesses.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T06:40:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 - resource: .devcontainer/docker-compose.yml

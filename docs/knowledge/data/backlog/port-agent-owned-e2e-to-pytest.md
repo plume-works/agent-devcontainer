@@ -4,9 +4,6 @@ description: Port the agent-owned Ship/Implement e2e suite from bash to pytest, 
 stage: done
 priority: high
 created: 2026-10-19
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T06:30:00Z
 sources:
 - resource: scripts/e2e/20261007-agent-owned-ship-implement/run.sh
 completed: 2026-10-19

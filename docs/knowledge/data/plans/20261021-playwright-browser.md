@@ -4,9 +4,6 @@ created: 2026-10-21
 release:
 - features/playwright-browser
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
-generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T03:52:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile

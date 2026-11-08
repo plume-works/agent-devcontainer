@@ -74,11 +74,9 @@ software project's memory and system of record. The division of labor:
      `release` lists, sets `released: <X.Y.Z>` on each, links it from
      `data/releases.md`, and adds one dated group to `data/log.md`. Nothing else
      writes either.
-5. **Stamp** — every document you create or meaningfully change gets
-   `generated: { by: <producer>/<model-version>, at: <ISO 8601 now> }` (an actor
-   as `SCHEMA.md` defines it), a one-sentence `description` if it has none, and
-   — when you derived it from code or an external page — a `sources` entry
-   naming that path or URL.
+5. **Stamp** — every document you create or meaningfully change gets a
+   one-sentence `description` if it has none, and — when you derived it from
+   code or an external page — a `sources` entry naming that path or URL.
 6. **Validate & commit** — `iwe normalize`, then `iwe schema validate` must
    pass; commit with a short message describing the state change.
 
@@ -123,7 +121,8 @@ software project's memory and system of record. The division of labor:
   three — never work around them by unbinding a schema.
 - **The workspace diverges from OKF only to cut merge and upkeep cost.** It
   never sets OKF's optional `status`: `stage` is the one lifecycle field, so a
-  state change edits one field in one file.
+  state change edits one field in one file. It never sets OKF's `generated` or
+  `verified`: source control records when and by whom a document changed.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.

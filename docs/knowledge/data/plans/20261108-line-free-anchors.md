@@ -4,9 +4,6 @@ created: 2026-11-08
 release:
 - features/agentdev-iwe-workflow-skills
 description: Never record a line number — anchor every reference by symbol, heading slug, key path, or verbatim quote, in the graph, the catalog, and skill chat reports — and enforce it with a line-number gate and an anchor resolver.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md

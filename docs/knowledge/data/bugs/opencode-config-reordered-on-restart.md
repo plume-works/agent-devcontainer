@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The OpenCode policy step moved the permission key to the end of opencode.json on every start, so the first restart of a runtime with an unchanged catalog rewrote the file in a new key order.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-01T01:20:16Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py

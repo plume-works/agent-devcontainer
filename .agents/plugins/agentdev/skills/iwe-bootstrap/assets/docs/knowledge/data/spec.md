@@ -2,9 +2,6 @@
 type: hub
 description: Behavioral specifications — the durable truth about how the product must work.
 stage: living
-generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
 ---
 
 # 📐 Spec

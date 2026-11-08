@@ -4,9 +4,6 @@ created: 2026-11-03
 release:
 - features/ship-review
 description: Add the iwe-plan-review skill, which dispatches the Durable Knowledge Auditor and iwe-ship-reviewer in plan mode on one plan and returns both reports, and have iwe-planner step 7 run it on every plan edit.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md

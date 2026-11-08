@@ -4,9 +4,6 @@ created: 2026-10-30
 stage: pending
 priority: medium
 description: Let a Verify run whose HEAD descends from a commit with a saved Verify report re-check only what changed since that commit, instead of re-running every check and verification command.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md

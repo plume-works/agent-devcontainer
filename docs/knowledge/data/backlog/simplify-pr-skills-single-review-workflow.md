@@ -4,9 +4,6 @@ description: Once comment-requested reviews run on the PR head branch, retire th
 stage: done
 priority: medium
 created: 2026-09-03
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-discover-ai-responder/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md

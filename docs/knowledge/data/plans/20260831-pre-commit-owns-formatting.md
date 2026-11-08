@@ -2,9 +2,6 @@
 type: plan
 created: 2026-08-31
 description: Remove the skill-level formatting mandates so the pre-commit git hooks are the only local formatting path, and extend those hooks to merge commits.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-31T00:00:00Z
 stage: done
 completed: 2026-08-31
 released: 1.0.0

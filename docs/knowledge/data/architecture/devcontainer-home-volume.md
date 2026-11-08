@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-07T13:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: compose.opencode.yml

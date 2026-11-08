@@ -4,9 +4,6 @@ created: 2026-10-28
 release:
 - features/expo-eas-builds
 description: Move the 28 Expo bridge documents from this graph into a new IWE workspace in plume-works/vscode-expo-bridge, give that repository contributor instructions and a README that stand without this template, file its agent-skill task there, and leave this graph only the template's Expo profile wiring, linked to the new home by URL.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-28T16:12:37Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/architecture/vscode-expo-bridge.md

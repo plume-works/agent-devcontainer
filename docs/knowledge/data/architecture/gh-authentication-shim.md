@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: gh is authenticated by a transparent PATH wrapper that derives a token from the host's git credential helper on every invocation, replacing a skill that asked the agent to remember an incantation.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-04T00:00:00Z
 sources:
 - resource: docker/bin/gh
 - resource: ansible/roles/github_cli/tasks/main.yml

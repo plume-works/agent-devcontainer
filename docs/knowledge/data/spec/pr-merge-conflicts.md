@@ -1,9 +1,6 @@
 ---
 type: spec
 description: How pr-feedback-resolution and pr-merge detect a pull request's merge conflicts and resolve them through update-branch against the PR's own base branch.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md

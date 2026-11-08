@@ -2,9 +2,6 @@
 type: plan
 created: 2026-10-01
 description: Serve the agentdev catalog to OpenCode through a dependency-free bridge plugin shipped inside the catalog, and provision OpenCode with the same image-build, postCreate, and postAttach lifecycle as Claude Code and Codex.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-01T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev
 - resource: ansible/roles/agentic_tools

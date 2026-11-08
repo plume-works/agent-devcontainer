@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The devcontainer metadata-mask tests run git in a nested fixture repository without clearing GIT_INDEX_FILE, so under `git commit -a` the plan-checkboxes hook fails and can leave a stray index.lock in the outer repository.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
 sources:
 - resource: docs/knowledge/tests/test_devcontainer_metadata_mask.py
 - resource: .pre-commit-config.yaml

@@ -2,9 +2,6 @@
 type: plan
 created: 2026-09-29
 description: Keep the agentdev plugin enabled when the Claude responder hands its settings to claude-code-action, and make pr-review collect its parallel passes with foreground Agent calls, leaving the job timeout as the only ceiling.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-07T06:30:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/issues/198
   title: Claude responder reviews fail silently

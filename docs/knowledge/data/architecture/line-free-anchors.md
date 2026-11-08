@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: References name a place by symbol, heading slug, key path, or verbatim quote, never by line number; a pre-commit gate rejects line numbers and resolves the anchors in live documents.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T18:00:00Z
 sources:
 - resource: scripts/check-anchors.py
 - resource: AGENTS.md

@@ -4,9 +4,6 @@ created: 2026-11-02
 release:
 - features/agentdev-iwe-workflow-skills
 description: Narrow what the Implement loop acts on so it converges — Verify judges conformance only, CI is left to the merge gate, post-merge observations wait for Ship, only CRITICALs create work, and a revision answers its finding without adding promises.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T16:58:40Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md

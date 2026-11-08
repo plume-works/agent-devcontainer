@@ -4,9 +4,6 @@ created: 2026-11-05
 stage: pending
 priority: low
 description: Rerun the plan-target adversarial review on OpenCode after the reviewer was told to check every rubric part and report every finding, and record whether OpenCode models now find the structural weaknesses Claude Code finds.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-05T01:13:40Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md

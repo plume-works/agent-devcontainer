@@ -4,9 +4,6 @@ created: 2026-11-01
 release:
 - features/agentdev-iwe-workflow-skills
 description: Make Explore settle a problem's open questions with the user one at a time — one topic per turn, one decision per question, in the user's names and design, settled by evidence, with each answer recorded verbatim as it is given.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-02T00:58:20Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 stage: done

@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The contract of the OpenCode bridge plugin that serves the agentdev catalog's skills, namespaced commands, and agents to OpenCode v1 and v2.
-generated:
-  by: codex/gpt-6.1-sol
-  at: 2026-10-21T06:51:16Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts

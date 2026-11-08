@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: The template devcontainer passes EXPO_TOKEN to every consumer, and template-consume's opt-in Expo profile prepares an adopted Expo app for EAS cloud iOS builds driven from the Linux devcontainer.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-29T00:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md

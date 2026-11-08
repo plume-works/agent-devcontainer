@@ -1,9 +1,6 @@
 ---
 type: bug
 description: Renovate proposes the ubuntu-26.04 GitHub-hosted runner label before any actionlint release knows it, so the post-upgrade script and Super-Linter both fail the runner bump.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-29T12:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/208
 - resource: .github/renovate.json

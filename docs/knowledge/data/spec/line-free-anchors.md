@@ -1,9 +1,6 @@
 ---
 type: spec
 description: References name a place by symbol, heading slug, key path, or verbatim quote, never by line number, and a pre-commit gate rejects line numbers and resolves live anchors.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-08T12:00:00Z
 sources:
 - resource: AGENTS.md
 - resource: scripts/check-anchors.py

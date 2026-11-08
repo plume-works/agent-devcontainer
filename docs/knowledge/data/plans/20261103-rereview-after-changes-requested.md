@@ -4,9 +4,6 @@ created: 2026-11-03
 release:
 - bugs/eval-skips-rereview-after-changes-requested
 description: Make pr-eval-review-needed request a re-review whenever the AI reviewer's newest verdict is CHANGES_REQUESTED, because only that reviewer's own APPROVE lifts its change request; the scope test decides whenever no AI change request is pending.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T03:52:20Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md

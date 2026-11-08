@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: A bridged review runs as github-actions[bot], so requester authorization is carried in a forwarded input rather than read from github.actor; two separate bot gates must be opened for a comment-requested review to run.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-03T16:05:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://docs.github.com/en/rest/actions/workflows#create-a-workflow-dispatch-event

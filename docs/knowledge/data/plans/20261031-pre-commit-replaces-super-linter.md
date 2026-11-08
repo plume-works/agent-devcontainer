@@ -4,9 +4,6 @@ created: 2026-10-31
 release:
 - features/pre-commit-ci-gate
 description: Replace Super-Linter and reformat.yml with a pre-commit job in the digest-pinned devcontainer image, make every hook a uv-locked or image-provisioned tool, scan gitleaks over commit ranges, and remove Super-Linter from the whole repository.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:45:18Z
 sources:
 - resource: .github/workflows/reformat.yml
 - resource: .github/workflows/primary-checks.yml

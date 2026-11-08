@@ -3,9 +3,6 @@ type: plan
 created: 2026-11-03
 release: internal
 description: Backfill a Ship review on every plan already shipped, repairing what the graph can still fix through iwe-shipper's fix operation, then make the ship-records CLI require the section on every done plan.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T07:50:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md
 - resource: scripts/check-ship-records.py

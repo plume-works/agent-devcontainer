@@ -4,9 +4,6 @@ created: 2026-10-20
 description: Add the iwe-branch-name skill, which names a plan's work branches <impl|ship>/<plan-slug>/iter-<N> and reads plan state at the remote default branch, and have the implementer name its first branch through it.
 release:
 - features/iwe-branch-name
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md

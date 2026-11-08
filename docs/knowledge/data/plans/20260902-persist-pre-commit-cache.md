@@ -2,9 +2,6 @@
 created: 2026-09-02
 type: plan
 description: Persist the pre-commit hook cache on the agentdev-cache volume so only the first devcontainer create per worktree pays the cold install cost.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-02T03:05:00Z
 stage: done
 completed: 2026-09-02
 released: 1.0.0

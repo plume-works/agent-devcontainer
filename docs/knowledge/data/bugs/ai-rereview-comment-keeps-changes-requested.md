@@ -1,9 +1,6 @@
 ---
 type: bug
 description: An AI re-review that submits COMMENT never replaces the reviewer's own earlier CHANGES_REQUESTED, so the pull request stays blocked until a person dismisses the review.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-30T19:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: data/architecture/ai-review-event-selection.md

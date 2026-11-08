@@ -1,9 +1,6 @@
 ---
 type: spec
 description: The Coder agent start runs the OpenCode v2 server and web UI in a reusable tmux session on port 4096, always behind a server password and bound beyond localhost only with a configured one, prints the server's root URL, and keeps logins and chats per worktree across rebuilds.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py

@@ -4,9 +4,6 @@ created: 2026-10-18
 release:
 - features/opencode-full-access-config
 description: Configure OpenCode for unrestricted filesystem access inside the devcontainer on every start while preserving unrelated user configuration.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-18T20:00:00Z
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh

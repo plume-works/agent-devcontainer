@@ -4,9 +4,6 @@ created: 2026-11-02
 release:
 - bugs/image-build-context-whole-repo
 description: Give every image build step only the inputs it reads — an allow-list build context, per-input mounts, tag-selected provisioning steps, a digest-pinned Ubuntu base refreshed weekly, and a gh wrapper owned by its role — so unrelated changes reuse the cached provisioning layers.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-04T21:00:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/ansible/Dockerfile

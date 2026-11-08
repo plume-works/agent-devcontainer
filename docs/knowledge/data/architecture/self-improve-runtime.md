@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: The self-improve plugin's runtime decisions — standard-library-only code, one dispatcher, the state-root resolution order, reviewer isolation by tool removal, and the environment dials.
-generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
 sources:
 - resource: .agents/plugins/self-improve/agent-code/si
 - resource: .agents/plugins/self-improve/selfimprove/paths.py

@@ -2,9 +2,6 @@
 type: feature
 stage: implemented
 description: Approved wording survives the explore-to-plan handoff — persisted verbatim to .tmp/ at approval time and inlined as fenced blocks in the plan's tasks, so a cold session can reproduce the agreed bytes.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md

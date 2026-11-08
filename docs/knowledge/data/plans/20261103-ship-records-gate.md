@@ -3,9 +3,6 @@ type: plan
 created: 2026-11-03
 release: internal
 description: Add a checker CLI that a pre-commit hook runs over bug and plan documents, failing a done bug with no Fix section and a Ship review section whose shape is not the fixed one, in every pre-commit mode.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-11-03T07:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .iwe/schemas/bug.yaml
@@ -172,9 +169,9 @@ structure, and SHALL report every violation with `path:line`.
 ## Key references
 
 - `.pre-commit-config.yaml › "id: plan-checkboxes"` — the `plan-checkboxes`
-  hook; `.pre-commit-config.yaml › "id: no-status-field"` — the
-  `no-status-field` hook; `.pre-commit-config.yaml › "id: iwe-schema-validate"`
-  — `iwe-schema-validate`
+  hook; `.pre-commit-config.yaml › "id: banned-frontmatter-keys"` — the
+  `banned-frontmatter-keys` hook;
+  `.pre-commit-config.yaml › "id: iwe-schema-validate"` — `iwe-schema-validate`
 - `.iwe/schemas/bug.yaml › "header: { const: Fix }"` — `Fix` at `minContains: 0`
 - `.github/workflows/primary-checks.yml › "uv run pre-commit run --from-ref"` —
   pre-commit over the pull request's range

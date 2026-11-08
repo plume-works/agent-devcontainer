@@ -1,9 +1,6 @@
 ---
 type: bug
 description: The body-shape schema tests build their scratch graph at a fixed /tmp path, so two runs at once — from different worktrees or sessions — rewrite each other's documents and fail with "section 'Root cause' not found".
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T06:00:00Z
 stage: done
 severity: low
 sources:

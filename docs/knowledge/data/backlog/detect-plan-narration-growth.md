@@ -4,9 +4,6 @@ created: 2026-08-24
 stage: pending
 priority: low
 description: Investigate whether a plan absorbing a working logbook can be detected mechanically, which the shape gate cannot do today because narration has no reliable shape.
-generated:
-  by: claude-code/opus-5
-  at: 2026-08-24T00:00:00Z
 sources:
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
 - resource: docs/knowledge/data/plans/20260817-no-logbooks-in-the-graph.md

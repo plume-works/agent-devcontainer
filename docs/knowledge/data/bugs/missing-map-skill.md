@@ -1,9 +1,6 @@
 ---
 type: bug
 description: setup and verify both hand codebase-map work to a "map skill" that does not exist, so data/codebase/ is never populated and its staleness audit can never be acted on.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-setup/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md

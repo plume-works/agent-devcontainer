@@ -1,9 +1,6 @@
 ---
 type: architecture
 description: Whether a dispatched subagent can dispatch another one on Claude Code and OpenCode — what each harness allows by default, what gates it, and what a fresh-context dispatch has to specify on each.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-31T20:58:33Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
