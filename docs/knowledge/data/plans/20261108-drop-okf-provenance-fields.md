@@ -9,7 +9,7 @@ sources:
 - resource: .iwe/schemas/okf.yaml
 - resource: docs/knowledge/SCHEMA.md
 - resource: docs/knowledge/AGENTS.md
-- resource: docs/knowledge/tests/test_no_status_field.py
+- resource: docs/knowledge/tests/test_banned_frontmatter_keys.py
 - resource: .pre-commit-config.yaml
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
