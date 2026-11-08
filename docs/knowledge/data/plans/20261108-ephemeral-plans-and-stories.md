@@ -163,9 +163,12 @@ at `stage: planned` or `stage: done`; this plan; Create:
   H1 holding `## Story`, `## Acceptance criteria`, `## Decisions`,
   `## Out of scope` (required, in order), then optional `## Depends on` and
   `## Plan`, additional sections allowed after them. `bug.yaml`: `planned` →
-  `in-progress`; `released` (X.Y.Z). `plan.yaml`: remove `stage`, `completed`,
-  `released`, `release`, and `rank`; require `delivers` matching
-  `^(backlog|bugs)/<slug>$`.
+  `in-progress`; `released` (X.Y.Z). `plan.yaml`: remove the `stage`,
+  `completed`, `released`, `release`, and `rank` definitions and reject those
+  keys — the frontmatter is not closed, so dropping a definition alone still
+  accepts the key — with a frontmatter
+  `not: { anyOf: [{ required: [stage] }, { required: [completed] }, { required: [released] }, { required: [release] }, { required: [rank] }] }`;
+  require `delivers` matching `^(backlog|bugs)/<slug>$`.
 - [ ] Convert the graph in the same commit: each bug at `planned` →
   `in-progress`; each done bug gets `released: <latest release version>`; this
   plan's story is written at `data/backlog/ephemeral-plans-and-stories.md`
