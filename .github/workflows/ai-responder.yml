@@ -48,11 +48,10 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-26.04
-    # pull-requests: write removes the one-shot request-ai-review label.
     permissions:
       contents: read
       issues: read
-      pull-requests: write
+      pull-requests: read
     outputs:
       checkout_ref: ${{ steps.checkout_ref.outputs.ref }}
       head_ref: ${{ steps.checkout_ref.outputs.headRef }}
@@ -62,6 +61,7 @@ jobs:
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
       review_exists: ${{ steps.review_status.outputs.found }}
       wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
+      request_label: ${{ steps.checkout_ref.outputs.requestLabel }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
       - name: Determine checkout ref
@@ -107,33 +107,6 @@ jobs:
             core.setOutput('skipAiReview', labels.some((label) => label.name === 'skip-ai-review'));
             core.setOutput('requestLabel', labels.some((label) => label.name === 'request-ai-review'));
 
-      # Any run in pr-<n> takes a waiting request, so one whose own run was
-      # replaced is not lost; cleared before authorization, so a rejected
-      # request is cleared too. Label lifecycle: see spec/ai-review-gate.
-      - name: Take the review request label
-        id: take_request
-        if: |
-          steps.checkout_ref.outputs.requestLabel == 'true' &&
-          !(github.event.action == 'labeled' && github.event.label.name != 'request-ai-review')
-        uses: actions/github-script@v9.0.0
-        with:
-          script: |
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                name: 'request-ai-review',
-              });
-            } catch (error) {
-              if (error.status !== 404) {
-                throw error;
-              }
-              core.info('Another run already took request-ai-review.');
-              return;
-            }
-            core.setOutput('requested', 'true');
-
       - name: Check for an accepted AI review
         id: review_status
         if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
@@ -176,7 +149,7 @@ jobs:
           PR_NUMBER: ${{ steps.checkout_ref.outputs.prNumber }}
           IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
           SKIP_AI_REVIEW: ${{ steps.checkout_ref.outputs.skipAiReview }}
-          REVIEW_REQUESTED: ${{ steps.take_request.outputs.requested }}
+          REQUEST_LABEL: ${{ steps.checkout_ref.outputs.requestLabel }}
           REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
         with:
           script: |
@@ -188,7 +161,12 @@ jobs:
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
                 return false;
               }
-              if (process.env.REVIEW_REQUESTED === 'true') {
+              // Any run in pr-<n> takes a waiting request; another label's run
+              // never does. Label lifecycle: see spec/ai-review-gate.
+              if (payload.action === 'labeled' && payload.label?.name !== 'request-ai-review') {
+                return false;
+              }
+              if (process.env.REQUEST_LABEL === 'true') {
                 return true;
               }
               if (payload.action === 'labeled') {
@@ -256,6 +234,7 @@ jobs:
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           app-client-id: ${{ secrets.QUILL_APP_CLIENT_ID }}
           app-private-key: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
+          remove-request-label: ${{ needs.preflight.outputs.request_label }}
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
 
   # Depends on the review job so the check stays pending while a review runs.

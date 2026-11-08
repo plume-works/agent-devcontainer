@@ -17,6 +17,12 @@ inputs:
   prompt:
     description: Prompt for the Claude responder.
     required: true
+  remove-request-label:
+    description: >-
+      'true' when the pull request carries request-ai-review, which this review
+      takes by removing it as the App.
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -115,6 +121,24 @@ runs:
           echo "id=${id}"
           echo "name=${APP_SLUG}[bot]"
         } >>"$GITHUB_OUTPUT"
+
+    # The review takes the request: see spec/ai-review-gate. Another run may
+    # already have taken it, so a missing label is not an error.
+    - name: Take the review request label
+      if: inputs.remove-request-label == 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        if ! output=$(gh api -X DELETE \
+          "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/request-ai-review" 2>&1); then
+          if [[ "${output}" != *"HTTP 404"* ]]; then
+            echo "${output}" >&2
+            exit 1
+          fi
+          echo 'Another run already took request-ai-review.'
+        fi
 
     - name: Claude Responder
       id: claude_responder
