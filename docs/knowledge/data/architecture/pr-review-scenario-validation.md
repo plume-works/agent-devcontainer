@@ -24,8 +24,8 @@ bar](pr-review-correctness-bar.md):
   the code can receive at the head commit and the wrong outcome it produces;
   "depends on specific inputs or state" is no longer a reason to stay silent.
 - **Three-part scenario.** Every correctness candidate states a **Trigger**, a
-  **Path** (`file:line` chain to the fault), and an **Outcome**. Step 5 discards
-  a candidate with an empty part before validation.
+  **Path** (anchor chain to the fault, `path::symbol` → `path::symbol`), and an
+  **Outcome**. Step 5 discards a candidate with an empty part before validation.
 - **Parts as written.** The validator receives a scenario candidate's three
   parts in place of its claim, judges them in trigger → path → outcome order,
   and returns `CONFIRM` or `DROP: trigger|path|outcome — <reason>`. Candidates
