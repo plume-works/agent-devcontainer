@@ -91,12 +91,18 @@ and the same twelve under
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/`
 whose frontmatter sets either key
 
-- [ ] The `generated` mapping is removed from the frontmatter of every document
+- [x] The `generated` mapping is removed from the frontmatter of every document
   in both graphs, by a one-off script kept under `./.tmp/` and not committed;
   body text, including shipped plans' and `data/log.md`'s mentions of
   `generated`, is unchanged
-- [ ] `iwe normalize` leaves both graphs unchanged and `iwe schema validate`
+  - **Evidence:** commit b7abea4f (418 files, deletions only); every deleted
+    line is a frontmatter `generated:`, `by:`, or `at:` line, and
+    `grep -rlE '^(generated|verified):'` over both graphs finds nothing
+- [x] `iwe normalize` leaves both graphs unchanged and `iwe schema validate`
   exits 0
+  - **Evidence:** commit b7abea4f; at the repo root and in a committed scratch
+    copy of the scaffold assets, `iwe normalize` changed no file and
+    `iwe schema validate` exited 0
 
 ### Task 3: A `banned-frontmatter-keys` check rejects the three keys
 
