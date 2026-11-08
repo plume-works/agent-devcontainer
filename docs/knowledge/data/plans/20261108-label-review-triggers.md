@@ -256,14 +256,30 @@ Assumptions:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `README.md`, `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] The consumption guide adds creating the `request-ai-review` and
+- [x] The consumption guide adds creating the `request-ai-review` and
   `skip-ai-review` labels to the required prerequisites and describes requesting
   and skipping a review with them.
-- [ ] `README.md` says to add `request-ai-review` to request another review.
-- [ ] The feature's `## Behaviour` describes both labels, drops the assignee
+  - **Evidence:** commit ba52ceed; "AI responder and the review gate" lists
+    creating `request-ai-review` and `skip-ai-review` as the third required
+    prerequisite, describes refreshing a review with the label and the trigger
+    behaviour, and the Workflow B summary names the labels;
+    `validate_agent_files` reports 0 errors.
+- [x] `README.md` says to add `request-ai-review` to request another review.
+  - **Evidence:** commit ba52ceed; "Pull-request automation" says to add
+    `request-ai-review` to request another review and lists both labels among
+    the adopter prerequisites; prettier passes.
+- [x] The feature's `## Behaviour` describes both labels, drops the assignee
   trigger, the body markers, and requested tiers, and links the new note.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+  - **Evidence:** commit ba52ceed; `## Behaviour` describes `request-ai-review`
+    and `skip-ai-review`, says assignment, reviewer requests, and
+    `@claude review` start nothing, replaces the effort-tier paragraph with
+    "Every review sizes itself.", and links
+    `architecture/label-review-triggers`; `iwe schema validate` passes.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+  - **Evidence:** commit ba52ceed;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors and 0 warnings.
 
 ### Task 7: Architecture note records the label triggers
 
