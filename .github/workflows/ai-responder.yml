@@ -10,20 +10,21 @@ on:
     types:
       - opened
       - reopened
-      - assigned
       - ready_for_review
       - synchronize
-      - review_requested
-      - review_request_removed
+      - labeled
   merge_group:
     types:
       - checks_requested
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
-# review of an older head.
+# review of an older head. Any other label gets its own group, so adding it
+# never replaces a queued review: see architecture/label-review-triggers.
 concurrency:
   group: >-
     ${{ github.workflow }}-${{
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' &&
+        github.event.label.name != 'request-ai-review' && format('label-{0}', github.run_id)) ||
       (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) ||
       (github.event_name == 'merge_group' && format('merge-group-{0}', github.event.merge_group.head_sha)) ||
       format('review-{0}-{1}', github.event.pull_request.number, github.event.review.id)
