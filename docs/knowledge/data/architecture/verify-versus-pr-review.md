@@ -30,14 +30,14 @@ description, the metadata gate and posting left out, and each surviving
 candidate checked by its own validator. Each finding was labelled a real defect
 or not before the `pr-review` results were read.
 
-| Finding                                                                                        | Real defect             | Verify     | `pr-review`             |
-| ---------------------------------------------------------------------------------------------- | ----------------------- | ---------- | ----------------------- |
-| A `## Verification` command broken by its own invocation                                       | no — the plan's command | CRITICAL   | not raised              |
-| An unchanged Explore line offering "return to implementation", against a new requirement       | yes                     | WARNING    | missed                  |
-| A planned scenario without a test                                                              | no — coverage           | WARNING    | not raised              |
-| CI still running at the head; a task's file list missing a file                                | no                      | SUGGESTION | not raised              |
-| [A relayed approval taken without authentication](../bugs/relayed-approval-unauthenticated.md) | yes                     | missed     | blocking, confirmed     |
-| A docstring one character over the line limit, which CI does not enforce                       | nit                     | not raised | non-blocking, confirmed |
+| Finding                                                                                  | Real defect             | Verify     | `pr-review`             |
+| ---------------------------------------------------------------------------------------- | ----------------------- | ---------- | ----------------------- |
+| A `## Verification` command broken by its own invocation                                 | no — the plan's command | CRITICAL   | not raised              |
+| An unchanged Explore line offering "return to implementation", against a new requirement | yes                     | WARNING    | missed                  |
+| A planned scenario without a test                                                        | no — coverage           | WARNING    | not raised              |
+| CI still running at the head; a task's file list missing a file                          | no                      | SUGGESTION | not raised              |
+| A relayed approval taken without authentication                                          | yes                     | missed     | blocking, confirmed     |
+| A docstring one character over the line limit, which CI does not enforce                 | nit                     | not raised | non-blocking, confirmed |
 
 `pr-review` cost several times the tokens of the Verify run.
 

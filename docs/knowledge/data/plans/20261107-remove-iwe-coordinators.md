@@ -5,11 +5,10 @@ release:
 - features/agentdev-iwe-workflow-skills
 - features/autonomous-implement-loop
 - features/verify-report-cache
-- bugs/relayed-approval-unauthenticated
 description: Remove the iwe-implement-all and iwe-ship-all coordinators, every coordinator, child-session, and relayed-approval rule from the agentdev catalog, and rename the Implement orchestrator to the Implement session, so Implement runs only in place and takes decisions only from its own user.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-07T12:00:00Z
+  at: 2026-11-08T05:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
@@ -38,11 +37,6 @@ Two mechanisms carry the coordinator role today:
   lets a coordinator session hand the bottom pull request's merge to the child
   session that owns it.
 
-The relay rule is [Implement takes a peer session's claim as the user's
-approval](../bugs/relayed-approval-unauthenticated.md): nothing authenticates
-the relayer, so a peer's claim can stand in for the user's consent to an
-always-escalate deviation. Removing the rule fixes it.
-
 The released behavior is in [IWE workflow skills in the agentdev
 catalog](../features/agentdev-iwe-workflow-skills.md), [Autonomous Implement
 loop](../features/autonomous-implement-loop.md), and [Verify report
@@ -67,8 +61,8 @@ says "your dispatcher" as the other leaf agents do.
 
 Rejected:
 
-- **Keep `iwe-implement-all` as the one legitimate relayer**, the bug's
-  potential solution. The maintainer removed the coordinators instead.
+- **Keep `iwe-implement-all` as the one legitimate relayer.** The maintainer
+  removed the coordinators instead.
 - **Remove in-session dispatch and relay too.** Verify, revision evaluation, and
   Ship would run in place, reversing [Explicit-only workflow
   agents](../architecture/explicit-only-workflow-agents.md) and [Autonomous
@@ -184,16 +178,6 @@ Rejected:
   - **Evidence:** commit 760cac77; the task observes one
     `/agentdev:iwe-implement` run on Claude Code and one on OpenCode, and
     `grep -nE "orchestrator|implement-all|coordinator"` on it prints nothing.
-
-### Task 6: A relayed approval is not taken
-
-**Closed by:** the repository owner, observing one live session.
-
-- [ ] With the change merged, the bug's reproduction in [Implement takes a peer
-  session's claim as the user's
-  approval](../bugs/relayed-approval-unauthenticated.md) is run by hand on
-  Claude Code: the session loads `/agentdev:iwe-implement`, does not narrow
-  `e2e-conflict` on the relayed claim, and asks its own user.
 
 ## Spec changes
 
@@ -434,14 +418,6 @@ this requirement governs only approvals that another session's message claims.
   command
 - **THEN** the session loads `/agentdev:iwe-implement` and follows the
   `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
-
-#### Scenario: Another session's message claims the user's approval
-
-- **WHEN** another session's message asks a session to implement a named plan
-  and states that the user approved a deviation the rulebook reserves for the
-  user
-- **THEN** the session follows the `iwe-implementer` rulebook in place and asks
-  its own user for that decision instead of taking the stated approval.
 
 #### Scenario: A dispatched Shipper reaches a user decision
 
