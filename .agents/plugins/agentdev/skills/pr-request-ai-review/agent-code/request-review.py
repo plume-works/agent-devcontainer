@@ -27,11 +27,13 @@ ALREADY_REVIEWED = 3
 ALREADY_REQUESTED = 4
 PR_NOT_OPEN = 5
 GH_UNAVAILABLE = 6
+BLOCKED = 7
 PREFLIGHT_ERROR = 2
 
 RESPONDER = 'Claude PR Review Responder'
 AI_REVIEWER = 'plume-works-quill[bot]'
 REQUEST_LABEL = 'request-ai-review'
+BLOCK_LABEL = 'block-ai-reviews'
 
 EDITS_QUERY = (
     'query($owner: String!, $name: String!, $number: Int!) {'
@@ -81,6 +83,8 @@ Results (RESULT / exit code):
                         Review Responder check on the head counts as a request: running,
                         or started after the last title or description edit
   PR_NOT_OPEN        5  The pull request is closed, merged, or not found
+  BLOCKED            7  The pull request carries block-ai-reviews; the request label was
+                        added, or was already there, and waits until the block is lifted
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or an API call failed, the label too
   PREFLIGHT_ERROR    2  Missing --pr, unknown argument, or multi-line rationale
   SCRIPT_FAILURE     1  Unhandled error
@@ -277,15 +281,17 @@ def run(arguments: list[str]) -> int:
     pull = json.loads(response.stdout)
     print(f'PR_NUMBER={pr_number}')
     head_sha = jq_raw((pull.get('head') or {}).get('sha'))
-    labelled = any(item.get('name') == REQUEST_LABEL for item in pull.get('labels') or [])
+    names = {item.get('name') for item in pull.get('labels') or []}
+    labelled = REQUEST_LABEL in names
     print(f'HEAD_SHA={head_sha}')
     state = jq_raw(pull.get('state'))
     if state != 'open':
         print_error(f'Pull request {repo}#{pr_number} is {state}.')
         return finish('', '', PR_NOT_OPEN)
 
+    blocked = BLOCK_LABEL in names
     # A run in the pull request's group takes the label; with none left to run, it is stale.
-    if labelled:
+    if labelled and not blocked:
         workflow_runs = fetch_list(
             f'repos/{repo}/actions/workflows/ai-responder.yml/runs',
             'workflow_runs',
@@ -327,6 +333,16 @@ def run(arguments: list[str]) -> int:
         return finish(existing_url, '', ALREADY_REQUESTED)
 
     labels = f'repos/{repo}/issues/{pr_number}/labels'
+    # No review runs while the block is on; the request waits, visibly, for its removal.
+    if blocked:
+        if (
+            not labelled
+            and gh('api', '-X', 'POST', labels, '-f', f'labels[]={REQUEST_LABEL}').returncode
+        ):
+            print_error(f'Could not add {REQUEST_LABEL} to {repo}#{pr_number}.')
+            return GH_UNAVAILABLE
+        print_error(f'{repo}#{pr_number} carries {BLOCK_LABEL}; the review waits for its removal.')
+        return finish('', '', BLOCKED)
     if labelled and gh('api', '-X', 'DELETE', f'{labels}/{REQUEST_LABEL}').returncode:
         print_error(f'Could not remove the stale {REQUEST_LABEL} from {repo}#{pr_number}.')
         return GH_UNAVAILABLE
@@ -362,6 +378,7 @@ if __name__ == '__main__':
         {
             ALREADY_REVIEWED: 'ALREADY_REVIEWED',
             ALREADY_REQUESTED: 'ALREADY_REQUESTED',
+            BLOCKED: 'BLOCKED',
             PR_NOT_OPEN: 'PR_NOT_OPEN',
             GH_UNAVAILABLE: 'GH_UNAVAILABLE',
         }

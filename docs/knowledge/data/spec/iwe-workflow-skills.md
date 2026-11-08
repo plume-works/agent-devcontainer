@@ -912,8 +912,8 @@ with its `## Fix` when the same change fixed it — and a task at
 - **WHEN** Capture is invoked for a bug, feature, or task whose required
   sections and fields are all supplied, and no likely duplicate exists
 - **THEN** Capture writes the document at its lane's key with the `stage`
-  `SCHEMA.md` derives for it, stamps `generated` and `sources`, links it from
-  its hub at its sorted position, and validates the graph
+  `SCHEMA.md` derives for it, stamps `sources`, links it from its hub at its
+  sorted position, and validates the graph
 
 #### Scenario: A bug fixed in the same change is captured
 
@@ -981,11 +981,18 @@ allowing additional sections. The bug schema SHALL require a `stage` of
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
-workflow, graph links, durable specs, existing stage and status conventions,
-provenance requirements, and schema validation. Risk-scaled spec deltas SHALL
-remain embedded planning content without introducing OpenSpec change bundles,
-stores, separate delta files, archive moves, or a claimed programmatic delta
-application engine.
+workflow, graph links, durable specs, existing stage conventions, `sources`
+attribution, and schema validation. Risk-scaled spec deltas SHALL remain
+embedded planning content without introducing OpenSpec change bundles, stores,
+separate delta files, archive moves, or a claimed programmatic delta application
+engine. The graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md`
+lists the hubs, `data/log.md` stays date-grouped, and the `okf`, `okf-index`,
+and `okf-log` schemas check every document — and SHALL diverge from OKF only
+where OKF costs merges or upkeep. No document under `data/` SHALL set OKF's
+optional `status`, because `stage` is the lifecycle field, nor OKF's `generated`
+or `verified`, because source control records when and by whom a document
+changed. The `banned-frontmatter-keys` pre-commit check SHALL reject a document
+that sets any of them.
 
 #### Scenario: Updated skills write project memory
 
@@ -993,7 +1000,14 @@ application engine.
 - **THEN** it follows the existing OKF metadata, graph membership,
   normalization, validation, and commit requirements defined by the workspace
 
-#### Scenario: Unaffected skills are exercised
+#### Scenario: A document sets a banned frontmatter key
 
-- **WHEN** Setup or Weekly runs after this change
-- **THEN** its existing behavior remains unchanged
+- **WHEN** a document under `data/` carries `status`, `generated`, or `verified`
+- **THEN** the `banned-frontmatter-keys` check fails and names the document and
+  the key
+
+#### Scenario: A reserved file loses its OKF shape
+
+- **WHEN** `data/index.md` or `data/log.md` departs from the shape its OKF
+  schema defines
+- **THEN** `iwe schema validate` fails and names the file

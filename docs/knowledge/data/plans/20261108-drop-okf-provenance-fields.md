@@ -12,6 +12,8 @@ sources:
 - resource: docs/knowledge/tests/test_banned_frontmatter_keys.py
 - resource: .pre-commit-config.yaml
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
+stage: done
+completed: 2026-11-08
 ---
 
 # Drop OKF provenance fields from the graph

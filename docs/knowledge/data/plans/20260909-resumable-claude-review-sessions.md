@@ -336,8 +336,8 @@ controls.
   `cancel-in-progress` only on `synchronize`
 - `.github/workflows/ai-responder.yml#jobs.preflight.outputs` — preflight
   outputs
-- `.github/workflows/ai-responder.yml › "label.name === 'skip-ai-review'"` — the
-  `skip-ai-review` label check
+- `.github/workflows/ai-responder.yml › "label.name === 'block-ai-reviews'"` —
+  the `block-ai-reviews` label check
 - `.github/workflows/ai-responder.yml › "name: Determine agent prompts"` —
   `Determine agent prompts`;
   `.github/workflows/ai-responder.yml › "if (['opened', 'ready_for_review', 'reopened"`
