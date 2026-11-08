@@ -15,9 +15,9 @@ once that answer is yes.
 ## Post the request
 
 The responder reviews when the `request-ai-review` label is added, so the
-bundled script requests a review by adding it. Any responder run of the pull
-request removes the label as soon as it starts, and reviews, so a label still on
-the pull request is a request no run has taken yet. When the script finds the
+bundled script requests a review by adding it. Any responder run of the pull request that reviews takes the label: its review
+job removes it as `plume-works-quill` just before the review starts. A label
+still on the pull request is a request no review has started for yet. When the script finds the
 label with no unfinished responder run on the head branch to take it, the label
 is stale: the script removes and re-adds it, which sends the request again.
 Re-adding a label by hand sends nothing, because GitHub fires no event for a
@@ -84,16 +84,15 @@ The shape of that run points at the cause:
 
 - **No run, label still on** — the label was added with a token whose events
   start no workflow, such as an Actions `GITHUB_TOKEN`.
-- **Label still on after the run** — the pull request is bot-authored or comes
-  from a fork, so no preflight ran to accept the request.
-- **Preflight failed** — the person whose token added the label lacks write
-  access.
-- **Preflight passed, then the review job skipped** — the pull request is a
-  draft.
+- **Label still on after the run** — the run did not review: the pull request
+  is bot-authored or comes from a fork, so no preflight ran; the person whose
+  token added the label lacks write access, so preflight failed; or the pull
+  request is a draft, so the review job skipped. The label waits for a later
+  run that can review.
 - **A review check completed without a review** — report that review run's
   failure from its log.
 
-The first four need a person rather than a retry. If none of these applies and
+The first two need a person rather than a retry. If none of these applies and
 the check is simply still pending, say so plainly instead of requesting again.
 
 ## Post at most once per reviewed input
