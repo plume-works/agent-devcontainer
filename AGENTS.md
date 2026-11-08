@@ -71,6 +71,22 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
     before you extract; hard-code before you configure. Add the generality when
     a second real caller or a user request demands it, not before.
 
+12. **NEVER RECORD LINE NUMBERS.** A line number is wrong the next time its
+    file changes. Everything committed or published — graph documents,
+    skills, agent definitions, code comments, PR and issue bodies — and every
+    skill's chat report names a place by an anchor:
+    - code: `path::Class.method` or `path::function`
+    - Markdown: `path#heading-slug`
+    - YAML, JSON, TOML: `path#key.path`, a list element by its `id` or `name`
+    - Makefile, Dockerfile: `path#target` or `path#stage`
+    - a spot inside any of these: the anchor plus a short verbatim quote,
+      `SKILL.md#workflow-2 › "never reset it"`
+
+    Only machine positions keep a line: the `line` field GitHub's API needs
+    to place an inline review comment, and raw tool output, which a report
+    never quotes with its line numbers. `scripts/check-anchors.py` enforces
+    the graph and the catalog.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
