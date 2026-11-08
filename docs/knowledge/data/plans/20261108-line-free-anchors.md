@@ -291,10 +291,14 @@ shape they read, and the exemption needs its own rule).
 `data/architecture/assignee-review-trigger`,
 `data/architecture/pr-verification-sections`
 
-- [ ] Every line-number reference in these documents becomes an anchor that
+- [x] Every line-number reference in these documents becomes an anchor that
   resolves in the current checkout, each `Verified anchor points` stamp is
   removed, and the resolver passes on the whole resolver scope. A document that
   gained a reference since this list was written is in scope too.
+  - **Evidence:** commit `58e0f2cd` rewrites every reference in the listed
+    documents and removes their stamps; `uv run scripts/check-anchors.py`
+    reports no line number in any active plan, open bug or backlog item, or
+    architecture document, and no unresolved anchor, at that commit.
 
 ### Task 9: Rewrite the closed plans' references
 
