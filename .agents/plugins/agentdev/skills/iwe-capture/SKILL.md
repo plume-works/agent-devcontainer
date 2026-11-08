@@ -62,9 +62,8 @@ Run every `iwe` command from the repository root; keys are relative to
      `severity`, or `stage: done` when the same change already fixed it, with a
      `## Fix` that describes that fix; a feature is `stage: proposed`; a task
      is `stage: pending` with `priority` and `created: <today>`.
-   - `description`, `generated: { by: <actor>, at: <ISO 8601 now> }`, and
-     `sources` naming every code path, page, and GitHub issue URL the item was
-     derived from.
+   - `description` and `sources` naming every code path, page, and GitHub
+     issue URL the item was derived from.
 
    Sections beyond the required set are allowed after them. Capture never
    files a feature past `proposed`; accepting one is `/agentdev:iwe-plan`'s
