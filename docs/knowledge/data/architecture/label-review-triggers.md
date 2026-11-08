@@ -3,7 +3,7 @@ type: architecture
 description: AI reviews are requested with a one-shot request-ai-review label and suppressed with a standing skip-ai-review label; assignment, reviewer requests, the body markers, and requested effort tiers no longer start or shape a review. Supersedes assignee-triggered re-reviews and PR review effort tiers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-08T03:30:00Z
+  at: 2026-11-08T06:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
@@ -29,7 +29,10 @@ The maintainer decided on 2026-11-08:
   open, ready for review, reopen, and push; an explicit `request-ai-review`
   always runs a review;
 - the `[ci:review-effort=light|full]` marker and requested effort tiers are
-  removed; every review sizes itself.
+  removed; every review sizes itself;
+- every run in the pull request's `pr-<n>` concurrency group takes a
+  `request-ai-review` it finds, and `request-review.py` re-sends a label that no
+  unfinished run is left to take.
 
 A `skip-ai-review` label saves the review runs that would fail while Claude is
 unavailable. It does not let a pull request merge without ruleset bypass,
@@ -42,9 +45,9 @@ because `ai-review-present` still requires an accepted review.
                                                      │
  add any other label ────► pull_request/labeled ──► concurrency label-<run id>
                                                      │
- preflight ── removes request-ai-review (GITHUB_TOKEN, issues: write)
-          ├── reads current labels from the API
-          ├── wantsReview: request-ai-review            → yes (skip label ignored)
+ preflight ── reads current labels from the API
+          ├── in pr-<n>, removes request-ai-review if present (GITHUB_TOKEN)
+          ├── wantsReview: removed request-ai-review    → yes (skip label ignored)
           │                opened/ready/reopened/push*   → yes unless skip-ai-review
           │                anything else                 → no
           ▼
@@ -65,12 +68,19 @@ because `ai-review-present` still requires an accepted review.
 - `ai-review-present` runs on every event, a label of any name included. A job
   skipped by its own `if:` satisfies a required check, so skipping the gate for
   an unrelated label would let anyone with triage access turn it green.
-- Preflight removes `request-ai-review` in its first step, before authorization,
-  so a rejected request is cleared too. It reads the pull request's labels from
-  the API, so a `skip-ai-review` added just after creation still counts when it
-  lands before preflight reads it.
-- `request-review.py` requests a review by adding `request-ai-review`, and
-  treats the label still being on the pull request as a pending request.
+- Preflight reads the pull request's labels from the API, so a `skip-ai-review`
+  added just after creation still counts when it lands before preflight reads
+  it.
+- Every run in `pr-<n>` takes a `request-ai-review` it finds: preflight removes
+  the label before authorization, so a rejected request is cleared too, and the
+  run reviews. A request whose own run was cancelled while pending, because a
+  later event replaced it in `pr-<n>`, is taken by the replacing run. A run
+  started by another label leaves the label in place.
+- `request-review.py` requests a review by adding `request-ai-review`. Finding
+  the label already present, it reports `ALREADY_REQUESTED` while a run of
+  `ai-responder.yml` on the head branch is unfinished, and otherwise removes and
+  re-adds it, firing a new `labeled` event. A person re-adding a label already
+  present sends nothing, because GitHub fires no event for it.
 - `pr-review` keeps its internal effort matrix to size a review; nothing
   requests a tier, and `run-claude-responder` has no `model` input.
 
@@ -84,6 +94,12 @@ because `ai-review-present` still requires an accepted review.
   run on them either way.
 - An `opened` run whose preflight reads the labels before a creation-time
   `skip-ai-review` lands still reviews.
+- A request run cancelled by hand before preflight leaves `request-ai-review` on
+  the pull request until the next run in `pr-<n>` takes it or
+  `request-review.py` re-sends it.
+- An unfinished run started by another label also makes `request-review.py`
+  report `ALREADY_REQUESTED`; the next call after it finishes re-sends the
+  label.
 
 ## Rejected alternatives
 
