@@ -232,8 +232,8 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
 @pytest.mark.parametrize(
     ('relative', 'text'),
     [
-        (ACTIVE_PLAN, plan('- `src/tool.py::main`', stage='stage: done\ncompleted: 2026-01-02\n')),
-        (ACTIVE_PLAN, plan('- `src/tool.py::main`', stage='stage: cancelled\n')),
+        (ACTIVE_PLAN, plan('- `src/gone.py::main`', stage='stage: done\ncompleted: 2026-01-02\n')),
+        (ACTIVE_PLAN, plan('- `src/gone.py::main`', stage='stage: cancelled\n')),
         (ACTIVE_PLAN, plan('- `src/tool.py::main`', steps='- [ ] Create `src/new.py::main`')),
         ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py::b`\n'),
         ('docs/knowledge/data/spec/thing.md', '---\ntype: spec\n---\n`a.py::b`\n'),
@@ -264,3 +264,12 @@ def test_live_documents_resolve_everywhere(write: Write, run: Run, relative: str
     result = run()
     assert result.returncode == 1
     assert f'{relative}:{text.count(chr(10))} [anchor]' in result.stdout
+
+
+@pytest.mark.usefixtures('targets')
+def test_the_same_anchor_fails_in_an_active_plan(write: Write, run: Run) -> None:
+    """The deleted-file anchor the closed-plan cases tolerate fails once the plan is active."""
+    write(ACTIVE_PLAN, plan('- `src/gone.py::main`'))
+    result = run()
+    assert result.returncode == 1
+    assert 'file not found' in result.stdout
