@@ -324,9 +324,13 @@ Modify: `docs/knowledge/data/architecture.md`
     `## Known limits`, all five rejected alternatives, and the line superseding
     `assignee-review-trigger` and `pr-review-effort-tiers`, which the commit
     leaves unchanged; `iwe schema validate` passes.
-- [ ] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
+- [x] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
   cancelled request run and that `request-review.py` re-sends a stale label, and
   lists the remaining cases among its known limits.
+  - **Evidence:** commit ccea99b3; `architecture/label-review-triggers` records
+    the pickup by every `pr-<n>` run and the stale-label re-send under
+    `## Context` and `## Approach`, and adds the hand-cancelled run and the
+    other-label run to `## Known limits`; `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 38389c9b; `data/architecture.md` inclusion-links
     `architecture/label-review-triggers` in key order, before
