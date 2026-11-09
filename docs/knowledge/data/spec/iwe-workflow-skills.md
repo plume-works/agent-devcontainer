@@ -21,6 +21,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev/bin/plan_predecessors.py
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
@@ -341,20 +342,46 @@ and name each limit of that mechanism Plan knows.
 The Implement skill SHALL, when the checkout is on `main` or `master`, create
 the work branch through the git-new-branch skill, named by the iwe-branch-name
 skill's next `impl` iteration for the plan, before executing the first task, and
-SHALL continue on the current branch otherwise.
+SHALL continue on the current branch otherwise. The branch SHALL be cut from
+`main` when no `## Depends on` plan is unshipped and the plan has no open
+earlier iteration; otherwise it SHALL be cut with `--depends-on` for the top
+open pull request of each such dependency and earlier iteration, leaving out any
+that sits below another in the same chain.
 
 #### Scenario: Implementation starts on main
 
 - **WHEN** Implement begins plan `data/plans/<date>-<slug>` with `main` checked
-  out
+  out and every dependency shipped
 - **THEN** it creates branch `iwe/<slug>/iter-<N>-impl`, with `N` from
-  iwe-branch-name, through git-new-branch before executing any task
+  iwe-branch-name, from `main` through git-new-branch before executing any task
 
 #### Scenario: Implementation starts on a feature branch
 
 - **WHEN** Implement begins with a branch other than `main` or `master` checked
   out
 - **THEN** it executes the plan on that branch without creating another
+
+#### Scenario: Dependency in review
+
+- **WHEN** a `## Depends on` plan is not shipped and has an open pull request
+- **THEN** the work branch is created with `--depends-on` for that pull request
+
+#### Scenario: Dependencies in two chains
+
+- **WHEN** two unshipped dependencies have open pull requests in different
+  chains
+- **THEN** the work branch is created with `--depends-on` for both
+
+### Requirement: Implement stops on a dependency with nothing to build on
+
+The Implement skill SHALL stop before creating a branch when a `## Depends on`
+plan is not `stage: done` and has no open pull request, and SHALL name it.
+
+#### Scenario: Unshipped dependency without a pull request
+
+- **WHEN** a dependency is not shipped and none of its work branches has an open
+  pull request
+- **THEN** Implement stops and names the dependency
 
 ### Requirement: Implement never hides a material deviation
 
@@ -774,6 +801,19 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 - **WHEN** `/agentdev:iwe-plan` creates or revises a plan
 - **THEN** it neither loads `/agentdev:iwe-adversarial-review` nor dispatches
   `iwe-adversarial-reviewer`
+
+### Requirement: Ship waits for every dependency
+
+The Ship skill SHALL, before Verify in normal shipping, read the stage of every
+plan in the plan's `## Depends on` at the remote default branch, and SHALL
+return a Ship blocker report naming each one that is not `stage: done`, making
+no state change.
+
+#### Scenario: Dependency not shipped
+
+- **WHEN** Ship runs on a plan whose dependency is still active
+- **THEN** it returns a blocker report naming the dependency and leaves the plan
+  active
 
 ### Requirement: Ship waits for post-merge observations
 
