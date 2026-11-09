@@ -52,13 +52,22 @@ Verify finding would arrive after the plan is already implemented.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `## The three forms of ## Spec changes` holds the rule that the planner
+- [x] `## The three forms of ## Spec changes` holds the rule that the planner
   reads every durable spec the section touches in full before validation, and
   that a normative outcome or an `ADDED` or `MODIFIED` requirement names an
   existing requirement of that spec instead of restating its rule.
-- [ ] The `MODIFIED` bullet leaves out a scenario that added a case before the
+  - **Evidence:** commit 76b68747 adds the paragraph "Each rule of a spec lives
+    in one requirement" to
+    `iwe-planner.agent.md#the-three-forms-of--spec-changes`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed, 0 errors.
+- [x] The `MODIFIED` bullet leaves out a scenario that added a case before the
   change and adds none after it, and requires naming it below the fence as a
   deliberate removal.
+  - **Evidence:** commit 76b68747 adds "The one exception" to the `MODIFIED`
+    bullet of `iwe-planner.agent.md#the-three-forms-of--spec-changes`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed, 0 errors.
 
 ### Task 2: A revise with a redundant delta drops the redundancy
 
