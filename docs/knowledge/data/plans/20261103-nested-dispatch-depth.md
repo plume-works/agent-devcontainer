@@ -82,7 +82,9 @@ the standalone runtime.
 ### Task 2: Claude Code nests to depth 5
 
 **Files:** Modify: `.devcontainer/docker-compose.yml`, `compose.opencode.yml`,
-`docker/deploy/runtime.env.example`
+`docker/deploy/runtime.env.example`; Test:
+`scripts/tests/test_agent_runtime_compose.py`,
+`scripts/tests/test_devcontainer_compose.py`
 
 - [x] The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
   `opencode` service in `compose.opencode.yml` set
