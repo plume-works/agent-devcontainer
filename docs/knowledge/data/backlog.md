@@ -12,6 +12,8 @@ stage: living
 grows past a single sitting, promote it: write a plan and link the plan
 instead.*
 
+[Give architecture notes a lifecycle](backlog/architecture-note-lifecycle.md)
+
 [Let Implement verify, fix, and revise on its
 own](backlog/autonomous-implement-loop.md)
 

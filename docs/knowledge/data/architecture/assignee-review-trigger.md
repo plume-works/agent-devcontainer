@@ -1,5 +1,6 @@
 ---
 type: architecture
+stage: superseded
 description: AI re-reviews are requested by assigning the pull request, because only a pull_request-event run's ai-review-present is counted by the PR rollup and the main ruleset; the @claude review comment trigger and Codex review acceptance are dropped.
 sources:
 - resource: .github/workflows/ai-responder.yml
