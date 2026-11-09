@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: done
 priority: high
 created: 2026-11-09
 description: Make the planner check a spec delta against the rest of its spec, so a change neither restates an existing rule nor carries forward a scenario it made redundant.
@@ -8,6 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+completed: 2026-11-09
 ---
 
 # Stop the planner from adding spec redundancy
