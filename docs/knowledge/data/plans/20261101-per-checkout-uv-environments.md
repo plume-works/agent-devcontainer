@@ -234,18 +234,32 @@ adds.
 `py_packages/agentdev_runtime/tests/test_worktree_create.py`; Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/cli.py`
 
-- [ ] `worktree create` reads the hook's stdin JSON, resolves the repository
+- [x] `worktree create` reads the hook's stdin JSON, resolves the repository
   from `cwd` with `git rev-parse --show-toplevel`, reduces `name` to
   `[A-Za-z0-9._-]`, runs
   `git worktree add -b worktree-<name> <repository>/.claude/worktrees/<name> HEAD`
   with git's output on stderr, runs `link-venv` in the new worktree, and prints
   the worktree's absolute path as its only stdout line.
-- [ ] A failing step removes the worktree and its branch, and exits non-zero
+  - **Evidence:** commit 263b7ac7 adds `worktree.py::create` and the `worktree`
+    entry in `cli.py::PASSTHROUGH`;
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_create.py`
+    passed 5 tests, `test_a_worktree_is_created_with_its_venv_linked` checking
+    the printed path, branch, and link.
+- [x] A failing step removes the worktree and its branch, and exits non-zero
   with the reason on stderr.
-- [ ] Tests run the subcommand against a fixture repository with
+  - **Evidence:** commit 263b7ac7;
+    `test_a_failing_link_removes_the_worktree_and_its_branch`,
+    `test_a_failing_worktree_add_fails_the_hook`, and
+    `test_unreadable_input_fails_the_hook` in
+    `py_packages/agentdev_runtime/tests/test_worktree_create.py` passed.
+- [x] Tests run the subcommand against a fixture repository with
   `AGENTDEV_VENV_ROOT` in the test's scratch directory, covering a created
   worktree with its `.venv` linked, a name that needs reducing, and a
   `git worktree add` that fails.
+  - **Evidence:** commit 263b7ac7 adds
+    `py_packages/agentdev_runtime/tests/test_worktree_create.py`, which runs
+    `python -m agentdev_runtime worktree create` on a scratch repository and
+    venv root; the created, reduced-name, and failed-add cases passed.
 
 ### Task 8: `agentdev-runtime worktree remove`
 
