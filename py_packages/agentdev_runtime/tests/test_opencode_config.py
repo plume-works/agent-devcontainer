@@ -69,4 +69,4 @@ def test_a_changed_depth_is_restored(tmp_path: Path) -> None:
     (tmp_path / 'opencode.json').write_text('{"experimental": {"subagent_depth": 1}}')
     opencode_config.configure(tmp_path)
     config = json.loads((tmp_path / 'opencode.json').read_text())
-    assert config['experimental']['subagent_depth'] == 5
+    assert config['experimental']['subagent_depth'] == opencode_config.SUBAGENT_DEPTH
