@@ -293,15 +293,26 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`; Create:
 `py_packages/agentdev_runtime/tests/test_worktree_register.py`
 
-- [ ] A `register` function writes one `WorktreeCreate` command hook
+- [x] A `register` function writes one `WorktreeCreate` command hook
   (`agentdev-runtime worktree create`) and one `WorktreeRemove` command hook
   (`agentdev-runtime worktree remove`) into `$CLAUDE_CONFIG_DIR/settings.json`
   through `claude_state.update_json`, keeping every other key and every other
   hook, and adding nothing on a second run.
-- [ ] `lifecycle.attached` calls it unless the runtime is in deploy mode,
+  - **Evidence:** commit a515d65c adds `worktree.py::register`, which writes
+    through `claude_state.update_json`;
+    `test_registering_twice_adds_each_hook_once_and_keeps_the_rest` in
+    `py_packages/agentdev_runtime/tests/test_worktree_register.py` passed.
+- [x] `lifecycle.attached` calls it unless the runtime is in deploy mode,
   whether or not the checkout ships a catalog.
-- [ ] Tests run `register` twice on a settings file holding unrelated hooks and
+  - **Evidence:** commit a515d65c calls `worktree.register` from
+    `lifecycle.py::attached` under `agent_state.config_lock` unless
+    `project.deploy`; `test_attach_registers_the_hooks_outside_deploy_mode`
+    passed for both modes, with a checkout that ships no catalog.
+- [x] Tests run `register` twice on a settings file holding unrelated hooks and
   keys, and run the attach-phase step in and out of deploy mode.
+  - **Evidence:** commit a515d65c adds
+    `py_packages/agentdev_runtime/tests/test_worktree_register.py`;
+    `uv run pytest py_packages/agentdev_runtime/tests` passed 127 tests.
 
 ### Task 10: Drop the shared environment from the descriptor
 
