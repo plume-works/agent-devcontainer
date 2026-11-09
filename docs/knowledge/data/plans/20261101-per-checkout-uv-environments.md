@@ -119,11 +119,15 @@ registration is idempotent and only adds.
 
 **Files:** none
 
-- [ ] On a Mac running Docker Desktop with this devcontainer, a `.venv` link in
+- [x] On a Mac running Docker Desktop with this devcontainer, a `.venv` link in
   the bind-mounted checkout that points to a directory under `/uv/venvs` is
   followed by `uv run python -c 'import sys; print(sys.prefix)'` inside the
   container, and a `.venv` file listing shows hardlinked packages (link count of
   2 or more).
+  - **Evidence:** on a Mac with Docker Desktop 29.9.3 and VirtioFS, at commit
+    54318821, `.venv` stayed a link to `/uv/venvs/agent-devcontainer` through
+    `uv run`, `sys.prefix` resolved to that directory, and package files there
+    had 2 links (`## Verification results`).
 
 ### Task 2: Confirm the worktree hooks' triggers and removal input
 
@@ -503,6 +507,14 @@ checkout, in any repository, and remove the rest.
   workspace, each recorded under `## Verification results`.
 
 ## Verification results
+
+On a Mac with Docker Desktop 29.9.3 and VirtioFS file sharing, with the Dev
+Container rebuilt from this branch's descriptor and this branch's
+`agentdev-runtime` installed over the image's copy,
+`agentdev-runtime project sync` replaced the real `.venv` that attach had made
+in the bind-mounted checkout with a link to `/uv/venvs/agent-devcontainer` and
+deleted `ws-project`. `uv run` followed the link and left it in place, and
+24,616 of the environment's 25,545 files had 2 or more links.
 
 On agent-dev3 (Claude Code 2.1.319), with the Dev Container recreated from this
 branch's descriptor and this branch's `agentdev-runtime` installed over the
