@@ -322,8 +322,12 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
     `project.deploy`, before `hooks.run`; on agent-dev3,
     `agentdev-runtime lifecycle created` at 43ac9cda wrote both hooks into an
     emptied `/root/.claude/settings.json`.
-- [ ] Tests run `register` twice on a settings file holding unrelated hooks and
+- [x] Tests run `register` twice on a settings file holding unrelated hooks and
   keys, and run the create-phase step in and out of deploy mode.
+  - **Evidence:** commit 43ac9cda replaces the attach test with
+    `test_the_create_phase_registers_the_hooks_outside_deploy_mode` in
+    `py_packages/agentdev_runtime/tests/test_worktree_register.py`;
+    `uv run pytest py_packages/agentdev_runtime/tests` passed 127 tests.
 
 ### Task 10: Drop the shared environment from the descriptor
 
