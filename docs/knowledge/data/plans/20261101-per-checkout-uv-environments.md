@@ -364,12 +364,20 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 `docs/knowledge/data/architecture/uv-environment-location.md`,
 `docs/knowledge/data/features/uv-run-only-environment.md`
 
-- [ ] The architecture document states the per-checkout link design, the three
+- [x] The architecture document states the per-checkout link design, the three
   triggers and why each exists, removal by `WorktreeRemove` and by attach, and
   the rejected alternatives from `## Approach`, and links
   `data/architecture/worktree-hooks`.
-- [ ] The feature document's Behaviour and Edge cases describe one environment
+  - **Evidence:** commit 6bca43c8 rewrites
+    `data/architecture/uv-environment-location`:
+    `#which-events-create-and-remove-an-environment` carries the three triggers
+    and both removal paths, `#rejected-alternatives` the rejected list, and it
+    links `data/architecture/worktree-hooks`; `iwe schema validate` passed.
+- [x] The feature document's Behaviour and Edge cases describe one environment
   per checkout.
+  - **Evidence:** commit 31b74f04 rewrites
+    `data/features/uv-run-only-environment#behaviour` for one environment per
+    checkout and adds the concurrent-worktree and real-`.venv` edge cases.
 
 ### Task 14: Verify in a rebuilt Coder workspace
 
