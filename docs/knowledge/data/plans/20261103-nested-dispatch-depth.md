@@ -102,12 +102,15 @@ the standalone runtime.
 **Files:** Modify:
 `docs/knowledge/data/architecture/nested-subagent-dispatch.md`
 
-- [ ] `## Host behavior` records, for Claude Code 2.1.316: the variable
+- [x] `## Host behavior` records, for Claude Code 2.1.316: the variable
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the nesting limit; when it is
   unset, a server-side flag sets the limit, falling back to 3; the agent at the
   limit is not offered the `Agent` tool, and nothing reports an error. It also
   records that the devcontainer and the standalone runtime set both harnesses to
   5, and replaces the 2.1.306 version the section names.
+  - **Evidence:** commits 18cd734f and 67582b9f
+    (`docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior`);
+    `iwe normalize` and `iwe schema validate` pass.
 
 ## Spec changes
 
