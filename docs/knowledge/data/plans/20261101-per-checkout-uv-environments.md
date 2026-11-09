@@ -136,17 +136,29 @@ adds.
 `py_packages/agentdev_runtime/README.md`; Create:
 `py_packages/agentdev_runtime/tests/test_project_link_venv.py`
 
-- [ ] `agentdev-runtime project link-venv [PATH]` resolves the checkout root of
+- [x] `agentdev-runtime project link-venv [PATH]` resolves the checkout root of
   `PATH` (default: the working directory), creates
   `$AGENTDEV_VENV_ROOT/<checkout directory name>`, and links `.venv` to it when
   `.venv` is absent. It repairs a link that points elsewhere under the root,
   leaves a real directory or a link outside the root in place with a warning,
   and exits 0 without changes in deploy mode, outside a git checkout, or when
   the root's parent does not exist.
-- [ ] `AGENTDEV_VENV_ROOT` is a documented setting defaulting to `/uv/venvs`.
-- [ ] Tests cover a fresh checkout, a second run (no change), a dangling link, a
+  - **Evidence:** commit a65d1dea adds `project.py::link_venv` and its
+    `link-venv` command;
+    `uv run pytest py_packages/agentdev_runtime/tests/test_project_link_venv.py`
+    passed 10 tests.
+- [x] `AGENTDEV_VENV_ROOT` is a documented setting defaulting to `/uv/venvs`.
+  - **Evidence:** commit a65d1dea adds the setting to `settings.py::VARIABLES`
+    and the README settings table;
+    `uv run pytest py_packages/agentdev_runtime/tests` passed 109 tests,
+    `test_settings.py::test_the_readme_lists_every_variable` among them.
+- [x] Tests cover a fresh checkout, a second run (no change), a dangling link, a
   link elsewhere under the root, a real `.venv` directory, a foreign link, and
   deploy mode.
+  - **Evidence:** commit a65d1dea adds
+    `py_packages/agentdev_runtime/tests/test_project_link_venv.py`, which covers
+    each listed case plus a path outside a checkout, a missing root parent, and
+    the command line; all 10 passed.
 
 ### Task 4: Link the main checkout on attach
 
