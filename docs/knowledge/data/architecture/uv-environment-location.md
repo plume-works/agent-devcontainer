@@ -5,7 +5,6 @@ sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
-- resource: .pre-commit-config.yaml
 - resource: .devcontainer/docker-compose.yml
 ---
 
@@ -54,7 +53,7 @@ single event sees every checkout, so three call it:
 
 | Trigger                                                     | Checkouts it covers                                                                                        |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| git `post-checkout`, installed by pre-commit                | `git worktree add` by OpenCode, a person, or a script                                                      |
+| git `post-checkout`, installed by `project hooks`           | `git worktree add` by OpenCode, a person, or a script                                                      |
 | Claude `WorktreeCreate`, `agentdev-runtime worktree create` | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
 | attach (`agentdev-runtime project sync`)                    | the workspace folder                                                                                       |
 
@@ -72,13 +71,17 @@ Removal happens in two places:
   worktree's environment and then the worktree, keeping its `worktree-<name>`
   branch.
 - Attach removes every directory under the root that no checkout in
-  `git worktree list` names or links to. `WorktreeRemove` fires only for
-  worktrees a `WorktreeCreate` hook made, and git has no hook for
-  `git worktree remove`.
+  `git worktree list` names or links to, unless the checkout recorded beside it
+  in `<name>.checkout` still links to it — the hooks live in the user's Claude
+  settings, so they link worktrees of every repository in the container.
+  `WorktreeRemove` fires only for worktrees a `WorktreeCreate` hook made, and
+  git has no hook for `git worktree remove`.
 
-The `post-checkout` hook is the only one installed at that stage:
-`.pre-commit-config.yaml` sets `default_stages`, so a hook that names no stages
-stays off it.
+`project hooks` writes the `post-checkout` hook itself rather than as a
+pre-commit stage. The checkout's `.git/hooks` is shared with the host through
+the bind mount, and pre-commit's generated script fails every host checkout
+where pre-commit is missing; the written script runs `link-venv` only when
+`agentdev-runtime` is on `PATH`, and never fails the checkout.
 
 ## Rejected alternatives
 

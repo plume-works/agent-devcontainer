@@ -1,20 +1,9 @@
 # Every hook runs a tool with one version owner: uv.lock (`uv run`), the image's
 # dev_tools_pinned_tools binaries, or a `bunx <package>@<version>` pin. No hook
 # names a remote repository, so `pre-commit install-hooks` builds nothing.
-# A hook without `stages` stays off post-checkout, which only link-venv uses.
-default_stages: [pre-commit, pre-merge-commit, pre-push, manual]
 repos:
   - repo: local
     hooks:
-      # A host checkout has no agentdev-runtime.
-      - id: link-venv
-        name: link the checkout's uv environment
-        entry: sh -c 'command -v agentdev-runtime >/dev/null || exit 0; exec agentdev-runtime project link-venv'
-        language: system
-        always_run: true
-        pass_filenames: false
-        stages: [post-checkout]
-
       - id: end-of-file-fixer
         name: fix end of files
         entry: uv run end-of-file-fixer
