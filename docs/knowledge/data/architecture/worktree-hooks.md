@@ -15,13 +15,17 @@ goes — does it in these two hooks.
 
 ## Host behavior
 
-These hold for Claude Code 2.1.316. A version bump is the point at which to
+These hold for Claude Code 2.1.319. A version bump is the point at which to
 recheck them.
 
 - **What triggers them.** `claude -w` / `--worktree [name]`,
-  `claude remote-control --spawn worktree` for every session it spawns, and
-  `/batch`. With a `WorktreeCreate` hook configured, Remote Control's worktree
-  mode also works in a folder that is not a git repository.
+  `claude remote-control --spawn worktree` for every session it spawns or
+  revives, `/batch`, and a subagent dispatched with `isolation: worktree`. With
+  a `WorktreeCreate` hook configured, Remote Control's worktree mode also works
+  in a folder that is not a git repository.
+- **Remote Control reads the hooks when its server starts.** A server started
+  before a hook was registered keeps creating and removing worktrees itself
+  until it restarts.
 - **Configuration.** Under `hooks` in a settings file, like any other hook
   event. A hook in a workspace that is not trusted does not run.
 - **`WorktreeCreate` replaces creation.** Claude Code makes no worktree of its
@@ -29,7 +33,9 @@ recheck them.
   `cwd`, `hook_event_name`, and `name`; a Remote Control spawn also sends
   `scratchpad_dir`. `cwd` is the folder the session was started from, and `name`
   is the requested worktree name — for a Remote Control spawn,
-  `bridge-cse_<session id>`.
+  `bridge-cse_<session id>`, and for a subagent, `agent-<agent id>`. A
+  subagent's `cwd` is its parent session's folder, so a subagent of a worktree
+  session gets a worktree nested in that worktree.
 - **The hook returns the worktree's absolute path.** A command hook prints it on
   stdout; an HTTP or callback hook returns it as
   `hookSpecificOutput.worktreePath`. A hook that succeeds without a path fails
@@ -42,7 +48,10 @@ recheck them.
 - **`WorktreeRemove` runs when Claude Code removes a worktree**, including
   Remote Control's automatic cleanup of a spawned session's worktree. Archiving
   a Remote Control session does not remove its worktree and does not run the
-  hook. Which stdin field names the worktree path is not yet confirmed.
+  hook. Its stdin carries a single field, `worktree_path`. Claude Code keeps the
+  worktree a `WorktreeCreate` hook made for a subagent and runs no
+  `WorktreeRemove` for it; without a hook, it removes a subagent's unchanged
+  worktree itself.
 
 ## Writing the hooks
 
