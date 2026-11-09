@@ -149,12 +149,16 @@ software project's memory and system of record. The division of labor:
   ` › "verbatim quote"` for a spot inside one. Never record a line number,
   anywhere: it is wrong the next time the file changes.
 - **A ticked task carries the evidence that closed it**: every `- [x]` under a
-  plan's `## Implementation Steps` has an indented `- **Evidence:**` child
-  naming the commit, test run, or CI run behind it, written in the same edit as
-  the tick. A check and its result count only together with the commit that
-  holds the change they check, so the code is committed first and the tick
-  follows in a commit of its own. One edit ticks one box — a sweep across the
-  file is the defect, not a shortcut. Unticked boxes stay bare.
+  plan's `## Implementation Steps` has an indented `- **Evidence:**` child,
+  written in the same edit as the tick. The tick and its evidence line land in
+  the same commit as the code they describe. One edit ticks one box — a sweep
+  across the file is the defect, not a shortcut. Unticked boxes stay bare. A
+  commit id on its own is not evidence; the line names a check Verify can
+  repeat:
+  - Code: a test id (`path::name`) or a command, which Verify re-runs against
+    the current tree.
+  - Docs or config with no test: the file and anchor that changed.
+  - External work: the CI run or the PR that closes it, which must stand alone.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less

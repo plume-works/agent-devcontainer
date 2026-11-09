@@ -39,6 +39,12 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Changed
 
+- **Plan task evidence names a check Verify can repeat, not a commit.** A ticked
+  task's `- **Evidence:**` line names a test id or command, the file and anchor
+  that changed, or the CI run or PR that closes it; a commit id on its own is no
+  longer evidence. The tick and its evidence line land in the same commit as the
+  code they describe. Nothing needs migrating: an existing evidence line that
+  names a commit alongside a valid check still counts.
 - **Bugs carry a `stage` and a `severity`.** A bug's `stage` is required:
   `pending | planned | done | cancelled`, with "absent means open" retired.
   Capture files a bug at `pending`, or at `done` when the same change fixed it;
