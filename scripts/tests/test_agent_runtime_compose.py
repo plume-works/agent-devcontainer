@@ -131,6 +131,13 @@ def test_remote_control_settings_reach_the_container_and_default_to_off():
     assert present['environment']['AGENTDEV_CLAUDE_RC_SPAWN'] == 'same-dir'
 
 
+def test_subagent_depth_defaults_to_five_and_takes_the_host_value():
+    unset, _ = service(BASE, PINS, **REQUIRED)
+    assert unset['environment']['CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH'] == '5'
+    present, _ = service(BASE, PINS, CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH='9', **REQUIRED)
+    assert present['environment']['CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH'] == '9'
+
+
 def test_xpra_password_reaches_the_container_and_is_checked_at_start_not_render():
     unset, _ = service(BASE, PINS, **REQUIRED)
     assert unset['environment']['XPRA_PASSWORD'] == ''

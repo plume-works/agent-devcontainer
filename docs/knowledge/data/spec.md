@@ -51,6 +51,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [macOS native bootstrap](spec/macos-native-bootstrap.md)
 
+[Nested agent dispatch](spec/nested-agent-dispatch.md)
+
 [OpenCode catalog bridge](spec/opencode-catalog-bridge.md)
 
 [OpenCode web](spec/opencode-web.md)

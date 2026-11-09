@@ -4,6 +4,9 @@ description: Whether a dispatched subagent can dispatch another one on Claude Co
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .devcontainer/docker-compose.yml
+- resource: compose.opencode.yml
+- resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 ---
 
 # Nested subagent dispatch
@@ -14,7 +17,7 @@ dispatched agent dispatches another depends on per-harness settings below.
 
 ## Host behavior
 
-These hold for Claude Code 2.1.306 and OpenCode 2.1.2. A version bump is the
+These hold for Claude Code 2.1.316 and OpenCode 2.1.2. A version bump is the
 point at which to recheck them.
 
 | Harness     | Nests by default | What gates it                                                                          | Depth observed            |
@@ -26,11 +29,19 @@ point at which to recheck them.
   to dispatch. That is why `iwe-shipper`, whose list is
   `Bash, Read, Edit, Write, Grep, Glob, Skill`, cannot start a fresh-context
   agent of its own. Each subagent transcript's `.meta.json` records `spawnDepth`
-  and `parentAgentId`.
+  and `parentAgentId`. The environment variable
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the nesting limit; when it is
+  unset, a server-side flag sets the limit, falling back to 3. The agent at the
+  limit is not offered the `Agent` tool, and nothing reports an error.
 - **OpenCode.** At the default depth a nested `task` call fails with "Subagent
   depth limit reached (1). Increase "experimental.subagent_depth" to allow
   nested subagents." The key is experimental, so a design that needs it takes on
   a setting OpenCode may rename or drop.
+- **In this repository.** The devcontainer and the standalone runtime set both
+  harnesses to 5: their compose files set
+  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`, and
+  `agentdev-runtime state agent-policy` sets `experimental.subagent_depth` in
+  `opencode.json`.
 
 ## Fixture
 
