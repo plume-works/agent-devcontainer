@@ -1,4 +1,4 @@
-"""The attach phase registers the worktree hooks in the user's Claude settings."""
+"""The create phase registers the worktree hooks in the user's Claude settings."""
 
 import json
 import os
@@ -47,18 +47,24 @@ def test_registering_twice_adds_each_hook_once_and_keeps_the_rest(config: Path) 
 
 
 @pytest.mark.parametrize(('mode', 'registered'), [(DEVCONTAINER, True), (DEPLOY, False)])
-def test_attach_registers_the_hooks_outside_deploy_mode(
-    config: Path, tmp_path: Path, mode: str, registered: bool
+def test_the_create_phase_registers_the_hooks_outside_deploy_mode(
+    config: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str, registered: bool
 ) -> None:
     folder = tmp_path / 'checkout'
     folder.mkdir()
+    monkeypatch.setattr(lifecycle, 'claim_mounts', lambda owner: None)
+    monkeypatch.setattr(lifecycle.git, 'safe_directory', lambda settings: None)
+    monkeypatch.setattr(lifecycle.agent_state, 'create', lambda settings: None)
+    monkeypatch.setattr(lifecycle.checkout.Workspace, 'project', lambda self: None)
     settings = Settings(
         {
             **os.environ,
             'AGENTDEV_RUNTIME_MODE': mode,
             'DEV_WORKSPACE_FOLDER': str(folder),
             'AGENTDEV_HOOKS_ROOT': str(tmp_path / 'no-hooks'),
+            'AGENTDEV_LIFECYCLE_DIR': str(tmp_path / 'lifecycle'),
+            'AGENTDEV_CATALOG_DIR': '',
         }
     )
-    lifecycle.attached(settings)
+    lifecycle.created(settings)
     assert config.exists() == registered

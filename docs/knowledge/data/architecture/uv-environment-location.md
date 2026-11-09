@@ -62,9 +62,9 @@ A `WorktreeCreate` hook replaces Claude Code's own worktree creation, so it
 covers Claude's worktrees whether or not git's hooks would run for them:
 `agentdev-runtime worktree create` makes the worktree with the default layout
 from [Worktree hooks](worktree-hooks.md) and links its `.venv` before the
-session starts there. Attach registers it, and
+session starts there. The create phase registers it, and
 `agentdev-runtime worktree remove`, in the user's Claude settings outside deploy
-mode.
+mode, before the Remote Control server starts and reads them.
 
 Removal happens in two places:
 

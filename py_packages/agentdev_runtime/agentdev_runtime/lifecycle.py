@@ -83,6 +83,10 @@ def created(settings: env.Settings) -> None:
             catalog.install(settings, staged, 'user')
     else:
         print('No catalog staged in the image; skipping the image-scoped plugin install.')
+    # Before Remote Control starts: it reads the worktree hooks only then.
+    if not project.deploy(settings):
+        with agent_state.config_lock(settings):
+            worktree.register()
     hooks.run(settings, 'created')
     marker = created_marker(settings)
     marker.parent.mkdir(parents=True, exist_ok=True)
@@ -130,7 +134,7 @@ def ready(settings: env.Settings, wait: bool) -> None:
 
 
 def attached(settings: env.Settings) -> None:
-    """Run the attach phase: project environment, catalog, worktree hooks, attached hooks."""
+    """Run the attach phase: project environment, catalog, attached hooks."""
     folder = workspace_of(settings)
     subprocess.run(['git', 'config', '--global', 'gpg.ssh.program', 'ssh-keygen'], check=True)
     if (Path(folder) / 'pyproject.toml').is_file():
@@ -140,9 +144,6 @@ def attached(settings: env.Settings) -> None:
             catalog.install(settings, folder, None)
     else:
         print(f'{folder} ships no complete agentdev catalog; keeping the staged catalog.')
-    if not project.deploy(settings):
-        with agent_state.config_lock(settings):
-            worktree.register()
     hooks.run(settings, 'attached')
 
 
