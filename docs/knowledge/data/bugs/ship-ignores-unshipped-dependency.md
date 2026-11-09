@@ -46,6 +46,15 @@ prerequisite plan must carry `stage: done`, otherwise a Ship blocker report
 naming the unshipped prerequisite, before Verify and with no mutation. That
 mirrors the implementer's check.
 
+## Fix
+
+[Build on an unshipped dependency, ship after
+it](../plans/20261101-build-on-unshipped-dependencies.md) adds the check to the
+Shipper's normal-shipping step 1: every `## Depends on` plan must be
+`stage: done` at the remote default branch, read through
+`/agentdev:iwe-branch-name plan-state`, or Ship returns a blocker report naming
+each unshipped one, before Verify and with no mutation.
+
 ## Key references
 
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Select the operation and inspect current state.** Take the"`
