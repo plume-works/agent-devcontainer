@@ -9,7 +9,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
-rank: 500
+stage: done
+completed: 2026-11-09
 ---
 
 # Build on an unshipped dependency, ship after it
@@ -63,36 +64,57 @@ every dependent plan behind a full ship cycle.
 **Files:** Create: `.agents/plugins/agentdev/bin/plan_predecessors.py`,
 `.agents/plugins/agentdev/tests/test_plan_predecessors.py`
 
-- [ ] `plan_predecessors.py <plan-key>` reads the plan's `## Depends on` and
+- [x] `plan_predecessors.py <plan-key>` reads the plan's `## Depends on` and
   each dependency's state at the remote default branch, and prints the pull
   requests to pass to `git-new-branch --depends-on`: for each unshipped
   dependency and for the plan's own open earlier iterations, the top of their
   open `iwe/<slug>/iter-*` pull requests, dropping any that sits below another
   in the same chain; it stops on an unshipped dependency with no open pull
   request
-- [ ] Tests cover no dependency, a shipped dependency, one open dependency, two
+  - **Evidence:** commit 77662363 adds
+    `.agents/plugins/agentdev/bin/plan_predecessors.py::predecessors`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_plan_predecessors.py`
+    passes 7 tests
+- [x] Tests cover no dependency, a shipped dependency, one open dependency, two
   dependencies in one chain, two in different chains, the plan's own open
   iteration, and an unshipped dependency without a pull request, with the pull
   request lookup behind one replaceable function
+  - **Evidence:** commit 77662363 adds
+    `.agents/plugins/agentdev/tests/test_plan_predecessors.py`, one test per
+    listed case, replacing `plan_predecessors.py::open_pull_requests`; the
+    plugin suite `uv run pytest .agents/plugins/agentdev/tests` passes
 
 ### Task 2: Implement stacks on an unshipped dependency
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Step 3 accepts an unshipped dependency that has an open pull request and
+- [x] Step 3 accepts an unshipped dependency that has an open pull request and
   stops only on one without; step 4 runs Task 1's script and passes each printed
   pull request to `git-new-branch --depends-on`, or cuts from `main` when none
   is printed
+  - **Evidence:** commit 8186f866 rewrites
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps` steps 3–4
+    (step 3 runs `plan_predecessors.py`, step 4 passes each `PREDECESSOR`);
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors, 0 warnings
 
 ### Task 3: Ship refuses a plan before its dependencies ship
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
 `docs/knowledge/data/bugs/ship-ignores-unshipped-dependency.md`
 
-- [ ] Normal shipping, before Verify, reads every `## Depends on` plan's stage
+- [x] Normal shipping, before Verify, reads every `## Depends on` plan's stage
   at the remote default branch and returns a Ship blocker report naming each
   plan that is not `stage: done`, with no mutation
-- [ ] The bug's `## Fix` names this plan
+  - **Evidence:** commit 6ecb6909 adds the check to
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` step 1 and the
+    Unshipped prerequisite route to its Ship blocker report;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors, 0 warnings
+- [x] The bug's `## Fix` names this plan
+  - **Evidence:** commit 6ecb6909 adds
+    `docs/knowledge/data/bugs/ship-ignores-unshipped-dependency.md#fix` linking
+    this plan; `iwe schema validate` passes
 
 ## Spec changes
 
@@ -187,7 +209,7 @@ dependency is unmerged.
 
 ## Key references
 
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › ".** Every prerequisite plan must carry"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "may be built on while it has an open pull request"`
   — step 3, Check `## Depends on`
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Start on a work branch.** When the checkout is on the"`
   — step 4, Start on a work branch

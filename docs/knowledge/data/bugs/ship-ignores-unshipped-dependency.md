@@ -1,12 +1,11 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: high
 description: iwe-shipper never checks a plan's `## Depends on`, so /agentdev:iwe-ship can ship a plan whose prerequisite is still active, including one Ship returned Blocked.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-rank: 550
 ---
 
 # Bug: Ship ships a plan whose prerequisite has not shipped
@@ -46,11 +45,20 @@ prerequisite plan must carry `stage: done`, otherwise a Ship blocker report
 naming the unshipped prerequisite, before Verify and with no mutation. That
 mirrors the implementer's check.
 
+## Fix
+
+[Build on an unshipped dependency, ship after
+it](../plans/20261101-build-on-unshipped-dependencies.md) adds the check to the
+Shipper's normal-shipping step 1: every `## Depends on` plan must be
+`stage: done` at the remote default branch, read through
+`/agentdev:iwe-branch-name plan-state`, or Ship returns a blocker report naming
+each unshipped one, before Verify and with no mutation.
+
 ## Key references
 
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Select the operation and inspect current state.** Take the"`
   — step 1, select the operation and inspect current state (no dependency check)
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
   — step 3, Run Verify for normal shipping
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › ".** Every prerequisite plan must carry"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "may be built on while it has an open pull request"`
   — step 3, Check `## Depends on`

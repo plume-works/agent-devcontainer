@@ -239,6 +239,10 @@ output, not damage, so leave it alone:
   post-change** requirement — its SHALL statement and _every_ surviving
   scenario, not only the edited ones. A scenario left out of a MODIFIED block
   reads as one this plan deliberately dropped, and Verify treats it that way.
+  The one exception: a scenario that added a case before the change and adds
+  none after it, because the new SHALL statement settles everything it says,
+  is left out and named below the fence as a deliberate removal. A scenario
+  that already restated its requirement before the change stays.
 - `## REMOVED Requirements` names the requirement and why the behavior is
   intentionally retired.
 - There is no `RENAMED` operation. A rename is an explicit removal plus an
@@ -246,6 +250,12 @@ output, not damage, so leave it alone:
 
 A spec that does not exist yet stays a back-ticked key here and in the delta;
 Ship creates the document and replaces the key with a real link.
+
+Each rule of a spec lives in one requirement. For the normative-outcome and
+fenced-delta forms, read every durable spec the section touches in full before
+validation. A normative outcome or an `ADDED` or `MODIFIED` requirement that
+would restate a rule another requirement of that spec already holds names that
+requirement instead.
 
 ## Rules
 

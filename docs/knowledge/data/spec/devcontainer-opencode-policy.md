@@ -24,23 +24,24 @@ devcontainer](../architecture/opencode-full-access-in-devcontainer.md).
 
 On every container start, `agentdev-runtime lifecycle ready` SHALL, through
 `agentdev-runtime state agent-policy`, set `$schema` to
-`https://opencode.ai/config.json`, `permission["*"]` to `"allow"`, and
-`permission.external_directory["/**"]` to `"allow"` in the OpenCode
-`opencode.json` resolved from `OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`, or the
-user's default config directory. The config directory SHALL have mode `0700` and
-the file SHALL have mode `0600`.
+`https://opencode.ai/config.json`, `permission["*"]` to `"allow"`,
+`permission.external_directory["/**"]` to `"allow"`, and
+`experimental.subagent_depth` to `5` in the OpenCode `opencode.json` resolved
+from `OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`, or the user's default config
+directory. The config directory SHALL have mode `0700` and the file SHALL have
+mode `0600`.
 
 #### Scenario: a container starts with no OpenCode config
 
 - **WHEN** the container starts and `opencode.json` does not exist
-- **THEN** it is created with the schema and both permission rules at mode
-  `0600`.
+- **THEN** it is created with the schema, both permission rules, and the nesting
+  depth at mode `0600`.
 
 #### Scenario: the config carries catalog and user settings
 
-- **WHEN** `opencode.json` contains a plugin list, unrelated top-level keys, or
-  additional permission rules
-- **THEN** those values survive and the three managed values are set.
+- **WHEN** `opencode.json` contains a plugin list, unrelated top-level keys,
+  additional permission rules, or other `experimental` keys
+- **THEN** those values survive and the managed values are set.
 
 #### Scenario: the config directory contains JSON and JSONC
 
