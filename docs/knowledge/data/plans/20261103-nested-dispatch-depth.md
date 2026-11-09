@@ -92,7 +92,9 @@ the standalone runtime.
     `.devcontainer/docker-compose.yml`, and of `compose.opencode.yml` with
     `opencode-compose-pins.yml`, renders the variable as `"5"` with it unset on
     the host, as the host's value when set, and as an `--env-file` value for the
-    standalone runtime.
+    standalone runtime. Commit 51b054a5 documents the setting in
+    `docker/deploy/runtime.env.example`;
+    `uv run pytest scripts/tests/test_agent_runtime_compose.py` — 11 passed.
 - [x] In a container started from each compose file, the nesting fixture in
   [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
   extended to five levels, reaches depth 5 on Claude Code, read from each
