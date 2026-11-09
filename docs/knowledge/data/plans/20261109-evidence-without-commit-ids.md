@@ -160,10 +160,18 @@ The approved wording for what an evidence line names:
 `docs/knowledge/data/architecture/evidence-without-commit-ids.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] The architecture document records the decision, its reason (every reader
+- [x] The architecture document records the decision, its reason (every reader
   of evidence runs before merge), the same-commit rule, and the rejected
   alternatives from `## Approach`, with sources naming this plan and the backlog
   task; `data/architecture.md` links it at its sorted position.
+  - **Evidence:**
+    `docs/knowledge/data/architecture/evidence-without-commit-ids.md#decision`,
+    `docs/knowledge/data/architecture/evidence-without-commit-ids.md#why`,
+    `docs/knowledge/data/architecture/evidence-without-commit-ids.md#same-commit-rule`,
+    and
+    `docs/knowledge/data/architecture/evidence-without-commit-ids.md#alternatives-rejected`;
+    the inclusion link `[Evidence without commit ids]` in
+    `docs/knowledge/data/architecture.md`; `iwe schema validate` passes.
 
 ### Task 6: Observe Verify re-running named checks
 

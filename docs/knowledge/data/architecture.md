@@ -72,6 +72,8 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
+[Evidence without commit ids](architecture/evidence-without-commit-ids.md)
+
 [Explicit-only workflow agents](architecture/explicit-only-workflow-agents.md)
 
 [Extra CA trust](architecture/extra-ca-trust.md)
