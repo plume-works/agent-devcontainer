@@ -121,12 +121,20 @@ The approved wording for what an evidence line names:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Step 6 closes a task in one commit holding the code, the tick, and the
+- [x] Step 6 closes a task in one commit holding the code, the tick, and the
   evidence line, which names one of the three kinds in the approved wording from
   Task 1; the residue list drops "a check cited without that commit" and keeps
   the rest. Step 8, step 3 of `## Running the loop`, and the `## Rules` bullet
   on commit order state the same-commit rule; the `## Rules` bullets on one box
   per edit and one task per commit stay.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "The code, the tick, and its evidence line land together in one commit"`,
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "its code, tick, and evidence line in one commit"`,
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "the task's evidence line in one commit"`,
+    and
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "A task's code, its checkbox flip, and its evidence line land in one commit"`;
+    `grep -cE 'cited without that commit|code committed first|committed before its checkbox|naming that commit|commit, test run' .agents/plugins/agentdev/agents/iwe-implementer.agent.md`
+    prints 0.
 
 ### Task 4: Verifier rule
 
@@ -284,11 +292,11 @@ re-run each test or command a ticked task names, in the current tree.
   — step 4, the evidence format
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Closing it is then a single edit that ticks"`
   — step 6, closing a task
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "its code committed first and its evidence line next"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "its code, tick, and evidence line in one commit"`
   — step 8
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "the code, the test, its commit, then the task's evidence line"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "the code, the test, and the task's evidence line in one commit"`
   — loop step 3, the code route
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "A task's code is committed before its checkbox flip"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "A task's code, its checkbox flip, and its evidence line land in one commit"`
   — the commit-order rule
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "A check and its result count only together"`
   — the Completeness rule
