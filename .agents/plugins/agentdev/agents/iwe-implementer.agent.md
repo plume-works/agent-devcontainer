@@ -194,12 +194,14 @@ earlier task first, so
 the review reads committed code. Act on each finding by its **Defeats** line:
 
 - A finding that names a plan claim takes the code route: fix it under the
-  Steps above — the code, the test, its commit.
+  Steps above — the code and its test, in one commit.
 - A finding that names no claim is filed through the `/agentdev:iwe-capture`
   skill and named in the report.
 
-Tick the task once every claim-defeating finding is fixed, its evidence naming
-the commit the review ran on, each fix commit, and each captured document.
+Tick the task once every claim-defeating finding is fixed. Its evidence names,
+for each fix, the test id or command that now catches the finding — or, for a
+fix no test covers, the file and anchor that changed — and each captured
+document's key.
 
 ## Capturing what implementation turns up
 
