@@ -348,10 +348,15 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
 **Files:** Modify: `docs/knowledge/data/plans/20261103-per-worktree-catalog.md`
 
-- [ ] Through `/agentdev:iwe-plan` revise mode, the per-worktree catalog plan
+- [x] Through `/agentdev:iwe-plan` revise mode, the per-worktree catalog plan
   adds its catalog step to this plan's `agentdev-runtime worktree create` and
   `worktree remove` instead of creating them, drops its own hook registration
   and its `WorktreeRemove` input task, and depends on this plan.
+  - **Evidence:** commit deb921ff revises `20261103-per-worktree-catalog.md`:
+    its Tasks 1–2 extend `worktree.py::create` and `worktree.py::remove`, its
+    Task 3 keeps only `Workspace.catalog`'s registration, its `WorktreeRemove`
+    input task is gone, and `## Depends on` names this plan; the Durable
+    Knowledge Auditor's edits were applied and `iwe schema validate` passed.
 
 ### Task 13: Record the per-checkout environment design
 
