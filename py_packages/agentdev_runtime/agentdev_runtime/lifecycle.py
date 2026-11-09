@@ -25,6 +25,7 @@ from agentdev_runtime import (
     project,
     settings as env,
     workspace as checkout,
+    worktree,
 )
 
 PREFIX = 'agentdev-runtime lifecycle'
@@ -129,7 +130,7 @@ def ready(settings: env.Settings, wait: bool) -> None:
 
 
 def attached(settings: env.Settings) -> None:
-    """Run the attach phase: project environment, catalog, attached hooks."""
+    """Run the attach phase: project environment, catalog, worktree hooks, attached hooks."""
     folder = workspace_of(settings)
     subprocess.run(['git', 'config', '--global', 'gpg.ssh.program', 'ssh-keygen'], check=True)
     if (Path(folder) / 'pyproject.toml').is_file():
@@ -139,6 +140,9 @@ def attached(settings: env.Settings) -> None:
             catalog.install(settings, folder, None)
     else:
         print(f'{folder} ships no complete agentdev catalog; keeping the staged catalog.')
+    if not project.deploy(settings):
+        with agent_state.config_lock(settings):
+            worktree.register()
     hooks.run(settings, 'attached')
 
 

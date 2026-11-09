@@ -14,9 +14,13 @@ import shutil
 import subprocess
 import sys
 
-from agentdev_runtime import project, settings as env
+from agentdev_runtime import claude_state, project, remote_control, settings as env
 
 PREFIX = 'agentdev-runtime worktree'
+HOOKS = {
+    'WorktreeCreate': 'agentdev-runtime worktree create',
+    'WorktreeRemove': 'agentdev-runtime worktree remove',
+}
 
 
 def fail(message: str) -> int:
@@ -79,6 +83,20 @@ def remove(text: str) -> int:
     if git('-C', str(path), 'worktree', 'remove', '--force', str(path)) != 0:
         return fail(f'git worktree remove {path} failed')
     return 0
+
+
+def register() -> None:
+    """Add both hooks to the user's Claude settings, keeping every other hook and key."""
+
+    def add(data: dict) -> None:
+        events = data.setdefault('hooks', {})
+        for event, command in HOOKS.items():
+            groups = events.setdefault(event, [])
+            hooks = [hook for group in groups for hook in group.get('hooks', [])]
+            if not any(hook.get('command') == command for hook in hooks):
+                groups.append({'hooks': [{'type': 'command', 'command': command}]})
+
+    claude_state.update_json(remote_control.config_dir() / 'settings.json', add)
 
 
 def main(argv: list[str]) -> int:
