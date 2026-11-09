@@ -318,10 +318,16 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
 **Files:** Modify: `.devcontainer/devcontainer.json`
 
-- [ ] `containerEnv` sets no `UV_PROJECT_ENVIRONMENT`.
-- [ ] `python.defaultInterpreterPath`, `ansible.ansible.path`,
+- [x] `containerEnv` sets no `UV_PROJECT_ENVIRONMENT`.
+  - **Evidence:** commit 3f3fc5b7 removes it from
+    `.devcontainer/devcontainer.json`;
+    `git grep -n UV_PROJECT_ENVIRONMENT .devcontainer` finds nothing.
+- [x] `python.defaultInterpreterPath`, `ansible.ansible.path`,
   `ansible.python.interpreterPath`, and `ansible.validation.lint.path` name
   `${workspaceFolder}/.venv/bin/...`.
+  - **Evidence:** commit 3f3fc5b7 points all four at
+    `${workspaceFolder}/.venv/bin/...`; `git grep -n ws-project .devcontainer`
+    finds nothing.
 
 ### Task 11: Revise the home-volume plan's uv layout
 
