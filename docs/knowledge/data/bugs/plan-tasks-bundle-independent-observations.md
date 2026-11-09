@@ -1,6 +1,6 @@
 ---
 type: bug
-stage: pending
+stage: planned
 severity: medium
 description: A plan checkbox can bundle several independently observed outcomes, so the implementer cannot tick the half it observed and has to park that evidence elsewhere; neither the plan skill's coherence check nor the plan auditor tests checkbox granularity.
 sources:

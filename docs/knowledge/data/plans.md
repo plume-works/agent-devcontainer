@@ -106,6 +106,9 @@ graph](plans/20261108-drop-okf-provenance-fields.md)
 [Plans as ephemeral implementation documents; stories as the planned
 work](plans/20261108-ephemeral-plans-and-stories.md)
 
+[Plan task evidence without commit
+ids](plans/20261109-evidence-without-commit-ids.md)
+
 [Explore proposes only for observed
 problems](plans/20261103-explore-evidence-gate.md)
 
@@ -189,6 +192,9 @@ CLI](plans/20261029-off-bash-migration.md)
 
 [Keep the graph an OKF bundle in the spec](plans/20261101-okf-bundle-in-spec.md)
 
+[One observation per plan
+checkbox](plans/20261109-one-observation-per-checkbox.md)
+
 [Load the agentdev catalog into OpenCode through a bridge
 plugin](plans/20261001-opencode-catalog-bridge.md)
 
@@ -217,6 +223,9 @@ catalog](plans/20261103-per-worktree-catalog.md)
 volume](plans/20260902-persist-pre-commit-cache.md)
 
 [The iwe-plan-review skill](plans/20261103-plan-review-skill.md)
+
+[Stop the planner from adding spec
+redundancy](plans/20261109-planner-spec-redundancy-check.md)
 
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
