@@ -73,8 +73,10 @@ ephemeral runner in Actions — but neither activates anything:
 - **Two worktrees run uv at once.** Each imports its own checkout's packages;
   neither sync changes the other's environment.
 - **A real `.venv` in a devcontainer checkout.** Attach replaces one that holds
-  a `pyvenv.cfg` with the link; any other real `.venv`, or a link outside the
-  environment root, is left in place with a warning.
+  a `pyvenv.cfg` with the link, including one the host made in the mounted
+  checkout; any other real `.venv`, or a link outside the environment root, is
+  left in place with a warning. A host working in that checkout sets its own
+  `UV_PROJECT_ENVIRONMENT`.
 - **Host and CI checkouts produce a real `.venv`.** `.gitignore`,
   `.dockerignore`, `search.exclude`, and the `shellcheck_fix.py` prune all keep
   their `.venv` entries. `.github/actions/setup-python-venv/action.yml` lets uv

@@ -109,6 +109,13 @@ where pre-commit is missing; the written script runs `link-venv` only when
 - Claude Code keeps the worktree its `WorktreeCreate` hook made for a subagent
   and runs no `WorktreeRemove` for it, so that environment stays until the
   worktree is removed and the workspace is next attached.
-- Host and CI checkouts keep uv's default in-tree `.venv`, and the deploy
-  runtime, which serves one checkout, keeps a fixed `UV_PROJECT_ENVIRONMENT`.
-  `.gitignore`, `search.exclude`, and the lint prunes keep covering `.venv`.
+- CI checkouts and host checkouts no Dev Container mounts keep uv's default
+  in-tree `.venv`, and the deploy runtime, which serves one checkout, keeps a
+  fixed `UV_PROJECT_ENVIRONMENT`.
+- The checkout the Dev Container mounts belongs to the container: attach
+  replaces a real uv environment (one with `pyvenv.cfg`) in the workspace folder
+  with the link. The host and the container cannot share one `.venv`, because an
+  environment carries its own platform's interpreter, and a host `uv` there
+  fails on the link, so the host sets `UV_PROJECT_ENVIRONMENT` to a path of its
+  own to work in that checkout. `.gitignore`, `search.exclude`, and the lint
+  prunes keep covering `.venv`.
