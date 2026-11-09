@@ -54,11 +54,11 @@ target directory first — uv fails on a `.venv` link whose target does not exis
 — then the link. Three triggers call it, because no single event sees every
 checkout:
 
-| Trigger                                                     | Checkouts it covers                                                                                        |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| git `post-checkout`, installed by `project hooks`           | `git worktree add` by OpenCode, a person, or a script                                                      |
-| Claude `WorktreeCreate`, `agentdev-runtime worktree create` | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
-| attach (`agentdev-runtime project sync`)                    | the main checkout                                                                                          |
+| Trigger                                                      | Checkouts it covers                                                                                        |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| the `link-venv` pre-commit hook at the `post-checkout` stage | `git worktree add` by OpenCode, a person, or a script                                                      |
+| Claude `WorktreeCreate`, `agentdev-runtime worktree create`  | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
+| attach (`agentdev-runtime project sync`)                     | the main checkout                                                                                          |
 
 A `WorktreeCreate` hook replaces Claude Code's own worktree creation, so it
 covers Claude's worktrees whether or not git's hooks would run for them.
@@ -68,12 +68,13 @@ hooks](../architecture/worktree-hooks.md#writing-the-hooks), then runs
 own `git worktree add` also fires `post-checkout`; `link-venv` is idempotent, so
 the second run changes nothing.
 
-The `post-checkout` hook is a script `project hooks` writes itself rather than a
-pre-commit stage: the checkout's `.git/hooks` is shared with the host through
-the bind mount, and pre-commit's generated script fails every host checkout
-where pre-commit is not installed. The script runs
-`agentdev-runtime project link-venv` and exits 0 when `agentdev-runtime` is
-absent.
+The `post-checkout` trigger is a `link-venv` hook at the `post-checkout` stage
+of `.pre-commit-config.yaml`, installed by `project hooks` with the other hook
+types, so pre-commit stays the only writer of `.git/hooks`. The checkout's
+`.git/hooks` is shared with the host through the bind mount, so the hook runs
+`agentdev-runtime project link-venv` only when `agentdev-runtime` is on `PATH`.
+`default_stages` keeps every hook without its own `stages` out of
+`post-checkout`.
 
 `agentdev-runtime worktree remove`, the `WorktreeRemove` hook, deletes the
 worktree's environment and then the worktree. `WorktreeRemove` runs only for
@@ -234,29 +235,30 @@ registration is idempotent and only adds.
     repository's live environment and deleting it with its record once that
     worktree is removed; all passed.
 
-### Task 6: Link new worktrees from git's post-checkout hook
+### Task 6: Link new worktrees from a pre-commit post-checkout stage
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
 `.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`,
 `docs/knowledge/data/architecture/uv-environment-location.md`
 
-- [x] Outside deploy mode, `project hooks` writes the checkout's `post-checkout`
-  hook: a script that runs `agentdev-runtime project link-venv` and exits 0 when
-  `agentdev-runtime` is not on `PATH`. It replaces a hook it or pre-commit wrote
-  and leaves any other `post-checkout` hook with a warning. `HOOK_TYPES` and
-  `.pre-commit-config.yaml` carry no `post-checkout` entry.
-  - **Evidence:** commit 93a15d1f adds `project.py::link_hook`, called from
-    `project.py::hooks`, and leaves `HOOK_TYPES` and `.pre-commit-config.yaml`
-    as on `main`; `test_a_custom_post_checkout_hook_is_left_alone` passed.
-- [x] A test runs `git worktree add` in a fixture repository with the installed
-  hooks and finds the new worktree's `.venv` linked, and another runs it with no
-  `agentdev-runtime` on `PATH` and finds it succeeds.
-  - **Evidence:** commit 93a15d1f;
-    `test_post_checkout_links_a_new_worktrees_venv`,
-    `test_post_checkout_passes_on_a_host_without_the_runtime`, and
-    `test_post_checkout_passes_when_the_runtime_lacks_link_venv` passed in
-    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py` (28
-    passed).
+- [x] `HOOK_TYPES` includes `post-checkout`, and `.pre-commit-config.yaml` has a
+  `link-venv` hook at the `post-checkout` stage that runs
+  `agentdev-runtime project link-venv` only when `agentdev-runtime` is on
+  `PATH`; `default_stages` keeps every other hook out of that stage.
+  - **Evidence:** commit 6a2f7326 adds `post-checkout` to
+    `project.py::HOOK_TYPES` and `.pre-commit-config.yaml#repos` › "id:
+    link-venv"; `test_project_setup_runs_only_for_present_configuration` and
+    `test_standalone_hook_registration_builds_no_environment_offline` in
+    `scripts/tests/test_agent_runtime_workspace.py` passed with every
+    `HOOK_TYPES` entry.
+- [x] With pre-commit's hooks installed, `git worktree add` links the new
+  worktree's `.venv`, and with no `agentdev-runtime` on `PATH` it succeeds and
+  makes no link.
+  - **Evidence:** in the Dev Container at commit 6a2f7326, after
+    `uv run pre-commit install --hook-type=post-checkout`,
+    `git worktree add -b <branch> .tmp/<name> HEAD` linked `.tmp/<name>/.venv`
+    to `/uv/venvs/<name>`; with `PATH` holding only `/usr/bin`, `/bin`, and
+    pre-commit, it exited 0 and made no `.venv`.
 
 ### Task 7: `agentdev-runtime worktree create`
 
@@ -497,7 +499,7 @@ checkout, in any repository, and remove the rest.
 
 - **WHEN** a host shares the checkout's `.git` with the Dev Container and runs
   `git checkout`, `git switch`, or `git worktree add` without `agentdev-runtime`
-  or pre-commit installed
+  installed
 - **THEN** the command succeeds and no `.venv` link is made
 
 #### Scenario: Claude Code removes a worktree

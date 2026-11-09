@@ -51,11 +51,11 @@ link. It is idempotent, repairs a link that points elsewhere under the root, and
 leaves a real directory or a link outside the root in place with a warning. No
 single event sees every checkout, so three call it:
 
-| Trigger                                                     | Checkouts it covers                                                                                        |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| git `post-checkout`, installed by `project hooks`           | `git worktree add` by OpenCode, a person, or a script                                                      |
-| Claude `WorktreeCreate`, `agentdev-runtime worktree create` | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
-| attach (`agentdev-runtime project sync`)                    | the workspace folder                                                                                       |
+| Trigger                                                      | Checkouts it covers                                                                                        |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| the `link-venv` pre-commit hook at the `post-checkout` stage | `git worktree add` by OpenCode, a person, or a script                                                      |
+| Claude `WorktreeCreate`, `agentdev-runtime worktree create`  | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
+| attach (`agentdev-runtime project sync`)                     | the workspace folder                                                                                       |
 
 A `WorktreeCreate` hook replaces Claude Code's own worktree creation, so it
 covers Claude's worktrees whether or not git's hooks would run for them:
@@ -77,11 +77,13 @@ Removal happens in two places:
   `WorktreeRemove` fires only for worktrees a `WorktreeCreate` hook made, and
   git has no hook for `git worktree remove`.
 
-`project hooks` writes the `post-checkout` hook itself rather than as a
-pre-commit stage. The checkout's `.git/hooks` is shared with the host through
-the bind mount, and pre-commit's generated script fails every host checkout
-where pre-commit is missing; the written script runs `link-venv` only when
-`agentdev-runtime` is on `PATH`, and never fails the checkout.
+The `post-checkout` trigger is a `link-venv` hook in `.pre-commit-config.yaml`,
+and `project hooks` installs pre-commit's `post-checkout` script with the other
+hook types. pre-commit is the only writer of `.git/hooks`, so a repository's own
+`post-checkout` hooks run beside it. The checkout's `.git/hooks` is shared with
+the host through the bind mount, so the hook does nothing where
+`agentdev-runtime` is not on `PATH`. `default_stages` keeps every hook without
+its own `stages` out of `post-checkout`.
 
 ## Rejected alternatives
 
