@@ -63,17 +63,25 @@ every dependent plan behind a full ship cycle.
 **Files:** Create: `.agents/plugins/agentdev/bin/plan_predecessors.py`,
 `.agents/plugins/agentdev/tests/test_plan_predecessors.py`
 
-- [ ] `plan_predecessors.py <plan-key>` reads the plan's `## Depends on` and
+- [x] `plan_predecessors.py <plan-key>` reads the plan's `## Depends on` and
   each dependency's state at the remote default branch, and prints the pull
   requests to pass to `git-new-branch --depends-on`: for each unshipped
   dependency and for the plan's own open earlier iterations, the top of their
   open `iwe/<slug>/iter-*` pull requests, dropping any that sits below another
   in the same chain; it stops on an unshipped dependency with no open pull
   request
-- [ ] Tests cover no dependency, a shipped dependency, one open dependency, two
+  - **Evidence:** commit 77662363 adds
+    `.agents/plugins/agentdev/bin/plan_predecessors.py::predecessors`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_plan_predecessors.py`
+    passes 7 tests
+- [x] Tests cover no dependency, a shipped dependency, one open dependency, two
   dependencies in one chain, two in different chains, the plan's own open
   iteration, and an unshipped dependency without a pull request, with the pull
   request lookup behind one replaceable function
+  - **Evidence:** commit 77662363 adds
+    `.agents/plugins/agentdev/tests/test_plan_predecessors.py`, one test per
+    listed case, replacing `plan_predecessors.py::open_pull_requests`; the
+    plugin suite `uv run pytest .agents/plugins/agentdev/tests` passes
 
 ### Task 2: Implement stacks on an unshipped dependency
 
