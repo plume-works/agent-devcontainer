@@ -121,3 +121,10 @@ its own `stages` out of `post-checkout`.
   fails on the link, so the host sets `UV_PROJECT_ENVIRONMENT` to a path of its
   own to work in that checkout. `.gitignore`, `search.exclude`, and the lint
   prunes keep covering `.venv`.
+- `project hooks` installs pre-commit's `post-checkout` stage in every checkout,
+  so a repository's `.pre-commit-config.yaml` sets a top-level `default_stages`
+  without `post-checkout`. Without it, every hook that has no `stages` and runs
+  with `always_run` runs on each checkout, and a failing one, such as
+  `no-commit-to-branch` on `main`, makes the checkout command exit non-zero.
+  Checking out a commit whose config predates that setting runs its hooks this
+  way too.
