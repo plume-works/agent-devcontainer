@@ -121,13 +121,23 @@ adds.
 **Closed by:** the user, on agent-dev3, with recording `WorktreeCreate` and
 `WorktreeRemove` command hooks in user settings that save their stdin to a file.
 
-- [ ] A subagent dispatched with `isolation: worktree` runs the recording
+- [x] A subagent dispatched with `isolation: worktree` runs the recording
   `WorktreeCreate` hook, and `data/architecture/worktree-hooks` lists it among
   the triggers.
-- [ ] Remote Control's automatic cleanup of a spawned session's worktree runs
+  - **Evidence:** commit a0524735 lists the subagent among the triggers in
+    `data/architecture/worktree-hooks#host-behavior`; on agent-dev3 a
+    `claude -p` subagent with `isolation: worktree` got worktree
+    `worktree-agent-a86a3a4cc79da0189` from `agentdev-runtime worktree create`
+    (`## Verification results`).
+- [x] Remote Control's automatic cleanup of a spawned session's worktree runs
   the recording `WorktreeRemove` hook, and the stdin field naming the worktree
   path is recorded in `data/architecture/worktree-hooks`, replacing "not yet
   confirmed".
+  - **Evidence:** commit a0524735 records `worktree_path` as the only stdin
+    field in `data/architecture/worktree-hooks#host-behavior`, read from the
+    payloads Remote Control cleanup sent to recording hooks on agent-dev3;
+    stopping the server then ran `agentdev-runtime worktree remove` on its clean
+    worktrees (`## Verification results`).
 
 ### Task 3: Add the `project link-venv` subcommand
 
@@ -385,16 +395,26 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
 **Closed by:** the user, in a Coder workspace rebuilt from this branch's image.
 
-- [ ] A Remote Control worktree session, a subagent worktree from
+- [x] A Remote Control worktree session, a subagent worktree from
   `isolation: worktree`, and a `git worktree add` worktree each get a `.venv`
   link to their own directory under `/uv/venvs`, with hardlinked packages after
   one `uv run`.
-- [ ] Two worktrees with different `agentdev_runtime` code each import their own
+  - **Evidence:** on agent-dev3 at commit 6292dc91, each of the four worktree
+    kinds linked its own `/uv/venvs/<name>`; the session and subagent
+    environments showed 4-link packages after `uv sync`
+    (`## Verification results`).
+- [x] Two worktrees with different `agentdev_runtime` code each import their own
   copy from
   `uv run python -c 'import agentdev_runtime; print(agentdev_runtime.__file__)'`
   while the other runs `uv sync`.
-- [ ] Remote Control's cleanup of the spawned session's worktree removes its
+  - **Evidence:** on agent-dev3 at commit 6292dc91, 15 of 15 imports in the
+    modified worktree loaded its own copy while the other re-synced 5 times, and
+    the other imported its own (`## Verification results`).
+- [x] Remote Control's cleanup of the spawned session's worktree removes its
   directory under `/uv/venvs`.
+  - **Evidence:** on agent-dev3 at commit 6292dc91, stopping the Remote Control
+    server removed `/uv/venvs/bridge-cse_01Q7BhLqdbGUwooxVxh4Cqcu` with its
+    worktree and kept its branch (`## Verification results`).
 
 ## Spec changes
 
@@ -453,6 +473,31 @@ attach SHALL remove every other environment no listed checkout uses.
 - `.agents/plugins/agentdev/bin/python_lint_check.py`
 - Task 1 on a Mac, Task 2 on agent-dev3, and Task 14 on a rebuilt Coder
   workspace, each recorded under `## Verification results`.
+
+## Verification results
+
+On agent-dev3 (Claude Code 2.1.319), with the Dev Container recreated from this
+branch's descriptor and this branch's `agentdev-runtime` installed over the
+image's copy:
+
+- Attach linked the workspace folder's `.venv` to
+  `/uv/venvs/agent-devcontainer`, removed `ws-project`, and registered both
+  hooks; a package file in that environment had 2 links.
+- A `git worktree add` worktree, a `claude --worktree` session, a subagent with
+  `isolation: worktree`, a Remote Control spawn, and two sessions Remote Control
+  revived on restart each got `.venv` linked to its own environment before their
+  first command; the session and subagent environments shared the cache's
+  hardlinks (4 links).
+- With one worktree's `agentdev_runtime` modified, 15 imports there all loaded
+  its own copy while the other worktree re-synced 5 times.
+- Stopping the Remote Control server ran `agentdev-runtime worktree remove` on
+  its clean spawned worktrees: their environments were deleted and their
+  `worktree-<name>` branches kept. After test worktrees were removed with
+  `git worktree remove`, `agentdev-runtime project sync` deleted their
+  environments and kept the two in use.
+- A Remote Control server started before attach registered the hooks created its
+  spawn's worktree itself — locked, without `.venv` — until it was restarted;
+  `post-checkout` does not fire for such a worktree.
 
 ## Out of scope
 
