@@ -166,12 +166,21 @@ adds.
 `scripts/tests/test_agent_runtime_workspace.py`; Create:
 `py_packages/agentdev_runtime/tests/test_project_sync.py`
 
-- [ ] `project sync` links `.venv` through `link-venv` before `uv sync` instead
+- [x] `project sync` links `.venv` through `link-venv` before `uv sync` instead
   of removing links under `/uv/venvs/`. A real `.venv` directory that holds a
   `pyvenv.cfg` is replaced by the link; any other real `.venv` is left with a
   warning.
-- [ ] `test_standalone_skips_the_venv_migration` and the sync tests describe the
+  - **Evidence:** commit f623ae99 changes `project.py::sync`;
+    `uv run pytest py_packages/agentdev_runtime/tests/test_project_sync.py`
+    passed 3 tests: sync runs in the linked environment, a real uv environment
+    is replaced, another real `.venv` is left with a warning.
+- [x] `test_standalone_skips_the_venv_migration` and the sync tests describe the
   new behavior.
+  - **Evidence:** commit f623ae99 renames it
+    `test_standalone_leaves_the_venv_link_alone` and adds
+    `py_packages/agentdev_runtime/tests/test_project_sync.py`;
+    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py` passed 24
+    tests.
 
 ### Task 5: Remove stale environments on attach
 
