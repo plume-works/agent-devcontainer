@@ -5,6 +5,7 @@ import stat
 import subprocess
 import sys
 
+from agentdev_runtime import opencode_config
 import pytest
 
 SCRIPT = [
@@ -16,6 +17,7 @@ SCHEMA = 'https://opencode.ai/config.json'
 MANAGED = {
     '$schema': SCHEMA,
     'permission': {'*': 'allow', 'external_directory': {'/**': 'allow'}},
+    'experimental': {'subagent_depth': opencode_config.SUBAGENT_DEPTH},
 }
 
 
@@ -83,6 +85,7 @@ def test_existing_config_preserves_unmanaged_settings(config_dir: Path) -> None:
                 '/catalog/**': 'deny',
             },
         },
+        'experimental': {'subagent_depth': opencode_config.SUBAGENT_DEPTH},
     }
 
 
@@ -118,6 +121,7 @@ def test_jsonc_config_is_patched_after_json_without_losing_settings(config_dir: 
             '*': 'allow',
             'external_directory': {'/**': 'allow', '/catalog/**': 'deny'},
         },
+        'experimental': {'subagent_depth': opencode_config.SUBAGENT_DEPTH},
     }
 
 

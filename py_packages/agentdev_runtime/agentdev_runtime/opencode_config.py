@@ -9,6 +9,7 @@ from typing import Any
 import json5
 
 SCHEMA = 'https://opencode.ai/config.json'
+SUBAGENT_DEPTH = 5
 
 
 def config_directory() -> Path:
@@ -58,11 +59,21 @@ def apply_policy(current: dict[str, Any]) -> dict[str, Any]:
         'external_directory': {'/**': 'allow', **unmanaged_external},
     }
 
+    existing_experimental = current.get('experimental')
+    experimental = existing_experimental if isinstance(existing_experimental, dict) else {}
+    managed_experimental = {**experimental, 'subagent_depth': SUBAGENT_DEPTH}
+
     # Keys keep their positions so an unchanged config rewrites byte-identically.
+    managed = {
+        '$schema': SCHEMA,
+        'permission': managed_permission,
+        'experimental': managed_experimental,
+    }
     updated = {} if '$schema' in current else {'$schema': SCHEMA}
     for key, value in current.items():
-        updated[key] = {'$schema': SCHEMA, 'permission': managed_permission}.get(key, value)
+        updated[key] = managed.get(key, value)
     updated.setdefault('permission', managed_permission)
+    updated.setdefault('experimental', managed_experimental)
     return updated
 
 
