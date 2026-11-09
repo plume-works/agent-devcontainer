@@ -133,7 +133,8 @@ adds.
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/settings.py`,
-`scripts/tests/test_agent_runtime_workspace.py`
+`py_packages/agentdev_runtime/README.md`; Create:
+`py_packages/agentdev_runtime/tests/test_project_link_venv.py`
 
 - [ ] `agentdev-runtime project link-venv [PATH]` resolves the checkout root of
   `PATH` (default: the working directory), creates
@@ -150,7 +151,8 @@ adds.
 ### Task 4: Link the main checkout on attach
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
-`scripts/tests/test_agent_runtime_workspace.py`
+`scripts/tests/test_agent_runtime_workspace.py`; Create:
+`py_packages/agentdev_runtime/tests/test_project_sync.py`
 
 - [ ] `project sync` links `.venv` through `link-venv` before `uv sync` instead
   of removing links under `/uv/venvs/`. A real `.venv` directory that holds a
@@ -162,7 +164,7 @@ adds.
 ### Task 5: Remove stale environments on attach
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
-`scripts/tests/test_agent_runtime_workspace.py`
+`py_packages/agentdev_runtime/tests/test_project_sync.py`
 
 - [ ] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
   name matches no checkout in `git worktree list`, and never one a listed
