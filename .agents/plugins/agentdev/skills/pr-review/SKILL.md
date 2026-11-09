@@ -57,7 +57,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`, `*.agent.md`), and docstrings:
 
-- Run `/agentdev:iwe-audit` in diff mode over the changed docs/skills files. It scans the added lines for session residue and returns an `anchor | quoted text | verdict | replacement | evidence` table (DROP / MOVE / REWRITE / KEEP); it does not restate its criteria here, and it applies nothing.
+- Run `/agentdev:iwe-audit` in diff mode over the changed docs/skills files. It scans the added lines for session residue and returns its findings table, one row per finding with a DROP / MOVE / REWRITE / KEEP verdict; it applies nothing. This review reads only each row's quoted text, verdict, and replacement or destination.
 - Map each table row to an inline review comment placed on the diff line that holds the row's quoted text, and the verdict plus its replacement/destination becomes the comment body.
 - **High-signal bar:** flag a finding only when you can quote the added line and name the specific rule it breaks — the same anti-nitpick threshold the Compliance focus uses. iwe-audit audits exhaustively; this bar filters its rows down to the review-worthy ones. Drop any row you cannot tie to a quoted line and a named rule.
 
