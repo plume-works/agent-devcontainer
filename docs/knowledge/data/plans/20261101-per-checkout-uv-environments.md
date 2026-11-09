@@ -56,7 +56,7 @@ checkout:
 
 | Trigger                                                     | Checkouts it covers                                                                                        |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| git `post-checkout`, installed by pre-commit                | `git worktree add` by OpenCode, a person, or a script                                                      |
+| git `post-checkout`, installed by `project hooks`           | `git worktree add` by OpenCode, a person, or a script                                                      |
 | Claude `WorktreeCreate`, `agentdev-runtime worktree create` | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
 | attach (`agentdev-runtime project sync`)                    | the main checkout                                                                                          |
 
@@ -67,6 +67,13 @@ hooks](../architecture/worktree-hooks.md#writing-the-hooks), then runs
 `link-venv` in the new worktree before Claude Code starts the session there. Its
 own `git worktree add` also fires `post-checkout`; `link-venv` is idempotent, so
 the second run changes nothing.
+
+The `post-checkout` hook is a script `project hooks` writes itself rather than a
+pre-commit stage: the checkout's `.git/hooks` is shared with the host through
+the bind mount, and pre-commit's generated script fails every host checkout
+where pre-commit is not installed. The script runs
+`agentdev-runtime project link-venv` and exits 0 when `agentdev-runtime` is
+absent.
 
 `agentdev-runtime worktree remove`, the `WorktreeRemove` hook, deletes the
 worktree's environment and then the worktree. `WorktreeRemove` runs only for
@@ -97,12 +104,14 @@ shared plugin gets neither); sweeping every worktree from a hook rather than
 targeting the one at hand.
 
 Assumptions: the environment root is a setting, `AGENTDEV_VENV_ROOT`, defaulting
-to `/uv/venvs`, so the home-volume plan can move it; an environment is stale
-when no checkout in `git worktree list` has its directory name; the retired
-`ws-project` environment is removed as stale; `worktree create` branches from
-`HEAD` and reduces the worktree name to `[A-Za-z0-9._-]`; `worktree remove`
-keeps the `worktree-<name>` branch; hook registration is idempotent and only
-adds.
+to `/uv/venvs`, so the home-volume plan can move it; `link-venv` records each
+environment's checkout in `<root>/<name>.checkout`, and an environment is stale
+when no checkout in `git worktree list` has its directory name and its recorded
+checkout's `.venv` no longer links to it, whatever repository that checkout
+belongs to; the retired `ws-project` environment is removed as stale;
+`worktree create` branches from `HEAD` and reduces the worktree name to
+`[A-Za-z0-9._-]`; `worktree remove` keeps the `worktree-<name>` branch; hook
+registration is idempotent and only adds.
 
 ## Implementation Steps
 
@@ -197,48 +206,33 @@ adds.
 ### Task 5: Remove stale environments on attach
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
-`py_packages/agentdev_runtime/tests/test_project_sync.py`
+`py_packages/agentdev_runtime/tests/test_project_sync.py`,
+`py_packages/agentdev_runtime/tests/test_project_link_venv.py`
 
-- [x] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
-  name matches no checkout in `git worktree list`, and never one a listed
-  checkout's `.venv` links to.
-  - **Evidence:** commit 11c4f693 adds `project.py::prune_venvs`, called from
-    `project.py::sync`;
-    `uv run pytest py_packages/agentdev_runtime/tests/test_project_sync.py`
-    passed 7 tests.
-- [x] Tests cover a removed worktree's environment, a live worktree's
-  environment, and the retired `ws-project`.
-  - **Evidence:** commit 11c4f693 adds
-    `test_a_removed_worktrees_environment_is_deleted`,
-    `test_a_live_worktrees_environment_is_kept`,
-    `test_an_environment_a_checkout_links_to_is_kept`, and
-    `test_the_retired_shared_environment_is_deleted` to
-    `py_packages/agentdev_runtime/tests/test_project_sync.py`; all passed.
+- [ ] `link-venv` writes the checkout's absolute path to
+  `$AGENTDEV_VENV_ROOT/<name>.checkout`.
+- [ ] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
+  name matches no checkout in `git worktree list` and whose recorded checkout's
+  `.venv` no longer links to it, with its `.checkout` record, and never one a
+  listed checkout's `.venv` links to.
+- [ ] Tests cover a removed worktree's environment, a live worktree's
+  environment, a live environment of another repository's worktree, and the
+  retired `ws-project`.
 
 ### Task 6: Link new worktrees from git's post-checkout hook
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
-`.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`
+`.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`,
+`docs/knowledge/data/architecture/uv-environment-location.md`
 
-- [x] `HOOK_TYPES` includes `post-checkout`, so `project hooks` installs it.
-  - **Evidence:** commit ac4597a8 adds it to `project.py::HOOK_TYPES`;
-    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py` passed 25
-    tests, `test_project_setup_runs_only_for_present_configuration` asserting
-    `--hook-type=post-checkout`.
-- [x] A local `language: system` hook at stage `post-checkout` runs
-  `agentdev-runtime project link-venv` with `always_run: true` and
-  `pass_filenames: false`.
-  - **Evidence:** commit ac4597a8 adds the `link-venv` hook to
-    `.pre-commit-config.yaml`; its entry exits 0 when `agentdev-runtime` is not
-    on `PATH`, and a top-level `default_stages` keeps every hook that names no
-    stages off `post-checkout`.
-- [x] A test runs `git worktree add` in a fixture repository with the installed
-  hooks and finds the new worktree's `.venv` linked.
-  - **Evidence:** commit ac4597a8 adds
-    `scripts/tests/test_agent_runtime_workspace.py::test_post_checkout_links_a_new_worktrees_venv`,
-    which installs this repository's hooks with real pre-commit and runs
-    `git worktree add`; it passed in
-    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py`.
+- [ ] Outside deploy mode, `project hooks` writes the checkout's `post-checkout`
+  hook: a script that runs `agentdev-runtime project link-venv` and exits 0 when
+  `agentdev-runtime` is not on `PATH`. It replaces a hook it or pre-commit wrote
+  and leaves any other `post-checkout` hook with a warning. `HOOK_TYPES` and
+  `.pre-commit-config.yaml` carry no `post-checkout` entry.
+- [ ] A test runs `git worktree add` in a fixture repository with the installed
+  hooks and finds the new worktree's `.venv` linked, and another runs it with no
+  `agentdev-runtime` on `PATH` and finds it succeeds.
 
 ### Task 7: `agentdev-runtime worktree create`
 
@@ -440,7 +434,9 @@ The create phase SHALL register `agentdev-runtime worktree create` and
 when the worktree is made by `git worktree add` or by that `WorktreeCreate`
 hook, and the attach phase SHALL create it for the workspace folder. The
 `WorktreeRemove` hook SHALL delete the environment of the worktree it removes;
-attach SHALL remove every other environment no listed checkout uses.
+attach SHALL keep every
+environment named after a listed checkout or linked from the `.venv` of any
+checkout, in any repository, and remove the rest.
 
 #### Scenario: two worktrees run uv at once
 
@@ -457,6 +453,13 @@ attach SHALL remove every other environment no listed checkout uses.
   `worktree-<name>`, and its `.venv` links to its own environment before the
   session starts
 
+#### Scenario: the host checks out a branch
+
+- **WHEN** a host shares the checkout's `.git` with the Dev Container and runs
+  `git checkout`, `git switch`, or `git worktree add` without `agentdev-runtime`
+  or pre-commit installed
+- **THEN** the command succeeds and no `.venv` link is made
+
 #### Scenario: Claude Code removes a worktree
 
 - **WHEN** Claude Code removes a worktree its `WorktreeCreate` hook made
@@ -467,8 +470,8 @@ attach SHALL remove every other environment no listed checkout uses.
 
 - **WHEN** a worktree is removed with `git worktree remove` and the workspace is
   next attached
-- **THEN** its environment directory is deleted, and no listed checkout's
-  environment is touched
+- **THEN** its environment directory is deleted, and no environment a
+  checkout of any repository still links to is touched
 ```
 
 ## Verification
@@ -511,9 +514,6 @@ image's copy:
 - Per-worktree agentdev catalogs, which [Give each Claude worktree its own
   agentdev catalog](20261103-per-worktree-catalog.md) adds to this plan's
   worktree hooks.
-- A consumer's own `.pre-commit-config.yaml`: the `post-checkout` hook entry
-  ships in this repository's config only; consumers adopt it through their own
-  configuration.
 - Host and CI checkouts, which keep uv's default in-tree `.venv`.
 
 ## Key references
