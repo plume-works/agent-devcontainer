@@ -129,10 +129,12 @@ unprompted):
   already in flight is not this one: hand it back per
   `## During implementation` so it reaches the plan that owns it, rather than
   becoming a document standing beside it.
-- Ready to build → hand off to the `/agentdev:iwe-plan` skill; the exploration
-  becomes the plan's `## Context` and `## Approach`. When the exploration
-  started from a GitHub issue, name its `ISSUE_URL` in the handoff — the plan
-  links it and closes it.
+- Ready to build → write the handoff and ask the user to run the
+  `/agentdev:iwe-plan` skill with it; the exploration becomes the plan's
+  `## Context` and `## Approach`. Only the user starts that skill: never invoke
+  it from Explore, and an answer that settles the plan's scope or timing is not
+  a request to start it. When the exploration started from a GitHub issue, name
+  its `ISSUE_URL` in the handoff — the plan links it and closes it.
 - Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
   conversation continues. When the user approves specific text — wording for a
   document, a snippet, a message — that text is the deliverable, not a
