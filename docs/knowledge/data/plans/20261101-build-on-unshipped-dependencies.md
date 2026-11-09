@@ -87,10 +87,15 @@ every dependent plan behind a full ship cycle.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Step 3 accepts an unshipped dependency that has an open pull request and
+- [x] Step 3 accepts an unshipped dependency that has an open pull request and
   stops only on one without; step 4 runs Task 1's script and passes each printed
   pull request to `git-new-branch --depends-on`, or cuts from `main` when none
   is printed
+  - **Evidence:** commit 8186f866 rewrites
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps` steps 3–4
+    (step 3 runs `plan_predecessors.py`, step 4 passes each `PREDECESSOR`);
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors, 0 warnings
 
 ### Task 3: Ship refuses a plan before its dependencies ship
 
