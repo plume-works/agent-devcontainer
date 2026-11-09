@@ -102,10 +102,18 @@ every dependent plan behind a full ship cycle.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
 `docs/knowledge/data/bugs/ship-ignores-unshipped-dependency.md`
 
-- [ ] Normal shipping, before Verify, reads every `## Depends on` plan's stage
+- [x] Normal shipping, before Verify, reads every `## Depends on` plan's stage
   at the remote default branch and returns a Ship blocker report naming each
   plan that is not `stage: done`, with no mutation
-- [ ] The bug's `## Fix` names this plan
+  - **Evidence:** commit 6ecb6909 adds the check to
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` step 1 and the
+    Unshipped prerequisite route to its Ship blocker report;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reports 0 errors, 0 warnings
+- [x] The bug's `## Fix` names this plan
+  - **Evidence:** commit 6ecb6909 adds
+    `docs/knowledge/data/bugs/ship-ignores-unshipped-dependency.md#fix` linking
+    this plan; `iwe schema validate` passes
 
 ## Spec changes
 
