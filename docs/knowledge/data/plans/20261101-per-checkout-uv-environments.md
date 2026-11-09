@@ -443,8 +443,8 @@ attach SHALL remove every other environment no listed checkout uses.
 
 ## Key references
 
-- `.devcontainer/devcontainer.json › "UV_PROJECT_ENVIRONMENT"` —
-  `UV_PROJECT_ENVIRONMENT`
+- `.devcontainer/devcontainer.json › "UV_PYTHON_INSTALL_DIR"` — the uv variables
+  in `containerEnv`
 - `.devcontainer/devcontainer.json › "ruff.lint.enable"` —
   `python.defaultInterpreterPath`
 - `.devcontainer/devcontainer.json › "cmake.exportCompileCommandsFile"` —

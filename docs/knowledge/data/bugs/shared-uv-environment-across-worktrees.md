@@ -44,8 +44,6 @@ directory on the `/uv` volume keeps it hardlinked to the cache there.
 
 ## Key references
 
-- `.devcontainer/devcontainer.json › "UV_PROJECT_ENVIRONMENT"` — the fixed
-  `UV_PROJECT_ENVIRONMENT`
 - `.devcontainer/devcontainer.json › "ruff.lint.enable"` —
   `python.defaultInterpreterPath`
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::sync` — `sync`,
