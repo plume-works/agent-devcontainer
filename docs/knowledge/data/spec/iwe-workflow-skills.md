@@ -169,7 +169,9 @@ verbatim in the task that applies it and SHALL never paraphrase it.
 
 The Plan skill SHALL record the intended spec impact in the plan's existing
 `## Spec changes` section, SHALL scale detail with behavioral risk, and SHALL
-keep that contract coherent when material decisions change.
+keep that contract coherent when material decisions change. Plan SHALL keep each
+rule of a durable spec in one requirement: before validation it SHALL read in
+full every durable spec its normative outcome or structured delta touches.
 
 #### Scenario: A plan has no behavioral change
 
@@ -204,6 +206,20 @@ keep that contract coherent when material decisions change.
   spec still describes current released behavior
 - **THEN** Verify evaluates the implementation against the effective contract
   formed by the durable spec and the plan's risk-appropriate spec changes
+
+#### Scenario: A planned rule already has a home
+
+- **WHEN** a plan's normative outcome or an ADDED or MODIFIED requirement would
+  state a rule another requirement of the same spec already holds
+- **THEN** Plan names that requirement instead of restating the rule
+
+#### Scenario: A modification makes a scenario redundant
+
+- **WHEN** a MODIFIED requirement's post-change statement settles everything one
+  of its scenarios says, and that scenario added a case before the change
+- **THEN** Plan leaves the scenario out of the block and names it below the
+  fence as a deliberate removal, while a scenario that already restated its
+  requirement before the change stays
 
 ### Requirement: Plans declare their release impact
 
