@@ -28,12 +28,15 @@ substitution and a set of careful verifications produced identical bytes.
 ### Requirement: A ticked task carries the evidence that closed it
 
 Every ticked `- [x]` task under a plan's task section SHALL carry an indented
-`- **Evidence:**` child naming the commit, test run, or CI run that closed it,
-specifically enough that a later session can go and look. A check and its result
-SHALL count as evidence only together with the commit that holds the change they
-check. Plan SHALL specify the format, Implement SHALL write the evidence line in
-the same edit that ticks the box, and the convention SHALL be recorded where
-every session loads it rather than only where a skill is invoked.
+`- **Evidence:**` child naming what closed it, specifically enough that a later
+session can repeat the check: for code, a test id (`path::name`) or a command,
+which Verify re-runs against the current tree; for docs or config with no test,
+the file and anchor that changed; for external work, the CI run or the PR that
+closes it, which stands alone. A commit id on its own SHALL NOT count as
+evidence. Plan SHALL specify the format, Implement SHALL write the evidence line
+in the same edit that ticks the box and commit it together with the change it
+describes, and the convention SHALL be recorded where every session loads it
+rather than only where a skill is invoked.
 
 #### Scenario: A task is completed
 
@@ -42,17 +45,17 @@ every session loads it rather than only where a skill is invoked.
 - **THEN** one edit ticks the box and writes its `- **Evidence:**` child naming
   what closed it
 
-#### Scenario: Evidence names only a check
+#### Scenario: Evidence names only a commit
 
-- **WHEN** a ticked task's evidence line names a check and its result but not
-  the commit that holds the change it checks
+- **WHEN** a ticked task's evidence line names a commit and no test, command,
+  file and anchor, CI run, or PR
 - **THEN** it is residue rather than evidence, and Verify reports it as a ticked
   task without usable evidence
 
 #### Scenario: Evidence cannot be named
 
-- **WHEN** a session would tick a box but cannot name a commit, test run, or CI
-  run behind it
+- **WHEN** a session would tick a box but cannot name a test, command, file and
+  anchor, CI run, or PR behind it
 - **THEN** the box stays unticked, and the inability to name evidence is treated
   as the check working rather than as a formatting obstacle
 
@@ -72,8 +75,7 @@ every session loads it rather than only where a skill is invoked.
 #### Scenario: A tick lands in a commit
 
 - **WHEN** a task closes
-- **THEN** its code is committed first, and the checkbox flip with its evidence
-  line, naming that commit, follows in a commit of its own
+- **THEN** its code, the checkbox flip, and its evidence line land in one commit
 
 ### Requirement: Plan tasks are sized so a tick can be honest
 
@@ -112,12 +114,19 @@ something to record.
 
 The Verify skill SHALL treat an unsupported tick as a CRITICAL finding with the
 recommendation "untick it", alongside its existing CRITICAL for an unchecked
-task, and SHALL state the asymmetry that justifies auditing both.
+task, and SHALL state the asymmetry that justifies auditing both. Verify SHALL
+re-run each test or command a ticked task names, in the current tree.
 
 #### Scenario: A ticked task has no usable evidence
 
 - **WHEN** a ticked `- [x]` task's `- **Evidence:**` line is missing or empty,
-  or its evidence names nothing traceable to a commit, test run, or CI run
+  or names no test, command, file and anchor, CI run, or PR
+- **THEN** Verify reports a CRITICAL recommending that the box be unticked
+
+#### Scenario: A named check fails or is gone
+
+- **WHEN** a ticked task's evidence names a test or command that fails, or no
+  longer exists, when Verify re-runs it in the current tree
 - **THEN** Verify reports a CRITICAL recommending that the box be unticked
 
 #### Scenario: The two failures are weighed

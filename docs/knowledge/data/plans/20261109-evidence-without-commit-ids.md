@@ -10,6 +10,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/AGENTS.md
+stage: done
+completed: 2026-11-09
 ---
 
 # Plan task evidence without commit ids
