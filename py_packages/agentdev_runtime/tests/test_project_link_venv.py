@@ -110,3 +110,8 @@ def test_the_command_line_links_the_named_checkout(checkout: Path, root: Path) -
     )
     assert result.returncode == 0, result.stderr
     assert (checkout / '.venv').is_symlink()
+
+
+def test_the_environment_records_its_checkout(checkout: Path, root: Path) -> None:
+    project.link_venv(settings_for(root), checkout)
+    assert (root / 'checkout.checkout').read_text() == str(checkout)

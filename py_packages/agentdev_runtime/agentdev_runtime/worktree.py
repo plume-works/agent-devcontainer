@@ -74,12 +74,11 @@ def remove(text: str) -> int:
         return fail(f'unreadable hook input: {error}')
     if not path.exists():
         return 0
-    venv = path / '.venv'
     root = Path(os.path.abspath(env.Settings().get('AGENTDEV_VENV_ROOT')))
-    if venv.is_symlink():
-        target = Path(os.path.normpath(path / os.readlink(venv)))
-        if project.within(root, target) and target != root and target.is_dir():
-            shutil.rmtree(target)
+    target = project.linked(path)
+    if target and project.within(root, target) and target != root and target.is_dir():
+        shutil.rmtree(target)
+        (root / f'{target.name}.checkout').unlink(missing_ok=True)
     if git('-C', str(path), 'worktree', 'remove', '--force', str(path)) != 0:
         return fail(f'git worktree remove {path} failed')
     return 0

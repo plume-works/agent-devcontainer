@@ -47,6 +47,7 @@ def test_a_created_worktree_is_removed_with_its_environment(repository: Path) ->
     assert removed.returncode == 0, removed.stderr
     assert not path.exists()
     assert not environment.exists()
+    assert not environment.with_name('task.checkout').exists()
     branches = subprocess.run(
         ['git', '-C', str(repository), 'branch', '--list', 'worktree-task'],
         capture_output=True,

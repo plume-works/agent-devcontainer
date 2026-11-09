@@ -112,3 +112,21 @@ def test_the_retired_shared_environment_is_deleted(checkout: Path) -> None:
     retired.mkdir(parents=True)
     assert project.sync(settings_for(checkout)) == 0
     assert not retired.exists()
+
+
+def test_another_repositorys_live_environment_is_kept(checkout: Path) -> None:
+    settings = settings_for(checkout)
+    other = checkout.parent / 'other-repo'
+    other.mkdir()
+    subprocess.run(['git', 'init', '-q', str(other)], check=True)
+    git(other, 'commit', '-q', '--allow-empty', '-m', 'init')
+    feature = other / '.claude' / 'worktrees' / 'feat'
+    git(other, 'worktree', 'add', '-q', str(feature))
+    project.link_venv(settings, feature)
+    assert project.sync(settings) == 0
+    assert (checkout.parent / 'uv' / 'venvs' / 'feat').is_dir()
+
+    git(other, 'worktree', 'remove', '--force', str(feature))
+    assert project.sync(settings) == 0
+    assert not (checkout.parent / 'uv' / 'venvs' / 'feat').exists()
+    assert not (checkout.parent / 'uv' / 'venvs' / 'feat.checkout').exists()

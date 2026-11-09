@@ -58,8 +58,8 @@ def link_venv(settings: env.Settings, path: Path) -> int:
     checkout = Path(top.stdout.strip())
     target = root / checkout.name
     venv = checkout / '.venv'
-    if venv.is_symlink():
-        current = Path(os.path.normpath(checkout / os.readlink(venv)))
+    current = linked(checkout)
+    if current is not None:
         if not within(root, current):
             print(f'{PREFIX}: leaving .venv -> {current} (outside {root})', file=sys.stderr)
             return 0
@@ -71,11 +71,22 @@ def link_venv(settings: env.Settings, path: Path) -> int:
     target.mkdir(parents=True, exist_ok=True)
     if not venv.is_symlink():
         venv.symlink_to(target)
+    record = root / f'{target.name}.checkout'
+    if not record.is_file() or record.read_text() != str(checkout):
+        record.write_text(str(checkout))
     return 0
 
 
+def linked(checkout: Path) -> Path | None:
+    """Return where the checkout's ``.venv`` link points, or None when it is no link."""
+    venv = checkout / '.venv'
+    if not venv.is_symlink():
+        return None
+    return Path(os.path.normpath(checkout / os.readlink(venv)))
+
+
 def prune_venvs(settings: env.Settings, workspace: Path) -> None:
-    """Remove each environment under the venv root that no listed checkout uses."""
+    """Remove each environment under the venv root that no checkout of any repository uses."""
     root = Path(os.path.abspath(settings.get('AGENTDEV_VENV_ROOT')))
     listed = git(workspace, 'worktree', 'list', '--porcelain')
     if listed.returncode != 0 or not root.is_dir():
@@ -84,13 +95,15 @@ def prune_venvs(settings: env.Settings, workspace: Path) -> None:
     for line in listed.stdout.splitlines():
         if line.startswith('worktree '):
             checkout = Path(line.removeprefix('worktree '))
-            keep.add(root / checkout.name)
-            venv = checkout / '.venv'
-            if venv.is_symlink():
-                keep.add(Path(os.path.normpath(checkout / os.readlink(venv))))
+            keep.update({root / checkout.name, linked(checkout)})
     for directory in root.iterdir():
-        if directory not in keep and directory.is_dir() and not directory.is_symlink():
-            shutil.rmtree(directory)
+        if not directory.is_dir() or directory.is_symlink() or directory in keep:
+            continue
+        record = root / f'{directory.name}.checkout'
+        if record.is_file() and linked(Path(record.read_text())) == directory:
+            continue
+        shutil.rmtree(directory)
+        record.unlink(missing_ok=True)
 
 
 def missing_executables(config: Path) -> list[tuple[str, str]]:
