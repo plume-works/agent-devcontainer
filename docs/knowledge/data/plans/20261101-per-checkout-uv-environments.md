@@ -513,8 +513,9 @@ Container rebuilt from this branch's descriptor and this branch's
 `agentdev-runtime` installed over the image's copy,
 `agentdev-runtime project sync` replaced the real `.venv` that attach had made
 in the bind-mounted checkout with a link to `/uv/venvs/agent-devcontainer` and
-deleted `ws-project`. `uv run` followed the link and left it in place, and
-24,616 of the environment's 25,545 files had 2 or more links.
+deleted `ws-project`; the macOS host lists the same `.venv` as a symlink to that
+path. `uv run` followed the link and left it in place, and 24,616 of the
+environment's 25,545 files had 2 or more links.
 
 On agent-dev3 (Claude Code 2.1.319), with the Dev Container recreated from this
 branch's descriptor and this branch's `agentdev-runtime` installed over the
