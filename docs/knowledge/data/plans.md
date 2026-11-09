@@ -106,6 +106,9 @@ graph](plans/20261108-drop-okf-provenance-fields.md)
 [Plans as ephemeral implementation documents; stories as the planned
 work](plans/20261108-ephemeral-plans-and-stories.md)
 
+[Plan task evidence without commit
+ids](plans/20261109-evidence-without-commit-ids.md)
+
 [Explore proposes only for observed
 problems](plans/20261103-explore-evidence-gate.md)
 
@@ -188,6 +191,9 @@ harnesses](plans/20261103-nested-dispatch-depth.md)
 CLI](plans/20261029-off-bash-migration.md)
 
 [Keep the graph an OKF bundle in the spec](plans/20261101-okf-bundle-in-spec.md)
+
+[One observation per plan
+checkbox](plans/20261109-one-observation-per-checkbox.md)
 
 [Load the agentdev catalog into OpenCode through a bridge
 plugin](plans/20261001-opencode-catalog-bridge.md)
