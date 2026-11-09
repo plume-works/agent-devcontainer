@@ -187,11 +187,21 @@ adds.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
 `py_packages/agentdev_runtime/tests/test_project_sync.py`
 
-- [ ] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
+- [x] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
   name matches no checkout in `git worktree list`, and never one a listed
   checkout's `.venv` links to.
-- [ ] Tests cover a removed worktree's environment, a live worktree's
+  - **Evidence:** commit 11c4f693 adds `project.py::prune_venvs`, called from
+    `project.py::sync`;
+    `uv run pytest py_packages/agentdev_runtime/tests/test_project_sync.py`
+    passed 7 tests.
+- [x] Tests cover a removed worktree's environment, a live worktree's
   environment, and the retired `ws-project`.
+  - **Evidence:** commit 11c4f693 adds
+    `test_a_removed_worktrees_environment_is_deleted`,
+    `test_a_live_worktrees_environment_is_kept`,
+    `test_an_environment_a_checkout_links_to_is_kept`, and
+    `test_the_retired_shared_environment_is_deleted` to
+    `py_packages/agentdev_runtime/tests/test_project_sync.py`; all passed.
 
 ### Task 6: Link new worktrees from git's post-checkout hook
 
