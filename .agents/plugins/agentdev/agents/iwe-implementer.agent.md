@@ -41,9 +41,13 @@ claims the user gave is not one.
    work is meant to produce; the durable spec is what remains true until Ship
    merges that intent. Both bind the code, and where they differ, the
    difference is the work.
-3. **Check `## Depends on`.** Every prerequisite plan must carry
-   `stage: done`; if one doesn't, say so and stop — building on an unshipped
-   dependency is how two plans end up half-true.
+3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
+   ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
+   prerequisite plan that is not `stage: done` at the remote default branch
+   may be built on while it has an open pull request; on `NO_PULL_REQUEST`,
+   say which plan has nothing to build on and stop. Keep each
+   `PREDECESSOR=<n>` it prints for Step 4. On any other non-`SUCCESS` result,
+   report its error and stop.
 4. **Start on a work branch.** When the checkout is on the repository's
    default branch — `main`, `master`, the branch
    `git symbolic-ref --short refs/remotes/origin/HEAD` names, or, when that is
@@ -51,7 +55,9 @@ claims the user gave is not one.
    work branch before executing any task: name it with
    `/agentdev:iwe-branch-name next <plan-key> --phase impl`, following that
    skill's result table, and create the `NEXT` it prints through the
-   `/agentdev:git-new-branch` skill. On any other branch, continue where it is.
+   `/agentdev:git-new-branch` skill — with one `--depends-on <n>` per
+   `PREDECESSOR` from Step 3, or from the default branch when it printed
+   none. On any other branch, continue where it is.
 5. **Re-verify the anchors.** Confirm each `## Key references` anchor still
    names its target in the current checkout before relying on it, and correct
    a renamed or removed one — that edit is part of this session's work. An

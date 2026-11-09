@@ -61,6 +61,14 @@ needed. In particular:
    run here with a Ship blocker report for Plan revise mode — before Verify and
    with no mutation. Ship never chooses the release impact itself.
 
+   For normal shipping, every plan the plan's `## Depends on` links must carry
+   `stage: done` at the remote default branch — a section whose text starts
+   with `None` links no dependency, whatever it mentions: read each through
+   `/agentdev:iwe-branch-name plan-state <plan-key>`, following that skill's
+   result table. Any `PLAN_STATE` other than `done` ends the run here with a
+   Ship blocker report naming each such plan — before Verify and with no
+   mutation.
+
 2. **Cancel without shipping.** Do not verify implementation, synchronize
    specs, or mark a feature implemented or bug fixed. If needed, set the plan to
    `stage: cancelled` and remove its `rank`, and set every bug its `release`
@@ -202,8 +210,8 @@ blocker with the route that answers it (below). A Verify CRITICAL is listed by
 its ID and route only — `C2: /agentdev:iwe-implement` — because the Verify
 report above already states it. Each blocker Ship found on its own — an
 intent-versus-implementation mismatch, a failed spec merge, a missing or
-unresolvable `release` declaration — is written out in full with its
-anchored evidence — never a line number — and route, because no Verify report holds it.
+unresolvable `release` declaration, an unshipped prerequisite — is written out
+in full with its anchored evidence — never a line number — and route, because no Verify report holds it.
 
 - **Code or verification failure** — a failing `## Verification` command, a
   requirement or task with no implementation, missing evidence:
@@ -215,6 +223,9 @@ anchored evidence — never a line number — and route, because no Verify repor
   once the revision validates.
 - **Dirty worktree** — uncommitted changes Verify refuses to judge: the user
   commits or discards the listed paths, then runs `/agentdev:iwe-ship` again.
+- **Unshipped prerequisite** — a `## Depends on` plan not `stage: done` at the
+  remote default branch: `/agentdev:iwe-ship` on that plan first, then
+  `/agentdev:iwe-ship` again.
 - **Outstanding observation** — an unticked task carrying a `**Closed by:**`
   line: observe it, tick it with evidence, then run `/agentdev:iwe-ship` again.
 

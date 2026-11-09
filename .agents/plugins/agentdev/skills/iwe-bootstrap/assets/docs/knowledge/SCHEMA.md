@@ -88,7 +88,9 @@ version; a done plan without `released` waits for the next cut.
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
 `**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
 `## Verification`, `## Out of scope`, `## Key references` (anchors, never line
-numbers). Its link in `data/plans.md` never moves.
+numbers). Its link in `data/plans.md` never moves. Every plan `## Depends on`
+links is a prerequisite, unless the section's text starts with `None`: then it
+has none, and any plan it links is only related.
 
 ## Features — `data/features/<slug>.md`
 

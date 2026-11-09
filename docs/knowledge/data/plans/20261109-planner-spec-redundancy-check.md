@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-11-09
+stage: done
+completed: 2026-11-09
 release:
 - features/risk-scaled-spec-deltas
 description: Make the planner read every spec its Spec changes touch in full, reference a rule's existing home instead of restating it, and drop a scenario a MODIFIED requirement leaves restating its requirement.
@@ -52,23 +54,39 @@ Verify finding would arrive after the plan is already implemented.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `## The three forms of ## Spec changes` holds the rule that the planner
+- [x] `## The three forms of ## Spec changes` holds the rule that the planner
   reads every durable spec the section touches in full before validation, and
   that a normative outcome or an `ADDED` or `MODIFIED` requirement names an
   existing requirement of that spec instead of restating its rule.
-- [ ] The `MODIFIED` bullet leaves out a scenario that added a case before the
+  - **Evidence:** commit 76b68747 adds the paragraph "Each rule of a spec lives
+    in one requirement" to
+    `iwe-planner.agent.md#the-three-forms-of--spec-changes`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed, 0 errors.
+- [x] The `MODIFIED` bullet leaves out a scenario that added a case before the
   change and adds none after it, and requires naming it below the fence as a
   deliberate removal.
+  - **Evidence:** commit 76b68747 adds "The one exception" to the `MODIFIED`
+    bullet of `iwe-planner.agent.md#the-three-forms-of--spec-changes`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passed, 0 errors.
 
 ### Task 2: A revise with a redundant delta drops the redundancy
 
 **Closed by:** the repository owner, after merge.
 
-- [ ] A scratch `/agentdev:iwe-plan` revise of an active plan, asked for a
+- [x] A scratch `/agentdev:iwe-plan` revise of an active plan, asked for a
   `## Spec changes` delta that restates a rule another requirement of the same
   spec holds and that leaves a scenario restating its requirement, produces a
   delta that references the existing requirement, leaves that scenario out, and
   names it below the fence. The revise is not committed.
+  - **Evidence:** a headless `claude -p` run of the `/agentdev:iwe-plan` revise
+    of `data/plans/20261109-one-observation-per-checkbox`, on a detached
+    checkout of commit d8195541, asked for a SHALL sentence restating the
+    evidence-line rule and one settling the scenario "A task's evidence is
+    external". The uncommitted result names "A ticked task carries the evidence
+    that closed it" instead of restating it, leaves that scenario out, and names
+    it below the fence as "Removed scenario".
 
 ## Spec changes
 
