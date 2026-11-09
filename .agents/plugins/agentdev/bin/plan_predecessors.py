@@ -39,11 +39,13 @@ Usage:
   -h, --help        Show this help text.
 
 Candidates are the plan's own open iwe/<slug>/iter-* pull requests and those of
-each '## Depends on' plan that is not 'stage: done' at the remote default
-branch; each contributes the top of its chain, walked down base branches. A
-candidate below another candidate in the same chain is dropped.
+each plan linked from '## Depends on' that is not 'stage: done' at the remote
+default branch; a section whose text starts with 'None' links none. Each
+contributes the top of its chain, walked down base branches. A candidate below
+another candidate in the same chain is dropped.
 
 Output (key=value lines):
+  RESULT            the last line
   PREDECESSOR=<n>   one per pull request to pass to git-new-branch --depends-on;
                     none means the branch is cut from the default branch
 
@@ -102,7 +104,7 @@ def library_path(root: Path) -> str:
 def depends_on_paths(text: str, plan_path: str) -> list[str]:
     """Return the plan paths linked from the ``## Depends on`` section of `text`."""
     section = re.search(r'^## Depends on[ \t]*$(.*?)(?=^#{1,2} |\Z)', text, re.M | re.S)
-    if section is None:
+    if section is None or section.group(1).lstrip().startswith('None'):
         return []
     plans_dir = posixpath.dirname(plan_path)
     paths = [

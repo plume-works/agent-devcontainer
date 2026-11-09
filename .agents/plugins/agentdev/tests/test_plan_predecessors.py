@@ -69,7 +69,10 @@ def run(
 
 
 def test_a_plan_without_dependencies_has_no_predecessor(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     workspace = Workspace(plugin_tmp_path, {PLAN: dependent_plan()})
 
@@ -77,7 +80,10 @@ def test_a_plan_without_dependencies_has_no_predecessor(
 
 
 def test_a_dependency_done_at_the_remote_default_branch_is_skipped(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     workspace = Workspace(plugin_tmp_path, {FIRST: plan_document(), PLAN: dependent_plan(FIRST)})
     workspace.publish(FIRST, plan_document(stage='done', ticks=(True, True)))
@@ -87,7 +93,10 @@ def test_a_dependency_done_at_the_remote_default_branch_is_skipped(
 
 
 def test_an_open_dependency_yields_the_top_of_its_chain(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     workspace = Workspace(plugin_tmp_path, {FIRST: plan_document(), PLAN: dependent_plan(FIRST)})
     pulls = [
@@ -100,7 +109,10 @@ def test_an_open_dependency_yields_the_top_of_its_chain(
 
 
 def test_two_dependencies_in_one_chain_yield_the_upper_one(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     plans = {FIRST: plan_document(), SECOND: plan_document(), PLAN: dependent_plan(FIRST, SECOND)}
     workspace = Workspace(plugin_tmp_path, plans)
@@ -113,7 +125,10 @@ def test_two_dependencies_in_one_chain_yield_the_upper_one(
 
 
 def test_two_dependencies_in_different_chains_yield_both(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     plans = {FIRST: plan_document(), SECOND: plan_document(), PLAN: dependent_plan(FIRST, SECOND)}
     workspace = Workspace(plugin_tmp_path, plans)
@@ -126,7 +141,10 @@ def test_two_dependencies_in_different_chains_yield_both(
 
 
 def test_the_plans_own_open_iteration_is_a_predecessor(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     workspace = Workspace(plugin_tmp_path, {PLAN: dependent_plan()})
     pulls = [(30, 'iwe/session-log/iter-1-impl', 'main')]
@@ -135,7 +153,10 @@ def test_the_plans_own_open_iteration_is_a_predecessor(
 
 
 def test_an_unshipped_dependency_without_a_pull_request_stops(
-    predecessors: ModuleType, monkeypatch, capsys, plugin_tmp_path: Path
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
 ) -> None:
     workspace = Workspace(plugin_tmp_path, {FIRST: plan_document(), PLAN: dependent_plan(FIRST)})
     pulls = [(30, 'iwe/session-log/iter-1-impl', 'main')]
@@ -144,3 +165,18 @@ def test_an_unshipped_dependency_without_a_pull_request_stops(
 
     assert (code, found) == (predecessors.NO_PULL_REQUEST, [])
     assert FIRST in error
+
+
+def test_a_section_that_starts_with_none_names_no_dependency(
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
+) -> None:
+    related = FIRST.removeprefix('data/plans/')
+    document = (
+        plan_document() + f'## Depends on\n\nNone. [A related plan]({related}.md) follows.\n'
+    )
+    workspace = Workspace(plugin_tmp_path, {FIRST: plan_document(), PLAN: document})
+
+    assert run(predecessors, monkeypatch, capsys, workspace, []) == (0, [], '')

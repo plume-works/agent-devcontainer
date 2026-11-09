@@ -62,7 +62,8 @@ needed. In particular:
    with no mutation. Ship never chooses the release impact itself.
 
    For normal shipping, every plan the plan's `## Depends on` links must carry
-   `stage: done` at the remote default branch: read each through
+   `stage: done` at the remote default branch — a section whose text starts
+   with `None` links no dependency, whatever it mentions: read each through
    `/agentdev:iwe-branch-name plan-state <plan-key>`, following that skill's
    result table. Any `PLAN_STATE` other than `done` ends the run here with a
    Ship blocker report naming each such plan — before Verify and with no
