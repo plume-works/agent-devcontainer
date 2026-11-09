@@ -107,10 +107,15 @@ The approved wording for what an evidence line names:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] Step 4's `## Implementation Steps` bullet says a ticked checkbox's
+- [x] Step 4's `## Implementation Steps` bullet says a ticked checkbox's
   `- **Evidence:**` child names what closed it, listing the three kinds in the
   approved wording from Task 1, and drops "a check and its result count only
   together with the commit that holds the change they check".
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "once ticked, it carries an indented"`
+    and its three nested bullets;
+    `grep -c 'together with the commit' .agents/plugins/agentdev/agents/iwe-planner.agent.md`
+    prints 0; commit 355740d0.
 
 ### Task 3: Implementer rules
 
