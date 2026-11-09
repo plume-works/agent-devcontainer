@@ -132,7 +132,7 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
         'deploy workspace phases: checkout, project, catalog, config, prepare',
     ),
     'project': (_project, "the checkout's uv environment link, uv sync, and pre-commit hooks"),
-    'worktree': (_worktree, "Claude Code's WorktreeCreate hook"),
+    'worktree': (_worktree, "Claude Code's WorktreeCreate and WorktreeRemove hooks"),
     'git': (_git, 'git trust and HTTPS credentials for the checkout'),
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),

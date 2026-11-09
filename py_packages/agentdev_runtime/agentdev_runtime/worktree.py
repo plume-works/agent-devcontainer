@@ -1,5 +1,5 @@
 """
-Claude Code's ``WorktreeCreate`` hook: a worktree with its own uv environment.
+Claude Code's ``WorktreeCreate`` and ``WorktreeRemove`` hooks: a worktree with its own uv environment.
 
 Hook contract: architecture/worktree-hooks. Spec: agentdev-runtime-images.
 """
@@ -7,8 +7,10 @@ Hook contract: architecture/worktree-hooks. Spec: agentdev-runtime-images.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 
@@ -60,8 +62,29 @@ def create(text: str) -> int:
     return 0
 
 
+def remove(text: str) -> int:
+    """Delete the worktree's uv environment, then the worktree; its branch stays."""
+    try:
+        path = Path(str(json.loads(text)['worktree_path']))
+    except (ValueError, KeyError, TypeError) as error:
+        return fail(f'unreadable hook input: {error}')
+    if not path.exists():
+        return 0
+    venv = path / '.venv'
+    root = Path(os.path.abspath(env.Settings().get('AGENTDEV_VENV_ROOT')))
+    if venv.is_symlink():
+        target = Path(os.path.normpath(path / os.readlink(venv)))
+        if project.within(root, target) and target != root and target.is_dir():
+            shutil.rmtree(target)
+    if git('-C', str(path), 'worktree', 'remove', '--force', str(path)) != 0:
+        return fail(f'git worktree remove {path} failed')
+    return 0
+
+
 def main(argv: list[str]) -> int:
     if argv == ['create']:
         return create(sys.stdin.read())
-    print(f'usage: {PREFIX} create', file=sys.stderr)
+    if argv == ['remove']:
+        return remove(sys.stdin.read())
+    print(f'usage: {PREFIX} create|remove', file=sys.stderr)
     return 2
