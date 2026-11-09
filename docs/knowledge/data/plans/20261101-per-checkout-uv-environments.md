@@ -208,12 +208,25 @@ adds.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
 `.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`
 
-- [ ] `HOOK_TYPES` includes `post-checkout`, so `project hooks` installs it.
-- [ ] A local `language: system` hook at stage `post-checkout` runs
+- [x] `HOOK_TYPES` includes `post-checkout`, so `project hooks` installs it.
+  - **Evidence:** commit ac4597a8 adds it to `project.py::HOOK_TYPES`;
+    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py` passed 25
+    tests, `test_project_setup_runs_only_for_present_configuration` asserting
+    `--hook-type=post-checkout`.
+- [x] A local `language: system` hook at stage `post-checkout` runs
   `agentdev-runtime project link-venv` with `always_run: true` and
   `pass_filenames: false`.
-- [ ] A test runs `git worktree add` in a fixture repository with the installed
+  - **Evidence:** commit ac4597a8 adds the `link-venv` hook to
+    `.pre-commit-config.yaml`; its entry exits 0 when `agentdev-runtime` is not
+    on `PATH`, and a top-level `default_stages` keeps every hook that names no
+    stages off `post-checkout`.
+- [x] A test runs `git worktree add` in a fixture repository with the installed
   hooks and finds the new worktree's `.venv` linked.
+  - **Evidence:** commit ac4597a8 adds
+    `scripts/tests/test_agent_runtime_workspace.py::test_post_checkout_links_a_new_worktrees_venv`,
+    which installs this repository's hooks with real pre-commit and runs
+    `git worktree add`; it passed in
+    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py`.
 
 ### Task 7: `agentdev-runtime worktree create`
 
