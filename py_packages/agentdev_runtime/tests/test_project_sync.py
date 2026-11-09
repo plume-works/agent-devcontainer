@@ -62,3 +62,53 @@ def test_another_real_venv_is_left_with_a_warning(
     assert project.sync(settings_for(checkout)) == 0
     assert (checkout / '.venv' / 'notes.txt').read_text() == 'mine\n'
     assert 'not a link' in capsys.readouterr().err
+
+
+def git(checkout: Path, *args: str) -> None:
+    subprocess.run(
+        ['git', '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', *args],
+        cwd=checkout,
+        check=True,
+        capture_output=True,
+    )
+
+
+def test_a_removed_worktrees_environment_is_deleted(checkout: Path) -> None:
+    settings = settings_for(checkout)
+    git(checkout, 'commit', '-q', '--allow-empty', '-m', 'init')
+    worktree = checkout.parent / 'gone'
+    git(checkout, 'worktree', 'add', '-q', str(worktree))
+    project.link_venv(settings, worktree)
+    git(checkout, 'worktree', 'remove', '--force', str(worktree))
+    assert project.sync(settings) == 0
+    assert not (checkout.parent / 'uv' / 'venvs' / 'gone').exists()
+
+
+def test_a_live_worktrees_environment_is_kept(checkout: Path) -> None:
+    settings = settings_for(checkout)
+    git(checkout, 'commit', '-q', '--allow-empty', '-m', 'init')
+    worktree = checkout.parent / 'live'
+    git(checkout, 'worktree', 'add', '-q', str(worktree))
+    project.link_venv(settings, worktree)
+    assert project.sync(settings) == 0
+    assert (checkout.parent / 'uv' / 'venvs' / 'live').is_dir()
+
+
+def test_an_environment_a_checkout_links_to_is_kept(checkout: Path) -> None:
+    root = checkout.parent / 'uv' / 'venvs'
+    worktree_link = root / 'pinned'
+    worktree_link.mkdir(parents=True)
+    settings = settings_for(checkout)
+    git(checkout, 'commit', '-q', '--allow-empty', '-m', 'init')
+    other = checkout.parent / 'other'
+    git(checkout, 'worktree', 'add', '-q', str(other))
+    (other / '.venv').symlink_to(worktree_link)
+    assert project.sync(settings) == 0
+    assert worktree_link.is_dir()
+
+
+def test_the_retired_shared_environment_is_deleted(checkout: Path) -> None:
+    retired = checkout.parent / 'uv' / 'venvs' / 'ws-project'
+    retired.mkdir(parents=True)
+    assert project.sync(settings_for(checkout)) == 0
+    assert not retired.exists()

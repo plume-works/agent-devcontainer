@@ -34,6 +34,7 @@ def sync(settings: env.Settings) -> int:
         if not venv.is_symlink() and (venv / 'pyvenv.cfg').is_file():
             shutil.rmtree(venv)
         link_venv(settings, workspace)
+        prune_venvs(settings, workspace)
     return subprocess.run(
         ['uv', 'sync', '--all-groups', '--all-extras'], cwd=workspace, check=False
     ).returncode
@@ -71,6 +72,25 @@ def link_venv(settings: env.Settings, path: Path) -> int:
     if not venv.is_symlink():
         venv.symlink_to(target)
     return 0
+
+
+def prune_venvs(settings: env.Settings, workspace: Path) -> None:
+    """Remove each environment under the venv root that no listed checkout uses."""
+    root = Path(os.path.abspath(settings.get('AGENTDEV_VENV_ROOT')))
+    listed = git(workspace, 'worktree', 'list', '--porcelain')
+    if listed.returncode != 0 or not root.is_dir():
+        return
+    keep = set()
+    for line in listed.stdout.splitlines():
+        if line.startswith('worktree '):
+            checkout = Path(line.removeprefix('worktree '))
+            keep.add(root / checkout.name)
+            venv = checkout / '.venv'
+            if venv.is_symlink():
+                keep.add(Path(os.path.normpath(checkout / os.readlink(venv))))
+    for directory in root.iterdir():
+        if directory not in keep and directory.is_dir() and not directory.is_symlink():
+            shutil.rmtree(directory)
 
 
 def missing_executables(config: Path) -> list[tuple[str, str]]:
