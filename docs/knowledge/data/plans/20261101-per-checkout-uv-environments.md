@@ -334,9 +334,15 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 **Files:** Modify:
 `docs/knowledge/data/plans/20261030-devcontainer-home-volume.md`
 
-- [ ] Through `/agentdev:iwe-plan` revise mode, the home-volume plan's uv tasks
+- [x] Through `/agentdev:iwe-plan` revise mode, the home-volume plan's uv tasks
   move `AGENTDEV_VENV_ROOT` and the uv cache onto the home volume together and
   set no fixed `UV_PROJECT_ENVIRONMENT` for the Dev Container.
+  - **Evidence:** commit 707afaf1 revises
+    `20261030-devcontainer-home-volume.md#approach` and its Task 6 to set
+    `AGENTDEV_VENV_ROOT` to `/home/agent/.local/share/uv/venvs` beside uv's
+    cache with no `UV_PROJECT_ENVIRONMENT`, and adds this plan to its
+    `## Depends on`; the Durable Knowledge Auditor reported nothing to change,
+    and `iwe schema validate` passed.
 
 ### Task 12: Revise the per-worktree catalog plan onto this hook
 
