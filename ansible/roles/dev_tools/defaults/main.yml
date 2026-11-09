@@ -45,16 +45,16 @@ dev_tools_pinned_tools:
 
   - name: actionlint
     # renovate: datasource=github-releases depName=kjanat/actionlint
-    version: v1.17.0
+    version: v1.17.1
     url_prefix: https://github.com/kjanat/actionlint/releases/download
     asset_prefix: "actionlint_{bare_version}_"
     archives:
       amd64:
         target: linux_amd64
-        checksum: 620abd485a12b6ab1125b844a876414e1d5bd2af8a3125b27f82b01d0d9d6e5a
+        checksum: 6bfe0f49f0e108b9b23732baf7de63bfa4d89174fa40f9cb98feb9676df3318f
       arm64:
         target: linux_arm64
-        checksum: 9be067d6b6e2f455fd0144850520b4b1114a0a792ca6e003302c939792589345
+        checksum: 81fa498f30f5dfadcc87fff0ff073281703fc56e9b50bc523b415c69aef0cccc
 
   # Run by the hadolint and shellcheck pre-commit hooks.
   - name: hadolint

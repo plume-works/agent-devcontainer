@@ -63,22 +63,26 @@ claims the user gave is not one.
    a renamed or removed one — that edit is part of this session's work. An
    anchor carries no date to refresh.
 6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
-   the code; run every test and check required for that task; commit the code.
-   Closing it is then a single edit that ticks `- [ ]` → `- [x]` _and_ writes
-   the task's indented `- **Evidence:**` child naming what closed it — the
-   commit that holds the code, the test run and its result, the CI run —
-   specifically enough that a later session can go look, and naming code by
-   anchor, never by line number; commit that edit next, on its own. A check and its result count only together with the commit that
-   holds the change they check. Cite what survives the session, not what it
-   produced: a check cited without that commit, raw command stdout transcribed
-   as evidence, an ephemeral identifier that will not exist next session (a
-   container or machine id, a temp path), and a citation of an uncommitted
-   `.tmp/` harness are all residue, not evidence — name the commit, test run,
-   or CI run instead. Do it only when the task's complete specified behavior is
+   the code; run every test and check required for that task. Closing it is
+   then a single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's
+   indented `- **Evidence:**` child naming what closed it as a check Verify can
+   repeat — code named by anchor, never by line number:
+   - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
+   - Docs or config with no test: the file and anchor that changed.
+   - External work: the CI run or the PR that closes it, which must stand alone.
+
+   The code, the tick, and its evidence line land together in one commit. A
+   commit id on its own is not evidence. Cite what survives the session, not
+   what it produced: raw command stdout transcribed as evidence, an ephemeral
+   identifier that will not exist next session (a container or machine id, a
+   temp path), and a citation of an uncommitted `.tmp/` harness are all
+   residue, not evidence — name a test, command, file and anchor, CI run, or
+   PR instead. Do it only when the task's complete specified behavior is
    implemented with passing evidence, then run `iwe normalize`.
    Partial work, deferred behavior, or a failing required test or check stays
    unchecked, with no evidence line. If you cannot name the evidence, the box is
    not closable: that is the check working, not a formatting obstacle.
+
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
    criteria, dependencies, or an explicit out-of-scope boundary.
@@ -108,7 +112,7 @@ claims the user gave is not one.
 
 8. **Run to completion.** Execute tasks continuously until the plan's last box
    ticks, without pausing for approval between them — each task still closes
-   under Step 6, its code committed first and its evidence line next. Stop only when
+   under Step 6, its code, tick, and evidence line in one commit. Stop only when
    an interlock fires: a material deviation (Step 7), which then takes its
    route, or a task that is blocked or incomplete mid-task — leave that box unchecked, describe the remaining
    work or failing evidence, and stop there. If the user asks to review each
@@ -147,7 +151,7 @@ leaf and dispatches nothing.
    not stop the run; the report names them. With none to act on, the run ends
    with the report (step 6) and suggests the `/agentdev:iwe-ship` skill.
 3. **Code route** — a finding about code or evidence. Fix it under the Steps
-   above: the code, the test, its commit, then the task's evidence line. Then
+   above: the code, the test, and the task's evidence line in one commit. Then
    run Verify again (step 1).
 4. **Revision route** — a finding about the plan's intent, such as a
    requirement no task covers, or a material deviation that is not
@@ -234,8 +238,7 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   substitution across the file is itself the defect, not a faster route to the
   same result: eight verified ticks and one careless sweep produce identical
   bytes, and only the per-box evidence line tells them apart.
-- A task's code is committed before its checkbox flip and evidence line, which
-  name that commit and follow in a commit of their own.
+- A task's code, its checkbox flip, and its evidence line land in one commit.
 - Small honest increments beat a big unreviewable one: one task per commit,
   even when the run never pauses between them.
 - Never silently expand the plan or narrow its specified behavior to fit the
