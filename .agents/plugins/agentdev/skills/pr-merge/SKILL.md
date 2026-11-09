@@ -113,9 +113,8 @@ branch:
 ## Monitoring Loop
 
 Repeat this loop until the completion criteria are met, the PR becomes closed
-or draft, or a non-actionable blocker needs user direction. Use a blocking
-watch or repeated bounded waits; never replace a wait with a text-only promise
-to check later.
+or draft, or a non-actionable blocker needs user direction. Use repeated
+bounded waits; never replace a wait with a text-only promise to check later.
 
 1. Refresh the PR and capture its head SHA and merge state:
 
@@ -131,16 +130,16 @@ to check later.
    then restart at step 1. If `mergeable` is `UNKNOWN`, GitHub has not computed
    it yet: restart at step 1 after a bounded wait instead of waiting on checks.
 
-3. If checks are pending or queued, wait for GitHub to finish them, then
-   refresh both commands above. Prefer:
-
-   ```bash
-   gh pr checks <pr> --watch --interval 30
-   ```
-
-   If the execution environment limits a long-running command, run bounded
-   waits and immediately continue the loop. A `--watch` non-zero exit caused
-   by a failed check is a state change to investigate, not a reason to stop.
+3. If checks are pending or queued, wait in bounded polls (about 60 seconds)
+   rather than blocking until every check finishes: `gh pr checks --watch`
+   returns only when all checks complete, which delays posted feedback. After
+   each poll, refresh both commands above and the unresolved review threads,
+   then act on the first of these that holds:
+   - A check has failed: go to step 4 now.
+   - `Claude PR Review Responder` has completed on the current head, or a new
+     review or unresolved thread has been posted: go to step 6 now, while the
+     remaining checks keep running.
+   - Otherwise keep polling.
 
 4. Classify every completed non-success check before changing code:
    - A GitHub Actions failure: use
@@ -167,15 +166,17 @@ to check later.
    decision. Restart the loop from step 1 because the head SHA and checks have
    changed.
 
-6. Once CI is successful, inspect reviews and unresolved review threads. Wait
-   for an in-progress review agent before declaring success. Apply
-   [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) once to gather
-   and address all actionable feedback together, rather than handling comments
-   piecemeal. Its resolved-thread filtering and confidence rules are mandatory.
+6. As soon as the review agent has posted on the current head, inspect reviews
+   and unresolved review threads; do not wait for the other checks to finish
+   first. Apply [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md)
+   once to gather and address all actionable feedback together, including any
+   check failure already reported, rather than handling comments piecemeal.
+   Its resolved-thread filtering and confidence rules are mandatory.
 
 7. If feedback leads to a push, restart at step 1. If no actionable feedback
-   remains, refresh checks and merge state once more. If the head SHA changed,
-   restart at step 1. Otherwise, perform the final squash merge.
+   remains, keep polling as step 3 does until every check has completed, then
+   refresh checks and merge state once more. If the head SHA changed, restart
+   at step 1. Otherwise, perform the final squash merge.
 
 ## Final Squash Merge
 
@@ -205,12 +206,8 @@ it are filed on the head commit and listed by `gh pr checks`.
    AI review was found. Inspect its log before triggering anything.
 
 2. If `Claude PR Review Responder` or `ai-review-present` is pending on the
-   current head, a review is already running. Wait on it rather than requesting
-   another:
-
-   ```bash
-   gh pr checks <pr> --watch --interval 30
-   ```
+   current head, a review is already running. Wait on it with the bounded polls
+   of the monitoring loop's step 3 rather than requesting another.
 
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
@@ -224,9 +221,9 @@ it are filed on the head commit and listed by `gh pr checks`.
    run until a person removes it: report that as a merge blocker and stop
    waiting.
 
-4. Wait until the latest `ai-review-present` run on the head completes — it
+4. Poll until the latest `ai-review-present` run on the head completes — it
    finishes in the same run as the review — then refresh both `gh pr checks`
-   and PR reviews. Do not treat an added label, a started run, or a pending
+   and PR reviews, without waiting for the head's other checks. Do not treat an added label, a started run, or a pending
    review as completion.
 5. If the responder publishes actionable feedback, return to the review step
    in the monitoring loop and use `pr-feedback-resolution` to address all of

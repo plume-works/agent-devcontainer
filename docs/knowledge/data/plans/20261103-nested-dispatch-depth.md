@@ -10,6 +10,8 @@ sources:
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+stage: done
+completed: 2026-11-09
 ---
 
 # Nest agent dispatch to depth 5 on both harnesses
@@ -65,37 +67,71 @@ the standalone runtime.
 
 **Files:** Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`,
-`py_packages/agentdev_runtime/tests/test_opencode_config.py`
+`py_packages/agentdev_runtime/tests/test_opencode_config.py`,
+`scripts/tests/test_configure_opencode.py`
 
-- [ ] `apply_policy` sets `experimental.subagent_depth` to `5`, keeps every
+- [x] `apply_policy` sets `experimental.subagent_depth` to `5`, keeps every
   other `experimental` key and its position, and restores a changed value; tests
   cover a config without `experimental`, one with other `experimental` keys, and
   one with a different depth.
+  - **Evidence:** commit 5f78f729 (`opencode_config.py::apply_policy`,
+    `SUBAGENT_DEPTH`);
+    `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py scripts/tests/test_configure_opencode.py scripts/tests/test_agent_runtime_state.py`
+    — 25 passed, including `test_a_config_without_experimental_gains_the_depth`,
+    `test_other_experimental_keys_keep_their_values_and_order`, and
+    `test_a_changed_depth_is_restored`.
 
 ### Task 2: Claude Code nests to depth 5
 
-**Files:** Modify: `.devcontainer/docker-compose.yml`, `compose.opencode.yml`
+**Files:** Modify: `.devcontainer/docker-compose.yml`, `compose.opencode.yml`,
+`docker/deploy/runtime.env.example`; Test:
+`scripts/tests/test_agent_runtime_compose.py`,
+`scripts/tests/test_devcontainer_compose.py`
 
-- [ ] The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
+- [x] The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
   `opencode` service in `compose.opencode.yml` set
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: ${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}`
   in their `environment:` blocks.
-- [ ] In a container started from each compose file, the nesting fixture in
+  - **Evidence:** commit e17c64a5; `docker compose config` of
+    `.devcontainer/docker-compose.yml`, and of `compose.opencode.yml` with
+    `opencode-compose-pins.yml`, renders the variable as `"5"` with it unset on
+    the host, as the host's value when set, and as an `--env-file` value for the
+    standalone runtime. Commit 51b054a5 documents the setting in
+    `docker/deploy/runtime.env.example`;
+    `uv run pytest scripts/tests/test_agent_runtime_compose.py` — 11 passed.
+    Commit b62a2a0c adds
+    `test_subagent_depth_defaults_to_five_and_takes_the_host_value` to
+    `scripts/tests/test_agent_runtime_compose.py` and
+    `scripts/tests/test_devcontainer_compose.py`; `uv run pytest` of both files
+    — 13 passed.
+- [x] In a container started from each compose file, the nesting fixture in
   [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
   extended to five levels, reaches depth 5 on Claude Code, read from each
   subagent's `.meta.json` `spawnDepth`.
+  - **Evidence:** commit e17c64a5. `docker compose run` of the `devcontainer`
+    service (`.devcontainer/docker-compose.yml` with
+    `devcontainer-compose-pins.yml`) and of the `opencode` service
+    (`compose.opencode.yml` with `opencode-compose-pins.yml`), with the variable
+    unset on the host: each container's environment held
+    `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5`, and on Claude Code 2.1.319 with
+    `--model haiku` the fixture's chain of agents `d1` to `d4`, each dispatching
+    the next, and leaf `d5` returned the leaf marker, with `.meta.json`
+    `spawnDepth` 1 to 5 for `d1` to `d5`.
 
 ### Task 3: Record the depth limits
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/nested-subagent-dispatch.md`
 
-- [ ] `## Host behavior` records, for Claude Code 2.1.316: the variable
+- [x] `## Host behavior` records, for Claude Code 2.1.316: the variable
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the nesting limit; when it is
   unset, a server-side flag sets the limit, falling back to 3; the agent at the
   limit is not offered the `Agent` tool, and nothing reports an error. It also
   records that the devcontainer and the standalone runtime set both harnesses to
   5, and replaces the 2.1.306 version the section names.
+  - **Evidence:** commits 18cd734f and 67582b9f
+    (`docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior`);
+    `iwe normalize` and `iwe schema validate` pass.
 
 ## Spec changes
 
@@ -146,8 +182,8 @@ mode `0600`.
 - **THEN** the configure step fails and leaves the file unchanged.
 ```
 
-`nested-agent-dispatch` — a new spec for Claude Code's nesting limit in both
-containers.
+[Nested agent dispatch](../spec/nested-agent-dispatch.md) — a new spec for
+Claude Code's nesting limit in both containers.
 
 ``` markdown
 ## ADDED Requirements
