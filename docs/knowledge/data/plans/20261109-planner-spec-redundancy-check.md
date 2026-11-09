@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-11-09
+stage: done
+completed: 2026-11-09
 release:
 - features/risk-scaled-spec-deltas
 description: Make the planner read every spec its Spec changes touch in full, reference a rule's existing home instead of restating it, and drop a scenario a MODIFIED requirement leaves restating its requirement.
