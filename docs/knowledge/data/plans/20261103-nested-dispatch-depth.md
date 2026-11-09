@@ -83,10 +83,15 @@ the standalone runtime.
 
 **Files:** Modify: `.devcontainer/docker-compose.yml`, `compose.opencode.yml`
 
-- [ ] The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
+- [x] The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
   `opencode` service in `compose.opencode.yml` set
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: ${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}`
   in their `environment:` blocks.
+  - **Evidence:** commit e17c64a5; `docker compose config` of
+    `.devcontainer/docker-compose.yml`, and of `compose.opencode.yml` with
+    `opencode-compose-pins.yml`, renders the variable as `"5"` with it unset on
+    the host, as the host's value when set, and as an `--env-file` value for the
+    standalone runtime.
 - [ ] In a container started from each compose file, the nesting fixture in
   [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
   extended to five levels, reaches depth 5 on Claude Code, read from each
