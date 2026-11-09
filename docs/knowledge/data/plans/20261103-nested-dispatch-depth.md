@@ -97,6 +97,11 @@ the standalone runtime.
     standalone runtime. Commit 51b054a5 documents the setting in
     `docker/deploy/runtime.env.example`;
     `uv run pytest scripts/tests/test_agent_runtime_compose.py` — 11 passed.
+    Commit b62a2a0c adds
+    `test_subagent_depth_defaults_to_five_and_takes_the_host_value` to
+    `scripts/tests/test_agent_runtime_compose.py` and
+    `scripts/tests/test_devcontainer_compose.py`; `uv run pytest` of both files
+    — 13 passed.
 - [x] In a container started from each compose file, the nesting fixture in
   [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
   extended to five levels, reaches depth 5 on Claude Code, read from each
