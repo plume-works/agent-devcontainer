@@ -68,10 +68,16 @@ the standalone runtime.
 `py_packages/agentdev_runtime/tests/test_opencode_config.py`,
 `scripts/tests/test_configure_opencode.py`
 
-- [ ] `apply_policy` sets `experimental.subagent_depth` to `5`, keeps every
+- [x] `apply_policy` sets `experimental.subagent_depth` to `5`, keeps every
   other `experimental` key and its position, and restores a changed value; tests
   cover a config without `experimental`, one with other `experimental` keys, and
   one with a different depth.
+  - **Evidence:** commit 5f78f729 (`opencode_config.py::apply_policy`,
+    `SUBAGENT_DEPTH`);
+    `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py scripts/tests/test_configure_opencode.py scripts/tests/test_agent_runtime_state.py`
+    — 25 passed, including `test_a_config_without_experimental_gains_the_depth`,
+    `test_other_experimental_keys_keep_their_values_and_order`, and
+    `test_a_changed_depth_is_restored`.
 
 ### Task 2: Claude Code nests to depth 5
 
