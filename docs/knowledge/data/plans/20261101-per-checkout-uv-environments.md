@@ -209,15 +209,26 @@ registration is idempotent and only adds.
 `py_packages/agentdev_runtime/tests/test_project_sync.py`,
 `py_packages/agentdev_runtime/tests/test_project_link_venv.py`
 
-- [ ] `link-venv` writes the checkout's absolute path to
+- [x] `link-venv` writes the checkout's absolute path to
   `$AGENTDEV_VENV_ROOT/<name>.checkout`.
-- [ ] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
+  - **Evidence:** commit 4b195c98 writes the record in `project.py::link_venv`;
+    `test_the_environment_records_its_checkout` in
+    `py_packages/agentdev_runtime/tests/test_project_link_venv.py` passed.
+- [x] `project sync` removes each directory under `$AGENTDEV_VENV_ROOT` whose
   name matches no checkout in `git worktree list` and whose recorded checkout's
   `.venv` no longer links to it, with its `.checkout` record, and never one a
   listed checkout's `.venv` links to.
-- [ ] Tests cover a removed worktree's environment, a live worktree's
+  - **Evidence:** commit 4b195c98 keeps an environment its recorded checkout
+    still links to in `project.py::prune_venvs` and deletes the record with it;
+    `uv run pytest py_packages/agentdev_runtime/tests` passed 129 tests.
+- [x] Tests cover a removed worktree's environment, a live worktree's
   environment, a live environment of another repository's worktree, and the
   retired `ws-project`.
+  - **Evidence:** commits 11c4f693 and 4b195c98;
+    `py_packages/agentdev_runtime/tests/test_project_sync.py` covers each case,
+    `test_another_repositorys_live_environment_is_kept` keeping a second
+    repository's live environment and deleting it with its record once that
+    worktree is removed; all passed.
 
 ### Task 6: Link new worktrees from git's post-checkout hook
 
@@ -225,14 +236,23 @@ registration is idempotent and only adds.
 `.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`,
 `docs/knowledge/data/architecture/uv-environment-location.md`
 
-- [ ] Outside deploy mode, `project hooks` writes the checkout's `post-checkout`
+- [x] Outside deploy mode, `project hooks` writes the checkout's `post-checkout`
   hook: a script that runs `agentdev-runtime project link-venv` and exits 0 when
   `agentdev-runtime` is not on `PATH`. It replaces a hook it or pre-commit wrote
   and leaves any other `post-checkout` hook with a warning. `HOOK_TYPES` and
   `.pre-commit-config.yaml` carry no `post-checkout` entry.
-- [ ] A test runs `git worktree add` in a fixture repository with the installed
+  - **Evidence:** commit 93a15d1f adds `project.py::link_hook`, called from
+    `project.py::hooks`, and leaves `HOOK_TYPES` and `.pre-commit-config.yaml`
+    as on `main`; `test_a_custom_post_checkout_hook_is_left_alone` passed.
+- [x] A test runs `git worktree add` in a fixture repository with the installed
   hooks and finds the new worktree's `.venv` linked, and another runs it with no
   `agentdev-runtime` on `PATH` and finds it succeeds.
+  - **Evidence:** commit 93a15d1f;
+    `test_post_checkout_links_a_new_worktrees_venv`,
+    `test_post_checkout_passes_on_a_host_without_the_runtime`, and
+    `test_post_checkout_passes_when_the_runtime_lacks_link_venv` passed in
+    `uv run pytest -n 8 scripts/tests/test_agent_runtime_workspace.py` (28
+    passed).
 
 ### Task 7: `agentdev-runtime worktree create`
 
