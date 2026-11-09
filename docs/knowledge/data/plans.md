@@ -224,6 +224,9 @@ volume](plans/20260902-persist-pre-commit-cache.md)
 
 [The iwe-plan-review skill](plans/20261103-plan-review-skill.md)
 
+[Stop the planner from adding spec
+redundancy](plans/20261109-planner-spec-redundancy-check.md)
+
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
 

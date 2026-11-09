@@ -30,6 +30,9 @@ commands](backlog/base-image-catalog-smoke-test.md)
 [Supervise Claude Remote Control in Coder
 workspaces](backlog/coder-supervised-remote-control.md)
 
+[Remove redundancy from the durable
+specs](backlog/deduplicate-spec-requirements.md)
+
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
 
@@ -71,6 +74,9 @@ loop](backlog/observe-planned-adversarial-review.md)
 
 [Run Primary checks' ci job in parallel with the pre-commit
 job](backlog/parallel-ci-with-pre-commit.md)
+
+[Stop the planner from adding spec
+redundancy](backlog/planner-spec-redundancy-check.md)
 
 [Port the agent-owned Ship/Implement e2e suite to
 pytest](backlog/port-agent-owned-e2e-to-pytest.md)
