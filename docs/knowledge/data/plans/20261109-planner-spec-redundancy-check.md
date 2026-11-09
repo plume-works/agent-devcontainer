@@ -73,11 +73,18 @@ Verify finding would arrive after the plan is already implemented.
 
 **Closed by:** the repository owner, after merge.
 
-- [ ] A scratch `/agentdev:iwe-plan` revise of an active plan, asked for a
+- [x] A scratch `/agentdev:iwe-plan` revise of an active plan, asked for a
   `## Spec changes` delta that restates a rule another requirement of the same
   spec holds and that leaves a scenario restating its requirement, produces a
   delta that references the existing requirement, leaves that scenario out, and
   names it below the fence. The revise is not committed.
+  - **Evidence:** a headless `claude -p` run of the `/agentdev:iwe-plan` revise
+    of `data/plans/20261109-one-observation-per-checkbox`, on a detached
+    checkout of commit d8195541, asked for a SHALL sentence restating the
+    evidence-line rule and one settling the scenario "A task's evidence is
+    external". The uncommitted result names "A ticked task carries the evidence
+    that closed it" instead of restating it, leaves that scenario out, and names
+    it below the fence as "Removed scenario".
 
 ## Spec changes
 
