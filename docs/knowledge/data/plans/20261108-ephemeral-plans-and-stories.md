@@ -686,7 +686,7 @@ anchor format; re-locate every anchor below once they have shipped.
   — step 3 "Check `## Depends on`"
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "If the plan key resolves to no plan or to more than"`
   — step 2 "Select the plan"
-- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing › "Ready to build → hand off to the"`
+- `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing › "Ready to build → write the handoff"`
   — "Ready to build" handoff
 - `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md#steps › "Plans completed in the last 7 days"`
   — "Shipped" query
