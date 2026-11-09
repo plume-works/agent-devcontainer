@@ -1,12 +1,11 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: high
 description: iwe-shipper never checks a plan's `## Depends on`, so /agentdev:iwe-ship can ship a plan whose prerequisite is still active, including one Ship returned Blocked.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-rank: 550
 ---
 
 # Bug: Ship ships a plan whose prerequisite has not shipped
