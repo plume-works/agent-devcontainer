@@ -180,8 +180,8 @@ mode `0600`.
 - **THEN** the configure step fails and leaves the file unchanged.
 ```
 
-`nested-agent-dispatch` — a new spec for Claude Code's nesting limit in both
-containers.
+[Nested agent dispatch](../spec/nested-agent-dispatch.md) — a new spec for
+Claude Code's nesting limit in both containers.
 
 ``` markdown
 ## ADDED Requirements
