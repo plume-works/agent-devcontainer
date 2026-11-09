@@ -275,7 +275,7 @@ re-run each test or command a ticked task names, in the current tree.
 - `docs/knowledge/AGENTS.md#conventions › "A ticked task carries the evidence that closed it"`
   — the workspace rule
 - `docs/knowledge/CHANGELOG.md#unreleased` — the scaffold changelog
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "child once it is ticked, naming the"`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "once ticked, it carries an indented"`
   — step 4, the evidence format
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Closing it is then a single edit that ticks"`
   — step 6, closing a task

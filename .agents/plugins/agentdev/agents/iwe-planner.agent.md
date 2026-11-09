@@ -82,16 +82,17 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    - `## Approach` — the shape of the solution and the alternative you
      rejected, in a few sentences
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
-     `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. Each checkbox
-     carries an indented `- **Evidence:**` child once it is ticked, naming the
-     commit, test run, or CI run that closed it — a check and its result count
-     only together with the commit that holds the change they check; leave the
-     checkbox bare while it is unticked. A task may describe an _action_; it may never paraphrase
-     _approved content_. When a decision was made as specific text — wording for
-     a document, a snippet, a message — reproduce that text verbatim in a fenced
-     block under the task that applies it, and check
-     `.tmp/approved-wording-<slug>.md` for it before writing the task from
-     memory
+     `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. A task may
+     describe an _action_; it may never paraphrase _approved content_. When a
+     decision was made as specific text — wording for a document, a snippet, a
+     message — reproduce that text verbatim in a fenced block under the task
+     that applies it, and check `.tmp/approved-wording-<slug>.md` for it before
+     writing the task from memory. A checkbox stays bare while it is unticked;
+     once ticked, it carries an indented `- **Evidence:**` child naming what
+     closed it as a check Verify can repeat:
+     - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
+     - Docs or config with no test: the file and anchor that changed.
+     - External work: the CI run or the PR that closes it, which must stand alone.
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change, written in whichever of the three forms below fits the risk;
      name not-yet-existing specs in back-ticks (never dangling links)
