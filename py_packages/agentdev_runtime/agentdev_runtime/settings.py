@@ -257,6 +257,12 @@ VARIABLES: tuple[Variable, ...] = (
         ),
     ),
     Variable('UV_PROJECT_ENVIRONMENT', "The project's uv environment."),
+    Variable(
+        'AGENTDEV_VENV_ROOT',
+        "Directory holding each checkout's uv environment, linked from its `.venv`.",
+        '/uv/venvs',
+        profiles=(DEVCONTAINER,),
+    ),
     # Keyring.
     Variable('DBUS_SESSION_BUS_ADDRESS', 'Session bus address.'),
     # OpenCode and Coder.

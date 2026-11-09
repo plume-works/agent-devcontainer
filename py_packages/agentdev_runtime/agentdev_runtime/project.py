@@ -1,5 +1,5 @@
 """
-The checkout's own environment: the uv sync and the pre-commit hooks.
+The checkout's own environment: its uv environment link, the uv sync, and the pre-commit hooks.
 
 Spec: standalone-opencode-runtime, agentdev-runtime-images.
 """
@@ -41,6 +41,40 @@ def sync(settings: env.Settings) -> int:
     return subprocess.run(
         ['uv', 'sync', '--all-groups', '--all-extras'], cwd=workspace, check=False
     ).returncode
+
+
+def within(root: Path, target: Path) -> bool:
+    return os.path.commonpath([root, target]) == str(root)
+
+
+def link_venv(settings: env.Settings, path: Path) -> int:
+    """Link the checkout's ``.venv`` to its own directory under ``AGENTDEV_VENV_ROOT``."""
+    if deploy(settings):
+        return 0
+    try:
+        top = git(path, 'rev-parse', '--show-toplevel')
+    except OSError:
+        return 0
+    root = Path(os.path.abspath(settings.get('AGENTDEV_VENV_ROOT')))
+    if top.returncode != 0 or not root.parent.is_dir():
+        return 0
+    checkout = Path(top.stdout.strip())
+    target = root / checkout.name
+    venv = checkout / '.venv'
+    if venv.is_symlink():
+        current = Path(os.path.normpath(checkout / os.readlink(venv)))
+        if not within(root, current):
+            print(f'{PREFIX}: leaving .venv -> {current} (outside {root})', file=sys.stderr)
+            return 0
+        if current != target:
+            venv.unlink()
+    elif venv.exists():
+        print(f'{PREFIX}: leaving {venv} (not a link)', file=sys.stderr)
+        return 0
+    target.mkdir(parents=True, exist_ok=True)
+    if not venv.is_symlink():
+        venv.symlink_to(target)
+    return 0
 
 
 def missing_executables(config: Path) -> list[tuple[str, str]]:
@@ -145,5 +179,7 @@ def main(argv: list[str]) -> int:
         return sync(settings)
     if argv == ['hooks']:
         return hooks(settings)
-    print('usage: agentdev-runtime project sync|hooks', file=sys.stderr)
+    if argv[:1] == ['link-venv'] and len(argv) <= 2:
+        return link_venv(settings, Path(argv[1] if len(argv) == 2 else '.'))
+    print('usage: agentdev-runtime project sync|hooks|link-venv [PATH]', file=sys.stderr)
     return 2
