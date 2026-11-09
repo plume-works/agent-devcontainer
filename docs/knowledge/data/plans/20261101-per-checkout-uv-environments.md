@@ -266,14 +266,26 @@ adds.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
-- [ ] `worktree remove` reads the worktree path from the stdin field
+- [x] `worktree remove` reads the worktree path from the stdin field
   `worktree_path`, which the hooks reference documents and Task 2 confirms,
   deletes the directory the worktree's `.venv` links to when it lies under
   `$AGENTDEV_VENV_ROOT`, then runs `git worktree remove --force <path>`; the
   `worktree-<name>` branch stays.
-- [ ] A worktree that is already gone, or has no `.venv` link, is not an error.
-- [ ] Tests run the subcommand against a worktree Task 7's subcommand made, and
+  - **Evidence:** commit f3f51f08 adds `worktree.py::remove`;
+    `test_a_created_worktree_is_removed_with_its_environment` in
+    `py_packages/agentdev_runtime/tests/test_worktree_remove.py` passed,
+    checking the environment and worktree are gone and `worktree-task` remains.
+- [x] A worktree that is already gone, or has no `.venv` link, is not an error.
+  - **Evidence:** commit f3f51f08; `test_a_gone_worktree_is_not_an_error` and
+    `test_a_worktree_without_a_venv_link_is_removed` in
+    `py_packages/agentdev_runtime/tests/test_worktree_remove.py` passed.
+- [x] Tests run the subcommand against a worktree Task 7's subcommand made, and
   against a gone worktree.
+  - **Evidence:** commit f3f51f08 adds
+    `py_packages/agentdev_runtime/tests/test_worktree_remove.py`, which runs
+    `worktree create` then `worktree remove` through
+    `python -m agentdev_runtime`, and a gone worktree;
+    `uv run pytest py_packages/agentdev_runtime/tests` passed 124 tests.
 
 ### Task 9: Register the worktree hooks on attach
 
