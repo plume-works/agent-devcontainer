@@ -175,9 +175,14 @@ The approved wording for what an evidence line names:
 
 ### Task 6: Observe Verify re-running named checks
 
-- [ ] The Verify run on this plan re-runs the test or command each ticked task
+- [x] The Verify run on this plan re-runs the test or command each ticked task
   names and reports none of them as an unsupported tick for lacking a commit.
   - **Closed by:** the maintainer, reading that Verify report.
+  - **Evidence:** the maintainer confirmed the `Ready to ship` Verify report
+    saved by
+    `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py lookup data/plans/20261109-evidence-without-commit-ids`,
+    which re-ran each named check and reported no tick as unsupported for
+    lacking a commit.
 
 ## Spec changes
 
