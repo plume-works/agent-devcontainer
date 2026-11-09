@@ -39,11 +39,8 @@ def test_registering_twice_adds_each_hook_once_and_keeps_the_rest(config: Path) 
     data = json.loads(config.read_text())
     assert data['model'] == 'opus'
     assert commands(config, 'Stop') == ['notify']
-    assert commands(config, 'WorktreeCreate') == [
-        'mine create',
-        'agentdev-runtime worktree create',
-    ]
-    assert commands(config, 'WorktreeRemove') == ['agentdev-runtime worktree remove']
+    assert commands(config, 'WorktreeCreate') == ['mine create', worktree.HOOKS['WorktreeCreate']]
+    assert commands(config, 'WorktreeRemove') == [worktree.HOOKS['WorktreeRemove']]
 
 
 @pytest.mark.parametrize(('mode', 'registered'), [(DEVCONTAINER, True), (DEPLOY, False)])
