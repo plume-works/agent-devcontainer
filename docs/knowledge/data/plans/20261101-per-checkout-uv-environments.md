@@ -266,10 +266,11 @@ adds.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
-- [ ] `worktree remove` reads the worktree path from the stdin field Task 2
-  recorded, deletes the directory the worktree's `.venv` links to when it lies
-  under `$AGENTDEV_VENV_ROOT`, then runs `git worktree remove --force <path>`;
-  the `worktree-<name>` branch stays.
+- [ ] `worktree remove` reads the worktree path from the stdin field
+  `worktree_path`, which the hooks reference documents and Task 2 confirms,
+  deletes the directory the worktree's `.venv` links to when it lies under
+  `$AGENTDEV_VENV_ROOT`, then runs `git worktree remove --force <path>`; the
+  `worktree-<name>` branch stays.
 - [ ] A worktree that is already gone, or has no `.venv` link, is not an error.
 - [ ] Tests run the subcommand against a worktree Task 7's subcommand made, and
   against a gone worktree.
