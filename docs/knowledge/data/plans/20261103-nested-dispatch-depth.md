@@ -92,10 +92,19 @@ the standalone runtime.
     `opencode-compose-pins.yml`, renders the variable as `"5"` with it unset on
     the host, as the host's value when set, and as an `--env-file` value for the
     standalone runtime.
-- [ ] In a container started from each compose file, the nesting fixture in
+- [x] In a container started from each compose file, the nesting fixture in
   [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
   extended to five levels, reaches depth 5 on Claude Code, read from each
   subagent's `.meta.json` `spawnDepth`.
+  - **Evidence:** commit e17c64a5. `docker compose run` of the `devcontainer`
+    service (`.devcontainer/docker-compose.yml` with
+    `devcontainer-compose-pins.yml`) and of the `opencode` service
+    (`compose.opencode.yml` with `opencode-compose-pins.yml`), with the variable
+    unset on the host: each container's environment held
+    `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=5`, and on Claude Code 2.1.319 with
+    `--model haiku` the fixture's chain of agents `d1` to `d4`, each dispatching
+    the next, and leaf `d5` returned the leaf marker, with `.meta.json`
+    `spawnDepth` 1 to 5 for `d1` to `d5`.
 
 ### Task 3: Record the depth limits
 
