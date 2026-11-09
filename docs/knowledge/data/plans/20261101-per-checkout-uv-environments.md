@@ -315,8 +315,13 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
     through `claude_state.update_json`;
     `test_registering_twice_adds_each_hook_once_and_keeps_the_rest` in
     `py_packages/agentdev_runtime/tests/test_worktree_register.py` passed.
-- [ ] `lifecycle.created` calls it unless the runtime is in deploy mode, whether
+- [x] `lifecycle.created` calls it unless the runtime is in deploy mode, whether
   or not the checkout ships a catalog.
+  - **Evidence:** commit 43ac9cda calls `worktree.register` from
+    `lifecycle.py::created` under `agent_state.config_lock` unless
+    `project.deploy`, before `hooks.run`; on agent-dev3,
+    `agentdev-runtime lifecycle created` at 43ac9cda wrote both hooks into an
+    emptied `/root/.claude/settings.json`.
 - [ ] Tests run `register` twice on a settings file holding unrelated hooks and
   keys, and run the create-phase step in and out of deploy mode.
 
