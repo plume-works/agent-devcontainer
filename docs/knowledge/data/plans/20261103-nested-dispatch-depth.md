@@ -65,7 +65,8 @@ the standalone runtime.
 
 **Files:** Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py`,
-`py_packages/agentdev_runtime/tests/test_opencode_config.py`
+`py_packages/agentdev_runtime/tests/test_opencode_config.py`,
+`scripts/tests/test_configure_opencode.py`
 
 - [ ] `apply_policy` sets `experimental.subagent_depth` to `5`, keeps every
   other `experimental` key and its position, and restores a changed value; tests
