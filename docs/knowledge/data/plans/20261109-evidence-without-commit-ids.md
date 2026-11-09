@@ -82,17 +82,26 @@ The approved wording for what an evidence line names:
 * External work: the CI run or the PR that closes it, which must stand alone.
 ```
 
-- [ ] The **A ticked task carries the evidence that closed it** bullet in
+- [x] The **A ticked task carries the evidence that closed it** bullet in
   `docs/knowledge/AGENTS.md` names what evidence is with the approved wording
   above, verbatim as nested bullets; states that a commit id on its own is not
   evidence; and states that the tick and its evidence line land in the same
   commit as the code they describe. The sentences requiring the commit and the
   code-first, tick-second order are gone. The bootstrap copy stays
   byte-identical.
-- [ ] `docs/knowledge/CHANGELOG.md` gains a `### Changed` entry under
+  - **Evidence:**
+    `docs/knowledge/AGENTS.md#conventions › "A commit id on its own is not evidence"`
+    and its three nested bullets;
+    `cmp docs/knowledge/AGENTS.md .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`
+    reports no difference; commit e1d299c3.
+- [x] `docs/knowledge/CHANGELOG.md` gains a `### Changed` entry under
   `## [Unreleased]`: evidence names a check Verify can repeat instead of a
   commit, the tick lands with its code, and nothing needs migrating. The
   bootstrap copy stays byte-identical.
+  - **Evidence:**
+    `docs/knowledge/CHANGELOG.md#changed › "Plan task evidence names a check Verify can repeat, not a commit"`;
+    `cmp docs/knowledge/CHANGELOG.md .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CHANGELOG.md`
+    reports no difference; commit e1d299c3.
 
 ### Task 2: Planner rule
 
