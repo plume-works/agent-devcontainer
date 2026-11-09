@@ -220,7 +220,7 @@ jobs:
       needs.preflight.outputs.wants_review == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:47c37f090b473acc74424deffddddbdd6bb559cd5fa573092b17f478336660bb
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:888f2993d8636b0e1368ea55e418d9781379bd57c926b1afc2fddab0566e11fd
     permissions:
       contents: read
       pull-requests: write # For PR reviews and inline comments
