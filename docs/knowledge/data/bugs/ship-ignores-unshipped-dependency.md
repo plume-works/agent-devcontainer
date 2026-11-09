@@ -52,5 +52,5 @@ mirrors the implementer's check.
   — step 1, select the operation and inspect current state (no dependency check)
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
   — step 3, Run Verify for normal shipping
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › ".** Every prerequisite plan must carry"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "may be built on while it has an open pull request"`
   — step 3, Check `## Depends on`

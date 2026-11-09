@@ -195,7 +195,7 @@ dependency is unmerged.
 
 ## Key references
 
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › ".** Every prerequisite plan must carry"`
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "may be built on while it has an open pull request"`
   — step 3, Check `## Depends on`
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps › "Start on a work branch.** When the checkout is on the"`
   — step 4, Start on a work branch
