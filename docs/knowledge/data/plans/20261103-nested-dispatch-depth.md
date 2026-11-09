@@ -10,6 +10,8 @@ sources:
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+stage: done
+completed: 2026-11-09
 ---
 
 # Nest agent dispatch to depth 5 on both harnesses
