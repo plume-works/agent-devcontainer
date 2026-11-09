@@ -255,7 +255,7 @@ def test_project_setup_failures_fail_startup(runtime: Runtime, files, stub):
     assert result.returncode != 0
 
 
-def test_standalone_skips_the_venv_migration(runtime: Runtime):
+def test_standalone_leaves_the_venv_link_alone(runtime: Runtime):
     runtime.git('init', '-q')
     (runtime.workspace / 'pyproject.toml').write_text('')
     (runtime.workspace / '.venv').symlink_to('/uv/venvs/old')

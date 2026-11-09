@@ -381,8 +381,6 @@ attach SHALL remove every other environment no listed checkout uses.
   `ansible.ansible.path`, with the two other `ansible.*` paths below it
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::HOOK_TYPES` —
   `HOOK_TYPES`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py::MANAGED_VENV_PREFIX`
-  — `MANAGED_VENV_PREFIX`
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::deploy` — deploy
   mode check
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::sync` — `sync`
@@ -398,8 +396,8 @@ attach SHALL remove every other environment no listed checkout uses.
   `PASSTHROUGH`
 - `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `UV_PROJECT_ENVIRONMENT` setting
-- `scripts/tests/test_agent_runtime_workspace.py::test_standalone_skips_the_venv_migration`
-  — `test_standalone_skips_the_venv_migration`
+- `scripts/tests/test_agent_runtime_workspace.py::test_standalone_leaves_the_venv_link_alone`
+  — the deploy-mode `.venv` test
 - `.pre-commit-config.yaml › "repo: local"` — `repo: local`
 - `docs/knowledge/data/architecture/worktree-hooks.md#writing-the-hooks` — the
   default worktree layout

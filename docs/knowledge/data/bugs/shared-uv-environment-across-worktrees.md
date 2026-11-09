@@ -48,7 +48,5 @@ directory on the `/uv` volume keeps it hardlinked to the cache there.
   `UV_PROJECT_ENVIRONMENT`
 - `.devcontainer/devcontainer.json › "ruff.lint.enable"` —
   `python.defaultInterpreterPath`
-- `py_packages/agentdev_runtime/agentdev_runtime/project.py::MANAGED_VENV_PREFIX`
-  — `MANAGED_VENV_PREFIX`
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::sync` — `sync`,
   which removes a `.venv` link into `/uv/venvs/`
