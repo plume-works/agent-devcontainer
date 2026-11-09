@@ -1,5 +1,7 @@
 """
-Claude Code's ``WorktreeCreate`` and ``WorktreeRemove`` hooks: a worktree with its own uv environment.
+Claude Code's ``WorktreeCreate`` and ``WorktreeRemove`` hooks.
+
+Each worktree they make gets its own uv environment.
 
 Hook contract: architecture/worktree-hooks. Spec: agentdev-runtime-images.
 """
