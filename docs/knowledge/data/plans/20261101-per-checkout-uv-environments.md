@@ -375,7 +375,7 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
     links `data/architecture/worktree-hooks`; `iwe schema validate` passed.
 - [x] The feature document's Behaviour and Edge cases describe one environment
   per checkout.
-  - **Evidence:** commit 31b74f04 rewrites
+  - **Evidence:** commit 6bca43c8 rewrites
     `data/features/uv-run-only-environment#behaviour` for one environment per
     checkout and adds the concurrent-worktree and real-`.venv` edge cases.
 
