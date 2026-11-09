@@ -32,9 +32,9 @@ Coder workspaces.
 This plan changes [uv-run-only
 environment](../features/uv-run-only-environment.md): the environment stops
 being one fixed path and becomes one per checkout. [uv environment
-location](../architecture/uv-environment-location.md) records the current
-design, whose premise — one `/uv` per devcontainer instance, so nothing to
-disambiguate — does not hold for worktrees inside the container.
+location](../architecture/uv-environment-location.md#why-one-environment-per-checkout)
+records why one `/uv` per Dev Container instance does not separate the checkouts
+inside it.
 
 How a `WorktreeCreate` or `WorktreeRemove` hook is written — triggers, stdin,
 the returned path, the default layout — is recorded in [Worktree
@@ -60,8 +60,8 @@ checkout:
 | Claude `WorktreeCreate`, `agentdev-runtime worktree create` | `claude -w`, Remote Control worktree spawns, `/batch`, and subagents dispatched with `isolation: worktree` |
 | attach (`agentdev-runtime project sync`)                    | the main checkout                                                                                          |
 
-Claude Code creates its own worktrees without a checkout step, so git's hooks
-never run for them unless a `WorktreeCreate` hook creates the worktree instead.
+A `WorktreeCreate` hook replaces Claude Code's own worktree creation, so it
+covers Claude's worktrees whether or not git's hooks would run for them.
 `agentdev-runtime worktree create` does, with the default layout from [Worktree
 hooks](../architecture/worktree-hooks.md#writing-the-hooks), then runs
 `link-venv` in the new worktree before Claude Code starts the session there. Its
@@ -74,12 +74,14 @@ worktrees a `WorktreeCreate` hook made, and git has no hook for
 `git worktree remove`, so attach still removes every environment no listed
 checkout uses.
 
-The attach phase registers both hooks in the user's Claude settings
+The create phase registers both hooks in the user's Claude settings
 (`$CLAUDE_CONFIG_DIR/settings.json`) whenever the runtime is not in deploy mode,
-for any workspace repository. This plan owns the hook's base; [Give each Claude
-worktree its own agentdev catalog](20261103-per-worktree-catalog.md) adds its
-catalog step inside the same two subcommands, and Task 12 revises that plan to
-say so.
+for any workspace repository. It runs before the Dev Container profile starts
+the Remote Control server, which reads the hooks only when it starts, and on
+every Dev Container, where the attach phase runs only when an editor attaches.
+This plan owns the hook's base; [Give each Claude worktree its own agentdev
+catalog](20261103-per-worktree-catalog.md) adds its catalog step inside the same
+two subcommands, and Task 12 revises that plan to say so.
 
 Rejected, with the reasons recorded in the architecture document by Task 13: one
 shared environment without editable installs (dependencies still diverge between
@@ -277,8 +279,8 @@ adds.
 Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
 - [x] `worktree remove` reads the worktree path from the stdin field
-  `worktree_path`, which the hooks reference documents and Task 2 confirms,
-  deletes the directory the worktree's `.venv` links to when it lies under
+  `worktree_path` (`data/architecture/worktree-hooks#host-behavior`), deletes
+  the directory the worktree's `.venv` links to when it lies under
   `$AGENTDEV_VENV_ROOT`, then runs `git worktree remove --force <path>`; the
   `worktree-<name>` branch stays.
   - **Evidence:** commit f3f51f08 adds `worktree.py::remove`;
@@ -297,10 +299,11 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
     `python -m agentdev_runtime`, and a gone worktree;
     `uv run pytest py_packages/agentdev_runtime/tests` passed 124 tests.
 
-### Task 9: Register the worktree hooks on attach
+### Task 9: Register the worktree hooks in the create phase
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`,
-`py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`; Create:
+`py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
+`docs/knowledge/data/architecture/uv-environment-location.md`; Create:
 `py_packages/agentdev_runtime/tests/test_worktree_register.py`
 
 - [x] A `register` function writes one `WorktreeCreate` command hook
@@ -312,17 +315,10 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
     through `claude_state.update_json`;
     `test_registering_twice_adds_each_hook_once_and_keeps_the_rest` in
     `py_packages/agentdev_runtime/tests/test_worktree_register.py` passed.
-- [x] `lifecycle.attached` calls it unless the runtime is in deploy mode,
-  whether or not the checkout ships a catalog.
-  - **Evidence:** commit a515d65c calls `worktree.register` from
-    `lifecycle.py::attached` under `agent_state.config_lock` unless
-    `project.deploy`; `test_attach_registers_the_hooks_outside_deploy_mode`
-    passed for both modes, with a checkout that ships no catalog.
-- [x] Tests run `register` twice on a settings file holding unrelated hooks and
-  keys, and run the attach-phase step in and out of deploy mode.
-  - **Evidence:** commit a515d65c adds
-    `py_packages/agentdev_runtime/tests/test_worktree_register.py`;
-    `uv run pytest py_packages/agentdev_runtime/tests` passed 127 tests.
+- [ ] `lifecycle.created` calls it unless the runtime is in deploy mode, whether
+  or not the checkout ships a catalog.
+- [ ] Tests run `register` twice on a settings file holding unrelated hooks and
+  keys, and run the create-phase step in and out of deploy mode.
 
 ### Task 10: Drop the shared environment from the descriptor
 
@@ -429,7 +425,7 @@ The Dev Container SHALL give every checkout of the workspace repository,
 including each Git worktree, its own uv project environment: `.venv` in the
 checkout SHALL be a link to a directory named after the checkout under
 `AGENTDEV_VENV_ROOT` (default `/uv/venvs`), on the same volume as the uv cache.
-The attach phase SHALL register `agentdev-runtime worktree create` and
+The create phase SHALL register `agentdev-runtime worktree create` and
 `agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
 `WorktreeRemove` hooks. The link SHALL exist before a worktree's first command
 when the worktree is made by `git worktree add` or by that `WorktreeCreate`
@@ -528,6 +524,8 @@ image's copy:
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::main` — `main`
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
   `attached` calls `project.sync`
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::created` —
+  `created`, which runs before the Remote Control service starts
 - `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py::update_json` —
   `update_json`
 - `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::config_dir`

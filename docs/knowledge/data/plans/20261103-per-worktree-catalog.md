@@ -67,8 +67,8 @@ hooks](../architecture/worktree-hooks.md).
 environment](20261101-per-checkout-uv-environments.md) provides
 `agentdev-runtime worktree create` and `worktree remove` as the user's Claude
 `WorktreeCreate` and `WorktreeRemove` hooks (`$CLAUDE_CONFIG_DIR/settings.json`,
-default `~/.claude/settings.json`), and registers them on every Dev Container
-attach outside deploy mode. `worktree create` makes the worktree the way
+default `~/.claude/settings.json`), and registers them in every Dev Container's
+create phase outside deploy mode. `worktree create` makes the worktree the way
 [Worktree hooks](../architecture/worktree-hooks.md) prescribes — at
 `<repository>/.claude/worktrees/<name>` on a new branch `worktree-<name>` — and
 links its uv environment. This plan adds its catalog steps inside those two
@@ -248,7 +248,7 @@ contain a complete catalog. A complete catalog SHALL consist of
 When the standalone runtime registers a checkout's own catalog, it SHALL also
 register `agentdev-runtime worktree create` and
 `agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
-`WorktreeRemove` hooks, as the Dev Container attach phase does outside deploy mode. A worktree that
+`WorktreeRemove` hooks, as the Dev Container create phase does outside deploy mode. A worktree that
 hook creates in a checkout that ships a complete catalog SHALL load every plugin of
 its own checkout's catalog from the worktree's working tree, under a marketplace
 named `wt-<worktree name>`, and SHALL NOT load the shared catalog's plugins.
