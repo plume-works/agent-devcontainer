@@ -140,13 +140,19 @@ The approved wording for what an evidence line names:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] The **Completeness** bullet reports a ticked task as a CRITICAL,
+- [x] The **Completeness** bullet reports a ticked task as a CRITICAL,
   recommendation "untick it", when its evidence line is missing or empty, names
   nothing of the three kinds in Task 1's approved wording, or names a test or
   command that fails or no longer exists when Verify re-runs it in the current
   tree. "A check and its result count only together with the commit" and "a
   check cited without that commit" are gone; the rest of the residue list and
   the CI-job sentence stay.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "names a test or command that fails or no longer exists"`
+    and
+    `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "A commit id on its own is not evidence"`;
+    `grep -cE 'together with the commit|cited without that commit' .agents/plugins/agentdev/agents/iwe-verifier.agent.md`
+    prints 0.
 
 ### Task 5: Record the decision
 
@@ -298,6 +304,6 @@ re-run each test or command a ticked task names, in the current tree.
   — loop step 3, the code route
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "A task's code, its checkbox flip, and its evidence line land in one commit"`
   — the commit-order rule
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "A check and its result count only together"`
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#steps › "names a test or command that fails or no longer exists"`
   — the Completeness rule
 - `docs/knowledge/data/architecture.md` — the architecture hub

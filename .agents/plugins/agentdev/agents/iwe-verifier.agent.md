@@ -67,12 +67,16 @@ runs in one of two modes:
      no override: a task the user has decided against can't be ticked while
      undone, so without it the plan is unshippable. Naming a route is not
      taking it. Mirroring it, every ticked `- [x]` task whose indented
-     `- **Evidence:**` line is missing or empty, or whose evidence names nothing
-     traceable to a commit, test run, or CI run, is also a CRITICAL,
-     recommendation "untick it". A check and its result count only together
-     with the commit that holds the change they check. Residue is not traceable
-     evidence: a check cited without that commit, raw command
-     stdout transcribed as evidence, an ephemeral identifier that will not exist
+     `- **Evidence:**` line is missing or empty, names nothing of the three
+     kinds below, or names a test or command that fails or no longer exists
+     when you re-run it in the current tree, is also a CRITICAL,
+     recommendation "untick it". Evidence names a check you can repeat:
+     - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
+     - Docs or config with no test: the file and anchor that changed.
+     - External work: the CI run or the PR that closes it, which must stand alone.
+
+     A commit id on its own is not evidence. Residue is not evidence either:
+     raw command stdout transcribed as evidence, an ephemeral identifier that will not exist
      next session (a container or machine id, a temp path), and a citation of an
      uncommitted `.tmp/` harness each fail this check the same way an empty line
      does. A CI job is evidence for behaviour only CI exercises when the job
@@ -95,6 +99,7 @@ runs in one of two modes:
      the delta would silently drop a scenario this change does not affect.
      Every `### Requirement:` in the effective contract has implementation
      evidence in the codebase — search for it; none found is a CRITICAL.
+
    - **Correctness** — map each requirement to anchored evidence and judge
      whether the implementation matches its SHALL statement (divergence is a
      WARNING naming the anchors to review). For each `#### Scenario:`,
