@@ -290,6 +290,15 @@ registration is idempotent and only adds.
     `py_packages/agentdev_runtime/tests/test_worktree_create.py`, which runs
     `python -m agentdev_runtime worktree create` on a scratch repository and
     venv root; the created, reduced-name, and failed-add cases passed.
+- [x] A name used before reuses its worktree when `.claude/worktrees/<name>` is
+  still one of the repository's worktrees, and otherwise checks out the existing
+  `worktree-<name>` branch without `-b`; a failure deletes the branch only when
+  this run created it.
+  - **Evidence:** `test_creating_a_name_again_reuses_its_worktree`,
+    `test_creating_a_name_again_after_remove_checks_out_its_branch`,
+    `test_a_failing_worktree_add_fails_the_hook`, and
+    `test_a_failing_link_keeps_a_branch_that_existed_before` in
+    `py_packages/agentdev_runtime/tests/test_worktree_create.py` passed.
 
 ### Task 8: `agentdev-runtime worktree remove`
 
@@ -477,6 +486,13 @@ checkout, in any repository, and remove the rest.
   `worktree-<name>`, and its `.venv` links to its own environment before the
   session starts
 
+#### Scenario: a worktree name is used again
+
+- **WHEN** `WorktreeCreate` fires with a name used before, such as a session
+  Remote Control revives
+- **THEN** the hook reuses that name's worktree, or checks out its kept
+  `worktree-<name>` branch when the worktree was removed, and prints its path
+
 #### Scenario: the host checks out a branch
 
 - **WHEN** a host shares the checkout's `.git` with the Dev Container and runs
@@ -547,7 +563,8 @@ image's copy:
 - Per-worktree agentdev catalogs, which [Give each Claude worktree its own
   agentdev catalog](20261103-per-worktree-catalog.md) adds to this plan's
   worktree hooks.
-- Host and CI checkouts, which keep uv's default in-tree `.venv`.
+- CI checkouts and host checkouts no Dev Container mounts, which keep uv's
+  default in-tree `.venv`.
 
 ## Key references
 

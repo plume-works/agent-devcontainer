@@ -33,8 +33,22 @@ def git(*args: str) -> int:
     return subprocess.run(['git', *args], stdout=2, check=False).returncode
 
 
+def worktrees(repository: str) -> set[Path]:
+    listed = subprocess.run(
+        ['git', '-C', repository, 'worktree', 'list', '--porcelain'],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return {
+        Path(line.removeprefix('worktree '))
+        for line in listed.stdout.splitlines()
+        if line.startswith('worktree ')
+    }
+
+
 def create(text: str) -> int:
-    """Create ``.claude/worktrees/<name>`` on ``worktree-<name>``, link its ``.venv``, print it."""
+    """Make or reuse ``.claude/worktrees/<name>`` on ``worktree-<name>``, link its ``.venv``."""
     try:
         request = json.loads(text)
         cwd, name = str(request['cwd']), str(request['name'])
@@ -54,13 +68,24 @@ def create(text: str) -> int:
         return fail(f'worktree name {name!r} has no usable characters')
     path = Path(repository, '.claude', 'worktrees', safe)
     branch = f'worktree-{safe}'
-    if git('-C', repository, 'worktree', 'add', '-b', branch, str(path), 'HEAD') != 0:
-        return fail(f'git worktree add {path} failed')
+    reused = path in worktrees(repository)
+    new_branch = (
+        not reused
+        and git('-C', repository, 'rev-parse', '--verify', '-q', f'refs/heads/{branch}') != 0
+    )
+    if not reused:
+        add = ['-b', branch, str(path), 'HEAD'] if new_branch else [str(path), branch]
+        if git('-C', repository, 'worktree', 'add', *add) != 0:
+            if new_branch:
+                git('-C', repository, 'branch', '-D', branch)
+            return fail(f'git worktree add {path} failed')
     try:
         project.link_venv(env.Settings(), path)
     except OSError as error:
-        git('-C', repository, 'worktree', 'remove', '--force', str(path))
-        git('-C', repository, 'branch', '-D', branch)
+        if not reused:
+            git('-C', repository, 'worktree', 'remove', '--force', str(path))
+        if new_branch:
+            git('-C', repository, 'branch', '-D', branch)
         return fail(f'linking the uv environment of {path} failed: {error}')
     print(path)
     return 0

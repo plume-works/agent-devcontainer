@@ -65,13 +65,63 @@ def test_a_name_is_reduced_to_safe_characters(repository: Path) -> None:
     assert 'worktree-my-task---1' in branches(repository)
 
 
+def test_creating_a_name_again_reuses_its_worktree(repository: Path) -> None:
+    first = run(repository, 'again')
+    marker = repository / '.claude' / 'worktrees' / 'again' / 'work.txt'
+    marker.write_text('in progress')
+    second = run(repository, 'again')
+    assert second.returncode == 0, second.stderr
+    assert second.stdout == first.stdout
+    assert marker.read_text() == 'in progress'
+
+
+def test_creating_a_name_again_after_remove_checks_out_its_branch(repository: Path) -> None:
+    path = repository / '.claude' / 'worktrees' / 'revived'
+    run(repository, 'revived')
+    subprocess.run(['git', *GIT_ID, '-C', str(path), 'commit', '-q', '--allow-empty', '-m', 'w'])
+    tip = subprocess.run(
+        ['git', '-C', str(path), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True
+    ).stdout
+    removed = subprocess.run(
+        [sys.executable, '-m', 'agentdev_runtime', 'worktree', 'remove'],
+        input=json.dumps({'worktree_path': str(path)}),
+        text=True,
+        check=False,
+    )
+    assert removed.returncode == 0
+    result = run(repository, 'revived')
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == f'{path}\n'
+    head = subprocess.run(
+        ['git', '-C', str(path), 'rev-parse', 'HEAD'], capture_output=True, text=True, check=True
+    ).stdout
+    assert head == tip
+    assert (path / '.venv').is_symlink()
+
+
 def test_a_failing_worktree_add_fails_the_hook(repository: Path) -> None:
-    subprocess.run(['git', '-C', str(repository), 'branch', 'worktree-taken'], check=True)
+    blocked = repository / '.claude' / 'worktrees' / 'taken'
+    blocked.mkdir(parents=True)
+    (blocked / 'stray.txt').write_text('not a worktree')
     result = run(repository, 'taken')
     assert result.returncode != 0
     assert result.stdout == ''
     assert 'git worktree add' in result.stderr
-    assert not (repository / '.claude' / 'worktrees' / 'taken').exists()
+    assert 'worktree-taken' not in branches(repository)
+
+
+def test_a_failing_link_keeps_a_branch_that_existed_before(
+    repository: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    subprocess.run(['git', '-C', str(repository), 'branch', 'worktree-kept'], check=True)
+
+    def broken(settings, path):
+        raise PermissionError('read-only volume')
+
+    monkeypatch.setattr(project, 'link_venv', broken)
+    assert worktree.create(json.dumps({'cwd': str(repository), 'name': 'kept'})) == 1
+    assert not (repository / '.claude' / 'worktrees' / 'kept').exists()
+    assert 'worktree-kept' in branches(repository)
 
 
 def test_a_failing_link_removes_the_worktree_and_its_branch(
