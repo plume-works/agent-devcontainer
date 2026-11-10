@@ -156,3 +156,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [What Verify and pr-review each catch](architecture/verify-versus-pr-review.md)
 
 [Worktree hooks](architecture/worktree-hooks.md)
+
+[Worktree support](architecture/worktree-support.md)

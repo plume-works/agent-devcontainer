@@ -112,7 +112,7 @@ records that Codex is unsupported, and the closed bug's `## Fix` links it.
 Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/bugs/shared-uv-environment-across-worktrees.md`
 
-- [ ] `architecture/worktree-support` records, modelled on
+- [x] `architecture/worktree-support` records, modelled on
   `architecture/supported-harnesses`, the maintainer's decision: worktrees still
   work (`git-new-branch --worktree`, `AGENTDEV_CLAUDE_RC_SPAWN=worktree`), but
   the Dev Container gives them nothing of their own — they share the checkout's
@@ -121,10 +121,18 @@ Modify: `docs/knowledge/data/architecture.md`,
   `architecture/worktree-hooks`), and its rejected alternatives are the
   cancelled per-checkout uv environment and per-worktree catalog plans, linked
   inline. It is linked from `data/architecture.md` at its sorted position.
-- [ ] The `## Fix` of `bugs/shared-uv-environment-across-worktrees` says the bug
+  - **Evidence:**
+    `docs/knowledge/data/architecture/worktree-support.md#decision`,
+    `#what-the-decision-leaves-in-place`, `#rejected-alternatives`;
+    `docs/knowledge/data/architecture.md` › "[Worktree
+    support](architecture/worktree-support.md)"
+- [x] The `## Fix` of `bugs/shared-uv-environment-across-worktrees` says the bug
   is won't fix because worktrees share the checkout's uv environment by
   decision, and links `architecture/worktree-support`; it no longer calls
   several worktrees unsupported.
+  - **Evidence:**
+    `docs/knowledge/data/bugs/shared-uv-environment-across-worktrees.md#fix` ›
+    "Won't fix: by the maintainer's decision"
 
 ## Spec changes
 

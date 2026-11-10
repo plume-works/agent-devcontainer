@@ -43,9 +43,9 @@ directory on the `/uv` volume keeps it hardlinked to the cache there.
 
 ## Fix
 
-Won't fix: running several worktrees of one checkout inside a single
-devcontainer is not a supported use case, so a shared uv environment is the
-intended behaviour.
+Won't fix: by the maintainer's decision, worktrees in one Dev Container share
+the checkout's uv environment ([Worktree
+support](../architecture/worktree-support.md)).
 
 ## Key references
 
