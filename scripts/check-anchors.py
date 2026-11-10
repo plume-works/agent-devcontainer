@@ -24,8 +24,10 @@ SCAN_GLOBS = (
     'docs/knowledge/data/**/*.md',
     '.agents/plugins/agentdev/skills/**/*.md',
     '.agents/plugins/agentdev/agents/**/*.md',
+    'openspec/**/*.md',
 )
 DATA = Path('docs/knowledge/data')
+SPECS = Path('openspec/specs')
 OPEN_STAGES = frozenset({'pending', 'planned'})
 
 LINE_NUMBER_FORMS = (
@@ -254,7 +256,7 @@ def resolver_spans(path: Path, text: str) -> list[tuple[int, int]]:
         return [(m.start('body'), m.end('body')) for m in KEY_REFERENCES.finditer(text)]
     if f'/{DATA.as_posix()}/bugs/' in relative or f'/{DATA.as_posix()}/backlog/' in relative:
         return [(0, len(text))] if stage in OPEN_STAGES else []
-    if f'/{DATA.as_posix()}/architecture/' in relative:
+    if f'/{SPECS.as_posix()}/' in relative and path.name == 'spec.md':
         return [(0, len(text))]
     return []
 

@@ -18,7 +18,7 @@ substitution and a set of careful verifications produced identical bytes.
 
 Every ticked `- [x]` task under a plan's task section SHALL carry an indented
 `- **Evidence:**` child naming what closed it, specifically enough that a later
-session can repeat the check: for code, a test id (`path::name`) or a command,
+session can repeat the check: for code, a test id (`<path>::<name>`) or a command,
 which Verify re-runs against the current tree; for docs or config with no test,
 the file and anchor that changed; for external work, the CI run or the PR that
 closes it, which stands alone. A commit id on its own SHALL NOT count as

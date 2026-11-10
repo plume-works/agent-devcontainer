@@ -20,7 +20,7 @@ code comments, or PR bodies; those rest on the catalog's instructions.
 
 #### Scenario: A reference uses an anchor
 
-- **WHEN** a document cites `scripts/x.py::main` or `README.md#usage`
+- **WHEN** a document cites `<path>.py::main` or `<file>.md#usage`
 - **THEN** the gate passes it
 
 #### Scenario: A spec cites a line
@@ -50,7 +50,7 @@ findings, and in OpenSpec changes are not resolved.
 
 #### Scenario: A plan names code it will create
 
-- **WHEN** an active plan's task names `scripts/new.py::main`, which does not
+- **WHEN** an active plan's task names `<new-file>.py::main`, which does not
   exist yet
 - **THEN** the resolver does not check it, because it is outside
   `## Key references`

@@ -161,7 +161,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
 ## 7. Anchor gate
 
-- [ ] 7.1 Extend `scripts/check-anchors.py`: `SCAN_GLOBS` gains `openspec/**/*.md`,
+- [x] 7.1 Extend `scripts/check-anchors.py`: `SCAN_GLOBS` gains `openspec/**/*.md`,
       and `resolver_spans` resolves every anchor in `openspec/specs/**/spec.md` and
       none in `data/findings/` or `openspec/changes/`. Its docstring cites
       `openspec/specs/line-free-anchors`. Add tests to

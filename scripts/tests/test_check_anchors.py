@@ -112,10 +112,12 @@ def test_anchors_pass(write: Write, run: Run, reference: str) -> None:
         '.agents/plugins/agentdev/skills/demo/SKILL.md',
         '.agents/plugins/agentdev/skills/demo/references/page.md',
         '.agents/plugins/agentdev/agents/demo.agent.md',
+        'openspec/specs/thing/spec.md',
+        'openspec/changes/add-thing/design.md',
     ],
 )
 def test_catalog_files_are_scanned(write: Write, run: Run, relative: str) -> None:
-    """Catalog skills and agents are in the scan scope."""
+    """Catalog skills and agents, OpenSpec specs, and OpenSpec changes are in the scan scope."""
     write(relative, 'cite `x.py:7`\n')
     assert run().returncode == 1
 
@@ -250,13 +252,15 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
         (ACTIVE_PLAN, plan('- `src/gone.py::main`', stage='stage: cancelled\n')),
         (ACTIVE_PLAN, plan('- `src/tool.py::main`', steps='- [ ] Create `src/new.py::main`')),
         ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py::b`\n'),
-        ('docs/knowledge/data/spec/thing.md', '---\ntype: spec\n---\n`a.py::b`\n'),
+        ('docs/knowledge/data/findings/measured.md', '---\ntype: finding\n---\n`a.py::b`\n'),
+        ('openspec/changes/add-thing/specs/thing/spec.md', '## ADDED Requirements\n`a.py::b`\n'),
+        ('openspec/changes/add-thing/design.md', '# Design\n\n`a.py::b`\n'),
     ],
 )
 def test_out_of_scope_anchors_are_not_resolved(
     write: Write, run: Run, relative: str, text: str
 ) -> None:
-    """Closed plans, a plan's tasks and other sections, done bugs, and specs are not resolved."""
+    """Closed plans, a plan's tasks, done bugs, findings, and OpenSpec changes are not resolved."""
     write(relative, text)
     assert run().returncode == 0, run().stdout
 
@@ -267,13 +271,15 @@ def test_out_of_scope_anchors_are_not_resolved(
     [
         'docs/knowledge/data/bugs/open.md',
         'docs/knowledge/data/backlog/item.md',
-        'docs/knowledge/data/architecture/design.md',
+        'openspec/specs/thing/spec.md',
     ],
 )
 def test_live_documents_resolve_everywhere(write: Write, run: Run, relative: str) -> None:
-    """Open bugs and backlog items and architecture documents resolve their whole body."""
-    stage = '' if 'architecture' in relative else 'stage: pending\n'
-    text = f'---\ntype: x\n{stage}---\n\nSee `src/tool.py::gone`.\n'
+    """Open bugs and backlog items and OpenSpec specs resolve their whole body."""
+    if relative.startswith('openspec/'):
+        text = '# Thing Specification\n\n## Purpose\n\nSee `src/tool.py::gone`.\n'
+    else:
+        text = '---\ntype: x\nstage: pending\n---\n\nSee `src/tool.py::gone`.\n'
     write(relative, text)
     result = run()
     assert result.returncode == 1

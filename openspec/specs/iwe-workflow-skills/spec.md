@@ -33,7 +33,7 @@ and SHALL record each answer verbatim as it is given.
 
 #### Scenario: Exploration starts from a GitHub issue
 
-- **WHEN** the user invokes Explore with an issue URL, an `OWNER/REPO#N`
+- **WHEN** the user invokes Explore with an issue URL, an `<owner>/<repo>#<n>`
   reference, or an issue number
 - **THEN** Explore reads the issue and all of its comments into `./.tmp/` before
   investigating, verifies the issue's claims against the code and the graph
