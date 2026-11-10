@@ -337,7 +337,8 @@ one dated group per release; nothing else writes here.
   and `iwe-revision-evaluator` agents, the thin `iwe-plan` skill, and the
   Implement loop.
 - **Create**: [Autonomous Implement
-  loop](architecture/autonomous-implement-loop.md) architecture doc.
+  loop](../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)
+  architecture doc.
 - **Map**: refreshed the agentdev catalog and its skills for the `iwe-verifier`
   agent and the dispatching `iwe-verify` skill.
 - **Update**: [Configurable Remote Control spawn mode, worktree by
@@ -646,9 +647,9 @@ one dated group per release; nothing else writes here.
 
 - **Update**: agentdev skills maps the template-consume Optional Expo profile;
   the agentdev catalog map doc re-verified.
-- **Update**: [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
-  recorded; `.mcp.json` drops the IWE MCP server and the image stops installing
-  `iwec`.
+- **Update**: [IWE through the CLI, not
+  MCP](../../../openspec/specs/iwe-workflow-skills/spec.md#rationale) recorded;
+  `.mcp.json` drops the IWE MCP server and the image stops installing `iwec`.
 
 ## 2026-10-14
 

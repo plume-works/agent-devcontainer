@@ -252,7 +252,8 @@ shape they read, and the exemption needs its own rule).
 
 ### Task 7: Architecture prose
 
-**Files:** Modify: `openspec/specs/ai-review-gate/spec.md`
+**Files:** Modify:
+`docs/knowledge/data/architecture/pr-review-scenario-validation.md`
 
 - [x] The three-part scenario's **Path** is an anchor chain, not a `file:line`
   chain.
@@ -288,7 +289,7 @@ shape they read, and the exemption needs its own rule).
 `data/backlog/exercise-removed-delta-blocks`,
 `data/backlog/fail-review-run-without-review`; and
 `data/architecture/agent-metadata-files`,
-`openspec/specs/ai-review-gate/spec.md#rationale`,
+`data/architecture/assignee-review-trigger`,
 `data/architecture/pr-verification-sections`
 
 - [x] Every line-number reference in these documents becomes an anchor that

@@ -335,8 +335,7 @@ Assumptions:
   trigger, the body markers, and requested tiers, and links the new note.
   - **Evidence:** commit 3dd70bd5; `## Behaviour` describes `request-ai-review`
     and "Pull requests can block every review, not the gate.", and links
-    `openspec/specs/ai-review-gate/spec.md#rationale`; `iwe schema validate`
-    passes.
+    `architecture/label-review-triggers`; `iwe schema validate` passes.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
   - **Evidence:** commit ba52ceed;
@@ -345,8 +344,8 @@ Assumptions:
 
 ### Task 7: Architecture note records the label triggers
 
-**Files:** Create: `openspec/specs/ai-review-gate/spec.md`; Modify:
-`docs/knowledge/data/architecture.md`
+**Files:** Create: `docs/knowledge/data/architecture/label-review-triggers.md`;
+Modify: `docs/knowledge/data/architecture.md`
 
 - [x] The note records the decisions under `## Context`, the routing under
   `## Approach`, its known limits, and every rejected alternative, and states
@@ -355,10 +354,9 @@ Assumptions:
   [PR review effort
   tiers](../../../../openspec/specs/ai-review-gate/spec.md#rationale), which are
   left unedited.
-  - **Evidence:** commit 38389c9b;
-    `openspec/specs/ai-review-gate/spec.md#rationale` carries the decisions
-    under `## Context`, the routing under `## Approach`, `## Known limits`, all
-    five rejected alternatives, and the line superseding
+  - **Evidence:** commit 38389c9b; `architecture/label-review-triggers` carries
+    the decisions under `## Context`, the routing under `## Approach`,
+    `## Known limits`, all five rejected alternatives, and the line superseding
     `assignee-review-trigger` and `pr-review-effort-tiers`, which the commit
     leaves unchanged; `iwe schema validate` passes.
 - [x] The note says a run in `pr-<n>` takes a `request-ai-review` left by a
@@ -366,14 +364,13 @@ Assumptions:
   that `block-ai-reviews` holds every review and its removal runs a waiting
   request, and that `request-review.py` re-sends a stale label, and lists the
   remaining cases among its known limits.
-  - **Evidence:** commit e90b55ff;
-    `openspec/specs/ai-review-gate/spec.md#rationale` records the block, the
-    unblock run, removal after the review, the pickup, and the stale-label
-    re-send, and its known limits and rejected alternatives match the plan;
-    `iwe schema validate` passes.
+  - **Evidence:** commit e90b55ff; `architecture/label-review-triggers` records
+    the block, the unblock run, removal after the review, the pickup, and the
+    stale-label re-send, and its known limits and rejected alternatives match
+    the plan; `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 38389c9b; `data/architecture.md` inclusion-links
-    `openspec/specs/ai-review-gate/spec.md#rationale` in key order, before
+    `architecture/label-review-triggers` in key order, before
     `manual-stacked-prs`; `iwe schema validate` passes.
 
 ### Task 8: The repository has both labels

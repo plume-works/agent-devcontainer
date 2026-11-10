@@ -1035,3 +1035,197 @@ that sets any of them.
 - **WHEN** `data/index.md` or `data/log.md` departs from the shape its OKF
   schema defines
 - **THEN** `iwe schema validate` fails and names the file
+
+### Requirement: Agents reach the graph through the iwe CLI
+
+Every IWE skill and agent SHALL read and write the knowledge graph with the
+`iwe` CLI run from the repository root. The repository SHALL register no IWE MCP
+server, and the `dev_tools` role SHALL install `iwe` and `iwes` from the IWE
+release tarball and SHALL NOT install `iwec`.
+
+#### Scenario: A skill needs a graph operation
+
+- **WHEN** a catalog skill queries or changes the graph
+- **THEN** it runs an `iwe` command and assumes no `mcp__iwe__*` tool exists
+
+#### Scenario: The image is provisioned
+
+- **WHEN** the `dev_tools` role installs IWE
+- **THEN** `iwe` and `iwes` are on `PATH` and `iwec` is not
+
+### Requirement: Every graph write has one owner
+
+A work item's `stage`, `priority`, `completed`, and `rank` SHALL live only in its
+own frontmatter. Active plans, open bugs, and pending tasks SHALL share one
+optional integer `rank`, lower first, and the build order SHALL be the query
+`iwe find --filter '{rank: {$exists: true}}' --sort rank:1`. Ship SHALL remove
+`rank`. Equal ranks SHALL be valid, break by key, and draw a CI warning that
+does not fail the run. A hub SHALL be a flat list of inclusion links sorted by
+member key without a `YYYYMMDD-` prefix, with no `##` sections, edited only when
+a member is created, removed, or renamed. Release pages and `data/log.md` SHALL
+be written only by a release cut.
+
+#### Scenario: A plan ships
+
+- **WHEN** Ship marks a plan done
+- **THEN** the plan's own frontmatter changes, its `rank` is removed, and no hub,
+  release page, or log entry is written
+
+#### Scenario: Two work items share a rank
+
+- **WHEN** the knowledge-base workflow runs on a graph where two items carry the
+  same `rank`
+- **THEN** it emits a warning naming both keys and the run does not fail
+
+#### Scenario: A release is cut
+
+- **WHEN** Ship runs `release <X.Y.Z>`
+- **THEN** it builds `releases/<X.Y.Z>.md` from the done plans without
+  `released`, sets `released` on each, and adds one dated group to
+  `data/log.md`
+
+## Rationale
+
+### Ship and Implement are catalog agents behind an explicit request
+
+The Ship and Implement rulebooks are the catalog agents `iwe-shipper` and
+`iwe-implementer`; the skills that start them carry no rules of their own. A
+stray Ship run reaches the remote, so `iwe-ship` keeps the
+`disable-model-invocation` gate, which covers Claude Code directly and OpenCode
+through the bridge's `deny`. `iwe-implement` stays model-invocable because it
+needs a named active plan whose dependencies are done, so a stray match has
+nothing to build. Ship always runs as a dispatched subagent, so its verification
+rests on the code and the graph, never on what a conversation asserted.
+Implement runs in the session that loaded it, so it can ask about an ambiguous
+plan or a material deviation; an approval another session's message claims the
+user gave is not one, because nothing authenticates the sender.
+
+The gate rests on host behavior verified on Claude Code 2.1.280 and OpenCode
+1.18.34, to recheck on a version bump: the Skill tool refuses a gated skill from
+a subagent too; an agent's `skills:` preload withholds a gated skill; reading the
+skill file is not gated, only discouraged by the refusal text; a `PreToolUse`
+hook sees the tool call but not the skill or request behind it; and OpenCode's
+`permission.skill.<name> = "deny"` hides a gated skill from the model while its
+`agentdev:<name>` command still runs.
+
+Rejected:
+
+- **Drop Ship's gate and rely on descriptions.** An ungated skill is listed to
+  the model on every harness, so a description match could start Ship from
+  Explore.
+- **Preload the gated skill into the agent.** Claude Code withholds it, so the
+  agent starts without its rulebook.
+- **Keep the rulebook in the gated skill and have the subagent read its file.**
+  It is the route the refusal text forbids; a model may rightly refuse it, and
+  one that complies has bypassed the gate.
+- **A self-checking skill or a harness hook.** A self-check is prompt-level, and
+  a hook cannot tell a requested dispatch from Explore's without parsing the
+  transcript.
+- **Coordinator skills that implement or ship every plan in turn.** A relayed
+  approval is a claim nothing authenticates; the maintainer removed them.
+
+### Every Verify run starts from a fresh context
+
+Verify's rulebook is the catalog agent `iwe-verifier`, so its verdict rests on
+the code and the graph. `/agentdev:iwe-verify` routes a session's request to a
+dispatched `iwe-verifier` and has `iwe-shipper`, already a fresh context, follow
+the rulebook in place so it stays a leaf. The saved report is keyed by commit
+and by a digest of the catalog files on disk, because an installed plugin is not
+a Git checkout and a session can load a catalog that differs from the one the
+commit holds; Verify refuses a dirty worktree so the commit fully names what was
+judged. `/agentdev:iwe-verify` stays model-invocable because it mutates nothing
+and the Implement loop invokes it.
+
+Rejected:
+
+- **Give `iwe-shipper` the Agent tool and nest the dispatch.** OpenCode refuses
+  nested dispatch at its default depth.
+- **Keep the rulebook in the skill behind a thin agent.** A session loading the
+  skill would already hold the rules it should dispatch.
+- **Look up the saved report in the `iwe-verifier` rulebook.** A hit would still
+  cost a dispatch.
+- **A handoff file committed for the Shipper.** Committing it changes the commit
+  it fingerprints.
+- **Key the report by tree or blob hashes of the plan's files.** Verify and Ship
+  run on one commit, and file-scoped hashes miss changes a verification command
+  can still depend on.
+
+### The Implement session runs the loop, and every agent is a leaf
+
+`iwe-implementer`, `iwe-verifier`, and `iwe-revision-evaluator` never dispatch,
+so the loop runs on Claude Code and OpenCode without OpenCode's experimental
+depth setting. The loop is written once, in the `iwe-implementer` rulebook. The
+Plan rulebook is the `iwe-planner` agent, which the Implement session follows in
+revise mode only, because `/agentdev:iwe-plan` is explicit-only. A revision is
+evaluated after the Durable Knowledge Auditor, because the audit may rewrite the
+text. The loop acts only on what the plan promised, which is what lets it
+converge; post-merge behavior is a `**Closed by:**` task that Ship, not Verify,
+refuses on, so Verify's saved report is the same for both callers.
+
+Rejected:
+
+- **Let `iwe-verifier` judge the revision.** Whether a new plan still serves the
+  old one's outcome is a different question with its own rubric.
+- **Reuse `Principal Engineer` as the evaluator.** It is advisory and can
+  dispatch; the gate needs a leaf with a fixed verdict.
+- **Evaluate before the audit.** The evaluator would approve bytes that never
+  land.
+- **Delta-scoped Verify rounds.** They treat the symptom; bounding the run and
+  leaving CI to `pr-merge` remove the causes.
+- **Run the loop inside a dispatched `iwe-implementer`.** It would need nested
+  dispatch, and `iwe-implementer` is never dispatched.
+
+### Adversarial review is its own agent, outside Verify
+
+The maintainer decided that looking for ways to defeat a design asks a different
+question from conformance, with findings that have no fixed end, so it lives in
+`iwe-adversarial-reviewer`, outside Verify. The skill is model-invocable so the
+Implement loop can run a planned review task.
+
+Rejected:
+
+- **Extend the Durable Knowledge Auditor.** It would hold two unrelated rubrics.
+- **Run it inside every Verify round.** Findings outside the plan's contract
+  would keep the loop from converging.
+- **Make the skill explicit-only.** The Implement loop could not run a planned
+  review task.
+
+### IWE through the CLI, not MCP
+
+The project owner decided that agents use the `iwe` CLI only. Every catalog
+skill already drove the graph through it, and a registered server adds generic
+prompts (`explore`, `review`, `refactor`) to every client's slash-command menu
+that ignore this repository's schemas and collide with the catalog's own IWE
+skills. `iwes`, the LSP server behind the editor extension, is unaffected.
+
+Rejected:
+
+- **Keep the server behind a filter that strips its prompts.** It keeps tools
+  nobody calls, and the filter is a wrapper to maintain.
+- **Disable it per user with `disabledMcpjsonServers`.** Every workspace and
+  consumer would opt out separately, and the default would stay wrong.
+- **Keep installing `iwec`.** Nothing registers it.
+
+### The layout gives every write one owner
+
+Parallel pull requests each write project state into the graph, and a conflict
+costs a catch-up merge, a full CI run, and often a fresh AI review. GitHub
+decides mergeability without `.gitattributes` merge drivers, and Git merges two
+insertions cleanly only when an unchanged line separates them, so conflict
+reduction has to come from the layout. `data/index.md` lists hubs and changes
+only when a hub is added, so the graph stays an OKF bundle; it diverges only on
+`status`, which duplicated `stage`.
+
+Rejected:
+
+- **`merge=union` on the log and hubs, or a custom merge driver.** GitHub ignores
+  both, and union merges resurrect moved or deleted links.
+- **A merge queue.** `main` does not require up-to-date branches, so no
+  catch-up merge is caused by staleness.
+- **Stage sections in hubs, sorted alphabetically.** Short sections keep
+  conflicting, and every ship moves a link between sections.
+- **A separate roadmap file.** Parallel ships edit adjacent lines at its head.
+- **Dependencies (`after: [keys]`) as the order.** A partial order leaves
+  independent work unordered.
+- **Hubs generated from frontmatter.** It drops the browsable list and the
+  editor tree, and adds a generator to maintain.

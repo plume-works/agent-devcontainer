@@ -202,25 +202,24 @@ Assumptions:
 
 ### Task 5: Architecture note records the App identity
 
-**Files:** Create: `openspec/specs/ai-review-gate/spec.md`; Modify:
-`docs/knowledge/data/architecture.md`
+**Files:** Create: `docs/knowledge/data/architecture/responder-app-identity.md`;
+Modify: `docs/knowledge/data/architecture.md`
 
 - [x] The note records the decisions under `## Context`, the token flow and
   permissions under `## Approach`, the residual lifecycle-script exposure, and
   every rejected alternative, and states that it supersedes [Actions approval
   permission](../../../../openspec/specs/ai-review-gate/spec.md#rationale),
   which is left unedited.
-  - **Evidence:** commit fe8fa496;
-    `openspec/specs/ai-review-gate/spec.md#rationale` carries the decisions
-    under `## Context` including the 2026-11-07 contents write decision, the
-    token flow and installation permissions under `## Approach`,
+  - **Evidence:** commit fe8fa496; `architecture/responder-app-identity` carries
+    the decisions under `## Context` including the 2026-11-07 contents write
+    decision, the token flow and installation permissions under `## Approach`,
     `## Residual exposure`, all four rejected alternatives, and the line
-    superseding `openspec/specs/ai-review-gate/spec.md#rationale`, which stays
+    superseding `architecture/actions-approval-permission`, which stays
     unchanged; `iwe schema validate` passes.
 - [x] The note is linked from `data/architecture.md`.
   - **Evidence:** commit 5b18c551; `data/architecture.md` inclusion-links
-    `openspec/specs/ai-review-gate/spec.md#rationale` in key order;
-    `iwe schema validate` passes.
+    `architecture/responder-app-identity` in key order; `iwe schema validate`
+    passes.
 
 ### Task 6: Consumer setup describes the App
 
@@ -262,7 +261,7 @@ Assumptions:
 `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py`,
 `.agents/plugins/agentdev/tests/test_request_review.py`,
 `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md`,
-`openspec/specs/ai-review-gate/spec.md`
+`docs/knowledge/data/architecture/responder-app-identity.md`
 
 - [x] `request-review.py` counts a review as the AI's only when its author is
   `plume-works-quill[bot]`, and a test shows a `plume-works-quill[bot]` review
@@ -280,10 +279,9 @@ Assumptions:
     reports 0 errors.
 - [x] The architecture note names `plume-works-quill[bot]` as the gate's only
   login and no `AI_REVIEWER_LOGIN`.
-  - **Evidence:** commit f2c23937;
-    `openspec/specs/ai-review-gate/spec.md#rationale` records the 2026-11-07
-    decision and names the literal login, with no `AI_REVIEWER_LOGIN`;
-    `iwe schema validate` passes.
+  - **Evidence:** commit f2c23937; `architecture/responder-app-identity` records
+    the 2026-11-07 decision and names the literal login, with no
+    `AI_REVIEWER_LOGIN`; `iwe schema validate` passes.
 
 ### Task 7: The App and environment exist
 

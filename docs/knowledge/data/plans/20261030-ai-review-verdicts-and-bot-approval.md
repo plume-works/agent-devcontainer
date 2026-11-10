@@ -205,7 +205,8 @@ Assumptions:
 
 ### Task 3: Architecture note records the new event rule
 
-**Files:** Modify: `openspec/specs/ai-review-gate/spec.md`
+**Files:** Modify:
+`docs/knowledge/data/architecture/ai-review-event-selection.md`
 
 - [x] `## Decision` states the severity-only rule from `## Approach`; the
   `COMMENT`-preference rationale is replaced by the one-approval ruleset and the
@@ -240,7 +241,7 @@ Assumptions:
 ### Task 5: Trusted-bot approval requires the bot's own commits
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`openspec/specs/ai-review-gate/spec.md`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
@@ -276,7 +277,7 @@ Assumptions:
 ### Task 6: Trusted-bot approval requires the bot's own pushes
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`openspec/specs/ai-review-gate/spec.md`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
@@ -310,8 +311,8 @@ Assumptions:
 ### Task 7: Push history covers the branch's current life, and the trust limit is recorded
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`openspec/specs/ai-review-gate/spec.md`,
-`openspec/specs/ai-review-gate/spec.md`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/architecture/actions-approval-permission.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
 - [x] `trusted-bot-approval` reads the head branch's activity newest first and
@@ -519,11 +520,12 @@ branch's workflow and attach checks to that head.
   — `createReview` approval
 - `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
   — trusted-bot waiver
-- `openspec/specs/ai-review-gate/spec.md#decision` — `## Decision`
-- `openspec/specs/ai-review-gate/spec.md#trusted-bot-approval-covers-only-the-bots-commits-and-pushes`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#decision` —
+  `## Decision`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#trusted-bot-approval-covers-only-the-bots-commits-and-pushes`
   — `## Trusted-bot approval covers only the bot's commits and pushes`
-- `openspec/specs/ai-review-gate/spec.md#alternatives-rejected` —
-  `## Alternatives rejected`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#alternatives-rejected`
+  — `## Alternatives rejected`
 - `docs/knowledge/data/spec/template-consumption.md#requirement-the-ai-review-gates-trust-is-explicit`
   — "the AI review gate's trust is explicit"
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate › "Keep the two bot gates as they are: the responder does not"`

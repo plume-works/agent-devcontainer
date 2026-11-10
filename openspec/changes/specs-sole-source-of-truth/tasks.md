@@ -55,7 +55,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       pull-request-only-responder, and responder-app-identity. Fold
       assignee-review-trigger in as an alternative that label-review-triggers
       rejected.
-- [ ] 3.2 Fold into `iwe-workflow-skills`: adversarial-review,
+- [x] 3.2 Fold into `iwe-workflow-skills`: adversarial-review,
       autonomous-implement-loop, explicit-only-workflow-agents,
       fresh-context-verify, iwe-cli-over-mcp, and kb-conflict-free-layout.
 - [ ] 3.3 Fold into `agentdev-runtime-images`: agentdev-runtime-package,

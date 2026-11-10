@@ -284,7 +284,8 @@ part.
 
 ### Task 9: Record the decision
 
-**Files:** Create: `openspec/specs/ai-review-gate/spec.md` Modify:
+**Files:** Create:
+`docs/knowledge/data/architecture/pr-review-scenario-validation.md` Modify:
 `docs/knowledge/data/architecture.md`
 
 - [x] File the outcome against `## Verification` as a decision linking [PR
@@ -467,7 +468,7 @@ None is noise, so the full-replay criteria in `## Verification` hold.
   — stated intent is evidence, not a verdict
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Supplying reasons a candidate might not hold, or casting the"`
   — "Never argue the verdict in the prompt"
-- `openspec/specs/ai-review-gate/spec.md#validation-runs-light-at-every-effort-level`
+- `docs/knowledge/data/architecture/pr-review-effort-tiers.md#validation-runs-light-at-every-effort-level`
   — "Validation runs light at every effort level"
 - `7e0413d:.github/workflows/renovate.yml#jobs.renovate` — comment presenting
   the concurrency split as deliberate (K1)

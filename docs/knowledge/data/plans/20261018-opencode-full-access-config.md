@@ -7,7 +7,7 @@ description: Configure OpenCode for unrestricted filesystem access inside the de
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
-- resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 - resource: https://opencode.ai/docs/config/
 stage: done
 completed: 2026-10-18

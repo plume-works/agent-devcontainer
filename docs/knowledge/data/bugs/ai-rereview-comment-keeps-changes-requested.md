@@ -61,5 +61,5 @@ pull request, so a clean re-review always replaces an earlier change request.
   — Step 9 event selection
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Otherwise (every blocking finding is attached inline, or"`
   — the `COMMENT` branch
-- `openspec/specs/ai-review-gate/spec.md#why-prefer-comment-over-request_changes-for-anchored-findings`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#why-prefer-comment-over-request_changes-for-anchored-findings`
   — "Why prefer COMMENT over REQUEST_CHANGES for anchored findings"

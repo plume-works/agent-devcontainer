@@ -62,11 +62,11 @@ it, and the coordinator takes the revision route.
 **Revision rules come from a new `iwe-planner` agent file.**
 `/agentdev:iwe-plan` is explicit-only, and reading a gated skill's file to get
 around the gate is rejected in [Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md). So the Plan rulebook
-moves into `iwe-planner`, which `/agentdev:iwe-plan` follows in place — the
-Implement pattern. The orchestrator follows its revise mode, never its create
-mode, so `close-issue.sh` stays bundled with the skill, which is the only route
-into create mode.
+agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale). So
+the Plan rulebook moves into `iwe-planner`, which `/agentdev:iwe-plan` follows
+in place — the Implement pattern. The orchestrator follows its revise mode,
+never its create mode, so `close-issue.sh` stays bundled with the skill, which
+is the only route into create mode.
 
 **The order is draft, audit, evaluate, commit.** The orchestrator drafts the
 revision under the `iwe-planner` revise rules, including the Durable Knowledge

@@ -77,5 +77,5 @@ request](../plans/20261103-rereview-after-changes-requested.md).
   — Requirement: every push to a reviewed pull request is evaluated;
   `docs/knowledge/data/spec/ai-review-refresh.md#scenario-pr-sync-pushes-undirected-behavior › "asked for and"`
   — Scenario: an update only applies requested feedback
-- `openspec/specs/ai-review-gate/spec.md#why-the-verdict-follows-severity › "blocks merge until the same reviewer approves or"`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md#why-the-verdict-follows-severity › "blocks merge until the same reviewer approves or"`
   — a pending `CHANGES_REQUESTED` blocks merge until the same reviewer approves

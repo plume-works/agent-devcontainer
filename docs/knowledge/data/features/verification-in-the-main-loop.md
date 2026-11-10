@@ -33,7 +33,8 @@ catalog agent. `/agentdev:iwe-verify` dispatches it with a prompt carrying only
 the plan key or audit mode and the user's quoted approvals, and re-posts its
 report. Inside `iwe-shipper`, itself a fresh context, the Shipper follows the
 same rulebook in place and still consumes the report in its own context. See
-[Fresh-context Verify](../architecture/fresh-context-verify.md).
+[Fresh-context
+Verify](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale).
 
 This keeps the loop at four steps, makes verification non-optional, and makes
 the refusal mechanical rather than advisory.

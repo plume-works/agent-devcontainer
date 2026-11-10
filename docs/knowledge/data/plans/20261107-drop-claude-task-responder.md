@@ -145,7 +145,8 @@ Rejected alternatives, recorded in the architecture note:
 
 ### Task 4: Knowledge records the pull-request-only responder
 
-**Files:** Create: `openspec/specs/ai-review-gate/spec.md`; Modify:
+**Files:** Create:
+`docs/knowledge/data/architecture/pull-request-only-responder.md`; Modify:
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 

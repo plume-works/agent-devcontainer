@@ -23,10 +23,10 @@ released: 2.0.0
 backlog task this plan replaces. Ship already rests on the code and the graph
 alone: `/agentdev:iwe-ship` dispatches `iwe-shipper` with only the plan key, the
 operation, and quoted approvals ([Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md)). Verify does not.
-`/agentdev:iwe-verify` runs inline in whatever context loads it, so a Verify run
-in the session that wrote the code judges that code with the conversation's
-claims in view.
+agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)).
+Verify does not. `/agentdev:iwe-verify` runs inline in whatever context loads
+it, so a Verify run in the session that wrote the code judges that code with the
+conversation's claims in view.
 
 The change gives [Verification in the main
 loop](../features/verification-in-the-main-loop.md) new behavior: every Verify

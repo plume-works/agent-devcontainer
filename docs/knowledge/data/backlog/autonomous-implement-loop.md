@@ -45,10 +45,10 @@ depends on [Run Verify from a fresh context](verify-in-fresh-context.md).
   stops the run with a report.
 - **Revision rulebook.** `/agentdev:iwe-plan` is explicit-only, and reading its
   file to get around the gate is rejected in [Explicit-only workflow
-  agents](../architecture/explicit-only-workflow-agents.md). Its rulebook moves
-  into a planner catalog agent that the plan skill follows in place, and that
-  Implement becomes a named starter for. The Durable Knowledge Auditor gate and
-  validation still run on every revision.
+  agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale). Its
+  rulebook moves into a planner catalog agent that the plan skill follows in
+  place, and that Implement becomes a named starter for. The Durable Knowledge
+  Auditor gate and validation still run on every revision.
 
 ## Recorded decisions this reverses
 

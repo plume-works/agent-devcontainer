@@ -19,9 +19,10 @@ released: 2.1.0
 
 ## Context
 
-The [Autonomous Implement loop](../architecture/autonomous-implement-loop.md)
-runs Verify, acts on its findings, and revises the plan through an evaluator.
-The loop reaches its three-round stop bound instead of converging. The causes:
+The [Autonomous Implement
+loop](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale) runs
+Verify, acts on its findings, and revises the plan through an evaluator. The
+loop reaches its three-round stop bound instead of converging. The causes:
 
 - **Evidence timing.** A "CI passes" task, or a task citing a CI run, cannot be
   closed before the pull request exists, and every fix commit makes the cited

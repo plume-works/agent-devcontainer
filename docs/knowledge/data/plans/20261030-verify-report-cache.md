@@ -28,11 +28,12 @@ first needs a merge — images published from the default branch and checked in 
 so the Implement loop's last Verify and the Shipper's Verify always judge the
 same commit. Both run the plan's `## Verification` commands, and those test and
 e2e runs are the cost. [Fresh-context
-Verify](../architecture/fresh-context-verify.md) requires the verdict to come
-from a fresh context, and the Implement loop's dispatched `iwe-verifier` already
-is one, so the Shipper's repeat adds nothing. The e2e scenarios that prove an
-agent follows the cache routing come from [Exercise the saved Verify report end
-to end](../backlog/e2e-verify-report-cache.md).
+Verify](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)
+requires the verdict to come from a fresh context, and the Implement loop's
+dispatched `iwe-verifier` already is one, so the Shipper's repeat adds nothing.
+The e2e scenarios that prove an agent follows the cache routing come from
+[Exercise the saved Verify report end to
+end](../backlog/e2e-verify-report-cache.md).
 
 ## Approach
 

@@ -70,9 +70,10 @@ Rejected:
   removed the coordinators instead.
 - **Remove in-session dispatch and relay too.** Verify, revision evaluation, and
   Ship would run in place, reversing [Explicit-only workflow
-  agents](../architecture/explicit-only-workflow-agents.md) and [Autonomous
-  Implement loop](../architecture/autonomous-implement-loop.md); the maintainer
-  kept them.
+  agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale) and
+  [Autonomous Implement
+  loop](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale); the
+  maintainer kept them.
 
 ## Implementation Steps
 

@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
-- resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 stage: cancelled
 ---
 
@@ -33,13 +33,14 @@ sessions it runs. The skill quotes a relayed approval into the dispatch prompt
 the same way as one the user typed.
 
 This reverses an alternative [Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md) rejected for Ship:
-"Drop the gate and rely on descriptions", because a description match could
-start Ship from Explore after a partial answer closes a plan's open question.
-This plan answers that risk the way the Implement plan does — a description
-narrowed to a request that names a plan, and an explicit Explore rule — instead
-of with the gate. The released behaviour is in [IWE workflow skills in the
-agentdev catalog](../features/agentdev-iwe-workflow-skills.md).
+agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)
+rejected for Ship: "Drop the gate and rely on descriptions", because a
+description match could start Ship from Explore after a partial answer closes a
+plan's open question. This plan answers that risk the way the Implement plan
+does — a description narrowed to a request that names a plan, and an explicit
+Explore rule — instead of with the gate. The released behaviour is in [IWE
+workflow skills in the agentdev
+catalog](../features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 

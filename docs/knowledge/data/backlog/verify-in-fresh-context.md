@@ -26,7 +26,7 @@ own](autonomous-implement-loop.md), dispatches the agent this one creates.
 - Move Verify's rulebook into a new `iwe-verifier` catalog agent, the way the
   Ship and Implement rulebooks live in `iwe-shipper` and `iwe-implementer`
   ([Explicit-only workflow
-  agents](../architecture/explicit-only-workflow-agents.md)).
+  agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)).
 - `/agentdev:iwe-verify` dispatches `iwe-verifier` with only the plan key (or
   audit mode) and the user's approvals quoted verbatim, then re-posts its
   report. A verification command whose effects reach beyond the working tree

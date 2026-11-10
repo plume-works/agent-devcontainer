@@ -15,9 +15,10 @@ sources:
 Every IWE workflow keeps catalog agents as leaves. The user's session or a
 coordinator dispatches; `iwe-implementer`, `iwe-verifier`,
 `iwe-revision-evaluator`, and `iwe-shipper` never do ([Autonomous Implement
-loop](../architecture/autonomous-implement-loop.md), [Fresh-context
-Verify](../architecture/fresh-context-verify.md)). That is why each workflow
-runs on Claude Code and OpenCode unchanged.
+loop](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale),
+[Fresh-context
+Verify](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)). That
+is why each workflow runs on Claude Code and OpenCode unchanged.
 
 Letting an agent dispatch another would allow a self-contained `iwe-shipper`
 that starts its own fresh-context Verify, and coordinators that delegate a whole

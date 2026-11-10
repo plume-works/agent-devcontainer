@@ -468,8 +468,8 @@ branch does not declare is rejected on the key alone, whatever its value.
   event, accepted by decision.
 - AI review of bot-authored pull requests outside `TRUSTED_BOT_ACTORS`, which
   stay unreviewed by decision.
-- `openspec/specs/ai-review-gate/spec.md`, a decision record that
-  [Assignee-triggered AI
+- `docs/knowledge/data/architecture/pr-review-effort-tiers.md`, a decision
+  record that [Assignee-triggered AI
   re-reviews](../../../../openspec/specs/ai-review-gate/spec.md#rationale)
   supersedes for the comment tier.
 

@@ -11,7 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
-- resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 released: 2.1.0
 ---
 
@@ -29,9 +29,9 @@ the command in that session.
 
 The gate exists so that a description match cannot start a workflow — see
 [Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md). The maintainer
-decided that Implement no longer needs it: implementing directly from a
-just-written plan is reserved for small isolated changes, so Plan and Explore
+agents](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale). The
+maintainer decided that Implement no longer needs it: implementing directly from
+a just-written plan is reserved for small isolated changes, so Plan and Explore
 can drop Implement as a suggested next step, and those two were the sessions
 where an unintended start could happen. Ship keeps its gate: a stray Ship run
 reaches the remote.

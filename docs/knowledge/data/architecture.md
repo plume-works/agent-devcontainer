@@ -12,8 +12,6 @@ Frontmatter is `type: architecture`; like specs, these are durable reference.
 Record a design decision here the moment it's made — the alternatives you
 rejected are as valuable as the one you picked.*
 
-[Adversarial review](architecture/adversarial-review.md)
-
 [Agent auth persistence](architecture/agent-auth-persistence.md)
 
 [Agent metadata files](architecture/agent-metadata-files.md)
@@ -21,8 +19,6 @@ rejected are as valuable as the one you picked.*
 [agentdev runtime package](architecture/agentdev-runtime-package.md)
 
 [Ansible apt pins](architecture/ansible-apt-pins.md)
-
-[Autonomous Implement loop](architecture/autonomous-implement-loop.md)
 
 [Catalog script language](architecture/catalog-script-language.md)
 
@@ -66,23 +62,15 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Evidence without commit ids](architecture/evidence-without-commit-ids.md)
 
-[Explicit-only workflow agents](architecture/explicit-only-workflow-agents.md)
-
 [Extra CA trust](architecture/extra-ca-trust.md)
 
 [Fork pull request builds](architecture/fork-pull-request-builds.md)
 
 [Formatter ownership](architecture/formatter-ownership.md)
 
-[Fresh-context Verify](architecture/fresh-context-verify.md)
-
 [gh authentication shim](architecture/gh-authentication-shim.md)
 
 [gh wrapper only from the image](architecture/gh-wrapper-image-only.md)
-
-[IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
-
-[Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
 [Line-free anchors](architecture/line-free-anchors.md)
 

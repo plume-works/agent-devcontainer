@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
-- resource: docs/knowledge/data/architecture/fresh-context-verify.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 ---
 
 # The Shipper dispatches Verify
@@ -28,8 +28,9 @@ another, the repository owner chose instead that `iwe-shipper` dispatches
 `iwe-verifier` itself. Every route that dispatches the Shipper —
 `/agentdev:iwe-ship` and `/agentdev:iwe-plan` answering a Ship blocker report —
 then gets a fresh-context Verify with no change of its own. This reverses the
-in-place route [Fresh-context Verify](../architecture/fresh-context-verify.md)
-chose to keep the Shipper a leaf. The change gives [Verification in the main
+in-place route [Fresh-context
+Verify](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale) chose
+to keep the Shipper a leaf. The change gives [Verification in the main
 loop](../features/verification-in-the-main-loop.md) new behavior.
 
 ## Approach
@@ -241,5 +242,5 @@ SHALL be a CRITICAL finding.
   — the "In place inside `iwe-shipper`" mode
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — Requirement: Normal shipping requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "— the Shipper is already a fresh context and"`
+- `openspec/specs/iwe-workflow-skills/spec.md#every-verify-run-starts-from-a-fresh-context › "already a fresh context"`
   — the Shipper's in-place route

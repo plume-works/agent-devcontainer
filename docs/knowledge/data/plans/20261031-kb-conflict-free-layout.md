@@ -30,8 +30,9 @@ sections of `data/plans.md`, the backlog priority sections, and
 run, agent tokens, and often a fresh AI review.
 
 The decisions, their constraints, and the rejected alternatives are recorded in
-[Conflict-free knowledge layout](../architecture/kb-conflict-free-layout.md).
-This plan applies them.
+[Conflict-free knowledge
+layout](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale). This
+plan applies them.
 
 The workflow skills and the scaffold they ship to template consumers change
 together, so the [IWE workflow

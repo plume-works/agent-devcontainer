@@ -67,7 +67,8 @@ on `PATH` for re-runs. Steps, each idempotent:
    `~/.local/bin`, at the same versions `ansible/roles/dev_tools` pins, each
    verified against a SHA-256 recorded in the script per architecture. `iwec`
    stays uninstalled even though the iwe tarball ships it, matching the image
-   ([IWE through the CLI, not MCP](../architecture/iwe-cli-over-mcp.md)).
+   ([IWE through the CLI, not
+   MCP](../../../../openspec/specs/iwe-workflow-skills/spec.md#rationale)).
 5. Write a marker-delimited block to `~/.zprofile` that evaluates
    `brew shellenv` and prepends `~/.local/bin`, so `env python3` resolves to the
    uv-provisioned Python in every new login shell. Rewrite the block in place on
