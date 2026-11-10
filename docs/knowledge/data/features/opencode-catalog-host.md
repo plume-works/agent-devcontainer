@@ -55,7 +55,7 @@ and `postAttachCommand` points the entry at the workspace checkout, through
   earlier bridge entry from another root is replaced.
 - **Provider logins.** OpenCode keeps them in its database on the per-worktree
   `agentdev-opencode` volume, so each worktree logs in once; see [Agent auth
-  persistence](../architecture/agent-auth-persistence.md).
+  persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale).
 
 ## Open questions
 

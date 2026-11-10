@@ -84,4 +84,4 @@ None — every design question this feature raised is settled.
 - Plan: [Split PR How to Test into Verification and Reviewer
   Handoff](../plans/20260815-pr-verification-sections.md)
 - Decision: [PR verification
-  sections](../architecture/pr-verification-sections.md)
+  sections](../../../../openspec/specs/pr-description/spec.md#rationale)

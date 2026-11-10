@@ -1261,7 +1261,8 @@ one dated group per release; nothing else writes here.
 
 - **Creation**: five decision records recovered from the Dr.QP history the
   template was extracted from — [Agent auth
-  persistence](architecture/agent-auth-persistence.md), [Nested Docker
+  persistence](../../../openspec/specs/devcontainer-state/spec.md#rationale),
+  [Nested Docker
   provisioning](../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale),
   MCP gateway transport, [gh authentication
   shim](../../../openspec/specs/devcontainer-git-credentials/spec.md#rationale),
@@ -1330,14 +1331,15 @@ one dated group per release; nothing else writes here.
   `## How to Test` with `## Verification` (closed items, `- [x]` +
   `**Evidence:**`) and `## Reviewer Handoff` (open items, `- [ ]` +
   `**Closed by:**`), per [PR verification
-  sections](architecture/pr-verification-sections.md). **Downstream break**, in
-  the same register as the `setup-python-venv` activation change: a consuming
-  repository that copied `.github/pull_request_template.md` still holds the old
-  structural version, and its updated `agentdev` skills now ignore it —
-  `pr-gen-description` states the structure itself and reports that the copied
-  template was not consulted rather than reading one out of it. Adopting means
-  replacing the copied file with the pointer stub or deleting it; keeping it
-  costs nothing but a report on every run.
+  sections](../../../openspec/specs/pr-description/spec.md#rationale).
+  **Downstream break**, in the same register as the `setup-python-venv`
+  activation change: a consuming repository that copied
+  `.github/pull_request_template.md` still holds the old structural version, and
+  its updated `agentdev` skills now ignore it — `pr-gen-description` states the
+  structure itself and reports that the copied template was not consulted rather
+  than reading one out of it. Adopting means replacing the copied file with the
+  pointer stub or deleting it; keeping it costs nothing but a report on every
+  run.
 - **Creation**: [Split PR How to Test into Verification and Reviewer
   Handoff](features/pr-verification-sections.md) implemented, recorded in
   [1.0.0](releases/1.0.0.md); [its

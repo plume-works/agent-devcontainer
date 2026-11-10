@@ -7,7 +7,7 @@ Docker daemon, and builds the devcontainer image; it has no session proxy, so it
 container.
 `startup.py resume`, the SessionStart hook, restores what a worker restart stops.
 Standard library only: the session host has no project environment.
-Design: architecture/cloud-session-devcontainer.
+Design: openspec/specs/cloud-session-devcontainer.
 """
 
 import argparse
@@ -303,7 +303,7 @@ def build_devcontainer(environ: Mapping[str, str]) -> None:
     """Install the CLI and build the devcontainer image, pulling what it needs."""
     log('Building devcontainer image')
     install_devcontainer_cli()
-    # Bake's fs entitlement check off: see architecture/cloud-session-devcontainer.
+    # Bake's fs entitlement check off: see openspec/specs/cloud-session-devcontainer.
     run(
         'devcontainer',
         'build',

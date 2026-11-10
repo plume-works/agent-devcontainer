@@ -21,7 +21,7 @@ services:
       CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: ${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}
 
     # Written only by .claude/startup.py, so elsewhere no key is set and nothing is
-    # overridden; see architecture/cloud-session-devcontainer.
+    # overridden; see openspec/specs/cloud-session-devcontainer.
     env_file:
       - path: ./cloud-session.env
         required: false
@@ -44,7 +44,7 @@ services:
       # which would otherwise isolate each devcontainer instance's auth state.
       #
       # Only Claude Code's credentials are shared, via CLAUDE_SECURESTORAGE_CONFIG_DIR;
-      # other agent state is per instance. See architecture/agent-auth-persistence.
+      # other agent state is per instance. See openspec/specs/devcontainer-state.
       - agentdev-agents-auth:/root/.agents-auth
 
       # Written by devcontainer-init.sh, empty when the host names no extra CA.

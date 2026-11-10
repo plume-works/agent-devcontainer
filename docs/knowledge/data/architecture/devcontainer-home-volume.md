@@ -32,7 +32,8 @@ The Dev Container runs as root with `/root` on the container filesystem, so each
 piece of state needs its own volume: `agentdev-claude`, `agentdev-opencode`,
 `agentdev-uv`, and the volume holding the pre-commit cache. A volume cannot be
 mounted on a single file, so `~/.claude.json` is kept inside the `~/.claude`
-volume and symlinked (see [Agent auth persistence](agent-auth-persistence.md)).
+volume and symlinked (see [Agent auth
+persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale)).
 With the whole home on one volume, the file is an ordinary file and the
 per-directory mounts go away.
 

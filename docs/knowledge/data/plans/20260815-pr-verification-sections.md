@@ -15,7 +15,8 @@ sources:
 
 ## Context
 
-[PR verification sections](../architecture/pr-verification-sections.md) decides
+[PR verification
+sections](../../../../openspec/specs/pr-description/spec.md#rationale) decides
 that a pull request body splits `## How to Test` into two sections:
 `## Verification`, holding closed items as checked boxes with an `**Evidence:**`
 child, and `## Reviewer Handoff`, holding open items as unchecked boxes with a
@@ -166,7 +167,8 @@ reads the template — `pr-open` always passes `gh pr create --body-file` — so
 link would preserve an unread file, the skill's structure is a section list
 inside `SKILL.md` rather than a standalone file to point at, and this repository
 tracks no symlinks, having just removed its only one for the reasons in [uv
-environment location](../architecture/uv-environment-location.md)).
+environment
+location](../../../../openspec/specs/devcontainer-state/spec.md#rationale)).
 
 ### Task 3: Review standards skill
 
@@ -229,8 +231,8 @@ None. No `data/spec/` document covers pull request body structure:
 `template-consumption.md` governs what a consuming repository copies and adapts,
 not the shape of a PR description. The contract here is prose in the plugin's
 skills, and the decision it derives from is [PR verification
-sections](../architecture/pr-verification-sections.md) — a `data/architecture/`
-document, which is where this belongs.
+sections](../../../../openspec/specs/pr-description/spec.md#rationale) — a
+`data/architecture/` document, which is where this belongs.
 
 If a spec is ever wanted for this, it would be a new `data/spec/` document about
 the plugin's authored-artifact formats, covering the plan-checkbox format

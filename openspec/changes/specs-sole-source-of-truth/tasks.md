@@ -91,7 +91,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
 ## 4. New specs from architecture-only behavior
 
-- [ ] 4.1 Create these specs from the behavior the code confirms, each with its
+- [x] 4.1 Create these specs from the behavior the code confirms, each with its
       `## Rationale`, and delete the source documents:
   - `catalog-scripts` from catalog-script-language
   - `cloud-session-devcontainer` from cloud-session-devcontainer

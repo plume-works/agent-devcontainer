@@ -281,7 +281,7 @@ jobs:
         run: docker pull "$MERGED_IMAGE"
 
       - name: Build and test dev container image
-        # Bake's fs entitlement check off: see architecture/cloud-session-devcontainer.
+        # Bake's fs entitlement check off: see openspec/specs/cloud-session-devcontainer.
         env:
           BUILDX_BAKE_ENTITLEMENTS_FS: '0'
         uses: devcontainers/ci@v0.3.1900000450

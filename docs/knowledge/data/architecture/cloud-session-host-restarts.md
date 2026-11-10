@@ -52,10 +52,11 @@ when the next event arrives.
 
 Every reboot has to restore the host `dockerd`, the proxy relay, and the
 devcontainer before a tool runs, because the toolchain lives only in the
-container. [Cloud session devcontainer](cloud-session-devcontainer.md) records
-how `.claude/startup.py resume` restores them and the faults it already handles:
-the moving proxy port, a container created without the session's environment,
-and stale `docker.pid` and `containerd.pid` files.
+container. [Cloud session
+devcontainer](../../../../openspec/specs/cloud-session-devcontainer/spec.md#rationale)
+records how `.claude/startup.py resume` restores them and the faults it already
+handles: the moving proxy port, a container created without the session's
+environment, and stale `docker.pid` and `containerd.pid` files.
 
 Two costs remain with that design:
 

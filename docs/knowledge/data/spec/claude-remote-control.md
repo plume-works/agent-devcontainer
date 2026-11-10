@@ -30,9 +30,9 @@ sources:
 
 Claude credentials come only from a `/login` inside a container, persisted in
 the shared `agentdev-agents-auth` volume ([Agent auth
-persistence](../architecture/agent-auth-persistence.md)). On top of that login,
-a Coder workspace starts Claude Remote Control unattended under the Coder agent,
-the standalone `agentdev-deploy` runtime starts it when
+persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale)).
+On top of that login, a Coder workspace starts Claude Remote Control unattended
+under the Coder agent, the standalone `agentdev-deploy` runtime starts it when
 `AGENTDEV_CLAUDE_RC_MODE` opts in, and every devcontainer answers Claude's
 first-run prompts ahead of time.
 

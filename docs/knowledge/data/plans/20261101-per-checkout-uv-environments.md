@@ -31,9 +31,9 @@ Coder workspaces.
 This plan changes [uv-run-only
 environment](../features/uv-run-only-environment.md): the environment stops
 being one fixed path and becomes one per checkout. [uv environment
-location](../architecture/uv-environment-location.md) records the current
-design, whose premise — one `/uv` per devcontainer instance, so nothing to
-disambiguate — does not hold for worktrees inside the container.
+location](../../../../openspec/specs/devcontainer-state/spec.md#rationale)
+records the current design, whose premise — one `/uv` per devcontainer instance,
+so nothing to disambiguate — does not hold for worktrees inside the container.
 
 ## Approach
 

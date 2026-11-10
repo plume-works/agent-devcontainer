@@ -4,7 +4,7 @@ description: In the devcontainer of a Claude Code cloud session, the zizmor pre-
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .claude/startup.py
-- resource: docs/knowledge/data/architecture/cloud-session-devcontainer.md
+- resource: openspec/specs/cloud-session-devcontainer/spec.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/686
 stage: done
 severity: medium

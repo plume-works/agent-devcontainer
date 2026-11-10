@@ -36,8 +36,9 @@ Claude Remote Control autostart stays. Its current gate treats a non-empty
 with emptied tokens, so autostart launches into a dead login.
 
 The shared `agentdev-agents-auth` volume ([Agent auth
-persistence](../architecture/agent-auth-persistence.md)) is a separate decision
-and stays: a `/login` inside any container persists there.
+persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale))
+is a separate decision and stays: a `/login` inside any container persists
+there.
 
 ## Approach
 

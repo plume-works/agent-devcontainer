@@ -22,8 +22,8 @@ left CI alone. The result is a repository that states one convention and
 practices two:
 
 - `AGENTS.md` and [uv environment
-  location](../architecture/uv-environment-location.md) say project commands run
-  through `uv run`.
+  location](../../../../openspec/specs/devcontainer-state/spec.md#rationale) say
+  project commands run through `uv run`.
 - `.github/actions/setup-python-venv` still builds an in-tree virtualenv,
   activates it, and exports `VIRTUAL_ENV` and `GITHUB_PATH` so its callers can
   invoke bare tools.
@@ -140,10 +140,12 @@ stay different; only the *invocation* contract is unified.
   need no `--no-sync` — with `--locked` upstream from Task 3, `uv run`'s sync
   check is a no-op.
 - [x] **7. Update the docs that describe CI provisioning.** Extend [uv
-  environment location](../architecture/uv-environment-location.md) — its
-  Consequences section currently says CI "builds their own in-tree environment",
-  which stays true, but should record that CI no longer *activates* it. Add the
-  CI half to [uv-run-only environment](../features/uv-run-only-environment.md).
+  environment
+  location](../../../../openspec/specs/devcontainer-state/spec.md#rationale) —
+  its Consequences section currently says CI "builds their own in-tree
+  environment", which stays true, but should record that CI no longer
+  *activates* it. Add the CI half to [uv-run-only
+  environment](../features/uv-run-only-environment.md).
 - [x] **8. Verify locally.** Check that `python-lint-check.sh` still resolves
   ruff with no ruff on `PATH` (the `uv run` rung is then its only source) and
   that it installs nothing when `pyproject.toml` has an unlocked dependency. Run

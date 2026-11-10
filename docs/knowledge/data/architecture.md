@@ -12,10 +12,6 @@ Frontmatter is `type: architecture`; like specs, these are durable reference.
 Record a design decision here the moment it's made — the alternatives you
 rejected are as valuable as the one you picked.*
 
-[Agent auth persistence](architecture/agent-auth-persistence.md)
-
-[Catalog script language](architecture/catalog-script-language.md)
-
 [Claude Remote Control archived pre-created
 session](architecture/claude-remote-control-archived-pre-created-session.md)
 
@@ -40,34 +36,24 @@ switch](../../../openspec/specs/claude-remote-control/spec.md#rationale)
 [Claude Remote Control worktree restart
 resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
-[Cloud session devcontainer](architecture/cloud-session-devcontainer.md)
-
 [Cloud session host restarts](architecture/cloud-session-host-restarts.md)
 
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
 
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
-[Fork pull request builds](architecture/fork-pull-request-builds.md)
-
 [OpenCode full access in the
 devcontainer](../../../openspec/specs/devcontainer-opencode-policy/spec.md#rationale)
 
 [PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
-[PR verification sections](architecture/pr-verification-sections.md)
-
 [Holding the AI review gate during a
 re-review](architecture/rereview-gate-pending.md)
-
-[Self-repository `uses:` syntax](architecture/self-repository-uses.md)
 
 [Testing sibling workspaces in
 devcontainers](architecture/sibling-devcontainer-testing.md)
 
 [Skill rehearsal runs](architecture/skill-rehearsal-runs.md)
-
-[uv environment location](architecture/uv-environment-location.md)
 
 [What Verify and pr-review each catch](architecture/verify-versus-pr-review.md)
 

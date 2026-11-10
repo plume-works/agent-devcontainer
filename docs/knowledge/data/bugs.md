@@ -94,6 +94,9 @@ sets](bugs/git-new-branch-worktree-mode-mismatch.md)
 [Bug: Image provisioning layer is keyed on the whole
 repository](bugs/image-build-context-whole-repo.md)
 
+[Bug: the macOS bootstrap's zsh syntax is never
+checked](bugs/macos-bootstrap-zsh-unchecked.md)
+
 [Bug: Image rebuild lost when a later push to main cancels its
 run](bugs/main-image-rebuild-lost-on-cancel.md)
 

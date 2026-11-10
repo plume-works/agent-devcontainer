@@ -40,9 +40,9 @@ than require its project to contain lifecycle scaffolding.
 
 [OpenCode web](../spec/opencode-web.md) supplies the Coder server and
 auth/session contract. [Agent auth
-persistence](../architecture/agent-auth-persistence.md) separates shared
-provider logins from instance state. This work extends those building blocks
-with a dedicated image, not a new default for `agent-desktop`.
+persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale)
+separates shared provider logins from instance state. This work extends those
+building blocks with a dedicated image, not a new default for `agent-desktop`.
 
 [Nested Docker
 provisioning](../../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale)
