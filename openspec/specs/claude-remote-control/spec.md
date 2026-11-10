@@ -313,118 +313,73 @@ files SHALL be preserved. The CI responder SHALL set the opt-out.
 - **THEN** neither `~/.claude.json` nor `.claude/settings.local.json` is
   modified.
 
-## Setup procedure
+## Rationale
 
-### 1. Attach the Coder agent start, or opt in the standalone runtime
+### One pinned conversation per volume, the default
 
-On Coder, the workspace template's `coder_script` on the dev container's
-sub-agent runs the repository's agent-start command, by default
-`agentdev-runtime coder start`, on every agent start, and that command execs
-`agentdev-runtime remote-control start` ([Devcontainer Git
-credentials](../devcontainer-git-credentials/spec.md)). The `coder_script` runs nothing
-when the repository ships no agent-start command ([Coder IDE
-baseline](../coder-ide-baseline/spec.md)).
+The maintainer decided that the `claude-remote` pane resumes one pinned
+conversation per `agentdev-claude` volume, one being enough because each
+devcontainer instance has one workspace folder. The pin hook is supplied only to
+the pane through `claude --settings`, so no other Claude session in the
+repository runs it. Any non-zero exit of a resume starts a fresh conversation,
+a crash included; that is the accepted cost of not reading Claude Code's
+transcript layout. A transient reconnect failure stays a known limitation with
+no health check.
 
-In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
-`session` or `server` (and, in server mode, optionally
-`AGENTDEV_CLAUDE_RC_SPAWN`); its `remote-control` watcher then runs
-`agentdev-runtime remote-control start` once a claude.ai login exists, and
-`agentdev-runtime health status` reports what it is doing. On other hosts
-nothing starts Remote Control; the command can still be run by hand.
+Claude Code behavior the pin relies on, measured on 2.1.296 and 2.1.304: a
+conversation's transcript records the claude.ai session it is bound to, and
+resuming reattaches it; when that session is gone or the login belongs to
+another account, the resume mints a fresh session and records it; a resume with
+no transcript exits 1; a `--settings` `SessionStart` hook fires on `startup`,
+`clear`, and `resume`, and on `clear` carries the new conversation's ID, so
+resuming the recorded ID reattaches the original session URL.
 
-### 2. Log in
+Rejected:
 
-Run `claude` inside the container and complete `/login` with a claude.ai
-account. The login persists in the shared volume, so later workspaces on the
-same host start Remote Control on their next agent start. In the workspace where
-the login happened, start it by hand from a Coder terminal, which carries the
-same environment as the `coder_script`:
+- **Check for the transcript file before resuming.** It depends on Claude Code's
+  undocumented transcript layout.
+- **`claude --continue`.** It exits 1 with no conversation, and otherwise takes
+  the newest one in the directory, which can be an operator's terminal session.
+- **A post-start health check.** No documented interface reports that a session
+  has Remote Control off.
+- **A pin hook in `.claude/settings.json` gated on an environment variable.**
+  Every Claude session in the repository would run it.
+- **Pin the newest transcript at boot.** Undocumented layout, and it can pick an
+  operator's session.
 
-```bash
-agentdev-runtime remote-control start
-```
+### Server mode is an opt-in trial
 
-A workspace restart also starts it.
+The maintainer decided that `claude remote-control` server mode runs only when
+`AGENTDEV_CLAUDE_RC_MODE=server` opts in, that it spawns into a git worktree by
+default, independently of how a worktree session revives, and that an
+unrecognized mode or spawn value fails startup rather than silently running the
+other mode. Claude Code 2.1.309 refuses `--settings` in server mode, so the
+server cannot take the pin hook; without `--spawn` and a saved choice it stops at
+an interactive prompt; each session is a child `claude` process with the
+server's environment and credential store; and the pre-created session returns
+under its ID after a restart. Documented limits: sessions resume only for about
+four hours after the server stops, the server exits after about ten minutes
+offline and nothing restarts it, and worktree mode needs a git repository.
 
-### 3. Approve first-run Claude state
+`--continue` is incompatible with server mode: alongside `--spawn` it exits with
+an error that ends the pane, and alone it runs a single session that spawns
+nothing, while a restarted server already reattaches its pre-created session.
+A revived session takes the reviving server's spawn mode, so after a switch
+from `worktree` to `same-dir` former worktree sessions run in the workspace
+folder; the maintainer accepts this, because the spawn mode is not switched in
+production.
 
-Post-create has already answered these prompts. Attach to the named tmux session
-only if Claude still shows one, for example after a Claude Code release adds a
-new first-run prompt:
+Rejected:
 
-```bash
-tmux -L claude-remote attach -t claude-remote
-```
-
-Complete only the prompts that are actually shown:
-
-1. Claude Code onboarding, if the persistent Claude state is new.
-2. Workspace trust for the opened repository.
-3. MCP server selection; enable only servers intended for that workspace.
-4. **Enable Remote Control** when `/remote-control` asks for approval.
-
-Authentication, onboarding, workspace trust, MCP selection, and Remote Control
-authorization are separate states. Record them in Claude's state files, never
-with blind keystrokes into the session. A ready session displays `/rc active`
-and directs the operator to `claude.ai/code` or the Code tab in the Claude
-mobile app.
-
-### 4. Verify without exposing credentials
-
-Run the following checks inside the nested container. They inspect metadata and
-boolean authentication state, not credential values:
-
-```bash
-stat -c '%U %a %n' \
-  /root/.agents-auth/claude \
-  /root/.agents-auth/claude/.credentials.json
-
-claude auth status --json
-
-tmux -L claude-remote list-sessions -F '#{session_name}'
-tmux -L claude-remote list-panes -t =claude-remote \
-  -F 'session=#{session_name} dead=#{pane_dead} command=#{pane_current_command}'
-```
-
-Expected filesystem metadata is root ownership, mode `0700` on the credential
-directory, and mode `0600` on the credential file. Exactly one tmux session
-named `claude-remote` on the `claude-remote` tmux server should contain one live
-`claude` pane.
-
-To verify that native file authentication took precedence, inspect only the
-environment variable names of the Claude process and assert that
-`CLAUDE_CODE_OAUTH_TOKEN` is absent. Never dump the complete process
-environment.
-
-## Diagnose `Login expired`
-
-Anthropic defines `Login expired · Please run /login` as a local terminal state:
-Claude Code tried to renew the saved login, the OAuth service rejected the
-stored refresh token, and Claude Code cleared the saved credentials. Later
-requests stop locally rather than reaching the API. This differs from an API
-response that reports a revoked or expired access token.
-
-The cleared Linux credential retains its non-secret account metadata but has
-this diagnostic shape:
-
-```text
-claudeAiOauth.accessToken:           empty
-claudeAiOauth.refreshToken:          empty
-claudeAiOauth.expiresAt:             0
-claudeAiOauth.refreshTokenExpiresAt: may remain in the future
-claude auth status:                  loggedIn=false
-```
-
-Inspect only field presence, emptiness, expiry metadata, file timestamps, and
-`claude auth status --json`; never print token values. A future
-`refreshTokenExpiresAt` does not make an empty or rejected refresh token usable.
-
-Correlate the credential file modification time with other refresh owners. A
-credential rotating in one client immediately before another copy is cleared is
-evidence of refresh-token divergence. The same signature is reported upstream
-when concurrent Claude clients race a single-use refresh token: the losing
-client persists empty token fields and `expiresAt: 0`.
-
-The cleared credential document is still a non-empty file, so a healthy JSON
-parse and mode `0600` prove storage integrity, not authentication health. Run
-`/login` again to recover.
+- **Replace the pinned pane.** An overnight workspace stop exceeds the four-hour
+  resume window.
+- **Run a server next to the pinned pane.** It doubles the Remote Control
+  entries and the processes refreshing the login, before it is known whether
+  they race the OAuth refresh token.
+- **Fold the spawn mode into `AGENTDEV_CLAUDE_RC_MODE`.** It merges two
+  independent choices into one growing value list.
+- **A pass-through argument variable.** It would accept `--continue` or
+  `--settings`, which end the pane.
+- **Offer `--spawn session`.** Its name collides with
+  `AGENTDEV_CLAUDE_RC_MODE=session`, and it exits when its one session ends.
+- **Start the server with `--continue`.** Refused alongside server-mode flags.

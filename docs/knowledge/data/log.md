@@ -684,7 +684,7 @@ one dated group per release; nothing else writes here.
 - **Plan**: [Resume the autostarted Remote Control conversation by a pinned
   ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
   in [Claude Remote Control
-  resume](architecture/claude-remote-control-resume.md).
+  resume](../../../openspec/specs/claude-remote-control/spec.md#rationale).
 - **Update**: Codebase map refreshed for the template-consume guide stating the
   iwe version config version 4 needs: two docs re-verified.
 

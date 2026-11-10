@@ -65,7 +65,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       renovate-config-validation, and renovate-post-upgrade.
 - [x] 3.5 Fold into `catalog-lifecycle`: ci-agent-plugin-availability,
       no-code-graph, and supported-harnesses.
-- [ ] 3.6 Fold into `claude-remote-control`: claude-remote-control-resume,
+- [x] 3.6 Fold into `claude-remote-control`: claude-remote-control-resume,
       -server-mode, -server-continue, and -spawn-mode-switch.
 - [ ] 3.7 Make these one-to-one folds:
   - agent-metadata-files → `agent-file-discovery`

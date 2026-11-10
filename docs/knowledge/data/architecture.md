@@ -27,19 +27,17 @@ recovery](architecture/claude-remote-control-expired-session-recovery.md)
 [Claude Remote Control pointerless server
 start](architecture/claude-remote-control-pointerless-server-start.md)
 
-[Claude Remote Control resume](architecture/claude-remote-control-resume.md)
+[Claude Remote Control server
+--continue](../../../openspec/specs/claude-remote-control/spec.md#rationale)
 
 [Claude Remote Control server
---continue](architecture/claude-remote-control-server-continue.md)
-
-[Claude Remote Control server
-mode](architecture/claude-remote-control-server-mode.md)
+mode](../../../openspec/specs/claude-remote-control/spec.md#rationale)
 
 [Claude Remote Control server restart
 resume](architecture/claude-remote-control-server-restart-resume.md)
 
 [Claude Remote Control spawn mode
-switch](architecture/claude-remote-control-spawn-mode-switch.md)
+switch](../../../openspec/specs/claude-remote-control/spec.md#rationale)
 
 [Claude Remote Control worktree restart
 resume](architecture/claude-remote-control-worktree-restart-resume.md)

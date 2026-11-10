@@ -24,8 +24,8 @@ before it launches Claude, so `/clear` in the pane leaves the pin on the
 pre-clear conversation. The next workspace restart resumes that conversation,
 whose remote binding `/clear` already moved away, and Claude Code mints a new
 claude.ai session URL for it. [Claude Remote Control
-resume](../architecture/claude-remote-control-resume.md) records the pinning
-decision this plan extends.
+resume](../../../../openspec/specs/claude-remote-control/spec.md#rationale)
+records the pinning decision this plan extends.
 
 ## Approach
 
@@ -250,8 +250,9 @@ running `/remote-control` in the session restores it.
 - `/resume` of another conversation inside the pane is covered only through
   Claude Code's documented `source: "resume"`; the plan does not measure it.
 - Health checks for a pane whose Remote Control is off, which [Claude Remote
-  Control resume](../architecture/claude-remote-control-resume.md) already
-  rejects.
+  Control
+  resume](../../../../openspec/specs/claude-remote-control/spec.md#rationale)
+  already rejects.
 
 ## Key references
 

@@ -5,7 +5,7 @@ sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: docs/knowledge/data/spec/claude-remote-control.md
-- resource: docs/knowledge/data/architecture/claude-remote-control-resume.md
+- resource: openspec/specs/claude-remote-control/spec.md
 - resource: https://code.claude.com/docs/en/hooks
 stage: done
 severity: medium

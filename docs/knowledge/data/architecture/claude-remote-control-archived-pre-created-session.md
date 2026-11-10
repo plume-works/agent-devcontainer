@@ -8,9 +8,10 @@ sources:
 # Claude Remote Control archived pre-created session
 
 Finding against [Claude Remote Control server
-mode](claude-remote-control-server-mode.md) and [Claude Remote Control server
-restart resume](claude-remote-control-server-restart-resume.md), measured on
-Claude Code 2.1.310 with `claude remote-control --spawn worktree` and
+mode](../../../../openspec/specs/claude-remote-control/spec.md#rationale) and
+[Claude Remote Control server restart
+resume](claude-remote-control-server-restart-resume.md), measured on Claude Code
+2.1.310 with `claude remote-control --spawn worktree` and
 `--create-session-in-dir` at its default, on.
 
 ## Measurement

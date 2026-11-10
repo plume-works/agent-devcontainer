@@ -8,8 +8,8 @@ sources:
 # Claude Remote Control server restart resume
 
 Finding against [Claude Remote Control server
-mode](claude-remote-control-server-mode.md), measured on Claude Code 2.1.309
-with `claude remote-control --spawn same-dir`.
+mode](../../../../openspec/specs/claude-remote-control/spec.md#rationale),
+measured on Claude Code 2.1.309 with `claude remote-control --spawn same-dir`.
 
 ## Measurement
 

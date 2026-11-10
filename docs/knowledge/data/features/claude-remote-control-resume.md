@@ -34,7 +34,7 @@ new conversation under a new ID, which replaces the stored one.
 The requirement and its scenarios live in [Claude Remote
 Control](../spec/claude-remote-control.md); the decision and the Claude Code
 behavior it relies on live in [Claude Remote Control
-resume](../architecture/claude-remote-control-resume.md).
+resume](../../../../openspec/specs/claude-remote-control/spec.md#rationale).
 
 ## Edge cases
 

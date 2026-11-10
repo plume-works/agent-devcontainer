@@ -319,7 +319,7 @@ named `wt-<worktree name>`, and SHALL NOT load the shared catalog's plugins.
   catalog at user scope and registers no hooks.
 - Sessions revived by a Remote Control server in another spawn mode ([Claude
   Remote Control spawn mode
-  switch](../architecture/claude-remote-control-spawn-mode-switch.md)).
+  switch](../../../../openspec/specs/claude-remote-control/spec.md#rationale)).
 - Per-checkout uv environments, which [Give each checkout its own uv
   environment](20261101-per-checkout-uv-environments.md) owns.
 

@@ -29,9 +29,9 @@ session pane stays the default `AGENTDEV_CLAUDE_RC_MODE`; only the spawn mode of
 server mode changes.
 
 This replaces the `--spawn worktree` rejection in [Claude Remote Control server
-mode](../architecture/claude-remote-control-server-mode.md). The maintainer's
-position is that revival after a restart does not depend on the spawn mode: the
-[restart resume
+mode](../../../../openspec/specs/claude-remote-control/spec.md#rationale). The
+maintainer's position is that revival after a restart does not depend on the
+spawn mode: the [restart resume
 finding](../architecture/claude-remote-control-server-restart-resume.md)
 measured that a `same-dir` session spawned on demand also stays disconnected
 until the claude.ai service dispatches it, which can take minutes. Revival after

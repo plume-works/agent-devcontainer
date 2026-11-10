@@ -9,10 +9,11 @@ sources:
 # Claude Remote Control worktree restart resume
 
 Finding against [Claude Remote Control server
-mode](claude-remote-control-server-mode.md) and [Claude Remote Control server
-restart resume](claude-remote-control-server-restart-resume.md), measured on
-Claude Code 2.1.310 with `claude remote-control --spawn worktree` across a
-devcontainer rebuild and a later server restart.
+mode](../../../../openspec/specs/claude-remote-control/spec.md#rationale) and
+[Claude Remote Control server restart
+resume](claude-remote-control-server-restart-resume.md), measured on Claude Code
+2.1.310 with `claude remote-control --spawn worktree` across a devcontainer
+rebuild and a later server restart.
 
 ## Measurement
 
