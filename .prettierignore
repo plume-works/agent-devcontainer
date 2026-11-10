@@ -14,3 +14,8 @@ docs/knowledge/**
 # The devcontainer CLI owns this file and rewrites it, without a final newline, on
 # every `devcontainer up`.
 .devcontainer/devcontainer-lock.json
+
+# `openspec init` and `openspec update` own the skills they install and rewrite them
+# on every run.
+.claude/skills/openspec-*/**
+.opencode/skills/openspec-*/**

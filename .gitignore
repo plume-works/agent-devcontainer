@@ -77,12 +77,6 @@ ENV/
 node_modules/
 .venv-local/
 
-
-# Keep openspec stuff out of the repo
-openspec/
-**/skills/openspec-*/
-.openspec-target
-
 # self-improve runtime state, which must never enter the repository
 .self-improvement/
 candidates/
