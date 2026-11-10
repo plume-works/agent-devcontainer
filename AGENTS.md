@@ -96,6 +96,10 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
     never quotes with its line numbers. `scripts/check-anchors.py` enforces
     the graph and the catalog.
 
+14. **Never write or install files under `.git/hooks` directly.** Wire every
+    git hook through `.pre-commit-config.yaml` (a local hook with the matching
+    `stages:`) and let `pre-commit install` own the hook scripts.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,

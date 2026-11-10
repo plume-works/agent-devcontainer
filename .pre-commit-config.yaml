@@ -1,9 +1,20 @@
 # Every hook runs a tool with one version owner: uv.lock (`uv run`), the image's
 # dev_tools_pinned_tools binaries, or a `bunx <package>@<version>` pin. No hook
 # names a remote repository, so `pre-commit install-hooks` builds nothing.
+# Hooks without `stages` stay out of the post-checkout stage, which only links `.venv`.
+default_stages: [pre-commit, pre-merge-commit, pre-push, manual]
 repos:
   - repo: local
     hooks:
+      # Spec: agentdev-runtime-images; no-op where agentdev-runtime is absent (host, CI).
+      - id: link-venv
+        name: link .venv to its /uv/venvs environment
+        entry: sh -c 'command -v agentdev-runtime >/dev/null || exit 0; exec agentdev-runtime project link-venv'
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [post-checkout]
+
       - id: end-of-file-fixer
         name: fix end of files
         entry: uv run end-of-file-fixer
@@ -128,7 +139,7 @@ repos:
       # Renovate version: see architecture/renovate-config-validation.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.224.0 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.226.0 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 

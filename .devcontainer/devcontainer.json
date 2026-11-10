@@ -23,9 +23,9 @@
     // From the host environment or the hosting platform's secret store; empty when unset.
     "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
 
-    // uv's cache, interpreters, and pre-commit's cache take their defaults on the home volume;
-    // only the project environment is moved out of the checkout's .venv.
-    "UV_PROJECT_ENVIRONMENT": "/home/agent/.local/share/uv/venvs/ws-project"
+    // uv's cache, interpreters, and pre-commit's cache take their defaults on the home volume.
+    // Each checkout's .venv links to its own environment here: see spec/agentdev-runtime-images.
+    "AGENTDEV_VENV_ROOT": "/home/agent/.local/share/uv/venvs"
   },
 
   "forwardPorts": [14500],
@@ -93,7 +93,7 @@
       ],
       "settings": {
         // Python: uv owns the virtualenv, so never let VS Code auto-activate it.
-        "python.defaultInterpreterPath": "/home/agent/.local/share/uv/venvs/ws-project/bin/python3",
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python3",
         "python.terminal.activateEnvironment": false,
         "python.terminal.activateEnvInCurrentTerminal": false,
         "python.analysis.typeCheckingMode": "standard",
@@ -108,9 +108,9 @@
         "ruff.fixAll": true,
         "ruff.lint.enable": true,
 
-        "ansible.ansible.path": "/home/agent/.local/share/uv/venvs/ws-project/bin/ansible",
-        "ansible.python.interpreterPath": "/home/agent/.local/share/uv/venvs/ws-project/bin/python3",
-        "ansible.validation.lint.path": "/home/agent/.local/share/uv/venvs/ws-project/bin/ansible-lint",
+        "ansible.ansible.path": "${workspaceFolder}/.venv/bin/ansible",
+        "ansible.python.interpreterPath": "${workspaceFolder}/.venv/bin/python3",
+        "ansible.validation.lint.path": "${workspaceFolder}/.venv/bin/ansible-lint",
         "ansible.mcpServer.enabled": true,
         "files.associations": {
           "**/ansible/**/*.yml": "ansible",

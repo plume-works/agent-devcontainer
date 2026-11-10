@@ -25,6 +25,7 @@ from agentdev_runtime import (
     project,
     settings as env,
     workspace as checkout,
+    worktree,
 )
 
 PREFIX = 'agentdev-runtime lifecycle'
@@ -97,6 +98,10 @@ def created(settings: env.Settings) -> None:
             catalog.install(settings, staged, 'user')
     else:
         print('No catalog staged in the image; skipping the image-scoped plugin install.')
+    # Before Remote Control starts: it reads the worktree hooks only then.
+    if not project.deploy(settings):
+        with agent_state.config_lock(settings):
+            worktree.register()
     hooks.run(settings, 'created')
     marker = created_marker(settings)
     marker.parent.mkdir(parents=True, exist_ok=True)
