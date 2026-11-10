@@ -9,6 +9,8 @@ run no devcontainer.
 - The git hooks run `pre-commit` from the project environment. NEVER pass
   `--no-verify` or otherwise skip them.
 - `git push` and `gh` authenticate through the session's agent proxy.
+- The proxy refuses deleting a remote branch, so push nothing you cannot leave
+  on the remote.
 
 ## Docker
 
