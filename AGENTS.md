@@ -4,7 +4,7 @@ NEVER use "$TMPDIR" env variable.
 ALWAYS use "./.tmp" (relative to the repo root) for temporary files; create it if it does not exist.
 The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so supervisord and tmux fail there with `EINVAL`.
 NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch contents. Use local git branch workflows instead; if push authentication is unavailable, stop and report the blocker rather than updating the branch remotely via API.
-NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
+NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `openspec/specs/stacked-prs`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 Commit at checkpoints as meaningful progress is achieved, rather than accumulating a whole task into one commit at the end.
 
@@ -111,12 +111,12 @@ Three hard rules, in every language:
 2. **Never restate the code next to it.** A comment that names what the adjacent
    line already shows is noise, and goes stale the moment the line
    changes. Before writing one, ask what it adds that the code cannot express.
-3. **Never duplicate the knowledge base.** Rationale, alternatives, and
-   invariants live in the matching `docs/knowledge/data/spec/` or
-   `data/architecture/` document. Reference it by key instead of copying it:
-   `// Trust-list policy: see spec/template-consumption.` A short reason the code
-   cannot express belongs in the comment itself. When a spec or architecture
-   document already records it, reference that key instead of repeating it.
+3. **Never duplicate the specs.** Behavior, invariants, rationale, and
+   alternatives live in the matching `openspec/specs/<slug>/spec.md`. Reference
+   it by path instead of copying it:
+   `// Trust-list policy: see openspec/specs/template-consumption.` A short reason
+   the code cannot express belongs in the comment itself. When a spec already
+   records it, reference that spec instead of repeating it.
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
 the mechanism never does. Only durable rationale is worth forwarding — see Best
@@ -168,8 +168,9 @@ This repository uses IWE project memory under `docs/knowledge/data/`.
 
 **Never record durable knowledge in an agent's own memory store** — it is wiped
 when the devcontainer is recreated and is invisible to everyone else. Standing
-rules and conventions go in `AGENTS.md`; project state, decisions, plans, and
-specs go in `docs/knowledge/data/`. This applies to explicit "remember this"
+rules and conventions go in `AGENTS.md`; behavior and the rationale behind it go
+in `openspec/specs/`; project state, plans, and findings go in
+`docs/knowledge/data/` (findings under `data/findings/`). This applies to explicit "remember this"
 requests and to any automatic save the harness prompts for. Auto-memory stays
 enabled for session-local scratch only.
 
@@ -179,7 +180,8 @@ destination is unclear, rather than parking it in a memory file meanwhile.
 For substantial feature, bug, architecture, or behavior work:
 
 - query relevant project memory before planning or implementation;
-- treat `docs/knowledge/data/` as the source of truth for project state and decisions;
+- treat `openspec/specs/` as the source of truth for behavior and its rationale, and
+  `docs/knowledge/data/` for project state, plans, and findings;
 - update project memory when the work changes durable project knowledge.
 
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.

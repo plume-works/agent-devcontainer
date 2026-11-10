@@ -7,7 +7,7 @@ followed by `iwe schema validate` passes after every task.
 
 ## 1. Conventions
 
-- [ ] 1.1 Add to `openspec/config.yaml`:
+- [x] 1.1 Add to `openspec/config.yaml`:
   - a `specs` rule: rationale goes only in a `## Rationale` section after
     `## Requirements` and states why, never behavior;
   - a `design` rule: each decision names the capability it shapes;
@@ -17,7 +17,7 @@ followed by `iwe schema validate` passes after every task.
   Verify with `openspec instructions design --change specs-sole-source-of-truth --json`,
   which returns the new rule.
 
-- [ ] 1.2 Update `AGENTS.md`: `#comments` rule 3 names a spec as
+- [x] 1.2 Update `AGENTS.md`: `#comments` rule 3 names a spec as
       `openspec/specs/<slug>`, and `#project-memory` sends behavior and rationale to
       `openspec/specs/` and findings to `data/findings/`. Verify that
       `grep -nE 'data/(spec|architecture)|spec/ or|architecture/' AGENTS.md` prints
