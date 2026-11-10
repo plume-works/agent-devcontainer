@@ -71,7 +71,7 @@ jobs:
 
       # A pull request opened with GITHUB_TOKEN starts no workflows, so Renovate
       # authenticates as its GitHub App. Token scope: see
-      # architecture/renovate-post-upgrade.
+      # openspec/specs/dependency-updates.
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v3.3.0
@@ -98,7 +98,7 @@ jobs:
             >> "$GITHUB_OUTPUT"
 
       # Global-only options come from the environment: the checked-in config is
-      # validated with --no-global. See architecture/renovate-config-validation.
+      # validated with --no-global. See openspec/specs/dependency-updates.
       - name: Run Renovate
         env:
           RENOVATE_VERSION: ${{ steps.version.outputs.rev }}

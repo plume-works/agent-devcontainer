@@ -61,7 +61,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 - [x] 3.3 Fold into `agentdev-runtime-images`: agentdev-runtime-package,
       devcontainer-runtime, extra-ca-trust, no-launchpad-ppas, and
       validator-image-install.
-- [ ] 3.4 Fold into `dependency-updates`: ansible-apt-pins,
+- [x] 3.4 Fold into `dependency-updates`: ansible-apt-pins,
       renovate-config-validation, and renovate-post-upgrade.
 - [ ] 3.5 Fold into `catalog-lifecycle`: ci-agent-plugin-availability,
       no-code-graph, and supported-harnesses.

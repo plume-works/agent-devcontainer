@@ -125,7 +125,7 @@ repos:
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
 
       # Both flags, and why this pin is also the bot's and the workflow's
-      # Renovate version: see architecture/renovate-config-validation.
+      # Renovate version: see openspec/specs/dependency-updates.
       - id: renovate-config-validator
         name: renovate-config-validator
         entry: bunx --package renovate@44.224.0 renovate-config-validator --no-global --strict

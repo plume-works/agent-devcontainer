@@ -45,7 +45,8 @@ container_hostname="${container_hostname%-}"
     echo "CONTAINER_HOSTNAME=$container_hostname"
 } >> "$script_dir/.env"
 
-# A TLS-intercepting proxy's CA, for the runtime to trust; design: openspec/specs/agentdev-runtime-images/spec.md#rationale.
+# A TLS-intercepting proxy's CA, for the runtime to trust:
+# see openspec/specs/agentdev-runtime-images.
 # Always written, empty when the host names none, so Compose bind-mounts a file.
 extra_ca="$script_dir/.extra-ca.crt"
 : > "$extra_ca"

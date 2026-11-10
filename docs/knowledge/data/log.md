@@ -977,10 +977,11 @@ one dated group per release; nothing else writes here.
   Renovate `deb` managers with their per-role `registryUrls` and daily
   automerged group, and the apt digest mask are removed; the role version pins
   in `defaults/` and their Renovate regex managers stay.
-- **Update**: [Ansible apt pins](architecture/ansible-apt-pins.md) now records
-  the unpinned decision, with the pin files as the rejected alternative. The
-  Renovate rule that holds the `ubuntu` base stays, now because the base stays
-  at 24.04 for downstream consumers.
+- **Update**: [Ansible apt
+  pins](../../../openspec/specs/dependency-updates/spec.md#rationale) now
+  records the unpinned decision, with the pin files as the rejected alternative.
+  The Renovate rule that holds the `ubuntu` base stays, now because the base
+  stays at 24.04 for downstream consumers.
 - **Update**: Refreshed the eight codebase-map docs whose tracked sources the
   revert moved.
 
@@ -1003,9 +1004,9 @@ one dated group per release; nothing else writes here.
   index and silently resolving pins from a partial view; cached indices now
   expire after six hours.
 - **Creation**: [Renovate config
-  validation](architecture/renovate-config-validation.md) records why the config
-  is validated twice, once at a pinned Renovate and once at the current one, and
-  why both pass `--no-global`.
+  validation](../../../openspec/specs/dependency-updates/spec.md#rationale)
+  records why the config is validated twice, once at a pinned Renovate and once
+  at the current one, and why both pass `--no-global`.
 - **Update**: `.agent.metadata.json` files no longer contribute to a
   codebase-map source digest — [metadata](architecture/agent-metadata-files.md)
   records the rule. A metadata file describes how the digest is computed, not
@@ -1051,9 +1052,10 @@ one dated group per release; nothing else writes here.
   release and architecture in a generated `vars/apt_pins_<suite>_<arch>.yml`,
   refreshed by `scripts/apt-pins-refresh.py` and kept current by two `deb`
   custom managers batched into one automerged Renovate PR.
-- **Creation**: [Ansible apt pins](architecture/ansible-apt-pins.md) records the
-  decision, the per-role repository sets, and the pin-rot and rebuild costs it
-  buys.
+- **Creation**: [Ansible apt
+  pins](../../../openspec/specs/dependency-updates/spec.md#rationale) records
+  the decision, the per-role repository sets, and the pin-rot and rebuild costs
+  it buys.
 - **Creation**: [Fisher install over untracked
   plugins](bugs/fisher-install-over-untracked-plugins.md) fixed — `fish_setup`
   now reconciles `fish_plugins` with `fisher update` instead of installing each

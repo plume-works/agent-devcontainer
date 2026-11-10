@@ -28,6 +28,6 @@ working directory. Running from here silently loses the inventory and roles path
   version alone. Track a commit instead of a version only where the upstream's tags
   are unusable, as `fish_setup` does for `bass`.
 - Apt packages are installed unpinned, at whatever the enabled repositories serve —
-  see `docs/knowledge/data/architecture/ansible-apt-pins.md`.
+  see `openspec/specs/dependency-updates/spec.md`.
 - Read paths that vary per consuming project from `DEV_WORKSPACE_FOLDER` at runtime, with
   `workspace_folder` as the fallback. Never hardcode a workspace path.

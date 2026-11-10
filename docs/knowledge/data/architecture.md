@@ -16,8 +16,6 @@ rejected are as valuable as the one you picked.*
 
 [Agent metadata files](architecture/agent-metadata-files.md)
 
-[Ansible apt pins](architecture/ansible-apt-pins.md)
-
 [Catalog script language](architecture/catalog-script-language.md)
 
 [CI agent plugin availability](architecture/ci-agent-plugin-availability.md)
@@ -86,10 +84,6 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 [PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
 [PR verification sections](architecture/pr-verification-sections.md)
-
-[Renovate config validation](architecture/renovate-config-validation.md)
-
-[Renovate post-upgrade task](architecture/renovate-post-upgrade.md)
 
 [Holding the AI review gate during a
 re-review](architecture/rereview-gate-pending.md)

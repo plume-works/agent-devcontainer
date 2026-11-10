@@ -36,8 +36,8 @@ Two places still go through npm:
 commands by name.
 
 Related: [Renovate config
-validation](../architecture/renovate-config-validation.md), [Formatter
-ownership](../architecture/formatter-ownership.md).
+validation](../../../../openspec/specs/dependency-updates/spec.md#rationale),
+[Formatter ownership](../architecture/formatter-ownership.md).
 
 ## Approach
 

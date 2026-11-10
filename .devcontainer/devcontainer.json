@@ -11,7 +11,7 @@
   "service": "devcontainer",
   // agentdev-devcontainer supplies the lifecycle commands, waitFor, and the supervised
   // services, nested Docker included, through its image metadata; see
-  // openspec/specs/agentdev-runtime-images/spec.md#rationale. Declaring them here too would run each twice.
+  // openspec/specs/agentdev-runtime-images. Declaring them here too would run each twice.
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "containerEnv": {
     // The firewall is installed in the image but inert until this is "true".
