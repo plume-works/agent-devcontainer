@@ -29,9 +29,9 @@ script, once, when the session's host is built. It:
    online audits fail in the cloud
    devcontainer](../bugs/zizmor-online-audits-fail-in-cloud-devcontainer.md));
 4. installs Ansible with `docker/ansible/setup-ansible.sh` and runs
-   `ansible/playbooks/setup-dev.yml` with the `dev_tools` and `uv_setup` tags,
-   which install the pinned binaries every `language: system` pre-commit hook
-   calls, `bun`, `iwe`, and `uv`, with the playbook's modules on
+   `ansible/playbooks/setup-dev.yml` with the `dev_tools`, `bun_setup` and
+   `uv_setup` tags, which install the pinned binaries every `language: system`
+   pre-commit hook calls, `bun`, `iwe`, and `uv`, with the playbook's modules on
    `/usr/bin/python3.12` and every command given blocking standard streams;
 5. runs `uv sync` and installs the git hooks with
    `pre-commit install --install-hooks` for the `pre-commit`, `pre-push`,
@@ -77,9 +77,10 @@ directly.
 
 ## Constraints
 
-- Host tools and the published images come from the same `dev_tools` and
-  `uv_setup` roles and the same `uv.lock`, so a hook resolves the same version
-  on the host as in CI's pre-commit job.
+- Host tools and the published images come from the same `dev_tools`,
+  `bun_setup` and `uv_setup` roles and the same `uv.lock`, so a hook resolves
+  the same version on the host as in CI's pre-commit job; `bun_setup` supplies
+  the `bunx` the `prettier` and `renovate-config-validator` hooks call.
 - A container lives only until the next worker restart, so nothing in a cloud
   session depends on a long-running one.
 - The bridge subnet is fixed off `172.17.0.0/16`, where a nested engine inside a

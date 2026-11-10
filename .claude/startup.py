@@ -44,7 +44,7 @@ LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
 # See architecture/cloud-session-host-toolchain.
 ANSIBLE_PYTHON = '/usr/bin/python3.12'
 # The ansible playbook's roles that put every pre-commit hook's binary on PATH.
-TOOLCHAIN_TAGS = 'dev_tools,uv_setup'
+TOOLCHAIN_TAGS = 'dev_tools,bun_setup,uv_setup'
 HOOK_TYPES = ('pre-commit', 'pre-push', 'pre-merge-commit', 'post-checkout')
 # The session's placeholder GH_TOKEN fails zizmor's online audits:
 # see bugs/zizmor-online-audits-fail-in-cloud-devcontainer.
@@ -258,7 +258,7 @@ def add_session_env() -> None:
 
 
 def provision_toolchain(environ: Mapping[str, str]) -> None:
-    """Install Ansible, then the pinned tools the image's dev_tools and uv_setup roles install."""
+    """Install Ansible, then the pinned tools the image's toolchain roles install."""
     log('Provisioning the project toolchain on the host')
     run('bash', 'docker/ansible/setup-ansible.sh')
     run(
