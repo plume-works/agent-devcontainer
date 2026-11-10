@@ -108,7 +108,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
 ## 5. Findings and guides
 
-- [ ] 5.1 Add `.iwe/schemas/finding.yaml`, bind it to `data/findings/*` in
+- [x] 5.1 Add `.iwe/schemas/finding.yaml`, bind it to `data/findings/*` in
       `.iwe/config.toml`, add the `data/findings.md` hub, and link it from
       `data/index.md`. Verify with `iwe schema validate`.
 - [ ] 5.2 Move these to `data/findings/<slug>.md` with `type: finding`, link

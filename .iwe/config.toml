@@ -81,6 +81,9 @@ match = "data/spec/**"
 [schemas.architecture]
 match = "data/architecture/**"
 
+[schemas.finding]
+match = "data/findings/**"
+
 [schemas.concept]
 match = "data/concept/**"
 
@@ -95,6 +98,7 @@ match = [
   "data/bugs",
   "data/concept",
   "data/features",
+  "data/findings",
   "data/plans",
   "data/releases",
   "data/someday",
