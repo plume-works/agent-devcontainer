@@ -202,9 +202,13 @@ before Task 5.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
 `scripts/tests/test_agentdev_devcontainer_lifecycle.py`
 
-- [ ] `agentdev-runtime lifecycle created`, for a non-root account, re-owns
+- [x] `agentdev-runtime lifecycle created`, for a non-root account, re-owns
   `/workspaces/project` recursively when it is a mount owned by another UID, and
   leaves it untouched when the account already owns it.
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_re_owns_a_sibling_checkout_volume_another_uid_owns`,
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_leaves_a_sibling_checkout_the_account_owns_untouched`,
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_never_re_owns_the_open_workspace`
 
 ### Task 6: Point this repository's descriptor at the home volume
 

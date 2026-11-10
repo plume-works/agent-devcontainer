@@ -29,6 +29,7 @@ from agentdev_runtime import (
 
 PREFIX = 'agentdev-runtime lifecycle'
 UV_MOUNT = Path('/uv')
+PROJECT_MOUNT = Path('/workspaces/project')
 
 
 class LifecycleError(Exception):
@@ -59,6 +60,19 @@ def claim_mounts(owner: str) -> None:
         print(f'{UV_MOUNT} is not mounted; skipping its ownership fix.')
 
 
+def claim_project(settings: env.Settings) -> None:
+    """Re-own the sibling checkout volume once, so its uncommitted work stays editable."""
+    uid, gid = os.getuid(), os.getgid()
+    if uid == 0 or not os.path.ismount(PROJECT_MOUNT):
+        return
+    if Path(settings.get('DEV_WORKSPACE_FOLDER')).resolve() == PROJECT_MOUNT:
+        return
+    if PROJECT_MOUNT.stat().st_uid == uid:
+        return
+    subprocess.run(['sudo', 'chown', '-R', f'{uid}:{gid}', str(PROJECT_MOUNT)], check=True)
+    print(f'Re-owned {PROJECT_MOUNT} to {uid}:{gid}.')
+
+
 def check(status: int, step: str) -> None:
     if status != 0:
         raise LifecycleError(f'{step} failed (exit status {status})')
@@ -69,6 +83,7 @@ def created(settings: env.Settings) -> None:
     workspace_of(settings)
     owner = f'{os.getuid()}:{os.getgid()}'
     claim_mounts(owner)
+    claim_project(settings)
     # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
     git.safe_directory(settings)
     with agent_state.config_lock(settings):
