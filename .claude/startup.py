@@ -40,6 +40,8 @@ DOCKER_BRIDGE_CIDR = '10.213.0.1/24'
 RELAY_HOST = DOCKER_BRIDGE_CIDR.split('/')[0]
 DOCKER_WAIT_SECONDS = 30
 LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
+# ROS 2 base: apt's Python bindings are built for 3.12, which the apt module needs.
+ANSIBLE_PYTHON = '/usr/bin/python3.12'
 # The ansible playbook's roles that put every pre-commit hook's binary on PATH.
 TOOLCHAIN_TAGS = 'dev_tools,uv_setup'
 HOOK_TYPES = ('pre-commit', 'pre-push', 'pre-merge-commit', 'post-checkout')
@@ -263,7 +265,7 @@ def provision_toolchain(environ: Mapping[str, str]) -> None:
         'ansible/playbooks/setup-dev.yml',
         '--tags',
         TOOLCHAIN_TAGS,
-        env={**environ, 'ANSIBLE_LOG_PATH': ''},
+        env={**environ, 'ANSIBLE_LOG_PATH': '', 'ANSIBLE_PYTHON_INTERPRETER': ANSIBLE_PYTHON},
     )
 
 
