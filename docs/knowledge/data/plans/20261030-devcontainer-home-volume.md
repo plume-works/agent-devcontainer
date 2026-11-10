@@ -327,11 +327,17 @@ before Task 5.
 `docs/knowledge/data/features/persist-pre-commit-cache.md`,
 `docs/knowledge/data/architecture/uv-environment-location.md`
 
-- [ ] The architecture document describes the shipped account and volumes; the
+- [x] The architecture document describes the shipped account and volumes; the
   auth document and the pre-commit feature name the home volume and the cohort
   auth volume instead of the per-directory volumes.
-- [ ] The uv environment location document places the uv cache and every
+  - **Evidence:**
+    `docs/knowledge/data/architecture/devcontainer-home-volume.md#the-account-and-its-volumes`,
+    `docs/knowledge/data/architecture/agent-auth-persistence.md#decision`, and
+    `docs/knowledge/data/features/persist-pre-commit-cache.md#behaviour`
+- [x] The uv environment location document places the uv cache and every
   checkout's environment on the home volume instead of the `/uv` volume.
+  - **Evidence:**
+    `docs/knowledge/data/architecture/uv-environment-location.md#why-the-environment-is-out-of-tree`
 
 ## Spec changes
 

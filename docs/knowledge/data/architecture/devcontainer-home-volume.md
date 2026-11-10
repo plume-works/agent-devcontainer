@@ -1,6 +1,6 @@
 ---
 type: architecture
-description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
+description: The Dev Container runs as a non-root account remapped to the host user, whose whole home is one per-instance volume, like the deploy runtime, in place of per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: compose.opencode.yml
@@ -9,6 +9,8 @@ sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: .devcontainer/devcontainer-init.sh
 ---
 
 # Dev Container home volume
@@ -22,21 +24,43 @@ agent configuration and sessions, `~/.claude.json`, OpenCode's database, and the
 pre-commit cache — lives on that volume. Only Claude credentials stay on the
 shared auth volume.
 
-The decision was made by the repository owner. Existing instances' per-directory
-state is dropped, not migrated; shared credentials are unaffected.
+The decision was made by the repository owner. Per-directory state from before
+the change is dropped, not migrated, and Claude logs in once on the new auth
+volume.
 
-## What it replaces
+## The account and its volumes
 
-The Dev Container runs as root with `/root` on the container filesystem, so each
-piece of state needs its own volume: `agentdev-claude`, `agentdev-opencode`,
-`agentdev-uv`, and the volume holding the pre-commit cache. A volume cannot be
-mounted on a single file, so `~/.claude.json` is kept inside the `~/.claude`
-volume and symlinked (see [Agent auth persistence](agent-auth-persistence.md)).
-With the whole home on one volume, the file is an ordinary file and the
-per-directory mounts go away.
+- **The account.** `agentdev-devcontainer` defines `agent` (1000:1000) with an
+  empty `/home/agent` it owns. Its metadata sets `remoteUser: agent` and
+  `updateRemoteUserUID: true`, so on Linux the devcontainer CLI remaps the
+  account to the UID and GID of the host user running it. The container's own
+  user stays root: PID 1 is the supervisor, which runs every user service as
+  `agent`.
+- **The home volume.** The image metadata mounts
+  `agentdev-home-${devcontainerId}` at `/home/agent`. Agent configuration and
+  sessions, `~/.claude.json` (a regular file), OpenCode's database, uv's cache
+  and interpreters, each checkout's environment under `AGENTDEV_VENV_ROOT`
+  (`~/.local/share/uv/venvs`), and the pre-commit cache all live there at their
+  default paths.
+- **The auth volume.** Claude's credentials live on
+  `agentdev-agents-auth-<uid>-<gid>` at `/var/lib/agentdev/auth`, which
+  `devcontainer-init.sh` names after the host user's IDs; see [Agent auth
+  persistence](agent-auth-persistence.md).
+- **The bootstrap.** For a non-root account it claims an empty home mount root,
+  writes the sudoers entry, initializes the auth volume under its lock, and
+  refuses a checkout the account cannot write, naming the UID it needs. A root
+  account keeps the root path, with no claim and no sudoers entry.
+- **The sibling checkout.** The create phase re-owns `/workspaces/project` once
+  when it is a mount another UID owns, unless it is the open workspace.
+- **Shell setup.** The base image writes its `PATH` and history blocks into
+  `/etc/bash.bashrc` and `/etc/fish/conf.d/`, so an empty home gets them.
 
 ## Constraints
 
+- The image must ship `/home/agent` as an empty directory: the devcontainer
+  CLI's UID update re-owns the account's home recursively and fails the build
+  when it is missing. Docker copies the empty directory's ownership to a fresh
+  volume, so the volume starts empty and owned by the remapped account.
 - The home must start empty. The deploy image creates no home and keeps
   build-time tools out of it. Anything the base image builds into a home would
   be copied into the volume once and then never updated by an image upgrade.
