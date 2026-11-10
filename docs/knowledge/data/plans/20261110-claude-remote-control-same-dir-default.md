@@ -89,22 +89,36 @@ records that Codex is unsupported, and the closed bug's `## Fix` links it.
 `docs/knowledge/data/features/claude-remote-control-server-mode.md`,
 `docs/knowledge/data/architecture/claude-remote-control-server-mode.md`
 
-- [ ] The `AGENTDEV_CLAUDE_RC_SPAWN` description in `settings.py::VARIABLES`
+- [x] The `AGENTDEV_CLAUDE_RC_SPAWN` description in `settings.py::VARIABLES`
   reads ``Server-mode spawn, `same-dir` (empty) or `worktree`.``, and the
   matching row of the README table is the one `settings.py::markdown_table`
   renders.
-- [ ] The `AGENTDEV_CLAUDE_RC_SPAWN` comment in `runtime.env.example` names
+  - **Evidence:**
+    `uv run python -c "from agentdev_runtime.settings import markdown_table; print(markdown_table())" | grep AGENTDEV_CLAUDE_RC_SPAWN`
+    prints the description `py_packages/agentdev_runtime/README.md` ›
+    "Server-mode spawn, `same-dir` (empty) or `worktree`." carries
+- [x] The `AGENTDEV_CLAUDE_RC_SPAWN` comment in `runtime.env.example` names
   `same-dir` as the empty value and `worktree` as the opt-in that gives each
   spawned conversation its own git worktree.
-- [ ] `features/claude-remote-control-server-mode#behaviour` replaces "A
+  - **Evidence:** `docker/deploy/runtime.env.example` › "`same-dir` (empty) runs
+    every spawned conversation in the"
+- [x] `features/claude-remote-control-server-mode#behaviour` replaces "A
   worktree per conversation by default" with the workspace folder as the default
   and `AGENTDEV_CLAUDE_RC_SPAWN=worktree` as the opt-in.
-- [ ] `architecture/claude-remote-control-server-mode` records the maintainer's
+  - **Evidence:**
+    `docs/knowledge/data/features/claude-remote-control-server-mode.md#behaviour`
+    › "The workspace folder by default."
+- [x] `architecture/claude-remote-control-server-mode` records the maintainer's
   decision that `same-dir` is the default because the Dev Container gives
   worktrees nothing of their own (linking `architecture/worktree-support`), in
   its description and decision paragraph, and replaces the rejected alternative
   about the worktree default with the worktree default itself: it spawns
   worktrees that share the checkout's uv environment and catalog.
+  - **Evidence:**
+    `docs/knowledge/data/architecture/claude-remote-control-server-mode.md#decision`
+    › "in the workspace folder by default, because the Dev Container gives
+    worktrees" and `#rejected-alternatives` › "A worktree per spawned
+    conversation by default."
 
 ### Task 3: Record that worktrees get no isolation of their own
 

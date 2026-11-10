@@ -1,6 +1,6 @@
 ---
 type: architecture
-description: AGENTDEV_CLAUDE_RC_MODE=server opts the claude-remote pane into `claude remote-control` in place of the pinned interactive pane, which stays the default; AGENTDEV_CLAUDE_RC_SPAWN picks the worktree (default) or same-dir spawn mode, and an unrecognized value of either fails startup.
+description: AGENTDEV_CLAUDE_RC_MODE=server opts the claude-remote pane into `claude remote-control` in place of the pinned interactive pane, which stays the default; AGENTDEV_CLAUDE_RC_SPAWN picks the same-dir (default) or worktree spawn mode, and an unrecognized value of either fails startup.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: https://code.claude.com/docs/en/remote-control
@@ -23,13 +23,15 @@ Any other value fails startup before any other check, printing the value and the
 valid options.
 
 The maintainer decided that server mode spawns each on-demand conversation in
-its own git worktree by default: unset or `AGENTDEV_CLAUDE_RC_SPAWN=worktree`
-passes `--spawn worktree`, and `AGENTDEV_CLAUDE_RC_SPAWN=same-dir` passes
-`--spawn same-dir`, where every spawned conversation works in the workspace
-folder. The session the server pre-creates works in the workspace folder in both
-spawn modes. The spawn value is read only in server mode; there, any other value
-fails startup right after the mode check, printing the value and the valid
-options. Session mode ignores it.
+the workspace folder by default, because the Dev Container gives worktrees
+nothing of their own ([Worktree support](worktree-support.md)): unset or
+`AGENTDEV_CLAUDE_RC_SPAWN=same-dir` passes `--spawn same-dir`, and
+`AGENTDEV_CLAUDE_RC_SPAWN=worktree` passes `--spawn worktree`, where each
+spawned conversation works in its own git worktree. The session the server
+pre-creates works in the workspace folder in both spawn modes. The spawn value
+is read only in server mode; there, any other value fails startup right after
+the mode check, printing the value and the valid options. Session mode ignores
+it.
 
 The server runs on the same `tmux -L claude-remote` server, behind the same
 claude.ai login gate and live-session reuse, and without
@@ -90,9 +92,8 @@ Documented limits of server mode:
 - **Offering `--spawn session`.** Its name collides with
   `AGENTDEV_CLAUDE_RC_MODE=session`, and it serves one session and exits when
   that ends, which ends the pane.
-- **Making the worktree default depend on a measured worktree revival.** The
-  maintainer made worktree the default independently of how a worktree session
-  revives.
+- **A worktree per spawned conversation by default.** It spawns worktrees that
+  share the checkout's uv environment and catalog.
 - **Falling back to session mode on an unrecognized value.** The maintainer
   chose a failed startup, so a mistyped mode is reported instead of silently
   running the other mode.

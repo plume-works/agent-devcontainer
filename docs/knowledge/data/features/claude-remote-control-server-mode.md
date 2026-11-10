@@ -26,12 +26,13 @@ Coder env user secret, which the `coder_script` inherits — makes
 `claude-remote` tmux session. Unset, or `session`, keeps the pinned interactive
 pane.
 
-**A worktree per conversation by default.** Each conversation spawned on demand
-works in its own git worktree under the workspace folder's `.claude/worktrees/`,
-so concurrent conversations do not edit the same files.
-`AGENTDEV_CLAUDE_RC_SPAWN=same-dir` makes every spawned conversation work in the
-workspace folder instead. The conversation the server pre-creates works in the
-workspace folder either way.
+**The workspace folder by default.** Each conversation spawned on demand works
+in the workspace folder. `AGENTDEV_CLAUDE_RC_SPAWN=worktree` gives each one its
+own git worktree under the workspace folder's `.claude/worktrees/` instead, so
+concurrent conversations do not edit the same files; those worktrees share the
+workspace's uv environment and catalog ([Worktree
+support](../architecture/worktree-support.md)). The conversation the server
+pre-creates works in the workspace folder either way.
 
 **Same environment.** Spawned conversations inherit the Coder agent's
 environment, Coder user secrets and git credentials included.
