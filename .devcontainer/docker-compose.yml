@@ -38,22 +38,16 @@ services:
       # The workspace itself, at the path devcontainer.json declares as workspaceFolder.
       - ${LOCAL_WORKSPACE_FOLDER:-$PWD}:/workspaces/${WORKSPACE_BASENAME:-project}:rw
 
-      # Agent auth state, shared across all devcontainer instances (worktrees,
-      # Codespaces, etc). Declared with an explicit top-level `name:` below so Compose
-      # uses the literal volume name instead of prefixing it with the per-project name,
-      # which would otherwise isolate each devcontainer instance's auth state.
-      #
-      # Only Claude Code's credentials are shared, via CLAUDE_SECURESTORAGE_CONFIG_DIR;
-      # other agent state is per instance. See architecture/agent-auth-persistence.
-      - agentdev-agents-auth:/root/.agents-auth
+      # Claude's credentials, shared by every Dev Container of the host user's UID and GID;
+      # see architecture/agent-auth-persistence.
+      - agentdev-agents-auth:/var/lib/agentdev/auth
 
       # Written by devcontainer-init.sh, empty when the host names no extra CA.
       - ./.extra-ca.crt:/etc/agentdev/extra-ca.crt:ro
 
 volumes:
-  # `name:` pins the literal Docker volume name so it's shared across every
-  # devcontainer instance (worktrees, Codespaces, etc), instead of Compose's
-  # default per-project name prefix isolating each instance's auth state.
+  # Created and named by devcontainer-init.sh; `name:` keeps Compose from prefixing it per
+  # project, so it is shared across instances.
   agentdev-agents-auth:
-    name: agentdev-agents-auth
+    name: ${AGENTDEV_AUTH_VOLUME:-agentdev-agents-auth-1000-1000}
     external: true

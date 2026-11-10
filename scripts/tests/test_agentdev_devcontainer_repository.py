@@ -60,7 +60,18 @@ class Checkout:
 
     def sh(self, script: str) -> str:
         result = subprocess.run(
-            ['docker', 'exec', '-w', self.workspace, self.container, 'bash', '-lc', script],
+            [
+                'docker',
+                'exec',
+                '-u',
+                'agent',
+                '-w',
+                self.workspace,
+                self.container,
+                'bash',
+                '-lc',
+                script,
+            ],
             capture_output=True,
             text=True,
             timeout=300,
@@ -72,6 +83,15 @@ class Checkout:
         return self.sh('jq -r .startup_id /run/agentdev/state.json')
 
     def remove(self) -> None:
+        homes = (
+            subprocess.run(
+                ['docker', 'inspect', '-f', '{{range .Mounts}}{{.Name}} {{end}}', self.container],
+                capture_output=True,
+                text=True,
+            ).stdout.split()
+            if self.container
+            else []
+        )
         project = f'{self.path.name}_devcontainer'.lower()
         label = f'label=com.docker.compose.project={project}'
         for kind in ('container', 'volume'):
@@ -90,6 +110,9 @@ class Checkout:
             ).stdout.split()
             if listed:
                 subprocess.run(['docker', kind, 'rm', '-f', *listed], capture_output=True)
+        homes = [name for name in homes if name.startswith('agentdev-home-')]
+        if homes:
+            subprocess.run(['docker', 'volume', 'rm', '-f', *homes], capture_output=True)
         if self.kind == 'worktree':
             subprocess.run(
                 ['git', '-C', str(REPO_ROOT), 'worktree', 'remove', '--force', str(self.path)],
@@ -127,7 +150,7 @@ def test_the_checkout_catalog_wins_and_state_keeps_its_boundaries(checkouts, kin
     first = box.startup_id()
     box.sh(
         'echo instance > ~/.claude/boundary-probe && echo container > /var/tmp/boundary-probe'
-        ' && echo shared > /root/.agents-auth/boundary-probe-$DEVCONTAINER_ID'
+        ' && echo shared > /var/lib/agentdev/auth/boundary-probe-$DEVCONTAINER_ID'
     )
 
     # A window reload attaches again without restarting services.
@@ -148,7 +171,7 @@ def test_the_checkout_catalog_wins_and_state_keeps_its_boundaries(checkouts, kin
     assert box.container != old
     box.sh('agentdev-runtime health ready')
     box.sh('test ! -e /var/tmp/boundary-probe && test -f ~/.claude/boundary-probe')
-    box.sh('ls /root/.agents-auth/ | grep -q boundary-probe-')
+    box.sh('ls /var/lib/agentdev/auth/ | grep -q boundary-probe-')
     assert_checkout_catalog(box)
 
 
@@ -157,9 +180,9 @@ def test_two_checkouts_share_only_credentials(checkouts):
     clone.up()
     worktree.up()
     clone.sh(
-        'echo clone > ~/.claude/isolation-probe && echo clone > /root/.agents-auth/isolation-probe'
+        'echo clone > ~/.claude/isolation-probe && echo clone > /var/lib/agentdev/auth/isolation-probe'
     )
     worktree.sh(
-        'test ! -e ~/.claude/isolation-probe && test -f /root/.agents-auth/isolation-probe'
+        'test ! -e ~/.claude/isolation-probe && test -f /var/lib/agentdev/auth/isolation-probe'
     )
     assert os.path.basename(clone.workspace) != os.path.basename(worktree.workspace)

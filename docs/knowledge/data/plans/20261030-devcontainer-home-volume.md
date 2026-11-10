@@ -213,18 +213,29 @@ before Task 5.
 ### Task 6: Point this repository's descriptor at the home volume
 
 **Files:** Modify: `.devcontainer/devcontainer.json`,
-`.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`
+`.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`,
+`scripts/tests/test_agentdev_devcontainer_repository.py`; Create:
+`scripts/tests/test_devcontainer_init.py`
 
-- [ ] `devcontainer.json` drops the `agentdev-claude`, `agentdev-opencode`,
+- [x] `devcontainer.json` drops the `agentdev-claude`, `agentdev-opencode`,
   `agentdev-uv`, and `agentdev-pre-commit` mounts, and the
   `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `PRE_COMMIT_HOME`, `UV_CACHE_DIR`, and
   `UV_PYTHON_INSTALL_DIR` overrides, so uv's cache and Python installs and
   pre-commit use their defaults under the home. `UV_PROJECT_ENVIRONMENT` is
   `/home/agent/.local/share/uv/venvs/ws-project`. `agentdev-project` stays.
-- [ ] `devcontainer-init.sh` creates `agentdev-agents-auth-<uid>-<gid>` from the
+  - **Evidence:**
+    `.devcontainer/devcontainer.json › "UV_PROJECT_ENVIRONMENT": "/home/agent/.local/share/uv/venvs/ws-project"`
+    and `.devcontainer/devcontainer.json#mounts`, whose only entry is
+    `agentdev-project`
+- [x] `devcontainer-init.sh` creates `agentdev-agents-auth-<uid>-<gid>` from the
   host user's `id -u` and `id -g` and writes its name to `.env`, and
   `docker-compose.yml` mounts it at `/var/lib/agentdev/auth`.
-- [ ] No mount target or environment value in `.devcontainer/` names `/root`.
+  - **Evidence:**
+    `scripts/tests/test_devcontainer_init.py::test_the_auth_volume_is_named_after_the_host_users_uid_and_gid`
+    and `.devcontainer/docker-compose.yml#volumes.agentdev-agents-auth.name`
+- [x] No mount target or environment value in `.devcontainer/` names `/root`.
+  - **Evidence:**
+    `! grep -rn /root .devcontainer/devcontainer.json .devcontainer/docker-compose.yml .devcontainer/devcontainer-init.sh`
 
 ### Task 7: Move the deploy runtime's uv state onto its home volume
 
@@ -460,21 +471,14 @@ CLI](20261029-off-bash-migration.md)
   `created`
 - `docker/devcontainer/supervisord.conf › "user=%(ENV_AGENTDEV_USER)s"` —
   `user=%(ENV_AGENTDEV_USER)s`
-- `.devcontainer/devcontainer.json › "CLAUDE_SECURESTORAGE_CONFIG_DIR"` —
-  `CLAUDE_SECURESTORAGE_CONFIG_DIR`
-- `.devcontainer/devcontainer.json › "agentdev-uv"` — `agentdev-uv` mount
-- `.devcontainer/devcontainer.json › "agentdev-pre-commit"` —
-  `agentdev-pre-commit` mount
-- `.devcontainer/devcontainer.json › "agentdev-claude"` — `agentdev-claude`
-  mount
-- `.devcontainer/devcontainer.json › "agentdev-opencode"` — `agentdev-opencode`
-  mount
+- `.devcontainer/devcontainer.json › "UV_PROJECT_ENVIRONMENT"` —
+  `UV_PROJECT_ENVIRONMENT`
 - `.devcontainer/devcontainer.json › "agentdev-project"` — `agentdev-project`
   mount
 - `.devcontainer/docker-compose.yml#volumes.agentdev-agents-auth.external` —
   `agentdev-agents-auth` mount
-- `.devcontainer/devcontainer-init.sh › "docker volume create agentdev-agents-auth >/dev/null"`
-  — `docker volume create agentdev-agents-auth`
+- `.devcontainer/devcontainer-init.sh › "docker volume create \"$auth_volume\""`
+  — the cohort auth volume
 - `compose.opencode.yml › "uv:/uv"` — `uv:/uv` mount
 - `scripts/tests/test_agent_runtime_compose.py::INSTANCE_TARGETS` —
   `INSTANCE_TARGETS`
