@@ -179,7 +179,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       `iwe-planner.agent.md`. A plan whose work changes behavior links its OpenSpec
       change. Verify that `grep -n 'Spec changes' .agents/plugins/agentdev/agents/iwe-planner.agent.md`
       prints nothing.
-- [ ] 8.2 Remove the spec merge and its spec-retirement step from
+- [x] 8.2 Remove the spec merge and its spec-retirement step from
       `iwe-shipper.agent.md`. Make `iwe-verifier.agent.md` check the plan against
       the specs its linked OpenSpec change touches. Drop the `## Spec changes`
       references in `iwe-implementer`, `iwe-revision-evaluator`, and

@@ -668,7 +668,7 @@ anchor format; re-locate every anchor below once they have shipped.
   done)
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Select the operation and inspect current state."`
   — step 1 "Select the operation and inspect current state"
-- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Do not verify implementation, synchronize"`
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Do not verify implementation or mark"`
   — step 2 "Cancel without shipping"
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "and skip a result that is already correct."`
   — step 6 "Apply frontmatter transitions idempotently"

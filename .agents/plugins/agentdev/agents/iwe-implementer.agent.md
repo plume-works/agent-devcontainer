@@ -32,15 +32,13 @@ claims the user gave is not one.
    — and ask which one. Announce:
    "Working on: <plan> — task N of M". No plan exists for what the user wants
    built? Stop and point at the `/agentdev:iwe-plan` skill.
-2. **Load the context.** Read the full plan, the specs in its
-   `## Spec changes`, and `data/product.md` `## Constraints` and
-   `## Authoring rules` — they bind the code you're about to write. Note which
-   form the plan's spec impact takes — an explicit `None`, a concise normative
-   outcome, or a fenced `ADDED` / `MODIFIED` / `REMOVED` delta — and read it
-   against the current durable spec. The recorded form is the behavior this
-   work is meant to produce; the durable spec is what remains true until Ship
-   merges that intent. Both bind the code, and where they differ, the
-   difference is the work.
+2. **Load the context.** Read the full plan, the OpenSpec change it links with
+   its `specs/` deltas, the specs under `openspec/specs/` that change touches,
+   and `data/product.md` `## Constraints` and `## Authoring rules` — they bind
+   the code you're about to write. The change's delta is the behavior this work
+   is meant to produce; the spec is what remains true until the change is
+   archived. Both bind the code, and where they differ, the difference is the
+   work.
 3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
    ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
    prerequisite plan that is not `stage: done` at the remote default branch
@@ -91,14 +89,13 @@ claims the user gave is not one.
      boundary, update the plan first, report the correction and why it
      preserves intent, then continue within the user's requested task boundary.
      Adding a task is never a tactical correction.
-     The plan's recorded spec impact is one of those boundaries: a correction
-     may proceed only while the recorded behavioral outcome still holds exactly
-     as written.
+     The linked OpenSpec change is one of those boundaries: a correction may
+     proceed only while its delta still holds exactly as written.
    - **Material deviation:** if completing the task would add scope or drop,
      narrow, defer, or accept an exception to specified behavior, leave the
-     task unchecked. Any change to a recorded normative outcome, delta
-     operation, requirement, or scenario is material by definition — never
-     edit the delta to match what you built. Route it by kind:
+     task unchecked. Any change to a requirement or scenario of the linked
+     OpenSpec change is material by definition — never edit the delta to match
+     what you built. Route it by kind:
      - **Always-escalate** — the change would drop, narrow, defer, or accept
        an exception to specified behavior, change `release`, or change text
        the user approved. Explain the needed change and wait for user
@@ -106,7 +103,7 @@ claims the user gave is not one.
        through the `/agentdev:iwe-plan` skill's revise mode, with the user's
        direction, before coding continues.
      - **Any other material deviation** — an added task or requirement, a
-       heavier `## Spec changes` form, a corrected verification step, each
+       corrected verification step, each
        keeping every specified behavior. It takes the revision route in
        `## Running the loop` before coding past it.
 
@@ -208,8 +205,10 @@ document's key.
 Implementation findings do not belong in the plan. Route each finding by type:
 
 - A durable design fact — a constraint, a boundary, why the obvious approach
-  fails → `data/architecture/<slug>.md`, linked from `data/architecture.md`.
-  Add to the existing doc that owns the area before creating a new one.
+  fails, a measurement → `data/findings/<slug>.md` (`type: finding`, with a
+  `## Closing`), linked from `data/findings.md`. Add to the existing finding
+  that owns the question before creating a new one. A decision it settles
+  reaches the owning spec's `## Rationale` through an OpenSpec change.
 - A defect in shipped behavior, not caused by this work → hand it to the
   `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
   bug bar — no reproduction, no root cause — stays in the handoff report
@@ -250,5 +249,6 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   the task needs. Never add a speculative abstraction, an unrequested config
   flag, option, or parameter, an interface with a single implementation, or a
   hook "for later". Inline before you extract; hard-code before you configure.
-- This rulebook implements; it doesn't ship. Status flips, spec sync, and
-  release recording stay with the `/agentdev:iwe-ship` skill.
+- This rulebook implements; it doesn't ship. Status flips and release
+  recording stay with the `/agentdev:iwe-ship` skill, and specs change only
+  when the OpenSpec change is archived.

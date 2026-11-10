@@ -48,9 +48,10 @@ runs in one of two modes:
    and the unsequenced ones from
    `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`
    (a just-finished plan may carry `stage: done`), report them under
-   `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan, every spec named in
-   its `## Spec changes`, and the linked feature/bug docs
-   (`iwe retrieve -k data/plans/<key>`).
+   `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan, the OpenSpec change it
+   links (`openspec/changes/<name>/`, its `specs/` deltas included), every
+   spec under `openspec/specs/` that change touches, and the linked feature/bug
+   docs (`iwe retrieve -k data/plans/<key>`).
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation. Every CRITICAL and WARNING
    cites the requirement, scenario, task, or verification step of the
@@ -85,18 +86,16 @@ runs in one of two modes:
      unchecked box that is actually done is a nuisance the next session clears
      in a minute, while a checked box that is not done is a false premise the
      next session builds on. Taking a tick on faith is how the second one
-     survives verification. Every entry in `## Spec changes` is judged against
-     the **effective contract**: the current durable spec plus the intent the
-     plan records against it. Durable specs are not expected to describe the
-     unshipped change — Ship merges them after this report — so a back-ticked
-     not-yet-created spec is valid here whenever the plan explicitly introduces
-     it and supplies its planned contract. Check by the form the plan chose: a
-     fenced delta against the durable spec plus every `ADDED` / `MODIFIED` /
-     `REMOVED` operation, a concise entry against its normative outcome, and
-     `None` by confirming no externally observable behavior changed. Three
-     CRITICALs live here — the chosen form is too weak for what the change
-     actually touches, the implementation contradicts the recorded intent, or
-     the delta would silently drop a scenario this change does not affect.
+     survives verification. The specs are judged against
+     the **effective contract**: each spec the linked OpenSpec change touches,
+     as it stands in `openspec/specs/`, plus that change's `ADDED`, `MODIFIED`,
+     and `REMOVED` requirements. The specs are not expected to describe the
+     unshipped change — archiving the change merges it — and a capability the
+     change creates is valid here with only its delta. A plan that links no
+     OpenSpec change is checked by confirming no externally observable behavior
+     changed. Two CRITICALs live here — the implementation contradicts the
+     effective contract, or behavior changed and the plan links no OpenSpec
+     change that specifies it.
      Every `### Requirement:` in the effective contract has implementation
      evidence in the codebase — search for it; none found is a CRITICAL.
 
@@ -123,8 +122,9 @@ runs in one of two modes:
    run always ends with its report.
 5. **Audit mode** — the same discipline over the whole graph, against the
    codebase:
-   - Specs whose requirements the code now contradicts (sample the
-     highest-traffic specs first: `iwe find --references <key>` counts).
+   - Specs under `openspec/specs/` whose requirements the code now
+     contradicts (sample the specs the most graph documents and code comments
+     cite first).
    - Features marked `implemented` with no trace in the code; shipped
      behavior with no feature doc.
    - Open bugs
@@ -137,7 +137,7 @@ runs in one of two modes:
      `iwe schema validate` violations; `iwe stats` dangling links and `data/`
      documents listed under Orphans.
    - Report in the same CRITICAL/WARNING/SUGGESTION format, grouped by fix
-     owner: "run `/agentdev:iwe-ship` on X", "update spec Y", "close bug Z".
+     owner: "run `/agentdev:iwe-ship` on X", "plan an OpenSpec change for spec Y", "close bug Z".
 
 ## Report
 
@@ -164,7 +164,7 @@ then:
 - Report, never fix — even a one-character hub-section fix is someone else's
   commit, so the audit trail stays clean.
 - Zero CRITICAL findings are the required handoff for normal Ship; Verify
-  supplies that verdict but never performs Ship's spec or lifecycle mutations.
+  supplies that verdict but never performs Ship's lifecycle mutations.
 - Every claim cites anchored evidence, never a line number, or is explicitly
   labeled
   "unverified" — a requirement you couldn't trace is unverified, not failed,

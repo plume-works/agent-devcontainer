@@ -31,10 +31,10 @@ missing input.
 
 ## Steps
 
-1. **Load the plan.** Read the full plan, every spec its `## Spec changes`
-   names, and the feature and bug documents it links. The plan's claims are its
-   `## Spec changes` requirements and scenarios, its tasks, and the outcomes
-   its `## Approach` states.
+1. **Load the plan.** Read the full plan, the OpenSpec change it links with its
+   `specs/` deltas, and the feature and bug documents it links. The plan's
+   claims are that change's requirements and scenarios, its tasks, and the
+   outcomes its `## Approach` states.
 2. **Apply the rubric for the target.**
    - **`plan`** — look for:
      - claims the design cannot keep: a requirement whose mechanism, as

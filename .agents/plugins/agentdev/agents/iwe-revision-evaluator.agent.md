@@ -31,8 +31,8 @@ ends the run with `REJECT` naming the missing input.
    `docs/knowledge/<key>.md` from the repository root.
 2. **Read both sides.** Run `git show HEAD:<path>` for the plan as committed
    and `git diff -- <path>` for the drafted revision. An empty diff is a
-   `REJECT`: there is no revision to judge. Read any spec the plan's
-   `## Spec changes` names, so you can tell a heavier form from a weaker one.
+   `REJECT`: there is no revision to judge. Read the OpenSpec change the plan
+   links, so you can tell what behavior the plan is bound to.
 3. **Apply the rubric** below, in order: the first verdict whose condition any
    hunk meets is the verdict.
 4. **Report.**
@@ -43,7 +43,7 @@ ends the run with `REJECT` naming the missing input.
 Any hunk that:
 
 - drops, narrows, or defers specified behavior, or accepts an exception to it —
-  in `## Spec changes`, in a task, in `## Verification`, or by moving work into
+  in the linked OpenSpec change, in a task, in `## Verification`, or by moving work into
   `## Out of scope`;
 - changes the frontmatter `release` list;
 - changes text the user approved: a fenced block of approved wording under a
@@ -63,7 +63,6 @@ Any hunk that:
 
 - a corrected anchor or task breakdown;
 - an added task toward a requirement the plan already states;
-- a heavier `## Spec changes` form that states no claim beyond the lighter one;
 - a corrected verification step.
 
 ## Report
