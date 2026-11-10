@@ -107,7 +107,7 @@ def test_session_mode_starts_pinned_pane(mode):
 @pytest.mark.parametrize(
     ('spawn', 'spawn_mode'),
     [
-        pytest.param(None, 'worktree', id='spawn-unset'),
+        pytest.param(None, 'same-dir', id='spawn-unset'),
         pytest.param('worktree', 'worktree', id='spawn-worktree'),
         pytest.param('same-dir', 'same-dir', id='spawn-same-dir'),
     ],

@@ -911,7 +911,7 @@ def test_remote_control_waits_for_a_login_then_starts_and_comes_back(make_runtim
     runtime.sh('echo fake-claude-ai > "$CLAUDE_SECURESTORAGE_CONFIG_DIR/.credentials.json"')
     wait_until(lambda: runtime.sh(CLAUDE_REMOTE, check=False).returncode == 0)
     args = runtime.sh('cat /tmp/fake-claude.args').stdout
-    assert args.startswith(f'{WORKSPACE} remote-control --spawn worktree'), args
+    assert args.startswith(f'{WORKSPACE} remote-control --spawn same-dir'), args
     wait_until(lambda: 'remote-control: running in tmux session claude-remote' in status())
     assert runtime.state() == 'ready'
 

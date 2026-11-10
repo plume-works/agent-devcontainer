@@ -98,7 +98,7 @@ def start() -> int:
             file=sys.stderr,
         )
         return 1
-    spawn = os.environ.get('AGENTDEV_CLAUDE_RC_SPAWN', 'worktree')
+    spawn = os.environ.get('AGENTDEV_CLAUDE_RC_SPAWN', 'same-dir')
     if mode == 'server' and spawn not in SPAWNS:
         print(
             f"Unrecognized AGENTDEV_CLAUDE_RC_SPAWN '{spawn}'; valid options: worktree, same-dir.",

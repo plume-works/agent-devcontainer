@@ -152,7 +152,7 @@ def test_a_later_login_starts_the_session_once(make):
     time.sleep(0.5)
     assert len(watch.starts()) == 1
     assert f'-c {watch.env["DEV_WORKSPACE_FOLDER"]}' in watch.starts()[0]
-    assert 'claude remote-control --spawn worktree' in watch.starts()[0]
+    assert 'claude remote-control --spawn same-dir' in watch.starts()[0]
 
 
 def test_a_setup_token_login_keeps_waiting(make):
@@ -220,4 +220,4 @@ def test_an_empty_spawn_mode_does_not_reach_the_start_script(make):
     watch.login()
     watch.start()
     watch.wait_for(lambda: watch.status() == RUNNING)
-    assert 'claude remote-control --spawn worktree' in watch.starts()[0]
+    assert 'claude remote-control --spawn same-dir' in watch.starts()[0]

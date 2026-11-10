@@ -63,14 +63,21 @@ records that Codex is unsupported, and the closed bug's `## Fix` links it.
 `scripts/tests/test_runtime_remote_control.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] `remote_control.py::start` reads `AGENTDEV_CLAUDE_RC_SPAWN` with the
+- [x] `remote_control.py::start` reads `AGENTDEV_CLAUDE_RC_SPAWN` with the
   fallback `same-dir`.
-- [ ] `test_claude_remote_control_start.py::test_server_mode_starts_remote_control_server`
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_claude_remote_control_start.py::test_server_mode_starts_remote_control_server`
+    (the `spawn-unset` cases fail against the `worktree` fallback).
+- [x] `test_claude_remote_control_start.py::test_server_mode_starts_remote_control_server`
   expects `--spawn same-dir` for the `spawn-unset` case.
-- [ ] `test_runtime_remote_control.py::test_a_later_login_starts_the_session_once`
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_claude_remote_control_start.py::test_server_mode_starts_remote_control_server`
+- [x] `test_runtime_remote_control.py::test_a_later_login_starts_the_session_once`
   and
   `test_runtime_remote_control.py::test_an_empty_spawn_mode_does_not_reach_the_start_script`
   expect `claude remote-control --spawn same-dir`.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_runtime_remote_control.py::test_a_later_login_starts_the_session_once scripts/tests/test_runtime_remote_control.py::test_an_empty_spawn_mode_does_not_reach_the_start_script`
 - [ ] `test_agent_runtime_acceptance.py::test_remote_control_waits_for_a_login_then_starts_and_comes_back`
   expects the fake `claude` arguments to start with
   `remote-control --spawn same-dir`.
