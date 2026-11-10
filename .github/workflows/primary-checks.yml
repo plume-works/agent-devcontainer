@@ -37,7 +37,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so the hooks run the tools the
     # image provisions. See spec/pre-commit-gate.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:888f2993d8636b0e1368ea55e418d9781379bd57c926b1afc2fddab0566e11fd
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:aaf4791611d0fc32cc375627abe8f2af714ef4ad2170624ba2dd7fcf107b2991
     timeout-minutes: 30
     env:
       # checkout trusts the workspace only within its own step; the container user
