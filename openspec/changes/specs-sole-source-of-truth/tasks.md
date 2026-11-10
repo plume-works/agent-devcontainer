@@ -186,7 +186,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       `iwe-adversarial-reviewer`. Verify that
       `grep -rn 'Spec changes\|data/spec\|data/architecture' .agents/plugins/agentdev/agents/iwe-*.agent.md`
       prints nothing.
-- [ ] 8.3 Repoint `iwe-explore`, `iwe-audit`, and `iwe-setup` from
+- [x] 8.3 Repoint `iwe-explore`, `iwe-audit`, and `iwe-setup` from
       `data/spec`/`data/architecture` to `openspec/specs/` and `data/findings/`, and
       run `validate_agent_files` on the catalog. Verify the same grep across
       `.agents/plugins/agentdev/skills/iwe-{explore,audit,setup}/` prints nothing.

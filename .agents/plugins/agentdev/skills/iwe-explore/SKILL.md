@@ -61,9 +61,10 @@ is the user's call, made in the conversation.
   listed under "not observed", never designed for.
 - **Grounded, not theoretical** — before proposing directions, check what
   already exists: `iwe find --fuzzy <topic> -f keys`,
-  `iwe find --lexical "<phrase>" -f keys`, the related `data/spec/` and
-  `data/architecture/` docs, and any plan that already touches the area. Cite
-  prior decisions instead of re-deriving them.
+  `iwe find --lexical "<phrase>" -f keys`, the related specs under
+  `openspec/specs/` (their `## Rationale` holds prior decisions), the related
+  `data/findings/` docs, and any plan that already touches the area. Cite prior
+  decisions instead of re-deriving them.
 - **Principled** — read `data/concept/` early. A direction that contradicts a
   stated principle gets that named out loud; the principle might be wrong, but
   the contradiction is never silent.
@@ -114,13 +115,17 @@ unprompted):
 
 - An idea worth keeping but not committing to →
   `data/someday/<slug>.md`, linked from `data/someday.md`.
-- A design insight or decision → `data/architecture/<slug>.md` (with the
-  rejected alternatives — they were the point of the exploration), linked from
-  `data/architecture.md`.
+- A measurement or investigation → `data/findings/<slug>.md` (`type: finding`,
+  with a `## Closing` that says whether it is open), linked from
+  `data/findings.md`.
+- A design decision that shapes behavior → an OpenSpec change under
+  `openspec/changes/` (`openspec new change <name>`), whose `design.md` records the
+  decision with the alternatives it rejected; archiving the change folds it
+  into the spec's `## Rationale`.
 - A principle that should outlive this conversation →
   `data/concept/<slug>.md`, linked from `data/concept.md`.
-- A defect the exploration established — code that contradicts a `data/spec/`
-  doc, or any reproducible wrong behavior — a feature worth proposing, or an
+- A defect the exploration established — code that contradicts a spec under
+  `openspec/specs/`, or any reproducible wrong behavior — a feature worth proposing, or an
   actionable task → hand off to the `/agentdev:iwe-capture` skill with the
   type (`bug`, `feature`, or `task`) and the settled content; it owns the
   document's shape, its hub link, and the duplicate check. When the exploration

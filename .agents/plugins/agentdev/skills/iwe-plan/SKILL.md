@@ -1,6 +1,6 @@
 ---
 name: iwe-plan
-description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code.
+description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, the OpenSpec change it links, and dependencies. Never edits implementation code.
 disable-model-invocation: true
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---

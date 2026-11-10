@@ -21,8 +21,9 @@ Test: would this still be true if the code were rewritten from scratch?
 
 ## Scope
 
-Audit any text that promises durable content: `data/spec/`,
-`data/architecture/`, `data/features/`, `product.md`, code comments, and —
+Audit any text that promises durable content: the specs under
+`openspec/specs/` (the `## Rationale` sections most of all), `data/findings/`,
+`data/features/`, `product.md`, code comments, and —
 outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
 docstrings.
 

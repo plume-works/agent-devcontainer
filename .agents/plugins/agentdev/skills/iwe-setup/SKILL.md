@@ -24,12 +24,12 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - One starting `data/architecture/<slug>.md` describing the module layout
-     and any design decisions visible in the code (state management, storage,
-     process boundaries). Say "unknown" where you'd be guessing. This doc is
-     the onboarding's orientation to the code.
-   - Propose (don't yet write) spec docs for the 2–3 most load-bearing
-     behaviors you can identify.
+   - Propose (don't yet write) OpenSpec specs,
+     `openspec/specs/<capability>/spec.md`, for the 2–3 most load-bearing
+     behaviors you can identify, each with a `## Rationale` recording the
+     design decisions visible in the code that shape it (module layout, state
+     management, storage, process boundaries). Say "unknown" where you'd be
+     guessing. These are the onboarding's orientation to the code.
 4. **Interview.** Ask in batches, conversationally:
    - _Product_: the one-liner; who uses it and for what; who it's not for.
    - _Reality_: current stage, what's shipped vs. aspirational, the next thing
@@ -40,8 +40,9 @@ what the code can't answer. Every future session reads what you write here.
      or contributors — these become the Authoring rules section.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
    instruction lines as sections fill; add a dated entry to its Changelog.
-   Write the confirmed architecture doc(s) and any spec stubs the developer
-   approved, linking each from `data/architecture.md` / `data/spec.md`.
+   Write the specs the developer approved under `openspec/specs/`, each with
+   `## Purpose`, `## Requirements`, and `## Rationale`, and run
+   `openspec validate --specs`.
 6. **Close the loop.** Mark the finished onboarding tasks
    (`fill-product-doc`, and `capture-current-architecture` if step 3 ran):
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
