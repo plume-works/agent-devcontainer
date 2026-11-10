@@ -59,6 +59,8 @@ def log(message: str) -> None:
 
 def run(*command: str, env: Mapping[str, str] | None = None) -> None:
     """Run a command in the checkout with its output on stderr, raising when it fails."""
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        os.set_blocking(stream.fileno(), True)  # Ansible aborts on non-blocking handles.
     subprocess.run(command, cwd=REPO_ROOT, env=env, stdout=sys.stderr, check=True)
 
 
