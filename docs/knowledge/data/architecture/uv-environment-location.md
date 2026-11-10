@@ -95,8 +95,7 @@ Removal happens in two places:
 The `post-checkout` trigger is a `link-venv` hook in `.pre-commit-config.yaml`,
 and `project hooks` installs pre-commit's `post-checkout` script with the other
 hook types. pre-commit is the only writer of `.git/hooks`, so a repository's own
-`post-checkout` hooks run beside it. The checkout's `.git/hooks` is shared with
-the host through the bind mount, so the hook does nothing where
+`post-checkout` hooks run beside it. The hook does nothing where
 `agentdev-runtime` is not on `PATH`. `default_stages` keeps every hook without
 its own `stages` out of `post-checkout`.
 
@@ -138,6 +137,13 @@ its own `stages` out of `post-checkout`.
   fails on the link, so the host sets `UV_PROJECT_ENVIRONMENT` to a path of its
   own to work in that checkout. `.gitignore`, `search.exclude`, and the lint
   prunes keep covering `.venv`.
+- Git on the host is unsupported in a checkout the Dev Container mounts. Its
+  `.git/hooks` is shared through the bind mount and holds pre-commit's scripts,
+  which run the interpreter they were installed with, `/usr/bin/python3` in the
+  container. A host whose `/usr/bin/python3` cannot import `pre_commit` fails
+  each hook, so a checkout or `git worktree add` there exits non-zero after it
+  has already happened. Tests that run git on the host in such a checkout bypass
+  the hooks with `core.hooksPath`.
 - `project hooks` installs pre-commit's `post-checkout` stage in every checkout,
   so a repository's `.pre-commit-config.yaml` sets a top-level `default_stages`
   without `post-checkout`. Without it, every hook that has no `stages` and runs
