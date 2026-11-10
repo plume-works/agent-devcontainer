@@ -287,10 +287,17 @@ before Task 5.
   host's `/var/run`.
   - **Evidence:**
     `scripts/tests/test_cloud_startup.py::test_resume_on_a_cloud_host_starts_docker`
-- [ ] As `agent` in a rebuilt Dev Container, the suite passes with the
+- [x] As `agent` in a rebuilt Dev Container, the suite passes with the
   `requires_root` tests skipped; `scripts/run-root-tests` then runs them as
   root, they pass, and the run leaves no root-owned file in the checkout or
   `/tmp/agentdev-tests`.
+  - **Evidence:** CI's `Devcontainer image (amd64)` and
+    `Devcontainer image (arm64)` jobs on PR #800, whose step
+    `.github/workflows/ci.yml` › "scripts/run-root-tests -n 8 scripts/tests"
+    runs the suite as `agent`, then the launcher, then the leftover check:
+    https://github.com/plume-works/agent-devcontainer/actions/runs/42924974146/job/130212190262
+    and
+    https://github.com/plume-works/agent-devcontainer/actions/runs/42924974146/job/130212190279
 
 ### Task 6: Point this repository's descriptor at the home volume
 
