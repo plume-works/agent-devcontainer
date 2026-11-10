@@ -138,7 +138,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       `.iwe/schemas/architecture.yaml`. Remove their bindings in
       `.iwe/config.toml` and their `data/index.md` entries. Verify that
       `iwe normalize` followed by `iwe schema validate` passes.
-- [ ] 6.2 Forbid `type: spec` and `type: architecture` in `.iwe/schemas/okf.yaml`.
+- [x] 6.2 Forbid `type: spec` and `type: architecture` in `.iwe/schemas/okf.yaml`.
       Add a pytest under `docs/knowledge/tests/` that runs `iwe schema validate` on
       a scratch graph under `/tmp` holding such a document and expects it to fail
       naming the document. Verify with

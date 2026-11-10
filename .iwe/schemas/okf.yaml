@@ -4,7 +4,11 @@ frontmatter:
   type: object
   required: [type]
   properties:
-    type: { type: string, minLength: 1 }
+    type:
+      type: string
+      minLength: 1
+      not: { enum: [spec, architecture] }
+      description: 'type must be non-empty and not spec or architecture: behavior and its rationale live in openspec/specs/'
     title: { type: string }
     description: { type: string }
     resource: { type: string }
