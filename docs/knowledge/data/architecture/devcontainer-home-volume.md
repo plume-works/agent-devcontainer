@@ -54,7 +54,7 @@ per-directory mounts go away.
   one.
 - **Creating the account at container start, as deploy does.** The devcontainer
   CLI's UID update needs an account the image defines, so the account is created
-  at image build time without a home directory.
+  at image build time with an empty home directory, which that update re-owns.
 - **A separate `/uv` volume, in either runtime.** The owner chose one home
   volume; uv's cache, Python installs, and project venv live on it.
 - **Keeping per-directory volumes.** Every new piece of state needs its own

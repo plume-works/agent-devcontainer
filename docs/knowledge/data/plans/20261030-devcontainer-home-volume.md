@@ -56,14 +56,16 @@ mode uses the checkout's `.worktrees/` directory.
 ## Approach
 
 The Dev Container profile converges on deploy's account handling. The image
-deletes the stock `ubuntu` account and creates `agent` (1000:1000) with no home
-directory, at image build time so the devcontainer CLI's UID update has an
-account to remap (part of the Assumption below). The image metadata declares
-`remoteUser: agent` and `updateRemoteUserUID: true`, and mounts a per-instance
-home volume named after `${devcontainerId}` at `/home/agent`, as it already
-mounts the nested engine's storage. The container's own user stays root, so PID
-1 is still the supervisor; supervisord already runs every user service as
-`AGENTDEV_USER`.
+deletes the stock `ubuntu` account and creates `agent` (1000:1000) with an empty
+`/home/agent` it owns, at image build time so the devcontainer CLI's UID update
+has an account to remap (part of the Assumption below). The directory exists
+because that update runs `chown -R` on the account's home and fails the build
+when the home is missing; it holds nothing, so the home volume still starts
+empty. The image metadata declares `remoteUser: agent` and
+`updateRemoteUserUID: true`, and mounts a per-instance home volume named after
+`${devcontainerId}` at `/home/agent`, as it already mounts the nested engine's
+storage. The container's own user stays root, so PID 1 is still the supervisor;
+supervisord already runs every user service as `AGENTDEV_USER`.
 
 The Dev Container bootstrap gains deploy's storage steps for the account it
 reads from `passwd`: claim the empty home mount root, write the sudoers entry,
@@ -93,14 +95,14 @@ before Task 5.
 
 ## Implementation Steps
 
-### Task 1: Give the Dev Container image a home-less agent account
+### Task 1: Give the Dev Container image an agent account with an empty home
 
 **Files:** Modify: `docker/devcontainer/agentdev-devcontainer.Dockerfile`,
 `scripts/tests/test_agentdev_devcontainer_image.py`
 
 - [ ] The image removes the stock `ubuntu` account and creates group and account
-  `agent` (1000:1000, shell `/bin/bash`, home `/home/agent`) without creating
-  the home directory.
+  `agent` (1000:1000, shell `/bin/bash`, home `/home/agent`), and creates
+  `/home/agent` as an empty directory owned by `agent`.
 - [ ] The image environment sets `AGENTDEV_USER=agent`,
   `AGENTDEV_HOME=/home/agent`,
   `AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth`,
@@ -109,9 +111,10 @@ before Task 5.
 - [ ] `devcontainer.metadata` adds `"remoteUser": "agent"`,
   `"updateRemoteUserUID": true`, and a volume `agentdev-home-${devcontainerId}`
   at `/home/agent`.
-- [ ] Image tests assert the account has no home directory in the image, the
-  metadata carries the three entries, and `devcontainer up` on a Linux host with
-  a checkout owned by a non-1000 UID runs `id -u` in the container as that UID.
+- [ ] Image tests assert `/home/agent` in the image is empty and owned by
+  `agent`, the metadata carries the three entries, and `devcontainer up`, run on
+  a Linux host by a non-1000 UID that owns the checkout, runs `id -u` in the
+  container as that UID with an empty home owned by it.
 
 ### Task 2: Move the base image's shell setup out of root's home
 
