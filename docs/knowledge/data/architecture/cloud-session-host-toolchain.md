@@ -31,7 +31,8 @@ script, once, when the session's host is built. It:
 4. installs Ansible with `docker/ansible/setup-ansible.sh` and runs
    `ansible/playbooks/setup-dev.yml` with the `dev_tools` and `uv_setup` tags,
    which install the pinned binaries every `language: system` pre-commit hook
-   calls, `bun`, `iwe`, and `uv`;
+   calls, `bun`, `iwe`, and `uv`, with the playbook's modules on
+   `/usr/bin/python3.12` and every command given blocking standard streams;
 5. runs `uv sync` and installs the git hooks with
    `pre-commit install --install-hooks` for the `pre-commit`, `pre-push`,
    `pre-merge-commit` and `post-checkout` hook types.
@@ -88,6 +89,11 @@ directly.
   every container on the host. The maintainer accepted that for cloud sessions.
 - The agent proxy re-terminates TLS, so a container that makes TLS requests
   needs the host's CA bundle mounted.
+- The session host's `python3` is 3.13, while apt's Python bindings, which
+  Ansible's `apt` module imports, are built only for the system Python 3.12, so
+  the playbook's modules run on `/usr/bin/python3.12`.
+- The setup runner hands the script non-blocking standard streams, which Ansible
+  refuses, so the script sets them back to blocking before each command.
 - The `link-venv` hook needs `agentdev-runtime`, which only the images ship, so
   on the host it skips and `.venv` is the project environment `uv sync` made.
 - GitHub GraphQL is refused by the session's proxy policy, so `gh` commands

@@ -127,6 +127,35 @@ def test_a_failing_step_fails_setup_and_stops_it(scratch: Path) -> None:
     assert not [line for line in calls if line.startswith('uv ')]
 
 
+def test_setup_gives_its_commands_blocking_stdio(scratch: Path) -> None:
+    """Setup started on non-blocking stdio hands its commands blocking ones, which Ansible needs."""
+    bin_dir = scratch / 'bin'
+    bin_dir.mkdir()
+    report = scratch / 'blocking'
+    probe = f'import os; print(*map(os.get_blocking, (0, 1, 2)), file=open("{report}", "a"))'
+    for name in STUBBED:
+        (bin_dir / name).write_text(f"#!/bin/sh\n{sys.executable} -c '{probe}'\n")
+        (bin_dir / name).chmod(0o755)
+    read_end, write_end = os.pipe()
+    stdin_read, stdin_write = os.pipe()
+    for fd in (write_end, stdin_read):
+        os.set_blocking(fd, False)
+    try:
+        result = subprocess.run(
+            [sys.executable, str(STARTUP), 'setup'],
+            env={'PATH': f'{bin_dir}:/usr/bin:/bin', 'HOME': str(scratch)},
+            stdin=stdin_read,
+            stdout=write_end,
+            stderr=write_end,
+            check=False,
+        )
+    finally:
+        for fd in (read_end, write_end, stdin_read, stdin_write):
+            os.close(fd)
+    assert result.returncode == 0
+    assert set(report.read_text().splitlines()) == {'True True True'}
+
+
 @pytest.mark.parametrize(
     'env',
     [

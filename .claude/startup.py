@@ -40,7 +40,8 @@ DOCKER_BRIDGE_CIDR = '10.213.0.1/24'
 RELAY_HOST = DOCKER_BRIDGE_CIDR.split('/')[0]
 DOCKER_WAIT_SECONDS = 30
 LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
-# ROS 2 base: apt's Python bindings are built for 3.12, which the apt module needs.
+# Ansible's apt module needs apt's bindings, built only for the system Python 3.12.
+# See architecture/cloud-session-host-toolchain.
 ANSIBLE_PYTHON = '/usr/bin/python3.12'
 # The ansible playbook's roles that put every pre-commit hook's binary on PATH.
 TOOLCHAIN_TAGS = 'dev_tools,uv_setup'
