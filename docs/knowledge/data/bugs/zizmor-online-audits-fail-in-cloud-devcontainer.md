@@ -4,7 +4,7 @@ description: In the devcontainer of a Claude Code cloud session, the zizmor pre-
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .claude/startup.py
-- resource: docs/knowledge/data/architecture/cloud-session-devcontainer.md
+- resource: docs/knowledge/data/architecture/cloud-session-host-toolchain.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/686
 stage: done
 severity: medium
@@ -46,8 +46,6 @@ session's GitHub scope, and every other repository rejects it.
 
 ## Fix
 
-`cloud_env_text` in `.claude/startup.py` writes `ZIZMOR_OFFLINE=true` into
-`.devcontainer/cloud-session.env`, so the `zizmor` hook skips its online audits
-in cloud sessions only. Every other host keeps them. A container created before
-the change differs from the new env file, so `.claude/startup.py resume`
-recreates it.
+`.claude/startup.py` merges `ZIZMOR_OFFLINE=true` into the `env` of the cloud
+session's user-level `~/.claude/settings.json`, so the `zizmor` hook skips its
+online audits in cloud sessions only. Every other host keeps them.

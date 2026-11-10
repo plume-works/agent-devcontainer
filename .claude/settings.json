@@ -45,19 +45,6 @@
       "/__w"
     ]
   },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/startup.py resume",
-            "timeout": 600
-          }
-        ]
-      }
-    ]
-  },
   "enabledPlugins": {
     "github@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,

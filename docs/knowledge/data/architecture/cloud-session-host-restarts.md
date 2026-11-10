@@ -48,31 +48,13 @@ when the next event arrives.
   devcontainer, and any background command.
 - **Moved:** the agent proxy's loopback port changes on each boot.
 
-## Consequences for the devcontainer setup
-
-Every reboot has to restore the host `dockerd`, the proxy relay, and the
-devcontainer before a tool runs, because the toolchain lives only in the
-container. [Cloud session devcontainer](cloud-session-devcontainer.md) records
-how `.claude/startup.py resume` restores them and the faults it already handles:
-the moving proxy port, a container created without the session's environment,
-and stale `docker.pid` and `containerd.pid` files.
-
-Two costs remain with that design:
-
-- **Late detection.** The reboot happens just before a turn starts, but an agent
-  learns of it only when a Docker or `devcontainer exec` call fails. A
-  `devcontainer exec` that fails without output lets a turn carry on as if its
-  tools had run.
-- **Proxy relay down with the container up.** In one session, `git push` and
-  `gh` inside a running devcontainer failed with `Proxy CONNECT aborted` after
-  three reboots until `startup.py resume` was run by hand. The likely cause, not
-  confirmed, is that the session's branch predated the `SessionStart` hook that
-  runs `resume`.
-
 ## Closing
 
 The idle reclaim is the platform's, and nothing in this repository changes it.
-The response is to make a reboot cheap rather than to prevent it: [Cloud session
-host toolchain](../features/cloud-session-host-toolchain.md) proposes
-provisioning the toolchain on the session host itself, keeping Docker and the
-devcontainer for image builds and tests only.
+The response is to make a reboot cheap rather than to prevent it. A toolchain
+that lived only in a devcontainer made every boot restore the host `dockerd`, a
+relay to the moved agent proxy port, and the container before any tool ran, and
+an agent learned of the reboot only when a Docker call failed. Cloud sessions
+therefore run no Docker and no devcontainer: [Cloud session host
+toolchain](cloud-session-host-toolchain.md) provisions the toolchain on the
+host's disk, which a reboot keeps.
