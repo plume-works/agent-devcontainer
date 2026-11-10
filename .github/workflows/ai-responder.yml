@@ -20,7 +20,7 @@ on:
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
 # review of an older head. Other label changes get their own group, so they
-# never replace a queued review: see architecture/label-review-triggers.
+# never replace a queued review: see openspec/specs/ai-review-gate/spec.md#rationale.
 concurrency:
   group: >-
     ${{ github.workflow }}-${{
@@ -338,7 +338,7 @@ jobs:
             }
             core.setOutput('approve', 'true');
 
-      # No GITHUB_TOKEN fallback: see architecture/responder-app-identity.
+      # No GITHUB_TOKEN fallback: see openspec/specs/ai-review-gate/spec.md#rationale.
       - name: Require the App secrets
         if: steps.eligible.outputs.approve == 'true'
         env:

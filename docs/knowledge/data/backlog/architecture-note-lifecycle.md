@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: cancelled
 priority: medium
 created: 2026-11-09
 description: Give architecture notes a lifecycle, so a note a newer decision replaces is retired instead of staying listed as current.

@@ -353,7 +353,7 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
   it: `features/native-stacked-prs`, `features/fresh-map-on-push`,
   `features/uv-run-only-environment`, `features/pre-commit-owns-formatting`,
   `features/update-branch-pulls-upstream`,
-  `architecture/ai-review-event-selection`,
+  `openspec/specs/ai-review-gate/spec.md#rationale`,
   `architecture/rereview-gate-pending`, and
   `architecture/validator-image-install`;
   `git grep -n '\.sh\b' docs/knowledge/data/features docs/knowledge/data/architecture`

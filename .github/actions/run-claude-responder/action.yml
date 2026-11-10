@@ -27,7 +27,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # No GITHUB_TOKEN fallback: see architecture/responder-app-identity.
+    # No GITHUB_TOKEN fallback: see openspec/specs/ai-review-gate/spec.md#rationale.
     - name: Require the App secrets
       shell: bash
       env:

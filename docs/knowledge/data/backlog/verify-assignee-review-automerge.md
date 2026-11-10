@@ -5,7 +5,7 @@ priority: medium
 created: 2026-10-26
 description: Settle, on two throwaway pull requests, whether an assignee-triggered re-review holds a merge because the required ai-review-present is re-expected, and whether auto-merge waits for it.
 sources:
-- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/475
 rank: 1300
@@ -13,11 +13,11 @@ rank: 1300
 
 # Verify that auto-merge waits for an assignee-triggered review
 
-[Assignee-triggered AI re-reviews](../architecture/assignee-review-trigger.md)
-records that the merge state reads `BLOCKED` while an assigned re-review runs,
-but not why, and auto-merge has not been exercised. The plan that adopts the
-assignee trigger must not claim auto-merge waits until these two tests settle
-it.
+[Assignee-triggered AI
+re-reviews](../../../../openspec/specs/ai-review-gate/spec.md#rationale) records
+that the merge state reads `BLOCKED` while an assigned re-review runs, but not
+why, and auto-merge has not been exercised. The plan that adopts the assignee
+trigger must not claim auto-merge waits until these two tests settle it.
 
 1. **What causes `BLOCKED`.** On a `CLEAN` throwaway pull request, re-run one
    non-required job of its latest `pull_request` run, and read

@@ -318,7 +318,8 @@ is testable only after the workflow is on `main`, because GitHub resolves
     APPROVED review on `3d4d5b0`, `ai-review-present` passed, and all four
     checks are filed on the head commit. The run link was appended to the
     comment body. Two prior gates had to be opened for this to work — see
-    [dispatched-review identity](../architecture/dispatched-review-identity.md).
+    [dispatched-review
+    identity](../../../../openspec/specs/ai-review-gate/spec.md#rationale).
 - [x] After merge: a comment on a fork PR or from a non-writer dispatches
   nothing
   - **Evidence:** fork PR #105 from `we-are-code-artisans` (permission `read`,
@@ -330,7 +331,8 @@ is testable only after the workflow is on `main`, because GitHub resolves
     additionally held all four workflow runs at `action_required` until a
     maintainer approved them, a gate upstream of the workflow's own. On a
     comment event the fork is caught one step later, by `isFork` — see
-    [dispatched-review identity](../architecture/dispatched-review-identity.md).
+    [dispatched-review
+    identity](../../../../openspec/specs/ai-review-gate/spec.md#rationale).
 
 ## Spec changes
 

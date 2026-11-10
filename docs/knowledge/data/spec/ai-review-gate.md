@@ -5,13 +5,11 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 - resource: .github/actions/run-claude-responder/action.yml
-- resource: data/architecture/assignee-review-trigger.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
-- resource: data/architecture/ai-review-event-selection.md
 - resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
 - resource: data/plans/20261107-drop-claude-task-responder.md
 - resource: data/plans/20261030-responder-quill-app-identity.md
-- resource: data/architecture/label-review-triggers.md
 - resource: data/plans/20261108-label-review-triggers.md
 ---
 

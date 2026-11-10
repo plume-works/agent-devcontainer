@@ -49,7 +49,7 @@ and provenance sections are dropped. Then delete the architecture document.
 Every task verifies with `openspec validate <slug> --type spec` and
 `iwe schema validate`.
 
-- [ ] 3.1 Fold into `ai-review-gate`: actions-approval-permission,
+- [x] 3.1 Fold into `ai-review-gate`: actions-approval-permission,
       ai-review-event-selection, dispatched-review-identity, label-review-triggers,
       pr-review-effort-tiers, pr-review-scenario-validation,
       pull-request-only-responder, and responder-app-identity. Fold

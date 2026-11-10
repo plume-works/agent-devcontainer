@@ -12,8 +12,6 @@ Frontmatter is `type: architecture`; like specs, these are durable reference.
 Record a design decision here the moment it's made — the alternatives you
 rejected are as valuable as the one you picked.*
 
-[Actions approval permission](architecture/actions-approval-permission.md)
-
 [Adversarial review](architecture/adversarial-review.md)
 
 [Agent auth persistence](architecture/agent-auth-persistence.md)
@@ -22,11 +20,7 @@ rejected are as valuable as the one you picked.*
 
 [agentdev runtime package](architecture/agentdev-runtime-package.md)
 
-[AI review event selection](architecture/ai-review-event-selection.md)
-
 [Ansible apt pins](architecture/ansible-apt-pins.md)
-
-[Assignee-triggered AI re-reviews](architecture/assignee-review-trigger.md)
 
 [Autonomous Implement loop](architecture/autonomous-implement-loop.md)
 
@@ -68,8 +62,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Dev Container runtime](architecture/devcontainer-runtime.md)
 
-[Dispatched review identity](architecture/dispatched-review-identity.md)
-
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
 [Evidence without commit ids](architecture/evidence-without-commit-ids.md)
@@ -92,8 +84,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
-[Label review triggers](architecture/label-review-triggers.md)
-
 [Line-free anchors](architecture/line-free-anchors.md)
 
 [Manual stacked pull requests](architecture/manual-stacked-prs.md)
@@ -115,13 +105,7 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 
 [PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
-[PR review effort tiers](architecture/pr-review-effort-tiers.md)
-
-[PR review scenario validation](architecture/pr-review-scenario-validation.md)
-
 [PR verification sections](architecture/pr-verification-sections.md)
-
-[Pull-request-only AI responder](architecture/pull-request-only-responder.md)
 
 [Renovate config validation](architecture/renovate-config-validation.md)
 
@@ -129,8 +113,6 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 
 [Holding the AI review gate during a
 re-review](architecture/rereview-gate-pending.md)
-
-[Responder App identity](architecture/responder-app-identity.md)
 
 [Self-improve consolidation](architecture/self-improve-consolidation.md)
 

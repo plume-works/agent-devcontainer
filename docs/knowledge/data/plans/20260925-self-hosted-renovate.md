@@ -378,7 +378,7 @@ options as `RENOVATE_*` environment variables instead.
 ### Task 14: Waive the AI review for the App's bot
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`docs/knowledge/data/architecture/ai-review-event-selection.md`
+`openspec/specs/ai-review-gate/spec.md`
 
 - [x] `ai-review-present`'s `trusted-bot-actors` adds
   `plume-works-renovate[bot]`, the identity the self-hosted run commits and

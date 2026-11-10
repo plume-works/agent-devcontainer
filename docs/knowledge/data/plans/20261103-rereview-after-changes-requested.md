@@ -7,7 +7,7 @@ description: Make pr-eval-review-needed request a re-review whenever the AI revi
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
-- resource: docs/knowledge/data/architecture/ai-review-event-selection.md
+- resource: openspec/specs/ai-review-gate/spec.md
 stage: done
 completed: 2026-11-03
 released: 2.1.0
@@ -22,11 +22,12 @@ request](../bugs/eval-skips-rereview-after-changes-requested.md).
 
 `pr-eval-review-needed` asks only whether the diff since the newest reviewed
 commit goes beyond what reviewers asked for. Under [AI review event
-selection](../architecture/ai-review-event-selection.md) the AI reviewer's
-verdict gates merge: the `main` ruleset needs one approving review, and a
-pending `CHANGES_REQUESTED` stands until the same reviewer approves or a person
-dismisses it. A push that applies exactly what a change request asked for is
-therefore the push that most needs a re-review, and a scope-only test skips it.
+selection](../../../../openspec/specs/ai-review-gate/spec.md#rationale) the AI
+reviewer's verdict gates merge: the `main` ruleset needs one approving review,
+and a pending `CHANGES_REQUESTED` stands until the same reviewer approves or a
+person dismisses it. A push that applies exactly what a change request asked for
+is therefore the push that most needs a re-review, and a scope-only test skips
+it.
 
 ## Approach
 

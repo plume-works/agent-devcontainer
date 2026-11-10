@@ -349,8 +349,8 @@ one dated group per release; nothing else writes here.
 - **Update**: refreshed the devcontainer scripts map for the Remote Control
   spawn mode, and re-stamped devcontainer and devcontainer lifecycle.
 - **Update**: recorded [Assignee-triggered AI
-  re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
-  [Verify that auto-merge waits for an assignee-triggered
+  re-reviews](../../../openspec/specs/ai-review-gate/spec.md#rationale) and
+  filed backlog task [Verify that auto-merge waits for an assignee-triggered
   review](backlog/verify-assignee-review-automerge.md).
 - **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
   task trigger](backlog/drop-claude-free-form-task-trigger.md).
@@ -814,7 +814,7 @@ one dated group per release; nothing else writes here.
   pr-review](plans/20261005-pr-review-scenario-validation.md) done. `pr-review`
   ships the reachable-scenario correctness bar with three-part scenarios
   validated as written; see [PR review scenario
-  validation](architecture/pr-review-scenario-validation.md).
+  validation](../../../openspec/specs/ai-review-gate/spec.md#rationale).
 - **Update**: Re-verified the agentdev and agentdev skills codebase maps after
   the pr-review correctness-bar change.
 
@@ -1035,9 +1035,9 @@ one dated group per release; nothing else writes here.
   durable-knowledge pass.
 - **Update**: Findings validation now runs on the light model at both effort
   tiers, under one validator prompt shared by the tiers — [PR review effort
-  tiers](architecture/pr-review-effort-tiers.md) records why the gate's
-  strictness belongs in the prompt rather than in the model size, and why the
-  slot that scales with finding count is the one to bound.
+  tiers](../../../openspec/specs/ai-review-gate/spec.md#rationale) records why
+  the gate's strictness belongs in the prompt rather than in the model size, and
+  why the slot that scales with finding count is the one to bound.
 - **Update**: Removed the `require-review` publish-or-fail check from the
   responder action. A timestamp window cannot tell this run's review from a
   concurrent run's, so an abandoned run passed on another run's review — [the
@@ -1089,10 +1089,10 @@ one dated group per release; nothing else writes here.
   still running](bugs/review-orchestrator-ends-turn-while-passes-run.md) filed —
   a headless responder run ends when the orchestrator's turn ends, so a turn
   that stops on a status update publishes no review and still goes green.
-- **Creation**: [PR review effort tiers](architecture/pr-review-effort-tiers.md)
-  records why the review has two named tiers, why an explicitly requested tier
-  is absolute, and why the responder's preflight rather than the skill resolves
-  it.
+- **Creation**: [PR review effort
+  tiers](../../../openspec/specs/ai-review-gate/spec.md#rationale) records why
+  the review has two named tiers, why an explicitly requested tier is absolute,
+  and why the responder's preflight rather than the skill resolves it.
 - **Update**: Refreshed the six codebase-map docs whose tracked sources the
   review effort-tier work moved — the responder workflow, the responder
   composite action, and the catalog skill tree.

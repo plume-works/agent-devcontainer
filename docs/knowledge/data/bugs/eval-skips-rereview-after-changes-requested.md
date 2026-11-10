@@ -6,7 +6,7 @@ description: pr-eval-review-needed decides by scope alone, so after a push that 
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
-- resource: docs/knowledge/data/architecture/ai-review-event-selection.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/654
 ---
 
@@ -44,8 +44,8 @@ verdict.
 
 The rule rests on a premise that no longer holds: that re-reviewing applied
 feedback only re-reads the reviewer's own instructions. Under [AI review event
-selection](../architecture/ai-review-event-selection.md) the AI reviewer's
-verdict gates merge, and only its own `APPROVE` lifts its earlier
+selection](../../../../openspec/specs/ai-review-gate/spec.md#rationale) the AI
+reviewer's verdict gates merge, and only its own `APPROVE` lifts its earlier
 `CHANGES_REQUESTED`, so a re-review is the step that unblocks the pull request.
 
 ## Potential solution
@@ -77,5 +77,5 @@ request](../plans/20261103-rereview-after-changes-requested.md).
   — Requirement: every push to a reviewed pull request is evaluated;
   `docs/knowledge/data/spec/ai-review-refresh.md#scenario-pr-sync-pushes-undirected-behavior › "asked for and"`
   — Scenario: an update only applies requested feedback
-- `docs/knowledge/data/architecture/ai-review-event-selection.md#why-the-verdict-follows-severity › "blocks merge until the same reviewer approves or"`
+- `openspec/specs/ai-review-gate/spec.md#why-the-verdict-follows-severity › "blocks merge until the same reviewer approves or"`
   — a pending `CHANGES_REQUESTED` blocks merge until the same reviewer approves

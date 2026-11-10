@@ -16,11 +16,11 @@ scenario-carrying candidates on `large` at full effort could make their verdicts
 more reliable.
 
 It contradicts a recorded decision: [PR review effort
-tiers](../architecture/pr-review-effort-tiers.md) fixes validation at `light`
-because the gate's strength is its bar rather than its model, because a stronger
-model asked to confirm only at high confidence also argues more persuasively for
-dropping, and because validation is the only slot whose cost grows with the
-number of findings.
+tiers](../../../../openspec/specs/ai-review-gate/spec.md#rationale) fixes
+validation at `light` because the gate's strength is its bar rather than its
+model, because a stronger model asked to confirm only at high confidence also
+argues more persuasively for dropping, and because validation is the only slot
+whose cost grows with the number of findings.
 
 ## Promotion criteria
 

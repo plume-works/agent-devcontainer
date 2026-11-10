@@ -64,7 +64,8 @@ in one edit to `pr-review/SKILL.md`, merged only if the replays in
   so the "Never argue the verdict in the prompt" rule holds.
 
 The validator stays on the `light` model at every effort level, as recorded in
-[PR review effort tiers](../architecture/pr-review-effort-tiers.md). Validating
+[PR review effort
+tiers](../../../../openspec/specs/ai-review-gate/spec.md#rationale). Validating
 correctness candidates on the `large` model is parked as [a someday
 idea](../someday/pr-review-large-validator.md) pending a cost/benefit
 evaluation.
@@ -283,8 +284,7 @@ part.
 
 ### Task 9: Record the decision
 
-**Files:** Create:
-`docs/knowledge/data/architecture/pr-review-scenario-validation.md` Modify:
+**Files:** Create: `openspec/specs/ai-review-gate/spec.md` Modify:
 `docs/knowledge/data/architecture.md`
 
 - [x] File the outcome against `## Verification` as a decision linking [PR
@@ -298,8 +298,8 @@ part.
   - **Evidence:** the
     `docs(architecture): record the scenario validation decision` commit adds
     [PR review scenario
-    validation](../architecture/pr-review-scenario-validation.md) and its
-    `data/architecture.md` link; `iwe schema validate` passes.
+    validation](../../../../openspec/specs/ai-review-gate/spec.md#rationale) and
+    its `data/architecture.md` link; `iwe schema validate` passes.
 
 ## Spec changes
 
@@ -467,7 +467,7 @@ None is noise, so the full-replay criteria in `## Verification` hold.
   — stated intent is evidence, not a verdict
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Supplying reasons a candidate might not hold, or casting the"`
   — "Never argue the verdict in the prompt"
-- `docs/knowledge/data/architecture/pr-review-effort-tiers.md#validation-runs-light-at-every-effort-level`
+- `openspec/specs/ai-review-gate/spec.md#validation-runs-light-at-every-effort-level`
   — "Validation runs light at every effort level"
 - `7e0413d:.github/workflows/renovate.yml#jobs.renovate` — comment presenting
   the concurrency split as deliberate (K1)
