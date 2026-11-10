@@ -70,11 +70,14 @@ the second run changes nothing.
 
 The `post-checkout` trigger is a `link-venv` hook at the `post-checkout` stage
 of `.pre-commit-config.yaml`, installed by `project hooks` with the other hook
-types, so pre-commit stays the only writer of `.git/hooks`. The checkout's
-`.git/hooks` is shared with the host through the bind mount, so the hook runs
+types, so pre-commit stays the only writer of `.git/hooks`. The hook runs
 `agentdev-runtime project link-venv` only when `agentdev-runtime` is on `PATH`.
 `default_stages` keeps every hook without its own `stages` out of
-`post-checkout`.
+`post-checkout`. Git on the host is unsupported in a checkout the Dev Container
+mounts: its shared `.git/hooks` holds pre-commit's scripts, which run the
+container's `/usr/bin/python3`, so on a host whose `/usr/bin/python3` cannot
+import `pre_commit` every hook fails and git exits non-zero after the checkout
+has happened.
 
 `agentdev-runtime worktree remove`, the `WorktreeRemove` hook, deletes the
 worktree's environment and then the worktree. `WorktreeRemove` runs only for
@@ -239,6 +242,7 @@ registration is idempotent and only adds.
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
 `.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`,
+`scripts/tests/test_agentdev_devcontainer_repository.py`,
 `docs/knowledge/data/architecture/uv-environment-location.md`
 
 - [x] `HOOK_TYPES` includes `post-checkout`, and `.pre-commit-config.yaml` has a
@@ -259,6 +263,14 @@ registration is idempotent and only adds.
     `git worktree add -b <branch> .tmp/<name> HEAD` linked `.tmp/<name>/.venv`
     to `/uv/venvs/<name>`; with `PATH` holding only `/usr/bin`, `/bin`, and
     pre-commit, it exited 0 and made no `.venv`.
+- [x] The runtime acceptance test adds its worktree from the host with
+  `core.hooksPath=/dev/null`, and `uv-environment-location` records that git on
+  the host is unsupported in a checkout the Dev Container mounts.
+  - **Evidence:** commit 9edf4ace changes
+    `scripts/tests/test_agentdev_devcontainer_repository.py::Checkout.__init__`
+    › "core.hooksPath=/dev/null" and adds
+    `docs/knowledge/data/architecture/uv-environment-location.md#consequences` ›
+    "Git on the host is unsupported in a checkout the Dev Container mounts".
 
 ### Task 7: `agentdev-runtime worktree create`
 
@@ -495,13 +507,6 @@ checkout, in any repository, and remove the rest.
 - **THEN** the hook reuses that name's worktree, or checks out its kept
   `worktree-<name>` branch when the worktree was removed, and prints its path
 
-#### Scenario: the host checks out a branch
-
-- **WHEN** a host shares the checkout's `.git` with the Dev Container and runs
-  `git checkout`, `git switch`, or `git worktree add` without `agentdev-runtime`
-  installed
-- **THEN** the command succeeds and no `.venv` link is made
-
 #### Scenario: Claude Code removes a worktree
 
 - **WHEN** Claude Code removes a worktree its `WorktreeCreate` hook made
@@ -567,6 +572,9 @@ image's copy:
   worktree hooks.
 - CI checkouts and host checkouts no Dev Container mounts, which keep uv's
   default in-tree `.venv`.
+- Git on the host in a checkout a Dev Container mounts, which is unsupported:
+  the shared `.git/hooks` runs pre-commit through the container's
+  `/usr/bin/python3`.
 
 ## Key references
 
