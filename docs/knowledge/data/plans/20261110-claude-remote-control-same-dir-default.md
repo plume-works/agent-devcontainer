@@ -250,8 +250,10 @@ the explicit value worth a scenario is `worktree`.
 - `test_agent_runtime_acceptance.py::test_remote_control_waits_for_a_login_then_starts_and_comes_back`
   runs in the CI job `Dev Container runtime acceptance`, which needs Docker.
 - `iwe schema validate` passes, and
+  `iwe find --includes data/architecture/worktree-support -f keys` lists
+  `data/architecture`, and
   `iwe find --references data/architecture/worktree-support -f keys` lists
-  `data/architecture` and `data/bugs/shared-uv-environment-across-worktrees`.
+  `data/bugs/shared-uv-environment-across-worktrees`.
 
 ## Out of scope
 
