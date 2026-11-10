@@ -11,7 +11,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: .pre-commit-config.yaml
 - resource: https://code.claude.com/docs/en/hooks
-rank: 450
+stage: cancelled
 ---
 
 # Give each checkout its own uv environment

@@ -1,6 +1,6 @@
 ---
 type: bug
-stage: planned
+stage: pending
 severity: medium
 description: Every checkout in one devcontainer shares the uv environment at /uv/venvs/ws-project, so a uv run in one worktree repoints the editable agentdev_runtime and validate_agent_files installs and dependencies, and other worktrees' tests run its code.
 sources:
