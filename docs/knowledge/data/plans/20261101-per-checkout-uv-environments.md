@@ -12,7 +12,8 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/claude_state.py
 - resource: .pre-commit-config.yaml
 - resource: https://code.claude.com/docs/en/hooks
-rank: 450
+stage: done
+completed: 2026-11-10
 ---
 
 # Give each checkout its own uv environment
