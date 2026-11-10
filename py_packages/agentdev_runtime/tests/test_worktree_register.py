@@ -49,7 +49,7 @@ def test_the_create_phase_registers_the_hooks_outside_deploy_mode(
 ) -> None:
     folder = tmp_path / 'checkout'
     folder.mkdir()
-    monkeypatch.setattr(lifecycle, 'claim_mounts', lambda owner: None)
+    monkeypatch.setattr(lifecycle, 'claim_project', lambda settings: None)
     monkeypatch.setattr(lifecycle.git, 'safe_directory', lambda settings: None)
     monkeypatch.setattr(lifecycle.agent_state, 'create', lambda settings: None)
     monkeypatch.setattr(lifecycle.checkout.Workspace, 'project', lambda self: None)

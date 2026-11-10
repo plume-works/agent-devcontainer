@@ -29,7 +29,6 @@ from agentdev_runtime import (
 )
 
 PREFIX = 'agentdev-runtime lifecycle'
-UV_MOUNT = Path('/uv')
 PROJECT_MOUNT = Path('/workspaces/project')
 
 
@@ -51,14 +50,6 @@ def workspace_of(settings: env.Settings) -> str:
 def created_marker(settings: env.Settings) -> Path:
     """Container storage, made by the bootstrap: gone after a rebuild, kept across a restart."""
     return settings.path('AGENTDEV_LIFECYCLE_DIR') / 'created'
-
-
-def claim_mounts(owner: str) -> None:
-    """Named volumes are created root-owned; claim /uv only when it is mounted."""
-    if UV_MOUNT.exists():
-        subprocess.run(['sudo', 'chown', '-R', owner, str(UV_MOUNT)], check=True)
-    else:
-        print(f'{UV_MOUNT} is not mounted; skipping its ownership fix.')
 
 
 def claim_project(settings: env.Settings) -> None:
@@ -89,8 +80,6 @@ def check(status: int, step: str) -> None:
 def created(settings: env.Settings) -> None:
     """Run the create phase, idempotently, then mark it done."""
     workspace_of(settings)
-    owner = f'{os.getuid()}:{os.getgid()}'
-    claim_mounts(owner)
     claim_project(settings)
     # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
     git.safe_directory(settings)

@@ -255,9 +255,12 @@ before Task 5.
 - [x] No mount target or environment value in `.devcontainer/` names `/root`.
   - **Evidence:**
     `! grep -rn /root .devcontainer/devcontainer.json .devcontainer/docker-compose.yml .devcontainer/devcontainer-init.sh`
-- [ ] `agentdev-runtime lifecycle created` no longer claims a `/uv` mount, and
+- [x] `agentdev-runtime lifecycle created` no longer claims a `/uv` mount, and
   the `link-venv` hook's name in `.pre-commit-config.yaml` no longer names
   `/uv/venvs`.
+  - **Evidence:**
+    `! grep -n /uv py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py .pre-commit-config.yaml`;
+    `py_packages/agentdev_runtime/tests/test_worktree_register.py::test_the_create_phase_registers_the_hooks_outside_deploy_mode`
 
 ### Task 7: Move the deploy runtime's uv state onto its home volume
 
@@ -556,13 +559,13 @@ environment](20261101-per-checkout-uv-environments.md)
   `cbm_purge.purge`
 - `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `AGENTDEV_CLAUDE_JSON`
-- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::claim_mounts` —
-  `claim_mounts`, which claims `/uv` when it is mounted
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::claim_project` —
+  `claim_project`
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py::link_venv` —
   creates the `.venv` link under `AGENTDEV_VENV_ROOT`
 - `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `AGENTDEV_VENV_ROOT`, default `/uv/venvs`
-- `.pre-commit-config.yaml › "link .venv to its /uv/venvs environment"` — the
+- `.pre-commit-config.yaml › "link .venv to its own uv environment"` — the
   `link-venv` hook's name
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::created` —
   `created`
