@@ -4,7 +4,9 @@ Installs the agentic CLI tooling used in the workspace and the security layer
 that guards it:
 
 - **Bun-managed globals**: `@modelcontextprotocol/inspector`,
-  `@anthropic-ai/claude-code`, and `@opencode/cli` (OpenCode v2, trusted so its postinstall fetches the platform binary).
+  `@anthropic-ai/claude-code`, `@opencode/cli` (OpenCode v2, trusted so its postinstall fetches the platform binary), and `@fission-ai/openspec`.
+- **OpenSpec delivery**: sets the user's global OpenSpec config to `delivery: skills`,
+  so `openspec init` and `openspec update` generate workflow skills and no slash commands.
 - **[cc-filter](https://github.com/wissem/cc-filter)**: a hard security layer in
   front of Claude Code hooks. It blocks sensitive file access, blocks risky
   shell/search commands, and redacts secrets. The role downloads the
@@ -32,12 +34,13 @@ installed by the [`agent_catalog`](../agent_catalog/README.md) role.
 
 ### Agent CLIs
 
-| Variable                            | Default              | Description                                                                                     |
-| ----------------------------------- | -------------------- | ----------------------------------------------------------------------------------------------- |
-| `agentic_tools_claude_code_version` | pinned               | `@anthropic-ai/claude-code` version.                                                            |
-| `agentic_tools_opencode_version`    | pinned               | `@opencode/cli` version; the OpenCode CLI.                                                      |
-| `agentic_tools_inspector_version`   | pinned               | `@modelcontextprotocol/inspector` version.                                                      |
-| `agentic_tools_bun_packages`        | the three CLIs above | Packages installed as Bun globals, each at its pin; `trust: true` runs a package's postinstall. |
+| Variable                            | Default             | Description                                                                                     |
+| ----------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
+| `agentic_tools_claude_code_version` | pinned              | `@anthropic-ai/claude-code` version.                                                            |
+| `agentic_tools_opencode_version`    | pinned              | `@opencode/cli` version; the OpenCode CLI.                                                      |
+| `agentic_tools_inspector_version`   | pinned              | `@modelcontextprotocol/inspector` version.                                                      |
+| `agentic_tools_openspec_version`    | pinned              | `@fission-ai/openspec` version.                                                                 |
+| `agentic_tools_bun_packages`        | the four CLIs above | Packages installed as Bun globals, each at its pin; `trust: true` runs a package's postinstall. |
 
 ### cc-filter
 
@@ -61,3 +64,4 @@ repository):
 | ------------- | ---------------------------------------------------------------------- |
 | `system_arch` | Target CPU architecture (`amd64` or `arm64`) for the binary URL.       |
 | `user_home`   | Home directory of the target user (locates `~/.claude/settings.json`). |
+| `dev_user`    | User whose global OpenSpec config is set to deliver skills only.       |

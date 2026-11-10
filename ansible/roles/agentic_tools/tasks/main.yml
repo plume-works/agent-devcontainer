@@ -34,6 +34,26 @@
   changed_when: true
   when: (item.package ~ '@' ~ item.version) not in agentic_tools_bun_global_specs
 
+- name: Read the OpenSpec delivery mode
+  ansible.builtin.command:
+    argv: [/usr/local/bin/openspec, config, get, delivery]
+  environment:
+    OPENSPEC_TELEMETRY: "0"
+  become: true
+  become_user: "{{ dev_user }}"
+  register: agentic_tools_openspec_delivery_current
+  changed_when: false
+
+- name: Configure OpenSpec to deliver workflows as skills only
+  ansible.builtin.command:
+    argv: [/usr/local/bin/openspec, config, set, delivery, skills]
+  environment:
+    OPENSPEC_TELEMETRY: "0"
+  become: true
+  become_user: "{{ dev_user }}"
+  changed_when: true
+  when: agentic_tools_openspec_delivery_current.stdout | trim != 'skills'
+
 - name: Install cc-filter security layer for Claude Code
   ansible.builtin.import_tasks: cc_filter.yml
   when: agentic_tools_cc_filter_install | bool
