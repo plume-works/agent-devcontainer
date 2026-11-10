@@ -85,8 +85,8 @@ somewhere a container restart clears.
 ## Fix
 
 Not fixed: cancelled. codebase-memory-mcp was removed ([No code-graph
-index](../architecture/no-code-graph.md)), so the runtime no longer starts the
-daemon this bug concerns.
+index](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale)), so the
+runtime no longer starts the daemon this bug concerns.
 
 ## Key references
 

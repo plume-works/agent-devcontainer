@@ -71,7 +71,7 @@ entries in `claude.json` and OpenCode's config, its marked blocks in OpenCode's
 and its binary and cache in the home. It SHALL leave every other entry and file
 in place, SHALL NOT rewrite a file that holds nothing of CBM's, and SHALL NOT
 fail the create phase over a file it cannot read. The decision is [No code-graph
-index](../architecture/no-code-graph.md).
+index](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale).
 
 ### Scenario: a volume holds a CBM install beside the user's configuration
 

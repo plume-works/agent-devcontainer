@@ -113,7 +113,7 @@ The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle
 scripts and the workflow that supplies their devcontainer contract is recorded
 in [CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md).
+availability](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale).
 
 **Pull requests can block every review, not the gate.** While the
 `block-ai-reviews` label is on, no review runs, an explicit `request-ai-review`

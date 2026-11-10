@@ -17,7 +17,7 @@ sources:
 - resource: ansible/roles/devcontainer_firewall/files/init-firewall.sh
 - resource: docker/desktop/start-xpra.sh
 - resource: .github/actions/run-claude-responder/action.yml
-- resource: docs/knowledge/data/architecture/ci-agent-plugin-availability.md
+- resource: openspec/specs/catalog-lifecycle/spec.md
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
 - resource: .pre-commit-config.yaml
@@ -55,8 +55,8 @@ the first time they ran, inside the deploy profile's core `prepare` phase. A
 second, no-supervisor start path for GitHub `container:` jobs and Codex Cloud
 kept `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh` alive
 beside their supervised twins ([CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
-bootstrap is removed at the user's decision.
+availability](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale)).
+The Codex Cloud bootstrap is removed at the user's decision.
 
 The user decided that the Coder template's agent-start parameter becomes a
 command defaulting to `agentdev-runtime coder start`, since a CLI subcommand is

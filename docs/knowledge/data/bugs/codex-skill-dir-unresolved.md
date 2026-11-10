@@ -57,8 +57,8 @@ from `<path>`.
 ## Fix
 
 Cancelled: Codex support was removed ([Supported
-harnesses](../architecture/supported-harnesses.md)), so the catalog no longer
-ships for Codex and its Codex half no longer applies.
+harnesses](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale)), so
+the catalog no longer ships for Codex and its Codex half no longer applies.
 
 A skill references its own bundled code as `agent-code/<file>`, relative to the
 skill directory, which Claude Code, Codex, and OpenCode all tell the model to

@@ -63,7 +63,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       validator-image-install.
 - [x] 3.4 Fold into `dependency-updates`: ansible-apt-pins,
       renovate-config-validation, and renovate-post-upgrade.
-- [ ] 3.5 Fold into `catalog-lifecycle`: ci-agent-plugin-availability,
+- [x] 3.5 Fold into `catalog-lifecycle`: ci-agent-plugin-availability,
       no-code-graph, and supported-harnesses.
 - [ ] 3.6 Fold into `claude-remote-control`: claude-remote-control-resume,
       -server-mode, -server-continue, and -spawn-mode-switch.

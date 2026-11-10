@@ -61,11 +61,11 @@ A routing rule already exists in [Product](../product.md) `## Authoring rules` â
 spike findings go to `data/bugs/`, design decisions to `data/architecture/` â€”
 and it is why the cleanup went smoothly once triggered: the minimal-contract
 table moved to [CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md) and fit as though
-written for it. But `implement` never cites that rule, and `explore` has a whole
-`## Capturing` section (`.claude/skills/explore/SKILL.md#capturing`) that
-`implement` lacks. The skill that generates the most findings has the least
-guidance on where they belong.
+availability](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale)
+and fit as though written for it. But `implement` never cites that rule, and
+`explore` has a whole `## Capturing` section
+(`.claude/skills/explore/SKILL.md#capturing`) that `implement` lacks. The skill
+that generates the most findings has the least guidance on where they belong.
 
 The behavior is not specific to plans or to this repository's graph. The
 maintainer reports the same residue in READMEs, code comments, skill files, and

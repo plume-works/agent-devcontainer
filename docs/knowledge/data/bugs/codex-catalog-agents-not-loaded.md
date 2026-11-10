@@ -52,8 +52,8 @@ and dispatch.
 ## Fix
 
 Cancelled: Codex support was removed ([Supported
-harnesses](../architecture/supported-harnesses.md)), so the catalog no longer
-ships for Codex and this fix no longer applies.
+harnesses](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale)), so
+the catalog no longer ships for Codex and this fix no longer applies.
 
 Every Codex install of the catalog runs its `bin/install-codex-agents.py`, which
 writes one `~/.codex/agents/agentdev-<stem>.toml` per catalog agent, with the

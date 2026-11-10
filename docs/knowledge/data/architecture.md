@@ -18,8 +18,6 @@ rejected are as valuable as the one you picked.*
 
 [Catalog script language](architecture/catalog-script-language.md)
 
-[CI agent plugin availability](architecture/ci-agent-plugin-availability.md)
-
 [Claude Remote Control archived pre-created
 session](architecture/claude-remote-control-archived-pre-created-session.md)
 
@@ -74,8 +72,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
 
-[No code-graph index](architecture/no-code-graph.md)
-
 [OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)
 
 [OpenCode full access in the
@@ -100,8 +96,6 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Skill rehearsal runs](architecture/skill-rehearsal-runs.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
-
-[Supported harnesses](architecture/supported-harnesses.md)
 
 [Template boundary](architecture/template-boundary.md)
 

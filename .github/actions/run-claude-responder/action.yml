@@ -42,7 +42,7 @@ runs:
         done
         [[ ${#missing[@]} -eq 0 ]]
 
-    # See docs/knowledge/data/architecture/ci-agent-plugin-availability.md.
+    # See openspec/specs/catalog-lifecycle.
     - name: Run devcontainer lifecycle commands
       shell: bash
       env:
