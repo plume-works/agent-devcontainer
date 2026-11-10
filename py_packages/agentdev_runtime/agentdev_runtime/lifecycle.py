@@ -74,6 +74,13 @@ def claim_project(settings: env.Settings) -> None:
     print(f'Re-owned {PROJECT_MOUNT} to {uid}:{gid}.')
 
 
+def prepare_venv_root(settings: env.Settings) -> None:
+    """Create an environment root inside the home: link-venv skips a root whose parent is absent."""
+    root = Path(settings.get('AGENTDEV_VENV_ROOT'))
+    if root.is_relative_to(settings.home):
+        root.mkdir(parents=True, exist_ok=True)
+
+
 def check(status: int, step: str) -> None:
     if status != 0:
         raise LifecycleError(f'{step} failed (exit status {status})')
@@ -89,6 +96,7 @@ def created(settings: env.Settings) -> None:
     git.safe_directory(settings)
     with agent_state.config_lock(settings):
         agent_state.create(settings)
+    prepare_venv_root(settings)
     checkout.Workspace(settings).project()
     # The client-state volumes shadow the build-time install, so install the staged catalog
     # again at user scope; the attach phase layers a complete checkout catalog on top.

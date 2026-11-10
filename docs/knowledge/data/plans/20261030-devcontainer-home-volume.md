@@ -102,19 +102,25 @@ before Task 5.
 ### Task 1: Give the Dev Container image an agent account with an empty home
 
 **Files:** Modify: `docker/devcontainer/agentdev-devcontainer.Dockerfile`,
-`scripts/tests/test_agentdev_devcontainer_image.py`
+`scripts/tests/test_agentdev_devcontainer_image.py`,
+`py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
+`scripts/tests/test_agentdev_devcontainer_lifecycle.py`
 
 - [x] The image removes the stock `ubuntu` account and creates group and account
   `agent` (1000:1000, shell `/bin/bash`, home `/home/agent`), and creates
   `/home/agent` as an empty directory owned by `agent`.
   - **Evidence:**
     `scripts/tests/test_agentdev_devcontainer_image.py::test_the_image_gives_the_agent_account_an_empty_home_and_a_home_volume`
-- [ ] The image environment sets `AGENTDEV_USER=agent`,
+- [x] The image environment sets `AGENTDEV_USER=agent`,
   `AGENTDEV_HOME=/home/agent`,
   `AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth`,
   `CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude`,
   `AGENTDEV_VENV_ROOT=/home/agent/.local/share/uv/venvs`, and
   `/home/agent/.local/bin` on `PATH`; no default names `/root` or `/uv`.
+  - **Evidence:**
+    `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_VENV_ROOT=/home/agent/.local/share/uv/venvs"`,
+    `› "AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth"`, and
+    `› "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin"`
 - [x] `devcontainer.metadata` adds `"remoteUser": "agent"`,
   `"updateRemoteUserUID": true`, and a volume `agentdev-home-${devcontainerId}`
   at `/home/agent`.
@@ -129,9 +135,15 @@ before Task 5.
     and
     `scripts/tests/test_agentdev_devcontainer_image.py::test_the_agent_account_is_remapped_to_the_host_user_who_owns_the_checkout`,
     run by a host UID other than 0 and 1000
-- [ ] An image test opens a direct consumer that sets no `AGENTDEV_VENV_ROOT`
+- [x] An image test opens a direct consumer that sets no `AGENTDEV_VENV_ROOT`
   and asserts its checkout's `.venv` links to a directory under
   `/home/agent/.local/share/uv/venvs`.
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_a_direct_consumer_gets_the_managed_runtime_without_lifecycle_scripts`,
+    run by a host UID other than 0 and 1000;
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_makes_an_environment_root_inside_the_home`
+    and
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_leaves_an_environment_root_outside_the_home_alone`
 
 ### Task 2: Move the base image's shell setup out of root's home
 

@@ -36,6 +36,7 @@ ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     AGENTDEV_HOME=/home/agent \
     AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth \
     CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude \
+    AGENTDEV_VENV_ROOT=/home/agent/.local/share/uv/venvs \
     XDG_RUNTIME_DIR=/run/agentdev/xdg \
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus \
     DISPLAY=:100 \

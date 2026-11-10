@@ -167,6 +167,18 @@ def test_create_is_idempotent(lifecycle):
     assert lifecycle.marker.exists()
 
 
+def test_create_makes_an_environment_root_inside_the_home(lifecycle):
+    root = lifecycle.root / 'home/.local/share/uv/venvs'
+    assert_ok(lifecycle.run('created', AGENTDEV_VENV_ROOT=str(root)))
+    assert root.is_dir()
+
+
+def test_create_leaves_an_environment_root_outside_the_home_alone(lifecycle):
+    root = lifecycle.root / 'uv/venvs'
+    assert_ok(lifecycle.run('created', AGENTDEV_VENV_ROOT=str(root)))
+    assert not (lifecycle.root / 'uv').exists()
+
+
 def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
     result = lifecycle.run('created', AGENTDEV_CATALOG_DIR='')
     assert_ok(result)
