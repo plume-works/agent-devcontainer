@@ -25,13 +25,13 @@ followed by `iwe schema validate` passes after every task.
 
 ## 2. Migrate the KB specs
 
-- [ ] 2.1 Copy the 16 KB specs that already have `## Purpose` to
+- [x] 2.1 Copy the 16 KB specs that already have `## Purpose` to
       `openspec/specs/<slug>/spec.md`. Drop their frontmatter and title each one
       `# <Title> Specification`. Verify that
       `openspec validate --specs` reports no ERROR for them, and that a script
       comparing requirement and scenario headings shows each copy has the same
       names as its source.
-- [ ] 2.2 Migrate the other 16 specs the same way. Add `## Purpose` from the KB
+- [x] 2.2 Migrate the other 16 specs the same way. Add `## Purpose` from the KB
       `description`, wrap the requirements in `## Requirements`, and demote each
       `## Requirement:` to `### Requirement:`. `template-consumption`'s
       `## Pull request description guidance` goes to its `## Rationale`. Verify
