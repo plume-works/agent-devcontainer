@@ -294,6 +294,7 @@ def test_rejects_an_unwritable_checkout_without_changing_ownership(image, volume
     assert after == before
 
 
+@pytest.mark.requires_root
 def test_accepts_a_checkout_owned_by_the_runtime_identity(image, volumes, checkout):
     os.chown(checkout, 4321, 4321)
     result = run(
@@ -330,6 +331,7 @@ id -nG "$AGENTDEV_USER" | tr ' ' '\\n' | grep -qx docker && echo docker-member |
 """
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize(('user', 'owner'), [('root', '0:0')])
 def test_a_devcontainer_accepts_the_tools_account_and_workspace(image, tmp_path, user, owner):
     checkout = TMP_ROOT / f'dc-checkout-{uuid4().hex[:8]}'
@@ -397,6 +399,7 @@ def devcontainer_mounts(volumes: Volumes, workspace: Path) -> list[str]:
     ]
 
 
+@pytest.mark.requires_root
 def test_a_non_root_devcontainer_claims_its_home_and_shared_auth(image, volumes, checkout):
     os.chown(checkout, 1000, 1000)
     volumes.created += [volumes.name('home'), volumes.auth]
@@ -418,6 +421,7 @@ def test_a_non_root_devcontainer_claims_its_home_and_shared_auth(image, volumes,
     assert 'initialized empty shared auth volume' in result.stdout
 
 
+@pytest.mark.requires_root
 def test_a_non_root_devcontainer_creates_shared_auth_when_none_is_mounted(image, checkout):
     os.chown(checkout, 1000, 1000)
     result = run(
@@ -431,6 +435,7 @@ def test_a_non_root_devcontainer_creates_shared_auth_when_none_is_mounted(image,
     assert result.stdout.splitlines()[-1] == '1000:1000 700'
 
 
+@pytest.mark.requires_root
 def test_a_non_root_devcontainer_refuses_a_home_another_identity_populated(
     image, volumes, checkout
 ):
@@ -461,6 +466,7 @@ def test_a_non_root_devcontainer_refuses_a_home_another_identity_populated(
     assert '/home/agent (home and client configuration) is owned by 2000:2000' in result.stderr
 
 
+@pytest.mark.requires_root
 def test_a_non_root_devcontainer_names_the_uid_an_unwritable_checkout_needs(
     image, volumes, checkout
 ):

@@ -306,6 +306,7 @@ def test_supervised_xpra_without_a_password_keeps_sessions_open(scratch: Path):
         assert xpra_session(scratch, port, None) == 0
 
 
+@pytest.mark.requires_root
 def test_supervised_xpra_refuses_to_duplicate_a_live_session(xpra):
     port, env = xpra
     duplicate = subprocess.run(

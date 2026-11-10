@@ -264,6 +264,34 @@ before Task 5.
     `"postCreateCommand": "agentdev-runtime lifecycle created --wait"`;
     `scripts/tests/test_agentdev_devcontainer_image.py::test_a_direct_consumer_runs_each_phase_exactly_when_specified`
 
+### Task 5b: Run the tests that need root from the runtime account
+
+**Files:** Create: `scripts/run-root-tests`,
+`scripts/tests/test_root_tests_launcher.py`; Modify:
+`scripts/tests/conftest.py`, `scripts/tests/scratch.py`, `pyproject.toml`,
+`.github/workflows/ci.yml`, `scripts/tests/test_cloud_startup.py`, and the
+`requires_root` tests in `scripts/tests/test_agent_runtime_supervision.py`,
+`scripts/tests/test_agent_runtime_profiles.py`,
+`scripts/tests/test_agent_runtime_ingress.py`, and
+`scripts/tests/test_agent_runtime_identity.py`
+
+- [x] Tests marked `requires_root` skip in a run that is not root; under
+  `scripts/run-root-tests`, a root run that selects an unmarked test is refused,
+  and the launcher refuses to start as root.
+  - **Evidence:**
+    `scripts/tests/test_root_tests_launcher.py::test_a_marked_test_skips_without_root`,
+    `scripts/tests/test_root_tests_launcher.py::test_the_launcher_guard_rejects_an_unmarked_test`,
+    `scripts/tests/test_root_tests_launcher.py::test_root_without_the_launcher_runs_any_test`,
+    `scripts/tests/test_root_tests_launcher.py::test_the_launcher_refuses_to_run_as_root`
+- [x] `startup.py resume` tests keep the daemon pid files in scratch, never the
+  host's `/var/run`.
+  - **Evidence:**
+    `scripts/tests/test_cloud_startup.py::test_resume_on_a_cloud_host_starts_docker`
+- [ ] As `agent` in a rebuilt Dev Container, the suite passes with the
+  `requires_root` tests skipped; `scripts/run-root-tests` then runs them as
+  root, they pass, and the run leaves no root-owned file in the checkout or
+  `/tmp/agentdev-tests`.
+
 ### Task 6: Point this repository's descriptor at the home volume
 
 **Files:** Modify: `.devcontainer/devcontainer.json`,

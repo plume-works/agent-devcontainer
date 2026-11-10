@@ -330,6 +330,13 @@ jobs:
             uv run pytest -n 8 py_packages .agents/plugins/agentdev/tests \
               .agents/plugins/self-improve/tests scripts/tests
 
+            # The tests the runtime account skips, run as root; see
+            # architecture/devcontainer-home-volume. They must leave nothing root-owned behind.
+            touch .tmp/root-tests.stamp
+            scripts/run-root-tests -n 8 scripts/tests
+            left="$(find . /tmp/agentdev-tests -newer .tmp/root-tests.stamp -user root -print 2>/dev/null | head -n 5)"
+            if [ -n "$left" ]; then echo "root-owned leftovers: $left" >&2; exit 1; fi
+
       - name: Log debug stats
         if: ${{ always() }}
         uses: $/.github/actions/log-debug-stats

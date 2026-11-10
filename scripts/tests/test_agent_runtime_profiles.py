@@ -199,6 +199,7 @@ def devcontainer() -> Iterator[Callable[..., Supervision]]:
         shutil.rmtree(box.root, ignore_errors=True)
 
 
+@pytest.mark.requires_root
 def test_devcontainer_starts_required_services_then_publishes_readiness(devcontainer):
     box = devcontainer()
     box.start()
@@ -216,6 +217,7 @@ def test_devcontainer_starts_required_services_then_publishes_readiness(devconta
     assert box.health('ready').returncode == 0
 
 
+@pytest.mark.requires_root
 def test_readiness_is_withheld_until_every_required_service_is_healthy(devcontainer):
     box = devcontainer(AGENTDEV_SERVICE_START_TIMEOUT='20')
     box.set('dockerd', 'mode', 'never-ready')
@@ -231,6 +233,7 @@ def test_readiness_is_withheld_until_every_required_service_is_healthy(devcontai
     assert box.health('ready').returncode == 0
 
 
+@pytest.mark.requires_root
 def test_a_failing_required_probe_withdraws_readiness(devcontainer):
     box = devcontainer()
     box.start()
@@ -240,6 +243,7 @@ def test_a_failing_required_probe_withdraws_readiness(devcontainer):
     assert result.returncode == 1 and 'core probe failed: xpra' in result.stdout
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('service', DEVCONTAINER_REQUIRED)
 def test_a_required_service_exhausting_recovery_ends_the_container(devcontainer, service):
     box = devcontainer(AGENTDEV_RECOVERY_ATTEMPTS='2')
@@ -255,6 +259,7 @@ def test_a_required_service_exhausting_recovery_ends_the_container(devcontainer,
     assert started(box.events()).count(service) == 3
 
 
+@pytest.mark.requires_root
 def test_a_required_service_recovers_within_its_budget(devcontainer):
     box = devcontainer()
     box.start()
@@ -286,6 +291,7 @@ def test_an_invalid_profile_ends_the_runtime_before_the_bootstrap(devcontainer):
     assert 'AGENTDEV_RUNTIME_MODE must be deploy or devcontainer' in box.output()
 
 
+@pytest.mark.requires_root
 def test_the_create_phase_gates_readiness_and_its_clients(devcontainer):
     box = devcontainer(AGENTDEV_OPENCODE_WEB='1', AGENTDEV_PREPARE_TIMEOUT='30')
     box.set('created', 'sleep', '2')
@@ -297,6 +303,7 @@ def test_the_create_phase_gates_readiness_and_its_clients(devcontainer):
     assert started(box.events())[-2:] == ['created', 'opencode']
 
 
+@pytest.mark.requires_root
 def test_a_failing_client_degrades_without_withdrawing_readiness(devcontainer):
     box = devcontainer(AGENTDEV_OPENCODE_WEB='1', AGENTDEV_STRICT_STARTUP='1')
     box.set('opencode', 'mode', 'crash-always')
@@ -307,6 +314,7 @@ def test_a_failing_client_degrades_without_withdrawing_readiness(devcontainer):
     assert box.alive() and box.health('ready').returncode == 0
 
 
+@pytest.mark.requires_root
 def test_sigterm_stops_every_service_and_exits_cleanly(devcontainer):
     box = devcontainer()
     box.start()

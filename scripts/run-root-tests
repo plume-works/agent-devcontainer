@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Run the tests marked requires_root as root, from a non-root account with passwordless sudo.
+# Extra arguments go to pytest. Design: architecture/devcontainer-home-volume.
+set -euo pipefail
+
+if [[ "$(id -u)" == 0 ]]; then
+  echo "run-root-tests: already root; run 'pytest -m requires_root' directly" >&2
+  exit 2
+fi
+
+repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+python="$repo/.venv/bin/python"
+if [[ ! -x "$python" ]]; then
+  echo "run-root-tests: $python is missing; run 'uv sync' first" >&2
+  exit 2
+fi
+
+# env -i passes only this list: sudo's secure_path would replace PATH, and no token may reach root.
+cd "$repo"
+exec sudo -- env -i \
+  PATH="$PATH" \
+  HOME=/root \
+  PYTHONDONTWRITEBYTECODE=1 \
+  AGENTDEV_TEST_TMP_ROOT=/tmp/agentdev-root-tests \
+  AGENTDEV_ROOT_TEST_LAUNCHER=1 \
+  "$python" -m pytest -m requires_root -p no:cacheprovider "$@"

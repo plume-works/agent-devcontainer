@@ -11,6 +11,8 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: .devcontainer/devcontainer-init.sh
+- resource: scripts/run-root-tests
+- resource: scripts/tests/conftest.py
 ---
 
 # Dev Container home volume
@@ -66,6 +68,32 @@ volume.
   be copied into the volume once and then never updated by an image upgrade.
 - The runtime account is not root. A host checkout must be writable by its
   UID/GID, the same requirement the deploy runtime's bootstrap enforces.
+
+## Tests that need root
+
+Some tests need root itself, not just the runtime account: supervisord can
+switch a program to `AGENTDEV_USER` only as root, and the bootstrap tests
+`chown` scratch files to other UIDs. They carry the `requires_root` marker and
+skip in a run that is not root, so the suite passes as `agent`.
+
+`scripts/run-root-tests` runs them as root from the runtime account, through the
+passwordless `sudo` the bootstrap grants:
+
+- It refuses to start as root.
+- It runs the project environment's own Python through `sudo env -i`, never `uv`
+  and never `sudo -E`. Root therefore never syncs or writes into `.venv`, and
+  only the variables it names reach root. `env -i` sets the list because
+  `sudo`'s `secure_path` would replace `PATH`. No token is on the list.
+- It turns off bytecode and the pytest cache, and gives root its own scratch
+  root under `/tmp`, so no file root leaves blocks a later run as `agent`.
+
+Under the launcher, a root run that selects any test without the marker is
+refused. The guard catches mistakes and is not a security boundary. A root run
+without the launcher stays unrestricted, because cloud session hosts, GitHub
+`container:` jobs and a root Dev Container run the whole suite as root on
+purpose. CI's Dev Container image job runs the suite as `agent`, then the
+launcher, and fails if that run left a root-owned file in the checkout or in the
+`agent` scratch root.
 
 ## Rejected alternatives
 
