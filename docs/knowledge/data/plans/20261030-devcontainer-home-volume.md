@@ -178,8 +178,7 @@ before Task 5.
 - [ ] `devcontainer-init.sh` creates `agentdev-agents-auth-<uid>-<gid>` from the
   host user's `id -u` and `id -g` and writes its name to `.env`, and
   `docker-compose.yml` mounts it at `/var/lib/agentdev/auth`.
-- [ ] The MCP directory and secrets-engine socket targets move from `/root` to
-  `/home/agent`.
+- [ ] No mount target or environment value in `.devcontainer/` names `/root`.
 
 ### Task 7: Move the deploy runtime's uv state onto its home volume
 
@@ -430,7 +429,6 @@ CLI](20261029-off-bash-migration.md)
   `agentdev-agents-auth` mount
 - `.devcontainer/devcontainer-init.sh › "docker volume create agentdev-agents-auth >/dev/null"`
   — `docker volume create agentdev-agents-auth`
-- `.devcontainer/devcontainer-init.sh` — `CONTAINER_MCP_DIR`
 - `compose.opencode.yml › "uv:/uv"` — `uv:/uv` mount
 - `scripts/tests/test_agent_runtime_compose.py::INSTANCE_TARGETS` —
   `INSTANCE_TARGETS`
