@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentdev_runtime import agent_state, cbm_purge, settings as env
+from agentdev_runtime import cbm_purge, settings as env
 import pytest
 
 BINARY = cbm_purge.BINARY
@@ -114,29 +114,6 @@ def test_purge_keeps_the_claude_json_symlink(home: Home) -> None:
     cbm_purge.purge(home.settings)
 
     assert home.claude_json.is_symlink()
-
-
-def test_create_purges_a_cbm_entry_once_the_claude_json_link_is_a_file(
-    home: Home, tmp_path_factory: pytest.TempPathFactory
-) -> None:
-    home.install()
-    settings = env.Settings(
-        {
-            **home.settings.environ,
-            'AGENTDEV_RUNTIME_MODE': env.DEPLOY,
-            'AGENTDEV_AGENTS_AUTH_DIR': str(tmp_path_factory.mktemp('auth')),
-            'AGENTDEV_SKIP_CLAUDE_PREAPPROVE': '1',
-        }
-    )
-
-    agent_state.create(settings)
-
-    assert not home.claude_json.is_symlink()
-    assert json.loads(home.claude_json.read_text()) == {
-        'mcpServers': {'mine': {}},
-        'projects': {'/w': {}},
-    }
-    assert not (home.claude / 'claude.json').exists()
 
 
 def test_a_symlinked_agents_md_keeps_its_link_and_loses_the_block(home: Home) -> None:

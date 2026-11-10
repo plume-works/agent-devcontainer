@@ -1,3 +1,0 @@
----
-# The bashrc the role's PATH line and history block go into.
-bash_setup_bashrc: "{{ user_home }}/.bashrc"

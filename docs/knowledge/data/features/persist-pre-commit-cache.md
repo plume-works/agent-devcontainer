@@ -1,7 +1,7 @@
 ---
 type: feature
 stage: implemented
-description: The pre-commit hook cache lives at its default path on each Dev Container instance's home volume, outside the checkout, so only the first create per instance pays the cold hook-install cost and every rebuild after starts warm.
+description: The pre-commit hook cache lives on its own per-worktree agentdev-pre-commit volume via PRE_COMMIT_HOME, outside the checkout, so only the first devcontainer create per worktree pays the cold hook-install cost and every rebuild after starts warm.
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/setup-pre-commit.sh
@@ -20,12 +20,11 @@ across rebuilds at zero image-size cost.
 
 ## Behaviour
 
-**The cache lives on the home volume.** No `PRE_COMMIT_HOME` is set, so
-pre-commit uses `~/.cache/pre-commit`, which is on the per-instance home volume
-mounted at `/home/agent` (see [Dev Container home
-volume](../architecture/devcontainer-home-volume.md)). The first create per
-instance installs the hook environments fresh into it; every rebuild after
-reuses them and completes in well under a second.
+**`PRE_COMMIT_HOME` points at the agentdev-pre-commit volume.**
+`devcontainer.json` mounts the `agentdev-pre-commit` volume at
+`/root/.cache/pre-commit` and sets `PRE_COMMIT_HOME` to that path. The first
+create per worktree installs the hook environments fresh into the volume; every
+rebuild after reuses them and completes in well under a second.
 
 **The cache stays off the checkout.** No cache volume is mounted inside the
 workspace, so the checkout carries no mount point and its owner or filesystem
@@ -46,11 +45,11 @@ where it actually lives whether or not `PRE_COMMIT_HOME` is set.
 
 ## Scope
 
-Per-instance scope is intended: the home volume is named after the Dev
-Container's ID, so each worktree's cache is naturally isolated and the first
-create per worktree pays the cold cost. `install --install-hooks` installs into
-the volume path with no lifecycle-script logic of its own. Firewall allowlisting
-for the one-time cold fill under `ENABLE_FIREWALL=true` is out of scope.
+Per-worktree scope is intended: `agentdev-pre-commit` is Compose-project-scoped,
+so each worktree's cache is naturally isolated and the first create per worktree
+pays the cold cost. `install --install-hooks` installs into the volume path with
+no lifecycle-script logic of its own. Firewall allowlisting for the one-time
+cold fill under `ENABLE_FIREWALL=true` is out of scope.
 
 A global shared volume (warm across all worktrees after the first-ever create)
 was rejected in favour of a per-worktree one; it can be revisited if
@@ -62,8 +61,8 @@ first-create-per-worktree cost becomes a pain.
   the full cold install; only later rebuilds start warm.
 - **One hook's `rev` is bumped.** Only that hook's environment is reinstalled;
   the rest stay cache hits.
-- **Outside the Dev Container.** The install and the failure log use
-  `$HOME/.cache/pre-commit` there too, or `PRE_COMMIT_HOME` when a host sets it.
+- **`PRE_COMMIT_HOME` is unset.** Outside the devcontainer the install and the
+  failure log both fall back to `$HOME/.cache/pre-commit`.
 
 ## Open questions
 

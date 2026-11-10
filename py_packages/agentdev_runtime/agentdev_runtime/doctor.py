@@ -90,6 +90,16 @@ class Report:
         else:
             self.result(tool, 'FAIL', 'required tool not installed')
 
+    def check_link(self, name: str, path: Path) -> None:
+        if not path.is_symlink():
+            self.result(name, 'FAIL', 'not a symlink')
+            return
+        target = path.resolve()
+        if target.is_file():
+            self.result(name, 'PASS', f'target={target}')
+        else:
+            self.result(name, 'FAIL', 'symlink target is missing')
+
 
 def git_config(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(['git', 'config', *args], capture_output=True, text=True, check=False)
@@ -206,11 +216,7 @@ def auth(report: Report, settings: env.Settings) -> None:
     else:
         report.result('claude credentials', 'FAIL', 'credential directory missing')
     home = Path(os.environ.get('HOME') or Path.home())
-    claude_json = home / '.claude.json'
-    if claude_json.is_file() and not claude_json.is_symlink():
-        report.result('claude.json', 'PASS', 'regular file')
-    else:
-        report.result('claude.json', 'FAIL', 'missing or a symlink')
+    report.check_link('claude.json link', home / '.claude.json')
 
 
 def network(report: Report) -> None:

@@ -1159,45 +1159,6 @@ reopen, so the editor does not reuse the configuration it saved from the old
 image, and run [the verification section](#10-verify-the-copied-project)
 before advancing `consumed_ref`.
 
-## Migrating to the home volume
-
-`agentdev-devcontainer` runs the Dev Container as the non-root account `agent`,
-remapped to the host user's UID and GID, with its whole home on one
-per-instance volume that the image mounts. Agent configuration, sessions,
-OpenCode's database, `~/.claude.json`, uv's cache and environments, and the
-pre-commit cache all live there at their default paths. Apply the migration when
-the consumer's `.devcontainer/devcontainer.json` still mounts a volume below
-`/root` or at `/uv` and the upstream template's does not. Like the image-family
-migration, it is one change: a descriptor that keeps `/root` paths points the
-`agent` account at directories it cannot reach.
-
-1. **Descriptor.** In `.devcontainer/devcontainer.json`, remove every mount whose
-   target is below `/root` or is `/uv` (`agentdev-claude`, `agentdev-opencode`,
-   `agentdev-pre-commit`, `agentdev-uv`), and the `CLAUDE_SECURESTORAGE_CONFIG_DIR`,
-   `PRE_COMMIT_HOME`, `UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, and
-   `UV_PROJECT_ENVIRONMENT` entries from `containerEnv`; the image sets what it
-   needs. Point editor settings that name `/uv/venvs/...` at
-   `${workspaceFolder}/.venv/bin/...`, and move any mount of the consumer's own
-   from `/root` to `/home/agent`.
-2. **Compose.** In `.devcontainer/docker-compose.yml`, mount the shared auth
-   volume at `/var/lib/agentdev/auth` and name it
-   `${AGENTDEV_AUTH_VOLUME:-agentdev-agents-auth-1000-1000}`, still external.
-3. **Initializer.** In `.devcontainer/devcontainer-init.sh`, create
-   `agentdev-agents-auth-$(id -u)-$(id -g)` in place of `agentdev-agents-auth`
-   and append `AGENTDEV_AUTH_VOLUME=<that name>` to `.devcontainer/.env`, so only
-   containers of one host UID and GID share Claude's credentials.
-4. **Lifecycle work.** A descriptor lifecycle command or derived-image hook now
-   runs as `agent`; one that needs root runs its command through `sudo`.
-5. **Tell the user what resets.** After the rebuild, agent configuration,
-   sessions, OpenCode logins, and caches start empty, and every agent logs in
-   once; nothing is migrated. The old per-directory volumes and
-   `agentdev-agents-auth` are no longer mounted and can be removed by hand. On
-   Linux the checkout must be writable by the host user who opens it.
-
-Rebuild with `Dev Containers: Rebuild Container`, as for the image-family
-migration, and run [the verification section](#10-verify-the-copied-project)
-before advancing `consumed_ref`.
-
 ## Ongoing maintenance
 
 A manual copy or merge creates no upstream relationship by itself — that is

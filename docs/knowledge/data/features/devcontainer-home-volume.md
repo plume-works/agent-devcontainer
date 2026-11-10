@@ -24,12 +24,12 @@ volume](../architecture/devcontainer-home-volume.md)).
 
 ## Behaviour
 
-**A non-root account.** The image provides an account `agent` whose home
-directory is empty, and the Dev Container's `remoteUser` is `agent`. On a Linux
-host the devcontainer CLI remaps its UID and GID to the host user's, so a
-bind-mounted checkout is writable without changing its owner. The supervisor
-stays root; user services, lifecycle commands, and editor sessions run as
-`agent`, with passwordless `sudo`.
+**A non-root account.** The image provides an account `agent` with no home
+directory, and the Dev Container's `remoteUser` is `agent`. On a Linux host the
+devcontainer CLI remaps its UID and GID to the host user's, so a bind-mounted
+checkout is writable without changing its owner. The supervisor stays root; user
+services, lifecycle commands, and editor sessions run as `agent`, with
+passwordless `sudo`.
 
 **One home volume.** `/home/agent` is one per-instance volume that starts empty
 and is claimed by the account on first start. Agent configuration and sessions,

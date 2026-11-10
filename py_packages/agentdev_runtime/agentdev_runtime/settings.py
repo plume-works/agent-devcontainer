@@ -97,6 +97,7 @@ VARIABLES: tuple[Variable, ...] = (
         'PEM bundle the bootstrap adds to the system trust store; absent or empty adds none.',
         '/etc/agentdev/extra-ca.crt',
     ),
+    Variable('AGENTDEV_UV_DIR', 'uv cache, interpreter, and venv volume root.', '/uv'),
     Variable(
         'AGENTDEV_REQUIRE_MOUNTS',
         '`1` makes the bootstrap refuse unmounted instance storage.',

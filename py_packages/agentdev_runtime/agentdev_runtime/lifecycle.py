@@ -29,7 +29,7 @@ from agentdev_runtime import (
 )
 
 PREFIX = 'agentdev-runtime lifecycle'
-PROJECT_MOUNT = Path('/workspaces/project')
+UV_MOUNT = Path('/uv')
 
 
 class LifecycleError(Exception):
@@ -52,24 +52,12 @@ def created_marker(settings: env.Settings) -> Path:
     return settings.path('AGENTDEV_LIFECYCLE_DIR') / 'created'
 
 
-def claim_project(settings: env.Settings) -> None:
-    """Re-own the sibling checkout volume once, so its uncommitted work stays editable."""
-    uid, gid = os.getuid(), os.getgid()
-    if uid == 0 or not os.path.ismount(PROJECT_MOUNT):
-        return
-    if Path(settings.get('DEV_WORKSPACE_FOLDER')).resolve() == PROJECT_MOUNT:
-        return
-    if PROJECT_MOUNT.stat().st_uid == uid:
-        return
-    subprocess.run(['sudo', 'chown', '-R', f'{uid}:{gid}', str(PROJECT_MOUNT)], check=True)
-    print(f'Re-owned {PROJECT_MOUNT} to {uid}:{gid}.')
-
-
-def prepare_venv_root(settings: env.Settings) -> None:
-    """Create an environment root inside the home: link-venv skips a root whose parent is absent."""
-    root = Path(settings.get('AGENTDEV_VENV_ROOT'))
-    if root.is_relative_to(settings.home):
-        root.mkdir(parents=True, exist_ok=True)
+def claim_mounts(owner: str) -> None:
+    """Named volumes are created root-owned; claim /uv only when it is mounted."""
+    if UV_MOUNT.exists():
+        subprocess.run(['sudo', 'chown', '-R', owner, str(UV_MOUNT)], check=True)
+    else:
+        print(f'{UV_MOUNT} is not mounted; skipping its ownership fix.')
 
 
 def check(status: int, step: str) -> None:
@@ -80,12 +68,12 @@ def check(status: int, step: str) -> None:
 def created(settings: env.Settings) -> None:
     """Run the create phase, idempotently, then mark it done."""
     workspace_of(settings)
-    claim_project(settings)
+    owner = f'{os.getuid()}:{os.getgid()}'
+    claim_mounts(owner)
     # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
     git.safe_directory(settings)
     with agent_state.config_lock(settings):
         agent_state.create(settings)
-    prepare_venv_root(settings)
     checkout.Workspace(settings).project()
     # The client-state volumes shadow the build-time install, so install the staged catalog
     # again at user scope; the attach phase layers a complete checkout catalog on top.

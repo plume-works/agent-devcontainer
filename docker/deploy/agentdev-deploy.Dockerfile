@@ -36,7 +36,9 @@ ENV AGENTDEV_RUNTIME_MODE=deploy \
     DISPLAY=:100 \
     XPRA_HOST=0.0.0.0 \
     DOCKER_HOST=unix:///var/run/docker.sock \
-    UV_PROJECT_ENVIRONMENT=/home/agent/.local/share/uv/venvs/project \
+    UV_CACHE_DIR=/uv/cache \
+    UV_PYTHON_INSTALL_DIR=/uv/python \
+    UV_PROJECT_ENVIRONMENT=/uv/venvs/project \
     AGENTDEV_STOP_TIMEOUT=30 \
     PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin
 

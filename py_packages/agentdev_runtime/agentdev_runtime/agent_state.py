@@ -52,15 +52,23 @@ def config_lock(settings: env.Settings) -> Iterator[None]:
         yield
 
 
-def unlink_claude_json(settings: env.Settings) -> None:
-    """Replace a ``~/.claude.json`` link into ``~/.claude`` with the file it points to."""
+def link_claude_json(settings: env.Settings) -> None:
+    """Link ``~/.claude.json`` into the ``~/.claude`` volume."""
+    claude_dir = settings.path('AGENTDEV_CLAUDE_DIR')
     claude_json = settings.path('AGENTDEV_CLAUDE_JSON')
-    target = settings.path('AGENTDEV_CLAUDE_DIR') / 'claude.json'
-    if not claude_json.is_symlink() or claude_json.resolve() != target.resolve():
-        return
-    claude_json.unlink()
-    if target.is_file():
-        shutil.move(target, claude_json)
+    target = claude_dir / 'claude.json'
+    claude_dir.mkdir(parents=True, exist_ok=True)
+    if claude_json.is_file() and not claude_json.is_symlink():
+        if deploy(settings):
+            # No image-baked copy exists in a deploy home: a real file is the user's.
+            shutil.move(claude_json, target)
+        else:
+            claude_json.unlink()
+    if not target.exists():
+        target.write_text('{}\n')
+    if claude_json.is_symlink() or claude_json.exists():
+        claude_json.unlink()
+    claude_json.symlink_to(target)
 
 
 def ensure_auth_dirs(settings: env.Settings) -> None:
@@ -75,7 +83,7 @@ def apply_agent_policy() -> None:
 
 
 def create(settings: env.Settings) -> None:
-    unlink_claude_json(settings)
+    link_claude_json(settings)
     cbm_purge.purge(settings)
     ensure_auth_dirs(settings)
     claude_state.preapprove(settings)

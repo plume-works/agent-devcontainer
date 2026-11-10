@@ -6,14 +6,6 @@ FROM $FROM_IMAGE
 
 ARG FROM_IMAGE
 
-# The devcontainer CLI's UID update re-owns the account's home and fails when it is missing,
-# so the home exists and stays empty; spec: architecture/devcontainer-home-volume.
-RUN userdel --remove ubuntu \
-    && groupadd --gid 1000 agent \
-    && useradd --no-create-home --uid 1000 --gid 1000 --home-dir /home/agent \
-      --shell /bin/bash agent \
-    && install -d -m 0755 -o agent -g agent /home/agent
-
 RUN install -d -m 0755 /etc/agentdev/hooks/created.d /etc/agentdev/hooks/started.d \
       /etc/agentdev/hooks/attached.d
 
@@ -32,30 +24,20 @@ COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-al
 # Defaults a consumer's descriptor or derived image may override; see
 # architecture/devcontainer-runtime.
 ENV AGENTDEV_RUNTIME_MODE=devcontainer \
-    AGENTDEV_USER=agent \
-    AGENTDEV_HOME=/home/agent \
-    AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth \
-    CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude \
-    AGENTDEV_VENV_ROOT=/home/agent/.local/share/uv/venvs \
+    AGENTDEV_USER=root \
+    AGENTDEV_HOME=/root \
     XDG_RUNTIME_DIR=/run/agentdev/xdg \
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus \
     DISPLAY=:100 \
     DOCKER_HOST=unix:///var/run/docker.sock \
-    AGENTDEV_STOP_TIMEOUT=30 \
-    PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin
+    AGENTDEV_STOP_TIMEOUT=30
 
 # Inherited by every descriptor that selects this image: the stable lifecycle commands,
-# the entrypoint kept in place, the nested engine's non-overlay storage, and the runtime
-# account remapped to the host user with its home on one per-instance volume.
+# the entrypoint kept in place, and the nested engine's non-overlay storage.
 LABEL devcontainer.metadata='[{ \
   "privileged": true, \
   "overrideCommand": false, \
-  "remoteUser": "agent", \
-  "updateRemoteUserUID": true, \
-  "mounts": [ \
-    {"source": "dind-var-lib-docker-${devcontainerId}", "target": "/var/lib/docker", "type": "volume"}, \
-    {"source": "agentdev-home-${devcontainerId}", "target": "/home/agent", "type": "volume"} \
-  ], \
+  "mounts": [{"source": "dind-var-lib-docker-${devcontainerId}", "target": "/var/lib/docker", "type": "volume"}], \
   "remoteEnv": {"DEV_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"}, \
   "postCreateCommand": "agentdev-runtime lifecycle created", \
   "postStartCommand": "agentdev-runtime lifecycle ready", \

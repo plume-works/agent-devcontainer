@@ -40,7 +40,8 @@ def _run_health(
     home = tmp_path / 'home'
     claude = home / '.claude'
     claude.mkdir(parents=True)
-    (home / '.claude.json').write_text('{}')
+    (claude / 'claude.json').write_text('{}')
+    (home / '.claude.json').symlink_to(claude / 'claude.json')
 
     fake_bin = tmp_path / 'bin'
     fake_bin.mkdir()
@@ -154,7 +155,7 @@ def test_deploy_mode_redacts_auth_output(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'SHOULD_NOT_APPEAR' not in result.stdout
     assert 'SECRET_VALUE' not in result.stdout
-    assert re.search(r'^claude\.json\s+PASS\s+regular file$', result.stdout, re.MULTILINE)
+    assert 'claude.json link' in result.stdout
     assert 'PASS' in result.stdout
     assert 'Overall: PASS' in result.stdout
 

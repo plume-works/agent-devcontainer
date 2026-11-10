@@ -23,9 +23,18 @@
     // From the host environment or the hosting platform's secret store; empty when unset.
     "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
 
-    // uv's cache, interpreters, and pre-commit's cache take their defaults on the home volume.
-    // Each checkout's .venv links to its own environment here: see spec/agentdev-runtime-images.
-    "AGENTDEV_VENV_ROOT": "/home/agent/.local/share/uv/venvs"
+    // Claude Code resolves .credentials.json from this directory, independently of
+    // ~/.claude. It points at the shared agentdev-agents-auth volume (Claude's subdirectory of
+    // it) so authentication survives a rebuild and is shared with every other worktree,
+    // while nothing else in ~/.claude is.
+    "CLAUDE_SECURESTORAGE_CONFIG_DIR": "/root/.agents-auth/claude",
+
+    // On the agentdev-pre-commit volume, outside the checkout: see features/persist-pre-commit-cache.
+    "PRE_COMMIT_HOME": "/root/.cache/pre-commit",
+
+    "UV_CACHE_DIR": "/uv/cache",
+    // Each checkout's .venv links to its own /uv/venvs/<name>: see spec/agentdev-runtime-images.
+    "UV_PYTHON_INSTALL_DIR": "/uv/python"
   },
 
   "forwardPorts": [14500],
@@ -37,14 +46,50 @@
   },
   "mounts": [
     {
+      "source": "agentdev-uv",
+      "target": "/uv",
+      "type": "volume"
+    },
+    {
+      // Persists the pre-commit hook cache (PRE_COMMIT_HOME) across rebuilds, per worktree.
+      "source": "agentdev-pre-commit",
+      "target": "/root/.cache/pre-commit",
+      "type": "volume"
+    },
+    {
+      // Claude's plugins, marketplaces, sessions and ~/.claude.json. Declared here
+      // rather than in docker-compose.yml so Compose prefixes it per project: this
+      // state records absolute workspace paths, so worktrees sharing one copy fight
+      // over the marketplace registry and the plugin cache. Only the credentials are
+      // shared, via the agentdev-agents-auth volume in docker-compose.yml.
+      //
+      // ~/.claude.json is a single file, not a directory, and Docker named volumes are
+      // always directory-backed (mounting one straight at a file path materializes an
+      // empty directory there instead, breaking Claude Code's read/write of that file).
+      // It's persisted as a plain file inside this volume instead, with the image's
+      // create command symlinking ~/.claude.json to it.
+      "source": "agentdev-claude",
+      "target": "/root/.claude",
+      "type": "volume"
+    },
+    {
+      // OpenCode's data directory, per instance like agentdev-claude: its provider
+      // logins and sessions live in its database here, so each worktree logs in once.
+      // See architecture/agent-auth-persistence.
+      "source": "agentdev-opencode",
+      "target": "/root/.local/share/opencode",
+      "type": "volume"
+    },
+    {
       // Sibling checkout opened as ../project by agent-devcontainer-and-project.code-workspace;
       // per instance so its uncommitted work survives a rebuild without worktrees sharing it.
       "source": "agentdev-project",
       "target": "/workspaces/project",
       "type": "volume"
     }
-    // The image mounts the per-instance home volume; docker-compose.yml mounts the auth
-    // volume shared by every container of the host user's UID and GID.
+    // agentdev-agents-auth is mounted via docker-compose.yml (top-level `volumes:` with
+    // explicit `name:`) so it's shared across every devcontainer instance instead
+    // of being isolated per compose project.
   ],
   "customizations": {
     "vscode": {

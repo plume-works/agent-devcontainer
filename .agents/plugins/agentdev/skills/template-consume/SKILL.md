@@ -195,10 +195,7 @@ A marker section or legacy marker file exists.
    "Migrating to the agentdev image family" section of
    [the consumption guide](references/consumption-guide.md) as one unit: its pin, Compose, descriptor, script, and marker changes are
    applied together or not at all, and a declined migration leaves
-   `consumed_ref` where it was. Next, when the consumer's descriptor still
-   mounts a volume below `/root` or at `/uv` and the upstream template's does
-   not, apply the guide's "Migrating to the home volume" section as one unit
-   the same way. Then review the remaining changed paths.
+   `consumed_ref` where it was. Then review the remaining changed paths.
 
    **For each changed path**, inspect the actual upstream diff (the scratch
    clone is gone by the time the script returns, so re-clone or use

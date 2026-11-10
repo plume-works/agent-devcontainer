@@ -10,11 +10,11 @@ else
     touch "$script_dir/.env"
 fi
 
-# Claude's credentials outlive every Compose project and are shared only by containers
-# remapped to the same host UID and GID; docker-compose.yml declares the volume external.
-auth_volume="agentdev-agents-auth-$(id -u)-$(id -g)"
-docker volume create "$auth_volume" >/dev/null
-echo "AGENTDEV_AUTH_VOLUME=$auth_volume" >> "$script_dir/.env"
+# This named volume intentionally outlives a single Compose project so agent
+# authentication can be shared by every local worktree. Declare it as external
+# in Compose to avoid ownership warnings, and create it here so a first-ever
+# devcontainer startup still has everything it needs.
+docker volume create agentdev-agents-auth >/dev/null
 
 gitdir=$(realpath "$(git rev-parse --git-common-dir)")
 echo "GIT_REPO=$gitdir" >> "$script_dir/.env"

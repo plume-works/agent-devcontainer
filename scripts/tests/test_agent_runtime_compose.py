@@ -18,7 +18,7 @@ PINS = REPO_ROOT / 'opencode-compose-pins.yml'
 ENV_EXAMPLE = REPO_ROOT / 'docker/deploy/runtime.env.example'
 SECRET = 'compose-test-secret'
 REQUIRED = {'OPENCODE_SERVER_PASSWORD': SECRET, 'AGENTDEV_PROXY_NETWORK': 'edge-proxy'}
-INSTANCE_TARGETS = {'/home/agent', '/var/lib/docker'}
+INSTANCE_TARGETS = {'/home/agent', '/uv', '/var/lib/docker'}
 
 pytestmark = pytest.mark.skipif(
     shutil.which('docker') is None

@@ -1,30 +1,25 @@
 ---
 type: architecture
-description: Why each checkout in the Dev Container has its own uv environment on the home volume beside uv's cache, reached through a .venv link, which events create and remove it, and the alternatives rejected.
+description: Why each checkout in the Dev Container has its own uv environment on the /uv volume, reached through a .venv link, which events create and remove it, and the alternatives rejected.
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
 - resource: .devcontainer/docker-compose.yml
-- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
-- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 ---
 
 # uv environment location
 
 Every checkout in the Dev Container — the workspace folder and each Git worktree
-— has its own uv environment at `$AGENTDEV_VENV_ROOT/<checkout directory name>`.
-`agentdev-devcontainer` sets the root to `/home/agent/.local/share/uv/venvs`, on
-the home volume (see [Dev Container home volume](devcontainer-home-volume.md));
-the runtime's own default, `/uv/venvs`, serves a root account that mounts `/uv`.
-The checkout's `.venv` is a symlink to it, and commands reach it through
-`uv run`.
+— has its own uv environment at `$AGENTDEV_VENV_ROOT/<checkout directory name>`
+(default `/uv/venvs`). The checkout's `.venv` is a symlink to it, and commands
+reach it through `uv run`.
 
 ## Why the environment is out of tree
 
-uv's cache (its default, `~/.cache/uv`) and the environments
-(`~/.local/share/uv/venvs/...`) are on the same mount, the home volume. That is
-what lets uv **hardlink** packages out of its cache into an environment.
+`UV_CACHE_DIR` (`/uv/cache`) and the environments (`/uv/venvs/...`) are on the
+same mount. That is what lets uv **hardlink** packages out of its cache into an
+environment.
 
 An in-tree `.venv` would land on the workspace bind mount, a different
 filesystem. Hardlinking across filesystems is impossible, so uv silently falls
@@ -33,13 +28,13 @@ On a macOS host the bind mount is VirtioFS, and only the link crosses it, so
 none of uv's file-heavy I/O does. Measured with this project's environment
 (about 25,000 files, uv 0.13) on Docker Desktop for macOS:
 
-| Operation                           | Both on one named volume | Both on the bind mount | Cache on the volume, environment on the bind mount |
-| ----------------------------------- | ------------------------ | ---------------------- | -------------------------------------------------- |
-| Hard links from the cache           | yes                      | yes                    | no — full copy                                     |
-| `uv sync` into an empty environment | 0.18 s                   | 11.7 s                 | 16.5 s                                             |
-| Import of the heavy dependencies    | 0.21 s                   | 0.34 s                 | 0.34 s                                             |
-| `uv run python -c pass`             | 0.020 s                  | 0.051 s                | 0.048 s                                            |
-| Deleting the environment            | 0.08 s                   | 4.3 s                  | 4.6 s                                              |
+| Operation                           | Both on `/uv` | Both on the bind mount | Cache on `/uv`, environment on the bind mount |
+| ----------------------------------- | ------------- | ---------------------- | --------------------------------------------- |
+| Hard links from the cache           | yes           | yes                    | no — full copy                                |
+| `uv sync` into an empty environment | 0.18 s        | 11.7 s                 | 16.5 s                                        |
+| Import of the heavy dependencies    | 0.21 s        | 0.34 s                 | 0.34 s                                        |
+| `uv run python -c pass`             | 0.020 s       | 0.051 s                | 0.048 s                                       |
+| Deleting the environment            | 0.08 s        | 4.3 s                  | 4.6 s                                         |
 
 Hard links do work inside the bind mount, so cache and environment both in the
 checkout avoid the copy; they do not avoid VirtioFS. Sustained small-file churn
@@ -49,11 +44,11 @@ container restarts.
 
 ## Why one environment per checkout
 
-The home volume is per Dev Container instance, but every checkout inside one
-instance shares it. A single shared environment breaks as soon as two checkouts
-use it: `uv run` repoints the editable installs and exact-synced dependencies at
-the invoking checkout, so concurrent sessions in different worktrees run each
-other's code.
+The `agentdev-uv` volume is Compose-project-scoped: each Dev Container instance
+gets its own `/uv`, but every checkout inside one instance shares it. A single
+shared environment breaks as soon as two checkouts use it: `uv run` repoints the
+editable installs and exact-synced dependencies at the invoking checkout, so
+concurrent sessions in different worktrees run each other's code.
 
 ## Why a `.venv` link rather than `UV_PROJECT_ENVIRONMENT`
 
@@ -68,10 +63,7 @@ exist, so the target directory is created before the link.
 
 `agentdev-runtime project link-venv [PATH]` creates the target directory and the
 link. It is idempotent, repairs a link that points elsewhere under the root, and
-leaves a real directory or a link outside the root in place with a warning. It
-does nothing while the root's parent directory is missing, so a checkout outside
-a Dev Container is left alone; the create phase therefore makes a root that lies
-inside the account's home, which a fresh home volume does not yet hold. No
+leaves a real directory or a link outside the root in place with a warning. No
 single event sees every checkout, so three call it:
 
 | Trigger                                                      | Checkouts it covers                                                                                        |
