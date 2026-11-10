@@ -1,12 +1,11 @@
 ---
 type: bug
-stage: pending
+stage: cancelled
 severity: medium
 description: Every checkout in one devcontainer shares the uv environment at /uv/venvs/ws-project, so a uv run in one worktree repoints the editable agentdev_runtime and validate_agent_files installs and dependencies, and other worktrees' tests run its code.
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
-rank: 475
 ---
 
 # Bug: worktrees in one devcontainer share the uv environment
@@ -41,6 +40,12 @@ invoking checkout, so the last checkout to run owns the environment.
 
 Each checkout needs its own environment: a `.venv` link into a per-checkout
 directory on the `/uv` volume keeps it hardlinked to the cache there.
+
+## Fix
+
+Won't fix: running several worktrees of one checkout inside a single
+devcontainer is not a supported use case, so a shared uv environment is the
+intended behaviour.
 
 ## Key references
 
