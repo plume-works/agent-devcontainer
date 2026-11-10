@@ -57,8 +57,8 @@ target the same path.
 
 ## Key references
 
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::link_claude_json`
-  — creates the link
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::unlink_claude_json`
+  — replaces the link with the file it points to
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh` —
   `restore_claude_json_symlink`
 - `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py::preapprove` —

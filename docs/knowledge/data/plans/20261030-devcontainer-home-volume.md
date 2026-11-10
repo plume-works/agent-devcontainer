@@ -177,15 +177,25 @@ before Task 5.
 **Files:** Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py`,
+`py_packages/agentdev_runtime/agentdev_runtime/doctor.py`,
 `py_packages/agentdev_runtime/tests/test_claude_state.py`,
-`py_packages/agentdev_runtime/tests/test_cbm_purge.py`
+`py_packages/agentdev_runtime/tests/test_cbm_purge.py`,
+`scripts/tests/test_agent_runtime_state.py`,
+`scripts/tests/test_environment_health.py`
 
-- [ ] `agentdev-runtime state create` no longer links `~/.claude.json`. A home
+- [x] `agentdev-runtime state create` no longer links `~/.claude.json`. A home
   where it is a symlink to `~/.claude/claude.json` has the link replaced by a
   regular file with the target's content, and the target removed.
-- [ ] `cbm_purge.purge` runs after that replacement, so a deploy home holding a
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_state.py::test_create_replaces_the_claude_json_link_with_its_target`,
+    `scripts/tests/test_agent_runtime_state.py::test_create_keeps_a_regular_claude_json_and_links_nothing`,
+    `scripts/tests/test_agent_runtime_state.py::test_create_leaves_a_link_elsewhere_alone`,
+    `scripts/tests/test_environment_health.py::test_deploy_mode_redacts_auth_output`
+- [x] `cbm_purge.purge` runs after that replacement, so a deploy home holding a
   codebase-memory-mcp entry behind the link loses the entry from the regular
   file, and a test runs that case.
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_cbm_purge.py::test_create_purges_a_cbm_entry_once_the_claude_json_link_is_a_file`
 
 ### Task 5: Re-own the sibling checkout volume once
 
@@ -432,8 +442,8 @@ CLI](20261029-off-bash-migration.md)
   — `validate_workspace`
 - `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py::Deploy.prepare_shared_auth`
   — `prepare_shared_auth`
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::link_claude_json`
-  — `link_claude_json`
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::unlink_claude_json`
+  — `unlink_claude_json`
 - `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::create` —
   `create`
 - `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::create` —

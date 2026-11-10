@@ -79,39 +79,58 @@ def test_devcontainer_defaults_are_the_root_layout():
     ]
 
 
-def test_standalone_create_order_migrates_the_users_claude_json(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-):
-    home = tmp_path / 'home'
-    home.mkdir()
-    (home / '.claude.json').write_text('{"user": true}')
-    settings = settings_for(tmp_path, DEPLOY)
-    recorder = Recorder(monkeypatch, settings)
-
-    agent_state.create(settings)
-
-    assert (home / '.claude/claude.json').read_text() == '{"user": true}'
-    assert os.readlink(home / '.claude.json') == str(home / '.claude/claude.json')
-    assert recorder.calls == ['purge claude.json=symlink', 'preapprove']
-    assert mode(tmp_path / 'auth/claude') == 0o700
-    assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude']
-    assert not (home / '.local/share/opencode/auth.json').exists()
-
-
-def test_devcontainer_create_discards_the_image_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize('profile', [DEPLOY, DEVCONTAINER])
+def test_create_replaces_the_claude_json_link_with_its_target(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, profile: str
 ):
     home = tmp_path / 'home'
     (home / '.claude').mkdir(parents=True)
     (home / '.claude/claude.json').write_text('{"volume": true}')
-    (home / '.claude.json').write_text('{"image": true}')
-    settings = settings_for(tmp_path)
+    (home / '.claude/claude.json').chmod(0o600)
+    (home / '.claude.json').symlink_to(home / '.claude/claude.json')
+    settings = settings_for(tmp_path, profile)
     recorder = Recorder(monkeypatch, settings)
 
     agent_state.create(settings)
 
+    assert not (home / '.claude.json').is_symlink()
     assert (home / '.claude.json').read_text() == '{"volume": true}'
-    assert recorder.calls == ['purge claude.json=symlink', 'preapprove']
+    assert mode(home / '.claude.json') == 0o600
+    assert not (home / '.claude/claude.json').exists()
+    assert recorder.calls == ['purge claude.json=plain', 'preapprove']
+    assert mode(tmp_path / 'auth/claude') == 0o700
+    assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude']
+
+
+@pytest.mark.parametrize('profile', [DEPLOY, DEVCONTAINER])
+def test_create_keeps_a_regular_claude_json_and_links_nothing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, profile: str
+):
+    home = tmp_path / 'home'
+    home.mkdir()
+    (home / '.claude.json').write_text('{"user": true}')
+    settings = settings_for(tmp_path, profile)
+    recorder = Recorder(monkeypatch, settings)
+
+    agent_state.create(settings)
+
+    assert (home / '.claude.json').read_text() == '{"user": true}'
+    assert not (home / '.claude/claude.json').exists()
+    assert recorder.calls == ['purge claude.json=plain', 'preapprove']
+
+
+def test_create_leaves_a_link_elsewhere_alone(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    home = tmp_path / 'home'
+    home.mkdir()
+    (tmp_path / 'dotfiles.json').write_text('{"dotfiles": true}')
+    (home / '.claude.json').symlink_to(tmp_path / 'dotfiles.json')
+    settings = settings_for(tmp_path, DEPLOY)
+    Recorder(monkeypatch, settings)
+
+    agent_state.create(settings)
+
+    assert (home / '.claude.json').is_symlink()
+    assert (tmp_path / 'dotfiles.json').read_text() == '{"dotfiles": true}'
 
 
 def test_catalog_passes_the_scope_only_to_claude(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
