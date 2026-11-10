@@ -48,8 +48,9 @@ validate_agent_files . --require-marketplace claude codex   # Require both ecosy
   each of those plugins must carry a definition that parses, declares a `name` and `version`,
   and names the same plugin the marketplace publishes. A repository that promises to publish
   for both ecosystems names both in CI: `--require-marketplace claude codex`.
-- Local validation still checks repository-specific rules such as duplicate skill names,
-  cross-references, agent handoffs, and prompt `#file:` references.
+- Local validation still checks repository-specific rules such as duplicate skill names
+  (identical copies of one skill, such as one installed for both `.claude/skills/` and
+  `.opencode/skills/`, are not duplicates), cross-references, agent handoffs, and prompt `#file:` references.
 - The test suite is self-contained: run `pytest` from this directory. Its fixtures describe a
   fictional repository (see `tests/mock_catalog.py`), and nothing in `tests/` may reference a
   path outside this package — the tool is general, so its tests must not encode the identity

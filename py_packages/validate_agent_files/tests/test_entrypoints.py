@@ -138,6 +138,8 @@ def test_validate_agent_files_detects_duplicate_skills_across_provided_files(
     second_skill = package_tmp_path / 'second' / 'SKILL.md'
     _write_valid_skill(first_skill.parent, 'duplicate-skill')
     _write_valid_skill(second_skill.parent, 'duplicate-skill')
+    with second_skill.open('a') as handle:
+        handle.write('\nA different skill under the same name.\n')
 
     exit_code = validate_agent_files_main(
         [str(first_skill), str(second_skill), '--kind', 'skills']

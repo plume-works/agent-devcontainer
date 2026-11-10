@@ -32,6 +32,9 @@ class UniquenessValidator:
                 continue
 
             other_fm = other_data.get('frontmatter', {})
+            # One skill installed for several harnesses is a copy, not a clash.
+            if other_fm == metadata and other_data.get('body') == content:
+                continue
             other_name = other_fm.get('name')
             if other_name is None:
                 continue

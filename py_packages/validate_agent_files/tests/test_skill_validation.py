@@ -74,6 +74,23 @@ def test_issue310_skill_validation_keeps_duplicate_name_check(
     assert 'duplicate-skill' in captured.out
 
 
+def test_identical_skill_copies_are_not_duplicates(tmp_path: Path, monkeypatch, capsys) -> None:
+    """The same skill installed for two harnesses is one skill, not a name clash."""
+    _write_skill(tmp_path / '.claude' / 'skills' / 'shared', 'shared', '# Shared\n')
+    _write_skill(tmp_path / '.opencode' / 'skills' / 'shared', 'shared', '# Shared\n')
+
+    monkeypatch.setattr(
+        'validate_agent_files.core.skills_ref_validate',
+        lambda skill_dir: [],
+    )
+
+    exit_code = main([str(tmp_path)])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert 'duplicate' not in captured.out.lower()
+
+
 def test_issue310_skills_ref_is_primary_for_skill_validation(
     tmp_path: Path, monkeypatch, capsys
 ) -> None:
