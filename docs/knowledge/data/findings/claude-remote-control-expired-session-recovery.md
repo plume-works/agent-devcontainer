@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: Once the claude.ai service deletes a stopped Remote Control server's environment, its sessions cannot be reopened from claude.ai or the Claude app, but their transcripts survive on the agentdev-claude volume and `claude --resume <id> --remote-control` brings each back with its history as a new claude.ai session.
 sources:
 - resource: .devcontainer/devcontainer.json
@@ -74,3 +74,6 @@ tmux new-session -d -s <name> -c <workdir> \
 Recovery by hand is enough while server mode remains an opt-in trial. The
 finding closes when the open question is measured, or when the maintainer
 decides that automatic recovery of expired sessions is not worth building.
+
+The behavior these measurements bear on is specified in [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md).

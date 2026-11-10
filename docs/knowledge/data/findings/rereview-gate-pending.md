@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: How the required ai-review-present check could read pending while a re-review runs, so a merge or auto-merge waits for it; a separate commit status is the leading candidate, and the marker-commit trigger and a merged review-and-gate job are rejected.
 sources:
 - resource: .github/workflows/ai-responder.yml
@@ -131,3 +131,8 @@ temporary ruleset requiring `ai-review-present`: post `pending` and then
 the merge state and whether the pull request merges at each step. Closing this
 finding means either a plan for the commit status, or a recorded decision that
 the narrow exposure is not worth the change.
+
+## Closing
+
+Open. It closes as *What would settle it* states: with a plan for the commit
+status, or a recorded decision that the exposure is not worth the change.

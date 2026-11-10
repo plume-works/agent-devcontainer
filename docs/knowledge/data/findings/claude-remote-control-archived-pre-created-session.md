@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: Once the session a Remote Control server pre-created in the workspace folder is archived on claude.ai, every later server start re-adopts that archived session, which ends within a second, and no replacement is pre-created, so the folder runs with no session until a new one is started on demand.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -57,3 +57,6 @@ resume](claude-remote-control-server-restart-resume.md), measured on Claude Code
 Closes when the maintainer decides whether the start script should detect an
 archived pointer session and clear the pointer so the server pre-creates a new
 one, or accepts running without a pre-created session after an archive.
+
+The behavior these measurements bear on is specified in [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md).

@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: Why the reachable-scenario correctness bar remains experimental after a mixed replay result, and why validator strictness must be isolated before changing the shipped PR review skill.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
@@ -68,3 +68,10 @@ was not repeatable, so the experiment did not meet its stated bar.
 **Reject the variant because the runs contained noise.** Rejected because the
 noise came exclusively from unchanged rule-checking passes and did not increase
 relative to baseline.
+
+## Closing
+
+Closed: the maintainer shipped the reachable-scenario bar with three-part
+scenarios validated part by part. The decision and the alternatives it rejected
+are in [AI review
+gate](../../../../openspec/specs/ai-review-gate/spec.md#rationale).

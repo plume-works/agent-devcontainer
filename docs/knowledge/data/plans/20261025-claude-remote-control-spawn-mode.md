@@ -32,12 +32,12 @@ This replaces the `--spawn worktree` rejection in [Claude Remote Control server
 mode](../../../../openspec/specs/claude-remote-control/spec.md#rationale). The
 maintainer's position is that revival after a restart does not depend on the
 spawn mode: the [restart resume
-finding](../architecture/claude-remote-control-server-restart-resume.md)
-measured that a `same-dir` session spawned on demand also stays disconnected
-until the claude.ai service dispatches it, which can take minutes. Revival after
-more than about four hours of server downtime is a separate open question in
-that finding, independent of the spawn mode. Per the maintainer, sessions of a
-running server stay live overnight; the four-hour window bounds downtime only.
+finding](../findings/claude-remote-control-server-restart-resume.md) measured
+that a `same-dir` session spawned on demand also stays disconnected until the
+claude.ai service dispatches it, which can take minutes. Revival after more than
+about four hours of server downtime is a separate open question in that finding,
+independent of the spawn mode. Per the maintainer, sessions of a running server
+stay live overnight; the four-hour window bounds downtime only.
 
 The contract is [Claude Remote Control](../spec/claude-remote-control.md).
 
@@ -327,7 +327,7 @@ spawn-on-demand server, if its wording no longer fits.
   spawned worktree session returned under the same ID with its earlier turns,
   running in its own worktree, after a delay of seconds to several minutes and
   with no user action. Recorded in [Claude Remote Control worktree restart
-  resume](../architecture/claude-remote-control-worktree-restart-resume.md).
+  resume](../findings/claude-remote-control-worktree-restart-resume.md).
 
 ## Out of scope
 
@@ -339,7 +339,7 @@ spawn-on-demand server, if its wording no longer fits.
   spawned worktrees use Claude Code's defaults.
 - Revival after more than about four hours of server downtime, an open question
   of the [restart resume
-  finding](../architecture/claude-remote-control-server-restart-resume.md).
+  finding](../findings/claude-remote-control-server-restart-resume.md).
 - Refreshing `data/codebase/devcontainer/scripts.md`, which `/agentdev:iwe-map`
   owns.
 

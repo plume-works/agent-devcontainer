@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: A Claude Code cloud session's host is reclaimed after a few idle minutes and cold-boots on the next inbound event, keeping its disk and losing every process; the cost lands on whatever must be restarted on each boot.
 sources:
 - resource: .claude/startup.py
@@ -77,3 +77,6 @@ The response is to make a reboot cheap rather than to prevent it: [Cloud session
 host toolchain](../features/cloud-session-host-toolchain.md) proposes
 provisioning the toolchain on the session host itself, keeping Docker and the
 devcontainer for image builds and tests only.
+
+The startup this finding constrains is specified in [Cloud session
+devcontainer](../../../../openspec/specs/cloud-session-devcontainer/spec.md).

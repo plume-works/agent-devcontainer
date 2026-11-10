@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: After a Remote Control server restart, a same-dir session spawned on demand returns when the claude.ai service dispatches it to the server as a pair of initialize control requests; the service skips some sessions at server start and dispatches them later on its own.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -93,3 +93,6 @@ The skip recovers on its own within minutes, so it does not block server mode.
 The finding closes when the open questions are measured, or when the maintainer
 decides the measurement is not worth the cost because server mode remains an
 opt-in trial.
+
+The behavior these measurements bear on is specified in [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md).

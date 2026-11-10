@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: After a devcontainer rebuild or a server restart, sessions that `claude remote-control --spawn worktree` spawned on demand return in their own worktrees with their earlier turns and no user action, after a delay from seconds to several minutes.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -54,3 +54,6 @@ Worktree sessions do return to their worktrees after a restart, so the delay
 does not block the worktree default. The finding closes when the open questions
 are measured, or when the maintainer decides the measurement is not worth the
 cost.
+
+The behavior these measurements bear on is specified in [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md).

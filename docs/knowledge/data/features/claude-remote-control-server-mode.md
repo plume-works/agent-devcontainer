@@ -58,5 +58,5 @@ The contract is [Claude Remote Control](../spec/claude-remote-control.md).
   Each runs as its own `claude` process with access to the credential store.
 - Do the worktrees of finished spawned conversations accumulate? Spawned
   sessions run as `claude --print` ([restart resume
-  finding](../architecture/claude-remote-control-server-restart-resume.md)), and
+  finding](../findings/claude-remote-control-server-restart-resume.md)), and
   Claude Code documents no worktree cleanup for `-p` runs.

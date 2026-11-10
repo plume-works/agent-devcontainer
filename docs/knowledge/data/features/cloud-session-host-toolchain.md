@@ -16,8 +16,8 @@ sources:
 
 A cloud session's host is reclaimed after a few idle minutes and cold-boots on
 the next event ([Cloud session host
-restarts](../architecture/cloud-session-host-restarts.md)). With the toolchain
-only inside the devcontainer ([Cloud session
+restarts](../findings/cloud-session-host-restarts.md)). With the toolchain only
+inside the devcontainer ([Cloud session
 devcontainer](../../../../openspec/specs/cloud-session-devcontainer/spec.md#rationale)),
 every boot must restore the host `dockerd`, the agent proxy relay, and the
 container before any tool runs, and each step of that restore has been a source

@@ -284,9 +284,9 @@ one dated group per release; nothing else writes here.
   standalone Remote Control watcher and its settings, and re-stamped
   devcontainer, the devcontainer lifecycle, and the image build.
 - **Update**: recorded [Holding the AI review gate during a
-  re-review](architecture/rereview-gate-pending.md): a separate commit status is
-  the leading candidate, and the marker-commit trigger and a merged
-  review-and-gate job are rejected.
+  re-review](findings/rereview-gate-pending.md): a separate commit status is the
+  leading candidate, and the marker-commit trigger and a merged review-and-gate
+  job are rejected.
 - **Update**: [PR skills drive the AI review lifecycle on the single review
   workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
   assignee-toggle request and head-check status into the [AI review
@@ -827,7 +827,7 @@ one dated group per release; nothing else writes here.
   Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md) done. The
   Codex replay was mixed, so the shipped correctness bar stays unchanged and
   validator strictness is the open question; see [PR review correctness
-  bar](architecture/pr-review-correctness-bar.md).
+  bar](findings/pr-review-correctness-bar.md).
 - **Update**: [Native stacked pull requests](features/native-stacked-prs.md)
   implemented.
 - **Update**: [Adopt GitHub native stacked pull

@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: A Remote Control server started without bridge-pointer.json pre-creates a fresh session in the workspace folder, unless a terminal Remote Control session already runs in that folder, in which case it exits at once; with a pointer present it starts regardless.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -50,3 +50,6 @@ Clearing an archived pointer brings back a pre-created session only when no
 terminal Remote Control session runs in the workspace folder. Closes with the
 decision on the archived-pointer fix: a start script that clears the pointer
 must either confirm the folder is free or accept a server that exits at start.
+
+The behavior these measurements bear on is specified in [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md).

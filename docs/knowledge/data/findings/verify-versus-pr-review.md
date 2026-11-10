@@ -1,5 +1,5 @@
 ---
-type: architecture
+type: finding
 description: What iwe-verifier and the pr-review flow each catch on a plan's change, measured on one plan — Verify finds code that contradicts the plan, pr-review finds a plan whose specified behaviour is itself wrong — so neither replaces the other.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -73,3 +73,9 @@ and runtime code. If those agree with this one, the decision is to run an
 adversarial or `pr-review`-style pass beside Verify, not in its place. If they
 show the pass rarely finds a real defect, the decision is that it is not worth
 its cost and Verify stands alone.
+
+## Closing
+
+Open. It closes when the comparison has run on plans that touch authority, a
+workflow rulebook, and runtime code, and the maintainer decides whether a
+`pr-review`-style pass runs beside Verify or is not worth its cost.
