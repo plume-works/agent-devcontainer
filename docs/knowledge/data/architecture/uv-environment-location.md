@@ -25,7 +25,22 @@ An in-tree `.venv` would land on the workspace bind mount, a different
 filesystem. Hardlinking across filesystems is impossible, so uv silently falls
 back to copying every package: a slower sync and duplicated disk, with no error.
 On a macOS host the bind mount is VirtioFS, and only the link crosses it, so
-none of uv's file-heavy I/O does.
+none of uv's file-heavy I/O does. Measured with this project's environment
+(about 25,000 files, uv 0.13) on Docker Desktop for macOS:
+
+| Operation                           | Both on `/uv` | Both on the bind mount | Cache on `/uv`, environment on the bind mount |
+| ----------------------------------- | ------------- | ---------------------- | --------------------------------------------- |
+| Hard links from the cache           | yes           | yes                    | no — full copy                                |
+| `uv sync` into an empty environment | 0.18 s        | 11.7 s                 | 16.5 s                                        |
+| Import of the heavy dependencies    | 0.21 s        | 0.34 s                 | 0.34 s                                        |
+| `uv run python -c pass`             | 0.020 s       | 0.051 s                | 0.048 s                                       |
+| Deleting the environment            | 0.08 s        | 4.3 s                  | 4.6 s                                         |
+
+Hard links do work inside the bind mount, so cache and environment both in the
+checkout avoid the copy; they do not avoid VirtioFS. Sustained small-file churn
+there — seeding a cache, creating and deleting environments — can also stall
+every process that touches the workspace, the VS Code server included, until the
+container restarts.
 
 ## Why one environment per checkout
 
@@ -89,8 +104,10 @@ its own `stages` out of `post-checkout`.
 
 - **One shared environment without editable installs.** Dependencies still
   diverge between branches.
-- **An in-tree `.venv` with the uv cache inside the checkout.** It puts uv's
-  file-heavy state on VirtioFS on macOS and clashes with a host `.venv`.
+- **An in-tree `.venv` with the uv cache inside the checkout**, every worktree
+  under it. Hard links return, but all uv I/O runs on VirtioFS on macOS —
+  roughly 65× slower installs, 1.6× slower imports, 2.5× slower `uv run`
+  startup, and the stall risk above — and it clashes with a host `.venv`.
 - **A per-checkout `UV_PROJECT_ENVIRONMENT`** set by a `uv` wrapper or by
   `CLAUDE_ENV_FILE`. Session-scoped and brittle.
 - **`UV_LINK_MODE=symlink`.** A cache clean breaks every environment.
