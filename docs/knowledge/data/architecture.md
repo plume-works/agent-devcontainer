@@ -90,6 +90,9 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
 
+[iwe CLI usage versus plain
+Markdown](architecture/iwe-cli-usage-versus-plain-markdown.md)
+
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
 
 [Label review triggers](architecture/label-review-triggers.md)
