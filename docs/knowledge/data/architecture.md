@@ -21,14 +21,8 @@ mode](../../../openspec/specs/claude-remote-control/spec.md#rationale)
 [Claude Remote Control spawn mode
 switch](../../../openspec/specs/claude-remote-control/spec.md#rationale)
 
-[Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
-
 [OpenCode full access in the
 devcontainer](../../../openspec/specs/devcontainer-opencode-policy/spec.md#rationale)
 
 [Testing sibling workspaces in
-devcontainers](architecture/sibling-devcontainer-testing.md)
-
-[Skill rehearsal runs](architecture/skill-rehearsal-runs.md)
-
-[Worktree hooks](architecture/worktree-hooks.md)
+devcontainers](../../guides/sibling-devcontainer-testing.md)

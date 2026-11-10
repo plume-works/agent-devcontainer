@@ -126,7 +126,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
   Each one's settled decision gets a link to the owning spec. Verify with
   `iwe schema validate`.
 
-- [ ] 5.3 Move drqp-devcontainer-testing, sibling-devcontainer-testing,
+- [x] 5.3 Move drqp-devcontainer-testing, sibling-devcontainer-testing,
       skill-rehearsal-runs (merged with nested-subagent-dispatch's fixture), and
       worktree-hooks to `docs/guides/<slug>.md`, without frontmatter, and repoint
       their links. Verify that `ls docs/knowledge/data/architecture/` is empty.

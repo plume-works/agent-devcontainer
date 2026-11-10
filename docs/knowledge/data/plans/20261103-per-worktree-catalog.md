@@ -58,7 +58,7 @@ What the catalog route has to work around, on Claude Code 2.1.316:
 
 How to write the hooks themselves — triggers, stdin, the returned path, the
 default layout — is recorded in [Worktree
-hooks](../architecture/worktree-hooks.md).
+hooks](../../../guides/worktree-hooks.md).
 
 ## Approach
 
@@ -68,7 +68,7 @@ hooks](../architecture/worktree-hooks.md).
 (`$CLAUDE_CONFIG_DIR/settings.json`, default `~/.claude/settings.json`).
 
 `agentdev-runtime worktree create` makes the worktree the way [Worktree
-hooks](../architecture/worktree-hooks.md) prescribes — at
+hooks](../../../guides/worktree-hooks.md) prescribes — at
 `<repository>/.claude/worktrees/<name>` on a new branch `worktree-<name>` — for
 any repository, and copies `permissions.allow` from the main checkout's
 `.claude/settings.local.json` into the worktree's. When the new worktree ships a

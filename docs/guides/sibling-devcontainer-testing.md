@@ -1,13 +1,3 @@
----
-type: architecture
-description: Run a sibling repository's build and tests in its own devcontainer through bunx, with explicit workspace targeting and isolated registry diagnostics.
-sources:
-- resource: .agents/plugins/agentdev/skills/devcontainer-sandbox/SKILL.md
-- resource: AGENTS.md
-- resource: https://github.com/devcontainers/cli
-- resource: https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry
----
-
 # Testing sibling workspaces in devcontainers
 
 ## Execution boundary
@@ -22,7 +12,7 @@ shell tool's working directory to the target repository root for the commands
 below; `--workspace-folder` identifies the same absolute checkout explicitly.
 This also gives host-side lifecycle commands the target repository context.
 
-``` bash
+```bash
 workspace="$PWD"
 docker info
 bunx @devcontainers/cli up --workspace-folder "$workspace"
@@ -56,7 +46,7 @@ target's documented command needs shell syntax, such as a pipeline or
 environment activation. For example, after assigning `build_command` and
 `test_command` to the target's documented shell commands:
 
-``` bash
+```bash
 bunx @devcontainers/cli exec --workspace-folder "$workspace" \
   bash -lc "$build_command"
 bunx @devcontainers/cli exec --workspace-folder "$workspace" \
@@ -78,7 +68,7 @@ needs that scope. A registry denial with the default Docker configuration can be
 diagnosed against a credential-free configuration without changing the user's
 login state:
 
-``` bash
+```bash
 mkdir -p .tmp/docker-anonymous
 DOCKER_CONFIG="$PWD/.tmp/docker-anonymous" \
   bunx @devcontainers/cli up --workspace-folder "$workspace"
@@ -102,7 +92,7 @@ they live in a container volume, copy them using the container ID returned by
 `up`. Set `container_id` from that result and `container_artifact_dir` to the
 absolute artifact directory inside the container:
 
-``` bash
+```bash
 mkdir -p .tmp/test-artifacts
 docker cp "${container_id}:${container_artifact_dir}/." .tmp/test-artifacts/
 ```

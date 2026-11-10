@@ -1,10 +1,3 @@
----
-type: architecture
-description: How to write Claude Code WorktreeCreate and WorktreeRemove hook overrides that create and remove git worktrees — what triggers them, what they receive, what they must return, and how the default layout looks.
-sources:
-- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
----
-
 # Worktree hooks
 
 Claude Code creates a session's worktree itself unless a `WorktreeCreate` hook

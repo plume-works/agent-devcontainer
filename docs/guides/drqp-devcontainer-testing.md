@@ -1,13 +1,3 @@
----
-type: architecture
-description: Apply the sibling-devcontainer workflow to Dr.QP's ROS environment, colcon build and tests, generated Python requirements, and volume-backed logs.
-sources:
-- resource: https://github.com/Dr-QP/Dr.QP/blob/main/AGENTS.md
-- resource: https://github.com/Dr-QP/Dr.QP/blob/main/.devcontainer/devcontainer.json
-- resource: https://github.com/Dr-QP/Dr.QP/blob/main/scripts/ros-dep.sh
-- resource: https://github.com/Dr-QP/Dr.QP/blob/main/docker/ros/deploy/install-overlay-python-requirements.py
----
-
 # Dr.QP devcontainer testing
 
 Apply [Testing sibling workspaces in
@@ -18,7 +8,7 @@ current `AGENTS.md` before choosing the test scope.
 
 ## Workspace and runtime environment
 
-``` bash
+```bash
 workspace="$PWD"
 bunx @devcontainers/cli up --workspace-folder "$workspace"
 ```
@@ -36,7 +26,7 @@ user request.
 
 ## Full workspace build and tests
 
-``` bash
+```bash
 bunx @devcontainers/cli exec --workspace-folder "$workspace" \
   scripts/with-ros-env.sh python3 -m colcon build --symlink-install
 bunx @devcontainers/cli exec --workspace-folder "$workspace" \
@@ -60,7 +50,7 @@ generated Python runtime requirements as well as unresolved rosdeps. If a built
 package cannot import a declared Python runtime dependency and only the
 generated requirements phase is needed, invoke its helper directly:
 
-``` bash
+```bash
 bunx @devcontainers/cli exec --workspace-folder "$workspace" \
   scripts/with-ros-env.sh python3 \
   docker/ros/deploy/install-overlay-python-requirements.py build install
@@ -70,7 +60,7 @@ Run this phase when the dependency failure calls for it, not before every test.
 After resolving the failure, rerun failed packages with the same test mode and
 coverage settings:
 
-``` bash
+```bash
 bunx @devcontainers/cli exec --workspace-folder "$workspace" \
   env DRQP_TEST_MODE=slow scripts/with-ros-env.sh python3 -m colcon test \
   --packages-select-test-failures --return-code-on-test-failure \
@@ -89,7 +79,7 @@ Inspect package test output in `log/latest_test/<package>/stdout_stderr.log` or
 Set `container_id` to the successful `up` result's `containerId`, then copy
 volume-backed logs into the host checkout:
 
-``` bash
+```bash
 mkdir -p .tmp/colcon-logs
 docker cp "${container_id}:/opt/ros/overlay_ws/log/." .tmp/colcon-logs/
 ```
