@@ -67,7 +67,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       no-code-graph, and supported-harnesses.
 - [x] 3.6 Fold into `claude-remote-control`: claude-remote-control-resume,
       -server-mode, -server-continue, and -spawn-mode-switch.
-- [ ] 3.7 Make these one-to-one folds:
+- [x] 3.7 Make these one-to-one folds:
   - agent-metadata-files → `agent-file-discovery`
   - evidence-without-commit-ids → `plan-checkbox-evidence`
   - formatter-ownership → `pre-commit-gate`

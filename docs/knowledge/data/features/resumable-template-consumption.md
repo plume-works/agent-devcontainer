@@ -6,7 +6,7 @@ sources:
 - resource: docs/knowledge/data/plans/20260906-template-consumption-progress.md
 - resource: docs/knowledge/data/spec/template-consumption.md
 - resource: docs/knowledge/data/architecture/template-boundary.md
-- resource: docs/knowledge/data/architecture/agent-metadata-files.md
+- resource: openspec/specs/agent-file-discovery/spec.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
@@ -54,4 +54,5 @@ None — every design question this feature raised is settled.
   choices](../plans/20260906-template-consumption-progress.md)
 - Spec: [Template consumption](../spec/template-consumption.md)
 - Architecture: [Template boundary](../architecture/template-boundary.md) and
-  [Agent metadata files](../architecture/agent-metadata-files.md)
+  [Agent metadata
+  files](../../../../openspec/specs/agent-file-discovery/spec.md#rationale)

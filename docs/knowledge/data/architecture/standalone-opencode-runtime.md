@@ -253,11 +253,11 @@ take a program's whole process group with it.
 ## Nested Docker
 
 Both runtime images run the same supervised engine (see [Nested Docker
-provisioning](nested-docker-provisioning.md)). `agentdev-runtime docker run`
-execs one root `dockerd` on `/var/run/docker.sock` with `--group docker`; the
-runtime user reaches it through that group. A `hosts` key in `daemon.json` is
-refused: dockerd rejects it beside `--host`, and any extra listener would widen
-the engine's reach.
+provisioning](../../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale)).
+`agentdev-runtime docker run` execs one root `dockerd` on `/var/run/docker.sock`
+with `--group docker`; the runtime user reaches it through that group. A `hosts`
+key in `daemon.json` is refused: dockerd rejects it beside `--host`, and any
+extra listener would widen the engine's reach.
 
 With no system containerd socket present, dockerd supervises its own containerd
 and roots it at `/var/lib/docker/containerd/daemon`. The containerd image

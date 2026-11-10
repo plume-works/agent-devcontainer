@@ -44,7 +44,8 @@ persistence](../architecture/agent-auth-persistence.md) separates shared
 provider logins from instance state. This work extends those building blocks
 with a dedicated image, not a new default for `agent-desktop`.
 
-[Nested Docker provisioning](../architecture/nested-docker-provisioning.md)
+[Nested Docker
+provisioning](../../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale)
 assigns DinD to the Dev Containers feature. The standalone image needs its own
 supervised daemon; the existing devcontainer remains feature-managed. [Image
 pinning](../spec/image-pinning.md) applies to the new consumer examples and

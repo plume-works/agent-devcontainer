@@ -161,3 +161,23 @@ from a pre-commit hook when a plan changes, and in the knowledge-base CI job.
 - **WHEN** a checkbox appears under another section, such as a format example
   under `## Approach`, or inside a fenced code block
 - **THEN** the gate does not treat it as a task
+
+## Rationale
+
+### Evidence names a check, never a commit id
+
+Every reader of evidence — the `plan-checkboxes` gate, Verify, and the Ship run
+that repeats Verify — runs before merge, so a commit id buys nothing they need,
+while rebase, squash merge, and amend rewrite it. A check Verify can re-run lets
+Verify judge a tick the same way every time. With nothing left that must name a
+commit, a task's code, its tick, and its evidence land in one commit.
+
+Rejected:
+
+- **Keep commit ids.** They cost a second commit per task and a revision round
+  whenever the named hash is wrong.
+- **The PR number.** It survives squash but names the whole change, so Verify
+  has nothing per task to repeat.
+- **A test id only.** Docs, config, and external work have no test.
+- **Free text checked for shape only.** Verify's judgment flips between runs
+  when a line names nothing it can repeat.

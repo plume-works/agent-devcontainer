@@ -20,6 +20,7 @@ stack metadata `gh stack` keeps — see [Stacked PRs](../spec/stacked-prs.md).
 
 Plan it once the single-PR cleanup has shipped and its script can be reused.
 
-Cancelled: [Manual stacked pull requests](../architecture/manual-stacked-prs.md)
-replace GitHub native stacks, and pr-merge-stack now merges each pull request
-through pr-merge, so the single-PR cleanup covers every merge.
+Cancelled: [Manual stacked pull
+requests](../../../../openspec/specs/stacked-prs/spec.md#rationale) replace
+GitHub native stacks, and pr-merge-stack now merges each pull request through
+pr-merge, so the single-PR cleanup covers every merge.

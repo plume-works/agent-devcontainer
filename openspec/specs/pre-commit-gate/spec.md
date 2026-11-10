@@ -86,3 +86,39 @@ and the staged change otherwise.
 
 - **WHEN** a push has an all-zero `before` SHA
 - **THEN** the job checks every file and gitleaks scans the pushed commit.
+
+### Requirement: every hook tool has one version owner
+
+Every pre-commit hook SHALL be a `local` hook, so `pre-commit install-hooks`
+builds no environment. Each hook tool SHALL take its version from exactly one
+owner that Renovate bumps: `uv.lock` for tools run with `uv run`, the
+`dev_tools_pinned_tools` pins for image binaries, or a `bunx <package>@<version>`
+entry.
+
+#### Scenario: a hook tool is bumped
+
+- **WHEN** Renovate bumps a hook tool's version
+- **THEN** the change edits only that tool's owner, and the hook runs the new
+  version locally and in CI
+
+## Rationale
+
+### The CI gate is the hooks, with one owner per tool
+
+Two tools that both claim a file rewrite each other's output, so each language
+has one formatter. When CI runs the very hooks a commit ran, against tools from
+the same owners, there is no second version to drift from. A version bump still
+changes output beneath unchanged files, which is why a range touching a
+tool-version owner checks every file. A tool a hook runs as an image binary
+reaches CI only after a digest bump of the pinned image, so adding one takes two
+pull requests.
+
+Rejected:
+
+- **Super-Linter as the CI gate.** Its image duplicated every hook and made each
+  bump a manual sync Renovate could not do.
+- **`gitleaks/gitleaks-action`.** It needs an organization licence key, lists
+  only the first 30 commits of a pull request, and downloads a second gitleaks.
+- **Run the job on the image the pull request builds.** It puts lint behind the
+  full image build.
+- **Remote hook repositories.** Each installs a second copy of its tool.

@@ -37,7 +37,8 @@ commands by name.
 
 Related: [Renovate config
 validation](../../../../openspec/specs/dependency-updates/spec.md#rationale),
-[Formatter ownership](../architecture/formatter-ownership.md).
+[Formatter
+ownership](../../../../openspec/specs/pre-commit-gate/spec.md#rationale).
 
 ## Approach
 

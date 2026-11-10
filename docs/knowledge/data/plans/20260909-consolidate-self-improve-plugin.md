@@ -18,8 +18,8 @@ released: 2.0.0
 developed in its own repository and consumes this one's catalog. The
 consolidation decision, its rationale, and its rejected alternatives are
 recorded in [Self-improve
-consolidation](../architecture/self-improve-consolidation.md); this plan
-executes it and does not restate it.
+consolidation](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale);
+this plan executes it and does not restate it.
 
 The merge source is `plume-works/agent-self-improvement` at `e94031a`: roughly
 3.5k lines of standard-library-only Python under `plugin/selfimprove/`, a
@@ -444,7 +444,8 @@ plugin's hooks. That enablement lives in the gitignored
 Nothing the repository ships enables it: the tracked `.claude/settings.json`
 names it nowhere, and the Ansible role still stages `agentdev` alone, its
 `selectattr` matching exactly one entry. The distinction is recorded in
-[Self-improve consolidation](../architecture/self-improve-consolidation.md).
+[Self-improve
+consolidation](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale).
 
 ## Out of scope
 

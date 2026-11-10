@@ -5,8 +5,7 @@
 The agentdev-devcontainer image supervises its nested Docker engine on persistent non-overlay storage, caps its BuildKit cache at 10 GB, and collects its garbage hourly, removing unused images older than 72 hours, unshared build cache over 10 GB, and old unused disposable volumes.
 
 The Dev Container engine is the nested `dockerd` that `agentdev-devcontainer`
-supervises ([nested Docker
-provisioning](#rationale)). It holds the
+supervises. It holds the
 images and build cache of work done inside the Dev Container. The workspace
 engine around it is bounded by the `coder-ide-baseline` template's
 [`spec/workspace-template`](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/spec/workspace-template.md).
@@ -104,3 +103,43 @@ pass SHALL always exit successfully.
 
 - **WHEN** the `docker-gc` service exits or fails to start
 - **THEN** the runtime does not latch, and every other service keeps running.
+
+### Requirement: the nested engine refuses overlay storage
+
+`agentdev-runtime docker` SHALL refuse to start `dockerd` when its data
+directory is on the container's overlay filesystem, naming the directory and
+asking for a volume there. The image's Dev Container metadata SHALL mount a
+per-container volume at `/var/lib/docker`.
+
+#### Scenario: no volume is mounted at the data directory
+
+- **WHEN** the engine starts with `/var/lib/docker` on the container's overlay
+- **THEN** it refuses to start and names the directory
+
+### Requirement: the container runs no SSH server
+
+The descriptor SHALL declare no Dev Container feature, and the images SHALL NOT
+install `openssh-server`.
+
+#### Scenario: a Coder user opens a shell
+
+- **WHEN** a user runs `coder ssh <workspace>.repo`
+- **THEN** the shell is reached through the Coder agent, with no in-container
+  `sshd`
+
+## Rationale
+
+### The runtime owns the nested engine
+
+A nested `dockerd` cannot use the container's overlay-mounted layer, so it needs
+a separate mount and someone to start, watch, and restart it; the runtime
+already supervises every other service with readiness and bounded recovery, and
+the deploy image has no Dev Containers client to run a feature. No supported
+host connects to an in-container `sshd`: the Dev Containers client attaches
+through Docker, and Coder reaches the Dev Container through its sub-agent.
+Upgrading Docker is therefore an image change.
+
+Rejected:
+
+- **The `docker-in-docker` Dev Container feature beside the supervised
+  engine.** Two components would start and restart one daemon.

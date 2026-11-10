@@ -37,8 +37,9 @@ Two existing behaviors depend on the current shape and change with it:
   published images; the Ubuntu base is excluded from Renovate entirely).
 - The `github_cli` role puts the opened checkout's `docker/bin` ahead of the
   image-baked `gh` wrapper on `PATH` ([gh authentication
-  shim](../architecture/gh-authentication-shim.md)), which is also why the base
-  build reads `docker/bin/gh` from the repository root.
+  shim](../../../../openspec/specs/devcontainer-git-credentials/spec.md#rationale)),
+  which is also why the base build reads `docker/bin/gh` from the repository
+  root.
 
 ## Approach
 
@@ -265,8 +266,8 @@ Modify: `docs/knowledge/data/architecture.md`
 - [x] A new architecture document records that the image's wrapper is the only
   `gh` shim and that no checkout path precedes it, with the reason and the
   rejected live-workspace override, linking [gh authentication
-  shim](../architecture/gh-authentication-shim.md) as the decision it
-  supersedes; it is linked from `data/architecture.md`.
+  shim](../../../../openspec/specs/devcontainer-git-credentials/spec.md#rationale)
+  as the decision it supersedes; it is linked from `data/architecture.md`.
   - **Evidence:** commit 52c9ed2 adds `architecture/gh-wrapper-image-only` and
     its hub link; `iwe schema validate` passes.
 

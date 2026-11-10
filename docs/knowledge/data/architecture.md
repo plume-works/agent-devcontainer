@@ -14,8 +14,6 @@ rejected are as valuable as the one you picked.*
 
 [Agent auth persistence](architecture/agent-auth-persistence.md)
 
-[Agent metadata files](architecture/agent-metadata-files.md)
-
 [Catalog script language](architecture/catalog-script-language.md)
 
 [Claude Remote Control archived pre-created
@@ -50,30 +48,16 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
-[Evidence without commit ids](architecture/evidence-without-commit-ids.md)
-
 [Fork pull request builds](architecture/fork-pull-request-builds.md)
 
-[Formatter ownership](architecture/formatter-ownership.md)
-
-[gh authentication shim](architecture/gh-authentication-shim.md)
-
-[gh wrapper only from the image](architecture/gh-wrapper-image-only.md)
-
-[Line-free anchors](architecture/line-free-anchors.md)
-
-[Manual stacked pull requests](architecture/manual-stacked-prs.md)
-
 [Module layout](architecture/module-layout.md)
-
-[Nested Docker provisioning](architecture/nested-docker-provisioning.md)
 
 [Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
 
 [OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)
 
 [OpenCode full access in the
-devcontainer](architecture/opencode-full-access-in-devcontainer.md)
+devcontainer](../../../openspec/specs/devcontainer-opencode-policy/spec.md#rationale)
 
 [PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
@@ -81,10 +65,6 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 
 [Holding the AI review gate during a
 re-review](architecture/rereview-gate-pending.md)
-
-[Self-improve consolidation](architecture/self-improve-consolidation.md)
-
-[Self-improve runtime](architecture/self-improve-runtime.md)
 
 [Self-repository `uses:` syntax](architecture/self-repository-uses.md)
 

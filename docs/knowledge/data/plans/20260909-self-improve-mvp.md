@@ -23,8 +23,9 @@ than only the code.
 
 The durable behavior is [Self-improve learning
 loop](../spec/self-improve-learning-loop.md); the runtime decisions are
-[Self-improve runtime](../architecture/self-improve-runtime.md). This plan
-records what was accepted and on what evidence.
+[Self-improve
+runtime](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale).
+This plan records what was accepted and on what evidence.
 
 It absorbs two specifications from the merge source: the MVP itself, and the
 pseudo-terminal harness that verifies the one behavior the headless suite cannot

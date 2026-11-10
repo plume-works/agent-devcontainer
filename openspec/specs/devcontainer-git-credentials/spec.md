@@ -60,9 +60,55 @@ Control.
 - **THEN** a warning is printed and `agentdev-runtime remote-control start`
   still runs.
 
+### Requirement: the gh wrapper derives a token without disturbing callers
+
+The `gh` wrapper SHALL leave an existing `GH_TOKEN` or `GITHUB_TOKEN` untouched.
+Otherwise, only when a `credential.helper` is configured, it SHALL run
+`git credential fill` for github.com under a two-second timeout and export the
+password it returns as `GH_TOKEN`. It SHALL write nothing unless `VERBOSE_GH` is
+set, and then only to stderr. It SHALL do this once per process tree, guarded by
+`GH_WRAPPER_ACTIVE`, SHALL exec the first `gh` on `PATH` that is not a copy of
+itself, and SHALL exit 127 with a message when no real `gh` is found.
+
+#### Scenario: a CI job supplies its own token
+
+- **WHEN** `gh` runs with `GITHUB_TOKEN` set
+- **THEN** the wrapper execs the real `gh` with the token unchanged
+
+#### Scenario: no credential helper is configured
+
+- **WHEN** `gh` runs with no token and no `credential.helper`
+- **THEN** the wrapper execs the real `gh` silently, without running
+  `git credential fill`
+
+#### Scenario: the real gh is missing
+
+- **WHEN** no `gh` other than the wrapper is on `PATH`
+- **THEN** the wrapper exits 127 naming the problem
+
 ## Supplying the identity
 
 Create or update the four Git identity secrets in the Coder account, mapped to
 the exact `GIT_*` names listed above. Identity values are configuration, not
 credentials, but they should still be supplied through Coder rather than baked
 into the image.
+
+## Rationale
+
+### gh authentication is a wrapper on PATH
+
+A documented per-shell procedure puts a prerequisite on every shell, and
+skipping it fails as an authentication error far from its cause; a wrapper
+authenticates every caller, tools that shell out to `gh` included. It falls
+through silently because it runs where the trick does not apply, such as CI with
+its own token, and stdout stays clean for anything parsing `gh` output. It walks
+`PATH` past its own copies, recognized by a marker string, rather than exec a
+fixed path that could move. Only the image's baked copy may run with the
+injected token, because a checkout opened in the container is not necessarily
+trusted and any repository can carry an executable at `docker/bin/gh`.
+
+Rejected:
+
+- **Prepend the live checkout's `docker/bin` so a wrapper edit applies without
+  a rebuild.** It hands the injected token to whatever `gh` a checkout carries;
+  a wrapper change now ships through an image build.

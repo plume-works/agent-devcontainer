@@ -16,9 +16,9 @@ sources:
 
 The Dev Container engine is the nested `dockerd` that `agentdev-devcontainer`
 supervises ([nested Docker
-provisioning](../architecture/nested-docker-provisioning.md)). It holds the
-images and build cache of work done inside the Dev Container. The workspace
-engine around it is bounded by the `coder-ide-baseline` template's
+provisioning](../../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale)).
+It holds the images and build cache of work done inside the Dev Container. The
+workspace engine around it is bounded by the `coder-ide-baseline` template's
 [`spec/workspace-template`](https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/spec/workspace-template.md).
 
 ## Requirements

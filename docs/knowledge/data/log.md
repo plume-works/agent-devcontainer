@@ -1008,7 +1008,8 @@ one dated group per release; nothing else writes here.
   records why the config is validated twice, once at a pinned Renovate and once
   at the current one, and why both pass `--no-global`.
 - **Update**: `.agent.metadata.json` files no longer contribute to a
-  codebase-map source digest — [metadata](architecture/agent-metadata-files.md)
+  codebase-map source digest —
+  [metadata](../../../openspec/specs/agent-file-discovery/spec.md#rationale)
   records the rule. A metadata file describes how the digest is computed, not
   the code a map doc claims, and an applied rule already enters the digest as
   its pattern and replacement, so editing a reason or adding a rule that reaches
@@ -1260,11 +1261,13 @@ one dated group per release; nothing else writes here.
 - **Creation**: five decision records recovered from the Dr.QP history the
   template was extracted from — [Agent auth
   persistence](architecture/agent-auth-persistence.md), [Nested Docker
-  provisioning](architecture/nested-docker-provisioning.md), MCP gateway
-  transport, [gh authentication shim](architecture/gh-authentication-shim.md),
-  and [Formatter ownership](architecture/formatter-ownership.md). Each records a
-  rejected alternative that the code alone cannot show; every decision was
-  re-verified against this repository before being written.
+  provisioning](../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale),
+  MCP gateway transport, [gh authentication
+  shim](../../../openspec/specs/devcontainer-git-credentials/spec.md#rationale),
+  and [Formatter
+  ownership](../../../openspec/specs/pre-commit-gate/spec.md#rationale). Each
+  records a rejected alternative that the code alone cannot show; every decision
+  was re-verified against this repository before being written.
 
 ## 2026-09-03
 

@@ -19,7 +19,8 @@ reviewer, and proposes edits to `CLAUDE.md`, rules, and skills under user
 authorization. It previously lived in its own repository and consumed this one's
 catalog, so the two moved on separate clocks while sharing one toolchain. The
 consolidation decision and its rejected alternatives are recorded in
-[Self-improve consolidation](../architecture/self-improve-consolidation.md).
+[Self-improve
+consolidation](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale).
 
 ## Behaviour
 
@@ -85,7 +86,7 @@ skill](../bugs/self-improve-unstageable-routing-option.md).
 - Plan: [Consolidate the self-improve plugin into this
   repository](../plans/20260909-consolidate-self-improve-plugin.md)
 - Decision: [Self-improve
-  consolidation](../architecture/self-improve-consolidation.md)
+  consolidation](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale)
 - Runtime design: [Self-improve
-  runtime](../architecture/self-improve-runtime.md)
+  runtime](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale)
 - Spec: [Self-improve learning loop](../spec/self-improve-learning-loop.md)

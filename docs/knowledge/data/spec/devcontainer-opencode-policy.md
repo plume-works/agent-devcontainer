@@ -16,7 +16,7 @@ sources:
 Defines the OpenCode action and filesystem permission policy inside the
 devcontainer, which is itself the isolation boundary. Decision and constraints:
 [OpenCode full access in the
-devcontainer](../architecture/opencode-full-access-in-devcontainer.md).
+devcontainer](../../../../openspec/specs/devcontainer-opencode-policy/spec.md#rationale).
 
 ## Requirements
 

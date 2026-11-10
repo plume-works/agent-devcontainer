@@ -25,7 +25,7 @@ improves future behavior.
 
 The runtime decisions behind this behavior — the standard-library-only rule, the
 state-root resolution order, the single dispatcher — are [Self-improve
-runtime](../architecture/self-improve-runtime.md).
+runtime](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale).
 
 ## Requirements
 

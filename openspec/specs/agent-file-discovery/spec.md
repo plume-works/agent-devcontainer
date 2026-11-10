@@ -75,3 +75,47 @@ candidates as not ignored.
 - **WHEN** ignore classification fails for candidate directories or files inside
   an identified work tree
 - **THEN** discovery keeps those candidates and continues
+
+### Requirement: agent metadata files namespace one consumer per key
+
+An `.agent.metadata.json` file SHALL be a JSON object whose top-level keys each
+belong to one consuming tool. A consumer SHALL read only its own key and leave
+every other key as it found it. `template-consume` SHALL read its key only from
+the repository-root file, and SHALL treat a `template-consume` key in a nested
+`.agent.metadata.json` as broken metadata rather than a value to merge.
+
+#### Scenario: the root file carries a key no installed tool claims
+
+- **WHEN** update mode runs in a repository whose root `.agent.metadata.json`
+  holds `template-consume` beside another key
+- **THEN** update mode reads `template-consume.consumed_ref` and leaves the other
+  key unchanged
+
+## Rationale
+
+### Agent metadata is colocated, namespaced, and accumulates root to leaf
+
+Metadata for agent tooling lives in `.agent.metadata.json` files anywhere in the
+tree, one top-level key per consumer, so a directory can declare rules for a
+tool a given checkout lacks. The format is general, and template-consume's
+root-only adoption state is its only consumer today; a future colocated consumer
+follows the contract decided for it. Resolving a file walks from the repository
+root, from `git rev-parse --show-toplevel`, down to the file's directory;
+sections accumulate shallowest first, with no removal operation; globs are
+relative to the directory of the file that declares them, `**` crossing
+separators and `*` not; a metadata file is excluded from any consumer's
+fingerprint; and a file that cannot be parsed or is rejected marks its own
+subtree unresolvable, so a tool never computes an answer from rules it failed to
+load. A consumer whose data is a repository singleton declares its key
+root-only. A colocated file inherits its directory's template-boundary class,
+except the root file, which is classified per key.
+
+Rejected:
+
+- **A single repository-level map of root-relative globs.** It is edited at a
+  distance, does not travel when a directory is copied, and leaves stale paths
+  behind when a directory moves.
+- **Replace rather than accumulate, like `.gitignore` precedence.** A subtree
+  adding one rule would silently drop every inherited one.
+- **Repository-root-relative globs in every file.** A copied directory's globs
+  would point at its old location.

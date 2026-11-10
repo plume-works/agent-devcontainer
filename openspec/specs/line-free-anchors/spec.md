@@ -89,3 +89,27 @@ are not resolved.
 
 - **WHEN** a plan with `stage: done` anchors a file that has since been deleted
 - **THEN** the resolver does not check it
+
+## Rationale
+
+### Never a line number
+
+The maintainer's rule: a line number is wrong the next time its file changes,
+while an anchor stays true until its target is renamed or removed and then stops
+resolving instead of silently pointing elsewhere, so it needs no date stamp. The
+gate runs on every commit rather than behind a path filter, because a code
+rename anywhere can break a live anchor. Accepted limits: a bare `:<N>`
+continuing an earlier reference is not recognized; chat reports, code comments,
+and PR bodies rest on the catalog's instructions; a link into another
+repository's file at a pinned commit keeps its line fragment, because its target
+cannot change; and a placeholder written as a real path is resolved like any
+anchor, so placeholders go in angle brackets.
+
+Rejected:
+
+- **Line numbers with a date stamp.** About half of one plan's stamped anchors
+  pointed at the wrong line by the time it shipped.
+- **Planting anchors in target files.** Every reference would edit the file it
+  points at.
+- **Exempting closed documents from the line-number gate.** Agents copy the
+  shape they read.

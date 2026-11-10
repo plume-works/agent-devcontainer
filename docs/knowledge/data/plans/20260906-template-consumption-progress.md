@@ -67,10 +67,10 @@ as context only.
 
 That JSON record moves out of its own `.agentdev-template.json` and into a
 `template-consume` section of the root
-[.agent.metadata.json](../architecture/agent-metadata-files.md), whose top-level
-keys namespace one consumer apiece; `iwe-map` is currently its only section. The
-fields and their `jq` parse are unchanged by the move; what goes is a second
-root dotfile in every consuming repository.
+[.agent.metadata.json](../../../../openspec/specs/agent-file-discovery/spec.md#rationale),
+whose top-level keys namespace one consumer apiece; `iwe-map` is currently its
+only section. The fields and their `jq` parse are unchanged by the move; what
+goes is a second root dotfile in every consuming repository.
 
 Two properties of that format need extending, because consumption state is not
 the per-directory rule set it was built for. `consumed_ref` is a
@@ -131,8 +131,9 @@ this way; the root file stays the live record.
   travel with the directory holding them, while the `template-consume` section
   is consumer-created adoption state, written by setup and never copied from the
   publisher. This is the one file the "inherits its directory's class" shortcut
-  in [Agent metadata files](../architecture/agent-metadata-files.md) does not
-  cover.
+  in [Agent metadata
+  files](../../../../openspec/specs/agent-file-discovery/spec.md#rationale) does
+  not cover.
   - **Evidence:** `iwe schema validate` passed with the root metadata file
     classified per top-level key.
 - [x] Classify `.agentdev-template-progress.md` as Customize / consumer-created,

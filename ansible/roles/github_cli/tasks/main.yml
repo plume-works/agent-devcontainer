@@ -37,7 +37,7 @@
 
 # Wraps the real gh (above) with a transparent auth shim that injects GH_TOKEN
 # from the host's git credential helper. /usr/local/bin precedes /usr/bin on the
-# default PATH, so this copy is every shell's gh; see architecture/gh-wrapper-image-only.
+# default PATH, so this copy is every shell's gh; see openspec/specs/devcontainer-git-credentials.
 - name: Install the gh wrapper
   ansible.builtin.copy:
     src: gh
@@ -47,7 +47,7 @@
     group: root
 
 # A checkout's own gh must never run ahead of the wrapper: see
-# architecture/gh-wrapper-image-only.
+# openspec/specs/devcontainer-git-credentials.
 - name: Find the shell configs that may carry the workspace gh PATH prepend
   ansible.builtin.stat:
     path: "{{ item }}"

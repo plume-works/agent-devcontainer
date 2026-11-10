@@ -11,10 +11,6 @@ The product claim is narrow: Claude can notice a meaningful experience and
 propose retaining its lesson safely. It does not claim that a retained lesson
 improves future behavior.
 
-The runtime decisions behind this behavior — the standard-library-only rule, the
-state-root resolution order, the single dispatcher — are [Self-improve
-runtime](#rationale).
-
 ## Requirements
 
 ### Requirement: Capture is bounded, redacted, and fails open
@@ -282,3 +278,86 @@ verification failure SHALL NOT claim success.
 
 - **WHEN** review completes with no session to receive the wake
 - **THEN** the candidate is retained and reported at the next session start
+
+### Requirement: The runtime imports only the standard library
+
+The plugin's runtime code SHALL import successfully with only a system `python3`,
+offline; a test SHALL walk every runtime module's syntax tree and fail on any
+import outside the standard library. Tests and development tooling are not
+bound by the rule. `agent-code/si <subcommand>` SHALL be the plugin's only
+executable, invoked by every hook and skill.
+
+#### Scenario: a runtime module imports a third-party package
+
+- **WHEN** a runtime module imports a package outside the standard library
+- **THEN** the import-walk test fails naming the module
+
+### Requirement: Runtime state resolves in a fixed order
+
+Runtime state SHALL resolve to `SELF_IMPROVE_STATE_DIR` when set, else
+`CLAUDE_PLUGIN_DATA`, else `~/.claude/self-improvement/`. The reviewer SHALL
+receive its effort through `CLAUDE_CODE_EFFORT_LEVEL` in its environment, not
+through an `--effort` flag.
+
+#### Scenario: a hook runs with an explicit state directory
+
+- **WHEN** a hook runs with both `SELF_IMPROVE_STATE_DIR` and
+  `CLAUDE_PLUGIN_DATA` set
+- **THEN** it writes state under `SELF_IMPROVE_STATE_DIR`
+
+### Requirement: Live tests run only on an explicit opt-in
+
+The plugin's `tests/conftest.py` SHALL skip every test marked as driving a real
+Claude session unless an environment variable opts in, whatever path or `-m`
+expression selects it, and each skip SHALL state its reason. The model-free
+harness self-check SHALL run in the ordinary suite.
+
+#### Scenario: a developer runs one live test by path
+
+- **WHEN** `pytest` is given a live test's path without the opt-in variable
+- **THEN** the test is skipped with its reason and no Claude session starts
+
+## Rationale
+
+### The plugin lives in this repository
+
+The catalog is the set of behaviors agents have, and the self-improvement loop
+is how that set changes, so they share a checkout; the loop also needs typed
+destinations to route lessons into, which this repository has. Publishing the
+plugin is decided; enabling it for consumers is not, because it registers seven
+hook events, a `Stop` hook with an asynchronous rewake among them. Nothing
+tracked enables it; `claude plugin install` enables it only in a developer's
+gitignored `.claude/settings.local.json`. The image build stages one plugin by
+name through `agentic_tools_plugin_name`, while `agentdev-runtime catalog
+install` installs every plugin the Claude marketplace manifest publishes.
+
+Rejected:
+
+- **Two repositories, the loop consuming the catalog.** It duplicates the lint,
+  CI, lockfile, and tool-version surfaces.
+- **Vendor the loop as an unowned subtree.** The loop is developed here, not
+  carried.
+
+### The runtime decisions
+
+Hook scripts run in Claude Code's environment on a five-second budget and must
+fail open, so a third-party import would need a bootstrap step in the code that
+must be most reliable, as Anthropic's `security-guidance` plugin's virtual
+environment and degraded fallbacks show. One dispatcher keeps hook JSON parsing
+and fail-open handling in one place; capture, review, authorization, mutation,
+and rollback are separate modules. The dispatcher probes for a usable
+interpreter because a hook inherits a shell whose `python3` is often a stale
+virtualenv. `SELF_IMPROVE_STATE_DIR` precedes `CLAUDE_PLUGIN_DATA` because Claude
+Code sets the latter in every hook environment, which would defeat an override
+that lost to it. The reviewer runs with no tools at all rather than an allowlist,
+so its isolation does not depend on an allowlist being correct. Its effort rides
+an environment variable because review failure is silent, and a CLI too old for
+`--effort` would abort every review unseen. Authorization is read from
+`UserPromptExpansion`, which sees user-typed commands a `PreToolUse` hook cannot,
+through a wildcard matcher, because a plugin skill's namespaced `command_name` is
+not guaranteed. Deselecting live tests in `addopts` is not enough, because
+naming a test's path or passing `-m` replaces the filter.
+
+`asyncRewake` wakes only an idle interactive session, so the wake is verified
+through a real pseudo-terminal that asserts on plugin-controlled state and
+markers, never on rendered output, which Claude Code redraws and reflows.

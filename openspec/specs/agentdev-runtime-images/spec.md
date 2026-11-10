@@ -360,7 +360,10 @@ their own root stores, which is why the base image points three variables at the
 system bundle. `NODE_EXTRA_CA_CERTS` is the host-side fallback because it means
 "CAs added to the defaults", and hosts behind such proxies, Claude Code cloud
 sessions among them, already export it. A rotated CA needs a container restart,
-and containers the nested `dockerd` starts get no extra CA.
+and containers the nested `dockerd` starts get no extra CA. `devcontainer-init.sh`
+runs on the host before the build, and Codespaces invokes it through
+`/bin/sh -c` with no `HOME` set, so any `$HOME` it expands must be guarded or the
+build drops into a recovery container.
 
 Rejected:
 

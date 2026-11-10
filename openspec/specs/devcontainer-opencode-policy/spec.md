@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines the OpenCode action and filesystem permission policy inside the
-devcontainer, which is itself the isolation boundary. Decision and constraints:
-[OpenCode full access in the
-devcontainer](#rationale).
+devcontainer, which is itself the isolation boundary.
 
 ## Requirements
 
@@ -59,3 +57,28 @@ depending on the consumer workspace's Python project or installed packages.
 
 - **WHEN** the devcontainer starts for a repository without `pyproject.toml`
 - **THEN** the OpenCode policy is still configured.
+
+## Rationale
+
+### The devcontainer is the isolation boundary
+
+OpenCode runs inside the devcontainer without permission prompts because the
+container is what isolates it. The policy runs late in `lifecycle ready`, after
+the supervised services and authentication, so a malformed config fails the
+start hook visibly without keeping those services down. OpenCode gives
+`opencode.jsonc` precedence over `opencode.json` within one directory, which is
+why the JSONC file is patched when it exists; JSONC is parsed with pinned
+`json5`, written back as strict JSON, and duplicate keys are rejected rather
+than read ambiguously.
+
+Rejected:
+
+- **Replace the whole config with the managed object.** It would remove the
+  catalog bridge and user settings.
+- **Patch only `opencode.json`.** An existing `opencode.jsonc` loads later and
+  could override the policy.
+- **Parse JSONC or edit text locally.** Comments, trailing commas, strings, and
+  duplicate keys need a maintained parser.
+- **Fold the policy into catalog reinstallation.** Registration runs on create
+  and attach and depends on a bridge plugin; the policy must be restored on
+  every start.
