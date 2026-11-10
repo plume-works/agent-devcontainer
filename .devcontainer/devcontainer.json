@@ -33,11 +33,8 @@
     "PRE_COMMIT_HOME": "/root/.cache/pre-commit",
 
     "UV_CACHE_DIR": "/uv/cache",
-    "UV_PYTHON_INSTALL_DIR": "/uv/python",
-    // The agentdev-uv volume is Compose-project-scoped (only agentdev-agents-auth
-    // is pinned to a literal name), so each devcontainer instance gets its own
-    // /uv and the environment path needs no per-workspace disambiguation.
-    "UV_PROJECT_ENVIRONMENT": "/uv/venvs/ws-project"
+    // Each checkout's .venv links to its own /uv/venvs/<name>: see spec/agentdev-runtime-images.
+    "UV_PYTHON_INSTALL_DIR": "/uv/python"
   },
 
   "forwardPorts": [14500],
@@ -141,7 +138,7 @@
       ],
       "settings": {
         // Python: uv owns the virtualenv, so never let VS Code auto-activate it.
-        "python.defaultInterpreterPath": "/uv/venvs/ws-project/bin/python3",
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python3",
         "python.terminal.activateEnvironment": false,
         "python.terminal.activateEnvInCurrentTerminal": false,
         "python.analysis.typeCheckingMode": "standard",
@@ -156,9 +153,9 @@
         "ruff.fixAll": true,
         "ruff.lint.enable": true,
 
-        "ansible.ansible.path": "/uv/venvs/ws-project/bin/ansible",
-        "ansible.python.interpreterPath": "/uv/venvs/ws-project/bin/python3",
-        "ansible.validation.lint.path": "/uv/venvs/ws-project/bin/ansible-lint",
+        "ansible.ansible.path": "${workspaceFolder}/.venv/bin/ansible",
+        "ansible.python.interpreterPath": "${workspaceFolder}/.venv/bin/python3",
+        "ansible.validation.lint.path": "${workspaceFolder}/.venv/bin/ansible-lint",
         "ansible.mcpServer.enabled": true,
         "files.associations": {
           "**/ansible/**/*.yml": "ansible",

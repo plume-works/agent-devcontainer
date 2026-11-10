@@ -12,6 +12,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/integrity.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/trust.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .github/workflows/ci.yml
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -235,6 +236,56 @@ SHALL continue using the staged version.
   the attach lifecycle runs
 - **THEN** both clients register the checkout catalog without rebuilding the
   image
+
+### Requirement: each checkout has its own project environment
+
+The Dev Container SHALL give every checkout of the workspace repository,
+including each Git worktree, its own uv project environment: `.venv` in the
+checkout SHALL be a link to a directory named after the checkout under
+`AGENTDEV_VENV_ROOT` (default `/uv/venvs`), on the same volume as the uv cache.
+The create phase SHALL register `agentdev-runtime worktree create` and
+`agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
+`WorktreeRemove` hooks. The link SHALL exist before a worktree's first command
+when the worktree is made by `git worktree add` or by that `WorktreeCreate`
+hook, and the attach phase SHALL create it for the workspace folder. The
+`WorktreeRemove` hook SHALL delete the environment of the worktree it removes;
+attach SHALL keep every environment named after a listed checkout or linked from
+the `.venv` of any checkout, in any repository, and remove the rest.
+
+#### Scenario: two worktrees run uv at once
+
+- **WHEN** two worktrees with different versions of the project's packages run
+  `uv run` concurrently
+- **THEN** each imports its own checkout's packages, and neither sync changes
+  the other's environment
+
+#### Scenario: an agent creates a worktree
+
+- **WHEN** a Claude Code session or a worktree-isolated subagent starts in a new
+  worktree
+- **THEN** the worktree is at `.claude/worktrees/<name>` on branch
+  `worktree-<name>`, and its `.venv` links to its own environment before the
+  session starts
+
+#### Scenario: a worktree name is used again
+
+- **WHEN** `WorktreeCreate` fires with a name used before, such as a session
+  Remote Control revives
+- **THEN** the hook reuses that name's worktree, or checks out its kept
+  `worktree-<name>` branch when the worktree was removed, and prints its path
+
+#### Scenario: Claude Code removes a worktree
+
+- **WHEN** Claude Code removes a worktree its `WorktreeCreate` hook made
+- **THEN** that worktree's environment directory is deleted at once, and its
+  `worktree-<name>` branch is kept
+
+#### Scenario: a worktree is removed outside Claude Code
+
+- **WHEN** a worktree is removed with `git worktree remove` and the workspace is
+  next attached
+- **THEN** its environment directory is deleted, and no environment a checkout
+  of any repository still links to is touched
 
 ### Requirement: full adoption remains supported
 

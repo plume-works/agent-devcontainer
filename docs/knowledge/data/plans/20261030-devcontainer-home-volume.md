@@ -80,9 +80,12 @@ home.
 This repository's descriptor drops every per-directory state mount and the
 `/root` paths, and its host initializer names the shared auth volume after the
 host user's UID and GID. Both runtimes drop the `/uv` volume: uv's cache and
-Python installs take uv's defaults under the home, and `UV_PROJECT_ENVIRONMENT`
-stays set, to a path under the home, because uv's own default is `.venv` inside
-the checkout.
+Python installs take uv's defaults under the home. The Dev Container keeps one
+environment per checkout, so `AGENTDEV_VENV_ROOT` moves to
+`/home/agent/.local/share/uv/venvs`, beside uv's cache on the same volume so
+packages stay hardlinked, and it sets no `UV_PROJECT_ENVIRONMENT`. The deploy
+runtime serves one checkout and keeps `UV_PROJECT_ENVIRONMENT` set, to a path
+under the home, because uv's own default is `.venv` inside the checkout.
 
 The rejected alternatives are recorded in the architecture document.
 
@@ -173,8 +176,9 @@ before Task 5.
   `agentdev-uv`, and `agentdev-pre-commit` mounts, and the
   `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `PRE_COMMIT_HOME`, `UV_CACHE_DIR`, and
   `UV_PYTHON_INSTALL_DIR` overrides, so uv's cache and Python installs and
-  pre-commit use their defaults under the home. `UV_PROJECT_ENVIRONMENT` is
-  `/home/agent/.local/share/uv/venvs/ws-project`. `agentdev-project` stays.
+  pre-commit use their defaults under the home. `AGENTDEV_VENV_ROOT` is
+  `/home/agent/.local/share/uv/venvs`, and no `UV_PROJECT_ENVIRONMENT` is set.
+  `agentdev-project` stays.
 - [ ] `devcontainer-init.sh` creates `agentdev-agents-auth-<uid>-<gid>` from the
   host user's `id -u` and `id -g` and writes its name to `.env`, and
   `docker-compose.yml` mounts it at `/var/lib/agentdev/auth`.
@@ -349,6 +353,9 @@ with its home on one per-instance volume.
 CLI](20261029-off-bash-migration.md)
 
 [Narrow the image build context](20261102-narrow-image-build-context.md)
+
+[Give each checkout its own uv
+environment](20261101-per-checkout-uv-environments.md)
 
 ## Verification
 

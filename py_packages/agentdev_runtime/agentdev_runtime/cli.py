@@ -109,6 +109,12 @@ def _lifecycle(argv: list[str]) -> int:
     return lifecycle.main(argv)
 
 
+def _worktree(argv: list[str]) -> int:
+    from agentdev_runtime import worktree
+
+    return worktree.main(argv)
+
+
 def _doctor(argv: list[str]) -> int:
     from agentdev_runtime import doctor
 
@@ -125,7 +131,8 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
         _workspace,
         'deploy workspace phases: checkout, project, catalog, config, prepare',
     ),
-    'project': (_project, "the checkout's uv sync and pre-commit hooks"),
+    'project': (_project, "the checkout's uv environment link, uv sync, and pre-commit hooks"),
+    'worktree': (_worktree, "Claude Code's WorktreeCreate and WorktreeRemove hooks"),
     'git': (_git, 'git trust and HTTPS credentials for the checkout'),
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),

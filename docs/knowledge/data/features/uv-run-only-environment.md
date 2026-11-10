@@ -1,10 +1,11 @@
 ---
 type: feature
 stage: implemented
-description: Reach the Python environment exclusively through `uv run` — in the devcontainer, with no in-tree .venv symlink and a fixed out-of-tree path, and in CI, which provisions without activating.
+description: Reach the Python environment exclusively through `uv run` — in the devcontainer, through each checkout's .venv link to its own environment on the /uv volume, and in CI, which provisions without activating.
 sources:
 - resource: .devcontainer/devcontainer.json
-- resource: .devcontainer/scripts/uv-sync.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
 - resource: .agents/plugins/agentdev/bin/python_lint_check.py
 - resource: .github/actions/setup-python-venv/action.yml
 - resource: .github/workflows/validate-agent-files.yml
@@ -33,27 +34,21 @@ from `uv.lock` passed provisioning and was installed mid-job by a later
 
 ## Behaviour
 
-The environment lives at the fixed path `/uv/venvs/ws-project` and is reached
-only through `uv run`. Consumers split in two:
+In the devcontainer, every checkout — the workspace folder and each Git worktree
+— has its own environment at `$AGENTDEV_VENV_ROOT/<checkout directory name>`
+(default `/uv/venvs`), and the checkout's `.venv` is a link to it. Commands
+reach it only through `uv run`; the four VS Code settings that need a filesystem
+path — `python.defaultInterpreterPath` and the three `ansible.*` paths — name
+`${workspaceFolder}/.venv/bin/...`.
 
-- **Anything expressible as a command** runs through `uv run` — the lint script,
-  the documented ruff invocations, the skills that described the old layout.
-- **The four VS Code settings that need a filesystem path** —
-  `python.defaultInterpreterPath` and the three `ansible.*` paths — carry the
-  absolute path instead.
-
-The path is a constant rather than a template because the `agentdev-uv` volume
-is declared in `devcontainer.json` `mounts` rather than pinned to a literal name
-in Compose, making it Compose-project-scoped: one `/uv` per devcontainer
-instance, with nothing to disambiguate. See [uv environment
-location](../architecture/uv-environment-location.md) for why the environment
-stays out of tree at all — cache and environment must share a filesystem for uv
-to hardlink instead of copy.
-
-`uv-sync.sh` keeps a narrow migration cleanup: it removes `$workspace/.venv`
-only when it is a symlink *and* its target matches the prefix earlier revisions
-created, so existing containers shed the stale link on the next postAttach
-without a rebuild, and a real or deliberately-placed `.venv` is never touched.
+Attach links the workspace folder, the `link-venv` pre-commit hook at git's
+`post-checkout` stage links a worktree made by `git worktree add`, and the
+Claude `WorktreeCreate` hook `agentdev-runtime worktree create` links each
+worktree Claude Code makes before its session starts. The `WorktreeRemove` hook
+deletes that worktree's environment with it, and attach deletes every
+environment no listed checkout uses. See [uv environment
+location](../architecture/uv-environment-location.md) for why the environments
+live on `/uv` and why there is one per checkout.
 
 CI follows the same invocation contract, by a different mechanism. The two
 provisioning styles stay distinct — a persistent volume in the devcontainer, an
@@ -76,7 +71,14 @@ ephemeral runner in Actions — but neither activates anything:
 
 ## Edge cases
 
-- **Host and CI checkouts still produce a real `.venv`.** `.gitignore`,
+- **Two worktrees run uv at once.** Each imports its own checkout's packages;
+  neither sync changes the other's environment.
+- **A real `.venv` in a devcontainer checkout.** Attach replaces one that holds
+  a `pyvenv.cfg` with the link, including one the host made in the mounted
+  checkout; any other real `.venv`, or a link outside the environment root, is
+  left in place with a warning. A host working in that checkout sets its own
+  `UV_PROJECT_ENVIRONMENT`.
+- **Host and CI checkouts produce a real `.venv`.** `.gitignore`,
   `.dockerignore`, `search.exclude`, and the `shellcheck_fix.py` prune all keep
   their `.venv` entries. `.github/actions/setup-python-venv/action.yml` lets uv
   create one in-tree, since `UV_PROJECT_ENVIRONMENT` is unset on a runner; it is
