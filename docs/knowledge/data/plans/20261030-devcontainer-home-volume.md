@@ -100,21 +100,34 @@ before Task 5.
 **Files:** Modify: `docker/devcontainer/agentdev-devcontainer.Dockerfile`,
 `scripts/tests/test_agentdev_devcontainer_image.py`
 
-- [ ] The image removes the stock `ubuntu` account and creates group and account
+- [x] The image removes the stock `ubuntu` account and creates group and account
   `agent` (1000:1000, shell `/bin/bash`, home `/home/agent`), and creates
   `/home/agent` as an empty directory owned by `agent`.
-- [ ] The image environment sets `AGENTDEV_USER=agent`,
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_the_image_gives_the_agent_account_an_empty_home_and_a_home_volume`
+- [x] The image environment sets `AGENTDEV_USER=agent`,
   `AGENTDEV_HOME=/home/agent`,
   `AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth`,
   `CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude`, and
   `/home/agent/.local/bin` on `PATH`; no default names `/root`.
-- [ ] `devcontainer.metadata` adds `"remoteUser": "agent"`,
+  - **Evidence:**
+    `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth"`
+    and
+    `› "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin"`
+- [x] `devcontainer.metadata` adds `"remoteUser": "agent"`,
   `"updateRemoteUserUID": true`, and a volume `agentdev-home-${devcontainerId}`
   at `/home/agent`.
-- [ ] Image tests assert `/home/agent` in the image is empty and owned by
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_the_image_gives_the_agent_account_an_empty_home_and_a_home_volume`
+- [x] Image tests assert `/home/agent` in the image is empty and owned by
   `agent`, the metadata carries the three entries, and `devcontainer up`, run on
   a Linux host by a non-1000 UID that owns the checkout, runs `id -u` in the
   container as that UID with an empty home owned by it.
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_the_image_gives_the_agent_account_an_empty_home_and_a_home_volume`
+    and
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_the_agent_account_is_remapped_to_the_host_user_who_owns_the_checkout`,
+    run by a host UID other than 0 and 1000
 
 ### Task 2: Move the base image's shell setup out of root's home
 
@@ -381,10 +394,10 @@ CLI](20261029-off-bash-migration.md)
 
 ## Key references
 
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_USER=root"`
-  — `AGENTDEV_USER=root`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_HOME=/root"`
-  — `AGENTDEV_HOME=/root`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_USER=agent"`
+  — `AGENTDEV_USER`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_HOME=/home/agent"`
+  — `AGENTDEV_HOME`
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile › "LABEL devcontainer.metadata="`
   — `devcontainer.metadata`
 - `docker/deploy/agentdev-deploy.Dockerfile › "RUN userdel --remove ubuntu"` —

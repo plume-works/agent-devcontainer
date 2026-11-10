@@ -239,3 +239,72 @@ def test_a_derived_image_cannot_replace_the_managed_runtime(change):
         assert 'extend the runtime through /etc/agentdev/hooks' in result.stdout + result.stderr
     finally:
         subprocess.run(['docker', 'image', 'rm', '-f', tag], capture_output=True)
+
+
+def test_the_image_gives_the_agent_account_an_empty_home_and_a_home_volume():
+    home = subprocess.run(
+        [
+            'docker',
+            'run',
+            '--rm',
+            '--entrypoint',
+            'sh',
+            IMAGE,
+            '-c',
+            'stat -c "%U:%G" /home/agent && ls -A /home/agent && getent passwd agent',
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    assert home[0] == 'agent:agent'
+    assert home[1:] == ['agent:x:1000:1000::/home/agent:/bin/bash']
+    label = subprocess.run(
+        [
+            'docker',
+            'image',
+            'inspect',
+            IMAGE,
+            '--format',
+            '{{index .Config.Labels "devcontainer.metadata"}}',
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    metadata = json.loads(label)[0]
+    assert metadata['remoteUser'] == 'agent'
+    assert metadata['updateRemoteUserUID'] is True
+    assert {
+        'source': 'agentdev-home-${devcontainerId}',
+        'target': '/home/agent',
+        'type': 'volume',
+    } in metadata['mounts']
+
+
+@pytest.mark.skipif(
+    os.getuid() in (0, 1000), reason='the remap needs a host UID other than root and 1000'
+)
+def test_the_agent_account_is_remapped_to_the_host_user_who_owns_the_checkout(consumer):
+    box = consumer('direct')
+    assert box.workspace.stat().st_uid == os.getuid()
+    box.up('--skip-post-create')
+    result = subprocess.run(
+        [
+            *CLI,
+            'exec',
+            '--workspace-folder',
+            str(box.workspace),
+            *box.labels,
+            'sh',
+            '-c',
+            'id -u; id -g; stat -c "%u:%g" "$HOME"',
+        ],
+        capture_output=True,
+        text=True,
+        timeout=300,
+        env={**os.environ, 'AGENTDEV_DEVCONTAINER_TEST_IMAGE': IMAGE},
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    uid, gid = os.getuid(), os.getgid()
+    assert result.stdout.split()[-3:] == [str(uid), str(gid), f'{uid}:{gid}']
