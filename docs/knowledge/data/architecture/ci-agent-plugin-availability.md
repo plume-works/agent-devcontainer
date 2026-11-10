@@ -47,7 +47,7 @@ The checkout-scoped catalog install lives in **postAttach**.
 
 | hook                                                    | what a review job needs from it                            |
 | ------------------------------------------------------- | ---------------------------------------------------------- |
-| postCreate: `agentdev-runtime lifecycle created`        | auth links, the project sync, image-scoped catalog install |
+| create: `agentdev-runtime lifecycle created`            | auth links, the project sync, image-scoped catalog install |
 | postStart: `agentdev-runtime lifecycle ready --no-wait` | the per-start repairs                                      |
 | postAttach: `agentdev-runtime lifecycle attached`       | the project sync, **catalog from this checkout**           |
 

@@ -52,15 +52,21 @@ running with withdrawn readiness looks attached and healthy.
 
 ## Lifecycle ownership
 
-PID 1 owns the persistent services. Work whose timing PID 1 cannot observe stays
-in three thin image commands, declared in the image's `devcontainer.metadata`
-label so every descriptor that selects the image inherits them:
+PID 1 owns the persistent services and the create phase. The create phase needs
+what the root bootstrap prepares — the runtime account's sudoers entry, its
+home, and the shared auth directory — so it runs as a supervised oneshot after
+the bootstrap and the keyring, as the deploy profile's `prepare` does, and
+readiness waits for it. Work whose timing PID 1 cannot observe stays in three
+thin image commands, declared in the image's `devcontainer.metadata` label so
+every descriptor that selects the image inherits them. The label also sets
+`DEV_WORKSPACE_FOLDER` through `containerEnv`, so PID 1 and the create phase see
+the editor's workspace folder:
 
-| Phase               | Command                               | Runs                                                                                           |
-| ------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `postCreateCommand` | `agentdev-runtime lifecycle created`  | Once per container: client state, project dependencies and hooks, the staged catalog.          |
-| `postStartCommand`  | `agentdev-runtime lifecycle ready`    | Every start: waits for the core services, repairs per-start state. It is the `waitFor` target. |
-| `postAttachCommand` | `agentdev-runtime lifecycle attached` | Every attach: project environment, a complete checkout catalog.                                |
+| Phase               | Command                                     | Runs                                                                                                                                       |
+| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `postCreateCommand` | `agentdev-runtime lifecycle created --wait` | Waits for the supervised create phase — client state, project dependencies and hooks, the staged catalog — and fails if the runtime fails. |
+| `postStartCommand`  | `agentdev-runtime lifecycle ready`          | Every start: waits for the core services, repairs per-start state. It is the `waitFor` target.                                             |
+| `postAttachCommand` | `agentdev-runtime lifecycle attached`       | Every attach: project environment, a complete checkout catalog.                                                                            |
 
 The editor therefore never attaches to a container whose required services
 failed. The label also sets `overrideCommand: false`, so the client keeps the

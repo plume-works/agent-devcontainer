@@ -78,8 +78,13 @@ def check(status: int, step: str) -> None:
 
 
 def created(settings: env.Settings) -> None:
-    """Run the create phase, idempotently, then mark it done."""
-    workspace_of(settings)
+    """Run the create phase once per container, then mark it done."""
+    marker = created_marker(settings)
+    if marker.is_file():
+        print(f'{PREFIX}: the create phase already ran in this container.')
+        return
+    # Hooks inherit the working directory; supervisord starts this phase elsewhere.
+    os.chdir(workspace_of(settings))
     claim_project(settings)
     # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
     git.safe_directory(settings)
@@ -100,15 +105,27 @@ def created(settings: env.Settings) -> None:
         with agent_state.config_lock(settings):
             worktree.register()
     hooks.run(settings, 'created')
-    marker = created_marker(settings)
     marker.parent.mkdir(parents=True, exist_ok=True)
     marker.touch()
 
 
+def runtime_failed(settings: env.Settings) -> bool:
+    first = (quietly(health.status, settings)[1].splitlines() or [''])[0]
+    return first == 'runtime state: failed'
+
+
 def wait_created(settings: env.Settings) -> None:
+    """Wait for the supervised create phase, which runs only after the root bootstrap."""
+    timeout = float(settings.get('AGENTDEV_READY_TIMEOUT'))
+    deadline = time.monotonic() + timeout
     marker = created_marker(settings)
     while not marker.is_file():
+        if runtime_failed(settings):
+            raise NotReady('the runtime failed before the create phase finished')
+        if time.monotonic() >= deadline:
+            raise NotReady(f'the create phase did not finish within {timeout:g}s')
         time.sleep(1)
+    print(f'{PREFIX}: the create phase finished', flush=True)
 
 
 def quietly(call, *args) -> tuple[int, str]:
@@ -123,8 +140,7 @@ def wait_ready(settings: env.Settings) -> None:
     timeout = float(settings.get('AGENTDEV_READY_TIMEOUT'))
     deadline = time.monotonic() + timeout
     while quietly(health.ready, settings)[0] != 0:
-        first = (quietly(health.status, settings)[1].splitlines() or [''])[0]
-        if first == 'runtime state: failed':
+        if runtime_failed(settings):
             raise NotReady('the runtime failed; the editor cannot attach')
         if time.monotonic() >= deadline:
             raise NotReady(f'the runtime was not ready within {timeout:g}s')

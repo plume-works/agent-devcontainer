@@ -74,6 +74,13 @@ creates the account. With the home on one volume, `~/.claude.json` is an
 ordinary file in both profiles; the link step goes, and a home that still holds
 the link (a deploy home volume) has it replaced by the file it pointed to.
 
+The create phase needs what the bootstrap prepares, so it runs where deploy's
+`prepare` runs: as a supervised oneshot after the bootstrap and the keyring,
+once per container, and core, so readiness waits for it. `postCreateCommand`
+only waits for it, and fails when the runtime fails first. The image label sets
+`DEV_WORKSPACE_FOLDER` through `containerEnv` instead of `remoteEnv`, so PID 1
+and every supervised program see the editor's workspace folder.
+
 The base image's shell blocks (the `~/.local/bin` path, `bun`, history settings)
 move to system-wide files so an empty home has them and an image upgrade updates
 them; the roles keep `$HOME`-relative paths, so each account resolves its own
@@ -226,6 +233,37 @@ before Task 5.
     `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_leaves_a_sibling_checkout_the_account_owns_untouched`,
     `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_never_re_owns_the_open_workspace`
 
+### Task 5a: Run the create phase under the supervisor after the bootstrap
+
+**Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
+`py_packages/agentdev_runtime/agentdev_runtime/supervisor.py`,
+`docker/devcontainer/supervisord.conf`,
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`,
+`scripts/tests/test_agentdev_devcontainer_lifecycle.py`,
+`scripts/tests/test_agent_runtime_profiles.py`
+
+- [x] The Dev Container profile's `created` service runs
+  `agentdev-runtime lifecycle created` after `keyring`, is core, and is never
+  left out; readiness waits for it.
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_profiles.py::test_devcontainer_requires_its_persistent_services_and_the_create_phase`,
+    `scripts/tests/test_agent_runtime_profiles.py::test_the_create_phase_gates_readiness_and_its_clients`,
+    `scripts/tests/test_agent_runtime_profiles.py::test_the_profiles_share_their_program_definitions`
+- [x] `agentdev-runtime lifecycle created` runs once per container and from the
+  workspace folder; `created --wait` fails when the runtime fails first or the
+  ready timeout passes.
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_runs_once_per_container`,
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_create_runs_its_hooks_from_the_workspace`,
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_wait_fails_when_the_runtime_fails_before_the_create_phase`,
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py::test_wait_gives_up_after_the_ready_timeout`
+- [x] The image label's `postCreateCommand` is
+  `agentdev-runtime lifecycle created --wait`, and it sets
+  `DEV_WORKSPACE_FOLDER` through `containerEnv`.
+  - **Evidence:** `docker/devcontainer/agentdev-devcontainer.Dockerfile` ›
+    `"postCreateCommand": "agentdev-runtime lifecycle created --wait"`;
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_a_direct_consumer_runs_each_phase_exactly_when_specified`
+
 ### Task 6: Point this repository's descriptor at the home volume
 
 **Files:** Modify: `.devcontainer/devcontainer.json`,
@@ -353,7 +391,7 @@ each agent's plugin state during the `agentdev-base` build, at Claude user
 scope and by registering the catalog's OpenCode
 bridge plugin in the user's OpenCode config, so a consumer that runs the image
 without lifecycle commands resolves `agentdev:*` skills.
-`agentdev-devcontainer`'s `postCreateCommand` SHALL also install it into the
+`agentdev-devcontainer`'s create phase SHALL also install it into the
 runtime account's home volume, which starts empty and receives no image
 content. `~/.claude.json` SHALL be a regular file on that volume.
 
@@ -367,7 +405,7 @@ content. `~/.claude.json` SHALL be a regular file on that volume.
 
 #### Scenario: a devcontainer starts for the first time on a fresh home volume
 
-- **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
+- **WHEN** the create phase runs, `$AGENTDEV_CATALOG_DIR` exists, and the
   home volume is empty
 - **THEN** the staged catalog is installed at Claude user scope and
   into the OpenCode user config on the home volume, and `~/.claude.json` is a
@@ -378,7 +416,7 @@ content. `~/.claude.json` SHALL be a regular file on that volume.
 - **WHEN** the home volume already holds a prior install and `~/.claude.json`,
   and the container is recreated
 - **THEN** `~/.claude.json`'s content is preserved (Claude may append bootstrap
-  fields, so the guarantee is content preservation, not byte-identity), and `postCreateCommand` re-applies the
+  fields, so the guarantee is content preservation, not byte-identity), and the create phase re-applies the
   catalog install every time the container is created, so it is never silently
   stale.
 
@@ -452,7 +490,9 @@ The verification procedure SHALL check the credential store at
 
 The Dev Container image SHALL run its user services, lifecycle commands, and
 editor sessions as a non-root account remapped to the host user's UID and GID,
-with its home on one per-instance volume.
+with its home on one per-instance volume. Its create phase SHALL run under the
+supervisor after the root bootstrap, once per container, and gate readiness;
+`postCreateCommand` SHALL wait for it and fail when the runtime fails first.
 
 ``` markdown
 ## MODIFIED Requirements

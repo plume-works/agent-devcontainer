@@ -56,8 +56,8 @@ LABEL devcontainer.metadata='[{ \
     {"source": "dind-var-lib-docker-${devcontainerId}", "target": "/var/lib/docker", "type": "volume"}, \
     {"source": "agentdev-home-${devcontainerId}", "target": "/home/agent", "type": "volume"} \
   ], \
-  "remoteEnv": {"DEV_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"}, \
-  "postCreateCommand": "agentdev-runtime lifecycle created", \
+  "containerEnv": {"DEV_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"}, \
+  "postCreateCommand": "agentdev-runtime lifecycle created --wait", \
   "postStartCommand": "agentdev-runtime lifecycle ready", \
   "postAttachCommand": "agentdev-runtime lifecycle attached", \
   "waitFor": "postStartCommand" \

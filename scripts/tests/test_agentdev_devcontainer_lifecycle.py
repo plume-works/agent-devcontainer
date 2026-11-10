@@ -159,12 +159,28 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
     assert lifecycle.marker.exists()
 
 
-def test_create_is_idempotent(lifecycle):
+def test_create_runs_once_per_container(lifecycle):
+    lifecycle.hook('created', '10-only')
     assert_ok(lifecycle.run('created'))
     first = lifecycle.calls()
-    assert_ok(lifecycle.run('created'))
-    assert lifecycle.calls() == first * 2
-    assert lifecycle.marker.exists()
+    result = lifecycle.run('created')
+    assert_ok(result)
+    assert lifecycle.calls() == first
+    assert 'already ran in this container' in result.stdout
+
+
+def test_create_runs_its_hooks_from_the_workspace(lifecycle):
+    lifecycle.hook('created', '10-cwd', f'pwd >> "{lifecycle.log}"\n')
+    result = subprocess.run(
+        lifecycle.argv('created'),
+        env=lifecycle.env(),
+        cwd=lifecycle.root,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert_ok(result)
+    assert lifecycle.calls()[-1] == str(lifecycle.workspace)
 
 
 def test_create_makes_an_environment_root_inside_the_home(lifecycle):
@@ -187,7 +203,9 @@ def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
 
 
 def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
-    waiter = subprocess.Popen(lifecycle.argv('created', '--wait'), env=lifecycle.env())
+    waiter = subprocess.Popen(
+        lifecycle.argv('created', '--wait'), env=lifecycle.env(AGENTDEV_READY_TIMEOUT='30')
+    )
     try:
         time.sleep(1.5)
         assert waiter.poll() is None
@@ -195,6 +213,19 @@ def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
         assert waiter.wait(timeout=10) == 0
     finally:
         waiter.kill()
+
+
+def test_wait_fails_when_the_runtime_fails_before_the_create_phase(lifecycle):
+    (lifecycle.state / 'state').write_text('failed')
+    result = lifecycle.run('created', '--wait')
+    assert result.returncode == 1
+    assert 'the runtime failed before the create phase finished' in result.stderr
+
+
+def test_wait_gives_up_after_the_ready_timeout(lifecycle):
+    result = lifecycle.run('created', '--wait', AGENTDEV_READY_TIMEOUT='1')
+    assert result.returncode == 1
+    assert 'the create phase did not finish within 1s' in result.stderr
 
 
 def test_start_waits_for_the_runtime_then_repairs_state_and_runs_hooks(lifecycle):

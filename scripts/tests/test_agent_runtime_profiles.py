@@ -81,16 +81,17 @@ def test_deploy_gates_opencode_on_project_preparation(supervisor):
     assert not supervisor.PROFILES['deploy'].exit_on_latch
 
 
-def test_devcontainer_requires_its_persistent_services_and_omits_project_work(
+def test_devcontainer_requires_its_persistent_services_and_the_create_phase(
     supervisor, monkeypatch
 ):
     selected = supervisor.enabled_services(
         settings(supervisor, monkeypatch, AGENTDEV_RUNTIME_MODE='devcontainer')
     )
     required = [service for service in selected if not service.client]
-    assert names(required) == DEVCONTAINER_REQUIRED
+    assert names(required) == [*DEVCONTAINER_REQUIRED, 'created']
     assert all(service.core for service in required)
     assert [service.name for service in selected if service.client] == ['docker-gc']
+    assert 'keyring' in requires(selected, 'created')
     assert supervisor.PROFILES['devcontainer'].exit_on_latch
 
 
@@ -106,13 +107,16 @@ def test_devcontainer_starts_opencode_only_as_an_opt_in_client(supervisor, monke
     )
     by_name = {service.name: service for service in selected}
     assert names(selected) == [
-        *DEVCONTAINER_REQUIRED,
+        'dbus',
+        'keyring',
+        'dockerd',
+        'xpra',
         'docker-gc',
         'created',
         'opencode',
         'remote-control',
     ]
-    for client in ('created', 'opencode', 'remote-control'):
+    for client in ('opencode', 'remote-control'):
         assert by_name[client].client and not by_name[client].core
     assert 'created' in requires(selected, 'opencode')
     assert 'created' in requires(selected, 'remote-control')
@@ -170,7 +174,7 @@ def test_the_profiles_share_their_program_definitions(supervisor):
     for section in ('supervisord', 'unix_http_server', 'eventlistener:controller'):
         assert dict(devcontainer[section]) == dict(deploy[section]), section
     assert devcontainer['program:created']['command'].endswith(
-        'agentdev-runtime lifecycle created --wait'
+        'agentdev-runtime lifecycle created'
     )
 
 
@@ -204,8 +208,8 @@ def test_devcontainer_starts_required_services_then_publishes_readiness(devconta
         'bootstrap',
         *DEVCONTAINER_REQUIRED,
     ]
+    assert box.status('created') == 'done'
     box.wait_for(lambda: box.status('docker-gc') == 'ready')
-    assert started(box.events())[-1] == 'docker-gc'
     state = box.runtime()
     assert state['profile'] == 'devcontainer' and state['ready'] is True
     assert state['probes'] == DEVCONTAINER_REQUIRED
@@ -282,12 +286,12 @@ def test_an_invalid_profile_ends_the_runtime_before_the_bootstrap(devcontainer):
     assert 'AGENTDEV_RUNTIME_MODE must be deploy or devcontainer' in box.output()
 
 
-def test_clients_wait_for_the_create_phase_without_gating_readiness(devcontainer):
+def test_the_create_phase_gates_readiness_and_its_clients(devcontainer):
     box = devcontainer(AGENTDEV_OPENCODE_WEB='1', AGENTDEV_PREPARE_TIMEOUT='30')
     box.set('created', 'sleep', '2')
     box.start()
     box.wait_for(lambda: box.runtime().get('ready') is True)
-    assert 'opencode' not in started(box.events())
+    assert box.status('created') == 'done'
     assert box.health('ready').returncode == 0
     box.wait_for(lambda: box.status('opencode') == 'ready')
     assert started(box.events())[-2:] == ['created', 'opencode']
