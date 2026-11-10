@@ -78,9 +78,6 @@ records that Codex is unsupported, and the closed bug's `## Fix` links it.
   expect `claude remote-control --spawn same-dir`.
   - **Evidence:**
     `uv run pytest scripts/tests/test_runtime_remote_control.py::test_a_later_login_starts_the_session_once scripts/tests/test_runtime_remote_control.py::test_an_empty_spawn_mode_does_not_reach_the_start_script`
-- [ ] `test_agent_runtime_acceptance.py::test_remote_control_waits_for_a_login_then_starts_and_comes_back`
-  expects the fake `claude` arguments to start with
-  `remote-control --spawn same-dir`.
 
 ### Task 2: Name the new default where the variable is described
 
@@ -247,8 +244,6 @@ the explicit value worth a scenario is `worktree`.
   prints the row `py_packages/agentdev_runtime/README.md` carries.
 - `grep -n "worktree" py_packages/agentdev_runtime/agentdev_runtime/remote_control.py docker/deploy/runtime.env.example docs/knowledge/data/features/claude-remote-control-server-mode.md`
   shows `worktree` only as the opt-in value, never as the default.
-- `test_agent_runtime_acceptance.py::test_remote_control_waits_for_a_login_then_starts_and_comes_back`
-  runs in the CI job `Dev Container runtime acceptance`, which needs Docker.
 - `iwe schema validate` passes, and
   `iwe find --includes data/architecture/worktree-support -f keys` lists
   `data/architecture`, and
