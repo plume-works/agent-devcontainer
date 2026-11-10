@@ -25,6 +25,25 @@ back to copying every package. The failure mode is not an error — it is a slow
 sync and duplicated disk, which is why it is worth recording rather than
 rediscovering.
 
+On Docker Desktop for macOS the workspace bind mount is VirtioFS, and every file
+operation on it crosses to the host. Measured with this project's environment
+(about 25,000 files, uv 0.13), against cache and environment both on `/uv`
+(ext4):
+
+| Operation                           | Both on `/uv` | Both on the bind mount | Cache on `/uv`, environment on the bind mount |
+| ----------------------------------- | ------------- | ---------------------- | --------------------------------------------- |
+| Hard links from the cache           | yes           | yes                    | no — full copy                                |
+| `uv sync` into an empty environment | 0.18 s        | 11.7 s                 | 16.5 s                                        |
+| Import of the heavy dependencies    | 0.21 s        | 0.34 s                 | 0.34 s                                        |
+| `uv run python -c pass`             | 0.020 s       | 0.051 s                | 0.048 s                                       |
+| Deleting the environment            | 0.08 s        | 4.3 s                  | 4.6 s                                         |
+
+Hard links do work inside the bind mount, so cache and environment both in the
+checkout avoid the copy; they do not avoid VirtioFS. Sustained small-file churn
+there — seeding a cache, creating and deleting environments — can also stall
+every process that touches the workspace, the VS Code server included, until the
+container restarts.
+
 ## Why the path is a fixed string
 
 The `agentdev-uv` volume is declared in `devcontainer.json`'s `mounts`, not
@@ -47,6 +66,15 @@ that must stay in sync across five call sites is not.
 **Move the environment in-tree (`.venv`).** Simpler to explain and matches the
 convention most Python tooling expects. Rejected: it breaks cache-to-environment
 hardlinking, as above.
+
+**Move the uv cache into the checkout too, with every worktree under it.** Puts
+cache and environments on one filesystem again, so hard links return. Rejected:
+all uv I/O then runs on VirtioFS — roughly 65× slower installs, 1.6× slower
+imports, 2.5× slower `uv run` startup, and the stall risk above. It also does
+not fix [worktrees sharing one
+environment](../bugs/shared-uv-environment-across-worktrees.md) on its own: a
+fixed `UV_PROJECT_ENVIRONMENT` still sends every checkout to the same path,
+wherever the cache lives.
 
 **Keep the `.venv` symlink to the out-of-tree environment.** This was the prior
 state — the environment lived on `/uv`, and the project sync step recreated
