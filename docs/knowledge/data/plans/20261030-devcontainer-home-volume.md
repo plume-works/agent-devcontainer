@@ -85,9 +85,10 @@ host user's UID and GID. Both runtimes drop the `/uv` volume: uv's cache and
 Python installs take uv's defaults under the home. The Dev Container keeps one
 environment per checkout, so `AGENTDEV_VENV_ROOT` moves to
 `/home/agent/.local/share/uv/venvs`, beside uv's cache on the same volume so
-packages stay hardlinked, and it sets no `UV_PROJECT_ENVIRONMENT`. The deploy
-runtime serves one checkout and keeps `UV_PROJECT_ENVIRONMENT` set, to a path
-under the home, because uv's own default is `.venv` inside the checkout.
+packages stay hardlinked, and it sets no `UV_PROJECT_ENVIRONMENT`. The image
+sets that root, so a consumer whose descriptor names none gets it too. The
+deploy runtime serves one checkout and keeps `UV_PROJECT_ENVIRONMENT` set, to a
+path under the home, because uv's own default is `.venv` inside the checkout.
 
 The rejected alternatives are recorded in the architecture document.
 
@@ -108,15 +109,12 @@ before Task 5.
   `/home/agent` as an empty directory owned by `agent`.
   - **Evidence:**
     `scripts/tests/test_agentdev_devcontainer_image.py::test_the_image_gives_the_agent_account_an_empty_home_and_a_home_volume`
-- [x] The image environment sets `AGENTDEV_USER=agent`,
+- [ ] The image environment sets `AGENTDEV_USER=agent`,
   `AGENTDEV_HOME=/home/agent`,
   `AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth`,
-  `CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude`, and
-  `/home/agent/.local/bin` on `PATH`; no default names `/root`.
-  - **Evidence:**
-    `docker/devcontainer/agentdev-devcontainer.Dockerfile › "AGENTDEV_AGENTS_AUTH_DIR=/var/lib/agentdev/auth"`
-    and
-    `› "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin"`
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude`,
+  `AGENTDEV_VENV_ROOT=/home/agent/.local/share/uv/venvs`, and
+  `/home/agent/.local/bin` on `PATH`; no default names `/root` or `/uv`.
 - [x] `devcontainer.metadata` adds `"remoteUser": "agent"`,
   `"updateRemoteUserUID": true`, and a volume `agentdev-home-${devcontainerId}`
   at `/home/agent`.
@@ -131,6 +129,9 @@ before Task 5.
     and
     `scripts/tests/test_agentdev_devcontainer_image.py::test_the_agent_account_is_remapped_to_the_host_user_who_owns_the_checkout`,
     run by a host UID other than 0 and 1000
+- [ ] An image test opens a direct consumer that sets no `AGENTDEV_VENV_ROOT`
+  and asserts its checkout's `.venv` links to a directory under
+  `/home/agent/.local/share/uv/venvs`.
 
 ### Task 2: Move the base image's shell setup out of root's home
 
@@ -217,8 +218,10 @@ before Task 5.
 
 **Files:** Modify: `.devcontainer/devcontainer.json`,
 `.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`,
-`scripts/tests/test_agentdev_devcontainer_repository.py`; Create:
-`scripts/tests/test_devcontainer_init.py`
+`scripts/tests/test_agentdev_devcontainer_repository.py`,
+`py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
+`scripts/tests/test_agentdev_devcontainer_lifecycle.py`,
+`.pre-commit-config.yaml`; Create: `scripts/tests/test_devcontainer_init.py`
 
 - [x] `devcontainer.json` drops the `agentdev-claude`, `agentdev-opencode`,
   `agentdev-uv`, and `agentdev-pre-commit` mounts, and the
@@ -240,6 +243,9 @@ before Task 5.
 - [x] No mount target or environment value in `.devcontainer/` names `/root`.
   - **Evidence:**
     `! grep -rn /root .devcontainer/devcontainer.json .devcontainer/docker-compose.yml .devcontainer/devcontainer-init.sh`
+- [ ] `agentdev-runtime lifecycle created` no longer claims a `/uv` mount, and
+  the `link-venv` hook's name in `.pre-commit-config.yaml` no longer names
+  `/uv/venvs`.
 
 ### Task 7: Move the deploy runtime's uv state onto its home volume
 
@@ -282,11 +288,14 @@ before Task 5.
 **Files:** Modify:
 `docs/knowledge/data/architecture/devcontainer-home-volume.md`,
 `docs/knowledge/data/architecture/agent-auth-persistence.md`,
-`docs/knowledge/data/features/persist-pre-commit-cache.md`
+`docs/knowledge/data/features/persist-pre-commit-cache.md`,
+`docs/knowledge/data/architecture/uv-environment-location.md`
 
 - [ ] The architecture document describes the shipped account and volumes; the
   auth document and the pre-commit feature name the home volume and the cohort
   auth volume instead of the per-directory volumes.
+- [ ] The uv environment location document places the uv cache and every
+  checkout's environment on the home volume instead of the `/uv` volume.
 
 ## Spec changes
 
@@ -403,6 +412,68 @@ The Dev Container image SHALL run its user services, lifecycle commands, and
 editor sessions as a non-root account remapped to the host user's UID and GID,
 with its home on one per-instance volume.
 
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: each checkout has its own project environment
+
+The Dev Container SHALL give every checkout of the workspace repository,
+including each Git worktree, its own uv project environment: `.venv` in the
+checkout SHALL be a link to a directory named after the checkout under
+`AGENTDEV_VENV_ROOT` (`/home/agent/.local/share/uv/venvs` in
+`agentdev-devcontainer`, else `/uv/venvs`), on the same volume as the uv cache.
+The create phase SHALL register `agentdev-runtime worktree create` and
+`agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
+`WorktreeRemove` hooks. The link SHALL exist before a worktree's first command
+when the worktree is made by `git worktree add` or by that `WorktreeCreate`
+hook, and the attach phase SHALL create it for the workspace folder. The
+`WorktreeRemove` hook SHALL delete the environment of the worktree it removes;
+attach SHALL keep every environment named after a listed checkout or linked from
+the `.venv` of any checkout, in any repository, and remove the rest.
+
+#### Scenario: two worktrees run uv at once
+
+- **WHEN** two worktrees with different versions of the project's packages run
+  `uv run` concurrently
+- **THEN** each imports its own checkout's packages, and neither sync changes
+  the other's environment
+
+#### Scenario: an agent creates a worktree
+
+- **WHEN** a Claude Code session or a worktree-isolated subagent starts in a new
+  worktree
+- **THEN** the worktree is at `.claude/worktrees/<name>` on branch
+  `worktree-<name>`, and its `.venv` links to its own environment before the
+  session starts
+
+#### Scenario: a worktree name is used again
+
+- **WHEN** `WorktreeCreate` fires with a name used before, such as a session
+  Remote Control revives
+- **THEN** the hook reuses that name's worktree, or checks out its kept
+  `worktree-<name>` branch when the worktree was removed, and prints its path
+
+#### Scenario: Claude Code removes a worktree
+
+- **WHEN** Claude Code removes a worktree its `WorktreeCreate` hook made
+- **THEN** that worktree's environment directory is deleted at once, and its
+  `worktree-<name>` branch is kept
+
+#### Scenario: a worktree is removed outside Claude Code
+
+- **WHEN** a worktree is removed with `git worktree remove` and the workspace is
+  next attached
+- **THEN** its environment directory is deleted, and no environment a checkout
+  of any repository still links to is touched
+
+#### Scenario: a consumer sets no environment root
+
+- **WHEN** a consumer of `agentdev-devcontainer` that sets no
+  `AGENTDEV_VENV_ROOT` attaches to a Python checkout
+- **THEN** the checkout's `.venv` links to its directory under
+  `/home/agent/.local/share/uv/venvs`, on the home volume that holds uv's cache
+```
+
 ## Depends on
 
 [Replace the runtime shell scripts with one agentdev-runtime
@@ -420,7 +491,8 @@ environment](20261101-per-checkout-uv-environments.md)
 - In a rebuilt Dev Container: `id` reports `agent` with the host UID;
   `findmnt /home/agent` shows the home volume; `findmnt` shows no mount below
   `/root` and none below the workspace except `agentdev-project`;
-  `test -f ~/.claude.json && ! test -L ~/.claude.json`.
+  `test -f ~/.claude.json && ! test -L ~/.claude.json`; `readlink .venv` in the
+  workspace names a directory under `/home/agent/.local/share/uv/venvs`.
 - `docker restart` of the container ends with
   `runtime-supervisor: all services are ready`.
 - `uv run pytest scripts/tests/test_agent_runtime_compose.py` passes, and a
@@ -473,7 +545,13 @@ environment](20261101-per-checkout-uv-environments.md)
 - `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
   `AGENTDEV_CLAUDE_JSON`
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::claim_mounts` —
-  `claim_mounts`
+  `claim_mounts`, which claims `/uv` when it is mounted
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py::link_venv` —
+  creates the `.venv` link under `AGENTDEV_VENV_ROOT`
+- `py_packages/agentdev_runtime/agentdev_runtime/settings.py::VARIABLES` —
+  `AGENTDEV_VENV_ROOT`, default `/uv/venvs`
+- `.pre-commit-config.yaml › "link .venv to its /uv/venvs environment"` — the
+  `link-venv` hook's name
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::created` —
   `created`
 - `docker/devcontainer/supervisord.conf › "user=%(ENV_AGENTDEV_USER)s"` —
