@@ -14,16 +14,16 @@ sources:
 
 ## Context
 
-The maintainer dropped worktree support from the agentdev Dev Container: the
-per-checkout uv environment plan and the per-worktree catalog plan are
-cancelled, and
+The maintainer decided the Dev Container gives git worktrees nothing of their
+own: they share the checkout's uv environment and catalog. The per-checkout uv
+environment and per-worktree catalog plans are cancelled, and
 [bugs/shared-uv-environment-across-worktrees](../bugs/shared-uv-environment-across-worktrees.md)
 is closed as won't fix. A [Remote Control
 server](../features/claude-remote-control-server-mode.md) still spawns every
 on-demand conversation in its own git worktree unless
-`AGENTDEV_CLAUDE_RC_SPAWN=same-dir`, so by default it creates the worktrees
-nothing else supports any more. The maintainer decided the server spawns in the
-workspace folder by default. The cancelled bug's `## Fix` calls several
+`AGENTDEV_CLAUDE_RC_SPAWN=same-dir`, so by default it creates worktrees the Dev
+Container gives nothing of their own. The maintainer decided the server spawns
+in the workspace folder by default. The closed bug's `## Fix` calls several
 worktrees of one checkout unsupported, but no architecture document records what
 the maintainer decided, and worktrees themselves still work.
 
@@ -51,7 +51,7 @@ Their worktrees and branches stay on disk.
 
 The decision behind the change goes in a new architecture document,
 `architecture/worktree-support`, the way `architecture/supported-harnesses`
-records that Codex is unsupported, and the cancelled bug's `## Fix` links it.
+records that Codex is unsupported, and the closed bug's `## Fix` links it.
 
 ## Implementation Steps
 
@@ -92,11 +92,12 @@ records that Codex is unsupported, and the cancelled bug's `## Fix` links it.
 - [ ] `features/claude-remote-control-server-mode#behaviour` replaces "A
   worktree per conversation by default" with the workspace folder as the default
   and `AGENTDEV_CLAUDE_RC_SPAWN=worktree` as the opt-in.
-- [ ] `architecture/claude-remote-control-server-mode` records that the
-  maintainer made `same-dir` the default when worktree support was dropped, in
+- [ ] `architecture/claude-remote-control-server-mode` records the maintainer's
+  decision that `same-dir` is the default because the Dev Container gives
+  worktrees nothing of their own (linking `architecture/worktree-support`), in
   its description and decision paragraph, and replaces the rejected alternative
   about the worktree default with the worktree default itself: it spawns
-  worktrees nothing else in the Dev Container supports.
+  worktrees that share the checkout's uv environment and catalog.
 
 ### Task 3: Record that worktrees get no isolation of their own
 
