@@ -30,6 +30,9 @@ commands](backlog/base-image-catalog-smoke-test.md)
 [Supervise Claude Remote Control in Coder
 workspaces](backlog/coder-supervised-remote-control.md)
 
+[Give consumers OpenSpec in place of the scaffold's spec and architecture
+hubs](backlog/consumer-openspec-adoption.md)
+
 [Remove redundancy from the durable
 specs](backlog/deduplicate-spec-requirements.md)
 

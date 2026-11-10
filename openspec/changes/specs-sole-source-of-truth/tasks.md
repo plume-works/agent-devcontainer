@@ -190,7 +190,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       `data/spec`/`data/architecture` to `openspec/specs/` and `data/findings/`, and
       run `validate_agent_files` on the catalog. Verify the same grep across
       `.agents/plugins/agentdev/skills/iwe-{explore,audit,setup}/` prints nothing.
-- [ ] 8.4 File a backlog item for the iwe-bootstrap scaffold and template-consume
+- [x] 8.4 File a backlog item for the iwe-bootstrap scaffold and template-consume
       follow-up named in design.md Non-Goals. Verify with `iwe schema validate`.
 
 ## 9. Integration
