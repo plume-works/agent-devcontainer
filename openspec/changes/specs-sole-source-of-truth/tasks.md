@@ -175,7 +175,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
 ## 8. Catalog spec handling
 
-- [ ] 8.1 Remove `## Spec changes` authoring and its risk-scaled delta rules from
+- [x] 8.1 Remove `## Spec changes` authoring and its risk-scaled delta rules from
       `iwe-planner.agent.md`. A plan whose work changes behavior links its OpenSpec
       change. Verify that `grep -n 'Spec changes' .agents/plugins/agentdev/agents/iwe-planner.agent.md`
       prints nothing.

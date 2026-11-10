@@ -1,6 +1,6 @@
 ---
 name: iwe-planner
-description: Create or revise an IWE plan — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies; never edits implementation code. Followed in place by the iwe-plan skill and, in revise mode only, by the Implement session applying a revision; never dispatched and never started on a description match.
+description: Create or revise an IWE plan — discovery in the real codebase first, then a coherent plan with verified code anchors, the OpenSpec change it links, and dependencies; never edits implementation code. Followed in place by the iwe-plan skill and, in revise mode only, by the Implement session applying a revision; never dispatched and never started on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 ---
 
@@ -8,7 +8,8 @@ tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 
 A plan is a promise a future session can execute without re-deriving context.
 Discovery happens in the codebase before a word is written; every anchor is
-verified, every touched spec is named. Following this rulebook authorizes
+verified, and work that changes behavior names the OpenSpec change that
+specifies it. Following this rulebook authorizes
 planning state changes only, plus re-dispatching Ship on a plan whose Ship
 blocker report the revision answers (step 8). Even when the same request also
 asks to build the change, create or revise and validate the plan, report
@@ -35,8 +36,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 
 1. **Consult and select a mode.** Read `data/product.md` — especially `## Constraints` and
    `## Authoring rules`, which bind what you write. Check for related work:
-   `iwe find --fuzzy <topic> -f keys`, the relevant `data/spec/` and
-   `data/features/` docs, and whether an active plan already covers this
+   `iwe find --fuzzy <topic> -f keys`, the relevant specs under
+   `openspec/specs/`, open changes under `openspec/changes/`, the
+   `data/features/` and `data/findings/` docs, and whether an active plan already covers this
    (`iwe find --filter '{type: plan, stage: {$exists: false}}' -f keys`).
    Choose:
    - **Create mode** for a topic with no matching active plan.
@@ -77,8 +79,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 
    Body sections, in order (omit a section only when it's genuinely empty):
    - `## Context` — why now, linking the feature/bug/backlog doc that
-     motivates it. A plan that grew from a GitHub issue links the issue URL
-     here and lists it under `sources:` in the frontmatter
+     motivates it. When the work adds, changes, or removes specified behavior,
+     link the OpenSpec change under `openspec/changes/<name>/` that carries the
+     delta; the plan itself holds no requirement or scenario text. A plan that
+     grew from a GitHub issue links the issue URL here and lists it under
+     `sources:` in the frontmatter
    - `## Approach` — the shape of the solution and the alternative you
      rejected, in a few sentences
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
@@ -93,9 +98,6 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
      - Docs or config with no test: the file and anchor that changed.
      - External work: the CI run or the PR that closes it, which must stand alone.
-   - `## Spec changes` — every `data/spec/` doc this work will create or
-     change, written in whichever of the three forms below fits the risk;
-     name not-yet-existing specs in back-ticks (never dangling links)
    - `## Depends on` — inline links to plans that must ship first (omit if
      none)
    - `## Verification` — how a session proves the work is done: commands,
@@ -119,17 +121,13 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      stamp. A plan never records a line number anywhere in its body.
 
    In revise mode, apply the requested decision and reconcile every affected
-   section in either direction: Context, Approach, Implementation Steps, Spec
-   changes, Depends on, Verification, Out of scope, and Key references. For
-   example, a task edit may require an Approach or Verification edit, and an
-   Approach edit may require new tasks or spec impact. When the decision
-   changes behavior, `## Spec changes` moves with it in the same pass — the
-   form may need to escalate, and the tasks, verification, and out-of-scope
-   boundaries that depend on it are reconciled together. A delta edited alone,
-   or left describing the old intent while the tasks around it change, is the
-   split this pass exists to prevent. What you are updating is intent: the
-   durable spec keeps describing current released behavior until Ship succeeds.
-   A change of intent moves `release` with it. Re-locate every affected code
+   section in either direction: Context, Approach, Implementation Steps,
+   Depends on, Verification, Out of scope, and Key references. For example, a
+   task edit may require an Approach or Verification edit, and an Approach edit
+   may require new tasks. When the decision changes behavior, the OpenSpec
+   change that specifies it must change too: link it, or report that its delta
+   needs revising through OpenSpec before the plan can be implemented. A change
+   of intent moves `release` with it. Re-locate every affected code
    anchor in the current checkout. Identify checked tasks or existing implementation evidence made stale
    by the revision and report them; do not rewrite that implementation from
    this skill.
@@ -152,7 +150,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    that adds a bug to `release` sets it to `stage: planned`; one that removes a
    bug returns it to `stage: pending`.
 6. **Check coherence.** Re-read the complete plan as a future implementer.
-   Confirm its context, approach, tasks, spec impact, dependencies,
+   Confirm its context, approach, tasks, linked OpenSpec change, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with
    one another and with every recorded decision or assumption.
 7. **Audit the plan from a fresh context.** In both create and revise mode,
@@ -209,54 +207,6 @@ created plan only; revising a plan never touches the issue it came from.
 | `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                    |
 | `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it and whether the issue closed.                                                                                |
 
-## The three forms of `## Spec changes`
-
-This section is the plan's spec impact in one place: what the affected contract
-is _intended_ to say once this work ships. It is not a second durable truth —
-the spec documents keep describing current released behavior until Ship merges
-the change. Choose the lightest form that leaves a reviewer no room to guess.
-
-1. **No behavioral change** — `None — no behavioral change`. Refactors, tooling,
-   and docs-only work stop here. Never invent requirements to fill the section.
-2. **Simple, low-risk behavior** — link the affected spec and state a concise
-   **normative outcome**: the intended post-change behavior in a sentence or
-   two, written with SHALL. That phrase is what the other skills check against
-   this form, so keep it recognizable as one. Use it when
-   one unambiguous behavior changes and a scenario block would add ceremony
-   without resolving anything.
-3. **Contract-heavy or risky behavior** — link the affected spec and embed a
-   fenced delta. Required when the change touches compatibility, acceptance
-   criteria, security/privacy/data-loss behavior, or a requirement's scenario
-   set: exactly the cases where a prose summary reads as agreement while hiding
-   a disagreement.
-
-The delta goes in a Markdown-tagged fence, so canonical Requirement/Scenario
-headings survive inside the plan without turning it into a spec. `iwe normalize`
-rewrites the opening fence as ` ``` markdown ` — that spacing is normalized
-output, not damage, so leave it alone:
-
-- `## ADDED Requirements` and `## MODIFIED Requirements` carry the **complete
-  post-change** requirement — its SHALL statement and _every_ surviving
-  scenario, not only the edited ones. A scenario left out of a MODIFIED block
-  reads as one this plan deliberately dropped, and Verify treats it that way.
-  The one exception: a scenario that added a case before the change and adds
-  none after it, because the new SHALL statement settles everything it says,
-  is left out and named below the fence as a deliberate removal. A scenario
-  that already restated its requirement before the change stays.
-- `## REMOVED Requirements` names the requirement and why the behavior is
-  intentionally retired.
-- There is no `RENAMED` operation. A rename is an explicit removal plus an
-  addition.
-
-A spec that does not exist yet stays a back-ticked key here and in the delta;
-Ship creates the document and replaces the key with a real link.
-
-Each rule of a spec lives in one requirement. For the normative-outcome and
-fenced-delta forms, read every durable spec the section touches in full before
-validation. A normative outcome or an `ADDED` or `MODIFIED` requirement that
-would restate a rule another requirement of that spec already holds names that
-requirement instead.
-
 ## Rules
 
 - One plan per topic; if the plan needs two unrelated verification stories,
@@ -284,15 +234,12 @@ requirement instead.
   `**Closed by:** <who or what event>` line, and Ship waits for it.
 - A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.
 - A plan adds no end-to-end test that drives an agent session through the workflow skills against a live model; behaviour only such a session can show is an observation task naming who closes it, and Ship waits for it.
-- Before validation, check each requirement in `## Spec changes` that the plan
-  adds or modifies against the plan's `## Approach` and against the code it
-  describes, and resolve every disagreement in the plan before it is written.
-- A requirement in `## Spec changes` claims only what its mechanism delivers
-  and names each limit of that mechanism you know.
-- `## Spec changes` is mandatory thinking, even when its honest content is
-  "none — no behavioral change". Picking the form is part of that thinking:
-  a contract-heavy change written as a one-line summary is a Verify CRITICAL,
-  not a matter of taste.
+- A plan carries no spec content. Behavior changes through an OpenSpec change,
+  whose delta reaches `openspec/specs/` only when that change is archived; a
+  plan whose work changes behavior links the change, and one that changes no
+  behavior links none. Check the linked change's requirements against the
+  plan's `## Approach` and the code it describes, and resolve every
+  disagreement before the plan is written.
 - Scale ceremony with risk: a small low-risk plan can be short, but never
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as
