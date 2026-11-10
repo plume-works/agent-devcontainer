@@ -1,6 +1,6 @@
 ---
 # The Git Core PPA's git, fetched from its release copy in this repository: see
-# architecture/no-launchpad-ppas.
+# openspec/specs/agentdev-runtime-images/spec.md#rationale.
 # Images and hosts provisioned while git came straight from the PPA still carry its source.
 - name: Remove the Git Core PPA apt source
   ansible.builtin.file:

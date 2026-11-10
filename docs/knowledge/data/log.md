@@ -71,9 +71,10 @@ one dated group per release; nothing else writes here.
   tick](bugs/remote-control-watcher-start-loop.md), and [Bug: doctor fails a
   healthy Coder Dev Container](bugs/doctor-fails-healthy-coder-devcontainer.md).
 - **Create**: [agentdev runtime
-  package](architecture/agentdev-runtime-package.md) records the runtime as one
-  `agentdev-runtime` CLI package, its `RECORD` integrity check, the firewall run
-  from the bootstrap, and the CBM-only start of a container with no supervisor.
+  package](../../../openspec/specs/agentdev-runtime-images/spec.md#rationale)
+  records the runtime as one `agentdev-runtime` CLI package, its `RECORD`
+  integrity check, the firewall run from the bootstrap, and the CBM-only start
+  of a container with no supervisor.
 - **Update**: the codebase map follows the runtime into agentdev_runtime
   package, which replaces the lifecycle-scripts doc, and refreshes the Docker,
   Dev Container, lifecycle, image-runtime, firewall, Ansible, GitHub, and

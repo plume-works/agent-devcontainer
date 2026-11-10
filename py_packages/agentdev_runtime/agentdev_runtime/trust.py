@@ -1,7 +1,7 @@
 """
 Extra trust anchors the root bootstrap adds to the system certificate store.
 
-Spec: agentdev-runtime-images; design: architecture/extra-ca-trust.
+Spec: openspec/specs/agentdev-runtime-images.
 """
 
 from __future__ import annotations

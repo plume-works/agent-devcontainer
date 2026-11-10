@@ -1,7 +1,7 @@
 name: Cache the Git Core PPA build
 
 # Republishes the PPA's newest git build as a pinned-deps/git/<version> release: see
-# architecture/no-launchpad-ppas.
+# openspec/specs/agentdev-runtime-images/spec.md#rationale.
 on:
   schedule:
     - cron: '41 2 * * *'

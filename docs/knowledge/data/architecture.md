@@ -16,8 +16,6 @@ rejected are as valuable as the one you picked.*
 
 [Agent metadata files](architecture/agent-metadata-files.md)
 
-[agentdev runtime package](architecture/agentdev-runtime-package.md)
-
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 
 [Catalog script language](architecture/catalog-script-language.md)
@@ -56,13 +54,9 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
 
-[Dev Container runtime](architecture/devcontainer-runtime.md)
-
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
 [Evidence without commit ids](architecture/evidence-without-commit-ids.md)
-
-[Extra CA trust](architecture/extra-ca-trust.md)
 
 [Fork pull request builds](architecture/fork-pull-request-builds.md)
 
@@ -83,8 +77,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 [Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
 
 [No code-graph index](architecture/no-code-graph.md)
-
-[No Launchpad PPAs](architecture/no-launchpad-ppas.md)
 
 [OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)
 
@@ -120,8 +112,6 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Template boundary](architecture/template-boundary.md)
 
 [uv environment location](architecture/uv-environment-location.md)
-
-[Validator image install](architecture/validator-image-install.md)
 
 [What Verify and pr-review each catch](architecture/verify-versus-pr-review.md)
 

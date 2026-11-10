@@ -24,8 +24,9 @@ sources:
 
 `agentdev-deploy` is a sibling of `agentdev-devcontainer`, both derived from the
 lifecycle-neutral `agentdev-base` (see [Dev Container
-runtime](devcontainer-runtime.md)). This document records the deploy profile;
-the two images share the supervisor, its primitives, and its recovery model.
+runtime](../../../../openspec/specs/agentdev-runtime-images/spec.md#rationale)).
+This document records the deploy profile; the two images share the supervisor,
+its primitives, and its recovery model.
 
 ## Shared helpers, not shared hooks
 

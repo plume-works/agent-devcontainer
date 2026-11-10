@@ -66,8 +66,9 @@ The image contains the environment and a read-only catalog staged at
 `/opt/agentdev`. It does not contain the repository descriptor — a consuming
 project needs the template files below even though it needs neither the
 lifecycle scripts nor the catalog publisher source. [Dev Container
-runtime](devcontainer-runtime.md) records the lifecycle split. See [Module
-layout](module-layout.md) for how these pieces compose internally.
+runtime](../../../../openspec/specs/agentdev-runtime-images/spec.md#rationale)
+records the lifecycle split. See [Module layout](module-layout.md) for how these
+pieces compose internally.
 
 ## Default template surface
 
@@ -294,8 +295,9 @@ After deleting `py_packages/validate_agent_files/`, remove the now-empty
 installs it at `/usr/local/bin/validate_agent_files` as an isolated `uv` tool
 (`ansible/roles/validate_agent_files/`). It can still be used locally or by CI
 that executes through the image, with no `uv run` prefix and no copy of the
-package source. See [Validator image install](validator-image-install.md) for
-how that install works and the decisions behind it.
+package source. See [Validator image
+install](../../../../openspec/specs/agentdev-runtime-images/spec.md#rationale)
+for how that install works and the decisions behind it.
 
 ## Generated and local-only state
 

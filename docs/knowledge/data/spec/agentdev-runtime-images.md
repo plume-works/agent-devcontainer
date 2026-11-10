@@ -24,8 +24,9 @@ sources:
 
 The image family for the [Reusable agentdev Dev
 Container](../features/reusable-agentdev-devcontainer.md) feature. Its design is
-[Dev Container runtime](../architecture/devcontainer-runtime.md); the deploy
-runtime's own requirements are in [Standalone OpenCode
+[Dev Container
+runtime](../../../../openspec/specs/agentdev-runtime-images/spec.md#rationale);
+the deploy runtime's own requirements are in [Standalone OpenCode
 runtime](standalone-opencode-runtime.md).
 
 ## Requirements
@@ -197,7 +198,7 @@ when that file is non-empty but holds no certificate. The image SHALL point
 `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and `NODE_EXTRA_CA_CERTS` at the system
 store. The Dev Container's host init SHALL hand over the host's
 `AGENTDEV_EXTRA_CA_CERTS`, else its `NODE_EXTRA_CA_CERTS`. Design: [Extra CA
-trust](../architecture/extra-ca-trust.md).
+trust](../../../../openspec/specs/agentdev-runtime-images/spec.md#rationale).
 
 #### Scenario: a host behind a TLS-intercepting proxy starts a runtime
 

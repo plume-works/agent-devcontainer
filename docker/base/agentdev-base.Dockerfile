@@ -90,7 +90,7 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
 # Tools with their own root store read the system one, so an added CA reaches them all.
-# Design: architecture/extra-ca-trust.
+# Design: openspec/specs/agentdev-runtime-images/spec.md#rationale.
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
     REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
     NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt

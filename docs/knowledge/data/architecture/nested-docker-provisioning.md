@@ -37,7 +37,8 @@ The upstream `ghcr.io/devcontainers/features/docker-in-docker` feature was the
 previous provider. Keeping it beside the supervised engine was rejected because
 two components would then start and restart one daemon, so exactly one owns it.
 The same supervised engine serves the deploy image, which has no Dev Containers
-client to run a feature (see [Dev Container runtime](devcontainer-runtime.md)).
+client to run a feature (see [Dev Container
+runtime](../../../../openspec/specs/agentdev-runtime-images/spec.md#rationale)).
 
 ## Why there is no SSH server
 

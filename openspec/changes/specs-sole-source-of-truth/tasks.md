@@ -58,7 +58,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 - [x] 3.2 Fold into `iwe-workflow-skills`: adversarial-review,
       autonomous-implement-loop, explicit-only-workflow-agents,
       fresh-context-verify, iwe-cli-over-mcp, and kb-conflict-free-layout.
-- [ ] 3.3 Fold into `agentdev-runtime-images`: agentdev-runtime-package,
+- [x] 3.3 Fold into `agentdev-runtime-images`: agentdev-runtime-package,
       devcontainer-runtime, extra-ca-trust, no-launchpad-ppas, and
       validator-image-install.
 - [ ] 3.4 Fold into `dependency-updates`: ansible-apt-pins,

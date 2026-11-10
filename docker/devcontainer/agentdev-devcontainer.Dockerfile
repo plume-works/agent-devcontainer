@@ -22,7 +22,7 @@ COPY --chmod=0644 docker/devcontainer/supervisord.conf /etc/agentdev/supervisord
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
 # Defaults a consumer's descriptor or derived image may override; see
-# architecture/devcontainer-runtime.
+# openspec/specs/agentdev-runtime-images/spec.md#rationale.
 ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     AGENTDEV_USER=root \
     AGENTDEV_HOME=/root \
