@@ -536,7 +536,7 @@ environment](20261101-per-checkout-uv-environments.md)
   `test -f ~/.claude.json && ! test -L ~/.claude.json`; `readlink .venv` in the
   workspace names a directory under `/home/agent/.local/share/uv/venvs`.
 - `docker restart` of the container ends with
-  `runtime-supervisor: all services are ready`.
+  `agentdev-runtime: all services are ready`.
 - `uv run pytest scripts/tests/test_agent_runtime_compose.py` passes, and a
   deploy container started from `compose.opencode.yml` reaches ready with no
   `/uv` mount and its project venv under `/home/agent/.local/share/uv/venvs`.
