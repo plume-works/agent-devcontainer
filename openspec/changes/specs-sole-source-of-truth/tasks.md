@@ -195,7 +195,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
 ## 9. Integration
 
-- [ ] 9.1 Run `openspec validate --specs`, `openspec validate specs-sole-source-of-truth`,
+- [x] 9.1 Run `openspec validate --specs`, `openspec validate specs-sole-source-of-truth`,
       `iwe schema validate`, and `pre-commit run --all-files`. All of them pass,
       and the validate output no longer carries the "target spec does not exist"
       INFO for `iwe-workflow-skills` or `line-free-anchors`.
