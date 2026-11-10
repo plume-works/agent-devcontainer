@@ -51,6 +51,9 @@ image](plans/20260817-catalog-install-in-image.md)
 [Port the catalog's bundled shell scripts to
 Python](plans/20261029-catalog-scripts-python.md)
 
+[Make same-dir the default Remote Control spawn
+mode](plans/20261110-claude-remote-control-same-dir-default.md)
+
 [Opt-in Claude Remote Control server
 mode](plans/20261023-claude-remote-control-server-mode.md)
 
