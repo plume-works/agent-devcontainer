@@ -267,14 +267,28 @@ before Task 5.
 **Files:** Modify: `compose.opencode.yml`,
 `docker/deploy/agentdev-deploy.Dockerfile`,
 `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py`,
+`py_packages/agentdev_runtime/agentdev_runtime/settings.py`,
+`py_packages/agentdev_runtime/README.md`, `README.md`,
 `scripts/tests/test_agent_runtime_compose.py`,
-`scripts/tests/test_agent_runtime_identity.py`
+`scripts/tests/test_agent_runtime_identity.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] `compose.opencode.yml` mounts no `/uv` volume and declares none.
-- [ ] The deploy image drops `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR`, and
+- [x] `compose.opencode.yml` mounts no `/uv` volume and declares none.
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_compose.py::test_clone_deployment_uses_project_volumes_and_the_shared_auth_volume`
+- [x] The deploy image drops `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR`, and
   sets `UV_PROJECT_ENVIRONMENT=/home/agent/.local/share/uv/venvs/project`.
-- [ ] The deploy bootstrap no longer requires or claims a `/uv` mount; the
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_acceptance.py::test_clone_start_prepares_a_python_project_with_pre_commit`
+    and
+    `scripts/tests/test_agent_runtime_acceptance.py::test_a_failed_uv_sync_degrades_while_opencode_serves_until_retried`,
+    with `AGENTDEV_RUNTIME_TEST_IMAGE` set to a deploy image built from this
+    tree
+- [x] The deploy bootstrap no longer requires or claims a `/uv` mount; the
   compose test's instance targets are `/home/agent` and `/var/lib/docker`.
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_identity.py::test_creates_the_account_and_claims_fresh_instance_storage`
+    and `scripts/tests/test_agent_runtime_compose.py::INSTANCE_TARGETS`
 
 ### Task 8: Migrate template consumers
 
