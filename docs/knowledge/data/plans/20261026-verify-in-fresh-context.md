@@ -66,7 +66,8 @@ Rejected:
 
 - **Give `iwe-shipper` the Agent tool and nest the dispatch.** OpenCode refuses
   a nested dispatch at its default depth, and raising it takes an experimental
-  key ([Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)).
+  key ([Nested subagent
+  dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)).
 - **Keep the rulebook in the skill behind a thin agent**, as the Durable
   Knowledge Auditor does with `iwe-audit`. Then the skill is both the rulebook
   and the entry point that must dispatch, so a session loading it already holds

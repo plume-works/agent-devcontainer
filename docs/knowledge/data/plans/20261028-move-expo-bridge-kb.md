@@ -8,7 +8,7 @@ sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/architecture/vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: docs/knowledge/data/features/expo-eas-builds.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 stage: done

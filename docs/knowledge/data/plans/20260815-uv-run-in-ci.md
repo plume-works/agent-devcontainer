@@ -71,9 +71,9 @@ Change the action's *contract*, then its single caller, in that order — they
 must land together. Keep the action's name: `uv sync` still creates an in-tree
 `.venv` on a runner, so `setup-python-venv` stays literally accurate, and the
 path is classified consumer-facing in [template
-boundary](../architecture/template-boundary.md). Renaming would add
-template-surface churn without removing the documentation burden, since the
-contract change has to be written down either way.
+boundary](../../../../openspec/specs/template-consumption/spec.md#rationale).
+Renaming would add template-surface churn without removing the documentation
+burden, since the contract change has to be written down either way.
 
 Two findings from the parallel branch are **rejected**, and the reasoning is
 recorded here so it is not re-litigated:

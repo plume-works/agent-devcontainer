@@ -9,7 +9,7 @@ sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
-- resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+- resource: openspec/specs/nested-agent-dispatch/spec.md
 stage: done
 completed: 2026-11-09
 ---
@@ -30,7 +30,8 @@ Claude Code 2.1.316 nests to depth 3 by default: the agent at the limit is not
 offered the `Agent` tool, and nothing reports an error. The environment variable
 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the limit. OpenCode refuses any
 nested dispatch at its default `experimental.subagent_depth` of 1 ([Nested
-subagent dispatch](../architecture/nested-subagent-dispatch.md)).
+subagent
+dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)).
 
 ## Approach
 
@@ -105,7 +106,8 @@ the standalone runtime.
     `scripts/tests/test_devcontainer_compose.py`; `uv run pytest` of both files
     — 13 passed.
 - [x] In a container started from each compose file, the nesting fixture in
-  [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
+  [Nested subagent
+  dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale),
   extended to five levels, reaches depth 5 on Claude Code, read from each
   subagent's `.meta.json` `spawnDepth`.
   - **Evidence:** commit e17c64a5. `docker compose run` of the `devcontainer`
@@ -212,7 +214,8 @@ host's value when it is set, and to `5` otherwise.
 
 - `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
 - In a rebuilt devcontainer and a standalone runtime container, the fixture in
-  [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)
+  [Nested subagent
+  dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)
   extended to five levels reaches depth 5 on Claude Code, read from each
   subagent's `.meta.json` `spawnDepth`.
 - `iwe normalize` and `iwe schema validate` pass.

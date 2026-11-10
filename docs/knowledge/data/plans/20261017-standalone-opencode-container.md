@@ -1439,10 +1439,10 @@ Supersedes Task 10's 30-minute health start period.
     background indexing": `README.md` gains `### Startup and failures` and
     rewrites `### Operating it`, the deploy guide's first start follows, and
     [Standalone OpenCode
-    runtime](../architecture/standalone-opencode-runtime.md) and CBM daemon
-    lifecycle carry the split, the latch with its rejected alternative,
-    background indexing, and `hooks.json`. Prettier passes on both READMEs, and
-    `iwe schema validate` exits 0.
+    runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md#rationale)
+    and CBM daemon lifecycle carry the split, the latch with its rejected
+    alternative, background indexing, and `hooks.json`. Prettier passes on both
+    READMEs, and `iwe schema validate` exits 0.
 
 - [x] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
@@ -1924,8 +1924,8 @@ Recorded 2026-10-18 at `afae3a2`.
     Xpra reclaims an orphaned X server.
 
   The settled design is in [Standalone OpenCode
-  runtime](../architecture/standalone-opencode-runtime.md) and CBM daemon
-  lifecycle.
+  runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md#rationale)
+  and CBM daemon lifecycle.
 
 - **Defect found, not absorbed.** With the firewall enabled, Docker Hub pulls
   fail on the CloudFront CDN host; filed as [Bug: firewalled Docker Hub pulls

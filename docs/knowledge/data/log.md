@@ -1253,8 +1253,9 @@ one dated group per release; nothing else writes here.
   Reviewer Handoff tense split, and template setup and update evaluate an
   existing template into covered/extras buckets before anything is written.
   Specified in [Template consumption](spec/template-consumption.md) and
-  classified in [Template boundary](architecture/template-boundary.md); [its
-  plan](plans/20260903-pr-description-guidance.md) is done.
+  classified in [Template
+  boundary](../../../openspec/specs/template-consumption/spec.md#rationale);
+  [its plan](plans/20260903-pr-description-guidance.md) is done.
 
 ## 2026-09-04
 

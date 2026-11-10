@@ -64,7 +64,7 @@ spent, keyring raises `ComponentFailure`, and because keyring is core that
 latches the runtime.
 
 This bypasses the intended path in
-[standalone-opencode-runtime](../architecture/standalone-opencode-runtime.md):
+[standalone-opencode-runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md#rationale):
 D-Bus recovers first, then its `refresh` list restarts keyring outside keyring's
 budget.
 
@@ -89,7 +89,7 @@ client's failure corroborates the dependency's failed probe, so the debounce
 does not apply. The accepted cost: a dependency that was only slow to answer is
 restarted, taking its clients with it. The rule is recorded under `## Recovery`
 in
-[standalone-opencode-runtime](../architecture/standalone-opencode-runtime.md),
+[standalone-opencode-runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md#rationale),
 together with why deferring the client was rejected.
 
 `test_a_client_failure_escalates_to_its_failing_dependency` reproduces the race

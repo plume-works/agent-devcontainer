@@ -5,8 +5,7 @@
 Defines what OpenCode sees of the agentdev catalog once the bridge plugin in
 `.agents/plugins/agentdev/.opencode-plugin/` is registered: the catalog's
 skills, a namespaced slash command per skill, and its agents as subagents
-limited to their declared tools. The design is in [OpenCode catalog
-bridge](#rationale).
+limited to their declared tools.
 
 ## Requirements
 
@@ -169,3 +168,69 @@ catalog agent's value.
   own prompt
 - **THEN** OpenCode runs the user's prompt, and the agent may use every tool the
   user's permissions allow, including `webfetch`.
+
+### Requirement: the bridge has no runtime dependencies
+
+The bridge plugin SHALL declare no package dependencies and SHALL use only
+type-only imports, Bun built-ins, and, on v2, the host-provided `effect` and
+`@opencode/plugin/promise/adapter` modules.
+
+#### Scenario: OpenCode loads the bridge from the read-only staged catalog
+
+- **WHEN** OpenCode loads the bridge from the root-owned `/opt/agentdev` with no
+  `node_modules` beside it
+- **THEN** the bridge loads and serves the catalog
+
+## Rationale
+
+### One dependency-free bridge serves both OpenCode majors
+
+OpenCode is the catalog's second host and reads the same tree as Claude Code.
+One module serves v1 and v2 because a v1 install, such as a consumer image or a
+Mac still on v1, would otherwise lose the catalog, and two directories would
+make the config know the installed major and duplicate the parser. The staged
+catalog is root-owned and read-only, so no `node_modules` can sit beside it.
+Commands are namespaced `agentdev:<name>` to match Claude Code and avoid
+colliding with other plugins' bare skills; OpenCode's own skill-derived commands
+are excluded from `/` autocomplete, which is why the bridge registers ordinary
+commands. Catalog text names sibling skills as `/agentdev:<name>`, so the skill
+tool strips the prefix rather than more than 100 references being rewritten. A
+Claude `tools:` list restricts which tools exist for an agent without
+pre-approving them, so mapped tools stay unset.
+
+On v2, deny rules on an agent cannot hold: the config-agent transform runs after
+every plugin, appends the global permission rules, and rules match last-wins, so
+the devcontainer's `"*": "allow"` would cancel them. The limits are therefore
+enforced in `session.hook("context")` and `permission.hook("evaluate")`, keeping
+parity with Claude Code, which enforces declared tools under full access. Those
+hooks apply only while an agent's `system` is still the catalog body, because v2
+merges a user's same-id agent and shows plugins no user config. `execute` stays
+allowed by the maintainer's choice, and `browser` stays at v2's default deny.
+
+Host contracts the bridge rests on, to recheck on an OpenCode pin change: v1
+loads a directory plugin by absolute path through `package.json` `main`, finds
+`skills.paths` added in the `config` hook, accepts `:` in command keys, hands
+`tool.execute.before` the arguments before the tool resolves them, hides a
+`deny`-permission skill from the model while its command still runs, and denies
+`task` and `todowrite` to a dispatched subagent unless its own rules name them.
+v2 (2.0.32) loads `{id, effect}` and runs only `effect` when `setup` is also
+present, reads v1's `plugin`, `permission`, and `mcp` keys, runs a plugin's
+setup once per opened directory, lets a user's skill or command win over a
+plugin's, and does not import a v1 OpenAI OAuth login. A changed bridge takes
+effect only after OpenCode restarts.
+
+Rejected:
+
+- **oh-my-opencode's Claude compatibility layer.** Not open-source licensed,
+  sends telemetry by default, and ties OpenCode to a Claude install.
+- **OCX registry distribution.** No namespaced commands or agent mapping, and
+  its OpenCode 2 line is a pre-release.
+- **Register v2 skills as `agentdev:<name>`.** The model would fail to load a
+  skill under its bare name, which the catalog also uses.
+- **Drop tool limits on every harness.** Claude Code enforces them.
+- **Read the user's config files to skip a replaced agent.** It duplicates v2's
+  config discovery.
+- **v2 diagnostics through `console`, the plugin's own `Effect.runPromise`, or a
+  bridge-owned log file.** None reaches `opencode.log`.
+- **Bare `<name>` commands.** They rank higher but differ from Claude Code and
+  can collide.

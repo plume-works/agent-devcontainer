@@ -15,7 +15,7 @@ Defines what OpenCode sees of the agentdev catalog once the bridge plugin in
 `.agents/plugins/agentdev/.opencode-plugin/` is registered: the catalog's
 skills, a namespaced slash command per skill, and its agents as subagents
 limited to their declared tools. The design is in [OpenCode catalog
-bridge](../architecture/opencode-catalog-bridge.md).
+bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md#rationale).
 
 ## Requirements
 

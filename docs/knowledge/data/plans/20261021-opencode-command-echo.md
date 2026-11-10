@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
 - resource: docs/knowledge/data/spec/opencode-catalog-bridge.md
-- resource: docs/knowledge/data/architecture/opencode-catalog-bridge.md
+- resource: openspec/specs/opencode-catalog-bridge/spec.md
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/client-slash-command.ts
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/submit.ts
 stage: done

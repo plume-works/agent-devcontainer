@@ -9,7 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: openspec/specs/template-consumption/spec.md
 ---
 
 # Track template consumption progress and choices
@@ -36,7 +36,8 @@ consumer intent from the diff alone.
 
 This extends the [template consumption
 contract](../spec/template-consumption.md) and classifies new consumer state in
-[Template boundary](../architecture/template-boundary.md).
+[Template
+boundary](../../../../openspec/specs/template-consumption/spec.md#rationale).
 
 ## Approach
 

@@ -17,9 +17,8 @@ deleted-or-retained path, or a CI adaptation changes. The skill ships in the
 plugin, so a consumer runs it from an installed catalog without this repository
 checked out.
 
-This document holds only the requirements the procedure must satisfy. Read
-[Template boundary](#rationale) for the
-keep/customize/optional/delete inventory the guide walks.
+This document holds only the requirements the procedure must satisfy; the guide
+holds the path-by-path inventory it walks.
 
 ## Requirements
 
@@ -497,3 +496,52 @@ no longer reachable from the container.
 
 - **WHEN** update mode finds no gateway artifact
 - **THEN** it changes nothing for the gateway and reports nothing about it
+
+### Requirement: every tracked path belongs to one template class
+
+The consumption guide SHALL assign every tracked path of this repository to
+exactly one class — Template (retained by a normal consumer), Customize
+(retained and then edited for the consumer's identity), Optional (retained only
+with the custom-image or knowledge-base bundle), Publisher (always deleted by a
+consumer), or Generated (host, container, test, or tool state, never template
+input) — and setup and update SHALL act on a path by its class. A path holding
+consumer-created state, such as the root `.agent.metadata.json`'s
+`template-consume` key or `.agentdev-template-progress.md`, SHALL never be
+copied from the publisher.
+
+#### Scenario: a Generated path is present in the publisher checkout
+
+- **WHEN** setup copies the template surface from a checkout holding
+  `.devcontainer/.env` or `.tmp/`
+- **THEN** neither is copied into the consumer
+
+#### Scenario: a consumer keeps the custom-image bundle
+
+- **WHEN** a consumer retains `ansible/`, `docker/`, and
+  `py_packages/agentdev_runtime/`
+- **THEN** setup records the bundle in `optional_bundles` and the consumer
+  chooses how the `agentdev-base` build stops reading the deleted publisher
+  source
+
+## Rationale
+
+### The boundary follows the runtime's dependency chain
+
+The repository carries three surfaces from one checkout — the image build
+(`ansible/`, `docker/`), the agent catalog (`.agents/plugins/agentdev/`), and
+the Dev Container descriptor (`.devcontainer/`) — plus the independently released
+`validate_agent_files` package. The image holds the environment and a read-only
+catalog at `/opt/agentdev` but not the repository descriptor, so a consumer needs
+the descriptor files even though it needs neither the lifecycle implementation
+nor the catalog source. Adoption is a copy or merge driven by
+`/agentdev:template-consume`, not a Copier template or generator, and update
+mode diffs adopted paths from a recorded commit. `docs/knowledge/data/` is never
+diffed: the same path holds the publisher's memory in this repository and the
+consumer's in a consumer, so every difference would destroy one owner's
+history. The `agentdev-base` build reads `py_packages/validate_agent_files/`,
+`.claude-plugin/`, and `.agents/plugins/` from its build context, which a full
+copy deletes, so the custom-image bundle cannot build unchanged; a consumer
+keeps the publisher source, drops the validator and catalog steps, or derives
+from a published image, and this repository implements only the first. Images
+are pinned by tag and digest everywhere, so a rebuild upstream never silently
+changes what a consumer runs.

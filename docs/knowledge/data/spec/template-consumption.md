@@ -27,8 +27,9 @@ plugin, so a consumer runs it from an installed catalog without this repository
 checked out.
 
 This document holds only the requirements the procedure must satisfy. Read
-[Template boundary](../architecture/template-boundary.md) for the
-keep/customize/optional/delete inventory the guide walks.
+[Template
+boundary](../../../../openspec/specs/template-consumption/spec.md#rationale) for
+the keep/customize/optional/delete inventory the guide walks.
 
 ## Requirement: the finished project retains every runtime capability
 

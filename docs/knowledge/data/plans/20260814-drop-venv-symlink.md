@@ -32,8 +32,9 @@ The out-of-tree environment itself stays. `/uv/cache` and `/uv/venvs` are the
 same mount (`/dev/vda1 /uv`), which is what lets uv hardlink packages out of its
 cache into the environment. An in-tree `.venv` would land on the host bind mount
 — a different filesystem — and uv would silently fall back to copying. [Template
-boundary](../architecture/template-boundary.md) currently records only the
-weaker "survives container rebuilds" reason; Task 6 fixes that.
+boundary](../../../../openspec/specs/template-consumption/spec.md#rationale)
+currently records only the weaker "survives container rebuilds" reason; Task 6
+fixes that.
 
 ## Approach
 

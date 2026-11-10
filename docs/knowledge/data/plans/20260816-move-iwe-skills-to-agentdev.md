@@ -14,7 +14,7 @@ sources:
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: openspec/specs/template-consumption/spec.md
 ---
 
 # Move the IWE workflow skills into the agentdev plugin
@@ -25,9 +25,10 @@ The seven IWE workflow skills — setup, explore, plan, implement, verify, ship,
 weekly — are tracked under `.claude/skills/`, which is the one place this
 repository says the catalog does not live. `.claude/README.md` documents
 `settings.json` as the sole remaining occupant of that directory, and [Template
-boundary](../architecture/template-boundary.md) classifies `.claude/` as "Shared
-Claude permissions, official plugins, local ignore rules, and explanatory
-README" with no mention of skills. Both descriptions have drifted from the tree.
+boundary](../../../../openspec/specs/template-consumption/spec.md#rationale)
+classifies `.claude/` as "Shared Claude permissions, official plugins, local
+ignore rules, and explanatory README" with no mention of skills. Both
+descriptions have drifted from the tree.
 
 The consequence is not cosmetic. `.claude/skills/` is retained by every project
 that copies the template surface, so a consuming project silently inherits seven

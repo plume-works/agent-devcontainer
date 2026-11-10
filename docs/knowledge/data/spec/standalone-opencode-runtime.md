@@ -21,8 +21,8 @@ sources:
 The single-project runtime of the `agentdev-deploy` image, for the [Standalone
 OpenCode container](../features/standalone-opencode-container.md) feature. Its
 design is [Standalone OpenCode
-runtime](../architecture/standalone-opencode-runtime.md). [OpenCode
-web](opencode-web.md), [Devcontainer Git
+runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md#rationale).
+[OpenCode web](opencode-web.md), [Devcontainer Git
 credentials](devcontainer-git-credentials.md), and [Devcontainer Docker
 storage](devcontainer-docker-storage.md) keep their integration-specific
 requirements; the standalone requirements below do not change Coder's

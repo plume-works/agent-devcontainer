@@ -51,7 +51,7 @@ session runs it for `/agentdev:iwe-implement`; the coordinator runs it for
 `/agentdev:iwe-implement-all`, once per plan. `iwe-implementer`, `iwe-verifier`,
 and the new `iwe-revision-evaluator` never dispatch. That holds on all three
 harnesses without OpenCode's experimental depth setting ([Nested subagent
-dispatch](../architecture/nested-subagent-dispatch.md)).
+dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)).
 
 **The loop lives once, in the `iwe-implementer` rulebook,** as a section that
 only an orchestrator runs. The session already follows the rulebook in place.

@@ -16,11 +16,12 @@ sources:
 ## Decision
 
 The Dev Container adopts the deploy runtime's account model (see [Standalone
-OpenCode runtime](standalone-opencode-runtime.md)): a non-root runtime account
-whose home starts empty and is one per-instance volume. Per-instance state —
-agent configuration and sessions, `~/.claude.json`, OpenCode's database, and the
-pre-commit cache — lives on that volume. Only Claude credentials stay on the
-shared auth volume.
+OpenCode
+runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md#rationale)):
+a non-root runtime account whose home starts empty and is one per-instance
+volume. Per-instance state — agent configuration and sessions, `~/.claude.json`,
+OpenCode's database, and the pre-commit cache — lives on that volume. Only
+Claude credentials stay on the shared auth volume.
 
 The decision was made by the repository owner. Existing instances' per-directory
 state is dropped, not migrated; shared credentials are unaffected.

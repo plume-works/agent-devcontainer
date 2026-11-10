@@ -39,11 +39,11 @@ attaches a skill to a message as a structured skill reference instead, and the
 chat shows only the user's text and a skill chip.
 
 The current design is in [OpenCode catalog
-bridge](../architecture/opencode-catalog-bridge.md) and [Agent auth
-persistence](../architecture/agent-auth-persistence.md); the contracts are
-[OpenCode catalog bridge](../spec/opencode-catalog-bridge.md), [OpenCode
-web](../spec/opencode-web.md), OpenCode workspace CBM indexing, and [Coder IDE
-baseline template](../spec/coder-ide-baseline.md).
+bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md#rationale)
+and [Agent auth persistence](../architecture/agent-auth-persistence.md); the
+contracts are [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md),
+[OpenCode web](../spec/opencode-web.md), OpenCode workspace CBM indexing, and
+[Coder IDE baseline template](../spec/coder-ide-baseline.md).
 
 [OpenCode full-access config](../features/opencode-full-access-config.md) writes
 a v1-shaped `permission` block into `opencode.json` on every start

@@ -26,7 +26,8 @@ depends on [Run Verify from a fresh context](verify-in-fresh-context.md).
   orchestrates `/agentdev:iwe-implement`, and the coordinator orchestrates
   `/agentdev:iwe-implement-all`. Both are in scope. Neither `iwe-implementer`,
   `iwe-verifier`, the planner, nor the evaluator dispatches another agent
-  ([Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)).
+  ([Nested subagent
+  dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)).
 - **Loop.** After the tasks, dispatch `iwe-verifier`. Zero CRITICAL ends the run
   with a suggestion to ship. A code or evidence finding is fixed and verified
   again. A finding about intent, or a material deviation, becomes a drafted plan

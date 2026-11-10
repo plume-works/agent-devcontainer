@@ -5,9 +5,7 @@
 The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 
 The single-project runtime of the `agentdev-deploy` image, for the [Standalone
-OpenCode container](../../../docs/knowledge/data/features/standalone-opencode-container.md) feature. Its
-design is [Standalone OpenCode
-runtime](#rationale). [OpenCode
+OpenCode container](../../../docs/knowledge/data/features/standalone-opencode-container.md) feature. [OpenCode
 web](../opencode-web/spec.md), [Devcontainer Git
 credentials](../devcontainer-git-credentials/spec.md), and [Devcontainer Docker
 storage](../devcontainer-docker-storage/spec.md) keep their integration-specific
@@ -279,3 +277,144 @@ ingress and nested Docker operation.
 - **WHEN** a valid allowlist and trusted proxy sources are configured
 - **THEN** required proxy access and nested builds work, forbidden egress
   remains blocked, and daemon network rules are not erased by startup ordering.
+
+### Requirement: the controller starts the core path before optional work
+
+PID 1 SHALL be `agentdev-runtime supervisor run`, which runs the root bootstrap
+and the opt-in firewall before it starts supervisord in its own process.
+Every supervised program SHALL be configured with no autostart, no supervisord
+retries, and no autorestart, so the `controller` event listener alone orders and
+recovers them. The core path SHALL be `dbus`, then `keyring`, then the `prepare`
+one-shot, then `opencode`. The optional `config` one-shot SHALL run before
+`opencode`; `xpra` SHALL start alongside `opencode` without either waiting for
+the other; `dockerd`, its collector, and the `project` one-shot SHALL follow;
+and `remote-control` SHALL be configured only when `AGENTDEV_CLAUDE_RC_MODE` is
+set. A component whose dependency failed SHALL be `blocked` until that
+dependency is retried.
+
+#### Scenario: uv sync fails during startup
+
+- **WHEN** the `project` one-shot fails without strict startup
+- **THEN** OpenCode is already serving and the runtime reports degraded, naming
+  `project`
+
+#### Scenario: no Remote Control mode is set
+
+- **WHEN** the runtime starts with `AGENTDEV_CLAUDE_RC_MODE` unset
+- **THEN** no `remote-control` component is configured
+
+### Requirement: recovery is charged to the failing service
+
+A process exit, or `AGENTDEV_PROBE_FAILURES` consecutive failed probes, SHALL
+count against that service's own budget of `AGENTDEV_RECOVERY_ATTEMPTS`
+restarts, with backoff doubling from `AGENTDEV_RECOVERY_BACKOFF` seconds; the
+budget SHALL refill only after `AGENTDEV_HEALTHY_RESET` seconds of continuous
+health. A client's failure SHALL be charged to the root-most long-running
+dependency that fails a probe at that moment, which is recovered instead, and a
+recovered dependency SHALL restart the clients it refreshes outside their own
+budgets; `dbus` refreshes `keyring` and `xpra`. Before restarting a service the
+controller SHALL kill whatever is left of the failed process's group.
+
+#### Scenario: the session bus is replaced
+
+- **WHEN** `dbus` fails and recovers
+- **THEN** `keyring` and `xpra` restart without spending their own budgets
+
+#### Scenario: a client fails because its dependency is down
+
+- **WHEN** `opencode` fails while `keyring` fails its probe
+- **THEN** `keyring` is recovered and charged, and `opencode` is restarted after
+  it
+
+### Requirement: the Remote Control watcher waits for a login
+
+The `remote-control` component SHALL be the long-running watcher
+`agentdev-runtime remote-control run`. It SHALL re-run `claude auth status` only
+when the credential file's inode, modification time, or size changes; without a
+login it SHALL report waiting in `$XDG_RUNTIME_DIR/remote-control.status` and stay
+ready; with one it SHALL run the Remote Control start, adopting a live
+`claude-remote` tmux session rather than starting a second; and it SHALL exit
+when a session it saw is gone while the login holds, leaving restarts to the
+controller's budget.
+
+#### Scenario: the first start has no login
+
+- **WHEN** the runtime starts with a Remote Control mode and no claude.ai login,
+  and a user later runs `/login`
+- **THEN** the watcher stays ready while waiting and starts Remote Control after
+  the login with no operator retry
+
+### Requirement: the nested engine keeps one listener and one volume
+
+`agentdev-runtime docker run` SHALL exec one root `dockerd` on
+`/var/run/docker.sock` with `--group docker`, and SHALL refuse a `hosts` key in
+`daemon.json`. With no system containerd socket, the engine's containerd SHALL
+be rooted under `/var/lib/docker`, so that one volume holds everything the
+engine persists.
+
+#### Scenario: daemon.json adds a TCP listener
+
+- **WHEN** `daemon.json` carries a `hosts` entry
+- **THEN** the engine refuses to start and names the key
+
+## Rationale
+
+### A sibling of the Dev Container runtime
+
+`agentdev-deploy` shares the supervisor, its primitives, and its recovery model
+with `agentdev-devcontainer`, and calls the same runtime helpers with
+overridable paths; `AGENTDEV_RUNTIME_MODE=deploy` makes every step fatal where
+the Dev Container logs and continues. The Dev Container lifecycle hooks assume
+root, this repository's scaffolding, and the client's call order, so neither
+running them unchanged nor copying the checkout into the image works. The
+account is created from `AGENTDEV_UID`/`AGENTDEV_GID` at every start because a
+fresh container has none, and the image creates no `/home/agent`, so a fresh
+home volume starts empty.
+
+Only Claude credentials are shared, one auth volume per UID/GID cohort, because
+sessions, configuration, keyrings, and caches hold per-project state, and
+crossing cohorts would rewrite another container's file ownership. OpenCode
+2.0.32 keeps logins in `opencode.db` with its sessions and imports `auth.json`
+only once, so logins stay per project container.
+
+The proxy network is shared, so any peer reaches the container's ports and each
+service authenticates on its own. Coupling Xpra to the egress firewall, or
+requiring a proxy network with no other members, was rejected.
+
+### Process model and failure semantics
+
+supervisord's `main()` always exits `0`, so running it in-process lets PID 1
+exit `1` when the controller fails while supervisord still reaps every orphan; a
+wrapper shell or init shim would take PID 1 from it. The listener runs the
+controller on a worker thread so a long recovery never stalls event delivery,
+and the heartbeat refreshes from its own thread so a long phase never looks
+dead. Standalone runs `opencode serve` under supervisord rather than in tmux,
+which would hide crashes and outlive a stop. Bootstrap and firewall run first so
+the firewall's flush cannot erase rules `dockerd` installs later, and PID 1
+passes the firewall switch on as exactly `true` or `false`, so a misspelling
+latches instead of leaving egress open.
+
+Exiting PID 1 nonzero on every unrecoverable failure was rejected: under
+`restart: unless-stopped` it reruns non-transactional preparation against the
+same volumes without bound. Starting OpenCode last, behind every service, was
+rejected: a broken uv sync or nested Docker would keep the agent unreachable.
+Charging a client's failure to its failing dependency bypasses the probe
+debounce, so a dependency that was only slow is restarted with its clients;
+deferring the client until the next pass was rejected because a waiting client
+would read `ready` while down. Xpra starts its X server outside the process
+group, so the supervised Xpra also stops a leftover server holding the display.
+
+### The Remote Control watcher
+
+`agentdev-runtime remote-control start` reads an unset mode as `session`, so PID
+1 owns the off switch by not configuring the component. The usual first start
+has no login yet, which is why the component waits instead of running once; its
+tmux server daemonizes outside the watcher's group, so a restarted watcher
+adopts the live session.
+
+Rejected:
+
+- **A one-shot that skips without a login.** It needs an operator retry after
+  the first `/login`, and nothing restarts a session that exits.
+- **Run `claude auth status` every interval.** It starts a Claude process each
+  time.

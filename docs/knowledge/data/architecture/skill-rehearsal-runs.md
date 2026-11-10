@@ -32,7 +32,8 @@ writes no end-to-end test that drives an agent session against a live model.
 
 The session that loads the skill must itself be able to dispatch. On Claude Code
 that means a top-level session, or a session started as an agent whose `tools:`
-lists `Agent` ([Nested subagent dispatch](nested-subagent-dispatch.md)).
+lists `Agent` ([Nested subagent
+dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)).
 
 - **An in-session subagent of a Claude Code cloud session does not qualify.** It
   receives no `Agent` tool, whatever its definition's `tools:` lists; it

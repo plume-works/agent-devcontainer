@@ -5,7 +5,7 @@ sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: compose.opencode.yml
 - resource: docker/deploy/runtime.env.example
-- resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+- resource: openspec/specs/nested-agent-dispatch/spec.md
 ---
 
 # Nested agent dispatch
@@ -16,7 +16,7 @@ Defines Claude Code's subagent nesting limit in the devcontainer and the
 standalone runtime, so a dispatched agent can dispatch another. OpenCode's limit
 is a managed value of [Devcontainer OpenCode
 policy](devcontainer-opencode-policy.md). Host behavior: [Nested subagent
-dispatch](../architecture/nested-subagent-dispatch.md).
+dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale).
 
 ## Requirements
 

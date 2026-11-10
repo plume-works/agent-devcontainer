@@ -7,7 +7,7 @@ sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
-- resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+- resource: openspec/specs/nested-agent-dispatch/spec.md
 - resource: docs/knowledge/data/backlog/nested-catalog-agent-dispatch.md
 ---
 

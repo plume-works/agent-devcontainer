@@ -79,7 +79,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
   - opencode-full-access-in-devcontainer → `devcontainer-opencode-policy`
   - self-improve-consolidation and self-improve-runtime →
     `self-improve-learning-loop`
-- [ ] 3.8 Fold these larger behavior documents:
+- [x] 3.8 Fold these larger behavior documents:
   - module-layout and template-boundary → `template-consumption`
   - opencode-catalog-bridge → `opencode-catalog-bridge`
   - standalone-opencode-runtime → `standalone-opencode-runtime`

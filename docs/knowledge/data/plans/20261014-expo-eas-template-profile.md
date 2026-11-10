@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: .devcontainer/devcontainer.json
 - resource: https://github.com/expo/skills

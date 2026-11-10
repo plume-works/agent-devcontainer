@@ -673,7 +673,7 @@ class Controller:
             if self.shutting_down():
                 return
             log(f'{name}: {failed}')
-            # Escalation to a failing dependency: see architecture/standalone-opencode-runtime.
+            # Escalation to a failing dependency: see openspec/specs/standalone-opencode-runtime.
             cause = self.failing_dependency(name)
             if cause is not None:
                 log(f'{name}: failure escalated to {cause}, which fails its readiness probe')

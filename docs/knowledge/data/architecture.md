@@ -50,12 +50,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Fork pull request builds](architecture/fork-pull-request-builds.md)
 
-[Module layout](architecture/module-layout.md)
-
-[Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
-
-[OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)
-
 [OpenCode full access in the
 devcontainer](../../../openspec/specs/devcontainer-opencode-policy/spec.md#rationale)
 
@@ -72,10 +66,6 @@ re-review](architecture/rereview-gate-pending.md)
 devcontainers](architecture/sibling-devcontainer-testing.md)
 
 [Skill rehearsal runs](architecture/skill-rehearsal-runs.md)
-
-[Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
-
-[Template boundary](architecture/template-boundary.md)
 
 [uv environment location](architecture/uv-environment-location.md)
 

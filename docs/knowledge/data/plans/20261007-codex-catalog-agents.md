@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
-- resource: docs/knowledge/data/architecture/module-layout.md
+- resource: openspec/specs/template-consumption/spec.md
 stage: done
 completed: 2026-10-08
 released: 2.0.0

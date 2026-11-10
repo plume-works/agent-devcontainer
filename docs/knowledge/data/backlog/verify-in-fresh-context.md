@@ -34,7 +34,7 @@ own](autonomous-implement-loop.md), dispatches the agent this one creates.
 - `iwe-shipper` follows the `iwe-verifier` rulebook in place. It is already a
   fresh context, and keeping it a leaf avoids depending on nested dispatch,
   which OpenCode refuses at its default depth ([Nested subagent
-  dispatch](../architecture/nested-subagent-dispatch.md)).
+  dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md#rationale)).
 - On Codex, every dispatch that must start from a fresh context asks
   `spawn_agent` to forward no turns; the model otherwise forwards the whole
   conversation. That applies to the existing `iwe-shipper` dispatches too.

@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
 - resource: .github/pull_request_template.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: openspec/specs/template-consumption/spec.md
 ---
 
 # Split PR How to Test into Verification and Reviewer Handoff

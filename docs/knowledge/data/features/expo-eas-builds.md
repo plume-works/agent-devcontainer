@@ -6,7 +6,7 @@ sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 ---
 
@@ -57,7 +57,7 @@ updates the pin.
 
 The contract is [Template consumption](../spec/template-consumption.md); the
 Template-class and consumer-owned split is [Template
-boundary](../architecture/template-boundary.md).
+boundary](../../../../openspec/specs/template-consumption/spec.md#rationale).
 
 ## Edge cases
 
