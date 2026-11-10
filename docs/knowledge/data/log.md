@@ -152,9 +152,10 @@ one dated group per release; nothing else writes here.
 - **New**: [Run the Dev Container as a non-root account with one home
   volume](plans/20261030-devcontainer-home-volume.md) plans the [Dev Container
   home volume](features/devcontainer-home-volume.md) feature, now accepted.
-- **New**: [Dev Container home volume](architecture/devcontainer-home-volume.md)
-  records the decision to run the Dev Container as a non-root account with one
-  home volume, and the open editor-server cleanup risk.
+- **New**: [Dev Container home
+  volume](features/devcontainer-home-volume.md#decision) records the decision to
+  run the Dev Container as a non-root account with one home volume, and the open
+  editor-server cleanup risk.
 - **Update**: refreshed the github and pull request checks flow map docs for the
   single Renovate group that now carries both agentdev image digests.
 - **Update**: [Name Remote Control environments after their

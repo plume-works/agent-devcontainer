@@ -38,8 +38,6 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 
 [Cloud session host restarts](architecture/cloud-session-host-restarts.md)
 
-[Dev Container home volume](architecture/devcontainer-home-volume.md)
-
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
 [OpenCode full access in the

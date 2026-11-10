@@ -3,7 +3,6 @@ type: feature
 stage: accepted
 description: The Dev Container runs as a non-root account matched to the host user, with its whole home on one per-instance volume, replacing the per-directory state volumes under /root and the ~/.claude.json symlink.
 sources:
-- resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/docker-compose.yml
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -19,8 +18,7 @@ today, because `/root` lives on the container filesystem: agent configuration,
 OpenCode's database, and the pre-commit cache each have one, and
 `~/.claude.json` needs a symlink into the `~/.claude` volume. The deploy runtime
 needs none of that: its account's whole home is one volume. This feature gives
-the Dev Container the same model (see [Dev Container home
-volume](../architecture/devcontainer-home-volume.md)).
+the Dev Container the same model.
 
 ## Behaviour
 
@@ -68,3 +66,38 @@ upgrade updates it.
 ## Open questions
 
 None — every design question this feature raised is settled.
+
+## Decision
+
+The repository owner decided that the Dev Container adopts the deploy runtime's
+account model: a non-root runtime account whose home starts empty and is one
+per-instance volume, with only Claude credentials on the shared auth volume.
+Existing instances' per-directory state is dropped, not migrated.
+
+Constraints:
+
+- The home must start empty. Anything the base image builds into a home would be
+  copied into the volume once and never updated by an image upgrade.
+- The runtime account is not root, so a host checkout must be writable by its
+  UID and GID, as the deploy runtime's bootstrap enforces.
+
+Rejected:
+
+- **A volume on `/root`, still running as root.** The base image builds shell
+  configuration, `gh` extensions, and tool state into `/root`, which the volume
+  would freeze at the first create's image.
+- **A volume on `/root` refreshed from the image on every start.** It overwrites
+  the user's edits and needs an ownership decision per file.
+- **Creating the account at container start, as deploy does.** The devcontainer
+  CLI's UID update needs an account the image defines, so the image creates it
+  without a home directory.
+- **A separate `/uv` volume, in either runtime.** The owner chose one home
+  volume for uv's cache, Python installs, and project venv.
+- **Keeping per-directory volumes.** Every new piece of state needs its own
+  volume decision, and single files need symlink workarounds.
+
+Accepted risk: VS Code and its derivatives install their remote servers in the
+home, so on a home volume they persist across rebuilds with every version an
+editor update installs, and a broken install survives the rebuild that would
+otherwise reset it. The owner accepted unbounded growth and declined both
+keeping them off the volume and pruning old versions at create.

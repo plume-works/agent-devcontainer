@@ -101,7 +101,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
   Verify with `openspec validate --specs`.
 
-- [ ] 4.2 Move architecture/devcontainer-home-volume's decision, constraints,
+- [x] 4.2 Move architecture/devcontainer-home-volume's decision, constraints,
       rejected alternatives, and accepted risk into
       `data/features/devcontainer-home-volume.md`, whose plan is still active, and
       delete the architecture document. Verify with `iwe schema validate`.
