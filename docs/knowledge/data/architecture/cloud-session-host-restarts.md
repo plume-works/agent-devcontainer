@@ -55,6 +55,6 @@ The response is to make a reboot cheap rather than to prevent it. A toolchain
 that lived only in a devcontainer made every boot restore the host `dockerd`, a
 relay to the moved agent proxy port, and the container before any tool ran, and
 an agent learned of the reboot only when a Docker call failed. Cloud sessions
-therefore run no Docker and no devcontainer: [Cloud session host
-toolchain](cloud-session-host-toolchain.md) provisions the toolchain on the
-host's disk, which a reboot keeps.
+therefore run no devcontainer and keep Docker for short-lived containers: [Cloud
+session host toolchain](cloud-session-host-toolchain.md) provisions the
+toolchain on the host's disk, which a reboot keeps.

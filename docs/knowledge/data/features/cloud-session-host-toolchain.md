@@ -1,7 +1,7 @@
 ---
 type: feature
 stage: implemented
-description: Claude Code cloud sessions run the project toolchain directly on the session host and run no Docker daemon and no devcontainer, so an idle reboot costs only the processes that stopped.
+description: Claude Code cloud sessions run the project toolchain directly on the session host and run no devcontainer, so an idle reboot costs only the processes that stopped; the host dockerd stays for short-lived containers.
 sources:
 - resource: .claude/startup.py
 - resource: .claude/CLAUDE.cloud.md
@@ -30,8 +30,10 @@ toolchain](../architecture/cloud-session-host-toolchain.md).
 - **Commit, push, and GitHub run on the host.** `git commit` runs the hooks on
   the host, and `git push` and `gh` reach GitHub through the session's agent
   proxy directly.
-- **No Docker.** Cloud sessions run no Docker daemon and no devcontainer; image
-  builds and image tests run in CI.
+- **No devcontainer.** Cloud sessions run no devcontainer. The host `dockerd`
+  and a relay to the agent proxy come back on every session start, so
+  short-lived containers have network access; long-running ones do not survive a
+  reboot.
 - **Session instructions follow.** `.claude/CLAUDE.cloud.md` describes the host
   toolchain.
 

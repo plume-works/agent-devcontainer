@@ -1,9 +1,11 @@
 ---
 type: architecture
-description: A Claude Code cloud session works on the session host itself — .claude/startup.py provisions the project toolchain there with the image's own Ansible roles — and runs no Docker daemon and no devcontainer.
+description: A Claude Code cloud session works on the session host itself — .claude/startup.py provisions the project toolchain there with the image's own Ansible roles — and runs no devcontainer; a host dockerd and a relay to the agent proxy serve short-lived containers.
 sources:
 - resource: .claude/startup.py
 - resource: .claude/CLAUDE.cloud.md
+- resource: .claude/agent-proxy-relay.py
+- resource: .claude/settings.json
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/ansible/setup-ansible.sh
 - resource: .pre-commit-config.yaml
@@ -37,23 +39,55 @@ script, once, when the session's host is built. It:
 Any failing step fails the script, and the session starts without the steps
 after it.
 
+## Resume
+
+The session's host starts with no process running, and a worker restart stops
+the host `dockerd`, the relay, and every container, and can move the agent proxy
+to another port. A `SessionStart` hook in `.claude/settings.json` therefore runs
+`.claude/startup.py resume` on every session start. Resume mode acts only on a
+cloud-session host (`CLAUDE_CODE_REMOTE=true` and no `AGENTDEV_RUNTIME_MODE`,
+which the runtime images set), keeps whatever still runs, and restores the rest:
+
+- starts `dockerd` with `--bip 10.213.0.1/24` when it does not answer, first
+  removing a `/var/run/docker.pid` that names no running `dockerd` and a
+  `/var/run/docker/containerd/containerd.pid` that names no running
+  `containerd`: `/var/run` is on the persistent disk, `dockerd` refuses to start
+  while the pid in its own file is alive, and it takes a live pid in
+  containerd's file for its containerd;
+- keeps `.claude/agent-proxy-relay.py`, a plain TCP relay from `10.213.0.1:3128`
+  to the proxy's current `127.0.0.1:<port>`, while `/proc/<pid>/cmdline` still
+  names it with that port, and otherwise restarts it;
+- sets the `proxies.default` entry of `~/.docker/config.json` to the relay, with
+  the session's `NO_PROXY`, so the Docker client passes the proxy to every
+  container it runs or builds. Without a loopback agent proxy it stops the relay
+  and removes that entry.
+
 ## Decision
 
-Cloud sessions run no Docker daemon and no devcontainer (human:author). The
-session host is reclaimed after a few idle minutes and cold-boots on the next
-event with a new agent proxy port ([Cloud session host
-restarts](cloud-session-host-restarts.md)); a toolchain on the host's disk
-survives that, while a container reached through a relay to the proxy had to be
-restored before every turn. `git push` and `gh` reach GitHub through the
-session's agent proxy directly, and no `SessionStart` hook runs.
+Cloud sessions run no devcontainer (human:author). The session host is reclaimed
+after a few idle minutes and cold-boots on the next event with a new agent proxy
+port ([Cloud session host restarts](cloud-session-host-restarts.md)); a
+toolchain on the host's disk survives that, while a long-running container had
+to be restored before every turn. Short-lived containers keep working: the host
+`dockerd` and the relay come back on every session start, and a container
+reaches GitHub and package registries through the agent proxy, which listens
+only on the host's `127.0.0.1`. `git push` and `gh` on the host use the proxy
+directly.
 
 ## Constraints
 
 - Host tools and the published images come from the same `dev_tools` and
   `uv_setup` roles and the same `uv.lock`, so a hook resolves the same version
   on the host as in CI's pre-commit job.
-- Work that needs Docker — image builds, the image and lifecycle tests — does
-  not run in a cloud session; CI runs it.
+- A container lives only until the next worker restart, so nothing in a cloud
+  session depends on a long-running one.
+- The bridge subnet is fixed off `172.17.0.0/16`, where a nested engine inside a
+  container creates its own `docker0`, and the relay's fixed address keeps a
+  container's proxy valid when the agent proxy's port moves.
+- The relay exposes the agent proxy, and with it the session's GitHub access, to
+  every container on the host. The maintainer accepted that for cloud sessions.
+- The agent proxy re-terminates TLS, so a container that makes TLS requests
+  needs the host's CA bundle mounted.
 - The `link-venv` hook needs `agentdev-runtime`, which only the images ship, so
   on the host it skips and `.venv` is the project environment `uv sync` made.
 - GitHub GraphQL is refused by the session's proxy policy, so `gh` commands

@@ -4,14 +4,16 @@ The agent catalog does not live here; it ships as the `agentdev` plugin under
 [`.agents/plugins/agentdev/`](../.agents/plugins/agentdev/README.md). What remains in this directory is the
 configuration this repository keeps for itself.
 
-| Path            | Purpose                                                                                                                       |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `settings.json` | Permissions, additional directories, and enabled third-party plugins.                                                         |
-| `startup.py`    | Cloud session setup: see [Cloud session host toolchain](../docs/knowledge/data/architecture/cloud-session-host-toolchain.md). |
+| Path            | Purpose                                                                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `settings.json` | Permissions, additional directories, enabled third-party plugins, and the `SessionStart` hook.                                           |
+| `startup.py`    | Cloud session setup and resume: see [Cloud session host toolchain](../docs/knowledge/data/architecture/cloud-session-host-toolchain.md). |
 
 `startup.py` is standard-library Python, because the session host has no project environment
 until it runs. It resolves the repository root from its own location, so it runs from any
-directory. The cloud environment runs `startup.py` as its setup script.
+directory. The cloud environment runs `startup.py` as its setup script; the `SessionStart` hook in
+`settings.json` runs `startup.py resume`. Its logs are `/var/log/dockerd.log` and
+`/var/log/agent-proxy-relay.log`.
 
 `settings.json` must be strict JSON: no comments and no trailing commas. Claude
 Code rejects the file outright if it does not parse, which silently drops every
