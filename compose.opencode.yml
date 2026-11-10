@@ -43,7 +43,6 @@ services:
       GIT_COMMITTER_EMAIL:
     volumes:
       - home:/home/agent
-      - uv:/uv
       - docker:/var/lib/docker
       - workspace:/workspaces/project
       - agents-auth:/var/lib/agentdev/auth
@@ -54,7 +53,6 @@ services:
 
 volumes:
   home:
-  uv:
   docker:
   workspace:
   # Provider logins shared by every project container of one UID/GID cohort; give a

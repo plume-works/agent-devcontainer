@@ -27,7 +27,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends sudo python3 \\
 """
 MOUNTS = {
     'home': '/home/agent',
-    'uv': '/uv',
     'docker': '/var/lib/docker',
     'workspace': '/workspaces/project',
 }
@@ -141,7 +140,7 @@ def assert_ok(result: subprocess.CompletedProcess[str]) -> None:
 CHECKS = """
 id -u agent; id -g agent; id -nG agent | tr ' ' '\\n' | grep -qx docker
 su agent -c 'sudo -n true' && echo sudo-ok
-stat -c '%u:%g' /home/agent /uv /workspaces/project
+stat -c '%u:%g' /home/agent /workspaces/project
 stat -c '%u:%g %a' /var/lib/agentdev/auth /var/lib/agentdev/auth/claude
 stat -c '%u:%g %a' "${XDG_RUNTIME_DIR:-/run/user/$(id -u agent)}"
 su agent -c 'test ! -r /root'  && echo root-private
@@ -160,7 +159,6 @@ def test_creates_the_account_and_claims_fresh_instance_storage(image, volumes, u
         str(want_uid),
         str(want_gid),
         'sudo-ok',
-        owner,
         owner,
         owner,
         f'{owner} 700',

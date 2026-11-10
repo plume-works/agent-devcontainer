@@ -443,8 +443,8 @@ CLI](20261029-off-bash-migration.md)
   — `devcontainer.metadata`
 - `docker/deploy/agentdev-deploy.Dockerfile › "RUN userdel --remove ubuntu"` —
   `userdel --remove ubuntu`
-- `docker/deploy/agentdev-deploy.Dockerfile › "UV_CACHE_DIR=/uv/cache"` —
-  `UV_CACHE_DIR=/uv/cache`
+- `docker/deploy/agentdev-deploy.Dockerfile › "UV_PROJECT_ENVIRONMENT=/home/agent/.local/share/uv/venvs/project"`
+  — the deploy project venv
 - `docker/base/agentdev-base.Dockerfile › "/root/.local/bin:$PATH"` — `PATH`
   with `/root/.local/bin`
 - `docker/base/agentdev-base.Dockerfile › "WORKDIR $WORKSPACE_FOLDER"` —
@@ -479,7 +479,7 @@ CLI](20261029-off-bash-migration.md)
   `agentdev-agents-auth` mount
 - `.devcontainer/devcontainer-init.sh › "docker volume create \"$auth_volume\""`
   — the cohort auth volume
-- `compose.opencode.yml › "uv:/uv"` — `uv:/uv` mount
+- `compose.opencode.yml › "home:/home/agent"` — the deploy home volume
 - `scripts/tests/test_agent_runtime_compose.py::INSTANCE_TARGETS` —
   `INSTANCE_TARGETS`
 - `ansible/roles/bash_setup/defaults/main.yml#bash_setup_bashrc` — `.bashrc`

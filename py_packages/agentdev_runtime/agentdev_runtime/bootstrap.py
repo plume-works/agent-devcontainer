@@ -292,7 +292,6 @@ class Deploy:
         self.ensure_account()
         self.ensure_sudo()
         self.claim_instance_dir(ident.home, 'home and client configuration')
-        self.claim_instance_dir(self.settings.path('AGENTDEV_UV_DIR'), 'uv cache and environments')
         self.require_mount(self.settings.path('AGENTDEV_DOCKER_DATA_DIR'), 'nested Docker storage')
         self.validate_workspace()
         self.prepare_shared_auth()

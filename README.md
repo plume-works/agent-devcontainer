@@ -152,18 +152,17 @@ volume must use the same IDs; a container with other IDs latches failed rather t
 change the volume. A bind-mounted checkout must be writable by those IDs, and its
 ownership is never changed.
 
-| Path                     | Volume                   | Holds                                             |
-| ------------------------ | ------------------------ | ------------------------------------------------- |
-| `/workspaces/project`    | `workspace` or the bind  | The checkout                                      |
-| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring |
-| `/uv`                    | `uv`                     | uv cache, Python installs, project venv           |
-| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store      |
-| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude Code logins                         |
+| Path                     | Volume                   | Holds                                                                        |
+| ------------------------ | ------------------------ | ---------------------------------------------------------------------------- |
+| `/workspaces/project`    | `workspace` or the bind  | The checkout                                                                 |
+| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring, uv cache and project venv |
+| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store                                 |
+| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude Code logins                                                    |
 
-Back up `home`, `workspace`, and the auth volume to keep an instance's state; `uv` and
-`docker` can be rebuilt. Removing the container keeps every volume. `docker compose
+Back up `home`, `workspace`, and the auth volume to keep an instance's state; `docker`
+can be rebuilt. Removing the container keeps every volume. `docker compose
 down -v` also deletes the shared auth volume, so remove a single project's state by
-name instead, for example `docker volume rm myproject_home myproject_uv`.
+name instead, for example `docker volume rm myproject_home myproject_docker`.
 
 ### Startup and failures
 
