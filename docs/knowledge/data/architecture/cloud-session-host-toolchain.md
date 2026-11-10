@@ -96,6 +96,9 @@ directly.
   refuses, so the script sets them back to blocking before each command.
 - The `link-venv` hook needs `agentdev-runtime`, which only the images ship, so
   on the host it skips and `.venv` is the project environment `uv sync` made.
+- The session's proxy answers GitHub requests outside the session's repositories
+  with a 400 or 403, from the host and from a container alike, so only a
+  repository-scoped path shows whether a container reaches GitHub.
 - GitHub GraphQL is refused by the session's proxy policy, so `gh` commands
   built on it fail; `gh auth status` validates the token through GraphQL and
   reports it as invalid while REST calls with it succeed.

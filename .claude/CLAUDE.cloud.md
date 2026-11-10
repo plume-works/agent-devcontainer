@@ -42,7 +42,8 @@ you started.
 ## GitHub access
 
 The session's proxy refuses GitHub GraphQL, which `gh pr` and `gh issue`
-subcommands use. Call REST routes with `gh api` instead, for example
+subcommands use, and every GitHub path outside the session's repositories,
+such as `https://github.com/` or `api.github.com/zen`, with a 400 or 403. Call REST routes with `gh api` instead, for example
 `gh api repos/<owner>/<repo>/pulls/<n>` in place of `gh pr view <n>`.
 
 - A skill script that calls GraphQL fails with `GH_UNAVAILABLE`. Do its step
