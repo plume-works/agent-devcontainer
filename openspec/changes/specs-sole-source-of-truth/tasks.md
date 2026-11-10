@@ -152,7 +152,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       `README.md`: no spec or architecture type, findings added, and behavior and
       rationale sent to `openspec/specs/`. Verify that a grep for `data/spec` and
       `data/architecture` in those files prints nothing.
-- [ ] 6.5 Rewrite every code comment and docstring that cites `spec/<slug>` or
+- [x] 6.5 Rewrite every code comment and docstring that cites `spec/<slug>` or
       `architecture/<slug>` (workflows, actions, scripts, Ansible, `py_packages/`,
       `.claude/`, `.devcontainer/`, `docs/knowledge/tests/`) to
       `openspec/specs/<slug>`. Verify that
