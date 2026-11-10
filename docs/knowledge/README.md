@@ -36,8 +36,8 @@ file, so parallel pull requests rarely conflict in the graph.
 
 3. **Open the workspace in your coding agent** (Claude Code, or anything that
    reads `AGENTS.md`) and say: **"run the setup"**. The setup skill reads your
-   codebase, drafts the product doc and a starting architecture note from it,
-   asks you only what the code can't answer, and deletes the example documents.
+   codebase, drafts the product doc from it, asks you only what the code can't
+   answer, and deletes the example documents.
 
 ## How you use it
 
@@ -47,13 +47,13 @@ skill drafts from your code and you correct; greenfield, it's a short interview.
 **Every session after.** The loop is: **explore**
 (`"let's think about dark mode"` — a thinking partner that reads code and graph
 but never implements) → **plan** (`"plan dark mode"` — files a plan with
-verified code anchors and the specs it will touch) → **implement**
-(`"work on the next task"` — executes the plan task-by-task, ticking checkboxes
-as tests pass) → **verify** (`"is it ready to ship?"` — an optional standalone
-check of tasks, requirements, and scenarios against the actual code) → **ship**
-(`"ship dark mode"` — invokes that verification as a mandatory gate, then syncs
-the specs and flips stages; a release cut later builds the release page) →
-occasionally **weekly** (`"weekly digest"` — what moved, what's stuck, what's
+verified code anchors, linking the OpenSpec change when behavior changes) →
+**implement** (`"work on the next task"` — executes the plan task-by-task,
+ticking checkboxes as tests pass) → **verify** (`"is it ready to ship?"` — an
+optional standalone check of tasks, requirements, and scenarios against the
+actual code) → **ship** (`"ship dark mode"` — invokes that verification as a
+mandatory gate, then flips stages; a release cut later builds the release page)
+→ occasionally **weekly** (`"weekly digest"` — what moved, what's stuck, what's
 next). Enter and leave the loop anywhere — invoking Ship directly still runs its
 verification gate. Each step leaves the graph consistent, so the next session —
 or the next agent — picks up exactly where this one stopped.
@@ -63,7 +63,7 @@ Ask questions against the graph instead of re-reading the codebase:
 ``` bash
 iwe find --filter '{type: plan, stage: done}' -f keys               # what shipped
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys    # the build order
-iwe find --references data/spec/timer -f keys                        # what depends on this spec
+iwe find --references data/features/timer -f keys                    # what depends on this feature
 iwe retrieve -k data/plans/mvp --expand-includes 1                   # a milestone and its plans
 iwe tree -k data/features                                            # the feature landscape
 ```
@@ -77,8 +77,7 @@ data/
 ├── plans.md    plans/         # implementation plans, stage in frontmatter
 ├── features.md features/      # feature docs, proposed → implemented
 ├── bugs.md     bugs/          # symptom / repro / root cause / fix
-├── spec.md     spec/          # behavioral specs — the durable truth, synced at ship time
-├── architecture.md architecture/  # design decisions, with the rejected alternatives
+├── findings.md findings/      # measurements and investigations, open or closed
 ├── concept.md  concept/       # product vision — the tiebreaker for feature debates
 ├── releases.md releases/      # one page per cut version
 ├── backlog.md  backlog/       # prioritized next work
@@ -93,7 +92,9 @@ deleted by setup.
 
 `AGENTS.md` is the agent's operating manual. `SCHEMA.md` documents the
 frontmatter shapes. `STRUCTURE.md` explains the design decisions behind the
-layout.
+layout. Behavior and the decisions behind it are not in the graph: they live in
+the OpenSpec specs under `openspec/specs/`, each with a `## Rationale`, and
+change only through an OpenSpec change.
 
 ## Built on IWE
 
@@ -105,12 +106,9 @@ refactors it safely (`iwe rename` updates every reference), and validates it
 
 ## Acknowledgments
 
-The spec-sync-at-ship discipline, the Requirement/Scenario spec format, and the
-`ADDED` / `MODIFIED` / `REMOVED Requirements` delta notation are adapted from
-[OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven workflow. The
-notation is used inside the single plan document, without OpenSpec's change
-bundles or its programmatic delta application. The workspace shape follows its
-sibling template,
+Specs are [OpenSpec](https://github.com/Fission-AI/OpenSpec)'s own: behavior
+changes through an OpenSpec change, and archiving it updates the spec. The
+workspace shape follows its sibling template,
 [marketing-workspace](https://github.com/iwe-org/marketing-workspace).
 
 ## License

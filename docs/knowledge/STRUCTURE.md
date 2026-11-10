@@ -9,9 +9,9 @@ knowledge base a software project copies and fills.
 The structure is generalized from a production app-development knowledge base
 (hundreds of documents, maintained daily by agents) built on IWE; the template
 conventions — root docs, fill-in tracker, `*.example.md` demo set, workflow
-skills — follow its sibling, the IWE marketing workspace template. Two ideas are
-adapted from [OpenSpec](https://github.com/Fission-AI/OpenSpec) (see Influences
-below).
+skills — follow its sibling, the IWE marketing workspace template. Behavior is
+specified with [OpenSpec](https://github.com/Fission-AI/OpenSpec) itself (see
+Influences below).
 
 ## Layout
 
@@ -28,7 +28,7 @@ STRUCTURE.md       # this file: design rationale
 data/              # the graph
   index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
-  <hub>.md + <hub>/  # plans, features, bugs, spec, architecture, concept,
+  <hub>.md + <hub>/  # plans, features, bugs, findings, concept,
                      # releases, backlog, someday (+ milestone.md)
 ```
 
@@ -43,11 +43,11 @@ requests conflict on a hub only when their new members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, and backlog tasks
 are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Specs, architecture, concept, and someday docs are
-*durable reference*: they carry a `type` and the shared OKF families, but no
-`stage`, because nothing about them is a lifecycle. The split keeps the ceremony
-where it pays. Every document is validated — OKF conformance requires a `type`
-everywhere — but only work items are asked for more than that.
+(`iwe schema validate`). Findings, concept, and someday docs are *durable
+reference*: they carry a `type` and the shared OKF families, but no `stage`,
+because nothing about them is a lifecycle. The split keeps the ceremony where it
+pays. Every document is validated — OKF conformance requires a `type` everywhere
+— but only work items are asked for more than that.
 
 **Frontmatter is the only record of state.** A work item's `stage`, `priority`,
 `completed`, and `rank` live in its own document, so a stage change edits one
@@ -57,9 +57,9 @@ work is history, not a trash can.
 
 **Minimal frontmatter; relationships are links.** Five stage vocabularies, three
 date fields, and one `rank` — that's the entire frontmatter surface. Everything
-relational (plan → spec, bug → requirement, release → feature, plan → plan
-dependency) is a markdown link in the body, which keeps relationships visible
-while reading and traversable via `iwe find --references`.
+relational (plan → OpenSpec change, bug → requirement, release → feature, plan →
+plan dependency) is a markdown link in the body, which keeps relationships
+visible while reading and traversable via `iwe find --references`.
 
 **The funnel.** Ideas harden stepwise: `someday/` (no commitment) → `backlog/`
 (prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → feature
@@ -67,22 +67,14 @@ while reading and traversable via `iwe find --references`.
 change; the release cut builds the release page from the done plans no earlier
 cut took, and stamps each with `released: <version>`.
 
-**Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`)
-and says what they should end up saying; the ship skill updates those specs
-*before* the plan's stage flips. This is the single strongest defense against
-the failure mode of every long-lived doc set: specs that describe last quarter's
-behavior.
-
-**Spec impact scales with risk.** `## Spec changes` has three forms: an explicit
-`None — no behavioral change`, a linked spec plus a concise normative outcome,
-or a fenced `ADDED` / `MODIFIED` / `REMOVED Requirements` delta with complete
-post-change requirements. The delta is *intent*, not a second durable truth —
-the spec still describes released behavior until ship merges it, and verify
-therefore judges implementation against the durable spec plus the plan's intent.
-Nothing applies the delta mechanically: ship reads it, merges deliberately, and
-stops for plan revision when intent and verified behavior disagree. The point is
-a reviewable contract before implementation, bought without a second document
-lifecycle.
+**Behavior lives in OpenSpec specs, not the graph.** Every behavior is a
+requirement in exactly one `openspec/specs/<capability>/spec.md`, and the
+decision behind it, with the alternatives it rejected, is that spec's
+`## Rationale`. A behavior change is an OpenSpec change; archiving it merges the
+delta into the spec and folds the lasting design decisions into its Rationale. A
+plan carries no spec content and links the change instead. The graph keeps work
+state, findings, and the vision — one home per kind of fact, so a spec and a
+design note can never disagree about what the system does.
 
 **Milestones are plans of plans.** An aggregator plan inclusion-links its child
 plans as one flat list; their `rank` sets the build order, and dependencies stay
@@ -103,44 +95,25 @@ data, not in forked skill prompts.
 
 ## Influences: OpenSpec
 
-Adopted, in IWE-native form:
+Specs are OpenSpec's own, in `openspec/specs/`, changed through OpenSpec changes
+under `openspec/changes/` and merged by `openspec archive`. Adopted alongside,
+in IWE-native form:
 
-- **Spec sync at ship** — OpenSpec's archive step folds a change's spec deltas
-  into the canonical specs; here the ship skill does the same walk over
-  `## Spec changes`.
-- **Requirement/Scenario format** — `### Requirement:` + SHALL +
-  `#### Scenario:` WHEN/THEN, with OpenSpec's "progressive rigor" stance: scale
-  ceremony with risk, as a convention rather than a validation gate.
 - **Authoring rules** — modeled on OpenSpec's per-artifact `rules:` config,
   relocated into the product doc.
 - **Dependencies** — OpenSpec's `dependsOn` metadata becomes a `## Depends on`
   section of inline links: queryable, no new machinery.
-- **Delta headers** (`## ADDED/MODIFIED/REMOVED Requirements`) — adopted as a
-  *representation* inside the plan's `## Spec changes`, for changes whose risk
-  makes a prose summary ambiguous. What is adopted is the notation and the
-  discipline of writing complete post-change requirements before implementing;
-  what is not adopted is the parser behind it. See "deliberately not adopted"
-  below.
 - **The explore / implement / verify skills** — adapted from OpenSpec's explore
   (thinking-partner stance, never writes code), apply/continue (task-by-task
   execution with artifact discipline), and verify-change (completeness /
   correctness / coherence report) workflows, translated onto the
   single-plan-document model.
 
-Deliberately not adopted:
+Not adopted for plans:
 
-- **Archive by file move** (`changes/archive/YYYY-MM-DD-*`) — `stage: done` plus
-  graph queries gives the same lifecycle without moving files or breaking links.
-- **Per-change file bundles** (proposal/design/tasks/specs per change) — one
-  plan document with sections is leaner; when a plan genuinely outgrows one
-  file, inclusion links split it natively.
-- **The delta *application engine*** — no parser, no fixed operation order, no
-  conflict resolution rules, no executable postconditions. The headers are read
-  by an agent performing an intelligent merge, gated on a zero-CRITICAL verify
-  report; a disagreement between intent and verified behavior returns the plan
-  for revision rather than being resolved automatically. `iwe` still handles
-  renames and references, which is why there is no `RENAMED` operation — a
-  rename is an explicit removal plus an addition.
+- **Archive by file move** (`changes/archive/YYYY-MM-DD-*`) — a plan's
+  `stage: done` plus graph queries gives the same lifecycle without moving files
+  or breaking links.
 
 ## Improvements over the source KB
 

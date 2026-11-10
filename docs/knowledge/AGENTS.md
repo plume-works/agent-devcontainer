@@ -5,11 +5,14 @@ software project's memory and system of record. The division of labor:
 
 - **Code** lives in the project's own repository. Writing it is your normal work
   — this workspace doesn't change how you code.
-- **Project state** lives here, in `data/` — what the product is, how it must
-  behave (specs), how it's designed (architecture), what's planned, shipped,
-  broken, and released. Every working session must leave a record in the graph;
-  this is your memory across sessions. Never keep project state only in
-  conversation.
+- **Behavior** lives in `openspec/specs/<capability>/spec.md`: its requirements,
+  and in its `## Rationale` the decisions behind them with the alternatives they
+  rejected. It changes only through an OpenSpec change under
+  `openspec/changes/`.
+- **Project state** lives here, in `data/` — what the product is, what's
+  planned, shipped, broken, and released, and what was measured (findings).
+  Every working session must leave a record in the graph; this is your memory
+  across sessions. Never keep project state only in conversation.
 
 ## Start of every session
 
@@ -27,10 +30,10 @@ software project's memory and system of record. The division of labor:
 
 1. **Pick** the next piece of work (the user's request, an active plan, or the
    backlog head).
-2. **Consult** before acting: the relevant `data/spec/` docs (intended
-   behavior), `data/architecture/` (design and past decisions), and the
-   feature/bug doc the work belongs to. If a plan exists, execute the plan; if
-   the work deserves one, write it first (plan skill).
+2. **Consult** before acting: the relevant `openspec/specs/` specs (intended
+   behavior and the decisions behind it), `data/findings/` (what was measured),
+   and the feature/bug doc the work belongs to. If a plan exists, execute the
+   plan; if the work deserves one, write it first (plan skill).
 3. **Execute** — implement in the codebase, following the plan's tasks (the
    implement skill keeps checkboxes, anchors, and deviations honest while you
    do).
@@ -44,15 +47,15 @@ software project's memory and system of record. The division of labor:
      `data/features/<slug>.md` at `stage: proposed`, linked from
      `data/features.md`.
    - Work starts → plan skill: `data/plans/YYYYMMDD-<slug>.md` (`created`,
-     verified code anchors, and `## Spec changes` in the form the risk calls
-     for), plus a link in `data/plans.md`, and a `rank` when its place in the
-     build order is known. Each bug the plan lists in `release` moves to
-     `stage: planned`.
+     verified code anchors, and, when the work changes behavior, a link to the
+     OpenSpec change that specifies it), plus a link in `data/plans.md`, and a
+     `rank` when its place in the build order is known. Each bug the plan lists
+     in `release` moves to `stage: planned`.
    - Work ships → verify skill green (tasks, requirements, and scenarios checked
-     against the code), then ship skill: specs synced first, then `stage: done`
-     with `completed` and `rank` removed, feature doc `implemented`, bug
-     `stage: done` with a `## Fix` describing the shipped fix. No hub, release
-     page, or log entry changes.
+     against the code), then ship skill: `stage: done` with `completed` and
+     `rank` removed, feature doc `implemented`, bug `stage: done` with a
+     `## Fix` describing the shipped fix. No hub, release page, or log entry
+     changes.
    - Plan abandoned → `stage: cancelled` and `rank` removed (it stays listed —
      the record of why is worth keeping); each bug it lists returns to
      `stage: pending`.
@@ -60,11 +63,13 @@ software project's memory and system of record. The division of labor:
      Reproduction / Root cause, optional Potential solution, a `severity`) at
      `stage: pending` + link from `data/bugs.md`. Fixed in the same change →
      filed at `stage: done` with a `## Fix` describing the fix.
-   - Behavior defined or changed → the matching `data/spec/` doc
-     (Requirement/Scenario format); this happens *inside* the ship flow, not as
-     an afterthought.
-   - Design decision made → `data/architecture/<slug>.md`, including the
-     rejected alternatives.
+   - Behavior defined or changed → an OpenSpec change under `openspec/changes/`;
+     archiving it merges the delta into `openspec/specs/` and folds its lasting
+     design decisions into the spec's `## Rationale`, with the alternatives they
+     rejected.
+   - Measurement or investigation → `data/findings/<slug>.md` (`type: finding`,
+     a `## Closing` that says whether it is open) + link from
+     `data/findings.md`.
    - Vision insight → `data/concept/<slug>.md`.
    - Task finished → `stage: done` + `completed` on the task doc, `rank`
      removed.
@@ -109,7 +114,7 @@ software project's memory and system of record. The division of labor:
   features `proposed|accepted|implemented|deprecated|cancelled`; bugs
   `pending|planned|done|cancelled` (open = `pending` or `planned`); releases
   `released`; backlog `pending|done|cancelled`. Reference docs
-  (spec/architecture/concept/someday) carry a `type` and no stage.
+  (findings/concept/someday) carry a `type` and no stage.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
   Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
@@ -126,22 +131,11 @@ software project's memory and system of record. The division of labor:
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.
-- **Specs are the durable truth** and use `### Requirement:` + SHALL +
-  `#### Scenario:` WHEN/THEN. The ship skill syncs them whenever a plan ships —
-  a plan is not done while the specs it touched describe the old behavior. Scale
-  rigor with risk: low-risk behavior gets two lines, contract behavior gets full
-  scenarios.
-- **A plan states its spec impact at the fidelity the risk deserves.** The three
-  forms of `## Spec changes` are an explicit `None — no behavioral change`; a
-  linked spec plus a concise normative outcome; or a fenced `ADDED` / `MODIFIED`
-  / `REMOVED Requirements` delta carrying complete post-change requirements and
-  every surviving scenario. The plan skill owns the threshold. What a plan
-  records is *intent*: the durable spec keeps describing released behavior until
-  ship succeeds, which is why verify judges code against the durable spec plus
-  the plan's intent rather than expecting an unshipped change to already be
-  synced. The delta lives inside the one plan document — there is no change
-  bundle, no separate delta file, and no engine that applies it; ship reads it
-  and merges deliberately, and stops when intent and verified behavior disagree.
+- **Specs live in `openspec/specs/`, never in the graph.** The graph has no
+  `spec` or `architecture` type; `okf.yaml` rejects both. A plan carries no
+  requirement or scenario text: a plan whose work changes behavior links the
+  OpenSpec change that carries the delta. A graph document that depends on
+  behavior links the owning requirement rather than restating it.
 - **Code anchors**: `## Key references` lists the code a plan touches as anchors
   taken from the current checkout, never from memory — `path::symbol` in code,
   `path#heading-slug` in Markdown, `path#key.path` in YAML, JSON, and TOML,
@@ -161,8 +155,9 @@ software project's memory and system of record. The division of labor:
   - External work: the CI run or the PR that closes it, which must stand alone.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>`. One topic per file.
-- **Markdown links only, never wiki links.** References are extension-less
-  (`[Timer](spec/timer)`), relative to the containing file.
+- **Markdown links only, never wiki links.** References are relative to the
+  containing file; a link to a spec leaves the workspace
+  (`[Timer](../../../../openspec/specs/timer/spec.md)`).
 - **Example docs**: files suffixed `.example.md` demonstrate each directory's
   document shape (a fictional product; schema-validated so they can't rot).
   Ignore them when reporting real project state; the setup skill deletes them at
@@ -215,12 +210,12 @@ know:
 ## iwe CLI cheatsheet
 
 ``` bash
-iwe retrieve -k data/spec/timer                                  # read a doc
+iwe retrieve -k data/features/timer                              # read a doc
 iwe retrieve -k data/plans --expand-includes 1                   # hub + children
 iwe find --fuzzy timer -f keys                                   # fuzzy title+key match
 iwe find --lexical "session log storage" -f keys                 # full-text ranking
 iwe find --filter '{type: plan}' -f keys                         # every plan
-iwe find --references data/spec/timer -f keys                    # backlinks
+iwe find --references data/features/timer -f keys                # backlinks
 iwe find --filter '{type: plan, stage: done}' -f keys           # frontmatter query
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys   # the build order
 iwe tree -k data/plans -d 2                                      # subtree overview
@@ -239,14 +234,14 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 
 ## Workspace skills
 
-| Skill                       | What it does                                                           |
-| --------------------------- | ---------------------------------------------------------------------- |
-| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product/architecture |
-| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code     |
-| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, hub link, rank |
-| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated  |
-| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries  |
-| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it          |
-| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code  |
-| `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release cut                   |
-| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health      |
+| Skill                       | What it does                                                          |
+| --------------------------- | --------------------------------------------------------------------- |
+| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts the product doc     |
+| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code    |
+| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, OpenSpec link, hub, rank   |
+| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated |
+| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries |
+| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it         |
+| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code |
+| `/agentdev:iwe-ship`        | Closes the loop: Verify gate, stage flips, release cut                |
+| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health     |

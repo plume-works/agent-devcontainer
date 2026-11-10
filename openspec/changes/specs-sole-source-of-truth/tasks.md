@@ -148,7 +148,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       `openspec/specs/<slug>/spec.md`, finding, or guide. Verify that
       `grep -rnE '\]\([^)]*(spec|architecture)/[a-z0-9-]+\.md' docs/knowledge/data`
       prints nothing and that `iwe schema validate` passes.
-- [ ] 6.4 Update `docs/knowledge/AGENTS.md`, `SCHEMA.md`, `STRUCTURE.md`, and
+- [x] 6.4 Update `docs/knowledge/AGENTS.md`, `SCHEMA.md`, `STRUCTURE.md`, and
       `README.md`: no spec or architecture type, findings added, and behavior and
       rationale sent to `openspec/specs/`. Verify that a grep for `data/spec` and
       `data/architecture` in those files prints nothing.

@@ -86,11 +86,13 @@ release cut takes the plan's release entries from it and sets `released` to its
 version; a done plan without `released` waits for the next cut.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
-`**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
-`## Verification`, `## Out of scope`, `## Key references` (anchors, never line
-numbers). Its link in `data/plans.md` never moves. Every plan `## Depends on`
-links is a prerequisite, unless the section's text starts with `None`: then it
-has none, and any plan it links is only related.
+`**Files:**`, checkboxes), `## Depends on` (optional), `## Verification`,
+`## Out of scope`, `## Key references` (anchors, never line numbers). A plan
+carries no spec content; when its work changes behavior, `## Context` links the
+OpenSpec change under `openspec/changes/` that specifies it. Its link in
+`data/plans.md` never moves. Every plan `## Depends on` links is a prerequisite,
+unless the section's text starts with `None`: then it has none, and any plan it
+links is only related.
 
 ## Features — `data/features/<slug>.md`
 
@@ -165,12 +167,26 @@ completed: 2026-08-14 # set when done
 
 ## Reference documents — type only
 
-`data/spec/`, `data/architecture/`, `data/concept/`, and `data/someday/` docs
-carry a `type` (`spec`, `architecture`, `concept`, `someday`) and nothing else
-that is required: they are durable reference, not work items, so no `stage`
-applies. Specs use the Requirement/Scenario format (`### Requirement:` + SHALL,
-`#### Scenario:` + WHEN/THEN); architecture notes record decisions with their
-rejected alternatives.
+`data/concept/` and `data/someday/` docs carry a `type` (`concept`, `someday`)
+and nothing else that is required: they are durable reference, not work items,
+so no `stage` applies.
+
+## Findings — `data/findings/<slug>.md`
+
+`type: finding` and no `stage`. A finding records a measurement or
+investigation: what was measured, each hypothesis eliminated and what eliminated
+it, what would settle it, and a required `## Closing` section that says whether
+it is open. A decision a finding settles goes into the owning spec's
+`## Rationale`, and the finding links that spec.
+
+## Behavior lives outside the graph
+
+The graph has no `spec` or `architecture` type, and `okf.yaml` rejects both.
+Behavior is a requirement in `openspec/specs/<capability>/spec.md`, and the
+decision behind it, with the alternatives it rejected, is that spec's
+`## Rationale`. A graph document that depends on behavior links the owning
+requirement rather than restating it. Procedures are guides under
+`docs/guides/`.
 
 ## Hubs and the trackers
 
