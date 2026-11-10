@@ -293,12 +293,19 @@ before Task 5.
 ### Task 8: Migrate template consumers
 
 **Files:** Modify: the `template-consume` skill's update guidance under
-`.agents/plugins/agentdev/skills/template-consume/`,
+`.agents/plugins/agentdev/skills/template-consume/` (`SKILL.md` and
+`references/consumption-guide.md`),
 `scripts/tests/test_template_consume_migration.py`
 
-- [ ] An update from a pre-change template removes the per-directory state
+- [x] An update from a pre-change template removes the per-directory state
   mounts and `/root` paths from the consumer's descriptor and states that agent
   state and logins reset once.
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#migrating-to-the-home-volume`,
+    `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "Migrating to the home volume"`,
+    and
+    `scripts/tests/test_template_consume_migration.py::test_a_migrated_consumer_reaches_runtime_readiness`,
+    run by a host UID other than 0 and 1000
 
 ### Task 9: Accept a rebuilt Dev Container on a host-owned checkout
 
