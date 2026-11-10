@@ -8,6 +8,8 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/settings.py
 - resource: docker/deploy/runtime.env.example
+stage: done
+completed: 2026-11-10
 ---
 
 # Make same-dir the default Remote Control spawn mode
