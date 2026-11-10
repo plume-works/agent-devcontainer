@@ -7,7 +7,7 @@ sources:
 - resource: ansible/roles/agentic_tools
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
-- resource: docs/knowledge/data/spec/catalog-lifecycle.md
+- resource: openspec/specs/catalog-lifecycle/spec.md
 - resource: https://github.com/anomalyco/opencode/tree/0112a92/packages/plugin/src
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/skill/index.ts
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/command/index.ts
@@ -309,8 +309,9 @@ reports
 
 ## Spec changes
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md) — OpenCode joins both install
-requirements; the credentials requirement is unchanged:
+[Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) —
+OpenCode joins both install requirements; the credentials requirement is
+unchanged:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -388,7 +389,8 @@ image's staged copy.
   image-staged catalog in place.
 ```
 
-[OpenCode catalog bridge](../spec/opencode-catalog-bridge.md) (new) — the
+[OpenCode catalog
+bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md) (new) — the
 bridge's contract, including the permission mapping that limits subagents:
 
 ``` markdown

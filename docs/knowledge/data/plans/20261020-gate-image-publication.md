@@ -28,8 +28,9 @@ pull request builds use it as their warm-start base. Runs on `main` overlap,
 because Renovate automerges its pull requests, and a clean build installs
 unpinned OS packages that change between runs.
 
-[Image pinning](../spec/image-pinning.md) is the contract consumers rely on: a
-digest pin is only as good as the image the tag named when Renovate read it.
+[Image pinning](../../../../openspec/specs/image-pinning/spec.md) is the
+contract consumers rely on: a digest pin is only as good as the image the tag
+named when Renovate read it.
 
 ## Approach
 
@@ -135,8 +136,8 @@ sources
 
 ## Spec changes
 
-Add to [Image pinning](../spec/image-pinning.md), preserving all current
-requirements and scenarios:
+Add to [Image pinning](../../../../openspec/specs/image-pinning/spec.md),
+preserving all current requirements and scenarios:
 
 ``` markdown
 ## ADDED Requirements

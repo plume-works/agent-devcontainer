@@ -38,8 +38,8 @@ defines a single-project environment operated without Coder or a Dev Containers
 client. The image must own startup and persistent-state reconciliation rather
 than require its project to contain lifecycle scaffolding.
 
-[OpenCode web](../spec/opencode-web.md) supplies the Coder server and
-auth/session contract. [Agent auth
+[OpenCode web](../../../../openspec/specs/opencode-web/spec.md) supplies the
+Coder server and auth/session contract. [Agent auth
 persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale)
 separates shared provider logins from instance state. This work extends those
 building blocks with a dedicated image, not a new default for `agent-desktop`.
@@ -48,8 +48,8 @@ building blocks with a dedicated image, not a new default for `agent-desktop`.
 provisioning](../../../../openspec/specs/devcontainer-docker-storage/spec.md#rationale)
 assigns DinD to the Dev Containers feature. The standalone image needs its own
 supervised daemon; the existing devcontainer remains feature-managed. [Image
-pinning](../spec/image-pinning.md) applies to the new consumer examples and
-publishing flow as well.
+pinning](../../../../openspec/specs/image-pinning/spec.md) applies to the new
+consumer examples and publishing flow as well.
 
 [Make OpenCode v2 the devcontainer default](20261018-opencode-v2-default.md)
 replaces the image's OpenCode with v2 (`@opencode/cli` 2.0.32), and
@@ -1497,14 +1497,17 @@ digest
 
 ## Spec changes
 
-Create [Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md)
-with the following full contract. [OpenCode web](../spec/opencode-web.md), as
-the [OpenCode v2 plan](20261018-opencode-v2-default.md) amends it, [Devcontainer
-Git credentials](../spec/devcontainer-git-credentials.md), and [Devcontainer
-Docker storage](../spec/devcontainer-docker-storage.md) keep their
-integration-specific requirements; shared-helper extraction preserves them. The
-standalone requirements below define strict startup and injected-token behavior
-without changing Coder's tmux/failure semantics.
+Create [Standalone OpenCode
+runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md) with
+the following full contract. [OpenCode
+web](../../../../openspec/specs/opencode-web/spec.md), as the [OpenCode v2
+plan](20261018-opencode-v2-default.md) amends it, [Devcontainer Git
+credentials](../../../../openspec/specs/devcontainer-git-credentials/spec.md),
+and [Devcontainer Docker
+storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md) keep
+their integration-specific requirements; shared-helper extraction preserves
+them. The standalone requirements below define strict startup and injected-token
+behavior without changing Coder's tmux/failure semantics.
 
 ``` markdown
 ## ADDED Requirements
@@ -1734,8 +1737,9 @@ supporting explicitly trusted proxy ingress and nested Docker operation.
 - **THEN** required proxy access and nested builds work, forbidden egress remains blocked, and daemon network rules are not erased by startup ordering.
 ```
 
-Add to [Catalog lifecycle](../spec/catalog-lifecycle.md), preserving all current
-requirements and scenarios:
+Add to [Catalog
+lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md), preserving all
+current requirements and scenarios:
 
 ``` markdown
 ## ADDED Requirements
@@ -1816,8 +1820,8 @@ naming the foreign table.
 
 Tasks 31 and 32 change development tooling only: no behavioral change.
 
-Add to [Image pinning](../spec/image-pinning.md), preserving all current
-requirements and scenarios:
+Add to [Image pinning](../../../../openspec/specs/image-pinning/spec.md),
+preserving all current requirements and scenarios:
 
 ``` markdown
 ## ADDED Requirements

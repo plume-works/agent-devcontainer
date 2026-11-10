@@ -24,12 +24,13 @@ merged before that PR opened. They were caught only in review.
 
 [Never write a working logbook](20260817-no-logbooks-in-the-graph.md) changed
 the *wording* of those rules after the same failure recurred across tasks, and
-[Plans record intent, not the path taken to it](../spec/iwe-workflow-skills.md)
-made the rule normative. Neither added enforcement: the author who wrote the
-residue is the party trusted to notice it, in the same session that accumulated
-the context which buried the rule. A polluted context does not reliably audit
-itself — a writer cannot proofread their own draft cold. This plan adds the
-enforcement layer those left out.
+[Plans record intent, not the path taken to
+it](../../../../openspec/specs/iwe-workflow-skills/spec.md) made the rule
+normative. Neither added enforcement: the author who wrote the residue is the
+party trusted to notice it, in the same session that accumulated the context
+which buried the rule. A polluted context does not reliably audit itself — a
+writer cannot proofread their own draft cold. This plan adds the enforcement
+layer those left out.
 
 ## Approach
 
@@ -219,10 +220,11 @@ durable spec after Verify.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the existing requirement
-*Plans record intent, not the path taken to it* states the rule but names no
-enforcement. This change adds the enforcement mechanism as a new scenario. The
-change touches a requirement's scenario set, so it takes the fenced-delta form.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the existing requirement *Plans record intent, not the path taken to it* states
+the rule but names no enforcement. This change adds the enforcement mechanism as
+a new scenario. The change touches a requirement's scenario set, so it takes the
+fenced-delta form.
 
 ``` markdown
 ## MODIFIED Requirements

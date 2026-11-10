@@ -135,7 +135,7 @@ runs:
         show_full_output: true
         prompt: ${{ inputs.prompt }}
 
-    # The finished review takes the request: see spec/ai-review-gate. A
+    # The finished review takes the request: see openspec/specs/ai-review-gate. A
     # cancelled review keeps the label for the run that replaced it, and another
     # run may already have taken it, so a missing label is not an error.
     - name: Take the review request label

@@ -7,7 +7,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 ---
 
 # Bug: plan tasks edit spec documents that only Ship may change
@@ -68,5 +68,5 @@ that routes back to `/agentdev:iwe-plan` revise mode.
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "This rulebook implements; it doesn't ship. Status flips"`
   — "spec sync ... stay with the `/agentdev:iwe-ship` skill", with no
   instruction for a task that asks for it
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-synchronizes-durable-specs-by-intelligent-merge`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-ship-synchronizes-durable-specs-by-intelligent-merge`
   — Requirement: Ship synchronizes durable specs by intelligent merge

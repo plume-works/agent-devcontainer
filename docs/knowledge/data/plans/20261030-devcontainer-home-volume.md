@@ -230,7 +230,7 @@ before Task 5.
 
 ## Spec changes
 
-### [Catalog lifecycle](../spec/catalog-lifecycle.md)
+### [Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -332,12 +332,12 @@ share it. All other client state SHALL live on each instance's home volume.
   other's credentials.
 ```
 
-### [Claude Remote Control](../spec/claude-remote-control.md)
+### [Claude Remote Control](../../../../openspec/specs/claude-remote-control/spec.md)
 
 The verification procedure SHALL check the credential store at
 `/var/lib/agentdev/auth/claude` in place of `/root/.agents-auth/claude`.
 
-### [agentdev runtime images](../spec/agentdev-runtime-images.md)
+### [agentdev runtime images](../../../../openspec/specs/agentdev-runtime-images/spec.md)
 
 The Dev Container image SHALL run its user services, lifecycle commands, and
 editor sessions as a non-root account remapped to the host user's UID and GID,

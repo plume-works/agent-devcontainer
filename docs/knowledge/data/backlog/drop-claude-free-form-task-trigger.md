@@ -6,7 +6,7 @@ created: 2026-10-26
 description: Remove the free-form `@claude <prompt>` task responder — the comment, review, and issue mentions that dispatch a Claude task — once review re-requests move to the assignee trigger.
 sources:
 - resource: .github/workflows/ai-responder.yml
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 completed: 2026-11-07
 ---
 
@@ -20,8 +20,9 @@ Retire the free-form task path in `.github/workflows/ai-responder.yml`:
 - the `claude-task` responder job;
 - the `task` input of `workflow_dispatch`.
 
-Then update [spec/ai-review-gate](../spec/ai-review-gate.md) and the README to
-match.
+Then update
+[spec/ai-review-gate](../../../../openspec/specs/ai-review-gate/spec.md) and the
+README to match.
 
 Once `@claude review` is dropped in favour of the assignee trigger, the
 free-form task path is the only remaining reason for three pieces of the

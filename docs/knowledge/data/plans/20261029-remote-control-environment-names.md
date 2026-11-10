@@ -105,8 +105,9 @@ Assumptions recorded for minor details the rule leaves open:
 
 ## Spec changes
 
-[Claude Remote Control](../spec/claude-remote-control.md), inserted before
-"Remote Control inherits the Coder agent's environment":
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md), inserted
+before "Remote Control inherits the Coder agent's environment":
 
 ``` markdown
 ## ADDED Requirements

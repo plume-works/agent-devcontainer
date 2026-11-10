@@ -116,7 +116,8 @@ None — every design question this feature raised is settled.
   mechanically](../backlog/detect-plan-narration-growth.md).
 - No new spec document. The general rule is an authoring convention, not a
   workflow-skill contract; the workflow-skill half is recorded as a requirement
-  in [IWE workflow skills](../spec/iwe-workflow-skills.md).
+  in [IWE workflow
+  skills](../../../../openspec/specs/iwe-workflow-skills/spec.md).
 - Enforcement is a fresh context, not a louder rule. The residue survives
   because the rule is buried under the session that wrote it, so a writer cannot
   proofread their own draft cold. The gate reads the draft from an isolated

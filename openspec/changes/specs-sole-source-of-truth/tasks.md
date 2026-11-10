@@ -133,7 +133,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
 
 ## 6. Retire the KB spec and architecture types
 
-- [ ] 6.1 Delete `docs/knowledge/data/spec/`, `data/spec.md`,
+- [x] 6.1 Delete `docs/knowledge/data/spec/`, `data/spec.md`,
       `data/architecture/`, `data/architecture.md`, `.iwe/schemas/spec.yaml`, and
       `.iwe/schemas/architecture.yaml`. Remove their bindings in
       `.iwe/config.toml` and their `data/index.md` entries. Verify that
@@ -143,7 +143,7 @@ Every task verifies with `openspec validate <slug> --type spec` and
       a scratch graph under `/tmp` holding such a document and expects it to fail
       naming the document. Verify with
       `uv run pytest docs/knowledge/tests/<new test file>`.
-- [ ] 6.3 Rewrite every remaining Markdown link under `docs/knowledge/data/` that
+- [x] 6.3 Rewrite every remaining Markdown link under `docs/knowledge/data/` that
       points into the removed folders, so it points to the owning
       `openspec/specs/<slug>/spec.md`, finding, or guide. Verify that
       `grep -rnE '\]\([^)]*(spec|architecture)/[a-z0-9-]+\.md' docs/knowledge/data`

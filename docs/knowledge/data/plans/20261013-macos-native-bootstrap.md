@@ -388,7 +388,8 @@ arguments; point `HOME` at a temporary directory.
 
 ## Spec changes
 
-Creates [macOS native bootstrap](../spec/macos-native-bootstrap.md):
+Creates [macOS native
+bootstrap](../../../../openspec/specs/macos-native-bootstrap/spec.md):
 
 ``` markdown
 ## ADDED Requirements

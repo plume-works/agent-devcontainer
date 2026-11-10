@@ -14,7 +14,7 @@ sources:
 An opt-in facility inside the plugin recording what each hook decided and why,
 so a live run can be analysed afterwards. Off by default; its acceptance gate is
 that the default path stores nothing the [privacy
-rules](../spec/self-improve-learning-loop.md) forbid.
+rules](../../../../openspec/specs/self-improve-learning-loop/spec.md) forbid.
 
 The plugin currently keeps almost nothing about a review that worked as
 designed. After a decline the state directory holds a counter and a journalled

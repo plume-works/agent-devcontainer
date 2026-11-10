@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 stage: done
 severity: high
 ---
@@ -17,12 +17,13 @@ severity: high
 
 ## Symptom
 
-The [AI review gate](../spec/ai-review-gate.md) keeps passing on an existing
-review after later pushes, and leaves refreshing the review to the author.
-`pr-eval-review-needed` is the skill that makes that call, but the push paths
-that update a reviewed pull request never invoke it: `pr-sync` and `pr-open` in
-update mode end after `gh pr edit`, and `pr-merge` restarts its loop after a
-CI-fix push. Behavior no reviewer has seen can merge behind a green gate.
+The [AI review gate](../../../../openspec/specs/ai-review-gate/spec.md) keeps
+passing on an existing review after later pushes, and leaves refreshing the
+review to the author. `pr-eval-review-needed` is the skill that makes that call,
+but the push paths that update a reviewed pull request never invoke it:
+`pr-sync` and `pr-open` in update mode end after `gh pr edit`, and `pr-merge`
+restarts its loop after a CI-fix push. Behavior no reviewer has seen can merge
+behind a green gate.
 
 When a review is requested, nothing durable enforces the once-per-head-SHA rule:
 `pr-request-ai-review` states it as prose, and `pr-merge`'s AI Review Recovery

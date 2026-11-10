@@ -377,9 +377,9 @@ Modify, in this workspace and byte-identically in the scaffold:
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the Map skill and the
-push gate are retired; the spec's `description` and `sources` drop Map and
-`iwe-map`:
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the Map skill and the push gate are retired; the spec's `description` and
+`sources` drop Map and `iwe-map`:
 
 ``` markdown
 ## REMOVED Requirements
@@ -403,7 +403,7 @@ Retired: the push helper runs no map check, and the AI review has no map
 staleness to defer to CI.
 ```
 
-[IWE bootstrap](../spec/iwe-bootstrap.md):
+[IWE bootstrap](../../../../openspec/specs/iwe-bootstrap/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -420,7 +420,7 @@ pre-commit configuration.
 - **THEN** it reports `iwe-setup` as the next product-onboarding operation
 ```
 
-[Template consumption](../spec/template-consumption.md):
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

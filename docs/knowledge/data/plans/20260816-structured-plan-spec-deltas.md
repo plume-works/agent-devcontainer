@@ -9,7 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 - resource: docs/knowledge/STRUCTURE.md
 stage: done
 completed: 2026-08-16
@@ -332,8 +332,9 @@ Rejected alternatives:
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — add the risk-scaled
-plan-local contract and revise Ship and model-preservation behavior as follows:
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+add the risk-scaled plan-local contract and revise Ship and model-preservation
+behavior as follows:
 
 ``` markdown
 ## ADDED Requirements

@@ -53,7 +53,8 @@ holds it, so a writer can still merge unreviewed work with no trace in the
 branch protection record. Ruleset bypass expresses the same intent through a
 permission GitHub already audits.
 
-The contract is in [AI review gate](../spec/ai-review-gate.md).
+The contract is in [AI review
+gate](../../../../openspec/specs/ai-review-gate/spec.md).
 
 ## Key references
 

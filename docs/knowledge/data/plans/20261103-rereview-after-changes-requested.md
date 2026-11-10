@@ -6,7 +6,7 @@ release:
 description: Make pr-eval-review-needed request a re-review whenever the AI reviewer's newest verdict is CHANGES_REQUESTED, because only that reviewer's own APPROVE lifts its change request; the scope test decides whenever no AI change request is pending.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
-- resource: docs/knowledge/data/spec/ai-review-refresh.md
+- resource: openspec/specs/ai-review-refresh/spec.md
 - resource: openspec/specs/ai-review-gate/spec.md
 stage: done
 completed: 2026-11-03
@@ -35,8 +35,8 @@ The evaluation reads the AI reviewer's newest verdict before it applies the
 scope test. When that verdict is `CHANGES_REQUESTED`, it requests a re-review
 whatever the diff holds, and reports the verdict as the reason. When it is
 `APPROVED`, the scope test decides. The AI reviewer is the author the [AI review
-gate](../spec/ai-review-gate.md) accepts — `claude[bot]` or
-`github-actions[bot]` — and its newest verdict is its latest review in state
+gate](../../../../openspec/specs/ai-review-gate/spec.md) accepts — `claude[bot]`
+or `github-actions[bot]` — and its newest verdict is its latest review in state
 `APPROVED` or `CHANGES_REQUESTED`; a later `COMMENTED` review does not replace
 it, matching how GitHub keeps a reviewer's verdict.
 
@@ -86,9 +86,9 @@ approval, and it adds a review per push in that state for no gain.
 
 ## Spec changes
 
-[AI review refresh](../spec/ai-review-refresh.md) — the evaluation requirement
-gains the verdict check, and the scenario for applied feedback is limited to an
-approved pull request.
+[AI review refresh](../../../../openspec/specs/ai-review-refresh/spec.md) — the
+evaluation requirement gains the verdict check, and the scenario for applied
+feedback is limited to an approved pull request.
 
 ``` markdown
 ## MODIFIED Requirements

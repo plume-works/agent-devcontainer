@@ -397,7 +397,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 
 ## Spec changes
 
-### [agentdev runtime images](../spec/agentdev-runtime-images.md)
+### [agentdev runtime images](../../../../openspec/specs/agentdev-runtime-images/spec.md)
 
 ``` markdown
 ## ADDED Requirements
@@ -506,7 +506,7 @@ not be a prerequisite for full adoption.
 runtime resolves through the published image contract
 ```
 
-### [Image pinning](../spec/image-pinning.md)
+### [Image pinning](../../../../openspec/specs/image-pinning/spec.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -593,7 +593,7 @@ SHALL NOT rebuild or publish the image it names.
   publish/pin loop
 ```
 
-### [Catalog lifecycle](../spec/catalog-lifecycle.md)
+### [Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -691,7 +691,7 @@ NOT stop OpenCode from starting, unless strict startup is selected.
 - **THEN** every client's configuration file is byte-identical afterwards
 ```
 
-### [Devcontainer Docker storage](../spec/devcontainer-docker-storage.md)
+### [Devcontainer Docker storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md)
 
 ``` markdown
 ## ADDED Requirements
@@ -726,7 +726,7 @@ a 10 GB build-cache limit, and the supervised daemon SHALL run with it.
 - **THEN** BuildKit garbage collection reduces it to at most 10 GB
 ```
 
-### [Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md)
+### [Standalone OpenCode runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -756,7 +756,7 @@ Docker MCP gateway integration.
   starts
 ```
 
-### [Playwright browser](../spec/playwright-browser.md)
+### [Playwright browser](../../../../openspec/specs/playwright-browser/spec.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -782,7 +782,7 @@ and both runtime images SHALL inherit it.
   are present and a headless browser launch succeeds
 ```
 
-### [Template consumption](../spec/template-consumption.md)
+### [Template consumption](../../../../openspec/specs/template-consumption/spec.md)
 
 ``` markdown
 ## ADDED Requirements
@@ -832,7 +832,7 @@ code, choose dependencies, or invent CI for the consuming project's product.
 Ship also renames `agent-desktop` to `agentdev-base` and `agent-opencode` to
 `agentdev-deploy` in the descriptions, `sources`, and non-requirement prose of
 the specs above and of [Claude Remote
-Control](../spec/claude-remote-control.md).
+Control](../../../../openspec/specs/claude-remote-control/spec.md).
 
 ## Depends on
 

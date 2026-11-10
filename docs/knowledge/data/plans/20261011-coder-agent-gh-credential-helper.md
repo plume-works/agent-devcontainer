@@ -141,8 +141,9 @@ any other `data/codebase/` doc that `stale-map-docs.py` reports
 
 ## Spec changes
 
-[Devcontainer Git credentials](../spec/devcontainer-git-credentials.md): the
-helper requirement gains the Coder agent start as a second trigger.
+[Devcontainer Git
+credentials](../../../../openspec/specs/devcontainer-git-credentials/spec.md):
+the helper requirement gains the Coder agent start as a second trigger.
 
 ``` markdown
 ## MODIFIED Requirements

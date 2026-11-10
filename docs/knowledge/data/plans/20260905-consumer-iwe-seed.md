@@ -28,7 +28,8 @@ skills. The data tree from `plume-works/iwe-dev-workspace` supplies the initial
 content; subsequent maintenance and consumer setup must remain independent of
 that fork. Template consumption will install the seed and run iwe-setup followed
 by iwe-map to populate the consumer's own project memory. This extends the
-existing [template consumption contract](../spec/template-consumption.md).
+existing [template consumption
+contract](../../../../openspec/specs/template-consumption/spec.md).
 
 ## Approach
 
@@ -217,7 +218,8 @@ consumer memory.
 
 ## Spec changes
 
-Extend [Template consumption](../spec/template-consumption.md):
+Extend [Template
+consumption](../../../../openspec/specs/template-consumption/spec.md):
 
 ``` markdown
 ## ADDED Requirements

@@ -2,7 +2,7 @@
 Checks for the `released` stamp a release cut sets on each plan it takes.
 
 The cut selects done plans without `released`, so a stamp must name a real release
-and no plan older than the latest release may lack one; see spec/iwe-workflow-skills.
+and no plan older than the latest release may lack one; see openspec/specs/iwe-workflow-skills.
 """
 
 from __future__ import annotations

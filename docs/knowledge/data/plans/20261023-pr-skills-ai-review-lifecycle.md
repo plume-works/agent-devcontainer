@@ -12,7 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-discover-ai-responder/SKILL.md
 - resource: .github/workflows/ai-responder.yml
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: openspec/specs/ai-review-gate/spec.md
 stage: done
 completed: 2026-10-27
@@ -25,12 +25,13 @@ released: 2.0.0
 
 Fixes [Bug: PR updates skip the re-review
 evaluation](../bugs/pr-update-skips-review-eval.md). The [AI review
-gate](../spec/ai-review-gate.md) passes on any accepted review across later
-pushes and leaves refreshing it to the author; `pr-eval-review-needed` is the
-skill that makes that call. Only `pr-feedback-resolution` invokes it, so
-`pr-sync` — which keeps a pull request's title and body in step with what the
-branch changes, and handles no feedback — and `pr-merge`'s CI-fix pushes update
-reviewed pull requests without ever asking.
+gate](../../../../openspec/specs/ai-review-gate/spec.md) passes on any accepted
+review across later pushes and leaves refreshing it to the author;
+`pr-eval-review-needed` is the skill that makes that call. Only
+`pr-feedback-resolution` invokes it, so `pr-sync` — which keeps a pull request's
+title and body in step with what the branch changes, and handles no feedback —
+and `pr-merge`'s CI-fix pushes update reviewed pull requests without ever
+asking.
 
 Absorbs [Simplify the pr-* skills for the single review
 workflow](../backlog/simplify-pr-skills-single-review-workflow.md). Since [One
@@ -104,15 +105,16 @@ Four changes:
 `request-review.sh` takes `--pr <number>` (required), `--rationale <one line>`
 (optional; a newline in it is a `PREFLIGHT_ERROR`), and `--repo <owner/repo>`
 (optional). Accepted reviewers are the ones
-[spec/ai-review-gate](../spec/ai-review-gate.md) names — `claude[bot]` and
-`github-actions[bot]` — in state `APPROVED`, `CHANGES_REQUESTED`, or
-`COMMENTED`. A `Claude PR Review Responder` check run on the head commit counts
-as a request when it is queued or in progress, or completed with any conclusion
-other than `skipped` or `cancelled`: a `skipped` responder is the gate-only run
-that a push to a reviewed pull request starts, and doubt resolves toward
-requesting, because a duplicate costs one redundant review while a wrongly
-counted one leaves the head unreviewed. A completed responder that failed still
-counts, so a failed review is reported, not retried on the same head.
+[spec/ai-review-gate](../../../../openspec/specs/ai-review-gate/spec.md) names —
+`claude[bot]` and `github-actions[bot]` — in state `APPROVED`,
+`CHANGES_REQUESTED`, or `COMMENTED`. A `Claude PR Review Responder` check run on
+the head commit counts as a request when it is queued or in progress, or
+completed with any conclusion other than `skipped` or `cancelled`: a `skipped`
+responder is the gate-only run that a push to a reviewed pull request starts,
+and doubt resolves toward requesting, because a duplicate costs one redundant
+review while a wrongly counted one leaves the head unreviewed. A completed
+responder that failed still counts, so a failed review is reported, not retried
+on the same head.
 
 The toggle: when the author is assigned, remove them, then add them back; when
 they are not, add them, then remove them. Adding fires the event, and removing
@@ -388,7 +390,7 @@ doc `stale-map-docs.py` reports
 
 ## Spec changes
 
-[AI review refresh](../spec/ai-review-refresh.md):
+[AI review refresh](../../../../openspec/specs/ai-review-refresh/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

@@ -45,7 +45,7 @@ jobs:
   preflight:
     name: AI responder preflight
     # Only a pull_request event can start a review. Bot-authored pull requests
-    # get no automatic review, see spec/template-consumption. A label change
+    # get no automatic review, see openspec/specs/template-consumption. A label change
     # outside pr-<n> never reviews, so only the gate runs for it.
     if: |
       github.repository_owner == 'plume-works' &&
@@ -163,7 +163,7 @@ jobs:
           script: |
             const { eventName, payload } = context;
             const prNumber = process.env.PR_NUMBER;
-            // When the review job runs: see spec/ai-review-gate, "a review
+            // When the review job runs: see openspec/specs/ai-review-gate, "a review
             // runs on first push and on explicit request".
             const wantsReview = (() => {
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
@@ -171,7 +171,7 @@ jobs:
               }
               // Any run in pr-<n> takes a waiting request unless reviews are
               // blocked; a run in a label-<run id> group never does. Label
-              // lifecycle: see spec/ai-review-gate.
+              // lifecycle: see openspec/specs/ai-review-gate.
               const labelEvent = ['labeled', 'unlabeled'].includes(payload.action);
               const inPrGroup =
                 !labelEvent ||
@@ -249,7 +249,7 @@ jobs:
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
 
   # Depends on the review job so the check stays pending while a review runs.
-  # Acceptance rule: see spec/ai-review-gate.
+  # Acceptance rule: see openspec/specs/ai-review-gate.
   ai-review-present:
     name: ai-review-present
     needs:
@@ -300,7 +300,7 @@ jobs:
           github-token: ${{ github.token }}
 
   # Stands in for the AI review on trusted-bot pull requests, see
-  # spec/ai-review-gate. A Dependabot-triggered run holds a read-only token.
+  # openspec/specs/ai-review-gate. A Dependabot-triggered run holds a read-only token.
   trusted-bot-approval:
     name: Approve trusted-bot pull request
     if: |
@@ -386,7 +386,7 @@ jobs:
               (review) => review.user?.login === 'plume-works-quill[bot]' && review.state === 'APPROVED',
             );
 
-            // Approval covers only the bot's own commits, see spec/ai-review-gate.
+            // Approval covers only the bot's own commits, see openspec/specs/ai-review-gate.
             const commitFailure = (commit) => {
               if (commit.author?.login !== login) {
                 return `author is ${commit.author?.login ?? 'not a GitHub account'}`;

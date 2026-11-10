@@ -1,6 +1,6 @@
 # An allow-list: the image build context holds only the inputs the image builds read,
 # so a change anywhere else cannot reach a build step. A customized image that reads
-# another path adds it here; see spec/agentdev-runtime-images.
+# another path adds it here; see openspec/specs/agentdev-runtime-images.
 *
 !ansible.cfg
 !ansible

@@ -214,7 +214,7 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
 
 ## Spec changes
 
-Creates [update-branch](../spec/update-branch.md):
+Creates [update-branch](../../../../openspec/specs/update-branch/spec.md):
 
 ``` markdown
 ## ADDED Requirements

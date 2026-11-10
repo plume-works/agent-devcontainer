@@ -3,7 +3,7 @@
 Reject line-number references and unresolved anchors in the knowledge graph and catalog.
 
 Lists every violation as ``path:line [rule] message`` and exits 1 when there is any.
-The anchor syntax, both checks, and their scopes: see spec/line-free-anchors.
+The anchor syntax, both checks, and their scopes: see openspec/specs/line-free-anchors.
 """
 
 from __future__ import annotations

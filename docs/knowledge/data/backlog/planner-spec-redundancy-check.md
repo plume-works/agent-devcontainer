@@ -7,7 +7,7 @@ description: Make the planner check a spec delta against the rest of its spec, s
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 completed: 2026-11-09
 ---
 

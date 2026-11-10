@@ -26,7 +26,8 @@ no upstream, `base` when the upstream is the base ref, and `gone` when the
 remote branch no longer exists. The up-to-date check then compares the base
 against the synced branch.
 
-The contract is [update-branch](../spec/update-branch.md).
+The contract is
+[update-branch](../../../../openspec/specs/update-branch/spec.md).
 
 ## Edge cases
 

@@ -33,7 +33,7 @@ repos:
         types: [text]
         args: [--fix=lf]
 
-      # Work lands through pull requests; see spec/git-new-branch.
+      # Work lands through pull requests; see openspec/specs/git-new-branch.
       - id: no-commit-to-branch
         name: don't commit to branch
         entry: uv run no-commit-to-branch
@@ -94,7 +94,7 @@ repos:
         require_serial: true
 
       # Scans GITLEAKS_LOG_OPTS when set (CI), the pushed range at pre-push, and the
-      # staged change otherwise; see spec/pre-commit-gate.
+      # staged change otherwise; see openspec/specs/pre-commit-gate.
       - id: gitleaks
         name: Detect hardcoded secrets
         entry: >-
@@ -140,7 +140,7 @@ repos:
 
       # `uv run` on purpose. The agentdev images also ship a
       # `validate_agent_files` on PATH, and that is what a consuming project
-      # should call (see docs/knowledge/data/spec/template-consumption.md),
+      # should call (see openspec/specs/template-consumption),
       # but the publisher must validate against the working-tree source it is
       # editing rather than the copy frozen into the image.
       - id: validate-agent-files
@@ -160,7 +160,7 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
-      # Always runs: a code rename anywhere can break a live anchor. See spec/line-free-anchors.
+      # Always runs: a code rename anywhere can break a live anchor. See openspec/specs/line-free-anchors.
       - id: check-anchors
         name: check-anchors
         entry: uv run scripts/check-anchors.py
@@ -169,7 +169,7 @@ repos:
         pass_filenames: false
 
       # The graph never sets `status`, `generated`, or `verified`; see
-      # spec/iwe-workflow-skills.
+      # openspec/specs/iwe-workflow-skills.
       - id: banned-frontmatter-keys
         name: banned-frontmatter-keys
         entry: uv run pytest docs/knowledge/tests/test_banned_frontmatter_keys.py

@@ -9,7 +9,7 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: zizmor.yaml
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: openspec/specs/ai-review-gate/spec.md
 - resource: docs/knowledge/data/backlog/drop-claude-free-form-task-trigger.md
 stage: done
@@ -172,7 +172,7 @@ Rejected alternatives, recorded in the architecture note:
 
 ## Spec changes
 
-[AI review gate](../spec/ai-review-gate.md):
+[AI review gate](../../../../openspec/specs/ai-review-gate/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -281,12 +281,14 @@ Removed with the free-form task responder: no comment starts a run, so nothing
 is bridged to the head branch.
 ```
 
-[AI review refresh](../spec/ai-review-refresh.md) — a rationale comment starts
-no workflow run, rather than being one the bridge dispatches nothing for.
+[AI review refresh](../../../../openspec/specs/ai-review-refresh/spec.md) — a
+rationale comment starts no workflow run, rather than being one the bridge
+dispatches nothing for.
 
-[Template consumption](../spec/template-consumption.md) — the AI review gate's
-trust requirement forbids comment, issue, and `workflow_dispatch` triggers in
-place of retaining the `workflow_dispatch` bridge.
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md)
+— the AI review gate's trust requirement forbids comment, issue, and
+`workflow_dispatch` triggers in place of retaining the `workflow_dispatch`
+bridge.
 
 ## Verification
 

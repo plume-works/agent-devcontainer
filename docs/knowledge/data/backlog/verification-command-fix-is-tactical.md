@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 - resource: docs/knowledge/data/plans/20261102-autonomy-loop.md
 ---
 

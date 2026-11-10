@@ -4,7 +4,8 @@ Choose what the CI pre-commit job checks for the triggering GitHub event.
 
 Writes ``from_ref``, ``to_ref``, ``all_files``, and ``gitleaks_log_opts`` to ``GITHUB_OUTPUT``.
 A range that changes a tool-version owner checks every file, so a formatter bump fails at the
-pull request that made it; gitleaks still scans only the range's commits. See spec/pre-commit-gate.
+pull request that made it; gitleaks still scans only the range's commits.
+See openspec/specs/pre-commit-gate.
 """
 
 from __future__ import annotations

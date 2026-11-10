@@ -4,7 +4,7 @@ description: The pinned Remote Control conversation ID is written only when the 
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh
-- resource: docs/knowledge/data/spec/claude-remote-control.md
+- resource: openspec/specs/claude-remote-control/spec.md
 - resource: openspec/specs/claude-remote-control/spec.md
 - resource: https://code.claude.com/docs/en/hooks
 stage: done
@@ -15,7 +15,8 @@ severity: medium
 
 ## Symptom
 
-[Claude Remote Control](../spec/claude-remote-control.md) has the
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md) has the
 `claude-remote` pane resume the conversation stored in
 `remote-control-session-id`. Running `/clear` in the pane starts a new
 conversation in the same process, and the claude.ai/code session follows it, but

@@ -380,7 +380,7 @@ Modify: `.agents/plugins/agentdev/tests/test_git_new_branch.py`
 
 ## Spec changes
 
-[git-new-branch](../spec/git-new-branch.md) (new):
+[git-new-branch](../../../../openspec/specs/git-new-branch/spec.md) (new):
 
 ``` markdown
 ## ADDED Requirements
@@ -510,10 +510,10 @@ skill instead.
 - **THEN** the script reports `PROTECTED_BRANCH` and no commit is created
 ```
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — Implement SHALL create
-the work branch through git-new-branch, named from the plan slug, before
-executing the first task when the checkout is on `main` or `master`, and SHALL
-continue on the current branch otherwise.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+Implement SHALL create the work branch through git-new-branch, named from the
+plan slug, before executing the first task when the checkout is on `main` or
+`master`, and SHALL continue on the current branch otherwise.
 
 ## Verification
 

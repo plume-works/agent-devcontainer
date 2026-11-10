@@ -116,7 +116,8 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ## Spec changes
 
-[Pre-commit gate](../spec/pre-commit-gate.md) — a new requirement for the hook.
+[Pre-commit gate](../../../../openspec/specs/pre-commit-gate/spec.md) — a new
+requirement for the hook.
 
 ``` markdown
 ## ADDED Requirements
@@ -178,5 +179,5 @@ structure, and SHALL report every violation with `path:line`.
 - `.github/workflows/ci.yml › "run: uv run pre-commit run --all-files"` —
   pre-commit with `--all-files`
 - `scripts/tests/scratch.py` — `TMP_ROOT`, the test scratch root
-- `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
+- `openspec/specs/pre-commit-gate/spec.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
   — Requirement: CI runs the pre-commit hooks as the lint gate

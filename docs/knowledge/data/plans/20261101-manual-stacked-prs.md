@@ -506,8 +506,8 @@ Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
 
 ## Spec changes
 
-[Stacked PRs](../spec/stacked-prs.md) — its Purpose is rewritten for manual
-stacks, `pr-merge merges explicitly` is unchanged, and:
+[Stacked PRs](../../../../openspec/specs/stacked-prs/spec.md) — its Purpose is
+rewritten for manual stacks, `pr-merge merges explicitly` is unchanged, and:
 
 ``` markdown
 ## REMOVED Requirements
@@ -709,8 +709,8 @@ bypass actors, and no workflow SHALL report that check.
 - **THEN** the push is accepted
 ```
 
-[PR merge conflicts](../spec/pr-merge-conflicts.md) — its Purpose drops the
-`gh stack` path, and:
+[PR merge conflicts](../../../../openspec/specs/pr-merge-conflicts/spec.md) —
+its Purpose drops the `gh stack` path, and:
 
 ``` markdown
 ## MODIFIED Requirements

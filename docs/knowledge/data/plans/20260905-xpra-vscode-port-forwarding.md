@@ -39,7 +39,8 @@ forwarding so availability does not depend on process auto-detection.
 
 The startup script is copied into the image. Adoption must pair the new
 forwarding configuration with an image containing the updated script, following
-the existing [image pinning contract](../spec/image-pinning.md). Reopening a
+the existing [image pinning
+contract](../../../../openspec/specs/image-pinning/spec.md). Reopening a
 container on its old digest does not update `/start-xpra.sh`.
 
 ## Implementation Steps
@@ -126,8 +127,9 @@ access.
 
 ## Spec changes
 
-Create [Xpra port forwarding](../spec/xpra-port-forwarding.md) during Ship and
-include it in the spec hub. Existing specs remain unchanged. The new spec
+Create [Xpra port
+forwarding](../../../../openspec/specs/xpra-port-forwarding/spec.md) during Ship
+and include it in the spec hub. Existing specs remain unchanged. The new spec
 captures the changed default and preserved explicit-port contract:
 
 ``` markdown

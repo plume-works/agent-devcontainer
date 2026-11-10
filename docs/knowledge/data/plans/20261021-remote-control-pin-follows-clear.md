@@ -147,9 +147,10 @@ operator's terminal session.
 
 ## Spec changes
 
-[Claude Remote Control](../spec/claude-remote-control.md): the stored ID follows
-an in-process conversation change, which adds a scenario to the autostart
-requirement.
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md): the stored
+ID follows an in-process conversation change, which adds a scenario to the
+autostart requirement.
 
 ``` markdown
 ## MODIFIED Requirements

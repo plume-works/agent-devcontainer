@@ -219,8 +219,8 @@ doc the map skill reports stale
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the Verify contract
-changes, and it is a requirement's scenario set, so a delta:
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the Verify contract changes, and it is a requirement's scenario set, so a delta:
 
 ``` markdown
 ## MODIFIED Requirements

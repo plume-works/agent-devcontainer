@@ -272,9 +272,10 @@ which the session writing Tasks 1-3 cannot produce by editing files.
 
 ## Spec changes
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md) — its first requirement
-forbids exactly what this plan does. The contract-heavy form applies: the
-requirement is reversed rather than extended, and its scenario set changes.
+[Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) — its
+first requirement forbids exactly what this plan does. The contract-heavy form
+applies: the requirement is reversed rather than extended, and its scenario set
+changes.
 
 ``` markdown
 ## MODIFIED Requirements

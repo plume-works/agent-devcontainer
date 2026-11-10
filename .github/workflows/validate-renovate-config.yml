@@ -55,7 +55,7 @@ jobs:
     if: needs.paths-filter.outputs.pass == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     # The same digest as devcontainer-compose-pins.yml, so a digest bump runs this
-    # required check inside the new image. See spec/image-pinning.
+    # required check inside the new image. See openspec/specs/image-pinning.
     container:
       image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:888f2993d8636b0e1368ea55e418d9781379bd57c926b1afc2fddab0566e11fd
     timeout-minutes: 15

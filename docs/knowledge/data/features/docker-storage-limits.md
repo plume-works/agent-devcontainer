@@ -37,7 +37,7 @@ The Dev Container engine's pass is a supervised service of the image, so it runs
 wherever the image runs. The workspace engine's pass is a systemd timer.
 
 The contract is [Devcontainer Docker
-storage](../spec/devcontainer-docker-storage.md).
+storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md).
 
 ## Edge cases
 

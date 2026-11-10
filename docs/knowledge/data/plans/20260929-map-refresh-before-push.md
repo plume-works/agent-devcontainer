@@ -185,8 +185,8 @@ reports stale after Tasks 1–4
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — a new requirement beside
-"Map staleness reflects described content":
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+a new requirement beside "Map staleness reflects described content":
 
 ``` markdown
 ## ADDED Requirements

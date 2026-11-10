@@ -71,5 +71,5 @@ sibling default.
   `/workspaces/project` is a volume
 - `compose.opencode.bind.yml#services.opencode.volumes.type.target` — the bind
   variant mounts the same single path
-- [git-new-branch spec](../spec/git-new-branch.md) — the worktree-mode
-  requirement that names `/workspaces` as the parent
+- [git-new-branch spec](../../../../openspec/specs/git-new-branch/spec.md) — the
+  worktree-mode requirement that names `/workspaces` as the parent

@@ -59,8 +59,8 @@ moving tags at those digests with `imagetools create`, without rebuilding. It
 skips a tag whose current image's revision label names a descendant of the run's
 commit, so a re-run never moves a tag backwards. Primary checks runs on `main`
 queue instead of cancelling. The contract is the [Image
-pinning](../spec/image-pinning.md) requirement "published tags name only tested
-images".
+pinning](../../../../openspec/specs/image-pinning/spec.md) requirement
+"published tags name only tested images".
 
 ## Key references
 

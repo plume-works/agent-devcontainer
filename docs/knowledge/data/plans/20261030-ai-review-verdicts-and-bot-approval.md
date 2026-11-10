@@ -10,8 +10,8 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 - resource: openspec/specs/ai-review-gate/spec.md
-- resource: docs/knowledge/data/spec/ai-review-gate.md
-- resource: docs/knowledge/data/spec/template-consumption.md
+- resource: openspec/specs/ai-review-gate/spec.md
+- resource: openspec/specs/template-consumption/spec.md
 stage: done
 completed: 2026-10-31
 released: 2.0.0
@@ -372,7 +372,7 @@ Assumptions:
 
 ## Spec changes
 
-[AI review gate](../spec/ai-review-gate.md):
+[AI review gate](../../../../openspec/specs/ai-review-gate/spec.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -442,7 +442,7 @@ request that already carries its approval, and SHALL skip a run triggered by
   the workflow approves the new pull request.
 ```
 
-[Template consumption](../spec/template-consumption.md):
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

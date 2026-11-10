@@ -86,8 +86,8 @@ same step.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — Ship's Verify step
-dispatches `iwe-verifier`.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+Ship's Verify step dispatches `iwe-verifier`.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -240,7 +240,7 @@ SHALL be a CRITICAL finding.
   `## From a session`
 - `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run › "— the Shipper, already a fresh context"`
   — the "In place inside `iwe-shipper`" mode
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — Requirement: Normal shipping requires a clean independent verification
 - `openspec/specs/iwe-workflow-skills/spec.md#every-verify-run-starts-from-a-fresh-context › "already a fresh context"`
   — the Shipper's in-place route

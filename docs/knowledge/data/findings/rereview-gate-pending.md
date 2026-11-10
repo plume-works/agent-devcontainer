@@ -4,7 +4,7 @@ description: How the required ai-review-present check could read pending while a
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: openspec/specs/ai-review-gate/spec.md
 - resource: docs/knowledge/data/backlog/verify-assignee-review-automerge.md
 ---

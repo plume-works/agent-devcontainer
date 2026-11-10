@@ -24,7 +24,8 @@ declares it explicitly, so forwarding does not depend on process auto-detection.
 **VS Code picks the local port.** Developers open the Xpra HTML5 entry from the
 Ports panel.
 
-The contract is [Xpra port forwarding](../spec/xpra-port-forwarding.md).
+The contract is [Xpra port
+forwarding](../../../../openspec/specs/xpra-port-forwarding/spec.md).
 
 ## Edge cases
 

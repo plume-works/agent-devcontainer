@@ -8,7 +8,7 @@ description: Make a pull_request assignment the only way to request an AI re-rev
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: openspec/specs/ai-review-gate/spec.md
 stage: done
 completed: 2026-10-27
@@ -222,7 +222,7 @@ Rejected:
 
 ## Spec changes
 
-[AI review gate](../spec/ai-review-gate.md):
+[AI review gate](../../../../openspec/specs/ai-review-gate/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

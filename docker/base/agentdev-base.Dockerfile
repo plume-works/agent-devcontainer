@@ -16,7 +16,7 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 ARG PLAYWRIGHT_VERSION
 
 # Three provisioning steps, each bind-mounting only the inputs it reads at its context
-# path under /provision, so a change elsewhere keeps its layer; see spec/agentdev-runtime-images.
+# path under /provision, so a change elsewhere keeps its layer; see openspec/specs/agentdev-runtime-images.
 # `cd`, not WORKDIR: /provision exists only during a step. ansible.cfg's log path is read-only.
 # hadolint ignore=DL3003
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \

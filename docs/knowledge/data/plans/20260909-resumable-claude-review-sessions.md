@@ -244,7 +244,7 @@ metadata.
 
 ## Spec changes
 
-[AI review gate](../spec/ai-review-gate.md):
+[AI review gate](../../../../openspec/specs/ai-review-gate/spec.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -551,9 +551,9 @@ ruleset bypass can merge it.
   agent-file validation job
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate`
   — the review labels prerequisite
-- `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-review-runs-on-first-push-and-on-explicit-request`
+- `openspec/specs/ai-review-gate/spec.md#requirement-a-review-runs-on-first-push-and-on-explicit-request`
   — the review-request requirement;
-  `docs/knowledge/data/spec/ai-review-gate.md#requirement-a-pull-request-can-block-every-ai-review`
+  `openspec/specs/ai-review-gate/spec.md#requirement-a-pull-request-can-block-every-ai-review`
   — the block requirement
 - `docs/knowledge/data/features/ai-responder-workflows.md#behaviour › "is the author's call: adding the"`
   — review requests by label

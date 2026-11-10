@@ -72,8 +72,8 @@ JavaScript: `if:` has no case-sensitive string test, and a mention the gate
 rejects never reaches a job at all.
 
 The spec needs nothing: `A @claude mention opening a comment` in [AI review
-gate](../spec/ai-review-gate.md) never named a case, so the code was narrower
-than the behavior the spec already described.
+gate](../../../../openspec/specs/ai-review-gate/spec.md) never named a case, so
+the code was narrower than the behavior the spec already described.
 
 ## Key references
 

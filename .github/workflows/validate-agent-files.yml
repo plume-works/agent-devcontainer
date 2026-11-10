@@ -100,7 +100,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
-  # Provisions a stock macOS runner with the catalog's bootstrap; see spec/macos-native-bootstrap.
+  # Provisions a stock macOS runner with the catalog's bootstrap; see openspec/specs/macos-native-bootstrap.
   macos-bootstrap:
     name: macOS native bootstrap
     runs-on: macos-latest

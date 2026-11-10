@@ -358,10 +358,12 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-A new spec, [Line-free anchors](../spec/line-free-anchors.md), and a modified
-requirement in [IWE workflow skills](../spec/iwe-workflow-skills.md).
+A new spec, [Line-free
+anchors](../../../../openspec/specs/line-free-anchors/spec.md), and a modified
+requirement in [IWE workflow
+skills](../../../../openspec/specs/iwe-workflow-skills/spec.md).
 
-[Line-free anchors](../spec/line-free-anchors.md):
+[Line-free anchors](../../../../openspec/specs/line-free-anchors/spec.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -449,7 +451,7 @@ are not resolved.
 - **THEN** the resolver does not check it
 ```
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md):
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

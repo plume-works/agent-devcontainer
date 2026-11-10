@@ -262,7 +262,8 @@ Modify: `.agents/plugins/agentdev/README.md`
 
 ## Spec changes
 
-New spec [Stacked PRs](../spec/stacked-prs.md), linked from `data/spec.md`:
+New spec [Stacked PRs](../../../../openspec/specs/stacked-prs/spec.md), linked
+from `data/spec.md`:
 
 ``` markdown
 ## ADDED Requirements
@@ -338,7 +339,7 @@ SHALL direct the caller to `gh stack sync`.
 - **THEN** it stops without merging and names `gh stack sync`
 ```
 
-[PR merge conflicts](../spec/pr-merge-conflicts.md):
+[PR merge conflicts](../../../../openspec/specs/pr-merge-conflicts/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

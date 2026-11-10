@@ -186,9 +186,9 @@ keeps its ceilings and hard fallback unchanged.
 
 None — no behavioral change to a spec. No `data/spec/` document governs the
 responder's settings merge or how `pr-review` waits on its passes; [AI review
-gate](../spec/ai-review-gate.md) is unchanged, including its acceptance of an
-earlier review. The settings-layering constraint is recorded in the architecture
-document by Task 4.
+gate](../../../../openspec/specs/ai-review-gate/spec.md) is unchanged, including
+its acceptance of an earlier review. The settings-layering constraint is
+recorded in the architecture document by Task 4.
 
 ## Verification
 

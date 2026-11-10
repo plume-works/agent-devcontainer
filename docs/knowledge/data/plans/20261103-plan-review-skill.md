@@ -66,8 +66,8 @@ rubric in two agents would drift.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — every plan edit gets
-both reviews, and the Implement loop allows that dispatch.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+every plan edit gets both reviews, and the Implement loop allows that dispatch.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -188,7 +188,7 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
   — the revision step's Durable Knowledge Auditor gate
 - `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md › "tools: Bash, Read, Grep, Glob, Skill"`
   — `tools:`
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
   — Requirement: Implement verifies its own work and acts on the report;
-  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-record-intent-not-the-path-taken-to-it`
+  `openspec/specs/iwe-workflow-skills/spec.md#requirement-plans-record-intent-not-the-path-taken-to-it`
   — Requirement: Plans record intent, not the path taken to it

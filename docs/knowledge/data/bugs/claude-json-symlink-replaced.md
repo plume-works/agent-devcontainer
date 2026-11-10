@@ -6,7 +6,7 @@ description: Claude's saved state stops reaching the persistent volume once ~/.c
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
-- resource: docs/knowledge/data/spec/catalog-lifecycle.md
+- resource: openspec/specs/catalog-lifecycle/spec.md
 rank: 700
 ---
 
@@ -14,13 +14,14 @@ rank: 700
 
 ## Symptom
 
-[catalog-lifecycle](../spec/catalog-lifecycle.md) requires `/root/.claude.json`
-to be a symlink to `/root/.claude/claude.json` in the persistent `~/.claude`
-volume. In a running devcontainer, `/root/.claude.json` is a regular `0600`
-file, and the volume copy stopped changing hours before the live file did. Any
-state Claude writes after the link is replaced — workspace trust, MCP choices,
-Remote Control state, project history — lives only in the container layer and is
-lost when the container is recreated.
+[catalog-lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md)
+requires `/root/.claude.json` to be a symlink to `/root/.claude/claude.json` in
+the persistent `~/.claude` volume. In a running devcontainer,
+`/root/.claude.json` is a regular `0600` file, and the volume copy stopped
+changing hours before the live file did. Any state Claude writes after the link
+is replaced — workspace trust, MCP choices, Remote Control state, project
+history — lives only in the container layer and is lost when the container is
+recreated.
 
 ## Reproduction
 

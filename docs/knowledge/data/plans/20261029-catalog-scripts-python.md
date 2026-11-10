@@ -393,11 +393,11 @@ place of the `.sh` script it names today, and every requirement, `RESULT` name,
 exit code, and scenario keeps its behaviour, except the git-new-branch worktree
 requirement, whose delta is in its own entry below.
 
-- [Git new branch](../spec/git-new-branch.md) — `git-new-branch.sh`,
-  `git-commit.sh`, `git-default-branch.sh`
+- [Git new branch](../../../../openspec/specs/git-new-branch/spec.md) —
+  `git-new-branch.sh`, `git-commit.sh`, `git-default-branch.sh`
 
-- [Git new branch](../spec/git-new-branch.md) — the worktree requirement changes
-  for the standalone runtime (Task 3):
+- [Git new branch](../../../../openspec/specs/git-new-branch/spec.md) — the
+  worktree requirement changes for the standalone runtime (Task 3):
 
   ``` markdown
   ## MODIFIED Requirements
@@ -431,22 +431,28 @@ requirement, whose delta is in its own entry below.
   - **THEN** each gets its own directory
   ```
 
-- [Update branch](../spec/update-branch.md) — `update-branch.sh`
+- [Update branch](../../../../openspec/specs/update-branch/spec.md) —
+  `update-branch.sh`
 
-- [IWE bootstrap](../spec/iwe-bootstrap.md) — `bootstrap-iwe.sh`
+- [IWE bootstrap](../../../../openspec/specs/iwe-bootstrap/spec.md) —
+  `bootstrap-iwe.sh`
 
-- [IWE workflow skills](../spec/iwe-workflow-skills.md) — `close-issue.sh`,
-  `fetch-issue.sh`, `push-branch.sh`
+- [IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md)
+  — `close-issue.sh`, `fetch-issue.sh`, `push-branch.sh`
 
-- [Stacked PRs](../spec/stacked-prs.md) and [PR merge
-  conflicts](../spec/pr-merge-conflicts.md) — `stack-guard.sh`
+- [Stacked PRs](../../../../openspec/specs/stacked-prs/spec.md) and [PR merge
+  conflicts](../../../../openspec/specs/pr-merge-conflicts/spec.md) —
+  `stack-guard.sh`
 
-- [AI review refresh](../spec/ai-review-refresh.md) — `request-review.sh`
+- [AI review refresh](../../../../openspec/specs/ai-review-refresh/spec.md) —
+  `request-review.sh`
 
-- [iwe-branch-name](../spec/iwe-branch-name.md) — `git-default-branch.sh`
+- [iwe-branch-name](../../../../openspec/specs/iwe-branch-name/spec.md) —
+  `git-default-branch.sh`
 
-- [Template consumption](../spec/template-consumption.md) — `check-updates.sh`,
-  `scripts/validate-super-linter-tool-versions.sh`
+- [Template
+  consumption](../../../../openspec/specs/template-consumption/spec.md) —
+  `check-updates.sh`, `scripts/validate-super-linter-tool-versions.sh`
 
 ## Verification
 

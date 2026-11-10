@@ -135,8 +135,8 @@ a user-authored file with that prefix would be removed on reinstall.
 
 ## Spec changes
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md) — the install now writes files
-Codex reads and removes files it previously wrote:
+[Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) — the
+install now writes files Codex reads and removes files it previously wrote:
 
 ``` markdown
 ## ADDED Requirements

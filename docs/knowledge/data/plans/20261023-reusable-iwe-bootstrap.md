@@ -6,7 +6,7 @@ release:
 description: Extract a self-contained IWE bootstrap skill and make full template adoption reuse it without overwriting consumer knowledge.
 sources:
 - resource: docs/knowledge/data/features/consumer-iwe-seed.md
-- resource: docs/knowledge/data/spec/template-consumption.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/iwe-setup/SKILL.md
@@ -22,10 +22,11 @@ released: 2.0.0
 
 [Consumer IWE seed](../features/consumer-iwe-seed.md) currently initializes
 project memory only as an optional phase of full
-[`template-consume`](../spec/template-consumption.md) adoption. The seed lives
-under `templates/iwe/`, outside the installed agentdev catalog, so an agent
-working from a persistent agentdev runtime cannot initialize an unrelated
-mounted repository without also locating an agent-devcontainer source checkout.
+[`template-consume`](../../../../openspec/specs/template-consumption/spec.md)
+adoption. The seed lives under `templates/iwe/`, outside the installed agentdev
+catalog, so an agent working from a persistent agentdev runtime cannot
+initialize an unrelated mounted repository without also locating an
+agent-devcontainer source checkout.
 
 The reusable operation must work directly from the installed catalog and must
 also remain the one initializer used by full adoption. `template-consume` stays
@@ -247,7 +248,7 @@ Spec documents are not edited here: Ship merges `## Spec changes` into
 
 ## Spec changes
 
-### [IWE bootstrap](../spec/iwe-bootstrap.md)
+### [IWE bootstrap](../../../../openspec/specs/iwe-bootstrap/spec.md)
 
 ``` markdown
 ## ADDED Requirements
@@ -307,7 +308,7 @@ CI and pre-commit configuration.
   `iwe-map` as the subsequent codebase-mapping operation
 ```
 
-### [Template consumption](../spec/template-consumption.md)
+### [Template consumption](../../../../openspec/specs/template-consumption/spec.md)
 
 ``` markdown
 ## REMOVED Requirements

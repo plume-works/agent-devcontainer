@@ -128,10 +128,11 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 
 ## Spec changes
 
-[Claude Remote Control](../spec/claude-remote-control.md): the autostart
-requirement, as restated by the plan this one depends on, gains the pinned
-conversation and its fallback; its scenarios are carried over and three are
-added.
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md): the
+autostart requirement, as restated by the plan this one depends on, gains the
+pinned conversation and its fallback; its scenarios are carried over and three
+are added.
 
 ``` markdown
 ## MODIFIED Requirements

@@ -862,7 +862,7 @@ Delete: `docker/desktop/start-xpra.sh`
 
 ## Spec changes
 
-### [Firewall](../spec/firewall.md)
+### [Firewall](../../../../openspec/specs/firewall/spec.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -928,7 +928,7 @@ actually open or actually blocking required traffic.
 - **THEN** the verification step exits non-zero.
 ```
 
-### [agentdev runtime images](../spec/agentdev-runtime-images.md)
+### [agentdev runtime images](../../../../openspec/specs/agentdev-runtime-images/spec.md)
 
 Normative outcome: the stable lifecycle commands SHALL be
 `agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
@@ -1010,31 +1010,32 @@ Normative outcome for each: the specification SHALL name the `agentdev-runtime`
 subcommand in place of the script it names today, and every requirement and
 scenario keeps its behaviour.
 
-| Spec                                                                    | Today                                                                                                                                                                     | Subcommand                                                                                          |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md)   | `runtime-health.sh status`, `runtime-supervisor.py retry`                                                                                                                 | `health status`, `supervisor retry`                                                                 |
-| CBM startup integration                                                 | `codebase-memory-mcp-index.sh`, `codebase-memory-mcp-install.sh`, `codebase-memory-mcp-start.sh`, `runtime-cbm.sh`, `repair-codex-cbm-hooks-block.py`                     | `cbm index`, `cbm install`, `cbm start`, `cbm run`, the `codex_hooks` module                        |
-| [Claude Remote Control](../spec/claude-remote-control.md)               | `claude-remote-control-start.sh`, `-session.sh`, `-pin.sh`, `runtime-remote-control.sh`, `coder-agent-start.sh`, `preapprove-claude-workspace.sh`, `postCreateCommand.sh` | `remote-control start`, `session`, `pin`, `run`, `coder start`, `state create`, `lifecycle created` |
-| [Catalog lifecycle](../spec/catalog-lifecycle.md)                       | `postCreateCommand.sh`, `postAttachCommand.sh`, `reinstall-agentdev-*.sh`, `setup-agent-state.sh`, `runtime-workspace.sh`, `codebase-memory-mcp-install.sh`               | `lifecycle created`, `lifecycle attached`, `catalog install`, `state`, `workspace`, `cbm install`   |
-| [Devcontainer git credentials](../spec/devcontainer-git-credentials.md) | `coder-agent-start.sh`, `postStartCommand.sh`, `setup-gh-credential-helper.sh`                                                                                            | `coder start`, `lifecycle ready`, `git credential-helper`                                           |
-| [OpenCode web](../spec/opencode-web.md)                                 | `coder-agent-start.sh`, `opencode-web-start.sh`, `opencode-web-command.sh`                                                                                                | `coder start`, `opencode coder-start`, `opencode serve`, `opencode probe`, `opencode link`          |
-| [Devcontainer Docker storage](../spec/devcontainer-docker-storage.md)   | `coder-agent-start.sh`, `docker-image-prune.sh`                                                                                                                           | `coder start`, `docker prune`                                                                       |
-| Devcontainer Codex policy                                               | `postStartCommand.sh`, `configure-codex.py`                                                                                                                               | `lifecycle ready`, `state agent-policy`                                                             |
-| [Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md) | `postStartCommand.sh`, `configure-opencode.py`                                                                                                                            | `lifecycle ready`, `state agent-policy`                                                             |
-| [Xpra port forwarding](../spec/xpra-port-forwarding.md)                 | `start-xpra.sh`                                                                                                                                                           | `xpra`                                                                                              |
-| [Dependency updates](../spec/dependency-updates.md)                     | `scripts/renovate-post-upgrade.sh`                                                                                                                                        | `scripts/renovate-post-upgrade.py`                                                                  |
+| Spec                                                                                            | Today                                                                                                                                                                     | Subcommand                                                                                          |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [Standalone OpenCode runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md)   | `runtime-health.sh status`, `runtime-supervisor.py retry`                                                                                                                 | `health status`, `supervisor retry`                                                                 |
+| CBM startup integration                                                                         | `codebase-memory-mcp-index.sh`, `codebase-memory-mcp-install.sh`, `codebase-memory-mcp-start.sh`, `runtime-cbm.sh`, `repair-codex-cbm-hooks-block.py`                     | `cbm index`, `cbm install`, `cbm start`, `cbm run`, the `codex_hooks` module                        |
+| [Claude Remote Control](../../../../openspec/specs/claude-remote-control/spec.md)               | `claude-remote-control-start.sh`, `-session.sh`, `-pin.sh`, `runtime-remote-control.sh`, `coder-agent-start.sh`, `preapprove-claude-workspace.sh`, `postCreateCommand.sh` | `remote-control start`, `session`, `pin`, `run`, `coder start`, `state create`, `lifecycle created` |
+| [Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md)                       | `postCreateCommand.sh`, `postAttachCommand.sh`, `reinstall-agentdev-*.sh`, `setup-agent-state.sh`, `runtime-workspace.sh`, `codebase-memory-mcp-install.sh`               | `lifecycle created`, `lifecycle attached`, `catalog install`, `state`, `workspace`, `cbm install`   |
+| [Devcontainer git credentials](../../../../openspec/specs/devcontainer-git-credentials/spec.md) | `coder-agent-start.sh`, `postStartCommand.sh`, `setup-gh-credential-helper.sh`                                                                                            | `coder start`, `lifecycle ready`, `git credential-helper`                                           |
+| [OpenCode web](../../../../openspec/specs/opencode-web/spec.md)                                 | `coder-agent-start.sh`, `opencode-web-start.sh`, `opencode-web-command.sh`                                                                                                | `coder start`, `opencode coder-start`, `opencode serve`, `opencode probe`, `opencode link`          |
+| [Devcontainer Docker storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md)   | `coder-agent-start.sh`, `docker-image-prune.sh`                                                                                                                           | `coder start`, `docker prune`                                                                       |
+| Devcontainer Codex policy                                                                       | `postStartCommand.sh`, `configure-codex.py`                                                                                                                               | `lifecycle ready`, `state agent-policy`                                                             |
+| [Devcontainer OpenCode policy](../../../../openspec/specs/devcontainer-opencode-policy/spec.md) | `postStartCommand.sh`, `configure-opencode.py`                                                                                                                            | `lifecycle ready`, `state agent-policy`                                                             |
+| [Xpra port forwarding](../../../../openspec/specs/xpra-port-forwarding/spec.md)                 | `start-xpra.sh`                                                                                                                                                           | `xpra`                                                                                              |
+| [Dependency updates](../../../../openspec/specs/dependency-updates/spec.md)                     | `scripts/renovate-post-upgrade.sh`                                                                                                                                        | `scripts/renovate-post-upgrade.py`                                                                  |
 
-[Claude Remote Control](../spec/claude-remote-control.md), Task 10: the
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md), Task 10: the
 requirement "the standalone runtime starts Remote Control when a mode is set"
 gains a normative outcome. A start that returns without leaving a live
 `claude-remote` session SHALL count as the session exiting, so the runtime
 restarts it and, once the recovery budget is exhausted, reports degraded naming
 `remote-control`, or latches failed under strict startup.
 
-[Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19 — the start hook
-becomes a command, so the script requirement is removed and a command
-requirement added, and every other mention of `coder-agent-start.sh` in the spec
-names `agentdev-runtime coder start`:
+[Coder IDE baseline](../../../../openspec/specs/coder-ide-baseline/spec.md),
+Task 19 — the start hook becomes a command, so the script requirement is removed
+and a command requirement added, and every other mention of
+`coder-agent-start.sh` in the spec names `agentdev-runtime coder start`:
 
 ``` markdown
 ## REMOVED Requirements

@@ -22,8 +22,8 @@ before the move, and it exists so the graph carries the acceptance record rather
 than only the code.
 
 The durable behavior is [Self-improve learning
-loop](../spec/self-improve-learning-loop.md); the runtime decisions are
-[Self-improve
+loop](../../../../openspec/specs/self-improve-learning-loop/spec.md); the
+runtime decisions are [Self-improve
 runtime](../../../../openspec/specs/self-improve-learning-loop/spec.md#rationale).
 This plan records what was accepted and on what evidence.
 
@@ -127,8 +127,9 @@ per run, and running behind its own target — have been observed.
 ## Spec changes
 
 None by this plan. It transcribes behavior that shipped in the merge source;
-[Self-improve learning loop](../spec/self-improve-learning-loop.md) records that
-behavior as it arrived, adding, modifying, and removing no requirement.
+[Self-improve learning
+loop](../../../../openspec/specs/self-improve-learning-loop/spec.md) records
+that behavior as it arrived, adding, modifying, and removing no requirement.
 
 ## Verification
 

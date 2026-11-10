@@ -4,7 +4,7 @@ description: An evidence line that names a check command and says it passed, wit
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
-- resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
+- resource: openspec/specs/plan-checkbox-evidence/spec.md
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py
 stage: done
 severity: medium
@@ -81,8 +81,9 @@ written. The harnesses resolve it differently, from the same rulebook:
 ## Fix
 
 The maintainer decided two rules, now written in the same words in [Plan
-checkbox evidence](../spec/plan-checkbox-evidence.md), the `iwe-implementer`,
-`iwe-verifier`, and `iwe-planner` rulebooks, and the workspace operating manual:
+checkbox evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md),
+the `iwe-implementer`, `iwe-verifier`, and `iwe-planner` rulebooks, and the
+workspace operating manual:
 
 - A check and its result count as evidence only together with the commit that
   holds the change they check. A check cited on its own is residue, and Verify

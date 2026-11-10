@@ -11,8 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: openspec/specs/ai-review-gate/spec.md
-- resource: docs/knowledge/data/spec/ai-review-gate.md
-- resource: docs/knowledge/data/spec/ai-review-refresh.md
+- resource: openspec/specs/ai-review-gate/spec.md
+- resource: openspec/specs/ai-review-refresh/spec.md
 completed: 2026-11-08
 stage: done
 ---
@@ -440,7 +440,7 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[AI review gate](../spec/ai-review-gate.md):
+[AI review gate](../../../../openspec/specs/ai-review-gate/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -642,7 +642,7 @@ Removed: replaced by "a pull request can block every AI review"; the
 `[ci:skip-ai-review]` body marker and its scenarios are gone.
 ```
 
-[AI review refresh](../spec/ai-review-refresh.md):
+[AI review refresh](../../../../openspec/specs/ai-review-refresh/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

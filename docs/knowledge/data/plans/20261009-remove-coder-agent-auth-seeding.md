@@ -61,9 +61,10 @@ that `enableAllProjectMcpServers` does not reach the headless responder, whose
 `.mcp.json` names an `mcp-gateway` server that CI does not run.
 
 The spec is retired and split: [Claude Remote
-Control](../spec/claude-remote-control.md) (autostart and pre-approval) and
-[Devcontainer Git credentials](../spec/devcontainer-git-credentials.md) (Git
-identity passthrough and the `gh` credential helper), since neither half is
+Control](../../../../openspec/specs/claude-remote-control/spec.md) (autostart
+and pre-approval) and [Devcontainer Git
+credentials](../../../../openspec/specs/devcontainer-git-credentials/spec.md)
+(Git identity passthrough and the `gh` credential helper), since neither half is
 about agent auth once seeding is gone.
 
 Rejected:
@@ -209,7 +210,8 @@ Retire Devcontainer agent authentication and Claude Remote Control (`iwe delete`
 at Ship, replaced in `data/spec.md` by the two new specs). Its
 `## Setup procedure` steps 1–3 and `## Rotation and recovery` go with it; the
 `## Diagnose Login expired` section moves to [Claude Remote
-Control](../spec/claude-remote-control.md) with its seed references removed.
+Control](../../../../openspec/specs/claude-remote-control/spec.md) with its seed
+references removed.
 
 ``` markdown
 ## REMOVED Requirements
@@ -240,7 +242,8 @@ Moved unchanged to `spec/devcontainer-git-credentials`.
 Moved unchanged to `spec/devcontainer-git-credentials`.
 ```
 
-New [Claude Remote Control](../spec/claude-remote-control.md):
+New [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -311,8 +314,9 @@ both files SHALL be preserved. The CI responder SHALL set the opt-out.
   modified.
 ```
 
-New [Devcontainer Git credentials](../spec/devcontainer-git-credentials.md): the
-two requirements `Git identity reaches the nested container` and
+New [Devcontainer Git
+credentials](../../../../openspec/specs/devcontainer-git-credentials/spec.md):
+the two requirements `Git identity reaches the nested container` and
 `HTTPS git uses the gh login` carried over verbatim from the retired spec, plus
 its step-2 paragraph on supplying the `GIT_*` values through Coder.
 

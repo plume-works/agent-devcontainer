@@ -8,7 +8,7 @@ description: Give template consumption a resumable root-level progress document 
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
-- resource: docs/knowledge/data/spec/template-consumption.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: openspec/specs/template-consumption/spec.md
 ---
 
@@ -35,8 +35,8 @@ records *which* paths were customized or *why*, so every update re-derives
 consumer intent from the diff alone.
 
 This extends the [template consumption
-contract](../spec/template-consumption.md) and classifies new consumer state in
-[Template
+contract](../../../../openspec/specs/template-consumption/spec.md) and
+classifies new consumer state in [Template
 boundary](../../../../openspec/specs/template-consumption/spec.md#rationale).
 
 ## Approach
@@ -57,8 +57,8 @@ rather than two.
 Every `- [x]` carries an indented `- **Evidence:**` child. Nothing mechanically
 gates this file — the check in `docs/knowledge/tests/test_plan_checkboxes.py` is
 scoped to `docs/knowledge/data/plans/` — so the convention in [Plan checkbox
-evidence](../spec/plan-checkbox-evidence.md) is the only thing distinguishing a
-real tick from an optimistic one.
+evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md) is the only
+thing distinguishing a real tick from an optimistic one.
 
 `consumed_ref` stays in JSON and is parsed only there. `check-updates.sh`
 returns `INVALID_MARKER` on a malformed marker, giving the SHA one parse with
@@ -111,7 +111,7 @@ this way; the root file stays the live record.
     progress document before guide execution.
 - [x] Add a requirement that a ticked task in the progress document carries an
   `- **Evidence:**` child, matching [Plan checkbox
-  evidence](../spec/plan-checkbox-evidence.md).
+  evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md).
   - **Evidence:** `iwe schema validate` passed with the checkbox-evidence
     scenario in the durable specification.
 - [x] Add a requirement that the progress document is never a `tracked_paths`
@@ -296,9 +296,9 @@ this way; the root file stays the live record.
 
 ## Spec changes
 
-[Template consumption](../spec/template-consumption.md) — contract-heavy: the
-change alters what setup and update must persist, and a wrong `consumed_ref`
-fails silently.
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md)
+— contract-heavy: the change alters what setup and update must persist, and a
+wrong `consumed_ref` fails silently.
 
 ``` markdown
 ## MODIFIED Requirements

@@ -5,7 +5,7 @@ release:
 - features/agentdev-iwe-workflow-skills
 description: Plan task evidence names a check Verify can repeat — a test id or command, a file and anchor, or a CI run or PR — instead of a commit id, and a task's tick lands in the same commit as its code.
 sources:
-- resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
+- resource: openspec/specs/plan-checkbox-evidence/spec.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -188,7 +188,8 @@ The approved wording for what an evidence line names:
 
 ## Spec changes
 
-[Plan checkbox evidence](../spec/plan-checkbox-evidence.md):
+[Plan checkbox
+evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

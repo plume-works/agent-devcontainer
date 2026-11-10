@@ -137,7 +137,8 @@ the standalone runtime.
 
 ## Spec changes
 
-[Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md) — the
+[Devcontainer OpenCode
+policy](../../../../openspec/specs/devcontainer-opencode-policy/spec.md) — the
 managed values gain the nesting depth.
 
 ``` markdown
@@ -184,8 +185,9 @@ mode `0600`.
 - **THEN** the configure step fails and leaves the file unchanged.
 ```
 
-[Nested agent dispatch](../spec/nested-agent-dispatch.md) — a new spec for
-Claude Code's nesting limit in both containers.
+[Nested agent
+dispatch](../../../../openspec/specs/nested-agent-dispatch/spec.md) — a new spec
+for Claude Code's nesting limit in both containers.
 
 ``` markdown
 ## ADDED Requirements
@@ -224,8 +226,9 @@ host's value when it is set, and to `5` otherwise.
 
 - Any catalog agent gaining the `Agent` tool or dispatching another agent; the
   first is `iwe-shipper` dispatching `iwe-verifier`, in its own plan.
-- The requirement in [IWE workflow skills](../spec/iwe-workflow-skills.md) that
-  no agent the Implement loop dispatches dispatches another.
+- The requirement in [IWE workflow
+  skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) that no agent
+  the Implement loop dispatches dispatches another.
 - Raising the depth outside the devcontainer, such as on a native macOS host.
 
 ## Key references

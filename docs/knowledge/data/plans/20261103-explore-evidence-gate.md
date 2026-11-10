@@ -36,7 +36,8 @@ applies before any proposal is formed. Add a rule under `## Rules` that treats a
 risk created by Explore's own proposal as a cost of that proposal rather than a
 new thread. Narrow `Honest about unknowns` to risks the evidence shows. All
 three edits apply the wording the user approved, verbatim. The Explore
-requirement in [IWE workflow skills](../spec/iwe-workflow-skills.md) gains the
+requirement in [IWE workflow
+skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) gains the
 matching sentence and scenario.
 
 Rejected: extending the existing `Evidence before argument` interview rule. It
@@ -122,9 +123,9 @@ been written.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the Explore requirement
-gains the evidence-gate sentence and a scenario; its other five scenarios are
-unchanged.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the Explore requirement gains the evidence-gate sentence and a scenario; its
+other five scenarios are unchanged.
 
 ``` markdown
 ## MODIFIED Requirements

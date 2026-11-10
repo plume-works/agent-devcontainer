@@ -33,9 +33,11 @@ storage limits of [Docker storage limits](../features/docker-storage-limits.md):
 - Nothing removes volumes.
 
 The Dev Container engine's limits are specified in [Devcontainer Docker
-storage](../spec/devcontainer-docker-storage.md), the workspace engine's in
-[Coder IDE baseline](../spec/coder-ide-baseline.md), and the deploy image's in
-[Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md).
+storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md), the
+workspace engine's in [Coder IDE
+baseline](../../../../openspec/specs/coder-ide-baseline/spec.md), and the deploy
+image's in [Standalone OpenCode
+runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md).
 
 ## Approach
 
@@ -244,7 +246,8 @@ pass always exits 0.
 
 ## Spec changes
 
-[Devcontainer Docker storage](../spec/devcontainer-docker-storage.md):
+[Devcontainer Docker
+storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -334,7 +337,7 @@ pass SHALL always exit successfully.
 - **THEN** the runtime does not latch, and every other service keeps running.
 ```
 
-[Coder IDE baseline](../spec/coder-ide-baseline.md):
+[Coder IDE baseline](../../../../openspec/specs/coder-ide-baseline/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -363,7 +366,8 @@ failed step SHALL only warn. The template's startup script SHALL NOT prune.
   volumes are removed within an hour of qualifying, without a restart.
 ```
 
-[Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md):
+[Standalone OpenCode
+runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

@@ -12,8 +12,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/AGENTS.md
 - resource: docs/knowledge/AGENTS.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
-- resource: docs/knowledge/data/spec/template-consumption.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: openspec/specs/template-consumption/spec.md
 ---
 
@@ -32,7 +32,8 @@ descriptions have drifted from the tree.
 
 The consequence is not cosmetic. `.claude/skills/` is retained by every project
 that copies the template surface, so a consuming project silently inherits seven
-skills that [Template consumption](../spec/template-consumption.md) §7 never
+skills that [Template
+consumption](../../../../openspec/specs/template-consumption/spec.md) §7 never
 enumerates, while the catalog those skills belong to reaches consumers through a
 supported installation path they do not use. Distribution and documentation
 disagree.
@@ -283,23 +284,25 @@ session that reads it.
 
 ## Spec changes
 
-- [Template consumption](../spec/template-consumption.md) — §7 tells a consuming
-  project to "Retain `.claude/` and `.codex/`, then review them as project
-  policy" and enumerates `settings.json`, `settings.local.json`, both READMEs,
-  and the Codex bootstrap script. It never mentions `.claude/skills/`, so it
-  understates what a consumer inherits today. After this plan the enumeration
-  becomes complete as written, and the spec gains the positive statement that
-  the IWE workflow skills arrive with the installed `agentdev` catalog rather
-  than with the copied `.claude/` directory.
-- [IWE workflow skills](../spec/iwe-workflow-skills.md) — its five `sources:`
-  entries point at `.claude/skills/`. The requirements themselves are stated at
-  the role level ("The Ship skill SHALL run the report-only Verify workflow"),
-  which the rename does not disturb, so this is a provenance refresh and not a
-  requirement change.
+- [Template
+  consumption](../../../../openspec/specs/template-consumption/spec.md) — §7
+  tells a consuming project to "Retain `.claude/` and `.codex/`, then review
+  them as project policy" and enumerates `settings.json`, `settings.local.json`,
+  both READMEs, and the Codex bootstrap script. It never mentions
+  `.claude/skills/`, so it understates what a consumer inherits today. After
+  this plan the enumeration becomes complete as written, and the spec gains the
+  positive statement that the IWE workflow skills arrive with the installed
+  `agentdev` catalog rather than with the copied `.claude/` directory.
+- [IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md)
+  — its five `sources:` entries point at `.claude/skills/`. The requirements
+  themselves are stated at the role level ("The Ship skill SHALL run the
+  report-only Verify workflow"), which the rename does not disturb, so this is a
+  provenance refresh and not a requirement change.
 
-No other spec is affected. [Catalog lifecycle](../spec/catalog-lifecycle.md)
-governs how the catalog is staged and installed, and this plan changes what the
-catalog contains, not how it travels.
+No other spec is affected. [Catalog
+lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) governs how the
+catalog is staged and installed, and this plan changes what the catalog
+contains, not how it travels.
 
 ## Depends on
 

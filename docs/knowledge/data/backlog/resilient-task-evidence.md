@@ -5,7 +5,7 @@ stage: done
 priority: medium
 description: Explore a way for plan task evidence to stay traceable after rebases and squash merges, since evidence lines name commits whose ids those operations rewrite or erase.
 sources:
-- resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
+- resource: openspec/specs/plan-checkbox-evidence/spec.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 completed: 2026-11-09
@@ -13,10 +13,11 @@ completed: 2026-11-09
 
 # Make plan task evidence survive history rewrites
 
-[Plan checkbox evidence](../spec/plan-checkbox-evidence.md) makes a ticked
-task's evidence name the commit that holds its change, and Verify, and the Ship
-run that repeats it, check that the commit can be traced. Commit ids do not
-last:
+[Plan checkbox
+evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md) makes a
+ticked task's evidence name the commit that holds its change, and Verify, and
+the Ship run that repeats it, check that the commit can be traced. Commit ids do
+not last:
 
 - **Rebase** gives every rebased commit a new id. Stacked PRs rebase every layer
   above a change, so evidence written on a lower layer goes stale before the

@@ -254,13 +254,14 @@ no enforcement, or an enforced format with nothing specifying it.
 
 ## Spec changes
 
-[Plan checkbox evidence](../spec/plan-checkbox-evidence.md) — new. The contract
-the linter enforces: a ticked task carries an `**Evidence:**` line; a plan
-marked done has no unchecked tasks; closed plans are exempt from the evidence
-rule. Written at ship time, per the ship skill's spec-sync step. It also carries
-the task-atomicity, `## Verification results`, and Verify ticked-box
-requirements, since those are the same contract seen from the other three
-skills.
+[Plan checkbox
+evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md) — new. The
+contract the linter enforces: a ticked task carries an `**Evidence:**` line; a
+plan marked done has no unchecked tasks; closed plans are exempt from the
+evidence rule. Written at ship time, per the ship skill's spec-sync step. It
+also carries the task-atomicity, `## Verification results`, and Verify
+ticked-box requirements, since those are the same contract seen from the other
+three skills.
 
 ## Verification
 

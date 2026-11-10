@@ -6,7 +6,7 @@ release:
 description: Each plan checkbox names exactly one observation that closes it, and the planner's coherence check asks that of every checkbox, so an implementer can tick each observation as it arrives.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
-- resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
+- resource: openspec/specs/plan-checkbox-evidence/spec.md
 ---
 
 # One observation per plan checkbox
@@ -55,7 +55,8 @@ beyond its one question.
 
 ## Spec changes
 
-[Plan checkbox evidence](../spec/plan-checkbox-evidence.md):
+[Plan checkbox
+evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -116,5 +117,5 @@ which single observation closes it.
   — the granularity rule
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Check coherence."`
   — step 6
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-plan-tasks-are-sized-so-a-tick-can-be-honest`
+- `openspec/specs/plan-checkbox-evidence/spec.md#requirement-plan-tasks-are-sized-so-a-tick-can-be-honest`
   — the modified requirement

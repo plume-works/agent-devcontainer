@@ -4,7 +4,7 @@ stage: implemented
 description: Template consumers can resume interrupted setup and preserve settled choices across later update episodes.
 sources:
 - resource: docs/knowledge/data/plans/20260906-template-consumption-progress.md
-- resource: docs/knowledge/data/spec/template-consumption.md
+- resource: openspec/specs/template-consumption/spec.md
 - resource: openspec/specs/template-consumption/spec.md
 - resource: openspec/specs/agent-file-discovery/spec.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -52,7 +52,8 @@ None — every design question this feature raised is settled.
 
 - Plan: [Track template consumption progress and
   choices](../plans/20260906-template-consumption-progress.md)
-- Spec: [Template consumption](../spec/template-consumption.md)
+- Spec: [Template
+  consumption](../../../../openspec/specs/template-consumption/spec.md)
 - Architecture: [Template
   boundary](../../../../openspec/specs/template-consumption/spec.md#rationale)
   and [Agent metadata

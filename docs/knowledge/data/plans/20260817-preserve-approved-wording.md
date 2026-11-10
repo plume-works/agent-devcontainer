@@ -9,7 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: AGENTS.md
 - resource: docs/knowledge/AGENTS.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 stage: done
 completed: 2026-08-24
 released: 1.0.0
@@ -198,9 +198,9 @@ rather than described. Apply the blocks exactly as given.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the durable contract for
-these skills. Two existing requirements already own the behavior this work
-changes, so both are modified rather than joined by a peer:
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the durable contract for these skills. Two existing requirements already own the
+behavior this work changes, so both are modified rather than joined by a peer:
 `Requirement: Explore remains an adaptive thinking mode`
 (`docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`)
 covers capture and handoff, and

@@ -31,7 +31,8 @@ one dated group per release; nothing else writes here.
 
 - **Update**: [Explore settles open questions one at a
   time](plans/20261101-explore-interviews-open-questions.md) plan done; specs
-  synced in [IWE workflow skills](spec/iwe-workflow-skills.md); [Agentdev IWE
+  synced in [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md); [Agentdev IWE
   workflow skills](features/agentdev-iwe-workflow-skills.md) changed.
 
 ## 2026-11-01
@@ -42,7 +43,8 @@ one dated group per release; nothing else writes here.
 - **Update**: [pre-commit is the CI gate](features/pre-commit-ci-gate.md)
   implemented; [Replace Super-Linter with pre-commit in
   CI](plans/20261031-pre-commit-replaces-super-linter.md) plan done; specs
-  synced and the [pre-commit gate](spec/pre-commit-gate.md) spec created.
+  synced and the [pre-commit
+  gate](../../../openspec/specs/pre-commit-gate/spec.md) spec created.
 - **Update**: [Native macOS bootstrap](features/macos-native-bootstrap.md)
   implemented; [Bootstrap agentdev natively on macOS with
   Homebrew](plans/20261013-macos-native-bootstrap.md) plan done; specs synced.
@@ -134,8 +136,9 @@ one dated group per release; nothing else writes here.
 - **Update**: [iwe-branch-name v2: one iteration counter per
   plan](plans/20261030-iwe-branch-name-v2.md) done; merged the
   `iwe/<slug>/iter-<N>-<phase>` shape and shared counter into
-  [iwe-branch-name](spec/iwe-branch-name.md) and the start-on-main scenario of
-  [iwe-workflow-skills](spec/iwe-workflow-skills.md);
+  [iwe-branch-name](../../../openspec/specs/iwe-branch-name/spec.md) and the
+  start-on-main scenario of
+  [iwe-workflow-skills](../../../openspec/specs/iwe-workflow-skills/spec.md);
   [iwe-branch-name](features/iwe-branch-name.md) stays implemented and listed
   under Unreleased Added.
 - **Update**: refreshed the agentdev, agentdev skills, iwe-bootstrap, agentdev
@@ -161,27 +164,32 @@ one dated group per release; nothing else writes here.
 - **Update**: [Name Remote Control environments after their
   launcher](plans/20261029-remote-control-environment-names.md) done; merged the
   launcher hostname requirement into [Claude Remote
-  Control](spec/claude-remote-control.md); [Remote Control environment
-  names](features/remote-control-environment-names.md) implemented and listed
-  under Unreleased Added.
+  Control](../../../openspec/specs/claude-remote-control/spec.md); [Remote
+  Control environment names](features/remote-control-environment-names.md)
+  implemented and listed under Unreleased Added.
 - **Update**: refreshed the devcontainer, devcontainer scripts, and devcontainer
   lifecycle map docs for the launcher-derived container hostname.
 - **Update**: the launcher hostname is now derived inside
   `devcontainer-init.sh`, since a migrated consumer keeps no
   `.devcontainer/scripts/`; [Claude Remote
-  Control](spec/claude-remote-control.md) and the devcontainer map docs say so.
+  Control](../../../openspec/specs/claude-remote-control/spec.md) and the
+  devcontainer map docs say so.
 - **Update**: [Publish the reusable agentdev Dev Container
   image](plans/20261023-reusable-agentdev-devcontainer.md) done; created the
-  [agentdev runtime images](spec/agentdev-runtime-images.md) spec and merged the
-  image family into [Image pinning](spec/image-pinning.md), [Catalog
-  lifecycle](spec/catalog-lifecycle.md), [Devcontainer Docker
-  storage](spec/devcontainer-docker-storage.md), [Standalone OpenCode
-  runtime](spec/standalone-opencode-runtime.md), [Playwright
-  browser](spec/playwright-browser.md), [Template
-  consumption](spec/template-consumption.md), and [Claude Remote
-  Control](spec/claude-remote-control.md); [Reusable agentdev Dev
-  Container](features/reusable-agentdev-devcontainer.md) implemented and listed
-  under Unreleased Added.
+  [agentdev runtime
+  images](../../../openspec/specs/agentdev-runtime-images/spec.md) spec and
+  merged the image family into [Image
+  pinning](../../../openspec/specs/image-pinning/spec.md), [Catalog
+  lifecycle](../../../openspec/specs/catalog-lifecycle/spec.md), [Devcontainer
+  Docker storage](../../../openspec/specs/devcontainer-docker-storage/spec.md),
+  [Standalone OpenCode
+  runtime](../../../openspec/specs/standalone-opencode-runtime/spec.md),
+  [Playwright browser](../../../openspec/specs/playwright-browser/spec.md),
+  [Template consumption](../../../openspec/specs/template-consumption/spec.md),
+  and [Claude Remote
+  Control](../../../openspec/specs/claude-remote-control/spec.md); [Reusable
+  agentdev Dev Container](features/reusable-agentdev-devcontainer.md)
+  implemented and listed under Unreleased Added.
 
 ## 2026-10-29
 
@@ -209,28 +217,31 @@ one dated group per release; nothing else writes here.
 - **Update**: [Start Claude Remote Control in the standalone
   runtime](plans/20261027-standalone-remote-control-autostart.md) done; merged
   the standalone watcher requirement into [Claude Remote
-  Control](spec/claude-remote-control.md) and Remote Control as an optional
-  service into [Standalone OpenCode
-  runtime](spec/standalone-opencode-runtime.md); [Remote Control autostart in
-  the standalone runtime](features/standalone-remote-control-autostart.md)
-  implemented and listed under Unreleased Added.
+  Control](../../../openspec/specs/claude-remote-control/spec.md) and Remote
+  Control as an optional service into [Standalone OpenCode
+  runtime](../../../openspec/specs/standalone-opencode-runtime/spec.md); [Remote
+  Control autostart in the standalone
+  runtime](features/standalone-remote-control-autostart.md) implemented and
+  listed under Unreleased Added.
 - **Update**: [Ship a standalone OpenCode
   container](plans/20261017-standalone-opencode-container.md) done; created the
-  [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and CBM
+  [Standalone OpenCode
+  runtime](../../../openspec/specs/standalone-opencode-runtime/spec.md) and CBM
   startup integration specs and merged the standalone requirements into [Catalog
-  lifecycle](spec/catalog-lifecycle.md) and [Image
-  pinning](spec/image-pinning.md); [Standalone OpenCode
+  lifecycle](../../../openspec/specs/catalog-lifecycle/spec.md) and [Image
+  pinning](../../../openspec/specs/image-pinning/spec.md); [Standalone OpenCode
   container](features/standalone-opencode-container.md) implemented and listed
   under Unreleased Added.
 - **Update**: bug [Command-result evidence is judged
   inconsistently](bugs/command-result-evidence-ambiguous.md) records the Codex
   e2e run under the fixed rules: both plans' evidence cites the code commit and
   passes its first Verify.
-- **Update**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) now
-  counts a check only together with the commit that holds its change, and puts
-  the tick in a commit after the code rather than in the same one; bug
-  [Command-result evidence is judged
-  inconsistently](bugs/command-result-evidence-ambiguous.md) done.
+- **Update**: [Plan checkbox
+  evidence](../../../openspec/specs/plan-checkbox-evidence/spec.md) now counts a
+  check only together with the commit that holds its change, and puts the tick
+  in a commit after the code rather than in the same one; bug [Command-result
+  evidence is judged inconsistently](bugs/command-result-evidence-ambiguous.md)
+  done.
 - **Map**: re-stamped the agentdev catalog, its skills, iwe-bootstrap, and the
   knowledge workspace for the evidence rule change.
 - **Create**: [Make plan task evidence survive history
@@ -290,17 +301,17 @@ one dated group per release; nothing else writes here.
 - **Update**: [PR skills drive the AI review lifecycle on the single review
   workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
   assignee-toggle request and head-check status into the [AI review
-  refresh](spec/ai-review-refresh.md) spec; [Bug: PR updates skip the re-review
-  evaluation](bugs/pr-update-skips-review-eval.md) fixed and listed under
-  Unreleased Fixed.
+  refresh](../../../openspec/specs/ai-review-refresh/spec.md) spec; [Bug: PR
+  updates skip the re-review evaluation](bugs/pr-update-skips-review-eval.md)
+  fixed and listed under Unreleased Fixed.
 - **Update**: [Assignee-triggered AI re-reviews replace the comment
   trigger](plans/20261026-assignee-review-trigger.md) done; merged the assignee
   re-review trigger and the `@claude review` rejection into the [AI review
-  gate](spec/ai-review-gate.md) spec; [Bug: a comment-requested review's gate
-  does not count toward merge](bugs/dispatched-review-gate-not-counted.md) fixed
-  and listed under Unreleased Fixed; [AI responder
-  workflows](features/ai-responder-workflows.md) stays implemented and listed
-  under Unreleased Changed.
+  gate](../../../openspec/specs/ai-review-gate/spec.md) spec; [Bug: a
+  comment-requested review's gate does not count toward
+  merge](bugs/dispatched-review-gate-not-counted.md) fixed and listed under
+  Unreleased Fixed; [AI responder workflows](features/ai-responder-workflows.md)
+  stays implemented and listed under Unreleased Changed.
 - **Map**: re-stamped the agentdev catalog and its skills after merging `main`
   into the Implement loop branch.
 - **Map**: re-verified the agentdev catalog for the Implement loop's plan-edit
@@ -311,9 +322,9 @@ one dated group per release; nothing else writes here.
   restore-from-`HEAD` wording.
 - **Update**: [Let Implement verify, fix, and revise on its
   own](plans/20261026-autonomous-implement-loop.md) done; [IWE workflow
-  skills](spec/iwe-workflow-skills.md) now requires Implement to verify its own
-  work, act on the findings, and revise its plan only after an independent
-  evaluation.
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) now requires
+  Implement to verify its own work, act on the findings, and revise its plan
+  only after an independent evaluation.
 - **Update**: [Autonomous Implement loop](features/autonomous-implement-loop.md)
   implemented; listed under Unreleased Added.
 - **Update**: [Verification in the main
@@ -321,8 +332,9 @@ one dated group per release; nothing else writes here.
   orchestrator's Verify dispatch; already listed under Unreleased Changed.
 - **Update**: [Run Verify from a fresh
   context](plans/20261026-verify-in-fresh-context.md) done; [IWE workflow
-  skills](spec/iwe-workflow-skills.md) now requires every Verify run to start
-  from a fresh context through the `iwe-verifier` agent.
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) now requires
+  every Verify run to start from a fresh context through the `iwe-verifier`
+  agent.
 - **Update**: [Verification in the main
   loop](features/verification-in-the-main-loop.md) gained fresh-context Verify;
   listed under Unreleased Changed.
@@ -345,10 +357,10 @@ one dated group per release; nothing else writes here.
   agent and the dispatching `iwe-verify` skill.
 - **Update**: [Configurable Remote Control spawn mode, worktree by
   default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
-  spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
-  spec; [Remote Control server
-  mode](features/claude-remote-control-server-mode.md) stays implemented and
-  listed under Unreleased Added.
+  spawn mode into the [Claude Remote
+  Control](../../../openspec/specs/claude-remote-control/spec.md) spec; [Remote
+  Control server mode](features/claude-remote-control-server-mode.md) stays
+  implemented and listed under Unreleased Added.
 - **Update**: refreshed the devcontainer scripts map for the Remote Control
   spawn mode, and re-stamped devcontainer and devcontainer lifecycle.
 - **Update**: recorded [Assignee-triggered AI
@@ -368,9 +380,9 @@ one dated group per release; nothing else writes here.
   runs](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-bun-fix-misses-path-bun.md)
   fixed; listed under Unreleased Fixed.
 - **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;
-  new spec [iwe-branch-name](spec/iwe-branch-name.md), and [IWE workflow
-  skills](spec/iwe-workflow-skills.md) now names the Implement work branch
-  `impl/<slug>/iter-<N>`.
+  new spec [iwe-branch-name](../../../openspec/specs/iwe-branch-name/spec.md),
+  and [IWE workflow skills](../../../openspec/specs/iwe-workflow-skills/spec.md)
+  now names the Implement work branch `impl/<slug>/iter-<N>`.
 - **Update**: [iwe-branch-name](features/iwe-branch-name.md) implemented; listed
   under Unreleased Added.
 - **Map**: refreshed the agentdev catalog, its skills, and plugin tests for
@@ -381,14 +393,14 @@ one dated group per release; nothing else writes here.
   of a transaction interrupted at its first `OWNER` write.
 - **Update**: [Extract a reusable IWE bootstrap
   skill](plans/20261023-reusable-iwe-bootstrap.md) done; created the [IWE
-  bootstrap](spec/iwe-bootstrap.md) spec, and [Template
-  consumption](spec/template-consumption.md) now initializes knowledge through
-  the catalog-owned bootstrap.
+  bootstrap](../../../openspec/specs/iwe-bootstrap/spec.md) spec, and [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md) now
+  initializes knowledge through the catalog-owned bootstrap.
 - **Update**: [Reusable IWE bootstrap](features/consumer-iwe-seed.md) gained
   direct bootstrap; listed under Unreleased Changed.
 - **Update**: [Bundle a Playwright browser in the development
   image](plans/20261021-playwright-browser.md) done; created the [Playwright
-  browser](spec/playwright-browser.md) spec.
+  browser](../../../openspec/specs/playwright-browser/spec.md) spec.
 - **Update**: [Playwright browser in the development
   image](features/playwright-browser.md) implemented; listed under Unreleased
   Added.
@@ -440,8 +452,9 @@ one dated group per release; nothing else writes here.
   fixed; listed under Unreleased Fixed.
 - **Update**: [Opt-in Claude Remote Control server
   mode](plans/20261023-claude-remote-control-server-mode.md) done; [Claude
-  Remote Control](spec/claude-remote-control.md) now specifies opt-in server
-  mode and limits pinned-conversation resume to session mode.
+  Remote Control](../../../openspec/specs/claude-remote-control/spec.md) now
+  specifies opt-in server mode and limits pinned-conversation resume to session
+  mode.
 - **Update**: [Remote Control server
   mode](features/claude-remote-control-server-mode.md) implemented; listed under
   Unreleased Added.
@@ -474,14 +487,16 @@ one dated group per release; nothing else writes here.
   done; internal, no release entry.
 - **Update**: [Build iOS on the Mac host through a VS Code
   bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261015-vscode-expo-bridge.md)
-  done; [Template consumption](spec/template-consumption.md) now specifies that
-  an Expo consumer builds iOS on a Mac host through the bridge.
+  done; [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md) now
+  specifies that an Expo consumer builds iOS on a Mac host through the bridge.
 - **Update**: [VS Code Expo
   bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
   implemented; listed under Unreleased Added.
 - **Map**: refreshed the agentdev plugin and its skills for the Expo profile's
   silenced Metro port and `eas-host` iOS build rule.
-- **Update**: [Template consumption](spec/template-consumption.md) now limits
+- **Update**: [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md) now limits
   the bridge to Simulator builds, keeps the profile on the EAS cloud fallback,
   and has update mode reconcile the Expo profile on every run.
 
@@ -498,8 +513,8 @@ one dated group per release; nothing else writes here.
 
 - **Update**: [Mask version-only changes during a map
   refresh](plans/20261021-map-masks-version-bumps.md) done; [IWE workflow
-  skills](spec/iwe-workflow-skills.md) now specifies replay-proven masks before
-  prose refreshes.
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) now specifies
+  replay-proven masks before prose refreshes.
 - **Update**: [Map masks version-only
   changes](features/map-masks-version-bumps.md) implemented; listed under
   Unreleased Added.
@@ -510,12 +525,13 @@ one dated group per release; nothing else writes here.
   Playwright CLI and Chromium browser.
 - **Update**: [Show the full OpenCode slash-command
   invocation](plans/20261021-opencode-command-echo.md) done; [OpenCode catalog
-  bridge](spec/opencode-catalog-bridge.md) now preserves the full namespaced
-  invocation in OpenCode v2 user messages.
+  bridge](../../../openspec/specs/opencode-catalog-bridge/spec.md) now preserves
+  the full namespaced invocation in OpenCode v2 user messages.
 - **Update**: [Keep the Remote Control pin on the pane's current
   conversation](plans/20261021-remote-control-pin-follows-clear.md) done;
-  [Claude Remote Control](spec/claude-remote-control.md) now stores the pane's
-  new conversation ID on `/clear` and gains the clear-then-restart scenario.
+  [Claude Remote Control](../../../openspec/specs/claude-remote-control/spec.md)
+  now stores the pane's new conversation ID on `/clear` and gains the
+  clear-then-restart scenario.
 - **Update**: [Bug: the Remote Control pin ignores
   `/clear`](bugs/remote-control-pin-ignores-clear.md) fixed; listed under
   Unreleased.
@@ -526,8 +542,8 @@ one dated group per release; nothing else writes here.
 
 - **Update**: [Gate image publication on
   acceptance](plans/20261020-gate-image-publication.md) done; [image
-  pinning](spec/image-pinning.md) gains the requirement that published tags name
-  only tested images.
+  pinning](../../../openspec/specs/image-pinning/spec.md) gains the requirement
+  that published tags name only tested images.
 - **Update**: [Bug: CI/CD publishes images before testing
   them](bugs/ci-publishes-images-before-acceptance.md) fixed; listed under
   Unreleased.
@@ -536,10 +552,11 @@ one dated group per release; nothing else writes here.
   `promote-dev-image` job, and queued `main` runs.
 - **Update**: [Make OpenCode v2 the devcontainer
   default](plans/20261018-opencode-v2-default.md) done; specs synced for the
-  [catalog bridge](spec/opencode-catalog-bridge.md), [OpenCode
-  web](spec/opencode-web.md), workspace CBM indexing, and the [Coder IDE
-  baseline](spec/coder-ide-baseline.md); its three features stay implemented and
-  listed under Unreleased.
+  [catalog bridge](../../../openspec/specs/opencode-catalog-bridge/spec.md),
+  [OpenCode web](../../../openspec/specs/opencode-web/spec.md), workspace CBM
+  indexing, and the [Coder IDE
+  baseline](../../../openspec/specs/coder-ide-baseline/spec.md); its three
+  features stay implemented and listed under Unreleased.
 - **Update**: [Port the IWE workflow e2e suite to
   pytest](plans/20261019-iwe-workflows-e2e-pytest.md) done; internal, no release
   entry.
@@ -562,8 +579,9 @@ one dated group per release; nothing else writes here.
 
 - **Update**: [Configure devcontainer OpenCode for full
   access](plans/20261018-opencode-full-access-config.md) done; [Devcontainer
-  OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
-  full-access config](features/opencode-full-access-config.md) implemented.
+  OpenCode policy](../../../openspec/specs/devcontainer-opencode-policy/spec.md)
+  spec added; [OpenCode full-access
+  config](features/opencode-full-access-config.md) implemented.
 - **Update**: [Automatically index OpenCode workspaces in
   CBM](plans/20261018-opencode-workspace-cbm-indexing.md) done; OpenCode
   workspace CBM indexing spec added; [Automatic CBM indexing for OpenCode
@@ -578,11 +596,12 @@ one dated group per release; nothing else writes here.
   push, verbatim patch matching, and queued-layer coverage.
 - **Update**: [Autostart the OpenCode web UI on
   Coder](plans/20261016-opencode-web-coder-autostart.md) done; [OpenCode
-  web](spec/opencode-web.md) spec added, [Catalog
-  lifecycle](spec/catalog-lifecycle.md) shares OpenCode credentials, and [Coder
-  IDE baseline template](spec/coder-ide-baseline.md) offers the OpenCode app;
-  [OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
-  implemented.
+  web](../../../openspec/specs/opencode-web/spec.md) spec added, [Catalog
+  lifecycle](../../../openspec/specs/catalog-lifecycle/spec.md) shares OpenCode
+  credentials, and [Coder IDE baseline
+  template](../../../openspec/specs/coder-ide-baseline/spec.md) offers the
+  OpenCode app; [OpenCode web UI autostart on
+  Coder](features/opencode-web-coder-autostart.md) implemented.
 - **Update**: Devcontainer scaffolding, lifecycle scripts, and devcontainer
   lifecycle map docs refreshed for the OpenCode web UI autostart on Coder.
 - **Update**: Lifecycle scripts map doc refreshed for the OpenCode workspace
@@ -592,9 +611,10 @@ one dated group per release; nothing else writes here.
   lifecycle re-digested.
 - **Update**: [Guard every gh stack push against overwriting a layer's remote
   commits](plans/20261017-gh-stack-push-guard.md) done; [Stacked
-  PRs](spec/stacked-prs.md) and [PR merge conflicts](spec/pr-merge-conflicts.md)
-  now route every stack push through the gh-stack skill's guard; [Bug: gh stack
-  push overwrites a stack layer whose remote is
+  PRs](../../../openspec/specs/stacked-prs/spec.md) and [PR merge
+  conflicts](../../../openspec/specs/pr-merge-conflicts/spec.md) now route every
+  stack push through the gh-stack skill's guard; [Bug: gh stack push overwrites
+  a stack layer whose remote is
   ahead](bugs/gh-stack-push-overwrites-remote-layer.md) fixed.
 - **Add**: Stack push guard records why every stack push goes through the
   gh-stack skill's two-phase guard.
@@ -605,9 +625,9 @@ one dated group per release; nothing else writes here.
 
 - **Update**: [Declare release impact when a plan is
   written](plans/20261016-release-impact-at-plan-time.md) done; [IWE workflow
-  skills](spec/iwe-workflow-skills.md) now requires every active plan to declare
-  its release impact and Ship to apply it; [Ship's release-link rule is
-  undefined for a plan with no feature or
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) now requires
+  every active plan to declare its release impact and Ship to apply it; [Ship's
+  release-link rule is undefined for a plan with no feature or
   bug](bugs/ship-release-link-without-feature.md) fixed.
 - **Update**: Agentdev plugin, agentdev skills, Knowledge base, and IWE seed map
   docs refreshed for the plan `release` declaration.
@@ -638,9 +658,9 @@ one dated group per release; nothing else writes here.
   recorded as implemented and listed in the unreleased release.
 - **Update**: [Expo profile for template
   adoption](plans/20261014-expo-eas-template-profile.md) done; [Template
-  consumption](spec/template-consumption.md) now requires the template
-  devcontainer to pass `EXPO_TOKEN` and an Expo consumer to be prepared for EAS
-  cloud builds.
+  consumption](../../../openspec/specs/template-consumption/spec.md) now
+  requires the template devcontainer to pass `EXPO_TOKEN` and an Expo consumer
+  to be prepared for EAS cloud builds.
 - **Update**: Devcontainer scaffolding maps the `EXPO_TOKEN` passthrough in
   `containerEnv`; the devcontainer lifecycle flow, agentdev catalog, and
   agentdev skills map docs re-verified.
@@ -664,10 +684,11 @@ one dated group per release; nothing else writes here.
 
 - **Update**: [Cap Docker storage with automatic garbage
   collection](plans/20261013-docker-storage-gc.md) done; [Coder IDE baseline
-  template](spec/coder-ide-baseline.md) now bounds the workspace engine's
-  storage, and the new [Devcontainer Docker
-  storage](spec/devcontainer-docker-storage.md) spec records the Dev Container
-  engine's 10 GB build-cache limit and agent-start image prune.
+  template](../../../openspec/specs/coder-ide-baseline/spec.md) now bounds the
+  workspace engine's storage, and the new [Devcontainer Docker
+  storage](../../../openspec/specs/devcontainer-docker-storage/spec.md) spec
+  records the Dev Container engine's 10 GB build-cache limit and agent-start
+  image prune.
 - **Update**: Devcontainer lifecycle scripts and Flow: devcontainer lifecycle
   map the agent-start image prune; the ansible, devcontainer, and image-build
   map docs re-verified.
@@ -675,9 +696,9 @@ one dated group per release; nothing else writes here.
   restarts](features/claude-remote-control-resume.md) implemented.
 - **Update**: [Resume the autostarted Remote Control conversation by a pinned
   ID](plans/20261013-resume-claude-remote-control.md) done; [Claude Remote
-  Control](spec/claude-remote-control.md) now resumes its pinned conversation on
-  every start and falls back to a fresh pinned conversation when the resume
-  fails.
+  Control](../../../openspec/specs/claude-remote-control/spec.md) now resumes
+  its pinned conversation on every start and falls back to a fresh pinned
+  conversation when the resume fails.
 - **Update**: Devcontainer lifecycle scripts map refreshed for
   `claude-remote-control-session.sh`, the pinned-conversation pane script, in
   commit "map: refresh devcontainer scripts for the Remote Control session
@@ -700,25 +721,26 @@ one dated group per release; nothing else writes here.
   fixed.
 - **Update**: [Start Claude Remote Control from the Coder
   agent](plans/20261011-coder-claude-remote-control.md) done; [Claude Remote
-  Control](spec/claude-remote-control.md) now starts from the Coder template's
-  `coder_script` on a dedicated tmux server and inherits the agent's
-  environment, with the postStart autostart and `AGENTDEV_CLAUDE_AUTOSTART`
-  removed.
+  Control](../../../openspec/specs/claude-remote-control/spec.md) now starts
+  from the Coder template's `coder_script` on a dedicated tmux server and
+  inherits the agent's environment, with the postStart autostart and
+  `AGENTDEV_CLAUDE_AUTOSTART` removed.
 - **Update**: [Configure the gh credential helper from the Coder
   agent](plans/20261011-coder-agent-gh-credential-helper.md) done; [Devcontainer
-  Git credentials](spec/devcontainer-git-credentials.md) gains the Coder agent
-  start as a second helper trigger.
+  Git credentials](../../../openspec/specs/devcontainer-git-credentials/spec.md)
+  gains the Coder agent start as a second helper trigger.
 - **Bug**: [HTTPS git push hangs on Coder's askpass when gh's login is only a
   session token](bugs/coder-askpass-push-hang.md) fixed.
-- **Update**: [Coder IDE baseline template](spec/coder-ide-baseline.md) spec
-  created: the template's agent-start hook, per-workspace state volumes, and how
-  to validate and ship a template version.
+- **Update**: [Coder IDE baseline
+  template](../../../openspec/specs/coder-ide-baseline/spec.md) spec created:
+  the template's agent-start hook, per-workspace state volumes, and how to
+  validate and ship a template version.
 - **Update**: [Update branch pulls its upstream before merging the
   base](plans/20261012-update-branch-pulls-upstream.md) done. update-branch now
   fast-forwards or merges the branch's own upstream before the base; see
-  [update-branch](spec/update-branch.md).
-- **Update**: [update-branch](spec/update-branch.md) spec created with the
-  upstream-sync and conflict-rerun requirements.
+  [update-branch](../../../openspec/specs/update-branch/spec.md).
+- **Update**: [update-branch](../../../openspec/specs/update-branch/spec.md)
+  spec created with the upstream-sync and conflict-rerun requirements.
 - **Update**: Codebase map refreshed for `update-branch.sh` bringing in the
   branch's upstream before the base: three docs re-verified.
 - **Idea**: [Resume the Remote Control conversation across
@@ -748,8 +770,9 @@ one dated group per release; nothing else writes here.
   Implement now run as the `iwe-shipper` and `iwe-implementer` catalog agents,
   started only by their explicit-only entry skills, coordinators, or Plan revise
   answering a Ship blocker; see [IWE workflow
-  skills](spec/iwe-workflow-skills.md).
-- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) spec gains the
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md).
+- **Update**: [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) spec gains the
   explicit-only Ship and Implement dispatch requirement.
 - **Update**: Codebase map refreshed for the `iwe-shipper` and `iwe-implementer`
   agents and the Codex explicit-only gates: three agentdev docs re-verified.
@@ -767,8 +790,9 @@ one dated group per release; nothing else writes here.
   credential seeding is gone; Remote Control autostarts only on a live claude.ai
   login, and every container pre-approves first-run Claude state unless it opts
   out. The devcontainer agent authentication spec is retired, split into [Claude
-  Remote Control](spec/claude-remote-control.md) and [Devcontainer Git
-  credentials](spec/devcontainer-git-credentials.md).
+  Remote Control](../../../openspec/specs/claude-remote-control/spec.md) and
+  [Devcontainer Git
+  credentials](../../../openspec/specs/devcontainer-git-credentials/spec.md).
 - **Update**: Codebase map refreshed for the removal of Coder agent auth seeding
   and the Claude login gate: six docs re-verified.
 - **Update**: Refreshed nine codebase map documents for the merge of `main` into
@@ -804,7 +828,7 @@ one dated group per release; nothing else writes here.
 - **Update**: [Install the catalog agents into
   Codex](plans/20261007-codex-catalog-agents.md) done. Every Codex install now
   writes the catalog agents as generated TOML agents; see [Catalog
-  lifecycle](spec/catalog-lifecycle.md).
+  lifecycle](../../../openspec/specs/catalog-lifecycle/spec.md).
 - **Update**: [Codex never loads the agentdev catalog
   agents](bugs/codex-catalog-agents-not-loaded.md) fixed.
 - **Update**: Refreshed ten codebase map documents for the Codex catalog agent
@@ -835,15 +859,17 @@ one dated group per release; nothing else writes here.
   every PR explicitly, merge a GitHub native stack through `gh stack merge` with
   the new pr-merge-stack skill, and route stack branches through `gh stack`;
   force-pushes are limited to `gh stack` on stack branches.
-- **Update**: [Stacked PRs](spec/stacked-prs.md) spec created.
-- **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec resolves a
+- **Update**: [Stacked PRs](../../../openspec/specs/stacked-prs/spec.md) spec
+  created.
+- **Update**: [PR merge
+  conflicts](../../../openspec/specs/pr-merge-conflicts/spec.md) spec resolves a
   conflicted stacked PR with `gh stack rebase`.
 - **Update**: [Load the agentdev catalog into OpenCode through a bridge
   plugin](plans/20261001-opencode-catalog-bridge.md) done.
 - **Update**: [OpenCode as a catalog host](features/opencode-catalog-host.md)
   implemented.
-- **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
-  created.
+- **Update**: [OpenCode catalog
+  bridge](../../../openspec/specs/opencode-catalog-bridge/spec.md) spec created.
 - **Update**: Stacked pull requests architecture doc created from the stacked-PR
   spike.
 - **Update**: Refreshed the agentdev, agentdev skills, agentdev tests, Ansible,
@@ -880,14 +906,16 @@ one dated group per release; nothing else writes here.
   done. pr-feedback-resolution merges a conflicted PR's base through
   update-branch before collecting feedback, pr-merge routes conflicted PRs to
   it, and update-branch accepts a calling skill's `--base`.
-- **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec created.
+- **Update**: [PR merge
+  conflicts](../../../openspec/specs/pr-merge-conflicts/spec.md) spec created.
 - **Update**: Refreshed the agentdev and agentdev skills codebase maps after the
   pr-merge, pr-feedback-resolution, and update-branch skill edits.
 - **Update**: [Refresh the codebase map before pushing and keep its staleness
   out of AI reviews](plans/20260929-map-refresh-before-push.md) done.
   `push-branch.sh` refuses to push a stale codebase map, the pull request skills
   push through it, and the AI review leaves map staleness to CI.
-- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained an agent
+- **Update**: [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) gained an agent
   push carrying a fresh codebase map.
 - **Update**: [Fresh codebase map on push](features/fresh-map-on-push.md)
   implemented.
@@ -917,17 +945,19 @@ one dated group per release; nothing else writes here.
   `renovate.yml` inside the pinned agent-desktop image as a GitHub App, and one
   post-upgrade script refreshes checksums, the devcontainer lock, and pre-commit
   output in the bump's own commit.
-- **Update**: [Dependency updates](spec/dependency-updates.md) spec created, and
-  [Image pinning](spec/image-pinning.md) gained the shared workflow container
-  pin requirement.
+- **Update**: [Dependency
+  updates](../../../openspec/specs/dependency-updates/spec.md) spec created, and
+  [Image pinning](../../../openspec/specs/image-pinning/spec.md) gained the
+  shared workflow container pin requirement.
 - **Update**: [Renovate maintains checksum-carrying
   pins](features/renovate-maintains-checksums.md) implemented.
 - **Update**: [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
   done. `/agentdev:git-new-branch` starts work branches at the fetched remote
   base with their own upstream, and git-commit refuses the default branch.
-- **Update**: [git-new-branch](spec/git-new-branch.md) spec created, and [IWE
-  workflow skills](spec/iwe-workflow-skills.md) gained Implement starting on its
-  own branch.
+- **Update**: [git-new-branch](../../../openspec/specs/git-new-branch/spec.md)
+  spec created, and [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) gained Implement
+  starting on its own branch.
 - **Update**: [git-new-branch](features/git-new-branch.md) implemented.
 - **Update**: Refreshed the five codebase-map docs the git-new-branch and
   git-commit scripts, the default-branch helper, and their tests moved.
@@ -952,7 +982,8 @@ one dated group per release; nothing else writes here.
   done. `/agentdev:iwe-capture` is the single writer of bug, proposed-feature,
   and backlog-task documents, and the bug and feature schemas now enforce the
   `SCHEMA.md` body shape.
-- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained the
+- **Update**: [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) gained the
   Capture and document-shape requirements.
 - **Update**: [Agentdev IWE workflow
   skills](features/agentdev-iwe-workflow-skills.md) changed — it now includes
@@ -1178,7 +1209,7 @@ one dated group per release; nothing else writes here.
   consumption](features/resumable-template-consumption.md) implemented and
   recorded in [1.0.0](releases/1.0.0.md), with the two-record ownership,
   migration, resume, and IWE-summary contract synced into [Template
-  consumption](spec/template-consumption.md).
+  consumption](../../../openspec/specs/template-consumption/spec.md).
 - **Map**: refreshed the agentdev catalog, bin, skills, tests, pull-request
   checks, GitHub automation, workflows, and consumer seed against their current
   sources; all codebase-map digests match the checkout.
@@ -1198,10 +1229,12 @@ one dated group per release; nothing else writes here.
 - **Creation**: [Consumer IWE seed](features/consumer-iwe-seed.md) implemented
   and recorded in [1.0.0](releases/1.0.0.md). The reusable seed is maintained in
   this repository, validated in an isolated consumer layout, and specified in
-  [Template consumption](spec/template-consumption.md).
-- **Update**: [Template consumption](spec/template-consumption.md) now requires
-  a repository-owned seed, ordered setup and mapping for fresh adoption, and
-  preservation of consumer-authored knowledge during adoption and updates.
+  [Template consumption](../../../openspec/specs/template-consumption/spec.md).
+- **Update**: [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md) now
+  requires a repository-owned seed, ordered setup and mapping for fresh
+  adoption, and preservation of consumer-authored knowledge during adoption and
+  updates.
 - **Update**: [Python skill scripts](plans/20260905-python-skill-scripts.md)
   done — the codebase-map freshness classifier now runs as standard-library
   Python on the shared Python result-code helper while preserving its output,
@@ -1219,7 +1252,8 @@ one dated group per release; nothing else writes here.
 - **Update**: Refreshed the codebase map — the catalog, bin helpers, skills,
   plugin tests, knowledge machinery, and the devcontainer lifecycle flow re-read
   against the checkout, anchors re-verified, and source digests bumped.
-- **Creation**: [Xpra port forwarding](spec/xpra-port-forwarding.md) specifies
+- **Creation**: [Xpra port
+  forwarding](../../../openspec/specs/xpra-port-forwarding/spec.md) specifies
   the fixed container-port and VS Code local-remapping contracts.
 - **Update**: [Use VS Code port forwarding for
   Xpra](plans/20260905-xpra-vscode-port-forwarding.md) done — Xpra uses
@@ -1243,7 +1277,7 @@ one dated group per release; nothing else writes here.
   their `source_digest`, classified by the bundled `stale-map-docs.sh`. This
   repository is mapped: 26 docs under Codebase. Recorded in
   [1.0.0](releases/1.0.0.md) and specified in [IWE workflow
-  skills](spec/iwe-workflow-skills.md); [its
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md); [its
   plan](plans/20260903-iwe-map-skill.md) is done.
 - **Creation**: [Consumer PR description
   guidance](features/pr-description-guidance.md) implemented, recorded in
@@ -1253,7 +1287,8 @@ one dated group per release; nothing else writes here.
   precedence over its own section generation while preserving the Verification /
   Reviewer Handoff tense split, and template setup and update evaluate an
   existing template into covered/extras buckets before anything is written.
-  Specified in [Template consumption](spec/template-consumption.md) and
+  Specified in [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md) and
   classified in [Template
   boundary](../../../openspec/specs/template-consumption/spec.md#rationale);
   [its plan](plans/20260903-pr-description-guidance.md) is done.
@@ -1287,8 +1322,8 @@ one dated group per release; nothing else writes here.
   is deleted and the acceptance test moved to the `ai-review-status` composite
   action. Recorded under [AI responder
   workflows](features/ai-responder-workflows.md) and synced into [AI review
-  gate](spec/ai-review-gate.md) and [Template
-  consumption](spec/template-consumption.md).
+  gate](../../../openspec/specs/ai-review-gate/spec.md) and [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md).
 
 ## 2026-09-02
 
@@ -1298,22 +1333,22 @@ one dated group per release; nothing else writes here.
   edit in the Plan skill, and Implement and Verify share its Evidence-residue
   vocabulary. Recorded under [Never write a working
   logbook](features/no-working-logbooks.md) and specified in [IWE workflow
-  skills](spec/iwe-workflow-skills.md).
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md).
 - **Creation**: [Install the agentdev catalog into the
   image](features/catalog-installed-in-image.md) implemented, recorded in
   [1.0.0](releases/1.0.0.md), with the build-time install and the
   `~/.claude.json` handoff reorder synced into [Catalog
-  lifecycle](spec/catalog-lifecycle.md); [its
+  lifecycle](../../../openspec/specs/catalog-lifecycle/spec.md); [its
   plan](plans/20260817-catalog-install-in-image.md) is done.
 - **Creation**: [Gitignore-aware agent file
   discovery](features/gitignore-aware-agent-file-discovery.md) implemented,
   recorded in [1.0.0](releases/1.0.0.md), and specified by [Agent file
-  discovery](spec/agent-file-discovery.md); [its
+  discovery](../../../openspec/specs/agent-file-discovery/spec.md); [its
   plan](plans/20260901-gitignore-aware-discovery.md) is done.
 - **Creation**: [Agentdev IWE workflow
   skills](features/agentdev-iwe-workflow-skills.md) implemented, recorded in
   [1.0.0](releases/1.0.0.md), and reflected in [Template
-  consumption](spec/template-consumption.md); [its
+  consumption](../../../openspec/specs/template-consumption/spec.md); [its
   plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
 - **Update**: [Persist the pre-commit hook cache on the agentdev-cache
   volume](plans/20260902-persist-pre-commit-cache.md) done — `PRE_COMMIT_HOME`
@@ -1366,8 +1401,9 @@ one dated group per release; nothing else writes here.
 - **Creation**: [Let pre-commit own
   formatting](features/pre-commit-owns-formatting.md) implemented, recorded in
   [1.0.0](releases/1.0.0.md).
-- **Update**: [Template consumption](spec/template-consumption.md) §5 item 5 now
-  keeps the consuming project's `zizmor` hook as `language: system` resolved
+- **Update**: [Template
+  consumption](../../../openspec/specs/template-consumption/spec.md) §5 item 5
+  now keeps the consuming project's `zizmor` hook as `language: system` resolved
   from `PATH`, dropping the bare-host `zizmorcore/zizmor-pre-commit`
   substitution — a workflow this container-only product does not support. No
   requirement or scenario changed; the edit is procedural adoption guidance.
@@ -1377,7 +1413,8 @@ one dated group per release; nothing else writes here.
   an indexed CBM by running the devcontainer lifecycle hooks after checkout, and
   `ai-review-present` is now a required status check in the `main` ruleset.
 - **Creation**: [AI responder workflows](features/ai-responder-workflows.md)
-  implemented, and [AI review gate](spec/ai-review-gate.md) records the gate's
+  implemented, and [AI review
+  gate](../../../openspec/specs/ai-review-gate/spec.md) records the gate's
   acceptance contract and the responder's fork/write-access security boundary.
 
 ## 2026-08-24
@@ -1393,7 +1430,8 @@ one dated group per release; nothing else writes here.
   wording](features/preserved-approved-wording.md) records the split obligation
   — Explore writes, Plan inlines — and why neither half binds alone, plus the
   rejection of a `data/drafts/` hub in favour of `.tmp/`.
-- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) extends the
+- **Update**: [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) extends the
   Explore and Plan requirements with the verbatim-preservation obligation, one
   new scenario on each side.
 - **Update**: [Never write a working
@@ -1407,7 +1445,8 @@ one dated group per release; nothing else writes here.
   plan's single narrative section, Implement's capture-and-route contract, and
   the widened auditor scope. Commit messages stay out; `/agentdev:git-commit`
   owns them.
-- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gains
+- **Update**: [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) gains
   `Requirement: Plans record intent, not the path taken to it` — the
   workflow-skill half of the rule. The general authoring convention gets no spec
   document, since `AGENTS.md` is its only statement.
@@ -1450,10 +1489,11 @@ one dated group per release; nothing else writes here.
   enforces the shape from the suite, a pre-commit hook, and the knowledge-base
   CI job — the first gate here that reads plan documents rather than agent
   files.
-- **Creation**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) records
-  the contract as durable requirements: what a tick must carry, how tasks are
-  sized so a tick can be honest, and what the gate does and cannot do. It reads
-  shape only; whether a claim is *true* stays Verify's judgment and a human's.
+- **Creation**: [Plan checkbox
+  evidence](../../../openspec/specs/plan-checkbox-evidence/spec.md) records the
+  contract as durable requirements: what a tick must carry, how tasks are sized
+  so a tick can be honest, and what the gate does and cannot do. It reads shape
+  only; whether a claim is *true* stays Verify's judgment and a human's.
 - **Update**: [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
   fixed and recorded in [1.0.0](releases/1.0.0.md). `48d0f79` had fixed the
   instance and left both root causes standing; this closes them.
@@ -1465,8 +1505,9 @@ one dated group per release; nothing else writes here.
   had left unstated. [Verification in the main
   loop](features/verification-in-the-main-loop.md) records the same three
   routes. No spec changed: the plan's rationale for that was corrected at ship
-  time, since [IWE workflow skills](spec/iwe-workflow-skills.md) now covers
-  these skills and was re-checked against both edits.
+  time, since [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) now covers these
+  skills and was re-checked against both edits.
 - **Creation**: [Strengthen the workflow skill
   contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
   reconstructed post-hoc from the OpenSpec change bundle's proposal, design, and
@@ -1474,7 +1515,8 @@ one dated group per release; nothing else writes here.
   eight design decisions and their rejected alternatives behind the Explore-to-
   Ship prompt edits in `0d4d37b`, `61cce13`, `fcdd45a`, and `a35c802`; filed
   `done` because the graph already carries the shipped state.
-- **Creation**: [IWE workflow skills](spec/iwe-workflow-skills.md) records the
+- **Creation**: [IWE workflow
+  skills](../../../openspec/specs/iwe-workflow-skills/spec.md) records the
   verified Explore, Plan, Implement, Verify, and Ship behavior as durable
   requirements and scenarios.
 - **Update**: [Verification in the main

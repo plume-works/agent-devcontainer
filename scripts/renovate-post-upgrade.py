@@ -57,7 +57,8 @@ def main() -> int:
             os.environ['PATH'] = f'{os.path.realpath(iwe_dir)}:{os.environ["PATH"]}'
             run('iwe', 'normalize')
         # pre-commit through uv, not the image's apt copy: see openspec/specs/dependency-updates.
-        # Post-upgrade runs on the base branch; the guard is for commits: see spec/git-new-branch.
+        # Post-upgrade runs on the base branch, and the guard is for commits:
+        # see openspec/specs/git-new-branch.
         skip = os.environ.get('SKIP')
         os.environ['SKIP'] = f'{skip},no-commit-to-branch' if skip else 'no-commit-to-branch'
         if run(

@@ -5,7 +5,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
-- resource: docs/knowledge/data/spec/ai-review-refresh.md
+- resource: openspec/specs/ai-review-refresh/spec.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/602
 stage: done
 severity: medium
@@ -45,8 +45,9 @@ cannot tell a metadata-gate stop, which reviewed no code, from a full review.
 completed with success, which counts as that head's request. The script takes no
 argument to override either check. The rule it enforces is specified that way:
 the "one AI review trigger per head commit" requirement in [AI review
-refresh](../spec/ai-review-refresh.md) forbids a toggle for any head an accepted
-AI review names, with no exception for a gate-only review.
+refresh](../../../../openspec/specs/ai-review-refresh/spec.md) forbids a toggle
+for any head an accepted AI review names, with no exception for a gate-only
+review.
 
 ## Fix
 

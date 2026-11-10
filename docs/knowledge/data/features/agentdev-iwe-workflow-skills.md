@@ -4,8 +4,8 @@ stage: implemented
 description: The IWE workflow skills are part of the agentdev catalog as iwe-prefixed, plugin-portable skills rather than repository-local Claude skills.
 sources:
 - resource: docs/knowledge/data/plans/20260816-move-iwe-skills-to-agentdev.md
-- resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/template-consumption/spec.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
@@ -60,8 +60,9 @@ None — every design question this feature raised is settled.
 
 - Plan: [Move the IWE workflow skills into the agentdev
   plugin](../plans/20260816-move-iwe-skills-to-agentdev.md)
-- Specs: [Template consumption](../spec/template-consumption.md) and [IWE
-  workflow skills](../spec/iwe-workflow-skills.md)
+- Specs: [Template
+  consumption](../../../../openspec/specs/template-consumption/spec.md) and [IWE
+  workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md)
 - Plan: [Agent-owned Ship and Implement
   workflows](../plans/20261007-agent-owned-ship-implement.md)
 - Plan: [Audit every plan edit in a fresh

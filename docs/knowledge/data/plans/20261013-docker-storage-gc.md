@@ -34,8 +34,9 @@ Neither engine limits its build cache or removes images it no longer uses, so
 storage grows until the shared disk fills. A full disk stops any workspace from
 pulling or unpacking its Dev Container image, and with no Dev Container its
 sub-agent never starts, so nothing in
-[coder-agent-start.sh](../spec/coder-ide-baseline.md) runs either — including
-[Claude Remote Control](../spec/claude-remote-control.md).
+[coder-agent-start.sh](../../../../openspec/specs/coder-ide-baseline/spec.md)
+runs either — including [Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md).
 
 The Dev Container engine stays in place: replacing it with
 docker-outside-of-docker breaks bind mounts of Dev Container paths outside the
@@ -143,7 +144,7 @@ daemon accepts, and Tasks 2 and 4 use them.
     warning; `terraform validate` passes.
 - [x] Open the pull request in `plume-works/coder-ide-baseline`, with
   `terraform fmt -check` and `terraform validate` passing as [Coder IDE
-  baseline](../spec/coder-ide-baseline.md) describes.
+  baseline](../../../../openspec/specs/coder-ide-baseline/spec.md) describes.
   - **Evidence:** plume-works/coder-ide-baseline#21; `terraform fmt -check` and
     `terraform validate` pass under Terraform 1.16.5, and the required
     `Docker Build and Push` check passed.
@@ -184,10 +185,11 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 ## Spec changes
 
-[Coder IDE baseline](../spec/coder-ide-baseline.md) gains a requirement for the
-workspace engine; the Dev Container engine gets a new spec, [Devcontainer Docker
-storage](../spec/devcontainer-docker-storage.md). Both delete data, so they
-carry full deltas.
+[Coder IDE baseline](../../../../openspec/specs/coder-ide-baseline/spec.md)
+gains a requirement for the workspace engine; the Dev Container engine gets a
+new spec, [Devcontainer Docker
+storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md). Both
+delete data, so they carry full deltas.
 
 ``` markdown
 ## ADDED Requirements (spec/coder-ide-baseline)

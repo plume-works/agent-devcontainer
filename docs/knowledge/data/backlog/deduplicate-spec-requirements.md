@@ -5,7 +5,7 @@ priority: medium
 created: 2026-11-09
 description: Give every rule in every durable spec one home requirement, and drop each scenario that only restates its own requirement.
 sources:
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/semantic-refactor-audit/SKILL.md
 ---
@@ -20,14 +20,14 @@ rule drift apart. Two kinds are in scope, across every document under
 
 - **A rule restated across requirements.** One rule written into several
   requirements, typically once per phase it touches. In [IWE workflow
-  skills](../spec/iwe-workflow-skills.md), for example, "Explore and Plan never
-  start Implement" appears in five places, "a narrowing deviation waits for the
-  user" in five, and "a dispatch prompt carries only the key and the user's
-  approvals quoted verbatim" in seven.
+  skills](../../../../openspec/specs/iwe-workflow-skills/spec.md), for example,
+  "Explore and Plan never start Implement" appears in five places, "a narrowing
+  deviation waits for the user" in five, and "a dispatch prompt carries only the
+  key and the user's approvals quoted verbatim" in seven.
 - **A scenario that only restates its requirement.** A WHEN/THEN that re-renders
   a SHALL clause and adds no case the clause leaves open, such as the single
   scenario under
-  `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-waits-for-post-merge-observations`.
+  `openspec/specs/iwe-workflow-skills/spec.md#requirement-ship-waits-for-post-merge-observations`.
 
 Out of scope: statements of how the catalog is wired (which agent is dispatched,
 what its prompt carries). They are behaviour a rulebook must exhibit, so they

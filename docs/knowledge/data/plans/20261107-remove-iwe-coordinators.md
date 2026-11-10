@@ -187,8 +187,8 @@ Rejected:
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — five requirements
-change; its `sources:` drop the two deleted skills.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+five requirements change; its `sources:` drop the two deleted skills.
 
 ``` markdown
 ## MODIFIED Requirements

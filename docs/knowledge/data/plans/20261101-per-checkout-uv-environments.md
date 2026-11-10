@@ -206,7 +206,8 @@ when no checkout in `git worktree list` has its directory name; the retired
 
 ## Spec changes
 
-[agentdev runtime images](../spec/agentdev-runtime-images.md):
+[agentdev runtime
+images](../../../../openspec/specs/agentdev-runtime-images/spec.md):
 
 ``` markdown
 ## ADDED Requirements

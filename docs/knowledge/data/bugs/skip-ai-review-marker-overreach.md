@@ -56,7 +56,7 @@ over a maintainer asking for a review.
 
 Both are narrowings — a body that carried a deliberate own-line marker behaves
 as it did before. The contract is in [AI review
-gate](../spec/ai-review-gate.md).
+gate](../../../../openspec/specs/ai-review-gate/spec.md).
 
 ## Key references
 

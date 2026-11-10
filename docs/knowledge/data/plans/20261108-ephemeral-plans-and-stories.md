@@ -206,7 +206,7 @@ so that <outcome>.
 - **THEN** ...
 
 ## Decisions
-- [<architecture doc>](../architecture/x.md)
+- [<owning spec>](../../../../openspec/specs/<capability>/spec.md)
 - <small inline decision, e.g. compatibility>
 
 ## Out of scope
@@ -364,8 +364,8 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[iwe-workflow-skills](../spec/iwe-workflow-skills.md) — contract-heavy (schema,
-lifecycle, release cut):
+[iwe-workflow-skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+contract-heavy (schema, lifecycle, release cut):
 
 ``` markdown
 ## REMOVED Requirements
@@ -557,8 +557,8 @@ allowing additional sections. The bug schema SHALL require a `stage` of
 - **THEN** `iwe schema validate` accepts it
 ```
 
-[plan-checkbox-evidence](../spec/plan-checkbox-evidence.md) — a plan has no
-`stage`, so the done-plan scenarios retire:
+[plan-checkbox-evidence](../../../../openspec/specs/plan-checkbox-evidence/spec.md)
+— a plan has no `stage`, so the done-plan scenarios retire:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -704,13 +704,13 @@ anchor format; re-locate every anchor below once they have shipped.
   "The funnel"
 - `docs/knowledge/STRUCTURE.md#design-decisions › "An aggregator plan inclusion-links its child"`
   — "Milestones are plans of plans"
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-declare-their-release-impact › "or a non-empty list of the"`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-plans-declare-their-release-impact › "or a non-empty list of the"`
   — Requirement: Plans declare their release impact
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-capture-files-complete-inbox-documents › "backlog-task documents, SHALL refuse a document missing any"`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-capture-files-complete-inbox-documents › "backlog-task documents, SHALL refuse a document missing any"`
   — Requirement: Capture files complete inbox documents
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-bug-and-feature-documents-keep-the-schemamd-shape › "H1 and its Symptom, Reproduction, and Root cause sections"`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-bug-and-feature-documents-keep-the-schemamd-shape › "H1 and its Symptom, Reproduction, and Root cause sections"`
   — Requirement: Bug and feature documents keep the SCHEMA.md shape
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-the-checkbox-format-is-mechanically-gated › "not only the first. It SHALL run from the repository's"`
+- `openspec/specs/plan-checkbox-evidence/spec.md#requirement-the-checkbox-format-is-mechanically-gated › "not only the first. It SHALL run from the repository's"`
   — Requirement: The checkbox format is mechanically gated
 - `docs/knowledge/tests/test_plan_checkboxes.py::check_plan` — the
   `stage == 'done'` branch

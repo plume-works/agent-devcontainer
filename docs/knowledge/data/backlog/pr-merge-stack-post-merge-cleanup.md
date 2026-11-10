@@ -16,7 +16,8 @@ covers one merged head branch. A stack lands every layer with one
 `gh stack merge`, so the cleanup has to settle what a single head does not:
 which layers' local branches to release, which plan or plans decide the next
 branch when layers serve different plans, and how the release interacts with the
-stack metadata `gh stack` keeps — see [Stacked PRs](../spec/stacked-prs.md).
+stack metadata `gh stack` keeps — see [Stacked
+PRs](../../../../openspec/specs/stacked-prs/spec.md).
 
 Plan it once the single-PR cleanup has shipped and its script can be reused.
 

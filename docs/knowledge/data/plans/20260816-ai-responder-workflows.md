@@ -165,7 +165,8 @@ explicitly, so the app only changes whether the review is attributed to
 `claude[bot]` or `github-actions[bot]`, and
 `.github/workflows/require-ai-review.yml#jobs.ai-review-present.steps.Verify AI reviewed PR.with.script`
 accepts both. All three items are documented for template consumers, with the
-app marked optional, in [Template consumption](../spec/template-consumption.md).
+app marked optional, in [Template
+consumption](../../../../openspec/specs/template-consumption/spec.md).
 
 - [x] Install the [Claude GitHub App](https://github.com/apps/claude) —
   optional, affects review attribution only
@@ -364,18 +365,18 @@ Comment-driven behavior is therefore only testable after merge.
 
 ## Spec changes
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md) is **unchanged**. An earlier
-revision of this plan would have reversed its first requirement by installing
-the catalog at image build time; using the checkout instead leaves every
-requirement in that spec exactly as written, including the attach-time workspace
-override this plan now depends on.
+[Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) is
+**unchanged**. An earlier revision of this plan would have reversed its first
+requirement by installing the catalog at image build time; using the checkout
+instead leaves every requirement in that spec exactly as written, including the
+attach-time workspace override this plan now depends on.
 
 The lifecycle scripts do gain skip guards, but they default to today's behavior
 and change nothing observable in a devcontainer — no requirement in that spec
 describes them.
 
 New behavior for the workflows themselves goes in a new spec, [AI review
-gate](../spec/ai-review-gate.md), created at ship time:
+gate](../../../../openspec/specs/ai-review-gate/spec.md), created at ship time:
 
 ``` markdown
 ## ADDED Requirements

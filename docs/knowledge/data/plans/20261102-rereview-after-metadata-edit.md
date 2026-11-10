@@ -9,7 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: .agents/plugins/agentdev/tests/test_request_review.py
 - resource: .github/actions/ai-review-status/action.yml
-- resource: docs/knowledge/data/spec/ai-review-refresh.md
+- resource: openspec/specs/ai-review-refresh/spec.md
 stage: done
 completed: 2026-11-02
 released: 2.1.0
@@ -185,7 +185,7 @@ handling.
 
 ## Spec changes
 
-[AI review refresh](../spec/ai-review-refresh.md):
+[AI review refresh](../../../../openspec/specs/ai-review-refresh/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -284,7 +284,7 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 ## Out of scope
 
 - The `ai-review-present` gate and its acceptance rule ([AI review
-  gate](../spec/ai-review-gate.md)) — unchanged.
+  gate](../../../../openspec/specs/ai-review-gate/spec.md)) — unchanged.
 - Starting a review automatically on a description edit (`pull_request: edited`
   in `ai-responder.yml`); requesting stays an explicit toggle.
 - Marking a review as a metadata-gate stop, or changing `pr-review`'s gate.

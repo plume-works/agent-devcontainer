@@ -8,7 +8,7 @@ release:
 description: Make the planner read every spec its Spec changes touch in full, reference a rule's existing home instead of restating it, and drop a scenario a MODIFIED requirement leaves restating its requirement.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 ---
 
 # Stop the planner from adding spec redundancy
@@ -90,8 +90,8 @@ Verify finding would arrive after the plan is already implemented.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — Plan keeps each rule of
-a touched spec in one requirement.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+Plan keeps each rule of a touched spec in one requirement.
 
 ``` markdown
 ## MODIFIED Requirements

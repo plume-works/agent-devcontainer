@@ -485,8 +485,8 @@ options as `RENOVATE_*` environment variables instead.
 
 ## Spec changes
 
-[Image pinning](../spec/image-pinning.md) gains a requirement for workflow
-container images:
+[Image pinning](../../../../openspec/specs/image-pinning/spec.md) gains a
+requirement for workflow container images:
 
 ``` markdown
 ## ADDED Requirements
@@ -510,7 +510,8 @@ a digest update SHALL move every reference in one change.
   cannot merge while it fails.
 ```
 
-[Dependency updates](../spec/dependency-updates.md) is created:
+[Dependency updates](../../../../openspec/specs/dependency-updates/spec.md) is
+created:
 
 ``` markdown
 ## ADDED Requirements

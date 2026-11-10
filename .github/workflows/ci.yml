@@ -139,7 +139,7 @@ jobs:
             PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}
 
       # Both runtimes are siblings layered on exactly the base digest this job just
-      # built, never on each other; see spec/agentdev-runtime-images.
+      # built, never on each other; see openspec/specs/agentdev-runtime-images.
       - name: Build agentdev deploy image
         uses: $/.github/actions/docker/build-push-action
         with:
@@ -337,7 +337,7 @@ jobs:
           github-token: ${{ github.token }}
 
   # Every hook on every file with the tools the rebuilt image provisions, so a bump that
-  # breaks a hook fails before promotion. See spec/pre-commit-gate.
+  # breaks a hook fails before promotion. See openspec/specs/pre-commit-gate.
   candidate-pre-commit:
     name: pre-commit on the candidate image
     needs: [merge-dev-image]

@@ -230,7 +230,7 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md):
+[Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

@@ -296,13 +296,13 @@ Modify: `AGENTS.md`
 
 ## Spec changes
 
-[Template consumption](../spec/template-consumption.md) — §5 item 5 SHALL direct
-a consuming project to keep the `zizmor` pre-commit hook as `language: system`,
-resolved from the development image's `PATH`, rather than substituting the
-portable `zizmorcore/zizmor-pre-commit` repository. No requirement or scenario
-changes: §5 is procedural adoption guidance, and the removed sentence describes
-a bare-host workflow this product does not support (`data/product.md`
-`## Platforms`).
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md)
+— §5 item 5 SHALL direct a consuming project to keep the `zizmor` pre-commit
+hook as `language: system`, resolved from the development image's `PATH`, rather
+than substituting the portable `zizmorcore/zizmor-pre-commit` repository. No
+requirement or scenario changes: §5 is procedural adoption guidance, and the
+removed sentence describes a bare-host workflow this product does not support
+(`data/product.md` `## Platforms`).
 
 The skill, agent, and hook changes are behavioral for agents but are not
 described by any `data/spec/` document; `template-consumption.md` is the only

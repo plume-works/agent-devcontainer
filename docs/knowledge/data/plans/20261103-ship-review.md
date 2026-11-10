@@ -125,8 +125,8 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — a new requirement for
-the review.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+a new requirement for the review.
 
 ``` markdown
 ## ADDED Requirements
@@ -203,6 +203,6 @@ when every item is `confirmed` or `N/A`.
   — step 3, Re-post its report
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Validate, close the issue, re-ship a blocked plan, and"`
   — step 8 re-dispatches `iwe-shipper` for a Ship blocker report
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-and-implement-start-only-from-an-explicit-request-or-a-named-dispatcher`
+- `openspec/specs/iwe-workflow-skills/spec.md#requirement-ship-and-implement-start-only-from-an-explicit-request-or-a-named-dispatcher`
   — Requirement: Ship and Implement start only from an explicit request or a
   named dispatcher

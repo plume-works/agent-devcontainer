@@ -7,8 +7,8 @@ sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/actions/paths-filter/action.yml
 - resource: scripts/pre-commit-ci-range.py
-- resource: docs/knowledge/data/spec/image-pinning.md
-- resource: docs/knowledge/data/spec/pre-commit-gate.md
+- resource: openspec/specs/image-pinning/spec.md
+- resource: openspec/specs/pre-commit-gate/spec.md
 ---
 
 # Cool down Primary checks on main
@@ -17,9 +17,10 @@ sources:
 
 Every push to `main` starts a full Primary checks run: a clean, multi-arch image
 build and its acceptance jobs. Runs on `main` share one concurrency group that
-queues instead of cancelling ([Image pinning](../spec/image-pinning.md)), so
-pull requests merged back to back build one after another, each from scratch,
-and the last merge waits for every build before it.
+queues instead of cancelling ([Image
+pinning](../../../../openspec/specs/image-pinning/spec.md)), so pull requests
+merged back to back build one after another, each from scratch, and the last
+merge waits for every build before it.
 
 The maintainer chose a cooldown on `main` over a merge queue: a merge queue
 builds every queued pull request's `merge_group` ref and then the push to `main`
@@ -30,7 +31,7 @@ The cancelled-run case is already handled for the image path filter: the shared
 passed on ([Bug: Image rebuild lost when a later push to main cancels its
 run](../bugs/main-image-rebuild-lost-on-cancel.md)). The pre-commit job's range
 still covers only the latest push ([pre-commit
-gate](../spec/pre-commit-gate.md)).
+gate](../../../../openspec/specs/pre-commit-gate/spec.md)).
 
 ## Approach
 
@@ -144,7 +145,7 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 ## Spec changes
 
-[Image pinning](../spec/image-pinning.md):
+[Image pinning](../../../../openspec/specs/image-pinning/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -215,7 +216,7 @@ holds a runner for the whole wait.
 - **THEN** a push to `main` starts building at once.
 ```
 
-[pre-commit gate](../spec/pre-commit-gate.md):
+[pre-commit gate](../../../../openspec/specs/pre-commit-gate/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -288,7 +289,7 @@ after it succeeds.
   branch returning `before..after`
 - `scripts/pre-commit-ci-range.py::outputs` — `outputs`
 - `scripts/pre-commit-ci-range.py::main` — `main`
-- `docs/knowledge/data/spec/image-pinning.md#requirement-published-tags-name-only-tested-images`
+- `openspec/specs/image-pinning/spec.md#requirement-published-tags-name-only-tested-images`
   — Requirement: published tags name only tested images
-- `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
+- `openspec/specs/pre-commit-gate/spec.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
   — Requirement: CI runs the pre-commit hooks as the lint gate

@@ -6,7 +6,7 @@ stage: done
 completed: 2026-11-07
 description: Give plume-works/coder-ide-baseline its own IWE workspace holding the template's requirements and how to work on it, and narrow this repository's Coder spec to what the repository owes the template.
 sources:
-- resource: docs/knowledge/data/spec/coder-ide-baseline.md
+- resource: openspec/specs/coder-ide-baseline/spec.md
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/main/docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
@@ -21,7 +21,8 @@ released: 2.1.0
 
 ## Context
 
-[Coder IDE baseline template](../spec/coder-ide-baseline.md) specifies two
+[Coder IDE baseline
+template](../../../../openspec/specs/coder-ide-baseline/spec.md) specifies two
 repositories at once. Most of its requirements describe what the
 `plume-works/coder-ide-baseline` Terraform template does: run the agent-start
 script, keep state in per-workspace volumes, bound the workspace engine, offer
@@ -186,7 +187,8 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
 ## Spec changes
 
-[Coder IDE baseline template](../spec/coder-ide-baseline.md) is retitled
+[Coder IDE baseline
+template](../../../../openspec/specs/coder-ide-baseline/spec.md) is retitled
 `Coder IDE baseline contract`, its description and introduction say it is this
 repository's side of the template contract and link `coder-ide-baseline`'s
 `spec/workspace-template` on `main`, and its `## Working on the template`
@@ -229,9 +231,10 @@ to `coder-ide-baseline`'s `spec/workspace-template`:
 ```
 
 Introductions only, no requirement changes: [Devcontainer Docker
-storage](../spec/devcontainer-docker-storage.md) links the workspace engine's
-bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
-`coder-ide-baseline`'s `spec/workspace-template` URL.
+storage](../../../../openspec/specs/devcontainer-docker-storage/spec.md) links
+the workspace engine's bound, and [OpenCode
+web](../../../../openspec/specs/opencode-web/spec.md) links the dashboard app,
+to `coder-ide-baseline`'s `spec/workspace-template` URL.
 [Specifications](../spec.md) lists the retitled spec.
 
 ## Depends on
@@ -290,7 +293,7 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
 - `docs/knowledge/data/spec/opencode-web.md#opencode-web` — dashboard app link
 - `docs/knowledge/data/spec.md#-spec › "Dependency updates](spec/dependency-updates.md)"`
   — hub link to the spec
-- `docs/knowledge/data/plans/20261029-off-bash-migration.md#specs-that-name-a-script › "Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19"`
+- `docs/knowledge/data/plans/20261029-off-bash-migration.md#specs-that-name-a-script › "Coder IDE baseline](../../../../openspec/specs/coder-ide-baseline/spec.md), Task 19"`
   — its `## Spec changes` entry for this spec
 - `docs/knowledge/data/plans/20261029-off-bash-migration.md#task-7-opencode-and-the-coder-start`
   — Task 7, which adds `agentdev-runtime coder start`;

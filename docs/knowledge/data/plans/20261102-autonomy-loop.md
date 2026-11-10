@@ -273,9 +273,9 @@ Rejected:
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — two Implement
-requirements change, and three requirements are added for Verify, Ship, and
-Plan.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+two Implement requirements change, and three requirements are added for Verify,
+Ship, and Plan.
 
 ``` markdown
 ## MODIFIED Requirements

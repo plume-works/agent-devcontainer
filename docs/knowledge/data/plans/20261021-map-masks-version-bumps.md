@@ -11,7 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
 - resource: .agents/plugins/agentdev/tests/test_stale_map_docs_masks.py
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 ---
 
 # Mask version-only changes during a map refresh
@@ -192,8 +192,9 @@ missed.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — a new requirement; it
-governs when a staleness signal may be silenced, so it is a delta.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+a new requirement; it governs when a staleness signal may be silenced, so it is
+a delta.
 
 ``` markdown
 ## ADDED Requirements

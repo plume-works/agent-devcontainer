@@ -33,7 +33,8 @@ Two existing behaviors depend on the current shape and change with it:
 
 - `main`, release tags, merge queues, and requested clean builds start from a
   bare `ubuntu:24.04` tag, and other refs warm-start from `agentdev-base:edge`
-  when it exists ([Image pinning](../spec/image-pinning.md) governs the
+  when it exists ([Image
+  pinning](../../../../openspec/specs/image-pinning/spec.md) governs the
   published images; the Ubuntu base is excluded from Renovate entirely).
 - The `github_cli` role puts the opened checkout's `docker/bin` ahead of the
   image-baked `gh` wrapper on `PATH` ([gh authentication
@@ -343,8 +344,8 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[Image pinning](../spec/image-pinning.md) — contract change (base image
-compatibility):
+[Image pinning](../../../../openspec/specs/image-pinning/spec.md) — contract
+change (base image compatibility):
 
 ``` markdown
 ## ADDED Requirements
@@ -376,8 +377,9 @@ automerge the update once required checks pass; the release SHALL NOT move off
   `agentdev-base` image
 ```
 
-[agentdev runtime images](../spec/agentdev-runtime-images.md) — contract change
-(build inputs and a security boundary):
+[agentdev runtime
+images](../../../../openspec/specs/agentdev-runtime-images/spec.md) — contract
+change (build inputs and a security boundary):
 
 ``` markdown
 ## ADDED Requirements
@@ -432,10 +434,10 @@ on `PATH`.
 - **THEN** the block is removed
 ```
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md) — the staged catalog at
-`$AGENTDEV_CATALOG_DIR` SHALL contain `.claude-plugin/` and `.agents/plugins/`
-and SHALL NOT contain any plugin `tests/` directory or the `.agents/` root
-instruction files.
+[Catalog lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) — the
+staged catalog at `$AGENTDEV_CATALOG_DIR` SHALL contain `.claude-plugin/` and
+`.agents/plugins/` and SHALL NOT contain any plugin `tests/` directory or the
+`.agents/` root instruction files.
 
 ## Verification
 

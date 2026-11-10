@@ -7,7 +7,7 @@ sources:
 - resource: ansible/roles/dev_tools/tasks/install_pinned_tool.yml
 - resource: .devcontainer/scripts/environment-health.sh
 - resource: .devcontainer/scripts/setup-pre-commit.sh
-- resource: docs/knowledge/data/spec/coder-ide-baseline.md
+- resource: openspec/specs/coder-ide-baseline/spec.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/440
 stage: done
 severity: high

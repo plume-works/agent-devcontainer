@@ -23,9 +23,10 @@ released: 2.0.0
 
 ## Context
 
-[Claude Remote Control](../spec/claude-remote-control.md) autostarts from
-`postStartCommand.sh`, gated by `AGENTDEV_CLAUDE_AUTOSTART`, a flag that exists
-only for Coder workspaces. In Coder, `devcontainer up` waits for
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md) autostarts
+from `postStartCommand.sh`, gated by `AGENTDEV_CLAUDE_AUTOSTART`, a flag that
+exists only for Coder workspaces. In Coder, `devcontainer up` waits for
 `postStartCommand` (`"waitFor": "postStartCommand"`), and the Coder agent is
 injected into the dev container only after `up` returns. The Remote Control
 Claude process is therefore never a descendant of the Coder agent and lacks
@@ -226,10 +227,11 @@ resource "coder_script" "claude_remote_control" {
 
 ## Spec changes
 
-[Claude Remote Control](../spec/claude-remote-control.md): the autostart
-requirement changes trigger and tmux server, a requirement is added for the
-inherited environment, and the pre-approval requirement's scenario that named
-the flag is restated.
+[Claude Remote
+Control](../../../../openspec/specs/claude-remote-control/spec.md): the
+autostart requirement changes trigger and tmux server, a requirement is added
+for the inherited environment, and the pre-approval requirement's scenario that
+named the flag is restated.
 
 ``` markdown
 ## MODIFIED Requirements

@@ -3,7 +3,7 @@ type: bug
 description: The ai-review-present check that a comment-requested review's workflow_dispatch run files on the head commit is not counted by the merge ruleset, so that review neither holds a merge while it runs nor unblocks a red gate when it lands.
 sources:
 - resource: .github/workflows/ai-responder.yml
-- resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: openspec/specs/ai-review-gate/spec.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/472
 - resource: https://github.com/plume-works/agent-devcontainer/pull/468
 - resource: https://github.com/plume-works/agent-devcontainer/pull/101
@@ -64,13 +64,13 @@ follows it, include check suites from the pull request's own events and leave
 out the suite a `workflow_dispatch` run creates on the head branch. That holds
 even though the suite reports the pull request in `pull_requests` and its check
 runs share the required check's name and app.
-[spec/ai-review-gate](../spec/ai-review-gate.md) couples the gate to the review
-job with `needs:`, and that coupling holds only inside one run. The bridge moves
-comment-requested reviews into a separate, dispatched run, so the coupled gate
-it produces is one the ruleset never reads. The posted review creates no
-`pull_request_review` event either, because the review job posts with
-`GITHUB_TOKEN`. So nothing re-runs the `pull_request` gate once the review
-lands.
+[spec/ai-review-gate](../../../../openspec/specs/ai-review-gate/spec.md) couples
+the gate to the review job with `needs:`, and that coupling holds only inside
+one run. The bridge moves comment-requested reviews into a separate, dispatched
+run, so the coupled gate it produces is one the ruleset never reads. The posted
+review creates no `pull_request_review` event either, because the review job
+posts with `GITHUB_TOKEN`. So nothing re-runs the `pull_request` gate once the
+review lands.
 
 ## Fix
 

@@ -353,7 +353,7 @@ describes a superseded fix
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md):
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements

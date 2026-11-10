@@ -13,12 +13,13 @@ sources:
 
 ## Symptom
 
-[Merges into dependent branches are blocked](../spec/stacked-prs.md) by a
-ruleset on `refs/heads/iwe/**` that requires the status check `base-is-main`,
-which no workflow reports. A required status check applies to pushes as well as
-merges, so every push to an `iwe/` branch is rejected (GH013) unless its pusher
-is a bypass actor. The repository roles are; the AI task responder cannot be, so
-a fix it is asked to push to an `iwe/` pull request branch is rejected.
+[Merges into dependent branches are
+blocked](../../../../openspec/specs/stacked-prs/spec.md) by a ruleset on
+`refs/heads/iwe/**` that requires the status check `base-is-main`, which no
+workflow reports. A required status check applies to pushes as well as merges,
+so every push to an `iwe/` branch is rejected (GH013) unless its pusher is a
+bypass actor. The repository roles are; the AI task responder cannot be, so a
+fix it is asked to push to an `iwe/` pull request branch is rejected.
 
 ## Reproduction
 

@@ -10,8 +10,8 @@ sources:
 - resource: ansible/roles/install_docker/tasks/main.yml
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: .devcontainer/docker-compose.yml
-- resource: docs/knowledge/data/spec/devcontainer-docker-storage.md
-- resource: docs/knowledge/data/spec/coder-ide-baseline.md
+- resource: openspec/specs/devcontainer-docker-storage/spec.md
+- resource: openspec/specs/coder-ide-baseline/spec.md
 - resource: docs/knowledge/data/features/docker-storage-limits.md
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/root-container/daemon.json

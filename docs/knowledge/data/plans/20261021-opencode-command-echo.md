@@ -7,7 +7,7 @@ description: Preserve the namespaced slash-command name in OpenCode v2 user mess
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
-- resource: docs/knowledge/data/spec/opencode-catalog-bridge.md
+- resource: openspec/specs/opencode-catalog-bridge/spec.md
 - resource: openspec/specs/opencode-catalog-bridge/spec.md
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/client-slash-command.ts
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/submit.ts
@@ -27,8 +27,8 @@ bare commands.
 
 The user wants the submitted command and accompanying text visible together,
 without expanding the skill instructions into chat. The current [bridge
-spec](../spec/opencode-catalog-bridge.md) describes an arguments-only message;
-this plan changes that presentation contract. The [v2
+spec](../../../../openspec/specs/opencode-catalog-bridge/spec.md) describes an
+arguments-only message; this plan changes that presentation contract. The [v2
 migration](20261018-opencode-v2-default.md) is already shipped; no active plan
 covers this change.
 
@@ -118,8 +118,9 @@ supplied arguments, not whitespace the host has already removed.
 
 ## Spec changes
 
-[OpenCode catalog bridge](../spec/opencode-catalog-bridge.md) — replace the
-complete namespaced-command requirement with this delta, preserving v1 and
+[OpenCode catalog
+bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md) — replace
+the complete namespaced-command requirement with this delta, preserving v1 and
 autocomplete behavior:
 
 ``` markdown

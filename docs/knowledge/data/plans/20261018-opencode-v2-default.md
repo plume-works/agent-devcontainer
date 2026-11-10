@@ -42,13 +42,16 @@ The current design is in [OpenCode catalog
 bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md#rationale)
 and [Agent auth
 persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale);
-the contracts are [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md),
-[OpenCode web](../spec/opencode-web.md), OpenCode workspace CBM indexing, and
-[Coder IDE baseline template](../spec/coder-ide-baseline.md).
+the contracts are [OpenCode catalog
+bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md), [OpenCode
+web](../../../../openspec/specs/opencode-web/spec.md), OpenCode workspace CBM
+indexing, and [Coder IDE baseline
+template](../../../../openspec/specs/coder-ide-baseline/spec.md).
 
 [OpenCode full-access config](../features/opencode-full-access-config.md) writes
 a v1-shaped `permission` block into `opencode.json` on every start
-([Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md)). v2
+([Devcontainer OpenCode
+policy](../../../../openspec/specs/devcontainer-opencode-policy/spec.md)). v2
 reads that block, so the policy needs no change; this plan only verifies it on
 v2.
 
@@ -553,7 +556,8 @@ map document whose source digest the changed files move
 
 ## Spec changes
 
-- [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md):
+- [OpenCode catalog
+  bridge](../../../../openspec/specs/opencode-catalog-bridge/spec.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -698,7 +702,7 @@ keeps the catalog agent's value.
   the user's permissions allow, including `webfetch`.
 ```
 
-- [OpenCode web](../spec/opencode-web.md):
+- [OpenCode web](../../../../openspec/specs/opencode-web/spec.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -864,12 +868,14 @@ through the logging client on v1 and through the host's logger on v2.
   existing indexing instead of starting competing jobs.
 ```
 
-- [Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md): None
+- [Devcontainer OpenCode
+  policy](../../../../openspec/specs/devcontainer-opencode-policy/spec.md): None
   — no behavioral change; v2 reads the same `opencode.json` `permission` block.
-- [Coder IDE baseline template](../spec/coder-ide-baseline.md): the `OpenCode`
-  app requirement SHALL describe the repository's agent-start script as starting
-  the OpenCode server (`opencode serve`) rather than `opencode web`; its
-  behavior is unchanged.
+- [Coder IDE baseline
+  template](../../../../openspec/specs/coder-ide-baseline/spec.md): the
+  `OpenCode` app requirement SHALL describe the repository's agent-start script
+  as starting the OpenCode server (`opencode serve`) rather than `opencode web`;
+  its behavior is unchanged.
 
 ## Verification
 

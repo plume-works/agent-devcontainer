@@ -55,7 +55,8 @@ no trust: a workspace is trusted only on the Mac.
 `bun --version` in the rebuilt container with each `eas.json` build profile and
 updates the pin.
 
-The contract is [Template consumption](../spec/template-consumption.md); the
+The contract is [Template
+consumption](../../../../openspec/specs/template-consumption/spec.md); the
 Template-class and consumer-owned split is [Template
 boundary](../../../../openspec/specs/template-consumption/spec.md#rationale).
 
@@ -67,7 +68,7 @@ boundary](../../../../openspec/specs/template-consumption/spec.md#rationale).
   processes the Dev Container's sub-agent starts — terminals, IDE sessions,
   agents — while `${localEnv:EXPO_TOKEN}` resolves empty in the container's base
   environment and lifecycle hooks ([Coder IDE baseline
-  template](../spec/coder-ide-baseline.md)).
+  template](../../../../openspec/specs/coder-ide-baseline/spec.md)).
 - **A local Docker host.** The token comes from the environment that runs
   `devcontainer up`.
 - **The app lives under an ignored path.** EAS archives the project with a

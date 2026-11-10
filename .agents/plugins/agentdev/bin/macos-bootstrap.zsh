@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Provision a stock macOS host to run the agentdev catalog natively.
-# Behavior: see spec/macos-native-bootstrap; why zsh: see openspec/specs/catalog-scripts.
+# Behavior: see openspec/specs/macos-native-bootstrap; why zsh: see openspec/specs/catalog-scripts.
 emulate -R zsh
 setopt err_exit no_unset pipe_fail
 

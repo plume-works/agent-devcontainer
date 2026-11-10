@@ -79,7 +79,8 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Spec: [Catalog lifecycle](../spec/catalog-lifecycle.md)
+- Spec: [Catalog
+  lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md)
 - Architecture: [CI agent plugin
   availability](../../../../openspec/specs/catalog-lifecycle/spec.md#rationale)
 - Plan: [Install the agentdev catalog into the

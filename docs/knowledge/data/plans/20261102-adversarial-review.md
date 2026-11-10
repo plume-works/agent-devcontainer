@@ -222,8 +222,8 @@ OpenCode with the default test models.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — one requirement is
-added.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+one requirement is added.
 
 ``` markdown
 ## ADDED Requirements

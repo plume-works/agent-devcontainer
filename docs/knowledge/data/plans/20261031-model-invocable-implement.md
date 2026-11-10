@@ -265,10 +265,10 @@ Rejected:
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — three requirements
-change: Implement's entry skill becomes model-invocable, taking decisions from
-the session's own user or approvals a coordinator relays from the user, and Plan
-and Explore stop naming Implement.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+three requirements change: Implement's entry skill becomes model-invocable,
+taking decisions from the session's own user or approvals a coordinator relays
+from the user, and Plan and Explore stop naming Implement.
 
 ``` markdown
 ## MODIFIED Requirements

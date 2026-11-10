@@ -5,9 +5,9 @@ description: EXPO_TOKEN passthrough in the template devcontainer, plus an opt-in
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
-- resource: docs/knowledge/data/spec/template-consumption.md
 - resource: openspec/specs/template-consumption/spec.md
-- resource: docs/knowledge/data/spec/coder-ide-baseline.md
+- resource: openspec/specs/template-consumption/spec.md
+- resource: openspec/specs/coder-ide-baseline/spec.md
 - resource: .devcontainer/devcontainer.json
 - resource: https://github.com/expo/skills
 - resource: https://docs.expo.dev/accounts/programmatic-access/
@@ -40,7 +40,7 @@ constraints:
 - **Coder:** in a `coder-ide-baseline` workspace, a Coder user secret reaches
   the processes the Dev Container's sub-agent starts — terminals, IDE sessions,
   agents — and not the Dev Container's lifecycle hooks ([Coder IDE baseline
-  template](../spec/coder-ide-baseline.md)).
+  template](../../../../openspec/specs/coder-ide-baseline/spec.md)).
 - **bun version:** EAS macOS workers do not default to the image's bun, and the
   image's bun writes `bun.lock` `lockfileVersion: 2`, which an older bun cannot
   read under `--frozen-lockfile`; every build profile therefore pins `bun` to
@@ -305,7 +305,8 @@ above requires.
 
 ## Spec changes
 
-Modifies [Template consumption](../spec/template-consumption.md):
+Modifies [Template
+consumption](../../../../openspec/specs/template-consumption/spec.md):
 
 ``` markdown
 ## ADDED Requirements

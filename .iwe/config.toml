@@ -75,12 +75,6 @@ match = "data/releases/**"
 [schemas.task]
 match = "data/backlog/**"
 
-[schemas.spec]
-match = "data/spec/**"
-
-[schemas.architecture]
-match = "data/architecture/**"
-
 [schemas.finding]
 match = "data/findings/**"
 
@@ -93,7 +87,6 @@ match = "data/someday/**"
 # Directory hubs are typed and validated like every other document.
 [schemas.hub]
 match = [
-  "data/architecture",
   "data/backlog",
   "data/bugs",
   "data/concept",
@@ -102,7 +95,6 @@ match = [
   "data/plans",
   "data/releases",
   "data/someday",
-  "data/spec",
 ]
 
 [schemas.tracker]

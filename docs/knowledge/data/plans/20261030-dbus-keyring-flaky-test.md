@@ -123,8 +123,8 @@ client's budget and dependency-ordered recovery.
 
 None — no behavioral change. The fix brings the controller in line with the
 existing requirement in
-[standalone-opencode-runtime](../spec/standalone-opencode-runtime.md) that the
-runtime "recover affected clients coherently".
+[standalone-opencode-runtime](../../../../openspec/specs/standalone-opencode-runtime/spec.md)
+that the runtime "recover affected clients coherently".
 
 ## Verification
 

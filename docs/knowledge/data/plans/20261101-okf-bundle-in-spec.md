@@ -4,7 +4,7 @@ created: 2026-11-01
 release: internal
 description: Restore the spec's OKF requirement — the graph stays an OKF v0.2 bundle and diverges only where OKF costs merges or upkeep — and block OKF's optional `status` with a pre-commit check.
 sources:
-- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: openspec/specs/iwe-workflow-skills/spec.md
 - resource: .pre-commit-config.yaml
 - resource: .iwe/schemas/okf.yaml
 stage: done
@@ -17,11 +17,12 @@ released: 2.1.0
 ## Context
 
 [Conflict-free knowledge layout](20261031-kb-conflict-free-layout.md) replaced
-the [IWE workflow skills](../spec/iwe-workflow-skills.md) requirement "Workflow
-improvements preserve the IWE and OKF model" with "Workflow improvements
-preserve the IWE model". That recorded a divergence the maintainer did not
-intend: the graph is not leaving OKF, it departs from OKF only where OKF costs
-merges or upkeep. `data/index.md`, the `okf`, `okf-index`, and `okf-log`
+the [IWE workflow
+skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) requirement
+"Workflow improvements preserve the IWE and OKF model" with "Workflow
+improvements preserve the IWE model". That recorded a divergence the maintainer
+did not intend: the graph is not leaving OKF, it departs from OKF only where OKF
+costs merges or upkeep. `data/index.md`, the `okf`, `okf-index`, and `okf-log`
 schemas, and the OKF text in the workspace manuals are already restored; the
 spec is the one place that still says otherwise.
 
@@ -101,9 +102,9 @@ maintainer asked for a pre-commit test instead.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — contract-heavy: the
-requirement that names the graph's model changes, and a scenario set comes with
-it.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+contract-heavy: the requirement that names the graph's model changes, and a
+scenario set comes with it.
 
 ``` markdown
 ## REMOVED Requirements

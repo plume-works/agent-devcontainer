@@ -351,8 +351,9 @@ path filter: pre-commit skips hooks whose files did not change, except
 
 ## Spec changes
 
-[Template consumption](../spec/template-consumption.md) — the version-check
-script no longer exists, so it leaves the publisher-only list:
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md)
+— the version-check script no longer exists, so it leaves the publisher-only
+list:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -366,7 +367,7 @@ validator the digest-pinned image provides, never the deleted working-tree
 package.
 ```
 
-[pre-commit gate](../spec/pre-commit-gate.md) — new:
+[pre-commit gate](../../../../openspec/specs/pre-commit-gate/spec.md) — new:
 
 ``` markdown
 ## ADDED Requirements

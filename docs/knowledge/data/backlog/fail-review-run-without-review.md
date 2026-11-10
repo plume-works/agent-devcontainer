@@ -16,7 +16,8 @@ rank: 1400
 A `Claude PR Review Responder` job can finish green without publishing a review,
 and `ai-review-present` passes it on an earlier review: the gate asserts that
 the pull request was reviewed, not that this run reviewed it. That property is
-deliberate — see [AI review gate](../spec/ai-review-gate.md) — so the run itself
+deliberate — see [AI review
+gate](../../../../openspec/specs/ai-review-gate/spec.md) — so the run itself
 must fail when it published nothing, or a re-review that vanishes stays silent.
 
 The known cause of such runs is closed in [The review orchestrator ends its turn

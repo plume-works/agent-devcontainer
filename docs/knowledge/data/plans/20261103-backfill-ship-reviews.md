@@ -89,9 +89,10 @@ gaps name
 
 ## Spec changes
 
-[Pre-commit gate](../spec/pre-commit-gate.md) — the requirement that [Gate done
-bugs and Ship reviews in pre-commit](20261103-ship-records-gate.md) adds now
-requires the section and accepts the backfill reason.
+[Pre-commit gate](../../../../openspec/specs/pre-commit-gate/spec.md) — the
+requirement that [Gate done bugs and Ship reviews in
+pre-commit](20261103-ship-records-gate.md) adds now requires the section and
+accepts the backfill reason.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -168,5 +169,5 @@ no `N/A` on the plan-stage item.
   pre-commit with `--all-files`
 - `.github/workflows/primary-checks.yml › "uv run pre-commit run --from-ref"` —
   pre-commit over the pull request's range
-- `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
+- `openspec/specs/pre-commit-gate/spec.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
   — Requirement: CI runs the pre-commit hooks as the lint gate

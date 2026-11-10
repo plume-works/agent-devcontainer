@@ -310,8 +310,8 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 ## Spec changes
 
-[Stacked PRs](../spec/stacked-prs.md). This is contract-heavy because it governs
-data loss on shared branches.
+[Stacked PRs](../../../../openspec/specs/stacked-prs/spec.md). This is
+contract-heavy because it governs data loss on shared branches.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -388,9 +388,9 @@ after the push.
 - **THEN** `publish` reports the layer as not published
 ```
 
-[PR merge conflicts](../spec/pr-merge-conflicts.md). The stacked-PR route of
-conflict resolution moves to the guard. Every other scenario of the requirement
-is unchanged.
+[PR merge conflicts](../../../../openspec/specs/pr-merge-conflicts/spec.md). The
+stacked-PR route of conflict resolution moves to the guard. Every other scenario
+of the requirement is unchanged.
 
 ``` markdown
 ## MODIFIED Requirements

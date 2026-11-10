@@ -74,7 +74,7 @@ None — every design question this feature raised is settled.
 
 ## Specified by
 
-[Template consumption](../spec/template-consumption.md)
+[Template consumption](../../../../openspec/specs/template-consumption/spec.md)
 
 ## References
 

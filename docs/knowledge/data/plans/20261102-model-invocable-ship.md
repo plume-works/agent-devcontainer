@@ -112,10 +112,10 @@ OpenCode with the default test models.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the requirement on who
-starts Ship and Implement is modified from the wording [Let any session asked to
-implement a named plan start Implement](20261031-model-invocable-implement.md)
-records.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the requirement on who starts Ship and Implement is modified from the wording
+[Let any session asked to implement a named plan start
+Implement](20261031-model-invocable-implement.md) records.
 
 ``` markdown
 ## MODIFIED Requirements

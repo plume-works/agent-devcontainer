@@ -31,8 +31,8 @@ Replace the stance bullet that asks for several open threads with one that
 surfaces the threads and follows them one at a time, and add a
 `## Settling open questions` section that states the interview rules. Both are
 skill text, applied verbatim from the approved wording. The Explore requirement
-in [IWE workflow skills](../spec/iwe-workflow-skills.md) gains the matching
-sentence and scenario.
+in [IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md)
+gains the matching sentence and scenario.
 
 Rejected: a separate interview skill or mode the user opts into. The user asked
 for the interview as Explore's default, and a second entry point would leave the
@@ -99,8 +99,9 @@ default behavior unchanged.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md) — the Explore requirement
-gains the interview rule and a scenario; its other four scenarios are unchanged.
+[IWE workflow skills](../../../../openspec/specs/iwe-workflow-skills/spec.md) —
+the Explore requirement gains the interview rule and a scenario; its other four
+scenarios are unchanged.
 
 ``` markdown
 ## MODIFIED Requirements

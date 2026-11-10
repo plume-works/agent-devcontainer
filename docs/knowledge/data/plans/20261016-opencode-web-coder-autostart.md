@@ -35,7 +35,8 @@ logins and session chats.
 persistence](../../../../openspec/specs/devcontainer-state/spec.md#rationale) is
 the split this plan extends to OpenCode: credentials on the shared
 `agentdev-agents-auth` volume, path-bearing state on a per-instance volume.
-[Coder IDE baseline template](../spec/coder-ide-baseline.md) makes
+[Coder IDE baseline
+template](../../../../openspec/specs/coder-ide-baseline/spec.md) makes
 `coder-agent-start.sh` the only start hook and the only place Coder user secrets
 reach.
 
@@ -367,11 +368,13 @@ plume-works/coder-ide-baseline pushed without being made active
 
 ## Spec changes
 
-A new spec, [OpenCode web](../spec/opencode-web.md), holds the server contract;
-it exposes a network service, so the full requirements are stated. [Catalog
-lifecycle](../spec/catalog-lifecycle.md) widens its credential-sharing
-requirement to OpenCode. [Coder IDE baseline
-template](../spec/coder-ide-baseline.md) gains the OpenCode app.
+A new spec, [OpenCode web](../../../../openspec/specs/opencode-web/spec.md),
+holds the server contract; it exposes a network service, so the full
+requirements are stated. [Catalog
+lifecycle](../../../../openspec/specs/catalog-lifecycle/spec.md) widens its
+credential-sharing requirement to OpenCode. [Coder IDE baseline
+template](../../../../openspec/specs/coder-ide-baseline/spec.md) gains the
+OpenCode app.
 
 ``` markdown
 ## ADDED Requirements
