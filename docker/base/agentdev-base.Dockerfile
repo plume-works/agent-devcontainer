@@ -15,6 +15,8 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 # role lets Renovate update installation and image metadata together.
 ARG PLAYWRIGHT_VERSION
 
+# The shell PATH and history setup goes to system-wide files, so an account whose home
+# starts empty gets it too; spec: architecture/devcontainer-home-volume.
 # Three provisioning steps, each bind-mounting only the inputs it reads at its context
 # path under /provision, so a change elsewhere keeps its layer; see spec/agentdev-runtime-images.
 # `cd`, not WORKDIR: /provision exists only during a step. ansible.cfg's log path is read-only.
@@ -36,6 +38,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
            install_playwright_browser=true \
            install_devcontainer_firewall=true \
            playwright_browser_version=$PLAYWRIGHT_VERSION \
+           bash_setup_bashrc=/etc/bash.bashrc \
+           bun_setup_bashrc=/etc/bash.bashrc \
+           bun_setup_fish_config=/etc/fish/conf.d/bun_setup.fish \
          "
 
 # A pin the build verifies, not one it fetches: provisioning fails unless the validator

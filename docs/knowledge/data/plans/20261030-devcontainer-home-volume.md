@@ -133,14 +133,23 @@ before Task 5.
 
 **Files:** Modify: `ansible/roles/bash_setup/tasks/main.yml`,
 `ansible/roles/bun_setup/tasks/main.yml`, their `defaults/main.yml`,
-`docker/base/agentdev-base.Dockerfile`
+`docker/base/agentdev-base.Dockerfile`,
+`scripts/tests/test_agentdev_devcontainer_image.py`
 
-- [ ] Each role's managed bash and fish blocks take their target file from a
+- [x] Each role's managed bash and fish blocks take their target file from a
   role variable that defaults to the current `{{ user_home }}` path, so host
   provisioning is unchanged.
-- [ ] The base image build points those variables at `/etc/bash.bashrc` and
+  - **Evidence:**
+    `ansible/roles/bash_setup/defaults/main.yml#bash_setup_bashrc`,
+    `ansible/roles/bun_setup/defaults/main.yml#bun_setup_bashrc` and
+    `#bun_setup_fish_config`;
+    `uv run ansible-lint ansible/roles/bash_setup ansible/roles/bun_setup`
+- [x] The base image build points those variables at `/etc/bash.bashrc` and
   `/etc/fish/conf.d/`, and an interactive shell of an account with an empty home
   has `~/.local/bin` and `bun` on `PATH`.
+  - **Evidence:**
+    `scripts/tests/test_agentdev_devcontainer_image.py::test_an_interactive_shell_on_an_empty_home_gets_the_image_shell_setup`,
+    against a Dev Container image built on a base image carrying the change
 
 ### Task 3: Bootstrap the Dev Container profile's instance storage
 
@@ -448,7 +457,7 @@ CLI](20261029-off-bash-migration.md)
 - `compose.opencode.yml › "uv:/uv"` — `uv:/uv` mount
 - `scripts/tests/test_agent_runtime_compose.py::INSTANCE_TARGETS` —
   `INSTANCE_TARGETS`
-- `ansible/roles/bash_setup/tasks/main.yml › "user_home }}/.bashrc"` — `.bashrc`
+- `ansible/roles/bash_setup/defaults/main.yml#bash_setup_bashrc` — `.bashrc`
   target
-- `ansible/roles/bun_setup/tasks/main.yml › "user_home }}/.bashrc"` — `.bashrc`
+- `ansible/roles/bun_setup/defaults/main.yml#bun_setup_bashrc` — `.bashrc`
   target

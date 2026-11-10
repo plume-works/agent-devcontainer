@@ -308,3 +308,41 @@ def test_the_agent_account_is_remapped_to_the_host_user_who_owns_the_checkout(co
     assert result.returncode == 0, result.stdout + result.stderr
     uid, gid = os.getuid(), os.getgid()
     assert result.stdout.split()[-3:] == [str(uid), str(gid), f'{uid}:{gid}']
+
+
+def test_an_interactive_shell_on_an_empty_home_gets_the_image_shell_setup():
+    volume = f'agentdev-test-home-{uuid4().hex[:8]}'
+    script = (
+        'ls -A ~ | wc -l; mkdir -p ~/.bun/bin; '
+        'bash -ic \'echo "$HISTSIZE"; echo "$PATH"\' 2>/dev/null; fish -c \'string join : $PATH\''
+    )
+    try:
+        result = subprocess.run(
+            [
+                'docker',
+                'run',
+                '--rm',
+                '--label',
+                LABEL,
+                '-u',
+                'agent',
+                '--entrypoint',
+                'bash',
+                '-v',
+                f'{volume}:/home/agent',
+                IMAGE,
+                '-c',
+                script,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        count, history, bash_path, fish_path = result.stdout.splitlines()[-4:]
+        assert count == '0'
+        assert history == '100000'
+        assert {'/home/agent/.local/bin', '/home/agent/.bun/bin'} <= set(bash_path.split(':'))
+        assert '/home/agent/.bun/bin' in fish_path.split(':')
+    finally:
+        subprocess.run(['docker', 'volume', 'rm', '-f', volume], capture_output=True)

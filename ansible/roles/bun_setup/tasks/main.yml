@@ -27,7 +27,7 @@
 
 - name: Ensure Bun bin is on bash PATH
   ansible.builtin.blockinfile:
-    path: "{{ user_home }}/.bashrc"
+    path: "{{ bun_setup_bashrc }}"
     create: true
     mode: "0644"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: bun_setup"
@@ -41,13 +41,13 @@
 
 - name: Ensure fish config directory exists
   ansible.builtin.file:
-    path: "{{ user_home }}/.config/fish"
+    path: "{{ bun_setup_fish_config | dirname }}"
     state: directory
     mode: "0755"
 
 - name: Ensure Bun bin is on fish PATH
   ansible.builtin.blockinfile:
-    path: "{{ user_home }}/.config/fish/config.fish"
+    path: "{{ bun_setup_fish_config }}"
     create: true
     mode: "0644"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: bun_setup"
