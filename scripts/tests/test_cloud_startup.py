@@ -91,7 +91,7 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
         'claude plugin marketplace add ./',
         'claude plugin install agentdev@agent-devcontainer',
         'bash docker/ansible/setup-ansible.sh',
-        'ansible-playbook ansible/playbooks/setup-dev.yml --tags dev_tools,uv_setup'
+        f'ansible-playbook ansible/playbooks/setup-dev.yml --tags {startup.TOOLCHAIN_TAGS}'
         ' ANSIBLE_LOG_PATH=',
         'uv sync',
         f'uv run pre-commit install --install-hooks {hook_types}',
