@@ -156,14 +156,21 @@ before Task 5.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py`,
 `scripts/tests/test_agent_runtime_identity.py`
 
-- [ ] `agentdev-runtime bootstrap` in the Dev Container profile, for a non-root
+- [x] `agentdev-runtime bootstrap` in the Dev Container profile, for a non-root
   account read from `passwd`, claims the home mount root when it is empty and
   refuses when another identity owns a populated one, writes the sudoers entry,
   takes the shared-auth lock and initializes an empty auth volume, and checks
   the workspace is writable, naming the UID it must be writable by on refusal.
-- [ ] A root account keeps the root Dev Container bootstrap (account and mounts
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_identity.py::test_a_non_root_devcontainer_claims_its_home_and_shared_auth`,
+    `scripts/tests/test_agent_runtime_identity.py::test_a_non_root_devcontainer_creates_shared_auth_when_none_is_mounted`,
+    `scripts/tests/test_agent_runtime_identity.py::test_a_non_root_devcontainer_refuses_a_home_another_identity_populated`,
+    `scripts/tests/test_agent_runtime_identity.py::test_a_non_root_devcontainer_names_the_uid_an_unwritable_checkout_needs`
+- [x] A root account keeps the root Dev Container bootstrap (account and mounts
   accepted as given, no home claim or sudoers entry), so a consumer overriding
   `AGENTDEV_USER=root` still starts.
+  - **Evidence:**
+    `scripts/tests/test_agent_runtime_identity.py::test_a_devcontainer_accepts_the_tools_account_and_workspace`
 
 ### Task 4: Store ~/.claude.json as a file on the home volume
 

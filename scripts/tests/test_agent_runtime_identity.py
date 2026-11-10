@@ -102,8 +102,9 @@ def run(
     gid: int | None = None,
     extra_env: dict[str, str] | None = None,
     detach: bool = False,
+    before: str = 'true',
 ):
-    """Run the bootstrap in a fresh container, then ``script`` as root."""
+    """Run ``before``, then the bootstrap in a fresh container, then ``script`` as root."""
     env = {
         'AGENTDEV_RUNTIME_MODE': 'deploy',
         'OPENCODE_SERVER_PASSWORD': SECRET,
@@ -125,7 +126,7 @@ def run(
         image,
         'bash',
         '-c',
-        f'{BOOTSTRAP} && {script or "true"}',
+        f'{before} && {BOOTSTRAP} && {script or "true"}',
     ]
     if detach:
         return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -331,7 +332,7 @@ id -nG "$AGENTDEV_USER" | tr ' ' '\\n' | grep -qx docker && echo docker-member |
 """
 
 
-@pytest.mark.parametrize(('user', 'owner'), [('root', '0:0'), ('nobody', '65534:65534')])
+@pytest.mark.parametrize(('user', 'owner'), [('root', '0:0')])
 def test_a_devcontainer_accepts_the_tools_account_and_workspace(image, tmp_path, user, owner):
     checkout = TMP_ROOT / f'dc-checkout-{uuid4().hex[:8]}'
     (checkout / 'nested').mkdir(parents=True)
@@ -372,3 +373,108 @@ def test_the_bootstrap_requires_a_runtime_mode(image):
     result = run(image, [], extra_env={'AGENTDEV_RUNTIME_MODE': 'standalone'})
     assert result.returncode == 1
     assert 'AGENTDEV_RUNTIME_MODE must be deploy or devcontainer' in result.stderr
+
+
+# The account agentdev-devcontainer defines, as the devcontainer CLI leaves it after a remap.
+IMAGE_ACCOUNT = (
+    'groupadd --gid 1000 agent && useradd --no-create-home --uid 1000 --gid 1000 '
+    '--home-dir /home/agent --shell /bin/bash agent'
+)
+DEVCONTAINER_ENV = {
+    'AGENTDEV_RUNTIME_MODE': 'devcontainer',
+    'AGENTDEV_USER': 'agent',
+    'DEV_WORKSPACE_FOLDER': '/workspaces/project',
+    'AGENTDEV_AGENTS_AUTH_DIR': AUTH,
+}
+
+
+def devcontainer_mounts(volumes: Volumes, workspace: Path) -> list[str]:
+    return [
+        '-v',
+        f'{volumes.name("home")}:/home/agent',
+        '-v',
+        f'{volumes.auth}:{AUTH}',
+        '-v',
+        f'{workspace}:/workspaces/project',
+    ]
+
+
+def test_a_non_root_devcontainer_claims_its_home_and_shared_auth(image, volumes, checkout):
+    os.chown(checkout, 1000, 1000)
+    volumes.created += [volumes.name('home'), volumes.auth]
+    result = run(
+        image,
+        devcontainer_mounts(volumes, checkout),
+        "su agent -c 'sudo -n true' && echo sudo-ok\n"
+        f'stat -c "%u:%g %a" /home/agent {AUTH} {AUTH}/claude',
+        extra_env=DEVCONTAINER_ENV,
+        before=IMAGE_ACCOUNT,
+    )
+    assert_ok(result)
+    assert result.stdout.splitlines()[-4:] == [
+        'sudo-ok',
+        '1000:1000 755',
+        '1000:1000 700',
+        '1000:1000 700',
+    ]
+    assert 'initialized empty shared auth volume' in result.stdout
+
+
+def test_a_non_root_devcontainer_creates_shared_auth_when_none_is_mounted(image, checkout):
+    os.chown(checkout, 1000, 1000)
+    result = run(
+        image,
+        ['-v', f'{checkout}:/workspaces/project'],
+        f'stat -c "%u:%g %a" {AUTH}/claude',
+        extra_env=DEVCONTAINER_ENV,
+        before=f'{IMAGE_ACCOUNT} && install -d -o agent -g agent /home/agent',
+    )
+    assert_ok(result)
+    assert result.stdout.splitlines()[-1] == '1000:1000 700'
+
+
+def test_a_non_root_devcontainer_refuses_a_home_another_identity_populated(
+    image, volumes, checkout
+):
+    os.chown(checkout, 1000, 1000)
+    volumes.created += [volumes.name('home'), volumes.auth]
+    subprocess.run(
+        [
+            'docker',
+            'run',
+            '--rm',
+            '-v',
+            f'{volumes.name("home")}:/home/agent',
+            image,
+            'bash',
+            '-c',
+            'touch /home/agent/.bashrc && chown -R 2000:2000 /home/agent',
+        ],
+        check=True,
+        capture_output=True,
+    )
+    result = run(
+        image,
+        devcontainer_mounts(volumes, checkout),
+        extra_env=DEVCONTAINER_ENV,
+        before=IMAGE_ACCOUNT,
+    )
+    assert result.returncode == 1
+    assert '/home/agent (home and client configuration) is owned by 2000:2000' in result.stderr
+
+
+def test_a_non_root_devcontainer_names_the_uid_an_unwritable_checkout_needs(
+    image, volumes, checkout
+):
+    os.chown(checkout, 4242, 4242)
+    volumes.created += [volumes.name('home'), volumes.auth]
+    result = run(
+        image,
+        devcontainer_mounts(volumes, checkout),
+        extra_env=DEVCONTAINER_ENV,
+        before=IMAGE_ACCOUNT,
+    )
+    assert result.returncode == 1
+    assert 'is not writable by 1000:1000' in result.stderr
+    assert 'open the Dev Container as the host user who owns the checkout' in result.stderr
+    assert (checkout.stat().st_uid, checkout.stat().st_gid) == (4242, 4242)
