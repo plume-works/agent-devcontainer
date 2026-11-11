@@ -67,10 +67,15 @@ scope.
 **Files:** Create: `scripts/check-ship-records.py`,
 `scripts/tests/test_check_ship_records.py`
 
-- [ ] Given bug documents, the CLI fails a `stage: done` bug without `## Fix`,
+- [x] Given bug documents, the CLI fails a `stage: done` bug without `## Fix`,
   passes one with it, and passes a `pending`, `planned`, or `cancelled` bug
   without it; it reports every violation, not only the first. Tests run the CLI
   on made-up documents under the test scratch root.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py -k bug` —
+    `test_done_bug_without_fix_fails`, `test_done_bug_with_fix_passes`,
+    `test_open_or_cancelled_bug_without_fix_passes`,
+    `test_every_violation_is_reported`.
 
 ### Task 2: The CLI checks the Ship review shape
 
