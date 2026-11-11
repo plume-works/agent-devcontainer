@@ -126,8 +126,11 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ### Task 4: CI runs the hook
 
-- [ ] The pull request's `pre-commit` job in Primary checks passes with the
+- [x] The pull request's `pre-commit` job in Primary checks passes with the
   `ship-records` hook in its output.
+  - **Evidence:** PR #815, Primary checks `pre-commit` job
+    https://github.com/plume-works/agent-devcontainer/actions/runs/43065396149/job/130678882483
+    — `ship-records ... Passed`.
 
 ## Spec changes
 
