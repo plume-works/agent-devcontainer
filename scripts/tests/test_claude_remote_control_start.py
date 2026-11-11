@@ -130,6 +130,7 @@ def test_server_mode_starts_remote_control_server(workspace_name, server_args, s
     assert calls.splitlines()[-1].endswith(
         'exec env -u CLAUDE_CODE_OAUTH_TOKEN claude remote-control --spawn '
         + spawn_mode
+        + ' --permission-mode auto'
         + server_args
     )
     assert_dedicated_socket(calls)
