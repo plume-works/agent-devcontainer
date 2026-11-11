@@ -400,8 +400,8 @@ boolean authentication state, not credential values:
 
 ``` bash
 stat -c '%U %a %n' \
-  /root/.agents-auth/claude \
-  /root/.agents-auth/claude/.credentials.json
+  /var/lib/agentdev/auth/claude \
+  /var/lib/agentdev/auth/claude/.credentials.json
 
 claude auth status --json
 
@@ -410,10 +410,10 @@ tmux -L claude-remote list-panes -t =claude-remote \
   -F 'session=#{session_name} dead=#{pane_dead} command=#{pane_current_command}'
 ```
 
-Expected filesystem metadata is root ownership, mode `0700` on the credential
-directory, and mode `0600` on the credential file. Exactly one tmux session
-named `claude-remote` on the `claude-remote` tmux server should contain one live
-`claude` pane.
+Expected filesystem metadata is ownership by the runtime account, mode `0700` on
+the credential directory, and mode `0600` on the credential file. Exactly one
+tmux session named `claude-remote` on the `claude-remote` tmux server should
+contain one live `claude` pane.
 
 To verify that native file authentication took precedence, inspect only the
 environment variable names of the Claude process and assert that

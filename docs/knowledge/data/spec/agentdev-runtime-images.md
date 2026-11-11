@@ -122,6 +122,14 @@ with deploy.
 - **THEN** readiness is withdrawn, the failure names the service, and the
   container exits nonzero
 
+### Requirement: the Dev Container runs as a non-root account on one home volume
+
+The Dev Container image SHALL run its user services, lifecycle commands, and
+editor sessions as a non-root account remapped to the host user's UID and GID,
+with its home on one per-instance volume. Its create phase SHALL run under the
+supervisor after the root bootstrap, once per container, and gate readiness;
+`postCreateCommand` SHALL wait for it and fail when the runtime fails first.
+
 ### Requirement: lifecycle phases remain distinct
 
 The image SHALL provide stable create, start/readiness, and attach commands —
@@ -242,7 +250,8 @@ SHALL continue using the staged version.
 The Dev Container SHALL give every checkout of the workspace repository,
 including each Git worktree, its own uv project environment: `.venv` in the
 checkout SHALL be a link to a directory named after the checkout under
-`AGENTDEV_VENV_ROOT` (default `/uv/venvs`), on the same volume as the uv cache.
+`AGENTDEV_VENV_ROOT` (`/home/agent/.local/share/uv/venvs` in
+`agentdev-devcontainer`, else `/uv/venvs`), on the same volume as the uv cache.
 The create phase SHALL register `agentdev-runtime worktree create` and
 `agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
 `WorktreeRemove` hooks. The link SHALL exist before a worktree's first command
@@ -286,6 +295,13 @@ the `.venv` of any checkout, in any repository, and remove the rest.
   next attached
 - **THEN** its environment directory is deleted, and no environment a checkout
   of any repository still links to is touched
+
+#### Scenario: a consumer sets no environment root
+
+- **WHEN** a consumer of `agentdev-devcontainer` that sets no
+  `AGENTDEV_VENV_ROOT` attaches to a Python checkout
+- **THEN** the checkout's `.venv` links to its directory under
+  `/home/agent/.local/share/uv/venvs`, on the home volume that holds uv's cache
 
 ### Requirement: full adoption remains supported
 
