@@ -131,7 +131,7 @@ repos:
       # .prettierignore still applies.
       - id: prettier
         name: prettier
-        entry: bunx prettier@3.9.10 --write --ignore-unknown
+        entry: bunx prettier@3.10.0 --write --ignore-unknown
         language: system
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
 
