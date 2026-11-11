@@ -60,8 +60,9 @@ image's sources.
 **Baking Renovate into the image.** Every consumer of the pin runs in the
 agentdev-devcontainer image, so a Renovate CLI installed there would still be
 one pin. It is rejected for size: Renovate brings a large Node dependency tree
-into every developer's image for a tool only CI runs. `bunx` fetches the pinned
-release per run instead.
+into every developer's image, when a developer needs it only on the rare commit
+that touches `.github/renovate.json`. `bunx` fetches the pinned release per run
+instead.
 
 ## Scope
 
