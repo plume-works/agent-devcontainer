@@ -92,3 +92,119 @@ def test_every_violation_is_reported(write: Write) -> None:
     assert result.returncode == 1
     assert f'{first}:1 ' in result.stdout
     assert f'{second}:1 ' in result.stdout
+
+
+REVIEW = """## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-11.
+
+- [x] Verify reported zero CRITICAL — confirmed: PASS, 0 CRITICAL
+- [x] Every `## Spec changes` operation is in its spec — confirmed: data/spec/example
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: 2026-11-11
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: data/bugs/example
+- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: data/bugs/example
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
+"""
+
+PLAN_HEAD = '---\ntype: plan\nstage: done\n---\n\n# Example plan\n\n## Context\n\nWhy.\n\n'
+
+
+def plan(review: str = REVIEW) -> str:
+    """Return a plan document whose Ship review section is the given text."""
+    return PLAN_HEAD + review
+
+
+def line_of(text: str, needle: str) -> int:
+    """Return the 1-based line number of the first line in text containing needle."""
+    return next(i for i, line in enumerate(text.splitlines(), 1) if needle in line)
+
+
+def test_plan_without_ship_review_passes(write: Write) -> None:
+    """A plan with no Ship review section passes."""
+    result = run(write('plan.md', PLAN_HEAD))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_well_formed_ship_review_passes(write: Write) -> None:
+    """A Ship review in the fixed structure passes, followed by another section."""
+    result = run(write('plan.md', plan() + '\n## Verification results\n\nAll green.\n'))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_ship_review_inside_a_code_fence_is_not_checked(write: Write) -> None:
+    """A Ship review quoted in a fenced block, as a plan quotes its template, is skipped."""
+    text = PLAN_HEAD + '```markdown\n' + REVIEW.replace('[x]', '[ ]') + '```\n'
+    assert run(write('plan.md', text)).returncode == 0
+
+
+def test_missing_item_fails_naming_the_section(write: Write) -> None:
+    """A Ship review missing its last item fails and names the missing item."""
+    text = plan(''.join(line for line in REVIEW.splitlines(True) if 'Ship edited' not in line))
+    result = run(path := write('plan.md', text))
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, "## Ship review")} ' in result.stdout
+    assert 'missing item "Ship edited no hub' in result.stdout
+
+
+def test_reordered_items_fail_naming_the_line(write: Write) -> None:
+    """Two swapped items fail, each naming its line."""
+    lines = REVIEW.splitlines(True)
+    first = line_of(REVIEW, 'Every feature')
+    lines[first - 1], lines[first] = lines[first], lines[first - 1]
+    text = plan(''.join(lines))
+    result = run(path := write('plan.md', text))
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, "Every bug in `release` is")} ' in result.stdout
+    assert f'{path}:{line_of(text, "Every feature")} ' in result.stdout
+
+
+def test_unticked_item_fails_naming_the_line(write: Write) -> None:
+    """An unticked item fails, naming its line."""
+    text = plan(
+        REVIEW.replace('- [x] Every spec the plan retired', '- [ ] Every spec the plan retired')
+    )
+    result = run(path := write('plan.md', text))
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, "plan retired")} ' in result.stdout
+    assert 'not ticked' in result.stdout
+
+
+def test_item_with_neither_ending_fails(write: Write) -> None:
+    """An item ending in neither `confirmed` nor `N/A:` fails, naming its line."""
+    text = plan(REVIEW.replace('— confirmed: data/spec/example', '— looks fine'))
+    result = run(path := write('plan.md', text))
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, "Spec changes")} ' in result.stdout
+
+
+@pytest.mark.parametrize(
+    ('needle', 'ending'),
+    [
+        ('Verify reported', '— confirmed: PASS, 0 CRITICAL'),
+        ('The plan is `stage: done`', '— confirmed: 2026-11-11'),
+        ('Ship edited no hub', '— confirmed'),
+    ],
+)
+def test_na_on_a_mandatory_item_fails(write: Write, needle: str, ending: str) -> None:
+    """The Verify, plan-stage, and hub-edit items never take `N/A`."""
+    review = ''.join(
+        line.replace(ending, '— N/A: skipped') if needle in line else line
+        for line in REVIEW.splitlines(True)
+    )
+    text = plan(review)
+    result = run(path := write('plan.md', text))
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, needle)} ' in result.stdout
+    assert 'never takes `N/A`' in result.stdout
+
+
+def test_missing_reviewer_line_fails(write: Write) -> None:
+    """A Ship review without its reviewer line fails."""
+    text = plan(REVIEW.replace('Reviewed by `iwe-ship-reviewer` on 2026-11-11.\n', ''))
+    result = run(write('plan.md', text))
+    assert result.returncode == 1
+    assert 'Reviewed by' in result.stdout
+    assert 'expected item' not in result.stdout

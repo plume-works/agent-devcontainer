@@ -82,10 +82,18 @@ scope.
 **Files:** Modify: `scripts/check-ship-records.py`,
 `scripts/tests/test_check_ship_records.py`
 
-- [ ] Given plan documents, the CLI passes a plan with no `## Ship review`,
+- [x] Given plan documents, the CLI passes a plan with no `## Ship review`,
   passes one whose section matches the structure below, and fails, naming the
   line, a missing or reordered item, an unticked item, an item ending in neither
   `confirmed` nor `N/A:`, and `N/A` on the Verify, plan-stage, or hub-edit item.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py -k "plan or review or item"`
+    — `test_plan_without_ship_review_passes`,
+    `test_well_formed_ship_review_passes`,
+    `test_missing_item_fails_naming_the_section`,
+    `test_reordered_items_fail_naming_the_line`,
+    `test_unticked_item_fails_naming_the_line`,
+    `test_item_with_neither_ending_fails`, `test_na_on_a_mandatory_item_fails`.
 
 The approved structure, verbatim (`|` separates the two endings an item can
 take):
