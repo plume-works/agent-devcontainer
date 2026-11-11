@@ -139,10 +139,11 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
   the Shipper's `## Fix` removed before the review, ends with the bug's `## Fix`
   written by a `fix` round and a `## Ship review` that passes the `ship-records`
   hook.
-  - **Evidence:** observed on a local scratch branch: the `ship-records` hook
-    refused the commit removing the `## Fix`; `iwe-ship-reviewer` reported the
-    gap; a `fix` round restored the `## Fix` without Verify; the reviewer's
-    `## Ship review` commit passed `ship-records` and `iwe schema validate`.
+  - **Evidence:** [PR
+    #820](https://github.com/plume-works/agent-devcontainer/pull/820)
+    `## Verification` records the end-to-end run on a scratch plan: the
+    `ship-records` hook refused removing the bug's `## Fix`, a `fix` round
+    restored it, and the `## Ship review` passed `ship-records`.
 
 ## Spec changes
 
