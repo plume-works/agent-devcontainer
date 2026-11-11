@@ -10,7 +10,7 @@ import sys
 from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV
-from iwe_branch_fixtures import plan_document, Workspace
+from iwe_branch_fixtures import LIBRARY, plan_document, Workspace
 import pytest
 
 PLAN = 'data/plans/20250105-session-log'
@@ -79,7 +79,21 @@ def test_a_plan_without_dependencies_has_no_predecessor(
     assert run(predecessors, monkeypatch, capsys, workspace, []) == (0, [], '')
 
 
-def test_a_dependency_done_at_the_remote_default_branch_is_skipped(
+def test_a_dependency_done_in_the_checkout_is_skipped(
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
+) -> None:
+    workspace = Workspace(plugin_tmp_path, {FIRST: plan_document(), PLAN: dependent_plan(FIRST)})
+    done = plan_document(stage='done', ticks=(True, True))
+    (workspace.work / LIBRARY / f'{FIRST}.md').write_text(done)
+    pulls = [(10, 'iwe/focus-timer/iter-1-impl', 'main')]
+
+    assert run(predecessors, monkeypatch, capsys, workspace, pulls) == (0, [], '')
+
+
+def test_a_dependency_done_only_at_the_remote_is_built_on(
     predecessors: ModuleType,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -89,7 +103,7 @@ def test_a_dependency_done_at_the_remote_default_branch_is_skipped(
     workspace.publish(FIRST, plan_document(stage='done', ticks=(True, True)))
     pulls = [(10, 'iwe/focus-timer/iter-1-impl', 'main')]
 
-    assert run(predecessors, monkeypatch, capsys, workspace, pulls) == (0, [], '')
+    assert run(predecessors, monkeypatch, capsys, workspace, pulls) == (0, ['10'], '')
 
 
 def test_an_open_dependency_yields_the_top_of_its_chain(

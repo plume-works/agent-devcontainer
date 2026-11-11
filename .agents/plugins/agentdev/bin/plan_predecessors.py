@@ -17,14 +17,12 @@ from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import git_default_branch  # noqa: E402  (path set above so the plugin's bin/ resolves)
-import result_codes as rc  # noqa: E402
+import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
 from skill_common import print_error, require_git_repo, run_tool, Stop  # noqa: E402
 
 PREFLIGHT_ERROR = 2
 NO_PULL_REQUEST = 3
 GH_FAILED = 4
-FETCH_FAILED = 5
 
 USAGE = """\
 Find the open pull requests an IWE plan's work branch must be stacked on.
@@ -33,14 +31,13 @@ Usage:
   plan_predecessors.py <plan-key> [--remote <name>]
 
   <plan-key>        data/plans/<YYYYMMDD>-<slug>, read from the checkout.
-  --remote <name>   The remote whose default branch holds each dependency's
-                    stage and whose repository holds the pull requests.
+  --remote <name>   The remote whose repository holds the pull requests.
                     Default: origin
   -h, --help        Show this help text.
 
 Candidates are the plan's own open iwe/<slug>/iter-* pull requests and those of
-each plan linked from '## Depends on' that is not 'stage: done' at the remote
-default branch; a section whose text starts with 'None' links none. Each
+each plan linked from '## Depends on' that is not 'stage: done' in the
+checkout; a section whose text starts with 'None' links none. Each
 contributes the top of its chain, walked down base branches. A candidate below
 another candidate in the same chain is dropped.
 
@@ -51,11 +48,10 @@ Output (key=value lines):
 
 Results (RESULT / exit code):
   SUCCESS            0  The predecessors, possibly none, were printed
-  PREFLIGHT_ERROR    2  Bad usage, not a repository, no .iwe/config.toml, no
-                        plan at the key, or the remote's default branch unknown
+  PREFLIGHT_ERROR    2  Bad usage, not a repository, no .iwe/config.toml, or no
+                        plan at the key
   NO_PULL_REQUEST    3  A dependency is not shipped and has no open pull request
   GH_FAILED          4  gh could not list the open pull requests
-  FETCH_FAILED       5  The remote default branch could not be fetched
 """
 
 LINK = re.compile(r'\]\(([^)\s]+\.md)\)')
@@ -114,9 +110,9 @@ def depends_on_paths(text: str, plan_path: str) -> list[str]:
     return [path for path in dict.fromkeys(paths) if posixpath.dirname(path) == plans_dir]
 
 
-def stage_at(ref: str, path: str) -> str:
-    """Return the frontmatter stage of `path` in `ref`'s tree; '' when absent."""
-    lines = run_tool('git', 'cat-file', 'blob', f'{ref}:{path}').stdout.splitlines()
+def stage_of(path: Path) -> str:
+    """Return the frontmatter stage of the plan at `path`; '' when absent or missing."""
+    lines = path.read_text().splitlines() if path.is_file() else []
     if not lines or lines[0].strip() != '---':
         return ''
     for line in lines[1:]:
@@ -156,18 +152,6 @@ def chain_tops(slug: str, pulls: list[PullRequest], by_head: dict[str, PullReque
     return [pull.number for pull in own if pull.number not in under]
 
 
-def fetch_default_branch(remote: str) -> str:
-    """Fetch the remote's default branch and return its remote-tracking ref."""
-    branch = git_default_branch.remote_default_branch(remote)
-    if not branch:
-        print_error(f"Cannot tell the default branch of '{remote}'.")
-        raise Stop(PREFLIGHT_ERROR)
-    if run_tool('git', 'fetch', '--quiet', remote, branch).returncode != 0:
-        print_error(f"Failed to fetch '{branch}' from '{remote}'.")
-        raise Stop(FETCH_FAILED)
-    return f'refs/remotes/{remote}/{branch}'
-
-
 def predecessors(plan_key: str, remote: str) -> list[int]:
     """Return the pull requests the plan's work branch depends on, ascending."""
     root = require_git_repo()
@@ -181,13 +165,12 @@ def predecessors(plan_key: str, remote: str) -> list[int]:
     if remote_url.returncode != 0:
         print_error(f"No remote named '{remote}'.")
         raise Stop(PREFLIGHT_ERROR)
-    ref = fetch_default_branch(remote)
     pulls = open_pull_requests(remote_url.stdout.strip())
     by_head = {pull.head: pull for pull in pulls}
     candidates = chain_tops(slug_of(plan_path), pulls, by_head)
     text = (root / plan_path).read_text()
     for path in depends_on_paths(text, plan_path):
-        if stage_at(ref, path) == 'done':
+        if stage_of(root / path) == 'done':
             continue
         tops = chain_tops(slug_of(path), pulls, by_head)
         if not tops:
@@ -223,6 +206,5 @@ def main() -> int:
 if __name__ == '__main__':
     rc.RESULT_CODES[NO_PULL_REQUEST] = 'NO_PULL_REQUEST'
     rc.RESULT_CODES[GH_FAILED] = 'GH_FAILED'
-    rc.RESULT_CODES[FETCH_FAILED] = 'FETCH_FAILED'
     rc.install()
     rc.run(main)

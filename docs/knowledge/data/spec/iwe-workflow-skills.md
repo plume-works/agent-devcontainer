@@ -805,15 +805,21 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 ### Requirement: Ship waits for every dependency
 
 The Ship skill SHALL, before Verify in normal shipping, read the stage of every
-plan in the plan's `## Depends on` at the remote default branch, and SHALL
-return a Ship blocker report naming each one that is not `stage: done`, making
-no state change.
+plan in the plan's `## Depends on` in the checkout, never on another branch, and
+SHALL return a Ship blocker report naming each one that is not `stage: done`,
+making no state change.
 
 #### Scenario: Dependency not shipped
 
 - **WHEN** Ship runs on a plan whose dependency is still active
 - **THEN** it returns a blocker report naming the dependency and leaves the plan
   active
+
+#### Scenario: Dependency shipped on the same branch
+
+- **WHEN** a plan's dependency was shipped by an earlier commit on the branch
+  Ship runs on, and is not yet `stage: done` on the default branch
+- **THEN** Ship treats the dependency as shipped
 
 ### Requirement: Ship waits for post-merge observations
 

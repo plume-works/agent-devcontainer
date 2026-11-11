@@ -1,6 +1,6 @@
 ---
 name: iwe-branch-name
-description: "Name the next work branch for an IWE plan — iwe/<slug>/iter-<N>-plan, -impl, or -ship, one iteration counter across every phase — counting every iteration already used locally, on the remote, and in pull requests of any state, and read the plan's state at the remote default branch to pick the phase. Use when starting planning, implementation, or shipping work for a plan, when a skill needs the plan's next branch name, or to tell whether a branch is a plan work branch. Creates no branch: callers pass the name to git-new-branch. Keywords: plan branch name, iteration, plan branch, impl branch, ship branch, next branch, plan state."
+description: "Name the next work branch for an IWE plan — iwe/<slug>/iter-<N>-plan, -impl, or -ship, one iteration counter across every phase — counting every iteration already used locally, on the remote, and in pull requests of any state, and read the plan's state in the checkout to pick the phase. Use when starting planning, implementation, or shipping work for a plan, when a skill needs the plan's next branch name, or to tell whether a branch is a plan work branch. Creates no branch: callers pass the name to git-new-branch. Keywords: plan branch name, iteration, plan branch, impl branch, ship branch, next branch, plan state."
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -46,8 +46,8 @@ repository root. It imports only the standard library and changes no branch.
 - `parse <branch>` splits a name into `PHASE`, `SLUG`, and `ITERATION`. A name
   off the shape, including a bare `<slug>` or an earlier
   `<impl|ship>/<slug>/iter-<N>` name, is `NOT_A_WORK_BRANCH`.
-- `plan-state <plan-key|slug>` fetches the remote's default branch, finds
-  `data/plans/*-<slug>.md` in that tree — never the working tree — and prints
+- `plan-state <plan-key|slug>` finds `data/plans/*-<slug>.md` in the working
+  tree — never another branch — and prints
   `DEFAULT_BRANCH`, `PLAN_KEY`, and `PLAN_STATE`: `missing`, `cancelled`,
   `done`, `complete`, or `incomplete`. A plan with no `stage` is `complete`
   when it has at least one task checkbox under `## Implementation Steps` or
@@ -72,9 +72,7 @@ number a merged pull request may already hold.
 `<slug>`. `--remote <name>` selects the remote; default: `origin`. Supply it
 only when the user asked for another remote.
 
-Pass `--phase` whenever the caller already knows the phase. A plan written on
-the current checkout but not yet merged reads as `missing` at the remote
-default branch, so only `--phase` names its branch.
+Pass `--phase` whenever the caller already knows the phase.
 
 ```bash
 agent-code/iwe-branch-name.py next data/plans/20261020-foo --phase impl
@@ -89,8 +87,8 @@ a bare number.
 | ------------------- | ------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`           | `0`                 | The name's parts, the plan's state, or the next name was printed                     | Use the keys. For `next`, create a work branch through `/agentdev:git-new-branch NEXT`; on `NEXT_KIND=default`, switch to it. |
 | `NOT_A_WORK_BRANCH` | `3`                 | `parse`: the branch is not `iwe/<slug>/iter-<N>-<plan\|impl\|ship>`                  | Treat the branch as not a plan work branch. It is never renamed.                                                              |
-| `AMBIGUOUS_PLAN`    | `4`                 | The slug matches more than one dated plan at the remote default branch               | **STOP.** Show the candidates from stderr and rerun with the full plan key the user means.                                    |
-| `FETCH_FAILED`      | `5`                 | The remote could not be fetched or its branches listed                               | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                  |
+| `AMBIGUOUS_PLAN`    | `4`                 | The slug matches more than one dated plan in the working tree                        | **STOP.** Show the candidates from stderr and rerun with the full plan key the user means.                                    |
+| `FETCH_FAILED`      | `5`                 | The remote's branches could not be listed                                            | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                  |
 | `GH_UNAVAILABLE`    | `6`                 | `gh` is missing, unauthenticated, or could not read the remote's pull requests       | **STOP.** Ask the user to install or log in to `gh` (`gh auth status`). Never pick an iteration without it.                   |
 | `PREFLIGHT_ERROR`   | `2`                 | Bad usage, not a repository, no `.iwe/config.toml`, unknown remote or default branch | **STOP.** Report the error verbatim and fix the input before retrying.                                                        |
 | `SCRIPT_FAILURE`    | `1`                 | The script broke                                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                        |

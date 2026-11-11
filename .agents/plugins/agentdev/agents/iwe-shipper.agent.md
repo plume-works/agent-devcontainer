@@ -64,7 +64,7 @@ needed. In particular:
    with no mutation. Ship never chooses the release impact itself.
 
    For normal shipping, every plan the plan's `## Depends on` links must carry
-   `stage: done` at the remote default branch — a section whose text starts
+   `stage: done` in the checkout — a section whose text starts
    with `None` links no dependency, whatever it mentions: read each through
    `/agentdev:iwe-branch-name plan-state <plan-key>`, following that skill's
    result table. Any `PLAN_STATE` other than `done` ends the run here with a
@@ -243,8 +243,8 @@ in full with its anchored evidence — never a line number — and route, becaus
   once the revision validates.
 - **Dirty worktree** — uncommitted changes Verify refuses to judge: the user
   commits or discards the listed paths, then runs `/agentdev:iwe-ship` again.
-- **Unshipped prerequisite** — a `## Depends on` plan not `stage: done` at the
-  remote default branch: `/agentdev:iwe-ship` on that plan first, then
+- **Unshipped prerequisite** — a `## Depends on` plan not `stage: done` in the
+  checkout: `/agentdev:iwe-ship` on that plan first, then
   `/agentdev:iwe-ship` again.
 - **Outstanding observation** — an unticked task carrying a `**Closed by:**`
   line: observe it, tick it with evidence, then run `/agentdev:iwe-ship` again.

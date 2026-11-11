@@ -8,7 +8,6 @@ from pathlib import Path
 
 from git_fixtures import git, outcome
 from iwe_branch_fixtures import (
-    commit_file,
     LIBRARY,
     plan_document,
     PLAN_KEY,
@@ -60,29 +59,31 @@ def test_plan_state_reports_a_missing_plan(plugin_root: Path, plugin_tmp_path: P
     assert 'PLAN_KEY' not in values
 
 
-def test_plan_state_ignores_the_working_tree(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """A plan finished only locally, in the tree or in an unpushed commit, stays incomplete."""
+def test_plan_state_reads_the_working_tree(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A plan finished only in the working tree, or written there, reads as it stands."""
     workspace = Workspace(plugin_tmp_path)
     finished = plan_document(ticks=(True, True))
-    commit_file(workspace.work, f'{LIBRARY}/{PLAN_KEY}.md', finished)
+    (workspace.work / LIBRARY / f'{PLAN_KEY}.md').write_text(finished)
     (workspace.work / LIBRARY / 'data/plans/20250103-other.md').write_text(finished)
 
     completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
     _, other = run_script(plugin_root, workspace.work, 'plan-state', 'other')
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert values['PLAN_STATE'] == 'incomplete'
-    assert other['PLAN_STATE'] == 'missing'
+    assert values['PLAN_STATE'] == 'complete'
+    assert other['PLAN_STATE'] == 'complete'
 
 
-def test_plan_state_fetches_the_remote(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """A plan finished on the remote since the last fetch reads as complete."""
+def test_plan_state_ignores_the_remote(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A plan finished only on the remote default branch reads as the checkout holds it."""
     workspace = Workspace(plugin_tmp_path)
     workspace.publish(PLAN_KEY, plan_document(ticks=(True, True)))
+    git(workspace.work, 'remote', 'set-url', 'origin', str(plugin_tmp_path / 'gone.git'))
 
-    _, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
 
-    assert values['PLAN_STATE'] == 'complete'
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_STATE'] == 'incomplete'
 
 
 @pytest.mark.parametrize('target', [PLAN_KEY, f'{PLAN_KEY}.md', '20250102-focus-timer', PLAN_SLUG])
@@ -109,19 +110,6 @@ def test_plan_state_refuses_a_shared_slug(plugin_root: Path, plugin_tmp_path: Pa
     assert outcome(completed) == (4, 'RESULT=AMBIGUOUS_PLAN')
     assert 'PLAN_STATE' not in values
     assert by_key['PLAN_KEY'] == later
-
-
-def test_plan_state_reports_an_unreachable_remote(
-    plugin_root: Path, plugin_tmp_path: Path
-) -> None:
-    """A remote that cannot be fetched is FETCH_FAILED, not a stale answer."""
-    workspace = Workspace(plugin_tmp_path)
-    git(workspace.work, 'remote', 'set-url', 'origin', str(plugin_tmp_path / 'gone.git'))
-
-    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
-
-    assert outcome(completed) == (5, 'RESULT=FETCH_FAILED')
-    assert 'PLAN_STATE' not in values
 
 
 def test_plan_state_needs_an_iwe_workspace(plugin_root: Path, plugin_tmp_path: Path) -> None:
