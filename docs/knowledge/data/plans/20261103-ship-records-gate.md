@@ -67,20 +67,33 @@ scope.
 **Files:** Create: `scripts/check-ship-records.py`,
 `scripts/tests/test_check_ship_records.py`
 
-- [ ] Given bug documents, the CLI fails a `stage: done` bug without `## Fix`,
+- [x] Given bug documents, the CLI fails a `stage: done` bug without `## Fix`,
   passes one with it, and passes a `pending`, `planned`, or `cancelled` bug
   without it; it reports every violation, not only the first. Tests run the CLI
   on made-up documents under the test scratch root.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py -k bug` —
+    `test_done_bug_without_fix_fails`, `test_done_bug_with_fix_passes`,
+    `test_open_or_cancelled_bug_without_fix_passes`,
+    `test_every_violation_is_reported`.
 
 ### Task 2: The CLI checks the Ship review shape
 
 **Files:** Modify: `scripts/check-ship-records.py`,
 `scripts/tests/test_check_ship_records.py`
 
-- [ ] Given plan documents, the CLI passes a plan with no `## Ship review`,
+- [x] Given plan documents, the CLI passes a plan with no `## Ship review`,
   passes one whose section matches the structure below, and fails, naming the
   line, a missing or reordered item, an unticked item, an item ending in neither
   `confirmed` nor `N/A:`, and `N/A` on the Verify, plan-stage, or hub-edit item.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py -k "plan or review or item"`
+    — `test_plan_without_ship_review_passes`,
+    `test_well_formed_ship_review_passes`,
+    `test_missing_item_fails_naming_the_section`,
+    `test_reordered_items_fail_naming_the_line`,
+    `test_unticked_item_fails_naming_the_line`,
+    `test_item_with_neither_ending_fails`, `test_na_on_a_mandatory_item_fails`.
 
 The approved structure, verbatim (`|` separates the two endings an item can
 take):
@@ -105,14 +118,19 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] A `ship-records` hook runs `uv run scripts/check-ship-records.py` with
+- [x] A `ship-records` hook runs `uv run scripts/check-ship-records.py` with
   `pass_filenames: true` on `^docs/knowledge/data/(bugs|plans)/.*\.md$`, and
   `uv run pre-commit run ship-records --all-files` passes on the current graph.
+  - **Evidence:** `.pre-commit-config.yaml › "id: ship-records"`;
+    `uv run pre-commit run ship-records --all-files` passes.
 
 ### Task 4: CI runs the hook
 
-- [ ] The pull request's `pre-commit` job in Primary checks passes with the
+- [x] The pull request's `pre-commit` job in Primary checks passes with the
   `ship-records` hook in its output.
+  - **Evidence:** PR #815, Primary checks `pre-commit` job
+    https://github.com/plume-works/agent-devcontainer/actions/runs/43065396149/job/130678882483
+    — `ship-records ... Passed`.
 
 ## Spec changes
 

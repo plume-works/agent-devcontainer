@@ -181,11 +181,16 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    When a revision answers the Ship blocker report the `iwe-shipper` agent
    returned for this plan, dispatch `iwe-shipper` once validation passes. Its
    prompt carries only the plan key and the operation `ship`; its own Verify
-   decides whether the plan ships. Re-post its report.
+   decides whether the plan ships. Re-post its report. When it leads with
+   `Shipped`, run the review loop of `/agentdev:iwe-ship` yourself: dispatch
+   `iwe-ship-reviewer` with the plan key and the mode `ship`; on `Gaps`,
+   dispatch `iwe-shipper` with the plan key and the operation `fix`, quoting
+   the gap list verbatim, and review again, for at most 3 `fix` rounds. Report
+   the reviewer's outcome and every gap still open.
 
    Report whether the plan was created or revised, any assumptions,
    collisions, implementation that may now be stale, the issue outcome, and
-   any Shipper outcome. The report ends at readiness: it never names
+   any Shipper and reviewer outcome. The report ends at readiness: it never names
    Implement as a next step, and Plan never loads `/agentdev:iwe-implement` or
    dispatches `iwe-implementer`. Every other revision stops here, before
    implementation code changes.

@@ -1,6 +1,6 @@
 ---
 name: iwe-shipper
-description: Ship, cancel, or cut a release for an IWE plan from a fresh context — Verify gate, spec merge, idempotent graph transitions. Dispatched only by the iwe-ship skill and iwe-plan revise answering a Ship blocker report; never on a description match.
+description: Ship, cancel, fix Ship review gaps in, or cut a release for an IWE plan from a fresh context — Verify gate, spec merge, idempotent graph transitions. Dispatched only by the iwe-ship skill and iwe-plan revise answering a Ship blocker report or Ship review gaps; never on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 ---
 
@@ -23,7 +23,8 @@ Your prompt carries exactly these, and nothing else counts as one:
 
 - **Plan key** — `data/plans/<YYYYMMDD>-<slug>`, or the plan file path. A
   release cut takes none.
-- **Operation** — `ship`, `cancel`, or `release <X.Y.Z>`.
+- **Operation** — `ship`, `cancel`, `release <X.Y.Z>`, or `fix` with the gap
+  list `iwe-ship-reviewer` returned, quoted verbatim.
 - **Approvals** — anything the user granted, quoted verbatim. An approval
   applies only to the command or step its words name.
 
@@ -47,7 +48,8 @@ needed. In particular:
 ## Steps
 
 1. **Select the operation and inspect current state.** Take the operation from
-   your prompt. A release cut goes to step 8. Otherwise read the plan in full:
+   your prompt. A release cut goes to step 8; a `fix` goes to
+   `## The fix operation`. Otherwise read the plan in full:
    - **Cancellation** only when the operation is `cancel`. Go to step 2.
    - **Normal shipping** records implemented work. Go to step 3.
 
@@ -151,7 +153,9 @@ needed. In particular:
 7. **Validate, commit, and report.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. Re-inspect the final plan, each
    feature or bug — including every bug `## Fix` written in step 6 — and all
-   planned specs before committing. Report which valid results were preserved from an earlier
+   planned specs before committing. While a bug `release` lists has no
+   `## Fix`, commit nothing and return a Ship blocker report naming each such
+   bug. Report which valid results were preserved from an earlier
    attempt and which operations this invocation completed. If the plan's
    milestone aggregator lists it, check whether it was the last child and say
    when the milestone is complete.
@@ -188,10 +192,26 @@ needed. In particular:
    Run `iwe normalize` and `iwe schema validate`, re-inspect the release graph,
    and commit with a message describing the release cut.
 
+## The fix operation
+
+`fix` closes the gaps `iwe-ship-reviewer` found in a plan already shipped. Its
+prompt's quoted gap list is its whole scope:
+
+1. Read the plan and each document a gap names. A gap list that is missing, or
+   that names an operation outside steps 4–6, ends the run with
+   `Needs decision`.
+2. Perform only the operation each gap names, under the rules of the step that
+   owns it — a bug's `## Fix` under step 6, a spec merge under steps 4 and 5.
+   Inspect before each mutation and skip a result that is already correct.
+   Run no Verify, and repeat no step the gap list does not name.
+3. Run `iwe normalize`, then `iwe schema validate` — both must pass — and commit
+   with a message naming the plan and the gaps closed. Lead the report with
+   `Fixed` and the plan key, listing each gap and the operation that closed it.
+
 ## Report
 
 Your final message is the whole result your dispatcher sees. Lead with one line
-— `Shipped`, `Cancelled`, `Released <X.Y.Z>`, `Blocked`, or
+— `Shipped`, `Cancelled`, `Released <X.Y.Z>`, `Fixed`, `Blocked`, or
 `Needs decision` — and the plan key, then:
 
 - **Verify report** — whenever Verify produced a report, carry it verbatim

@@ -31,9 +31,23 @@ only builds its prompt and relays its report.
    granting it. When it returns a Ship blocker report, point at the route it
    names for each blocker: `/agentdev:iwe-implement` for a code or verification
    failure, `/agentdev:iwe-plan` revise mode for intent the plan got wrong.
+4. **Review a shipped plan.** When the report leads with `Shipped`, run the
+   review loop (`## Review loop`) on the plan, then report the reviewer's
+   outcome and every gap still open.
+
+## Review loop
+
+1. Dispatch `iwe-ship-reviewer` with a prompt carrying only the plan key and
+   the mode `ship`, and wait for its report.
+2. On `Reviewed`, the loop ends. On `Gaps`, dispatch `iwe-shipper` with the
+   plan key and the operation `fix`, quoting the reviewer's gap list verbatim,
+   then go back to step 1.
+3. Stop after 3 `fix` rounds, or on any report that leads with neither
+   `Reviewed` nor `Gaps` nor `Fixed`, and report the last gap list or report
+   verbatim.
 
 ## Rules
 
-- Never perform a Ship step in this session — no spec merge, stage change, or
-  release edit. Every one belongs to the dispatched agent.
+- Never perform a Ship step in this session — no spec merge, stage change,
+  release edit, or `## Ship review`. Every one belongs to a dispatched agent.
 - Never paraphrase an approval into the prompt; quote it, or leave it out.

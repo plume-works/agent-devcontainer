@@ -68,14 +68,21 @@ Assumptions:
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md`
 
-- [ ] The agent takes a plan key and a mode. Plan mode reports, changing
+- [x] The agent takes a plan key and a mode. Plan mode reports, changing
   nothing, whether the plan's `release` is `internal` or names existing
   documents, every listed bug is at `stage: planned`, every listed feature is
   `accepted`, and `## Spec changes` uses one of its three forms with complete
   post-change requirements in any delta.
-- [ ] Ship mode checks each item of the structure below and, when all hold,
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md#inputs` and
+    `#plan-mode`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`.
+- [x] Ship mode checks each item of the structure below and, when all hold,
   appends the section verbatim in shape and commits it; when any fails, it
   writes nothing and returns the failing items.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md#ship-mode` and
+    `#report`.
 
 The approved structure, verbatim (`|` separates the two endings an item can
 take):
@@ -100,21 +107,31 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Step 7 refuses to commit, returning a Ship blocker report, while a bug the
+- [x] Step 7 refuses to commit, returning a Ship blocker report, while a bug the
   plan's `release` lists has no `## Fix`.
-- [ ] The operation `fix`, with the gap list quoted, performs only the
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "While a bug `release` lists has no"`.
+- [x] The operation `fix`, with the gap list quoted, performs only the
   operations the gaps name, runs no Verify, validates, and commits.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#the-fix-operation` and
+    `#inputs`.
 
 ### Task 3: Ship runs the review loop
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `/agentdev:iwe-ship` dispatches `iwe-ship-reviewer` in ship mode after a
+- [x] `/agentdev:iwe-ship` dispatches `iwe-ship-reviewer` in ship mode after a
   shipped plan, dispatches `iwe-shipper` with `fix` on a gap list for at most 3
   rounds, and reports the reviewer's outcome and any remaining gaps.
-- [ ] `iwe-planner` step 8, after it re-dispatches `iwe-shipper` for a Ship
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#review-loop` and
+    `#steps › "Review a shipped plan."`.
+- [x] `iwe-planner` step 8, after it re-dispatches `iwe-shipper` for a Ship
   blocker report and the plan ships, runs the same review loop.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "run the review loop of"`.
 
 ### Task 4: The loop closes a real gap
 
