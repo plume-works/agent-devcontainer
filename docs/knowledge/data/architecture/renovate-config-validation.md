@@ -1,6 +1,6 @@
 ---
 type: architecture
-description: Why .github/renovate.json is validated by a pre-commit hook and a workflow at the one Renovate version the self-hosted bot runs, why both pass --no-global, and why the workflow runs in the pinned agentdev-devcontainer image.
+description: Why .github/renovate.json is validated by a pre-commit hook and a workflow at the one Renovate version the self-hosted bot runs, why both pass --no-global, why the workflow runs in the pinned agentdev-devcontainer image, and why Renovate is fetched with bunx rather than installed in that image.
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/workflows/validate-renovate-config.yml
@@ -54,6 +54,15 @@ next bot run.
 pull request, and a paths filter skips the validation job itself on a pull
 request that touches none of the config, the hook pins, the image pin, or the
 image's sources.
+
+## Rejected alternatives
+
+**Baking Renovate into the image.** Every consumer of the pin runs in the
+agentdev-devcontainer image, so a Renovate CLI installed there would still be
+one pin. It is rejected for size: Renovate brings a large Node dependency tree
+into every developer's image, when a developer needs it only on the rare commit
+that touches `.github/renovate.json`. `bunx` fetches the pinned release per run
+instead.
 
 ## Scope
 
