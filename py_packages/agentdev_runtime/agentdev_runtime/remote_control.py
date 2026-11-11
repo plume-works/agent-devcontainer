@@ -81,7 +81,7 @@ def config_dir() -> Path:
 def pane_command(mode: str, spawn: str, workspace_name: str) -> str:
     """Return the pane's command; server mode refuses --settings and prompts without --spawn."""
     if mode == 'server':
-        command = f'claude remote-control --spawn {spawn}'
+        command = f'claude remote-control --spawn {spawn} --permission-mode auto'
         if workspace_name:
             name = shlex.quote(workspace_name)
             command += f' --name {name} --remote-control-session-name-prefix {name}'

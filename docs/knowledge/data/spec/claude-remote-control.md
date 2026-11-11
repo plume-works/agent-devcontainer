@@ -3,6 +3,7 @@ type: spec
 description: Claude Remote Control autostarts from the Coder agent, or from the standalone runtime's supervised watcher when AGENTDEV_CLAUDE_RC_MODE opts in, only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, every container pre-approves Claude's first-run state unless it opts out, and the dev container's hostname, which names the Remote Control environment, says where the container came from.
 sources:
 - resource: .claude/.gitignore
+- resource: .claude/settings.json
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
@@ -172,6 +173,17 @@ startup.
 - **THEN** it latches a configuration failure naming `AGENTDEV_CLAUDE_RC_MODE`
   before the bootstrap.
 
+### Requirement: Claude sessions default to auto mode
+
+`.claude/settings.json` SHALL set `permissions.defaultMode` to `auto`, so a
+Claude session in the workspace, the session-mode pane included, starts in
+Claude Code's `auto` permission mode unless its launch names another mode.
+
+#### Scenario: the session-mode pane starts
+
+- **WHEN** session mode starts the pinned pane in the workspace folder
+- **THEN** its conversation starts in the `auto` permission mode.
+
 ### Requirement: server mode is opt-in
 
 `AGENTDEV_CLAUDE_RC_MODE` SHALL select the mode: `server` selects server mode,
@@ -183,8 +195,9 @@ value selects `worktree`, and `same-dir` selects `same-dir`. Any other value
 SHALL make the command print the value and the valid options to stderr, start no
 session, and exit non-zero, before any check other than the mode's. In session
 mode the command SHALL NOT read `AGENTDEV_CLAUDE_RC_SPAWN`. In server mode the
-`claude-remote` session SHALL run `claude remote-control --spawn <spawn mode>`,
-passing `--name` and `--remote-control-session-name-prefix` set to
+`claude-remote` session SHALL run
+`claude remote-control --spawn <spawn mode> --permission-mode auto`, passing
+`--name` and `--remote-control-session-name-prefix` set to
 `CODER_WORKSPACE_NAME` when it is set, and SHALL neither read nor write the
 stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 
@@ -192,14 +205,16 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 
 - **WHEN** the command starts `claude-remote` with
   `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN` unset
-- **THEN** the session runs `claude remote-control --spawn worktree` and reaches
-  a connected server with no terminal interaction.
+- **THEN** the session runs
+  `claude remote-control --spawn worktree --permission-mode auto` and reaches a
+  connected server with no terminal interaction.
 
 #### Scenario: same-dir spawn mode is selected
 
 - **WHEN** the command starts `claude-remote` with
   `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN=same-dir`
-- **THEN** the session runs `claude remote-control --spawn same-dir`.
+- **THEN** the session runs
+  `claude remote-control --spawn same-dir --permission-mode auto`.
 
 #### Scenario: a conversation is spawned in worktree mode
 
@@ -208,6 +223,11 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 - **THEN** it runs in its own git worktree under the workspace folder's
   `.claude/worktrees/` with the environment of the process that ran the command,
   and `git status` in the workspace folder lists none of its files.
+
+#### Scenario: a spawned conversation starts in auto mode
+
+- **WHEN** a conversation is spawned while the server runs in either spawn mode
+- **THEN** it starts in Claude Code's `auto` permission mode.
 
 #### Scenario: the server pre-creates its session in worktree mode
 
