@@ -65,10 +65,18 @@ def workspace() -> Iterator[Path]:
         shutil.rmtree(root, ignore_errors=True)
 
 
+def _frontmatter(path: Path) -> str:
+    """Return a plan's frontmatter wrapped in newlines, for line-anchored matching."""
+    match = FRONTMATTER.match(path.read_text())
+    assert match is not None, f'{path.name} has no frontmatter'
+    return f'\n{match.group(1)}\n'
+
+
 def _plan(workspace: Path, done: bool) -> Iterator[Path]:
-    """Yield the first active or done plan, restored after the test."""
+    """Yield the first active (no `stage`) or done plan, restored after the test."""
     plans = sorted((workspace / 'docs' / 'knowledge' / 'data' / 'plans').glob('*.md'))
-    path = next(p for p in plans if ('\nstage: done\n' in p.read_text()) == done)
+    marker = '\nstage: done\n' if done else '\nstage: '
+    path = next(p for p in plans if (marker in _frontmatter(p)) == done)
     original = path.read_text()
     yield path
     path.write_text(original)

@@ -19,10 +19,16 @@ sources:
 - resource: docs/knowledge/data/plans/20261030-responder-quill-app-identity.md
 - resource: docs/knowledge/data/architecture/label-review-triggers.md
 - resource: docs/knowledge/data/plans/20261108-label-review-triggers.md
-rank: 1100
+stage: cancelled
 ---
 
 # Resume interrupted Claude PR reviews on a persistent runner
+
+## Cancellation
+
+Cancelled: the review runner's Claude subscription now has enough 5-hour usage
+that a review no longer runs out of quota mid-run, so interrupted reviews are
+not a recurring failure worth a persistent-session resume path.
 
 ## Context
 
