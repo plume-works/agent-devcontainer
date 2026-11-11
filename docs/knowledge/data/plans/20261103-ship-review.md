@@ -122,11 +122,16 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `/agentdev:iwe-ship` dispatches `iwe-ship-reviewer` in ship mode after a
+- [x] `/agentdev:iwe-ship` dispatches `iwe-ship-reviewer` in ship mode after a
   shipped plan, dispatches `iwe-shipper` with `fix` on a gap list for at most 3
   rounds, and reports the reviewer's outcome and any remaining gaps.
-- [ ] `iwe-planner` step 8, after it re-dispatches `iwe-shipper` for a Ship
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md#review-loop` and
+    `#steps › "Review a shipped plan."`.
+- [x] `iwe-planner` step 8, after it re-dispatches `iwe-shipper` for a Ship
   blocker report and the plan ships, runs the same review loop.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "run the review loop of"`.
 
 ### Task 4: The loop closes a real gap
 
