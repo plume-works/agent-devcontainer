@@ -207,9 +207,8 @@ def test_clone_errors_do_not_leak_credentials(runtime: Runtime):
     assert 'https://***@127.0.0.1:9/private.git' in result.stdout
 
 
+@pytest.mark.requires_root
 def test_foreign_owned_checkout_is_trusted_once(runtime: Runtime):
-    if os.geteuid() != 0:
-        pytest.skip('changing ownership requires root')
     runtime.git('init', '-q')
     os.chown(runtime.workspace, 4321, 4321)
     for _ in range(2):
@@ -286,9 +285,10 @@ def test_regenerated_pre_commit_hooks_are_not_conflicts(runtime: Runtime):
     assert runtime.run('project').returncode == 0
 
 
+@pytest.mark.requires_root
 @pytest.mark.skipif(
-    not shutil.which('pre-commit') or not shutil.which('unshare') or os.geteuid() != 0,
-    reason='requires pre-commit and a root network namespace',
+    not shutil.which('pre-commit') or not shutil.which('unshare'),
+    reason='requires pre-commit and unshare',
 )
 def test_standalone_hook_registration_builds_no_environment_offline(runtime: Runtime):
     runtime.git('init', '-q')

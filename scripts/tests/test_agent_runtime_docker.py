@@ -23,7 +23,7 @@ PRIVILEGED_CAPS = 'CapEff:\t000001ffffffffff\n'
 UNPRIVILEGED_CAPS = 'CapEff:\t00000000a80425fb\n'
 DAEMON_JSON = {'builder': {'gc': {'enabled': True, 'defaultMaxUsedSpace': '10GB'}}}
 
-needs_root = pytest.mark.skipif(os.geteuid() != 0, reason='dockerd guards require root')
+needs_root = pytest.mark.requires_root
 
 
 class Engine:

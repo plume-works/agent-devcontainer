@@ -290,6 +290,7 @@ jobs:
           configFile: .devcontainer/devcontainer.json
           noCache: true
           runCmd: |
+            set -eu
             # The image's supervised runtime must be ready, nested Docker included.
             agentdev-runtime health ready
             docker run --rm hello-world | head -n 5
