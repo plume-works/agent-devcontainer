@@ -45,6 +45,9 @@ refused](backlog/e2e-opencode-usage-limit-reason.md)
 [Exercise the saved Verify report end to
 end](backlog/e2e-verify-report-cache.md)
 
+[Plans as ephemeral implementation documents; stories as the planned
+work](backlog/ephemeral-plans-and-stories.md)
+
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
