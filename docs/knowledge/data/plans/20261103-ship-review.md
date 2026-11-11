@@ -135,10 +135,14 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ### Task 4: The loop closes a real gap
 
-- [ ] `/agentdev:iwe-ship` on a scratch plan whose `release` lists a bug, with
+- [x] `/agentdev:iwe-ship` on a scratch plan whose `release` lists a bug, with
   the Shipper's `## Fix` removed before the review, ends with the bug's `## Fix`
   written by a `fix` round and a `## Ship review` that passes the `ship-records`
   hook.
+  - **Evidence:** observed on a local scratch branch: the `ship-records` hook
+    refused the commit removing the `## Fix`; `iwe-ship-reviewer` reported the
+    gap; a `fix` round restored the `## Fix` without Verify; the reviewer's
+    `## Ship review` commit passed `ship-records` and `iwe schema validate`.
 
 ## Spec changes
 
