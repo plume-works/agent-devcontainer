@@ -68,6 +68,11 @@ volume.
   be copied into the volume once and then never updated by an image upgrade.
 - The runtime account is not root. A host checkout must be writable by its
   UID/GID, the same requirement the deploy runtime's bootstrap enforces.
+- Root hosts are unsupported, by the repository owner's decision. When the host
+  user is root, the devcontainer CLI does not remap `agent`, which keeps
+  1000:1000, and the bootstrap refuses a root-owned checkout with an error
+  naming the UID it needs. Cloud sessions run on a host toolchain and never
+  start the Dev Container.
 
 ## Tests that need root
 

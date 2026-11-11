@@ -637,6 +637,9 @@ environment](20261101-per-checkout-uv-environments.md)
   project venv are rebuilt once.
 - GitHub Actions container jobs, which run as root and keep the create phase's
   root path; Task 3 and Task 5 act only for a non-root account.
+- Root hosts: `devcontainer up` run by root leaves `agent` at 1000:1000, and the
+  bootstrap refuses the root-owned checkout. They are unsupported (see the
+  architecture document's constraints).
 
 ## Key references
 
