@@ -294,7 +294,7 @@ re-run each test or command a ticked task names, in the current tree.
   observations](../bugs/plan-tasks-bundle-independent-observations.md) — and the
   `plan-checkboxes` gate, which keeps checking shape only; both belong to [Plans
   as ephemeral implementation documents; stories as the planned
-  work](20261108-ephemeral-plans-and-stories.md).
+  work](../backlog/ephemeral-plans-and-stories.md).
 - The template progress document `template-consume` writes, which is a separate
   consumer-owned record.
 - Rewriting evidence in shipped plans, or in active plans' ticked tasks.
