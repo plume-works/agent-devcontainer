@@ -393,13 +393,30 @@ before Task 5.
 
 **Files:** none (a Linux host whose checkout is owned by the host user)
 
-- [ ] A rebuilt Dev Container runs as `agent` with the host user's UID and GID.
-- [ ] After `docker restart`, the supervisor reports its required services
+- [x] A rebuilt Dev Container runs as `agent` with the host user's UID and GID.
+  - **Evidence:** in the repository owner's Coder workspace `home-volume-test`
+    (coder-ide-baseline `main-98f4ce0`, PR #800's candidate image
+    `sha-58cfdc4`), `id` in the container reports `agent` 1000:1000, matching
+    the host user `coder` 1000:1000, and the checkout and `/home/agent` are
+    owned by `agent`.
+- [x] After `docker restart`, the supervisor reports its required services
   ready.
-- [ ] `agentdev:*` skills resolve in Claude Code.
-- [ ] Claude stays logged in across a second rebuild.
-- [ ] `git-new-branch --worktree` from the checkout creates its worktree as
+  - **Evidence:** in that workspace, `agentdev-runtime health ready` exits 0
+    after `docker restart`, and the container log reads
+    `agentdev-runtime: all services are ready`.
+- [x] `agentdev:*` skills resolve in Claude Code.
+  - **Evidence:** in that workspace, `claude plugin list` shows
+    `agentdev@agent-devcontainer` enabled, and `claude -p` lists the
+    `agentdev:*` skills.
+- [x] Claude stays logged in across a second rebuild.
+  - **Evidence:** after the repository owner logged in,
+    `devcontainer up --remove-existing-container` replaced the container, and
+    `claude auth status` still reports `loggedIn: true`.
+- [x] `git-new-branch --worktree` from the checkout creates its worktree as
   `agent`.
+  - **Evidence:** in that workspace, `git-new-branch.py <name> --worktree`
+    returned `RESULT=SUCCESS`, and every file in the new worktree is owned by
+    `agent`.
 
 ### Task 10: Record the shipped model
 
