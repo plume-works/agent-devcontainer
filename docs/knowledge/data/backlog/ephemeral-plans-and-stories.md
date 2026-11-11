@@ -28,88 +28,104 @@ in stories and bugs, so that a plan is a short-lived implementation document and
 
 ## Acceptance criteria
 
-### Scenario: A story is written without its card
+### Scenario: A story is missing a card section
 
-- **WHEN** a backlog story lacks `## Story`, `## Acceptance criteria`,
-  `## Decisions`, or `## Out of scope`, has them out of order, or names no
-  feature it advances (or `internal`)
-- **THEN** `iwe schema validate` fails and names the document, and Capture
-  refuses to file it
+- **WHEN** a story in `data/backlog/` lacks `## Story`,
+  `## Acceptance criteria`, `## Decisions`, or `## Out of scope`, has them out
+  of order, or does not say which features it advances (or `internal`)
+- **THEN** `iwe schema validate` fails and names the story, and
+  `/agentdev:iwe-capture task` refuses to file it
 
-### Scenario: A story is planned
+### Scenario: A plan is written for a story
 
-- **WHEN** Plan creates a plan for a pending story or bug
-- **THEN** the plan names that one item, the item is `in-progress` with the plan
-  linked under its `## Plan`, and each proposed feature the story advances is
-  `accepted`
+- **WHEN** `/agentdev:iwe-plan` writes a plan for a pending story or bug
+- **THEN** the plan names that one story or bug, the story or bug moves to
+  `in-progress` and links the plan under its `## Plan` section, and each
+  `proposed` feature the story advances moves to `accepted`
 
-### Scenario: Work with no story or bug is planned
+### Scenario: The work has no story or bug yet
 
-- **WHEN** Plan is asked to plan work no story or bug describes
-- **THEN** the work goes to Capture as a story before a plan is written
+- **WHEN** `/agentdev:iwe-plan` is asked for work that no story or bug in the
+  graph describes
+- **THEN** `/agentdev:iwe-plan` sends the work to `/agentdev:iwe-capture task`
+  first and writes the plan only after the story is filed
 
 ### Scenario: A plan ships
 
-- **WHEN** Ship ships a plan with a zero-CRITICAL Verify report, on any branch
-- **THEN** the item is `done`, each feature it advances is `implemented`, the
-  plan stays in place, and `## Ship review` is appended to the item
+- **WHEN** `/agentdev:iwe-ship` ships a plan that `/agentdev:iwe-verify`
+  reported with zero CRITICAL findings, on any branch
+- **THEN** the plan's story or bug is `done`, each feature the story advances is
+  `implemented`, the plan file stays in `data/plans/`, and `iwe-ship-reviewer`
+  appends `## Ship review` to the story or bug
 
-### Scenario: A release cut deletes shipped plans on the default branch
+### Scenario: A release is cut
 
-- **WHEN** a release cut runs
-- **THEN** it links each feature a done story advances and each done bug, stamps
-  `released` on them, and deletes every plan whose item is done and whose file
-  is identical on the remote default branch; any other plan stays for a later
-  cut
+- **WHEN** `/agentdev:iwe-ship release <X.Y.Z>` runs
+- **THEN** the release page links each feature a done story advances and each
+  done bug, each of those stories and bugs gets `released: <X.Y.Z>`, and every
+  plan whose story or bug is done is deleted if its file is identical on the
+  remote default branch; a plan not yet on the default branch stays until the
+  next release
 
 ### Scenario: A plan is cancelled
 
-- **WHEN** Ship cancels a plan
-- **THEN** the plan is deleted at once and the item returns to `pending`
+- **WHEN** `/agentdev:iwe-ship` cancels a plan
+- **THEN** the plan file is deleted at once and its story or bug returns to
+  `pending`
 
-### Scenario: The graph switches over
+### Scenario: The graph moves to the new model
 
-- **WHEN** the new model lands
-- **THEN** done and cancelled plans are gone from the graph with every link to
-  them repointed at a permalink on the default branch, every backlog task has
-  moved to `data/someday/`, and only cards remain in `data/backlog/`
+- **WHEN** the change that implements this story merges
+- **THEN** no done or cancelled plan remains in `data/plans/`, every link that
+  pointed at one points at its permalink on the default branch, every earlier
+  backlog task is in `data/someday/`, and `data/backlog/` holds only stories in
+  the card shape
 
 ## Decisions
 
 Every decision here is the maintainer's.
 
-- **Feature vs story.** A feature stays the durable, capability-level document;
-  a story is one increment that advances features or is `internal`.
-- **Filed means ready.** Unformed work stays in `data/someday/`; a spike is a
-  story whose acceptance criterion is a decision recorded in
-  `data/architecture/`.
-- **Lifecycle.** Stories and bugs go `pending → in-progress → done` (`cancelled`
-  stays). A plan is created only from one ready story or bug.
-- **Plans reach the default branch before they are deleted.** The default branch
-  is squash-merged, so Ship deletes nothing; only the release cut deletes a
-  shipped plan, once it is on the default branch. Cancelling deletes at once.
-- **The Ship review lives on the delivered story or bug**, which outlives the
-  plan; the `ship-records` pre-commit hook gates it there.
-- **Release cut** reads done stories and bugs, not plans.
-- **Build order.** `rank` lives on stories and bugs only.
-- **Iteration.** `milestone.md` becomes the iteration tracker — a goal and the
-  product goal it serves; `product.md` gains `## Goals`.
-- **Specs stay.** A plan lifts its story's acceptance scenarios into
-  `## Spec changes`; Ship merges them as today.
-- **Switch.** Every active plan ships under the old rules and a last old-rules
-  release is cut before the graph migrates.
-- **Rejected:** features as stories (a feature spans many plans, and release
-  pages link it); a separate `ready` stage (someday already is the not-ready
-  lane); keeping a plan only on its work branch or in `.tmp/` (breaks the plan
-  pull request, resumability, and Verify's checkbox evidence); dropping or
-  folding `spec/` (most specs have no feature, and per-story criteria go stale);
-  Ship deleting the plan once it is on the default branch (forces a separate
-  ship pull request for every plan).
+- **Feature vs story.** A feature stays the long-lived document for a
+  capability; a story is one increment that advances one or more features, or is
+  `internal`.
+- **A story in `data/backlog/` is ready to plan.** Work not ready yet stays in
+  `data/someday/`. A spike is a story whose acceptance criterion is a decision
+  recorded in `data/architecture/`.
+- **Stages.** Stories and bugs go `pending → in-progress → done`, or
+  `cancelled`. `/agentdev:iwe-plan` writes a plan only for one ready story or
+  bug.
+- **A plan reaches the default branch before it is deleted.** The default branch
+  is squash-merged, so `/agentdev:iwe-ship` deletes no plan when it ships;
+  `/agentdev:iwe-ship release` deletes a shipped plan once the plan is on the
+  default branch. Cancelling deletes the plan at once.
+- **`## Ship review` goes on the story or bug**, which outlives the plan; the
+  `ship-records` pre-commit hook checks it there.
+- **`/agentdev:iwe-ship release` reads done stories and bugs**, not plans.
+- **Build order.** Only stories and bugs carry `rank`.
+- **Iteration.** `data/milestone.md` holds the current iteration's goal and the
+  product goal it serves; `data/product.md` gains `## Goals`.
+- **Specs stay.** A plan copies its story's acceptance scenarios into
+  `## Spec changes`, and `/agentdev:iwe-ship` merges them into `data/spec/` as
+  today.
+- **Switch-over.** Every active plan ships under the current rules, and one last
+  release is cut under them, before the graph moves to the new model.
+- **Rejected:**
+  - features as stories: a feature spans many plans, and release pages link it;
+  - a separate `ready` stage: `data/someday/` already holds work that is not
+    ready;
+  - keeping a plan only on its work branch or in `.tmp/`: that breaks the plan
+    pull request, resuming work, and the checkbox evidence
+    `/agentdev:iwe-verify` reads;
+  - dropping or folding `data/spec/`: most specs have no feature, and a story's
+    criteria go stale once a later story changes the behaviour;
+  - `/agentdev:iwe-ship` deleting the plan once it is on the default branch:
+    that forces a separate ship pull request for every plan.
 
 ## Out of scope
 
 - Renaming "plan": a separate idea, [Rename the plan
   document](../someday/rename-plan-document.md).
 - Acceptance criteria on bugs: a bug keeps Symptom / Reproduction / Root cause.
-- Rewriting the moved backlog tasks as cards: each is promoted when picked up.
+- Rewriting the earlier backlog tasks as stories: each one is promoted with
+  `/agentdev:iwe-capture task --from someday/<slug>` when someone picks it up.
 - Any change to `/agentdev:iwe-branch-name`.
