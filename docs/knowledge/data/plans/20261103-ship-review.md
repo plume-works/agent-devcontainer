@@ -107,10 +107,15 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Step 7 refuses to commit, returning a Ship blocker report, while a bug the
+- [x] Step 7 refuses to commit, returning a Ship blocker report, while a bug the
   plan's `release` lists has no `## Fix`.
-- [ ] The operation `fix`, with the gap list quoted, performs only the
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "While a bug `release` lists has no"`.
+- [x] The operation `fix`, with the gap list quoted, performs only the
   operations the gaps name, runs no Verify, validates, and commits.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#the-fix-operation` and
+    `#inputs`.
 
 ### Task 3: Ship runs the review loop
 
