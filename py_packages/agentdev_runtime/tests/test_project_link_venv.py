@@ -72,10 +72,22 @@ def test_a_foreign_link_is_left_with_a_warning(
     checkout: Path, root: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     foreign = tmp_path / 'elsewhere'
+    foreign.mkdir()
     (checkout / '.venv').symlink_to(foreign)
     assert project.link_venv(settings_for(root), checkout) == 0
     assert Path(os.readlink(checkout / '.venv')) == foreign
     assert 'outside' in capsys.readouterr().err
+
+
+def test_a_dangling_link_outside_the_root_is_replaced(
+    checkout: Path, root: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A checkout from the image that mounted /uv keeps a link into it; uv cannot sync through."""
+    (checkout / '.venv').symlink_to(tmp_path / 'uv-volume-gone' / 'venvs' / 'checkout')
+    assert project.link_venv(settings_for(root), checkout) == 0
+    assert Path(os.readlink(checkout / '.venv')) == root / 'checkout'
+    assert (root / 'checkout').is_dir()
+    assert 'replacing dangling' in capsys.readouterr().err
 
 
 def test_deploy_mode_changes_nothing(checkout: Path, root: Path) -> None:

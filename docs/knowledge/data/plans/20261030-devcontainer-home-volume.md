@@ -365,7 +365,9 @@ before Task 5.
 
 ### Task 8: Migrate template consumers
 
-**Files:** Modify: the `template-consume` skill's update guidance under
+**Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
+`py_packages/agentdev_runtime/tests/test_project_link_venv.py`, the
+`template-consume` skill's update guidance under
 `.agents/plugins/agentdev/skills/template-consume/` (`SKILL.md` and
 `references/consumption-guide.md`),
 `scripts/tests/test_template_consume_migration.py`
@@ -379,6 +381,13 @@ before Task 5.
     and
     `scripts/tests/test_template_consume_migration.py::test_a_migrated_consumer_reaches_runtime_readiness`,
     run by a host UID other than 0 and 1000
+- [x] A checkout opened in the pre-change Dev Container keeps a `.venv` link
+  into the removed `/uv` volume; the next project sync replaces that dangling
+  link with one to the checkout's environment on the home volume, and still
+  leaves a live link elsewhere alone.
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_project_link_venv.py::test_a_dangling_link_outside_the_root_is_replaced`,
+    `py_packages/agentdev_runtime/tests/test_project_link_venv.py::test_a_foreign_link_is_left_with_a_warning`
 
 ### Task 9: Accept a rebuilt Dev Container on a host-owned checkout
 
