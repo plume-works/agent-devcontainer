@@ -208,3 +208,35 @@ def test_missing_reviewer_line_fails(write: Write) -> None:
     assert result.returncode == 1
     assert 'Reviewed by' in result.stdout
     assert 'expected item' not in result.stdout
+
+
+def wrap(review: str) -> str:
+    """Return the review with each item longer than 80 columns wrapped as `iwe normalize` does."""
+    wrapped = []
+    for line in review.splitlines():
+        if line.startswith('- [') and len(line) > 80:
+            cut = line.rindex(' ', 0, 81)
+            wrapped += [line[:cut], f'  {line[cut + 1 :]}']
+        else:
+            wrapped.append(line)
+    return '\n'.join(wrapped) + '\n'
+
+
+def test_wrapped_items_pass(write: Write) -> None:
+    """Items wrapped onto an indented continuation line pass, as `iwe normalize` leaves them."""
+    text = plan(wrap(REVIEW))
+    assert any(line.startswith('  ') for line in text.splitlines())
+    result = run(write('plan.md', text))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_wrapped_unticked_item_fails_naming_its_first_line(write: Write) -> None:
+    """A wrapped item that breaks a rule is reported at the line the item starts on."""
+    text = plan(
+        wrap(
+            REVIEW.replace('- [x] Every bug in `release` has', '- [ ] Every bug in `release` has')
+        )
+    )
+    result = run(path := write('plan.md', text))
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, "- [ ] Every bug in `release` has")} ' in result.stdout
