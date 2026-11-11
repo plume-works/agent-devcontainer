@@ -1,0 +1,4 @@
+---
+# The bash and fish files the role's PATH blocks go into.
+bun_setup_bashrc: "{{ user_home }}/.bashrc"
+bun_setup_fish_config: "{{ user_home }}/.config/fish/config.fish"

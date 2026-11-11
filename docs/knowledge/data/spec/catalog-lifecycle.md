@@ -22,14 +22,9 @@ The `agentdev` catalog staged at `$AGENTDEV_CATALOG_DIR` SHALL be installed into
 each agent's plugin state during the `agentdev-base` build, at Claude user scope
 and by registering the catalog's OpenCode bridge plugin in the user's OpenCode
 config, so a consumer that runs the image without lifecycle commands resolves
-`agentdev:*` skills. `agentdev-devcontainer`'s `postCreateCommand` SHALL also
-install it, because a mounted `~/.claude` volume shadows what the image build
-wrote. Because the build-time Claude install seeds a real `/root/.claude.json`
-into the image, `postCreateCommand` SHALL establish the
-volume→`/root/.claude.json` symlink — discarding the image's real file, seeding
-`/root/.claude/claude.json` with `{}` only when the volume has none — so the
-mounted `agentdev-claude` volume remains the source of truth for `claude.json`
-and no image content is folded into it.
+`agentdev:*` skills. `agentdev-devcontainer`'s create phase SHALL also install
+it into the runtime account's home volume, which starts empty and receives no
+image content. `~/.claude.json` SHALL be a regular file on that volume.
 
 ### Scenario: the image runs with no volumes and no lifecycle hooks
 
@@ -39,45 +34,52 @@ and no image content is folded into it.
   `agentdev:*` skill resolves in Claude Code, and OpenCode loads the staged
   bridge plugin and lists the catalog's skills.
 
-### Scenario: a devcontainer starts for the first time on a fresh volume
+### Scenario: a devcontainer starts for the first time on a fresh home volume
 
-- **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
-  image ships a real `/root/.claude.json`
-- **THEN** `postCreateCommand` discards that image file and symlinks
-  `/root/.claude.json` to a freshly-seeded `/root/.claude/claude.json`, so the
-  volume's `claude.json` holds no image content, and the staged catalog is
-  installed into the fresh `agentdev-claude` volume at Claude user scope and
-  into the OpenCode user config.
+- **WHEN** the create phase runs, `$AGENTDEV_CATALOG_DIR` exists, and the home
+  volume is empty
+- **THEN** the staged catalog is installed at Claude user scope and into the
+  OpenCode user config on the home volume, and `~/.claude.json` is a regular
+  file holding no image content.
 
-### Scenario: a devcontainer starts with a catalog already installed on its volume
+### Scenario: a devcontainer starts with a catalog already installed on its home volume
 
-- **WHEN** the `agentdev-claude` volume already contains a prior install and
-  `claude.json` (it persists per devcontainer instance), and the recreated
-  container carries the image's `/root/.claude.json`
-- **THEN** `postCreateCommand` discards the image's `/root/.claude.json` and
-  symlinks `/root/.claude.json` to the volume's existing `claude.json`, so that
-  content is preserved (Claude may append bootstrap fields, so the guarantee is
-  content preservation, not byte-identity), the volume mount shadows the
-  image-build catalog install, and `postCreateCommand` re-applies that install
-  every time the container is created, so it is never silently stale.
+- **WHEN** the home volume already holds a prior install and `~/.claude.json`,
+  and the container is recreated
+- **THEN** `~/.claude.json`'s content is preserved (Claude may append bootstrap
+  fields, so the guarantee is content preservation, not byte-identity), and the
+  create phase re-applies the catalog install every time the container is
+  created, so it is never silently stale.
+
+### Scenario: a home volume still holds the ~/.claude.json link
+
+- **WHEN** `~/.claude.json` is a symlink to `~/.claude/claude.json`
+- **THEN** it is replaced by a regular file with the link target's content, and
+  the target is removed.
 
 ## Requirement: the create phase clears codebase-memory-mcp's leftovers
 
 The create phase of both profiles SHALL remove what
-`codebase-memory-mcp install` wrote into persisted configuration, after
-`~/.claude.json` is linked: its hooks in Claude's `settings.json`, its MCP
-entries in `claude.json` and OpenCode's config, its marked blocks in OpenCode's
-`AGENTS.md` and `plugins/cbm-augment.ts`, its agents, skill, and hook scripts,
-and its binary and cache in the home. It SHALL leave every other entry and file
-in place, SHALL NOT rewrite a file that holds nothing of CBM's, and SHALL NOT
-fail the create phase over a file it cannot read. The decision is [No code-graph
-index](../architecture/no-code-graph.md).
+`codebase-memory-mcp install` wrote into persisted configuration, after any
+`~/.claude.json` link is replaced by a regular file: its hooks in Claude's
+`settings.json`, its MCP entries in `claude.json` and OpenCode's config, its
+marked blocks in OpenCode's `AGENTS.md` and `plugins/cbm-augment.ts`, its
+agents, skill, and hook scripts, and its binary and cache in the home. It SHALL
+leave every other entry and file in place, SHALL NOT rewrite a file that holds
+nothing of CBM's, and SHALL NOT fail the create phase over a file it cannot
+read. The decision is [No code-graph index](../architecture/no-code-graph.md).
 
 ### Scenario: a volume holds a CBM install beside the user's configuration
 
 - **WHEN** the create phase runs on a volume holding CBM's hooks and entries
   next to the user's own hooks, MCP servers, agents, and instructions
-- **THEN** only CBM's are removed, and `~/.claude.json` stays a symlink.
+- **THEN** only CBM's are removed.
+
+### Scenario: a home holds a CBM entry behind the ~/.claude.json link
+
+- **WHEN** `~/.claude.json` is a symlink to a file holding CBM's MCP entry
+- **THEN** `~/.claude.json` is a regular file without that entry, and the user's
+  other content is preserved.
 
 ### Scenario: a home holds nothing of CBM's
 
@@ -121,16 +123,22 @@ consist of `.claude-plugin/marketplace.json` and the OpenCode bridge directory.
 
 ## Requirement: only agent credentials are shared across worktrees
 
-The `agentdev-agents-auth` volume SHALL hold only each agent's authentication
-state (mounted at `/root/.agents-auth/<agent>`); all other plugin/install state
-lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-opencode`
-volumes.
+The shared auth volume SHALL hold only Claude's authentication state, mounted at
+`/var/lib/agentdev/auth/<agent>`, and SHALL be named after the host user's UID
+and GID, so only containers whose account has the same IDs share it. All other
+client state SHALL live on each instance's home volume.
 
 ### Scenario: two worktrees of the same repository are opened as separate devcontainers
 
-- **WHEN** both attach
-- **THEN** each gets its own catalog install (scoped per instance) but shares
-  the same logged-in Claude credentials (scoped to the shared auth volume).
+- **WHEN** both attach as the same host user
+- **THEN** each gets its own catalog install on its own home volume but shares
+  the same logged-in Claude credentials on the shared auth volume.
+
+### Scenario: two host users open Dev Containers on one engine
+
+- **WHEN** their UID/GID pairs differ
+- **THEN** each container mounts its own auth volume and neither reads the
+  other's credentials.
 
 ## Requirement: standalone startup selects and reconciles the runtime catalog
 

@@ -81,7 +81,8 @@ class Consumer:
 
     def sh(self, script: str) -> str:
         result = subprocess.run(
-            ['docker', 'exec', '-w', f'/workspaces/{self.path.name}', self.container]
+            ['docker', 'exec', '-u', 'agent', '-w', f'/workspaces/{self.path.name}']
+            + [self.container]
             + ['bash', '-lc', script],
             capture_output=True,
             text=True,
@@ -118,3 +119,8 @@ def test_a_migrated_consumer_reaches_runtime_readiness(consumer: Consumer):
     consumer.sh('test ! -e .devcontainer/scripts')
     marketplaces = json.loads(consumer.sh('cat ~/.claude/plugins/known_marketplaces.json'))
     assert marketplaces['agent-devcontainer']['installLocation'] == '/opt/agentdev'
+    # The home-volume migration's end state: agent state on the home, none below /root.
+    assert consumer.sh('id -un') == 'agent'
+    mounts = consumer.sh('findmnt -rn -o TARGET').splitlines()
+    assert '/home/agent' in mounts
+    assert not any(target == '/root' or target.startswith(('/root/', '/uv')) for target in mounts)

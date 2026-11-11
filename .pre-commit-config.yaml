@@ -8,7 +8,7 @@ repos:
     hooks:
       # Spec: agentdev-runtime-images; no-op where agentdev-runtime is absent (host, CI).
       - id: link-venv
-        name: link .venv to its /uv/venvs environment
+        name: link .venv to its own uv environment
         entry: sh -c 'command -v agentdev-runtime >/dev/null || exit 0; exec agentdev-runtime project link-venv'
         language: system
         always_run: true

@@ -290,6 +290,7 @@ jobs:
           configFile: .devcontainer/devcontainer.json
           noCache: true
           runCmd: |
+            set -eu
             # The image's supervised runtime must be ready, nested Docker included.
             agentdev-runtime health ready
             docker run --rm hello-world | head -n 5
@@ -330,6 +331,13 @@ jobs:
             # The runtime tests mostly wait on subprocess deadlines, so workers beyond the core count pay.
             uv run pytest -n 8 py_packages .agents/plugins/agentdev/tests \
               .agents/plugins/self-improve/tests scripts/tests
+
+            # The tests the runtime account skips, run as root; see
+            # architecture/devcontainer-home-volume. They must leave nothing root-owned behind.
+            touch .tmp/root-tests.stamp
+            scripts/run-root-tests -n 8 scripts/tests
+            left="$(find . /tmp/agentdev-tests -newer .tmp/root-tests.stamp -user root -print 2>/dev/null | head -n 5)"
+            if [ -n "$left" ]; then echo "root-owned leftovers: $left" >&2; exit 1; fi
 
       - name: Log debug stats
         if: ${{ always() }}

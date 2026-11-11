@@ -60,9 +60,12 @@ def link_venv(settings: env.Settings, path: Path) -> int:
     venv = checkout / '.venv'
     current = linked(checkout)
     if current is not None:
-        if not within(root, current):
+        if not within(root, current) and current.exists():
             print(f'{PREFIX}: leaving .venv -> {current} (outside {root})', file=sys.stderr)
             return 0
+        if not within(root, current):
+            # A checkout opened before the home volume links into the removed /uv volume.
+            print(f'{PREFIX}: replacing dangling .venv -> {current}', file=sys.stderr)
         if current != target:
             venv.unlink()
     elif venv.exists():

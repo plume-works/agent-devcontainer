@@ -1,6 +1,10 @@
 """
-Session hooks for the container acceptance suite run against AGENTDEV_RUNTIME_TEST_IMAGE.
+Session hooks: the root-only tests, and the container acceptance suite.
 
+Tests marked ``requires_root`` skip unless the run is root; ``scripts/run-root-tests`` runs them
+as root and nothing else. Spec: architecture/devcontainer-home-volume.
+
+The acceptance suite runs against AGENTDEV_RUNTIME_TEST_IMAGE.
 Every container, volume, and network the suite makes carries ``ACCEPTANCE_LABEL``; the session
 removes them all when it ends, so an interrupted test leaves nothing behind. A run that names an
 image but skips every acceptance test fails: it accepted nothing.
@@ -23,7 +27,32 @@ RESOURCES = (
     (('network', 'ls', '-q'), ('network', 'rm')),
 )
 
+ROOT_MARKER = 'requires_root'
+LAUNCHER_VARIABLE = 'AGENTDEV_ROOT_TEST_LAUNCHER'
+
 _outcomes = {'ran': 0, 'skipped': 0}
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    if os.geteuid() == 0:
+        return
+    skip = pytest.mark.skip(reason='requires root; run scripts/run-root-tests')
+    for item in items:
+        if item.get_closest_marker(ROOT_MARKER):
+            item.add_marker(skip)
+
+
+def pytest_collection_finish(session: pytest.Session) -> None:
+    """Under the root-test launcher, refuse a run that would execute anything else as root."""
+    if os.geteuid() != 0 or os.environ.get(LAUNCHER_VARIABLE) != '1':
+        return
+    others = [item.nodeid for item in session.items if not item.get_closest_marker(ROOT_MARKER)]
+    if others:
+        raise pytest.UsageError(
+            f'the root-test launcher runs only {ROOT_MARKER} tests; also selected: '
+            + ', '.join(others[:5])
+            + (' …' if len(others) > 5 else '')
+        )
 
 
 def remove_labelled_resources() -> None:

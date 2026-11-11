@@ -297,6 +297,7 @@ def started(events: list[str]) -> list[str]:
     return runs
 
 
+@pytest.mark.requires_root
 def test_starts_services_in_dependency_order_then_publishes_readiness(make):
     box = make()
     box.start()
@@ -304,6 +305,7 @@ def test_starts_services_in_dependency_order_then_publishes_readiness(make):
     assert started(box.events()) == ['bootstrap', *STARTUP_ORDER]
 
 
+@pytest.mark.requires_root
 def test_disabled_xpra_is_neither_started_nor_required(make):
     box = make(AGENTDEV_SKIP_XPRA='1')
     del box.env['XPRA_PASSWORD']
@@ -338,6 +340,7 @@ def test_enabled_xpra_without_a_password_latches_before_the_bootstrap(make, pass
     assert box.process is not None and box.process.returncode == 0
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('failure', ['exit', 'timeout'])
 def test_preparation_failure_latches_with_opencode_unavailable(make, failure):
     box = make()
@@ -356,6 +359,7 @@ def test_preparation_failure_latches_with_opencode_unavailable(make, failure):
     assert record['time'].endswith('+00:00')
 
 
+@pytest.mark.requires_root
 def test_a_latched_preparation_resumes_on_retry_in_the_same_process(make):
     box = make()
     box.set('prepare', 'exit', '7')
@@ -379,6 +383,7 @@ def test_a_latched_preparation_resumes_on_retry_in_the_same_process(make):
     assert box.record() == second, 'success leaves the last failure in place'
 
 
+@pytest.mark.requires_root
 def test_the_failure_record_keeps_the_last_200_output_lines(make):
     box = make()
     box.set('prepare', 'lines', '300')
@@ -390,7 +395,7 @@ def test_the_failure_record_keeps_the_last_200_output_lines(make):
     assert output[0] == 'prepare line 101' and output[-1] == 'prepare line 300'
 
 
-@pytest.mark.skipif(os.geteuid() != 0, reason='changing ownership requires root')
+@pytest.mark.requires_root
 def test_the_failure_record_leaves_a_fresh_home_owned_by_the_runtime_user(make):
     account = pwd.getpwnam('nobody')
     box = make(AGENTDEV_USER='nobody')
@@ -404,6 +409,7 @@ def test_the_failure_record_leaves_a_fresh_home_owned_by_the_runtime_user(make):
         assert (info.st_uid, info.st_gid) == (account.pw_uid, account.pw_gid), directory
 
 
+@pytest.mark.requires_root
 def test_a_new_start_keeps_the_previous_failure_record(make):
     box = make()
     box.set('prepare', 'exit', '7')
@@ -417,6 +423,7 @@ def test_a_new_start_keeps_the_previous_failure_record(make):
     assert box.record_path.read_bytes() == recorded
 
 
+@pytest.mark.requires_root
 def test_bootstrap_failure_latches_before_any_service_and_retries(make):
     box = make()
     box.set('bootstrap', 'exit', '1')
@@ -437,6 +444,7 @@ def test_bootstrap_failure_latches_before_any_service_and_retries(make):
     assert set(printed[0]) >= {'startup_id', 'command', 'time'}
 
 
+@pytest.mark.requires_root
 def test_a_controller_crash_exits_pid_1_nonzero(make):
     box = make()
     box.start()
@@ -446,6 +454,7 @@ def test_a_controller_crash_exits_pid_1_nonzero(make):
     assert 'controller exited' in box.output()
 
 
+@pytest.mark.requires_root
 def test_a_crashed_service_recovers_without_rerunning_preparation(make):
     box = make()
     box.start()
@@ -457,6 +466,7 @@ def test_a_crashed_service_recovers_without_rerunning_preparation(make):
     assert runs.count('opencode') == 1
 
 
+@pytest.mark.requires_root
 def test_readiness_loss_counts_as_failure(make):
     box = make()
     box.start()
@@ -467,6 +477,7 @@ def test_readiness_loss_counts_as_failure(make):
     box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
 
 
+@pytest.mark.requires_root
 def test_exhausted_recovery_after_running_latches_and_stops_opencode(make):
     box = make()
     box.start()
@@ -479,6 +490,7 @@ def test_exhausted_recovery_after_running_latches_and_stops_opencode(make):
     assert 'keyring exhausted 3 recovery attempts' in box.record()['reason']
 
 
+@pytest.mark.requires_root
 def test_an_unready_opencode_that_exhausts_its_budget_is_stopped(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.start()
@@ -489,6 +501,7 @@ def test_an_unready_opencode_that_exhausts_its_budget_is_stopped(make):
     assert opencode[-1] == 'stop opencode', opencode
 
 
+@pytest.mark.requires_root
 def test_startup_failure_exhausts_the_same_budget(make):
     box = make()
     box.set('keyring', 'mode', 'never-ready')
@@ -498,6 +511,7 @@ def test_startup_failure_exhausts_the_same_budget(make):
     assert 'opencode' not in started(box.events())
 
 
+@pytest.mark.requires_root
 def test_hung_service_is_not_treated_as_healthy(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.start()
@@ -514,6 +528,7 @@ def fail_component(box: Supervision, name: str) -> None:
         box.set(name, 'mode', 'never-ready')
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('name', OPTIONAL)
 def test_an_optional_failure_degrades_while_opencode_serves(make, name):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
@@ -527,6 +542,7 @@ def test_an_optional_failure_degrades_while_opencode_serves(make, name):
     assert not box.ready()
 
 
+@pytest.mark.requires_root
 def test_a_failed_optional_dependency_blocks_its_dependents_until_retried(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.set('dockerd', 'mode', 'never-ready')
@@ -542,6 +558,7 @@ def test_a_failed_optional_dependency_blocks_its_dependents_until_retried(make):
     assert started(box.events()).count('docker-gc') == 1
 
 
+@pytest.mark.requires_root
 def test_opencode_does_not_wait_for_xpra(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='2', AGENTDEV_SERVICE_START_TIMEOUT='1')
     box.set('xpra', 'mode', 'never-ready')
@@ -552,6 +569,7 @@ def test_opencode_does_not_wait_for_xpra(make):
     assert box.status('opencode') == 'ready'
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('name', ['config', 'xpra', 'project'])
 def test_strict_startup_latches_on_an_optional_failure(make, name):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1', AGENTDEV_STRICT_STARTUP='true')
@@ -564,6 +582,7 @@ def test_strict_startup_latches_on_an_optional_failure(make, name):
         assert 'stop opencode' in box.events()
 
 
+@pytest.mark.requires_root
 def test_retrying_one_optional_component_restores_readiness(make):
     box = make()
     box.set('project', 'exit', '1')
@@ -581,6 +600,7 @@ def test_retrying_one_optional_component_restores_readiness(make):
     assert started(box.events()).count('opencode') == 1, 'project is not read by OpenCode'
 
 
+@pytest.mark.requires_root
 def test_retrying_config_restarts_the_opencode_that_reads_it(make):
     box = make()
     box.set('config', 'exit', '1')
@@ -595,6 +615,7 @@ def test_retrying_config_restarts_the_opencode_that_reads_it(make):
     assert started(box.events()).count('opencode') == 2
 
 
+@pytest.mark.requires_root
 def test_a_retry_whose_client_restart_fails_reports_failure(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.set('config', 'exit', '1')
@@ -608,6 +629,7 @@ def test_a_retry_whose_client_restart_fails_reports_failure(make):
     box.wait_for(lambda: box.latched() == 'opencode')
 
 
+@pytest.mark.requires_root
 def test_core_services_recover_while_optional_work_runs(make):
     box = make(AGENTDEV_PREPARE_TIMEOUT='60')
     box.set('project', 'sleep', '30')
@@ -619,6 +641,7 @@ def test_core_services_recover_while_optional_work_runs(make):
     assert box.status('project') == 'starting', 'recovery did not wait for the phase'
 
 
+@pytest.mark.requires_root
 def test_a_failure_record_holds_only_the_current_attempts_output(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     stale = {'command': ['old'], 'exit_status': 9, 'output': ['stale'], 'started': 1.0}
@@ -632,6 +655,7 @@ def test_a_failure_record_holds_only_the_current_attempts_output(make):
     assert record['output'] == ['xpra is up'], 'the live tail of the attempt that failed'
 
 
+@pytest.mark.requires_root
 def test_dependency_outage_recovers_clients_outside_their_budget(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.set('keyring', 'needs', 'dbus')
@@ -643,6 +667,7 @@ def test_dependency_outage_recovers_clients_outside_their_budget(make):
     assert box.process is not None and box.process.poll() is None
 
 
+@pytest.mark.requires_root
 def test_a_client_failure_escalates_to_its_failing_dependency(make):
     # The debounce cannot confirm a wedged D-Bus, so only escalation recovers it.
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1', AGENTDEV_PROBE_FAILURES='1000')
@@ -658,6 +683,7 @@ def test_a_client_failure_escalates_to_its_failing_dependency(make):
     assert 'wedge dbus' in box.events() and 'lost keyring' in box.events()
 
 
+@pytest.mark.requires_root
 def test_budget_resets_after_a_healthy_period(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1', AGENTDEV_HEALTHY_RESET='0.5')
     box.start()
@@ -669,6 +695,7 @@ def test_budget_resets_after_a_healthy_period(make):
     assert box.process is not None and box.process.poll() is None
 
 
+@pytest.mark.requires_root
 def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
     box = make()
     box.set('opencode', 'mode', 'with-child')
@@ -689,6 +716,7 @@ def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
     assert not running(child)
 
 
+@pytest.mark.requires_root
 def test_shutdown_is_bounded_when_a_service_ignores_sigterm(make):
     box = make()
     box.set('xpra', 'mode', 'ignore-term')
@@ -726,6 +754,7 @@ def test_every_supervised_service_has_a_real_probe():
         assert f"service == '{name}'" in inspect.getsource(health.probe), name
 
 
+@pytest.mark.requires_root
 def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
     box = make()
     box.set('xpra', 'mode', 'with-child')
@@ -737,6 +766,7 @@ def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
     box.wait_for(lambda: not running(orphan), timeout=5)
 
 
+@pytest.mark.requires_root
 def test_health_needs_a_live_controller_reporting_ready(make):
     box = make(AGENTDEV_PROBE_FAILURES='1000')
     box.start()
@@ -763,6 +793,7 @@ def test_health_needs_a_live_controller_reporting_ready(make):
     assert box.health('ready').returncode == 1
 
 
+@pytest.mark.requires_root
 def test_status_names_each_failure_and_its_retry_command(make):
     box = make()
     box.set('project', 'exit', '4')
@@ -778,6 +809,7 @@ def test_status_names_each_failure_and_its_retry_command(make):
     assert f'last failure: project, exit status 4, at {record["time"]}' in lines
 
 
+@pytest.mark.requires_root
 def test_a_failing_probe_logs_its_output(make):
     box = make()
     box.start()
@@ -790,6 +822,7 @@ def test_a_failing_probe_logs_its_output(make):
     assert 'xpra: probe exited 1: the display is gone' in box.output()
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('spelling', ['false', 'FALSE', '0', 'no', 'Off', ''])
 def test_a_false_spelling_of_skip_xpra_starts_xpra(make, spelling):
     box = make(AGENTDEV_SKIP_XPRA=spelling)
@@ -798,6 +831,7 @@ def test_a_false_spelling_of_skip_xpra_starts_xpra(make, spelling):
     assert 'xpra' in started(box.events())
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('spelling', ['1', 'true', 'Yes', 'ON'])
 def test_a_true_spelling_of_skip_xpra_skips_it(make, spelling):
     box = make(AGENTDEV_SKIP_XPRA=spelling)
@@ -867,6 +901,7 @@ def running(pid: int) -> bool:
     return stat_line.rsplit(')', 1)[1].split()[0] != 'Z'
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize(('spelling', 'passed'), [('yes', 'true'), ('ON', 'true'), ('0', 'false')])
 def test_the_bootstrap_sees_a_normalized_firewall_switch(make, spelling, passed):
     box = make(ENABLE_FIREWALL=spelling)
@@ -883,6 +918,7 @@ def test_a_malformed_firewall_switch_latches_before_the_bootstrap(make):
     assert 'ENABLE_FIREWALL' in box.runtime()['components']['configuration']['reason']
 
 
+@pytest.mark.requires_root
 def test_remote_control_is_left_out_without_a_mode(make):
     box = make(AGENTDEV_CLAUDE_RC_MODE='')
     box.start()
@@ -891,6 +927,7 @@ def test_remote_control_is_left_out_without_a_mode(make):
     assert 'remote-control' not in box.runtime()['components']
 
 
+@pytest.mark.requires_root
 @pytest.mark.parametrize('mode', ['session', 'server'])
 def test_a_remote_control_mode_starts_it_after_prepare(make, mode):
     box = make(AGENTDEV_CLAUDE_RC_MODE=mode)
@@ -921,12 +958,14 @@ def test_an_unrecognized_remote_control_setting_latches_before_the_bootstrap(
     assert variable in box.runtime()['components']['configuration']['reason']
 
 
+@pytest.mark.requires_root
 def test_a_session_mode_ignores_the_spawn_setting(make):
     box = make(AGENTDEV_CLAUDE_RC_MODE='session', AGENTDEV_CLAUDE_RC_SPAWN='tree')
     box.start()
     box.wait_for(box.ready)
 
 
+@pytest.mark.requires_root
 def test_a_failing_remote_control_degrades_while_opencode_serves(make):
     box = make(AGENTDEV_CLAUDE_RC_MODE='server', AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.set('remote-control', 'mode', 'never-ready')
@@ -936,6 +975,7 @@ def test_a_failing_remote_control_degrades_while_opencode_serves(make):
     assert box.status('opencode') == 'ready'
 
 
+@pytest.mark.requires_root
 def test_strict_startup_latches_on_a_failing_remote_control(make):
     box = make(
         AGENTDEV_CLAUDE_RC_MODE='server',
@@ -947,6 +987,7 @@ def test_strict_startup_latches_on_a_failing_remote_control(make):
     stays_latched(box, 'remote-control')
 
 
+@pytest.mark.requires_root
 def test_status_shows_what_remote_control_is_doing(make, tmp_path):
     box = make(AGENTDEV_CLAUDE_RC_MODE='server', XDG_RUNTIME_DIR=str(tmp_path))
     box.start()
@@ -958,6 +999,7 @@ def test_status_shows_what_remote_control_is_doing(make, tmp_path):
     assert '  remote-control: waiting for a claude.ai login' in shown.stdout
 
 
+@pytest.mark.requires_root
 def test_status_names_no_remote_control_without_a_mode(make, tmp_path):
     box = make(XDG_RUNTIME_DIR=str(tmp_path))
     box.start()

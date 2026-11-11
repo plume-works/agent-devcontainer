@@ -221,15 +221,16 @@ DEPLOY_SERVICES = (
     Service('remote-control', after=('prepare',)),
 )
 
-# Every service the editor relies on is core. Project and catalog work belong to the
-# lifecycle commands, so clients wait for the create phase. Spec: agentdev-runtime-images.
+# Every service the editor relies on is core. The create phase runs here, after the root
+# bootstrap, as deploy's prepare does; postCreateCommand only waits for it.
+# Spec: agentdev-runtime-images.
 DEVCONTAINER_SERVICES = (
     Service('dbus', refresh=('keyring', 'xpra'), core=True),
     Service('keyring', after=('dbus',), core=True),
     Service('dockerd', core=True),
     Service('xpra', after=('keyring',), core=True),
     Service('docker-gc', after=('dockerd',), client=True),
-    Service('created', oneshot=True, client=True),
+    Service('created', after=('keyring',), oneshot=True, core=True),
     Service('opencode', after=('keyring', 'created'), client=True),
     Service('remote-control', after=('created',), client=True),
 )
@@ -250,7 +251,6 @@ def enabled_services(settings: Settings) -> tuple[Service, ...]:
         'xpra': settings.skip_xpra,
         'remote-control': not settings.remote_control,
         'opencode': not opencode,
-        'created': not (settings.opencode_web or settings.remote_control),
     }
     return tuple(s for s in profile.services if not skipped.get(s.name))
 

@@ -1,13 +1,12 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: high
 description: Claude's saved state stops reaching the persistent volume once ~/.claude.json is replaced by a regular file, so trust, MCP, and session state written after that point are lost when the container is recreated.
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
 - resource: docs/knowledge/data/spec/catalog-lifecycle.md
-rank: 700
 ---
 
 # Bug: ~/.claude.json stops being the volume symlink
@@ -55,10 +54,21 @@ the existing `claude.json` in the volume to that name.
 `preapprove-claude-workspace.sh` and `codebase-memory-mcp-install.sh` would then
 target the same path.
 
+## Fix
+
+Shipped by [Run the Dev Container as a non-root account with one home
+volume](../plans/20261030-devcontainer-home-volume.md). The Dev Container's
+whole home is one per-instance volume, so `~/.claude.json` is an ordinary file
+on that volume and no symlink is needed: however Claude rewrites the file, the
+result stays on the volume. `agentdev-runtime state create` no longer links the
+file, and a home that still holds the link to `~/.claude/claude.json` has it
+replaced by a regular file with the target's content before the
+codebase-memory-mcp cleanup runs (`agent_state.py::unlink_claude_json`).
+
 ## Key references
 
-- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::link_claude_json`
-  — creates the link
+- `py_packages/agentdev_runtime/agentdev_runtime/agent_state.py::unlink_claude_json`
+  — replaces the link with the file it points to
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh` —
   `restore_claude_json_symlink`
 - `py_packages/agentdev_runtime/agentdev_runtime/claude_state.py::preapprove` —

@@ -32,6 +32,18 @@ def load_startup() -> ModuleType:
 
 startup = load_startup()
 
+# Runs startup.py with its daemon pid files in scratch, never the host's /var/run.
+ISOLATED = """
+import importlib.util, sys
+from pathlib import Path
+spec = importlib.util.spec_from_file_location('cloud_startup', sys.argv[1])
+startup = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(startup)
+scratch = Path(sys.argv[2])
+startup.DAEMON_PIDFILES = {name: scratch / f'{name}.pid' for name in startup.DAEMON_PIDFILES}
+raise SystemExit(startup.main(sys.argv[3:]))
+"""
+
 
 def free_port() -> int:
     """Return a TCP port nothing listens on right now."""
@@ -64,7 +76,7 @@ def run_startup(
         )
         stub.chmod(0o755)
     result = subprocess.run(
-        [sys.executable, str(STARTUP), *args],
+        [sys.executable, '-c', ISOLATED, str(STARTUP), str(scratch), *args],
         env={
             'PATH': f'{bin_dir}:/usr/bin:/bin',
             'HOME': str(scratch),

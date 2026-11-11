@@ -2,8 +2,8 @@
 Root bootstrap PID 1 runs before supervisord.
 
 Deploy creates or reuses the runtime account, then validates and initializes only its own
-storage; a Dev Container keeps the tool's account and mounts. Ownership is never rewritten
-recursively. Spec: standalone-opencode-runtime, agentdev-runtime-images.
+storage; a Dev Container keeps the image's account and, for a non-root one, initializes the
+same storage. Ownership is never rewritten recursively. Spec: standalone-opencode-runtime, agentdev-runtime-images.
 """
 
 from __future__ import annotations
@@ -145,6 +145,8 @@ def reset_runtime_dir(runtime_dir: Path, identity: Identity) -> None:
 class Deploy:
     """The deploy profile's account and instance storage."""
 
+    workspace_remedy = 'match AGENTDEV_UID/AGENTDEV_GID to the checkout owner'
+
     def __init__(self, settings: env.Settings) -> None:
         self.settings = settings
         user = settings.get('AGENTDEV_USER')
@@ -252,7 +254,7 @@ class Deploy:
         if ident.as_user('test', '-w', str(workspace)).returncode != 0:
             fail(
                 f'workspace {workspace} is not writable by {ident.uid}:{ident.gid}; '
-                'match AGENTDEV_UID/AGENTDEV_GID to the checkout owner'
+                f'{self.workspace_remedy}'
             )
 
     def prepare_shared_auth(self) -> None:
@@ -290,13 +292,31 @@ class Deploy:
         self.ensure_account()
         self.ensure_sudo()
         self.claim_instance_dir(ident.home, 'home and client configuration')
-        self.claim_instance_dir(self.settings.path('AGENTDEV_UV_DIR'), 'uv cache and environments')
         self.require_mount(self.settings.path('AGENTDEV_DOCKER_DATA_DIR'), 'nested Docker storage')
         self.validate_workspace()
         self.prepare_shared_auth()
         runtime_dir = Path(self.settings.raw('XDG_RUNTIME_DIR') or f'/run/user/{ident.uid}')
         reset_runtime_dir(runtime_dir, ident)
         log(f'identity {ident.user} ({ident.uid}:{ident.gid}) ready')
+
+
+class DevcontainerStorage(Deploy):
+    """A non-root Dev Container account's storage: the image defines the account, not us."""
+
+    workspace_remedy = 'open the Dev Container as the host user who owns the checkout'
+
+    def __init__(self, settings: env.Settings, identity: Identity) -> None:
+        self.settings = settings
+        self.identity = identity
+        self.require_mounts = False
+
+    def run(self) -> None:
+        self.ensure_sudo()
+        self.claim_instance_dir(self.identity.home, 'home and client configuration')
+        self.validate_workspace()
+        # Without the auth volume, credentials live in container storage until a rebuild.
+        self.settings.path('AGENTDEV_AGENTS_AUTH_DIR').mkdir(parents=True, exist_ok=True)
+        self.prepare_shared_auth()
 
 
 def lock(descriptor: int, timeout: float, path: Path) -> None:
@@ -312,7 +332,7 @@ def lock(descriptor: int, timeout: float, path: Path) -> None:
 
 
 def devcontainer(settings: env.Settings) -> None:
-    """Accept the Dev Container tool's account, mounts, and checkout as they are."""
+    """Accept the image's account; a root one keeps its mounts and checkout as they are."""
     user = settings.get('AGENTDEV_USER')
     entry = account(user)
     if entry is None:
@@ -320,6 +340,7 @@ def devcontainer(settings: env.Settings) -> None:
     ident = Identity(user, entry.pw_uid, entry.pw_gid, Path(entry.pw_dir))
     if ident.uid != 0:
         add_to_docker_group(user)
+        DevcontainerStorage(settings, ident).run()
     # Container storage: it survives a restart and is gone after a rebuild, like the create phase.
     run(
         'install',

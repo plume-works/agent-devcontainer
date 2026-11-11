@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 import shutil
 import subprocess
@@ -158,12 +159,40 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
     assert lifecycle.marker.exists()
 
 
-def test_create_is_idempotent(lifecycle):
+def test_create_runs_once_per_container(lifecycle):
+    lifecycle.hook('created', '10-only')
     assert_ok(lifecycle.run('created'))
     first = lifecycle.calls()
-    assert_ok(lifecycle.run('created'))
-    assert lifecycle.calls() == first * 2
-    assert lifecycle.marker.exists()
+    result = lifecycle.run('created')
+    assert_ok(result)
+    assert lifecycle.calls() == first
+    assert 'already ran in this container' in result.stdout
+
+
+def test_create_runs_its_hooks_from_the_workspace(lifecycle):
+    lifecycle.hook('created', '10-cwd', f'pwd >> "{lifecycle.log}"\n')
+    result = subprocess.run(
+        lifecycle.argv('created'),
+        env=lifecycle.env(),
+        cwd=lifecycle.root,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert_ok(result)
+    assert lifecycle.calls()[-1] == str(lifecycle.workspace)
+
+
+def test_create_makes_an_environment_root_inside_the_home(lifecycle):
+    root = lifecycle.root / 'home/.local/share/uv/venvs'
+    assert_ok(lifecycle.run('created', AGENTDEV_VENV_ROOT=str(root)))
+    assert root.is_dir()
+
+
+def test_create_leaves_an_environment_root_outside_the_home_alone(lifecycle):
+    root = lifecycle.root / 'uv/venvs'
+    assert_ok(lifecycle.run('created', AGENTDEV_VENV_ROOT=str(root)))
+    assert not (lifecycle.root / 'uv').exists()
 
 
 def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
@@ -174,7 +203,9 @@ def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
 
 
 def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
-    waiter = subprocess.Popen(lifecycle.argv('created', '--wait'), env=lifecycle.env())
+    waiter = subprocess.Popen(
+        lifecycle.argv('created', '--wait'), env=lifecycle.env(AGENTDEV_READY_TIMEOUT='30')
+    )
     try:
         time.sleep(1.5)
         assert waiter.poll() is None
@@ -182,6 +213,19 @@ def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
         assert waiter.wait(timeout=10) == 0
     finally:
         waiter.kill()
+
+
+def test_wait_fails_when_the_runtime_fails_before_the_create_phase(lifecycle):
+    (lifecycle.state / 'state').write_text('failed')
+    result = lifecycle.run('created', '--wait')
+    assert result.returncode == 1
+    assert 'the runtime failed before the create phase finished' in result.stderr
+
+
+def test_wait_gives_up_after_the_ready_timeout(lifecycle):
+    result = lifecycle.run('created', '--wait', AGENTDEV_READY_TIMEOUT='1')
+    assert result.returncode == 1
+    assert 'the create phase did not finish within 1s' in result.stderr
 
 
 def test_start_waits_for_the_runtime_then_repairs_state_and_runs_hooks(lifecycle):
@@ -307,3 +351,88 @@ def test_a_hook_root_inside_the_workspace_is_refused(lifecycle):
 def test_a_start_without_a_supervisor_runs_the_start_steps(lifecycle):
     assert_ok(lifecycle.run('ready', '--no-wait'))
     assert lifecycle.calls() == START_STEPS
+
+
+PACKAGE = Path(__file__).resolve().parents[2] / 'py_packages/agentdev_runtime'
+PROJECT_IMAGE_DOCKERFILE = """\
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y --no-install-recommends sudo python3 python3-json5 python3-yaml \\
+ && rm -rf /var/lib/apt/lists/* && userdel --remove ubuntu \\
+ && useradd --uid 1000 --user-group --no-create-home agent \\
+ && echo 'agent ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/agent
+"""
+CLAIM_PROJECT = (
+    'setpriv --reuid=1000 --regid=1000 --init-groups env PYTHONPATH=/opt/src '
+    'DEV_WORKSPACE_FOLDER={workspace} python3 -c '
+    "'from agentdev_runtime import lifecycle, settings; "
+    "lifecycle.claim_project(settings.Settings())'"
+    " && stat -c '%u:%g' /workspaces/project /workspaces/project/src/file"
+)
+docker_missing = pytest.mark.skipif(
+    shutil.which('docker') is None
+    or subprocess.run(['docker', 'info'], capture_output=True).returncode != 0,
+    reason='requires a Docker daemon',
+)
+
+
+@pytest.fixture
+def project_volume():
+    digest = hashlib.sha256(PROJECT_IMAGE_DOCKERFILE.encode()).hexdigest()[:12]
+    tag = f'agentdev-lifecycle-project-test:{digest}'
+    if subprocess.run(['docker', 'image', 'inspect', tag], capture_output=True).returncode:
+        subprocess.run(
+            ['docker', 'build', '-q', '-t', tag, '-'],
+            input=PROJECT_IMAGE_DOCKERFILE,
+            text=True,
+            check=True,
+            capture_output=True,
+        )
+    volume = f'agentdev-test-project-{time.monotonic_ns()}'
+
+    def run(before: str, workspace: str = '/workspaces/agent-devcontainer') -> list[str]:
+        result = subprocess.run(
+            [
+                'docker',
+                'run',
+                '--rm',
+                '-v',
+                f'{PACKAGE}:/opt/src:ro',
+                '-v',
+                f'{volume}:/workspaces/project',
+                tag,
+                'bash',
+                '-c',
+                f'{before} && {CLAIM_PROJECT.format(workspace=workspace)}',
+            ],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        return result.stdout.splitlines()[-2:]
+
+    try:
+        yield run
+    finally:
+        subprocess.run(['docker', 'volume', 'rm', '-f', volume], capture_output=True)
+
+
+SEED = 'mkdir -p /workspaces/project/src && echo work > /workspaces/project/src/file'
+
+
+@docker_missing
+def test_create_re_owns_a_sibling_checkout_volume_another_uid_owns(project_volume):
+    assert project_volume(SEED) == ['1000:1000', '1000:1000']
+
+
+@docker_missing
+def test_create_leaves_a_sibling_checkout_the_account_owns_untouched(project_volume):
+    owned = (
+        f'{SEED} && chown 1000:1000 /workspaces/project && chown 0:0 /workspaces/project/src/file'
+    )
+    assert project_volume(owned) == ['1000:1000', '0:0']
+
+
+@docker_missing
+def test_create_never_re_owns_the_open_workspace(project_volume):
+    assert project_volume(SEED, workspace='/workspaces/project') == ['0:0', '0:0']
