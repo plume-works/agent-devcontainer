@@ -118,9 +118,11 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] A `ship-records` hook runs `uv run scripts/check-ship-records.py` with
+- [x] A `ship-records` hook runs `uv run scripts/check-ship-records.py` with
   `pass_filenames: true` on `^docs/knowledge/data/(bugs|plans)/.*\.md$`, and
   `uv run pre-commit run ship-records --all-files` passes on the current graph.
+  - **Evidence:** `.pre-commit-config.yaml › "id: ship-records"`;
+    `uv run pre-commit run ship-records --all-files` passes.
 
 ### Task 4: CI runs the hook
 
