@@ -68,14 +68,21 @@ Assumptions:
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md`
 
-- [ ] The agent takes a plan key and a mode. Plan mode reports, changing
+- [x] The agent takes a plan key and a mode. Plan mode reports, changing
   nothing, whether the plan's `release` is `internal` or names existing
   documents, every listed bug is at `stage: planned`, every listed feature is
   `accepted`, and `## Spec changes` uses one of its three forms with complete
   post-change requirements in any delta.
-- [ ] Ship mode checks each item of the structure below and, when all hold,
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md#inputs` and
+    `#plan-mode`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`.
+- [x] Ship mode checks each item of the structure below and, when all hold,
   appends the section verbatim in shape and commits it; when any fails, it
   writes nothing and returns the failing items.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md#ship-mode` and
+    `#report`.
 
 The approved structure, verbatim (`|` separates the two endings an item can
 take):
