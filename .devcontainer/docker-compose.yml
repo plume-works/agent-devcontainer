@@ -20,12 +20,6 @@ services:
       GIT_COMMITTER_EMAIL:
       CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: ${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}
 
-    # Written only by .claude/startup.py, so elsewhere no key is set and nothing is
-    # overridden; see architecture/cloud-session-devcontainer.
-    env_file:
-      - path: ./cloud-session.env
-        required: false
-
     extra_hosts:
       - host.docker.internal:host-gateway
 

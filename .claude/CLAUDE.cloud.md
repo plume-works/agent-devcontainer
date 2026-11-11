@@ -1,58 +1,51 @@
 # Cloud environment with agentdev
 
-The repository is checked out on the session host, outside its devcontainer.
-`.claude/startup.py` has already brought the devcontainer up. The host has none
-of the project toolchain; the devcontainer has all of it. Follow the
-`/agentdev:devcontainer-sandbox` skill to run tools there.
+The repository is checked out on the session host, and `.claude/startup.py`
+has provisioned the project toolchain there: `uv` with the project environment,
+`bun`, `iwe`, and the pinned binaries the pre-commit hooks call. Run tools,
+tests, `git commit`, `git push` and `gh` directly on the host. Cloud sessions
+run no devcontainer.
 
-## Commit and push only through the devcontainer
+- The git hooks run `pre-commit` from the project environment. NEVER pass
+  `--no-verify` or otherwise skip them.
+- `git push` and `gh` authenticate through the session's agent proxy.
+- The proxy refuses deleting a remote branch, so push nothing you cannot leave
+  on the remote.
 
-The git hooks run `pre-commit`, which exists only in the devcontainer. On the
-host, `git commit` and `git push` fail with `No module named pre_commit`.
+## Docker
 
-- ALWAYS run `git commit` and `git push` inside the devcontainer. The checkout,
-  and every worktree under it, is mounted at the same path there:
-
-  ```bash
-  devcontainer exec --workspace-folder <repo-root> bash -lc 'cd <repo-root> && git commit -F .tmp/commit-msg.txt'
-  ```
-
-- Write the commit message to a file under `./.tmp` and pass it with `-F`. A
-  message given inline breaks the quoting of `bash -lc '...'` as soon as it
-  holds an apostrophe.
-- NEVER pass `--no-verify` or otherwise skip the hooks to commit or push from
-  the host.
-- The devcontainer carries the host's git identity, and `gh` and `git push`
-  authenticate through the session's agent proxy. When either fails there,
-  report it; do not fall back to the host.
+The host runs `dockerd` for short-lived containers. Docker's client config
+sends every `docker run` and `docker build` through a relay to the session's
+agent proxy, so containers have network access with no extra flags. A container
+that makes TLS requests also needs the host's CA bundle, for example
+`-v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro`.
+Never rely on a long-running container: a worker restart stops it.
 
 ## Worker restarts
 
 The session's worker restarts often, sometimes in the middle of a turn. A
 restart reboots the session host: the disk survives — the checkout, `./.tmp`,
-Docker images, and the stopped devcontainer — and every process stops, including
-the host `dockerd`, the agent proxy relay, the devcontainer, and any background
-command you started.
+and the provisioned toolchain — and every process stops, including the host
+`dockerd`, the agent proxy relay, every container, and any background command
+you started.
 
-- **Recognize it.** `Cannot connect to the Docker daemon` on the host, a failing
-  `devcontainer exec`, or `git` and `gh` in the container failing with
-  `Failed to connect to host.docker.internal`. A short `uptime` confirms it.
-- **Restore it.** Run `.claude/startup.py resume` from the repository root. The
-  `SessionStart` hook runs it when a session starts; after a restart inside a
-  turn, run it yourself. It keeps whatever still runs, restarts the rest, and is
-  safe to run again.
+- **Recognize it.** A background command that vanished, or
+  `Cannot connect to the Docker daemon`; a short `uptime` confirms it.
+- **Restore Docker.** Run `.claude/startup.py resume` from the repository root.
+  The `SessionStart` hook runs it when a session starts; after a restart inside
+  a turn, run it yourself. It is safe to run again.
 - **Pick up the interrupted work.** Restart any background command that died,
   and check `git status` and whether the last commit reached the remote before
   continuing.
 - **Keep a restart cheap.** Commit and push at checkpoints, keep scratch in
   `./.tmp`, and prefer commands that can simply be run again.
-- While diagnosing, never print `GH_TOKEN` or `.devcontainer/cloud-session.env`,
-  which holds it.
+- While diagnosing, never print `GH_TOKEN`.
 
 ## GitHub access
 
 The session's proxy refuses GitHub GraphQL, which `gh pr` and `gh issue`
-subcommands use. Call REST routes with `gh api` instead, for example
+subcommands use, and every GitHub path outside the session's repositories,
+such as `https://github.com/` or `api.github.com/zen`, with a 400 or 403. Call REST routes with `gh api` instead, for example
 `gh api repos/<owner>/<repo>/pulls/<n>` in place of `gh pr view <n>`.
 
 - A skill script that calls GraphQL fails with `GH_UNAVAILABLE`. Do its step
@@ -60,6 +53,3 @@ subcommands use. Call REST routes with `gh api` instead, for example
   and say what the user can do by hand.
 - `gh auth status` reports the token as invalid for the same reason; REST calls
   with it work.
-- `agentdev-runtime doctor` fails its `gh auth`, `git credential helper` and
-  `github.com` checks here although auth works; see
-  `docs/knowledge/data/bugs/doctor-fails-healthy-claude-cloud-devcontainer.md`.

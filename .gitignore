@@ -21,7 +21,6 @@ ansible/ansible.log
 .devcontainer/.env
 .devcontainer/local.env
 .devcontainer/.extra-ca.crt
-.devcontainer/cloud-session.env
 
 # Python
 __pycache__/

@@ -281,7 +281,8 @@ jobs:
         run: docker pull "$MERGED_IMAGE"
 
       - name: Build and test dev container image
-        # Bake's fs entitlement check off: see architecture/cloud-session-devcontainer.
+        # Without a Dev Container Feature, the CLI's generated Dockerfile lies outside every
+        # build context, and bake refuses to read it unless its fs entitlement check is off.
         env:
           BUILDX_BAKE_ENTITLEMENTS_FS: '0'
         uses: devcontainers/ci@v0.3.1900000450
