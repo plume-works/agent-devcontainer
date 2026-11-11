@@ -2,6 +2,7 @@
   "model": "opus",
   "cleanupPeriodDays": 14,
   "permissions": {
+    "defaultMode": "auto",
     "allow": [
       "Agent",
       "ToolSearch",
