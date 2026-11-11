@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-11
 created: 2026-10-30
 release:
 - features/devcontainer-home-volume
@@ -20,7 +22,6 @@ sources:
 - resource: ansible/roles/bash_setup/tasks/main.yml
 - resource: ansible/roles/bun_setup/tasks/main.yml
 - resource: https://containers.dev/implementors/json_reference/
-rank: 600
 ---
 
 # Run the Dev Container as a non-root account with one home volume
