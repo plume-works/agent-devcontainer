@@ -43,7 +43,7 @@ claims the user gave is not one.
    difference is the work.
 3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
    ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
-   prerequisite plan that is not `stage: done` at the remote default branch
+   prerequisite plan that is not `stage: done` in the checkout
    may be built on while it has an open pull request; on `NO_PULL_REQUEST`,
    say which plan has nothing to build on and stop. Keep each
    `PREDECESSOR=<n>` it prints for Step 4. On any other non-`SUCCESS` result,

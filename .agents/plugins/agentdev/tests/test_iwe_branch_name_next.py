@@ -151,7 +151,7 @@ def test_next_counts_both_phases(
 
 
 def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """A plan written only locally is missing on the remote, yet --phase still names it."""
+    """A plan that does not exist yet is missing, yet --phase still names it."""
     workspace = Workspace(plugin_tmp_path, plans={})
     gh = pr_heads(plugin_tmp_path / 'gh')
 

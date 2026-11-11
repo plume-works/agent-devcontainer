@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Name an IWE plan's work branches and read the plan's state at the remote default branch.
+Name an IWE plan's work branches and read the plan's state in the checkout.
 
 Runs from any consuming repository that installs this plugin, so it imports
 nothing beyond the standard library.
@@ -23,8 +23,7 @@ import result_codes as rc  # noqa: E402
 
 USAGE = """\
 Name an IWE plan's work branches iwe/<slug>/iter-<N>-<phase> and read
-the plan's state at the remote default branch. Creates, switches, and deletes no
-branch.
+the plan's state in the working tree. Creates, switches, and deletes no branch.
 
 Usage:
   iwe-branch-name.py parse <branch>
@@ -36,8 +35,9 @@ Arguments:
   <plan-key|slug>   data/plans/<YYYYMMDD>-<slug>, <YYYYMMDD>-<slug>, or <slug>.
 
 Options:
-  --remote <name>   The remote whose default branch holds the plan and whose
-                    branches count as used iterations. Default: origin.
+  --remote <name>   The remote whose default branch `next` names for a finished
+                    plan and whose branches count as used iterations.
+                    Default: origin.
   --phase <phase>   next only: plan, impl, or ship, naming the next iteration
                     of that phase without reading the plan.
   -h, --help        Show this help text.
@@ -61,8 +61,8 @@ URL names. plan-state counts task checkboxes under ## Implementation Steps or
 Results (RESULT / exit code):
   SUCCESS            0  The name's parts, the plan's state, or the next name was reported
   NOT_A_WORK_BRANCH  3  parse: the branch is not iwe/<slug>/iter-<N>-<plan|impl|ship>
-  AMBIGUOUS_PLAN     4  The slug matches more than one plan at the default branch
-  FETCH_FAILED       5  The remote could not be fetched or its branches listed
+  AMBIGUOUS_PLAN     4  The slug matches more than one plan in the working tree
+  FETCH_FAILED       5  The remote's branches could not be listed
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or its pull-request query failed
   PREFLIGHT_ERROR    2  Usage error, not a git repository, no .iwe/config.toml,
                         or the remote's default branch is unknown
@@ -103,7 +103,7 @@ class Options(NamedTuple):
 
 
 class PlanState(NamedTuple):
-    """A plan as the remote default branch holds it."""
+    """A plan as the working tree holds it."""
 
     default_branch: str
     state: str
@@ -200,25 +200,11 @@ def remote_default_branch(remote: str) -> str:
     return name
 
 
-def fetch_default_branch(remote: str, branch: str) -> str:
-    """Fetch the remote's default branch and return its remote-tracking ref."""
-    completed = run_tool('git', 'fetch', '--quiet', remote, branch)
-    if completed.returncode != 0:
-        sys.stderr.write(completed.stderr)
-        print_error(f"Failed to fetch '{branch}' from remote '{remote}'.")
-        raise Stop(FETCH_FAILED)
-    ref = f'refs/remotes/{remote}/{branch}'
-    if run_tool('git', 'rev-parse', '--verify', '--quiet', f'{ref}^{{commit}}').returncode != 0:
-        print_error(f"Fetched '{branch}' from '{remote}' but {ref} does not exist.")
-        raise Stop(FETCH_FAILED)
-    return ref
-
-
-def find_plan(ref: str, library: str, target: str) -> str:
-    """Return the path of the plan `target` names in `ref`'s tree, or '' when missing."""
+def find_plan(root: Path, library: str, target: str) -> str:
+    """Return the path of the plan `target` names in the working tree, or '' when missing."""
     plans_dir = 'data/plans' if library == '.' else f'{library}/data/plans'
-    listing = run_tool('git', 'ls-tree', '--name-only', f'{ref}:{plans_dir}')
-    names = listing.stdout.splitlines() if listing.returncode == 0 else []
+    directory = root / plans_dir
+    names = sorted(entry.name for entry in directory.iterdir()) if directory.is_dir() else []
     name = plan_name(target)
     if DATED_PLAN.fullmatch(name):
         matches = [entry for entry in names if entry == f'{name}.md']
@@ -281,16 +267,15 @@ def classify_plan(text: str) -> str:
 
 
 def read_plan_state(target: str, remote: str) -> PlanState:
-    """Fetch the remote default branch and read the plan `target` names there."""
+    """Read the plan `target` names in the working tree."""
     root = repository_root()
     library = library_path(root)
     require_remote(remote)
     default_branch = remote_default_branch(remote)
-    ref = fetch_default_branch(remote, default_branch)
-    path = find_plan(ref, library, target)
+    path = find_plan(root, library, target)
     if not path:
         return PlanState(default_branch, 'missing', '')
-    text = run_tool('git', 'cat-file', 'blob', f'{ref}:{path}').stdout
+    text = (root / path).read_text()
     plans_dir = path.rsplit('/', 1)[0]
     key = f'data/plans/{path.removeprefix(plans_dir + "/").removesuffix(".md")}'
     return PlanState(default_branch, classify_plan(text), key)

@@ -1,6 +1,6 @@
 ---
 type: spec
-description: How the iwe-branch-name skill names a plan's impl and ship work branches, counts the iterations already used, and reads plan state at the remote default branch.
+description: How the iwe-branch-name skill names a plan's impl and ship work branches, counts the iterations already used, and reads plan state in the checkout.
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
@@ -13,7 +13,7 @@ sources:
 
 Defines the name of every work branch a plan uses, how the next iteration is
 counted so a merged and deleted branch is never reused, and how a plan's state
-is read from the remote default branch to pick the phase.
+is read from the checkout to pick the phase.
 
 ## Requirements
 
@@ -78,18 +78,23 @@ when those pull requests cannot be read.
 - **THEN** it reads pull requests of the repository `upstream`'s URL names, not
   of `gh`'s default repository
 
-### Requirement: Plan state is read at the remote default branch
+### Requirement: Plan state is read in the checkout
 
-The skill SHALL fetch the remote's default branch and read the plan there,
+The skill SHALL read the plan from the working tree, never from another branch,
 reporting `missing`, `cancelled`, `done`, `complete` when the plan has no
 `stage`, has at least one task checkbox under `## Implementation Steps` or
 `## Tasks`, and every such checkbox is ticked, or `incomplete` otherwise, and
 SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 
-#### Scenario: Local edits do not count
+#### Scenario: Working-tree edits count
 
 - **WHEN** a plan's last checkbox is ticked only in the working tree
-- **THEN** `plan-state` reports `incomplete`
+- **THEN** `plan-state` reports `complete`
+
+#### Scenario: The remote default branch does not count
+
+- **WHEN** a plan is finished only on the remote default branch
+- **THEN** `plan-state` reports the plan as the working tree holds it
 
 #### Scenario: A plan with no task checkboxes is not complete
 
@@ -103,8 +108,8 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 
 #### Scenario: Two plans share a slug
 
-- **WHEN** `data/plans/20261001-foo` and `data/plans/20261020-foo` both exist at
-  the remote default branch
+- **WHEN** `data/plans/20261001-foo` and `data/plans/20261020-foo` both exist in
+  the working tree
 - **THEN** a lookup by slug `foo` reports `AMBIGUOUS_PLAN`
 
 ### Requirement: The next name follows the plan's state

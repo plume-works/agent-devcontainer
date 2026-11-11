@@ -7,6 +7,7 @@ sources:
 - resource: scripts/pre-commit-ci-range.py
 - resource: .pre-commit-config.yaml
 - resource: devcontainer-compose-pins.yml
+- resource: scripts/check-ship-records.py
 ---
 
 # pre-commit gate
@@ -93,3 +94,33 @@ and the staged change otherwise.
 
 - **WHEN** a push has an all-zero `before` SHA
 - **THEN** the job checks every file and gitleaks scans the pushed commit.
+
+### Requirement: Ship records are gated in pre-commit
+
+A pre-commit hook SHALL run a checker CLI over every bug and plan document
+pre-commit passes it, at commit time, over a commit range, and with
+`--all-files`. The CLI SHALL fail a bug at `stage: done` that has no `## Fix`
+heading, and a plan whose `## Ship review` section differs from the fixed
+structure, and SHALL report every violation with `path:line`.
+
+#### Scenario: a done bug has no Fix
+
+- **WHEN** a commit stages a bug document at `stage: done` with no `## Fix`
+- **THEN** the hook fails and names the document.
+
+#### Scenario: an open bug has no Fix
+
+- **WHEN** a bug document at `stage: pending` or `stage: planned` has no
+  `## Fix`
+- **THEN** the hook passes it.
+
+#### Scenario: a Ship review is malformed
+
+- **WHEN** a plan's `## Ship review` misses an item, reorders the items, leaves
+  one unticked, or marks the Verify, plan-stage, or hub-edit item `N/A`
+- **THEN** the hook fails and names the line.
+
+#### Scenario: CI checks every file
+
+- **WHEN** CI runs pre-commit with `--all-files`
+- **THEN** the hook checks every bug and plan document.

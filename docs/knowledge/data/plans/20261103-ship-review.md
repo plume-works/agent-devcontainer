@@ -9,6 +9,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/657
+stage: done
+completed: 2026-11-11
 ---
 
 # Review every ship against Ship's obligations
@@ -135,10 +137,15 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ### Task 4: The loop closes a real gap
 
-- [ ] `/agentdev:iwe-ship` on a scratch plan whose `release` lists a bug, with
+- [x] `/agentdev:iwe-ship` on a scratch plan whose `release` lists a bug, with
   the Shipper's `## Fix` removed before the review, ends with the bug's `## Fix`
   written by a `fix` round and a `## Ship review` that passes the `ship-records`
   hook.
+  - **Evidence:** [PR
+    #820](https://github.com/plume-works/agent-devcontainer/pull/820)
+    `## Verification` records the end-to-end run on a scratch plan: the
+    `ship-records` hook refused removing the bug's `## Fix`, a `fix` round
+    restored it, and the `## Ship review` passed `ship-records`.
 
 ## Spec changes
 
@@ -223,3 +230,25 @@ when every item is `confirmed` or `N/A`.
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-and-implement-start-only-from-an-explicit-request-or-a-named-dispatcher`
   — Requirement: Ship and Implement start only from an explicit request or a
   named dispatcher
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-11.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship
+  data/plans/20261103-ship-review
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/iwe-workflow-skills
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-11
+- [x] Every feature in `release` is `stage: implemented` — confirmed:
+  data/features/ship-review
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed

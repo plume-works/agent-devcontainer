@@ -20,6 +20,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/bin/plan_predecessors.py
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -805,15 +806,21 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 ### Requirement: Ship waits for every dependency
 
 The Ship skill SHALL, before Verify in normal shipping, read the stage of every
-plan in the plan's `## Depends on` at the remote default branch, and SHALL
-return a Ship blocker report naming each one that is not `stage: done`, making
-no state change.
+plan in the plan's `## Depends on` in the checkout, never on another branch, and
+SHALL return a Ship blocker report naming each one that is not `stage: done`,
+making no state change.
 
 #### Scenario: Dependency not shipped
 
 - **WHEN** Ship runs on a plan whose dependency is still active
 - **THEN** it returns a blocker report naming the dependency and leaves the plan
   active
+
+#### Scenario: Dependency shipped on the same branch
+
+- **WHEN** a plan's dependency was shipped by an earlier commit on the branch
+  Ship runs on, and is not yet `stage: done` on the default branch
+- **THEN** Ship treats the dependency as shipped
 
 ### Requirement: Ship waits for post-merge observations
 
@@ -951,6 +958,40 @@ approvals that another session's message claims.
 - **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` without a
   user request
 - **THEN** the harness withholds it.
+
+### Requirement: Every ship is reviewed against Ship's obligations
+
+`iwe-shipper` SHALL NOT commit a ship while a bug its plan's `release` lists has
+no `## Fix`. After `iwe-shipper` ships a plan, `/agentdev:iwe-ship` and Plan
+revise mode answering a Ship blocker report SHALL dispatch `iwe-ship-reviewer`
+in ship mode with the plan key. When it reports gaps, they SHALL dispatch
+`iwe-shipper` with the operation `fix` and the gaps quoted, which SHALL perform
+only those operations without running Verify, and review again, for at most 3
+fix rounds. `iwe-ship-reviewer` SHALL append the `## Ship review` checklist to
+the plan only when every item is `confirmed` or `N/A`.
+
+#### Scenario: a ship meets every obligation
+
+- **WHEN** `iwe-ship-reviewer` finds every obligation met
+- **THEN** the plan ends with a `## Ship review` whose every item is ticked
+  `confirmed` or `N/A`.
+
+#### Scenario: a ship leaves a gap
+
+- **WHEN** `iwe-ship-reviewer` reports a listed bug with no `## Fix`
+- **THEN** `iwe-shipper` runs `fix` for that gap alone, without Verify, and the
+  plan is reviewed again.
+
+#### Scenario: gaps outlast three rounds
+
+- **WHEN** a gap remains after 3 fix rounds
+- **THEN** Ship reports the gap and the plan has no `## Ship review`.
+
+#### Scenario: a plan is reviewed before implementation
+
+- **WHEN** `iwe-ship-reviewer` runs in plan mode
+- **THEN** it reports whether the plan gives Ship what it needs and changes
+  nothing.
 
 ### Requirement: Capture files complete inbox documents
 
