@@ -96,7 +96,11 @@ def check_bug(lines: list[str]) -> list[tuple[int, str]]:
 
 
 def ship_review(lines: list[str]) -> tuple[int, list[tuple[int, str]]] | None:
-    """Return the Ship review heading's line and its non-blank lines, or None without one."""
+    """
+    Return the Ship review heading's line and its logical lines, or None without one.
+
+    An indented line continues the line above it, as `iwe normalize` wraps a long item.
+    """
     heading = None
     section: list[tuple[int, str]] = []
     for number, line in body_lines(lines):
@@ -106,6 +110,9 @@ def ship_review(lines: list[str]) -> tuple[int, list[tuple[int, str]]] | None:
                 heading = number
         elif match and len(match['level']) <= 2:
             break
+        elif section and line[:1].isspace() and line.strip():
+            start, text = section[-1]
+            section[-1] = (start, f'{text} {line.strip()}')
         elif line.strip():
             section.append((number, line.rstrip()))
     return None if heading is None else (heading, section)

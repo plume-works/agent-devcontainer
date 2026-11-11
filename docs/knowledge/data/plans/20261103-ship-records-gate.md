@@ -89,7 +89,7 @@ scope.
   - **Evidence:**
     `uv run pytest scripts/tests/test_check_ship_records.py -k "plan or review or item"`
     — `test_plan_without_ship_review_passes`,
-    `test_well_formed_ship_review_passes`,
+    `test_well_formed_ship_review_passes`, `test_wrapped_items_pass`,
     `test_missing_item_fails_naming_the_section`,
     `test_reordered_items_fail_naming_the_line`,
     `test_unticked_item_fails_naming_the_line`,
