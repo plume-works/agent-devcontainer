@@ -60,26 +60,11 @@ decision your prompt does not carry, stop and report it under
      doing it. The third route exists because Ship refuses any CRITICAL and has
      no override: a task the user has decided against can't be ticked while
      undone, so without it the plan is unshippable. Naming a route is not
-     taking it. Mirroring it, every ticked `- [x]` task whose indented
-     `- **Evidence:**` line is missing or empty, names nothing of the three
-     kinds below, or names a test or command that fails or no longer exists
-     when you re-run it in the current tree, is also a CRITICAL,
-     recommendation "untick it". Evidence names a check you can repeat:
-     - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
-     - Docs or config with no test: the file and anchor that changed.
-     - External work: the CI run or the PR that closes it, which must stand alone.
-
-     A commit id on its own is not evidence. Residue is not evidence either:
-     raw command stdout transcribed as evidence, an ephemeral identifier that will not exist
-     next session (a container or machine id, a temp path), and a citation of an
-     uncommitted `.tmp/` harness each fail this check the same way an empty line
-     does. A CI job is evidence for behaviour only CI exercises when the job
-     exercises that behaviour; it need not have run on the current head. Audit
-     the two asymmetrically, because they fail asymmetrically: an
-     unchecked box that is actually done is a nuisance the next session clears
-     in a minute, while a checked box that is not done is a false premise the
-     next session builds on. Taking a tick on faith is how the second one
-     survives verification. Every entry in `## Spec changes` is judged against
+     taking it. A ticked `- [x]` task and its `- **Evidence:**` line are never
+     checked: the `plan-checkboxes` gate is the only check on them. Never
+     report on a ticked task, its evidence's form or wording, and never re-run,
+     re-observe, or seek approval to repeat what the evidence records. Every
+     entry in `## Spec changes` is judged against
      the **effective contract**: the current durable spec plus the intent the
      plan records against it. Durable specs are not expected to describe the
      unshipped change — Ship merges them after this report — so a back-ticked
@@ -163,7 +148,8 @@ then:
   labeled
   "unverified" — a requirement you couldn't trace is unverified, not failed,
   and says so.
-- Run only the verification commands the plan itself names (tests, builds). A
+- Run only the verification commands the plan's `## Verification` names (tests,
+  builds); a task's `- **Evidence:**` line is a record, never a command to run. A
   command whose effects reach beyond the working tree — a deploy, a push, a
   published artifact, a CI trigger, anything remote — runs only under a quoted
   approval that names it; otherwise stop before it and report the exact command

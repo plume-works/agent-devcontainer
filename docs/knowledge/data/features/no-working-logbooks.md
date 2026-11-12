@@ -77,12 +77,6 @@ so a writer's polluted context cannot proofread its own draft. Because create,
 revise, and every Implement/Verify/Ship route back to revise funnel through the
 Plan skill, this one gate covers every intent edit.
 
-**Implement and Verify name the Evidence-residue smells.** Evidence blocks
-bypass the Plan gate, so both skills share the auditor's vocabulary at that
-surface: raw command stdout transcribed as evidence, an ephemeral identifier
-that will not exist next session, and a citation of an uncommitted `.tmp/`
-harness each disqualify an Evidence citation.
-
 ## Edge cases
 
 - **Commit messages are out of scope entirely.** `/agentdev:git-commit` owns

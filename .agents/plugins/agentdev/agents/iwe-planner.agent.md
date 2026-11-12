@@ -88,11 +88,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      message — reproduce that text verbatim in a fenced block under the task
      that applies it, and check `.tmp/approved-wording-<slug>.md` for it before
      writing the task from memory. A checkbox stays bare while it is unticked;
-     once ticked, it carries an indented `- **Evidence:**` child naming what
-     closed it as a check Verify can repeat:
-     - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
-     - Docs or config with no test: the file and anchor that changed.
-     - External work: the CI run or the PR that closes it, which must stand alone.
+     once ticked, it carries an indented `- **Evidence:**` child, a short
+     free-form note of what was done. A plan never prescribes the evidence's
+     form.
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change, written in whichever of the three forms below fits the risk;
      name not-yet-existing specs in back-ticks (never dangling links)

@@ -750,9 +750,7 @@ Verify SHALL report a CRITICAL or WARNING finding only against a requirement,
 scenario, task, or verification step of the plan's effective contract, citing
 it. It SHALL treat a scenario as uncovered only when a test that runs the
 behaviour could cover it, and SHALL never count a check of file contents as
-coverage. It SHALL accept a CI job as evidence for behaviour only CI exercises
-when the job exercises that behaviour, without requiring a run on the current
-head. It SHALL list an unticked task carrying a `**Closed by:**` line under
+coverage. It SHALL list an unticked task carrying a `**Closed by:**` line under
 Outstanding observations rather than as a CRITICAL.
 
 #### Scenario: A weakness the plan does not address
@@ -773,12 +771,6 @@ Outstanding observations rather than as a CRITICAL.
 - **WHEN** the plan's only unticked task carries a `**Closed by:**` line
 - **THEN** Verify lists it under Outstanding observations and reports no
   CRITICAL for it
-
-#### Scenario: A CI job ran on an earlier commit
-
-- **WHEN** a task cites a CI job that exercises behaviour only CI reaches, and
-  the run cited is on an earlier commit than `HEAD`
-- **THEN** Verify accepts the evidence
 
 ### Requirement: Adversarial review runs only when asked
 
