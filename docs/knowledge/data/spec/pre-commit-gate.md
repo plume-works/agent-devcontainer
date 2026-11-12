@@ -5,6 +5,7 @@ sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/workflows/ci.yml
 - resource: scripts/pre-commit-ci-range.py
+- resource: scripts/ci_runs.py
 - resource: .pre-commit-config.yaml
 - resource: devcontainer-compose-pins.yml
 - resource: scripts/check-ship-records.py
@@ -30,8 +31,16 @@ after it succeeds.
 #### Scenario: a push to main
 
 - **WHEN** commits are pushed to `main`
-- **THEN** the job checks the files changed between `before` and `after` and
-  skips `no-commit-to-branch`.
+- **THEN** the job checks the files changed between the head commit of Primary
+  checks' last successful push run on `main` and `after`, and skips
+  `no-commit-to-branch`.
+
+#### Scenario: the last successful run cannot be found
+
+- **WHEN** a push to `main` finds no successful Primary checks push run, or the
+  lookup fails
+- **THEN** the job warns and checks the files changed between `before` and
+  `after`.
 
 #### Scenario: a manual run
 
