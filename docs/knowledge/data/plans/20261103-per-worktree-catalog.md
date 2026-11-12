@@ -211,8 +211,7 @@ Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 - [x] `lifecycle.attached` installs a complete checkout catalog with
   `catalog.install(settings, folder, 'user')`
   - **Evidence:**
-    `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` ›
-    "catalog.install(settings, folder, 'user')"
+    `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py::test_attach_installs_the_checkout_catalog_at_user_scope`
 - [x] a test runs the attach-phase catalog step with a recording `claude` stub
   and asserts every `marketplace add` and `plugin install` carries
   `--scope user`
