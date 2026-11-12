@@ -1,6 +1,6 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: Each kind of project knowledge has one home in the graph — behaviour and its rationale in specs, findings and guides in their own types — and finished work moves to a per-release archive.
 sources:
 - resource: docs/knowledge/AGENTS.md

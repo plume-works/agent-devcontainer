@@ -83,8 +83,8 @@ checkout, and SHALL fail naming each anchor that does not resolve. A Python
 symbol resolves through its syntax tree; a symbol in any other language resolves
 when each dotted segment occurs as a whole word in order, so a symbol moved into
 a comment still resolves. A quote resolves when it occurs, whitespace-collapsed,
-in the anchored region. Anchors elsewhere in a plan, and in closed documents,
-are not resolved.
+in the anchored region. Anchors elsewhere in a plan, in a finding, and in
+archived documents are not resolved.
 
 #### Scenario: A refactor renames an anchored function
 
@@ -92,6 +92,12 @@ are not resolved.
   `guides/` document anchors
 - **THEN** the hook fails naming the document and the anchor, until the anchor
   is updated
+
+#### Scenario: An archived plan names deleted code
+
+- **WHEN** a plan under `data/archive/` anchors a file that has since been
+  deleted
+- **THEN** the resolver does not check it
 
 ## Rationale
 

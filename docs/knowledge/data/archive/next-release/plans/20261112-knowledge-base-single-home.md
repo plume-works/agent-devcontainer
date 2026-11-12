@@ -10,6 +10,8 @@ sources:
 - resource: .iwe/config.toml
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
+stage: done
+completed: 2026-11-12
 ---
 
 # One home for each kind of knowledge
@@ -45,11 +47,11 @@ constrains it, and that this is one plan.
 The feature is [One home for each kind of
 knowledge](../features/single-home-knowledge.md). It changes what the workflow
 skills of [agentdev IWE workflow
-skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) write. It
-absorbs two backlog tasks: [Remove redundancy from the durable
-specs](../archive/3.0.0/backlog/deduplicate-spec-requirements.md) and [Give
+skills](../../1.0.0/features/agentdev-iwe-workflow-skills.md) write. It absorbs
+two backlog tasks: [Remove redundancy from the durable
+specs](../../3.0.0/backlog/deduplicate-spec-requirements.md) and [Give
 architecture notes a
-lifecycle](../archive/3.0.0/backlog/architecture-note-lifecycle.md).
+lifecycle](../../3.0.0/backlog/architecture-note-lifecycle.md).
 
 ## Approach
 
@@ -703,7 +705,7 @@ The checks land once Tasks 8 and 9 have moved every document they would fail.
 
 ## Spec changes
 
-[IWE workflow skills](../spec/iwe-workflow-skills.md):
+[IWE workflow skills](../../../spec/iwe-workflow-skills.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -1126,7 +1128,7 @@ against Ship's obligations" adds the archive item, which is never `N/A`.
 `## Rationale` entries for this spec: the decisions and rejected alternatives in
 `## Approach`.
 
-[Pre-commit gate](../spec/pre-commit-gate.md):
+[Pre-commit gate](../../../spec/pre-commit-gate.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -1159,7 +1161,7 @@ over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
 - **THEN** the hook passes it.
 ```
 
-[Line-free anchors](../spec/line-free-anchors.md):
+[Line-free anchors](../../../spec/line-free-anchors.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -1190,7 +1192,7 @@ archived documents are not resolved.
 - **THEN** the resolver does not check it
 ```
 
-[iwe-branch-name](../spec/iwe-branch-name.md):
+[iwe-branch-name](../../../spec/iwe-branch-name.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -1238,20 +1240,21 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 ```
 
 Specs that Tasks 7 to 9 and 11 create or extend record behaviour the code
-already has and change none: [catalog-scripts](../spec/catalog-scripts.md),
-[cloud-session-host](../spec/cloud-session-host.md),
-[devcontainer-state](../spec/devcontainer-state.md),
-[ci-workflows](../spec/ci-workflows.md),
-[pr-description](../spec/pr-description.md),
-[supported-harnesses](../spec/supported-harnesses.md),
-[pr-review](../spec/pr-review.md),
-[ci-python-environment](../spec/ci-python-environment.md).
+already has and change none:
+[catalog-scripts](../../../spec/catalog-scripts.md),
+[cloud-session-host](../../../spec/cloud-session-host.md),
+[devcontainer-state](../../../spec/devcontainer-state.md),
+[ci-workflows](../../../spec/ci-workflows.md),
+[pr-description](../../../spec/pr-description.md),
+[supported-harnesses](../../../spec/supported-harnesses.md),
+[pr-review](../../../spec/pr-review.md),
+[ci-python-environment](../../../spec/ci-python-environment.md).
 
 ## Depends on
 
 [Give each Claude worktree its own agentdev
-catalog](../archive/3.0.1/plans/20261103-per-worktree-catalog.md) ships first,
-so Task 1's release includes it, Task 9 archives it with the rest of the closed
+catalog](../../3.0.1/plans/20261103-per-worktree-catalog.md) ships first, so
+Task 1's release includes it, Task 9 archives it with the rest of the closed
 history, and no plan is in flight while the rulebooks change.
 
 ## Verification

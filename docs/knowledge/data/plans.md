@@ -10,6 +10,3 @@ stage: living
 one list sorted by slug without the date prefix. A plan's place in the build
 order (`rank`) lives only in its frontmatter. Shipping or cancelling a plan
 moves it to `archive/` and removes it from this list.*
-
-[One home for each kind of
-knowledge](plans/20261112-knowledge-base-single-home.md)

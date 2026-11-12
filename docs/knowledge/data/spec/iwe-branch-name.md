@@ -71,6 +71,7 @@ when those pull requests cannot be read.
 ### Requirement: Plan state is read in the checkout
 
 The skill SHALL read the plan from the working tree, never from another branch,
+looking under `data/plans/` and under every `data/archive/<release>/plans/`,
 reporting `missing`, `cancelled`, `done`, `complete` when the plan has no
 `stage`, has at least one task checkbox under `## Implementation Steps` or
 `## Tasks`, and every such checkbox is ticked, or `incomplete` otherwise, and
@@ -96,10 +97,15 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 - **WHEN** a plan without `stage` lists every task ticked under `## Tasks`
 - **THEN** `plan-state` reports `complete`
 
+#### Scenario: An archived plan is a dependency
+
+- **WHEN** a plan exists only under `data/archive/2.1.0/plans/` at `stage: done`
+- **THEN** `plan-state` reports `done`
+
 #### Scenario: Two plans share a slug
 
-- **WHEN** `data/plans/20261001-foo` and `data/plans/20261020-foo` both exist in
-  the working tree
+- **WHEN** `data/plans/20261001-foo` and `data/archive/2.1.0/plans/20261020-foo`
+  both exist in the working tree
 - **THEN** a lookup by slug `foo` reports `AMBIGUOUS_PLAN`
 
 ### Requirement: The next name follows the plan's state
