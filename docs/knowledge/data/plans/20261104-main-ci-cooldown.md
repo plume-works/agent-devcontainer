@@ -9,7 +9,8 @@ sources:
 - resource: scripts/pre-commit-ci-range.py
 - resource: docs/knowledge/data/spec/image-pinning.md
 - resource: docs/knowledge/data/spec/pre-commit-gate.md
-rank: 600
+stage: done
+completed: 2026-11-12
 ---
 
 # Cool down Primary checks on main
@@ -124,6 +125,7 @@ GitHub does not document whether concurrency cancels a job waiting on one.
   their current ranges.
   - **Evidence:** `scripts/pre-commit-ci-range.py::outputs`;
     `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_when_the_lookup_fails`,
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_without_a_passing_run`,
     `scripts/tests/test_pre_commit_ci_range.py::test_push_to_another_branch_keeps_before`
 - [x] Tests cover a widened range that reaches a tool-version owner only through
   a skipped commit, a failed lookup, and a push to a branch other than `main`,
@@ -167,10 +169,19 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 **Closed by:** the maintainer, after this plan's pull request merges.
 
-- [ ] Two pull requests merged within ten minutes of each other produce one
+- [x] Two pull requests merged within ten minutes of each other produce one
   Primary checks run that builds: the first run ends `cancelled` with its build
   jobs skipped, and the second run's `pre-commit` range starts at or before the
   first merge's parent.
+  - **Evidence:** a burst of five pushes to `main` (#833, #835, #836, #832,
+    #834) built once: runs
+    [43146963150](https://github.com/plume-works/agent-devcontainer/actions/runs/43146963150)
+    and
+    [43148376260](https://github.com/plume-works/agent-devcontainer/actions/runs/43148376260)
+    ended `cancelled` in `cooldown` with `pre-commit` and `CI/CD` skipped; run
+    [43148475260](https://github.com/plume-works/agent-devcontainer/actions/runs/43148475260)
+    anchored on run 43146963150, waited 600 s, and its `pre-commit` range starts
+    at `fb0f2213`, the parent of #833's merge.
 
 ## Spec changes
 
@@ -322,3 +333,25 @@ after it succeeds.
   — Requirement: published tags name only tested images
 - `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
   — Requirement: CI runs the pre-commit hooks as the lint gate
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship —
+  data/plans/20261104-main-ci-cooldown (commit 839f7f01)
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/image-pinning, data/spec/pre-commit-gate
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed

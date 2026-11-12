@@ -214,6 +214,22 @@ def test_push_to_main_keeps_before_when_the_lookup_fails(
     assert '::warning::' in capsys.readouterr().out
 
 
+def test_push_to_main_keeps_before_without_a_passing_run(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A run history with no successful push run keeps the push's own range, with a warning."""
+    before = repo.git('rev-parse', 'HEAD')
+    after = repo.commit('src/feature.py')
+    api = ActionsApi(runs=[run(1, '2026-11-04T09:00:00Z', conclusion='cancelled')])
+    payload = {'ref': 'refs/heads/main', 'before': before, 'after': after}
+
+    with serve(api):
+        result = repo.run('push', payload, api.env())
+
+    assert result == ranged(before, after)
+    assert '::warning::' in capsys.readouterr().out
+
+
 def test_push_to_another_branch_keeps_before(repo: Repo) -> None:
     """Only a push to main looks up the last passing run."""
     last_pass = repo.git('rev-parse', 'HEAD')
