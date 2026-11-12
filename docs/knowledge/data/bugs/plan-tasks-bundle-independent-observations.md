@@ -89,7 +89,9 @@ each checkbox names exactly one observation that closes it, a checkbox joining
 independently observable events is split into one checkbox per event, and an
 event that may never occur on its own names how it is provoked. The plan's
 coherence check now asks, for every checkbox, which single observation closes
-it. The Durable Knowledge Auditor's plan scope was left unchanged.
+it. The suggested auditor change was declined: checkbox granularity is a
+planning rule the planner owns, so the Durable Knowledge Auditor's plan scope
+was left unchanged.
 
 ## Key references
 
