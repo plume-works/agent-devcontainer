@@ -125,9 +125,13 @@ Rejected:
 
 ### Task 1: A release is cut before the migration
 
-- [ ] A release page exists for every plan shipped before this plan's first
+- [x] A release page exists for every plan shipped before this plan's first
   commit, cut by `/agentdev:iwe-ship` under the rules in force before this plan.
   - **Closed by:** the user, by running the release cut and naming the version.
+  - **Evidence:** `docs/knowledge/data/releases/3.0.0.md` and
+    `docs/knowledge/data/releases/3.0.1.md`, the latter taking
+    `data/plans/20261103-per-worktree-catalog`, its `released` field set to
+    `3.0.1`.
 
 ### Task 2: Schemas and bindings for the new layout
 
