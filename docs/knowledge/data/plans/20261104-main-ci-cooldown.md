@@ -167,10 +167,19 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 **Closed by:** the maintainer, after this plan's pull request merges.
 
-- [ ] Two pull requests merged within ten minutes of each other produce one
+- [x] Two pull requests merged within ten minutes of each other produce one
   Primary checks run that builds: the first run ends `cancelled` with its build
   jobs skipped, and the second run's `pre-commit` range starts at or before the
   first merge's parent.
+  - **Evidence:** a burst of five pushes to `main` (#833, #835, #836, #832,
+    #834) built once: runs
+    [43146963150](https://github.com/plume-works/agent-devcontainer/actions/runs/43146963150)
+    and
+    [43148376260](https://github.com/plume-works/agent-devcontainer/actions/runs/43148376260)
+    ended `cancelled` in `cooldown` with `pre-commit` and `CI/CD` skipped; run
+    [43148475260](https://github.com/plume-works/agent-devcontainer/actions/runs/43148475260)
+    anchored on run 43146963150, waited 600 s, and its `pre-commit` range starts
+    at `fb0f2213`, the parent of #833's merge.
 
 ## Spec changes
 
