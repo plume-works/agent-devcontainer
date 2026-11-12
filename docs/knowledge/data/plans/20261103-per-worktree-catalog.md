@@ -180,9 +180,13 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/workspace.py`;
 Create: `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 
-- [ ] `Workspace.catalog` calls `worktree.register` when it selected the
+- [x] `Workspace.catalog` calls `worktree.register` when it selected the
   checkout's catalog over the staged one
-- [ ] tests run `Workspace.catalog` with a complete and an incomplete catalog
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py::test_a_complete_checkout_catalog_registers_the_hooks`
+- [x] tests run `Workspace.catalog` with a complete and an incomplete catalog
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 
 ### Task 4: Install the checkout's catalog at user scope on attach
 
