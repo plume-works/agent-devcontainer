@@ -139,7 +139,7 @@ repos:
       # Renovate version: see spec/dependency-updates.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.236.2 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.236.4 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
