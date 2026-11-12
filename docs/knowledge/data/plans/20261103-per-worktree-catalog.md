@@ -213,16 +213,30 @@ Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 
 **Files:** none
 
-- [ ] once the runtime on agent-dev3 has registered the hooks, a session spawned
+- [x] once the runtime on agent-dev3 has registered the hooks, a session spawned
   from claude.ai through Remote Control in `worktree` mode lists one `agentdev`
   in its `init` event, source `agentdev@wt-<name>`, path
   `<worktree>/.agents/plugins/agentdev`, and loads a skill added uncommitted in
   that worktree; a session in the main checkout lists
   `agentdev@agent-devcontainer`
-- [ ] after Remote Control's cleanup of that session, `~/.claude/settings.json`,
+  - **Evidence:** on agent-dev3, with this branch's runtime first on `PATH`,
+    start a session through agent-dev3's Remote Control bridge environment, then
+    run `claude -p "Reply with OK." --output-format stream-json --verbose` in
+    its `.claude/worktrees/<name>` and in the main checkout. In the worktree,
+    the `init` event's `plugins` lists `agentdev@wt-<name>` read from
+    `<worktree>/.agents/plugins/agentdev`, and its `skills` include an
+    uncommitted `agentdev:probe-uncommitted`. In the main checkout, `plugins`
+    lists `agentdev@agent-devcontainer`. The `init` event that Remote Control
+    relays carries an empty `plugins` list, so these sessions in the same
+    folders read the list instead.
+- [x] after Remote Control's cleanup of that session, `~/.claude/settings.json`,
   `~/.claude/plugins/known_marketplaces.json`, and
   `~/.claude/plugins/installed_plugins.json` hold no `wt-<name>` entry, and
   `git worktree list` no longer shows the worktree
+  - **Evidence:** on agent-dev3, archive that session while its worktree is
+    clean. Remote Control then removes the worktree through the `WorktreeRemove`
+    hook. After that, `grep -c wt-<name>` on the three files prints `0`, and
+    `git worktree list` no longer shows the worktree.
 
 ### Task 6: Record the design
 
