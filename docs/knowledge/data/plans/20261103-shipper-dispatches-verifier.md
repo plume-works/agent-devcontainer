@@ -119,9 +119,12 @@ same step.
 **Files:** Modify:
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 
-- [ ] `## Behaviour` states that `iwe-shipper` runs `/agentdev:iwe-verify`,
+- [x] `## Behaviour` states that `iwe-shipper` runs `/agentdev:iwe-verify`,
   which dispatches `iwe-verifier`, so only the report enters the Shipper's
   context, instead of the Shipper following the rulebook in place.
+  - **Evidence:**
+    `docs/knowledge/data/features/verification-in-the-main-loop.md#behaviour › "runs the same skill, which dispatches"`;
+    the "follows the same rulebook in place" sentence is gone.
 
 ## Spec changes
 
