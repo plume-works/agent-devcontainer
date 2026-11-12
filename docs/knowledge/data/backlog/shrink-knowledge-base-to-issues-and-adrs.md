@@ -28,6 +28,29 @@ AGENTDEV_XPRA_PORT does not change the port Xpra listens
 on](../bugs/xpra-port-setting-ignored.md). The other 29 documents under
 `data/spec/` have not been compared.
 
+## Why
+
+The repository owner's account of what a few months of use showed:
+
+- Agents writing many documents produced a mess even with an enforced structure.
+  The schemas, hubs, and workflow skills constrained each document's shape and
+  did not keep its content true.
+- People cause the same decay. Agents reach it far sooner, because they write
+  far more.
+- The cost falls differently. A person stops reading documents that have gone
+  stale. An agent keeps reading every one of them, meets statements that
+  contradict each other or the code, cannot tell which to trust, and asks the
+  repository owner which is right.
+
+## Design frame
+
+The redesign treats an agent as a new developer joining the project: someone
+capable, with no history here, who reads whatever the repository hands them and
+takes it at face value. The repository owner set this as the frame for every
+choice in the redesign. Each document that stays must be one a new developer
+could act on without asking whether it is still true, and anything that fails
+that test is removed instead of maintained.
+
 ## Order
 
 This work starts after [One home for each kind of
