@@ -696,7 +696,9 @@ The checks land once Tasks 8 and 9 have moved every document they would fail.
 
 **Files:** Delete: `docs/knowledge/migration/`.
 
-- [ ] `docs/knowledge/migration/` does not exist.
+- [x] `docs/knowledge/migration/` does not exist.
+  - **Evidence:** `test ! -e docs/knowledge/migration` exits 0. The scan files
+    the Task 8 and Task 9 evidence names stay readable at commit `5265563a`.
 
 ## Spec changes
 
