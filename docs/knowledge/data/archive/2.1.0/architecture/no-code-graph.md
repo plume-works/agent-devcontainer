@@ -41,7 +41,7 @@ Python calls on untyped receivers.
 image in the `~/.claude` and home volumes. A hook that names a missing binary
 fails on every tool call, and the tool's own `uninstall` is gone with the
 binary. The create phase therefore runs
-[`cbm_purge`](../../../../py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py),
+[`cbm_purge`](../../../../../../py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py),
 which removes those entries by exact name and leaves everything else in the
 user's files alone. The behavior is specified in [Catalog
 lifecycle](../../../spec/catalog-lifecycle.md).
