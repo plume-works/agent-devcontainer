@@ -224,10 +224,14 @@ Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 **Files:** Create: `docs/knowledge/data/architecture/per-worktree-catalog.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] `data/architecture/per-worktree-catalog` records the file-source
+- [x] `data/architecture/per-worktree-catalog` records the file-source
   marketplace inside the worktree, the user-scope install, where the hooks are
   registered, and every rejected alternative in `## Approach`, and links
   `data/architecture/worktree-hooks`; `data/architecture.md` links it
+  - **Evidence:**
+    `docs/knowledge/data/architecture/per-worktree-catalog.md#design` and
+    `#rejected-alternatives`; `docs/knowledge/data/architecture.md` ›
+    "[Per-worktree catalog](architecture/per-worktree-catalog.md)"
 
 ## Spec changes
 
