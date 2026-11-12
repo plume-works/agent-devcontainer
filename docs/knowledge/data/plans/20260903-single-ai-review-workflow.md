@@ -473,7 +473,7 @@ requirement for comment mentions.
   `needs:` coupling.
 - **Reviewing every commit.** The acceptance policy stays as specified.
 - **Simplifying the `pr-*` skills** that compensate for comment runs being
-  invisible on the head SHA. Filed as [Simplify the pr-* skills for the single
+  invisible on the head SHA. Filed as [Simplify the `pr-*` skills for the single
   review workflow](../backlog/simplify-pr-skills-single-review-workflow.md).
 - **Posting reviews under the Claude App identity.** Attribution is unchanged.
 - **Loosening or tightening the acceptance rule** (the `+1` reaction and
