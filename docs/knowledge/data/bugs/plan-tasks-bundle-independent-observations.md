@@ -1,6 +1,6 @@
 ---
 type: bug
-stage: planned
+stage: done
 severity: medium
 description: A plan checkbox can bundle several independently observed outcomes, so the implementer cannot tick the half it observed and has to park that evidence elsewhere; neither the plan skill's coherence check nor the plan auditor tests checkbox granularity.
 sources:
@@ -79,6 +79,19 @@ The rule exists only as prose, and neither gate tests it.
   with the recommendation to split it.
 - **Outcome.** The implementer can tick each observation as it arrives, without
   finding another section to hold the evidence.
+
+## Fix
+
+[One observation per plan
+checkbox](../plans/20261109-one-observation-per-checkbox.md) moved the
+granularity rule from the task to the checkbox in the `iwe-planner` rulebook:
+each checkbox names exactly one observation that closes it, a checkbox joining
+independently observable events is split into one checkbox per event, and an
+event that may never occur on its own names how it is provoked. The plan's
+coherence check now asks, for every checkbox, which single observation closes
+it. The suggested auditor change was declined: checkbox granularity is a
+planning rule the planner owns, so the Durable Knowledge Auditor's plan scope
+was left unchanged.
 
 ## Key references
 
