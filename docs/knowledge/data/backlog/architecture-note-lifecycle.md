@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: done
 priority: medium
 created: 2026-11-09
 description: Give architecture notes a lifecycle, so a note a newer decision replaces is retired instead of staying listed as current.
@@ -10,6 +10,7 @@ sources:
 - resource: docs/knowledge/data/architecture/label-review-triggers.md
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
 - resource: docs/knowledge/data/architecture/pr-review-effort-tiers.md
+completed: 2026-11-12
 ---
 
 # Give architecture notes a lifecycle
