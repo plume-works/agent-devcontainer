@@ -1,13 +1,13 @@
 """
-Rejection checks for the OKF shapes of the reserved `data/index.md` and `data/log.md`.
+Rejection checks for the OKF shape of the reserved `data/index.md`.
 
-Each test copies the graph into `/tmp`, breaks one reserved file, and asserts that
+Each test copies the graph into `/tmp`, breaks the reserved file, and asserts that
 `iwe schema validate` refuses it and names the file.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 import shutil
 import subprocess
@@ -37,11 +37,6 @@ def _validate(workspace: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def _undated_heading(content: str) -> str:
-    """Rename the log's first date group to a heading that is not a date."""
-    return content.replace('\n## 20', '\n## Recent changes\n\n## 20', 1)
-
-
 def _extra_frontmatter(content: str) -> str:
     """Give the index a frontmatter key beyond `okf_version`."""
     return content.replace("okf_version: '0.2'\n", "okf_version: '0.2'\ntype: hub\n", 1)
@@ -67,18 +62,11 @@ def test_unmodified_graph_validates(workspace: Path) -> None:
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-@pytest.mark.parametrize(
-    ('name', 'mutate'),
-    [('log', _undated_heading), ('index', _extra_frontmatter)],
-    ids=['log-undated-heading', 'index-extra-frontmatter'],
-)
-def test_broken_reserved_file_is_rejected(
-    workspace: Path, name: str, mutate: Callable[[str], str]
-) -> None:
-    """A reserved file that leaves its OKF shape fails validation, named by key."""
-    path = workspace / 'docs' / 'knowledge' / 'data' / f'{name}.md'
+def test_index_with_extra_frontmatter_is_rejected(workspace: Path) -> None:
+    """An index that leaves its OKF shape fails validation, named by key."""
+    path = workspace / 'docs' / 'knowledge' / 'data' / 'index.md'
     original = path.read_text()
-    broken = mutate(original)
+    broken = _extra_frontmatter(original)
     assert broken != original, 'the mutation changed nothing'
     try:
         path.write_text(broken)
@@ -86,4 +74,4 @@ def test_broken_reserved_file_is_rejected(
     finally:
         path.write_text(original)
     assert result.returncode != 0
-    assert f'data/{name}' in result.stdout
+    assert 'data/index' in result.stdout

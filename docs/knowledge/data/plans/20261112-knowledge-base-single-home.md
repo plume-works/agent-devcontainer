@@ -143,19 +143,33 @@ Rejected:
 `docs/knowledge/tests/test_reserved_file_shapes.py`. Delete:
 `.iwe/schemas/okf-log.yaml`, `docs/knowledge/data/log.md`.
 
-- [ ] `.iwe/config.toml` binds the plan, bug, task, and feature schemas to
+- [x] `.iwe/config.toml` binds the plan, bug, task, and feature schemas to
   `data/archive/*/<type>/**` beside their live folders, and binds `finding` and
   `guide` to `data/findings/**` and `data/guides/**`, with both hubs in
   `[schemas.hub]` and in `data/index.md`. `iwe schema validate` passes.
-- [ ] A test in `test_archive_layout.py` runs `iwe schema validate` on a scratch
+  - **Evidence:**
+    `uv run pytest docs/knowledge/tests/test_archive_layout.py::test_conforming_document_validates`
+    and `iwe schema validate`; `.iwe/config.toml#schemas.hub`,
+    `docs/knowledge/data/index.md#reference`.
+- [x] A test in `test_archive_layout.py` runs `iwe schema validate` on a scratch
   graph under `/tmp` holding an archived plan with an invalid `stage` and
   expects a failure naming the document.
-- [ ] A finding requires `## Measurement` and `## Closing` and carries no
+  - **Evidence:**
+    `uv run pytest 'docs/knowledge/tests/test_archive_layout.py::test_broken_document_is_rejected[archived-plan-invalid-stage]'`
+- [x] A finding requires `## Measurement` and `## Closing` and carries no
   `stage`; a guide requires an H1 and carries no `stage`. A test in
   `test_archive_layout.py` expects a failure for a finding without `## Closing`.
-- [ ] `data/log.md`, `.iwe/schemas/okf-log.yaml`, and the `okf-log` binding do
+  - **Evidence:**
+    `uv run pytest docs/knowledge/tests/test_archive_layout.py::test_broken_document_is_rejected`
+    (finding without `## Closing`, finding with `stage`, guide with `stage`);
+    `.iwe/schemas/finding.yaml`, `.iwe/schemas/guide.yaml`.
+- [x] `data/log.md`, `.iwe/schemas/okf-log.yaml`, and the `okf-log` binding do
   not exist, `test_reserved_file_shapes.py` holds no log case, and
   `iwe schema validate` passes.
+  - **Evidence:**
+    `test ! -e docs/knowledge/data/log.md && test ! -e .iwe/schemas/okf-log.yaml && ! grep -q okf-log .iwe/config.toml`,
+    `uv run pytest docs/knowledge/tests/test_reserved_file_shapes.py`, and
+    `iwe schema validate`.
 
 ### Task 3: Scripts that find a plan by key
 
@@ -923,7 +937,6 @@ is in flight while the rulebooks change.
 - `.iwe/config.toml#schemas.plan` — the path binding each type's archive folders
   join.
 - `.iwe/config.toml#schemas.hub` — the closed hub set.
-- `.iwe/config.toml#schemas.okf-log` — the log binding being removed.
 - `.iwe/schemas/architecture.yaml` — the type being retired.
 - `.iwe/schemas/release.yaml` — the release page's schema.
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` — the spec merge,
