@@ -218,7 +218,11 @@ def create(text: str) -> int:
         and git('-C', repository, 'rev-parse', '--verify', '-q', f'refs/heads/{branch}') != 0
     )
     if not reused:
-        add = ['-b', branch, str(path), base(repository)] if new_branch else [str(path), branch]
+        add = (
+            ['--no-track', '-b', branch, str(path), base(repository)]
+            if new_branch
+            else [str(path), branch]
+        )
         if git('-C', repository, 'worktree', 'add', *add) != 0:
             if new_branch:
                 git('-C', repository, 'branch', '-D', branch)

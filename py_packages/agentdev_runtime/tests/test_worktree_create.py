@@ -174,6 +174,12 @@ def test_a_new_worktree_starts_at_the_freshly_fetched_remote_default_branch(
     result = run(repository, 'fresh')
     assert result.returncode == 0, result.stderr
     assert rev(repository, 'worktree-fresh') == rev(upstream, 'HEAD') != rev(repository, 'HEAD')
+    upstream_of = subprocess.run(
+        ['git', '-C', str(repository), 'config', 'branch.worktree-fresh.merge'],
+        capture_output=True,
+        text=True,
+    )
+    assert upstream_of.stdout == ''
 
 
 @pytest.mark.parametrize('settings', ['settings.json', 'settings.local.json'])
