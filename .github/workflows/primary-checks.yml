@@ -18,9 +18,10 @@ on:
         default: false
         type: boolean
 
-# main queues instead of cancelling, so edge keeps advancing; see spec/image-pinning.
+# On main the cooldown job cancels a waiting run and the ci job queues, so edge keeps
+# advancing and a burst of merges builds once; see spec/image-pinning.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref || github.run_id }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
@@ -29,10 +30,37 @@ env:
 permissions: {}
 
 jobs:
+  cooldown:
+    name: cooldown
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    permissions:
+      actions: read
+      contents: read
+    concurrency:
+      group: ${{ github.workflow }}-main-cooldown
+      cancel-in-progress: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Wait for the cooldown
+        run: scripts/ci-cooldown.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAIN_COOLDOWN_SECONDS: ${{ vars.MAIN_COOLDOWN_SECONDS }}
+          MAIN_COOLDOWN_MAX_SECONDS: ${{ vars.MAIN_COOLDOWN_MAX_SECONDS }}
+
   pre-commit:
     name: pre-commit
+    needs: [cooldown]
+    if: ${{ !cancelled() && (needs.cooldown.result == 'success' || needs.cooldown.result == 'skipped') }}
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     permissions:
+      actions: read
       contents: read
     # The same digest as devcontainer-compose-pins.yml, so the hooks run the tools the
     # image provisions. See spec/pre-commit-gate.
@@ -55,6 +83,8 @@ jobs:
       - name: Select the range
         id: range
         run: scripts/pre-commit-ci-range.py
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: uv sync
         run: uv sync --locked
@@ -78,7 +108,13 @@ jobs:
 
   ci:
     name: CI/CD
-    needs: [pre-commit]
+    needs: [cooldown, pre-commit]
+    if: >-
+      ${{ !cancelled() && needs.pre-commit.result == 'success'
+      && (needs.cooldown.result == 'success' || needs.cooldown.result == 'skipped') }}
+    concurrency:
+      group: ${{ github.ref == 'refs/heads/main' && format('{0}-ci-main', github.workflow) || github.run_id }}
+      cancel-in-progress: false
     permissions:
       actions: read
       contents: read
