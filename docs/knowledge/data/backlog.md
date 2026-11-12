@@ -67,6 +67,9 @@ asking](backlog/implement-opens-pr.md)
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
 
+[Migrate a repository that consumed the earlier IWE
+scaffold](backlog/migrate-earlier-iwe-scaffold.md)
+
 [Nested dispatch from catalog agents](backlog/nested-catalog-agent-dispatch.md)
 
 [Check adversarial review depth on

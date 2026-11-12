@@ -89,6 +89,7 @@ proposals/
 authorizations/
 backups/
 archive/
+!**/docs/knowledge/data/archive/
 locks/
 *.sqlite
 *.sqlite-shm

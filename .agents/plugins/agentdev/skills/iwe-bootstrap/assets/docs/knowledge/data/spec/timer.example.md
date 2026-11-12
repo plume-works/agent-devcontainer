@@ -50,10 +50,25 @@ changes, or manual clock adjustments never corrupt a session.
 - **THEN** the session is either completed (if configured to run through sleep)
   or paused at 10:00 — never showing negative or drifted time
 
+## Rationale
+
+Completed sessions append to a JSON-lines log in the user data directory, and
+aggregates such as daily totals and streaks are derived at read time. Sessions
+are immutable facts, crash recovery reduces to replaying the file, and sync
+between machines becomes a merge of two logs.
+
+Rejected:
+
+- **SQLite** — transactional power the timer does not need, and a native
+  dependency in an otherwise pure-TypeScript build.
+- **A mutable JSON snapshot** — a crash during a write can lose the whole
+  history, not just the last entry.
+
 *Convention notes: specs carry `type: spec` and no stage — they are reference,
 not work items. The requirement headers are stable names other documents cite:
 the [timer drift bug](../bugs/timer-drift-after-sleep.example) reports a
 violation of "Wall-clock independence", and the [focus sessions
-plan](../plans/20260701-focus-sessions.example) lists this spec under its
-`## Spec changes`. Scale rigor with risk — a two-line requirement is fine for
-low-risk behavior.*
+plan](../archive/0.1.0/plans/20260701-focus-sessions.example) lists this spec
+under its `## Spec changes`. `## Rationale` holds the decision behind the
+behaviour and the alternatives it rejected, and states no behaviour itself.
+Scale rigor with risk — a two-line requirement is fine for low-risk behavior.*

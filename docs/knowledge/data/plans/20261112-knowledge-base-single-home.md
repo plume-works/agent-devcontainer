@@ -316,11 +316,17 @@ example documents),
 `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md`,
 `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py`.
 
-- [ ] The scaffold installs the `finding` and `guide` types, the archive
+- [x] The scaffold installs the `finding` and `guide` types, the archive
   bindings, and no architecture hub or example and no `data/log.md`, and
   `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py` passes.
-- [ ] `/agentdev:iwe-capture task` files a backlog task for migrating a
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py .agents/plugins/agentdev/tests/test_iwe_seed.py`,
+    including
+    `test_iwe_bootstrap.py::test_installed_graph_has_the_single_home_layout`.
+- [x] `/agentdev:iwe-capture task` files a backlog task for migrating a
   repository that consumed the earlier scaffold.
+  - **Evidence:** `docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md`,
+    linked from `docs/knowledge/data/backlog.md`.
 
 ### Task 7: Fold the architecture notes
 

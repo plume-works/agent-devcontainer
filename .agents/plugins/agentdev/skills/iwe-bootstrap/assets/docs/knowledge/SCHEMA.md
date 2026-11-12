@@ -11,8 +11,8 @@ the `*.example.md` docs demonstrate each shape in place.
 `data/` is a conformant [Open Knowledge
 Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
 v0.2 bundle. That is why every document carries a `type` and why the reserved
-`data/index.md` and `data/log.md` have shapes of their own. The per-type blocks
-below show only the fields specific to that type; the shared families come next.
+`data/index.md` has a shape of its own. The per-type blocks below show only the
+fields specific to that type; the shared families come next.
 
 ## Fields every type carries
 
@@ -52,16 +52,31 @@ rank: 300 # optional; positive integer
 - Ship removes `rank` from a plan, bug, or task it marks done or cancelled.
 - Equal ranks are valid and break by key; CI warns about them.
 
-## The reserved files — `data/index.md` and `data/log.md`
+## The reserved file — `data/index.md`
 
-OKF reserved filenames, not concept documents: they carry no `type` and are
-checked by `okf-index.yaml` and `okf-log.yaml` instead.
+An OKF reserved filename, not a concept document: it carries no `type` and is
+checked by `okf-index.yaml` instead. Its only frontmatter is
+`okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
+markdown link to a hub followed by `-` and that hub's `description`. The graph
+holds no `data/log.md`, which OKF makes optional.
 
-- `data/index.md` — the bundle-root index. Its only frontmatter is
-  `okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
-  markdown link to a hub followed by `-` and that hub's `description`.
-- `data/log.md` — the update history, written only by a release cut: a title
-  section over `## YYYY-MM-DD` groups of bullets, newest first.
+## The archive — `data/archive/<release>/<folder>/`
+
+Finished work is archived, never deleted. `data/archive/` holds one folder per
+cut version plus `next-release`, and each holds the subfolder its documents
+lived in — `plans/`, `bugs/`, `backlog/`, `features/`, or `architecture/` — so
+every archived document stays bound to its type's schema and is validated in
+full.
+
+- Whoever closes a plan, bug, task, or feature moves it with `iwe rename` to
+  `data/archive/next-release/<folder>/` in the same change and removes its hub
+  link.
+- The release cut moves everything under `next-release` to the version's folder,
+  keeping the subfolders.
+- The folder is the only record of a document's release; no document carries
+  `released`. A document no plan closed belongs to the release that was open
+  when it closed.
+- `type: architecture` is valid only under `data/archive/`.
 
 ## Plans — `data/plans/YYYYMMDD-<slug>.md`
 
@@ -73,37 +88,40 @@ type: plan # required
 stage: done # done | cancelled — omit while active/pending
 created: 2026-07-01 # required, YYYY-MM-DD
 completed: 2026-07-18 # required when stage: done
-released: 0.1.0 # set by the release cut that took this done plan
 release: # required while active: internal, or the keys below
 - features/focus-sessions
 ---
 ```
 
-`release` is the plan's release impact, chosen when the plan is written:
-`internal` when no workspace user or template consumer sees a difference,
-otherwise the `features/` and `bugs/` keys the work adds, changes, or fixes. The
-release cut takes the plan's release entries from it and sets `released` to its
-version; a done plan without `released` waits for the next cut.
+`release` lists the documents the plan closes: the `features/` and `bugs/` keys
+Ship marks implemented or done when the plan ships, or `internal` when it closes
+none. It feeds no release page. A plan needs no feature to change what users
+see: the release page is written from the specs.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
 `**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
 `## Verification`, `## Out of scope`, `## Key references` (anchors, never line
-numbers). Its link in `data/plans.md` never moves. Every plan `## Depends on`
-links is a prerequisite, unless the section's text starts with `None`: then it
-has none, and any plan it links is only related.
+numbers). Ship moves a done or cancelled plan to the archive and removes its
+link from `data/plans.md`. Every plan `## Depends on` links is a prerequisite,
+unless the section's text starts with `None`: then it has none, and any plan it
+links is only related.
 
 ## Features — `data/features/<slug>.md`
 
-Feature design documents; the stage carries the whole lifecycle.
+A feature is a proposal: what users should get, written before the work. It is
+live at `proposed` or `accepted`; once its plan ships, the behaviour lives in
+the specs and the feature moves to the archive.
 
 ``` yaml
 ---
 type: feature # required
-stage: implemented # proposed | accepted | implemented | deprecated | cancelled — required
+stage: accepted # proposed | accepted live; implemented | deprecated | cancelled archived — required
 ---
 ```
 
-Body: `## Purpose`, `## Behaviour`, `## Edge cases`, `## Open questions`.
+Body: `## Purpose`, `## Behaviour`, `## Edge cases`, `## Open questions`. Plan
+sets a feature its plan lists in `release` to `accepted`; Ship sets it to
+`implemented` and archives it with the plan.
 
 ## Bugs — `data/bugs/<slug>.md`
 
@@ -127,14 +145,15 @@ Body: `## Symptom`, `## Reproduction`, `## Root cause`, all required, then the
 optional `## Potential solution` — the intended direction, at any stage — and
 `## Fix` — the fix that shipped, written when the bug becomes `done`: by the
 fixer when a change fixes it directly, by Ship from the plan that fixed it. A
-Reproduction or Root cause not yet known records what is known, the hypotheses
-eliminated and what eliminated them, and links the backlog task whose spike
-settles it. No section states lifecycle; `stage` does.
+done or cancelled bug moves to the archive in the same change. A Reproduction or
+Root cause not yet known records what is known, the hypotheses eliminated and
+what eliminated them, and links the backlog task whose spike settles it. No
+section states lifecycle; `stage` does.
 
 ## Releases — `data/releases/<version>.md`
 
-One page per cut version, written only by the release cut from the done plans no
-earlier cut took — those without `released` — and their `release` lists.
+One page per cut version, written only by the release cut, in plain text with no
+Markdown link.
 
 ``` yaml
 ---
@@ -145,9 +164,12 @@ stage: released # required, always released
 ---
 ```
 
-Body: `## Added` / `## Changed` / `## Fixed` as inclusion links to feature and
-bug docs. A feature already released in an earlier version, but which gained
-behavior in this one, belongs under `## Changed` rather than `## Added`.
+Body: what changed in the requirements and scenarios of `data/spec/` between the
+commit that added the previous release page and the cut, in plain language,
+grouped by theme; `## Removed` for behaviour that went away; `## Upgrade notes`
+when a change needs action; and `## Fixed`, the titles of the bugs in the
+release's archive folder. A `## Rationale` change alone is not a release change.
+Nothing edits a page after its cut.
 
 ## Backlog tasks — `data/backlog/<slug>.md`
 
@@ -163,14 +185,24 @@ completed: 2026-08-14 # set when done
 ---
 ```
 
+A done or cancelled task moves to the archive in the same change.
+
 ## Reference documents — type only
 
-`data/spec/`, `data/architecture/`, `data/concept/`, and `data/someday/` docs
-carry a `type` (`spec`, `architecture`, `concept`, `someday`) and nothing else
-that is required: they are durable reference, not work items, so no `stage`
-applies. Specs use the Requirement/Scenario format (`### Requirement:` + SHALL,
-`#### Scenario:` + WHEN/THEN); architecture notes record decisions with their
-rejected alternatives.
+`data/spec/`, `data/findings/`, `data/guides/`, `data/concept/`, and
+`data/someday/` docs carry a `type` (`spec`, `finding`, `guide`, `concept`,
+`someday`) and nothing else that is required: they are durable reference, not
+work items, so no `stage` applies, and the finding and guide schemas reject one.
+
+- **Spec** — the only home of behaviour: `### Requirement:` + SHALL,
+  `#### Scenario:` + WHEN/THEN. Its `## Rationale` section is the only home of
+  the decision in force behind that behaviour and the alternatives it rejected;
+  it states no behaviour.
+- **Finding** — a measurement: required `## Measurement` and `## Closing`, plus
+  the hypotheses eliminated and what would settle the rest. It states no
+  behaviour the code must meet.
+- **Guide** — a procedure a contributor follows. Every code anchor in it is
+  resolved on every commit.
 
 ## Hubs and the trackers
 

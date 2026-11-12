@@ -4,22 +4,20 @@ description: 'Example shipped plan: building focus sessions, from approach throu
 stage: done
 created: 2026-07-01
 completed: 2026-07-18
-released: 0.1.0
 ---
 
 # Focus sessions
 
 *Example document — this shows the full body template of a shipped plan,
 including the `## Spec changes` section the ship skill synced before flipping
-the stage to done. The setup skill deletes `*.example.md` files after
-onboarding.*
+the stage to done and moving the plan to `archive/0.1.0/plans/`. The setup skill
+deletes `*.example.md` files after onboarding.*
 
 ## Context
 
 Pomodux has a window and a session log but no working timer. This plan builds
-the core loop: countdown, pause/resume, completion logging. The [state
-model](../architecture/state-model.example) (single store, append-only log) is
-already in place.
+the core loop: countdown, pause/resume, completion logging. The session log
+([timer rationale](../../../spec/timer.example)) is already in place.
 
 ## Approach
 
@@ -55,8 +53,8 @@ store. Completion appends to the session log through the existing writer.
 
 ## Spec changes
 
-[Timer](../spec/timer.example) — session countdown, pause/resume, and wall-clock
-independence requirements written from this plan's behavior.
+[Timer](../../../spec/timer.example) — session countdown, pause/resume, and
+wall-clock independence requirements written from this plan's behavior.
 
 ## Verification
 
@@ -75,6 +73,7 @@ independence requirements written from this plan's behavior.
 - `src/main.ts::bootstrap` — window/tray bootstrap where the view mounts
 
 *Convention notes: `stage: done` requires `completed` (schema-enforced), and a
-shipped plan carries no `rank`; its link in the plans hub never moved.
+shipped plan carries no `rank`. Ship moved it out of the plans hub into the
+archive; the release cut moved it from `next-release` to `0.1.0`.
 `## Spec changes` names every spec this work touches — the ship skill walks that
 list before the stage flips, which is what keeps specs from drifting.*
