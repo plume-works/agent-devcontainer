@@ -310,9 +310,6 @@ image](plans/20260925-self-hosted-renovate.md)
 
 [Self-improve MVP](plans/20260909-self-improve-mvp.md)
 
-[Share one BuildKit builder across Coder
-workspaces](plans/20261013-shared-buildkit-workspace.md)
-
 [Gate done bugs and Ship reviews in
 pre-commit](plans/20261103-ship-records-gate.md)
 

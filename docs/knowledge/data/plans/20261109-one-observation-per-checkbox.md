@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-12
 created: 2026-11-09
 release:
 - bugs/plan-tasks-bundle-independent-observations
@@ -41,17 +43,21 @@ beyond its one question.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] The `## Rules` bullet "One task is one outcome" also states that each
+- [x] The `## Rules` bullet "One task is one outcome" also states that each
   checkbox names exactly one observation that closes it, that a checkbox joining
   independently observable events is split into one checkbox per event, and that
   an event that may never occur on its own names how it is provoked.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#rules › "Each checkbox names exactly one observation that closes it"`
 
 ### Task 2: The coherence question
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] Step 6 asks, for every checkbox, which single observation closes it, and
+- [x] Step 6 asks, for every checkbox, which single observation closes it, and
   splits any checkbox that names more than one.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "For every checkbox, ask which single observation closes it"`
 
 ## Spec changes
 
@@ -118,3 +124,26 @@ which single observation closes it.
   — step 6
 - `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-plan-tasks-are-sized-so-a-tick-can-be-honest`
   — the modified requirement
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship —
+  data/plans/20261109-one-observation-per-checkbox (commit
+  `20e8766c7f55eee53d2f3a19d640a84de8431438`)
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/plan-checkbox-evidence
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed:
+  data/bugs/plan-tasks-bundle-independent-observations
+- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed:
+  data/bugs/plan-tasks-bundle-independent-observations
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed

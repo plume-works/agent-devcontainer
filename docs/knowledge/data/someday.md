@@ -38,3 +38,6 @@ review](someday/revision-evaluator-calibration.md)
 
 [Hermes-derived prompt stack for
 self-improve](someday/self-improve-hermes-prompt-stack.md)
+
+[Share one BuildKit builder across Coder
+workspaces](someday/shared-buildkit-builder.md)

@@ -98,15 +98,15 @@ one dated group per release; nothing else writes here.
 - **Update**: refreshed the agentdev catalog, skills, and tests map docs for the
   saved Verify report cache.
 - **Update**: revised the six active plans for the agreed sequence. [Share one
-  BuildKit builder across Coder
-  workspaces](plans/20261013-shared-buildkit-workspace.md) registers the builder
-  in `agentdev-runtime`; [Bootstrap agentdev natively on macOS with
-  Homebrew](plans/20261013-macos-native-bootstrap.md) is a zsh script that
-  provisions Python through Homebrew's uv; [Resume interrupted Claude PR reviews
-  on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
-  starts from a one-shot `ai-review-resume` label; [Replace the runtime shell
-  scripts with one agentdev-runtime CLI](plans/20261029-off-bash-migration.md)
-  also fixes [Bug: a workspace on a pre-pin image has no gitleaks or
+  BuildKit builder across Coder workspaces](someday/shared-buildkit-builder.md)
+  registers the builder in `agentdev-runtime`; [Bootstrap agentdev natively on
+  macOS with Homebrew](plans/20261013-macos-native-bootstrap.md) is a zsh script
+  that provisions Python through Homebrew's uv; [Resume interrupted Claude PR
+  reviews on a persistent
+  runner](plans/20260909-resumable-claude-review-sessions.md) starts from a
+  one-shot `ai-review-resume` label; [Replace the runtime shell scripts with one
+  agentdev-runtime CLI](plans/20261029-off-bash-migration.md) also fixes [Bug: a
+  workspace on a pre-pin image has no gitleaks or
   actionlint](bugs/workspace-image-lacks-hook-binaries.md); [Run the Dev
   Container as a non-root account with one home
   volume](plans/20261030-devcontainer-home-volume.md) first settles whether a
@@ -116,7 +116,7 @@ one dated group per release; nothing else writes here.
 - **Update**: ordered the active [plans](plans.md), open [bugs](bugs.md), and
   planned [backlog](backlog.md) items into one implementation sequence; [Share
   one BuildKit builder across Coder
-  workspaces](plans/20261013-shared-buildkit-workspace.md) now depends on the
+  workspaces](someday/shared-buildkit-builder.md) now depends on the
   agentdev-runtime CLI plan, [Bootstrap agentdev natively on macOS with
   Homebrew](plans/20261013-macos-native-bootstrap.md) on the catalog Python
   port, and [Run the Dev Container as a non-root account with one home
@@ -623,7 +623,7 @@ one dated group per release; nothing else writes here.
   conflicts](features/pr-feedback-resolves-merge-conflicts.md), and [bun as the
   only JavaScript runner](features/bun-only-javascript-runner.md).
 - **Feature**: [Native macOS bootstrap](features/macos-native-bootstrap.md),
-  [Shared BuildKit builder](features/shared-buildkit-builder.md), and [VS Code
+  [Shared BuildKit builder](someday/shared-buildkit-builder.md), and [VS Code
   Expo
   bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
   filed and accepted for their active plans.

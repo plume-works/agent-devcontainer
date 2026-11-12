@@ -210,8 +210,8 @@ None — no behavioral change.
 ## Out of scope
 
 - Open work about the template: the active [shared BuildKit
-  plan](20261013-shared-buildkit-workspace.md), the accepted [shared BuildKit
-  builder](../features/shared-buildkit-builder.md) feature, and the pending
+  plan](../someday/shared-buildkit-builder.md), the accepted [shared BuildKit
+  builder](../someday/shared-buildkit-builder.md) feature, and the pending
   [supervised Remote Control](../backlog/coder-supervised-remote-control.md)
   task.
 - Finished documents that mention the template without changing it: the Remote
