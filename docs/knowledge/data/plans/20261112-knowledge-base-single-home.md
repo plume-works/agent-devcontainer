@@ -827,10 +827,12 @@ value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
 work closes. The Plan skill SHALL set that value when it files a plan, SHALL
 declare `internal` when the work closes no feature and no bug, SHALL set every
 feature the plan lists to `stage: accepted`, and SHALL set every bug the plan
-lists to `stage: planned`. Ship SHALL take the documents a plan closes only
-from that value, SHALL never create a feature, SHALL write the `## Fix` of each
-bug it marks done, and SHALL return each listed bug to `stage: pending` when it
-cancels the plan.
+lists to `stage: planned`. A plan revision that adds a bug to `release` SHALL
+set it to `stage: planned`, and one that removes a bug SHALL return it to
+`stage: pending`. Ship SHALL take the documents a plan closes only from that
+value, SHALL never create a feature, SHALL write the `## Fix` of each bug it
+marks done, and SHALL return each listed bug to `stage: pending` when it cancels
+the plan.
 
 #### Scenario: A plan implements a proposed feature
 
@@ -838,10 +840,11 @@ cancels the plan.
   `stage: proposed`
 - **THEN** Plan sets the feature to `stage: accepted`
 
-#### Scenario: A plan lists a bug
+#### Scenario: A milestone aggregator plan is filed
 
-- **WHEN** Plan files a plan whose `release` lists a bug at `stage: pending`
-- **THEN** Plan sets the bug to `stage: planned`
+- **WHEN** Plan files a milestone aggregator plan whose children are plans
+- **THEN** the aggregator declares `release: internal`, and each child plan
+  lists the features and bugs it closes
 
 #### Scenario: A plan closes no document
 
@@ -940,13 +943,6 @@ work done, and SHALL be safe to resume after a partial prior attempt.
 - **THEN** Ship updates the changed behavior while preserving all unaffected
   requirements, scenarios, ordering, and `## Rationale` entries
 
-#### Scenario: A structured delta agrees with implementation
-
-- **WHEN** Verify confirms that every planned delta operation and post-change
-  scenario agrees with implementation evidence
-- **THEN** Ship intelligently merges that behavior into the durable spec and
-  verifies the complete resulting contract
-
 #### Scenario: A decision is overturned
 
 - **WHEN** a shipped plan replaces a decision a spec's `## Rationale` records
@@ -1012,12 +1008,120 @@ SHALL reject a document that sets any of them.
 
 - **WHEN** `data/index.md` departs from the shape its OKF schema defines
 - **THEN** `iwe schema validate` fails and names the file
+
+### Requirement: Capture files complete inbox documents
+
+The Capture skill SHALL be the only writer of new bug, proposed-feature, and
+backlog-task documents, SHALL refuse a document missing any frontmatter field or
+body section `SCHEMA.md` requires for its type, SHALL check the graph for a
+likely duplicate before filing, SHALL file a feature at `stage: proposed` and
+never promote it, SHALL file a bug at `stage: pending` — or at `stage: done`
+with its `## Fix`, under `data/archive/next-release/bugs/`, when the same change
+fixed it — and a task at `stage: pending`, and SHALL link every filed document
+except a bug filed at `stage: done` from its hub and end with `iwe normalize`
+and `iwe schema validate` passing. Capture SHALL file no bug whose Reproduction
+or Root cause is a bare "unknown": a section not yet known states what is known,
+the hypotheses eliminated and what eliminated each, and links the backlog task
+whose spike settles it. No bug section SHALL state lifecycle, which `stage`
+alone carries, and a bug's `severity` SHALL measure impact, not urgency, and
+set nothing, `rank` included.
+
+#### Scenario: A bug's root cause is not yet known
+
+- **WHEN** Capture is invoked for a bug whose Root cause reads only "unknown"
+- **THEN** Capture writes nothing and asks for what is known, the hypotheses
+  eliminated, and the backlog task whose spike settles it
+
+#### Scenario: A complete item is captured
+
+- **WHEN** Capture is invoked for a bug, feature, or task whose required
+  sections and fields are all supplied, and no likely duplicate exists
+- **THEN** Capture writes the document at its lane's key with the `stage`
+  `SCHEMA.md` derives for it, stamps `sources`, links it from its hub at its
+  sorted position unless it is a bug filed at `stage: done`, and validates the
+  graph
+
+#### Scenario: A required section is missing
+
+- **WHEN** the supplied content lacks any section or field required for its
+  type, including a bug's `severity`
+- **THEN** Capture writes nothing and lists every missing section and field
+
+#### Scenario: A likely duplicate exists
+
+- **WHEN** a fuzzy or lexical search finds an existing document that matches the
+  item
+- **THEN** Capture writes nothing and shows the match
+
+#### Scenario: A someday idea is promoted
+
+- **WHEN** Capture is invoked for a task with `--from someday/<slug>`
+- **THEN** Capture files the backlog task from the idea and moves the idea's
+  link out of `data/someday.md`
+
+#### Scenario: The item grew from a GitHub issue
+
+- **WHEN** the exploration behind the item started from a GitHub issue
+- **THEN** Capture records the issue under `sources:`, and after validation
+  closes it with a comment naming the captured document
+
+#### Scenario: Explore or Implement finds an inbox item
+
+- **WHEN** Explore settles a defect, feature, or task, or Implement finds a
+  defect or work its plan should not absorb
+- **THEN** it hands the item to Capture rather than writing the document itself
+
+### Requirement: Every ship is reviewed against Ship's obligations
+
+`iwe-shipper` SHALL NOT commit a ship while a bug its plan's `release` lists has
+no `## Fix`. After `iwe-shipper` ships a plan, `/agentdev:iwe-ship` and Plan
+revise mode answering a Ship blocker report SHALL dispatch `iwe-ship-reviewer`
+in ship mode with the plan key. When it reports gaps, they SHALL dispatch
+`iwe-shipper` with the operation `fix` and the gaps quoted, which SHALL perform
+only those operations without running Verify, and review again, for at most 3
+fix rounds. `iwe-ship-reviewer` SHALL append the `## Ship review` checklist to
+the plan only when every item is `confirmed` or `N/A`. The checklist SHALL be
+fixed — no item added, dropped, reordered, or reworded — and its Verify,
+plan-stage, and archive items SHALL never be `N/A`. A plan that already ends
+with a `## Ship review` that holds SHALL keep it unchanged.
+
+#### Scenario: a ship meets every obligation
+
+- **WHEN** `iwe-ship-reviewer` finds every obligation met
+- **THEN** the plan ends with a `## Ship review` whose every item is ticked
+  `confirmed` or `N/A`.
+
+#### Scenario: a ship leaves a gap
+
+- **WHEN** `iwe-ship-reviewer` reports a listed bug with no `## Fix`
+- **THEN** `iwe-shipper` runs `fix` for that gap alone, without Verify, and the
+  plan is reviewed again.
+
+#### Scenario: gaps outlast three rounds
+
+- **WHEN** a gap remains after 3 fix rounds
+- **THEN** Ship reports the gap and the plan has no `## Ship review`.
+
+#### Scenario: an always-applicable item has nothing to confirm
+
+- **WHEN** a shipped plan has no saved Verify report, is not `stage: done`, or
+  is not archived
+- **THEN** `iwe-ship-reviewer` reports that item as a gap rather than `N/A` and
+  writes no `## Ship review`.
+
+#### Scenario: a plan is reviewed before implementation
+
+- **WHEN** `iwe-ship-reviewer` runs in plan mode
+- **THEN** it reports whether the plan gives Ship what it needs and changes
+  nothing.
 ```
 
 Removed from "Plans declare their release impact": the scenario "A plan
 introduces user-visible behavior with no feature", because a plan no longer
 needs a feature. "A plan changes nothing users see" becomes "A plan closes no
-document".
+document". "Capture files complete inbox documents" now writes a bug fixed in
+the same change into the archive with no hub link. "Every ship is reviewed
+against Ship's obligations" adds the archive item, which is never `N/A`.
 
 `## Rationale` entries for this spec: the decisions and rejected alternatives in
 `## Approach`.
@@ -1036,11 +1140,6 @@ over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
 `path:line`. Its archive placement and release page failures are those
 `iwe-workflow-skills` states.
 
-#### Scenario: a done bug has no Fix
-
-- **WHEN** a commit stages a bug document at `stage: done` with no `## Fix`
-- **THEN** the hook fails and names the document.
-
 #### Scenario: an open bug has no Fix
 
 - **WHEN** a bug document at `stage: pending` or `stage: planned` has no
@@ -1058,11 +1157,6 @@ over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
 - **WHEN** a plan's `## Ship review` holds the earlier fixed structure, every
   item ticked, ending with "Ship edited no hub, release page, or `data/log.md`"
 - **THEN** the hook passes it.
-
-#### Scenario: CI checks every file
-
-- **WHEN** CI runs pre-commit with `--all-files`
-- **THEN** the hook checks every bug, plan, task, feature, and release document.
 ```
 
 [Line-free anchors](../spec/line-free-anchors.md):
@@ -1088,13 +1182,6 @@ archived documents are not resolved.
   a `guides/` document anchors
 - **THEN** the hook fails naming the document and the anchor, until the anchor
   is updated
-
-#### Scenario: A plan names code it will create
-
-- **WHEN** an active plan's task names `scripts/new.py::main`, which does not
-  exist yet
-- **THEN** the resolver does not check it, because it is outside
-  `## Key references`
 
 #### Scenario: An archived plan names deleted code
 
