@@ -93,8 +93,10 @@ runs:
       shell: bash
       env:
         ALLOWED_TOOLS: ${{ env.CLAUDE_PR_REVIEW_ARGS }}
+        DISALLOWED_TOOLS: ${{ env.CLAUDE_PR_REVIEW_DISALLOWED_TOOLS }}
       run: |
-        printf 'args=%s\n' "--allowedTools '${ALLOWED_TOOLS}'" >>"${GITHUB_OUTPUT}"
+        printf 'args=%s\n' "--allowedTools '${ALLOWED_TOOLS}' --disallowedTools '${DISALLOWED_TOOLS}'" \
+          >>"${GITHUB_OUTPUT}"
 
     # Minted after the lifecycle scripts so their environment never holds it.
     # Only these permission inputs bound the token, not the job's permissions.

@@ -146,6 +146,21 @@ image pin trails the package.
   package, outside the reviewed checkout, and then runs
   `agentdev-runtime lifecycle created` and `lifecycle ready --no-wait`.
 
+## Requirement: the review never executes code
+
+The PR review responder SHALL NOT run tests, builds, linters, dependency
+installs or syncs, `docker`, or `devcontainer` commands, in its own session or
+in any subagent it dispatches; CI runs them. The `pr-review` skill SHALL state
+this, and the review job SHALL deny those commands and nested shells through
+`--disallowedTools`.
+
+### Scenario: a review pass tries to confirm a finding by running tests
+
+- **WHEN** a review pass or validator runs `uv run pytest`, alone, chained after
+  another command, or inside `bash -c`
+- **THEN** the command is denied and the finding rests on the code or on the CI
+  check that reports the failure.
+
 ## Requirement: a review runs on first push and on explicit request
 
 The review job SHALL run when a pull request is opened, marked ready for review,
@@ -449,6 +464,24 @@ Rejected:
 - **Setting `track_progress` for the custom prompt.** It restores tag-mode
   tracking comments and routes the findings into a regular pull request comment
   instead of a submitted review.
+
+### The review reads code and never runs it
+
+CI already runs every test, build, and lint suite in jobs of its own, so a
+review that runs them repeats CI's work on the review's clock and adds no
+finding the code and CI's logs do not already show. The skill states the rule so
+every harness follows it; the deny list enforces it in Claude Code, where it
+binds subagents too. Nested shells are denied with the rest because a deny rule
+cannot see a command inside `bash -c`.
+
+Rejected:
+
+- **The skill rule alone.** A pass that decides a test run would confirm its
+  finding runs one; nothing stops it.
+- **The deny list alone.** It binds only the Claude Code review job, while the
+  skill also runs under other harnesses and locally.
+- **Letting a validator run tests to confirm a finding.** CI reports the same
+  failure; the validator cites that check instead.
 
 ### The gate is a job of the review workflow
 
