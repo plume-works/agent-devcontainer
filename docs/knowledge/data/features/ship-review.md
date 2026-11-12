@@ -1,6 +1,6 @@
 ---
 type: feature
-stage: implemented
+stage: accepted
 description: A fresh-context reviewer checks every plan against what Ship will need, and every shipped plan against what Ship had to do, stamping the shipped plan with a fixed Ship review checklist.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md

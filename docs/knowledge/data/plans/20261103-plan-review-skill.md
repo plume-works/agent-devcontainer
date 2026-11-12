@@ -18,8 +18,7 @@ rank: 200
 [Ship review](../features/ship-review.md) gives `iwe-ship-reviewer` a plan mode
 that reports whether a plan gives Ship what it needs. The repository owner
 decided that a new skill, `/agentdev:iwe-plan-review`, runs it alongside the
-`Durable Knowledge Auditor` agent on every plan edit. Today step 7 of
-`iwe-planner.agent.md` dispatches only the `Durable Knowledge Auditor` agent.
+`Durable Knowledge Auditor` agent on every plan edit.
 
 ## Approach
 
@@ -30,10 +29,10 @@ else. It returns both reports together and changes nothing. The skill is
 model-invocable so `iwe-planner` can run it.
 
 `iwe-planner` step 7 runs `/agentdev:iwe-plan-review` in place of its direct
-`Durable Knowledge Auditor` dispatch. It applies the auditor's verdicts as
-today, and fixes the plan for each `iwe-ship-reviewer` finding, asking the user
-where a fix is a material choice. Every mode of the rulebook runs it, so the
-Implement session's revisions are reviewed the same way.
+`Durable Knowledge Auditor` dispatch. It applies the auditor's report-only
+verdicts to the draft, and fixes the plan for each `iwe-ship-reviewer` finding,
+asking the user where a fix is a material choice. Every mode of the rulebook
+runs it, so the Implement session's revisions are reviewed the same way.
 
 Rejected: widening the `Durable Knowledge Auditor` agent's rubric to Ship's
 obligations. `iwe-ship-reviewer` has to exist for its ship mode anyway, and one
@@ -76,15 +75,13 @@ Modify: `.agents/plugins/agentdev/README.md`,
 
 ### Task 3: A plan edit runs both reviewers
 
-- [x] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
+**Closed by:** the user, or a session the user directs, running
+`/agentdev:iwe-plan` headless (`claude -p --plugin-dir`) against this branch's
+catalog in a scratch worktree.
+
+- [ ] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
   pending bug shows both agents dispatched in the transcript, and the plan ends
   with that bug at `stage: planned`.
-  - **Evidence:** a headless run in a scratch worktree of this branch,
-    `claude -p --plugin-dir <worktree>/.agents/plugins/agentdev --output-format stream-json --verbose "/agentdev:iwe-plan Create a plan that fixes the bug data/bugs/self-improve-unstageable-routing-option ..."`:
-    its transcript shows the `agentdev:iwe-plan-review` skill dispatching
-    `agentdev:Durable Knowledge Auditor` with the plan file and `scope: plan`
-    and `agentdev:iwe-ship-reviewer` with the plan key and `mode: plan` in one
-    message, and the bug ended at `stage: planned`.
 
 ## Spec changes
 
@@ -145,19 +142,22 @@ mode for what Ship will need.
 ### Requirement: Implement verifies its own work and acts on the report
 
 When a plan's last task closes, the Implement session — the session that loaded
-`/agentdev:iwe-implement` — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
-every CRITICAL finding and every WARNING that names a concrete route, reporting
-SUGGESTIONs only. A code or evidence finding SHALL be fixed under the Implement
-rules and verified again, and a finding about the plan's intent SHALL go through
-an evaluated revision. The Implement session SHALL stop when a finding recurs after a
-fix attempt, after three Verify rounds, or after one approved revision in the
-run. No agent the loop dispatches SHALL dispatch another, except the two
-agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
+`/agentdev:iwe-implement` — SHALL run Verify through `/agentdev:iwe-verify` and
+SHALL act on every CRITICAL finding, and on a WARNING only when its fix fits a
+task the plan already has and adds no claim the code must newly meet. It SHALL
+file every other WARNING through `/agentdev:iwe-capture`, report SUGGESTIONs
+only, and SHALL not stop for an outstanding observation. A code or evidence
+finding SHALL be fixed under the Implement rules and verified again, and a
+finding about the plan's intent SHALL go through an evaluated revision. The
+Implement session SHALL stop when a finding recurs after a fix attempt, after
+three Verify rounds, or after one approved revision in the run. No agent the
+loop dispatches SHALL dispatch another; while a revision is drafted, the loop
+may also dispatch the two agents `/agentdev:iwe-plan-review` names.
 
 #### Scenario: Verify finds nothing to act on
 
 - **WHEN** the plan's tasks are closed and Verify reports zero CRITICAL findings
-  and no WARNING with a concrete route
+  and no WARNING whose fix fits an existing task
 - **THEN** the run ends with its rollup and the Verify verdict, and suggests
   `/agentdev:iwe-ship`
 
@@ -166,6 +166,18 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 - **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
 - **THEN** the Implement session fixes it under the Implement rules, closes it
   with evidence, and runs Verify again through `/agentdev:iwe-verify`
+
+#### Scenario: A warning would add work
+
+- **WHEN** Verify reports a WARNING whose fix needs a new task or a new claim
+- **THEN** the Implement session files it through `/agentdev:iwe-capture`, names
+  it in the report, and does not act on it in this run
+
+#### Scenario: An observation is outstanding
+
+- **WHEN** Verify lists an unticked `**Closed by:**` task under Outstanding
+  observations and reports nothing else to act on
+- **THEN** the run ends with its rollup naming the observation
 
 #### Scenario: A finding recurs
 
@@ -191,7 +203,6 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- The Task 3 run on a scratch plan.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
