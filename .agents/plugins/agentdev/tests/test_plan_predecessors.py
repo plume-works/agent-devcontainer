@@ -33,10 +33,15 @@ def predecessors(plugin_root: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleTy
     return module
 
 
+def link_target(key: str) -> str:
+    """Return the link from a live plan to the plan at `key`, live or archived."""
+    return key.removeprefix('data/plans/').replace('data/', '../', 1)
+
+
 def dependent_plan(*dependencies: str) -> str:
     """Return a made-up plan whose ``## Depends on`` links each dependency key."""
     links = ''.join(
-        f'[A plan that\nwraps]({key.removeprefix("data/plans/")}.md) — supplies a part.\n\n'
+        f'[A plan that\nwraps]({link_target(key)}.md) — supplies a part.\n\n'
         for key in dependencies
     )
     section = f'## Depends on\n\n{links}' if dependencies else ''
@@ -194,3 +199,22 @@ def test_a_section_that_starts_with_none_names_no_dependency(
     workspace = Workspace(plugin_tmp_path, {FIRST: plan_document(), PLAN: document})
 
     assert run(predecessors, monkeypatch, capsys, workspace, []) == (0, [], '')
+
+
+@pytest.mark.parametrize(
+    ('stage', 'expected'), [('done', []), ('cancelled', ['10'])], ids=['done', 'cancelled']
+)
+def test_an_archived_dependency_is_read_by_its_stage(
+    predecessors: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    plugin_tmp_path: Path,
+    stage: str,
+    expected: list[str],
+) -> None:
+    archived = f'data/archive/2.1.0/plans/{FIRST.removeprefix("data/plans/")}'
+    document = plan_document(stage=stage, ticks=(True, True))
+    workspace = Workspace(plugin_tmp_path, {archived: document, PLAN: dependent_plan(archived)})
+    pulls = [(10, 'iwe/focus-timer/iter-1-impl', 'main')]
+
+    assert run(predecessors, monkeypatch, capsys, workspace, pulls) == (0, expected, '')

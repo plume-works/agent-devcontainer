@@ -251,12 +251,25 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
         (ACTIVE_PLAN, plan('- `src/tool.py::main`', steps='- [ ] Create `src/new.py::main`')),
         ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py::b`\n'),
         ('docs/knowledge/data/spec/thing.md', '---\ntype: spec\n---\n`a.py::b`\n'),
+        ('docs/knowledge/data/findings/measured.md', '---\ntype: finding\n---\n`a.py::b`\n'),
+        (
+            'docs/knowledge/data/architecture/design.md',
+            '---\ntype: architecture\n---\n`a.py::b`\n',
+        ),
+        (
+            'docs/knowledge/data/archive/2.1.0/plans/20260101-old.md',
+            plan('- `src/gone.py::main`'),
+        ),
+        (
+            'docs/knowledge/data/archive/next-release/bugs/open.md',
+            '---\ntype: bug\nstage: pending\n---\n`a.py::b`\n',
+        ),
     ],
 )
 def test_out_of_scope_anchors_are_not_resolved(
     write: Write, run: Run, relative: str, text: str
 ) -> None:
-    """Closed plans, a plan's tasks and other sections, done bugs, and specs are not resolved."""
+    """Closed plans, plan tasks, done bugs, specs, findings, and archived notes are unresolved."""
     write(relative, text)
     assert run().returncode == 0, run().stdout
 
@@ -267,12 +280,12 @@ def test_out_of_scope_anchors_are_not_resolved(
     [
         'docs/knowledge/data/bugs/open.md',
         'docs/knowledge/data/backlog/item.md',
-        'docs/knowledge/data/architecture/design.md',
+        'docs/knowledge/data/guides/procedure.md',
     ],
 )
 def test_live_documents_resolve_everywhere(write: Write, run: Run, relative: str) -> None:
-    """Open bugs and backlog items and architecture documents resolve their whole body."""
-    stage = '' if 'architecture' in relative else 'stage: pending\n'
+    """Open bugs and backlog items and guides resolve their whole body."""
+    stage = '' if 'guides' in relative else 'stage: pending\n'
     text = f'---\ntype: x\n{stage}---\n\nSee `src/tool.py::gone`.\n'
     write(relative, text)
     result = run()

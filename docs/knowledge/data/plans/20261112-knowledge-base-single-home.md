@@ -179,17 +179,27 @@ Rejected:
 `.agents/plugins/agentdev/bin/plan_predecessors.py`, `scripts/check-anchors.py`,
 and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
 
-- [ ] `iwe-branch-name.py plan-state` reports `done` for a plan that exists only
+- [x] `iwe-branch-name.py plan-state` reports `done` for a plan that exists only
   under `data/archive/<release>/plans/`, with a test.
-- [ ] `plan-state` reports `AMBIGUOUS_PLAN` when a live plan and an archived
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py::test_plan_state_reads_an_archived_plan`
+- [x] `plan-state` reports `AMBIGUOUS_PLAN` when a live plan and an archived
   plan share a slug, with a test.
-- [ ] `verify-cache.py` resolves an archived plan's key to its archive path,
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py::test_plan_state_refuses_a_slug_shared_with_the_archive`
+- [x] `verify-cache.py` resolves an archived plan's key to its archive path,
   with a test.
-- [ ] `plan_predecessors.py` reads the stage of a `## Depends on` link that
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_verify_cache.py::test_archived_plan_keeps_its_archive_key`
+- [x] `plan_predecessors.py` reads the stage of a `## Depends on` link that
   points into `data/archive/`, with a test.
-- [ ] `scripts/check-anchors.py` resolves every anchor in a `data/guides/`
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_plan_predecessors.py::test_an_archived_dependency_is_read_by_its_stage`
+- [x] `scripts/check-anchors.py` resolves every anchor in a `data/guides/`
   document and none in `data/findings/`, `data/archive/`, or
   `data/architecture/`, with tests.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_anchors.py::test_live_documents_resolve_everywhere scripts/tests/test_check_anchors.py::test_out_of_scope_anchors_are_not_resolved`
 
 ### Task 4: The knowledge base's own documents
 
