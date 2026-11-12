@@ -93,6 +93,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
      - Docs or config with no test: the file and anchor that changed.
      - External work: the CI run or the PR that closes it, which must stand alone.
+     - Work outside the tree that no CI run or PR records — a remote host, a live agent session: a recorded observation naming where it ran, what was run, and what it showed. Verify judges it on that record and does not re-run it.
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change, written in whichever of the three forms below fits the risk;
      name not-yet-existing specs in back-ticks (never dangling links)

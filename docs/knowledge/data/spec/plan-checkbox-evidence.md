@@ -33,11 +33,14 @@ Every ticked `- [x]` task under a plan's task section SHALL carry an indented
 session can repeat the check: for code, a test id (`path::name`) or a command,
 which Verify re-runs against the current tree; for docs or config with no test,
 the file and anchor that changed; for external work, the CI run or the PR that
-closes it, which stands alone. A commit id on its own SHALL NOT count as
-evidence. Plan SHALL specify the format, Implement SHALL write the evidence line
-in the same edit that ticks the box and commit it together with the change it
-describes, and the convention SHALL be recorded where every session loads it
-rather than only where a skill is invoked.
+closes it, which stands alone; for work outside the tree that no CI run or PR
+records, such as a check on a remote host or in a live agent session, a recorded
+observation naming where it ran, what was run, and what it showed, which Verify
+judges on that record without re-running it. A commit id on its own SHALL NOT
+count as evidence. Plan SHALL specify the format, Implement SHALL write the
+evidence line in the same edit that ticks the box and commit it together with
+the change it describes, and the convention SHALL be recorded where every
+session loads it rather than only where a skill is invoked.
 
 #### Scenario: A task is completed
 
@@ -49,16 +52,24 @@ rather than only where a skill is invoked.
 #### Scenario: Evidence names only a commit
 
 - **WHEN** a ticked task's evidence line names a commit and no test, command,
-  file and anchor, CI run, or PR
+  file and anchor, CI run, PR, or recorded observation
 - **THEN** it is residue rather than evidence, and Verify reports it as a ticked
   task without usable evidence
 
 #### Scenario: Evidence cannot be named
 
 - **WHEN** a session would tick a box but cannot name a test, command, file and
-  anchor, CI run, or PR behind it
+  anchor, CI run, PR, or recorded observation behind it
 - **THEN** the box stays unticked, and the inability to name evidence is treated
   as the check working rather than as a formatting obstacle
+
+#### Scenario: Evidence is a check outside the tree
+
+- **WHEN** a ticked task's evidence records an observation on a remote host or
+  in a live agent session, naming where it ran, what was run, and what it showed
+- **THEN** Verify accepts it as recorded and neither re-runs it nor asks for an
+  approval to run it, and reports an observation missing any of the three as a
+  ticked task without usable evidence
 
 #### Scenario: Work is partial or its evidence fails
 

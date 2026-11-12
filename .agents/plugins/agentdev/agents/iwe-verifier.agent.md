@@ -61,13 +61,16 @@ decision your prompt does not carry, stop and report it under
      no override: a task the user has decided against can't be ticked while
      undone, so without it the plan is unshippable. Naming a route is not
      taking it. Mirroring it, every ticked `- [x]` task whose indented
-     `- **Evidence:**` line is missing or empty, names nothing of the three
-     kinds below, or names a test or command that fails or no longer exists
-     when you re-run it in the current tree, is also a CRITICAL,
-     recommendation "untick it". Evidence names a check you can repeat:
+     `- **Evidence:**` line is missing or empty, names nothing of the four
+     kinds below, names a test or command that fails or no longer exists
+     when you re-run it in the current tree, or records an observation that
+     omits where it ran, what was run, or what it showed, is also a CRITICAL,
+     recommendation "untick it". Evidence names a check you can repeat, or an
+     observation recorded in full:
      - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
      - Docs or config with no test: the file and anchor that changed.
      - External work: the CI run or the PR that closes it, which must stand alone.
+     - Work outside the tree that no CI run or PR records — a remote host, a live agent session: a recorded observation naming where it ran, what was run, and what it showed. Verify judges it on that record and does not re-run it.
 
      A commit id on its own is not evidence. Residue is not evidence either:
      raw command stdout transcribed as evidence, an ephemeral identifier that will not exist
@@ -102,7 +105,9 @@ decision your prompt does not carry, stop and report it under
      runs the behaviour.
      An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
      Run the plan's `## Verification` commands and
-     report their actual output — a failing command is a CRITICAL. Then run
+     report their actual output; an entry a ticked task's recorded observation
+     already covers is reported as recorded, neither run nor a
+     `Needs decision` — a failing command is a CRITICAL. Then run
      `git status --porcelain`: any output is a CRITICAL naming the dirty paths,
      recommending that the command leave the worktree clean, because a saved
      report describes a clean commit.

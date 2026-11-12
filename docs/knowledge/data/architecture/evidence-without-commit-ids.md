@@ -11,12 +11,15 @@ sources:
 ## Decision
 
 A ticked plan task's `- **Evidence:**` line names a check Verify can repeat in
-the current tree, by kind:
+the current tree, or records in full one it cannot, by kind:
 
 - Code: a test id (its path and test name) or a command, which Verify re-runs
   against the current tree.
 - Docs or config with no test: the file and anchor that changed.
 - External work: the CI run or the PR that closes it, which must stand alone.
+- Work outside the tree that no CI run or PR records — a remote host, a live
+  agent session: a recorded observation naming where it ran, what was run, and
+  what it showed. Verify judges it on that record and does not re-run it.
 
 A commit id on its own is not evidence. Verify re-runs a named test or command
 and treats one that fails or no longer exists as an unsupported tick. The

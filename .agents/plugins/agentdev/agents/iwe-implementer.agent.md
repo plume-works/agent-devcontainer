@@ -70,6 +70,7 @@ claims the user gave is not one.
    - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
    - Docs or config with no test: the file and anchor that changed.
    - External work: the CI run or the PR that closes it, which must stand alone.
+   - Work outside the tree that no CI run or PR records — a remote host, a live agent session: a recorded observation naming where it ran, what was run, and what it showed. Verify judges it on that record and does not re-run it.
 
    The code, the tick, and its evidence line land together in one commit. A
    commit id on its own is not evidence. Cite what survives the session, not

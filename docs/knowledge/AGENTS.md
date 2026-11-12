@@ -159,6 +159,9 @@ software project's memory and system of record. The division of labor:
     the current tree.
   - Docs or config with no test: the file and anchor that changed.
   - External work: the CI run or the PR that closes it, which must stand alone.
+  - Work outside the tree that no CI run or PR records — a remote host, a live
+    agent session: a recorded observation naming where it ran, what was run, and
+    what it showed. Verify judges it on that record and does not re-run it.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less
