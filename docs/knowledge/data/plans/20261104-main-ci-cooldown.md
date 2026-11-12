@@ -333,3 +333,25 @@ after it succeeds.
   — Requirement: published tags name only tested images
 - `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
   — Requirement: CI runs the pre-commit hooks as the lint gate
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship —
+  data/plans/20261104-main-ci-cooldown (commit 839f7f01)
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/image-pinning, data/spec/pre-commit-gate
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
