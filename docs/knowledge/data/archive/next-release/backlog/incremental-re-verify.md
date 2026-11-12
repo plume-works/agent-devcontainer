@@ -1,14 +1,13 @@
 ---
 type: task
 created: 2026-10-30
-stage: pending
+stage: cancelled
 priority: medium
 description: Let a Verify run whose HEAD descends from a commit with a saved Verify report re-check only what changed since that commit, instead of re-running every check and verification command.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-rank: 1900
 ---
 
 # Re-verify incrementally from a saved report
@@ -33,4 +32,4 @@ and carry the rest of the earlier verdict forward. Settling it means deciding:
 
 A rebase or squash rewrites the ancestor commit, which ends reuse; the same
 limit is tracked for evidence lines in [Make plan task evidence survive history
-rewrites](../archive/3.0.0/backlog/resilient-task-evidence.md).
+rewrites](../../3.0.0/backlog/resilient-task-evidence.md).

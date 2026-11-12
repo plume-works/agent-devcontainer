@@ -36,8 +36,6 @@ review](backlog/fail-review-run-without-review.md)
 [Let iwe-implement open its pull request without
 asking](backlog/implement-opens-pr.md)
 
-[Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
-
 [Migrate a repository that consumed the earlier IWE
 scaffold](backlog/migrate-earlier-iwe-scaffold.md)
 

@@ -463,7 +463,7 @@ be a CRITICAL finding.
 
 - Re-checking incrementally from a saved report on an ancestor commit —
   [Re-verify incrementally from a saved
-  report](../../../backlog/incremental-re-verify.md).
+  report](../../next-release/backlog/incremental-re-verify.md).
 - Protecting `.tmp/verify/` against a session that writes it by hand; the rule
   that only the skill's script writes it is the protection.
 - Reusing a report across a rebase, a squash merge, or a fresh container.

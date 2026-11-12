@@ -56,4 +56,4 @@ a commit it has already judged.
 
 None — re-checking incrementally from a saved report on an ancestor commit is
 tracked separately in [Re-verify incrementally from a saved
-report](../../../backlog/incremental-re-verify.md).
+report](../../next-release/backlog/incremental-re-verify.md).
