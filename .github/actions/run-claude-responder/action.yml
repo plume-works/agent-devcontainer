@@ -27,7 +27,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # No GITHUB_TOKEN fallback: see architecture/responder-app-identity.
+    # No GITHUB_TOKEN fallback: see spec/ai-review-gate.
     - name: Require the App secrets
       shell: bash
       env:
@@ -42,7 +42,7 @@ runs:
         done
         [[ ${#missing[@]} -eq 0 ]]
 
-    # See docs/knowledge/data/architecture/ci-agent-plugin-availability.md.
+    # See docs/knowledge/data/spec/catalog-lifecycle.md.
     - name: Run devcontainer lifecycle commands
       shell: bash
       env:

@@ -11,10 +11,11 @@ sources:
 
 # Resolve bare-path anchors or narrow the live-anchor requirement
 
-The [line-free anchors plan](../plans/20261108-line-free-anchors.md)'s spec
-delta for `spec/line-free-anchors` counts a bare `<path>` naming a whole file as
-an anchor (Requirement "References never record a line number"), and Requirement
-"Live anchors resolve" says every anchor in the resolver's scope SHALL resolve.
+The [line-free anchors
+plan](../archive/3.0.0/plans/20261108-line-free-anchors.md)'s spec delta for
+`spec/line-free-anchors` counts a bare `<path>` naming a whole file as an anchor
+(Requirement "References never record a line number"), and Requirement "Live
+anchors resolve" says every anchor in the resolver's scope SHALL resolve.
 `scripts/check-anchors.py::anchors` yields only spans holding `::`, `#`, or a
 quote, as the plan's Task 2 defines an anchor, so a bare back-ticked path under
 an active plan's `## Key references`, in an open bug or backlog item, or in an

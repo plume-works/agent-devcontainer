@@ -7,7 +7,7 @@ FROM $FROM_IMAGE
 ARG FROM_IMAGE
 
 # The devcontainer CLI's UID update re-owns the account's home and fails when it is missing,
-# so the home exists and stays empty; spec: architecture/devcontainer-home-volume.
+# so the home exists and stays empty; spec: devcontainer-state.
 RUN userdel --remove ubuntu \
     && groupadd --gid 1000 agent \
     && useradd --no-create-home --uid 1000 --gid 1000 --home-dir /home/agent \
@@ -30,7 +30,7 @@ COPY --chmod=0644 docker/devcontainer/supervisord.conf /etc/agentdev/supervisord
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
 # Defaults a consumer's descriptor or derived image may override; see
-# architecture/devcontainer-runtime.
+# spec/agentdev-runtime-images.
 ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     AGENTDEV_USER=agent \
     AGENTDEV_HOME=/home/agent \

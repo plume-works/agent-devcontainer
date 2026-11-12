@@ -8,8 +8,8 @@ description: Run one BuildKit daemon in a dedicated Coder workspace and make it 
 Each Coder workspace's Dev Container engine keeps its own BuildKit cache, so
 workspaces that build the same images store and rebuild the same layers. [Cap
 Docker storage with automatic garbage
-collection](../plans/20261013-docker-storage-gc.md) bounds each cache; one
-shared builder would hold one cache for all of them.
+collection](../archive/2.0.0/plans/20261013-docker-storage-gc.md) bounds each
+cache; one shared builder would hold one cache for all of them.
 
 ## The idea
 

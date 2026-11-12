@@ -7,7 +7,7 @@ sources:
 - resource: scripts/tests/test_refresh_pin_checksums.py
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-agent-files.yml
-- resource: docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
+- resource: pyproject.toml
 ---
 
 # macOS native bootstrap
@@ -15,9 +15,7 @@ sources:
 ## Purpose
 
 `bin/macos-bootstrap.zsh` in the agentdev catalog turns a stock macOS host with
-Homebrew into one that runs agentdev natively, without a devcontainer. See
-[Native macOS bootstrap](../features/macos-native-bootstrap.md) for the
-user-facing feature.
+Homebrew into one that runs agentdev natively, without a devcontainer.
 
 ## Requirements
 
@@ -25,8 +23,11 @@ user-facing feature.
 
 `bin/macos-bootstrap.zsh` SHALL run under macOS's `/bin/zsh`, SHALL refuse any
 OS other than Darwin, and SHALL install through Homebrew `uv`, `jq`, `gh`,
-`shellcheck`, `bun`, `pre-commit`, and the `claude-code` cask. It SHALL NOT
-install Homebrew itself.
+`shellcheck`, `bun`, `pre-commit`, and the `claude-code` cask, at whatever
+version Homebrew currently ships, with no version pinned. It SHALL NOT install
+Homebrew itself. It SHALL run the same whether started from a file or piped into
+zsh from its raw URL (`curl -fsSL <raw URL> | zsh`): its commands SHALL read
+standard input from `/dev/null`, never from the pipe that carries the script.
 
 #### Scenario: Homebrew is missing
 
@@ -63,12 +64,6 @@ before installing anything from it. It SHALL NOT install `iwec`.
 - **THEN** the script exits nonzero
 - **AND** no binary from that archive is installed
 
-#### Scenario: The iwe archive ships an MCP server
-
-- **WHEN** the iwe archive contains `iwe`, `iwes`, and `iwec`
-- **THEN** `iwe` and `iwes` are installed
-- **AND** `iwec` is not
-
 ### Requirement: login shells resolve the provisioned tools first
 
 The script SHALL maintain exactly one marker-delimited block in `~/.zprofile`
@@ -76,13 +71,9 @@ that evaluates `brew shellenv` and prepends `~/.local/bin`, rewriting it in
 place on re-run and leaving all content outside it unchanged. When `fish` is on
 `PATH` or is the user's `$SHELL`, the script SHALL maintain the same kind of
 block in `~/.config/fish/conf.d/agentdev.fish`, running `brew shellenv` for fish
-and then `fish_add_path` for `~/.local/bin`.
-
-#### Scenario: Re-run
-
-- **WHEN** the script runs twice
-- **THEN** `~/.zprofile` holds one marker block
-- **AND** content outside the block is unchanged
+and then `fish_add_path` for `~/.local/bin`. A `$SHELL` other than zsh or fish
+SHALL get no block, so the final check names that shell rather than reporting a
+`PATH` the user's terminal does not have.
 
 #### Scenario: fish is installed
 
@@ -108,12 +99,6 @@ scope in Claude Code. It SHALL NOT install `self-improve`, and SHALL NOT invoke
 - **WHEN** the script runs with `--skip-plugins`
 - **THEN** it does not invoke `claude`
 
-#### Scenario: Codex is installed
-
-- **WHEN** `codex` is on `PATH`
-- **THEN** the script installs `agentdev` in Claude Code
-- **AND** it does not invoke `codex`
-
 ### Requirement: the bootstrap verifies its result
 
 The script SHALL finish by reporting each installed tool's version and checking
@@ -131,3 +116,38 @@ when that is not zsh, resolve `python3` to the recorded version in
 - **WHEN** `$SHELL` is not zsh and its fresh login shell resolves `python3`
   outside `~/.local/bin`
 - **THEN** the script exits nonzero and names that shell's Python check
+
+#### Scenario: The user's shell is neither zsh nor fish
+
+- **WHEN** `$SHELL` is bash and no bash configuration puts `~/.local/bin` first
+- **THEN** the script writes no bash `PATH` block, exits nonzero, and names the
+  bash Python check
+
+## Rationale
+
+### Homebrew tools float; uv pins the catalog's Python
+
+Homebrew versions float, and only the uv Python and the release-only tools are
+pinned. The recorded Python version is the lower bound of the root
+`pyproject.toml`'s `requires-python`, the oldest version the repository's tests
+run the catalog on; a stock host's `/usr/bin/python3` (Xcode Command Line Tools)
+is older than that floor. The script does not install Homebrew, because that
+needs an interactive `sudo` it should not drive. The Brewfile is inline so one
+`curl` fetches everything. Shell configuration that later puts another `python3`
+first is the user's to fix; the final check surfaces it.
+
+Rejected:
+
+- **Homebrew's `python` formula.** uv provisions the exact version the catalog
+  is tested on and is already required.
+- **A `macos/` Template-class directory at the repository root.** It reaches
+  only template consumers who copy it, while the catalog reaches every plugin
+  user.
+- **Pinning Homebrew formulae to the image's versions.** It would mean replacing
+  Homebrew with release tarballs for every tool.
+
+### The bootstrap provisions only what agentdev runs natively
+
+The bootstrap sets up no Docker, Super-Linter, or `microvm-sandbox`, no MCP
+gateway, git SSH signing, or keyring, and no Xcode, Expo, or iOS Simulator, and
+it does not install fish.

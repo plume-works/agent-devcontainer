@@ -14,7 +14,8 @@ only builds its prompt and relays its report.
 ## Steps
 
 1. **Build the dispatch prompt from the request alone.** It carries exactly:
-   - **Plan key** — the plan the user named, as `data/plans/<YYYYMMDD>-<slug>`
+   - **Plan key** — the plan the user named, as `data/plans/<YYYYMMDD>-<slug>`,
+     its archived `data/archive/<release>/plans/<YYYYMMDD>-<slug>`,
      or its file path. A release cut takes none.
    - **Operation** — `ship`; `cancel` only when the user explicitly abandons
      the plan; `release <X.Y.Z>` only when the user asks for that release.

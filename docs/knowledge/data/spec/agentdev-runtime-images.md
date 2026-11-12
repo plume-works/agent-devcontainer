@@ -1,10 +1,26 @@
 ---
 type: spec
-description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
+description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — how they are provisioned and trust a host's extra CA, and the runtime CLI, supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 sources:
+- resource: ansible/roles/agentic_tools/defaults/main.yml
+- resource: py_packages/agentdev_runtime/pyproject.toml
+- resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/settings.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: .github/actions/run-claude-responder/action.yml
+- resource: .devcontainer/devcontainer-init.sh
+- resource: .devcontainer/docker-compose.yml
+- resource: .devcontainer/firewall-allowlist.txt
+- resource: ansible/roles/git_ppa/tasks/main.yml
+- resource: ansible/roles/git_ppa/defaults/main.yml
+- resource: scripts/cache-git-ppa-release.py
+- resource: .github/workflows/cache-git-ppa-release.yml
+- resource: ansible/roles/validate_agent_files/tasks/main.yml
 - resource: docker/base/agentdev-base.Dockerfile
+- resource: ansible.cfg
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
+- resource: scripts/tests/test_agent_runtime_acceptance.py
 - resource: docker/devcontainer/supervisord.conf
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
@@ -15,18 +31,22 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .github/workflows/ci.yml
+- resource: docker/ansible/setup-ansible.sh
+- resource: docker/desktop/entrypoint.sh
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .dockerignore
 - resource: .github/actions/docker/build-push-action/action.yml
 - resource: ansible/roles/github_cli/tasks/main.yml
+- resource: .devcontainer/devcontainer.json
+- resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
+- resource: ansible/roles/xpra_setup/tasks/main.yml
+- resource: ansible/roles/fish_setup/tasks/main.yml
 ---
 
 # agentdev runtime images
 
-The image family for the [Reusable agentdev Dev
-Container](../features/reusable-agentdev-devcontainer.md) feature. Its design is
-[Dev Container runtime](../architecture/devcontainer-runtime.md); the deploy
-runtime's own requirements are in [Standalone OpenCode
+The image family of the reusable agentdev Dev Container. The deploy runtime's
+own requirements are in [Standalone OpenCode
 runtime](standalone-opencode-runtime.md).
 
 ## Requirements
@@ -55,6 +75,82 @@ profile, and lifecycle surface.
 - **THEN** both runtime images identify the exact base digest produced in that
   run, without deriving either runtime image from the other
 
+### Requirement: the runtime is one CLI installed as a uv tool
+
+The runtime of `agentdev-deploy` and `agentdev-devcontainer` SHALL be the one
+`agentdev_runtime` package and its one console script, `agentdev-runtime`: PID 1
+and its supervisor, the health probes, every supervised service, the lifecycle
+commands, the bootstrap, and the firewall SHALL be its subcommands. Both images
+SHALL install it from the build context with
+`uv tool install --reinstall --python /usr/bin/python3` into `/opt/uv-tools`,
+with the entry point on `/usr/local/bin`, no uv cache, and no interpreter
+download. The package SHALL pin its dependencies, `supervisor` among them, so
+the images carry no apt `supervisor` and nothing resolves a dependency at
+container start. The image `ENTRYPOINT`, its `HEALTHCHECK`
+(`agentdev-runtime health ready`), every supervisord program, and the lifecycle
+commands of the image's Dev Container metadata SHALL invoke
+`/usr/local/bin/agentdev-runtime`.
+
+#### Scenario: a runtime container starts
+
+- **WHEN** an `agentdev-deploy` or `agentdev-devcontainer` container starts
+- **THEN** PID 1 is `/usr/local/bin/agentdev-runtime supervisor run`, and every
+  module it runs was installed at build time
+
+#### Scenario: the engine checks a runtime container's health
+
+- **WHEN** Docker runs the image's health check
+- **THEN** it runs `agentdev-runtime health ready`, which passes only while the
+  runtime publishes readiness
+
+### Requirement: the base image carries the agent-file validator
+
+`agentdev-base` SHALL install `validate_agent_files`, built from the
+`py_packages/validate_agent_files/` of the build context, as an isolated uv tool
+under `/opt/uv-tools` on the system interpreter, with its entry point at
+`/usr/local/bin/validate_agent_files`. The build SHALL fail unless the installed
+distribution's version equals `VALIDATE_AGENT_FILES_VERSION`, which the image
+carries as its `org.opencontainers.image.version.validate-agent-files` label.
+
+#### Scenario: a non-root user validates without a checkout
+
+- **WHEN** the non-root runtime account runs `validate_agent_files --help` in a
+  container from the image, with no repository checked out and no `uv run`
+- **THEN** the command resolves on `PATH` and exits 0
+
+#### Scenario: the pin and the package disagree
+
+- **WHEN** `VALIDATE_AGENT_FILES_VERSION` differs from the version in
+  `py_packages/validate_agent_files/pyproject.toml`
+- **THEN** the image build fails naming both versions
+
+### Requirement: image builds contact no Launchpad host
+
+No Ansible role SHALL add a PPA apt source, and the firewall allowlist SHALL
+name neither `launchpad.net` nor `ppa.launchpadcontent.net`. The `git_ppa` role
+SHALL install the Git Core PPA's `git` and `git-man` from the release of this
+repository that `git_ppa_release_tag` names (`pinned-deps/git/<version>`),
+checking each package's SHA-256, in one apt transaction that replaces any other
+`git` build, and SHALL delete the `git-core-ppa` apt source. The daily
+`cache-git-ppa-release.yml` workflow SHALL publish the PPA's newest noble build
+as such a release only after the PPA's `InRelease` verifies against the pinned
+key in `scripts/git-core-ppa.asc` and each `Packages` index and `.deb` matches
+the SHA-256 that signed index chains to; it SHALL never mark the release as the
+repository's latest and SHALL never replace a release that exists.
+
+#### Scenario: an image starts from one provisioned with the PPA
+
+- **WHEN** the `git_ppa` role runs where
+  `/etc/apt/sources.list.d/git-core-ppa.list` exists or a newer `git` is
+  installed
+- **THEN** the source is deleted and the pinned release's `git` is installed
+
+#### Scenario: the PPA index is not signed by the pinned key
+
+- **WHEN** the workflow fetches an `InRelease` without a valid signature by the
+  pinned key, or a file whose SHA-256 differs from the signed index
+- **THEN** it publishes nothing and fails
+
 ### Requirement: image builds read only their declared inputs
 
 The image build context SHALL contain only `ansible.cfg`, `ansible/`, `docker/`,
@@ -67,12 +163,6 @@ cached layer valid. `ubuntu-ansible` SHALL carry no per-run labels, so unchanged
 inputs keep its digest. A `clean_build` dispatch or a `[ci:clean_build]` marker
 SHALL build without the layer cache.
 
-#### Scenario: a change outside the image inputs
-
-- **WHEN** an image build runs with the layer cache after a change only to files
-  outside the build context
-- **THEN** every provisioning step is reused from the cache
-
 #### Scenario: a catalog-only change
 
 - **WHEN** only files under `.agents/plugins/` change
@@ -84,6 +174,17 @@ SHALL build without the layer cache.
 - **WHEN** a run is dispatched with `clean_build` or its commit or pull request
   body carries `[ci:clean_build]`
 - **THEN** no provisioning step is reused from the layer cache
+
+### Requirement: the image carries Xpra 6 or newer
+
+The `xpra_setup` role SHALL install `xpra` by name from the Xpra stable
+repository, then run an upgrade-only install of it, and SHALL fail the build
+unless the installed `xpra` is major version 6 or newer.
+
+#### Scenario: the base image already holds Ubuntu's xpra
+
+- **WHEN** the role runs on an image that already holds Ubuntu's xpra 3.x
+- **THEN** the upgrade step replaces it with the Xpra repository's release
 
 ### Requirement: gh resolves to the image's wrapper
 
@@ -109,7 +210,8 @@ on `PATH`.
 `agentdev-devcontainer` SHALL start Docker, D-Bus, keyring, and enabled Xpra
 through its supervised entrypoint, SHALL publish readiness only after required
 services are healthy, and SHALL recover or fail with the bounded policy shared
-with deploy.
+with deploy. OpenCode and Remote Control SHALL be opt-in clients that start only
+after the create phase finishes and never gate readiness.
 
 #### Scenario: an editor attaches to a healthy runtime
 
@@ -122,13 +224,50 @@ with deploy.
 - **THEN** readiness is withdrawn, the failure names the service, and the
   container exits nonzero
 
+#### Scenario: an opt-in client fails
+
+- **WHEN** OpenCode or Remote Control is enabled and fails
+- **THEN** the runtime is degraded, not failed, and readiness stays published
+
+### Requirement: every process names the runtime's session bus
+
+`agentdev-deploy` and `agentdev-devcontainer` SHALL set
+`DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus` as an image `ENV`, so
+every process in the container names the bus the runtime's keyring serves.
+
+#### Scenario: gh runs in a shell
+
+- **WHEN** `gh` runs from the `agent` or the `root` shell of a ready runtime
+- **THEN** the shell's `DBUS_SESSION_BUS_ADDRESS` is the runtime's bus, and no
+  `dbus-daemon` or `gnome-keyring-daemon` is added
+
 ### Requirement: the Dev Container runs as a non-root account on one home volume
 
 The Dev Container image SHALL run its user services, lifecycle commands, and
 editor sessions as a non-root account remapped to the host user's UID and GID,
-with its home on one per-instance volume. Its create phase SHALL run under the
-supervisor after the root bootstrap, once per container, and gate readiness;
+with its home on one per-instance volume. The supervisor SHALL stay root and
+SHALL run every user service as that account. Its create phase SHALL run under
+the supervisor after the root bootstrap, once per container, and gate readiness;
 `postCreateCommand` SHALL wait for it and fail when the runtime fails first.
+
+#### Scenario: an editor opens a shell in the Dev Container
+
+- **WHEN** a Dev Container client attaches on a Linux host
+- **THEN** the shell runs as `agent` with the host user's UID and GID, while
+  supervisord runs as root and its user services as `agent`
+
+### Requirement: uv and pre-commit state lives on the home volume
+
+Neither runtime image SHALL move uv's cache, uv's Python installs, or
+pre-commit's cache away from their default paths under the runtime account's
+home, so they persist on its home volume. `agentdev-deploy` SHALL set
+`UV_PROJECT_ENVIRONMENT` to `/home/agent/.local/share/uv/venvs/project`.
+
+#### Scenario: a deploy container is recreated on the same home volume
+
+- **WHEN** an `agentdev-deploy` container is recreated with its home volume kept
+- **THEN** the project environment, uv's cache, and its Python installs are
+  still present under `/home/agent`
 
 ### Requirement: lifecycle phases remain distinct
 
@@ -136,7 +275,27 @@ The image SHALL provide stable create, start/readiness, and attach commands —
 `agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
 `agentdev-runtime lifecycle attached`, published through the image's Dev
 Container metadata — and SHALL NOT move create-once or attach-scoped work into
-the entrypoint.
+the entrypoint. The same `devcontainer.metadata` label SHALL set `waitFor` to
+`postStartCommand`, `overrideCommand` to `false`, `DEV_WORKSPACE_FOLDER` to the
+container workspace folder through `containerEnv`, and a per-container volume at
+`/var/lib/docker`. `agentdev-runtime lifecycle ready --no-wait` SHALL run the
+per-start repairs without waiting for supervised services, so a container with
+no supervisor as PID 1 — the Claude responder's GitHub `container:` job — runs
+`created`, `ready --no-wait`, and `attached` and starts no service.
+
+#### Scenario: a descriptor selects the image and declares no lifecycle
+
+- **WHEN** a Dev Container client starts a descriptor that selects
+  `agentdev-devcontainer`
+- **THEN** the client keeps the image entrypoint, runs the three lifecycle
+  commands, and attaches only after `postStartCommand` finishes
+
+#### Scenario: a job runs the image without its entrypoint
+
+- **WHEN** the responder's container job runs the lifecycle commands with
+  `ready --no-wait`
+- **THEN** the checkout's catalog is installed and no keyring, firewall, Docker
+  engine, or desktop starts
 
 #### Scenario: only the attach lifecycle runs
 
@@ -149,14 +308,18 @@ the entrypoint.
 A direct or derived consumer SHALL be able to obtain the complete managed
 lifecycle by referencing `agentdev-devcontainer` and SHALL customize it through
 documented environment values and executable files in explicit ordered hook
-directories.
+directories. The documented environment SHALL be the variables
+`agentdev_runtime.settings` declares, each with one default, which
+`agentdev-runtime settings` prints. The executable files in
+`/etc/agentdev/hooks/{created,started,attached}.d/` SHALL run in C-locale name
+order at the end of their phase, and a failing hook SHALL fail the phase; a hook
+directory that resolves inside the workspace SHALL be refused.
 
-#### Scenario: a direct consumer has no lifecycle scripts
+#### Scenario: a hook fails
 
-- **WHEN** its descriptor selects the image, mounts, workspace, and editor
-  settings without repository-local agentdev scripts
-- **THEN** managed startup, lifecycle commands, tools, and the staged catalog
-  remain available
+- **WHEN** a hook in `started.d` exits nonzero
+- **THEN** `agentdev-runtime lifecycle ready` fails naming the hook and its exit
+  status
 
 #### Scenario: a derived image adds a hook
 
@@ -173,29 +336,20 @@ directories.
 ### Requirement: the bootstrap refuses a changed runtime package
 
 While the installed `agentdev_runtime` distribution's metadata is present, the
-root bootstrap SHALL refuse to run when a file its `RECORD` lists differs from
-the recorded hash or is missing, or a file was added beside the recorded files,
-and SHALL name the file and direct the consumer to the hook directories and
-documented environment. The check catches accidental or partial edits to the
-runtime and is not a security boundary: a derived image that deliberately
-deletes the distribution's metadata or rewrites its `RECORD` passes it.
+root bootstrap SHALL, before anything else, refuse to run when a file its
+`RECORD` lists differs from the recorded hash or is missing, or a file other
+than a recorded module's bytecode was added beside the recorded files, and SHALL
+name the file and direct the consumer to the hook directories and documented
+environment. A source checkout, whose egg-info records no files, is not checked.
+The check catches accidental or partial edits to the runtime and is not a
+security boundary: a derived image that deliberately deletes the distribution's
+metadata or rewrites its `RECORD` passes it.
 
 #### Scenario: a derived image edits a package file
 
 - **WHEN** a derived image replaces a file of the installed `agentdev_runtime`
   distribution and the container starts
 - **THEN** the bootstrap fails naming that file and the extension points
-
-#### Scenario: a derived image adds a file to the package
-
-- **WHEN** a derived image adds a file below the installed distribution's
-  package directory
-- **THEN** the bootstrap fails naming the added file
-
-#### Scenario: an unmodified image starts
-
-- **WHEN** the installed distribution matches its `RECORD`
-- **THEN** the bootstrap continues
 
 ### Requirement: the bootstrap trusts an extra CA bundle
 
@@ -205,8 +359,12 @@ the system certificate store hold exactly the PEM certificates of the bundle at
 when that file is non-empty but holds no certificate. The image SHALL point
 `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and `NODE_EXTRA_CA_CERTS` at the system
 store. The Dev Container's host init SHALL hand over the host's
-`AGENTDEV_EXTRA_CA_CERTS`, else its `NODE_EXTRA_CA_CERTS`. Design: [Extra CA
-trust](../architecture/extra-ca-trust.md).
+`AGENTDEV_EXTRA_CA_CERTS`, else its `NODE_EXTRA_CA_CERTS` when that names a
+readable file: it SHALL always write `.devcontainer/.extra-ca.crt`, empty when
+the host names none, which the Compose service mounts read-only at
+`/etc/agentdev/extra-ca.crt`, and SHALL fail when an explicit
+`AGENTDEV_EXTRA_CA_CERTS` is not readable. The bundle SHALL be read once per
+container start.
 
 #### Scenario: a host behind a TLS-intercepting proxy starts a runtime
 
@@ -218,6 +376,22 @@ trust](../architecture/extra-ca-trust.md).
 
 - **WHEN** the file is absent or empty
 - **THEN** the bootstrap adds nothing and continues
+
+#### Scenario: the bundle holds no certificate
+
+- **WHEN** the file is non-empty and holds no PEM certificate
+- **THEN** the bootstrap fails naming the file
+
+#### Scenario: the host's proxy CA rotates
+
+- **WHEN** the host's bundle changes while a Dev Container runs
+- **THEN** the new CA is trusted only after `devcontainer-init.sh` runs again
+  and the container restarts, and the previous CA is withdrawn then
+
+#### Scenario: the host names an unreadable bundle
+
+- **WHEN** the host sets `AGENTDEV_EXTRA_CA_CERTS` to a file it cannot read
+- **THEN** `devcontainer-init.sh` fails and the container does not start
 
 ### Requirement: missing pre-commit hook executables are reported
 
@@ -296,13 +470,6 @@ the `.venv` of any checkout, in any repository, and remove the rest.
 - **THEN** its environment directory is deleted, and no environment a checkout
   of any repository still links to is touched
 
-#### Scenario: a consumer sets no environment root
-
-- **WHEN** a consumer of `agentdev-devcontainer` that sets no
-  `AGENTDEV_VENV_ROOT` attaches to a Python checkout
-- **THEN** the checkout's `.venv` links to its directory under
-  `/home/agent/.local/share/uv/venvs`, on the home volume that holds uv's cache
-
 ### Requirement: full adoption remains supported
 
 `template-consume` SHALL remain a supported full-adoption workflow whose adopted
@@ -314,3 +481,240 @@ prerequisite for full adoption.
 - **WHEN** it follows the supported template-consume update path
 - **THEN** its repository-owned customization is preserved and its managed
   runtime resolves through the published image contract
+
+## Rationale
+
+### One runtime package behind one CLI
+
+The runtime images run one Python package, `agentdev_runtime`, installed as a uv
+tool the way the validator is, with its dependencies pinned in the package.
+`agentdev-base` never carries it, so the base stays lifecycle-neutral. The
+package is not published to PyPI: the two runtime images are its only installs.
+
+Three scripts stay shell, outside the package, because each runs where the
+package cannot: `.devcontainer/devcontainer-init.sh` runs on the host as the
+initialize command, where Python is not guaranteed;
+`docker/ansible/setup-ansible.sh` runs before the toolchain exists; and
+`docker/desktop/entrypoint.sh` is the entrypoint of `agentdev-base`, which never
+carries the package.
+
+A `language: system` pre-commit hook whose executable is missing is a warning,
+not a failure, in both profiles, so a consumer whose own hooks need tools the
+image lacks still starts.
+
+Rejected:
+
+- **Loose standard-library scripts on the system interpreter.** Keeps either a
+  PyPI fetch at container start or an apt dependency hunt, and needs a separate
+  per-file checksum manifest for integrity.
+- **Bash shims under the old `/opt/agentdev-runtime/*.sh` names.** Nothing
+  outside the images calls those paths, and one CLI replaces them.
+- **Keeping the firewall script as bash behind a Python wrapper.** The policy is
+  one module whose rule sequence is under test.
+
+### Runtime integrity is the distribution's own `RECORD`
+
+A derived image that replaced, added, or removed a runtime file would run
+lifecycle code nobody tested, so the bootstrap refuses it and names the hook
+directories and documented environment instead. The installed wheel's `RECORD`
+already holds every file's hash, so no second manifest is built or maintained.
+The check catches accidental and partial edits; it is not a security boundary.
+
+Rejected:
+
+- **A build-time per-file checksum manifest.** A second record of what `RECORD`
+  already holds, written by its own build step.
+
+### A container with no supervisor runs only the lifecycle commands
+
+A GitHub `container:` job runs no image entrypoint and accepts no
+`--entrypoint`, and `claude-code-action` is a composite action that runs in the
+job's own runtime, so the supervisor can never be PID 1 there. The job needs the
+checkout's catalog, never the keyring, the firewall, or a desktop.
+
+Rejected:
+
+- **Porting the legacy no-supervisor starters.** Preserves a second start path
+  with its own keyring, firewall, and Xpra handling that no caller needs.
+- **Starting the supervisor in the background inside the responder's container
+  job.** Needs a privileged job container for the profile's core `dockerd`, and
+  buys only the removal of the `--no-wait` path.
+- **Running the responder as a host job through `devcontainers/ci`.** Gives the
+  supervisor PID 1 but loses `claude-code-action` and the GitHub App
+  authentication it carries.
+
+### PID 1 owns the create phase; the image label owns the lifecycle commands
+
+The create phase needs what the root bootstrap prepares — the runtime account's
+sudoers entry, its home, and the shared auth directory — so it runs as a
+supervised oneshot after the bootstrap, as the deploy profile's `prepare` does,
+and `postCreateCommand` only waits for it. Work whose timing PID 1 cannot
+observe stays in three thin commands declared in the image's metadata label, so
+every descriptor that selects the image inherits them; a descriptor that also
+declares them runs each twice.
+
+### A latched failure ends a Dev Container
+
+A deploy container stays up for an explicit retry; a Dev Container exits. An
+editor has no retry command, and a container that keeps running with withdrawn
+readiness looks attached and healthy.
+
+### No aliases for the retired image names
+
+`agent-desktop` and `agent-opencode` are not published as aliases.
+`agent-desktop` would have to name the lifecycle-neutral base, which cannot run
+the new descriptor, so a consumer needs the same migration either way and an
+alias only adds a second name to maintain. Full-adoption consumers move through
+`/agentdev:template-consume` update mode.
+
+### Extra CA trust goes through the system store
+
+A host behind a TLS-intercepting proxy hands its CA bundle over as a file, and
+the root bootstrap adds it to the system store before any service starts.
+`SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and `NODE_EXTRA_CA_CERTS` point at the
+system store because uv, Python `requests`, Node, and Bun otherwise read their
+own root stores; with no extra CA they name the stock bundle and change nothing.
+The nested `dockerd` reads the system store, so image pulls are covered without
+a daemon setting. `NODE_EXTRA_CA_CERTS` is the host-side fallback because it
+means "CAs added to the defaults", which is exactly this bundle, and hosts
+behind such proxies, Claude Code cloud sessions among them, already export it.
+Containers the nested engine starts are out of scope: trusting the CA is their
+image's business.
+
+Rejected:
+
+- **Mounting the bundle over `/etc/ssl/certs/ca-certificates.crt`.** Works only
+  when the bundle also carries every public root, and hides the image's own
+  store.
+- **Pointing `SSL_CERT_FILE` at the mounted bundle.** The same dependence on a
+  complete bundle, and the nested `dockerd` and every OpenSSL tool reading the
+  hashed store stay untrusting.
+- **Per-tool settings (`UV_SYSTEM_CERTS`, pip and npm config).** One per tool,
+  and each new tool is a new gap.
+- **Copying the CA into the image at build time.** The proxy belongs to the
+  host, not the image, and its CA rotates.
+
+### Packages come from sources that are not Launchpad
+
+A package comes from one of four sources, in this order of preference: the
+Ubuntu archive; the vendor's own apt repository with its key under a `signed-by`
+keyring; a pinned release archive with a SHA-256 per architecture through
+`dev_tools_pinned_tools`; or a PPA's packages republished unchanged as
+`pinned-deps/<name>/<version>` releases of this repository, pinned by tag and
+SHA-256. The `ppa:` shorthand fetches the signing key from the Launchpad API at
+build time, and an apt source on `ppa.launchpadcontent.net` makes every build
+depend on Launchpad's archive host. The PPA keeps only its newest build, so a
+release is the only lasting copy of one, which is why the workflow never
+replaces a release. The image carries the PPA's git because Ubuntu's trails the
+upstream release.
+
+Rejected:
+
+- **An apt source on `ppa.launchpadcontent.net` with a pinned key.** Removes the
+  Launchpad API call but keeps the build's dependency on Launchpad.
+- **Releases in a dedicated repository.** GitHub disables a public repository's
+  scheduled workflows after 60 days without activity, which a repository holding
+  only releases reaches, and publishing there from this repository needs a
+  cross-repository credential.
+- **Pinned URLs into the PPA's pool.** The PPA deletes a build once a newer one
+  is published, so every pin breaks at its next upload.
+- **Ubuntu's own git.** It trails the upstream release by the age of the base
+  image's Ubuntu release.
+- **Building git from its kernel.org source release in the image.** Adds a
+  compile of over a minute per architecture and a Rust toolchain to every build.
+
+### The validator is built from the build context
+
+`validate_agent_files` is built from the build context, as the catalog is
+staged, so the image and its validator come from the same commit and its release
+stays inside this repository. The image build therefore needs
+`py_packages/validate_agent_files/` in the build context. Its version is a pin
+the build verifies against the installed distribution, so the image label states
+what the image carries rather than what the source claimed.
+
+Rejected:
+
+- **Publishing the validator to PyPI.** Needs a package name, a release
+  workflow, and trusted publishing, and splits the validator's release from the
+  image's.
+- **A task file inside `agentic_tools`.** A role of its own keeps one
+  responsibility, its own `install_validate_agent_files` toggle, and its own
+  variables, as every other tool in the image has.
+- **The system interpreter or a project environment.** A uv tool puts one entry
+  point on `PATH` and touches neither.
+
+### The build context is an allow-list and each step binds only its inputs
+
+BuildKit keys a `RUN` step on the contents of its bind mounts, so a step that
+binds the whole build context is invalidated by any repository change and the
+layer cache never hits. `.dockerignore` therefore admits only the image inputs,
+and each provisioning step bind-mounts only the inputs it reads.
+
+### Xpra is installed by name from the stable repository
+
+No Xpra apt repository serves an exact pinned version: for noble,
+`https://xpra.org/lts` serves 5.1.x and `https://xpra.org` the current 6.x
+stable. The role therefore installs `xpra` by name from the stable repository,
+and the major-version assertion catches a fallback to Ubuntu's 3.x.
+
+Rejected:
+
+- **Xpra's `setup.py install-lts-repo`.** It ignores its own step failures, and
+  the LTS repository serves 5.1.x.
+
+### fish plugins are reconciled through `fish_plugins`
+
+`fisher install <owner>/<repo>@<ref>` refuses to overwrite files it does not
+track under that exact spec, so it fails on a system holding the same plugin
+under another spec. The `fish_setup` role writes the pinned specs into
+`fish_plugins` and runs `fisher update`, which reconciles the tree to that file
+from an empty system and from one holding the plugins under a different spec.
+
+Rejected:
+
+- **`fisher install` of each pinned spec.** It fails when a plugin is already
+  installed under a different spec.
+
+### OpenCode is installed as a trusted Bun package
+
+The `@opencode/cli` package fetches its platform binary in a postinstall, which
+Bun blocks until the package is trusted, so `agentic_tools` installs it with
+`trust: true` and every other agent CLI without.
+
+Rejected:
+
+- **Installing `@opencode/cli` untrusted.** The postinstall never runs and the
+  image ships no OpenCode binary.
+
+### The session bus address is an image `ENV`
+
+`gh` looks its token up in the Secret Service on every call. With no session bus
+address in its environment, the D-Bus client library autolaunches a new bus
+through `dbus-launch`, the lookup activates a fresh `gnome-keyring-daemon`, and
+neither exits. Every process — supervised programs, `docker exec` shells, the VS
+Code server, agent sessions — must therefore inherit one fixed address, and only
+an image `ENV` reaches them all.
+
+Rejected:
+
+- **A random bus address published in a file that scripts source.** Only the
+  processes that source it name the bus; every other `gh` call leaks a bus and a
+  keyring.
+
+### `agentdev-base` provisions in three tagged steps from a stable parent digest
+
+The most frequent image change is a catalog edit, so provisioning is three `RUN`
+steps selected by Ansible tag, each mounting only its inputs, and a catalog edit
+reruns only the catalog step. `entrypoint.sh` is a narrow `COPY` from `docker/`,
+because a role would make host provisioning carry a container entrypoint it
+never uses. Each step sets `ANSIBLE_LOG_PATH=` because `ansible.cfg`'s
+`log_path` resolves inside the read-only `/provision` mount. `agentdev-base`
+starts from `ubuntu-ansible` by digest, so that digest must not change per run:
+`ubuntu-ansible` is built without the per-run labels, and `agentdev-base` is
+passed the per-architecture manifest digest, not the pushed index's, whose
+provenance attestation changes every run.
+
+Rejected:
+
+- **One provisioning step behind the `.dockerignore` allow-list.** A catalog
+  edit would reprovision every role.

@@ -17,10 +17,11 @@ installs, laid out exactly as it lands in a repository root:
 - **`data/product.md`** — the foundation document, left as ✏️ placeholder blocks
   for `/agentdev:iwe-setup` to fill.
 - **Onboarding tasks** under `data/backlog/` — `fill-product-doc` and
-  `capture-current-architecture` are the two keys `/agentdev:iwe-setup` closes;
+  `draft-first-specs` are the two keys `/agentdev:iwe-setup` closes;
   renaming or removing either breaks that skill's closing step.
 - **`*.example.md` documents** — fictional documents about a fictional product,
-  showing the shape of each type. `/agentdev:iwe-setup` deletes them once real
+  showing the shape of each type, including a shipped plan and feature under
+  `data/archive/0.1.0/`. `/agentdev:iwe-setup` deletes them once real
   documents exist.
 
 ## Ownership

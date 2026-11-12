@@ -33,4 +33,4 @@ and carry the rest of the earlier verdict forward. Settling it means deciding:
 
 A rebase or squash rewrites the ancestor commit, which ends reuse; the same
 limit is tracked for evidence lines in [Make plan task evidence survive history
-rewrites](resilient-task-evidence.md).
+rewrites](../archive/3.0.0/backlog/resilient-task-evidence.md).

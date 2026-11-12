@@ -13,7 +13,8 @@ next. Numbers come from frontmatter and git — never from memory.
 
 1. **Shipped.** Plans completed in the last 7 days:
    `iwe find --filter '{type: plan, stage: done, completed: {$gte: <7 days ago>}}' -f keys`; cross-check with
-   `git log --since '7 days ago' --oneline`. List releases cut, if any.
+   `git log --since '7 days ago' --oneline`; shipped plans sit under
+   `data/archive/`. List releases cut, if any.
 2. **In flight.** The build order, plans, bugs, and tasks together:
    `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`,
    then unsequenced active plans:
@@ -26,8 +27,8 @@ next. Numbers come from frontmatter and git — never from memory.
    `iwe find --filter '{type: task, stage: pending, priority: high, rank: {$exists: false}}' -f keys`,
    plus how long they've sat (`created`).
 5. **Graph health.** `iwe schema validate` (report violations) and `iwe stats`
-   (dangling links, plus any `data/` document listed under Orphans — every
-   content doc should be reachable from a hub). Healthy
+   (dangling links, plus any document outside `data/archive/` listed under
+   Orphans — every live content doc should be reachable from a hub). Healthy
    means zero of each.
 6. **Print the digest** — shipped / in flight / bugs / backlog / health — and
    end with **the single most leveraged next action**, chosen from what the

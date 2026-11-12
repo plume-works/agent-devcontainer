@@ -162,8 +162,10 @@ it):
   every expansion.
 - Investigation/spike work gets documented directly in IWE project memory: an
   issue found during a spike → `data/bugs/<slug>.md`; a design decision the
-  spike settles → `data/architecture/<slug>.md`; implementation guidance for
-  follow-up → a plan or `data/backlog/<slug>.md` task.
+  spike settles → the `## Rationale` of the spec that owns the behaviour; a
+  measurement that settles nothing yet → `data/findings/<slug>.md`;
+  implementation guidance for follow-up → a plan or `data/backlog/<slug>.md`
+  task.
 - This workspace uses IWE project memory under `docs/knowledge/data/` — query it
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/AGENTS.md` when editing it
@@ -203,3 +205,6 @@ it):
 - 2026-11-02 — replaced GitHub native stacks with manual stacked pull requests:
   no force-push exception, no rebase or reset of a pushed branch, and no
   repository-local git config exception.
+- 2026-11-12 — routed a spike's design decision to the owning spec's
+  `## Rationale` and a measurement to `data/findings/`, replacing
+  `data/architecture/`.

@@ -6,12 +6,10 @@ stage: living
 
 # 🗺️ Plans
 
-*Every plan lives in `plans/YYYYMMDD-<slug>.md` and is listed here, always, in
-one list sorted by slug without the date prefix. A plan's stage and its place in
-the build order (`rank`) live only in its frontmatter, so shipping or cancelling
-a plan never edits this page.*
-
-[Focus sessions](plans/20260701-focus-sessions.example)
+*Every active plan lives in `plans/YYYYMMDD-<slug>.md` and is listed here, in
+one list sorted by slug without the date prefix. A plan's place in the build
+order (`rank`) lives only in its frontmatter. Shipping or cancelling a plan
+moves it to `archive/` and removes it from this list.*
 
 [MVP](plans/mvp.example)
 

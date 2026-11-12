@@ -1,0 +1,59 @@
+$schema: https://document-schema.org/draft/2026-06/schema
+description: >-
+  Guides (data/guides/<slug>.md) — a procedure a contributor follows, with its
+  code anchors resolved on every commit. A guide states no lifecycle stage.
+maxDepth: 4
+sections:
+  - header: { pattern: '.+' }
+    minContains: 1
+    maxContains: 1
+    description: 'a guide has one H1 title'
+additionalSections: false
+frontmatter:
+  type: object
+  required: [type]
+  not:
+    required: [stage]
+    description: 'a guide carries no stage'
+  properties:
+    type: { const: guide }
+    description:
+      type: string
+      description: one sentence summarizing this document
+    resource:
+      type: string
+      description: canonical URI of the underlying asset this document describes
+    tags: { type: array, items: { type: string } }
+    stale_after:
+      type: string
+      format: date
+      description: the day this content goes stale; set it on anything that rots
+    sources:
+      type: array
+      description: the materials this document derives from; cite per claim with a footnote keyed to an entry id
+      items:
+        type: object
+        required: [resource]
+        properties:
+          id:
+            {
+              type: string,
+              description: footnote label used to attribute a claim in the body,
+            }
+          resource:
+            {
+              type: string,
+              description: a URL,
+              a repo path,
+              or a scope descriptor,
+            }
+          title: { type: string }
+          author: { type: string, description: actor }
+          usage_count: { type: integer }
+          last_modified: { type: string, format: date }
+    usage_window:
+      type: object
+      description: the date range every usage_count is measured over
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }

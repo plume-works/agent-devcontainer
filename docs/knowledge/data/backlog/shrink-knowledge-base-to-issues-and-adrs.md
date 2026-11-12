@@ -47,9 +47,10 @@ that test is removed instead of maintained.
 ## Order
 
 This work starts after [One home for each kind of
-knowledge](../plans/20261112-knowledge-base-single-home.md) ships. The
-repository owner wants that plan executed in full first, so the graph holds a
-complete record of how the knowledge base deteriorated before it is reduced.
+knowledge](../archive/next-release/plans/20261112-knowledge-base-single-home.md)
+ships. The repository owner wants that plan executed in full first, so the graph
+holds a complete record of how the knowledge base deteriorated before it is
+reduced.
 
 ## What to do
 

@@ -61,9 +61,9 @@ is the user's call, made in the conversation.
   listed under "not observed", never designed for.
 - **Grounded, not theoretical** — before proposing directions, check what
   already exists: `iwe find --fuzzy <topic> -f keys`,
-  `iwe find --lexical "<phrase>" -f keys`, the related `data/spec/` and
-  `data/architecture/` docs, and any plan that already touches the area. Cite
-  prior decisions instead of re-deriving them.
+  `iwe find --lexical "<phrase>" -f keys`, the related `data/spec/` docs and
+  their `## Rationale`, any `data/findings/` doc on the area, and any plan that
+  already touches the area. Cite prior decisions instead of re-deriving them.
 - **Principled** — read `data/concept/` early. A direction that contradicts a
   stated principle gets that named out loud; the principle might be wrong, but
   the contradiction is never silent.
@@ -114,9 +114,15 @@ unprompted):
 
 - An idea worth keeping but not committing to →
   `data/someday/<slug>.md`, linked from `data/someday.md`.
-- A design insight or decision → `data/architecture/<slug>.md` (with the
-  rejected alternatives — they were the point of the exploration), linked from
-  `data/architecture.md`.
+- A decision about behaviour a spec already owns → that spec's `## Rationale`,
+  with the rejected alternatives — they were the point of the exploration. A
+  decision about behaviour still to build belongs to the plan's `## Approach`:
+  hand it off with the plan below.
+- A measurement that settles nothing yet → `data/findings/<slug>.md` with
+  `## Measurement`, the hypotheses eliminated, and `## Closing`, linked from
+  `data/findings.md`.
+- A procedure a contributor will repeat → `data/guides/<slug>.md`, linked from
+  `data/guides.md`.
 - A principle that should outlive this conversation →
   `data/concept/<slug>.md`, linked from `data/concept.md`.
 - A defect the exploration established — code that contradicts a `data/spec/`

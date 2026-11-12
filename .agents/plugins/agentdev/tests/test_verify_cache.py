@@ -126,6 +126,18 @@ def test_plan_file_path_and_key_share_one_report(installed_verify: Path, reposit
     assert outcome(completed) == (3, 'RESULT=HIT')
 
 
+def test_archived_plan_keeps_its_archive_key(installed_verify: Path, repository: Path) -> None:
+    """An archived plan's file path and key share one report, apart from the live key's."""
+    archived = f'data/archive/2.1.0/plans/{Path(PLAN).name}'
+    save_current(installed_verify, repository, target=f'docs/knowledge/{archived}.md')
+
+    archived_hit, _ = run_cache(installed_verify, repository, 'lookup', archived)
+    live_lookup, _ = run_cache(installed_verify, repository, 'lookup', PLAN)
+
+    assert outcome(archived_hit) == (3, 'RESULT=HIT')
+    assert outcome(live_lookup) == (4, 'RESULT=MISS')
+
+
 def test_new_commit_is_a_miss(installed_verify: Path, repository: Path) -> None:
     """A saved report for an earlier commit does not match a moved HEAD."""
     save_current(installed_verify, repository)

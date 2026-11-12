@@ -19,6 +19,18 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA = REPO_ROOT / 'docs' / 'knowledge' / 'data'
 IWE_CONFIG = REPO_ROOT / '.iwe'
+EXAMPLES = (
+    REPO_ROOT
+    / '.agents'
+    / 'plugins'
+    / 'agentdev'
+    / 'skills'
+    / 'iwe-bootstrap'
+    / 'assets'
+    / 'docs'
+    / 'knowledge'
+    / 'data'
+)
 TMP_ROOT = Path('/tmp/agentdev-tests')
 
 FRONTMATTER = re.compile(r'\A---\n(.*?)\n---\n', re.S)
@@ -51,6 +63,14 @@ def _with_release(content: str, release: str | None) -> str:
     return f'---\n{head.rstrip()}\n---\n' + content[match.end() :]
 
 
+def _seed(data: Path, *examples: str) -> None:
+    """Copy bootstrap example documents into the graph, so each lane has a live member."""
+    for key in examples:
+        target = data / f'{key.replace(".example", "")}.md'
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(EXAMPLES / f'{key}.md', target)
+
+
 @pytest.fixture(scope='module')
 def workspace() -> Iterator[Path]:
     """Copy the configuration and graph into a workspace private to this run."""
@@ -60,6 +80,7 @@ def workspace() -> Iterator[Path]:
         (root / 'docs' / 'knowledge').mkdir(parents=True)
         shutil.copytree(IWE_CONFIG, root / '.iwe')
         shutil.copytree(DATA, root / 'docs' / 'knowledge' / 'data')
+        _seed(root / 'docs' / 'knowledge' / 'data', 'plans/20260720-streak-widget.example')
         yield root
     finally:
         shutil.rmtree(root, ignore_errors=True)
@@ -73,8 +94,9 @@ def _frontmatter(path: Path) -> str:
 
 
 def _plan(workspace: Path, done: bool) -> Iterator[Path]:
-    """Yield the first active (no `stage`) or done plan, restored after the test."""
-    plans = sorted((workspace / 'docs' / 'knowledge' / 'data' / 'plans').glob('*.md'))
+    """Yield the first active (no `stage`) or done plan, live or archived, restored after."""
+    data = workspace / 'docs' / 'knowledge' / 'data'
+    plans = sorted([*data.glob('plans/*.md'), *data.glob('archive/*/plans/*.md')])
     marker = '\nstage: done\n' if done else '\nstage: '
     path = next(p for p in plans if (marker in _frontmatter(p)) == done)
     original = path.read_text()

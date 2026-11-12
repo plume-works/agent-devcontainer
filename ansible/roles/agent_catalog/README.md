@@ -34,7 +34,7 @@ staged root as a Claude marketplace, installs the plugin at user scope, and
 registers the OpenCode bridge during the build, so a consumer that runs the image
 without lifecycle hooks — a plain `docker run`, a Codespace, a CI job — still
 resolves `agentdev:*` skills. See
-[CI agent plugin availability](../../../docs/knowledge/data/architecture/ci-agent-plugin-availability.md).
+[Catalog lifecycle](../../../docs/knowledge/data/spec/catalog-lifecycle.md).
 
 The container's lifecycle scripts **also** install, and must: a devcontainer
 mounts a persistent `~/.claude` volume over where Claude Code keeps its

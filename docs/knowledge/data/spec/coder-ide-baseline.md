@@ -39,11 +39,6 @@ SHALL NOT rely on the template running any other command in it.
 - **THEN** `agentdev-runtime coder start` runs in the Dev Container with the
   Coder user secrets in its environment.
 
-#### Scenario: a new agent-start step
-
-- **WHEN** a setup step must run on every Coder agent start
-- **THEN** it is added to `agentdev-runtime coder start`, not to the template.
-
 ### Requirement: Coder user secrets reach only agent-started processes
 
 Dev Container lifecycle hooks (`postCreateCommand`, `postStartCommand`) run
@@ -56,3 +51,19 @@ the agent-start command.
 
 - **WHEN** a setup step needs `GITHUB_TOKEN` supplied as a Coder user secret
 - **THEN** it runs from `agentdev-runtime coder start`, not from post-start.
+
+## Rationale
+
+### Each requirement lives in the repository whose code satisfies it
+
+This spec holds only what this repository owes the template; the template's
+requirements and its runbook live in `coder-ide-baseline`'s own
+`spec/workspace-template`, linked by GitHub URL on `main`.
+
+Rejected:
+
+- **Move the whole spec to the template repository.** The agent-start command
+  would have no contract in the repository that ships it.
+- **Keep a copy in each repository.** Two texts drift.
+- **Move every document that touches the template.** It takes this repository's
+  half of documents that cover both.

@@ -1,0 +1,86 @@
+---
+type: feature
+stage: implemented
+description: The agent-desktop image installs the agentdev catalog into each agent's plugin state at build time, so a consumer running the raw image with no devcontainer lifecycle hooks still resolves agentdev:* skills; postCreate installs again because mounted volumes shadow the build-time install.
+sources:
+- resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
+- resource: docker/desktop/agent-desktop.Dockerfile
+- resource: .devcontainer/scripts/postCreateCommand.sh
+---
+
+# Install the agentdev catalog into the image
+
+## Purpose
+
+The `agent-desktop` image staged the `agentdev` catalog at `/opt/agentdev` but
+never installed it — the marketplace was unregistered and the plugin cache
+empty. Installation belonged to the devcontainer lifecycle scripts, which a
+consumer that starts the image *without* those hooks (a plain `docker run`, a
+Codespace, a CI job) never runs. Such a consumer got a catalog present on disk
+and unusable, and the failure was quiet: an agent asked for a skill that does
+not resolve improvises instead of failing. This closes that gap for raw-image
+consumers.
+
+## Behaviour
+
+**The catalog is installed during the image build.** `agentic_tools` gains an
+install step after staging, gated by `agentic_tools_install_catalog` (the
+Dockerfile passes it `true`). It reads the marketplace name from the staged
+Claude manifest rather than hardcoding it, then registers the staged root as a
+marketplace, installs the plugin for Claude at user scope, and registers the
+OpenCode bridge. The build stays offline and needs no auth — the marketplace is
+added from the local staged path. A container run from the image with no volumes
+and no lifecycle hooks resolves `agentdev:*` skills.
+
+**postCreate still installs, because volumes shadow the build.** A devcontainer
+mounts a persistent `~/.claude` volume over where Claude Code records installed
+plugins, so the build-time install is invisible there; `postCreateCommand.sh`
+installs again on every create, so the workspace's catalog is never silently
+stale.
+
+**The `~/.claude.json` handoff runs first.** The build-time Claude install seeds
+a real `/root/.claude.json` into the image, so `postCreateCommand.sh`
+establishes the volume→`/root/.claude.json` symlink up front — discarding the
+image's real file, seeding `/root/.claude/claude.json` with `{}` only when the
+volume has none. An existing volume's `claude.json` content is preserved across
+a rebuild; a fresh volume is seeded clean with no image content.
+
+## Scope
+
+Changing how the lifecycle scripts install the catalog is out of scope — they
+keep installing unconditionally; this adds a second, earlier install for
+consumers that never run them. The one lifecycle change is the `~/.claude.json`
+handoff reorder, a consequence of the image now shipping that file. Making
+`~/.claude.json` volume-backed stays out (Docker volumes are directory-backed;
+the symlink workaround stays). This is deliberately independent of the AI
+responder workflows, which use the branch checkout and do not depend on it.
+
+Rejected: having each raw-image consumer install the catalog itself (duplicates
+lifecycle-script logic and leaves the image carrying a catalog that looks
+installed but is not).
+
+## Edge cases
+
+- **A container with no volumes and no lifecycle hooks.** The build-time install
+  is what it sees, and `agentdev:*` skills resolve.
+- **A fresh devcontainer volume.** `postCreateCommand` discards the image's
+  `/root/.claude.json`, seeds the volume's `claude.json` with `{}`, and installs
+  the catalog into the empty volumes.
+- **A volume with a prior install.** The volume shadows the build-time install;
+  `postCreateCommand` reinstalls, and the volume's existing `claude.json`
+  content is preserved rather than replaced.
+- **A consuming project attaches.** The attach-time reinstall finds no
+  marketplace manifest in the consumer's checkout and leaves the image-staged
+  catalog in place.
+
+## Open questions
+
+None — every design question this feature raised is settled.
+
+## References
+
+- Spec: [Catalog lifecycle](../../../spec/catalog-lifecycle.md)
+- Architecture: [CI agent plugin
+  availability](../architecture/ci-agent-plugin-availability.md)
+- Plan: [Install the agentdev catalog into the
+  image](../plans/20260817-catalog-install-in-image.md)

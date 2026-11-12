@@ -1,6 +1,6 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Plan needs a feature for user-visible work, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, architecture, and concept notes stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and concept notes stay with /agentdev:iwe-explore.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -56,7 +56,8 @@ Run every `iwe` command from the repository root; keys are relative to
 
 4. **Write the document** at `data/bugs/<slug>.md`, `data/features/<slug>.md`,
    or `data/backlog/<slug>.md`, choosing a short kebab slug no existing key
-   uses. Frontmatter:
+   uses. A bug filed at `stage: done` is closed work: write it at
+   `data/archive/next-release/bugs/<slug>.md` instead. Frontmatter:
    - `type` — `bug`, `feature`, or `task`.
    - `stage` from the SCHEMA.md table: a bug is `stage: pending` with its
      `severity`, or `stage: done` when the same change already fixed it, with a
@@ -73,7 +74,14 @@ Run every `iwe` command from the repository root; keys are relative to
    line — at its sorted position: a task in `data/backlog.md`, a bug in
    `data/bugs.md`, a feature in `data/features.md`. Hubs are one flat list
    sorted by member key, with no sections; priority and stage live in the
-   document's frontmatter only.
+   document's frontmatter only. A bug filed into the archive gets no hub link.
+
+   When the caller says the captured item closes an existing task or bug — a
+   fix that settles a pending task, say — set that document to `stage: done`
+   with `completed: <today>` for a task or the caller's `## Fix` for a bug,
+   remove its `rank`, move it with `iwe rename` to
+   `data/archive/next-release/<backlog|bugs>/`, and remove its hub link.
+
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.
 7. **Close the issue** when the item grew from a GitHub issue, with the bundled
@@ -123,10 +131,10 @@ leaves the issue open.
 
 ## Boundaries
 
-- Someday ideas, architecture notes, and concept documents are written by
+- Someday ideas, findings, guides, and concept documents are written by
   `/agentdev:iwe-explore`; plans by `/agentdev:iwe-plan`.
 - Capture is model-invocable so the `iwe-implementer` rulebook can file a
   defect or deferred task mid-run without stopping for the user. A refusal returns to
   that caller, which keeps the item in its handoff report.
-- Capture edits only the new document and its hub links, plus the someday hub
-  when promoting.
+- Capture edits only the new document and its hub links, the someday hub when
+  promoting, and a task or bug the caller says the new item closes.

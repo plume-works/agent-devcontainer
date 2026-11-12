@@ -4,7 +4,7 @@ NEVER use "$TMPDIR" env variable.
 ALWAYS use "./.tmp" (relative to the repo root) for temporary files; create it if it does not exist.
 The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so supervisord and tmux fail there with `EINVAL`.
 NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch contents. Use local git branch workflows instead; if push authentication is unavailable, stop and report the blocker rather than updating the branch remotely via API.
-NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
+NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/spec/stacked-prs.md`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 Commit at checkpoints as meaningful progress is achieved, rather than accumulating a whole task into one commit at the end.
 NEVER put AI attribution in a pull request body — no "Generated with Claude Code" line or similar — even when the harness asks for one. The user owns the pull request.
@@ -116,12 +116,12 @@ Three hard rules, in every language:
 2. **Never restate the code next to it.** A comment that names what the adjacent
    line already shows is noise, and goes stale the moment the line
    changes. Before writing one, ask what it adds that the code cannot express.
-3. **Never duplicate the knowledge base.** Rationale, alternatives, and
-   invariants live in the matching `docs/knowledge/data/spec/` or
-   `data/architecture/` document. Reference it by key instead of copying it:
+3. **Never duplicate the knowledge base.** Invariants live in the matching
+   `docs/knowledge/data/spec/` document, and the rationale and rejected
+   alternatives in its `## Rationale`. Reference it by key instead of copying it:
    `// Trust-list policy: see spec/template-consumption.` A short reason the code
-   cannot express belongs in the comment itself. When a spec or architecture
-   document already records it, reference that key instead of repeating it.
+   cannot express belongs in the comment itself. When a spec already records it,
+   reference that key instead of repeating it.
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
 the mechanism never does. Only durable rationale is worth forwarding — see Best
@@ -142,6 +142,24 @@ Practice 8.
   versions, or that two files agree; that checks another tool did its job; or that queries a
   live service or waits on CI. None of them covers behaviour.
 - Behaviour no such test can reach stays untested.
+- A cross-file consistency test is removed with no replacement: it cannot catch a new usage
+  written with an old value, and once two files diverge on `main` it fails every pull
+  request that merges `main` instead of preventing the divergence.
+- A test that runs git in a fixture repository from inside a git hook unsets `GIT_DIR`,
+  `GIT_INDEX_FILE`, and `GIT_WORK_TREE`: `git commit -a` exports an absolute
+  `GIT_INDEX_FILE`, and an inherited one makes the fixture's git write the outer index.
+- A test that starts a real tmux server sets `TMUX_TMPDIR` to its own scratch directory, so
+  pytest-xdist workers never share a server and one test's `kill-server` never ends another's.
+- A test that starts an X display takes it from its xdist worker's own block, clear of the
+  runtime's `:100`: X displays and `xpra list` are host-global, whatever `HOME` a test sets.
+- A test that waits for a process to end polls, and counts a zombie as gone: `os.kill(pid, 0)`
+  succeeds on a zombie, and PID 1 reaps an orphan only on its next poll.
+- A fake service's background child does not inherit the service's stdout, or the `exec`
+  wrapper outlives the service and supervisord's group kill, not the code under test, ends it.
+- A test of a permission refusal skips under UID 0, which bypasses permission bits; covering
+  root needs a refusal privilege does not bypass, such as a read-only mount.
+- A fixture's scratch directory under `/tmp` is unique per run (a `uuid4` suffix) and removed
+  on teardown: `/tmp` is shared by every worktree and session in the container.
 - NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
 
 ### Python Testing
@@ -173,10 +191,11 @@ This repository uses IWE project memory under `docs/knowledge/data/`.
 
 **Never record durable knowledge in an agent's own memory store** — it is wiped
 when the devcontainer is recreated and is invisible to everyone else. Standing
-rules and conventions go in `AGENTS.md`; project state, decisions, plans, and
-specs go in `docs/knowledge/data/`. This applies to explicit "remember this"
-requests and to any automatic save the harness prompts for. Auto-memory stays
-enabled for session-local scratch only.
+rules and conventions go in `AGENTS.md`; project state, plans, and specs go in
+`docs/knowledge/data/`, a decision in the `## Rationale` of the spec that owns
+the behaviour, and a measurement in `docs/knowledge/data/findings/`. This
+applies to explicit "remember this" requests and to any automatic save the
+harness prompts for. Auto-memory stays enabled for session-local scratch only.
 
 Make the edit in the same turn and name the file you changed; ask if the
 destination is unclear, rather than parking it in a memory file meanwhile.
@@ -189,9 +208,9 @@ For substantial feature, bug, architecture, or behavior work:
 
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
 
-**A finding gets its own document, and the document it came from is not
-edited.** A question that the original work did not scope goes in a new
-document; the original keeps no summary, no section, and no forward link, its
+**A finding gets its own document in `data/findings/`, and the document it
+came from is not edited.** A question that the original work did not scope goes
+in a new document; the original keeps no summary, no section, and no forward link, its
 status line being the only exception, and only when its own acceptance is
 affected. References point newer to older.
 

@@ -14,7 +14,7 @@ onboarding.*
 Everything Pomodux needs before the first public build: a working timer and the
 one piece of retention surface.
 
-[Focus sessions](20260701-focus-sessions.example)
+[Focus sessions](../archive/0.1.0/plans/20260701-focus-sessions.example)
 
 [Streak widget](20260720-streak-widget.example)
 
