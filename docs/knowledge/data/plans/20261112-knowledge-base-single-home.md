@@ -134,11 +134,10 @@ Rejected:
 **Files:** Create: `.iwe/schemas/finding.yaml`, `.iwe/schemas/guide.yaml`,
 `docs/knowledge/data/findings.md`, `docs/knowledge/data/guides.md`,
 `docs/knowledge/tests/test_archive_layout.py`. Modify: `.iwe/config.toml`,
-`.iwe/schemas/okf.yaml`, `.iwe/schemas/plan.yaml`, `.iwe/schemas/release.yaml`,
+`.iwe/schemas/okf.yaml`, `.iwe/schemas/release.yaml`,
 `docs/knowledge/data/index.md`,
 `docs/knowledge/tests/test_reserved_file_shapes.py`. Delete:
-`docs/knowledge/tests/test_released_stamp.py`, `.iwe/schemas/okf-log.yaml`,
-`docs/knowledge/data/log.md`.
+`.iwe/schemas/okf-log.yaml`, `docs/knowledge/data/log.md`.
 
 - [ ] `.iwe/config.toml` binds the plan, bug, task, and feature schemas to
   `data/archive/*/<type>/**` beside their live folders, and binds `finding` and
@@ -149,8 +148,6 @@ Rejected:
   expects a failure naming the document.
 - [ ] A test in `test_archive_layout.py` expects a failure for a document
   outside `data/archive/` whose frontmatter says `type: architecture`.
-- [ ] A test in `test_archive_layout.py` expects a failure for a plan carrying
-  `released`. `test_released_stamp.py` is deleted.
 - [ ] A finding requires `## Measurement` and `## Closing` and carries no
   `stage`; a guide requires an H1 and carries no `stage`. A test in
   `test_archive_layout.py` expects a failure for a finding without `## Closing`.
@@ -158,23 +155,7 @@ Rejected:
   not exist, `test_reserved_file_shapes.py` holds no log case, and
   `iwe schema validate` passes.
 
-### Task 3: The archive placement and release page checks
-
-**Files:** Modify: `scripts/check-ship-records.py`,
-`scripts/tests/test_check_ship_records.py`, `.pre-commit-config.yaml`.
-
-- [ ] `scripts/check-ship-records.py` fails a plan, bug, or task at
-  `stage: done` or `stage: cancelled` that is outside `data/archive/`, with a
-  test.
-- [ ] It fails a plan without `stage`, or a bug or task at an open stage, that
-  is inside `data/archive/`, with a test.
-- [ ] It fails a feature outside `data/archive/` at any stage but `proposed` or
-  `accepted`, and a feature inside it at either of those, with a test.
-- [ ] It fails a release page that holds a Markdown link, with a test.
-- [ ] The `ship-records` hook's `files` pattern covers `data/backlog/`,
-  `data/features/`, `data/releases/`, and `data/archive/`.
-
-### Task 4: Scripts that find a plan by key
+### Task 3: Scripts that find a plan by key
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
@@ -194,7 +175,7 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
   document and none in `data/findings/`, `data/archive/`, or
   `data/architecture/`, with tests.
 
-### Task 5: The knowledge base's own documents
+### Task 4: The knowledge base's own documents
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`, `docs/knowledge/SCHEMA.md`,
 `docs/knowledge/STRUCTURE.md`, `docs/knowledge/README.md`, `AGENTS.md`,
@@ -213,7 +194,7 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
   rule in `docs/knowledge/data/product.md#authoring-rules` send a decision to a
   spec's `## Rationale` and a finding to `data/findings/`.
 
-### Task 6: The workflow rulebooks
+### Task 5: The workflow rulebooks
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `iwe-shipper.agent.md`, `iwe-ship-reviewer.agent.md`, `iwe-verifier.agent.md`,
@@ -251,7 +232,7 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
 - [ ] `uv run pytest .agents/plugins/agentdev/tests -k 'validate or catalog'`
   and the `validate_agent_files` pre-commit hook pass on the catalog.
 
-### Task 7: The bootstrap scaffold
+### Task 6: The bootstrap scaffold
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/` (its
 `.iwe/`, `docs/knowledge/AGENTS.md`, `SCHEMA.md`, `STRUCTURE.md`, hubs, and
@@ -265,7 +246,7 @@ example documents),
 - [ ] `/agentdev:iwe-capture task` files a backlog task for migrating a
   repository that consumed the earlier scaffold.
 
-### Task 8: Fold the architecture notes
+### Task 7: Fold the architecture notes
 
 For each note: check every behaviour statement against the code it anchors. A
 statement the code confirms and no spec holds becomes a requirement with a
@@ -320,7 +301,7 @@ is filed through `/agentdev:iwe-capture bug`. The note then moves to
   `git grep -nE 'architecture/[a-z0-9-]+' -- ':!docs/knowledge' ':!docs/research'`
   prints nothing.
 
-### Task 9: Fold and archive the features
+### Task 8: Fold and archive the features
 
 Input: `docs/knowledge/migration/scan/features.md`. For each implemented
 feature, each statement its row counts as unique and its destination table keeps
@@ -354,7 +335,7 @@ change. Then the feature moves, unchanged, to `data/archive/<release>/features/`
   `data/archive/`, and `data/features.md` links only features at
   `stage: proposed` or `stage: accepted`.
 
-### Task 10: Distil and archive the closed history
+### Task 9: Distil and archive the closed history
 
 Input: `closed-0.md` to `closed-7.md` under `docs/knowledge/migration/scan/`.
 For each document with the verdict `HAS UNIQUE KNOWLEDGE`, each listed item is
@@ -362,12 +343,14 @@ checked against the code and then written to its owning spec — a `behaviour`
 item as a requirement or scenario, every other kind in `## Rationale` — or is
 struck in the scan file with the reason it is dropped. A constraint that is
 about tests goes to `AGENTS.md#tests`. A conflict the scan lists is handled as
-in Task 9.
+in Task 8.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`, `AGENTS.md`,
 `docs/knowledge/data/releases/*.md`, `docs/knowledge/data/plans.md`,
-`docs/knowledge/data/bugs.md`, `docs/knowledge/data/backlog.md`. Move: every
-closed document under `docs/knowledge/data/plans/`, `bugs/`, and `backlog/`.
+`docs/knowledge/data/bugs.md`, `docs/knowledge/data/backlog.md`,
+`.iwe/schemas/plan.yaml`, `docs/knowledge/tests/test_archive_layout.py`. Move:
+every closed document under `docs/knowledge/data/plans/`, `bugs/`, and
+`backlog/`. Delete: `docs/knowledge/tests/test_released_stamp.py`.
 
 - [ ] Every item in `closed-0.md` is in a spec or struck with a reason.
 - [ ] Every item in `closed-1.md` is in a spec or struck with a reason.
@@ -386,6 +369,9 @@ closed document under `docs/knowledge/data/plans/`, `bugs/`, and `backlog/`.
   the codebase map was retired.
 - [ ] Every done plan carrying `released` is under
   `data/archive/<that version>/plans/` with `released` removed.
+- [ ] `.iwe/schemas/plan.yaml` rejects `released`, a test in
+  `test_archive_layout.py` expects a failure for a plan carrying it,
+  `test_released_stamp.py` is deleted, and `iwe schema validate` passes.
 - [ ] Every done plan without `released`, and every cancelled plan, is under
   `data/archive/next-release/plans/` or the folder of the release open when it
   closed.
@@ -393,9 +379,25 @@ closed document under `docs/knowledge/data/plans/`, `bugs/`, and `backlog/`.
   it, or of the release open when it closed.
 - [ ] `data/plans.md`, `data/bugs.md`, and `data/backlog.md` link only open
   documents.
-- [ ] On every existing release page, each link is replaced by its link text,
-  and `uv run scripts/check-ship-records.py docs/knowledge/data/releases/*.md`
-  passes.
+- [ ] On every existing release page, each link is replaced by its link text.
+
+### Task 10: The archive placement and release page checks
+
+The checks land once Tasks 8 and 9 have moved every document they would fail.
+
+**Files:** Modify: `scripts/check-ship-records.py`,
+`scripts/tests/test_check_ship_records.py`, `.pre-commit-config.yaml`.
+
+- [ ] `scripts/check-ship-records.py` fails a plan, bug, or task at
+  `stage: done` or `stage: cancelled` that is outside `data/archive/`, with a
+  test.
+- [ ] It fails a plan without `stage`, or a bug or task at an open stage, that
+  is inside `data/archive/`, with a test.
+- [ ] It fails a feature outside `data/archive/` at any stage but `proposed` or
+  `accepted`, and a feature inside it at either of those, with a test.
+- [ ] It fails a release page that holds a Markdown link, with a test.
+- [ ] The `ship-records` hook's `files` pattern covers `data/backlog/`,
+  `data/features/`, `data/releases/`, and `data/archive/`.
 - [ ] `uv run scripts/check-ship-records.py` over every document under
   `docs/knowledge/data/` passes.
 
@@ -858,17 +860,17 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 - **THEN** a lookup by slug `foo` reports `AMBIGUOUS_PLAN`
 ```
 
-Specs that Tasks 8 to 11 create or extend record behaviour the code already has
-and change none: `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
-`ci-workflows`, `pr-description`, `supported-harnesses`, `pr-review`,
-`ci-python-environment`.
+Specs that Tasks 7 to 9 and 11 create or extend record behaviour the code
+already has and change none: `catalog-scripts`, `cloud-session-host`,
+`devcontainer-state`, `ci-workflows`, `pr-description`, `supported-harnesses`,
+`pr-review`, `ci-python-environment`.
 
 ## Depends on
 
 [Give each Claude worktree its own agentdev
 catalog](20261103-per-worktree-catalog.md) ships first, so Task 1's release
-includes it, Task 10 archives it with the rest of the closed history, and no
-plan is in flight while the rulebooks change.
+includes it, Task 9 archives it with the rest of the closed history, and no plan
+is in flight while the rulebooks change.
 
 ## Verification
 
@@ -891,7 +893,7 @@ plan is in flight while the rulebooks change.
 
 ## Out of scope
 
-- Migrating a repository that already consumed the earlier scaffold; Task 7
+- Migrating a repository that already consumed the earlier scaffold; Task 6
   files the follow-up.
 - Rules about the graph that `docs/knowledge/AGENTS.md`, `SCHEMA.md`, and the
   rulebooks each restate.
