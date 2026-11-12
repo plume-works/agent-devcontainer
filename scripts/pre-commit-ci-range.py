@@ -4,7 +4,9 @@ Choose what the CI pre-commit job checks for the triggering GitHub event.
 
 Writes ``from_ref``, ``to_ref``, ``all_files``, and ``gitleaks_log_opts`` to ``GITHUB_OUTPUT``.
 A range that changes a tool-version owner checks every file, so a formatter bump fails at the
-pull request that made it; gitleaks still scans only the range's commits. See spec/pre-commit-gate.
+pull request that made it; gitleaks still scans only the range's commits. A push to main starts
+at the last commit Primary checks passed on, so commits whose runs were cancelled stay checked.
+See spec/pre-commit-gate.
 """
 
 from __future__ import annotations
@@ -16,6 +18,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+import ci_runs
+
 TOOL_VERSION_OWNERS = (
     'uv.lock',
     'pyproject.toml',
@@ -24,6 +28,7 @@ TOOL_VERSION_OWNERS = (
     'devcontainer-compose-pins.yml',
 )
 ZERO_SHA = '0' * 40
+MAIN_REF = 'refs/heads/main'
 
 
 class RangeError(Exception):
@@ -46,6 +51,20 @@ def _event_range(event_name: str, event: Mapping[str, object]) -> tuple[str, str
     raise RangeError(f'unsupported event: {event_name}')
 
 
+def _widen_to_last_pass(commits: tuple[str, str], env: Mapping[str, str]) -> tuple[str, str]:
+    """Start a push to main at the last successful push run's head, or keep it on failure."""
+    before, after = commits
+    try:
+        last_pass = ci_runs.last_success_sha(env, 'main')
+    except ci_runs.CIRunsError as error:
+        print(f'::warning::Could not look up the last passing run ({error}); checking {before}.')
+        return commits
+    if last_pass is None:
+        print(f'::warning::No passing push run on main; checking from {before}.')
+        return commits
+    return commits if last_pass == after else (last_pass, after)
+
+
 def _changed_files(from_ref: str, to_ref: str, cwd: Path) -> set[str]:
     """Return the files the range changed, diffed from the merge base as pre-commit does."""
     diff = subprocess.run(
@@ -58,9 +77,13 @@ def _changed_files(from_ref: str, to_ref: str, cwd: Path) -> set[str]:
     return set(diff.stdout.splitlines())
 
 
-def outputs(event_name: str, event: Mapping[str, object], cwd: Path) -> dict[str, str]:
+def outputs(
+    event_name: str, event: Mapping[str, object], cwd: Path, env: Mapping[str, str]
+) -> dict[str, str]:
     """Return the job's outputs for one event."""
     commits = _event_range(event_name, event)
+    if commits is not None and event_name == 'push' and event.get('ref') == MAIN_REF:
+        commits = _widen_to_last_pass(commits, env)
     if commits is None:
         log_opts = f'-1 {event["after"]}' if event_name == 'push' else '--all'
         return {'from_ref': '', 'to_ref': '', 'all_files': 'true', 'gitleaks_log_opts': log_opts}
@@ -79,7 +102,7 @@ def main(env: Mapping[str, str] | None = None, cwd: Path | None = None) -> int:
     env = os.environ if env is None else env
     try:
         event = json.loads(Path(env['GITHUB_EVENT_PATH']).read_text())
-        values = outputs(env['GITHUB_EVENT_NAME'], event, cwd or Path.cwd())
+        values = outputs(env['GITHUB_EVENT_NAME'], event, cwd or Path.cwd(), env)
     except (RangeError, KeyError, subprocess.CalledProcessError) as error:
         print(f'pre-commit-ci-range: {error}', file=sys.stderr)
         return 1

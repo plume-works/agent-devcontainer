@@ -111,17 +111,23 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 **Files:** Modify: `scripts/pre-commit-ci-range.py`,
 `scripts/tests/test_pre_commit_ci_range.py`
 
-- [ ] On a `push` to `main` whose `before` is not all zeros, the range starts at
+- [x] On a `push` to `main` whose `before` is not all zeros, the range starts at
   the last successful push run's head commit from `scripts/ci_runs.py` instead
   of `before`, unless that commit equals `after`. `all_files` and
   `gitleaks_log_opts` follow the widened range.
-- [ ] When the lookup fails or finds no successful run, the script prints a
+  - **Evidence:** `scripts/pre-commit-ci-range.py::_widen_to_last_pass`;
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_starts_at_the_last_passing_run`
+- [x] When the lookup fails or finds no successful run, the script prints a
   `::warning::` and keeps `before..after`. Pushes to other branches, pull
   requests, merge groups, `workflow_dispatch`, and an all-zero `before` keep
   their current ranges.
-- [ ] Tests cover a widened range that reaches a tool-version owner only through
+  - **Evidence:** `scripts/pre-commit-ci-range.py::outputs`;
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_when_the_lookup_fails`,
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_another_branch_keeps_before`
+- [x] Tests cover a widened range that reaches a tool-version owner only through
   a skipped commit, a failed lookup, and a push to a branch other than `main`,
   against the scratch repository and a local HTTP stub.
+  - **Evidence:** `uv run pytest scripts/tests/test_pre_commit_ci_range.py`
 
 ### Task 4: Wire the cooldown into Primary checks
 
