@@ -17,10 +17,9 @@ the only source of truth for behaviour, and that the knowledge base keeps two
 jobs: tracking work (bugs, tasks, plans) and recording architecture decisions.
 Specs stop being a statement of behaviour.
 
-The decision rests on a comparison of three specs with their code, recorded in
-[Specs deviate from the code they
-describe](../findings/specs-deviate-from-code.md): one matched, and two had
-drifted. The other 29 documents under `data/spec/` have not been compared.
+Specs and code deviate. A comparison of three specs with the code they describe
+found one that matched and two that stated behaviour the code does not have.
+Specs rot, and a spec cannot be trusted over the code.
 
 ## Why
 
