@@ -52,8 +52,8 @@ None — the design is settled.
 ## References
 
 - Plan: [Start Claude Remote Control in the standalone
-  runtime](../../../plans/20261027-standalone-remote-control-autostart.md)
+  runtime](../plans/20261027-standalone-remote-control-autostart.md)
 - Task: [Start Claude Remote Control in the standalone runtime when
-  asked](../../../backlog/standalone-claude-remote-control.md)
+  asked](../backlog/standalone-claude-remote-control.md)
 - Coder counterpart: [Remote Control autostart on
   Coder](coder-remote-control-autostart.md)

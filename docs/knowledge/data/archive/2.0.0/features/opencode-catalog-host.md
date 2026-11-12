@@ -69,5 +69,5 @@ feature.
 - Architecture: [OpenCode catalog
   bridge](../architecture/opencode-catalog-bridge.md)
 - Plans: [Load the agentdev catalog into OpenCode through a bridge
-  plugin](../../../plans/20261001-opencode-catalog-bridge.md), [Make OpenCode v2
-  the devcontainer default](../../../plans/20261018-opencode-v2-default.md)
+  plugin](../plans/20261001-opencode-catalog-bridge.md), [Make OpenCode v2 the
+  devcontainer default](../plans/20261018-opencode-v2-default.md)

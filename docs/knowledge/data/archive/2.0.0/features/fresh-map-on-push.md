@@ -66,4 +66,4 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Refresh the codebase map before pushing and keep its staleness out of
-  AI reviews](../../../plans/20260929-map-refresh-before-push.md)
+  AI reviews](../plans/20260929-map-refresh-before-push.md)

@@ -41,4 +41,4 @@ None — the design is settled.
 ## References
 
 - Plan: [Resolve merge conflicts in
-  pr-feedback-resolution](../../../plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+  pr-feedback-resolution](../plans/20261002-pr-feedback-resolve-merge-conflicts.md)

@@ -35,5 +35,5 @@ A cost/benefit evaluation would settle it:
 
 The part-by-part verdicts from [Ship the reachable-scenario bar with
 part-by-part validation in
-pr-review](../plans/20261005-pr-review-scenario-validation.md) show which part a
-`light` validator drops, which would aim the evaluation.
+pr-review](../archive/2.0.0/plans/20261005-pr-review-scenario-validation.md)
+show which part a `light` validator drops, which would aim the evaluation.

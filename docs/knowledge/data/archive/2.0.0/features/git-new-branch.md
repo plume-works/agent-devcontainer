@@ -53,4 +53,4 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Plan: [git-new-branch skill](../../../plans/20260928-git-new-branch-skill.md)
+- Plan: [git-new-branch skill](../plans/20260928-git-new-branch-skill.md)

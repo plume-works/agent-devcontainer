@@ -58,8 +58,8 @@ mandatory invocation makes that silence look like assurance.
 
 Verify only blocks defects covered by its rules. Unsupported ticked tasks
 produce a CRITICAL through [Make plan checkboxes carry their
-evidence](../../../plans/20260815-honest-plan-checkboxes.md). The general lesson
-holds for the next defect class: this feature is a transmission, not a detector.
+evidence](../plans/20260815-honest-plan-checkboxes.md). The general lesson holds
+for the next defect class: this feature is a transmission, not a detector.
 
 ## Edge cases
 

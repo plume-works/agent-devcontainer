@@ -38,4 +38,4 @@ None — the design is settled.
 
 ## References
 
-- Plan: [bun for Node tooling](../../../plans/20260925-bun-for-node-tooling.md)
+- Plan: [bun for Node tooling](../plans/20260925-bun-for-node-tooling.md)

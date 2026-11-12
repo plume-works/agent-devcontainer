@@ -53,8 +53,8 @@ counts, which is exactly the pending-then-green lifecycle wanted.
 
 - Statuses are attached to the commit directly, not to a check suite. The
   failure mode in [Bug: a comment-requested review's gate does not count toward
-  merge](../bugs/dispatched-review-gate-not-counted.md) is a check whose suite
-  the rollup leaves out, so it does not apply.
+  merge](../archive/2.0.0/bugs/dispatched-review-gate-not-counted.md) is a check
+  whose suite the rollup leaves out, so it does not apply.
 - The `main` ruleset requires `ai-review-present` from the GitHub Actions app.
   Whether a status posted with `GITHUB_TOKEN` counts as that source is an open
   question below.

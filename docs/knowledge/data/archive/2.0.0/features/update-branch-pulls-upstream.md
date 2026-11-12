@@ -45,4 +45,4 @@ None — the design is settled.
 ## References
 
 - Plan: [update-branch pulls its
-  upstream](../../../plans/20261012-update-branch-pulls-upstream.md)
+  upstream](../plans/20261012-update-branch-pulls-upstream.md)

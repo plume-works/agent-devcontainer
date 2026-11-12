@@ -49,7 +49,7 @@ from PyPI at container start.
   pre-commit hook whose executable is missing, and `doctor` requires `gitleaks`
   and `actionlint`, as [Bug: a workspace on a pre-pin image has no gitleaks or
   actionlint and nothing says
-  so](../../../bugs/workspace-image-lacks-hook-binaries.md) asks.
+  so](../bugs/workspace-image-lacks-hook-binaries.md) asks.
 - A container with no supervisor socket, such as a GitHub Actions `container:`
   job, runs `agentdev-runtime lifecycle ready --no-wait`, which runs only the
   per-start repairs. The shell starters for keyring, firewall, and Xpra outside

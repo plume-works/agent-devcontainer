@@ -76,4 +76,4 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Preserve approved wording across the explore
-  handoff](../../../plans/20260817-preserve-approved-wording.md)
+  handoff](../plans/20260817-preserve-approved-wording.md)

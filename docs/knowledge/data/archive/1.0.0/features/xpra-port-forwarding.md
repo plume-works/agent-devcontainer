@@ -39,4 +39,4 @@ None — the design is settled.
 ## References
 
 - Plan: [Xpra VS Code port
-  forwarding](../../../plans/20260905-xpra-vscode-port-forwarding.md)
+  forwarding](../plans/20260905-xpra-vscode-port-forwarding.md)

@@ -139,6 +139,10 @@ def test_conforming_document_validates(workspace: Path, key: str, content: str) 
         ),
         ('data/architecture/retired', ARCHITECTURE_NOTE),
         ('data/notes/retired', ARCHITECTURE_NOTE),
+        (
+            'data/archive/2.1.0/plans/20260101-archived',
+            ARCHIVED_PLAN.replace('release: internal\n', 'release: internal\nreleased: 2.1.0\n'),
+        ),
     ],
     ids=[
         'archived-plan-invalid-stage',
@@ -147,6 +151,7 @@ def test_conforming_document_validates(workspace: Path, key: str, content: str) 
         'guide-with-stage',
         'live-architecture-note',
         'architecture-note-in-an-unbound-folder',
+        'plan-carrying-released',
     ],
 )
 def test_broken_document_is_rejected(workspace: Path, key: str, content: str) -> None:

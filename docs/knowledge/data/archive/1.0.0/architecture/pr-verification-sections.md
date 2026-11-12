@@ -61,10 +61,10 @@ commands already run in the past tense, and instructions addressed to the reader
 of thing. Four of the six restated work CI already performs.
 
 This is the pull-request-shaped instance of [plan checkbox
-over-claiming](../../../bugs/plan-checkbox-over-claiming.md), whose plan states
-the governing rule for plan tasks: *a task whose evidence is external — a CI
-run, a deploy, a review — always stands alone, because the session writing the
-code cannot close it.* Item 1 of that PR was exactly such a claim. The rule was
+over-claiming](../bugs/plan-checkbox-over-claiming.md), whose plan states the
+governing rule for plan tasks: *a task whose evidence is external — a CI run, a
+deploy, a review — always stands alone, because the session writing the code
+cannot close it.* Item 1 of that PR was exactly such a claim. The rule was
 already written; it had simply never been applied outside `data/plans/`.
 
 Automated review makes the split load-bearing rather than stylistic. Every PR in

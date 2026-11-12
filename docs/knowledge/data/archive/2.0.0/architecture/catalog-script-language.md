@@ -71,8 +71,7 @@ a skill script, and does not follow the `RESULT=` contract.
 
 ## Related
 
-- [Python skill scripts](../../../plans/20260905-python-skill-scripts.md) — the
-  first catalog script ported, and the origin of `bin/result_codes.py`.
+- [Python skill scripts](../../1.0.0/plans/20260905-python-skill-scripts.md) —
+  the first catalog script ported, and the origin of `bin/result_codes.py`.
 - [Port the catalog's bundled shell scripts to
-  Python](../../../plans/20261029-catalog-scripts-python.md) — the port of the
-  rest.
+  Python](../plans/20261029-catalog-scripts-python.md) — the port of the rest.

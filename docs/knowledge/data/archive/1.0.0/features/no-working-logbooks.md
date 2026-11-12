@@ -129,4 +129,4 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Never write a working
-  logbook](../../../plans/20260817-no-logbooks-in-the-graph.md)
+  logbook](../plans/20260817-no-logbooks-in-the-graph.md)

@@ -46,8 +46,9 @@ knowledge](../features/single-home-knowledge.md). It changes what the workflow
 skills of [agentdev IWE workflow
 skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) write. It
 absorbs two backlog tasks: [Remove redundancy from the durable
-specs](../backlog/deduplicate-spec-requirements.md) and [Give architecture notes
-a lifecycle](../backlog/architecture-note-lifecycle.md).
+specs](../archive/3.0.0/backlog/deduplicate-spec-requirements.md) and [Give
+architecture notes a
+lifecycle](../archive/3.0.0/backlog/architecture-note-lifecycle.md).
 
 ## Approach
 
@@ -540,34 +541,105 @@ in Task 8.
 every closed document under `docs/knowledge/data/plans/`, `bugs/`, and
 `backlog/`. Delete: `docs/knowledge/tests/test_released_stamp.py`.
 
-- [ ] Every item in `closed-0.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-1.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-2.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-3.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-4.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-5.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-6.md` is in a spec or struck with a reason.
-- [ ] Every item in `closed-7.md` is in a spec or struck with a reason.
-- [ ] Every plan, bug, and task that is closed and has no section in
+- [x] Every item in `closed-0.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-0.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/plan-checkbox-evidence.md#honest-ticks-come-from-the-artifacts-shape-not-more-prose-rules`.
+- [x] Every item in `closed-1.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-1.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/template-consumption.md#pr-description-guidance-is-a-separate-instruction-file`.
+- [x] Every item in `closed-2.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-2.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/pr-review.md#requirement-a-batch-of-passes-runs-as-foreground-calls`.
+- [x] Every item in `closed-3.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-3.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/opencode-web.md#rationale`.
+- [x] Every item in `closed-4.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-4.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/iwe-branch-name.md#one-iteration-counter-per-plan-under-one-prefix`.
+- [x] Every item in `closed-5.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-5.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/template-consumption.md#the-graph-keeps-no-codebase-map`.
+- [x] Every item in `closed-6.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-6.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/ai-review-refresh.md#only-the-ai-reviewers-own-change-request-forces-a-re-review`.
+- [x] Every item in `closed-7.md` is in a spec or struck with a reason.
+  - **Evidence:** every item of `docs/knowledge/migration/scan/closed-7.md`
+    under a `HAS UNIQUE KNOWLEDGE` verdict ends in `written: <spec>#<anchor>` or
+    `struck: <reason>` until Task 12 removes the file, for example
+    `docs/knowledge/data/spec/ci-workflows.md#requirement-a-push-to-the-base-branch-filters-paths-from-the-last-passing-run`.
+- [x] Every plan, bug, and task that is closed and has no section in
   `closed-0.md` to `closed-7.md` is read the same way, and each durable item it
   alone holds is in a spec.
-- [ ] `data/spec/iwe-workflow-skills.md` states where Ship reads a dependency's
+  - **Evidence:** the six (`plans/20261103-per-worktree-catalog`,
+    `-plan-review-skill`, `-shipper-dispatches-verifier`,
+    `plans/20261104-main-ci-cooldown`, `backlog/architecture-note-lifecycle`,
+    `backlog/deduplicate-spec-requirements`) were read; their items are in
+    `docs/knowledge/data/spec/catalog-lifecycle.md#requirement-each-claude-worktree-of-a-catalog-checkout-loads-its-own-catalog`
+    › "cannot be read",
+    `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plan-review-runs-both-reviewers-from-fresh-contexts-and-changes-nothing`,
+    `docs/knowledge/data/spec/image-pinning.md#pushes-to-main-build-after-a-cancellable-cooldown`,
+    and
+    `docs/knowledge/data/spec/pre-commit-gate.md#a-push-to-main-is-checked-from-the-last-passing-run`;
+    the two backlog tasks are carried by this plan.
+- [x] `data/spec/iwe-workflow-skills.md` states where Ship reads a dependency's
   stage, and no spec contradicts it.
-- [ ] A `## Rationale` entry in `data/spec/template-consumption.md` records why
+  - **Evidence:**
+    `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-waits-for-every-dependency`
+    › "through `/agentdev:iwe-branch-name plan-state`";
+    `grep -rn 'default branch' docs/knowledge/data/spec/` finds no statement
+    that Ship reads a dependency there.
+- [x] A `## Rationale` entry in `data/spec/template-consumption.md` records why
   the codebase map was retired.
-- [ ] Every done plan carrying `released` is under
+  - **Evidence:**
+    `docs/knowledge/data/spec/template-consumption.md#the-graph-keeps-no-codebase-map`.
+- [x] Every done plan carrying `released` is under
   `data/archive/<that version>/plans/` with `released` removed.
-- [ ] `.iwe/schemas/plan.yaml` rejects `released`, a test in
+  - **Evidence:** `iwe find --filter '{released: {$exists: true}}' -f keys`
+    prints nothing, and `ls docs/knowledge/data/archive/*/plans/` lists the 122
+    plans that carried it, each under its version's folder.
+- [x] `.iwe/schemas/plan.yaml` rejects `released`, a test in
   `test_archive_layout.py` expects a failure for a plan carrying it,
   `test_released_stamp.py` is deleted, and `iwe schema validate` passes.
-- [ ] Every done plan without `released`, and every cancelled plan, is under
+  - **Evidence:**
+    `uv run pytest 'docs/knowledge/tests/test_archive_layout.py::test_broken_document_is_rejected[plan-carrying-released]'`,
+    `test ! -e docs/knowledge/tests/test_released_stamp.py`, and
+    `iwe schema validate`.
+- [x] Every done plan without `released`, and every cancelled plan, is under
   `data/archive/next-release/plans/` or the folder of the release open when it
   closed.
-- [ ] Every closed bug and task is in the archive folder of the plan that closed
+  - **Evidence:**
+    `iwe find --filter '{type: plan, stage: {$in: [done, cancelled]}}' -f keys`
+    prints only keys under `data/archive/<release>/plans/`, each in the folder
+    of the first release cut after the commit that closed it.
+- [x] Every closed bug and task is in the archive folder of the plan that closed
   it, or of the release open when it closed.
-- [ ] `data/plans.md`, `data/bugs.md`, and `data/backlog.md` link only open
+  - **Evidence:**
+    `iwe find --filter '{type: {$in: [bug, task]}, stage: {$in: [done, cancelled]}}' -f keys`
+    prints only keys under `data/archive/`; a bug a plan's `release` lists sits
+    in that plan's folder.
+- [x] `data/plans.md`, `data/bugs.md`, and `data/backlog.md` link only open
   documents.
-- [ ] On every existing release page, each link is replaced by its link text.
+  - **Evidence:**
+    `grep -c '](archive' docs/knowledge/data/plans.md docs/knowledge/data/bugs.md docs/knowledge/data/backlog.md`
+    prints 0 for each, and their link counts equal the open-document queries: 1
+    active plan, 6 open bugs, 19 pending tasks.
+- [x] On every existing release page, each link is replaced by its link text.
+  - **Evidence:** `grep -c '](' docs/knowledge/data/releases/*.md` prints 0 for
+    every page.
 
 ### Task 10: The archive placement and release page checks
 
@@ -1061,9 +1133,9 @@ already has and change none: `catalog-scripts`, `cloud-session-host`,
 ## Depends on
 
 [Give each Claude worktree its own agentdev
-catalog](20261103-per-worktree-catalog.md) ships first, so Task 1's release
-includes it, Task 9 archives it with the rest of the closed history, and no plan
-is in flight while the rulebooks change.
+catalog](../archive/3.0.1/plans/20261103-per-worktree-catalog.md) ships first,
+so Task 1's release includes it, Task 9 archives it with the rest of the closed
+history, and no plan is in flight while the rulebooks change.
 
 ## Verification
 
@@ -1121,8 +1193,6 @@ is in flight while the rulebooks change.
   anchors resolved.
 - `scripts/check-ship-records.py::check` — the per-document dispatch the new
   checks join.
-- `docs/knowledge/tests/test_released_stamp.py::test_released_must_be_a_version`
-  — the test of the field being removed.
 - `docs/knowledge/tests/test_reserved_file_shapes.py` — holds the log shape
   cases being removed.
 - `docs/knowledge/AGENTS.md#the-operating-loop` — the record step that names

@@ -38,4 +38,4 @@ None — the maintainer approved the exact policy object.
 ## References
 
 - Plan: [Configure devcontainer OpenCode for full
-  access](../../../plans/20261018-opencode-full-access-config.md)
+  access](../plans/20261018-opencode-full-access-config.md)

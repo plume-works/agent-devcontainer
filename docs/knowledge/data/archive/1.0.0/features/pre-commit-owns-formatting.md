@@ -70,6 +70,6 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Let pre-commit own
-  formatting](../../../plans/20260831-pre-commit-owns-formatting.md)
+  formatting](../plans/20260831-pre-commit-owns-formatting.md)
 - Spec touched: [Template consumption](../../../spec/template-consumption.md) §5
   item 5

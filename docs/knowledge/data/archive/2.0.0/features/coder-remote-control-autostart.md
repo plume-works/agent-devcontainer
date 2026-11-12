@@ -43,4 +43,4 @@ None — the design is settled.
 ## References
 
 - Plan: [Start Claude Remote Control from the Coder
-  agent](../../../plans/20261011-coder-claude-remote-control.md)
+  agent](../plans/20261011-coder-claude-remote-control.md)

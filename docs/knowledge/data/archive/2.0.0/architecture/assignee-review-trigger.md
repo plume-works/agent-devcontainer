@@ -28,7 +28,7 @@ tiers](pr-review-effort-tiers.md).
 
 Dropping the free-form `@claude <prompt>` task trigger is separate,
 lower-priority work: [Drop the `@claude <custom prompt>` free-form task
-trigger](../../../backlog/drop-claude-free-form-task-trigger.md).
+trigger](../../2.1.0/backlog/drop-claude-free-form-task-trigger.md).
 
 ## Which runs the gate is counted from
 
@@ -42,8 +42,8 @@ name on the head commit. Merge state, the pull request's status rollup, and
   though its suite lists the pull request, its check runs land on the head
   commit, and they carry the required name and app. It is the defect in [Bug: a
   comment-requested review's gate does not count toward
-  merge](../../../bugs/dispatched-review-gate-not-counted.md). The dispatch
-  design it replaces is recorded in [Dispatched review
+  merge](../bugs/dispatched-review-gate-not-counted.md). The dispatch design it
+  replaces is recorded in [Dispatched review
   identity](../../1.0.0/architecture/dispatched-review-identity.md).
 - The gate's `needs: claude-respond` coupling holds only inside one run. A
   review in one run is never awaited by a gate in another.

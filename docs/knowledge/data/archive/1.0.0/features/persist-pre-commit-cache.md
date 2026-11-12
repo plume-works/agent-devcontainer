@@ -72,4 +72,4 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Persist the pre-commit hook cache on the agentdev-cache
-  volume](../../../plans/20260902-persist-pre-commit-cache.md)
+  volume](../plans/20260902-persist-pre-commit-cache.md)

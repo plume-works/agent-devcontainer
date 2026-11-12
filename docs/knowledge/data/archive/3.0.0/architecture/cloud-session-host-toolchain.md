@@ -27,7 +27,7 @@ script, once, when the session's host is built. It:
    `~/.claude/settings.json`, so every command the session runs skips zizmor's
    online audits, which the session's placeholder `GH_TOKEN` fails ([Bug: zizmor
    online audits fail in the cloud
-   devcontainer](../../../bugs/zizmor-online-audits-fail-in-cloud-devcontainer.md));
+   devcontainer](../../2.1.0/bugs/zizmor-online-audits-fail-in-cloud-devcontainer.md));
 4. installs Ansible with `docker/ansible/setup-ansible.sh` and runs
    `ansible/playbooks/setup-dev.yml` with the `dev_tools`, `bun_setup` and
    `uv_setup` tags, which install the pinned binaries every `language: system`

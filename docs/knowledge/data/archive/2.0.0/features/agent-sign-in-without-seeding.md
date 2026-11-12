@@ -48,4 +48,4 @@ None — the design is settled.
 ## References
 
 - Plan: [Remove Coder agent-auth
-  seeding](../../../plans/20261009-remove-coder-agent-auth-seeding.md)
+  seeding](../plans/20261009-remove-coder-agent-auth-seeding.md)

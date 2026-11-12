@@ -61,4 +61,4 @@ None — the plan settles the design.
 ## References
 
 - Plan: [Bootstrap agentdev natively on macOS with
-  Homebrew](../../../plans/20261013-macos-native-bootstrap.md)
+  Homebrew](../plans/20261013-macos-native-bootstrap.md)

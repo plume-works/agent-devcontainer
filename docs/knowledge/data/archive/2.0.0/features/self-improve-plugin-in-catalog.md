@@ -83,7 +83,7 @@ skill](../../../bugs/self-improve-unstageable-routing-option.md).
 ## References
 
 - Plan: [Consolidate the self-improve plugin into this
-  repository](../../../plans/20260909-consolidate-self-improve-plugin.md)
+  repository](../plans/20260909-consolidate-self-improve-plugin.md)
 - Decision: [Self-improve
   consolidation](../architecture/self-improve-consolidation.md)
 - Runtime design: [Self-improve

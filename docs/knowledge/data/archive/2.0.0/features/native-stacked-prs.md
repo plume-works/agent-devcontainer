@@ -73,4 +73,4 @@ stacks.
 ## References
 
 - Plan: [Adopt GitHub native stacked pull
-  requests](../../../plans/20261002-native-stacked-prs.md)
+  requests](../plans/20261002-native-stacked-prs.md)

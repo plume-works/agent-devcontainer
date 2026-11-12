@@ -201,8 +201,8 @@ controller or supervisord fails, which leaves the restart policy for crashes.
   pass confirms the dependency was rejected: a client that is waiting cannot be
   marked unready without leaving it out of the `refresh` restart, so it would
   read `ready` while down for up to one interval. The
-  [bug](../../../bugs/supervisor-client-recovered-before-dependency.md) records
-  why not charging the client's budget and dependency-ordered recovery were
+  [bug](../bugs/supervisor-client-recovered-before-dependency.md) records why
+  not charging the client's budget and dependency-ordered recovery were
   rejected.
 - Before restarting a service, the controller kills whatever is left of the
   failed process's group: supervisord signals a group only on an orderly stop.

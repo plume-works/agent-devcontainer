@@ -160,4 +160,4 @@ the session's configured model.
 ## References
 
 - Plan: [Ship the reachable-scenario bar with part-by-part validation in
-  pr-review](../../../plans/20261005-pr-review-scenario-validation.md)
+  pr-review](../../2.0.0/plans/20261005-pr-review-scenario-validation.md)

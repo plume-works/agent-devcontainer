@@ -99,4 +99,4 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Plan: [Drop the .venv symlink](../../../plans/20260814-drop-venv-symlink.md)
+- Plan: [Drop the .venv symlink](../plans/20260814-drop-venv-symlink.md)

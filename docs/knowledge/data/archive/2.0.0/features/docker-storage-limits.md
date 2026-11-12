@@ -56,6 +56,6 @@ None — the design is settled.
 ## References
 
 - Plan: [Cap Docker storage with automatic garbage
-  collection](../../../plans/20261013-docker-storage-gc.md)
+  collection](../plans/20261013-docker-storage-gc.md)
 - Plan: [Collect Docker garbage hourly in both workspace
-  engines](../../../plans/20261101-docker-storage-periodic-gc.md)
+  engines](../../2.1.0/plans/20261101-docker-storage-periodic-gc.md)

@@ -78,7 +78,7 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plans: [Repository-owned IWE seed for
-  consumers](../../../plans/20260905-consumer-iwe-seed.md), [Extract a reusable
-  IWE bootstrap skill](../../../plans/20261023-reusable-iwe-bootstrap.md)
+  consumers](../plans/20260905-consumer-iwe-seed.md), [Extract a reusable IWE
+  bootstrap skill](../../2.0.0/plans/20261023-reusable-iwe-bootstrap.md)
 - Spec: [Template consumption](../../../spec/template-consumption.md)
 - Architecture: [Template boundary](../architecture/template-boundary.md)

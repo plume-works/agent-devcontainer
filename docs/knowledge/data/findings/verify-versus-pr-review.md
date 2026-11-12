@@ -20,21 +20,21 @@ whose fix costs a full revision round?
 ## Measurement
 
 One plan, [Let any session asked to implement a named plan start
-Implement](../plans/20261031-model-invocable-implement.md), at the commit where
-its tasks closed. Verify ran once on its own route. `pr-review` ran at full
-effort over the plan's own diff, with the plan standing in for the pull request
-description, the metadata gate and posting left out, and each surviving
+Implement](../archive/2.1.0/plans/20261031-model-invocable-implement.md), at the
+commit where its tasks closed. Verify ran once on its own route. `pr-review` ran
+at full effort over the plan's own diff, with the plan standing in for the pull
+request description, the metadata gate and posting left out, and each surviving
 candidate checked by its own validator. Each finding was labelled a real defect
 or not before the `pr-review` results were read.
 
-| Finding                                                                                        | Real defect             | Verify     | `pr-review`             |
-| ---------------------------------------------------------------------------------------------- | ----------------------- | ---------- | ----------------------- |
-| A `## Verification` command broken by its own invocation                                       | no — the plan's command | CRITICAL   | not raised              |
-| An unchanged Explore line offering "return to implementation", against a new requirement       | yes                     | WARNING    | missed                  |
-| A planned scenario without a test                                                              | no — coverage           | WARNING    | not raised              |
-| CI still running at the head; a task's file list missing a file                                | no                      | SUGGESTION | not raised              |
-| [A relayed approval taken without authentication](../bugs/relayed-approval-unauthenticated.md) | yes                     | missed     | blocking, confirmed     |
-| A docstring one character over the line limit, which CI does not enforce                       | nit                     | not raised | non-blocking, confirmed |
+| Finding                                                                                                      | Real defect             | Verify     | `pr-review`             |
+| ------------------------------------------------------------------------------------------------------------ | ----------------------- | ---------- | ----------------------- |
+| A `## Verification` command broken by its own invocation                                                     | no — the plan's command | CRITICAL   | not raised              |
+| An unchanged Explore line offering "return to implementation", against a new requirement                     | yes                     | WARNING    | missed                  |
+| A planned scenario without a test                                                                            | no — coverage           | WARNING    | not raised              |
+| CI still running at the head; a task's file list missing a file                                              | no                      | SUGGESTION | not raised              |
+| [A relayed approval taken without authentication](../archive/3.0.0/bugs/relayed-approval-unauthenticated.md) | yes                     | missed     | blocking, confirmed     |
+| A docstring one character over the line limit, which CI does not enforce                                     | nit                     | not raised | non-blocking, confirmed |
 
 `pr-review` cost several times the tokens of the Verify run.
 
@@ -47,15 +47,16 @@ or not before the `pr-review` results were read.
 - **`pr-review` catches a plan whose specified behaviour is wrong.** Verify
   judges conformance, so behaviour the plan itself specifies can never be a
   finding, however unsafe. That is the question [Adversarial review of a plan or
-  its code](../plans/20261102-adversarial-review.md) assigns to a separate
-  agent.
+  its code](../archive/2.1.0/plans/20261102-adversarial-review.md) assigns to a
+  separate agent.
 - **`pr-review` ignores plan bookkeeping.** It raised none of the findings that
   were not defects. Verify's cost on them comes from two rules — every failing
   verification command is a CRITICAL, and a corrected verification step is a
   material deviation — which [Fix a broken verification command as a tactical
   correction](../backlog/verification-command-fix-is-tactical.md) addresses.
-  [Make the Implement loop converge](../plans/20261102-autonomy-loop.md) removes
-  the work that WARNINGs create but keeps both rules.
+  [Make the Implement loop
+  converge](../archive/2.1.0/plans/20261102-autonomy-loop.md) removes the work
+  that WARNINGs create but keeps both rules.
 
 ## Eliminated
 

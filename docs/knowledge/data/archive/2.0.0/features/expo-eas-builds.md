@@ -80,4 +80,4 @@ boundary](../../1.0.0/architecture/template-boundary.md).
 ## References
 
 - Plan: [Expo profile for template
-  adoption](../../../plans/20261014-expo-eas-template-profile.md)
+  adoption](../plans/20261014-expo-eas-template-profile.md)

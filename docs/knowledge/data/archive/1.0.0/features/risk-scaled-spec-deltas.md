@@ -83,13 +83,13 @@ None — every design question this feature raised is settled.
   delta lives inside the one plan document; a second lifecycle would duplicate
   the plan's own.
 - Determinism is not claimed. Earlier work ([Strengthen the workflow skill
-  contracts](../../../plans/20260815-strengthen-workflow-skill-contracts.md))
-  rejected OpenSpec's delta machinery wholesale; this separates the two ideas it
-  had grouped — the notation is adopted, the application engine is not.
+  contracts](../plans/20260815-strengthen-workflow-skill-contracts.md)) rejected
+  OpenSpec's delta machinery wholesale; this separates the two ideas it had
+  grouped — the notation is adopted, the application engine is not.
 - A stale delta is never silently reconciled from the implementation. That would
   erase the reviewed contract, so a material mismatch returns to Plan revision.
 
 ## References
 
 - Plan: [Embed structured spec deltas in IWE
-  plans](../../../plans/20260816-structured-plan-spec-deltas.md)
+  plans](../plans/20260816-structured-plan-spec-deltas.md)

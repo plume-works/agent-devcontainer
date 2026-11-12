@@ -73,8 +73,9 @@ def _frontmatter(path: Path) -> str:
 
 
 def _plan(workspace: Path, done: bool) -> Iterator[Path]:
-    """Yield the first active (no `stage`) or done plan, restored after the test."""
-    plans = sorted((workspace / 'docs' / 'knowledge' / 'data' / 'plans').glob('*.md'))
+    """Yield the first active (no `stage`) or done plan, live or archived, restored after."""
+    data = workspace / 'docs' / 'knowledge' / 'data'
+    plans = sorted([*data.glob('plans/*.md'), *data.glob('archive/*/plans/*.md')])
     marker = '\nstage: done\n' if done else '\nstage: '
     path = next(p for p in plans if (marker in _frontmatter(p)) == done)
     original = path.read_text()

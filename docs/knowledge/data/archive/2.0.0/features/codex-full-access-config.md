@@ -45,4 +45,4 @@ None — the design is settled.
 ## References
 
 - Plan: [Codex full-access
-  config](../../../plans/20261005-codex-full-access-config.md)
+  config](../plans/20261005-codex-full-access-config.md)

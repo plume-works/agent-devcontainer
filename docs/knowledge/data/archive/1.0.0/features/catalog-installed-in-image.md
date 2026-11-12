@@ -83,4 +83,4 @@ None — every design question this feature raised is settled.
 - Architecture: [CI agent plugin
   availability](../architecture/ci-agent-plugin-availability.md)
 - Plan: [Install the agentdev catalog into the
-  image](../../../plans/20260817-catalog-install-in-image.md)
+  image](../plans/20260817-catalog-install-in-image.md)

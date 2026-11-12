@@ -79,4 +79,4 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Consumer PR description
-  guidance](../../../plans/20260903-pr-description-guidance.md)
+  guidance](../plans/20260903-pr-description-guidance.md)

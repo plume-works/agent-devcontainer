@@ -59,5 +59,5 @@ None — every design question this feature raised is settled.
 ## References
 
 - Plan: [Gitignore-aware file discovery in
-  validate_agent_files](../../../plans/20260901-gitignore-aware-discovery.md)
+  validate_agent_files](../plans/20260901-gitignore-aware-discovery.md)
 - Spec: [Agent file discovery](../../../spec/agent-file-discovery.md)
