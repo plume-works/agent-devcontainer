@@ -146,8 +146,6 @@ Rejected:
 - [ ] A test in `test_archive_layout.py` runs `iwe schema validate` on a scratch
   graph under `/tmp` holding an archived plan with an invalid `stage` and
   expects a failure naming the document.
-- [ ] A test in `test_archive_layout.py` expects a failure for a document
-  outside `data/archive/` whose frontmatter says `type: architecture`.
 - [ ] A finding requires `## Measurement` and `## Closing` and carries no
   `stage`; a guide requires an H1 and carries no `stage`. A test in
   `test_archive_layout.py` expects a failure for a finding without `## Closing`.
@@ -219,7 +217,9 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
 - [ ] The `## Ship review` template in `iwe-ship-reviewer.agent.md` and the
   fixed structure in `scripts/check-ship-records.py` replace the "edited no hub"
   item with items for the archive move and the `## Rationale` entries, with the
-  checker's tests updated.
+  checker's tests updated. A `## Ship review` that carries the "edited no hub"
+  item still passes, with a test, so the plans stamped before this change stay
+  valid.
 - [ ] `iwe-explore/SKILL.md#capturing`, `iwe-implementer.agent.md`
   (`#capturing-what-implementation-turns-up`), and `iwe-setup/SKILL.md` route a
   decision to a spec's `## Rationale`, a finding to `data/findings/`, and a
@@ -261,10 +261,12 @@ is filed through `/agentdev:iwe-capture bug`. The note then moves to
 `catalog-lifecycle`.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`,
-`docs/knowledge/data/spec.md`. Create: `docs/knowledge/data/findings/*.md`,
-`docs/knowledge/data/guides/*.md`, new specs `catalog-scripts`,
-`cloud-session-host`, `devcontainer-state`, `ci-workflows`, `pr-description`,
-`supported-harnesses`. Move: `docs/knowledge/data/architecture/*.md`.
+`docs/knowledge/data/spec.md`, `.iwe/config.toml`, `.iwe/schemas/okf.yaml`,
+`docs/knowledge/tests/test_archive_layout.py`. Create:
+`docs/knowledge/data/findings/*.md`, `docs/knowledge/data/guides/*.md`, new
+specs `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
+`ci-workflows`, `pr-description`, `supported-harnesses`. Move:
+`docs/knowledge/data/architecture/*.md`.
 
 - [ ] The notes destined for `ai-review-gate` are folded and archived.
 - [ ] The notes destined for `iwe-workflow-skills` are folded and archived.
@@ -294,6 +296,10 @@ is filed through `/agentdev:iwe-capture bug`. The note then moves to
   `docs/knowledge/data/architecture.md` do not exist, and
   `.iwe/schemas/architecture.yaml` is bound only to
   `data/archive/*/architecture/**`.
+- [ ] `iwe schema validate` fails a document outside `data/archive/` whose
+  frontmatter says `type: architecture`, a test in
+  `docs/knowledge/tests/test_archive_layout.py` expects that failure, and
+  `iwe schema validate` passes on the graph.
 - [ ] No frontmatter `sources` entry under `docs/knowledge/data/` outside
   `data/archive/` names a path under `data/architecture/`.
 - [ ] No code comment, workflow, or script outside `docs/knowledge/` cites
