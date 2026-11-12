@@ -154,7 +154,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 6. **Check coherence.** Re-read the complete plan as a future implementer.
    Confirm its context, approach, tasks, spec impact, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with
-   one another and with every recorded decision or assumption.
+   one another and with every recorded decision or assumption. For every
+   checkbox, ask which single observation closes it, and split any checkbox
+   that names more than one.
 7. **Audit the plan from a fresh context.** In both create and revise mode,
    dispatch the `Durable Knowledge Auditor` agent on the plan draft in plan
    scope — its prompt names the plan file and the scope, nothing more, so it

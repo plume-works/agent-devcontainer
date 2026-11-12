@@ -53,8 +53,10 @@ beyond its one question.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] Step 6 asks, for every checkbox, which single observation closes it, and
+- [x] Step 6 asks, for every checkbox, which single observation closes it, and
   splits any checkbox that names more than one.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "For every checkbox, ask which single observation closes it"`
 
 ## Spec changes
 
