@@ -86,12 +86,19 @@ same step.
 
 ### Task 3: Record the decision
 
-**Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`
+**Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`,
+`docs/knowledge/data/architecture/nested-subagent-dispatch.md`
 
-- [ ] The document states that the Shipper dispatches `iwe-verifier` through
+- [x] The document states that the Shipper dispatches `iwe-verifier` through
   `/agentdev:iwe-verify`, and lists following the rulebook in place as a
   rejected alternative: it puts the whole Verify run in the Shipper's context
   ahead of its graph changes.
+  - **Evidence:**
+    `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "Every caller takes that route"`
+    and
+    `docs/knowledge/data/architecture/fresh-context-verify.md#rejected-alternatives › "rulebook in place"`;
+    `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior › "which is why"`
+    no longer quotes the Shipper's old tool list.
 
 ### Task 4: Ship runs a fresh-context Verify end to end
 
@@ -255,5 +262,7 @@ SHALL be a CRITICAL finding.
   `## How you run`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — Requirement: Normal shipping requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "— the Shipper is already a fresh context and"`
-  — the Shipper's in-place route
+- `docs/knowledge/data/architecture/fresh-context-verify.md#decision` —
+  `## Decision`
+- `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior` —
+  `## Host behavior`, which names the Shipper's tool list
