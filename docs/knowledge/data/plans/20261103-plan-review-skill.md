@@ -234,3 +234,25 @@ may also dispatch the two agents `/agentdev:iwe-plan-review` names.
   — Requirement: Implement verifies its own work and acts on the report;
   `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-record-intent-not-the-path-taken-to-it`
   — Requirement: Plans record intent, not the path taken to it
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship:
+  data/plans/20261103-plan-review-skill
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/iwe-workflow-skills
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — confirmed:
+  data/features/ship-review
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
