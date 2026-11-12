@@ -33,7 +33,7 @@ jobs:
   cooldown:
     name: cooldown
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 35
     permissions:
       actions: read
@@ -65,7 +65,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so the hooks run the tools the
     # image provisions. See spec/pre-commit-gate.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:3114d254605823a05bd27fc54a08bc2492d7f50b388587cf252fc18bfdcc98da
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:d39b4ffbd4bfd647ea75e00dcecce2fe08acfb8c53486f92587b0aa3cfb23e43
     timeout-minutes: 30
     env:
       # checkout trusts the workspace only within its own step; the container user

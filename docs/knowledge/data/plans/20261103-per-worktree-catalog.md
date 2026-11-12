@@ -44,7 +44,13 @@ Code 2.1.316):
   the manifest's unchanged `./.agents/plugins/<plugin>` entries resolve into the
   worktree. A plugin installed from it at local scope is read in place from
   `<worktree>/.agents/plugins/<plugin>`, uncommitted changes included.
-  `marketplace add` declares the marketplace in user settings.
+  `marketplace add` declares the marketplace in user settings, and a
+  marketplace's name is global to the user, so worktrees of the same name in two
+  checkouts would share one.
+- Run in a git worktree, a local-scope install writes its `enabledPlugins` entry
+  to the main checkout's `.claude/settings.local.json`, not the worktree's.
+- `claude plugin marketplace remove` also uninstalls every plugin installed from
+  that marketplace.
 - `.claude/.gitignore` ignores `*.local.json`, so that file leaves the worktree
   clean.
 - A worktree session reads the main checkout's `.claude/settings.local.json` as
@@ -81,16 +87,20 @@ repository. When the new worktree ships a complete catalog (`catalog.complete`),
 it also:
 
 1. writes `<worktree>/.claude/marketplace.local.json`, the worktree's
-   `.claude-plugin/marketplace.json` with `name` set to `wt-<name>`;
+   `.claude-plugin/marketplace.json` with `name` set to `wt-<name>`, and fails
+   when `wt-<name>` is already registered from another worktree's file;
 2. registers it with `claude plugin marketplace add` and installs every plugin
    it publishes as `<plugin>@wt-<name>` at local scope, from the worktree;
-3. sets `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins`
+3. removes each `<plugin>@wt-<name>` the install wrote to the main checkout's
+   `.claude/settings.local.json` and sets it to `true` in the worktree's
+   `.claude/settings.local.json`;
+4. sets `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins`
    in the worktree's `.claude/settings.local.json`, for every plugin the
    manifest publishes.
 
-`agentdev-runtime worktree remove` uninstalls and removes the `wt-<name>`
-marketplace, which also drops its entry from user settings, before it removes
-the worktree.
+`agentdev-runtime worktree remove` removes the `wt-<name>` marketplace when it
+is registered from that worktree's file, which uninstalls its plugins and drops
+its entry from user settings, before it removes the worktree.
 
 The standalone runtime's catalog step (`Workspace.catalog`) also registers the
 hooks, through the same `worktree.register`, when it selects the checkout's
@@ -165,8 +175,8 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
-- [x] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
-  `wt-<name>` marketplace when one is registered, before it removes the
+- [x] `worktree remove` removes the `wt-<name>` marketplace, which uninstalls
+  every `<plugin>@wt-<name>`, when one is registered, before it removes the
   worktree, and also when the worktree is already gone
   - **Evidence:**
     `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`,
@@ -213,16 +223,30 @@ Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 
 **Files:** none
 
-- [ ] once the runtime on agent-dev3 has registered the hooks, a session spawned
+- [x] once the runtime on agent-dev3 has registered the hooks, a session spawned
   from claude.ai through Remote Control in `worktree` mode lists one `agentdev`
   in its `init` event, source `agentdev@wt-<name>`, path
   `<worktree>/.agents/plugins/agentdev`, and loads a skill added uncommitted in
   that worktree; a session in the main checkout lists
   `agentdev@agent-devcontainer`
-- [ ] after Remote Control's cleanup of that session, `~/.claude/settings.json`,
+  - **Evidence:** on agent-dev3, with this branch's runtime first on `PATH`,
+    start a session through agent-dev3's Remote Control bridge environment, then
+    run `claude -p "Reply with OK." --output-format stream-json --verbose` in
+    its `.claude/worktrees/<name>` and in the main checkout. In the worktree,
+    the `init` event's `plugins` lists `agentdev@wt-<name>` read from
+    `<worktree>/.agents/plugins/agentdev`, and its `skills` include an
+    uncommitted `agentdev:probe-uncommitted`. In the main checkout, `plugins`
+    lists `agentdev@agent-devcontainer`. The `init` event that Remote Control
+    relays carries an empty `plugins` list, so these sessions in the same
+    folders read the list instead.
+- [x] after Remote Control's cleanup of that session, `~/.claude/settings.json`,
   `~/.claude/plugins/known_marketplaces.json`, and
   `~/.claude/plugins/installed_plugins.json` hold no `wt-<name>` entry, and
   `git worktree list` no longer shows the worktree
+  - **Evidence:** on agent-dev3, archive that session while its worktree is
+    clean. Remote Control then removes the worktree through the `WorktreeRemove`
+    hook. After that, `grep -c wt-<name>` on the three files prints `0`, and
+    `git worktree list` no longer shows the worktree.
 
 ### Task 6: Record the design
 
@@ -342,7 +366,7 @@ environment](20261101-per-checkout-uv-environments.md)
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
   `attached`
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
-  `catalog.install(settings, folder, None)`
+  `catalog.install(settings, folder, 'user')`
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::complete` —
   `complete`
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — `claude`
