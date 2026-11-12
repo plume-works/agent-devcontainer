@@ -79,9 +79,12 @@ rather than only where a skill is invoked.
 
 ### Requirement: Plan tasks are sized so a tick can be honest
 
-The Plan skill SHALL constrain task granularity so that one task is one outcome.
-A task that could be described as half-done SHALL be split, and a task whose
-evidence is external SHALL stand alone.
+The Plan skill SHALL constrain task granularity so that one task is one outcome
+and one checkbox is one observation. A task that could be described as half-done
+SHALL be split, a task whose evidence is external SHALL stand alone, and a
+checkbox that joins independently observable events SHALL be split into one
+checkbox per event. Plan's coherence check SHALL ask, for every checkbox, which
+single observation closes it.
 
 #### Scenario: A task bundles two outcomes
 
@@ -95,6 +98,19 @@ evidence is external SHALL stand alone.
   artifact
 - **THEN** it is planned as its own task, because the session writing the code
   cannot close it
+
+#### Scenario: A checkbox joins independent observations
+
+- **WHEN** a checkbox's outcome needs two or more events observed separately,
+  such as a passing run and a failing run
+- **THEN** Plan splits it into one checkbox per event, so each can be ticked
+  with its own evidence as it is observed
+
+#### Scenario: An event may never occur on its own
+
+- **WHEN** a checkbox's observation is a failure or cancellation path that
+  normal operation may never produce
+- **THEN** the checkbox names how the event is provoked
 
 ### Requirement: Plans record narrative verification evidence
 
