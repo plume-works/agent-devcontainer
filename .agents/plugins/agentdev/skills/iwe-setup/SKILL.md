@@ -1,6 +1,6 @@
 ---
 name: iwe-setup
-description: Brownfield-first workspace onboarding — scan the codebase and draft data/product.md plus starting architecture and spec docs from what the code shows, interview the developer only for what the code can't answer, mark the onboarding tasks done, and delete the example documents. Use when the user says "run the setup", "set up the workspace", or when product.md still contains ✏️ placeholders.
+description: Brownfield-first workspace onboarding — scan the codebase and draft data/product.md plus starting spec and guide docs from what the code shows, interview the developer only for what the code can't answer, mark the onboarding tasks done, and delete the example documents. Use when the user says "run the setup", "set up the workspace", or when product.md still contains ✏️ placeholders.
 disable-model-invocation: true
 ---
 
@@ -24,12 +24,13 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - One starting `data/architecture/<slug>.md` describing the module layout
-     and any design decisions visible in the code (state management, storage,
-     process boundaries). Say "unknown" where you'd be guessing. This doc is
-     the onboarding's orientation to the code.
    - Propose (don't yet write) spec docs for the 2–3 most load-bearing
-     behaviors you can identify.
+     behaviors you can identify, each with the design decisions visible in the
+     code behind it (state management, storage, process boundaries) for its
+     `## Rationale`. Say "unknown" where you'd be guessing.
+   - Propose a `data/guides/<slug>.md` for each procedure a contributor must
+     follow that the README does not already give — building, testing,
+     releasing.
 4. **Interview.** Ask in batches, conversationally:
    - _Product_: the one-liner; who uses it and for what; who it's not for.
    - _Reality_: current stage, what's shipped vs. aspirational, the next thing
@@ -40,20 +41,23 @@ what the code can't answer. Every future session reads what you write here.
      or contributors — these become the Authoring rules section.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
    instruction lines as sections fill; add a dated entry to its Changelog.
-   Write the confirmed architecture doc(s) and any spec stubs the developer
-   approved, linking each from `data/architecture.md` / `data/spec.md`.
+   Write the spec stubs, with their `## Rationale`, and the guides the
+   developer approved, linking each from `data/spec.md` / `data/guides.md`. A
+   measurement the scan made that settles nothing yet goes to
+   `data/findings/<slug>.md`, linked from `data/findings.md`.
 6. **Close the loop.** Mark the finished onboarding tasks
-   (`fill-product-doc`, and `capture-current-architecture` if step 3 ran):
+   (`fill-product-doc`, and `draft-first-specs` if step 3 ran):
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
-   and remove any `rank` they carry; their links in `data/backlog.md` stay
-   where they are. Delete the example
+   remove any `rank` they carry, move each with
+   `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`,
+   and remove its link from `data/backlog.md`. Delete the example
    docs — every `*.example.md` under `data/` (`iwe delete <key>` per doc).
    `iwe delete` removes their inclusion links from hubs automatically but
    _flattens_ inline links to plain text: sweep the hub files and remaining
    docs for leftover de-linked example lines and remove them.
 7. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — both
    must pass clean. Commit with a message like
-   `setup: product doc filled, architecture captured, examples removed`.
+   `setup: product doc filled, first specs drafted, examples removed`.
 
 ## Rules
 
@@ -62,7 +66,7 @@ what the code can't answer. Every future session reads what you write here.
 - Never leave a ✏️ block half-filled — ask follow-ups until each section is
   concrete, but let the user say "skip for now" (leave the ✏️ so the gap stays
   visible).
-- Propose before bulk-writing: spec stubs and extra architecture docs get a
+- Propose before bulk-writing: spec stubs and guides get a
   one-line pitch each and the developer's yes before they exist.
 - Don't delete the examples until real documents exist for the developer to
   learn the conventions from (product.md filled is the minimum).

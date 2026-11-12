@@ -45,8 +45,10 @@ per check: the check, `holds` or the gap, and the documents it read.
 
 ## Ship mode
 
-1. **Find the ship.** The ship commit is the commit that set the plan's
-   `stage: done`:
+1. **Find the ship.** A shipped plan lives under
+   `data/archive/<release>/plans/`, `next-release` until a release cut moves
+   it; read the plan file that exists for the key you were given. The ship
+   commit is the commit that set the plan's `stage: done`:
    `git log -1 --format=%H -G '^stage: done' -- <plan file>`. None, or a plan
    not at `stage: done` now, ends the run with `Gaps`, the plan-stage item
    failing. The reviewed range is `<ship commit>^..HEAD`, which takes in any
@@ -56,7 +58,7 @@ per check: the check, `holds` or the gap, and the documents it read.
    `git diff --stat <ship commit>^ HEAD`.
 3. **Check every item** of the structure below, in order. Each item is
    `confirmed`, with the evidence its placeholder names, or `N/A` when its
-   condition is absent from the plan. The Verify, plan-stage, and hub-edit items
+   condition is absent from the plan. The Verify, plan-stage, and archive items
    never take `N/A`.
    - **Verify** — the saved Verify report `.tmp/verify/<plan file name>.md`
      exists, its frontmatter `commit` is an ancestor of the ship commit
@@ -73,8 +75,12 @@ per check: the check, `holds` or the gap, and the documents it read.
    - **Features** — every feature `release` lists is `stage: implemented`.
    - **Bug stage** — every bug `release` lists is `stage: done` with no `rank`.
    - **Bug Fix** — every bug `release` lists has a `## Fix` that links the plan.
-   - **Hub edits** — the reviewed range changes no hub (`[schemas.hub]` in
-     `.iwe/config.toml`), nothing under `data/releases/`, and not `data/log.md`.
+   - **Rationale** — every `## Rationale` entry the plan's `## Spec changes`
+     names reads in the `## Rationale` of its spec. `N/A` when it names none.
+   - **Archive** — the plan, and every feature and bug `release` lists, is
+     under `data/archive/`, no hub (`[schemas.hub]` in `.iwe/config.toml`)
+     links it, every link to it resolves, and the reviewed range changes
+     nothing under `data/releases/`.
 4. **Any item fails:** write nothing. Return the gap list (`## Report`).
 5. **Every item holds:** append the section below as the plan's last section,
    with today's date and each `|` resolved to the one ending that applies.
@@ -98,8 +104,13 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 - [x] Every feature in `release` is `stage: implemented` — confirmed: <keys> | N/A: `release` lists no feature
 - [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: <keys> | N/A: `release` lists no bug
 - [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: <keys> | N/A: `release` lists no bug
-- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
+- [x] Every `## Rationale` entry the plan names is in its spec — confirmed: <spec keys> | N/A: the plan names no `## Rationale` entry
+- [x] The plan and every feature and bug it closed are archived with no hub link — confirmed: <archive keys>
 ```
+
+A `## Ship review` recorded before this structure ends with one item stating
+that Ship edited no hub or release page, in place of the last two; it stays
+valid and is never rewritten.
 
 ## Report
 

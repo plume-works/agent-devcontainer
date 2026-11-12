@@ -5,6 +5,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py
 - resource: .agents/plugins/agentdev/tests/test_update_branch.py
+- resource: .agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.py
 ---
 
 # update-branch
@@ -24,7 +25,14 @@ The update-branch skill SHALL bring the commits of the current branch's
 configured upstream into the branch before it merges the base ref — by
 fast-forward when the branch is only behind the upstream, by a merge commit when
 they diverged — and SHALL NOT rebase, reset, or force-push to do so. It SHALL
-decide whether the branch is already up to date only after that sync.
+decide whether the branch is already up to date only after that sync. When the
+upstream branch no longer exists on its remote, it SHALL warn, merge the base,
+and let its push recreate the remote branch. The upstream SHALL count as gone
+only when
+`git ls-remote --exit-code --heads <upstream-remote> <upstream-branch>` exits
+`2`; any other failure of that command SHALL be `FETCH_FAILED`. An upstream on
+the local repository (`branch.<name>.remote` is `.`) SHALL be synced like any
+other, with no fetch and no existence check.
 
 #### Scenario: The branch is behind its upstream
 
@@ -63,6 +71,7 @@ decide whether the branch is already up to date only after that sync.
 - **WHEN** `X` tracks `origin/X` and `origin/X` no longer exists on the remote
 - **THEN** a warning is printed, the base is merged, and `UPSTREAM_ACTION` is
   `gone`
+- **AND** the push that follows recreates `origin/X`
 
 #### Scenario: The upstream lives on another remote
 
@@ -71,12 +80,20 @@ decide whether the branch is already up to date only after that sync.
   is merged
 - **AND** a failed fetch of `fork` is reported as `FETCH_FAILED`
 
+#### Scenario: The upstream query fails
+
+- **WHEN** `git ls-remote --exit-code --heads` for the upstream exits with a
+  status other than `0` or `2`
+- **THEN** the skill reports `FETCH_FAILED` and merges nothing
+
 ### Requirement: Each conflicted merge stops the run and a rerun continues
 
 The update-branch skill SHALL stop at the first merge that conflicts, report
 `MERGE_CONFLICTS` with `SOURCE` naming the ref being merged, and leave any later
 merge undone. A rerun after the resolution is committed SHALL treat the resolved
-merge as done and continue with the next one.
+merge as done and continue with the next one. Both merges SHALL run the
+`git-merge-resolve` helper as a child process and report through the one result
+table the skill's callers follow.
 
 #### Scenario: The upstream merge conflicts
 
@@ -94,3 +111,23 @@ merge as done and continue with the next one.
 
 - **WHEN** the upstream sync succeeds and merging `origin/main` conflicts
 - **THEN** the skill reports `MERGE_CONFLICTS` with `SOURCE=origin/main`
+
+## Rationale
+
+### The upstream comes in before the base
+
+A remote branch can hold commits the local one lacks — pushed from another
+checkout, an autofix bot, or GitHub's "Update branch" button. Bringing them in
+first means the base merge lands on the branch the remote holds, so the update
+pushes as a plain fast-forward.
+
+Rejected:
+
+- **Merging the base onto the stale local branch.** The remote refuses the push,
+  and the second merge needed to reconcile it can bring back conflicts already
+  resolved.
+- **`git pull --rebase` onto the upstream.** It rewrites local commits and
+  contradicts the merge-based contract.
+- **Fast-forward only, with a new stop when the branch diverged.** A local fix
+  plus a remote commit is a supported case and would always bounce back to the
+  agent.

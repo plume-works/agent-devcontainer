@@ -21,8 +21,8 @@ must fail when it published nothing, or a re-review that vanishes stays silent.
 
 The known cause of such runs is closed in [The review orchestrator ends its turn
 while its passes are still
-running](../bugs/review-orchestrator-ends-turn-while-passes-run.md); this check
-is the safety net for any cause that is not.
+running](../archive/2.0.0/bugs/review-orchestrator-ends-turn-while-passes-run.md);
+this check is the safety net for any cause that is not.
 
 ## What to do
 

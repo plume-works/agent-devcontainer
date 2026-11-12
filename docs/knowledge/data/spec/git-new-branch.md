@@ -5,9 +5,12 @@ sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
 - resource: .agents/plugins/agentdev/bin/git_default_branch.py
+- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/find-branch-pr.py
 - resource: .agents/plugins/agentdev/skills/git-commit/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py
 - resource: .pre-commit-config.yaml
+- resource: docker/deploy/agentdev-deploy.Dockerfile
+- resource: compose.opencode.yml
 ---
 
 # git-new-branch
@@ -27,12 +30,6 @@ The git-new-branch skill SHALL fetch the remote, create the branch at
 `<remote>/<base>` (falling back to the remote's default branch when `<base>`
 does not exist), SHALL NOT set the base as the branch's upstream, and SHALL push
 the branch immediately so it tracks `<remote>/<name>`.
-
-#### Scenario: Branch created from main
-
-- **WHEN** the user asks for branch `X` and `origin/main` exists
-- **THEN** `X` points at the just-fetched `origin/main` commit
-- **AND** `X` is pushed and tracks `origin/X`
 
 #### Scenario: The remote has no main
 
@@ -65,7 +62,10 @@ the remote, and SHALL leave both untouched.
 
 The git-new-branch skill SHALL carry uncommitted and untracked changes onto the
 new branch, SHALL stash only after the user approves, and SHALL keep the stash
-entry until any conflicts it produces are resolved.
+entry until any conflicts it produces are resolved. It SHALL pop only the stash
+entry it created, found by its commit, never whatever is at `stash@{0}`, and
+SHALL report that commit as `STASH_SHA` and its current position as `STASH_REF`
+whenever it leaves the entry in the stash.
 
 #### Scenario: Changes carry over cleanly
 
@@ -91,6 +91,13 @@ entry until any conflicts it produces are resolved.
 - **THEN** no stash entry is popped, and a stash entry that existed before the
   run is left untouched
 
+#### Scenario: The branch cannot be created after stashing
+
+- **WHEN** the user approved stashing and `git switch` cannot create the branch
+- **THEN** the skill pops its own entry back onto the unchanged checkout and
+  reports `CREATE_FAILED`, naming the entry by `STASH_SHA` and `STASH_REF` if
+  that pop fails
+
 ### Requirement: Worktree mode leaves the current checkout alone
 
 In worktree mode the git-new-branch skill SHALL create the branch in a new
@@ -101,23 +108,10 @@ checkout lives there and the account can write it, and under the checkout's
 ignored `.worktrees/` directory when not, and SHALL NOT change the current
 checkout.
 
-#### Scenario: Repository outside /workspaces
-
-- **WHEN** the main checkout is not directly under `/workspaces`
-- **THEN** the worktree is created under `<checkout>/.worktrees/` and that
-  directory is ignored by Git
-
 #### Scenario: Deploy runtime
 
 - **WHEN** `AGENTDEV_RUNTIME_MODE` is `deploy`, whether or not the main checkout
   is directly under `/workspaces`
-- **THEN** the worktree is created under `<checkout>/.worktrees/` and that
-  directory is ignored by Git
-
-#### Scenario: An account that cannot write /workspaces
-
-- **WHEN** the main checkout is directly under `/workspaces` and the account
-  cannot write `/workspaces`
 - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
   directory is ignored by Git
 
@@ -142,12 +136,6 @@ branch unmoved.
 - **THEN** the new branch starts at local `main`, the script reports
   `LOCAL_COMMITS=2`, and local `main` points at the fetched `origin/main`
 - **AND** `origin/main` is then merged into the new branch through update-branch
-
-#### Scenario: Local commits on main in worktree mode
-
-- **WHEN** local `main` is ahead of `origin/main` and worktree mode is used
-- **THEN** the worktree branch starts at local `main` and local `main` is not
-  moved
 
 ### Requirement: The git-commit skill never commits on the default branch
 
@@ -180,3 +168,25 @@ determined, it SHALL refuse as well.
 - **WHEN** `origin` exists, `refs/remotes/origin/HEAD` is unset, `gh` cannot
   report the default branch, and the current branch is not `main` or `master`
 - **THEN** the script reports `DEFAULT_UNKNOWN` and no commit is created
+
+## Rationale
+
+### The branch tracks its own upstream from creation
+
+The branch is created with `--no-track` and pushed at once. A branch made with
+`git switch -c X origin/main` tracks the base, so `git pull` pulls the base and
+`pr-open`'s `find-branch-pr.py` refuses it as `PROTECTED_BRANCH`, since its
+upstream is the default branch.
+
+Rejected:
+
+- **Pushing at the first commit.** The upstream stays unset in between, and
+  `pr-open` has to finish the setup.
+
+### Deploy worktrees live inside the checkout
+
+The deploy image mounts only `/workspaces/project`, as a named volume or a host
+bind. `/workspaces` itself is created root-owned by the image's `WORKDIR` and
+lives in the container layer, so a worktree there would be unwritable for the
+agent user and lost when the container is recreated. Deploy mode therefore puts
+worktrees in the checkout's ignored `.worktrees/`.

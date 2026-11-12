@@ -37,7 +37,7 @@ The three sub-scenarios above are the supported adoption modes:
 - **Direct** — a descriptor references `agentdev-devcontainer` by tag and digest and copies no lifecycle script.
 - **Derived** — a custom image starts `FROM agentdev-devcontainer` and adds tooling and hooks.
 
-See [Dev Container runtime](../knowledge/data/architecture/devcontainer-runtime.md).
+See [agentdev runtime images](../knowledge/data/spec/agentdev-runtime-images.md).
 
 ## Image tree
 

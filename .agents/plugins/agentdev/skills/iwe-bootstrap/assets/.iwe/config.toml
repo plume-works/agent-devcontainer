@@ -61,25 +61,31 @@ reverse = false
 # Run: iwe schema validate  (--explain shows the binding trace).
 
 [schemas.plan]
-match = "data/plans/**"
+match = ["data/plans/**", "data/archive/*/plans/**"]
 
 [schemas.feature]
-match = "data/features/**"
+match = ["data/features/**", "data/archive/*/features/**"]
 
 [schemas.bug]
-match = "data/bugs/**"
+match = ["data/bugs/**", "data/archive/*/bugs/**"]
 
 [schemas.release]
 match = "data/releases/**"
 
 [schemas.task]
-match = "data/backlog/**"
+match = ["data/backlog/**", "data/archive/*/backlog/**"]
 
 [schemas.spec]
 match = "data/spec/**"
 
 [schemas.architecture]
-match = "data/architecture/**"
+match = "data/archive/*/architecture/**"
+
+[schemas.finding]
+match = "data/findings/**"
+
+[schemas.guide]
+match = "data/guides/**"
 
 [schemas.concept]
 match = "data/concept/**"
@@ -90,11 +96,12 @@ match = "data/someday/**"
 # Directory hubs are typed and validated like every other document.
 [schemas.hub]
 match = [
-  "data/architecture",
   "data/backlog",
   "data/bugs",
   "data/concept",
   "data/features",
+  "data/findings",
+  "data/guides",
   "data/plans",
   "data/releases",
   "data/someday",
@@ -106,12 +113,10 @@ match = ["data/product", "data/milestone"]
 
 # OKF v0.2 conformance (SPEC §11), except the `status` field: `stage` records the
 # lifecycle (docs/knowledge/SCHEMA.md). okf stacks on the per-type schemas; the
-# reserved index and log files take body schemas of their own.
+# reserved index file takes a body schema of its own. okf rejects the retired
+# architecture type, so the archived notes are checked by architecture.yaml alone.
 [schemas.okf]
-match = ["data/**", "!data/index", "!data/**/index", "!data/log", "!data/**/log"]
+match = ["data/**", "!data/index", "!data/**/index", "!data/archive/*/architecture/**"]
 
 [schemas.okf-index]
 match = ["data/index", "data/**/index"]
-
-[schemas.okf-log]
-match = ["data/log", "data/**/log"]

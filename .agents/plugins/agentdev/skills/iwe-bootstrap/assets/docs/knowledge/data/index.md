@@ -19,17 +19,19 @@ okf_version: '0.2'
 
 # Delivery
 
-- [Features](features.md) - Feature design documents, each carrying its
-  lifecycle stage.
+- [Features](features.md) - Feature proposals, each live until the plan that
+  implements it ships.
 - [Bugs](bugs.md) - Bug reports, investigations, and repro notes.
-- [Releases](releases.md) - One page per version, aggregating the features and
-  fixes it shipped.
+- [Releases](releases.md) - One page per version, saying in plain text what
+  changed and which bugs it fixed.
 
 # Reference
 
 - [Spec](spec.md) - Behavioral specifications — the durable truth about how the
   product must work.
-- [Architecture](architecture.md) - System design notes and the reasoning behind
-  them, rejected alternatives included.
+- [Findings](findings.md) - Measurements of how the system behaves, with the
+  hypotheses they eliminated and what would close them.
+- [Guides](guides.md) - Procedures a contributor follows, with code anchors
+  checked on every commit.
 - [Concept](concept.md) - Product vision and the principles that outlive any
   single release.

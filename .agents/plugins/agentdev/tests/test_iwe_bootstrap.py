@@ -10,6 +10,7 @@ import shutil
 import signal
 import subprocess
 import time
+import tomllib
 
 import pytest
 
@@ -17,7 +18,7 @@ SCRIPT = Path('agent-code') / 'bootstrap-iwe.py'
 ASSETS = Path('assets')
 # The transaction directory name is part of the skill's documented contract.
 TRANSACTION = '.iwe-bootstrap.txn'
-ONBOARDING_KEYS = ('fill-product-doc', 'capture-current-architecture')
+ONBOARDING_KEYS = ('fill-product-doc', 'draft-first-specs')
 KNOWLEDGE_INSTRUCTIONS = ('AGENTS.md', 'CLAUDE.md', 'SCHEMA.md', 'STRUCTURE.md')
 # Commands the helper may run; everything else is absent from a restricted PATH.
 HELPER_TOOLS = (
@@ -213,6 +214,25 @@ def test_installed_graph_carries_what_iwe_setup_needs(
     license_text = (knowledge / 'LICENSE.md').read_text(encoding='utf-8')
     assert 'MIT License' in license_text
     assert 'WITHOUT WARRANTY OF ANY KIND' in license_text
+
+
+@requires_iwe
+def test_installed_graph_has_the_single_home_layout(
+    installed_iwe_bootstrap: Path, unrelated_repository: Path
+) -> None:
+    run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+    data = unrelated_repository / 'docs' / 'knowledge' / 'data'
+    config = tomllib.loads((unrelated_repository / '.iwe' / 'config.toml').read_text())
+    schemas = config['schemas']
+
+    assert {'finding', 'guide'} <= set(schemas)
+    assert 'data/archive/*/plans/**' in schemas['plan']['match']
+    assert {'data/findings', 'data/guides'} <= set(schemas['hub']['match'])
+    assert (data / 'findings.md').is_file() and (data / 'guides.md').is_file()
+    assert not (data / 'architecture.md').exists()
+    assert not (data / 'architecture').exists()
+    assert not (data / 'log.md').exists()
+    assert list((data / 'archive').rglob('*.example.md'))
 
 
 @requires_iwe

@@ -867,9 +867,8 @@ invoking the onboarding skill from the **consumer** repository root:
 
 1. `/agentdev:iwe-setup` — reads the consumer's codebase, interviews the
    developer for what the code cannot answer, fills `data/product.md`, writes
-   the first architecture doc, closes the `fill-product-doc` and
-   `capture-current-architecture` backlog tasks, and deletes the `*.example.md`
-   documents.
+   the first specs, closes the `fill-product-doc` and `draft-first-specs`
+   backlog tasks, and deletes the `*.example.md` documents.
 2. At the end of the consumption episode, write the adoption summary described
    below into the consumer graph. Record the adopted SHA, workflow, and settled
    choices, and point to `.agentdev-template-progress.md` as the live record.

@@ -78,29 +78,54 @@ code comments, or PR bodies; those rest on the catalog's instructions.
 
 The same script SHALL resolve every anchor under `## Key references` in a plan
 without `stage`, and every anchor in a bug or backlog item at `stage: pending`
-or `stage: planned` and in every `architecture/` document, against the current
+or `stage: planned` and in every `guides/` document, against the current
 checkout, and SHALL fail naming each anchor that does not resolve. A Python
 symbol resolves through its syntax tree; a symbol in any other language resolves
 when each dotted segment occurs as a whole word in order, so a symbol moved into
 a comment still resolves. A quote resolves when it occurs, whitespace-collapsed,
-in the anchored region. Anchors elsewhere in a plan, and in closed documents,
-are not resolved.
+in the anchored region. Anchors elsewhere in a plan, in a finding, and in
+archived documents are not resolved.
 
 #### Scenario: A refactor renames an anchored function
 
-- **WHEN** a commit renames a function an active plan's `## Key references` or
-  an `architecture/` document anchors
+- **WHEN** a commit renames a function an active plan's `## Key references` or a
+  `guides/` document anchors
 - **THEN** the hook fails naming the document and the anchor, until the anchor
   is updated
 
-#### Scenario: A plan names code it will create
+#### Scenario: An archived plan names deleted code
 
-- **WHEN** an active plan's task names `scripts/new.py::main`, which does not
-  exist yet
-- **THEN** the resolver does not check it, because it is outside
-  `## Key references`
-
-#### Scenario: A shipped plan names deleted code
-
-- **WHEN** a plan with `stage: done` anchors a file that has since been deleted
+- **WHEN** a plan under `data/archive/` anchors a file that has since been
+  deleted
 - **THEN** the resolver does not check it
+
+## Rationale
+
+### Places are named by anchors, and a gate holds the rule
+
+The maintainer's rule is never to record a line number. An anchor stays true
+until its target is renamed or removed and then stops resolving rather than
+silently pointing elsewhere, so it carries no date stamp. The gate runs on every
+commit rather than behind a path filter, because a code rename anywhere can
+break a live anchor.
+
+The gate's limits are accepted rather than closed: it does not recognize a bare
+`:N` continuing an earlier reference; a non-Python symbol resolves by its dotted
+segments occurring as whole words in order, so a symbol moved into a comment
+still resolves; and chat reports, code comments, and PR bodies rest on the
+catalog's instructions. A link into another repository's file at a pinned commit
+may keep its line fragment, since that target cannot change and an anchor names
+only this repository's code; the research case studies under `docs/research/`
+cite sources that way and are outside the gate. A placeholder in a resolved
+document is written in angle brackets so the resolver does not read it as a
+path.
+
+Rejected:
+
+- **Line numbers with a date stamp.** The stamp tells a reader how far to trust
+  the number but does not keep it true.
+- **Planting anchors in target files** (`<a id>`, `anchor:` comments). Every
+  reference would edit the file it points at, while a symbol or heading already
+  identifies the spot.
+- **Exempting closed documents from the line-number gate.** Agents copy the
+  shape they read, and the exemption would need its own rule.

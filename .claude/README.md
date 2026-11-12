@@ -4,10 +4,10 @@ The agent catalog does not live here; it ships as the `agentdev` plugin under
 [`.agents/plugins/agentdev/`](../.agents/plugins/agentdev/README.md). What remains in this directory is the
 configuration this repository keeps for itself.
 
-| Path            | Purpose                                                                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `settings.json` | Permissions, additional directories, enabled third-party plugins, and the `SessionStart` hook.                                           |
-| `startup.py`    | Cloud session setup and resume: see [Cloud session host toolchain](../docs/knowledge/data/architecture/cloud-session-host-toolchain.md). |
+| Path            | Purpose                                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------------------------ |
+| `settings.json` | Permissions, additional directories, enabled third-party plugins, and the `SessionStart` hook.               |
+| `startup.py`    | Cloud session setup and resume: see [Cloud session host](../docs/knowledge/data/spec/cloud-session-host.md). |
 
 `startup.py` is standard-library Python, because the session host has no project environment
 until it runs. It resolves the repository root from its own location, so it runs from any

@@ -208,8 +208,12 @@ document's key.
 Implementation findings do not belong in the plan. Route each finding by type:
 
 - A durable design fact — a constraint, a boundary, why the obvious approach
-  fails → `data/architecture/<slug>.md`, linked from `data/architecture.md`.
-  Add to the existing doc that owns the area before creating a new one.
+  fails → the `## Rationale` of the spec that owns the behaviour. Add to the
+  entry that owns the area before writing a new one.
+- A measurement that settles nothing yet → `data/findings/<slug>.md`, linked
+  from `data/findings.md`.
+- A procedure a contributor will repeat → `data/guides/<slug>.md`, linked from
+  `data/guides.md`.
 - A defect in shipped behavior, not caused by this work → hand it to the
   `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
   bug bar — no reproduction, no root cause — stays in the handoff report

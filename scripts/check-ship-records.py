@@ -2,8 +2,9 @@
 """
 Gate the records Ship leaves in the knowledge graph.
 
-Checks each bug and plan document named on the command line, prints every violation as
-``path:line message``, and exits 1 when there is any. The rules: see spec/pre-commit-gate.
+Checks each bug, plan, backlog task, feature, and release document named on the command line,
+prints every violation as ``path:line message``, and exits 1 when there is any. The rules: see
+spec/pre-commit-gate and spec/iwe-workflow-skills.
 """
 
 from __future__ import annotations
@@ -18,6 +19,9 @@ FRONTMATTER_FIELD = re.compile(r'^(?P<key>[\w-]+):\s*(?P<value>.*?)\s*$')
 HEADING = re.compile(r'^(?P<level>#{1,6})\s')
 REVIEWER = re.compile(r'^Reviewed by `iwe-ship-reviewer` on \d{4}-\d{2}-\d{2}\.$')
 ITEM = re.compile(r'^- \[(?P<tick>.)\] (?P<text>.+?) — (?P<ending>.*)$')
+LINK = re.compile(r'(?<!!)\[[^\]]*\]\([^)\s]+\)')
+CLOSED = frozenset({'done', 'cancelled'})
+LIVE_FEATURE = frozenset({'proposed', 'accepted'})
 
 
 class Item:
@@ -51,6 +55,14 @@ SHIP_REVIEW_ITEMS = (
     Item('Every feature in `release` is `stage: implemented`'),
     Item('Every bug in `release` is `stage: done` with no `rank`'),
     Item('Every bug in `release` has a `## Fix` that links this plan'),
+    Item('Every `## Rationale` entry the plan names is in its spec'),
+    Item(
+        'The plan and every feature and bug it closed are archived with no hub link',
+        not_applicable=False,
+    ),
+)
+EARLIER_SHIP_REVIEW_ITEMS = (
+    *SHIP_REVIEW_ITEMS[:-2],
     Item(
         'Ship edited no hub, release page, or `data/log.md`', evidence=False, not_applicable=False
     ),
@@ -132,11 +144,25 @@ def check_item(item: Item, line: str) -> str | None:
 
 
 def check_plan(lines: list[str]) -> list[tuple[int, str]]:
-    """Return the violations of a plan's Ship review section against the fixed structure."""
+    """
+    Return the violations of a plan's Ship review against the fixed structure.
+
+    A review that matches the earlier structure passes; otherwise the violations
+    reported are those against the current one.
+    """
     found = ship_review(lines)
     if found is None:
         return []
-    heading, section = found
+    violations = check_structure(*found, SHIP_REVIEW_ITEMS)
+    if violations and not check_structure(*found, EARLIER_SHIP_REVIEW_ITEMS):
+        return []
+    return violations
+
+
+def check_structure(
+    heading: int, section: list[tuple[int, str]], expected: tuple[Item, ...]
+) -> list[tuple[int, str]]:
+    """Return the violations of a Ship review's lines against one fixed structure."""
     violations: list[tuple[int, str]] = []
     items = section
     if section and REVIEWER.match(section[0][1]):
@@ -148,26 +174,59 @@ def check_plan(lines: list[str]) -> list[tuple[int, str]]:
         )
         if section and not ITEM.match(section[0][1]):
             items = section[1:]
-    for item, (number, line) in zip(SHIP_REVIEW_ITEMS, items, strict=False):
+    for item, (number, line) in zip(expected, items, strict=False):
         error = check_item(item, line)
         if error:
             violations.append((number, error))
-    for item in SHIP_REVIEW_ITEMS[len(items) :]:
+    for item in expected[len(items) :]:
         violations.append((heading, f'Ship review is missing item "{item.text}"'))
-    for number, _ in items[len(SHIP_REVIEW_ITEMS) :]:
+    for number, _ in items[len(expected) :]:
         violations.append((number, 'Ship review has a line after its last item'))
     return violations
+
+
+def archived(path: Path) -> bool:
+    """Return whether ``path`` lies under the knowledge base's ``data/archive/``."""
+    parts = path.parts
+    return any(parts[i : i + 2] == ('data', 'archive') for i in range(len(parts) - 1))
+
+
+def check_placement(kind: str, stage: str, inside: bool) -> list[tuple[int, str]]:
+    """Return a violation when a work item or feature sits on the wrong side of the archive."""
+    if kind == 'feature':
+        live = stage in LIVE_FEATURE
+    elif kind in ('plan', 'bug', 'task'):
+        live = stage not in CLOSED
+    else:
+        return []
+    if inside and live:
+        return [(1, f'{kind} at {stage or "no stage"} is open but sits in data/archive/')]
+    if not inside and not live:
+        return [(1, f'{kind} at stage: {stage} is closed but sits outside data/archive/')]
+    return []
+
+
+def check_release(lines: list[str]) -> list[tuple[int, str]]:
+    """Return one violation per release-page line that holds a Markdown link."""
+    return [
+        (number, 'release page holds a Markdown link; write its text instead')
+        for number, line in body_lines(lines)
+        if LINK.search(line)
+    ]
 
 
 def check(path: Path) -> list[str]:
     """Return every violation in one document, formatted ``path:line message``."""
     lines = path.read_text(encoding='utf-8').splitlines()
-    kind = frontmatter(lines).get('type')
-    violations = []
+    fields = frontmatter(lines)
+    kind = fields.get('type', '')
+    violations = check_placement(kind, fields.get('stage', ''), archived(path))
     if kind == 'bug':
-        violations = check_bug(lines)
+        violations += check_bug(lines)
     elif kind == 'plan':
-        violations = check_plan(lines)
+        violations += check_plan(lines)
+    elif kind == 'release':
+        violations += check_release(lines)
     return [f'{path}:{line} {message}' for line, message in violations]
 
 

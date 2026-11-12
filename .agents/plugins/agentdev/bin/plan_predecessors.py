@@ -36,8 +36,8 @@ Usage:
   -h, --help        Show this help text.
 
 Candidates are the plan's own open iwe/<slug>/iter-* pull requests and those of
-each plan linked from '## Depends on' that is not 'stage: done' in the
-checkout; a section whose text starts with 'None' links none. Each
+each plan linked from '## Depends on', live or under data/archive/<release>/plans/,
+that is not 'stage: done' in the checkout; a section whose text starts with 'None' links none. Each
 contributes the top of its chain, walked down base branches. A candidate below
 another candidate in the same chain is dropped.
 
@@ -57,6 +57,7 @@ Results (RESULT / exit code):
 LINK = re.compile(r'\]\(([^)\s]+\.md)\)')
 WORK_BRANCH = re.compile(r'iwe/([^/]+)/iter-[1-9][0-9]*-(?:plan|impl|ship)')
 DATED_PLAN = re.compile(r'[0-9]{8}-(.+)')
+PLANS_DIR = re.compile(r'(?:.*/)?data/(?:archive/[^/]+/)?plans')
 
 
 class PullRequest(NamedTuple):
@@ -107,7 +108,7 @@ def depends_on_paths(text: str, plan_path: str) -> list[str]:
         posixpath.normpath(posixpath.join(plans_dir, target))
         for target in LINK.findall(section.group(1))
     ]
-    return [path for path in dict.fromkeys(paths) if posixpath.dirname(path) == plans_dir]
+    return [path for path in dict.fromkeys(paths) if PLANS_DIR.fullmatch(posixpath.dirname(path))]
 
 
 def stage_of(path: Path) -> str:

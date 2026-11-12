@@ -6,7 +6,7 @@ description: Sessions spawned by `claude remote-control` on an agentdev containe
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: .claude/startup.py
-- resource: docs/knowledge/data/architecture/claude-remote-control-server-mode.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-server-mode.md
 - resource: https://code.claude.com/docs/en/remote-control
 - resource: https://code.claude.com/docs/en/claude-code-on-the-web
 ---
@@ -62,7 +62,7 @@ Eliminated:
 - **A client switch.** `claude remote-control --help` and the Remote Control
   documentation offer no flag, setting, or variable for spawned sessions'
   prompts, and the server refuses `--settings` ([Claude Remote Control server
-  mode](../architecture/claude-remote-control-server-mode.md)).
+  mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md)).
 
 ## Potential solution
 

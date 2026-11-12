@@ -33,7 +33,7 @@ services:
       - ${LOCAL_WORKSPACE_FOLDER:-$PWD}:/workspaces/${WORKSPACE_BASENAME:-project}:rw
 
       # Claude's credentials, shared by every Dev Container of the host user's UID and GID;
-      # see architecture/agent-auth-persistence.
+      # see spec/devcontainer-state.
       - agentdev-agents-auth:/var/lib/agentdev/auth
 
       # Written by devcontainer-init.sh, empty when the host names no extra CA.

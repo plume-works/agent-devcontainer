@@ -19,7 +19,8 @@ same route, which starts and ends at the cache.
 [verify-cache.py](agent-code/verify-cache.py) keeps one saved report per plan,
 and one for audit mode, keyed by the commit Verify ran on and the digest of the
 active agentdev catalog. Run it from the repository root. Its target is the plan
-key, or `audit` in audit mode.
+key — `data/plans/<name>`, or `data/archive/<release>/plans/<name>` for a plan
+already archived — or `audit` in audit mode.
 
 **Returning the report** means putting its body, verbatim, into your final
 message text. A path to the saved report does not count, and neither does the

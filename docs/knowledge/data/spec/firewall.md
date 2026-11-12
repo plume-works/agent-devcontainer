@@ -33,17 +33,6 @@ edits take effect on the next start without an image rebuild, and
 `/etc/agentdev/firewall-allowlist.txt` otherwise; the deploy profile SHALL read
 the image copy.
 
-### Scenario: a host not on the allowlist is requested
-
-- **WHEN** code in the container tries to reach a non-allowlisted host
-- **THEN** the connection is dropped.
-
-### Scenario: the checkout edits its allowlist
-
-- **WHEN** a devcontainer restarts after `.devcontainer/firewall-allowlist.txt`
-  changed in the checkout
-- **THEN** the new allowlist is in force without an image rebuild.
-
 ### Scenario: `FIREWALL_ALLOWLIST` is set in a devcontainer
 
 - **WHEN** a devcontainer starts with `FIREWALL_ALLOWLIST` naming a file and a
@@ -64,7 +53,16 @@ actually open or actually blocking required traffic.
 - **THEN** the `api.github.com/zen` reachability check fails and the command
   exits non-zero, surfacing the misconfiguration at container start.
 
-### Scenario: the DROP policy fails to apply
+## Rationale
 
-- **WHEN** `example.com` is still reachable after the rules are applied
-- **THEN** the verification step exits non-zero.
+### The firewall is applied before the engine starts
+
+The bootstrap applies the firewall as root before supervisord starts `dockerd`,
+because applying the rules flushes the tables: run first, the flush leaves the
+rules the engine installs at its own start in place, and running as root at
+bootstrap needs no sudoers entry.
+
+Rejected:
+
+- **Applying the firewall from a supervised program after `dockerd`** — the
+  flush would remove the engine's rules.

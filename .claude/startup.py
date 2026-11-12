@@ -8,7 +8,7 @@ installs the git hooks.
 `startup.py resume`, the SessionStart hook, restarts the host dockerd and the agent proxy relay
 that a host restart stops, and points Docker's client proxy at the relay.
 Standard library only: the session host has no project environment until setup runs.
-Design: architecture/cloud-session-host-toolchain.
+Design: spec/cloud-session-host.
 """
 
 import argparse
@@ -41,7 +41,7 @@ RELAY_HOST = DOCKER_BRIDGE_CIDR.split('/')[0]
 DOCKER_WAIT_SECONDS = 30
 LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
 # Ansible's apt module needs apt's bindings, built only for the system Python 3.12.
-# See architecture/cloud-session-host-toolchain.
+# See spec/cloud-session-host.
 ANSIBLE_PYTHON = '/usr/bin/python3.12'
 # The ansible playbook's roles that put every pre-commit hook's binary on PATH.
 TOOLCHAIN_TAGS = 'dev_tools,bun_setup,uv_setup'

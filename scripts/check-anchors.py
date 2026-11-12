@@ -254,7 +254,7 @@ def resolver_spans(path: Path, text: str) -> list[tuple[int, int]]:
         return [(m.start('body'), m.end('body')) for m in KEY_REFERENCES.finditer(text)]
     if f'/{DATA.as_posix()}/bugs/' in relative or f'/{DATA.as_posix()}/backlog/' in relative:
         return [(0, len(text))] if stage in OPEN_STAGES else []
-    if f'/{DATA.as_posix()}/architecture/' in relative:
+    if f'/{DATA.as_posix()}/guides/' in relative:
         return [(0, len(text))]
     return []
 

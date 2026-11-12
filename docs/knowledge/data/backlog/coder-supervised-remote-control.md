@@ -21,8 +21,8 @@ Control stays off until the operator runs the script by hand or restarts the
 agent, and nothing restarts a `claude-remote` session that exits. The standalone
 runtime already solves both with its supervised `remote-control` watcher ([Start
 Claude Remote Control in the standalone
-runtime](../plans/20261027-standalone-remote-control-autostart.md)). The
-maintainer wants the same service in Coder workspaces; other Dev Containers
+runtime](../archive/2.0.0/plans/20261027-standalone-remote-control-autostart.md)).
+The maintainer wants the same service in Coder workspaces; other Dev Containers
 starts (VS Code, the devcontainer CLI) stay without Remote Control autostart.
 
 ## What to do
