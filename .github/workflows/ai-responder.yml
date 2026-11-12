@@ -38,6 +38,15 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
+  # The review never executes code: see spec/ai-review-gate. Shells are denied
+  # because `bash -c` hides the command inside it from these rules.
+  CLAUDE_PR_REVIEW_DISALLOWED_TOOLS: >-
+    Bash(bash *),Bash(sh *),Bash(zsh *),
+    Bash(uv run *),Bash(uv sync*),Bash(uv pip *),Bash(uv tool *),Bash(uv build*),Bash(uvx *),
+    Bash(python -m *),Bash(python3 -m *),Bash(pytest*),Bash(pre-commit *),
+    Bash(bun *),Bash(bunx *),Bash(npm *),Bash(npx *),Bash(make*),
+    Bash(docker *),Bash(docker-compose *),Bash(devcontainer *),
+    Bash(sleep*),Bash(gh run watch*),Bash(gh pr checks *--watch*),Monitor
   # Bots whose pull requests skip the AI review and are approved instead.
   TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
 
