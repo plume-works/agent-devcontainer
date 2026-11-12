@@ -27,10 +27,11 @@ Measured on this checkout:
   written as prose, findings, and procedures.
 - `data/features/`: 637 behaviour statements, of which a spec already states
   387, no spec states 227, and a spec contradicts 23.
-  `docs/knowledge/migration/scan/features.md` lists them per feature.
+  `docs/knowledge/migration/scan/features.md` at commit `5265563a` lists them
+  per feature.
 - Closed plans, bugs, and tasks: `closed-0.md` to `closed-7.md` under
-  `docs/knowledge/migration/scan/` cover 202 of them, one section per document,
-  and 103 hold knowledge found nowhere else.
+  `docs/knowledge/migration/scan/` at commit `5265563a` cover 202 of them, one
+  section per document, and 103 hold knowledge found nowhere else.
 - Release pages link features. The 2.1.0 page shows one feature added and five
   changed; comparing each requirement's text in `data/spec/` between the 2.0.0
   and 2.1.0 cuts shows 22 requirements added, 18 removed, and 33 modified across
@@ -441,13 +442,13 @@ specs `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
 
 ### Task 8: Fold and archive the features
 
-Input: `docs/knowledge/migration/scan/features.md`. For each implemented
-feature, each statement its row counts as unique and its destination table keeps
-becomes a requirement or scenario in the destination spec after a check against
-the code. Each conflict is resolved for the code: the stale side is corrected,
-and a spec the code contradicts is corrected as a recorded behaviour, not a
-change. Then the feature moves, unchanged, to `data/archive/<release>/features/`
-— the first release whose page names it.
+Input: `docs/knowledge/migration/scan/features.md` at commit `5265563a`. For
+each implemented feature, each statement its row counts as unique and its
+destination table keeps becomes a requirement or scenario in the destination
+spec after a check against the code. Each conflict is resolved for the code: the
+stale side is corrected, and a spec the code contradicts is corrected as a
+recorded behaviour, not a change. Then the feature moves, unchanged, to
+`data/archive/<release>/features/` — the first release whose page names it.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`,
 `docs/knowledge/data/features.md`. Create: new specs `pr-review`,
@@ -526,13 +527,13 @@ change. Then the feature moves, unchanged, to `data/archive/<release>/features/`
 
 ### Task 9: Distil and archive the closed history
 
-Input: `closed-0.md` to `closed-7.md` under `docs/knowledge/migration/scan/`.
-For each document with the verdict `HAS UNIQUE KNOWLEDGE`, each listed item is
-checked against the code and then written to its owning spec — a `behaviour`
-item as a requirement or scenario, every other kind in `## Rationale` — or is
-struck in the scan file with the reason it is dropped. A constraint that is
-about tests goes to `AGENTS.md#tests`. A conflict the scan lists is handled as
-in Task 8.
+Input: `closed-0.md` to `closed-7.md` under `docs/knowledge/migration/scan/` at
+commit `5265563a`. For each document with the verdict `HAS UNIQUE KNOWLEDGE`,
+each listed item is checked against the code and then written to its owning spec
+— a `behaviour` item as a requirement or scenario, every other kind in
+`## Rationale` — or is struck in the scan file with the reason it is dropped. A
+constraint that is about tests goes to `AGENTS.md#tests`. A conflict the scan
+lists is handled as in Task 8.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`, `AGENTS.md`,
 `docs/knowledge/data/releases/*.md`, `docs/knowledge/data/plans.md`,
@@ -1150,9 +1151,14 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 ```
 
 Specs that Tasks 7 to 9 and 11 create or extend record behaviour the code
-already has and change none: `catalog-scripts`, `cloud-session-host`,
-`devcontainer-state`, `ci-workflows`, `pr-description`, `supported-harnesses`,
-`pr-review`, `ci-python-environment`.
+already has and change none: [catalog-scripts](../spec/catalog-scripts.md),
+[cloud-session-host](../spec/cloud-session-host.md),
+[devcontainer-state](../spec/devcontainer-state.md),
+[ci-workflows](../spec/ci-workflows.md),
+[pr-description](../spec/pr-description.md),
+[supported-harnesses](../spec/supported-harnesses.md),
+[pr-review](../spec/pr-review.md),
+[ci-python-environment](../spec/ci-python-environment.md).
 
 ## Depends on
 
@@ -1197,7 +1203,8 @@ history, and no plan is in flight while the rulebooks change.
 - `.iwe/config.toml#schemas.plan` — the path binding each type's archive folders
   join.
 - `.iwe/config.toml#schemas.hub` — the closed hub set.
-- `.iwe/schemas/architecture.yaml` — the type being retired.
+- `.iwe/schemas/architecture.yaml` — the retired type, bound only to the
+  archive.
 - `.iwe/schemas/release.yaml` — the release page's schema.
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` — the spec merge,
   the stage transitions, and the release cut.
@@ -1206,18 +1213,18 @@ history, and no plan is in flight while the rulebooks change.
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps` — where a plan
   sets `release` and closes the backlog task it grew from.
 - `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing` — where a
-  decision is routed to `data/architecture/`.
+  decision is routed to a spec's `## Rationale` and a finding to
+  `data/findings/`.
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::find_plan`
-  — looks only under `data/plans`.
+  — finds a plan by slug under `data/plans/` and every
+  `data/archive/<release>/plans/`.
 - `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py::canonical_target`
-  — maps a plan to `data/plans/<name>`.
+  — maps a plan to its live or archived plan key.
 - `.agents/plugins/agentdev/bin/plan_predecessors.py::stage_of` — reads a
   dependency's stage.
 - `scripts/check-anchors.py::resolver_spans` — which documents have their
   anchors resolved.
 - `scripts/check-ship-records.py::check` — the per-document dispatch the new
   checks join.
-- `docs/knowledge/tests/test_reserved_file_shapes.py` — holds the log shape
-  cases being removed.
 - `docs/knowledge/AGENTS.md#the-operating-loop` — the record step that names
   each home.
