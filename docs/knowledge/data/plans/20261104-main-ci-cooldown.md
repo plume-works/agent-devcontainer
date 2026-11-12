@@ -80,21 +80,31 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 **Files:** Create: `scripts/ci-cooldown.py`, `scripts/tests/test_ci_cooldown.py`
 
-- [ ] `scripts/ci-cooldown.py` reads `MAIN_COOLDOWN_SECONDS` (default `600`) and
+- [x] `scripts/ci-cooldown.py` reads `MAIN_COOLDOWN_SECONDS` (default `600`) and
   `MAIN_COOLDOWN_MAX_SECONDS` (default `1800`); an empty value takes the
   default, and a negative or non-integer value exits non-zero naming the
   variable.
-- [ ] The script lists Primary checks' `push` runs on `main` newest first
+  - **Evidence:** `scripts/ci-cooldown.py::_setting`;
+    `scripts/tests/test_ci_cooldown.py::test_invalid_variable_fails_naming_it`,
+    `scripts/tests/test_ci_cooldown.py::test_empty_variables_take_the_defaults`
+- [x] The script lists Primary checks' `push` runs on `main` newest first
   through `scripts/ci_runs.py`, skips its own run, and walks back over runs
   whose conclusion is `cancelled`; the first run with any other status or
   conclusion ends the walk. The anchor is the oldest walked run's `created_at`,
   or its own run's when the walk is empty.
-- [ ] The script sleeps `max(0, min(cooldown, anchor + cap - now))` seconds and
+  - **Evidence:** `scripts/ci-cooldown.py::_anchor`;
+    `scripts/tests/test_ci_cooldown.py::test_walk_stops_at_the_first_run_not_cancelled`,
+    `scripts/tests/test_ci_cooldown.py::test_newer_runs_are_not_walked`
+- [x] The script sleeps `max(0, min(cooldown, anchor + cap - now))` seconds and
   logs the anchor and the chosen wait. When the lookup fails, it warns and
   sleeps the full cooldown.
-- [ ] Tests run the script with an injected clock and sleep against a local HTTP
+  - **Evidence:** `scripts/ci-cooldown.py::main`;
+    `scripts/tests/test_ci_cooldown.py::test_anchor_past_the_cap_starts_at_once`,
+    `scripts/tests/test_ci_cooldown.py::test_failed_lookup_warns_and_waits_the_cooldown`
+- [x] Tests run the script with an injected clock and sleep against a local HTTP
   stub: no earlier run, an anchor already past the cap, an anchor inside the
   cooldown, a failed lookup, a cooldown of `0`, and an invalid variable.
+  - **Evidence:** `uv run pytest scripts/tests/test_ci_cooldown.py`
 
 ### Task 3: Widen the pre-commit range on main
 
