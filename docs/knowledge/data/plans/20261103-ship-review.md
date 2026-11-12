@@ -11,6 +11,7 @@ sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/657
 stage: done
 completed: 2026-11-11
+released: 3.0.0
 ---
 
 # Review every ship against Ship's obligations

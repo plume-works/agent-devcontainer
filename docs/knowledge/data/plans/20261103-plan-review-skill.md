@@ -10,6 +10,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 stage: done
 completed: 2026-11-12
+released: 3.0.0
 ---
 
 # The iwe-plan-review skill

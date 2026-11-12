@@ -14,6 +14,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 stage: done
 completed: 2026-11-08
+released: 3.0.0
 ---
 
 # Remove the IWE coordinators and relayed approvals

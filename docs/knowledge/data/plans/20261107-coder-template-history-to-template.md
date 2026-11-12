@@ -8,6 +8,7 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/tree/5ff6817/docs/knowledge
 stage: done
 completed: 2026-11-07
+released: 3.0.0
 ---
 
 # Move the template's finished history into coder-ide-baseline
