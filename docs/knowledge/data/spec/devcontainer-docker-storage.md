@@ -180,3 +180,36 @@ Rejected:
 - **The `ghcr.io/devcontainers/features/docker-in-docker` feature, alone or
   beside the supervised engine.** Beside it, two components would start and
   restart one daemon; alone, it cannot serve the deploy image.
+- **Docker-outside-of-docker in place of a nested engine.** It breaks bind
+  mounts of Dev Container paths outside the repository, which running another
+  image's tools against Dev Container files depends on.
+
+### Garbage is collected hourly by a supervised service, with an allow-list for volumes
+
+All Coder workspaces share one host disk, and a full disk stops a workspace from
+unpacking its Dev Container image, so its sub-agent never starts and nothing the
+agent start runs, Remote Control included, comes up. The 10 GB and 72-hour
+values are the maintainer's choice.
+
+Workspaces have no autostop, so a prune at agent start almost never runs; the
+collector is a supervised service that runs a pass when the host starts and then
+hourly. Each pass runs `docker builder prune` itself because BuildKit's own
+garbage collection may run only after a build. The cache limit counts only cache
+no kept image shares, which `docker buildx du` reports as Private: shared cache
+is a kept image's layers, so removing it frees no disk, and it starts to count
+once the 72-hour image rule removes its image. Volumes are removed only when
+their name matches a disposable pattern and they are old, so a volume the pass
+has never heard of is kept. Per-id `dind-var-lib-docker-<id>` test volumes are
+left to that age-gated pass rather than removed as each run finishes.
+
+Rejected:
+
+- **A keep-list that removes every unused volume except named login volumes.**
+  It deletes any new stateful volume whose container happens to be gone.
+- **A blanket `docker volume prune -a`.** It deletes logins on an engine with no
+  containers.
+- **Turning on Coder autostop so a start-time prune runs.** It changes workspace
+  behaviour to suit a cleanup schedule.
+- **Turning off the containerd image store to keep all storage under one
+  directory.** Both limits would still be needed, and Docker's default store
+  would be given up.

@@ -3,6 +3,8 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, Ship, and adversarial review skills, and the graph conventions they write by.
 sources:
 - resource: .iwe/schemas/plan.yaml
+- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/plans/mvp.example.md
+- resource: .agents/plugins/agentdev/bin/github_issue.py
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.py
@@ -38,8 +40,11 @@ sources:
 - resource: .github/workflows/validate-knowledge-base.yml
 - resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
+- resource: .iwe/schemas/okf.yaml
+- resource: docs/knowledge/tests/test_banned_frontmatter_keys.py
 - resource: py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py
 - resource: AGENTS.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md
 ---
 
 # IWE workflow skills
@@ -292,10 +297,12 @@ value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
 work adds, changes, or fixes. The Plan skill SHALL set that value when it files
 a plan, SHALL declare `internal` only when no workspace user or template
 consumer sees a difference, SHALL have Capture file a missing feature before it
-files the plan, and SHALL set every bug the plan lists to `stage: planned`. Ship
-SHALL take a plan's release entries only from that value, SHALL never create a
-feature, SHALL write the `## Fix` of each bug it marks done, and SHALL return
-each listed bug to `stage: pending` when it cancels the plan.
+files the plan, and SHALL set every bug the plan lists to `stage: planned`. A
+plan revision that adds a bug to `release` SHALL set it to `stage: planned`, and
+one that removes a bug SHALL return it to `stage: pending`. Ship SHALL take a
+plan's release entries only from that value, SHALL never create a feature, SHALL
+write the `## Fix` of each bug it marks done, and SHALL return each listed bug
+to `stage: pending` when it cancels the plan.
 
 #### Scenario: A plan introduces user-visible behavior with no feature
 
@@ -308,6 +315,17 @@ each listed bug to `stage: pending` when it cancels the plan.
 
 - **WHEN** Plan files a plan whose `release` lists a bug at `stage: pending`
 - **THEN** Plan sets the bug to `stage: planned`
+
+#### Scenario: A revision drops a bug from a plan
+
+- **WHEN** Plan revises a plan and removes a bug from its `release`
+- **THEN** Plan returns the bug to `stage: pending`
+
+#### Scenario: A milestone aggregator plan is filed
+
+- **WHEN** Plan files a milestone aggregator plan whose children are plans
+- **THEN** the aggregator declares `release: internal`, and each child plan
+  lists the features and bugs it closes
 
 #### Scenario: A plan changes nothing users see
 
@@ -922,9 +940,10 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 ### Requirement: Ship waits for every dependency
 
 The Ship skill SHALL, before Verify in normal shipping, read the stage of every
-plan in the plan's `## Depends on` in the checkout, never on another branch, and
-SHALL return a Ship blocker report naming each one that is not `stage: done`,
-making no state change.
+plan in the plan's `## Depends on` in the checkout's working tree, live or
+archived, through `/agentdev:iwe-branch-name plan-state`, never on another
+branch, and SHALL return a Ship blocker report naming each one that is not
+`stage: done`, making no state change.
 
 #### Scenario: Dependency not shipped
 
@@ -1178,6 +1197,24 @@ plugin.
 - **THEN** it leaves the commit messages out of the audit, since
   `/agentdev:git-commit` owns them
 
+### Requirement: Plan review runs both reviewers from fresh contexts and changes nothing
+
+`/agentdev:iwe-plan-review <plan>` SHALL dispatch the
+`Durable Knowledge Auditor` and `iwe-ship-reviewer` in one message, forwarding
+no conversation turns: the auditor's prompt SHALL carry only the plan file path
+and the scope `plan`, and the reviewer's only the plan key and the mode `plan`.
+It SHALL perform no review step itself, SHALL return both reports verbatim under
+each agent's name, and SHALL edit no file and commit nothing; applying the
+verdicts belongs to its caller. The skill SHALL be model-invocable, so the
+`iwe-planner` rulebook can run it in every mode.
+
+#### Scenario: Plan reaches its review step
+
+- **WHEN** `iwe-planner` reaches its review step on a created or revised plan
+- **THEN** both agents are dispatched in parallel with only those prompts, both
+  reports return unchanged, and the plan file is unchanged until Plan applies
+  them
+
 ### Requirement: Capture files complete inbox documents
 
 The Capture skill SHALL be the only writer of new bug, proposed-feature, and
@@ -1187,7 +1224,18 @@ likely duplicate before filing, SHALL file a feature at `stage: proposed` and
 never promote it, SHALL file a bug at `stage: pending` — or at `stage: done`
 with its `## Fix` when the same change fixed it — and a task at
 `stage: pending`, and SHALL link every filed document from its hub and end with
-`iwe normalize` and `iwe schema validate` passing.
+`iwe normalize` and `iwe schema validate` passing. Capture SHALL file no bug
+whose Reproduction or Root cause is a bare "unknown": a section not yet known
+states what is known, the hypotheses eliminated and what eliminated each, and
+links the backlog task whose spike settles it. No bug section SHALL state
+lifecycle, which `stage` alone carries, and a bug's `severity` SHALL measure
+impact, not urgency, and set nothing, `rank` included.
+
+#### Scenario: A bug's root cause is not yet known
+
+- **WHEN** Capture is invoked for a bug whose Root cause reads only "unknown"
+- **THEN** Capture writes nothing and asks for what is known, the hypotheses
+  eliminated, and the backlog task whose spike settles it
 
 #### Scenario: A complete item is captured
 
@@ -1388,12 +1436,14 @@ Rejected:
 
 Ship's entry skill is explicit-only, because a stray Ship run reaches the
 remote. Plan's is explicit-only too. Implement's is model-invocable: it needs a
-named active plan whose dependencies are done and asks when the plan is
-ambiguous, so a stray match has nothing to build, and Plan and Explore — the
-sessions where a stray start could happen — never name it. Verify mutates
+named active plan whose dependencies are done or in review and asks when the
+plan is ambiguous, so a stray match has nothing to build, and Plan and Explore —
+the sessions where a stray start could happen — never name it. Verify mutates
 nothing and the Implement loop invokes it, so a gate would protect nothing and
 block that loop. The adversarial review skill is model-invocable for the same
-reason: the Implement loop runs its planned task.
+reason: the Implement loop runs its planned task. Capture's is model-invocable
+so that Implement can file a deferred task or a defect mid-run without stopping
+for the user.
 
 Rejected:
 
@@ -1412,6 +1462,16 @@ Rejected:
 - **Make `/agentdev:iwe-verify` or `/agentdev:iwe-adversarial-review`
   explicit-only.** Either would block the Implement loop and protect nothing,
   since both are report-only.
+
+### Implement builds on a dependency in review; Ship does not ship ahead of it
+
+Implementation may run ahead of an unshipped dependency that has an open pull
+request, by stacking on that pull request; shipping may not run ahead of it.
+
+Rejected:
+
+- **Keep Implement's dependency gate.** It serializes every dependent plan
+  behind its dependency's full implement, review, merge, and ship cycle.
 
 ### Ship and Verify run from a conversation-free prompt; Implement runs in place
 
@@ -1447,8 +1507,21 @@ installed plugin is not a Git checkout and a session can load a catalog that
 differs from the one the commit holds. The lookup and save live in a script
 bundled with the skill, the one place every caller reaches on every harness.
 
+Each plan keeps one saved report, overwritten, because only the latest report is
+ever looked up. The user's approvals are recorded in the report but are not part
+of its key: an approval changes a verdict only by unblocking a command, and a
+run blocked on a missing approval ends in `Needs decision`, which is never
+saved. `verify-cache.py` writes a `.gitignore` holding `*` into `.tmp/verify/`,
+so a save never dirties the worktree Verify refuses to run on, even in a
+consuming repository that does not ignore `.tmp/`. A saved report is not reused
+across a rebase, a squash merge, or a fresh container, and trust in
+`.tmp/verify/` rests on the rule that only the skill's script writes it, not on
+any protection against a hand-written file.
+
 Rejected:
 
+- **One saved report per commit.** Reading an older report is a different
+  feature, incremental re-verify; the reuse check needs only the latest.
 - **Look up the saved report in the `iwe-verifier` rulebook.** A hit would still
   cost a dispatch.
 - **A handoff file the Implement side commits for the Shipper.** Committing it
@@ -1458,6 +1531,21 @@ Rejected:
   Verify and Ship run on one commit, so the commit is exact; hashes scoped to
   the plan's files miss changes outside that scope that a verification command
   can still depend on.
+
+### The Verify report is shown verbatim and routed by finding ID
+
+The report is the deliverable of a fresh context, so every caller shows it
+verbatim: a summary is a paraphrase of that verdict, and a path under
+`.tmp/verify/` is something the user cannot follow in chat. A Ship blocker
+report routes a CRITICAL by its `C<n>` ID because an ID is short and stable
+within one report, while a quoted first line is long and breaks when the
+verifier rewords it. IDs are scoped to one report and restart at 1 in each run,
+so nothing refers to a finding by ID across reports or Verify rounds.
+
+Rejected:
+
+- **A summary plus the saved report's path.** It paraphrases the verdict and
+  points the user at a file they cannot open from the conversation.
 
 ### The Implement loop runs in the Implement session with leaf agents
 
@@ -1495,8 +1583,13 @@ Rejected:
 Verify is a conformance check, so the Implement loop converges once the code
 meets the plan's contract, and the run is bounded by recurrence, three rounds,
 and one approved revision. CI belongs to `pr-merge`, which gates every merge on
-it. Ship, not Verify, refuses while a `**Closed by:**` task is unticked, so
-Verify's saved report is the same for both callers.
+it. Verify accepts a CI job as evidence without a run on the current head
+because a task citing a CI run cannot close before the pull request exists, and
+every fix commit would make the cited run stale. A verification search for
+leftover text covers only the files the plan changes, because a repository-wide
+search reads other plans' files and fails on text this plan did not change.
+Ship, not Verify, refuses while a `**Closed by:**` task is unticked, so Verify's
+saved report is the same for both callers.
 
 Rejected:
 
@@ -1540,6 +1633,22 @@ Rejected:
 - **Keep installing `iwec`.** With nothing registering it, the binary is dead
   weight in the image.
 
+### A bug records its own fix; a task has no bug lifecycle
+
+A bug keeps its own `## Fix` section because bugs reach `done` by two routes,
+and many are fixed directly by a pull request no plan references; only the bug's
+own section records those fixes. Backlog tasks do not get the bug lifecycle: a
+task's job ends when a plan grows from it, so `planned` means only that a plan
+owns a bug. `## Key references` is not required of a bug, because its anchors
+rot with the code while frontmatter `sources` already names the paths the bug
+derives from.
+
+Rejected:
+
+- **Drop `## Fix` and send the reader to the fixing plan through
+  `iwe find --references`.** A bug fixed without a plan is left with no record
+  of its fix.
+
 ### Work-item state, order, and hubs are laid out to avoid merge conflicts
 
 Parallel pull requests each write project state, and a spot every pull request
@@ -1572,6 +1681,16 @@ Rejected:
   order and leaves independent work unordered.
 - **Hubs generated from frontmatter, not committed.** It drops the browsable
   list and the editor tree and adds a generator to maintain.
+
+### Explore interviews one decision at a time by default
+
+Settling open questions one topic and one decision at a time is Explore's
+default behaviour, so every exploration gets it without the user asking.
+
+Rejected:
+
+- **A separate interview skill or an opt-in mode.** A second entry point would
+  leave the default unchanged.
 
 ### Approved wording is carried in `.tmp/` and inlined in the plan
 
@@ -1611,6 +1730,22 @@ Rejected:
 - **Reconciling a stale delta from the implementation.** It erases the reviewed
   contract; a material mismatch returns to Plan revision.
 
+### A plan's release impact is a frontmatter field chosen when it is written
+
+The maintainer decided that a plan's release impact is chosen and reviewed when
+the plan is written. It lives in the `release` frontmatter field because the
+plan schema can require a frontmatter field only while a plan is active.
+
+Rejected:
+
+- **A `## Release` body section.** The schema cannot require a body section only
+  on active plans, so enforcement would fall to the skills.
+- **Verify cross-checking `release: internal` against a non-empty
+  `## Spec changes`.** A plan can change specified behaviour without closing a
+  feature or a bug.
+- **A `RENAMED` operation.** A fourth operation carries identity semantics that
+  only a parser would act on; a removal plus an addition says the same thing.
+
 ### A CRITICAL blocks Ship with no override
 
 Normal Ship runs Verify itself, so verification is not a step a user can forget,
@@ -1627,6 +1762,11 @@ Rejected:
   false.
 - **Cancelling the plan over one undone task.** Out of scale; a revision that
   drops the task is the proportionate route.
+- **Ship running its own copy of Verify's checks.** Two copies of one rulebook
+  drift.
+- **Softening the no-override rule so a task the user declined can ship.** A
+  revision that drops the task through Plan's revise mode, which asks the user
+  because dropping a task is a material scope change, keeps the gate whole.
 
 ### The durable-knowledge audit is an isolated leaf
 
@@ -1648,3 +1788,167 @@ Rejected:
 - **Detecting narration mechanically in the plan-shape gate.** Narration has no
   shape: a length or prose-ratio heuristic fires on long plans and misses a
   short dense logbook.
+
+### Issue closing has one implementation in `bin/`
+
+Plan and Capture both close a GitHub issue, so the closing logic lives once in
+the shared `bin/github_issue.py`, and each skill's `close-issue.py` only names
+its own command and arguments.
+
+Rejected:
+
+- **Capture calling Plan's close script.** It couples one skill to another's
+  `--plan` contract.
+- **A copy of the closing logic per skill.** Two copies of one algorithm drift.
+
+### The no-logbook rule lives in the root AGENTS.md with two tests
+
+Best Practice 8 in the repository `AGENTS.md` states the rule because logbook
+residue appears in every kind of text an agent writes, not only in the graph;
+`docs/knowledge/AGENTS.md` keeps only the places where narrative is the format.
+Its two tests ask different questions: "rewritten from scratch" asks whether a
+fact is durable, "gone right the first time" asks whether a sentence is a
+logbook trace, and a durable fact can still be phrased as narration.
+
+Rejected:
+
+- **The rule under the graph manual only.** Code comments, skills, and pull
+  request bodies would fall outside it.
+
+### Revision and spec synchronization belong to Plan and Ship
+
+Plan's revise mode owns every change to an active plan and Ship is the only
+workflow that writes durable specs, which keeps one owner per kind of state:
+Explore investigates, Plan owns planning state, Implement records tactical
+deviations, Verify proves, Ship merges specs.
+
+Rejected:
+
+- **Separate Update and Sync skills.** They add entry points and split the
+  ownership each existing skill holds.
+
+### A revision keeps its plan only while the plan's intent holds
+
+A revision stays in the same plan only while topic, intended outcome, and
+verification story remain materially the same. A plan's completed tasks and
+their evidence mean what they mean against that intent; replacing it in place
+leaves them claiming something nobody checked.
+
+Rejected:
+
+- **Revising any active plan in place, whatever the change.** It silently
+  rewrites the meaning of work already ticked.
+
+### Ship merges specs from verified evidence before it moves any state
+
+Ship derives each durable spec update from the plan's `## Spec changes` and
+Verify's implementation evidence, validates the merged specs, and only then
+moves plan, feature, bug, and release state, so a plan is never recorded as done
+while a spec it touched still describes the old behaviour.
+
+Rejected:
+
+- **Overwriting a spec from plan prose.** A plan can be stale, and a whole-spec
+  overwrite erases scenarios the change never touched.
+- **Moving stages before the spec merge is verified.** A failed merge then
+  leaves a plan marked done that is not.
+
+### A spec contradiction found outside a plan becomes a bug
+
+A spec-versus-code contradiction found with no plan in flight is handed to
+Capture as a bug, because Ship acts only on a selected plan's `## Spec changes`
+and has nothing to merge without one.
+
+Rejected:
+
+- **Handing the contradiction to Ship.** No plan carries the intent Ship would
+  merge.
+
+### The IWE workflow skills carry an iwe prefix in the agentdev catalog
+
+The maintainer placed the IWE workflow skills in the `agentdev` catalog, so one
+catalog is versioned and installed, accepting that `agentdev` ships a workflow
+that assumes an IWE graph. The `iwe-` prefix stays although `agentdev:` already
+namespaces, because `plan`, `ship`, and `verify` alone would read as peers of
+the `pr-*` skills in the same directory.
+
+Rejected:
+
+- **A separate `iwe` plugin.** A second catalog to version and install.
+- **Keeping the skills under `.claude/skills/`.** Every template consumer would
+  inherit them outside the supported install path.
+
+### Explore's evidence gate opens its stance
+
+The gate sits at the top of Explore's stance, so it applies before any proposal
+is formed.
+
+Rejected:
+
+- **Extending the `Evidence before argument` interview rule.** That rule runs
+  only once open questions exist, which is after an over-scoped proposal has
+  been written.
+
+### Workflow skills get no live-model end-to-end test
+
+An end-to-end test of the workflow skills is not kept unrun: an unrun test rots
+and still reads as coverage. The ban names the agentdev workflow skills only;
+the self-improve plugin's `smoke`, `pty`, and `auto_memory` live-session tests
+are kept by the maintainer's decision.
+
+Rejected:
+
+- **No live-model test anywhere in the repository.** It would remove the
+  self-improve live-session tests the maintainer kept.
+
+### Only the planner keeps a rule from being restated in a spec
+
+Ship preserves every requirement and scenario a plan's `## Spec changes` does
+not touch, so a restated rule can only be kept out where the delta is written. A
+spec stating the behaviour its code or rulebook also carries is intended and is
+not that redundancy: a statement of how the catalog is wired keeps its copy in
+the spec.
+
+Rejected:
+
+- **Verify or `iwe-revision-evaluator` flags a restated rule.** The check
+  belongs where the delta is written, and a Verify finding arrives after
+  implementation.
+
+### The Ship review loop belongs to the Ship skill
+
+`/agentdev:iwe-ship` runs the review-and-fix loop, and so does Plan revise mode
+answering a Ship blocker report, because `/agentdev:iwe-ship` is explicit-only.
+`iwe-ship-reviewer` commits its own `## Ship review`, because it is that
+section's only writer.
+
+Rejected:
+
+- **`iwe-shipper` dispatches `iwe-ship-reviewer` as its last step.** Rejected by
+  the repository owner.
+
+### OKF's `generated` and `verified` are banned; `sources` stays
+
+`generated.at` changed on every edit, so two branches touching one document
+collided in its frontmatter even when their content did not; that merge cost,
+with review noise and upkeep, is why `generated` and `verified` are not set.
+`okf.yaml` accepts undeclared fields, so dropping a field's declaration does not
+keep it out of a document; the ban has to be a check, and one check covers
+`status`, `generated`, and `verified`. `sources` stays: it records what a
+document derives from and does not change on every edit.
+
+Rejected:
+
+- **A second near-copy test per banned key.** One check covers all three.
+
+### A plan draft is reviewed by two existing agents through one skill
+
+`/agentdev:iwe-plan-review` fans out to the `Durable Knowledge Auditor` and to
+`iwe-ship-reviewer` in plan mode, so each rubric lives in exactly one agent and
+every Plan mode reaches both through a single step.
+
+Rejected:
+
+- **Widening the `Durable Knowledge Auditor`'s rubric to Ship's obligations.**
+  `iwe-ship-reviewer` exists for its ship mode anyway, and one rubric held by
+  two agents would drift.

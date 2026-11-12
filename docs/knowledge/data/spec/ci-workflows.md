@@ -10,6 +10,8 @@ sources:
 - resource: .pre-commit-config.yaml
 - resource: ansible/roles/dev_tools/defaults/main.yml
 - resource: https://docs.zizmor.sh/audits/#self-repository
+- resource: .github/actions/paths-filter/action.yml
+- resource: scripts/tests/test_paths_filter_last_pass.py
 ---
 
 # CI workflows
@@ -56,7 +58,40 @@ that accepts `$/`.
 - **WHEN** a workflow under `.github/` references a local action as `./...`
 - **THEN** the `zizmor` hook fails
 
+### Requirement: a push to the base branch filters paths from the last passing run
+
+On a push to its base branch, the shared `paths-filter` action SHALL compare
+against the head commit of the calling workflow's last successful `push` run on
+that branch, so commits whose runs were cancelled or failed stay in the compared
+range until a run passes. When there is no such run, or it is the pushed commit,
+the action SHALL compare against the previous push; when the lookup fails, it
+SHALL warn and do the same. Every job that runs the action SHALL grant
+`actions: read`.
+
+#### Scenario: the previous push's run was cancelled
+
+- **WHEN** a push to `main` follows a push whose run was cancelled before
+  passing
+- **THEN** the filter compares from the commit of the last passing run, so the
+  cancelled push's changed paths still match
+
+#### Scenario: the run lookup fails
+
+- **WHEN** the workflow-run lookup fails
+- **THEN** the action logs a warning and compares against the previous push
+
 ## Rationale
+
+### Paths are filtered from the last passing run
+
+`dorny/paths-filter` with `base` equal to the pushed branch compares only
+against the previous push, so a workflow that cancels in-progress runs on its
+base branch would drop a cancelled commit's path matches for good.
+
+Rejected:
+
+- **`base` set to the pushed branch alone.** A cancelled or failed run's changes
+  never trigger the filtered jobs again.
 
 ### Fork pull requests are not made to pass
 

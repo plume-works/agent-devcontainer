@@ -21,7 +21,8 @@
     one would be the separate incremental re-verify feature
     (`backlog/incremental-re-verify.md`). — already partly in:
     `architecture/fresh-context-verify.md` › "The skill keeps one saved report
-    per plan" (decision only, no reason)
+    per plan" (decision only, no reason) — written:
+    `spec/iwe-workflow-skills#a-saved-verify-report-is-reused-by-commit-and-catalog-digest`
   - [rationale] The user's approvals are recorded in the saved report but are
     not part of its key, because an approval changes a verdict only by
     unblocking a command and a run blocked on a missing approval ends in
@@ -29,16 +30,19 @@
     `spec/iwe-workflow-skills.md` (the `/agentdev:iwe-verify` saved-report
     requirement states "neither SHALL be part of the key");
     `architecture/fresh-context-verify.md` › "A `Needs decision` report is never
-    saved"
+    saved" — written:
+    `spec/iwe-workflow-skills#a-saved-verify-report-is-reused-by-commit-and-catalog-digest`
   - [constraint] `verify-cache.py` writes `.tmp/verify/.gitignore` containing
     `*`, so saving a report never dirties the worktree Verify refuses to run on,
     including in a consuming repository that does not ignore `.tmp/`. — already
-    partly in: nowhere
+    partly in: nowhere — written:
+    `spec/iwe-workflow-skills#a-saved-verify-report-is-reused-by-commit-and-catalog-digest`
   - [non-goal] A saved Verify report is not reused across a rebase, a squash
     merge, or a fresh container, and `.tmp/verify/` is not protected against a
     hand-written file beyond the rule that only the skill's script writes it. —
     already partly in: `architecture/fresh-context-verify.md` › "Trust in
-    `.tmp/verify/` rests on a rule" (second half only)
+    `.tmp/verify/` rests on a rule" (second half only) — written:
+    `spec/iwe-workflow-skills#a-saved-verify-report-is-reused-by-commit-and-catalog-digest`
 - conflicts: none. The plan's reason for rejecting a lookup in the
   `iwe-verifier` rulebook, "An agent body rendered into a Codex TOML cannot
   reach a skill's bundled script plugin-relatively", is about Codex, which
@@ -59,7 +63,8 @@
     repository (two texts drift), and moving every document that touches the
     template (it takes this repository's half of mixed plans). — already partly
     in: `spec/coder-ide-baseline.md` introduction › "This spec records this
-    repository's side of the contract" (outcome only)
+    repository's side of the contract" (outcome only) — written:
+    `spec/coder-ide-baseline#each-requirement-lives-in-the-repository-whose-code-satisfies-it`
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261031-kb-conflict-free-layout.md
@@ -107,11 +112,13 @@
     self-contained for template consumers who copy that one file. — already
     partly in: nowhere
     (`architecture/formatter-ownership.md#secret-scanning-over-commit-ranges`
-    describes the modes, not where they live)
+    describes the modes, not where they live) — written:
+    `spec/pre-commit-gate#the-gitleaks-mode-switch-is-inline-in-the-hook`
   - [constraint] The `pre-commit` CI job has no path filter: pre-commit itself
     skips a hook whose files did not change, except `always_run` hooks such as
     gitleaks and `no-commit-to-branch`, which must run on every event. — already
-    partly in: nowhere
+    partly in: nowhere — written:
+    `spec/pre-commit-gate#the-pre-commit-ci-job-has-no-path-filter`
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261031-remove-codebase-map.md
@@ -128,12 +135,14 @@
     architecture document `/agentdev:iwe-setup` drafts covers a new reader's
     cold start. — already partly in: `architecture/no-code-graph.md#decision` ›
     "Agents orient with `grep` over the code plus the `spec/` and
-    `architecture/` documents" (about codebase-memory-mcp, not the map)
+    `architecture/` documents" (about codebase-memory-mcp, not the map) —
+    written: `spec/template-consumption#the-graph-keeps-no-codebase-map`
   - [non-goal] No replacement for the map: no one-page orientation document (it
     duplicates setup's architecture document and the README), no advisory digest
     gate (keeps the refresh cost and the risk of wrong text), and no instruction
     for planners to read derived text no check confirms. — already partly in:
-    nowhere
+    nowhere — written:
+    `spec/template-consumption#the-graph-keeps-no-codebase-map`
   - [rationale] Template-consume update mode removes a consumer's map without
     asking — its one exception to "migrating consumer documents is the user's
     decision" — because the installed catalog no longer ships
@@ -141,12 +150,16 @@
     that fails. — already partly in: `spec/template-consumption.md` requirement
     "an update removes a retired codebase map" › "This is the one
     consumer-memory change update mode makes without the user's decision"
-    (behaviour, no reason)
-- conflicts: the plan's `## Approach` says backlog tasks gain a `cancelled`
+    (behaviour, no reason) — written:
+    `spec/template-consumption#update-mode-removes-a-retired-codebase-map-without-asking`
+- conflicts: ~~the plan's `## Approach` says backlog tasks gain a `cancelled`
   stage "mapped to OKF `status: deprecated` as for cancelled plans and bugs";
   `spec/iwe-workflow-skills.md` requirement "Workflow improvements preserve the
   IWE and OKF model" says "No document under `data/` SHALL set OKF's optional
-  `status`".
+  `status`".~~ — struck: stale plan statement; the code keeps `status` out of
+  the graph (`docs/knowledge/tests/test_banned_frontmatter_keys.py`, the
+  `banned-frontmatter-keys` hook in `.pre-commit-config.yaml`), and the spec is
+  correct
 
 ## docs/knowledge/data/plans/20261031-remove-codex.md
 
@@ -170,19 +183,26 @@
     user cannot follow in chat. Rejected: a summary plus the saved report's
     path. — already partly in: `spec/iwe-workflow-skills.md` (the requirement
     beginning "Every Verify report SHALL number its findings" states the
-    behaviour only)
+    behaviour only) — written:
+    `spec/iwe-workflow-skills#the-verify-report-is-shown-verbatim-and-routed-by-finding-id`
   - [rationale] A Ship blocker report routes each Verify CRITICAL by its `C<n>`
     ID instead of quoting the finding's first line, because a quote is long and
     breaks when the verifier rewords the line, while an ID is short and stable
-    within one report. — already partly in: same requirement (behaviour only)
+    within one report. — already partly in: same requirement (behaviour only) —
+    written:
+    `spec/iwe-workflow-skills#the-verify-report-is-shown-verbatim-and-routed-by-finding-id`
   - [constraint] Finding IDs are scoped to one Verify report and restart at 1 in
     each run; nothing may refer to a finding across reports or Verify rounds by
-    ID. — already partly in: nowhere
-- conflicts: the plan's `## Approach` says "`iwe-ship-all` is changed to do the
-  same" and "`iwe-implement-all` re-posts each plan's final Verify report
+    ID. — already partly in: nowhere — written:
+    `spec/iwe-workflow-skills#the-verify-report-is-shown-verbatim-and-routed-by-finding-id`
+- conflicts: ~~the plan's `## Approach` says "`iwe-ship-all` is changed to do
+  the same" and "`iwe-implement-all` re-posts each plan's final Verify report
   verbatim"; `architecture/explicit-only-workflow-agents.md#decision` says
   "There is no skill that implements or ships every plan in turn", and neither
-  skill exists in `.agents/plugins/agentdev/skills/`.
+  skill exists in `.agents/plugins/agentdev/skills/`.~~ — struck: stale plan
+  statement; neither skill exists under `.agents/plugins/agentdev/skills/`, and
+  `spec/iwe-workflow-skills#ship-and-verify-run-from-a-conversation-free-prompt-implement-runs-in-place`
+  rejects coordinator skills
 
 ## docs/knowledge/data/plans/20261101-build-on-unshipped-dependencies.md
 
@@ -195,13 +215,18 @@
     gate, serializes every dependent plan behind its dependency's full
     implement–review–merge–ship cycle. — already partly in:
     `spec/iwe-workflow-skills.md` requirement "Ship waits for every dependency"
-    and the Implement branch-base scenarios (behaviour only)
-- conflicts: the plan's `## Approach` says every `## Depends on` plan "must be
+    and the Implement branch-base scenarios (behaviour only) — written:
+    `spec/iwe-workflow-skills#implement-builds-on-a-dependency-in-review-ship-does-not-ship-ahead-of-it`
+- conflicts: ~~the plan's `## Approach` says every `## Depends on` plan "must be
   `stage: done` at the remote default branch"; `spec/iwe-workflow-skills.md`
   requirement "Ship waits for every dependency" says Ship reads the stage "in
   the checkout, never on another branch", and its scenario "Dependency shipped
   on the same branch" says a dependency "not yet `stage: done` on the default
-  branch" is treated as shipped.
+  branch" is treated as shipped.~~ — resolved: stale; the spec is right —
+  `iwe-shipper.agent.md#steps` reads each dependency through
+  `iwe-branch-name plan-state`, whose `iwe-branch-name.py::read_plan_state`
+  reads the working tree; written:
+  `spec/iwe-workflow-skills#requirement-ship-waits-for-every-dependency`
 
 ## docs/knowledge/data/plans/20261101-docker-storage-periodic-gc.md
 
@@ -216,24 +241,30 @@
     logins on an engine with no containers). — already partly in:
     `spec/devcontainer-docker-storage.md` requirement "the Dev Container engine
     collects garbage hourly" › "A pass SHALL NOT remove any other volume"
-    (behaviour only)
+    (behaviour only) — written:
+    `spec/devcontainer-docker-storage#garbage-is-collected-hourly-by-a-supervised-service-with-an-allow-list-for-volumes`
   - [rationale] Collection runs hourly from a supervised service, with the first
     pass at host start, because workspaces have no autostop so a prune at agent
     start almost never runs, and each pass runs `docker builder prune` itself
     because BuildKit's own garbage collection may run only after a build. —
     already partly in: `spec/devcontainer-docker-storage.md` scenario "the cache
-    stays over the limit without a build" (behaviour only)
+    stays over the limit without a build" (behaviour only) — written:
+    `spec/devcontainer-docker-storage#garbage-is-collected-hourly-by-a-supervised-service-with-an-allow-list-for-volumes`
   - [constraint] BuildKit counts toward the 10 GB cap only cache that kept
     images do not share (`docker buildx du` reports it as Private); shared cache
     is the kept images' layers, so removing it frees no disk, and it counts once
     the 72-hour image rule removes its image. — already partly in:
     `spec/devcontainer-docker-storage.md` requirement "the Dev Container engine
-    limits its build cache" › "SHALL leave cache that a kept image shares"
+    limits its build cache" › "SHALL leave cache that a kept image shares" —
+    written:
+    `spec/devcontainer-docker-storage#garbage-is-collected-hourly-by-a-supervised-service-with-an-allow-list-for-volumes`
   - [non-goal] Coder autostop is not turned on to make a start-time prune run
     (it changes workspace behaviour to work around a cleanup schedule); the
     72-hour image window is not counted from last use; per-id
     `dind-var-lib-docker-<id>` test volumes are not removed as their runs
-    finish, the age-gated pass removes them. — already partly in: nowhere
+    finish, the age-gated pass removes them. — already partly in: nowhere —
+    written:
+    `spec/devcontainer-docker-storage#garbage-is-collected-hourly-by-a-supervised-service-with-an-allow-list-for-volumes`
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261101-explore-interviews-open-questions.md
@@ -246,7 +277,8 @@
     for it as the default, and a second entry point would leave the default
     unchanged. — already partly in: `spec/iwe-workflow-skills.md` Explore
     requirement › "one decision per question, in the user's names and design"
-    (behaviour only)
+    (behaviour only) — written:
+    `spec/iwe-workflow-skills#explore-interviews-one-decision-at-a-time-by-default`
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261101-manual-stacked-prs.md
@@ -258,35 +290,45 @@
     request whose head lives in a fork because only branches of the remote are
     cut from or restacked: a fork head names a branch that the remote may also
     hold under the same name. — already partly in: `spec/stacked-prs.md`
-    scenarios "Predecessor in a fork" and "Head in a fork" (behaviour only)
+    scenarios "Predecessor in a fork" and "Head in a fork" (behaviour only) —
+    written: `spec/stacked-prs#dependent-work-is-stacked-with-merges-only`
 - held otherwise in: `architecture/manual-stacked-prs.md` (recording a
   dependency, reconnect, restack from a detached worktree, the `iwe/**` ruleset
   bypass constraint, all five rejected alternatives).
-- conflicts: the plan's `## Out of scope` says of the AI task responder "It
+- conflicts: ~~the plan's `## Out of scope` says of the AI task responder "It
   pushes as the GitHub Actions app", and
   `architecture/manual-stacked-prs.md#blocking-merges-into-dependent-branches`
   repeats "as the AI task responder does";
   `architecture/responder-app-identity.md#context` says "The responder runs only
-  on pull request events and pushes nothing".
+  on pull request events and pushes nothing".~~ — struck: stale plan statement;
+  `.github/workflows/ai-responder.yml` grants every job `contents: read` and no
+  task responder exists (`spec/ai-review-gate` Rationale rejects one);
+  `spec/stacked-prs#dependent-work-is-stacked-with-merges-only` names no
+  responder
 
 ## docs/knowledge/data/plans/20261101-okf-bundle-in-spec.md
 
 - verdict: HAS UNIQUE KNOWLEDGE
 - owning spec: iwe-workflow-skills
 - unique items:
-  - [constraint] A pre-commit check, not a schema, keeps `status` out of the
+  - ~~[constraint] A pre-commit check, not a schema, keeps `status` out of the
     graph: the `okf` schema does not declare `status` and accepts undeclared
     fields, so rejecting it there would mean forbidding one property while still
     accepting every other undeclared one. — already partly in:
     `spec/iwe-workflow-skills.md` requirement "Workflow improvements preserve
     the IWE and OKF model" › "The `banned-frontmatter-keys` pre-commit check
-    SHALL reject" (behaviour only)
+    SHALL reject" (behaviour only)~~ — struck: already held by
+    `spec/iwe-workflow-skills#okfs-generated-and-verified-are-banned-sources-stays`
+    › "`okf.yaml` accepts undeclared fields"
 - held otherwise in: `architecture/kb-conflict-free-layout.md#decisions` › "The
   graph stays an OKF v0.2 bundle and diverges only to cut merge or upkeep cost".
-- conflicts: the plan's `## Approach` describes "A pytest module [that] reads
+- conflicts: ~~the plan's `## Approach` describes "A pytest module [that] reads
   the frontmatter of every document … and fails … when one carries a `status`
   key"; the spec names the enforcing mechanism as "The `banned-frontmatter-keys`
-  pre-commit check", which rejects `status`, `generated`, and `verified`.
+  pre-commit check", which rejects `status`, `generated`, and `verified`.~~ —
+  struck: no contradiction; the `banned-frontmatter-keys` hook in
+  `.pre-commit-config.yaml` runs the pytest module
+  `docs/knowledge/tests/test_banned_frontmatter_keys.py`, so the spec is correct
 
 ## docs/knowledge/data/plans/20261101-per-checkout-uv-environments.md
 
@@ -321,13 +363,15 @@
     files and fails on text the plan did not change. — already partly in:
     `spec/iwe-workflow-skills.md` requirement "Plans test behaviour and leave CI
     to the merge gate" › "SHALL scope a verification search for leftover text to
-    the files the plan changes" (behaviour only)
+    the files the plan changes" (behaviour only) — written:
+    `spec/iwe-workflow-skills#the-loop-acts-only-on-what-the-plan-promised`
   - [rationale] Verify accepts a CI job as evidence without a run on the current
     head because a task citing a CI run cannot close before the pull request
     exists and every fix commit makes the cited run stale. — already partly in:
     `architecture/autonomous-implement-loop.md#rejected-alternatives` › "its
     causes, CI timing and unbounded probing"; `spec/iwe-workflow-skills.md` ›
-    "without requiring a run on the current head"
+    "without requiring a run on the current head" — written:
+    `spec/iwe-workflow-skills#the-loop-acts-only-on-what-the-plan-promised`
 - held otherwise in: `architecture/autonomous-implement-loop.md#decision` › "The
   loop acts only on what the plan promised" and both rejected alternatives.
 - conflicts: none
@@ -344,15 +388,18 @@
     leaves those bugs with no record of their fix. — already partly in:
     `docs/knowledge/SCHEMA.md` bug section › "by the fixer when a change fixes
     it directly, by Ship from the plan that fixed it" (not in `spec/` or
-    `architecture/`)
+    `architecture/`) — written:
+    `spec/iwe-workflow-skills#a-bug-records-its-own-fix-a-task-has-no-bug-lifecycle`
   - [rationale] Backlog tasks do not get the bug lifecycle: a task's job ends
     when a plan grows from it, so its stages are `pending | done | cancelled`
     and `planned` means only "a plan owns this bug". — already partly in:
-    nowhere in `spec/` or `architecture/`
+    nowhere in `spec/` or `architecture/` — written:
+    `spec/iwe-workflow-skills#a-bug-records-its-own-fix-a-task-has-no-bug-lifecycle`
   - [rationale] `## Key references` is not required of a bug and Capture does
     not write it, because its anchors rot with the code while frontmatter
     `sources` already names the paths the bug derives from. — already partly in:
-    nowhere
+    nowhere — written:
+    `spec/iwe-workflow-skills#a-bug-records-its-own-fix-a-task-has-no-bug-lifecycle`
   - [constraint] No bug section states lifecycle — `stage` alone does — and
     `severity` measures impact, not urgency, and is descriptive only, tied to
     nothing including `rank`; an unknown Reproduction or Root cause records what
@@ -360,16 +407,21 @@
     never a bare "unknown". — already partly in: `docs/knowledge/SCHEMA.md` bug
     section (not in `spec/` or `architecture/`; `spec/iwe-workflow-skills.md`
     requirement "Bug and feature documents keep the SCHEMA.md shape" holds only
-    the enums)
+    the enums) — written:
+    `spec/iwe-workflow-skills#requirement-capture-files-complete-inbox-documents`
   - [behaviour] A plan revision that removes a bug from `release` returns that
     bug to `stage: pending`. — already partly in: nowhere
     (`spec/iwe-workflow-skills.md` covers only Ship's cancellation returning a
-    bug to `pending`)
-- conflicts: the plan's `## Context` says "Nothing enforces that a done bug
+    bug to `pending`) — written:
+    `spec/iwe-workflow-skills#requirement-plans-declare-their-release-impact`
+- conflicts: ~~the plan's `## Context` says "Nothing enforces that a done bug
   carries a Fix — no schema rule, CI check, or refusal gate", and its
   `## Out of scope` lists "any check that a done bug carries a `## Fix`";
   `spec/pre-commit-gate.md` requirement "Ship records are gated in pre-commit"
-  says "The CLI SHALL fail a bug at `stage: done` that has no `## Fix` heading".
+  says "The CLI SHALL fail a bug at `stage: done` that has no `## Fix`
+  heading".~~ — struck: stale plan statement; `scripts/check-ship-records.py`
+  fails a done bug with no `## Fix` section, so `spec/pre-commit-gate` is
+  correct
 
 ## docs/knowledge/data/plans/20261102-model-invocable-ship.md
 
@@ -400,6 +452,8 @@
     more. — already partly in: `spec/image-pinning.md` requirement "the Ubuntu
     base is pinned by digest and refreshed weekly" (behaviour; scenario "a pull
     request builds the images" › "never from a published `agentdev-base` image")
+    — written:
+    `spec/image-pinning#the-weekly-ubuntu-digest-bump-is-the-scheduled-clean-rebuild`
   - [constraint] `agentdev-base` starts from `ubuntu-ansible` by digest, so that
     digest must not change per run: CI builds `ubuntu-ansible` without the
     `org.opencontainers.image.created`, `.revision`, and `.version` labels, and
@@ -407,11 +461,13 @@
     pushed index, whose provenance attestation changes every run. — already
     partly in: `spec/agentdev-runtime-images.md` requirement "image builds read
     only their declared inputs" › "`ubuntu-ansible` SHALL carry no per-run
-    labels" (labels only; the index-versus-manifest fact is nowhere)
+    labels" (labels only; the index-versus-manifest fact is nowhere) — written:
+    `spec/agentdev-runtime-images#agentdev-base-provisions-in-three-tagged-steps-from-a-stable-parent-digest`
   - [constraint] `ansible.cfg` sets `log_path=ansible/ansible.log`, which
     resolves inside the read-only `/provision` bind mount, so each provisioning
     step sets `ANSIBLE_LOG_PATH=` to keep Ansible from writing a log there. —
-    already partly in: nowhere
+    already partly in: nowhere — written:
+    `spec/agentdev-runtime-images#agentdev-base-provisions-in-three-tagged-steps-from-a-stable-parent-digest`
   - [rationale] Provisioning is three `RUN` steps selected by Ansible tag rather
     than one step behind the `.dockerignore` allow-list, because the most
     frequent image change, a catalog edit, would otherwise reprovision every
@@ -419,11 +475,16 @@
     role file, because a role would make host provisioning carry a container
     entrypoint it never uses. — already partly in:
     `spec/agentdev-runtime-images.md` scenario "a catalog-only change"
-    (behaviour only)
-  - [behaviour] An untagged `setup-dev.yml` run still runs every role in
+    (behaviour only) — written:
+    `spec/agentdev-runtime-images#agentdev-base-provisions-in-three-tagged-steps-from-a-stable-parent-digest`
+  - ~~[behaviour] An untagged `setup-dev.yml` run still runs every role in
     playbook order, and a build opts in or out of the catalog by running or
     omitting the `--tags agent_catalog` step, with no role switch variable. —
-    already partly in: nowhere
+    already partly in: nowhere~~ — struck: stale — the code contradicts it:
+    `ansible/playbooks/setup-dev.yml` gates `agent_catalog` (and every
+    capability role) behind an `install_<role>` switch defaulting to false, so
+    an untagged run skips it and `docker/base/agentdev-base.Dockerfile` passes
+    `install_agent_catalog=true` with `--tags agent_catalog`
 - held otherwise in: `architecture/gh-wrapper-image-only.md` (the `gh` wrapper
   decision and why), `spec/catalog-lifecycle.md` requirement "the staged catalog
   holds only the plugin catalog", `architecture/template-boundary.md` ›

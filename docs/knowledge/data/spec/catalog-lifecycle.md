@@ -264,6 +264,13 @@ repository, `worktree create` SHALL merge the main checkout's local
 - **THEN** the worktree's `.claude/settings.local.json` lists those rules
   alongside any it already had, whether or not the checkout ships a catalog.
 
+#### Scenario: the main checkout's local settings cannot be read
+
+- **WHEN** the main checkout's `.claude/settings.local.json` is not valid JSON
+  and the hook creates a worktree
+- **THEN** the hook warns on stderr, copies no rule, and still creates the
+  worktree.
+
 ### Requirement: only agent credentials are shared across worktrees
 
 The shared auth volume SHALL hold only Claude's authentication state, mounted at
@@ -384,6 +391,9 @@ Rejected:
   (`uv`, `bun`, the linters) that grounds a review.
 - **A repository-local copy of the review skill.** It forks from the catalog's
   copy and drifts.
+- **Dropping the `settings` input and relying on the user settings the lifecycle
+  commands wrote.** The project's permissions and model pin reach the responder
+  session only through that input.
 
 ### The runtime ships no code-graph index
 

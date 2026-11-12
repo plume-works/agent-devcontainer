@@ -17,6 +17,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/opencode.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/settings.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/xpra.py
 ---
 
 # Standalone OpenCode runtime
@@ -49,8 +50,8 @@ Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL NOT install Codex.
 
 - **WHEN** an existing consumer starts `agentdev-base` or runs its own copied
   devcontainer hooks on it
-- **THEN** its command defaults, Coder integration, opt-outs, and lifecycle
-  failure semantics remain those `agent-desktop` provided, and no deploy runtime
+- **THEN** it keeps the lifecycle-neutral base's command defaults, Coder
+  integration, opt-outs, and lifecycle failure semantics, and no deploy runtime
   starts.
 
 ### Requirement: runtime identity preserves workspace and credential ownership
@@ -416,8 +417,8 @@ Rejected:
   container's file ownership.
 - **Sharing OpenCode's database.** Sessions live in it, so they would be shared
   too.
-- **Sharing OpenCode's `auth.json`.** OpenCode imports it once and never writes
-  it, so it would carry only a stale first login.
+- **Sharing OpenCode's `auth.json`.** OpenCode v2 keeps logins in its database
+  and writes no `auth.json`, so a shared file would carry no login.
 
 ### Every service authenticates on its own
 
@@ -437,9 +438,9 @@ Rejected:
 
 ### OpenCode runs in the foreground under supervisord
 
-`serve` and `web` start the same server, but `serve` opens no browser, so
-`DISPLAY` stays for the graphical tools OpenCode spawns. The Coder start keeps
-its tmux session, which exists to survive the Coder agent's own restarts.
+OpenCode v2 starts its server with `serve`, which opens no browser, so `DISPLAY`
+stays for the graphical tools OpenCode spawns. The Coder start keeps its tmux
+session, which exists to survive the Coder agent's own restarts.
 
 Rejected:
 
@@ -519,3 +520,42 @@ Rejected:
   after the first `/login`, and nothing would restart a session that exits.
 - **Running `claude auth status` on every interval.** It starts a Claude process
   each time.
+
+### Xpra is driven with Xpra 6's command line and both X server names
+
+Xpra 6 rejects `--global-menus` and `--dbus-proxy`, so the runtime passes
+neither. Xpra 6 names its X server `Xvfb-for-Xpra-N` where Xpra 3 used
+`Xvfb-for-Xpra-:N`; the orphaned-display reclaim matches both, or a crashed
+Xpra's X server keeps the display locked.
+
+### Configuration is documented variables, never shell code
+
+The runtime is configured only through the documented variables in
+`agentdev_runtime.settings`. The two that name commands,
+`AGENTDEV_HEALTH_COMMAND` and `AGENTDEV_BOOTSTRAP_COMMAND`, are split into an
+argument list and run without a shell.
+
+Rejected:
+
+- **Command strings a shell evaluates.** Every configured value would become
+  shell code, with its quoting and injection hazards.
+
+### The runtime stops at its own container and its expected path
+
+The runtime serves one project and assumes its startup steps work: a failed step
+latches for inspection and explicit retry.
+
+Rejected:
+
+- **Several projects in one running container.** Each project gets its own
+  container and volumes.
+- **Automatic repository updates or destructive checkout repair.** They would
+  overwrite the operator's branch and local edits.
+- **SSH-agent or key provisioning.** GitHub HTTPS with an injected token covers
+  the supported operations.
+- **A bundled reverse proxy or TLS.** The operator's proxy owns routing and
+  certificates.
+- **A host Docker socket or a remote Docker engine.** The runtime operates its
+  own nested engine.
+- **Staged or transactional startup writes.** A latch with explicit retry
+  already keeps a failed step from being rerun blindly.

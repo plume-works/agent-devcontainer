@@ -2,6 +2,7 @@
 type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — how they are provisioned and trust a host's extra CA, and the runtime CLI, supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 sources:
+- resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/settings.py
@@ -16,8 +17,10 @@ sources:
 - resource: .github/workflows/cache-git-ppa-release.yml
 - resource: ansible/roles/validate_agent_files/tasks/main.yml
 - resource: docker/base/agentdev-base.Dockerfile
+- resource: ansible.cfg
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
+- resource: scripts/tests/test_agent_runtime_acceptance.py
 - resource: docker/devcontainer/supervisord.conf
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
@@ -28,12 +31,16 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .github/workflows/ci.yml
+- resource: docker/ansible/setup-ansible.sh
+- resource: docker/desktop/entrypoint.sh
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .dockerignore
 - resource: .github/actions/docker/build-push-action/action.yml
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: .devcontainer/devcontainer.json
 - resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
+- resource: ansible/roles/xpra_setup/tasks/main.yml
+- resource: ansible/roles/fish_setup/tasks/main.yml
 ---
 
 # agentdev runtime images
@@ -180,6 +187,22 @@ SHALL build without the layer cache.
   body carries `[ci:clean_build]`
 - **THEN** no provisioning step is reused from the layer cache
 
+### Requirement: the image carries Xpra 6 or newer
+
+The `xpra_setup` role SHALL install `xpra` by name from the Xpra stable
+repository, then run an upgrade-only install of it, and SHALL fail the build
+unless the installed `xpra` is major version 6 or newer.
+
+#### Scenario: the base image already holds Ubuntu's xpra
+
+- **WHEN** the role runs on an image that already holds Ubuntu's xpra 3.x
+- **THEN** the upgrade step replaces it with the Xpra repository's release
+
+#### Scenario: apt resolves Ubuntu's xpra
+
+- **WHEN** the installed `xpra` is older than major version 6
+- **THEN** the build fails
+
 ### Requirement: gh resolves to the image's wrapper
 
 The images SHALL install the `gh` authentication wrapper at `/usr/local/bin/gh`
@@ -222,6 +245,18 @@ after the create phase finishes and never gate readiness.
 
 - **WHEN** OpenCode or Remote Control is enabled and fails
 - **THEN** the runtime is degraded, not failed, and readiness stays published
+
+### Requirement: every process names the runtime's session bus
+
+`agentdev-deploy` and `agentdev-devcontainer` SHALL set
+`DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus` as an image `ENV`, so
+every process in the container names the bus the runtime's keyring serves.
+
+#### Scenario: gh runs in a shell
+
+- **WHEN** `gh` runs from the `agent` or the `root` shell of a ready runtime
+- **THEN** the shell's `DBUS_SESSION_BUS_ADDRESS` is the runtime's bus, and no
+  `dbus-daemon` or `gnome-keyring-daemon` is added
 
 ### Requirement: the Dev Container runs as a non-root account on one home volume
 
@@ -495,7 +530,19 @@ prerequisite for full adoption.
 
 The runtime images run one Python package, `agentdev_runtime`, installed as a uv
 tool the way the validator is, with its dependencies pinned in the package.
-`agentdev-base` never carries it, so the base stays lifecycle-neutral.
+`agentdev-base` never carries it, so the base stays lifecycle-neutral. The
+package is not published to PyPI: the two runtime images are its only installs.
+
+Three scripts stay shell, outside the package, because each runs where the
+package cannot: `.devcontainer/devcontainer-init.sh` runs on the host as the
+initialize command, where Python is not guaranteed;
+`docker/ansible/setup-ansible.sh` runs before the toolchain exists; and
+`docker/desktop/entrypoint.sh` is the entrypoint of `agentdev-base`, which never
+carries the package.
+
+A `language: system` pre-commit hook whose executable is missing is a warning,
+not a failure, in both profiles, so a consumer whose own hooks need tools the
+image lacks still starts.
 
 Rejected:
 
@@ -535,8 +582,8 @@ Rejected:
   job.** Needs a privileged job container for the profile's core `dockerd`, and
   buys only the removal of the `--no-wait` path.
 - **Running the responder as a host job through `devcontainers/ci`.** Gives the
-  supervisor PID 1 but loses `claude-code-action` and its `claude[bot]`
-  authentication.
+  supervisor PID 1 but loses `claude-code-action` and the GitHub App
+  authentication it carries.
 
 ### PID 1 owns the create phase; the image label owns the lifecycle commands
 
@@ -637,3 +684,79 @@ Rejected:
   variables, as every other tool in the image has.
 - **The system interpreter or a project environment.** A uv tool puts one entry
   point on `PATH` and touches neither.
+
+### The build context is an allow-list and each step binds only its inputs
+
+BuildKit keys a `RUN` step on the contents of its bind mounts, so a step that
+binds the whole build context is invalidated by any repository change and the
+layer cache never hits. `.dockerignore` therefore admits only the image inputs,
+and each provisioning step bind-mounts only the inputs it reads.
+
+### Xpra is installed by name from the stable repository
+
+No Xpra apt repository serves an exact pinned version: for noble,
+`https://xpra.org/lts` serves 5.1.x and `https://xpra.org` the current 6.x
+stable. The role therefore installs `xpra` by name from the stable repository,
+and the major-version assertion catches a fallback to Ubuntu's 3.x.
+
+Rejected:
+
+- **Xpra's `setup.py install-lts-repo`.** It ignores its own step failures, and
+  the LTS repository serves 5.1.x.
+
+### fish plugins are reconciled through `fish_plugins`
+
+`fisher install <owner>/<repo>@<ref>` refuses to overwrite files it does not
+track under that exact spec, so it fails on a system holding the same plugin
+under another spec. The `fish_setup` role writes the pinned specs into
+`fish_plugins` and runs `fisher update`, which reconciles the tree to that file
+from an empty system and from one holding the plugins under a different spec.
+
+Rejected:
+
+- **`fisher install` of each pinned spec.** It fails when a plugin is already
+  installed under a different spec.
+
+### OpenCode is installed as a trusted Bun package
+
+The `@opencode/cli` package fetches its platform binary in a postinstall, which
+Bun blocks until the package is trusted, so `agentic_tools` installs it with
+`trust: true` and every other agent CLI without.
+
+Rejected:
+
+- **Installing `@opencode/cli` untrusted.** The postinstall never runs and the
+  image ships no OpenCode binary.
+
+### The session bus address is an image `ENV`
+
+`gh` looks its token up in the Secret Service on every call. With no session bus
+address in its environment, the D-Bus client library autolaunches a new bus
+through `dbus-launch`, the lookup activates a fresh `gnome-keyring-daemon`, and
+neither exits. Every process — supervised programs, `docker exec` shells, the VS
+Code server, agent sessions — must therefore inherit one fixed address, and only
+an image `ENV` reaches them all.
+
+Rejected:
+
+- **A random bus address published in a file that scripts source.** Only the
+  processes that source it name the bus; every other `gh` call leaks a bus and a
+  keyring.
+
+### `agentdev-base` provisions in three tagged steps from a stable parent digest
+
+The most frequent image change is a catalog edit, so provisioning is three `RUN`
+steps selected by Ansible tag, each mounting only its inputs, and a catalog edit
+reruns only the catalog step. `entrypoint.sh` is a narrow `COPY` from `docker/`,
+because a role would make host provisioning carry a container entrypoint it
+never uses. Each step sets `ANSIBLE_LOG_PATH=` because `ansible.cfg`'s
+`log_path` resolves inside the read-only `/provision` mount. `agentdev-base`
+starts from `ubuntu-ansible` by digest, so that digest must not change per run:
+`ubuntu-ansible` is built without the per-run labels, and `agentdev-base` is
+passed the per-architecture manifest digest, not the pushed index's, whose
+provenance attestation changes every run.
+
+Rejected:
+
+- **One provisioning step behind the `.dockerignore` allow-list.** A catalog
+  edit would reprovision every role.

@@ -6,6 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .claude/settings.json
+- resource: .github/workflows/ai-responder.yml
 ---
 
 # PR review
@@ -116,7 +117,39 @@ candidate.
   fault as written
 - **THEN** the validator returns `DROP: path` and the finding is not posted.
 
+### Requirement: a batch of passes runs as foreground calls
+
+On Claude Code, the `pr-review` skill SHALL dispatch every pass and validator of
+a batch as foreground `Agent` calls (`run_in_background: false`) in a single
+message, which run in parallel and return only when every one has finished, and
+SHALL NOT dispatch a pass in the background. Where the `Agent` tool offers no
+foreground option, the passes SHALL run sequentially in the session. No step
+SHALL depend on a separate wait tool, and the review SHALL NOT proceed past a
+batch with a pass outstanding.
+
+#### Scenario: a headless review dispatches its passes
+
+- **WHEN** the responder's headless `claude -p` run reaches the initial-review
+  passes
+- **THEN** the passes run in parallel as foreground calls in one message, and
+  the review continues only once every pass has returned.
+
 ## Rationale
+
+### Passes are collected through foreground calls
+
+A headless `claude -p` run ends with its turn, so a pass dispatched in the
+background is abandoned with the session. Foreground calls cannot be cancelled
+one at a time, so the Claude Code path has no per-pass ceiling and no
+drop-a-hung-pass fallback: the `claude-respond` job's `timeout-minutes` is the
+review's only ceiling.
+
+Rejected:
+
+- **Running every pass sequentially.** It gives up parallelism and each pass's
+  clean context, which foreground calls keep.
+- **Keeping background dispatch and waiting through another primitive.** It
+  binds the skill to a wait tool a Claude Code version bump can remove.
 
 ### Every review sizes itself
 
@@ -172,3 +205,5 @@ Rejected:
   correctness coverage away from mixed diffs.
 - **Restating the audit's criteria in `pr-review`.** Two copies of one rule set
   drift apart.
+- **An `iwe-audit` mode that emits GitHub review comments.** It puts review
+  mechanics inside the auditor.

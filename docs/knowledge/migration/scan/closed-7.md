@@ -22,7 +22,8 @@
     already partly in: `architecture/cloud-session-host-toolchain.md` (GraphQL
     refusal, `gh auth status` false negative, and "only a repository-scoped path
     shows whether a container reaches GitHub" are held; the credential-helper
-    fact is not)
+    fact is not) — written:
+    `spec/cloud-session-host.md#the-agent-proxy-owns-the-sessions-github-access`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/doctor-fails-healthy-coder-devcontainer.md
@@ -55,7 +56,8 @@
     reconciles the tree to that file and converges both from an empty system and
     from one holding the same plugins under a different spec. — already partly
     in: nowhere (only a code comment in
-    `ansible/roles/fish_setup/tasks/main.yml`)
+    `ansible/roles/fish_setup/tasks/main.yml`) — written:
+    `spec/agentdev-runtime-images.md#fish-plugins-are-reconciled-through-fish_plugins`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/fixture-git-inherits-commit-index.md
@@ -72,7 +74,7 @@
     in: nowhere (the named fixture `production_mask_workspace` is removed;
     `scripts/tests/test_gitleaks_hook.py` and
     `scripts/tests/test_pre_commit_ci_range.py` still unset `GIT_DIR`,
-    `GIT_INDEX_FILE`, `GIT_WORK_TREE`)
+    `GIT_INDEX_FILE`, `GIT_WORK_TREE`) — written: `AGENTS.md#tests`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/gh-stack-install-needs-token.md
@@ -108,12 +110,16 @@
     `WORKDIR` and lives in the container layer, so a worktree there is
     unwritable for the agent user and lost when the container is recreated —
     which is why deploy mode puts worktrees in `<checkout>/.worktrees/`. —
-    already partly in: `spec/git-new-branch.md` (behaviour only, no reason)
+    already partly in: `spec/git-new-branch.md` (behaviour only, no reason) —
+    written: `spec/git-new-branch.md#deploy-worktrees-live-inside-the-checkout`
 - conflicts: this document says "Under `AGENTDEV_RUNTIME_MODE=standalone`,
   worktree mode without `--worktree-root` uses `<checkout>/.worktrees/`";
   `spec/git-new-branch.md` says "under the checkout's ignored `.worktrees/`
   directory when `AGENTDEV_RUNTIME_MODE` is `deploy`" (the later bug
-  `git-new-branch-worktree-mode-mismatch` corrected the value).
+  `git-new-branch-worktree-mode-mismatch` corrected the value). — resolved: the
+  spec matches the code
+  (`.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py::worktree_parent`
+  keys on `deploy`); the bug's `standalone` is stale
 
 ## docs/knowledge/data/bugs/image-build-context-whole-repo.md
 
@@ -127,7 +133,8 @@
     its own inputs. — already partly in:
     `spec/agentdev-runtime-images.md#requirement-image-builds-read-only-their-declared-inputs`
     (behaviour), `architecture/template-boundary.md` (allow-list stated, not the
-    BuildKit reason)
+    BuildKit reason) — written:
+    `spec/agentdev-runtime-images.md#the-build-context-is-an-allow-list-and-each-step-binds-only-its-inputs`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/main-image-rebuild-lost-on-cancel.md
@@ -143,15 +150,21 @@
     or a failed lookup it warns and falls back to the previous push. Every job
     running the action needs `actions: read`. — already partly in: nowhere
     (code: `.github/actions/paths-filter/action.yml`,
-    `scripts/tests/test_paths_filter_last_pass.py`)
+    `scripts/tests/test_paths_filter_last_pass.py`) — written:
+    `spec/ci-workflows.md#requirement-a-push-to-the-base-branch-filters-paths-from-the-last-passing-run`
+    (per the code, only a failed lookup warns; no earlier passing run falls back
+    silently)
   - [constraint] `dorny/paths-filter` with `base` equal to the pushed branch
     compares only against the previous push (`github.event.before`), so any
     workflow that cancels in-progress runs on `main` would otherwise drop the
-    cancelled commit's path matches. — already partly in: nowhere
+    cancelled commit's path matches. — already partly in: nowhere — written:
+    `spec/ci-workflows.md#paths-are-filtered-from-the-last-passing-run`
 - conflicts: the document describes Primary checks as `cancel-in-progress: true`
   on `main`; `spec/image-pinning.md` now says "Primary checks runs on `main`
   SHALL NOT cancel one another" (old state, superseded; the validate-* workflows
-  still cancel, so the lookup is still load-bearing).
+  still cancel, so the lookup is still load-bearing). — resolved: the spec
+  matches `.github/workflows/primary-checks.yml#concurrency`; the bug's
+  description is stale
 
 ## docs/knowledge/data/bugs/metadata-gate-review-blocks-rerequest.md
 
@@ -180,7 +193,10 @@
     `spec/devcontainer-opencode-policy.md` scenario "the config carries catalog
     and user settings" (values survive; key order and byte-identity are not
     stated); `spec/catalog-lifecycle.md` scenario "the container restarts with
-    an unchanged catalog" states byte-identity for the catalog step only
+    an unchanged catalog" states byte-identity for the catalog step only —
+    written:
+    `spec/devcontainer-opencode-policy.md#requirement-devcontainer-opencode-runs-with-unrestricted-filesystem-access`
+    and its scenario "the container restarts with a configured config"
 - conflicts: none
 
 ## docs/knowledge/data/bugs/opencode-web-tmux-shared-under-xdist.md
@@ -192,7 +208,8 @@
     fixed `-L` socket name must set `TMUX_TMPDIR` to its own scratch directory;
     with a shared directory every pytest-xdist worker reaches the same server
     and one test's `kill-server` teardown kills another's. — already partly in:
-    nowhere (`AGENTS.md` only fixes test scratch under `/tmp`)
+    nowhere (`AGENTS.md` only fixes test scratch under `/tmp`) — written:
+    `AGENTS.md#tests`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md
@@ -210,7 +227,9 @@
   Verify testing ticked boxes)
 - conflicts: this document says evidence names "the commit, test run, or CI run
   that closed it"; `architecture/evidence-without-commit-ids.md` says "A commit
-  id on its own is not evidence."
+  id on its own is not evidence." — resolved: stale;
+  `spec/plan-checkbox-evidence.md#requirement-a-ticked-task-carries-the-evidence-that-closed-it`
+  holds the current rule
 
 ## docs/knowledge/data/bugs/plan-tasks-bundle-independent-observations.md
 
@@ -223,7 +242,8 @@
     observation closes each checkbox), and extending the auditor was declined. —
     already partly in: `spec/plan-checkbox-evidence.md` (the
     one-checkbox-one-observation rule and scenarios are held; the declined
-    auditor change is not)
+    auditor change is not) — written:
+    `spec/plan-checkbox-evidence.md#checkbox-granularity-is-the-planners-rule`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/pr-update-skips-review-eval.md
@@ -268,7 +288,9 @@
     a per-test `TMUX_TMPDIR` gives each variant private default and
     `claude-remote` servers, and the variant with a keeper on the default socket
     must keep it under that directory to keep covering the spec scenario of a
-    live default-socket server. — already partly in: nowhere
+    live default-socket server. — already partly in: nowhere — written:
+    `AGENTS.md#tests` (the per-test `TMUX_TMPDIR` rule also keeps a
+    default-socket keeper private)
 - conflicts: none
 
 ## docs/knowledge/data/bugs/remote-control-watcher-start-loop.md
@@ -290,7 +312,8 @@
     workflow pushing with `GITHUB_TOKEN` can never be a bypass actor. — already
     partly in: `architecture/pull-request-only-responder.md` and
     `architecture/responder-app-identity.md` (both state that no responder job
-    pushes so no bypass is needed; neither states the GitHub limit)
+    pushes so no bypass is needed; neither states the GitHub limit) — written:
+    `spec/ai-review-gate.md#the-responder-posts-as-its-own-github-app`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/responder-mention-case-sensitivity.md
@@ -306,15 +329,18 @@
 - owning spec: NONE (suggest: pr-review; nearest existing is ai-review-gate,
   which lists `pr-review/SKILL.md` as a source)
 - unique items:
-  - [constraint] A headless `claude -p` session ends when its turn ends and no
+  - ~~[constraint] A headless `claude -p` session ends when its turn ends and no
     later notification resumes it, so background subagents dispatched in the
     final turn are never collected. — already partly in: nowhere (only
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md`)
-  - [behaviour] `pr-review` dispatches every Claude Code pass and validator as
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md`)~~ — struck: already
+    held by `spec/pr-review.md#passes-are-collected-through-foreground-calls`
+  - ~~[behaviour] `pr-review` dispatches every Claude Code pass and validator as
     foreground `Agent` calls (`run_in_background: false`) in a single message,
     which run in parallel and return only when all have finished; nothing waits
     through a separate tool, and the responder job's `timeout-minutes` bounds
-    the whole review. — already partly in: nowhere in spec/ or architecture/
+    the whole review. — already partly in: nowhere in spec/ or architecture/~~ —
+    struck: already held by
+    `spec/pr-review.md#requirement-a-batch-of-passes-runs-as-foreground-calls`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/runner-label-ahead-of-actionlint.md
@@ -327,13 +353,15 @@
     actionlint release knows it; the accepted bridge is declaring the label
     under `self-hosted-runner.labels` in `.github/actionlint.yml` until a
     release knows it. — already partly in: nowhere (`.github/actionlint.yml` no
-    longer exists; the workflows now use `ubuntu-26.04`)
+    longer exists; the workflows now use `ubuntu-26.04`) — written:
+    `spec/dependency-updates.md#runner-labels-move-only-where-renovate-can-read-them`
   - [constraint] Renovate rewrites only literal `runs-on` labels;
     expression-form labels
     (`vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm'`) are not
     extracted, so a runner bump leaves the workflows on mixed releases. —
     already partly in: nowhere (the mixed state is visible in
-    `.github/workflows/ai-responder.yml` today)
+    `.github/workflows/ai-responder.yml` today) — written:
+    `spec/dependency-updates.md#runner-labels-move-only-where-renovate-can-read-them`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/self-test-unwritable-root-check.md
@@ -346,7 +374,7 @@
     unwritable-state-root test is skipped when run as root; covering root needs
     a refusal privilege does not bypass, such as a read-only mount. — already
     partly in: nowhere (`architecture/self-improve-runtime.md` covers state-root
-    resolution only)
+    resolution only) — written: `AGENTS.md#tests`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/shared-uv-environment-across-worktrees.md
@@ -362,11 +390,15 @@
 - verdict: ALL ALREADY HELD
 - owning spec: iwe-workflow-skills
   (`#requirement-ship-waits-for-every-dependency`)
-- conflicts: this document says every `## Depends on` plan "must be
+- conflicts: ~~this document says every `## Depends on` plan "must be
   `stage: done` at the remote default branch, read through
   `/agentdev:iwe-branch-name plan-state`"; `spec/iwe-workflow-skills.md` says
   Ship SHALL "read the stage of every plan in the plan's `## Depends on` in the
-  checkout, never on another branch".
+  checkout, never on another branch".~~ — resolved: stale; the spec is right —
+  `iwe-shipper.agent.md#steps` reads each dependency through
+  `iwe-branch-name plan-state`, whose `iwe-branch-name.py::read_plan_state`
+  reads the working tree; written:
+  `spec/iwe-workflow-skills#requirement-ship-waits-for-every-dependency`
 
 ## docs/knowledge/data/bugs/ship-release-link-without-feature.md
 
@@ -384,7 +416,8 @@
   `architecture/assignee-review-trigger.md#behaviour-of-the-assignee-trigger`
   still says "**The skip marker wins.** `[ci:skip-ai-review]` is evaluated
   before the…", while this document says "an explicit request outranks the
-  marker"; the current workflow has no marker at all.
+  marker"; the current workflow has no marker at all. — resolved: no spec or
+  workflow carries the marker and the note is archived; nothing to correct
 
 ## docs/knowledge/data/bugs/stack-guard-reverts-post-merge-rebase.md
 
@@ -414,7 +447,7 @@
     the orphan, leaving the group kill untested. — already partly in:
     `architecture/standalone-opencode-runtime.md#recovery` (states the
     controller's group kill and that supervisord signals a group only on an
-    orderly stop; nothing on the test constraints)
+    orderly stop; nothing on the test constraints) — written: `AGENTS.md#tests`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/supervisor-client-recovered-before-dependency.md
@@ -422,16 +455,19 @@
 - verdict: HAS UNIQUE KNOWLEDGE
 - owning spec: standalone-opencode-runtime
 - unique items:
-  - [rationale] Rejected: not charging a client's recovery budget while its
+  - ~~[rationale] Rejected: not charging a client's recovery budget while its
     dependency is down — it still restarts the client against a dead dependency
     and removes the budget's bound on those restarts. — already partly in:
     `architecture/standalone-opencode-runtime.md#recovery` (holds the escalation
     rule, its accepted cost, and the rejected "defer the client"; for this
-    alternative it only points at this bug)
-  - [rationale] Rejected: dependency-ordered recovery — it covers the case but
+    alternative it only points at this bug)~~ — struck: already held by
+    `spec/standalone-opencode-runtime.md#a-client-failure-is-charged-to-its-failing-dependency`
+  - ~~[rationale] Rejected: dependency-ordered recovery — it covers the case but
     is the general init-system behaviour deliberately held back
     (`someday/dependency-ordered-recovery.md`), and the defect does not need it.
-    — already partly in: same note, by pointer to this bug only
+    — already partly in: same note, by pointer to this bug only~~ — struck:
+    already held by
+    `spec/standalone-opencode-runtime.md#a-client-failure-is-charged-to-its-failing-dependency`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/validator-warning-visibility.md
@@ -445,7 +481,8 @@
     `ValidationEngine.validate` and surfaces only their warning-level issues, so
     their stricter error checks do not widen the default validation contract;
     `--errors-only` is the one flag that hides warnings (`--no-warnings` was
-    removed). — already partly in: nowhere
+    removed). — already partly in: nowhere — written:
+    `spec/agent-file-discovery.md#requirement-skill-recommendations-add-warnings-only`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
@@ -469,18 +506,22 @@
     ignores its own step failures). — already partly in:
     `architecture/no-launchpad-ppas.md` (lists `xpra_setup` as a
     vendor-repository role), `architecture/ansible-apt-pins.md` (unpinned apt in
-    general)
+    general) — written:
+    `spec/agentdev-runtime-images.md#xpra-is-installed-by-name-from-the-stable-repository`
+    (the code adds a one-line `apt_repository` source, not deb822)
   - [behaviour] The `xpra_setup` role runs an upgrade-only step after install,
     because CI builds on the previous image where `state: present` keeps
     Ubuntu's already-installed package, and then asserts the installed `xpra`
     major version is at least 6 so a fallback to Ubuntu's 3.x fails the build. —
-    already partly in: nowhere
+    already partly in: nowhere — written:
+    `spec/agentdev-runtime-images.md#requirement-the-image-carries-xpra-6-or-newer`
   - [constraint] Xpra 6 rejects `--global-menus` and `--dbus-proxy`, and names
     its X server `Xvfb-for-Xpra-N` where Xpra 3 used `Xvfb-for-Xpra-:N`; the
     orphaned-display reclaim must accept both names or a crashed Xpra's X server
     keeps the display locked. — already partly in:
     `architecture/standalone-opencode-runtime.md#recovery` (the
-    leftover-X-server stop, not the naming)
+    leftover-X-server stop, not the naming) — written:
+    `spec/standalone-opencode-runtime.md#xpra-is-driven-with-xpra-6s-command-line-and-both-x-server-names`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/xpra-test-displays-collide-under-xdist.md
@@ -495,7 +536,8 @@
     (`:200 + 20 * <worker index>`), rotate within it, and stay clear of the
     runtime default `:100`; two concurrent pytest runs on one host are not
     covered. The runtime's refusal of an occupied display is correct, since it
-    owns one desktop per container. — already partly in: nowhere
+    owns one desktop per container. — already partly in: nowhere — written:
+    `AGENTS.md#tests`
 - conflicts: none
 
 ## docs/knowledge/data/bugs/zizmor-online-audits-fail-in-cloud-devcontainer.md
@@ -512,7 +554,8 @@
     repositories of the actions a workflow uses, fail there. — already partly
     in: `architecture/cloud-session-host-toolchain.md` (holds
     `ZIZMOR_OFFLINE=true` and "the session's placeholder `GH_TOKEN` fails",
-    pointing at this bug for the mechanism)
+    pointing at this bug for the mechanism) — written:
+    `spec/cloud-session-host.md#the-agent-proxy-owns-the-sessions-github-access`
 - conflicts: none
 
 ## docs/knowledge/data/backlog/autonomous-implement-loop.md
@@ -567,7 +610,9 @@
 - conflicts: this document's done-condition "`git` still installs from the PPA"
   versus `architecture/no-launchpad-ppas.md`: "no Ansible role adds a PPA, and
   the devcontainer firewall allows neither `launchpad.net` nor
-  `ppa.launchpadcontent.net`."
+  `ppa.launchpadcontent.net`." — resolved:
+  `spec/agentdev-runtime-images.md#requirement-image-builds-contact-no-launchpad-host`
+  matches the code; the task's done-condition is stale
 
 ## docs/knowledge/data/backlog/implement-all-multi-plan-e2e.md
 
@@ -593,7 +638,10 @@
   `experimental.subagent_depth`, an experimental key OpenCode may rename or
   drop"); `spec/devcontainer-opencode-policy.md` now sets
   "`experimental.subagent_depth` to `5`" and `spec/nested-agent-dispatch.md`
-  says the limit exists "so a dispatched agent can dispatch another".
+  says the limit exists "so a dispatched agent can dispatch another". —
+  resolved: the specs match
+  `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py::apply_policy`
+  (`SUBAGENT_DEPTH = 5`); the task's stance is stale
 
 ## docs/knowledge/data/backlog/planner-spec-redundancy-check.md
 
@@ -615,7 +663,7 @@
 - verdict: HAS UNIQUE KNOWLEDGE
 - owning spec: pr-merge-conflicts
 - unique items:
-  - [rationale] A pull request that conflicts with its base gets no
+  - ~~[rationale] A pull request that conflicts with its base gets no
     `pull_request` workflow runs, so the CI picture `pr-feedback-resolution`
     diagnoses is missing or stale until the conflict is resolved — the reason
     conflict resolution is the first step, which also satisfies
@@ -623,7 +671,8 @@
     exists yet. — already partly in: `spec/pr-merge-conflicts.md` (behaviour:
     read merge state before any feedback edit, PR's own base, `UNKNOWN` re-poll,
     `BEHIND` not updated; purpose says "pushed at once so CI runs on the
-    resolved head", not the GitHub fact)
+    resolved head", not the GitHub fact)~~ — struck: already held by
+    `spec/pr-merge-conflicts.md#conflicts-are-resolved-and-pushed-before-any-feedback-work`
 - conflicts: none
 
 ## docs/knowledge/data/backlog/pr-merge-stack-post-merge-cleanup.md
@@ -652,7 +701,8 @@
     its job, could not catch a new usage written with an old pin, and when two
     pins diverged on `main` it failed every pull request that merged `main`
     instead of preventing the divergence. — already partly in: `AGENTS.md#tests`
-    (the rule, without the reason); nothing in spec/ or architecture/
+    (the rule, without the reason); nothing in spec/ or architecture/ — written:
+    `AGENTS.md#tests`
 - conflicts: none
 
 ## docs/knowledge/data/backlog/resilient-task-evidence.md
@@ -664,7 +714,9 @@
 - conflicts: this document says the spec "makes a ticked task's evidence name
   the commit that holds its change";
   `architecture/evidence-without-commit-ids.md` says "A commit id on its own is
-  not evidence." (old state, superseded).
+  not evidence." (old state, superseded). — resolved: stale;
+  `spec/plan-checkbox-evidence.md#evidence-names-a-check-verify-can-repeat-never-a-commit-id`
+  holds the decision
 
 ## docs/knowledge/data/backlog/ship-verifies-before-dispatch.md
 
@@ -676,7 +728,11 @@
   its own context and dispatches no agent", and
   `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-inside-iwe-shipper`
   still exists. The proposal is not what the spec or catalog implement; no
-  decision rejecting it is recorded anywhere.
+  decision rejecting it is recorded anywhere. — resolved: the quoted scenario is
+  gone; `spec/iwe-workflow-skills.md` and
+  `.agents/plugins/agentdev/agents/iwe-shipper.agent.md` now route Ship's Verify
+  through `/agentdev:iwe-verify`, which dispatches `iwe-verifier`, as the task
+  proposed; nothing to migrate
 
 ## docs/knowledge/data/backlog/simplify-pr-skills-single-review-workflow.md
 
@@ -695,7 +751,9 @@
 - conflicts: this document proposes "an optional `remote-control` one-shot";
   `architecture/standalone-opencode-runtime.md#remote-control-watcher` says "The
   component is a long-running watcher, `agentdev-runtime remote-control run`,
-  not a one-shot".
+  not a one-shot". — resolved: stale proposal;
+  `spec/standalone-opencode-runtime.md#remote-control-is-a-long-running-watcher-gated-by-pid-1`
+  matches `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::run`
 
 ## docs/knowledge/data/backlog/supervision-orphan-kill-test-cause.md
 

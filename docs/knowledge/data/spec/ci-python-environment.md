@@ -73,3 +73,14 @@ Rejected:
   A step would then run tools without `uv run`, unlike the Dev Container.
 - **`uv sync --frozen`.** It skips the lock-file currency check, so a dependency
   missing from `uv.lock` would be installed later by a bare `uv run` mid-job.
+
+### The action keeps the name `setup-python-venv`
+
+`uv sync` still creates an in-tree `.venv` on a runner, so the name stays
+accurate, and the action's path is template surface consumers customize and call
+from their own workflows.
+
+Rejected:
+
+- **Renaming the action to match the `uv run` contract.** It churns every
+  consumer's workflows and still leaves the contract to be documented.

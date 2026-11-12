@@ -61,8 +61,12 @@ is stored, or the resume exits non-zero, it SHALL start a new conversation under
 a newly generated ID and store that ID in place of the old one. Whenever the
 session's conversation changes while Claude runs, including through `/clear`,
 the session SHALL store the new conversation's ID in place of the old one; no
-other Claude process SHALL write the stored ID. A transient failure to reconnect
-a resumed conversation leaves Claude running with Remote Control off; running
+other Claude process SHALL write the stored ID. The pin hook SHALL replace the
+stored ID through a temporary file in the same directory and a rename, so an
+interrupted write never leaves a truncated ID, and SHALL exit 0 in every case:
+input that does not parse or carries no `session_id` leaves the stored ID
+unchanged and writes a message to stderr. A transient failure to reconnect a
+resumed conversation leaves Claude running with Remote Control off; running
 `/remote-control` in the session restores it.
 
 #### Scenario: the Coder agent restarts
@@ -126,6 +130,12 @@ a resumed conversation leaves Claude running with Remote Control off; running
   then restarts
 - **THEN** the pane resumes the post-clear conversation under the same session
   URL.
+
+#### Scenario: the pin hook receives unusable input
+
+- **WHEN** the pin hook's input is not JSON or has no `session_id`
+- **THEN** the stored ID is unchanged, a message goes to stderr, and the hook
+  exits 0, so the session continues.
 
 ### Requirement: the standalone runtime starts Remote Control when a mode is set
 
@@ -383,6 +393,42 @@ files SHALL be preserved. The CI responder SHALL set the opt-out.
 
 ## Rationale
 
+### The autostart gate reads the live login status
+
+The gate requires `authMethod: "claude.ai"` in addition to `loggedIn`, because a
+setup-token login cannot run Remote Control. It reads
+`claude auth status --json` rather than the credential file, because a rejected
+refresh leaves a non-empty file with emptied tokens.
+
+### Remote Control runs on its own tmux server
+
+tmux gives a new session its server's global environment and copies from the
+client only the `update-environment` variables. Remote Control therefore runs on
+a dedicated server, `tmux -L claude-remote`, that the start command itself
+starts, so the Claude process inherits the caller's environment even when
+another tmux server is live on the default socket.
+
+### No Dev Container lifecycle hook starts Remote Control
+
+Rejected:
+
+- **Keeping a post-start entry and having one entry yield to the other.**
+  Post-start always runs first in Coder, so the generic entry would need a Coder
+  signal it cannot observe before the agent exists, or the Coder entry would
+  have to kill a live session it did not start.
+
+### Pre-approval has an opt-out the CI responder sets
+
+Pre-approval enables every project MCP server through
+`enableAllProjectMcpServers`, which the headless CI responder must not inherit,
+so `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` skips it.
+
+Rejected:
+
+- **No opt-out.** It enables every project MCP server in the responder.
+- **Gating on `AGENTDEV_SKIP_XPRA`.** That variable names the remote desktop,
+  not headlessness.
+
 ### Session mode resumes one pinned conversation per volume
 
 The pane resumes the conversation whose ID is stored on the `agentdev-claude`
@@ -462,3 +508,11 @@ switch from `worktree` to `same-dir` the former worktree sessions work in the
 workspace folder, and their worktrees and branches stay on disk unused. The
 maintainer accepted this as a limit of switching the spawn mode, because the
 spawn mode is not switched in production.
+
+### The environment name says where a dev container came from, not which one
+
+The hostname rule tells launchers and machines apart, not containers: two
+containers of the same checkout opened by the same launcher on one machine share
+an environment name, and a container that is not recreated keeps the name it was
+created with. The rule covers only the Compose dev container; the standalone and
+deploy runtimes are not named by it.

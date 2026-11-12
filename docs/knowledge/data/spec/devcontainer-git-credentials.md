@@ -145,3 +145,25 @@ Rejected:
 - **Prepending the opened checkout's `docker/bin` to `PATH`.** It let a wrapper
   edit take effect without an image rebuild, but hands the injected token to any
   executable a repository ships under that path.
+- **A `GIT_ASKPASS` fallback in the wrapper.** `GITHUB_TOKEN` is a Coder user
+  secret, stable for the life of the agent, so the copy a session inherits does
+  not go stale.
+
+### The Coder agent start configures the credential helper
+
+With no git credential helper for github.com in a Coder workspace, git falls
+back to Coder's `GIT_ASKPASS=/.coder-agent/coder`, which never returns, so
+`git push` hangs. The helper is therefore configured from the agent start, where
+`GITHUB_TOKEN` exists, and the template runs one configurable path that knows
+nothing of this repository's steps. The helper is installed only when `gh` is
+authenticated, never unconditionally. This repository leaves Coder's
+`GIT_ASKPASS` alone and configures no Coder external auth for GitHub. Post-start
+keeps its own helper setup, a maintainer decision, for containers with a stored
+`gh` login.
+
+Rejected:
+
+- **Configuring the helper from the Remote Control start.** It ties git
+  credentials to Remote Control and to its claude.ai login gate.
+- **A second template `coder_script` that runs the helper directly.** It splits
+  agent-start logic across two repositories.

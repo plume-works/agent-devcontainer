@@ -11,6 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 - resource: .agents/AGENTS.md
 - resource: .pre-commit-config.yaml
+- resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
+- resource: .agents/plugins/agentdev/skills/create-skill/SKILL.md
 ---
 
 # Catalog scripts
@@ -65,6 +67,21 @@ NOT import a sibling skill's code.
 - **WHEN** a second skill needs code one skill's `agent-code/` holds
 - **THEN** the code moves to `bin/`, and neither skill imports from the other's
   directory
+
+### Requirement: a skill names its bundled code relative to its own directory
+
+A catalog skill body SHALL name its bundled code as `agent-code/<file>`,
+relative to the skill directory. `${CLAUDE_SKILL_DIR}` SHALL appear only in the
+skill's `allowed-tools` frontmatter, as
+`Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`. A skill's read-only pages SHALL sit
+under `references/`.
+
+#### Scenario: a skill runs on OpenCode
+
+- **WHEN** an OpenCode session follows a skill step that runs
+  `agent-code/<file>`
+- **THEN** the path resolves against the skill's directory, with no Claude Code
+  substitution needed.
 
 ### Requirement: command lines handed to a shell are quoted by bash_quote
 
@@ -130,3 +147,34 @@ Rejected:
 - **Shell scripts with `jq`, `awk`, and `sed` for the hard parts.** Each tool is
   a host dependency the consuming repository may lack, and the logic between
   them is untestable short of running the whole script.
+
+### Bundled code is named relative to the skill, under agent-code/
+
+Every host tells the model that a relative path in a `SKILL.md` resolves against
+the skill's directory: Claude Code prints the skill's base directory, and the
+OpenCode bridge appends a base-directory footer. `${CLAUDE_SKILL_DIR}` is a text
+substitution only Claude Code performs, so it stays in `allowed-tools`, which
+only Claude Code reads and whose permission patterns need an absolute path. The
+directory is `agent-code/`, not the Agent Skills convention `scripts/`: a
+relative `scripts/<script>` resolved against the working directory instead of
+the skill can run a consuming repository's own same-named script rather than
+fail. `references/` keeps its name because its pages are read, not executed.
+
+Rejected:
+
+- **Keeping `${CLAUDE_SKILL_DIR}` in skill bodies with per-host substitution.**
+  Every host other than Claude Code would need its own substitution step.
+- **Relative paths under the name `scripts/`.** A miss runs the consuming
+  repository's script instead of failing.
+
+### A terminating signal is named, then re-raised
+
+`bin/result_codes.py` names a terminating signal in `RESULT=`, restores the
+signal's default handler, and re-sends the signal to its own process, so a shell
+caller observes a real signal death, a negative `returncode`, and an interrupted
+pipeline stops as it would for any other program.
+
+Rejected:
+
+- **`sys.exit(128 + signum)`.** The caller sees a normal exit whose status only
+  resembles a signal death.

@@ -6,10 +6,6 @@ sources:
 - resource: .github/actions/ai-review-status/action.yml
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
-- resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
-- resource: data/plans/20261107-drop-claude-task-responder.md
-- resource: data/plans/20261030-responder-quill-app-identity.md
-- resource: data/plans/20261108-label-review-triggers.md
 - resource: .agents/plugins/agentdev/skills/pr-review/agent-code/post-review.py
 ---
 
@@ -131,13 +127,24 @@ The review job SHALL run in the `agentdev-devcontainer` image and SHALL prompt
 Claude to review with the fully qualified `agentdev:pr-review` skill, naming the
 built-in `code-review` skill as one not to use. `run-claude-responder` SHALL NOT
 set `claude-code-action`'s `track_progress` input, so the review's findings
-reach the pull request as a submitted pull request review.
+reach the pull request as a submitted pull request review. When the pinned image
+has no `agentdev-runtime` on `PATH`, `run-claude-responder` SHALL install it
+from the checkout's `py_packages/agentdev_runtime/` with `uv tool install`
+before running the lifecycle commands, so the review job keeps working while the
+image pin trails the package.
 
 ### Scenario: the review job reviews a pull request
 
 - **WHEN** the review job runs on a pull request
 - **THEN** Claude reviews it with `agentdev:pr-review`, and its findings appear
   as a pull request review with inline comments, not as an issue comment.
+
+### Scenario: the pinned image predates the runtime CLI
+
+- **WHEN** the review job's image has no `agentdev-runtime` command
+- **THEN** `run-claude-responder` installs it from a copy of the checkout's
+  package, outside the reviewed checkout, and then runs
+  `agentdev-runtime lifecycle created` and `lifecycle ready --no-wait`.
 
 ## Requirement: a review runs on first push and on explicit request
 
@@ -386,6 +393,11 @@ Rejected:
 - **Skip Dependabot pull requests by author.** The commit and push checks
   already keep a person's change out of the approval, so an author skip would
   only withhold approval from pull requests holding Dependabot's commits alone.
+- **A `pull_request_target` approval workflow.** It would also approve from
+  Dependabot-triggered runs, but adds a dangerous-trigger workflow for a bot
+  this repository does not configure for version updates.
+- **Ruleset bypass for the Renovate App.** It removes the approval requirement
+  for dependency bumps instead of recording an approval on each.
 
 ### The responder posts as its own GitHub App
 
@@ -409,6 +421,10 @@ Rejected:
   organization does not control, shared with every other installation.
 - **Fall back to `GITHUB_TOKEN` when the App secrets are missing.** A silent
   fallback reintroduces the shared identity the gate no longer accepts.
+- **A responder job that pushes with `GITHUB_TOKEN` as a ruleset bypass actor.**
+  A ruleset bypass list accepts only repository roles, teams, and GitHub Apps
+  installed on the repository's owner; the built-in GitHub Actions app behind
+  `GITHUB_TOKEN` is none of these, so such a push can never bypass.
 
 ### The responder runs only on pull request events
 
@@ -450,6 +466,11 @@ Rejected:
 - **A repository-wide review pause.** A per-PR `block-ai-reviews` covers a
   Claude outage, and a pause would still need bypass merges unless it waived the
   gate.
+- **A gate waiver honoured when `getCollaboratorPermissionLevel` shows the
+  labeller can write.** It keeps the waiver and only narrows who holds it, so a
+  writer could merge unreviewed work with no trace in the branch-protection
+  record; ruleset bypass expresses the same intent through a permission GitHub
+  already audits.
 
 ### The review is a submitted review from the repository's own skill
 
@@ -464,3 +485,15 @@ Rejected:
 - **Setting `track_progress` for the custom prompt.** It restores tag-mode
   tracking comments and routes the findings into a regular pull request comment
   instead of a submitted review.
+
+### The gate is a job of the review workflow
+
+`ai-review-present` depends on the review job through `needs:`, so the head
+commit carries a pending check for as long as a review runs, and the gate reads
+the pull request from its own run's event.
+
+Rejected:
+
+- **A separate gate workflow started by `workflow_run`.** It leaves the head
+  commit with no pending signal while a review runs, so auto-merge can fire
+  mid-review, and it has to rediscover the pull request number across runs.

@@ -6,6 +6,9 @@ sources:
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
 - resource: .agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts
 - resource: .agents/plugins/agentdev/.opencode-plugin/package.json
+- resource: .agents/plugins/self-improve/selfimprove/reviewer.py
+- resource: .agents/plugins/self-improve/hooks/hooks.json
+- resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
 ---
 
 # OpenCode catalog bridge
@@ -34,8 +37,7 @@ major version. Only the `effect` function SHALL load OpenCode v2's `effect` and
 #### Scenario: OpenCode v2 starts with the bridge registered
 
 - **WHEN** OpenCode v2 starts with the bridge in its `plugin` config
-- **THEN** it serves the catalog through the `effect` export, and the bridge's
-  warnings reach OpenCode's log.
+- **THEN** it serves the catalog through the `effect` export.
 
 ### Requirement: OpenCode lists every catalog skill
 
@@ -211,6 +213,18 @@ Rejected:
 - **OCX registry distribution.** It copies files into `.opencode/` without
   conversion, so it provides neither namespaced commands nor agent mapping.
 
+### The bridge serves only the agentdev catalog
+
+The bridge translates the agentdev plugin alone. It maps no hooks, because the
+agentdev catalog ships none, and it is registered in the OpenCode config by its
+absolute path, never published to npm or an OpenCode marketplace.
+
+Rejected:
+
+- **Serving the `self-improve` plugin to OpenCode.** Its reviewer builds a
+  Claude-only command line, and its hook events, including the typed-command
+  authorization `UserPromptExpansion` provides, have no OpenCode mapping.
+
 ### One module serves OpenCode v1 and v2
 
 The bridge's default export carries both v1's `server` and v2's `effect`: v1
@@ -227,10 +241,8 @@ Rejected:
   major is installed, and the catalog parsing would be duplicated.
 - **A `setup` export next to `effect`.** v2 runs only `effect`, so it would
   never run.
-- **v2 diagnostics through `console` or the plugin's own `Effect.runPromise`.**
-  Neither reaches `opencode.log`.
-- **A bridge-owned log file for v2 diagnostics.** It would sit outside
-  OpenCode's own log.
+- **Running the v2 setup through `console` reporting or the plugin's own
+  `Effect.runPromise`.** Neither reaches `opencode.log`.
 
 ### Skills keep their bare names; commands are namespaced
 
@@ -279,3 +291,28 @@ Rejected:
 
 - **Reading the user's config files to skip a replaced agent.** It would
   duplicate v2's config discovery, which plugins cannot query.
+
+### Skills reach v2 only through the bridge's skill registration
+
+The catalog's skills reach OpenCode v2 only through the bridge's skill
+transform.
+
+Rejected:
+
+- **v2's native skill roots.** `.agents/plugins/agentdev/skills` is not one of
+  them, and native `.agents/skills` discovery is not used for the catalog.
+
+### A v2 command echoes its invocation in the user's own message
+
+The invocation is shown by prefixing the user's message with `/agentdev:<name>`,
+because the invocation belongs to the user's message; the skill travels as an
+attached reference. OpenCode's command parser has already stripped the
+whitespace around the arguments, so the bridge can restore only the command name
+and the argument text, joined by exactly one space.
+
+Rejected:
+
+- **An assistant acknowledgment of the invocation.** The invocation is the
+  user's, not the assistant's.
+- **A second synthetic message.** It splits one invocation across two messages.
+- **Pasting the skill body into the chat.** The skill is attached, not quoted.

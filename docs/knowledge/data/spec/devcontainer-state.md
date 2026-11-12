@@ -191,6 +191,11 @@ Rejected:
   paths.
 - **A Compose-prefixed credential volume.** Every new worktree would demand a
   fresh login for each agent.
+- **Copying, seeding, refreshing, or distributing agent credentials across
+  workspaces.** claude.ai rotates the refresh token on refresh, so one snapshot
+  copied into several workspaces stays valid only in the first that refreshes
+  and the rest reach `Login expired`. A login happens by `/login` inside a
+  container and persists on the shared auth volume.
 
 ### One empty home volume for a remapped non-root account
 

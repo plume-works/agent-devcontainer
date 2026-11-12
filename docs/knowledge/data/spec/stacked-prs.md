@@ -263,6 +263,10 @@ organization, not the built-in GitHub Actions app that `GITHUB_TOKEN` acts as,
 so a workflow pushing to an `iwe/` branch must push as an owned App the ruleset
 exempts.
 
+Only branches of the remote are cut from or restacked, so a pull request whose
+head lives in a fork is refused: its head names a branch that the remote may
+also hold under the same name.
+
 Rejected:
 
 - **GitHub native stacks driven by `gh stack`.** GitHub rebases every remaining

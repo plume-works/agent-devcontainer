@@ -29,10 +29,13 @@ from `OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`, or the user's default config
 directory. It SHALL patch `opencode.jsonc` when that file exists and
 `opencode.json` otherwise, SHALL parse either as JSONC and reject duplicate
 keys, and SHALL write the result as strict JSON, replacing the file atomically
-through a temporary file in the same directory. The config directory SHALL have
-mode `0700` and the file SHALL have mode `0600`. The step SHALL run after the
-supervised services are ready and after the git credential helper setup, so a
-failure fails the start hook without keeping those services from starting.
+through a temporary file in the same directory. It SHALL keep every existing
+top-level key in its position, replacing only the managed keys' values, and
+SHALL add `$schema` first and `permission` and `experimental` last only when
+missing. The config directory SHALL have mode `0700` and the file SHALL have
+mode `0600`. The step SHALL run after the supervised services are ready and
+after the git credential helper setup, so a failure fails the start hook without
+keeping those services from starting.
 
 #### Scenario: a container starts with no OpenCode config
 
@@ -45,6 +48,12 @@ failure fails the start hook without keeping those services from starting.
 - **WHEN** `opencode.json` contains a plugin list, unrelated top-level keys,
   additional permission rules, or other `experimental` keys
 - **THEN** those values survive and the managed values are set.
+
+#### Scenario: the container restarts with a configured config
+
+- **WHEN** the container starts again and `opencode.json` is unchanged since the
+  configure step last wrote it
+- **THEN** the configure step leaves it byte-identical.
 
 #### Scenario: the config directory contains JSON and JSONC
 
@@ -107,3 +116,14 @@ Rejected:
 - **Folding the policy into catalog reinstallation.** Catalog registration runs
   on create and attach and only when a bridge plugin exists, while the policy
   must be restored on every start.
+
+### The policy keeps OpenCode v1's `permission` form
+
+OpenCode v1 ignores v2's `permissions` key, while v2 reads v1's `permission`
+object, so one `permission` block grants full access under either major. This
+holds as long as v2 never rewrites `opencode.json` into its own form.
+
+Rejected:
+
+- **Rewriting the policy into v2's `permissions` form.** A v1 install would lose
+  full access.

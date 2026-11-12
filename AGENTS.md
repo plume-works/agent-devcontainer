@@ -142,6 +142,24 @@ Practice 8.
   versions, or that two files agree; that checks another tool did its job; or that queries a
   live service or waits on CI. None of them covers behaviour.
 - Behaviour no such test can reach stays untested.
+- A cross-file consistency test is removed with no replacement: it cannot catch a new usage
+  written with an old value, and once two files diverge on `main` it fails every pull
+  request that merges `main` instead of preventing the divergence.
+- A test that runs git in a fixture repository from inside a git hook unsets `GIT_DIR`,
+  `GIT_INDEX_FILE`, and `GIT_WORK_TREE`: `git commit -a` exports an absolute
+  `GIT_INDEX_FILE`, and an inherited one makes the fixture's git write the outer index.
+- A test that starts a real tmux server sets `TMUX_TMPDIR` to its own scratch directory, so
+  pytest-xdist workers never share a server and one test's `kill-server` never ends another's.
+- A test that starts an X display takes it from its xdist worker's own block, clear of the
+  runtime's `:100`: X displays and `xpra list` are host-global, whatever `HOME` a test sets.
+- A test that waits for a process to end polls, and counts a zombie as gone: `os.kill(pid, 0)`
+  succeeds on a zombie, and PID 1 reaps an orphan only on its next poll.
+- A fake service's background child does not inherit the service's stdout, or the `exec`
+  wrapper outlives the service and supervisord's group kill, not the code under test, ends it.
+- A test of a permission refusal skips under UID 0, which bypasses permission bits; covering
+  root needs a refusal privilege does not bypass, such as a read-only mount.
+- A fixture's scratch directory under `/tmp` is unique per run (a `uuid4` suffix) and removed
+  on teardown: `/tmp` is shared by every worktree and session in the container.
 - NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION (Claude Code, OpenCode) through the agentdev catalog's workflow skills against a live model. Behaviour only such a session can show is an observation task in its plan.
 
 ### Python Testing

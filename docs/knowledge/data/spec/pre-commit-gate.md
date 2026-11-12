@@ -5,10 +5,13 @@ sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/workflows/ci.yml
 - resource: scripts/pre-commit-ci-range.py
+- resource: ansible/roles/nodejs/tasks/main.yml
 - resource: scripts/ci_runs.py
 - resource: .pre-commit-config.yaml
 - resource: devcontainer-compose-pins.yml
 - resource: scripts/check-ship-records.py
+- resource: scripts/tests/test_check_ship_records.py
+- resource: .iwe/schemas/bug.yaml
 - resource: pyproject.toml
 - resource: ansible/roles/dev_tools/defaults/main.yml
 - resource: .github/renovate.json
@@ -295,6 +298,22 @@ Rejected:
 
 - **`language: node` hooks.** pre-commit installs their environments with npm, a
   second JavaScript runner beside bun.
+- **Renovate's `pre-commit` manager alone for the `bunx` pins.** It reads only a
+  remote repository's `rev` and the `additional_dependencies` of `node`,
+  `python`, and `golang` hooks, never a `language: system` hook's `entry`, so a
+  `custom.regex` manager over `.pre-commit-config.yaml` tracks the pins.
+
+### The bun rule governs how this repository runs JavaScript
+
+Running JavaScript through `bun` binds this repository's own invocations, not
+what the image ships to its users: Node.js with its bundled `npm`, and Yarn,
+installed by the `nodejs` role as a bun global, stay in the image.
+
+Rejected:
+
+- **Removing Node.js, `npm`, and Yarn from the image.** Users of the image run
+  their own projects' JavaScript tooling, which this repository's rule does not
+  govern.
 
 ### pre-commit's store stays off the checkout
 
@@ -307,3 +326,50 @@ Rejected:
 - **A cache volume shared by every worktree.** Warm across worktrees after the
   first create, but one more volume to manage; each instance's home volume
   already isolates a worktree's state.
+
+### A push to main is checked from the last passing run
+
+The cooldown on `main` cancels runs before they build, so their commits never
+reach a pre-commit job of their own. Starting the range at the head commit of
+the last successful push run keeps every commit on `main` checked by the hooks
+and scanned by gitleaks.
+
+Rejected:
+
+- **Checking only `before..after` of the latest push.** A commit whose run the
+  cooldown cancelled would never be checked or scanned.
+
+### The gitleaks mode switch is inline in the hook
+
+The gitleaks hook chooses its scan mode in an inline `bash -c` entry in
+`.pre-commit-config.yaml`, so the hook is self-contained for a template consumer
+who copies that one file.
+
+Rejected:
+
+- **A script the hook calls.** A consumer copying the configuration would also
+  have to copy the script.
+
+### The `pre-commit` CI job has no path filter
+
+pre-commit already skips a hook whose files did not change, so a path filter
+saves nothing, and the `always_run` hooks, gitleaks and `no-commit-to-branch`,
+must run on every event.
+
+### Ship records are checked by a CLI, not a schema
+
+A done bug's `## Fix` is enforced mechanically, by
+`scripts/check-ship-records.py`. `iwe` accepts a conditional in a document
+schema only inside `frontmatter`: a document-level `if`/`then` or `anyOf` fails
+as an unknown keyword, and requiring `## Fix` on every bug is wrong because an
+open bug has none. The check is a CLI under test, run by its tests on made-up
+documents, rather than a pytest file like the `plan-checkboxes` hook. It checks
+section shape only; whether a `## Fix` describes the shipped fix is
+`iwe-ship-reviewer`'s judgment. It lives in `scripts/`, outside the agentdev
+plugin, so `iwe-bootstrap` does not install it.
+
+Rejected:
+
+- **A `## Fix` section required by the bug schema.** It fails every open bug.
+- **Nothing mechanical enforces a done bug's `## Fix`.** Reversed by the
+  repository owner.

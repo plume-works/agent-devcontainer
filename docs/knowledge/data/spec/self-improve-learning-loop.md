@@ -19,6 +19,7 @@ sources:
 - resource: .claude/settings.json
 - resource: ansible/roles/agent_catalog/tasks/stage_catalog.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
+- resource: .agents/plugins/self-improve/skills/apply/SKILL.md
 ---
 
 # Self-improve learning loop
@@ -450,6 +451,10 @@ The state override precedes `CLAUDE_PLUGIN_DATA` because Claude Code sets that
 variable in every hook environment, discarding an inherited value, so an
 override that lost to it would never reach the hooks that write state.
 
+Skills invoke the dispatcher as `${CLAUDE_PLUGIN_ROOT}/agent-code/si`, not by a
+skill-relative path: the executable sits at the plugin root, not in a skill, and
+the plugin is published only to Claude Code, which substitutes the variable.
+
 Rejected:
 
 - **Third-party runtime dependencies installed on demand** (a virtual
@@ -457,6 +462,9 @@ Rejected:
   fallbacks when the install fails, in the code path that must not fail.
 - **One executable per operation.** It repeats the fail-open entry logic, the
   most reliability-critical path, in each script.
+- **A `pyproject.toml` and Python project of the plugin's own**, as
+  `py_packages/validate_agent_files/` has. That isolation exists because the
+  validator is released independently; the plugin is not.
 
 ### The reviewer is isolated by removing its tools
 

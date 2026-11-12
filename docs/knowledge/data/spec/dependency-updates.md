@@ -272,3 +272,14 @@ Rejected:
   refresh script and Renovate's `registryUrls`, with nothing keeping them in
   agreement; a consumer on another release or architecture fails on the missing
   pin file; and the dependency closures of the pinned packages still float.
+
+### Runner labels move only where Renovate can read them
+
+Renovate rewrites only literal `runs-on` labels. An expression-form label, such
+as `vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm'`, is not
+extracted, so a runner bump leaves the workflows on mixed runner releases until
+the expressions are moved by hand. actionlint validates GitHub-hosted runner
+labels against a list compiled into its binary, and Renovate can propose a label
+before any actionlint release knows it; such a label is declared under
+`self-hosted-runner.labels` in `.github/actionlint.yml` until a release knows
+it, which keeps every other unknown label, a typo included, failing.

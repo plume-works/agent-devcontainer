@@ -10,6 +10,7 @@ sources:
 - resource: docker/ansible/setup-ansible.sh
 - resource: .pre-commit-config.yaml
 - resource: scripts/tests/test_cloud_startup.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 ---
 
 # Cloud session host
@@ -81,7 +82,8 @@ and `AGENTDEV_RUNTIME_MODE` is unset, and SHALL keep what still runs. When
 `docker info` fails it SHALL remove a `/var/run/docker.pid` or
 `/var/run/docker/containerd/containerd.pid` that names no running process of
 that program, then start `dockerd --bip 10.213.0.1/24` in its own session and
-fail when the daemon does not answer within 30 seconds.
+fail when the daemon does not answer within 30 seconds. An exited `dockerd`
+SHALL count as a failure only when the daemon still does not answer.
 
 #### Scenario: a worker restart stopped the daemon
 
@@ -89,6 +91,12 @@ fail when the daemon does not answer within 30 seconds.
   holding a pid another process now uses
 - **THEN** resume removes the pid file, starts `dockerd`, and returns once
   `docker info` succeeds
+
+#### Scenario: the started daemon exits once it answers
+
+- **WHEN** the `dockerd` resume started has exited by the time resume checks it,
+  and `docker info` succeeds
+- **THEN** resume counts the daemon as started and does not fail
 
 #### Scenario: resume inside a runtime image
 
@@ -143,3 +151,21 @@ Rejected:
 
 - **A long-running devcontainer on the session host.** A worker restart stops
   every container, so it would be rebuilt or restarted before every turn.
+
+### The agent proxy owns the session's GitHub access
+
+The session's agent proxy injects git's HTTP authentication and replaces the
+placeholder `GH_TOKEN` with the real credential, so no
+`credential.https://github.com.helper` exists and its absence is not missing
+auth. The proxy serves only repository paths in the session's GitHub scope: it
+answers the bare root `https://github.com/` with 400, and a request carrying the
+placeholder token for any other repository with 401, while the same request with
+no token succeeds. zizmor's online audits send `GH_TOKEN` to the repositories of
+the actions a workflow uses, which is why setup sets `ZIZMOR_OFFLINE=true`; only
+a repository-scoped path shows whether the session reaches GitHub.
+
+Rejected:
+
+- **Judging GitHub access by a configured credential helper, `gh auth status`,
+  or the bare `github.com` root.** Each fails in a session whose pushes and REST
+  calls work.

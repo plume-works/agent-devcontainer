@@ -32,12 +32,14 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     finish; where no foreground option exists the passes run sequentially in the
     session; nothing depends on a separate wait tool. — already partly in:
     nowhere (stated only in
-    `.agents/plugins/agentdev/skills/pr-review/SKILL.md`)
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md`) — written:
+    `pr-review#requirement-a-batch-of-passes-runs-as-foreground-calls`
   - [rationale] A headless `claude -p` run ends with its turn, so background
     passes are abandoned. Rejected: running every pass sequentially (gives up
     parallelism and each pass's clean context); keeping background dispatch and
     waiting through another primitive (binds the skill to a wait tool a Claude
-    Code version bump can remove). — already partly in: nowhere
+    Code version bump can remove). — already partly in: nowhere — written:
+    `pr-review#passes-are-collected-through-foreground-calls`
   - [constraint] Foreground `Agent` calls cannot be cancelled individually, so
     the Claude Code path has no per-pass ceiling and no drop-a-hung-pass
     fallback; the `claude-respond` job's `timeout-minutes` is the only ceiling,
@@ -45,13 +47,17 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     — already partly in:
     `architecture/ci-agent-plugin-availability.md#cost-of-running-the-hooks`
     (the 30-minute job timeout), `spec/ai-review-gate.md` (a failed review job
-    fails `ai-review-present`)
+    fails `ai-review-present`) — written:
+    `pr-review#passes-are-collected-through-foreground-calls`
   - [rationale] Rejected: dropping the `settings:` input and relying on the
     hook-written user settings — the project's permissions and model pin reach
     the responder session only through that input. — already partly in: nowhere
+    — written:
+    `catalog-lifecycle#ci-agent-jobs-run-the-lifecycle-commands-against-their-checkout`
 - conflicts: plan `## Approach` says "The Codex path keeps its ceilings and hard
   fallback unchanged"; `architecture/supported-harnesses.md#decision` says
-  "Codex is not supported anywhere".
+  "Codex is not supported anywhere". — resolved: the Codex path is stale; no
+  spec states it, and `supported-harnesses` holds the decision.
 
 ## docs/knowledge/data/plans/20261001-opencode-catalog-bridge.md
 
@@ -64,19 +70,24 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     (`.agents/plugins/self-improve/selfimprove/reviewer.py::build_command`) and
     its hook events, including the typed-command authorization
     `UserPromptExpansion` provides, have no OpenCode mapping. — already partly
-    in: nowhere
+    in: nowhere — written:
+    `opencode-catalog-bridge#the-bridge-serves-only-the-agentdev-catalog`
   - [non-goal] The bridge maps no hooks because the agentdev catalog ships none,
     and it is not published to npm or an OpenCode marketplace; it is registered
     by absolute path only. — already partly in:
     `architecture/opencode-catalog-bridge.md#decision` (absolute path
-    registration)
+    registration) — written:
+    `opencode-catalog-bridge#the-bridge-serves-only-the-agentdev-catalog`
 - conflicts: plan `## Context` says "The agentdev catalog serves Claude Code and
   Codex from one tree … This plan adds it as a third host";
   `architecture/opencode-catalog-bridge.md#decision` says "OpenCode is the
   catalog's second host", and `architecture/supported-harnesses.md` drops Codex.
   Plan `## Approach` says bare `<name>` commands "remain the fallback if Task 1
   measures `/pr` ranking as unusable"; the note's `## Rejected alternatives`
-  says "The namespaced ranking above is usable, so this is not needed."
+  says "The namespaced ranking above is usable, so this is not needed." —
+  resolved: both plan statements are stale; the spec already says "second host"
+  and rejects bare `<name>` commands
+  (`opencode-catalog-bridge#skills-keep-their-bare-names-commands-are-namespaced`).
 
 ## docs/knowledge/data/plans/20261001-skill-relative-agent-code.md
 
@@ -91,31 +102,37 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     Claude Code reads and whose permission patterns need an absolute path. —
     already partly in: `spec/opencode-catalog-bridge.md` scenario "the user
     types a namespaced command on v1" (a relative `agent-code/` step resolves);
-    the rule itself only in `.agents/AGENTS.md`
+    the rule itself only in `.agents/AGENTS.md` — written:
+    `catalog-scripts#requirement-a-skill-names-its-bundled-code-relative-to-its-own-directory`
   - [constraint] The design relies on every host telling the model that a
     relative path in a `SKILL.md` resolves against the skill's directory: Claude
     Code prints "Base directory for this skill: <dir>", OpenCode appends a
     base-directory footer. `${CLAUDE_SKILL_DIR}` is a text substitution only
     Claude Code performs. — already partly in:
     `architecture/opencode-catalog-bridge.md#on-opencode-v1` (the OpenCode
-    footer)
+    footer) — written:
+    `catalog-scripts#bundled-code-is-named-relative-to-the-skill-under-agent-code`
   - [rationale] The directory is `agent-code/`, not the Agent Skills convention
     `scripts/`, because a relative `scripts/<script>` resolved against the
     working directory instead of the skill can run a consuming repository's own
     same-named script rather than fail. Rejected: keeping `${CLAUDE_SKILL_DIR}`
     with per-host substitution; relative paths under the name `scripts/`. —
-    already partly in: nowhere
+    already partly in: nowhere — written:
+    `catalog-scripts#bundled-code-is-named-relative-to-the-skill-under-agent-code`
   - [constraint] `self-improve` keeps `${CLAUDE_PLUGIN_ROOT}/agent-code/si`: its
     executable sits at the plugin root, not in a skill, so no skill-relative
     form exists, and the plugin is published only to Claude Code, which
-    substitutes the variable for hooks. — already partly in: nowhere
+    substitutes the variable for hooks. — already partly in: nowhere — written:
+    `self-improve-learning-loop#the-runtime-is-standard-library-python-behind-one-dispatcher`
   - [non-goal] `references/` directories keep their name: their pages are read,
     not executed, so the name collision does not apply. — already partly in:
-    nowhere
+    nowhere — written:
+    `catalog-scripts#bundled-code-is-named-relative-to-the-skill-under-agent-code`
 - conflicts: the plan's accepted cost about Codex implicit-invocation counting
   and its Codex source citations describe a harness
   `architecture/supported-harnesses.md` says "is not supported anywhere"; that
-  part is dead. Otherwise none.
+  part is dead. Otherwise none. — resolved: the Codex part is stale and was not
+  migrated; no spec states it.
 
 ## docs/knowledge/data/plans/20261002-native-stacked-prs.md
 
@@ -142,20 +159,25 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     the conflict is resolved and pushed; that is why the conflict step runs
     before any feedback work and why `pr-merge` cannot wait on checks for a
     conflicted PR. — already partly in: `spec/pr-merge-conflicts.md#purpose`
-    ("pushed at once so CI runs on the resolved head")
+    ("pushed at once so CI runs on the resolved head") — written:
+    `pr-merge-conflicts#conflicts-are-resolved-and-pushed-before-any-feedback-work`
   - [rationale] Resolving first also keeps the working tree clean, which
     `update-branch` requires. Rejected: pushing the merge together with the
     feedback fixes — it saves one CI cycle but leaves CI blind while feedback is
-    worked. — already partly in: nowhere
+    worked. — already partly in: nowhere — written:
+    `pr-merge-conflicts#conflicts-are-resolved-and-pushed-before-any-feedback-work`
   - [rationale] The conflict step merges the PR's `baseRefName`, not
     `update-branch`'s `main` default, so a pull request based on a predecessor's
     branch merges its real base; `update-branch` names a calling skill as a
     legitimate source of `--remote` and `--base` so the override is not read as
     unrequested. — already partly in: `spec/pr-merge-conflicts.md` "Requirement:
-    update-branch accepts a calling skill's remote and base" (behaviour only)
+    update-branch accepts a calling skill's remote and base" (behaviour only) —
+    written:
+    `pr-merge-conflicts#the-conflict-step-merges-the-pull-requests-own-base`
   - [non-goal] Fork pull requests whose base branch lives on a remote other than
     `origin` are not handled; the conflict step uses `update-branch`'s `origin`
-    default. — already partly in: nowhere
+    default. — already partly in: nowhere — written:
+    `pr-merge-conflicts#the-conflict-step-merges-the-pull-requests-own-base`
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261005-codex-full-access-config.md
@@ -234,14 +256,16 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     `spec/claude-remote-control.md#diagnose-login-expired` (refresh-token
     divergence as a symptom),
     `architecture/agent-auth-persistence.md#consequences` (single-use refresh
-    tokens); neither states the no-seeding decision
+    tokens); neither states the no-seeding decision — written:
+    `devcontainer-state#claude-credentials-shared-per-host-user-all-other-state-per-instance`
   - [rationale] The autostart gate checks `authMethod: "claude.ai"` in addition
     to `loggedIn` because a setup-token login cannot run Remote Control, and
     uses `claude auth status --json` rather than the credential file because a
     rejected refresh leaves a non-empty file with emptied tokens. — already
     partly in: `spec/claude-remote-control.md` scenarios "only a setup token is
     available" and "the saved login has expired", and `#diagnose-login-expired`
-    (the non-empty-file half); the setup-token reason is nowhere
+    (the non-empty-file half); the setup-token reason is nowhere — written:
+    `claude-remote-control#the-autostart-gate-reads-the-live-login-status`
   - [rationale] Pre-approval has an opt-out, `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`,
     so that `enableAllProjectMcpServers` does not reach the headless CI
     responder. Rejected: no opt-out (enables every project MCP server in the
@@ -249,7 +273,8 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     desktop, not headlessness). — already partly in:
     `spec/claude-remote-control.md` "Requirement: every container pre-approves
     first-run Claude state" (behaviour: "The CI responder SHALL set the
-    opt-out")
+    opt-out") — written:
+    `claude-remote-control#pre-approval-has-an-opt-out-the-ci-responder-sets`
 - conflicts: plan `## Approach` justifies the opt-out by the responder's
   "`.mcp.json` names an `mcp-gateway` server that CI does not run"; no root
   `.mcp.json` exists in the repository now, so that specific instance is stale
@@ -257,7 +282,9 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
   (`.github/actions/run-claude-responder/action.yml`). Plan names shell scripts
   (`claude-remote-control-start.sh`, `preapprove-claude-workspace.sh`); the spec
   names `agentdev-runtime remote-control start` and
-  `agentdev-runtime lifecycle created`.
+  `agentdev-runtime lifecycle created`. — resolved: both plan statements are
+  stale; the spec names the current commands and no spec names an `mcp-gateway`
+  server; the Rationale entry states the opt-out's reason without it.
 
 ## docs/knowledge/data/plans/20261011-coder-agent-gh-credential-helper.md
 
@@ -272,7 +299,8 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     be configured from the agent start, where `GITHUB_TOKEN` exists. — already
     partly in: `spec/devcontainer-git-credentials.md` ("so git never waits at an
     interactive credential prompt"), `spec/coder-ide-baseline.md` "Requirement:
-    Coder user secrets reach only agent-started processes"
+    Coder user secrets reach only agent-started processes" — written:
+    `devcontainer-git-credentials#the-coder-agent-start-configures-the-credential-helper`
   - [rationale] Rejected: calling the helper setup from the Remote Control start
     (ties git credentials to Remote Control and to its claude.ai login gate); a
     second template `coder_script` that runs the helper directly (splits
@@ -280,19 +308,23 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     configurable path and knows nothing of this repository's steps. — already
     partly in: `spec/coder-ide-baseline.md` "Requirement: the repository ships
     the Coder agent-start command" (the single-entry rule, without the rejected
-    alternatives)
+    alternatives) — written:
+    `devcontainer-git-credentials#the-coder-agent-start-configures-the-credential-helper`
   - [non-goal] The helper is installed only when `gh` is authenticated, never
     unconditionally, and this repository does not change Coder's `GIT_ASKPASS`
     or configure Coder external auth for GitHub. Post-start keeps its own helper
     setup (maintainer decision) for containers with a stored `gh` login. —
     already partly in: `spec/devcontainer-git-credentials.md` (the "when `gh` is
     authenticated" condition and the stored-login scenario); the non-goals are
-    nowhere
+    nowhere — written:
+    `devcontainer-git-credentials#the-coder-agent-start-configures-the-credential-helper`
 - conflicts: plan `## Approach` names
   "`.devcontainer/scripts/coder-agent-start.sh`, the single entry point";
   `spec/coder-ide-baseline.md` says "The repository SHALL ship
   `agentdev-runtime coder start`, the command the `coder-ide-baseline`
-  template's `agent_start_script` parameter defaults to".
+  template's `agent_start_script` parameter defaults to". — resolved: the plan
+  statement is stale; the spec is right
+  (`py_packages/agentdev_runtime/agentdev_runtime/coder.py::start`).
 
 ## docs/knowledge/data/plans/20261011-coder-claude-remote-control.md
 
@@ -308,22 +340,28 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     environment even when another tmux server is live on the default socket. —
     already partly in: `spec/claude-remote-control.md` "Requirement: Remote
     Control inherits the Coder agent's environment" and scenario "a default tmux
-    server is already running" (behaviour, not the tmux fact)
+    server is already running" (behaviour, not the tmux fact) — written:
+    `claude-remote-control#remote-control-runs-on-its-own-tmux-server`
   - [rationale] No Dev Container lifecycle hook starts Remote Control. Rejected:
     keeping the post-start entry and having one entry yield to the other —
     post-start always runs first in Coder, so the generic entry would need a
     Coder signal it cannot observe before the agent exists, or the Coder entry
     would have to kill a live session it did not start. — already partly in:
     `spec/claude-remote-control.md` ("no devcontainer lifecycle hook runs it";
-    behaviour only)
+    behaviour only) — written:
+    `claude-remote-control#no-dev-container-lifecycle-hook-starts-remote-control`
   - [non-goal] The `gh` wrapper gets no `GIT_ASKPASS` fallback: `GITHUB_TOKEN`
     is a Coder user secret, stable for the life of the agent, so the copy a
-    session inherits does not go stale. — already partly in: nowhere
+    session inherits does not go stale. — already partly in: nowhere — written:
+    `devcontainer-git-credentials#gh-is-authenticated-by-a-wrapper-baked-into-the-image`
 - conflicts: plan `## Context` says "The maintainer decided that Remote Control
   autostart is a Coder-only feature" and `## Out of scope` says "Autostart on
   non-Coder hosts … nothing starts it"; `spec/claude-remote-control.md` says
   "the standalone runtime's `remote-control` watcher runs it when
-  `AGENTDEV_CLAUDE_RC_MODE` is set".
+  `AGENTDEV_CLAUDE_RC_MODE` is set". — resolved: the plan statement is stale;
+  the spec matches the code
+  (`py_packages/agentdev_runtime/agentdev_runtime/supervisor.py` registers the
+  `remote-control` service when the mode is set).
 
 ## docs/knowledge/data/plans/20261012-update-branch-pulls-upstream.md
 
@@ -341,21 +379,28 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     `spec/update-branch.md` scenario "The upstream branch is gone" (outcome
     only); the rest only in
     `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py`
+    — written:
+    `update-branch#requirement-update-branch-brings-in-the-branchs-upstream-before-the-base`
   - [rationale] Rejected: `git pull --rebase` onto the upstream (rewrites local
     commits and contradicts the merge-based contract); fast-forward only with a
     new `UPSTREAM_DIVERGED` stop (a local fix plus a remote commit is a
     supported case and would always bounce back to the agent). — already partly
     in: `spec/update-branch.md` ("SHALL NOT rebase, reset, or force-push"; no
-    alternatives)
+    alternatives) — written:
+    `update-branch#the-upstream-comes-in-before-the-base`
   - [behaviour] Both merges run the merge helper as a child process and report
     through one path; exit codes are unchanged from before the upstream sync, so
     callers (`pr-open`, `pr-feedback-resolution`, `git-new-branch`) keep
-    following update-branch's result table. — already partly in: nowhere
+    following update-branch's result table. — already partly in: nowhere —
+    written:
+    `update-branch#requirement-each-conflicted-merge-stops-the-run-and-a-rerun-continues`
+    (the "unchanged from before" history dropped)
 - conflicts: plan `## Out of scope` says "Stack branches, which Workflow 0
   already refuses" — that refusal belonged to the `gh stack` design root
   `AGENTS.md` now forbids ("NEVER use `gh stack`"). Plan names
   `update-branch.sh` and `git-merge-resolve.sh`; the spec's sources name
-  `agent-code/update-branch.py`.
+  `agent-code/update-branch.py`. — resolved: both plan statements are stale; no
+  spec mentions a stack-branch refusal, and the spec names the current scripts.
 
 ## docs/knowledge/data/plans/20261013-docker-storage-gc.md
 
@@ -367,22 +412,27 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     outside the repository, which running another image's tools against Dev
     Container files depends on. — already partly in: nowhere
     (`architecture/nested-docker-provisioning.md` explains who supervises the
-    engine, not why it is nested)
+    engine, not why it is nested) — written:
+    `devcontainer-docker-storage#the-runtime-supervises-the-nested-engine-and-the-image-runs-no-ssh-server`
   - [rationale] Rejected: turning off the containerd image store to keep all
     storage under one directory — both limits would still be needed and Docker's
-    default store would be given up. — already partly in: nowhere
-  - [constraint] `docker image prune --filter until=72h` compares an image's
+    default store would be given up. — already partly in: nowhere — written:
+    `devcontainer-docker-storage#garbage-is-collected-hourly-by-a-supervised-service-with-an-allow-list-for-volumes`
+  - ~~[constraint] `docker image prune --filter until=72h` compares an image's
     creation time, not its last use, so an unused image built or published more
     than 72 hours ago is removed even if it was pulled today; an image
     referenced by any container, running or stopped, is kept. — already partly
     in: `spec/devcontainer-docker-storage.md` "Requirement: the Dev Container
     engine collects garbage hourly" ("created more than 72 hours ago") and
-    scenario "an image is in use"
+    scenario "an image is in use"~~ — struck: already held by
+    `devcontainer-docker-storage#requirement-the-dev-container-engine-collects-garbage-hourly`
+    (scenarios "an old image was pulled recently" and "an image is in use")
   - [rationale] Why the limits exist: all Coder workspaces share one host disk,
     and a full disk stops a workspace from unpacking its Dev Container image, so
     its sub-agent never starts and nothing the agent start runs (Remote Control
     included) comes up. The 10 GB and 72-hour values are the maintainer's
-    choice. — already partly in: nowhere
+    choice. — already partly in: nowhere — written:
+    `devcontainer-docker-storage#garbage-is-collected-hourly-by-a-supervised-service-with-an-allow-list-for-volumes`
 - conflicts:
   - plan `## Approach` says "on every agent start, `docker image prune …`" and
     "Its prune runs from `coder-agent-start.sh`, so it runs on Coder only";
@@ -396,6 +446,10 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
   - plan `## Context` calls the engine "the nested `dockerd` from the
     docker-in-docker feature"; `architecture/nested-docker-provisioning.md` says
     "The upstream … `docker-in-docker` feature was the previous provider".
+  - resolved: all three plan statements are stale; the spec matches the code
+    (`py_packages/agentdev_runtime/agentdev_runtime/docker.py` runs the pass
+    under the supervisor and removes the disposable volumes), and its Rationale
+    already rejects the `docker-in-docker` feature.
 
 ## docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
 
@@ -413,28 +467,36 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     release tarballs for every tool, so Homebrew versions float and only the uv
     Python and release-only tools are pinned). — already partly in: nowhere (the
     bash rejection is covered by `architecture/catalog-script-language.md` "its
-    `/bin/bash` is 3.2")
+    `/bin/bash` is 3.2") — written:
+    `macos-native-bootstrap#homebrew-tools-float-uv-pins-the-catalogs-python`
   - [constraint] The Python version the script records is the lower bound of the
     root `pyproject.toml`'s `requires-python`, the oldest version the
     repository's tests run the catalog on; a stock host's `/usr/bin/python3`
     (Xcode Command Line Tools) is older than that floor. — already partly in:
     `spec/macos-native-bootstrap.md` "Requirement: uv provisions the catalog's
-    Python" ("the Python version it records", without what fixes the value)
+    Python" ("the Python version it records", without what fixes the value) —
+    written:
+    `macos-native-bootstrap#homebrew-tools-float-uv-pins-the-catalogs-python`
   - [rationale] The script does not install Homebrew because that needs an
     interactive `sudo` it should not drive; the Brewfile is inline so one `curl`
     fetches everything. — already partly in: `spec/macos-native-bootstrap.md`
-    ("It SHALL NOT install Homebrew itself"; no reason)
+    ("It SHALL NOT install Homebrew itself"; no reason) — written:
+    `macos-native-bootstrap#homebrew-tools-float-uv-pins-the-catalogs-python`
   - [behaviour] A `$SHELL` other than zsh or fish gets no `PATH` block, so the
     final check fails and names that shell rather than reporting a `PATH` the
     user's terminal does not have; shell configuration that later puts another
     `python3` first is the user's to fix and the check surfaces it. — already
     partly in: `spec/macos-native-bootstrap.md` scenario "The user's shell
-    resolves another Python"
+    resolves another Python" — written:
+    `macos-native-bootstrap#requirement-login-shells-resolve-the-provisioned-tools-first`
+    (the user's-to-fix half:
+    `macos-native-bootstrap#homebrew-tools-float-uv-pins-the-catalogs-python`)
   - [non-goal] The bootstrap sets up no Docker, Super-Linter, or
     `microvm-sandbox`, no MCP gateway, git SSH signing, or keyring, and no
     Xcode, Expo, or iOS Simulator; it does not install fish. — already partly
     in: `architecture/template-boundary.md#native-macos-host` ("no image,
-    lifecycle commands, egress firewall, or shared agent volumes")
+    lifecycle commands, egress firewall, or shared agent volumes") — written:
+    `macos-native-bootstrap#the-bootstrap-provisions-only-what-agentdev-runs-natively`
 - conflicts:
   - plan step 4 installs "`codebase-memory-mcp` — from their GitHub release
     darwin tarballs"; `spec/macos-native-bootstrap.md` pins only `iwe` and
@@ -443,6 +505,9 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
   - plan `## Out of scope` says "Renovate automation for the script's release
     pins"; the spec says the version is one "which Renovate moves in the same
     pull request".
+  - resolved: both plan statements are stale; the spec matches the code
+    (`.agents/plugins/agentdev/bin/macos-bootstrap.zsh` installs no
+    codebase-memory-mcp, and `.github/renovate.json` manages its pins).
 
 ## docs/knowledge/data/plans/20261013-resume-claude-remote-control.md
 
@@ -470,22 +535,29 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     `--frozen-lockfile`. — already partly in: `spec/template-consumption.md`
     (the pin and its update scenario, no reason); the reason only in
     `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
-  - [constraint] EAS archives the project with `git clone` of the enclosing
+    — written:
+    `template-consumption#the-expo-profile-prepares-eas-builds-and-leaves-the-workflow-to-expos-plugin`
+  - ~~[constraint] EAS archives the project with `git clone` of the enclosing
     repository, so the app must be tracked in the consumer repository and never
-    under an ignored path. — already partly in: nowhere
+    under an ignored path. — already partly in: nowhere~~ — struck: already held
+    by
+    `template-consumption#requirement-an-expo-consumer-is-prepared-for-eas-cloud-builds`
+    ("because EAS archives the project by cloning the enclosing repository")
   - [constraint] An EAS build needs `api.expo.dev`, `cdp.expo.dev`,
     `storage.googleapis.com`, `expo.dev`, `wf-artifacts.eascdn.net`, and
     `mcp.expo.dev` (the Expo plugin's MCP server); `storage.googleapis.com` and
     `wf-artifacts.eascdn.net` are CDN hosts whose addresses rotate, so the
     allowlist may need a container restart. — already partly in:
     `spec/template-consumption.md` ("the Expo hosts in the firewall allowlist",
-    unnamed)
+    unnamed) — written:
+    `template-consumption#the-expo-profile-prepares-eas-builds-and-leaves-the-workflow-to-expos-plugin`
   - [constraint] An empty `EXPO_TOKEN` is treated by `eas` as no token, which is
     what makes the template-wide passthrough of an unset host variable inert;
     EAS Simulator writes a session token to `.env.eas-simulator` in the project
     root, which is why it is git-ignored. — already partly in:
     `spec/template-consumption.md` (passthrough "empty when the host does not
-    set it"; `.env.eas-simulator` ignored)
+    set it"; `.env.eas-simulator` ignored) — written:
+    `template-consumption#the-expo-profile-prepares-eas-builds-and-leaves-the-workflow-to-expos-plugin`
   - [rationale] Rejected: an agentdev EAS skill (duplicates Expo's official
     `expo@claude-plugins-official` plugin, which owns the agent workflow);
     passing the token only from the profile (an Expo-only edit to the
@@ -495,20 +567,31 @@ body or `.agents/AGENTS.md` may still state it, and is named where it does).
     token on the shared agent-auth volume (it belongs to the hosting
     environment, where it can be scoped and revoked). — already partly in:
     `architecture/template-boundary.md#optional-expo-profile` (why
-    `optional_bundles` records it and why `EXPO_TOKEN` needs no profile edit)
+    `optional_bundles` records it and why `EXPO_TOKEN` needs no profile edit) —
+    written:
+    `template-consumption#the-expo-profile-prepares-eas-builds-and-leaves-the-workflow-to-expos-plugin`
   - [behaviour] The profile keeps `expo@claude-plugins-official` in
     `.claude/settings.json` `enabledPlugins`, and the merged root `AGENTS.md`
     translates Expo's `npx` commands to `bunx` (`bunx eas-cli@latest`); the Expo
     `AGENTS.md` is merged as a section rather than kept as a second file because
     the root `AGENTS.md` is the one instruction file every agent reads. —
     already partly in: `architecture/template-boundary.md#optional-expo-profile`
-    (names `.claude/settings.json` among edited files)
+    (names `.claude/settings.json` among edited files) — written: the
+    `enabledPlugins` and `bunx` halves are already held by
+    `template-consumption#requirement-an-expo-consumer-is-prepared-for-eas-cloud-builds`;
+    the reason for the merged section went to
+    `template-consumption#the-expo-profile-prepares-eas-builds-and-leaves-the-workflow-to-expos-plugin`
   - [non-goal] The profile covers simulator builds only: Apple signing for
     device and store builds stays a one-time human `eas credentials` step, app
     config such as `expo.ios.bundleIdentifier` is the Expo plugin's, and
     `EXPO_TOKEN` passthrough on GitHub Codespaces is not provided. — already
-    partly in: nowhere
+    partly in: nowhere — written:
+    `template-consumption#the-expo-profile-prepares-eas-builds-and-leaves-the-workflow-to-expos-plugin`
+    ("simulator builds only" dropped: the spec now routes device and store
+    builds to EAS cloud through the same profile; the Codespaces half restated
+    as the guide's two supported hosts)
 - conflicts: plan `## Out of scope` lists "Native macOS hosts";
   `spec/template-consumption.md` now has "Requirement: an Expo consumer can
   build iOS on a Mac host through the bridge". Later work, not a contradiction
-  of the EAS cloud path.
+  of the EAS cloud path. — resolved: the plan statement is stale; the spec
+  matches the guide.

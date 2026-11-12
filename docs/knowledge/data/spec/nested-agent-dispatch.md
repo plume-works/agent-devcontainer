@@ -66,3 +66,19 @@ Rejected:
 - **The harness defaults.** OpenCode's default depth of 1 refuses every nested
   `task` call, and with no variable set Claude Code's limit comes from a
   server-side flag rather than from the container.
+
+### Claude Code's depth is set in the compose environment
+
+The repository owner wanted the value stated where the container is defined, so
+it sits in the compose services' `environment:` blocks. The depth is raised only
+in the devcontainer and the standalone runtime; a native host such as macOS
+keeps Claude Code's own limit.
+
+Rejected:
+
+- **`env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` in Claude Code's `settings.json`,
+  written by `agentdev-runtime state agent-policy`.** The owner chose the
+  container definition as the value's one place.
+- **An image-build write of `~/.claude/settings.json` from the Ansible
+  `agentic_tools` role.** The home is a volume, which hides the image's file
+  once the volume holds one.

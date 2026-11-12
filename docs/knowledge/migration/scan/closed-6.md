@@ -13,22 +13,28 @@
     loop because each extra review needs an edit. — already partly in:
     `spec/ai-review-refresh.md` (requirement text carrying "submitted after the
     latest title or description edit by a run that started after it" states the
-    behaviour, not the reason)
+    behaviour, not the reason) — written:
+    ai-review-refresh#a-review-covers-its-head-together-with-the-title-and-description-it-read
   - [rationale] Rejected: a hash of title and description stored in the gate's
     review body (precise on a revert, but needs a review-body format, a
     computation in `pr-review`, and a text-normalization rule; timestamps change
     only `request-review.py` and cost at worst one extra review). Rejected: an
     override argument on `request-review.py` (moves the per-head guard to the
-    caller's judgment). — already partly in: nowhere
+    caller's judgment). — already partly in: nowhere — written:
+    ai-review-refresh#a-review-covers-its-head-together-with-the-title-and-description-it-read
   - [constraint] The edit cutoff is read from GitHub in one GraphQL query:
     `PullRequest.lastEditedAt` for the description and the newest
     `RENAMED_TITLE_EVENT` for the title; the design assumes GitHub records no
     edit when the text is unchanged, and accepts one extra review if it does. —
     already partly in: nowhere (still in
     `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py`)
+    — written:
+    ai-review-refresh#a-review-covers-its-head-together-with-the-title-and-description-it-read
   - [non-goal] A title or description edit never starts a review by itself
     (`pull_request: edited` is not a trigger); requesting stays explicit. No
-    review is marked as a metadata-gate stop. — already partly in: nowhere
+    review is marked as a metadata-gate stop. — already partly in: nowhere —
+    written:
+    ai-review-refresh#a-review-covers-its-head-together-with-the-title-and-description-it-read
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261103-backfill-ship-reviews.md
@@ -50,7 +56,8 @@
     exist, which is after an over-scoped proposal has been written. — already
     partly in: `spec/iwe-workflow-skills.md` (Explore requirement and the
     scenario beginning "WHEN Explore is about to propose a change to the system"
-    hold the behaviour only)
+    hold the behaviour only) — written:
+    iwe-workflow-skills#explores-evidence-gate-opens-its-stance
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261103-nested-dispatch-depth.md
@@ -65,15 +72,18 @@
     Claude Code's `settings.json` from `agentdev-runtime state agent-policy`. —
     already partly in: nowhere
     (`architecture/nested-subagent-dispatch.md#how-each-harness-behaves` states
-    only where the value is set)
+    only where the value is set) — written:
+    nested-agent-dispatch#claude-codes-depth-is-set-in-the-compose-environment
   - [constraint] An image-build write of `~/.claude/settings.json` (Ansible
     `agentic_tools` role) cannot carry the setting: the home is a volume, which
     hides the image's file once the volume holds one. — already partly in:
     `architecture/devcontainer-home-volume.md` (the volume, not this
-    consequence)
+    consequence) — written:
+    nested-agent-dispatch#claude-codes-depth-is-set-in-the-compose-environment
   - [non-goal] The depth is not raised outside the devcontainer and the
     standalone runtime, for example on a native macOS host. — already partly in:
-    nowhere
+    nowhere — written:
+    nested-agent-dispatch#claude-codes-depth-is-set-in-the-compose-environment
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261103-remove-iwe-workflow-e2e.md
@@ -85,18 +95,22 @@
     because unrun tests rot and still read as coverage. — already partly in:
     `architecture/skill-rehearsal-runs.md` ("the repository writes no end-to-end
     test that drives an agent session against a live model" — the rule, not the
-    reason)
+    reason) — written:
+    iwe-workflow-skills#workflow-skills-get-no-live-model-end-to-end-test
   - [non-goal] The ban names the agentdev workflow skills only: the self-improve
     plugin's `smoke`, `pty`, and `auto_memory` live-session tests are kept by
     the maintainer's decision, so "no live-model test at all" was rejected. —
     already partly in: `architecture/self-improve-runtime.md` (says the smoke
-    suite exists, not that it is exempt)
+    suite exists, not that it is exempt) — written:
+    iwe-workflow-skills#workflow-skills-get-no-live-model-end-to-end-test
 - conflicts: `architecture/skill-rehearsal-runs.md` says "the repository writes
   no end-to-end test that drives an agent session against a live model", while
   this plan says "The self-improve plugin's `smoke`, `pty`, and `auto_memory`
   tests also drive live sessions; the maintainer kept them" (the root `Makefile`
   still has `smoke` and `wake` targets). The note's sentence is broader than the
-  decision.
+  decision. — resolved: the note is archived; `spec/iwe-workflow-skills.md` and
+  `AGENTS.md#tests` already scope the ban to the workflow skills, matching the
+  code (the `Makefile` `smoke` and `wake` targets stay)
 
 ## docs/knowledge/data/plans/20261103-rereview-after-changes-requested.md
 
@@ -110,9 +124,12 @@
     reviewer with only `COMMENTED` reviews is therefore left to the scope test.
     — already partly in: `spec/ai-review-refresh.md` (defines "newest verdict"
     as the latest `APPROVED` or `CHANGES_REQUESTED` review);
-    `architecture/ai-review-event-selection.md` (why `COMMENT` exists)
+    `architecture/ai-review-event-selection.md` (why `COMMENT` exists) —
+    written:
+    ai-review-refresh#only-the-ai-reviewers-own-change-request-forces-a-re-review
   - [non-goal] A human reviewer's change request never triggers an AI re-review;
-    lifting it is that reviewer's call. — already partly in: nowhere
+    lifting it is that reviewer's call. — already partly in: nowhere — written:
+    ai-review-refresh#only-the-ai-reviewers-own-change-request-forces-a-re-review
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261103-ship-records-gate.md
@@ -127,14 +144,21 @@
     keyword", and requiring `## Fix` on every bug is wrong because open bugs
     have none. The repository now pins `iwe-v0.33.0`
     (`ansible/roles/dev_tools/defaults/main.yml`), so the tool fact needs
-    re-checking before it is recorded. — already partly in: nowhere
+    re-checking before it is recorded. — already partly in: nowhere — written:
+    pre-commit-gate#ship-records-are-checked-by-a-cli-not-a-schema (re-checked
+    on `iwe` 0.33.0: a document-level `if`/`then` and `anyOf` still fail as
+    unknown keywords)
   - [rationale] The owner reversed the earlier decision that nothing mechanical
     enforces a done bug's `## Fix`; the check is a CLI under test (tests run it
     on made-up documents) rather than a pytest file like the `plan-checkboxes`
-    hook. — already partly in: nowhere
+    hook. — already partly in: nowhere — written:
+    pre-commit-gate#ship-records-are-checked-by-a-cli-not-a-schema
   - [non-goal] The CLI lives in `scripts/` and is not shipped to template
     consumers; it checks section shape only, and `iwe-ship-reviewer` judges
-    whether a `## Fix` describes the shipped fix. — already partly in: nowhere
+    whether a `## Fix` describes the shipped fix. — already partly in: nowhere —
+    written: pre-commit-gate#ship-records-are-checked-by-a-cli-not-a-schema
+    (restated as "outside the agentdev plugin, so `iwe-bootstrap` does not
+    install it": a full template copy keeps `scripts/`)
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261103-ship-review.md
@@ -149,7 +173,8 @@
     `iwe-ship-reviewer` commits its own `## Ship review` because it is that
     section's only writer. — already partly in: `spec/iwe-workflow-skills.md`
     (the requirement naming `iwe-ship-reviewer`, `fix`, and "at most 3 fix
-    rounds" holds the behaviour; no architecture note covers the Ship review)
+    rounds" holds the behaviour; no architecture note covers the Ship review) —
+    written: iwe-workflow-skills#the-ship-review-loop-belongs-to-the-ship-skill
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261107-coder-template-history-to-template.md
@@ -192,20 +217,27 @@
     "Workflow improvements preserve the IWE and OKF model" gives only "source
     control records when and by whom");
     `architecture/kb-conflict-free-layout.md` (names `status` as "the one
-    divergence" and does not mention `generated` or `verified`)
+    divergence" and does not mention `generated` or `verified`) — written:
+    iwe-workflow-skills#okfs-generated-and-verified-are-banned-sources-stays
   - [constraint] `okf.yaml` accepts undeclared fields, so removing a field's
     declaration does not keep it out of documents; the ban therefore has to be
     the `banned-frontmatter-keys` check. One check covers `status`, `generated`,
     and `verified`; a second near-copy test was rejected. — already partly in:
-    nowhere
+    nowhere — written:
+    iwe-workflow-skills#okfs-generated-and-verified-are-banned-sources-stays
   - [non-goal] `sources` stays: it records what a document derives from and does
     not change on every edit. `iwe-bootstrap` does not install the check,
     because its spec bars it from adding pre-commit configuration. — already
     partly in: `spec/template-consumption.md` ("A repository initialized by
     `iwe-bootstrap` alone gets no such check, because bootstrap adds no hooks")
+    — written:
+    iwe-workflow-skills#okfs-generated-and-verified-are-banned-sources-stays
+    (the `iwe-bootstrap` half is already held by template-consumption)
 - conflicts: `architecture/kb-conflict-free-layout.md` says "The one divergence
   is `status`", while `spec/iwe-workflow-skills.md` bans `status`, `generated`,
-  and `verified`.
+  and `verified`. — resolved: the note is archived;
+  `spec/iwe-workflow-skills.md` bans `status`, `generated`, and `verified`,
+  matching `docs/knowledge/tests/test_banned_frontmatter_keys.py`
 
 ## docs/knowledge/data/plans/20261108-label-review-triggers.md
 
@@ -241,7 +273,8 @@
     checkboxes was rejected because that audit asks one question
     (durable-knowledge residue) and a second gate would widen it. — already
     partly in: `spec/plan-checkbox-evidence.md` (the requirement stating "one
-    checkbox is one observation" holds the behaviour)
+    checkbox is one observation" holds the behaviour) — written:
+    plan-checkbox-evidence#checkbox-granularity-is-the-planners-rule
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261109-planner-spec-redundancy-check.md
@@ -256,10 +289,13 @@
     finding would arrive after implementation. — already partly in:
     `spec/iwe-workflow-skills.md` (scenarios "Plan names that requirement
     instead of restating the rule" and "A modification makes a scenario
-    redundant" hold the behaviour)
+    redundant" hold the behaviour) — written:
+    iwe-workflow-skills#only-the-planner-keeps-a-rule-from-being-restated-in-a-spec
   - [non-goal] A spec duplicating the behaviour its code or rulebook carries is
     intended and is not the redundancy this rule targets; statements of how the
-    catalog is wired keep their copy in the spec. — already partly in: nowhere
+    catalog is wired keep their copy in the spec. — already partly in: nowhere —
+    written:
+    iwe-workflow-skills#only-the-planner-keeps-a-rule-from-being-restated-in-a-spec
 - conflicts: none
 
 ## docs/knowledge/data/bugs/ai-rereview-comment-keeps-changes-requested.md
@@ -283,11 +319,15 @@
     the same intent through a permission GitHub already audits. — already partly
     in: `spec/ai-review-gate.md` ("The label SHALL NOT waive the
     `ai-review-present` gate ... only a user with ruleset bypass can merge it" —
-    the behaviour and the self-waive reason, not this rejected alternative)
+    the behaviour and the self-waive reason, not this rejected alternative) —
+    written:
+    ai-review-gate#reviews-are-requested-with-a-label-and-held-with-a-label
 - conflicts: this bug says "The marker, renamed `[ci:skip-ai-review]` ... now
   reaches only `wantsReview`"; `architecture/label-review-triggers.md` says "a
   `block-ai-reviews` label replaces the `[ci:skip-ai-review]` body marker". The
-  marker no longer exists; the principle carried over to the label.
+  marker no longer exists; the principle carried over to the label. — resolved:
+  stale bug text; no spec, workflow, or catalog file names
+  `[ci:skip-ai-review]`, and `spec/ai-review-gate.md` holds the label rule
 
 ## docs/knowledge/data/bugs/body-shape-schemas-shared-scratch.md
 
@@ -301,7 +341,7 @@
     lets concurrent runs read each other's mutations or a tree another run just
     deleted. — already partly in: nowhere in `spec/` or `architecture/`
     (`AGENTS.md` states only that tests write under `/tmp`; the fixtures in
-    `docs/knowledge/tests/` carry the pattern)
+    `docs/knowledge/tests/` carry the pattern) — written: AGENTS.md#tests
 - conflicts: none; no spec requirement or scenario states the fixed behaviour.
 
 ## docs/knowledge/data/bugs/cbm-cache-under-foreign-owned-checkout.md
@@ -343,7 +383,9 @@
     Renovate automerges used to cancel an in-progress run). — already partly in:
     `spec/image-pinning.md` (requirement "published tags name only tested
     images" and its four scenarios hold the behaviour, including "Primary checks
-    runs on `main` SHALL NOT cancel one another")
+    runs on `main` SHALL NOT cancel one another") — written:
+    image-pinning#tags-move-only-after-acceptance (the clean-`ubuntu:24.04`
+    clause dropped: the base is now pinned by digest)
 - conflicts: none
 
 ## docs/knowledge/data/bugs/claude-json-symlink-replaced.md
@@ -368,7 +410,8 @@
     `scripts/tests/test_cloud_startup.py::test_dockerd_that_exits_once_ready_counts_as_started`,
     stated in no spec. — already partly in:
     `architecture/cloud-session-host-toolchain.md` (says startup "starts
-    `dockerd` ... when it does not answer", not the exit rule)
+    `dockerd` ... when it does not answer", not the exit rule) — written:
+    cloud-session-host#requirement-resume-restores-the-hosts-docker-and-relay-on-a-cloud-host-only
 - conflicts: none
 
 ## docs/knowledge/data/bugs/coder-askpass-push-hang.md
@@ -376,7 +419,7 @@
 - verdict: HAS UNIQUE KNOWLEDGE
 - owning spec: devcontainer-git-credentials (also coder-ide-baseline)
 - unique items:
-  - [constraint] With no github.com credential helper, git falls back to
+  - ~~[constraint] With no github.com credential helper, git falls back to
     `GIT_ASKPASS`, which Coder sets to its agent binary; that binary does not
     return when it has no GitHub credential to give, so an HTTPS push hangs.
     This is why the helper must be configured from the agent-start command,
@@ -384,11 +427,15 @@
     `spec/devcontainer-git-credentials.md` (requirement "HTTPS git uses the gh
     login": "so git never waits at an interactive credential prompt");
     `spec/coder-ide-baseline.md` (post-start runs before Coder injects its agent
-    and SHALL NOT depend on `GITHUB_TOKEN`, `CODER_*`, `GIT_ASKPASS`)
+    and SHALL NOT depend on `GITHUB_TOKEN`, `CODER_*`, `GIT_ASKPASS`)~~ —
+    struck: already held by
+    devcontainer-git-credentials#the-coder-agent-start-configures-the-credential-helper
 - conflicts: this bug says "`.devcontainer/scripts/coder-agent-start.sh` runs
   `setup-gh-credential-helper.sh`"; `spec/devcontainer-git-credentials.md` says
   "`agentdev-runtime coder start`, which the Coder template's `coder_script`
-  runs on every agent start", and `.devcontainer/scripts/` no longer exists.
+  runs on every agent start", and `.devcontainer/scripts/` no longer exists. —
+  resolved: stale bug text; `spec/devcontainer-git-credentials.md` matches
+  `py_packages/agentdev_runtime/agentdev_runtime/coder.py`
 
 ## docs/knowledge/data/bugs/coder-docker-storage-accumulates.md
 
@@ -413,7 +460,7 @@
 - owning spec: catalog-lifecycle (or opencode-catalog-bridge, which already has
   the scenario "a relative `agent-code/` step resolves inside that skill")
 - unique items:
-  - [rationale] A skill's bundled code directory is named `agent-code/` rather
+  - ~~[rationale] A skill's bundled code directory is named `agent-code/` rather
     than `scripts/` so that a path misresolved against the working directory
     cannot run a consuming repository's own `scripts/`; skills reference it
     skill-relative because `${CLAUDE_SKILL_DIR}` is a Claude Code text
@@ -421,7 +468,8 @@
     Claude-only `allowed-tools` field. — already partly in: `.agents/AGENTS.md`
     (the rule, without the naming reason);
     `architecture/catalog-script-language.md` (uses the directory name, no
-    reason)
+    reason)~~ — struck: already held by
+    catalog-scripts#bundled-code-is-named-relative-to-the-skill-under-agent-code
 - conflicts: none (the Codex half is dead; the `agent-code/` convention is live)
 
 ## docs/knowledge/data/bugs/command-result-evidence-ambiguous.md
@@ -453,16 +501,19 @@
     runtime's keyring serves; publishing a random address in a file only some
     scripts source is not enough. — already partly in: nowhere
     (`spec/agentdev-runtime-images.md` says only that the image starts D-Bus and
-    the keyring)
+    the keyring) — written:
+    agentdev-runtime-images#the-session-bus-address-is-an-image-env
   - [behaviour] Both images set
     `DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus` as an image
     `ENV`, and a `gh` call from the `agent` or `root` shell adds no bus or
     keyring (`scripts/tests/test_agent_runtime_acceptance.py`); no spec
-    requirement or scenario states this. — already partly in: nowhere
+    requirement or scenario states this. — already partly in: nowhere — written:
+    agentdev-runtime-images#requirement-every-process-names-the-runtimes-session-bus
 - conflicts: this bug says "`devcontainer.json` sets `DBUS_SESSION_BUS_ADDRESS`
   in `containerEnv` to the fixed `unix:path=/tmp/agentdev-dbus/bus`" and names
   `setup-keyring.sh`; the current code sets
   `DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus` in
   `docker/devcontainer/agentdev-devcontainer.Dockerfile` and
   `docker/deploy/agentdev-deploy.Dockerfile`, and the keyring code is
-  `py_packages/agentdev_runtime/agentdev_runtime/keyring.py`.
+  `py_packages/agentdev_runtime/agentdev_runtime/keyring.py`. — resolved: stale
+  bug text; the specs record the image `ENV` the Dockerfiles set

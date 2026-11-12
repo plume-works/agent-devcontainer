@@ -7,6 +7,10 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.py
 - resource: .agents/plugins/agentdev/tests/test_template_consume_check_updates.py
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
+- resource: py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py
+- resource: py_packages/validate_agent_files/validate_agent_files/core.py
+- resource: py_packages/validate_agent_files/validate_agent_files/main.py
+- resource: py_packages/validate_agent_files/validate_agent_files/cli.py
 ---
 
 # Agent file discovery
@@ -128,7 +132,74 @@ parse SHALL be reported as broken metadata rather than skipped. The
   parse
 - **THEN** it reports `INVALID_MARKER` and diffs nothing
 
+### Requirement: Bundled-markdown discovery skips a skill's assets directory
+
+When `validate_agent_files` collects the Markdown a plugin ships besides its
+catalog entry files, it SHALL NOT descend into an `assets/` directory that sits
+beside a `SKILL.md`, so no file under it is checked for references.
+
+#### Scenario: A skill ships Markdown templates under assets
+
+- **WHEN** a skill directory holds `SKILL.md` and an `assets/` tree whose
+  Markdown carries links that resolve only once copied out
+- **THEN** bundled-markdown discovery returns no file under `assets/`, and the
+  links raise no reference issue
+
+### Requirement: Skill recommendations add warnings only
+
+With `--recommend`, `validate_agent_files` SHALL run `SkillFrontmatterValidator`
+and `SkillStructureValidator` on each skill that passed its error checks and
+report only their warning-level issues, so their stricter checks never add an
+error to the default validation contract. `--errors-only` SHALL hide every
+warning and win over `--recommend`.
+
+#### Scenario: A recommendation check finds an error-level issue
+
+- **WHEN** `--recommend` runs on a skill whose frontmatter
+  `SkillFrontmatterValidator` rejects at error level
+- **THEN** that issue is not reported and the skill's validity is unchanged
+
+#### Scenario: Both flags are given
+
+- **WHEN** `validate_agent_files` runs with `--recommend` and `--errors-only`
+- **THEN** no warning is reported
+
 ## Rationale
+
+### Inside a work tree, git is the one ignore authority
+
+Discovery asks `git check-ignore` whether each candidate is ignored, feeding a
+walked directory's candidates to one `git check-ignore --stdin -z` call rather
+than a process per path. It answers for any path, tracked or not, and leaves
+nested `.gitignore` precedence entirely to git. A repository says "skip
+`__pycache__`" in its `.gitignore`, so the excluded-directory set is a
+caller-supplied parameter for the no-git fallback only. Git's ignore rules say
+nothing about `.git/` itself unless a repository names it, which is why
+discovery prunes `.git/` in both modes.
+
+Rejected:
+
+- **`git ls-files --others --exclude-standard`.** It conflates ignore state with
+  tracked state.
+- **Applying the excluded-directory set inside a work tree too.** Two ignore
+  authorities, and a repository could not un-skip a directory the set names.
+
+### One flag hides warnings
+
+`--errors-only` is the one flag that hides warnings, and it wins over
+`--recommend`.
+
+Rejected:
+
+- **A `--no-warnings` flag beside `--errors-only`.** Both resolve to the same
+  setting, so the second flag is a synonym to keep in step.
+
+### A skill's assets are output, not documents read in place
+
+In the Agent Skills layout, `assets/` beside a `SKILL.md` holds files the skill
+copies out as output, whose references resolve where they land. The
+`iwe-bootstrap` scaffold is the case in point: its Markdown uses IWE
+extension-less links that resolve only once installed in a workspace.
 
 ### Agent metadata is a colocated file with one key per consumer
 

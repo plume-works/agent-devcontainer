@@ -12,29 +12,36 @@
     port must fail the start rather than move the server to a port Coder's
     forwarding does not expect — already partly in: nowhere
     (`spec/opencode-web.md#requirement-the-server-is-exposed-only-behind-a-password`
-    states only "SHALL listen on port 4096")
+    states only "SHALL listen on port 4096") — written:
+    spec/opencode-web#the-port-is-always-passed-explicitly
   - [rationale] The Coder tmux pane runs the server with `DISPLAY` removed so a
     server start can never open a browser window on the Xpra desktop at every
     workspace start. The code still does this
     (`py_packages/agentdev_runtime/agentdev_runtime/opencode.py::coder_pane`,
     `env -u DISPLAY`), but no spec or note says why — already partly in:
     `architecture/standalone-opencode-runtime.md#opencode-lifetime` (covers only
-    the standalone side: `serve` opens no browser, `DISPLAY` kept)
+    the standalone side: `serve` opens no browser, `DISPLAY` kept) — written:
+    spec/opencode-web#the-coder-pane-runs-the-server-without-display
   - [rationale] OpenCode's data directory is never shared between instances
     because it holds a WAL-mode SQLite database and per-project snapshot
     repositories that concurrent containers would corrupt — already partly in:
     `architecture/agent-auth-persistence.md#why-the-rest-of-the-state-is-not-shared`
     (gives the absolute-path reason) and
     `architecture/standalone-opencode-runtime.md#identity-and-state` ("two
-    containers writing them would corrupt each other", no SQLite detail)
-  - [constraint] Coder (v2.37.1) does not apply `customizations.coder.apps` from
-    `devcontainer.json` to a Dev Container the template declares with
+    containers writing them would corrupt each other", no SQLite detail) —
+    written:
+    spec/opencode-web#opencodes-data-directory-is-never-shared-between-instances
+  - ~~[constraint] Coder (v2.37.1) does not apply `customizations.coder.apps`
+    from `devcontainer.json` to a Dev Container the template declares with
     `coder_devcontainer`, so the dashboard app must be a `coder_app` in the
     template; a subdomain `coder_app` joins every request path onto its `url`'s
     path, so the app's `url` must be the server root, and its healthcheck must
     be a path that answers without the server password — already partly in:
     nowhere in this repository (`spec/opencode-web.md` intro only says the
-    dashboard app is the template's)
+    dashboard app is the template's)~~ — struck: the dashboard app is a
+    `coder_app` in the `coder-ide-baseline` template, so the fact belongs to
+    that repository's `spec/workspace-template`
+    (spec/coder-ide-baseline#each-requirement-lives-in-the-repository-whose-code-satisfies-it)
 - conflicts:
   - Plan `## Approach`: "`devcontainer.json` mounts a Compose-prefixed
     `agentdev-opencode` volume at `/root/.local/share/opencode`" and
@@ -45,20 +52,29 @@
     `.devcontainer/devcontainer.json` and `.devcontainer/docker-compose.yml`
     declare no `agentdev-opencode` volume, and `scripts/tests/test_docker_gc.py`
     treats `proj_devcontainer_agentdev-opencode` as an old volume. The spec
-    requirement, not only the plan, is stale.
+    requirement, not only the plan, is stale. — resolved:
+    spec/opencode-web#requirement-opencode-logins-and-chats-survive-a-rebuild
+    already names the home volume `agentdev-home-${devcontainerId}`, matching
+    the mount in `docker/devcontainer/agentdev-devcontainer.Dockerfile`; the
+    plan is stale
   - Plan `## Approach`: "`link-opencode-auth.sh` ... moves a regular
     `~/.local/share/opencode/auth.json` into `/root/.agents-auth/opencode/` and
     symlinks it back" — versus
     `architecture/agent-auth-persistence.md#decision`: "There is no file to
-    share, so each worktree logs in once" (superseded; script removed).
+    share, so each worktree logs in once" (superseded; script removed). —
+    resolved: superseded plan text;
+    spec/devcontainer-state#claude-credentials-shared-per-host-user-all-other-state-per-instance
+    matches the code (no `link-opencode-auth.sh`)
   - Plan `## Approach`: "The pane runs `opencode web --port 4096` ...
     `--hostname 127.0.0.1` otherwise" with no password — versus
     `spec/opencode-web.md`: "`opencode serve`" and "SHALL always require a
-    password" (superseded).
+    password" (superseded). — resolved: superseded plan text; spec/opencode-web
+    matches `opencode.py::coder_pane` (`opencode serve`, password always)
   - Plan `## Approach`: the printed link is
     "`/<base64url(workspace folder)>/session`" — versus
     `spec/opencode-web.md#requirement-the-coder-agent-start-runs-the-opencode-web-ui`:
-    "SHALL print the server's root URL" (superseded).
+    "SHALL print the server's root URL" (superseded). — resolved: superseded
+    plan text; spec/opencode-web matches `opencode.py::link`
 
 ## docs/knowledge/data/plans/20261016-release-impact-at-plan-time.md
 
@@ -72,12 +88,16 @@
     skills. The maintainer decided the impact is chosen and reviewed when the
     plan is written — already partly in:
     `spec/iwe-workflow-skills.md#requirement-plans-declare-their-release-impact`
-    (behaviour only, no reason or rejected alternative)
+    (behaviour only, no reason or rejected alternative) — written:
+    spec/iwe-workflow-skills#a-plans-release-impact-is-a-frontmatter-field-chosen-when-it-is-written
   - [behaviour] A milestone aggregator plan declares `release: internal`,
     because its child plans carry the release entries — already partly in:
-    nowhere
+    nowhere — written:
+    spec/iwe-workflow-skills#scenario-a-milestone-aggregator-plan-is-filed
   - [non-goal] Verify does not cross-check `release: internal` against a
-    non-empty `## Spec changes` section — already partly in: nowhere
+    non-empty `## Spec changes` section — already partly in: nowhere — written:
+    spec/iwe-workflow-skills#a-plans-release-impact-is-a-frontmatter-field-chosen-when-it-is-written
+    (Rejected bullet)
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261017-gh-stack-push-guard.md
@@ -109,7 +129,9 @@
     `AGENTDEV_*` variables, never through command strings a shell evaluates —
     already partly in:
     `spec/standalone-opencode-runtime.md#requirement-runtime-state-is-reported-persisted-and-retried-explicitly`
-    (covers only rejecting malformed booleans and non-positive limits)
+    (covers only rejecting malformed booleans and non-positive limits) —
+    written:
+    spec/standalone-opencode-runtime#configuration-is-documented-variables-never-shell-code
   - [non-goal] Standing exclusions of the standalone runtime: several projects
     in one running container, automatic repository updates, destructive checkout
     repair, SSH-agent or key provisioning, a bundled reverse proxy or TLS, a
@@ -119,27 +141,35 @@
     ("single-project runtime", "publish no host ports", "without a host socket
     mount") and `architecture/standalone-opencode-runtime.md#failure-latch`; the
     SSH, proxy/TLS, repository-update, and no-staged-writes exclusions are
-    nowhere
+    nowhere — written:
+    spec/standalone-opencode-runtime#the-runtime-stops-at-its-own-container-and-its-expected-path
 - conflicts:
   - Plan `## Approach`: "Share only Claude and Codex credentials at
     `/var/lib/agentdev/auth`" — versus
     `spec/standalone-opencode-runtime.md#requirement-a-dedicated-image-owns-a-single-project-runtime`:
     "SHALL NOT install Codex" and
     `#requirement-state-survives-replacement-without-cross-project-session-sharing`:
-    "Only Claude provider credentials SHALL be shared".
+    "Only Claude provider credentials SHALL be shared". — resolved: superseded
+    plan text; the spec matches `compose.opencode.yml` and the image (Claude
+    credentials only, no Codex)
   - Plan `## Out of scope`: "Claude Remote Control autostart" — versus
     `spec/standalone-opencode-runtime.md`: "SHALL keep Claude Code available
     without autostarting it, except Claude Remote Control when
-    `AGENTDEV_CLAUDE_RC_MODE` opts in".
+    `AGENTDEV_CLAUDE_RC_MODE` opts in". — resolved: superseded plan text; the
+    spec matches `remote_control.py` and `settings.py`
+    (`AGENTDEV_CLAUDE_RC_MODE` opt-in)
   - Plan `## Approach`: "A background CBM index request for the workspace" and
     "CBM client configuration and its daemon" as optional work — versus
     `architecture/no-code-graph.md#decision`: "The images, the runtime, and the
-    catalog ship no code-graph daemon, MCP server, hook, or index".
+    catalog ship no code-graph daemon, MCP server, hook, or index". — resolved:
+    subject removed; no spec claims a code-graph component
   - Plan names the image `ghcr.io/plume-works/agent-opencode` derived from
     `agent-desktop` and the retry command `runtime-supervisor.py retry` — versus
     spec: `ghcr.io/plume-works/agentdev-deploy` derived from `agentdev-base`,
     and `architecture/standalone-opencode-runtime.md#failure-latch`:
-    "`agentdev-runtime supervisor retry`" (renamed).
+    "`agentdev-runtime supervisor retry`" (renamed). — resolved: renamed; the
+    spec already uses `agentdev-deploy`, `agentdev-base`, and
+    `agentdev-runtime supervisor retry`
 
 ## docs/knowledge/data/plans/20261018-opencode-full-access-config.md
 
@@ -167,7 +197,8 @@
     generated password is never printed in the agent-start log because anyone
     who can read that log would have it — already partly in:
     `spec/opencode-web.md#requirement-the-server-is-exposed-only-behind-a-password`
-    (behaviour only)
+    (behaviour only) — written:
+    spec/opencode-web#a-missing-coder-password-generates-a-local-one
   - [constraint] OpenCode v2's server always requires a password (its own random
     one when `OPENCODE_SERVER_PASSWORD` is unset) with basic-auth user
     `opencode`, and its web UI has no route or query parameter that opens a
@@ -175,22 +206,27 @@
     to a session was rejected because the only session route needs a session the
     start would have to create on every run — already partly in:
     `spec/opencode-web.md` (states "always require a password" and "root URL" as
-    behaviour, no host fact or rejected alternative)
+    behaviour, no host fact or rejected alternative) — written:
+    spec/opencode-web#a-missing-coder-password-generates-a-local-one and
+    spec/opencode-web#the-printed-link-is-the-servers-root-url
   - [constraint] Bun blocks the `@opencode/cli` postinstall, which fetches the
     platform binary, until the package is trusted, so the image installs it as a
     trusted package — already partly in: nowhere in the graph
-    (`ansible/roles/agentic_tools/README.md` mentions it)
+    (`ansible/roles/agentic_tools/README.md` mentions it) — written:
+    spec/agentdev-runtime-images#opencode-is-installed-as-a-trusted-bun-package
   - [rationale] The full-access policy stays in v1's `permission` form because
     v1 ignores v2's `permissions` key while v2 reads the v1 block, on the
     assumption that v2 never rewrites `opencode.json` into its own form —
     already partly in:
     `architecture/opencode-catalog-bridge.md#opencode-v2-2032` ("Config." bullet
     states that v2 reads the v1 `permission` object; the rejected rewrite and
-    the assumption are nowhere)
+    the assumption are nowhere) — written:
+    spec/devcontainer-opencode-policy#the-policy-keeps-opencode-v1s-permission-form
   - [non-goal] The catalog is not exposed through v2's native skill roots:
     `.agents/plugins/agentdev/skills` is not one of them, and native
     `.agents/skills` discovery is out of scope; skills reach v2 only through the
-    bridge's skill editor — already partly in: nowhere
+    bridge's skill editor — already partly in: nowhere — written:
+    spec/opencode-catalog-bridge#skills-reach-v2-only-through-the-bridges-skill-registration
 - conflicts:
   - Plan `## Context`: "`auth.json` is read once, as an import" and
     `## Approach` Assumptions: "v2 imports it once and never writes it" — versus
@@ -199,11 +235,18 @@
     again under v2".
     `architecture/standalone-opencode-runtime.md#identity-and-state` still says
     "OpenCode 2.0.32 imports it once and never writes it", so the two
-    architecture notes also disagree with each other.
+    architecture notes also disagree with each other. — resolved: the import
+    claim is dropped:
+    spec/standalone-opencode-runtime#only-claude-credentials-are-shared-per-uidgid-cohort
+    now says v2 keeps logins in its database and writes no `auth.json`, as
+    spec/devcontainer-state does
   - Plan `## Context`: "`opencode serve --port --hostname` serves the API and
     the web UI; there is no `web` command" — versus
     `architecture/standalone-opencode-runtime.md#opencode-lifetime`: "`serve`
-    and `web` start the same server, but `serve` opens no browser".
+    and `web` start the same server, but `serve` opens no browser". — resolved:
+    installed OpenCode 2.2.7 has `serve` and no `web` subcommand;
+    spec/standalone-opencode-runtime#opencode-runs-in-the-foreground-under-supervisord
+    corrected
   - Plan `## Approach`: "diagnostics go through the host's Effect logger ...
     annotated `service: agentdev`" and
     `spec/opencode-catalog-bridge.md#requirement-one-bridge-loads-in-opencode-v1-and-v2`
@@ -213,14 +256,19 @@
     produced the warnings is gone). The spec scenario and the three diagnostics
     bullets under
     `architecture/opencode-catalog-bridge.md#rejected-alternatives` describe
-    removed code.
+    removed code. — resolved: spec/opencode-catalog-bridge scenario "OpenCode v2
+    starts with the bridge registered" no longer claims warnings, and the
+    diagnostics bullets under #one-module-serves-opencode-v1-and-v2 are cut to
+    the `fromPromise` reason, matching `index.ts::v2Effect`
   - Plan `## Approach`: "Logins live in v2's database on the `agentdev-opencode`
     volume" — versus `architecture/agent-auth-persistence.md#decision`: "on the
-    home volume" (same stale volume as in `spec/opencode-web.md`).
+    home volume" (same stale volume as in `spec/opencode-web.md`). — resolved:
+    spec/opencode-web and spec/devcontainer-state already name the home volume;
+    the plan is stale
   - Plan `## Approach` "Workspace CBM registration on v2" and "E2E harness on
     v2" — versus `architecture/no-code-graph.md#decision` and `AGENTS.md`
     ("NEVER WRITE AN END-TO-END TEST THAT DRIVES AN AGENT SESSION"); both
-    subjects are removed.
+    subjects are removed. — resolved: subjects removed; no spec claims them
 
 ## docs/knowledge/data/plans/20261018-opencode-workspace-cbm-indexing.md
 
@@ -258,7 +306,8 @@
     rejected, because squash merges and Renovate commits make `main`'s tree
     differ from any tested pull request head — already partly in:
     `spec/image-pinning.md#requirement-published-tags-name-only-tested-images`
-    (behaviour only)
+    (behaviour only) — written:
+    spec/image-pinning#each-run-promotes-the-images-it-built-and-tested
   - [behaviour] The backwards-move guard reads the
     `org.opencontainers.image.revision` label of the image a moving tag names; a
     label naming a commit outside the checkout's history, such as a pull
@@ -267,19 +316,27 @@
     `spec/image-pinning.md#requirement-published-tags-name-only-tested-images`
     ("SHALL NOT move a tag to an image built from an ancestor of the commit it
     names"; the label mechanism and the unknown-commit case are only in
-    `.github/actions/docker/promote/action.yml`)
+    `.github/actions/docker/promote/action.yml`) — written:
+    spec/image-pinning#requirement-published-tags-name-only-tested-images and
+    its scenario "a moving tag names a commit outside the history"
   - [rationale] Primary checks runs on `main` queue instead of cancelling so
     `edge` keeps advancing while merges (Renovate automerges) arrive faster than
     one run completes; other refs keep cancelling — already partly in:
     `spec/image-pinning.md#requirement-published-tags-name-only-tested-images`
     ("Primary checks runs on `main` SHALL NOT cancel one another", no reason,
-    and silent on other refs)
-  - [non-goal] Old immutable `sha-<commit>` tags are not deleted — already
-    partly in: nowhere
+    and silent on other refs) — written:
+    spec/image-pinning#each-run-promotes-the-images-it-built-and-tested and
+    spec/image-pinning#requirement-published-tags-name-only-tested-images (other
+    refs cancel)
+  - ~~[non-goal] Old immutable `sha-<commit>` tags are not deleted — already
+    partly in: nowhere~~ — struck: stale non-goal of that plan:
+    `.github/workflows/delete-old-containers.yml` deletes old versions beyond
+    those kept, `sha-` tags included, on manual dispatch
 - conflicts:
   - Plan `## Context` names the images "`ubuntu-ansible`, `agent-desktop`, and
     `agent-opencode`" — versus `spec/image-pinning.md`: "`ubuntu-ansible`,
     `agentdev-base`, `agentdev-deploy`, and `agentdev-devcontainer`" (renamed).
+    — resolved: renamed; spec/image-pinning already uses the current image names
 
 ## docs/knowledge/data/plans/20261020-iwe-branch-name.md
 
@@ -292,14 +349,17 @@
     closed pull requests are counted — already partly in:
     `spec/iwe-branch-name.md#requirement-the-next-iteration-follows-every-iteration-already-used`
     (behaviour and the "merged iteration's branch was deleted" scenario, no
-    reason)
+    reason) — written:
+    spec/iwe-branch-name#merged-and-closed-pull-requests-count-because-merged-branches-are-deleted
   - [constraint] The iteration suffix is always present because git cannot hold
     a ref beside another it would nest under (a bare `<phase>/<slug>` blocks
     `<phase>/<slug>/iter-2`); a name that always ends in the iteration is never
     a path prefix of another. A bare name for the first iteration was rejected
     for this reason — already partly in:
     `spec/iwe-branch-name.md#requirement-plan-work-branches-carry-phase-slug-and-iteration`
-    ("SHALL always include ... the iteration suffix", no reason)
+    ("SHALL always include ... the iteration suffix", no reason) — written:
+    spec/iwe-branch-name#one-iteration-counter-per-plan-under-one-prefix
+    (Rejected: a bare name for the first iteration)
   - [rationale] `next` fails with `GH_UNAVAILABLE` instead of returning a lower
     bound when pull requests cannot be read, because a merged pull request may
     already hold that number and a reused name mixes pull-request history across
@@ -307,17 +367,21 @@
     it has no answer on the default branch and misses iterations made in other
     checkouts — already partly in:
     `spec/iwe-branch-name.md#requirement-the-next-iteration-follows-every-iteration-already-used`
-    (behaviour only)
+    (behaviour only) — written:
+    spec/iwe-branch-name#merged-and-closed-pull-requests-count-because-merged-branches-are-deleted
   - [rationale] The suffix word is `iter-<N>`; rejected were `iteration-<N>`
     (length), `t<N>` (reads as plan Task N), `take<N>` (implies the previous
     branch was discarded), `v<N>` (reads as a release version), a bare `<N>`, a
     flat `<slug>-<N>` (ambiguous beside slugs ending in digits), and
     `pr<N>`/`#<N>` (read as a pull request number; `#` starts a shell comment) —
-    already partly in: nowhere
+    already partly in: nowhere — written:
+    spec/iwe-branch-name#one-iteration-counter-per-plan-under-one-prefix
+    (Rejected: other suffix words)
   - [rationale] The skill creates no branch because branch creation stays in one
     place, `/agentdev:git-new-branch` — already partly in:
     `spec/iwe-branch-name.md#requirement-the-next-name-follows-the-plans-state`
-    ("SHALL NOT create, switch, or delete any branch", no reason)
+    ("SHALL NOT create, switch, or delete any branch", no reason) — written:
+    spec/iwe-branch-name#the-skill-names-branches-and-creates-none
   - [constraint] External-tool facts the lookup relies on: GitHub's `head:`
     pull-request search matches by prefix, so results are filtered to names
     matching the shape exactly; `gh --repo` accepts a remote's HTTPS, SSH, or
@@ -325,20 +389,27 @@
     requests come from the same repository — already partly in:
     `spec/iwe-branch-name.md` ("counting only names that match the shape
     exactly", "the repository the remote's URL names"; the tool facts are
-    nowhere)
+    nowhere) — written:
+    spec/iwe-branch-name#merged-and-closed-pull-requests-count-because-merged-branches-are-deleted
 - conflicts:
   - Plan `## Approach`: "**Name shape.** `<phase>/<slug>/iter-<N>`, `phase` ∈
     `impl`, `ship`" — versus
     `spec/iwe-branch-name.md#requirement-plan-work-branches-carry-phase-slug-and-iteration`:
-    "`iwe/<slug>/iter-<N>-<phase>` ... `phase` is `plan`, `impl`, or `ship`".
+    "`iwe/<slug>/iter-<N>-<phase>` ... `phase` is `plan`, `impl`, or `ship`". —
+    resolved: superseded plan text; the spec matches `iwe-branch-name.py`
+    (`WORK_BRANCH`)
   - Plan `## Approach`: "one more than the highest `N` for that phase and slug"
-    — versus spec: "one more than the highest `N` of any phase".
+    — versus spec: "one more than the highest `N` of any phase". — resolved:
+    superseded plan text; the spec matches `iwe-branch-name.py::next_iteration`
   - Plan `## Approach`: "`plan-state` ... fetches the remote's default branch,
     finds `data/plans/*-<slug>.md` in that tree" — versus
     `spec/iwe-branch-name.md#requirement-plan-state-is-read-in-the-checkout`:
-    "SHALL read the plan from the working tree, never from another branch".
+    "SHALL read the plan from the working tree, never from another branch". —
+    resolved: superseded plan text; the spec matches
+    `iwe-branch-name.py::read_plan_state`
   - Plan `## Approach` "End to end" (cases in `scripts/e2e/iwe-workflows/`) —
-    versus `AGENTS.md#tests`; the suite is removed.
+    versus `AGENTS.md#tests`; the suite is removed. — resolved: subject removed;
+    no spec claims the suite
 
 ## docs/knowledge/data/plans/20261021-map-masks-version-bumps.md
 
@@ -365,13 +436,16 @@
     one separating space — already partly in:
     `spec/opencode-catalog-bridge.md#requirement-every-skill-is-a-namespaced-slash-command`
     ("one space and the supplied argument text"; the host limitation is nowhere)
+    — written:
+    spec/opencode-catalog-bridge#a-v2-command-echoes-its-invocation-in-the-users-own-message
   - [rationale] The invocation is shown by prefixing the user's own message, not
     by an assistant acknowledgment or a second synthetic message, because the
     invocation belongs in the user message; the skill body is never pasted back
     into chat — already partly in:
     `spec/opencode-catalog-bridge.md#requirement-every-skill-is-a-namespaced-slash-command`
     ("submit one user message", "rather than pasted into the text"; the rejected
-    alternatives are nowhere)
+    alternatives are nowhere) — written:
+    spec/opencode-catalog-bridge#a-v2-command-echoes-its-invocation-in-the-users-own-message
 - conflicts: none
 
 ## docs/knowledge/data/plans/20261021-playwright-browser.md
@@ -386,22 +460,27 @@
     — already partly in:
     `spec/playwright-browser.md#requirement-the-development-image-provides-a-version-matched-playwright-browser`
     ("pinned Playwright CLI and its matching Chromium", no rejected alternative)
+    — written:
+    spec/playwright-browser#the-browser-comes-from-playwrights-installer-at-the-pinned-version
   - [rationale] The capability is its own opt-in Ansible role,
     `playwright_browser`, run after Bun and Node provisioning, separate from
     `agentic_tools`, because the browser binaries and their OS dependencies are
     an independently selectable image capability — already partly in: nowhere
-    (the spec lists the role only as a source)
+    (the spec lists the role only as a source) — written:
+    spec/playwright-browser#the-browser-is-its-own-opt-in-role
   - [non-goal] The image bundles Chromium only (no Firefox or WebKit), ships no
     Playwright MCP server, agent skill, test framework, or project-level
     configuration, and does not relax the opt-in egress firewall for browsing —
     already partly in:
     `spec/playwright-browser.md#requirement-project-playwright-dependencies-remain-project-owned`
-    (covers only other Playwright versions)
+    (covers only other Playwright versions) — written:
+    spec/playwright-browser#the-image-ships-a-browser-not-a-browsing-toolkit
 - conflicts:
   - Plan `## Approach`: "Enable the role in `agent-desktop`" — versus
     `spec/playwright-browser.md`: "The published `agentdev-base` image SHALL
     provide ... and both runtime images SHALL inherit it" (renamed image
-    layout).
+    layout). — resolved: renamed image layout; spec/playwright-browser already
+    names `agentdev-base`
 
 ## docs/knowledge/data/plans/20261021-remote-control-pin-follows-clear.md
 
@@ -418,13 +497,20 @@
     already partly in: `spec/claude-remote-control.md` ("the session SHALL store
     the new conversation's ID in place of the old one"; atomic write and
     never-fail are only in
-    `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::pin`)
+    `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::pin`) —
+    written:
+    spec/claude-remote-control#requirement-remote-control-autostarts-only-on-a-live-claudeai-login
+    and its scenario "the pin hook receives unusable input"
 - conflicts:
   - Plan `## Approach`: "`SessionStart` fires with `source` `startup`, `resume`,
     `clear`, and `compact`" — versus
     `architecture/claude-remote-control-resume.md#claude-code-behavior-the-decision-relies-on`:
     "fires with `source` `startup`, `clear`, and `resume`" (the note omits
-    `compact`; not a contradiction of behaviour, but the lists differ).
+    `compact`; not a contradiction of behaviour, but the lists differ). —
+    resolved: no contradiction;
+    spec/claude-remote-control#session-mode-resumes-one-pinned-conversation-per-volume
+    says the hook rewrites the ID on every `SessionStart`, which covers
+    `compact`
 
 ## docs/knowledge/data/plans/20261023-claude-remote-control-server-mode.md
 

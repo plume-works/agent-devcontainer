@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
+- resource: py_packages/validate_agent_files/README.md
 - resource: docs/knowledge/AGENTS.md
 ---
 
@@ -22,9 +23,9 @@ must be sized so a tick can be honest, and the gate that enforces the shape.
 
 The gate reads shape only — that a tick is accompanied by a claim. Whether the
 claim is *true* is Verify's judgment and a human's; no mechanical check can
-supply it. Shape is what failed in [Plan checkbox
-over-claiming](../bugs/plan-checkbox-over-claiming.md), where a blanket
-substitution and a set of careful verifications produced identical bytes.
+supply it. Shape is what a check can hold: a blanket substitution and a set of
+careful verifications produce identical bytes, and only the evidence line tells
+them apart.
 
 ## Requirements
 
@@ -157,6 +158,14 @@ re-run each test or command a ticked task names, in the current tree.
   longer exists, when Verify re-runs it in the current tree
 - **THEN** Verify reports a CRITICAL recommending that the box be unticked
 
+#### Scenario: A task is left unticked
+
+- **WHEN** an unticked `- [ ]` task carries no `**Closed by:**` line
+- **THEN** Verify reports a CRITICAL naming three routes out — complete the
+  task, tick it if it is already done, or drop it through Plan's revise mode,
+  which treats dropping a task as a material scope change and asks the user —
+  and takes none of them
+
 #### Scenario: The two failures are weighed
 
 - **WHEN** Verify reports on checkbox state
@@ -229,3 +238,38 @@ Rejected:
   needs its own kind of evidence anyway.
 - **Free text checked for shape only.** Verify's judgment flips between runs
   when a line names nothing it can repeat.
+
+### Honest ticks come from the artifact's shape, not more prose rules
+
+A tick is honest only when it carries an evidence line, because rules telling
+Implement when it may tick were already written and were violated anyway. A
+find-and-replace can flip every box in a file; it cannot write the evidence line
+each tick needs.
+
+Rejected:
+
+- **Another round of prose rules in the Implement rulebook.** The rules that
+  would have prevented over-claiming already existed; more of the same changes
+  nothing a sweep can bypass.
+
+### The gate is a knowledge-base test, not a validator extension
+
+The checkbox gate is `docs/knowledge/tests/test_plan_checkboxes.py`, run by
+pytest, because plan documents are this workspace's knowledge graph, not agent
+files.
+
+Rejected:
+
+- **Extending `validate_agent_files`.** That package validates skills, agents,
+  and prompts in any repository and must stay usable with no knowledge of this
+  one's graph.
+
+### Checkbox granularity is the planner's rule
+
+One observation per checkbox is a planning rule, so `iwe-planner` owns it.
+
+Rejected:
+
+- **The Durable Knowledge Auditor flags bundled checkboxes in its plan scope.**
+  That audit asks one question, durable-knowledge residue, and a second gate
+  would widen it.

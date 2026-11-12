@@ -7,7 +7,7 @@ sources:
 - resource: scripts/tests/test_refresh_pin_checksums.py
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-agent-files.yml
-- resource: docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
+- resource: pyproject.toml
 ---
 
 # macOS native bootstrap
@@ -84,7 +84,9 @@ that evaluates `brew shellenv` and prepends `~/.local/bin`, rewriting it in
 place on re-run and leaving all content outside it unchanged. When `fish` is on
 `PATH` or is the user's `$SHELL`, the script SHALL maintain the same kind of
 block in `~/.config/fish/conf.d/agentdev.fish`, running `brew shellenv` for fish
-and then `fish_add_path` for `~/.local/bin`.
+and then `fish_add_path` for `~/.local/bin`. A `$SHELL` other than zsh or fish
+SHALL get no block, so the final check names that shell rather than reporting a
+`PATH` the user's terminal does not have.
 
 #### Scenario: Re-run
 
@@ -139,3 +141,38 @@ when that is not zsh, resolve `python3` to the recorded version in
 - **WHEN** `$SHELL` is not zsh and its fresh login shell resolves `python3`
   outside `~/.local/bin`
 - **THEN** the script exits nonzero and names that shell's Python check
+
+#### Scenario: The user's shell is neither zsh nor fish
+
+- **WHEN** `$SHELL` is bash and no bash configuration puts `~/.local/bin` first
+- **THEN** the script writes no bash `PATH` block, exits nonzero, and names the
+  bash Python check
+
+## Rationale
+
+### Homebrew tools float; uv pins the catalog's Python
+
+Homebrew versions float, and only the uv Python and the release-only tools are
+pinned. The recorded Python version is the lower bound of the root
+`pyproject.toml`'s `requires-python`, the oldest version the repository's tests
+run the catalog on; a stock host's `/usr/bin/python3` (Xcode Command Line Tools)
+is older than that floor. The script does not install Homebrew, because that
+needs an interactive `sudo` it should not drive. The Brewfile is inline so one
+`curl` fetches everything. Shell configuration that later puts another `python3`
+first is the user's to fix; the final check surfaces it.
+
+Rejected:
+
+- **Homebrew's `python` formula.** uv provisions the exact version the catalog
+  is tested on and is already required.
+- **A `macos/` Template-class directory at the repository root.** It reaches
+  only template consumers who copy it, while the catalog reaches every plugin
+  user.
+- **Pinning Homebrew formulae to the image's versions.** It would mean replacing
+  Homebrew with release tarballs for every tool.
+
+### The bootstrap provisions only what agentdev runs natively
+
+The bootstrap sets up no Docker, Super-Linter, or `microvm-sandbox`, no MCP
+gateway, git SSH signing, or keyring, and no Xcode, Expo, or iOS Simulator, and
+it does not install fish.
