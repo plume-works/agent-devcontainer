@@ -6,7 +6,7 @@ description: Backfill a Ship review on every plan already shipped, repairing wha
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md
 - resource: scripts/check-ship-records.py
-rank: 500
+stage: cancelled
 ---
 
 # Backfill Ship reviews on shipped plans
