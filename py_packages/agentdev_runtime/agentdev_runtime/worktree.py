@@ -155,6 +155,42 @@ def uninstall_catalog(path: Path) -> None:
         claude('/', 'plugin', 'marketplace', 'remove', marketplace(path))
 
 
+def base_ref(repository: str) -> str:
+    """Return Claude's ``worktree.baseRef`` from local, project, then user settings."""
+    for path in (
+        Path(repository, '.claude', 'settings.local.json'),
+        Path(repository, '.claude', 'settings.json'),
+        remote_control.config_dir() / 'settings.json',
+    ):
+        try:
+            value = json.loads(path.read_text()).get('worktree', {}).get('baseRef')
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError, AttributeError) as error:
+            print(f'{PREFIX}: ignoring unreadable {path}: {error}', file=sys.stderr)
+            continue
+        if value is not None:
+            return value
+    return 'fresh'
+
+
+def base(repository: str) -> str:
+    """Return ``HEAD`` under ``baseRef: head``, else ``origin``'s default branch, fetched now."""
+    if base_ref(repository) == 'head':
+        return 'HEAD'
+    if git('-C', repository, 'remote', 'get-url', 'origin') != 0:
+        return 'HEAD'
+    if git('-C', repository, 'fetch', '--quiet', 'origin') != 0:
+        print(f'{PREFIX}: fetching origin failed; using its last fetched state', file=sys.stderr)
+    default = subprocess.run(
+        ['git', '-C', repository, 'symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD'],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return default.stdout.strip() if default.returncode == 0 else 'HEAD'
+
+
 def create(text: str) -> int:
     """Make or reuse ``.claude/worktrees/<name>`` on ``worktree-<name>``, link its ``.venv``."""
     try:
@@ -182,7 +218,11 @@ def create(text: str) -> int:
         and git('-C', repository, 'rev-parse', '--verify', '-q', f'refs/heads/{branch}') != 0
     )
     if not reused:
-        add = ['-b', branch, str(path), 'HEAD'] if new_branch else [str(path), branch]
+        add = (
+            ['--no-track', '-b', branch, str(path), base(repository)]
+            if new_branch
+            else [str(path), branch]
+        )
         if git('-C', repository, 'worktree', 'add', *add) != 0:
             if new_branch:
                 git('-C', repository, 'branch', '-D', branch)
