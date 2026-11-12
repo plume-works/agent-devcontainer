@@ -753,8 +753,7 @@ document".
 A pre-commit hook SHALL run a checker CLI over every bug, plan, backlog task,
 feature, and release document pre-commit passes it, live or archived, at commit time,
 over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
-`stage: done` that has no `## Fix` heading, and a plan whose `## Ship review`
-section differs from the fixed structure, and SHALL report every violation with
+`stage: done` that has no `## Fix` heading, and a plan whose `## Ship review` section matches neither the fixed structure nor the earlier one, which ends with the item "Ship edited no hub, release page, or `data/log.md`", and SHALL report every violation with
 `path:line`. Its archive placement and release page failures are those
 `iwe-workflow-skills` states.
 
@@ -774,6 +773,12 @@ section differs from the fixed structure, and SHALL report every violation with
 - **WHEN** a plan's `## Ship review` misses an item, reorders the items, leaves
   one unticked, or marks the Verify, plan-stage, or archive-move item `N/A`
 - **THEN** the hook fails and names the line.
+
+#### Scenario: a Ship review carries the earlier checklist
+
+- **WHEN** a plan's `## Ship review` holds the earlier fixed structure, every
+  item ticked, ending with "Ship edited no hub, release page, or `data/log.md`"
+- **THEN** the hook passes it.
 
 #### Scenario: CI checks every file
 
