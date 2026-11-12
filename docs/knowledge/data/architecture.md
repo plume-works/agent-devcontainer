@@ -116,6 +116,8 @@ Markdown](architecture/iwe-cli-usage-versus-plain-markdown.md)
 [OpenCode full access in the
 devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 
+[Per-worktree catalog](architecture/per-worktree-catalog.md)
+
 [PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
 [PR review effort tiers](architecture/pr-review-effort-tiers.md)

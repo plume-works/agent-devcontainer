@@ -44,7 +44,13 @@ Code 2.1.316):
   the manifest's unchanged `./.agents/plugins/<plugin>` entries resolve into the
   worktree. A plugin installed from it at local scope is read in place from
   `<worktree>/.agents/plugins/<plugin>`, uncommitted changes included.
-  `marketplace add` declares the marketplace in user settings.
+  `marketplace add` declares the marketplace in user settings, and a
+  marketplace's name is global to the user, so worktrees of the same name in two
+  checkouts would share one.
+- Run in a git worktree, a local-scope install writes its `enabledPlugins` entry
+  to the main checkout's `.claude/settings.local.json`, not the worktree's.
+- `claude plugin marketplace remove` also uninstalls every plugin installed from
+  that marketplace.
 - `.claude/.gitignore` ignores `*.local.json`, so that file leaves the worktree
   clean.
 - A worktree session reads the main checkout's `.claude/settings.local.json` as
@@ -81,16 +87,20 @@ repository. When the new worktree ships a complete catalog (`catalog.complete`),
 it also:
 
 1. writes `<worktree>/.claude/marketplace.local.json`, the worktree's
-   `.claude-plugin/marketplace.json` with `name` set to `wt-<name>`;
+   `.claude-plugin/marketplace.json` with `name` set to `wt-<name>`, and fails
+   when `wt-<name>` is already registered from another worktree's file;
 2. registers it with `claude plugin marketplace add` and installs every plugin
    it publishes as `<plugin>@wt-<name>` at local scope, from the worktree;
-3. sets `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins`
+3. removes each `<plugin>@wt-<name>` the install wrote to the main checkout's
+   `.claude/settings.local.json` and sets it to `true` in the worktree's
+   `.claude/settings.local.json`;
+4. sets `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins`
    in the worktree's `.claude/settings.local.json`, for every plugin the
    manifest publishes.
 
-`agentdev-runtime worktree remove` uninstalls and removes the `wt-<name>`
-marketplace, which also drops its entry from user settings, before it removes
-the worktree.
+`agentdev-runtime worktree remove` removes the `wt-<name>` marketplace when it
+is registered from that worktree's file, which uninstalls its plugins and drops
+its entry from user settings, before it removes the worktree.
 
 The standalone runtime's catalog step (`Workspace.catalog`) also registers the
 hooks, through the same `worktree.register`, when it selects the checkout's
@@ -134,75 +144,123 @@ Assumptions:
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 
-- [ ] `worktree create` merges the main checkout's `.claude/settings.local.json`
+- [x] `worktree create` merges the main checkout's `.claude/settings.local.json`
   `permissions.allow` into the worktree's `.claude/settings.local.json`, for
   every repository
-- [ ] when the worktree ships a complete catalog, it writes
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_plain_repository_gets_permissions_and_no_marketplace`,
+    `::test_permissions_merge_without_duplicates`, and
+    `::test_a_malformed_main_settings_file_copies_nothing`
+- [x] when the worktree ships a complete catalog, it writes
   `.claude/marketplace.local.json` named `wt-<name>`, registers and installs it
   at local scope from the worktree, and disables every
   `<plugin>@<shared marketplace name>` in the worktree's local settings
-- [ ] a failing catalog step removes the worktree, its branch, and any
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_catalog_repository_installs_its_own_catalog`,
+    run against a `claude` stub that enables a local-scope install in the main
+    checkout's local settings
+- [x] a failing catalog step removes the worktree, its branch, and any
   `wt-<name>` registration it made, and exits non-zero with the reason on stderr
-- [ ] tests run the subcommand against a made-up repository and catalog, with
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_failing_install_removes_the_worktree_and_registration`
+    and `::test_a_name_another_worktree_registered_fails_and_is_kept`
+- [x] tests run the subcommand against a made-up repository and catalog, with
   `claude` replaced by a recording stub on `PATH`, covering a plain repository,
   a catalog repository, and a failing install
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 
 ### Task 2: Add the catalog step to `agentdev-runtime worktree remove`
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
-- [ ] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
-  `wt-<name>` marketplace when one is registered, before it removes the
+- [x] `worktree remove` removes the `wt-<name>` marketplace, which uninstalls
+  every `<plugin>@wt-<name>`, when one is registered, before it removes the
   worktree, and also when the worktree is already gone
-- [ ] a worktree with no `wt-<name>` marketplace is not an error
-- [ ] tests run the subcommand against a worktree Task 1's subcommand made, with
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`,
+    `::test_a_gone_worktree_still_loses_its_marketplace`, and
+    `::test_a_same_named_marketplace_of_another_worktree_is_kept`
+- [x] a worktree with no `wt-<name>` marketplace is not an error
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_a_worktree_without_a_marketplace_is_removed`
+- [x] tests run the subcommand against a worktree Task 1's subcommand made, with
   the same `claude` stub
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
 ### Task 3: Register the hooks from the standalone runtime
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/workspace.py`;
 Create: `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 
-- [ ] `Workspace.catalog` calls `worktree.register` when it selected the
+- [x] `Workspace.catalog` calls `worktree.register` when it selected the
   checkout's catalog over the staged one
-- [ ] tests run `Workspace.catalog` with a complete and an incomplete catalog
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py::test_a_complete_checkout_catalog_registers_the_hooks`
+- [x] tests run `Workspace.catalog` with a complete and an incomplete catalog
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 
 ### Task 4: Install the checkout's catalog at user scope on attach
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`;
 Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 
-- [ ] `lifecycle.attached` installs a complete checkout catalog with
+- [x] `lifecycle.attached` installs a complete checkout catalog with
   `catalog.install(settings, folder, 'user')`
-- [ ] a test runs the attach-phase catalog step with a recording `claude` stub
+  - **Evidence:**
+    `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` ›
+    "catalog.install(settings, folder, 'user')"
+- [x] a test runs the attach-phase catalog step with a recording `claude` stub
   and asserts every `marketplace add` and `plugin install` carries
   `--scope user`
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py::test_attach_installs_the_checkout_catalog_at_user_scope`
 
 ### Task 5: Prove the route end to end on agent-dev3
 
 **Files:** none
 
-- [ ] once the runtime on agent-dev3 has registered the hooks, a session spawned
+- [x] once the runtime on agent-dev3 has registered the hooks, a session spawned
   from claude.ai through Remote Control in `worktree` mode lists one `agentdev`
   in its `init` event, source `agentdev@wt-<name>`, path
   `<worktree>/.agents/plugins/agentdev`, and loads a skill added uncommitted in
   that worktree; a session in the main checkout lists
   `agentdev@agent-devcontainer`
-- [ ] after Remote Control's cleanup of that session, `~/.claude/settings.json`,
+  - **Evidence:** on agent-dev3, with this branch's runtime first on `PATH`,
+    start a session through agent-dev3's Remote Control bridge environment, then
+    run `claude -p "Reply with OK." --output-format stream-json --verbose` in
+    its `.claude/worktrees/<name>` and in the main checkout. In the worktree,
+    the `init` event's `plugins` lists `agentdev@wt-<name>` read from
+    `<worktree>/.agents/plugins/agentdev`, and its `skills` include an
+    uncommitted `agentdev:probe-uncommitted`. In the main checkout, `plugins`
+    lists `agentdev@agent-devcontainer`. The `init` event that Remote Control
+    relays carries an empty `plugins` list, so these sessions in the same
+    folders read the list instead.
+- [x] after Remote Control's cleanup of that session, `~/.claude/settings.json`,
   `~/.claude/plugins/known_marketplaces.json`, and
   `~/.claude/plugins/installed_plugins.json` hold no `wt-<name>` entry, and
   `git worktree list` no longer shows the worktree
+  - **Evidence:** on agent-dev3, archive that session while its worktree is
+    clean. Remote Control then removes the worktree through the `WorktreeRemove`
+    hook. After that, `grep -c wt-<name>` on the three files prints `0`, and
+    `git worktree list` no longer shows the worktree.
 
 ### Task 6: Record the design
 
 **Files:** Create: `docs/knowledge/data/architecture/per-worktree-catalog.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] `data/architecture/per-worktree-catalog` records the file-source
+- [x] `data/architecture/per-worktree-catalog` records the file-source
   marketplace inside the worktree, the user-scope install, where the hooks are
   registered, and every rejected alternative in `## Approach`, and links
   `data/architecture/worktree-hooks`; `data/architecture.md` links it
+  - **Evidence:**
+    `docs/knowledge/data/architecture/per-worktree-catalog.md#design` and
+    `#rejected-alternatives`; `docs/knowledge/data/architecture.md` ›
+    "[Per-worktree catalog](architecture/per-worktree-catalog.md)"
 
 ## Spec changes
 
@@ -308,7 +366,7 @@ environment](20261101-per-checkout-uv-environments.md)
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
   `attached`
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
-  `catalog.install(settings, folder, None)`
+  `catalog.install(settings, folder, 'user')`
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::complete` —
   `complete`
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — `claude`

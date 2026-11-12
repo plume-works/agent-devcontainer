@@ -14,7 +14,7 @@ import subprocess
 import sys
 import threading
 
-from agentdev_runtime import agent_state, catalog, git, project, settings as env
+from agentdev_runtime import agent_state, catalog, git, project, settings as env, worktree
 
 PREFIX = 'agentdev-runtime workspace'
 CREDENTIALS = re.compile(r'(://)[^/@\s]+@')
@@ -161,6 +161,8 @@ class Workspace:
         log(f'registering the agentdev catalog at {root} for Claude and OpenCode')
         with agent_state.config_lock(self.settings):
             catalog.install(self.settings, str(root), 'user')
+            if root == self.path:
+                worktree.register()
 
     def prepare(self) -> None:
         """Run the supervisor's core phase; OpenCode starts only once this succeeds."""

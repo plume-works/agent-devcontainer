@@ -14,14 +14,13 @@ GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
 
 
 @pytest.fixture
-def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, claude_stub: Path) -> Path:
     """Make a repository with one commit, a venv root, and no inherited hooks."""
     repo = tmp_path / 'repo'
     repo.mkdir()
     subprocess.run(['git', 'init', '-q', str(repo)], check=True)
     subprocess.run(['git', *GIT_ID, '-C', str(repo), 'commit', '-q', '--allow-empty', '-m', 'i'])
     (repo / 'sub').mkdir()
-    (tmp_path / 'uv').mkdir()
     monkeypatch.setenv('AGENTDEV_RUNTIME_MODE', DEVCONTAINER)
     monkeypatch.setenv('AGENTDEV_VENV_ROOT', str(tmp_path / 'uv' / 'venvs'))
     return repo

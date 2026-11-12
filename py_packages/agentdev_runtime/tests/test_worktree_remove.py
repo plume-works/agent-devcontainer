@@ -14,12 +14,11 @@ GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
 
 
 @pytest.fixture
-def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, claude_stub: Path) -> Path:
     repo = tmp_path / 'repo'
     repo.mkdir()
     subprocess.run(['git', 'init', '-q', str(repo)], check=True)
     subprocess.run(['git', *GIT_ID, '-C', str(repo), 'commit', '-q', '--allow-empty', '-m', 'i'])
-    (tmp_path / 'uv').mkdir()
     monkeypatch.setenv('AGENTDEV_RUNTIME_MODE', DEVCONTAINER)
     monkeypatch.setenv('AGENTDEV_VENV_ROOT', str(tmp_path / 'uv' / 'venvs'))
     return repo
@@ -64,5 +63,5 @@ def test_a_worktree_without_a_venv_link_is_removed(repository: Path) -> None:
     assert not path.exists()
 
 
-def test_a_gone_worktree_is_not_an_error(tmp_path: Path) -> None:
+def test_a_gone_worktree_is_not_an_error(tmp_path: Path, claude_stub: Path) -> None:
     assert worktree.remove(json.dumps({'worktree_path': str(tmp_path / 'gone')})) == 0

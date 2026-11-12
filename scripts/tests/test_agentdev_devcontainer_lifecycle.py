@@ -268,7 +268,7 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     assert_ok(lifecycle.run('attached'))
     assert lifecycle.calls() == [
         'agentdev-runtime project sync',
-        f'agentdev-runtime catalog install {lifecycle.workspace}',
+        f'agentdev-runtime catalog install {lifecycle.workspace} --claude-scope user',
         'hook attached/refresh attached',
     ]
 
