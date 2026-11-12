@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-12
 created: 2026-11-09
 release:
 - bugs/plan-tasks-bundle-independent-observations
@@ -7,7 +9,6 @@ description: Each plan checkbox names exactly one observation that closes it, an
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
-rank: 100
 ---
 
 # One observation per plan checkbox
