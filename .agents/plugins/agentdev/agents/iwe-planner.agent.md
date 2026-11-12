@@ -276,7 +276,11 @@ requirement instead.
   published artifact — always stands alone, because the session writing the code
   cannot close it. The failure this prevents is a bundled task ticked for the
   half that was done locally, which then reads as a claim about the half that
-  was not.
+  was not. Each checkbox names exactly one observation that closes it: a
+  checkbox joining independently observable events, such as a passing run and
+  a failing run, is split into one checkbox per event, so each is ticked with
+  its own evidence as it is observed. An event that may never occur on its own,
+  such as a failure or cancellation path, names how it is provoked.
 - Code anchors are verified against the current checkout, never cited from
   memory, and never carry a line number.
 - A plan carries no task or `## Verification` step whose only claim is that CI

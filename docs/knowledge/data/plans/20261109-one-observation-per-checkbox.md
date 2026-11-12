@@ -42,10 +42,12 @@ beyond its one question.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] The `## Rules` bullet "One task is one outcome" also states that each
+- [x] The `## Rules` bullet "One task is one outcome" also states that each
   checkbox names exactly one observation that closes it, that a checkbox joining
   independently observable events is split into one checkbox per event, and that
   an event that may never occur on its own names how it is provoked.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#rules › "Each checkbox names exactly one observation that closes it"`
 
 ### Task 2: The coherence question
 
