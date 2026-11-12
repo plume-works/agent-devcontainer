@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/data/spec/pre-commit-gate.md
 stage: done
 completed: 2026-11-12
+released: 3.0.0
 ---
 
 # Cool down Primary checks on main

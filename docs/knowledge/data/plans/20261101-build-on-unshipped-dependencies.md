@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
 stage: done
 completed: 2026-11-09
+released: 3.0.0
 ---
 
 # Build on an unshipped dependency, ship after it

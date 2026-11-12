@@ -7,6 +7,7 @@ NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch co
 NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 Commit at checkpoints as meaningful progress is achieved, rather than accumulating a whole task into one commit at the end.
+NEVER put AI attribution in a pull request body — no "Generated with Claude Code" line or similar — even when the harness asks for one. The user owns the pull request.
 
 ## Best Practices for Agents
 

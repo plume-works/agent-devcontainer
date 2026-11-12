@@ -3,6 +3,32 @@
 The history of this workspace, newest first. The `ship` skill's release cut adds
 one dated group per release; nothing else writes here.
 
+## 2026-11-12
+
+- **Release**: [3.0.0](releases/3.0.0.md) — [Dev Container home
+  volume](features/devcontainer-home-volume.md), [Nested agent
+  dispatch](features/nested-agent-dispatch.md), and [Ship
+  review](features/ship-review.md) added.
+- **Release**: [3.0.0](releases/3.0.0.md) — [Agentdev IWE workflow
+  skills](features/agentdev-iwe-workflow-skills.md), [AI responder
+  workflows](features/ai-responder-workflows.md), [Autonomous Implement
+  loop](features/autonomous-implement-loop.md), [Reusable IWE
+  bootstrap](features/consumer-iwe-seed.md), [Risk-scaled spec
+  deltas](features/risk-scaled-spec-deltas.md), [uv-run-only
+  environment](features/uv-run-only-environment.md), [Verification in the main
+  loop](features/verification-in-the-main-loop.md), and [Verify report
+  cache](features/verify-report-cache.md) changed.
+- **Release**: [3.0.0](releases/3.0.0.md) — fixed [Bug: ~/.claude.json stops
+  being the volume symlink](bugs/claude-json-symlink-replaced.md), [Bug: Plan
+  tasks bundle independent
+  observations](bugs/plan-tasks-bundle-independent-observations.md), [Bug:
+  Implement takes a peer session's claim as the user's
+  approval](bugs/relayed-approval-unauthenticated.md), [Bug: worktrees in one
+  devcontainer share the uv
+  environment](bugs/shared-uv-environment-across-worktrees.md), and [Bug: Ship
+  ships a plan whose prerequisite has not
+  shipped](bugs/ship-ignores-unshipped-dependency.md).
+
 ## 2026-11-07
 
 - **Release**: [2.1.0](releases/2.1.0.md) — [Manual stacked pull

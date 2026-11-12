@@ -9,6 +9,7 @@ sources:
 - resource: docs/knowledge/data/plans/20261102-bug-lifecycle-and-sections.md
 stage: done
 completed: 2026-11-11
+released: 3.0.0
 ---
 
 # Gate done bugs and Ship reviews in pre-commit

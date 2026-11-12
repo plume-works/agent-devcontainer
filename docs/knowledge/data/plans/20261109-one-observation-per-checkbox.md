@@ -9,6 +9,7 @@ description: Each plan checkbox names exactly one observation that closes it, an
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
+released: 3.0.0
 ---
 
 # One observation per plan checkbox

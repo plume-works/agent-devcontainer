@@ -12,6 +12,7 @@ sources:
 - resource: docs/knowledge/AGENTS.md
 stage: done
 completed: 2026-11-09
+released: 3.0.0
 ---
 
 # Plan task evidence without commit ids

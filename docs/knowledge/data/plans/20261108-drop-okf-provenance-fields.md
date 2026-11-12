@@ -14,6 +14,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 stage: done
 completed: 2026-11-08
+released: 3.0.0
 ---
 
 # Drop OKF provenance fields from the graph

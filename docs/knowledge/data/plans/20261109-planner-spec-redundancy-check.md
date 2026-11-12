@@ -9,6 +9,7 @@ description: Make the planner read every spec its Spec changes touch in full, re
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+released: 3.0.0
 ---
 
 # Stop the planner from adding spec redundancy

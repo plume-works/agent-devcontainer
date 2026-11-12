@@ -16,6 +16,7 @@ sources:
 - resource: https://docs.github.com/en/code-security/dependabot/troubleshooting-dependabot/troubleshooting-dependabot-on-github-actions
 stage: done
 completed: 2026-11-07
+released: 3.0.0
 ---
 
 # The AI responder posts as the plume-works-quill App

@@ -12,6 +12,7 @@ sources:
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
 stage: done
 completed: 2026-11-09
+released: 3.0.0
 ---
 
 # Nest agent dispatch to depth 5 on both harnesses
