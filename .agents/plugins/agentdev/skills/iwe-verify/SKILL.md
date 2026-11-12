@@ -17,8 +17,11 @@ same route, which starts and ends at the cache.
 ## The saved report
 
 [verify-cache.py](agent-code/verify-cache.py) keeps one saved report per plan,
-and one for audit mode, keyed by the commit Verify ran on and the digest of the
-active agentdev catalog. Run it from the repository root. Its target is the plan
+and one for audit mode, keyed by the content Verify judged and the digest of
+the active agentdev catalog. A plan's key covers its body and every file and
+directory it names or links; a commit that changes none of them, including a
+squash merge or the plan's own archiving, keeps the saved report. Audit mode's
+key is the commit's tree. Run it from the repository root. Its target is the plan
 key — `data/plans/<name>`, or `data/archive/<release>/plans/<name>` for a plan
 already archived — or `audit` in audit mode.
 
@@ -34,16 +37,16 @@ request carries it:
 agent-code/verify-cache.py lookup <plan-key|audit> [--fresh]
 ```
 
-| RESULT            | Exit   | Action                                                                                                                                                |
-| ----------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `HIT`             | `3`    | Read the file `REPORT` names and return its body verbatim in your final message text, led by `Saved Verify report from <COMMIT>`. Run no Verify step. |
-| `MISS`            | `4`    | Run Verify by the route below, keeping `COMMIT` for the save.                                                                                         |
-| `DIRTY_WORKTREE`  | `5`    | **STOP.** Report that Verify runs only on a clean worktree, with the paths stderr lists. Commit or remove them, then run Verify again.                |
-| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repository, no commit, bad arguments).                                                                   |
-| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                |
-| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it.                                                                                                         |
+| RESULT            | Exit   | Action                                                                                                                                  |
+| ----------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `HIT`             | `3`    | Read the file `REPORT` names and return its body verbatim in your final message text, led by `Saved Verify report`. Run no Verify step. |
+| `MISS`            | `4`    | Run Verify by the route below, keeping `KEY` for the save.                                                                              |
+| `DIRTY_WORKTREE`  | `5`    | **STOP.** Report that Verify runs only on a clean worktree, with the paths stderr lists. Commit or remove them, then run Verify again.  |
+| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repository, no commit, no plan file for the key, bad arguments).                           |
+| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                  |
+| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it.                                                                                           |
 
-**Save** the report the run produced, verbatim on stdin, with the `COMMIT` the
+**Save** the report the run produced, verbatim on stdin, with the `KEY` the
 miss printed, the verdict its lead line names — `Ready to ship`, `Blocked`, or
 `Audit` — and two prompts, each verbatim, which the saved report records but
 does not key on:
@@ -58,7 +61,7 @@ included, and write a single quote inside one as `'\''`; the report goes on
 stdin through a quoted heredoc:
 
 ```bash
-agent-code/verify-cache.py save <plan-key|audit> --commit <COMMIT> \
+agent-code/verify-cache.py save <plan-key|audit> --key <KEY> \
   --verdict '<verdict>' \
   --skill-request '<the skill request, verbatim>' \
   --verifier-prompt '<the verifier prompt, verbatim>' <<'VERIFY_REPORT'
@@ -66,14 +69,14 @@ agent-code/verify-cache.py save <plan-key|audit> --commit <COMMIT> \
 VERIFY_REPORT
 ```
 
-| RESULT            | Exit   | Action                                                                                                                                                   |
-| ----------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`    | Return the report verbatim in your final message text.                                                                                                   |
-| `DIRTY_WORKTREE`  | `5`    | Return the report unsaved, verbatim in your final message text, and say the worktree was dirty after the run, so the next Verify will not reuse it.      |
-| `HEAD_MOVED`      | `6`    | Return the report unsaved, verbatim in your final message text, and say `HEAD` moved off `COMMIT` during the run, so the report may not describe `HEAD`. |
-| `PREFLIGHT_ERROR` | `2`    | Return the report unsaved, verbatim in your final message text, with the error verbatim.                                                                 |
-| `SCRIPT_FAILURE`  | `1`    | Return the report unsaved, verbatim in your final message text, with the error verbatim.                                                                 |
-| `SIGNAL_*`        | `129`+ | Return the report unsaved, verbatim in your final message text, and say the save was interrupted.                                                        |
+| RESULT            | Exit   | Action                                                                                                                                                |
+| ----------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`         | `0`    | Return the report verbatim in your final message text.                                                                                                |
+| `DIRTY_WORKTREE`  | `5`    | Return the report unsaved, verbatim in your final message text, and say the worktree was dirty after the run, so the next Verify will not reuse it.   |
+| `INPUTS_CHANGED`  | `6`    | Return the report unsaved, verbatim in your final message text, and say what Verify judged changed during the run, so the report may not describe it. |
+| `PREFLIGHT_ERROR` | `2`    | Return the report unsaved, verbatim in your final message text, with the error verbatim.                                                              |
+| `SCRIPT_FAILURE`  | `1`    | Return the report unsaved, verbatim in your final message text, with the error verbatim.                                                              |
+| `SIGNAL_*`        | `129`+ | Return the report unsaved, verbatim in your final message text, and say the save was interrupted.                                                     |
 
 ## From a session
 
@@ -86,7 +89,7 @@ report, which carries the Verify report.
    is clear from the request, ask the user first — inside `iwe-shipper`, end with
    `Needs decision` instead. On a `HIT`, re-post the saved
    report verbatim in your final message text, led by
-   `Saved Verify report from <COMMIT>`, and stop. The saved report's path, or
+   `Saved Verify report`, and stop. The saved report's path, or
    the `Read` result that showed it, does not count as re-posting it.
 2. **Build the dispatch prompt from the request alone.** It carries exactly:
    - **Plan key** — the plan the user named, as `data/plans/<YYYYMMDD>-<slug>`

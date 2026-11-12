@@ -618,16 +618,20 @@ agent holds the `Write` tool.
 
 `/agentdev:iwe-verify` SHALL refuse to run on a dirty worktree, SHALL save each
 report whose verdict is `Ready to ship`, `Blocked`, or `Audit` as the one saved
-report for its plan or for audit mode under `.tmp/verify/`, keyed by the commit
-it ran on and a digest of every file, as on disk, of the agentdev catalog the
-skill runs from, and SHALL never save a `Needs decision` report. Only the
-skill's bundled `verify-cache.py` SHALL write a saved report. It SHALL return
-the saved report, marked as saved and without running any check or verification
-command, when that report's commit is `HEAD` and its catalog digest is the
-active catalog's, unless the user's request carries `--fresh`. The saved report
-SHALL record the request `/agentdev:iwe-verify` was invoked with and the prompt
-`iwe-verifier` was dispatched with, and neither SHALL be part of the key. A
-verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
+report for its plan or for audit mode under `.tmp/verify/`, keyed by the content
+it judged and a digest of every file, as on disk, of the agentdev catalog the
+skill runs from, and SHALL never save a `Needs decision` report. A plan's
+content key SHALL cover the plan's body, without its frontmatter or
+`## Ship review` and with each link resolved from the repository root, and the
+committed content of every path the plan's links and code spans name; audit
+mode's SHALL be the commit's tree. Only the skill's bundled `verify-cache.py`
+SHALL write a saved report. It SHALL return the saved report, marked as saved
+and without running any check or verification command, when that report's
+content key and catalog digest are the current ones, unless the user's request
+carries `--fresh`. The saved report SHALL record the request
+`/agentdev:iwe-verify` was invoked with and the prompt `iwe-verifier` was
+dispatched with, and neither SHALL be part of the key. A verification command
+that leaves the worktree dirty SHALL be a CRITICAL finding.
 
 #### Scenario: Verification reports no critical findings
 
@@ -671,27 +675,33 @@ verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
 #### Scenario: Ship reuses the Implement loop's report
 
 - **WHEN** the Implement loop's Verify saved a report for the plan and
-  `iwe-shipper` reaches its Verify step on the same clean commit with the same
-  active catalog
-- **THEN** the skill returns the saved report, marked as saved from that commit,
-  without running any check or verification command, and Ship proceeds on its
-  verdict
+  `iwe-shipper` reaches its Verify step on a clean worktree whose plan body and
+  named paths are unchanged, with the same active catalog
+- **THEN** the skill returns the saved report, marked as saved, without running
+  any check or verification command, and Ship proceeds on its verdict
+
+#### Scenario: A commit leaves what Verify judged unchanged
+
+- **WHEN** a commit since the save changes only files the plan does not name,
+  the plan's frontmatter, or its location, as a squash merge or archiving does
+- **THEN** the content key is unchanged and the saved report is returned
 
 #### Scenario: No report is saved
 
 - **WHEN** no saved report exists for the plan, as in a fresh container
 - **THEN** Verify runs in full and saves its report
 
-#### Scenario: The commit or the catalog changed
+#### Scenario: What Verify judged or the catalog changed
 
-- **WHEN** `HEAD` or the active catalog digest differs from the saved report's
+- **WHEN** the content key or the active catalog digest differs from the saved
+  report's
 - **THEN** Verify runs in full and its report replaces the saved one
 
 #### Scenario: The loaded catalog differs from the commit's
 
 - **WHEN** the session runs an installed agentdev catalog whose files differ
-  from the catalog the commit holds, and a report was saved on that commit under
-  the commit's catalog
+  from the catalog the commit holds, and a report was saved for the same content
+  under the commit's catalog
 - **THEN** the digests differ and Verify runs in full
 
 #### Scenario: The worktree is dirty
@@ -708,8 +718,8 @@ verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
 
 #### Scenario: The user asks for a fresh run
 
-- **WHEN** the user runs `/agentdev:iwe-verify <plan> --fresh` on a commit with
-  a saved report
+- **WHEN** the user runs `/agentdev:iwe-verify <plan> --fresh` while a saved
+  report matches
 - **THEN** Verify runs in full and its report replaces the saved one
 
 #### Scenario: The saved report records how Verify was invoked
@@ -1431,14 +1441,21 @@ Rejected:
   nothing authenticates. A plan is implemented and shipped one request at a
   time.
 
-### A saved Verify report is reused by commit and catalog digest
+### A saved Verify report is reused by content and catalog digest
 
-Verify refuses a dirty worktree, so a commit fully names what was judged; the
-Implement loop's verdict is reused by the Shipper on the same commit instead of
-repeating its test runs. The catalog digest hashes the files on disk, because an
-installed plugin is not a Git checkout and a session can load a catalog that
-differs from the one the commit holds. The lookup and save live in a script
-bundled with the skill, the one place every caller reaches on every harness.
+A Verify run is costly and stochastic: run again on the same code, it can raise
+new findings that were not there before. A saved report is therefore reused for
+as long as what it judged is unchanged, keyed by the plan's body and the content
+of every path the plan names, not by the commit. A commit outside that set, a
+merge from the base branch, a squash merge, or the plan's archiving keeps the
+verdict. The plan names what its claims rest on, so a change to code it never
+names can leave a stale report; `--fresh` forces a new run. Audit mode judges
+the whole workspace, so its key is the commit's tree. Verify refuses a dirty
+worktree, so the committed content is what was judged. The catalog digest hashes
+the files on disk, because an installed plugin is not a Git checkout and a
+session can load a catalog that differs from the one the commit holds. The
+lookup and save live in a script bundled with the skill, the one place every
+caller reaches on every harness.
 
 Each plan keeps one saved report, overwritten, because only the latest report is
 ever looked up. The user's approvals are recorded in the report but are not part
@@ -1447,9 +1464,9 @@ run blocked on a missing approval ends in `Needs decision`, which is never
 saved. `verify-cache.py` writes a `.gitignore` holding `*` into `.tmp/verify/`,
 so a save never dirties the worktree Verify refuses to run on, even in a
 consuming repository that does not ignore `.tmp/`. A saved report is not reused
-across a rebase, a squash merge, or a fresh container, and trust in
-`.tmp/verify/` rests on the rule that only the skill's script writes it, not on
-any protection against a hand-written file.
+across a fresh container, and trust in `.tmp/verify/` rests on the rule that
+only the skill's script writes it, not on any protection against a hand-written
+file.
 
 Rejected:
 
@@ -1460,10 +1477,11 @@ Rejected:
 - **A handoff file the Implement side commits for the Shipper.** Committing it
   changes the commit it fingerprints, and committing project state contradicts
   report-only Verify.
-- **Key the report by a tree hash or by blob hashes of the plan's files.**
-  Verify and Ship run on one commit, so the commit is exact; hashes scoped to
-  the plan's files miss changes outside that scope that a verification command
-  can still depend on.
+- **Key the report by the commit.** Any commit, even one that touches nothing
+  the plan names, forces a new run whose findings can differ on the same code,
+  and a squash merge discards every saved verdict.
+- **Key a plan's report by the commit's tree.** It survives a squash merge, but
+  an unrelated change anywhere still forces a new run.
 
 ### The Verify report is shown verbatim and routed by finding ID
 

@@ -29,14 +29,34 @@ def installed_verify(plugin_root: Path, plugin_tmp_path: Path) -> Path:
     return installed
 
 
+PLAN_FILE = f'docs/knowledge/{PLAN}.md'
+PLAN_TEXT = """---
+type: plan
+created: 2026-01-01
+---
+
+# Focus timer
+
+Changes the [timer spec](../spec/timer.md); see `src/timer.py::start`.
+"""
+
+
 @pytest.fixture
 def repository(plugin_tmp_path: Path) -> Path:
-    """Create a repository with one commit."""
+    """Create a repository with one commit holding a plan, the files it names, and a README."""
     path = plugin_tmp_path / 'repository'
     path.mkdir()
     git(path, 'init', '--quiet', '--initial-branch=main')
-    (path / 'README.md').write_text('# Project\n', encoding='utf-8')
-    git(path, 'add', 'README.md')
+    files = {
+        'README.md': '# Project\n',
+        PLAN_FILE: PLAN_TEXT,
+        'docs/knowledge/data/spec/timer.md': '# Timer\n',
+        'src/timer.py': 'def start() -> None:\n    pass\n',
+    }
+    for name, text in files.items():
+        (path / name).parent.mkdir(parents=True, exist_ok=True)
+        (path / name).write_text(text, encoding='utf-8')
+    git(path, 'add', '.')
     git(path, 'commit', '--quiet', '-m', 'Initial commit')
     return path
 
@@ -61,7 +81,7 @@ def run_cache(
 def save_current(
     installed: Path, repository: Path, target: str = PLAN, prompts: tuple[str, ...] = PROMPTS
 ) -> dict[str, str]:
-    """Look up `target`, expect a miss, and save REPORT for the commit it printed."""
+    """Look up `target`, expect a miss, and save REPORT for the key it printed."""
     completed, values = run_cache(installed, repository, 'lookup', target)
     assert outcome(completed) == (4, 'RESULT=MISS')
     completed, saved = run_cache(
@@ -69,8 +89,8 @@ def save_current(
         repository,
         'save',
         target,
-        '--commit',
-        values['COMMIT'],
+        '--key',
+        values['KEY'],
         '--verdict',
         'Ready to ship',
         *prompts,
@@ -98,21 +118,23 @@ def block_scalars(report: Path) -> dict[str, str]:
     return {key: '\n'.join(lines) for key, lines in blocks.items()}
 
 
-def commit_change(repository: Path) -> None:
-    """Add a commit so HEAD moves."""
-    (repository / 'README.md').write_text('# Project\n\nChanged.\n', encoding='utf-8')
+def commit_change(repository: Path, name: str = 'README.md', text: str = 'Changed.\n') -> None:
+    """Commit a change to `name` so HEAD moves."""
+    (repository / name).write_text(text, encoding='utf-8')
     git(repository, 'commit', '--quiet', '-am', 'Change')
 
 
-def test_saved_report_for_head_is_a_hit(installed_verify: Path, repository: Path) -> None:
-    """A report saved for HEAD and the active catalog comes back with its commit and verdict."""
+def test_saved_report_for_the_same_content_is_a_hit(
+    installed_verify: Path, repository: Path
+) -> None:
+    """A report saved for the same content and catalog comes back with its key and verdict."""
     saved = save_current(installed_verify, repository)
 
     completed, values = run_cache(installed_verify, repository, 'lookup', PLAN)
 
     assert outcome(completed) == (3, 'RESULT=HIT')
     assert values['REPORT'] == saved['REPORT']
-    assert values['COMMIT'] == git(repository, 'rev-parse', 'HEAD')
+    assert values['KEY'] == saved_key(saved)
     assert values['VERDICT'] == 'Ready to ship'
     assert Path(values['REPORT']).read_text(encoding='utf-8').endswith(REPORT)
 
@@ -126,28 +148,91 @@ def test_plan_file_path_and_key_share_one_report(installed_verify: Path, reposit
     assert outcome(completed) == (3, 'RESULT=HIT')
 
 
-def test_archived_plan_keeps_its_archive_key(installed_verify: Path, repository: Path) -> None:
-    """An archived plan's file path and key share one report, apart from the live key's."""
-    archived = f'data/archive/2.1.0/plans/{Path(PLAN).name}'
-    save_current(installed_verify, repository, target=f'docs/knowledge/{archived}.md')
-
-    archived_hit, _ = run_cache(installed_verify, repository, 'lookup', archived)
-    live_lookup, _ = run_cache(installed_verify, repository, 'lookup', PLAN)
-
-    assert outcome(archived_hit) == (3, 'RESULT=HIT')
-    assert outcome(live_lookup) == (4, 'RESULT=MISS')
+def saved_key(saved: dict[str, str]) -> str:
+    """Read the key a saved report's frontmatter records."""
+    for line in Path(saved['REPORT']).read_text(encoding='utf-8').splitlines():
+        if line.startswith('key: '):
+            return line.removeprefix('key: ')
+    raise AssertionError('The saved report records no key.')
 
 
-def test_new_commit_is_a_miss(installed_verify: Path, repository: Path) -> None:
-    """A saved report for an earlier commit does not match a moved HEAD."""
+def test_archived_plan_keeps_its_report(installed_verify: Path, repository: Path) -> None:
+    """Archiving the plan, with its links rewritten, leaves the key and the report unchanged."""
     save_current(installed_verify, repository)
-    commit_change(repository)
+    archived = f'docs/knowledge/data/archive/next-release/plans/{Path(PLAN).name}.md'
+    (repository / archived).parent.mkdir(parents=True)
+    git(repository, 'mv', PLAN_FILE, archived)
+    (repository / archived).write_text(
+        PLAN_TEXT.replace('../spec/', '../../../spec/'), encoding='utf-8'
+    )
+    git(repository, 'commit', '--quiet', '-am', 'Archive the plan')
+
+    for target in (PLAN, archived.removeprefix('docs/knowledge/').removesuffix('.md')):
+        completed, _ = run_cache(installed_verify, repository, 'lookup', target)
+        assert outcome(completed) == (3, 'RESULT=HIT')
+
+
+@pytest.mark.parametrize(
+    ('name', 'text'),
+    [
+        ('README.md', '# Project\n\nChanged.\n'),
+        (PLAN_FILE, PLAN_TEXT.replace('created: 2026-01-01', 'created: 2026-01-01\nstage: done')),
+        (PLAN_FILE, f'{PLAN_TEXT}\n## Ship review\n\n- [x] Verify reported zero CRITICAL\n'),
+    ],
+    ids=['unnamed-file', 'plan-frontmatter', 'ship-review'],
+)
+def test_commit_outside_what_verify_judged_is_a_hit(
+    installed_verify: Path, repository: Path, name: str, text: str
+) -> None:
+    """A new commit that leaves the plan body and every path it names unchanged still hits."""
+    save_current(installed_verify, repository)
+    commit_change(repository, name, text)
+
+    completed, _ = run_cache(installed_verify, repository, 'lookup', PLAN)
+
+    assert outcome(completed) == (3, 'RESULT=HIT')
+
+
+@pytest.mark.parametrize(
+    ('name', 'text'),
+    [
+        ('src/timer.py', 'def start() -> None:\n    return None\n'),
+        ('docs/knowledge/data/spec/timer.md', '# Timer\n\nChanged.\n'),
+        (PLAN_FILE, f'{PLAN_TEXT}\n- [x] Task\n'),
+    ],
+    ids=['named-code', 'linked-spec', 'plan-body'],
+)
+def test_change_to_what_verify_judged_is_a_miss(
+    installed_verify: Path, repository: Path, name: str, text: str
+) -> None:
+    """Changing the plan body, a path it names, or a document it links invalidates the report."""
+    saved = save_current(installed_verify, repository)
+    commit_change(repository, name, text)
 
     completed, values = run_cache(installed_verify, repository, 'lookup', PLAN)
 
     assert outcome(completed) == (4, 'RESULT=MISS')
-    assert values['COMMIT'] == git(repository, 'rev-parse', 'HEAD')
+    assert values['KEY'] != saved_key(saved)
     assert values['CATALOG_DIGEST'].startswith('sha256:')
+
+
+def test_audit_mode_is_keyed_by_the_tree(installed_verify: Path, repository: Path) -> None:
+    """An empty commit keeps the audit report; any content change invalidates it."""
+    save_current(installed_verify, repository, 'audit')
+    git(repository, 'commit', '--quiet', '--allow-empty', '-m', 'Empty')
+    unchanged, _ = run_cache(installed_verify, repository, 'lookup', 'audit')
+    commit_change(repository)
+    changed, _ = run_cache(installed_verify, repository, 'lookup', 'audit')
+
+    assert outcome(unchanged) == (3, 'RESULT=HIT')
+    assert outcome(changed) == (4, 'RESULT=MISS')
+
+
+def test_missing_plan_is_a_preflight_error(installed_verify: Path, repository: Path) -> None:
+    """A plan key with no tracked plan file stops the lookup."""
+    completed, _ = run_cache(installed_verify, repository, 'lookup', 'data/plans/20260101-absent')
+
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
 
 
 def test_changed_catalog_is_a_miss(installed_verify: Path, repository: Path) -> None:
@@ -188,15 +273,14 @@ def test_fresh_is_a_miss(installed_verify: Path, repository: Path) -> None:
 def test_save_overwrites_the_previous_report(installed_verify: Path, repository: Path) -> None:
     """Each save replaces the one saved report for the plan."""
     first = save_current(installed_verify, repository)
-    commit_change(repository)
+    first_key = saved_key(first)
+    commit_change(repository, 'src/timer.py', 'def start() -> int:\n    return 0\n')
     second = save_current(installed_verify, repository)
 
     assert first['REPORT'] == second['REPORT']
     saved = list((repository / '.tmp' / 'verify').glob('*.md'))
     assert [path.name for path in saved] == ['20260101-focus-timer.md']
-    assert f'commit: {git(repository, "rev-parse", "HEAD")}' in saved[0].read_text(
-        encoding='utf-8'
-    )
+    assert saved_key(second) != first_key
 
 
 def test_audit_mode_uses_its_own_report(installed_verify: Path, repository: Path) -> None:
@@ -223,14 +307,13 @@ def test_dirty_worktree_stops_both_commands(
     installed_verify: Path, repository: Path, kind: str, command: str
 ) -> None:
     """A tracked change or an unignored untracked file stops lookup and save."""
-    head = git(repository, 'rev-parse', 'HEAD')
     if kind == 'tracked':
         (repository / 'README.md').write_text('edited\n', encoding='utf-8')
     else:
         (repository / 'new.txt').write_text('new\n', encoding='utf-8')
     arguments = ['lookup', PLAN]
     if command == 'save':
-        arguments = ['save', PLAN, '--commit', head, '--verdict', 'Blocked', *PROMPTS]
+        arguments = ['save', PLAN, '--key', 'sha256:0', '--verdict', 'Blocked', *PROMPTS]
 
     completed, _ = run_cache(installed_verify, repository, *arguments, stdin=REPORT)
 
@@ -238,17 +321,18 @@ def test_dirty_worktree_stops_both_commands(
     assert not (repository / '.tmp' / 'verify').exists()
 
 
-def test_save_refuses_a_moved_head(installed_verify: Path, repository: Path) -> None:
-    """Saving under a commit HEAD no longer points at is refused."""
-    stale = git(repository, 'rev-parse', 'HEAD')
-    commit_change(repository)
+def test_save_refuses_changed_inputs(installed_verify: Path, repository: Path) -> None:
+    """Saving under a key the content no longer has is refused."""
+    _, values = run_cache(installed_verify, repository, 'lookup', PLAN)
+    stale = values['KEY']
+    commit_change(repository, 'src/timer.py', 'def start() -> int:\n    return 0\n')
 
     completed, _ = run_cache(
         installed_verify,
         repository,
         'save',
         PLAN,
-        '--commit',
+        '--key',
         stale,
         '--verdict',
         'Blocked',
@@ -256,21 +340,19 @@ def test_save_refuses_a_moved_head(installed_verify: Path, repository: Path) -> 
         stdin=REPORT,
     )
 
-    assert outcome(completed) == (6, 'RESULT=HEAD_MOVED')
+    assert outcome(completed) == (6, 'RESULT=INPUTS_CHANGED')
     assert not (repository / '.tmp' / 'verify').exists()
 
 
 def test_save_refuses_needs_decision(installed_verify: Path, repository: Path) -> None:
     """A Needs decision report is never saved."""
-    head = git(repository, 'rev-parse', 'HEAD')
-
     completed, _ = run_cache(
         installed_verify,
         repository,
         'save',
         PLAN,
-        '--commit',
-        head,
+        '--key',
+        'sha256:0',
         '--verdict',
         'Needs decision',
         *PROMPTS,
@@ -342,7 +424,6 @@ def test_save_requires_both_prompts(
     installed_verify: Path, repository: Path, missing: str
 ) -> None:
     """Saving without either prompt is a usage error and writes nothing."""
-    head = git(repository, 'rev-parse', 'HEAD')
     prompts = dict(zip(PROMPTS[::2], PROMPTS[1::2], strict=True))
     del prompts[missing]
     flags = [part for flag, value in prompts.items() for part in (flag, value)]
@@ -352,8 +433,8 @@ def test_save_requires_both_prompts(
         repository,
         'save',
         PLAN,
-        '--commit',
-        head,
+        '--key',
+        'sha256:0',
         '--verdict',
         'Blocked',
         *flags,

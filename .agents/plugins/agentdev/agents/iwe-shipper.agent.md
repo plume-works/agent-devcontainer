@@ -83,7 +83,7 @@ needed. In particular:
 3. **Run Verify for normal shipping.** Invoke the report-only
    `/agentdev:iwe-verify` skill for the selected plan, forwarding every
    approval your prompt quotes, verbatim, and take its session route: it
-   returns the report saved for this commit and catalog when one exists, and
+   returns the report saved for this content and catalog when one exists, and
    otherwise dispatches `iwe-verifier` with the plan key and those approvals,
    saves its report, and returns it, so only the report enters your context.
    Run no Verify step yourself, and dispatch no agent but through that route.
@@ -229,7 +229,7 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 
 - **Verify report** — whenever Verify produced a report, carry it verbatim
   here, after the lead line and before the Ship summary, led by
-  `Saved Verify report from <commit>` when the skill returned a saved one. When
+  `Saved Verify report` when the skill returned a saved one. When
   the report was saved, read the file the cache script's `REPORT` names and copy
   its body below the frontmatter character for character: no rewording,
   re-wrapping, reformatting, or shortened paths. A path to the saved report, or
