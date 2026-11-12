@@ -142,6 +142,9 @@ pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
 
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
+[One home for each kind of
+knowledge](plans/20261112-knowledge-base-single-home.md)
+
 [AI reviews are requested and skipped with
 labels](plans/20261108-label-review-triggers.md)
 

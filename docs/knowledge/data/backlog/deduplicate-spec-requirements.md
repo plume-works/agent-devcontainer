@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: done
 priority: medium
 created: 2026-11-09
 description: Give every rule in every durable spec one home requirement, and drop each scenario that only restates its own requirement.
@@ -8,6 +8,7 @@ sources:
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/semantic-refactor-audit/SKILL.md
+completed: 2026-11-12
 ---
 
 # Remove redundancy from the durable specs
