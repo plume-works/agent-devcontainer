@@ -107,7 +107,7 @@ def copy_permissions(main: Path, path: Path) -> None:
     claude_state.update_json(path / '.claude' / 'settings.local.json', merge)
 
 
-def install_catalog(path: Path) -> None:
+def install_catalog(main: Path, path: Path) -> None:
     """Install the worktree's own catalog as ``wt-<name>`` and turn the shared one off there."""
     manifest = catalog.read_manifest(path / catalog.CLAUDE_MANIFEST)
     shared, name = manifest['name'], marketplace(path)
@@ -118,15 +118,28 @@ def install_catalog(path: Path) -> None:
         raise catalog.CatalogError(f'{name} is already registered from {owner}')
     local.parent.mkdir(parents=True, exist_ok=True)
     local.write_text(json.dumps({**manifest, 'name': name}, indent=2) + '\n')
-    claude(path, 'plugin', 'marketplace', 'add', str(local))
-    for plugin in plugins:
-        claude(path, 'plugin', 'install', f'{plugin}@{name}', '--scope', 'local')
+    ours = [f'{plugin}@{name}' for plugin in plugins]
 
-    def disable(data: dict) -> None:
+    def unclaim(data: dict) -> None:
+        for key in ours:
+            data.get('enabledPlugins', {}).pop(key, None)
+
+    # Run in a worktree, a local-scope install enables the plugin in the main checkout's
+    # local settings, which every worktree reads: architecture/per-worktree-catalog.
+    try:
+        claude(path, 'plugin', 'marketplace', 'add', str(local))
+        for key in ours:
+            claude(path, 'plugin', 'install', key, '--scope', 'local')
+    finally:
+        if (main / '.claude' / 'settings.local.json').is_file():
+            claude_state.update_json(main / '.claude' / 'settings.local.json', unclaim)
+
+    def enable(data: dict) -> None:
         enabled = data.setdefault('enabledPlugins', {})
         enabled.update({f'{plugin}@{shared}': False for plugin in plugins})
+        enabled.update(dict.fromkeys(ours, True))
 
-    claude_state.update_json(path / '.claude' / 'settings.local.json', disable)
+    claude_state.update_json(path / '.claude' / 'settings.local.json', enable)
 
 
 def uninstall_catalog(path: Path) -> None:
@@ -181,10 +194,11 @@ def create(text: str) -> int:
         undo()
         return fail(f'linking the uv environment of {path} failed: {error}')
     try:
-        copy_permissions(main_checkout(repository), path)
+        main = main_checkout(repository)
+        copy_permissions(main, path)
         if catalog.complete(path):
             with agent_state.config_lock(settings):
-                install_catalog(path)
+                install_catalog(main, path)
     except (
         OSError,
         ValueError,

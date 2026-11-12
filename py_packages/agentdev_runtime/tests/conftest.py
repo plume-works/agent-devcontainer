@@ -11,15 +11,28 @@ from agentdev_runtime.settings import DEVCONTAINER
 import pytest
 
 GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
+# Like the real CLI, a local-scope install enables the plugin in the main checkout's local
+# settings, even when run in a worktree.
 STUB = """#!/usr/bin/env python3
-import json, os, sys
+import json, os, subprocess, sys
 argv = sys.argv[1:]
 with open(os.environ['CLAUDE_STUB_LOG'], 'a') as log:
     log.write(json.dumps({'argv': argv, 'cwd': os.getcwd()}) + '\\n')
 if argv[:3] == ['plugin', 'marketplace', 'list']:
     print(open(os.environ['CLAUDE_STUB_MARKETPLACES']).read())
 fail = os.environ.get('CLAUDE_STUB_FAIL')
-sys.exit(1 if fail and fail in ' '.join(argv) else 0)
+if fail and fail in ' '.join(argv):
+    sys.exit(1)
+if argv[:2] == ['plugin', 'install'] and argv[-2:] == ['--scope', 'local']:
+    common = subprocess.run(
+        ['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    settings = os.path.join(os.path.dirname(common), '.claude', 'settings.local.json')
+    data = json.load(open(settings)) if os.path.exists(settings) else {}
+    data.setdefault('enabledPlugins', {})[argv[2]] = True
+    os.makedirs(os.path.dirname(settings), exist_ok=True)
+    json.dump(data, open(settings, 'w'))
 """
 
 

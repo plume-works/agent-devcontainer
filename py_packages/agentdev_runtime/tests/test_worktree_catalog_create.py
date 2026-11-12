@@ -73,7 +73,16 @@ def test_a_catalog_repository_installs_its_own_catalog(
     ]
     assert local_settings(path) == {
         'permissions': {'allow': ['Bash(ls:*)', 'Read']},
-        'enabledPlugins': {'agentdev@shared': False, 'extra@shared': False},
+        'enabledPlugins': {
+            'agentdev@shared': False,
+            'extra@shared': False,
+            'agentdev@wt-task': True,
+            'extra@wt-task': True,
+        },
+    }
+    assert local_settings(repo) == {
+        'permissions': {'allow': ['Bash(ls:*)', 'Read']},
+        'enabledPlugins': {},
     }
 
 
@@ -101,6 +110,7 @@ def test_a_failing_install_removes_the_worktree_and_registration(
     )
     assert branches.stdout == ''
     assert calls(claude_stub)[-1]['argv'] == ['plugin', 'marketplace', 'remove', 'wt-doomed']
+    assert local_settings(repo)['enabledPlugins'] == {}
 
 
 def test_a_name_another_worktree_registered_fails_and_is_kept(

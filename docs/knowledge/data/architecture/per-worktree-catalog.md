@@ -24,9 +24,14 @@ recorded in [Worktree hooks](worktree-hooks.md).
   registers that file with `claude plugin marketplace add` and installs every
   plugin it publishes as `<plugin>@wt-<name>` at local scope from the worktree.
   `.claude/.gitignore` ignores `*.local.json`, so the worktree stays clean.
-- **The shared catalog is turned off per worktree.** The same hook sets every
-  `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins` in the
-  worktree's `.claude/settings.local.json`.
+- **The enables live only in the worktree's own settings.** Run in a worktree, a
+  local-scope install enables the plugin in the main checkout's
+  `.claude/settings.local.json`, which would turn the worktree's catalog on in
+  every session of the repository. The hook removes those `<plugin>@wt-<name>`
+  keys from the main checkout's file — removes, because a `false` there would
+  win in the worktree too — and sets them to `true` in the worktree's
+  `.claude/settings.local.json`, next to every
+  `<plugin>@<shared marketplace name>` set to `false`.
 - **The shared catalog installs at user scope.** The attach phase
   (`lifecycle.attached`), the image-staged install, and the standalone runtime
   (`Workspace.catalog`) all install at user scope. A local-scope install would
@@ -64,7 +69,9 @@ recheck them.
   so a file in `<worktree>/.claude/` resolves the manifest's `./` entries into
   the worktree. `marketplace add` declares it in user settings.
 - A local-scope install records the folder it was run in as its project; the
-  plugin is read in place from that folder.
+  plugin is read in place from that folder. Run in a git worktree, it writes its
+  `enabledPlugins` entry to the main checkout's `.claude/settings.local.json`,
+  not the worktree's.
 - `marketplace add` and `plugin install` succeed again for a marketplace or
   plugin already registered, so a reused worktree can run them again.
 - `marketplace remove` also uninstalls every plugin installed from that

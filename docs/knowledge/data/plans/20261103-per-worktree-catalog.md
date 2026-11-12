@@ -145,7 +145,9 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
   at local scope from the worktree, and disables every
   `<plugin>@<shared marketplace name>` in the worktree's local settings
   - **Evidence:**
-    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_catalog_repository_installs_its_own_catalog`
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_catalog_repository_installs_its_own_catalog`,
+    run against a `claude` stub that enables a local-scope install in the main
+    checkout's local settings
 - [x] a failing catalog step removes the worktree, its branch, and any
   `wt-<name>` registration it made, and exits non-zero with the reason on stderr
   - **Evidence:**
