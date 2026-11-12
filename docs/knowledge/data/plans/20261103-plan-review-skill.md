@@ -43,11 +43,20 @@ rubric in two agents would drift.
 
 ### Task 1: The fan-out skill
 
-**Files:** Create: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`
+**Files:** Create: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`;
+Modify: `.agents/plugins/agentdev/README.md`,
+`.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md`
 
-- [ ] The skill dispatches both agents in parallel with prompts carrying only
+- [x] The skill dispatches both agents in parallel with prompts carrying only
   the plan file and scope, or the plan key and plan mode, and returns both
   reports unchanged.
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md#steps`; the
+    skill's row in
+    `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe` and the
+    `iwe-ship-reviewer` frontmatter `description` naming it as a dispatcher;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
 
 ### Task 2: Plan runs the review
 
