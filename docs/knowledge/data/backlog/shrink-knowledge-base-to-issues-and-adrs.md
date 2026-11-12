@@ -17,16 +17,10 @@ the only source of truth for behaviour, and that the knowledge base keeps two
 jobs: tracking work (bugs, tasks, plans) and recording architecture decisions.
 Specs stop being a statement of behaviour.
 
-The decision rests on a comparison of three specs with their code: one matched,
-and two had drifted. The drift is filed as [Bug: the firewall spec misstates the
-enabled policy](../bugs/firewall-spec-misstates-enabled-policy.md), [Bug: the
-enabled firewall leaves IPv6 open when ip6tables is
-missing](../bugs/firewall-ipv6-open-without-ip6tables.md), [Bug: wildcard
-firewall allowlist entries never take
-effect](../bugs/firewall-wildcard-allowlist-entries-never-apply.md), and [Bug:
-AGENTDEV_XPRA_PORT does not change the port Xpra listens
-on](../bugs/xpra-port-setting-ignored.md). The other 29 documents under
-`data/spec/` have not been compared.
+The decision rests on a comparison of three specs with their code, recorded in
+[Specs deviate from the code they
+describe](../findings/specs-deviate-from-code.md): one matched, and two had
+drifted. The other 29 documents under `data/spec/` have not been compared.
 
 ## Why
 
