@@ -114,6 +114,15 @@ same step.
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     passes.
 
+### Task 5: The feature describes the dispatch
+
+**Files:** Modify:
+`docs/knowledge/data/features/verification-in-the-main-loop.md`
+
+- [ ] `## Behaviour` states that `iwe-shipper` runs `/agentdev:iwe-verify`,
+  which dispatches `iwe-verifier`, so only the report enters the Shipper's
+  context, instead of the Shipper following the rulebook in place.
+
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — Ship's Verify step
