@@ -124,3 +124,26 @@ which single observation closes it.
   — step 6
 - `docs/knowledge/data/spec/plan-checkbox-evidence.md#requirement-plan-tasks-are-sized-so-a-tick-can-be-honest`
   — the modified requirement
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship —
+  data/plans/20261109-one-observation-per-checkbox (commit
+  `20e8766c7f55eee53d2f3a19d640a84de8431438`)
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/plan-checkbox-evidence
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed:
+  data/bugs/plan-tasks-bundle-independent-observations
+- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed:
+  data/bugs/plan-tasks-bundle-independent-observations
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
