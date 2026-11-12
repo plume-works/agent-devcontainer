@@ -5,6 +5,8 @@ one dated group per release; nothing else writes here.
 
 ## 2026-11-12
 
+- **Release**: [3.0.1](releases/3.0.1.md) — internal changes only; no feature
+  added or changed and no bug fixed.
 - **Release**: [3.0.0](releases/3.0.0.md) — [Dev Container home
   volume](features/devcontainer-home-volume.md), [Nested agent
   dispatch](features/nested-agent-dispatch.md), and [Ship

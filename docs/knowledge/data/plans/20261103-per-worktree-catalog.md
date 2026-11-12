@@ -4,6 +4,7 @@ created: 2026-11-03
 release: internal
 stage: done
 completed: 2026-11-12
+released: 3.0.1
 description: Give every worktree Claude Code creates in a catalog checkout its own agentdev catalog, read live from the worktree, through WorktreeCreate and WorktreeRemove hooks that agentdev-runtime provides and registers, and move the attach-phase catalog install to user scope so worktree settings can turn the shared catalog off.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
