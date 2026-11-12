@@ -83,11 +83,15 @@ decision your prompt does not carry, stop and report it under
      whether the implementation matches its SHALL statement (divergence is a
      WARNING naming the anchors to review). For each `#### Scenario:`,
      check the condition is handled in code and covered by a test, judged by
-     the `iwe-planner` coverage rule: a test covers a scenario only when it
+     the plan rules the `iwe-planner` rulebook follows: a test covers a scenario only when it
      runs the behaviour.
      An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
      Run the plan's `## Verification` commands and
-     report their actual output — a failing command is a CRITICAL. Then run
+     report their actual output — a failing command is a CRITICAL. A step you
+     cannot run in this checkout, or whose effects reach beyond the working
+     tree with no quoted approval naming it, is not run: list it as `not run`
+     with the reason and continue. It is never a finding and never a reason
+     to stop. Then run
      `git status --porcelain`: any output is a CRITICAL naming the dirty paths,
      recommending that the command leave the worktree clean, because a saved
      report describes a clean commit.
@@ -133,10 +137,10 @@ then:
   way.
 - **Outstanding observations** — each unticked task carrying a
   `**Closed by:**` line, with who or what closes it.
-- **Verification commands** — each `## Verification` command run and its actual
-  result.
-- **Needs decision** — the exact command or choice and why, when you stopped
-  for one, so the user can re-run `/agentdev:iwe-verify` granting it.
+- **Verification commands** — each `## Verification` step: its actual result,
+  or `not run` and the reason.
+- **Needs decision** — the exact choice and why, when you stopped for one, so
+  the user can re-run `/agentdev:iwe-verify` making it.
 
 ## Rules
 
@@ -152,8 +156,9 @@ then:
   builds); a task's `- **Evidence:**` line is a record, never a command to run. A
   command whose effects reach beyond the working tree — a deploy, a push, a
   published artifact, a CI trigger, anything remote — runs only under a quoted
-  approval that names it; otherwise stop before it and report the exact command
-  under `Needs decision`.
+  approval that names it; otherwise do not run it, list it as `not run` under
+  **Verification commands**, and continue. An unrunnable step never ends the
+  run with `Needs decision`.
 - Ship follows a clean verify; a verify with CRITICALs ends with the blocker
   list, not a softened verdict.
 - Never wait for a reply: a decision you were not given ends the run with a

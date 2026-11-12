@@ -167,8 +167,8 @@ leaf and dispatches nothing.
    appears in the next Verify report — naming the finding, the fix attempted,
    and the report — after three Verify rounds, or when a second revision would
    be needed after one approved revision in the run. Stop too when Verify
-   reports `Needs decision` for a command it did not run: name the approval,
-   which the user grants by re-running the skill. A choice between routes is a
+   reports `Needs decision`: name the choice it needs,
+   which the user makes by re-running the skill. A choice between routes is a
    finding like any other — take a route the steps above allow. An
    always-escalate deviation stops for the user as Step 7 says.
 6. **Report once.** The Finish rollup; then the last Verify report verbatim,

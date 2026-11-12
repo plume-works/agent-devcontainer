@@ -21,6 +21,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-plan-reviewer.agent.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan-review/references/plan-rules.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/bin/plan_predecessors.py
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -438,7 +440,7 @@ finding about the plan's intent SHALL go through an evaluated revision. The
 Implement session SHALL stop when a finding recurs after a fix attempt, after
 three Verify rounds, or after one approved revision in the run. No agent the
 loop dispatches SHALL dispatch another; while a revision is drafted, the loop
-may also dispatch the two agents `/agentdev:iwe-plan-review` names.
+may also dispatch the agents `/agentdev:iwe-plan-review` names.
 
 #### Scenario: Verify finds nothing to act on
 
@@ -472,11 +474,10 @@ may also dispatch the two agents `/agentdev:iwe-plan-review` names.
 - **THEN** the run stops and reports the finding, the fix it attempted, and the
   Verify report
 
-#### Scenario: Verify needs an approval
+#### Scenario: Verify needs a decision
 
-- **WHEN** Verify reports `Needs decision` for a command with effects beyond the
-  working tree
-- **THEN** the run stops and names the approval, which the user grants by
+- **WHEN** Verify reports `Needs decision`
+- **THEN** the run stops and names the choice, which the user makes by
   re-running the skill
 
 ### Requirement: Implement revises its plan only after an independent evaluation
@@ -544,8 +545,13 @@ rather than into the plan's `## Context` or `## Approach`, which state intent
 and remain the Plan skill's to own. Every edit to a plan's intent sections SHALL
 be reviewed through `/agentdev:iwe-plan-review` before the edit is validated:
 audited for durable-knowledge residue by a reviewer holding no context beyond
-the audit scope and the plan file, and checked by `iwe-ship-reviewer` in plan
-mode for what Ship will need.
+the audit scope and the plan file, checked by `iwe-plan-reviewer` against the
+plan rules file, and checked by `iwe-ship-reviewer` in plan mode for what Ship
+will need. The plan rules file SHALL be the only home of the rules a plan
+document is reviewed against: the `iwe-planner` rulebook SHALL follow it rather
+than restate it, and `iwe-plan-reviewer` SHALL read it from the path its prompt
+names, report only gaps against a rule that file states, and never report on a
+ticked task or its evidence.
 
 #### Scenario: Implementation produces a durable finding
 
@@ -576,6 +582,25 @@ mode for what Ship will need.
   the narrative-sanctioned `## Verification results` and `- **Evidence:**`
   children are left out of that audit
 
+#### Scenario: A plan edit is checked against the plan rules
+
+- **WHEN** Plan creates or revises a plan and reaches validation
+- **THEN** `iwe-plan-reviewer` reports `Conforms` or the gaps against the plan
+  rules file, and Plan resolves each gap before validating
+
+#### Scenario: A plan lists a verification step the verifier cannot run
+
+- **WHEN** a plan draft's `## Verification` holds a step that needs a live
+  service, a live agent session, a deploy, or a person
+- **THEN** `iwe-plan-reviewer` reports it as a gap, naming a `**Closed by:**`
+  task as the change that satisfies the rule
+
+#### Scenario: A draft has a weakness no plan rule names
+
+- **WHEN** `iwe-plan-reviewer` notices a weakness in a draft that no rule of
+  the plan rules file states
+- **THEN** it reports nothing about it
+
 #### Scenario: A plan edit is checked for what Ship needs
 
 - **WHEN** Plan creates or revises a plan and reaches validation
@@ -593,7 +618,9 @@ project state. Verify's rulebook SHALL be defined once, as the catalog agent
 the plan key or audit mode and the approvals quoted verbatim, whether the user's
 session or `iwe-shipper` invokes it. Verify SHALL run a verification command
 whose effects reach beyond the working tree only under a quoted approval that
-names it, and otherwise SHALL stop before it and report the approval it needs.
+names it, and otherwise SHALL NOT run it: Verify SHALL list a `## Verification`
+step it cannot run in its checkout, or may not run without an approval, as not
+run with the reason, and SHALL neither stop for it nor report a finding for it.
 
 `/agentdev:iwe-verify` SHALL refuse to run on a dirty worktree, SHALL save each
 report whose verdict is `Ready to ship`, `Blocked`, or `Audit` as the one saved
@@ -637,8 +664,8 @@ SHALL be a CRITICAL finding.
 - **WHEN** the user runs `/agentdev:iwe-verify <plan>` and a `## Verification`
   command reaches beyond the working tree
 - **THEN** the dispatch prompt carries the plan key and nothing else from the
-  conversation, and `iwe-verifier` stops before that command and reports the
-  approval it needs
+  conversation, and `iwe-verifier` lists that command as not run with the
+  reason, runs every other check, and reports its verdict
 
 #### Scenario: The user verifies a plan with an approval
 
@@ -676,8 +703,8 @@ SHALL be a CRITICAL finding.
 
 #### Scenario: A report that needs a decision is not saved
 
-- **WHEN** Verify reports `Needs decision` and the user re-runs it granting the
-  approval
+- **WHEN** Verify reports `Needs decision` and the user re-runs it making the
+  choice
 - **THEN** Verify runs again rather than returning the earlier report
 
 #### Scenario: The user asks for a fresh run
