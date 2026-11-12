@@ -116,6 +116,8 @@ pins](features/renovate-maintains-checksums.md)
 
 [Ship review](features/ship-review.md)
 
+[One home for each kind of knowledge](features/single-home-knowledge.md)
+
 [Standalone OpenCode container](features/standalone-opencode-container.md)
 
 [Remote Control autostart in the standalone

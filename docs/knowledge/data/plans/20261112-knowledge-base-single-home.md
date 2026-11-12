@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-12
 release:
-- features/agentdev-iwe-workflow-skills
+- features/single-home-knowledge
 description: Give every kind of knowledge in the graph one home — behaviour and its rationale in specs, findings and guides in their own types, finished work in a per-release archive — and fold the architecture notes, feature behaviour, and closed history into that layout.
 sources:
 - resource: docs/knowledge/AGENTS.md
@@ -23,21 +23,23 @@ closed plans, bugs, and tasks hold rationale that exists nowhere else.
 
 Measured on this checkout:
 
-- `data/architecture/`: 68 notes, 50k words. They mix decisions, behaviour
+- `data/architecture/`: 69 notes, 51k words. They mix decisions, behaviour
   written as prose, findings, and procedures.
 - `data/features/`: 637 behaviour statements, of which a spec already states
   387, no spec states 227, and a spec contradicts 23.
   `docs/knowledge/migration/scan/features.md` lists them per feature.
-- Closed plans, bugs, and tasks: 202 documents, 369k words. 103 hold knowledge
-  found nowhere else, 247 items in all. `docs/knowledge/migration/scan/` holds
-  one section per document in `closed-0.md` to `closed-7.md`.
+- Closed plans, bugs, and tasks: `closed-0.md` to `closed-7.md` under
+  `docs/knowledge/migration/scan/` cover 202 of them, one section per document,
+  and 103 hold knowledge found nowhere else.
 
 The user set the principles for the new layout: DRY and KISS. The user also
 decided that the whole of `docs/knowledge/data/` is redesigned, so no rule in
 `docs/knowledge/AGENTS.md`, `docs/knowledge/SCHEMA.md`, or an `iwe-*` rulebook
 constrains it, and that this is one plan.
 
-This changes what the workflow skills of [agentdev IWE workflow
+The feature is [One home for each kind of
+knowledge](../features/single-home-knowledge.md). It changes what the workflow
+skills of [agentdev IWE workflow
 skills](../features/agentdev-iwe-workflow-skills.md) write. It absorbs two
 backlog tasks: [Remove redundancy from the durable
 specs](../backlog/deduplicate-spec-requirements.md) and [Give architecture notes
@@ -94,7 +96,6 @@ Rejected:
 - **Minimal validation for archived documents.** The user chose full validation;
   a schema change is applied to that type's archived documents in the same
   change.
-- **A chain of plans.** The user chose one plan.
 
 ## Implementation Steps
 
@@ -238,6 +239,7 @@ is filed through `/agentdev:iwe-capture bug`. The note then moves to
 `next-release` — keeping `type: architecture`. Destinations are the table in
 `origin/specs-over-arch:openspec/changes/specs-sole-source-of-truth/design.md`
 (commit `19fbac9f`), with `openspec/specs/<slug>` read as `data/spec/<slug>`.
+`per-worktree-catalog`, which that table predates, goes to `catalog-lifecycle`.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`,
 `docs/knowledge/data/spec.md`. Create: `docs/knowledge/data/findings/*.md`,
@@ -777,9 +779,9 @@ and change none: `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
 ## Depends on
 
 [Give each Claude worktree its own agentdev
-catalog](20261103-per-worktree-catalog.md) is the only other active plan. It
-ships first, so Task 9 archives it with the rest of the closed history and no
-plan is in flight while the rulebooks change.
+catalog](20261103-per-worktree-catalog.md) ships first, so Task 9 archives it
+with the rest of the closed history and no plan is in flight while the rulebooks
+change.
 
 ## Verification
 
