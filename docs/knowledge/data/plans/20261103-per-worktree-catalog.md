@@ -134,18 +134,27 @@ Assumptions:
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 
-- [ ] `worktree create` merges the main checkout's `.claude/settings.local.json`
+- [x] `worktree create` merges the main checkout's `.claude/settings.local.json`
   `permissions.allow` into the worktree's `.claude/settings.local.json`, for
   every repository
-- [ ] when the worktree ships a complete catalog, it writes
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_plain_repository_gets_permissions_and_no_marketplace`
+    and `::test_permissions_merge_without_duplicates`
+- [x] when the worktree ships a complete catalog, it writes
   `.claude/marketplace.local.json` named `wt-<name>`, registers and installs it
   at local scope from the worktree, and disables every
   `<plugin>@<shared marketplace name>` in the worktree's local settings
-- [ ] a failing catalog step removes the worktree, its branch, and any
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_catalog_repository_installs_its_own_catalog`
+- [x] a failing catalog step removes the worktree, its branch, and any
   `wt-<name>` registration it made, and exits non-zero with the reason on stderr
-- [ ] tests run the subcommand against a made-up repository and catalog, with
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_failing_install_removes_the_worktree_and_registration`
+- [x] tests run the subcommand against a made-up repository and catalog, with
   `claude` replaced by a recording stub on `PATH`, covering a plain repository,
   a catalog repository, and a failing install
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 
 ### Task 2: Add the catalog step to `agentdev-runtime worktree remove`
 

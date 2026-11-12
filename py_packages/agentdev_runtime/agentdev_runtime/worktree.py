@@ -1,9 +1,9 @@
 """
 Claude Code's ``WorktreeCreate`` and ``WorktreeRemove`` hooks.
 
-Each worktree they make gets its own uv environment.
+Each worktree they make gets its own uv environment and, in a catalog checkout, its own catalog.
 
-Hook contract: architecture/worktree-hooks. Spec: agentdev-runtime-images.
+Hook contract: architecture/worktree-hooks. Spec: agentdev-runtime-images, catalog-lifecycle.
 """
 
 from __future__ import annotations
@@ -16,7 +16,14 @@ import shutil
 import subprocess
 import sys
 
-from agentdev_runtime import claude_state, project, remote_control, settings as env
+from agentdev_runtime import (
+    agent_state,
+    catalog,
+    claude_state,
+    project,
+    remote_control,
+    settings as env,
+)
 
 PREFIX = 'agentdev-runtime worktree'
 HOOKS = {
@@ -47,6 +54,71 @@ def worktrees(repository: str) -> set[Path]:
         for line in listed.stdout.splitlines()
         if line.startswith('worktree ')
     }
+
+
+def claude(cwd: Path | str, *args: str) -> None:
+    """Run a ``claude`` command with its output on stderr; a failure raises ``CatalogError``."""
+    result = subprocess.run(['claude', *args], cwd=cwd, stdout=2, check=False)
+    if result.returncode != 0:
+        raise catalog.CatalogError(f'claude {" ".join(args)} exited {result.returncode}')
+
+
+def marketplace(path: Path) -> str:
+    return f'wt-{path.name}'
+
+
+def main_checkout(repository: str) -> Path:
+    common = subprocess.run(
+        ['git', '-C', repository, 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return Path(common.stdout.strip()).parent
+
+
+def copy_permissions(main: Path, path: Path) -> None:
+    """Merge the main checkout's local ``permissions.allow`` into the worktree's."""
+    source = main / '.claude' / 'settings.local.json'
+    try:
+        allowed = json.loads(source.read_text()).get('permissions', {}).get('allow', [])
+    except FileNotFoundError:
+        return
+    if not allowed:
+        return
+
+    def merge(data: dict) -> None:
+        rules = data.setdefault('permissions', {}).setdefault('allow', [])
+        rules.extend(rule for rule in allowed if rule not in rules)
+
+    claude_state.update_json(path / '.claude' / 'settings.local.json', merge)
+
+
+def install_catalog(path: Path) -> None:
+    """Install the worktree's own catalog as ``wt-<name>`` and turn the shared one off there."""
+    manifest = catalog.read_manifest(path / catalog.CLAUDE_MANIFEST)
+    shared, name = manifest['name'], marketplace(path)
+    plugins = [plugin['name'] for plugin in manifest.get('plugins') or []]
+    local = path / '.claude' / 'marketplace.local.json'
+    local.parent.mkdir(parents=True, exist_ok=True)
+    local.write_text(json.dumps({**manifest, 'name': name}, indent=2) + '\n')
+    claude(path, 'plugin', 'marketplace', 'add', str(local))
+    for plugin in plugins:
+        claude(path, 'plugin', 'install', f'{plugin}@{name}', '--scope', 'local')
+
+    def disable(data: dict) -> None:
+        enabled = data.setdefault('enabledPlugins', {})
+        enabled.update({f'{plugin}@{shared}': False for plugin in plugins})
+
+    claude_state.update_json(path / '.claude' / 'settings.local.json', disable)
+
+
+def uninstall_catalog(path: Path) -> None:
+    """Remove the ``wt-<name>`` marketplace, which also uninstalls its plugins."""
+    name = marketplace(path)
+    registered = catalog.listing('claude', 'plugin', 'marketplace', 'list', '--json')
+    if any(isinstance(entry, dict) and entry.get('name') == name for entry in registered):
+        claude('/', 'plugin', 'marketplace', 'remove', name)
 
 
 def create(text: str) -> int:
@@ -81,14 +153,37 @@ def create(text: str) -> int:
             if new_branch:
                 git('-C', repository, 'branch', '-D', branch)
             return fail(f'git worktree add {path} failed')
-    try:
-        project.link_venv(env.Settings(), path)
-    except OSError as error:
+
+    def undo() -> None:
         if not reused:
             git('-C', repository, 'worktree', 'remove', '--force', str(path))
         if new_branch:
             git('-C', repository, 'branch', '-D', branch)
+
+    settings = env.Settings()
+    try:
+        project.link_venv(settings, path)
+    except OSError as error:
+        undo()
         return fail(f'linking the uv environment of {path} failed: {error}')
+    try:
+        copy_permissions(main_checkout(repository), path)
+        if catalog.complete(path):
+            with agent_state.config_lock(settings):
+                install_catalog(path)
+    except (
+        OSError,
+        ValueError,
+        subprocess.CalledProcessError,
+        catalog.CatalogError,
+        agent_state.StateError,
+    ) as error:
+        try:
+            uninstall_catalog(path)
+        except catalog.CatalogError as cleanup:
+            print(f'{PREFIX}: {cleanup}', file=sys.stderr)
+        undo()
+        return fail(f'setting up {path} failed: {error}')
     print(path)
     return 0
 
