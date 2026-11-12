@@ -12,6 +12,7 @@ sources:
 - resource: README.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
 ---
 
 # Catalog lifecycle
@@ -101,9 +102,10 @@ the `.agents/` root instruction files.
 ## Requirement: this repository's own checkout overrides the staged catalog on attach
 
 The attach lifecycle SHALL register this checkout's complete Claude and OpenCode
-catalog over the staged copy and SHALL leave the staged copy selected when the
-mounted repository does not contain a complete catalog. A complete catalog SHALL
-consist of `.claude-plugin/marketplace.json` and the OpenCode bridge directory.
+catalog over the staged copy, installing the Claude catalog at user scope, and
+SHALL leave the staged copy selected when the mounted repository does not
+contain a complete catalog. A complete catalog SHALL consist of
+`.claude-plugin/marketplace.json` and the OpenCode bridge directory.
 
 ### Scenario: an agentdev developer reloads the editor
 
@@ -120,6 +122,50 @@ consist of `.claude-plugin/marketplace.json` and the OpenCode bridge directory.
 - **WHEN** the checkout holds `.claude-plugin/marketplace.json` and the OpenCode
   bridge but no `.agents/plugins/marketplace.json`, and attach runs
 - **THEN** the checkout catalog is registered over the staged copy.
+
+### Scenario: the attach install leaves the main checkout's local settings alone
+
+- **WHEN** attach registers a complete checkout catalog
+- **THEN** the catalog's plugins are enabled in the user's Claude settings and
+  no `enabledPlugins` entry is written to the checkout's
+  `.claude/settings.local.json`.
+
+## Requirement: each Claude worktree of a catalog checkout loads its own catalog
+
+When the standalone runtime registers a checkout's own catalog, it SHALL also
+register `agentdev-runtime worktree create` and
+`agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
+`WorktreeRemove` hooks, as the Dev Container create phase does outside deploy
+mode. A worktree that hook creates in a checkout that ships a complete catalog
+SHALL load every plugin of its own checkout's catalog from the worktree's
+working tree, under a marketplace named `wt-<worktree name>`, and SHALL NOT load
+the shared catalog's plugins. The design is [Per-worktree
+catalog](../architecture/per-worktree-catalog.md).
+
+### Scenario: a Remote Control session spawns in a worktree
+
+- **WHEN** Remote Control in `worktree` spawn mode starts a session in a
+  checkout that ships a complete catalog
+- **THEN** the session loads `agentdev@wt-<worktree name>` from
+  `<worktree>/.agents/plugins/agentdev`, including uncommitted changes there,
+  and not `agentdev@agent-devcontainer`.
+
+### Scenario: a session in the main checkout
+
+- **WHEN** a session starts in the main checkout
+- **THEN** it loads the shared catalog, as before.
+
+### Scenario: a repository without a complete catalog
+
+- **WHEN** the hook creates a worktree of a repository with no complete catalog
+- **THEN** the worktree is created at `.claude/worktrees/<name>` on branch
+  `worktree-<name>` and no marketplace is registered.
+
+### Scenario: the worktree is removed
+
+- **WHEN** Claude Code removes a worktree the hook created
+- **THEN** its `wt-<worktree name>` marketplace and installs are removed and no
+  entry for it remains in the user's Claude settings.
 
 ## Requirement: only agent credentials are shared across worktrees
 
