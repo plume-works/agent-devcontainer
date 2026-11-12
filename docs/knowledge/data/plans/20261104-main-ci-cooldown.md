@@ -124,6 +124,7 @@ GitHub does not document whether concurrency cancels a job waiting on one.
   their current ranges.
   - **Evidence:** `scripts/pre-commit-ci-range.py::outputs`;
     `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_when_the_lookup_fails`,
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_without_a_passing_run`,
     `scripts/tests/test_pre_commit_ci_range.py::test_push_to_another_branch_keeps_before`
 - [x] Tests cover a widened range that reaches a tool-version owner only through
   a skipped commit, a failed lookup, and a push to a branch other than `main`,
