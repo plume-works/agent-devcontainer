@@ -134,50 +134,80 @@ Assumptions:
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 
-- [ ] `worktree create` merges the main checkout's `.claude/settings.local.json`
+- [x] `worktree create` merges the main checkout's `.claude/settings.local.json`
   `permissions.allow` into the worktree's `.claude/settings.local.json`, for
   every repository
-- [ ] when the worktree ships a complete catalog, it writes
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_plain_repository_gets_permissions_and_no_marketplace`,
+    `::test_permissions_merge_without_duplicates`, and
+    `::test_a_malformed_main_settings_file_copies_nothing`
+- [x] when the worktree ships a complete catalog, it writes
   `.claude/marketplace.local.json` named `wt-<name>`, registers and installs it
   at local scope from the worktree, and disables every
   `<plugin>@<shared marketplace name>` in the worktree's local settings
-- [ ] a failing catalog step removes the worktree, its branch, and any
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_catalog_repository_installs_its_own_catalog`,
+    run against a `claude` stub that enables a local-scope install in the main
+    checkout's local settings
+- [x] a failing catalog step removes the worktree, its branch, and any
   `wt-<name>` registration it made, and exits non-zero with the reason on stderr
-- [ ] tests run the subcommand against a made-up repository and catalog, with
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_failing_install_removes_the_worktree_and_registration`
+    and `::test_a_name_another_worktree_registered_fails_and_is_kept`
+- [x] tests run the subcommand against a made-up repository and catalog, with
   `claude` replaced by a recording stub on `PATH`, covering a plain repository,
   a catalog repository, and a failing install
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 
 ### Task 2: Add the catalog step to `agentdev-runtime worktree remove`
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
-- [ ] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
+- [x] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
   `wt-<name>` marketplace when one is registered, before it removes the
   worktree, and also when the worktree is already gone
-- [ ] a worktree with no `wt-<name>` marketplace is not an error
-- [ ] tests run the subcommand against a worktree Task 1's subcommand made, with
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`,
+    `::test_a_gone_worktree_still_loses_its_marketplace`, and
+    `::test_a_same_named_marketplace_of_another_worktree_is_kept`
+- [x] a worktree with no `wt-<name>` marketplace is not an error
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_a_worktree_without_a_marketplace_is_removed`
+- [x] tests run the subcommand against a worktree Task 1's subcommand made, with
   the same `claude` stub
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
 ### Task 3: Register the hooks from the standalone runtime
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/workspace.py`;
 Create: `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 
-- [ ] `Workspace.catalog` calls `worktree.register` when it selected the
+- [x] `Workspace.catalog` calls `worktree.register` when it selected the
   checkout's catalog over the staged one
-- [ ] tests run `Workspace.catalog` with a complete and an incomplete catalog
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py::test_a_complete_checkout_catalog_registers_the_hooks`
+- [x] tests run `Workspace.catalog` with a complete and an incomplete catalog
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 
 ### Task 4: Install the checkout's catalog at user scope on attach
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`;
 Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 
-- [ ] `lifecycle.attached` installs a complete checkout catalog with
+- [x] `lifecycle.attached` installs a complete checkout catalog with
   `catalog.install(settings, folder, 'user')`
-- [ ] a test runs the attach-phase catalog step with a recording `claude` stub
+  - **Evidence:**
+    `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` ›
+    "catalog.install(settings, folder, 'user')"
+- [x] a test runs the attach-phase catalog step with a recording `claude` stub
   and asserts every `marketplace add` and `plugin install` carries
   `--scope user`
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py::test_attach_installs_the_checkout_catalog_at_user_scope`
 
 ### Task 5: Prove the route end to end on agent-dev3
 
@@ -199,10 +229,14 @@ Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 **Files:** Create: `docs/knowledge/data/architecture/per-worktree-catalog.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
-- [ ] `data/architecture/per-worktree-catalog` records the file-source
+- [x] `data/architecture/per-worktree-catalog` records the file-source
   marketplace inside the worktree, the user-scope install, where the hooks are
   registered, and every rejected alternative in `## Approach`, and links
   `data/architecture/worktree-hooks`; `data/architecture.md` links it
+  - **Evidence:**
+    `docs/knowledge/data/architecture/per-worktree-catalog.md#design` and
+    `#rejected-alternatives`; `docs/knowledge/data/architecture.md` ›
+    "[Per-worktree catalog](architecture/per-worktree-catalog.md)"
 
 ## Spec changes
 

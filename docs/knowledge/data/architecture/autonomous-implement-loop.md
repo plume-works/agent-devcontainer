@@ -34,8 +34,9 @@ agents](explicit-only-workflow-agents.md). The Implement session follows
 create mode — keeps its script bundled with the skill.
 
 **A revision is drafted, audited, evaluated, then committed.** The Implement
-session drafts it under the `iwe-planner` revise rules, including the Durable
-Knowledge Auditor gate and validation, and leaves it uncommitted.
+session drafts it under the `iwe-planner` revise rules, including
+`/agentdev:iwe-plan-review` — the `Durable Knowledge Auditor` and
+`iwe-ship-reviewer` in plan mode — and validation, and leaves it uncommitted.
 `iwe-revision-evaluator` then judges the final text: its prompt carries only the
 plan key and the quoted finding, and it reads `git show HEAD:<plan>` and
 `git diff -- <plan>`. It returns:

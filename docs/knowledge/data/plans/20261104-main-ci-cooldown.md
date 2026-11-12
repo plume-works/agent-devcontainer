@@ -9,7 +9,8 @@ sources:
 - resource: scripts/pre-commit-ci-range.py
 - resource: docs/knowledge/data/spec/image-pinning.md
 - resource: docs/knowledge/data/spec/pre-commit-gate.md
-rank: 600
+stage: done
+completed: 2026-11-12
 ---
 
 # Cool down Primary checks on main
@@ -60,88 +61,127 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 ### Task 1: Shared workflow-run lookup
 
-**Files:** Create: `scripts/ci_runs.py`, `scripts/tests/test_ci_runs.py`
+**Files:** Create: `scripts/ci_runs.py`, `scripts/tests/test_ci_runs.py`,
+`scripts/tests/github_api_stub.py`
 
-- [ ] `scripts/ci_runs.py` (standard library only) resolves the calling
+- [x] `scripts/ci_runs.py` (standard library only) resolves the calling
   workflow's id from `GITHUB_RUN_ID`, lists its `push` runs on a branch newest
   first through the REST API at `GITHUB_API_URL`, and returns the head commit of
   the last successful run, authenticating with `GH_TOKEN`. A failed request
   raises one module-defined error carrying the cause.
-- [ ] Tests run the module against a local HTTP stub the test starts and owns:
+  - **Evidence:** `scripts/ci_runs.py::last_success_sha`,
+    `scripts/ci_runs.py::CIRunsError`;
+    `uv run pytest scripts/tests/test_ci_runs.py`
+- [x] Tests run the module against a local HTTP stub the test starts and owns:
   the last successful run's head commit, no successful run, and a request that
   fails.
+  - **Evidence:** `uv run pytest scripts/tests/test_ci_runs.py` — stub in
+    `scripts/tests/github_api_stub.py::serve`
 
 ### Task 2: Cooldown script
 
 **Files:** Create: `scripts/ci-cooldown.py`, `scripts/tests/test_ci_cooldown.py`
 
-- [ ] `scripts/ci-cooldown.py` reads `MAIN_COOLDOWN_SECONDS` (default `600`) and
+- [x] `scripts/ci-cooldown.py` reads `MAIN_COOLDOWN_SECONDS` (default `600`) and
   `MAIN_COOLDOWN_MAX_SECONDS` (default `1800`); an empty value takes the
   default, and a negative or non-integer value exits non-zero naming the
   variable.
-- [ ] The script lists Primary checks' `push` runs on `main` newest first
+  - **Evidence:** `scripts/ci-cooldown.py::_setting`;
+    `scripts/tests/test_ci_cooldown.py::test_invalid_variable_fails_naming_it`,
+    `scripts/tests/test_ci_cooldown.py::test_empty_variables_take_the_defaults`
+- [x] The script lists Primary checks' `push` runs on `main` newest first
   through `scripts/ci_runs.py`, skips its own run, and walks back over runs
   whose conclusion is `cancelled`; the first run with any other status or
   conclusion ends the walk. The anchor is the oldest walked run's `created_at`,
   or its own run's when the walk is empty.
-- [ ] The script sleeps `max(0, min(cooldown, anchor + cap - now))` seconds and
+  - **Evidence:** `scripts/ci-cooldown.py::_anchor`;
+    `scripts/tests/test_ci_cooldown.py::test_walk_stops_at_the_first_run_not_cancelled`,
+    `scripts/tests/test_ci_cooldown.py::test_newer_runs_are_not_walked`
+- [x] The script sleeps `max(0, min(cooldown, anchor + cap - now))` seconds and
   logs the anchor and the chosen wait. When the lookup fails, it warns and
   sleeps the full cooldown.
-- [ ] Tests run the script with an injected clock and sleep against a local HTTP
+  - **Evidence:** `scripts/ci-cooldown.py::main`;
+    `scripts/tests/test_ci_cooldown.py::test_anchor_past_the_cap_starts_at_once`,
+    `scripts/tests/test_ci_cooldown.py::test_failed_lookup_warns_and_waits_the_cooldown`
+- [x] Tests run the script with an injected clock and sleep against a local HTTP
   stub: no earlier run, an anchor already past the cap, an anchor inside the
   cooldown, a failed lookup, a cooldown of `0`, and an invalid variable.
+  - **Evidence:** `uv run pytest scripts/tests/test_ci_cooldown.py`
 
 ### Task 3: Widen the pre-commit range on main
 
 **Files:** Modify: `scripts/pre-commit-ci-range.py`,
 `scripts/tests/test_pre_commit_ci_range.py`
 
-- [ ] On a `push` to `main` whose `before` is not all zeros, the range starts at
+- [x] On a `push` to `main` whose `before` is not all zeros, the range starts at
   the last successful push run's head commit from `scripts/ci_runs.py` instead
   of `before`, unless that commit equals `after`. `all_files` and
   `gitleaks_log_opts` follow the widened range.
-- [ ] When the lookup fails or finds no successful run, the script prints a
+  - **Evidence:** `scripts/pre-commit-ci-range.py::_widen_to_last_pass`;
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_starts_at_the_last_passing_run`
+- [x] When the lookup fails or finds no successful run, the script prints a
   `::warning::` and keeps `before..after`. Pushes to other branches, pull
   requests, merge groups, `workflow_dispatch`, and an all-zero `before` keep
   their current ranges.
-- [ ] Tests cover a widened range that reaches a tool-version owner only through
+  - **Evidence:** `scripts/pre-commit-ci-range.py::outputs`;
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_when_the_lookup_fails`,
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_main_keeps_before_without_a_passing_run`,
+    `scripts/tests/test_pre_commit_ci_range.py::test_push_to_another_branch_keeps_before`
+- [x] Tests cover a widened range that reaches a tool-version owner only through
   a skipped commit, a failed lookup, and a push to a branch other than `main`,
   against the scratch repository and a local HTTP stub.
+  - **Evidence:** `uv run pytest scripts/tests/test_pre_commit_ci_range.py`
 
 ### Task 4: Wire the cooldown into Primary checks
 
 **Files:** Modify: `.github/workflows/primary-checks.yml`
 
-- [ ] The workflow-level concurrency group uses `github.run_id` on
+- [x] The workflow-level concurrency group uses `github.run_id` on
   `refs/heads/main` and `github.ref` elsewhere, so a run on `main` waiting for
   the `ci` queue never blocks the next run's `cooldown`. Other refs keep
   cancelling in progress as today.
-- [ ] A `cooldown` job runs `scripts/ci-cooldown.py` when
+  - **Evidence:** `.github/workflows/primary-checks.yml#concurrency.group`;
+    `uv run pre-commit run actionlint --files .github/workflows/primary-checks.yml`
+- [x] A `cooldown` job runs `scripts/ci-cooldown.py` when
   `github.event_name == 'push' && github.ref == 'refs/heads/main'`, on the
   `ubuntu-24.04` runner with `timeout-minutes: 35`, permissions `actions: read`
   and `contents: read`, concurrency group `${{ github.workflow }}-main-cooldown`
   with `cancel-in-progress: true`, and `MAIN_COOLDOWN_SECONDS` /
   `MAIN_COOLDOWN_MAX_SECONDS` from `vars`.
-- [ ] `pre-commit` needs `cooldown` and runs when
+  - **Evidence:** `.github/workflows/primary-checks.yml#jobs.cooldown`
+- [x] `pre-commit` needs `cooldown` and runs when
   `!cancelled() && (needs.cooldown.result == 'success' || needs.cooldown.result == 'skipped')`.
   It gains `actions: read` and `GH_TOKEN: ${{ github.token }}` for the range
   lookup.
-- [ ] `ci` needs `cooldown` and `pre-commit`, runs when `!cancelled()`,
+  - **Evidence:** `.github/workflows/primary-checks.yml#jobs.pre-commit`
+- [x] `ci` needs `cooldown` and `pre-commit`, runs when `!cancelled()`,
   `needs.pre-commit.result == 'success'`, and `cooldown` succeeded or was
   skipped, and carries concurrency group `${{ github.workflow }}-ci-main` with
   `cancel-in-progress: false` on `refs/heads/main` and `github.run_id`
   elsewhere.
-- [ ] The comment above the workflow-level `concurrency` block points at
+  - **Evidence:** `.github/workflows/primary-checks.yml#jobs.ci`
+- [x] The comment above the workflow-level `concurrency` block points at
   `spec/image-pinning` for the cooldown rule.
+  - **Evidence:**
+    `.github/workflows/primary-checks.yml › "a burst of merges builds once; see spec/image-pinning"`
 
 ### Task 5: Observe a burst of merges on main
 
 **Closed by:** the maintainer, after this plan's pull request merges.
 
-- [ ] Two pull requests merged within ten minutes of each other produce one
+- [x] Two pull requests merged within ten minutes of each other produce one
   Primary checks run that builds: the first run ends `cancelled` with its build
   jobs skipped, and the second run's `pre-commit` range starts at or before the
   first merge's parent.
+  - **Evidence:** a burst of five pushes to `main` (#833, #835, #836, #832,
+    #834) built once: runs
+    [43146963150](https://github.com/plume-works/agent-devcontainer/actions/runs/43146963150)
+    and
+    [43148376260](https://github.com/plume-works/agent-devcontainer/actions/runs/43148376260)
+    ended `cancelled` in `cooldown` with `pre-commit` and `CI/CD` skipped; run
+    [43148475260](https://github.com/plume-works/agent-devcontainer/actions/runs/43148475260)
+    anchored on run 43146963150, waited 600 s, and its `pre-commit` range starts
+    at `fb0f2213`, the parent of #833's merge.
 
 ## Spec changes
 
@@ -275,8 +315,8 @@ after it succeeds.
 
 ## Key references
 
-- `.github/workflows/primary-checks.yml › "main queues instead of cancelling, so edge keeps advancing"`
-  — workflow-level `concurrency`, queueing on `main`
+- `.github/workflows/primary-checks.yml › "On main the cooldown job cancels a waiting run"`
+  — workflow-level `concurrency`
 - `.github/workflows/primary-checks.yml#jobs.pre-commit` — `pre-commit` job and
   its permissions
 - `.github/workflows/primary-checks.yml › "name: Select the range"` —
@@ -293,3 +333,25 @@ after it succeeds.
   — Requirement: published tags name only tested images
 - `docs/knowledge/data/spec/pre-commit-gate.md#requirement-ci-runs-the-pre-commit-hooks-as-the-lint-gate`
   — Requirement: CI runs the pre-commit hooks as the lint gate
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship —
+  data/plans/20261104-main-ci-cooldown (commit 839f7f01)
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/image-pinning, data/spec/pre-commit-gate
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed

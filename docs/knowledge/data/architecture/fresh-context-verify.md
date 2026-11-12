@@ -1,6 +1,6 @@
 ---
 type: architecture
-description: Why Verify's rulebook lives in the iwe-verifier catalog agent, which the iwe-verify skill dispatches with a conversation-free prompt and iwe-shipper follows in place, so every Verify run judges the code from a fresh context.
+description: Why Verify's rulebook lives in the iwe-verifier catalog agent, which the iwe-verify skill dispatches with a conversation-free prompt for every caller, iwe-shipper included, so every Verify run judges the code from a fresh context.
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -22,17 +22,18 @@ registers it as a subagent.
 
 Every Verify run starts from a fresh context, so its verdict rests on the code
 and the graph, never on what a conversation asserted. `/agentdev:iwe-verify` is
-a router with two routes, both behind one saved-report cache:
+a router with one route behind a saved-report cache: it builds a prompt carrying
+only the plan key (or audit mode) and the approvals quoted verbatim, dispatches
+`iwe-verifier` forwarding no conversation, and re-posts its report. An approval
+the verifier needs comes back as `Needs decision`, and the user re-runs the
+skill granting it.
 
-- **From a session** — the skill builds a prompt carrying only the plan key (or
-  audit mode) and the user's approvals quoted verbatim, dispatches
-  `iwe-verifier` forwarding no conversation, and re-posts its report. An
-  approval the verifier needs comes back as `Needs decision`, and the user
-  re-runs the skill granting it.
-- **From inside `iwe-shipper`** — the Shipper is already a fresh context and
-  stays a leaf, so the skill tells it to read the `iwe-verifier` rulebook and
-  follow it in place. The Shipper reaches the rulebook through the skill, which
-  links the agent file plugin-relatively.
+Every caller takes that route — the user's session, the Implement loop, and
+`iwe-shipper`. The Shipper carries the `Agent` tool and dispatches
+`iwe-verifier` through the skill, quoting the approvals its own prompt carries,
+so only the report enters its context ahead of the steps that change the graph.
+That dispatch is nested, and relies on the nesting depth both harnesses are set
+to ([Nested subagent dispatch](nested-subagent-dispatch.md)).
 
 `iwe-verifier`'s tools are `Bash, Read, Write, Grep, Glob, Skill`. Report-only
 is a rule of the rulebook, not a tool boundary.
@@ -43,17 +44,17 @@ reports the exact command — the Shipper's rule, applied to both routes.
 
 **A saved report is a fresh-context verdict reused.** The skill keeps one saved
 report per plan, and one for audit mode, in `.tmp/verify/`, keyed by the commit
-Verify ran on and a digest of every file of the active agentdev catalog. On
-either route, a lookup whose commit is `HEAD` and whose digest is the active
+Verify ran on and a digest of every file of the active agentdev catalog. For
+every caller, a lookup whose commit is `HEAD` and whose digest is the active
 catalog's returns that report without running any check, unless the user asks
 for `--fresh`. Verify refuses a dirty worktree, so a commit fully names what was
 judged, and a verification command that dirties it is a CRITICAL. A
 `Needs decision` report is never saved, so a re-run granting the approval runs
 Verify. The Implement loop runs Verify through the skill, so the Shipper's
-in-place Verify on the same commit reuses the loop's verdict instead of
-repeating its test runs. The lookup and save are a bundled script in the skill,
-the one place both routes reach on every harness. Trust in `.tmp/verify/` rests
-on a rule: only that script writes it.
+Verify on the same commit reuses the loop's verdict instead of repeating its
+test runs. The lookup and save are a bundled script in the skill, the one place
+every caller reaches on every harness. Trust in `.tmp/verify/` rests on a rule:
+only that script writes it.
 
 The catalog digest hashes the files of the catalog the script runs from, on disk
 rather than Git-tracked, because an installed plugin is not a Git checkout, and
@@ -66,9 +67,11 @@ gate would protect nothing and block that loop.
 
 ## Rejected alternatives
 
-- **Give `iwe-shipper` the Agent tool and nest the dispatch.** OpenCode refuses
-  a nested dispatch at its default depth, and raising it takes an experimental
-  key ([Nested subagent dispatch](nested-subagent-dispatch.md)).
+- **Have `iwe-shipper` follow the `iwe-verifier` rulebook in place.** It puts
+  the whole Verify run in the Shipper's context ahead of its graph changes.
+- **Have `/agentdev:iwe-ship` dispatch `iwe-verifier` before the Shipper.**
+  Every other route that dispatches the Shipper, such as `/agentdev:iwe-plan`
+  answering a Ship blocker report, would need the same step.
 - **Keep the rulebook in the skill behind a thin agent**, as the Durable
   Knowledge Auditor does with `iwe-audit`. The skill would then be both the
   rulebook and the entry point that must dispatch, so a session loading it

@@ -1,6 +1,6 @@
 ---
 name: iwe-ship-reviewer
-description: Check an IWE plan against Ship's obligations from a fresh context — plan mode reports whether the plan gives Ship what it needs; ship mode checks a shipped plan and stamps it with a Ship review checklist or returns its gaps. Dispatched only by the iwe-ship skill and iwe-plan revise after a ship; never on a description match.
+description: Check an IWE plan against Ship's obligations from a fresh context — plan mode reports whether the plan gives Ship what it needs; ship mode checks a shipped plan and stamps it with a Ship review checklist or returns its gaps. Dispatched only by the iwe-ship skill, iwe-plan revise after a ship, and the iwe-plan-review skill; never on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob
 ---
 

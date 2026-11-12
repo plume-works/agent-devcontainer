@@ -12,11 +12,13 @@ import subprocess
 import sys
 from uuid import uuid4
 
+from github_api_stub import ActionsApi, run, serve
 import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / 'scripts/pre-commit-ci-range.py'
+sys.path.insert(0, str(SCRIPT.parent))
 
 
 def _load_script():
@@ -59,7 +61,9 @@ class Repo:
         self.git('commit', '--quiet', '-m', path)
         return self.git('rev-parse', 'HEAD')
 
-    def run(self, event_name: str, payload: dict[str, object]) -> dict[str, str]:
+    def run(
+        self, event_name: str, payload: dict[str, object], extra_env: dict[str, str] | None = None
+    ) -> dict[str, str]:
         """Run the script for an event and return what it wrote to GITHUB_OUTPUT."""
         event = self.root.parent / f'{self.root.name}-event.json'
         output = self.root.parent / f'{self.root.name}-output'
@@ -69,6 +73,7 @@ class Repo:
             'GITHUB_EVENT_NAME': event_name,
             'GITHUB_EVENT_PATH': str(event),
             'GITHUB_OUTPUT': str(output),
+            **(extra_env or {}),
         }
         assert ci_range.main(env=env, cwd=self.root) == 0
         return dict(line.split('=', 1) for line in output.read_text().splitlines())
@@ -177,6 +182,67 @@ def test_owner_change_on_the_base_side_does_not_widen_the_check(repo: Repo) -> N
 
     assert fork != base
     assert repo.run('pull_request', payload) == ranged(base, head)
+
+
+def test_push_to_main_starts_at_the_last_passing_run(repo: Repo) -> None:
+    """A tool-version owner changed only in a skipped commit widens the check to every file."""
+    last_pass = repo.git('rev-parse', 'HEAD')
+    before = repo.commit('uv.lock')
+    after = repo.commit('src/feature.py')
+    api = ActionsApi(runs=[run(1, '2026-11-04T09:00:00Z', conclusion='success', sha=last_pass)])
+    payload = {'ref': 'refs/heads/main', 'before': before, 'after': after}
+
+    with serve(api):
+        result = repo.run('push', payload, api.env())
+
+    assert result == {**ranged(last_pass, after), 'all_files': 'true'}
+
+
+def test_push_to_main_keeps_before_when_the_lookup_fails(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A run history that cannot be read keeps the push's own range, with a warning."""
+    before = repo.git('rev-parse', 'HEAD')
+    after = repo.commit('src/feature.py')
+    api = ActionsApi(fail=True)
+    payload = {'ref': 'refs/heads/main', 'before': before, 'after': after}
+
+    with serve(api):
+        result = repo.run('push', payload, api.env())
+
+    assert result == ranged(before, after)
+    assert '::warning::' in capsys.readouterr().out
+
+
+def test_push_to_main_keeps_before_without_a_passing_run(
+    repo: Repo, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """A run history with no successful push run keeps the push's own range, with a warning."""
+    before = repo.git('rev-parse', 'HEAD')
+    after = repo.commit('src/feature.py')
+    api = ActionsApi(runs=[run(1, '2026-11-04T09:00:00Z', conclusion='cancelled')])
+    payload = {'ref': 'refs/heads/main', 'before': before, 'after': after}
+
+    with serve(api):
+        result = repo.run('push', payload, api.env())
+
+    assert result == ranged(before, after)
+    assert '::warning::' in capsys.readouterr().out
+
+
+def test_push_to_another_branch_keeps_before(repo: Repo) -> None:
+    """Only a push to main looks up the last passing run."""
+    last_pass = repo.git('rev-parse', 'HEAD')
+    before = repo.commit('uv.lock')
+    after = repo.commit('src/feature.py')
+    api = ActionsApi(runs=[run(1, '2026-11-04T09:00:00Z', conclusion='success', sha=last_pass)])
+    payload = {'ref': 'refs/heads/feature', 'before': before, 'after': after}
+
+    with serve(api):
+        result = repo.run('push', payload, api.env())
+
+    assert result == ranged(before, after)
+    assert api.requests == []
 
 
 def test_unknown_event_fails(repo: Repo, capsys: pytest.CaptureFixture[str]) -> None:

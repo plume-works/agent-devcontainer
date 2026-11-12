@@ -13,6 +13,7 @@ sources:
 - resource: opencode-compose-pins.yml
 - resource: .github/actions/paths-filter/action.yml
 - resource: docker/ansible/Dockerfile
+- resource: scripts/ci-cooldown.py
 ---
 
 # Image pinning
@@ -73,8 +74,8 @@ CI SHALL publish `ubuntu-ansible`, `agentdev-base`, `agentdev-deploy`, and
 `agentdev-devcontainer` candidates under immutable commit tags and SHALL move
 event tags only after native deploy and Dev Container acceptance and the
 candidate pre-commit run pass for the same digests, without rebuilding. CI SHALL
-NOT move a tag to an image built from an ancestor of the commit it names.
-Primary checks runs on `main` SHALL NOT cancel one another.
+NOT move a tag to an image built from an ancestor of the commit it names. No
+Primary checks run SHALL cancel a run on `main` whose `ci` job has started.
 
 ### Scenario: every acceptance check passes
 
@@ -95,8 +96,39 @@ Primary checks runs on `main` SHALL NOT cancel one another.
 
 ### Scenario: pushes to main arrive during a run
 
-- **WHEN** commits land on `main` while its run is in progress
+- **WHEN** commits land on `main` after a run's `ci` job started and before that
+  run completes
 - **THEN** that run completes, and the newest waiting run follows it.
+
+## Requirement: pushes to main build after a cooldown
+
+A Primary checks run started by a push to `main` SHALL wait
+`MAIN_COOLDOWN_SECONDS` (default 600) before any build job starts, and a newer
+push to `main` SHALL cancel a run that is still waiting. The wait SHALL end no
+later than `MAIN_COOLDOWN_MAX_SECONDS` (default 1800) after the start of the
+oldest push run since the newest push run that was not cancelled. Pull requests,
+merge groups, tags, and `workflow_dispatch` SHALL NOT wait. When the run history
+cannot be read, the run SHALL wait the full cooldown. The waiting job holds a
+runner for the whole wait.
+
+### Scenario: pushes arrive within the cooldown
+
+- **WHEN** several pushes land on `main`, each within the cooldown of the one
+  before
+- **THEN** every run but the newest ends cancelled before building, and the
+  newest builds once.
+
+### Scenario: pushes keep arriving past the cap
+
+- **WHEN** pushes keep landing on `main` until the oldest waiting push is older
+  than the cap
+- **THEN** the newest run starts building at the cap, and the next push waits a
+  full cooldown.
+
+### Scenario: the cooldown is turned off
+
+- **WHEN** `MAIN_COOLDOWN_SECONDS` is `0`
+- **THEN** a push to `main` starts building at once.
 
 ## Requirement: standalone runtime deployment is digest-pinned
 

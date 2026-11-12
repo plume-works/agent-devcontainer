@@ -169,7 +169,7 @@ def attached(settings: env.Settings) -> None:
         check(project.sync(settings), 'uv sync')
     if catalog.complete(Path(folder)):
         with agent_state.config_lock(settings):
-            catalog.install(settings, folder, None)
+            catalog.install(settings, folder, 'user')
     else:
         print(f'{folder} ships no complete agentdev catalog; keeping the staged catalog.')
     hooks.run(settings, 'attached')
