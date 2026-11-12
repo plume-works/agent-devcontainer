@@ -140,3 +140,34 @@ def test_a_failing_link_removes_the_worktree_and_its_branch(
 def test_unreadable_input_fails_the_hook(capsys: pytest.CaptureFixture[str]) -> None:
     assert worktree.create('{"name": "x"}') == 1
     assert 'unreadable hook input' in capsys.readouterr().err
+
+
+def rev(repo: Path, ref: str) -> str:
+    return subprocess.run(
+        ['git', '-C', str(repo), 'rev-parse', ref], capture_output=True, text=True, check=True
+    ).stdout.strip()
+
+
+def test_a_new_worktree_starts_at_the_freshly_fetched_remote_default_branch(
+    repository: Path, tmp_path: Path
+) -> None:
+    origin = tmp_path / 'origin.git'
+    subprocess.run(['git', 'clone', '-q', '--bare', str(repository), str(origin)], check=True)
+    subprocess.run(['git', '-C', str(repository), 'remote', 'add', 'origin', str(origin)])
+    subprocess.run(['git', '-C', str(repository), 'fetch', '-q', 'origin'], check=True)
+    subprocess.run(['git', '-C', str(repository), 'remote', 'set-head', 'origin', '--auto'])
+    upstream = tmp_path / 'upstream'
+    subprocess.run(['git', 'clone', '-q', str(origin), str(upstream)], check=True)
+    subprocess.run(
+        ['git', *GIT_ID, '-C', str(upstream), 'commit', '-q', '--allow-empty', '-m', 'n']
+    )
+    subprocess.run(['git', '-C', str(upstream), 'push', '-q', 'origin', 'HEAD'], check=True)
+    result = run(repository, 'fresh')
+    assert result.returncode == 0, result.stderr
+    assert rev(repository, 'worktree-fresh') == rev(upstream, 'HEAD') != rev(repository, 'HEAD')
+
+
+def test_a_repository_without_a_remote_starts_the_worktree_at_head(repository: Path) -> None:
+    result = run(repository, 'local')
+    assert result.returncode == 0, result.stderr
+    assert rev(repository, 'worktree-local') == rev(repository, 'HEAD')

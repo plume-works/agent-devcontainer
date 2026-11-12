@@ -254,12 +254,15 @@ checkout SHALL be a link to a directory named after the checkout under
 `agentdev-devcontainer`, else `/uv/venvs`), on the same volume as the uv cache.
 The create phase SHALL register `agentdev-runtime worktree create` and
 `agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
-`WorktreeRemove` hooks. The link SHALL exist before a worktree's first command
-when the worktree is made by `git worktree add` or by that `WorktreeCreate`
-hook, and the attach phase SHALL create it for the workspace folder. The
-`WorktreeRemove` hook SHALL delete the environment of the worktree it removes;
-attach SHALL keep every environment named after a listed checkout or linked from
-the `.venv` of any checkout, in any repository, and remove the rest.
+`WorktreeRemove` hooks. The `WorktreeCreate` hook SHALL start a new
+`worktree-<name>` branch at `origin`'s default branch, fetched first, and at the
+main checkout's `HEAD` when `origin` has no default branch. The link SHALL exist
+before a worktree's first command when the worktree is made by
+`git worktree add` or by that `WorktreeCreate` hook, and the attach phase SHALL
+create it for the workspace folder. The `WorktreeRemove` hook SHALL delete the
+environment of the worktree it removes; attach SHALL keep every environment
+named after a listed checkout or linked from the `.venv` of any checkout, in any
+repository, and remove the rest.
 
 #### Scenario: two worktrees run uv at once
 
@@ -275,6 +278,13 @@ the `.venv` of any checkout, in any repository, and remove the rest.
 - **THEN** the worktree is at `.claude/worktrees/<name>` on branch
   `worktree-<name>`, and its `.venv` links to its own environment before the
   session starts
+
+#### Scenario: a new worktree starts at the fetched default branch
+
+- **WHEN** `WorktreeCreate` fires with a new name and `origin`'s default branch
+  is ahead of the main checkout
+- **THEN** the new `worktree-<name>` branch points at `origin`'s default branch
+  as just fetched, not at the main checkout's `HEAD`
 
 #### Scenario: a worktree name is used again
 
