@@ -43,8 +43,8 @@ Options:
                     save only: the request the iwe-verify skill was invoked
                     with, verbatim.
   --verifier-prompt <text>
-                    save only: the prompt the iwe-verifier rulebook ran under,
-                    dispatched or followed in place, verbatim.
+                    save only: the prompt iwe-verifier was dispatched with,
+                    verbatim.
   -h, --help        Show this help text.
 
 Output (key=value lines):

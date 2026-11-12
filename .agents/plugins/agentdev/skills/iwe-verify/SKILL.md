@@ -82,7 +82,8 @@ report, which carries the Verify report.
 
 1. **Look up** the plan the user named, or `audit` in audit mode, with
    `--fresh` only when the request carries it. If neither a plan nor audit mode
-   is clear from the request, ask the user first. On a `HIT`, re-post the saved
+   is clear from the request, ask the user first — inside `iwe-shipper`, end with
+   `Needs decision` instead. On a `HIT`, re-post the saved
    report verbatim in your final message text, led by
    `Saved Verify report from <COMMIT>`, and stop. The saved report's path, or
    the `Read` result that showed it, does not count as re-posting it.
