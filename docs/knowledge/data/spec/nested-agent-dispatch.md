@@ -1,11 +1,12 @@
 ---
 type: spec
-description: Claude Code in the devcontainer and the standalone runtime nests subagent dispatch to depth 5 unless the host sets another limit.
+description: Claude Code in the devcontainer and the standalone runtime nests subagent dispatch to depth 5 unless the host sets another limit, and a catalog agent that dispatches lists the Agent tool.
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: compose.opencode.yml
 - resource: docker/deploy/runtime.env.example
-- resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+- resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
+- resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
 ---
 
 # Nested agent dispatch
@@ -15,8 +16,7 @@ sources:
 Defines Claude Code's subagent nesting limit in the devcontainer and the
 standalone runtime, so a dispatched agent can dispatch another. OpenCode's limit
 is a managed value of [Devcontainer OpenCode
-policy](devcontainer-opencode-policy.md). Host behavior: [Nested subagent
-dispatch](../architecture/nested-subagent-dispatch.md).
+policy](devcontainer-opencode-policy.md).
 
 ## Requirements
 
@@ -38,3 +38,31 @@ host's value when it is set, and to `5` otherwise.
 - **WHEN** the host, or for the standalone runtime `runtime.env`, sets
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
 - **THEN** the container's Claude Code uses that value.
+
+### Requirement: a catalog agent that dispatches lists `Agent`
+
+A catalog agent that runs as a dispatched subagent and dispatches another agent
+SHALL list `Agent` in its `tools:` frontmatter, because Claude Code offers a
+subagent the `Agent` tool only when its `tools:` list names it or is omitted. A
+rulebook followed in place dispatches with the session's own tools and needs no
+such entry.
+
+#### Scenario: the shipper dispatches the verifier
+
+- **WHEN** `iwe-shipper` runs as a subagent and reaches its Verify gate
+- **THEN** it has the `Agent` tool and dispatches `iwe-verifier`.
+
+## Rationale
+
+### Both harnesses nest to depth 5
+
+The devcontainer and the standalone runtime raise Claude Code's and OpenCode's
+subagent nesting limits to 5, so a dispatched catalog agent can dispatch another
+on either harness. OpenCode's limit lives under `experimental`, a key OpenCode
+may rename or drop; that is the accepted cost.
+
+Rejected:
+
+- **The harness defaults.** OpenCode's default depth of 1 refuses every nested
+  `task` call, and with no variable set Claude Code's limit comes from a
+  server-side flag rather than from the container.

@@ -6,6 +6,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
 - resource: docs/knowledge/AGENTS.md
 ---
@@ -34,10 +36,12 @@ session can repeat the check: for code, a test id (`path::name`) or a command,
 which Verify re-runs against the current tree; for docs or config with no test,
 the file and anchor that changed; for external work, the CI run or the PR that
 closes it, which stands alone. A commit id on its own SHALL NOT count as
-evidence. Plan SHALL specify the format, Implement SHALL write the evidence line
-in the same edit that ticks the box and commit it together with the change it
-describes, and the convention SHALL be recorded where every session loads it
-rather than only where a skill is invoked.
+evidence, and neither SHALL residue: raw command stdout transcribed as evidence,
+an ephemeral identifier, or an uncommitted `.tmp/` harness. Plan SHALL specify
+the format, Implement SHALL write the evidence line in the same edit that ticks
+the box and commit it together with the change it describes, and the convention
+SHALL be recorded where every session loads it rather than only where a skill is
+invoked.
 
 #### Scenario: A task is completed
 
@@ -50,6 +54,13 @@ rather than only where a skill is invoked.
 
 - **WHEN** a ticked task's evidence line names a commit and no test, command,
   file and anchor, CI run, or PR
+- **THEN** it is residue rather than evidence, and Verify reports it as a ticked
+  task without usable evidence
+
+#### Scenario: Evidence cites residue
+
+- **WHEN** a ticked task's evidence line quotes command output, names an
+  ephemeral identifier, or cites a script under `.tmp/` that is not committed
 - **THEN** it is residue rather than evidence, and Verify reports it as a ticked
   task without usable evidence
 
@@ -189,3 +200,28 @@ from a pre-commit hook when a plan changes, and in the knowledge-base CI job.
 - **WHEN** a checkbox appears under another section, such as a format example
   under `## Approach`, or inside a fenced code block
 - **THEN** the gate does not treat it as a task
+
+## Rationale
+
+### Evidence names a check Verify can repeat, never a commit id
+
+A ticked task's evidence names a test id or command, a file and anchor, or a CI
+run or PR, and Verify re-runs a named test or command in the current tree. Every
+reader of evidence — the `plan-checkboxes` gate, Verify, and the Ship run that
+repeats Verify — runs before merge, and nothing reads a shipped plan's evidence
+after it. A commit id buys none of those readers anything, while rebase, squash
+merge, and amend rewrite it; a check Verify can re-run lets Verify judge a tick
+the same way every time. With nothing left that must name a commit, a task's
+code, its tick, and its evidence line land in one commit.
+
+Rejected:
+
+- **Keeping commit ids.** Nothing reads evidence after merge, and the rule costs
+  a second commit per task and a revision round whenever the named hash is
+  wrong.
+- **The PR number.** It survives a squash, but it names the whole change, so
+  Verify still has nothing per task to repeat.
+- **A test id only.** Docs, config, and external work have no test, and each
+  needs its own kind of evidence anyway.
+- **Free text checked for shape only.** Verify's judgment flips between runs
+  when a line names nothing it can repeat.

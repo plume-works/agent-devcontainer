@@ -9,6 +9,12 @@ sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 - resource: .devcontainer/devcontainer.json
 - resource: https://github.com/plume-works/vscode-expo-bridge
+- resource: docker/base/agentdev-base.Dockerfile
+- resource: .dockerignore
+- resource: .agents/plugins/agentdev/bin/skill_common.py
+- resource: .agents/plugins/agentdev/bin/python_lint_check.py
+- resource: py_packages/validate_agent_files/tests
+- resource: ansible/roles/validate_agent_files/tasks/main.yml
 ---
 
 # Template consumption
@@ -26,9 +32,8 @@ deleted-or-retained path, or a CI adaptation changes. The skill ships in the
 plugin, so a consumer runs it from an installed catalog without this repository
 checked out.
 
-This document holds only the requirements the procedure must satisfy. Read
-[Template boundary](../architecture/template-boundary.md) for the
-keep/customize/optional/delete inventory the guide walks.
+This document holds only the requirements the procedure must satisfy; the
+path-by-path inventory is the guide's.
 
 ## Requirement: the finished project retains every runtime capability
 
@@ -123,8 +128,18 @@ and the choices the user made. Setup SHALL write it before executing the guide's
 steps, so an interrupted session leaves a resumable record. It MAY name the
 adopted SHA as context, but SHALL NOT be read as the source of truth for it.
 
-Neither file SHALL appear in `tracked_paths`; both are consumer-created state,
-not template paths.
+`tracked_paths` SHALL hold template paths only. Neither file SHALL appear in it,
+nor SHALL `.github/pr-description-guidance.md`, `docs/knowledge/data/`,
+`docs/knowledge/LICENSE.md`, any file of the `iwe-bootstrap` scaffold, or any
+publisher-only path (`.agents/`, `.claude-plugin/`, `py_packages/`).
+
+### Scenario: a consumer keeps the knowledge base
+
+- **WHEN** setup records the paths of a consumer that kept the knowledge-base
+  bundle
+- **THEN** `tracked_paths` lists `.iwe/` and the `docs/knowledge/` support
+  documents and tests, and names neither `docs/knowledge/data/` nor
+  `docs/knowledge/LICENSE.md`
 
 ### Scenario: setup is interrupted and resumed
 
@@ -457,3 +472,127 @@ no longer reachable from the container.
 
 - **WHEN** update mode finds no gateway artifact
 - **THEN** it changes nothing for the gateway and reports nothing about it
+
+## Requirement: every template path has one class
+
+The guide SHALL classify every tracked path of the template as Template,
+Customize, Optional, Publisher, or Generated. A consumer SHALL keep Template
+paths, keep Customize paths and edit their project identity and owned paths,
+keep an Optional path only together with the rest of its bundle, delete every
+Publisher path, and never take a Generated path as template input. The root
+`AGENTS.md` and `CLAUDE.md` and the `.claude/` directory SHALL survive the
+deletion of publisher-only source.
+
+### Scenario: a full copy deletes publisher-only source
+
+- **WHEN** Workflow A deletes `.agents/`, `.claude-plugin/`, and `py_packages/`
+- **THEN** the root `AGENTS.md`, `CLAUDE.md`, and `.claude/` remain, and the
+  instructions scoped under the deleted trees leave with them
+
+### Scenario: an existing repository receives the runtime unit
+
+- **WHEN** Workflow B copies `.devcontainer/` and
+  `devcontainer-compose-pins.yml`
+- **THEN** the consumer's `.gitignore` ignores `.devcontainer/.env` and
+  `.devcontainer/local.env` before the first container start, so the generated
+  host state never reaches a commit
+
+## Requirement: a retained custom-image bundle builds from an explicit choice
+
+A consumer that keeps the custom-image bundle SHALL keep all of it — `ansible/`,
+`ansible.cfg`, `docker/`, `.dockerignore`, `.github/actions/docker/`,
+`.github/workflows/ci.yml`, `.github/workflows/delete-old-containers.yml`, and
+the image job and image paths in the shared GitHub files. Because the
+`agentdev-base` build mounts `py_packages/validate_agent_files/`,
+`.claude-plugin/`, and `.agents/plugins/`, setup SHALL make the consumer choose
+explicitly to retain that publisher source, to remove the validator and catalog
+steps from the build, or to derive from a published image. A path a customized
+build reads SHALL be added to the `.dockerignore` allow-list. A consumer that
+drops the bundle SHALL also remove the `ci` job from `primary-checks.yml` and
+the image and catalog paths from the shared path filter.
+
+### Scenario: a consumer keeps the bundle after deleting publisher source
+
+- **WHEN** a consumer keeps the custom-image bundle and has deleted the
+  publisher-only source
+- **THEN** setup asks which of the three directions to take, and does not assume
+  the retained build still succeeds
+
+## Requirement: catalog scripts act on the repository they run in
+
+A script under the catalog's `bin/` SHALL find its target repository from the
+working directory, through Git, and SHALL use its own location only to import
+its sibling modules, so it works unchanged from a consumer's installed plugin
+cache.
+
+### Scenario: a consumer runs a catalog script
+
+- **WHEN** a skill runs a catalog script from the consumer's checkout with the
+  catalog installed in the plugin cache
+- **THEN** the script acts on the consumer's repository, not on the plugin cache
+
+## Rationale
+
+### The guide owns the path inventory
+
+Adoption is a file-level copy or merge driven by `/agentdev:template-consume`,
+and update mode diffs the tracked paths from the recorded commit. The guide is
+the one place that classifies each path; this spec holds only the requirements
+that classification must satisfy, so a changed path edits the guide alone.
+
+Rejected:
+
+- **A second inventory in the knowledge base.** Two lists of the same paths
+  drift apart.
+
+### Knowledge data is never a template path
+
+`docs/knowledge/data/` holds the publisher's project memory in the publisher and
+the consumer's in a consumer: one path, two owners. A consumer's workspace comes
+from the `iwe-bootstrap` scaffold in the installed catalog, which initializes
+once and is never tracked.
+
+Rejected:
+
+- **Tracking `docs/knowledge/data/`.** Every difference is one owner's history,
+  and applying it in either direction destroys the other's memory.
+- **Seeding a consumer from the template checkout.** It needs the checkout and
+  starts the consumer from the publisher's memory.
+
+### Only full-image building is implemented
+
+The custom-image bundle is the source that publishes the agentdev image family.
+The publisher builds the full image from its own publisher source; stopping the
+catalog and validator steps, or deriving from a published image, is the
+consumer's own image work.
+
+Rejected:
+
+- **A generic derivative-image template.** The bundle would have to build
+  without the publisher source it reads, which only a consumer's own changes can
+  decide.
+
+### One catalog tree, installed rather than copied
+
+`.agents/plugins/agentdev/` is the catalog's single source: Claude Code reads it
+through `.claude-plugin/`, OpenCode through the bridge plugin, and a consumer
+runs it from the installed plugin without this repository.
+
+Rejected:
+
+- **A copy of the catalog per harness.** Two trees would have to be kept in
+  step.
+- **Scripts that find the repository from their own location.** In a consumer's
+  plugin cache that location is the cache, not the consumer's repository.
+
+### `validate_agent_files` ships on its own
+
+The validator is a separately released package with its own `pyproject.toml` and
+a test suite that needs no repository fixture. For a consumer it is
+publisher-only source: the image installs the validator as an isolated uv tool
+at `/usr/local/bin/validate_agent_files`.
+
+Rejected:
+
+- **One test suite shared with the plugin.** The released package would then
+  depend on this repository's fixtures.

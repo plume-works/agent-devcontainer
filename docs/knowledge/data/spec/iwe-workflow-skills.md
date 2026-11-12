@@ -1,6 +1,6 @@
 ---
 type: spec
-description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
+description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, Ship, and adversarial review skills, and the graph conventions they write by.
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -29,6 +29,13 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
+- resource: ansible/roles/dev_tools/defaults/main.yml
+- resource: .iwe/config.toml
+- resource: .iwe/schemas/hub.yaml
+- resource: .iwe/schemas/task.yaml
+- resource: docs/knowledge/tests/test_hub_order.py
+- resource: docs/knowledge/tests/test_rank_and_base_schemas.py
+- resource: .github/workflows/validate-knowledge-base.yml
 ---
 
 # IWE workflow skills
@@ -116,7 +123,8 @@ SHALL keep a created or revised plan coherent across context, approach, tasks,
 spec impact, dependencies, verification, out-of-scope boundaries, and current
 code anchors. Plan SHALL neither start Implement nor name it as a next step.
 When a decision was made as specific text, Plan SHALL reproduce that text
-verbatim in the task that applies it and SHALL never paraphrase it.
+verbatim in the task that applies it and SHALL never paraphrase it. Plan's entry
+skill `/agentdev:iwe-plan` SHALL be explicit-only on Claude Code and OpenCode.
 
 #### Scenario: A plan grows from a GitHub issue
 
@@ -166,6 +174,12 @@ verbatim in the task that applies it and SHALL never paraphrase it.
 - **THEN** Plan reproduces that text verbatim in a fenced block under the task,
   consulting `.tmp/approved-wording-<slug>.md` rather than writing it from
   memory, so a session holding only the plan can reproduce the approved bytes
+
+#### Scenario: The model tries to start Plan
+
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-plan` without a
+  user request
+- **THEN** the harness withholds it
 
 ### Requirement: Plans express spec impact at risk-appropriate fidelity
 
@@ -482,19 +496,21 @@ may also dispatch the two agents `/agentdev:iwe-plan-review` names.
 ### Requirement: Implement revises its plan only after an independent evaluation
 
 The Plan rulebook SHALL be defined once, as the catalog agent `iwe-planner`,
-which `/agentdev:iwe-plan` follows in place. The Implement session SHALL revise
-a plan only by drafting the revision under the `iwe-planner` revise rules,
-including its fresh-context audit and validation, changing only lines that
-answer the quoted finding, leaving it uncommitted, and dispatching
-`iwe-revision-evaluator` with a prompt carrying only the plan key and the
-finding the revision answers, quoted as reported. It SHALL commit the revision
-only on the evaluator's `APPROVE`. On `REJECT` or `ESCALATE` it SHALL restore
-the plan from `HEAD` and stop with a report. The evaluator SHALL judge the
-uncommitted diff against the plan at `HEAD`, SHALL never approve a revision that
-drops, narrows, defers, or accepts an exception to specified behavior, changes
-`release`, or changes text the user approved, and SHALL reject a revision with a
-hunk that answers no quoted finding or that adds or sharpens a claim the code
-must newly meet.
+which `/agentdev:iwe-plan` follows in place. The Implement session SHALL follow
+`iwe-planner` in its revise mode only, and SHALL revise a plan only by first
+committing any pending edit to the plan file in a commit of its own, then
+drafting the revision under the `iwe-planner` revise rules, including its
+fresh-context audit and validation, changing only lines that answer the quoted
+finding, leaving it uncommitted, and dispatching `iwe-revision-evaluator` with a
+prompt carrying only the plan key and the finding the revision answers, quoted
+as reported. It SHALL commit the revision only on the evaluator's `APPROVE`. On
+`REJECT` or `ESCALATE` it SHALL restore the plan from `HEAD` and stop with a
+report. The evaluator SHALL judge the uncommitted diff against the plan at
+`HEAD`, SHALL edit, restore, and commit nothing, SHALL never approve a revision
+that drops, narrows, defers, or accepts an exception to specified behavior,
+changes `release`, or changes text the user approved, and SHALL reject a
+revision with a hunk that answers no quoted finding or that adds or sharpens a
+claim the code must newly meet.
 
 #### Scenario: The evaluator approves an added task
 
@@ -533,6 +549,14 @@ must newly meet.
 - **WHEN** the Implement session dispatches `iwe-revision-evaluator`
 - **THEN** the prompt holds the plan key and the quoted finding and nothing else
   from the conversation
+
+#### Scenario: A plan edit is pending when a revision starts
+
+- **WHEN** the plan file carries an uncommitted tactical correction, such as a
+  refreshed anchor, and a finding takes the revision route
+- **THEN** the Implement session commits that edit on its own before drafting,
+  so the evaluator's diff holds only the revision and a restore from `HEAD`
+  keeps the correction
 
 ### Requirement: Plans record intent, not the path taken to it
 
@@ -594,18 +618,22 @@ the plan key or audit mode and the approvals quoted verbatim, whether the user's
 session or `iwe-shipper` invokes it. Verify SHALL run a verification command
 whose effects reach beyond the working tree only under a quoted approval that
 names it, and otherwise SHALL stop before it and report the approval it needs.
+`/agentdev:iwe-verify` SHALL be model-invocable on Claude Code and OpenCode.
+Report-only is a rule of the `iwe-verifier` rulebook, not a tool boundary: the
+agent holds the `Write` tool.
 
 `/agentdev:iwe-verify` SHALL refuse to run on a dirty worktree, SHALL save each
 report whose verdict is `Ready to ship`, `Blocked`, or `Audit` as the one saved
-report for its plan or for audit mode, keyed by the commit it ran on and the
-digest of the active agentdev catalog, and SHALL never save a `Needs decision`
-report. It SHALL return the saved report, marked as saved and without running
-any check or verification command, when that report's commit is `HEAD` and its
-catalog digest is the active catalog's, unless the user's request carries
-`--fresh`. The saved report SHALL record the request `/agentdev:iwe-verify` was
-invoked with and the prompt `iwe-verifier` was dispatched with, and neither
-SHALL be part of the key. A verification command that leaves the worktree dirty
-SHALL be a CRITICAL finding.
+report for its plan or for audit mode under `.tmp/verify/`, keyed by the commit
+it ran on and a digest of every file, as on disk, of the agentdev catalog the
+skill runs from, and SHALL never save a `Needs decision` report. Only the
+skill's bundled `verify-cache.py` SHALL write a saved report. It SHALL return
+the saved report, marked as saved and without running any check or verification
+command, when that report's commit is `HEAD` and its catalog digest is the
+active catalog's, unless the user's request carries `--fresh`. The saved report
+SHALL record the request `/agentdev:iwe-verify` was invoked with and the prompt
+`iwe-verifier` was dispatched with, and neither SHALL be part of the key. A
+verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
 
 #### Scenario: Verification reports no critical findings
 
@@ -667,6 +695,19 @@ SHALL be a CRITICAL finding.
 
 - **WHEN** `HEAD` or the active catalog digest differs from the saved report's
 - **THEN** Verify runs in full and its report replaces the saved one
+
+#### Scenario: The loaded catalog differs from the commit's
+
+- **WHEN** the session runs an installed agentdev catalog whose files differ
+  from the catalog the commit holds, and a report was saved on that commit under
+  the commit's catalog
+- **THEN** the digests differ and Verify runs in full
+
+#### Scenario: The Implement session invokes Verify
+
+- **WHEN** the Implement session loads `/agentdev:iwe-verify` without the user
+  typing it
+- **THEN** the harness lets the skill load
 
 #### Scenario: The worktree is dirty
 
@@ -787,8 +828,15 @@ The adversarial review SHALL be defined once, as the catalog agent
 from a fresh context with a prompt carrying only the plan key, the target
 (`plan` or `code`), and the user's approvals quoted verbatim. The agent SHALL
 edit nothing and dispatch no agent, and every finding against code SHALL name
-the plan claim it defeats, or none. The review SHALL run only on a person's
-request or a plan task that runs it; Plan SHALL never invoke it. In the
+the plan claim it defeats, or none. On the `plan` target the agent SHALL look
+for claims the design cannot keep, scenarios the plan misses, and limits a
+promise does not state; on the `code` target, for inputs, states, orderings, or
+actors under which the code does what the plan's claims rule out or fails to do
+what they promise. The review SHALL run only on a person's request or a plan
+task that runs it; Plan SHALL never invoke it, and SHALL add at most one such
+task, closing or near-closing, targeting `code`. The skill SHALL be
+model-invocable, so the Implement session can run that task. The Implement
+session SHALL run it once per plan, after committing every earlier task. In the
 Implement loop, a finding that defeats a plan claim SHALL take the code route,
 and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 
@@ -804,6 +852,13 @@ and any other finding SHALL be filed through `/agentdev:iwe-capture`.
 
 - **WHEN** the user runs `/agentdev:iwe-adversarial-review <plan> plan`
 - **THEN** the agent reports the plan's weaknesses and changes nothing
+
+#### Scenario: A plan's claims are worth attacking
+
+- **WHEN** Plan writes a plan whose claims guard a trust boundary or an
+  integrity check
+- **THEN** the plan may carry one closing or near-closing task that runs
+  `/agentdev:iwe-adversarial-review <plan> code`, and no second one
 
 #### Scenario: Planning does not start the review
 
@@ -902,16 +957,20 @@ explicit-only on Claude Code and OpenCode. Implement's entry skill SHALL be
 model-invocable on both, so a session asked to implement a named plan may load
 it; a request in another session's message SHALL be handled as a plain request.
 Only those skills and Plan revise mode answering a Ship blocker report SHALL
-start the workflows. Ship SHALL always run as a dispatched `iwe-shipper` whose
-prompt carries only the plan key, the operation, and the user's approvals quoted
-verbatim, so its verification rests on the code and the graph alone.
-`iwe-implementer` SHALL never be dispatched: Implement SHALL run in the session
-that loaded its entry skill and SHALL take every decision from that session's
-own user, and an approval that another session's message claims the user gave
-SHALL not count as one. A dispatched `iwe-shipper` SHALL stop and report at any
-point that needs a user decision it was not given. Nothing authenticates who
-typed a message in the session's own conversation; this requirement governs only
-approvals that another session's message claims.
+start the workflows. Every `iwe-*` catalog agent's description SHALL name the
+skills that dispatch or follow it and SHALL state that it is never started on a
+description match. The catalog SHALL carry no skill that implements or ships
+more than one plan per request, and no rule that lets one session hand another
+an approval or a step of a workflow. Ship SHALL always run as a dispatched
+`iwe-shipper` whose prompt carries only the plan key, the operation, and the
+user's approvals quoted verbatim, so its verification rests on the code and the
+graph alone. `iwe-implementer` SHALL never be dispatched: Implement SHALL run in
+the session that loaded its entry skill and SHALL take every decision from that
+session's own user, and an approval that another session's message claims the
+user gave SHALL not count as one. A dispatched `iwe-shipper` SHALL stop and
+report at any point that needs a user decision it was not given. Nothing
+authenticates who typed a message in the session's own conversation; this
+requirement governs only approvals that another session's message claims.
 
 #### Scenario: The user ships a plan directly
 
@@ -966,6 +1025,12 @@ approvals that another session's message claims.
 - **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` without a
   user request
 - **THEN** the harness withholds it.
+
+#### Scenario: The user asks to ship every finished plan
+
+- **WHEN** the user asks for every finished plan to be shipped
+- **THEN** no catalog skill takes them in turn; each plan is shipped by its own
+  `/agentdev:iwe-ship` request.
 
 ### Requirement: Every ship is reviewed against Ship's obligations
 
@@ -1083,6 +1148,68 @@ allowing additional sections. The bug schema SHALL require a `stage` of
 - **WHEN** a bug document has neither a Potential solution nor a Fix section
 - **THEN** `iwe schema validate` accepts it
 
+### Requirement: Agents reach the graph through the iwe CLI
+
+Every IWE skill and agent in the catalog SHALL read and write the knowledge
+graph through `iwe` commands run from the repository root, and SHALL not assume
+`mcp__iwe__*` tools exist. The repository SHALL register no IWE MCP server, and
+the `dev_tools` role SHALL install `iwe` and `iwes` from the IWE release tarball
+and not `iwec`.
+
+#### Scenario: A skill needs a graph operation
+
+- **WHEN** a catalog skill or agent queries, renames, or validates graph
+  documents
+- **THEN** it runs the `iwe` CLI from the repository root
+
+#### Scenario: The image installs IWE
+
+- **WHEN** the `dev_tools` role installs the IWE release
+- **THEN** `iwe` and `iwes` are installed and `iwec` is not
+
+### Requirement: Work-item state and order live in each item's frontmatter
+
+A plan's, bug's, or backlog task's `stage`, `priority`, `completed`, and `rank`
+SHALL live only in its own frontmatter. Active plans, open bugs, and pending
+tasks SHALL share one build order: an optional `rank` that the plan, bug, and
+task schemas require to be a positive integer, lower first, read by
+`iwe find --filter '{rank: {$exists: true}}' --sort rank:1`, with unsequenced
+work a separate query on `rank: {$exists: false}`. Plan SHALL set a new plan's
+`rank` to the midpoint of its neighbours' and edit no other document's `rank`;
+whoever closes an item SHALL remove its `rank`. Equal ranks SHALL be valid, and
+the knowledge-base workflow SHALL warn about them without failing. Every hub
+`[schemas.hub]` binds SHALL be one flat list of inclusion links, with no `##`
+sections, sorted by member key with any `YYYYMMDD-` prefix removed, and SHALL be
+edited only when a member is created, archived, or renamed.
+
+#### Scenario: A rank is not a positive integer
+
+- **WHEN** a plan, bug, or task carries a `rank` of zero, a negative number, or
+  a non-integer
+- **THEN** `iwe schema validate` fails and names the document
+
+#### Scenario: Two items share a rank
+
+- **WHEN** two ranked items carry the same `rank`
+- **THEN** the knowledge-base workflow emits a warning naming both keys and
+  passes
+
+#### Scenario: A hub link is out of order
+
+- **WHEN** a hub lists a member whose key, without its date prefix, sorts before
+  the member above it
+- **THEN** `docs/knowledge/tests/test_hub_order.py` fails and names that link
+
+#### Scenario: A hub gains a section
+
+- **WHEN** a hub carries a `##` heading
+- **THEN** `iwe schema validate` fails and names the hub
+
+#### Scenario: A work item changes stage
+
+- **WHEN** a plan, bug, or task moves to another stage while staying live
+- **THEN** only that item's own document changes, and no hub is edited
+
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
@@ -1116,3 +1243,220 @@ that sets any of them.
 - **WHEN** `data/index.md` or `data/log.md` departs from the shape its OKF
   schema defines
 - **THEN** `iwe schema validate` fails and names the file
+
+## Rationale
+
+### Workflow rulebooks live in catalog agents
+
+The Plan, Implement, Verify, and Ship rulebooks are the catalog agents
+`iwe-planner`, `iwe-implementer`, `iwe-verifier`, and `iwe-shipper`; the skills
+that start them carry no rules of their own. A gated skill cannot carry a
+rulebook another context needs: Claude Code refuses a gated skill to the Skill
+tool in every context, subagents included, and withholds it from an agent's
+`skills:` preload, so the rulebook has to sit where an ungated route reaches it.
+
+Rejected:
+
+- **Preload the gated skill into the agent.** Claude Code withholds a gated
+  skill from an agent's `skills:` preload, so the agent starts without its
+  rulebook.
+- **Keep the rulebook in the gated skill and have a subagent read its file.**
+  The read succeeds, but the Skill tool's refusal tells the model not to
+  replicate the workflow by other means, so a model may rightly refuse, and one
+  that complies has bypassed the gate.
+- **Workers follow the rulebook file without loading the skill.** A worker that
+  tried the gated skill first has seen that refusal, so the route depends on
+  nobody ever mentioning the skill.
+- **Keep the Verify rulebook in the skill behind a thin agent**, as the Durable
+  Knowledge Auditor does with `iwe-audit`. The skill would be both the rulebook
+  and the entry point that must dispatch, so a session loading it already holds
+  the rules it would run inline.
+
+### Ship is gated; Implement and Verify are model-invocable
+
+Ship's entry skill is explicit-only, because a stray Ship run reaches the
+remote. Plan's is explicit-only too. Implement's is model-invocable: it needs a
+named active plan whose dependencies are done and asks when the plan is
+ambiguous, so a stray match has nothing to build, and Plan and Explore — the
+sessions where a stray start could happen — never name it. Verify mutates
+nothing and the Implement loop invokes it, so a gate would protect nothing and
+block that loop. The adversarial review skill is model-invocable for the same
+reason: the Implement loop runs its planned task.
+
+Rejected:
+
+- **Drop the gate and rely on descriptions, for Ship.** An ungated skill is
+  listed to the model with its description on every harness, so a description
+  match can start Ship from Explore — for example after a partial answer closes
+  a plan's open question.
+- **A self-checking skill or a harness hook as the gate.** A skill that checks
+  who invoked it is a prompt-level check a model can argue past. A `PreToolUse`
+  hook's input names the tool call, not the skill or request behind it, so it
+  cannot tell a requested dispatch from a stray one without parsing the
+  transcript, and it needs one implementation per harness.
+- **A separate model-invocable Implement entry skill that runs only on a
+  coordinator's request.** Its description is still listed to the model, and the
+  coordinator check is the same prompt-level self-check.
+- **Make `/agentdev:iwe-verify` or `/agentdev:iwe-adversarial-review`
+  explicit-only.** Either would block the Implement loop and protect nothing,
+  since both are report-only.
+
+### Ship and Verify run from a conversation-free prompt; Implement runs in place
+
+Ship and Verify verdicts must rest on the code and the graph, never on what a
+conversation asserted, so both always run as dispatched agents whose prompt
+carries only the plan key, the operation or mode, and approvals quoted verbatim.
+An approval they need comes back in the report and the user re-runs the skill.
+Implement must ask the user about ambiguity and material deviations, so it runs
+in the session that loaded it and is never dispatched; nothing authenticates a
+sender, so an approval another session's message claims is not one. Every caller
+of Verify, `iwe-shipper` included, goes through `/agentdev:iwe-verify`, so only
+the report enters the Shipper's context ahead of its graph changes.
+
+Rejected:
+
+- **Have `iwe-shipper` follow the `iwe-verifier` rulebook in place.** It puts
+  the whole Verify run in the Shipper's context ahead of its graph changes.
+- **Have `/agentdev:iwe-ship` dispatch `iwe-verifier` before the Shipper.**
+  Every other route that dispatches the Shipper, such as Plan answering a Ship
+  blocker report, would need the same step.
+- **Coordinator skills that implement or ship every plan in turn.** A
+  coordinator needs a dispatched Implementer that stops at every decision and a
+  route for relaying the user's answers to it, and a relayed approval is a claim
+  nothing authenticates. A plan is implemented and shipped one request at a
+  time.
+
+### A saved Verify report is reused by commit and catalog digest
+
+Verify refuses a dirty worktree, so a commit fully names what was judged; the
+Implement loop's verdict is reused by the Shipper on the same commit instead of
+repeating its test runs. The catalog digest hashes the files on disk, because an
+installed plugin is not a Git checkout and a session can load a catalog that
+differs from the one the commit holds. The lookup and save live in a script
+bundled with the skill, the one place every caller reaches on every harness.
+
+Rejected:
+
+- **Look up the saved report in the `iwe-verifier` rulebook.** A hit would still
+  cost a dispatch.
+- **A handoff file the Implement side commits for the Shipper.** Committing it
+  changes the commit it fingerprints, and committing project state contradicts
+  report-only Verify.
+- **Key the report by a tree hash or by blob hashes of the plan's files.**
+  Verify and Ship run on one commit, so the commit is exact; hashes scoped to
+  the plan's files miss changes outside that scope that a verification command
+  can still depend on.
+
+### The Implement loop runs in the Implement session with leaf agents
+
+The verify, fix, and revise loop is written once, in the `iwe-implementer`
+rulebook, and runs in the Implement session; `iwe-verifier`,
+`iwe-revision-evaluator`, and `iwe-adversarial-reviewer` dispatch nothing, so
+the loop needs no nested dispatch. Issue closing is reachable only from Plan's
+create mode, so its script stays bundled with `/agentdev:iwe-plan` while the
+Implement session follows `iwe-planner` in revise mode only.
+
+Rejected:
+
+- **Run the loop inside a dispatched `iwe-implementer`.** It would need nested
+  dispatch, and `iwe-implementer` is never dispatched.
+
+### A plan revision is drafted, audited, evaluated, then committed
+
+A fresh-context `iwe-revision-evaluator` judges the final, audited text of a
+revision against the plan at `HEAD` and returns a fixed verdict, so the
+Implement session can continue past a finding without the user only when every
+specified behaviour survives.
+
+Rejected:
+
+- **Let `iwe-verifier` judge the revision.** Verify checks code against the
+  plan; whether a new plan still serves the old one's outcome is a different
+  question with its own rubric.
+- **Reuse the Principal Engineer agent as the evaluator.** It is advisory and
+  can dispatch agents; the gate needs a leaf that returns a fixed verdict.
+- **Evaluate before the audit.** The audit may rewrite the text, so the
+  evaluator would approve bytes that never land.
+
+### The loop acts only on what the plan promised
+
+Verify is a conformance check, so the Implement loop converges once the code
+meets the plan's contract, and the run is bounded by recurrence, three rounds,
+and one approved revision. CI belongs to `pr-merge`, which gates every merge on
+it. Ship, not Verify, refuses while a `**Closed by:**` task is unticked, so
+Verify's saved report is the same for both callers.
+
+Rejected:
+
+- **Verify treats an observation as CRITICAL only when Ship calls it.** The
+  saved report would differ by caller, and Ship reuses the loop's report.
+- **Delta-scoped Verify rounds.** They treat the symptom; restricting findings
+  to the plan's contract and leaving CI to the merge gate remove its causes, CI
+  timing and unbounded probing.
+
+### Adversarial review is its own agent, outside Verify
+
+Looking for ways to defeat a design or its code asks a different question from
+conformance, with its own rubric, and its findings have no fixed end. It lives
+in the report-only leaf `iwe-adversarial-reviewer`, run from a fresh context
+only when asked, and a `code` finding names the claim it defeats so the caller
+can tell a broken promise from a weakness the plan never claimed to cover.
+
+Rejected:
+
+- **Extend the Durable Knowledge Auditor.** It would hold two unrelated rubrics:
+  durable text and design attacks.
+- **Run it inside every Verify round.** Findings outside the plan's contract
+  would keep the loop from converging.
+
+### Agents use the iwe CLI, not an IWE MCP server
+
+Every IWE skill and agent drives the graph through `iwe` commands, so the MCP
+tools duplicated an interface nothing used. A registered server also adds its
+prompts (`explore`, `review`, `refactor`) to every client's slash-command menu;
+they ignore this repository's schemas and conventions and collide with the
+catalog's own IWE skill names. `iwes`, the LSP server behind the IWE editor
+extension, is unaffected.
+
+Rejected:
+
+- **Keep the server behind a filter that strips its prompts.** That keeps the
+  tools nobody calls, and the filter becomes a wrapper to maintain.
+- **Disable it per user with `disabledMcpjsonServers`.** Every workspace and
+  every template consumer would need to opt out separately, and the default
+  would stay wrong.
+- **Keep installing `iwec`.** With nothing registering it, the binary is dead
+  weight in the image.
+
+### Work-item state, order, and hubs are laid out to avoid merge conflicts
+
+Parallel pull requests each write project state, and a spot every pull request
+edits turns parallel work into conflicts, each costing a catch-up merge, a full
+CI run, and often a fresh AI review. So a state change edits only the item's own
+file, the build order is a `rank` query rather than a file, and hubs are flat
+lists sorted by key, where two pull requests conflict only when their new
+members sort next to each other. GitHub decides mergeability without
+`.gitattributes` merge drivers, and Git merges two insertions cleanly only when
+an unchanged line separates them, so conflict reduction has to come from the
+layout, not from merge tooling. Hubs stay as browsable lists and as the tree the
+IWE editor views show; queries select documents by `type` and frontmatter, not
+by hub membership.
+
+Rejected:
+
+- **`merge=union` on hubs.** GitHub ignores it, so it saves only a local
+  resolution; it also keeps a moved link in both places, resurrects a deleted
+  link, and can duplicate a heading both sides add.
+- **A custom merge driver.** The same GitHub limitation, and every clone would
+  need the driver registered in its Git configuration.
+- **A merge queue.** `main` does not require branches to be up to date, so no
+  catch-up merge is caused by staleness; a queue cannot enqueue a conflicting
+  pull request and adds a CI run per queued pull request.
+- **Stage sections in hubs, sorted alphabetically.** Short sections and priority
+  buckets keep conflicting, and every ship still moves a link between sections.
+- **A roadmap file listing the sequence.** Work ships from the head of the
+  sequence, so parallel ships always edit adjacent lines.
+- **Dependencies (`after: [keys]`) as the order.** A dependency set is a partial
+  order and leaves independent work unordered.
+- **Hubs generated from frontmatter, not committed.** It drops the browsable
+  list and the editor tree and adds a generator to maintain.

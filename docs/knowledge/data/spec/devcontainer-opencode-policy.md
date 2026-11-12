@@ -14,9 +14,7 @@ sources:
 ## Purpose
 
 Defines the OpenCode action and filesystem permission policy inside the
-devcontainer, which is itself the isolation boundary. Decision and constraints:
-[OpenCode full access in the
-devcontainer](../architecture/opencode-full-access-in-devcontainer.md).
+devcontainer, which is itself the isolation boundary.
 
 ## Requirements
 
@@ -28,8 +26,13 @@ On every container start, `agentdev-runtime lifecycle ready` SHALL, through
 `permission.external_directory["/**"]` to `"allow"`, and
 `experimental.subagent_depth` to `5` in the OpenCode `opencode.json` resolved
 from `OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`, or the user's default config
-directory. The config directory SHALL have mode `0700` and the file SHALL have
-mode `0600`.
+directory. It SHALL patch `opencode.jsonc` when that file exists and
+`opencode.json` otherwise, SHALL parse either as JSONC and reject duplicate
+keys, and SHALL write the result as strict JSON, replacing the file atomically
+through a temporary file in the same directory. The config directory SHALL have
+mode `0700` and the file SHALL have mode `0600`. The step SHALL run after the
+supervised services are ready and after the git credential helper setup, so a
+failure fails the start hook without keeping those services from starting.
 
 #### Scenario: a container starts with no OpenCode config
 
@@ -55,6 +58,17 @@ mode `0600`.
 - **WHEN** any managed value holds a different value
 - **THEN** the next container start restores the approved value.
 
+#### Scenario: the config repeats a key
+
+- **WHEN** the selected config declares the same key twice
+- **THEN** the configure step fails and leaves the file unchanged.
+
+#### Scenario: a JSONC config carries comments
+
+- **WHEN** the configure step patches an `opencode.jsonc` that holds comments
+- **THEN** the setting values survive and the file is rewritten as strict JSON
+  without the comments.
+
 #### Scenario: the config is malformed
 
 - **WHEN** the existing `opencode.json` is not valid JSON
@@ -70,3 +84,26 @@ depending on the consumer workspace's Python project or installed packages.
 
 - **WHEN** the devcontainer starts for a repository without `pyproject.toml`
 - **THEN** the OpenCode policy is still configured.
+
+## Rationale
+
+### OpenCode runs with full access, patched into its own config on every start
+
+The devcontainer is the isolation boundary, so OpenCode runs inside it without
+action or external-directory prompts. The policy is merged into the user's
+config on every start, replacing only the managed values, and is parsed with a
+pinned `json5` that `agentdev_runtime` carries itself, so template consumers add
+no Python dependency. Normalizing JSONC to strict JSON keeps every setting value
+and gives up comments and formatting.
+
+Rejected:
+
+- **Replacing the whole config with the managed object.** It would remove the
+  catalog bridge and the user's own settings.
+- **Patching only `opencode.json`.** An existing `opencode.jsonc` takes
+  precedence and could override the policy.
+- **Parsing JSONC or editing its text locally.** Comments, trailing commas,
+  strings, and duplicate keys need a maintained parser.
+- **Folding the policy into catalog reinstallation.** Catalog registration runs
+  on create and attach and only when a bridge plugin exists, while the policy
+  must be restored on every start.

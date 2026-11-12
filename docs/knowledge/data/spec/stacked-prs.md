@@ -129,18 +129,21 @@ SHALL find the chain by walking each pull request's base to the open pull
 request whose head is that branch, down to a base of `main`, and SHALL stop when
 a pull request's last `## Depends on` entry is not the pull request below it, or
 when a pull request in the chain or an open predecessor has its head in a fork.
-For a branch it SHALL read the dependencies from its `Depends-on:` trailers. It
-SHALL work in one fresh detached worktree under `./.tmp/` built from remote
-refs, and SHALL NOT check out, create, or move a local branch. Bottom-up, for
-each pull request it SHALL act only on the nearest predecessor P: when P is
-open, merge P's head branch; when P is merged and P's merge commit is already in
-the branch, do nothing; when P is merged otherwise, take HEAD as P's
-`headRefOid` and MERGE as P's `mergeCommit.oid`, require `refs/pull/<P>/head` to
-equal HEAD, merge MERGE into a detached copy of HEAD, and merge that copy into
-the branch; when P is closed unmerged, stop. It SHALL push without force and,
-after the push lands, replace the `- #<P>` entry with
-`- #<P> — merged as <MERGE> (head <HEAD>), reconnected`. It SHALL NOT merge
-`main` and SHALL stop on a merge conflict, printing the worktree path.
+For a branch it SHALL read the dependencies from its own `Depends-on:` trailers:
+those on commits not reachable from any named predecessor's final head, so a
+trailer inherited through a predecessor's branch is not counted. It SHALL work
+in one fresh detached worktree under `./.tmp/` built from remote refs, and SHALL
+NOT check out, create, or move a local branch. Bottom-up, for each pull request
+it SHALL act only on the nearest predecessor P: when P is open, merge P's head
+branch; when P is merged and P's merge commit is already in the branch, do
+nothing; when P is merged otherwise, take HEAD as P's `headRefOid` and MERGE as
+P's `mergeCommit.oid`, require `refs/pull/<P>/head` to equal HEAD, merge MERGE
+into a detached copy of HEAD, and merge that copy into the branch; when P is
+closed unmerged, stop. It SHALL push without force and, after the push lands,
+replace the `- #<P>` entry with
+`- #<P> — merged as <MERGE> (head <HEAD>), reconnected`, keeping every other
+byte of the body. It SHALL NOT merge `main` and SHALL stop on a merge conflict,
+printing the worktree path.
 
 #### Scenario: Predecessor open
 
@@ -172,6 +175,12 @@ after the push lands, replace the `- #<P>` entry with
 - **WHEN** pr-restack-all runs on a branch whose trailers name one merged and
   one open pull request
 - **THEN** the merged one is reconnected and the branch is pushed
+
+#### Scenario: Trailer inherited from a predecessor
+
+- **WHEN** pr-restack-all runs on a branch cut from P's branch, which itself
+  carries a `Depends-on: #<O>` trailer
+- **THEN** only P is treated as the branch's dependency
 
 #### Scenario: Local branches
 
@@ -221,3 +230,41 @@ bypass actors, and no workflow SHALL report that check.
 
 - **WHEN** a user with Write access pushes to an `iwe/` branch
 - **THEN** the push is accepted
+
+## Rationale
+
+### Dependent work is stacked with merges only
+
+Work that depends on an open pull request is an ordinary pull request based on
+its predecessor's branch, so its diff is its own work only, and no branch is
+ever rewritten: every update is a merge and every push is a plain push. After a
+squash merge the successor still holds the predecessor's original commits, so it
+is reconnected by merging the squash commit into a detached copy of the
+predecessor's final head and merging that copy in; the copy carries `main`
+exactly up to the squash commit, and catching up with later `main` stays a
+separate update-branch run. The reconnect is a normal `git merge`, so git
+reports a conflict instead of hiding one. One restack from one detached worktree
+built from remote refs moves no local branch, so another session whose branch it
+advanced sees an ordinary non-fast-forward rejection and merges.
+
+Merges into `iwe/` branches are blocked by a ruleset requiring a status check
+nothing reports, with repository roles as bypass actors. A ruleset bypass list
+accepts only repository roles and GitHub Apps owned by the repository or its
+organization, not the built-in GitHub Actions app that `GITHUB_TOKEN` acts as,
+so a workflow pushing to an `iwe/` branch must push as an owned App the ruleset
+exempts.
+
+Rejected:
+
+- **GitHub native stacks driven by `gh stack`.** GitHub rebases every remaining
+  layer on the server after a lower layer merges, and `gh stack rebase` rewrites
+  them again locally before a force-push; a lease protects remote-only commits,
+  not the consumers of a rewritten branch, and every local copy goes stale.
+- **Every pull request targets `main`.** Its diff includes every predecessor
+  until they merge.
+- **Resolving the reconnect merge with `-s ours`.** Correct by construction but
+  silent; a normal merge lets git report a conflict.
+- **Owners restacking their own pull requests, or a coordinator pausing its
+  sessions.** More coordination than one restack from a detached worktree.
+- **A required `base-is-main` check without bypass.** It also rejects the
+  owners' own pushes and branch creation.

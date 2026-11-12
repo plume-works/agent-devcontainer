@@ -20,6 +20,7 @@ sources:
 - resource: https://code.claude.com/docs/en/errors#login-expired
 - resource: https://code.claude.com/docs/en/authentication
 - resource: https://code.claude.com/docs/en/remote-control
+- resource: https://code.claude.com/docs/en/hooks
 - resource: https://code.claude.com/docs/en/worktrees
 - resource: https://github.com/anthropics/claude-code/issues/21765
 - resource: https://github.com/anthropics/claude-code/issues/88583
@@ -30,12 +31,11 @@ sources:
 # Claude Remote Control
 
 Claude credentials come only from a `/login` inside a container, persisted in
-the shared `agentdev-agents-auth` volume ([Agent auth
-persistence](../architecture/agent-auth-persistence.md)). On top of that login,
-a Coder workspace starts Claude Remote Control unattended under the Coder agent,
-the standalone `agentdev-deploy` runtime starts it when
-`AGENTDEV_CLAUDE_RC_MODE` opts in, and every devcontainer answers Claude's
-first-run prompts ahead of time.
+the shared `agentdev-agents-auth` volume ([Devcontainer
+state](devcontainer-state.md)). On top of that login, a Coder workspace starts
+Claude Remote Control unattended under the Coder agent, the standalone
+`agentdev-deploy` runtime starts it when `AGENTDEV_CLAUDE_RC_MODE` opts in, and
+every devcontainer answers Claude's first-run prompts ahead of time.
 
 ## Requirements
 
@@ -472,3 +472,85 @@ client persists empty token fields and `expiresAt: 0`.
 The cleared credential document is still a non-empty file, so a healthy JSON
 parse and mode `0600` prove storage integrity, not authentication health. Run
 `/login` again to recover.
+
+## Rationale
+
+### Session mode resumes one pinned conversation per volume
+
+The pane resumes the conversation whose ID is stored on the `agentdev-claude`
+volume, and falls back to a new pinned conversation on any non-zero resume exit.
+Claude Code's transcript records the claude.ai session a conversation is bound
+to, so resuming the conversation reattaches the same session URL, and Claude
+Code mints a fresh remote session itself when the recorded one is gone or
+belongs to another account. A resume whose transcript is gone exits non-zero,
+which is the case the fallback covers; its cost is that a crash of a resumed
+session also starts a fresh conversation. The pin hook reaches the pane alone
+through `claude --settings`, and `/clear` moves the binding to the new
+conversation, which is why the hook rewrites the stored ID on every
+`SessionStart`. One stored ID per volume suffices because each devcontainer
+instance has one workspace folder.
+
+Rejected:
+
+- **Checking for the transcript file before resuming.** It depends on Claude
+  Code's undocumented transcript layout.
+- **`claude --continue`.** It exits non-zero in a directory with no
+  conversation, and otherwise takes the newest conversation in the directory,
+  which can be an operator's terminal session.
+- **A post-start health check for Remote Control.** No documented interface
+  reports that a running session has Remote Control off; a check would read
+  Claude Code's debug log or transcript, which can change without notice.
+- **A pin hook in the repository's `.claude/settings.json`, gated on a variable
+  the pane exports.** Every Claude session in the repository would run it.
+- **Pinning the newest transcript at boot.** It depends on the undocumented
+  transcript layout and can select an operator's terminal session.
+
+### Server mode is an opt-in next to the pinned pane
+
+`AGENTDEV_CLAUDE_RC_MODE=server` opts into `claude remote-control`; session mode
+stays the default because the server resumes sessions only for about four hours
+after it stops, which an overnight workspace stop exceeds, while the pinned pane
+keeps its conversation indefinitely. The server refuses `--settings`, so it
+cannot carry the pin hook, and without `--spawn` it stops at an interactive
+spawn-mode prompt, so the start always passes `--spawn`. The maintainer made
+`worktree` the default spawn mode, independently of how a worktree session
+revives, and chose a failed startup for an unrecognized mode or spawn value, so
+a typo is reported rather than silently running another mode.
+
+Rejected:
+
+- **Replacing the pinned pane with the server.** The four-hour resume window
+  loses the conversation across an overnight stop.
+- **Running a server next to the pinned pane.** It doubles the Remote Control
+  entries and the processes that refresh the login, before it is known whether
+  concurrent processes race the OAuth refresh token.
+- **Folding the spawn mode into `AGENTDEV_CLAUDE_RC_MODE`** (for example
+  `server-same-dir`). It merges two independent choices into one value list that
+  grows with every spawn mode.
+- **A pass-through argument variable.** It would accept `--continue` or
+  `--settings`, which server mode refuses and which end the pane.
+- **Offering `--spawn session`.** Its name collides with
+  `AGENTDEV_CLAUDE_RC_MODE=session`, and it serves one session and exits when
+  that ends, which ends the pane.
+- **Falling back to session mode on an unrecognized value.** A mistyped mode
+  would silently run the other mode.
+
+### Server mode starts without `--continue`
+
+A restarted server already reattaches the session it pre-created, and the
+sessions it spawned on demand return through the claude.ai service's dispatch,
+so server mode starts without `--continue`.
+
+Rejected:
+
+- **Starting the server with `--continue`.** Claude Code refuses it alongside
+  `--spawn`, which ends the pane, and on its own it runs a single session that
+  spawns nothing and leaves the spawned sessions disconnected.
+
+### A spawn-mode switch is not worked around
+
+A server revives every earlier session in its own current spawn mode, so after a
+switch from `worktree` to `same-dir` the former worktree sessions work in the
+workspace folder, and their worktrees and branches stay on disk unused. The
+maintainer accepted this as a limit of switching the spawn mode, because the
+spawn mode is not switched in production.

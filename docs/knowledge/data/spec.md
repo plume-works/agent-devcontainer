@@ -23,7 +23,13 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Catalog lifecycle](spec/catalog-lifecycle.md)
 
+[Catalog scripts](spec/catalog-scripts.md)
+
+[CI workflows](spec/ci-workflows.md)
+
 [Claude Remote Control](spec/claude-remote-control.md)
+
+[Cloud session host](spec/cloud-session-host.md)
 
 [Coder IDE baseline contract](spec/coder-ide-baseline.md)
 
@@ -34,6 +40,8 @@ whenever a plan ships, so this section never drifts from the code.*
 [Devcontainer Git credentials](spec/devcontainer-git-credentials.md)
 
 [Devcontainer OpenCode policy](spec/devcontainer-opencode-policy.md)
+
+[Dev Container state](spec/devcontainer-state.md)
 
 [Firewall](spec/firewall.md)
 
@@ -61,6 +69,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Playwright browser](spec/playwright-browser.md)
 
+[PR description](spec/pr-description.md)
+
 [PR merge conflicts](spec/pr-merge-conflicts.md)
 
 [pre-commit gate](spec/pre-commit-gate.md)
@@ -70,6 +80,8 @@ whenever a plan ships, so this section never drifts from the code.*
 [Stacked PRs](spec/stacked-prs.md)
 
 [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md)
+
+[Supported harnesses](spec/supported-harnesses.md)
 
 [Template consumption](spec/template-consumption.md)
 

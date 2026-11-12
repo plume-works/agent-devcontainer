@@ -1,18 +1,17 @@
 ---
 type: spec
-description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
+description: How the required AI review gate accepts a review, when the responder is allowed to act on a pull request, and how the AI review sizes itself, validates its findings, and picks its verdict.
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 - resource: .github/actions/run-claude-responder/action.yml
-- resource: data/architecture/assignee-review-trigger.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
-- resource: data/architecture/ai-review-event-selection.md
 - resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
 - resource: data/plans/20261107-drop-claude-task-responder.md
 - resource: data/plans/20261030-responder-quill-app-identity.md
-- resource: data/architecture/label-review-triggers.md
 - resource: data/plans/20261108-label-review-triggers.md
+- resource: .agents/plugins/agentdev/skills/pr-review/agent-code/post-review.py
+- resource: .claude/settings.json
 ---
 
 # AI review gate
@@ -79,11 +78,29 @@ run. A job whose App secrets are missing SHALL fail and SHALL NOT fall back to
 `GITHUB_TOKEN`. The App's token SHALL NOT carry contents write access, and the
 responder SHALL NOT open a pull request.
 
+Both jobs SHALL run in the `plume-works-review` environment, which holds
+`CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY`.
+The review job SHALL mint its token with contents read, pull requests write,
+issues write, and actions read, and SHALL hand `claude-code-action` that token
+with the `bot_id` and `bot_name` resolved from the token's App slug. The
+trusted-bot approval SHALL read reviews, commits, and branch activity with
+`GITHUB_TOKEN`, holding contents read and pull requests read, and SHALL mint its
+App token with pull requests write alone, to post or dismiss its approval.
+`plume-works-quill[bot]` SHALL be written as a literal wherever the reviewer
+login is matched, with no variable or input that repoints it.
+
 ### Scenario: the App secrets are missing
 
 - **WHEN** a responder job runs and `QUILL_APP_CLIENT_ID` or
   `QUILL_APP_PRIVATE_KEY` is empty
 - **THEN** the job fails naming the missing secret, and nothing is posted.
+
+### Scenario: Claude posts a review
+
+- **WHEN** the review job runs Claude on a pull request
+- **THEN** the review and its inline comments appear as
+  `plume-works-quill[bot]`, posted with a token minted after the devcontainer
+  lifecycle scripts ran.
 
 ## Requirement: the responder only acts for authorized same-repository requests
 
@@ -92,11 +109,16 @@ from a fork, and SHALL NOT act for an actor without write access. The PR review
 responder SHALL run with read-only repository contents access, and no responder
 job SHALL hold write repository contents access.
 
+Preflight SHALL authorize the actor of the `pull_request` event itself: no run
+SHALL forward a requester identity to another, and the responder SHALL NOT pass
+`claude-code-action` an `allowed_bots` list.
+
 ### Scenario: a fork PR triggers the responder
 
 - **WHEN** the pull request head repository differs from the workflow repository
-- **THEN** preflight is skipped, and every responder job is skipped before any
-  checkout.
+- **THEN** preflight is skipped, every responder job is skipped before any
+  checkout, and `ai-review-present` still runs and fails unless an accepted
+  review exists.
 
 ### Scenario: a user without write access triggers the responder
 
@@ -258,6 +280,13 @@ reviewer owns the pull request.
 - **THEN** the review is `REQUEST_CHANGES`, and the pull request stays blocked
   until a later review from the same reviewer approves it.
 
+### Scenario: the title or description is stale
+
+- **WHEN** the pull request's title or description materially misdescribes its
+  diff
+- **THEN** the review stops before the in-depth passes and submits
+  `REQUEST_CHANGES` with the metadata finding in its body.
+
 ## Requirement: trusted-bot pull requests are approved without an AI review
 
 The AI responder workflow SHALL approve a same-repository pull request whose
@@ -266,11 +295,11 @@ that the AI review was skipped, only when every commit on the pull request is
 authored by that bot, committed by that bot or `web-flow`, and carries a
 verified signature, and only when that bot made the head branch's latest
 creation and every push and force push since. When any commit or update fails
-that check it SHALL NOT approve, and SHALL dismiss its own standing approval. It
-SHALL NOT check out the pull request, SHALL NOT approve a pull request that
-already carries its approval, and SHALL skip a run triggered by
-`dependabot[bot]`, which cannot read the App secrets in the `plume-works-review`
-environment.
+that check it SHALL NOT approve, SHALL dismiss its own standing approval, and
+SHALL post a notice naming the failing push or commit. It SHALL NOT check out
+the pull request, SHALL NOT approve a pull request that already carries its
+approval, and SHALL skip a run triggered by `dependabot[bot]`, which cannot read
+the App secrets in the `plume-works-review` environment.
 
 ### Scenario: Renovate opens a pull request
 
@@ -298,3 +327,210 @@ environment.
   person's push, and opens a new pull request from it
 - **THEN** only the pushes since the branch's latest creation are checked, and
   the workflow approves the new pull request.
+
+### Scenario: a person's run on a Dependabot pull request
+
+- **WHEN** a writer's event starts a run on a pull request whose every commit
+  and push is `dependabot[bot]`'s own
+- **THEN** the workflow approves it, while a run `dependabot[bot]` itself
+  triggered approves nothing.
+
+## Requirement: every AI review sizes itself
+
+The `pr-review` skill SHALL size each review from the diff it holds, at the
+`light` or `full` effort tier, and nothing SHALL request a tier: no pull request
+body marker, label, or prompt line selects one, and `run-claude-responder` SHALL
+pass Claude no model, so the orchestrator runs on the model the repository's
+`.claude/settings.json` pins. At `full` effort every slot SHALL run on the
+`large` model except compliance and validation; at `light` effort every slot
+SHALL run on the `light` model. Each dispatch SHALL carry the model its slot
+gets. Validation SHALL run on the `light` model at every effort level. Both
+tiers SHALL run the metadata gate and, when the diff holds docs or skills files,
+the durable-knowledge pass. Only the `light` tier SHALL validate its candidates
+in one batched dispatch; a `full` or self-sized review SHALL validate each
+candidate in its own dispatch.
+
+### Scenario: a large documentation rewrite
+
+- **WHEN** a pull request rewrites documentation only
+- **THEN** the review still runs the metadata gate and the durable-knowledge
+  pass at whatever tier it sizes itself to.
+
+### Scenario: a review at full effort
+
+- **WHEN** the review sizes itself to `full`
+- **THEN** it runs two compliance passes on the `light` model, two correctness
+  passes on the `large` model, and one validation dispatch per surviving
+  candidate on the `light` model.
+
+## Requirement: a correctness finding names a reachable scenario
+
+A correctness pass SHALL read, at the head commit, the code the changed lines
+call, the code that calls them, and the code that runs beside them in the same
+lifecycle or workflow. Every correctness candidate SHALL state a **Trigger**, an
+input or state the code can receive at the head commit; a **Path**, an anchor
+chain from the trigger to the fault; and an **Outcome**, the wrong result it
+produces. A candidate with an empty part SHALL be discarded before validation.
+
+The validator SHALL receive a scenario candidate's three parts in place of its
+claim, SHALL judge them as written in trigger, path, outcome order, and SHALL
+return `CONFIRM` only when every part holds, or `DROP` naming the first part
+that does not. A candidate without a scenario SHALL be judged on its claim and
+dropped unless it is clearly a violation. A comment or pull request description
+presenting a behavior as deliberate SHALL NOT by itself refute a reachable wrong
+outcome, and a guarantee the description promises that the code breaks SHALL
+count toward the outcome. The validator SHALL NOT be told which pass raised a
+candidate.
+
+### Scenario: a candidate with no outcome
+
+- **WHEN** a correctness pass reports a candidate with a Trigger and a Path but
+  no Outcome
+- **THEN** the candidate is discarded before validation and never posted.
+
+### Scenario: a false path
+
+- **WHEN** a candidate's Trigger can occur but its Path does not lead to the
+  fault as written
+- **THEN** the validator returns `DROP: path` and the finding is not posted.
+
+## Rationale
+
+### The AI review verdict follows severity alone
+
+The verdict is `APPROVE` for no or only non-blocking findings and
+`REQUEST_CHANGES` for any blocking finding. The `main` ruleset requires one
+approving review, keeps stale reviews on push, and requires every review thread
+to be resolved; only the reviewer's own `APPROVE` satisfies the approval and
+lifts its earlier change request, and inline threads on an approving review
+still hold the merge.
+
+Rejected:
+
+- **`COMMENT` when every blocking finding is anchored inline.** A `COMMENT`
+  neither satisfies the required approval nor lifts the reviewer's earlier
+  change request.
+- **`APPROVE` beside anchored blocking findings, relying on thread resolution.**
+  An approval next to an unaddressed blocking finding reads as sign-off on it.
+- **`COMMENT` for every finding, never `REQUEST_CHANGES`.** A blocking finding
+  never blocks through the verdict, and no review satisfies the required
+  approval.
+
+### Trusted-bot approval checks the branch's whole push history
+
+The approval covers only the bot's own commits and the bot's own pushes since
+the branch's latest creation, and a failed check dismisses the standing
+approval, because the `main` ruleset keeps stale approvals on push. The job runs
+the pull request's own copy of the workflow, so a writer who edits the job can
+bypass it; the checks guard against commits that leave the workflow unchanged,
+and the approval is only as strong as the trust in the repository's writers.
+
+Rejected:
+
+- **Check only the actor of a `synchronize` run.** A person's push followed by
+  closing and reopening the pull request would restore the approval.
+- **Skip Dependabot pull requests by author.** The commit and push checks
+  already keep a person's change out of the approval, so an author skip would
+  only withhold approval from pull requests holding Dependabot's commits alone.
+
+### The responder posts as its own GitHub App
+
+`plume-works-quill` is the only automated approver: an identity this
+organization controls, whose approval no other workflow can give. The App's
+installation holds contents write because the `main` ruleset counts an approval
+only from a reviewer with write access; no job mints a token with it, so no
+workflow token can push. The lifecycle scripts run pull request code in the job
+that later holds the minted token; minting after them keeps the token out of
+their environment, and the fork and write-access gates bound that exposure to
+writers.
+
+Rejected:
+
+- **Post with `GITHUB_TOKEN` and enable the organization setting that lets
+  Actions approve pull requests.** Any workflow in the organization could then
+  approve as the reviewer and satisfy the required review.
+- **The App reviews while `GITHUB_TOKEN` approves trusted bots.** The
+  organization setting has to stay on, so the same gap stays open.
+- **The Claude GitHub App through OIDC (`claude[bot]`).** An identity this
+  organization does not control, shared with every other installation.
+- **Fall back to `GITHUB_TOKEN` when the App secrets are missing.** A silent
+  fallback reintroduces the shared identity the gate no longer accepts.
+
+### The responder runs only on pull request events
+
+Every run executes the pull request's own copy of the workflow, so no run is
+privileged by a default-branch trigger, no identity is forwarded between runs,
+and no job needs contents write.
+
+Rejected:
+
+- **A free-form `@claude <prompt>` task responder.** It needs contents write, a
+  bridge that dispatches onto the head branch, and requester forwarding.
+- **A comment-requested review dispatched onto the head branch.** A
+  `workflow_dispatch` run's checks are not counted by the `main` ruleset or the
+  status rollup, its actor is `github-actions[bot]` rather than the requester,
+  and it needs `allowed_bots` opened on `claude-code-action`.
+- **A reply rejecting `@claude review` comments.** It keeps a privileged comment
+  trigger and a job on every `@claude` comment only to redirect a request the
+  label already covers.
+
+### Reviews are requested with a label and held with a label
+
+`request-ai-review` is the one way to request a review, and `block-ai-reviews`
+holds every review while it is on. A label event is a `pull_request` event, so
+its run's checks land on the head commit and count toward merge.
+
+Rejected:
+
+- **Assigning the pull request.** It borrows a field that means ownership, and a
+  re-request takes two actions, removing then re-adding the assignee.
+- **Re-requesting a reviewer.** It needs a second collaborator, since an author
+  cannot request their own review, and leaves reviewer churn on the pull
+  request.
+- **A comment trigger.** A comment-started run is not a `pull_request` run, so
+  its gate does not count toward merge, and it needs free-form comment parsing.
+- **A state label kept until the review posts.** A failed review leaves the
+  label on, to be removed by hand before the next request.
+- **A skip label that an explicit request overrides.** A label named for
+  skipping reviews that still lets a request through reads as broken.
+- **A repository-wide review pause.** A per-PR `block-ai-reviews` covers a
+  Claude outage, and a pause would still need bypass merges unless it waived the
+  gate.
+
+### Every review sizes itself
+
+The review holds the diff, so it judges its own pass count and models; no caller
+requests a tier. Validation stays on the `light` model because its bar,
+confirming only what the validator re-derives from the files, lives in the
+prompt: a stronger model argues more persuasively for dropping rather than
+judging more accurately, and validation is the only slot whose dispatch count
+scales with findings. Compliance stays `light` because quoting a rule and
+checking the diff against it is instruction-following.
+
+Rejected:
+
+- **A requested tier from a body marker, a comment, or a label.** A tier request
+  has to be resolved before the session starts, since a session cannot change
+  its own model, and the review is better placed to size itself than a setting
+  chosen ahead of the diff.
+- **Escalating a `light` review to `full` on a large documentation diff.** It
+  overrules a stated tier and returns the cheap documentation case to full cost.
+- **Failing a `light` review above a documentation-line threshold.** The
+  threshold is a number nobody can source and drifts as the corpus changes.
+- **Dropping the metadata gate and the durable-knowledge pass at `light`.** It
+  makes `light` a weaker review rather than a cheaper one.
+- **Batching validation at `full` effort.** Per-candidate isolation stops a weak
+  finding reading as strong beside strong ones.
+
+### Correctness findings are validated part by part
+
+A correctness finding needs a reachable scenario, and the validator judges its
+three parts as written rather than the claim they support.
+
+Rejected:
+
+- **Give the validator the claim alongside the parts.** It re-derives the claim
+  and confirms candidates whose stated part is false.
+- **Keep the diff-only correctness bar with the part-by-part validator.** The
+  validator acts only on the scenario candidates the reachable-scenario bar
+  produces.

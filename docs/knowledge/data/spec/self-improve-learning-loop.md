@@ -1,6 +1,6 @@
 ---
 type: spec
-description: The self-improve plugin's durable behavior — hook design, the meaningful-event gate, reviewer isolation and output, routing and the path allowlist, the mutation protocol, state and privacy, and failure behavior.
+description: The self-improve plugin's durable behavior — its standard-library runtime and single dispatcher, hook design, the meaningful-event gate, reviewer isolation and output, routing and the path allowlist, the mutation protocol, state and privacy, failure behavior, and how it is published without being enabled.
 sources:
 - resource: .agents/plugins/self-improve/hooks/hooks.json
 - resource: .agents/plugins/self-improve/selfimprove/gate.py
@@ -8,6 +8,16 @@ sources:
 - resource: .agents/plugins/self-improve/selfimprove/allowlist.py
 - resource: .agents/plugins/self-improve/selfimprove/mutate.py
 - resource: .agents/plugins/self-improve/reviewer/prompt.md
+- resource: .agents/plugins/self-improve/agent-code/si
+- resource: .agents/plugins/self-improve/agent-code/si.py
+- resource: .agents/plugins/self-improve/selfimprove/paths.py
+- resource: .agents/plugins/self-improve/selfimprove/config.py
+- resource: .agents/plugins/self-improve/tests/unit/test_no_runtime_deps.py
+- resource: .agents/plugins/self-improve/tests/conftest.py
+- resource: .claude-plugin/marketplace.json
+- resource: .claude/settings.json
+- resource: ansible/roles/agent_catalog/tasks/stage_catalog.yml
+- resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
 ---
 
 # Self-improve learning loop
@@ -23,11 +33,52 @@ The product claim is narrow: Claude can notice a meaningful experience and
 propose retaining its lesson safely. It does not claim that a retained lesson
 improves future behavior.
 
-The runtime decisions behind this behavior — the standard-library-only rule, the
-state-root resolution order, the single dispatcher — are [Self-improve
-runtime](../architecture/self-improve-runtime.md).
-
 ## Requirements
+
+### Requirement: Runtime code imports the standard library only
+
+Every Python module the plugin ships outside `tests/` SHALL import only the
+standard library and the plugin's own modules, so it imports with nothing but a
+system `python3`, offline. A unit test SHALL walk every runtime module's syntax
+tree and fail on any other import. Tests and development tooling are not bound
+by the rule.
+
+#### Scenario: A runtime module gains a third-party import
+
+- **WHEN** a module under `selfimprove/` or `agent-code/` imports `yaml`
+- **THEN** `tests/unit/test_no_runtime_deps.py` fails
+
+### Requirement: One dispatcher runs every hook and command
+
+`agent-code/si <subcommand>` SHALL be the plugin's only executable, invoked by
+every hook and skill. It SHALL run `si.py` with the first interpreter of
+`python3.14`, `python3.13`, `python3.12`, `/usr/bin/python3`, `python3`, and
+`python` that is at least Python 3.12, and SHALL exit 0 doing nothing when none
+is. When `SELF_IMPROVE_DISABLE` is `1`, every subcommand SHALL exit 0 doing
+nothing. A capture subcommand that raises SHALL record a redacted error class
+and exit 0.
+
+#### Scenario: No usable interpreter
+
+- **WHEN** a hook runs on a machine whose only `python3` is older than 3.12
+- **THEN** `si` exits 0 and the session continues
+
+#### Scenario: The plugin is disabled
+
+- **WHEN** `SELF_IMPROVE_DISABLE=1` is set and any hook fires
+- **THEN** `si` exits 0 without recording or reviewing anything
+
+### Requirement: The state root resolves override first
+
+Runtime state SHALL live under `SELF_IMPROVE_STATE_DIR` when set, otherwise
+under `CLAUDE_PLUGIN_DATA` when set, otherwise under `self-improvement/` in the
+Claude configuration directory (`CLAUDE_CONFIG_DIR`, default `~/.claude`).
+
+#### Scenario: Both variables are set in a hook
+
+- **WHEN** a hook runs with `SELF_IMPROVE_STATE_DIR` set and Claude Code has set
+  `CLAUDE_PLUGIN_DATA`
+- **THEN** state is written under `SELF_IMPROVE_STATE_DIR`
 
 ### Requirement: Capture is bounded, redacted, and fails open
 
@@ -130,6 +181,15 @@ redacted failure-to-success summary, candidate owner summaries and paths, and
 the fingerprints needed for deduplication — never unrelated transcripts,
 credentials, environment dumps, or unrestricted filesystem access.
 
+The reviewer SHALL run the `claude` binary, or `SELF_IMPROVE_REVIEWER_CMD` when
+set, with the model `SELF_IMPROVE_REVIEW_MODEL` (default `sonnet`) and a timeout
+of `SELF_IMPROVE_REVIEW_TIMEOUT` seconds (default 120). Its effort SHALL be
+passed as `CLAUDE_CODE_EFFORT_LEVEL` in its environment, set from
+`SELF_IMPROVE_REVIEW_EFFORT` (default `medium`), never as an `--effort` flag; an
+empty setting SHALL remove any inherited effort level. Its environment SHALL set
+`SELF_IMPROVE_REVIEWER=1` and SHALL drop `SELF_IMPROVE_STATE_DIR` and
+`CLAUDE_PLUGIN_DATA`.
+
 #### Scenario: The reviewer is invoked
 
 - **WHEN** the gate passes and review begins
@@ -224,9 +284,11 @@ A candidate SHALL be inert until the user enters an explicit command carrying
 its identity and displayed hash prefix. Authorization SHALL be a one-time record
 derived from that literal user prompt, accepted only from a
 `UserPromptExpansion` event whose `expansion_type` is `slash_command` and whose
-`command_source` is the plugin. Invocation by Claude through the `Skill` tool, a
-model-generated tool call, or approval of a summary SHALL NOT authorize
-mutation.
+`command_source` is the plugin. The `UserPromptExpansion` hook SHALL register a
+wildcard matcher and select the command inside the script, so a namespaced
+command name it did not anticipate is still seen. Invocation by Claude through
+the `Skill` tool, a model-generated tool call, or approval of a summary SHALL
+NOT authorize mutation.
 
 `apply` SHALL consume a matching unexpired authorization, validate the proposal
 ID and content hash against the displayed prefix, resolve and check the target,
@@ -294,3 +356,112 @@ verification failure SHALL NOT claim success.
 
 - **WHEN** review completes with no session to receive the wake
 - **THEN** the candidate is retained and reported at the next session start
+
+### Requirement: The plugin is published but not enabled by default
+
+The catalog's Claude marketplace manifest SHALL publish `self-improve` beside
+`agentdev`, and `agentdev-runtime catalog install` SHALL install every plugin
+that manifest publishes. The image build SHALL stage and install only the plugin
+named by `agent_catalog_plugin_name` (`agentdev`), and the committed
+`.claude/settings.json` SHALL NOT enable `self-improve`.
+
+#### Scenario: A developer reinstalls the catalog
+
+- **WHEN** `agentdev-runtime catalog install` runs in a checkout
+- **THEN** `self-improve` is installed and enabled in that checkout's local
+  scope only, and no tracked file changes
+
+#### Scenario: The image is built
+
+- **WHEN** the image provisions its catalog
+- **THEN** it installs `agentdev` and not `self-improve`
+
+### Requirement: Live tests are opt-in at collection
+
+The plugin's `tests/conftest.py` SHALL skip, at collection, every test marked
+`smoke` or `pty` unless `SELF_IMPROVE_RUN_LIVE` is set to a value other than
+empty, `0`, `false`, `no`, or `off`, and each skip SHALL name the variable. The
+harness self-check against a fake terminal SHALL run in the ordinary suite. The
+Makefile targets that run live tests SHALL set the variable.
+
+#### Scenario: A live test is named by path
+
+- **WHEN** `pytest` is given the path of a `smoke` test and
+  `SELF_IMPROVE_RUN_LIVE` is unset or `0`
+- **THEN** the test is skipped and spends no model usage
+
+## Rationale
+
+### The plugin lives in this repository as a second catalog plugin
+
+The catalog is the set of behaviours agents have and the learning loop is how
+that set changes, so both share one checkout rather than a dependency edge, and
+the loop routes approved lessons into destinations this repository already
+types. Publishing the plugin and enabling it are separate decisions, and only
+publishing is made: its seven hook events, including `UserPromptSubmit`,
+`PostToolUse`, and an asynchronously rewaking `Stop`, change every session, so
+enabling it by default carries its own evidence bar. Enablement is judged on
+what the repository carries, not on one machine's local settings.
+
+Rejected:
+
+- **Two repositories, the loop consuming the catalog.** It duplicates the lint,
+  CI, lockfile, and tool-version surfaces, each kept aligned across both.
+- **Vendoring the loop as an unowned subtree.** It keeps the file layout but not
+  the point: the loop is developed here, not merely carried.
+
+### The runtime is standard-library Python behind one dispatcher
+
+Hook scripts run inside Claude Code's environment rather than one the plugin
+controls, on a five-second capture budget, and must fail open, so a third-party
+import would need a bootstrap step in precisely the code that must be most
+reliable. The rule is checked by reading imports, not by trusting a manifest.
+Only the stdlib-only rule is load-bearing; the interpreter floor is the
+repository's own, and the dispatcher still probes for an interpreter because a
+hook inherits a shell where `python3` is often a stale virtualenv. One
+dispatcher keeps hook-JSON parsing and fail-open handling in one place; the
+separation of capture, review, authorization, mutation, and rollback is a
+property of the modules, not of separate executables.
+
+The state override precedes `CLAUDE_PLUGIN_DATA` because Claude Code sets that
+variable in every hook environment, discarding an inherited value, so an
+override that lost to it would never reach the hooks that write state.
+
+Rejected:
+
+- **Third-party runtime dependencies installed on demand** (a virtual
+  environment under `~/.claude/`, `pip`, network access). They need degraded
+  fallbacks when the install fails, in the code path that must not fail.
+- **One executable per operation.** It repeats the fail-open entry logic, the
+  most reliability-critical path, in each script.
+
+### The reviewer is isolated by removing its tools
+
+The reviewer runs with every tool removed, hooks disabled, one turn, and its
+whole evidence bundle on standard input. Removing the tools leaves nothing to
+constrain, so isolation does not depend on an allowlist being correct. Its
+effort goes in the environment because review failure is silent: a CLI too old
+for an `--effort` flag would abort every review unseen, while an unknown
+variable is ignored and the review still runs at the default level.
+
+Rejected:
+
+- **A read-only artifact allowlist for the reviewer.** It constrains what a tool
+  may reach, which is weaker than holding no tool.
+- **The `--effort` flag.** Losing the saving is acceptable; losing the review is
+  not.
+
+### Authorization is read from the event that sees typed commands
+
+Authorization comes from `UserPromptExpansion`, which fires for user-typed
+commands before their prompts reach Claude, closing the direct-command path a
+`PreToolUse` hook cannot observe. The matcher is a wildcard because the
+namespaced form of a plugin skill's `command_name` is not guaranteed, and a
+matcher that failed to match would silently discard the user's authorization.
+
+### Live tests are guarded at collection
+
+Deselecting live markers in `addopts` is replaced by every natural way to
+iterate on a test — naming its path, passing `-m`, selecting a node id — each of
+which would fire a paid session, so the guard is a collection hook that covers
+every entry point and states its reason.
