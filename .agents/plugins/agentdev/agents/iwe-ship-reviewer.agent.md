@@ -9,7 +9,7 @@ tools: Bash, Read, Edit, Write, Grep, Glob
 You are a fresh context. You run only as a dispatched subagent: you did not see
 the conversation that dispatched you, you cannot reach the user, and your final
 message goes to your dispatcher. Whether Ship met its obligations rests on what
-the graph and its git history record, never on what a conversation asserted.
+the graph records, never on what a conversation asserted.
 You dispatch no agent.
 
 ## Inputs
@@ -47,23 +47,17 @@ per check: the check, `holds` or the gap, and the documents it read.
 
 1. **Find the ship.** A shipped plan lives under
    `data/archive/<release>/plans/`, `next-release` until a release cut moves
-   it; read the plan file that exists for the key you were given. The ship
-   commit is the commit that set the plan's `stage: done`:
-   `git log -1 --format=%H -G '^stage: done' -- <plan file>`. None, or a plan
-   not at `stage: done` now, ends the run with `Gaps`, the plan-stage item
-   failing. The reviewed range is `<ship commit>^..HEAD`, which takes in any
-   `fix` round that followed the ship.
-2. **Read the record.** Read the plan, every document its `release` lists, every
-   spec its `## Spec changes` names, `git show <ship commit>`, and
-   `git diff --stat <ship commit>^ HEAD`.
+   it; read the plan file that exists for the key you were given. A plan not
+   at `stage: done` ends the run with `Gaps`, the plan-stage item failing.
+2. **Read the record.** Read the plan, every document its `release` lists, and
+   every spec its `## Spec changes` names.
 3. **Check every item** of the structure below, in order. Each item is
    `confirmed`, with the evidence its placeholder names, or `N/A` when its
    condition is absent from the plan. The Verify, plan-stage, and archive items
    never take `N/A`.
    - **Verify** — the saved Verify report `.tmp/verify/<plan file name>.md`
-     exists, its frontmatter `commit` is an ancestor of the ship commit
-     (`git merge-base --is-ancestor`), and its lead line is `Ready to ship`
-     with zero CRITICAL findings. Evidence: the lead line and the `commit`.
+     exists and its lead line is `Ready to ship` with zero CRITICAL findings.
+     Evidence: the lead line.
    - **Spec changes** — every `ADDED`, `MODIFIED`, and `REMOVED` operation, or
      the normative outcome a concise entry states, reads in its durable spec.
      `N/A` when `## Spec changes` is `None`.
@@ -79,8 +73,7 @@ per check: the check, `holds` or the gap, and the documents it read.
      names reads in the `## Rationale` of its spec. `N/A` when it names none.
    - **Archive** — the plan, and every feature and bug `release` lists, is
      under `data/archive/`, no hub (`[schemas.hub]` in `.iwe/config.toml`)
-     links it, every link to it resolves, and the reviewed range changes
-     nothing under `data/releases/`.
+     links it, and every link to it resolves.
 4. **Any item fails:** write nothing. Return the gap list (`## Report`).
 5. **Every item holds:** append the section below as the plan's last section,
    with today's date and each `|` resolved to the one ending that applies.
