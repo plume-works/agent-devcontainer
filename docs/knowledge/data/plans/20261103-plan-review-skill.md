@@ -76,9 +76,15 @@ Modify: `.agents/plugins/agentdev/README.md`,
 
 ### Task 3: A plan edit runs both reviewers
 
-- [ ] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
+- [x] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
   pending bug shows both agents dispatched in the transcript, and the plan ends
   with that bug at `stage: planned`.
+  - **Evidence:** a headless run in a scratch worktree of this branch,
+    `claude -p --plugin-dir <worktree>/.agents/plugins/agentdev --output-format stream-json --verbose "/agentdev:iwe-plan Create a plan that fixes the bug data/bugs/self-improve-unstageable-routing-option ..."`:
+    its transcript shows the `agentdev:iwe-plan-review` skill dispatching
+    `agentdev:Durable Knowledge Auditor` with the plan file and `scope: plan`
+    and `agentdev:iwe-ship-reviewer` with the plan key and `mode: plan` in one
+    message, and the bug ended at `stage: planned`.
 
 ## Spec changes
 
