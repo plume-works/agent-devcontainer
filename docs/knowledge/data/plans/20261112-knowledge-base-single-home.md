@@ -207,18 +207,34 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
 `docs/knowledge/STRUCTURE.md`, `docs/knowledge/README.md`, `AGENTS.md`,
 `docs/knowledge/data/product.md`.
 
-- [ ] `docs/knowledge/AGENTS.md` describes the homes in the `## Approach` table,
+- [x] `docs/knowledge/AGENTS.md` describes the homes in the `## Approach` table,
   the archive move at close, and the release cut from the spec diff, and names
   none of `data/architecture/`, `released`, and `data/log.md`.
-- [ ] `docs/knowledge/SCHEMA.md` documents the `finding` and `guide` types, the
+  - **Evidence:** `docs/knowledge/AGENTS.md#conventions` › "Each kind of
+    knowledge has one home" and `docs/knowledge/AGENTS.md#the-operating-loop`;
+    `grep -nE 'data/architecture|data/log\.md|released:' docs/knowledge/AGENTS.md`
+    prints nothing.
+- [x] `docs/knowledge/SCHEMA.md` documents the `finding` and `guide` types, the
   archive folders, the feature as a proposal, the `release` field as the
   documents a plan closes, and the release page as text, and drops the
   architecture type, the `released` field, and `data/log.md`.
-- [ ] `docs/knowledge/STRUCTURE.md` and `docs/knowledge/README.md` describe the
+  - **Evidence:**
+    `docs/knowledge/SCHEMA.md#the-archive--dataarchivereleasefolder`,
+    `#reference-documents--type-only`, `#features--datafeaturesslugmd`,
+    `#plans--dataplansyyyymmdd-slugmd`, and `#releases--datareleasesversionmd`.
+- [x] `docs/knowledge/STRUCTURE.md` and `docs/knowledge/README.md` describe the
   same layout.
-- [ ] `AGENTS.md#project-memory`, `AGENTS.md#comments`, and the investigation
+  - **Evidence:** `docs/knowledge/STRUCTURE.md#design-decisions` › "One home for
+    each kind of knowledge" and › "Finished work is archived, not deleted";
+    `docs/knowledge/README.md#whats-inside`.
+- [x] `AGENTS.md#project-memory`, `AGENTS.md#comments`, and the investigation
   rule in `docs/knowledge/data/product.md#authoring-rules` send a decision to a
   spec's `## Rationale` and a finding to `data/findings/`.
+  - **Evidence:** `AGENTS.md#project-memory` › "a decision in the `## Rationale`
+    of the spec", `AGENTS.md#comments` › "the rationale and rejected
+    alternatives in its `## Rationale`", and
+    `docs/knowledge/data/product.md#authoring-rules` › "a measurement that
+    settles nothing yet".
 
 ### Task 5: The workflow rulebooks
 

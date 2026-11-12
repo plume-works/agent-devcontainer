@@ -22,14 +22,16 @@ SCHEMA.md          # frontmatter reference (humans)
 STRUCTURE.md       # this file: design rationale
 .iwe/
   config.toml      # markdown conventions + schema→glob bindings
-  schemas/         # validation schemas: plan, feature, bug, release, task
+  schemas/         # validation schemas, one per document type
 .agents/plugins/agentdev/skills/iwe-*/  # state workflows: setup, explore, plan,
                    # capture, implement, verify, ship, weekly (invoked as /agentdev:iwe-*)
 data/              # the graph
   index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
-  <hub>.md + <hub>/  # plans, features, bugs, spec, architecture, concept,
+  <hub>.md + <hub>/  # plans, features, bugs, spec, findings, guides, concept,
                      # releases, backlog, someday (+ milestone.md)
+  archive/<release>/<folder>/  # finished work, one folder per cut version
+                     # plus next-release
 ```
 
 ## Design decisions
@@ -38,12 +40,12 @@ data/              # the graph
 (`data/plans.md`) with a directory (`data/plans/`). What makes a document a plan
 is the inclusion link from the hub, not its path — the directory is storage, the
 graph is truth. A hub is one flat list sorted by member key, with no sections,
-so it changes only when a member is created, removed, or renamed — two pull
-requests conflict on a hub only when their new members sort next to each other.
+so it changes only when a member is created, archived, or renamed — two pull
+requests conflict on a hub only when their members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, and backlog tasks
 are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Specs, architecture, concept, and someday docs are
+(`iwe schema validate`). Specs, findings, guides, concept, and someday docs are
 *durable reference*: they carry a `type` and the shared OKF families, but no
 `stage`, because nothing about them is a lifecycle. The split keeps the ceremony
 where it pays. Every document is validated — OKF conformance requires a `type`
@@ -52,20 +54,36 @@ everywhere — but only work items are asked for more than that.
 **Frontmatter is the only record of state.** A work item's `stage`, `priority`,
 `completed`, and `rank` live in its own document, so a stage change edits one
 file that only its own pull request touches. The build order is a query over
-`rank`, not a file. No item is ever delisted from its hub — done and cancelled
-work is history, not a trash can.
+`rank`, not a file.
+
+**One home for each kind of knowledge.** Behaviour lives only in spec
+requirements, and the decision behind it, with the alternatives it rejected,
+only in that spec's `## Rationale` — the section the Consult step reads, and the
+one Ship maintains. A finding is a measurement and lives in `findings/`; a
+procedure lives in `guides/`, whose anchors are checked on every commit. A
+feature is a proposal, live only until its plan ships. A statement with two
+homes drifts in the one nobody maintains, so no type restates another's content.
+
+**Finished work is archived, not deleted.** Whoever closes a plan, bug, task, or
+feature moves it with `iwe rename` to `archive/next-release/<folder>/` and
+removes its hub link; the release cut moves `next-release` to the version's
+folder. Keeping the original subfolder keeps every archived document under its
+type's schema, and the folder is the only record of which release took it, so no
+field repeats it. Hubs list live work only.
 
 **Minimal frontmatter; relationships are links.** Five stage vocabularies, three
 date fields, and one `rank` — that's the entire frontmatter surface. Everything
-relational (plan → spec, bug → requirement, release → feature, plan → plan
+relational (plan → spec, bug → requirement, plan → feature, plan → plan
 dependency) is a markdown link in the body, which keeps relationships visible
 while reading and traversable via `iwe find --references`.
 
 **The funnel.** Ideas harden stepwise: `someday/` (no commitment) → `backlog/`
-(prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → feature
-`implemented` → a cut release. Each promotion is a new doc or a frontmatter
-change; the release cut builds the release page from the done plans no earlier
-cut took, and stamps each with `released: <version>`.
+(prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → specs synced and
+the plan archived → a cut release. Each promotion is a new doc, a frontmatter
+change, or an archive move. The release cut writes the release page in plain
+text from the difference in the specs' requirements and scenarios since the
+previous cut: the specs are what changed, so the page needs no link to a
+document written before the work.
 
 **Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`)
 and says what they should end up saying; the ship skill updates those specs
