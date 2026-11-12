@@ -106,8 +106,14 @@ Reviewed by `iwe-ship-reviewer` on 2026-11-11.
 - [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists no feature
 - [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: data/bugs/example
 - [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: data/bugs/example
-- [x] Ship edited no hub, release page, or `data/log.md` — confirmed
+- [x] Every `## Rationale` entry the plan names is in its spec — confirmed: data/spec/example
+- [x] The plan and every feature and bug it closed are archived with no hub link — confirmed: data/archive/next-release/plans/example
 """
+
+EARLIER_REVIEW = (
+    REVIEW.split('- [x] Every `## Rationale`')[0]
+    + '- [x] Ship edited no hub, release page, or `data/log.md` — confirmed\n'
+)
 
 PLAN_HEAD = '---\ntype: plan\nstage: done\n---\n\n# Example plan\n\n## Context\n\nWhy.\n\n'
 
@@ -134,6 +140,19 @@ def test_well_formed_ship_review_passes(write: Write) -> None:
     assert (result.returncode, result.stdout) == (0, '')
 
 
+def test_earlier_ship_review_passes(write: Write) -> None:
+    """A Ship review stamped in the earlier structure, ending with the hub item, passes."""
+    result = run(write('plan.md', plan(EARLIER_REVIEW)))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_earlier_ship_review_still_fails_when_malformed(write: Write) -> None:
+    """An earlier-structure review with an unticked item fails against the current one."""
+    text = plan(EARLIER_REVIEW.replace('- [x] Ship edited', '- [ ] Ship edited'))
+    result = run(write('plan.md', text))
+    assert result.returncode == 1
+
+
 def test_ship_review_inside_a_code_fence_is_not_checked(write: Write) -> None:
     """A Ship review quoted in a fenced block, as a plan quotes its template, is skipped."""
     text = PLAN_HEAD + '```markdown\n' + REVIEW.replace('[x]', '[ ]') + '```\n'
@@ -142,11 +161,11 @@ def test_ship_review_inside_a_code_fence_is_not_checked(write: Write) -> None:
 
 def test_missing_item_fails_naming_the_section(write: Write) -> None:
     """A Ship review missing its last item fails and names the missing item."""
-    text = plan(''.join(line for line in REVIEW.splitlines(True) if 'Ship edited' not in line))
+    text = plan(''.join(line for line in REVIEW.splitlines(True) if 'archived with' not in line))
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, "## Ship review")} ' in result.stdout
-    assert 'missing item "Ship edited no hub' in result.stdout
+    assert 'missing item "The plan and every feature and bug it closed' in result.stdout
 
 
 def test_reordered_items_fail_naming_the_line(write: Write) -> None:
@@ -185,11 +204,11 @@ def test_item_with_neither_ending_fails(write: Write) -> None:
     [
         ('Verify reported', '— confirmed: PASS, 0 CRITICAL'),
         ('The plan is `stage: done`', '— confirmed: 2026-11-11'),
-        ('Ship edited no hub', '— confirmed'),
+        ('archived with no hub link', '— confirmed: data/archive/next-release/plans/example'),
     ],
 )
 def test_na_on_a_mandatory_item_fails(write: Write, needle: str, ending: str) -> None:
-    """The Verify, plan-stage, and hub-edit items never take `N/A`."""
+    """The Verify, plan-stage, and archive items never take `N/A`."""
     review = ''.join(
         line.replace(ending, '— N/A: skipped') if needle in line else line
         for line in REVIEW.splitlines(True)

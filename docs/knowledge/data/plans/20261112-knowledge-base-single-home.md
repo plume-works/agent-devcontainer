@@ -246,35 +246,67 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
 `iwe-verify/SKILL.md`, `iwe-weekly/SKILL.md` in the skills folder; and
 `scripts/check-ship-records.py` for the checklist.
 
-- [ ] `iwe-planner.agent.md#the-three-forms-of-spec-changes` says a plan names
+- [x] `iwe-planner.agent.md#the-three-forms-of-spec-changes` says a plan names
   the `## Rationale` entries each touched spec gains.
-- [ ] `iwe-planner.agent.md#steps` defines `release` as the documents the plan
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#the-three-forms-of-spec-changes`
+    › "name the `## Rationale` entries that spec gains or rewrites".
+- [x] `iwe-planner.agent.md#steps` defines `release` as the documents the plan
   closes, requires no feature for user-visible work, and has a plan that grew
   from a backlog task mark the task done and move it to the archive.
-- [ ] `iwe-shipper.agent.md#steps`: after the spec merge, Ship writes the
+  - **Evidence:** `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps` ›
+    "`release` lists the documents the plan closes", › "a plan whose work users
+    see needs no feature", and › "`data/archive/next-release/backlog/`".
+- [x] `iwe-shipper.agent.md#steps`: after the spec merge, Ship writes the
   `## Rationale` entries, sets the stages, and moves the plan and each feature
   and bug it closes to `data/archive/next-release/` with `iwe rename`, removing
   their hub links. Cancel moves the plan the same way.
-- [ ] `iwe-shipper.agent.md#steps`: the release cut moves every document in
+  - **Evidence:** `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` ›
+    "Write the `## Rationale` entries", › "Archive what closed, last", and ›
+    "Then archive the plan as step 6's last bullet does".
+- [x] `iwe-shipper.agent.md#steps`: the release cut moves every document in
   `next-release` to `data/archive/<X.Y.Z>/`, writes the release page as
   `## Spec changes` below requires, and writes no `released` and no log.
-- [ ] The `## Ship review` template in `iwe-ship-reviewer.agent.md` and the
+  - **Evidence:** `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` ›
+    "Diff the requirements and scenarios of every spec" and › "Move every
+    document under `data/archive/next-release/`";
+    `grep -nE 'released:|log\.md' .agents/plugins/agentdev/agents/iwe-shipper.agent.md`
+    prints nothing.
+- [x] The `## Ship review` template in `iwe-ship-reviewer.agent.md` and the
   fixed structure in `scripts/check-ship-records.py` replace the "edited no hub"
   item with items for the archive move and the `## Rationale` entries, with the
   checker's tests updated. A `## Ship review` that carries the "edited no hub"
   item still passes, with a test, so the plans stamped before this change stay
   valid.
-- [ ] `iwe-explore/SKILL.md#capturing`, `iwe-implementer.agent.md`
+  - **Evidence:** `uv run pytest scripts/tests/test_check_ship_records.py`,
+    including `::test_earlier_ship_review_passes` and
+    `::test_na_on_a_mandatory_item_fails`;
+    `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md#ship-mode`.
+- [x] `iwe-explore/SKILL.md#capturing`, `iwe-implementer.agent.md`
   (`#capturing-what-implementation-turns-up`), and `iwe-setup/SKILL.md` route a
   decision to a spec's `## Rationale`, a finding to `data/findings/`, and a
   procedure to `data/guides/`.
-- [ ] `iwe-capture/SKILL.md` moves a bug filed at `stage: done`, and a task or
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing`,
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#capturing-what-implementation-turns-up`,
+    and `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md#steps`, each naming
+    `## Rationale`, `data/findings/`, and `data/guides/`.
+- [x] `iwe-capture/SKILL.md` moves a bug filed at `stage: done`, and a task or
   bug it closes, to the archive.
-- [ ] No file under `.agents/plugins/agentdev/agents/` or
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md#steps` ›
+    "write it at `data/archive/next-release/bugs/<slug>.md` instead" and › "move
+    it with `iwe rename` to".
+- [x] No file under `.agents/plugins/agentdev/agents/` or
   `.agents/plugins/agentdev/skills/iwe-*/` outside `iwe-bootstrap/assets/` names
   `data/architecture`, `data/log.md`, or the `released` field.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests -k 'validate or catalog'`
+  - **Evidence:**
+    `git grep -nE 'data/architecture|data/log\.md|released:|released: \{' -- .agents/plugins/agentdev/agents ':(glob).agents/plugins/agentdev/skills/iwe-*/**' ':!.agents/plugins/agentdev/skills/iwe-bootstrap/assets'`
+    prints nothing.
+- [x] `uv run pytest .agents/plugins/agentdev/tests -k 'validate or catalog'`
   and the `validate_agent_files` pre-commit hook pass on the catalog.
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests -k 'validate or catalog'` and
+    `uv run validate_agent_files --recommend . --require-marketplace claude`.
 
 ### Task 6: The bootstrap scaffold
 

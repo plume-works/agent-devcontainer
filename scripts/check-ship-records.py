@@ -51,6 +51,14 @@ SHIP_REVIEW_ITEMS = (
     Item('Every feature in `release` is `stage: implemented`'),
     Item('Every bug in `release` is `stage: done` with no `rank`'),
     Item('Every bug in `release` has a `## Fix` that links this plan'),
+    Item('Every `## Rationale` entry the plan names is in its spec'),
+    Item(
+        'The plan and every feature and bug it closed are archived with no hub link',
+        not_applicable=False,
+    ),
+)
+EARLIER_SHIP_REVIEW_ITEMS = (
+    *SHIP_REVIEW_ITEMS[:-2],
     Item(
         'Ship edited no hub, release page, or `data/log.md`', evidence=False, not_applicable=False
     ),
@@ -132,11 +140,25 @@ def check_item(item: Item, line: str) -> str | None:
 
 
 def check_plan(lines: list[str]) -> list[tuple[int, str]]:
-    """Return the violations of a plan's Ship review section against the fixed structure."""
+    """
+    Return the violations of a plan's Ship review against the fixed structure.
+
+    A review that matches the earlier structure passes; otherwise the violations
+    reported are those against the current one.
+    """
     found = ship_review(lines)
     if found is None:
         return []
-    heading, section = found
+    violations = check_structure(*found, SHIP_REVIEW_ITEMS)
+    if violations and not check_structure(*found, EARLIER_SHIP_REVIEW_ITEMS):
+        return []
+    return violations
+
+
+def check_structure(
+    heading: int, section: list[tuple[int, str]], expected: tuple[Item, ...]
+) -> list[tuple[int, str]]:
+    """Return the violations of a Ship review's lines against one fixed structure."""
     violations: list[tuple[int, str]] = []
     items = section
     if section and REVIEWER.match(section[0][1]):
@@ -148,13 +170,13 @@ def check_plan(lines: list[str]) -> list[tuple[int, str]]:
         )
         if section and not ITEM.match(section[0][1]):
             items = section[1:]
-    for item, (number, line) in zip(SHIP_REVIEW_ITEMS, items, strict=False):
+    for item, (number, line) in zip(expected, items, strict=False):
         error = check_item(item, line)
         if error:
             violations.append((number, error))
-    for item in SHIP_REVIEW_ITEMS[len(items) :]:
+    for item in expected[len(items) :]:
         violations.append((heading, f'Ship review is missing item "{item.text}"'))
-    for number, _ in items[len(SHIP_REVIEW_ITEMS) :]:
+    for number, _ in items[len(expected) :]:
         violations.append((number, 'Ship review has a line after its last item'))
     return violations
 

@@ -54,9 +54,11 @@ needed. In particular:
    - **Normal shipping** records implemented work. Go to step 3.
 
    Read the current plan frontmatter, plus the frontmatter of every feature and
-   bug its `release` field lists, and every entry in `## Spec changes`. Record
-   which intended results already exist. Do not assume a prior Ship invocation
-   finished or failed atomically.
+   bug its `release` field lists, and every entry in `## Spec changes`. A listed
+   `features/<slug>` or `bugs/<slug>` key names the live document or, once an
+   earlier attempt archived it, the one under `data/archive/next-release/`.
+   Record which intended results already exist. Do not assume a prior Ship
+   invocation finished or failed atomically.
 
    For normal shipping, `release` must be `internal` or list only documents that
    exist. A missing field, or a listed key with no document behind it, ends the
@@ -75,9 +77,9 @@ needed. In particular:
    specs, or mark a feature implemented or bug fixed. If needed, set the plan to
    `stage: cancelled` and remove its `rank`, and set every bug its `release`
    lists at `stage: planned` back to `stage: pending`, writing no `## Fix`;
-   skip any change that already happened. Leave `data/plans.md` untouched: its link stays where it is. Run
-   `iwe normalize` and `iwe schema validate`, commit the cancellation, report
-   it, and stop.
+   skip any change that already happened. Then archive the plan as step 6's
+   last bullet does. Run `iwe normalize` and `iwe schema validate`, commit the
+   cancellation, report it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
    `/agentdev:iwe-verify` skill for the selected plan, forwarding every
    approval your prompt quotes, verbatim, and take its session route: it
@@ -121,6 +123,13 @@ needed. In particular:
      Verify confirms the final represented behavior was removed. Use
      `iwe delete <key>` so references are repaired; never leave an empty or
      orphaned spec or hand-delete its file.
+   - Write the `## Rationale` entries the plan's `## Spec changes` names for
+     each spec: the decision in force and the alternatives it rejected, taken
+     from the plan's `## Approach`, and the lasting root cause of each bug the
+     plan closes, in the spec that owns the behaviour. An entry states no
+     behaviour. When the plan replaces a decision an entry records, rewrite
+     that entry to state the new decision and list the old one among its
+     rejected alternatives. Skip an entry that already says it.
 5. **Verify the complete spec merge before lifecycle changes.** Re-read every
    spec named by the plan and compare each affected requirement and scenario
    with the zero-CRITICAL implementation evidence. Then walk the plan's
@@ -147,9 +156,12 @@ needed. In particular:
      `## Potential solution` and leave that section as it is. A `## Fix` that
      already describes this fix stays as it is; one that does not is
      replaced.
-   - Write no hub, no release page, and no `data/log.md` entry: the plan's
-     `release` list, and its missing `released`, are what the next release cut
-     reads.
+   - Archive what closed, last: move the plan and each feature and bug it
+     closed with `iwe rename <key> data/archive/next-release/<folder>/<name>`,
+     `<folder>` being the folder it lived in (`plans`, `features`, `bugs`),
+     and remove its inclusion link from its hub. A document already under
+     `data/archive/` stays where it is. Check `git diff` after each rename:
+     every link to it must now resolve. Write no release page.
 7. **Validate, commit, and report.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. Re-inspect the final plan, each
    feature or bug — including every bug `## Fix` written in step 6 — and all
@@ -160,34 +172,35 @@ needed. In particular:
    milestone aggregator lists it, check whether it was the last child and say
    when the milestone is complete.
 8. **Cut a release only when the operation is `release <X.Y.Z>`.** The cut is
-   the only writer of release pages and the log. Inspect `data/releases.md`,
-   every release page, any page for the requested version, and `data/log.md`
-   before every mutation. Refuse a conflicting existing version; otherwise
-   preserve each already-correct result and perform only the missing
-   operations:
-   - List the done plans no earlier cut took, plus any this cut already
-     stamped:
-     `iwe find --filter '{type: plan, stage: done, released: {$exists: false}}' -f keys`
-     and `iwe find --filter '{type: plan, released: <X.Y.Z>}' -f keys`.
-     Dates cannot order a ship against a cut made the same day; `released` can.
-   - Collect every key those plans' `release` lists name, once each; `internal`
-     contributes nothing. Release pages link feature and bug docs, never plans.
+   the only writer of release pages. Inspect `data/releases.md`, every release
+   page, any page for the requested version, `data/archive/next-release/`, and
+   `data/archive/<X.Y.Z>/` before every mutation. Refuse a conflicting existing
+   version; otherwise preserve each already-correct result and perform only the
+   missing operations:
+   - Find the base: the commit that added the newest earlier release page,
+     `git log --diff-filter=A --format=%H -1 -- docs/knowledge/data/releases/<previous>.md`.
+   - Diff the requirements and scenarios of every spec under `data/spec/`
+     between the base and the working tree, ignoring `## Rationale`. For each
+     requirement or scenario added, changed, or removed, state in plain
+     language what changed in it, not only that it changed. A requirement that
+     left a spec counts as removed behaviour only when an archived plan of the
+     release says it was retired; one that moved to another spec is not a
+     change.
+   - Read the release's archived plans — under `data/archive/next-release/plans/`
+     before the move, `data/archive/<X.Y.Z>/plans/` after it — only to settle
+     what the diff leaves unclear. A change still unclear stays off the page and
+     goes in your report.
    - Create `data/releases/<X.Y.Z>.md` with `type: release`,
-     `version: <X.Y.Z>`, `stage: released`, and `date: <today>`, and one
-     inclusion link per collected document: a feature that no earlier release
-     page links under `## Added`, a feature an earlier release page links under
-     `## Changed`, and a bug under `## Fixed`. Omit an empty section. A page
-     that already exists keeps its links; add only the missing ones.
-   - Set `released: <X.Y.Z>` on each listed plan that lacks it.
+     `version: <X.Y.Z>`, `stage: released`, and `date: <today>`. The body groups
+     the changes by theme under `##` headings, then `## Removed` for behaviour
+     that went away, `## Upgrade notes` when a change needs action from a
+     consumer, and `## Fixed` with the H1 title of each bug in the release's
+     archive folder. Omit an empty section. The page holds no Markdown link. A
+     page that already exists stays as it is.
+   - Move every document under `data/archive/next-release/` to
+     `data/archive/<X.Y.Z>/` with `iwe rename`, keeping its subfolder.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
-   - Ensure `data/log.md` holds exactly one `## <today>` group for the cut,
-     newest first, whose bullets name the release page and each linked
-     document. For example:
-     <!-- validate_skills: ignore-cross-reference-start -->
-     `- **Release**: [1.1.0](releases/1.1.0.md) — [Focus sessions](features/focus-sessions.md) added.`
-     <!-- validate_skills: ignore-cross-reference-end -->
-     When today's group already exists, add only the bullets it lacks.
 
    Run `iwe normalize` and `iwe schema validate`, re-inspect the release graph,
    and commit with a message describing the release cut.
@@ -262,9 +275,10 @@ in full with its anchored evidence — never a line number — and route, becaus
   they don't, the plan goes back for revision — Ship never edits the intent to
   match the code, and never presents its merge as a deterministic application
   of the delta.
-- Ship and cancel write frontmatter only — never a hub, a release page, or the
-  log. Inspect before every mutation so rerunning a release cut cannot
-  duplicate a release link, a release-page entry, or a log group.
+- Ship and cancel write frontmatter, `## Fix` and `## Rationale` sections, and
+  the archive move with its hub-link removal — never a release page. Inspect
+  before every mutation so rerunning cannot duplicate a `## Rationale` entry, an
+  archive move, a release link, or a release page.
 - Never invent verification results or mark durable state complete after a
   mismatch or validation failure.
 - Never wait for a reply: a decision you were not given ends the run with a
