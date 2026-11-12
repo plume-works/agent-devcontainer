@@ -23,21 +23,26 @@ without a link breaking.
   `## Rationale` section of the spec that owns the behaviour.
 - A finding is a `data/findings/` document, and a procedure is a `data/guides/`
   document. There is no architecture type.
-- A feature describes behaviour in prose until it is implemented; from then on
-  its `## Behaviour` links the spec requirements that own it.
-- Whoever closes a plan, bug, or task moves it to
+- A feature is a proposal. Ship archives it with the plan that implements it.
+- Whoever closes a plan, bug, task, or feature moves it to
   `data/archive/next-release/<type>/` and removes its hub link. Ship first
   writes the plan's lasting decision into the owning spec's `## Rationale`.
 - A release cut moves `data/archive/next-release/` into
   `data/archive/<version>/`. The folder is the only record of a document's
   release.
+- A release cut writes the release page from the difference in `data/spec/`
+  since the previous cut: what changed, in plain language, with no link, and the
+  titles of the bugs the release closed.
 - Archived documents pass the schema of their type.
+- There is no `data/log.md`.
 
 ## Edge cases
 
 - A document closed by no plan belongs to the release open when it closed.
 - A live plan and an archived plan with the same slug are ambiguous to
   `/agentdev:iwe-branch-name`.
+- A change the spec difference does not explain, and no archived plan of the
+  release settles, is reported by the cut and left off the page.
 - A repository that consumed the earlier scaffold keeps its layout until it is
   migrated.
 

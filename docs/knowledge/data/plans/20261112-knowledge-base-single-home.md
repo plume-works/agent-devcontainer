@@ -3,7 +3,7 @@ type: plan
 created: 2026-11-12
 release:
 - features/single-home-knowledge
-description: Give every kind of knowledge in the graph one home — behaviour and its rationale in specs, findings and guides in their own types, finished work in a per-release archive — and fold the architecture notes, feature behaviour, and closed history into that layout.
+description: Give every kind of knowledge in the graph one home — behaviour and its rationale in specs, findings and guides in their own types, finished work in a per-release archive, release notes written from the spec diff — and fold the architecture notes, features, and closed history into that layout.
 sources:
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/SCHEMA.md
@@ -31,6 +31,10 @@ Measured on this checkout:
 - Closed plans, bugs, and tasks: `closed-0.md` to `closed-7.md` under
   `docs/knowledge/migration/scan/` cover 202 of them, one section per document,
   and 103 hold knowledge found nowhere else.
+- Release pages link features. The 2.1.0 page shows one feature added and five
+  changed; comparing each requirement's text in `data/spec/` between the 2.0.0
+  and 2.1.0 cuts shows 22 requirements added, 18 removed, and 33 modified across
+  19 specs.
 
 The user set the principles for the new layout: DRY and KISS. The user also
 decided that the whole of `docs/knowledge/data/` is redesigned, so no rule in
@@ -55,29 +59,43 @@ Each kind of knowledge has one home:
 | Why, and what was rejected    | `## Rationale` in the same spec        |
 | Findings                      | `data/findings/`, a new `finding` type |
 | Procedures                    | `data/guides/`, a new `guide` type     |
+| Proposals                     | `data/features/`                       |
 | Work in flight                | plans, bugs, tasks                     |
+| What a release changed        | the release page, as text              |
 | Finished or retired documents | `data/archive/`                        |
 
-The `architecture` type is retired and the schemas reject it. A feature keeps
-`## Purpose` for the release page; once it is implemented, its `## Behaviour` is
-a list of links to the spec requirements that own the behaviour.
+The `architecture` type is retired and the schemas reject it outside the
+archive. A feature is a proposal: it is live at `stage: proposed` or
+`stage: accepted`, and Ship archives it with the plan that implements it.
 
 Finished work is archived, never deleted. `data/archive/` holds one folder per
 release plus `next-release`, and each holds one subfolder per type, so every
-archived document stays under its type's schema. Whoever closes a plan, bug, or
-task moves it to `data/archive/next-release/<type>/` with `iwe rename` in the
-same change and removes its hub link. Before the move, Ship writes the plan's
-lasting decision, and a closed bug's lasting root cause, into the `## Rationale`
-of the spec that owns the behaviour. The release cut moves the contents of
-`next-release` into the version's folder. The folder is the only record of a
-document's release: the `released` field is removed. A document that no plan
-closed belongs to the release that was open when it closed.
+archived document stays under its type's schema. Whoever closes a plan, bug,
+task, or feature moves it to `data/archive/next-release/<type>/` with
+`iwe rename` in the same change and removes its hub link. Before the move, Ship
+writes the plan's lasting decision, and a closed bug's lasting root cause, into
+the `## Rationale` of the spec that owns the behaviour. The release cut moves
+the contents of `next-release` into the version's folder. The folder is the only
+record of a document's release: the `released` field is removed. A document that
+no plan closed belongs to the release that was open when it closed.
+
+The release cut writes the release page from the specs. It diffs the
+requirements and scenarios of `data/spec/` between the commit that added the
+previous release page and the cut, and writes what changed in plain language,
+grouped by theme, with no link. It appends the titles of the bugs in the
+release's folder. It reads the release's archived plans only to settle what the
+diff leaves unclear, and reports what stays unclear. Nothing edits the page
+afterwards. `data/log.md` is removed; OKF makes it optional. A plan's `release`
+field no longer feeds a page: it lists the feature and bug documents the plan
+closes, or `internal` when it closes none.
 
 The existing documents are migrated in this plan. Migration tasks edit specs
 directly: they record behaviour the code already has, each statement checked
 against the code first, and a statement the code contradicts is filed as a bug
 through `/agentdev:iwe-capture` and not migrated. `## Spec changes` below
-carries only the behaviour this plan changes.
+carries only the behaviour this plan changes. A release is cut under the current
+rules before the migration starts, so the first spec diff after it holds the
+migration alone.
 
 The catalog's `iwe-bootstrap` assets scaffold the same layout the rulebooks
 write, so they change with the rulebooks. A repository that already consumed the
@@ -96,16 +114,31 @@ Rejected:
 - **Minimal validation for archived documents.** The user chose full validation;
   a schema change is applied to that type's archived documents in the same
   change.
+- **Release pages that link features.** A feature's text is written at proposal
+  time, so a link to it names a change without saying what changed, and omits
+  every change a plan declared `internal`.
+- **An implemented feature whose `## Behaviour` links spec requirements.** It
+  keeps a second document per behaviour for a release page that no longer reads
+  it.
 
 ## Implementation Steps
 
-### Task 1: Schemas and bindings for the new layout
+### Task 1: A release is cut before the migration
+
+- [ ] A release page exists for every plan shipped before this plan's first
+  commit, cut by `/agentdev:iwe-ship` under the rules in force before this plan.
+  - **Closed by:** the user, by running the release cut and naming the version.
+
+### Task 2: Schemas and bindings for the new layout
 
 **Files:** Create: `.iwe/schemas/finding.yaml`, `.iwe/schemas/guide.yaml`,
 `docs/knowledge/data/findings.md`, `docs/knowledge/data/guides.md`,
 `docs/knowledge/tests/test_archive_layout.py`. Modify: `.iwe/config.toml`,
-`.iwe/schemas/okf.yaml`, `.iwe/schemas/plan.yaml`, `.iwe/schemas/feature.yaml`,
-`docs/knowledge/data/index.md`, `docs/knowledge/tests/test_released_stamp.py`.
+`.iwe/schemas/okf.yaml`, `.iwe/schemas/plan.yaml`, `.iwe/schemas/release.yaml`,
+`docs/knowledge/data/index.md`,
+`docs/knowledge/tests/test_reserved_file_shapes.py`. Delete:
+`docs/knowledge/tests/test_released_stamp.py`, `.iwe/schemas/okf-log.yaml`,
+`docs/knowledge/data/log.md`.
 
 - [ ] `.iwe/config.toml` binds the plan, bug, task, and feature schemas to
   `data/archive/*/<type>/**` beside their live folders, and binds `finding` and
@@ -114,15 +147,18 @@ Rejected:
 - [ ] A test in `test_archive_layout.py` runs `iwe schema validate` on a scratch
   graph under `/tmp` holding an archived plan with an invalid `stage` and
   expects a failure naming the document.
-- [ ] A test in `test_archive_layout.py` expects a failure for a document whose
-  frontmatter says `type: architecture`.
+- [ ] A test in `test_archive_layout.py` expects a failure for a document
+  outside `data/archive/` whose frontmatter says `type: architecture`.
 - [ ] A test in `test_archive_layout.py` expects a failure for a plan carrying
   `released`. `test_released_stamp.py` is deleted.
 - [ ] A finding requires `## Measurement` and `## Closing` and carries no
   `stage`; a guide requires an H1 and carries no `stage`. A test in
   `test_archive_layout.py` expects a failure for a finding without `## Closing`.
+- [ ] `data/log.md`, `.iwe/schemas/okf-log.yaml`, and the `okf-log` binding do
+  not exist, `test_reserved_file_shapes.py` holds no log case, and
+  `iwe schema validate` passes.
 
-### Task 2: The archive placement check
+### Task 3: The archive placement and release page checks
 
 **Files:** Modify: `scripts/check-ship-records.py`,
 `scripts/tests/test_check_ship_records.py`, `.pre-commit-config.yaml`.
@@ -132,13 +168,13 @@ Rejected:
   test.
 - [ ] It fails a plan without `stage`, or a bug or task at an open stage, that
   is inside `data/archive/`, with a test.
-- [ ] It fails a feature at `stage: implemented` or `stage: deprecated` whose
-  `## Behaviour` holds a line that is not a list item starting with a link into
-  `data/spec/`, with a test.
+- [ ] It fails a feature outside `data/archive/` at any stage but `proposed` or
+  `accepted`, and a feature inside it at either of those, with a test.
+- [ ] It fails a release page that holds a Markdown link, with a test.
 - [ ] The `ship-records` hook's `files` pattern covers `data/backlog/`,
-  `data/features/`, and `data/archive/`.
+  `data/features/`, `data/releases/`, and `data/archive/`.
 
-### Task 3: Scripts that find a plan by key
+### Task 4: Scripts that find a plan by key
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
@@ -158,25 +194,26 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
   document and none in `data/findings/`, `data/archive/`, or
   `data/architecture/`, with tests.
 
-### Task 4: The knowledge base's own documents
+### Task 5: The knowledge base's own documents
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`, `docs/knowledge/SCHEMA.md`,
 `docs/knowledge/STRUCTURE.md`, `docs/knowledge/README.md`, `AGENTS.md`,
 `docs/knowledge/data/product.md`.
 
 - [ ] `docs/knowledge/AGENTS.md` describes the homes in the `## Approach` table,
-  the archive move at close, and the release cut by folder, and names neither
-  `data/architecture/` nor `released`.
+  the archive move at close, and the release cut from the spec diff, and names
+  none of `data/architecture/`, `released`, and `data/log.md`.
 - [ ] `docs/knowledge/SCHEMA.md` documents the `finding` and `guide` types, the
-  archive folders, and the implemented feature's `## Behaviour`, and drops the
-  architecture type and the `released` field.
+  archive folders, the feature as a proposal, the `release` field as the
+  documents a plan closes, and the release page as text, and drops the
+  architecture type, the `released` field, and `data/log.md`.
 - [ ] `docs/knowledge/STRUCTURE.md` and `docs/knowledge/README.md` describe the
   same layout.
 - [ ] `AGENTS.md#project-memory`, `AGENTS.md#comments`, and the investigation
   rule in `docs/knowledge/data/product.md#authoring-rules` send a decision to a
   spec's `## Rationale` and a finding to `data/findings/`.
 
-### Task 5: The workflow rulebooks
+### Task 6: The workflow rulebooks
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `iwe-shipper.agent.md`, `iwe-ship-reviewer.agent.md`, `iwe-verifier.agent.md`,
@@ -188,16 +225,16 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
 
 - [ ] `iwe-planner.agent.md#the-three-forms-of-spec-changes` says a plan names
   the `## Rationale` entries each touched spec gains.
-- [ ] `iwe-planner.agent.md#steps` has a plan that grew from a backlog task mark
-  the task done and move it to the archive.
+- [ ] `iwe-planner.agent.md#steps` defines `release` as the documents the plan
+  closes, requires no feature for user-visible work, and has a plan that grew
+  from a backlog task mark the task done and move it to the archive.
 - [ ] `iwe-shipper.agent.md#steps`: after the spec merge, Ship writes the
-  `## Rationale` entries, replaces each listed implemented feature's
-  `## Behaviour` with requirement links, sets the stages, and moves the plan and
-  each bug it closes to `data/archive/next-release/` with `iwe rename`, removing
+  `## Rationale` entries, sets the stages, and moves the plan and each feature
+  and bug it closes to `data/archive/next-release/` with `iwe rename`, removing
   their hub links. Cancel moves the plan the same way.
-- [ ] `iwe-shipper.agent.md#steps`: the release cut reads the plans under
-  `data/archive/next-release/plans/`, moves every document in `next-release` to
-  `data/archive/<X.Y.Z>/`, and writes no `released`.
+- [ ] `iwe-shipper.agent.md#steps`: the release cut moves every document in
+  `next-release` to `data/archive/<X.Y.Z>/`, writes the release page as
+  `## Spec changes` below requires, and writes no `released` and no log.
 - [ ] The `## Ship review` template in `iwe-ship-reviewer.agent.md` and the
   fixed structure in `scripts/check-ship-records.py` replace the "edited no hub"
   item with items for the archive move and the `## Rationale` entries, with the
@@ -210,11 +247,11 @@ and their tests under `.agents/plugins/agentdev/tests/` and `scripts/tests/`.
   bug it closes, to the archive.
 - [ ] No file under `.agents/plugins/agentdev/agents/` or
   `.agents/plugins/agentdev/skills/iwe-*/` outside `iwe-bootstrap/assets/` names
-  `data/architecture` or the `released` field.
+  `data/architecture`, `data/log.md`, or the `released` field.
 - [ ] `uv run pytest .agents/plugins/agentdev/tests -k 'validate or catalog'`
   and the `validate_agent_files` pre-commit hook pass on the catalog.
 
-### Task 6: The bootstrap scaffold
+### Task 7: The bootstrap scaffold
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/` (its
 `.iwe/`, `docs/knowledge/AGENTS.md`, `SCHEMA.md`, `STRUCTURE.md`, hubs, and
@@ -223,12 +260,12 @@ example documents),
 `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py`.
 
 - [ ] The scaffold installs the `finding` and `guide` types, the archive
-  bindings, and no architecture hub or example, and
+  bindings, and no architecture hub or example and no `data/log.md`, and
   `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py` passes.
 - [ ] `/agentdev:iwe-capture task` files a backlog task for migrating a
   repository that consumed the earlier scaffold.
 
-### Task 7: Fold the architecture notes
+### Task 8: Fold the architecture notes
 
 For each note: check every behaviour statement against the code it anchors. A
 statement the code confirms and no spec holds becomes a requirement with a
@@ -239,7 +276,8 @@ is filed through `/agentdev:iwe-capture bug`. The note then moves to
 `next-release` — keeping `type: architecture`. Destinations are the table in
 `origin/specs-over-arch:openspec/changes/specs-sole-source-of-truth/design.md`
 (commit `19fbac9f`), with `openspec/specs/<slug>` read as `data/spec/<slug>`.
-`per-worktree-catalog`, which that table predates, goes to `catalog-lifecycle`.
+`per-worktree-catalog`, which that table does not list, goes to
+`catalog-lifecycle`.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`,
 `docs/knowledge/data/spec.md`. Create: `docs/knowledge/data/findings/*.md`,
@@ -275,44 +313,48 @@ is filed through `/agentdev:iwe-capture bug`. The note then moves to
   `docs/knowledge/data/architecture.md` do not exist, and
   `.iwe/schemas/architecture.yaml` is bound only to
   `data/archive/*/architecture/**`.
+- [ ] No frontmatter `sources` entry under `docs/knowledge/data/` outside
+  `data/archive/` names a path under `data/architecture/`.
 - [ ] No code comment, workflow, or script outside `docs/knowledge/` cites
   `architecture/<slug>`:
   `git grep -nE 'architecture/[a-z0-9-]+' -- ':!docs/knowledge' ':!docs/research'`
   prints nothing.
 
-### Task 8: Fold feature behaviour
+### Task 9: Fold and archive the features
 
 Input: `docs/knowledge/migration/scan/features.md`. For each implemented
 feature, each statement its row counts as unique and its destination table keeps
 becomes a requirement or scenario in the destination spec after a check against
 the code. Each conflict is resolved for the code: the stale side is corrected,
 and a spec the code contradicts is corrected as a recorded behaviour, not a
-change. Then the feature's `## Behaviour` becomes links to the owning
-requirements and `## Edge cases` is removed.
+change. Then the feature moves, unchanged, to `data/archive/<release>/features/`
+— the first release whose page names it.
 
-**Files:** Modify: `docs/knowledge/data/features/*.md`,
-`docs/knowledge/data/spec/*.md`, `.iwe/schemas/feature.yaml`. Create: new specs
-`pr-review`, `ci-python-environment`.
+**Files:** Modify: `docs/knowledge/data/spec/*.md`,
+`docs/knowledge/data/features.md`. Create: new specs `pr-review`,
+`ci-python-environment`. Move: every `docs/knowledge/data/features/*.md` at
+`stage: implemented` or `stage: deprecated`.
 
 - [ ] Every conflict listed under `## Conflicts` in `features.md` has its stale
   side corrected, or a bug filed through `/agentdev:iwe-capture bug` when the
   code is the wrong side.
 - [ ] `data/spec/opencode-web.md` and `data/spec/catalog-lifecycle.md` agree on
   where OpenCode's data lives, matching `.devcontainer/docker-compose.yml`.
-- [ ] Every implemented feature whose owning spec is `iwe-workflow-skills`,
-  `plan-checkbox-evidence`, `git-new-branch`, `iwe-branch-name`, `stacked-prs`,
-  `update-branch`, or `pr-merge-conflicts` is folded.
-- [ ] Every implemented feature whose owning spec is `ai-review-gate`,
-  `template-consumption`, `pre-commit-gate`, `dependency-updates`, or
-  `image-pinning` is folded, with the new `pr-review` and
-  `ci-python-environment` specs linked from `data/spec.md`.
-- [ ] Every other implemented feature is folded.
-- [ ] The five deprecated features are in `data/archive/` under the release that
-  deprecated them, and `data/features.md` no longer links them.
-- [ ] `uv run scripts/check-ship-records.py docs/knowledge/data/features/*.md`
-  passes.
+- [ ] The unique statements of every implemented feature whose owning spec is
+  `iwe-workflow-skills`, `plan-checkbox-evidence`, `git-new-branch`,
+  `iwe-branch-name`, `stacked-prs`, `update-branch`, or `pr-merge-conflicts` are
+  in that spec.
+- [ ] The unique statements of every implemented feature whose owning spec is
+  `ai-review-gate`, `template-consumption`, `pre-commit-gate`,
+  `dependency-updates`, or `image-pinning` are in that spec, with the new
+  `pr-review` and `ci-python-environment` specs linked from `data/spec.md`.
+- [ ] The unique statements of every other implemented feature are in their
+  destination spec.
+- [ ] Every feature at `stage: implemented` or `stage: deprecated` is under
+  `data/archive/`, and `data/features.md` links only features at
+  `stage: proposed` or `stage: accepted`.
 
-### Task 9: Distil and archive the closed history
+### Task 10: Distil and archive the closed history
 
 Input: `closed-0.md` to `closed-7.md` under `docs/knowledge/migration/scan/`.
 For each document with the verdict `HAS UNIQUE KNOWLEDGE`, each listed item is
@@ -320,7 +362,7 @@ checked against the code and then written to its owning spec — a `behaviour`
 item as a requirement or scenario, every other kind in `## Rationale` — or is
 struck in the scan file with the reason it is dropped. A constraint that is
 about tests goes to `AGENTS.md#tests`. A conflict the scan lists is handled as
-in Task 8.
+in Task 9.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`, `AGENTS.md`,
 `docs/knowledge/data/releases/*.md`, `docs/knowledge/data/plans.md`,
@@ -342,24 +384,22 @@ closed document under `docs/knowledge/data/plans/`, `bugs/`, and `backlog/`.
   stage, and no spec contradicts it.
 - [ ] A `## Rationale` entry in `data/spec/template-consumption.md` records why
   the codebase map was retired.
-- [ ] Every done plan with `released: 1.0.0` is under
-  `data/archive/1.0.0/plans/` with `released` removed.
-- [ ] Every done plan with `released: 2.0.0` is under
-  `data/archive/2.0.0/plans/` with `released` removed.
-- [ ] Every done plan with `released: 2.1.0` is under
-  `data/archive/2.1.0/plans/` with `released` removed.
+- [ ] Every done plan carrying `released` is under
+  `data/archive/<that version>/plans/` with `released` removed.
 - [ ] Every done plan without `released`, and every cancelled plan, is under
   `data/archive/next-release/plans/` or the folder of the release open when it
   closed.
 - [ ] Every closed bug and task is in the archive folder of the plan that closed
   it, or of the release open when it closed.
 - [ ] `data/plans.md`, `data/bugs.md`, and `data/backlog.md` link only open
-  documents, and each release page links the documents in its folder under
-  `## Archive`.
+  documents.
+- [ ] On every existing release page, each link is replaced by its link text,
+  and `uv run scripts/check-ship-records.py docs/knowledge/data/releases/*.md`
+  passes.
 - [ ] `uv run scripts/check-ship-records.py` over every document under
   `docs/knowledge/data/` passes.
 
-### Task 10: One home for each rule inside a spec
+### Task 11: One home for each rule inside a spec
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`.
 
@@ -368,7 +408,7 @@ closed document under `docs/knowledge/data/plans/`, `bugs/`, and `backlog/`.
   requirement is removed. `/agentdev:semantic-refactor-audit` reports every
   behaviour the specs stated before the task has exactly one home after it.
 
-### Task 11: Remove the migration inputs
+### Task 12: Remove the migration inputs
 
 **Files:** Delete: `docs/knowledge/migration/`.
 
@@ -387,49 +427,40 @@ The graph SHALL hold behaviour only in `data/spec/` requirements, the decision
 in force and the alternatives it rejected only in the `## Rationale` section of
 the spec that owns the behaviour, a finding only in `data/findings/`, and a
 procedure only in `data/guides/`. The schemas SHALL reject a document of type
-`architecture` outside `data/archive/`. A feature at `stage: implemented` or
-`stage: deprecated` SHALL state behaviour only as links to spec requirements,
-and the `ship-records` check SHALL fail one that does not. Nothing checks
-mechanically that a `## Rationale` states no behaviour; the Durable Knowledge
-Auditor and review judge it.
+`architecture` outside `data/archive/`. A feature SHALL be a proposal: outside
+`data/archive/` its `stage` is `proposed` or `accepted`, and the `ship-records`
+check SHALL fail any other. Nothing checks mechanically that a `## Rationale`
+states no behaviour; the Durable Knowledge Auditor and review judge it.
 
 #### Scenario: An architecture note is written
 
 - **WHEN** a document outside `data/archive/` carries `type: architecture`
 - **THEN** `iwe schema validate` fails and names the document
 
-#### Scenario: An implemented feature restates behaviour
+#### Scenario: An implemented feature is left in place
 
-- **WHEN** a feature at `stage: implemented` has a `## Behaviour` line that is
-  not a list item starting with a link into `data/spec/`
-- **THEN** the `ship-records` check fails and names the line
-
-#### Scenario: A proposed feature describes behaviour
-
-- **WHEN** a feature at `stage: proposed` or `stage: accepted` describes its
-  behaviour in prose
-- **THEN** the `ship-records` check passes it
+- **WHEN** a feature under `data/features/` is at `stage: implemented`
+- **THEN** the `ship-records` check fails and names the document
 
 ### Requirement: Closed work is distilled and archived by release
 
 Whoever sets a plan, bug, or backlog task to `stage: done` or
-`stage: cancelled` SHALL, in the same change, move it with `iwe rename` to
+`stage: cancelled`, or a feature to `stage: implemented` or `stage: cancelled`,
+SHALL, in the same change, move it with `iwe rename` to
 `data/archive/next-release/<type>/` and remove its hub link. Before Ship moves
 a plan, it SHALL write the plan's decision in force and its rejected
 alternatives, and each closed bug's lasting root cause, into the `## Rationale`
-of the spec that owns the behaviour, and SHALL replace the `## Behaviour` of
-each feature it marks implemented with links to the owning requirements. The
-release cut SHALL move every document under `data/archive/next-release/` to
-`data/archive/<X.Y.Z>/`, keeping the type subfolders, and SHALL link each from
-the release page. The folder SHALL be the only record of a document's release:
-no document SHALL carry `released`. Every archived document SHALL pass the
-schema of its type. The `ship-records` check SHALL fail a closed document
-outside `data/archive/` and an open one inside it.
+of the spec that owns the behaviour. The release cut SHALL move every document
+under `data/archive/next-release/` to `data/archive/<X.Y.Z>/`, keeping the type
+subfolders. The folder SHALL be the only record of a document's release: no
+document SHALL carry `released`. Every archived document SHALL pass the schema
+of its type. The `ship-records` check SHALL fail a closed document outside
+`data/archive/` and an open one inside it.
 
 #### Scenario: A plan ships
 
 - **WHEN** Ship marks a plan done
-- **THEN** the plan and each bug it closed are under
+- **THEN** the plan and each feature and bug it closed are under
   `data/archive/next-release/`, no hub links them, and every link to them
   resolves
 
@@ -444,7 +475,7 @@ outside `data/archive/` and an open one inside it.
 
 - **WHEN** Ship cuts release `X.Y.Z`
 - **THEN** every document that was under `data/archive/next-release/` is under
-  `data/archive/X.Y.Z/`, and the release page links each
+  `data/archive/X.Y.Z/`
 
 #### Scenario: A closed document is left in place
 
@@ -457,52 +488,84 @@ outside `data/archive/` and an open one inside it.
 - **WHEN** an archived plan carries a `stage` its schema does not allow
 - **THEN** `iwe schema validate` fails and names the document
 
+### Requirement: Release notes are written from the spec diff
+
+The release cut SHALL write the release page from the difference in the
+requirements and scenarios of `data/spec/` between the commit that added the
+previous release page and the cut, ignoring `## Rationale`. The page SHALL say
+in plain language what changed, grouped by theme, with a Removed section for
+behaviour that went away, an Upgrade notes section when a change requires
+action, and a Fixed section listing the titles of the bugs in the release's
+folder. The page SHALL hold no Markdown link, and the `ship-records` check SHALL
+fail one that does. The cut SHALL read the release's archived plans only to
+settle what the diff leaves unclear, and SHALL report each change it could not
+settle and leave it off the page. No skill SHALL edit a release page after its
+cut; nothing checks that mechanically. The graph SHALL hold no `data/log.md`.
+
+#### Scenario: A requirement changed between cuts
+
+- **WHEN** a requirement's statement or a scenario differs between the previous
+  cut and this one
+- **THEN** the release page says what changed in it, not only that it changed
+
+#### Scenario: A requirement left a spec
+
+- **WHEN** a requirement present at the previous cut is absent at this one and
+  an archived plan of the release retired the behaviour
+- **THEN** the release page lists the behaviour under Removed
+
+#### Scenario: The diff does not say why
+
+- **WHEN** a requirement left a spec and no archived plan of the release says
+  whether the behaviour was retired or moved
+- **THEN** the cut reports the requirement and leaves it off the page
+
+#### Scenario: Only rationale changed
+
+- **WHEN** the only difference in a spec between the cuts is under
+  `## Rationale`
+- **THEN** the release page does not mention the spec
+
+#### Scenario: A release page links a document
+
+- **WHEN** a commit stages a release page holding a Markdown link
+- **THEN** the `ship-records` check fails and names the line
+
 ## MODIFIED Requirements
 
 ### Requirement: Plans declare their release impact
 
 The plan schema SHALL require every active plan to carry a `release` frontmatter
 value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
-work adds, changes, or fixes. The Plan skill SHALL set that value when it files
-a plan, SHALL declare `internal` only when no workspace user or template
-consumer sees a difference, SHALL have Capture file a missing feature before it
-files the plan, and SHALL set every bug the plan lists to `stage: planned`. Ship
-SHALL take a plan's release entries only from that value, SHALL never create a
-feature, SHALL write the `## Fix` of each bug it marks done, and SHALL return
-each listed bug to `stage: pending` when it cancels the plan. The release cut
-SHALL build the release page from the `release` values of the plans under
-`data/archive/next-release/plans/`.
+work closes. The Plan skill SHALL set that value when it files a plan, SHALL
+declare `internal` when the work closes no feature and no bug, SHALL set every
+feature the plan lists to `stage: accepted`, and SHALL set every bug the plan
+lists to `stage: planned`. Ship SHALL take the documents a plan closes only
+from that value, SHALL never create a feature, SHALL write the `## Fix` of each
+bug it marks done, and SHALL return each listed bug to `stage: pending` when it
+cancels the plan.
 
-#### Scenario: A plan introduces user-visible behavior with no feature
+#### Scenario: A plan implements a proposed feature
 
-- **WHEN** Plan files a plan whose work changes what a workspace user or
-  template consumer sees, and no feature describes it
-- **THEN** Plan hands the feature to Capture, lists its key in `release`, and
-  sets the feature to `stage: accepted`
+- **WHEN** Plan files a plan whose `release` lists a feature at
+  `stage: proposed`
+- **THEN** Plan sets the feature to `stage: accepted`
 
 #### Scenario: A plan lists a bug
 
 - **WHEN** Plan files a plan whose `release` lists a bug at `stage: pending`
 - **THEN** Plan sets the bug to `stage: planned`
 
-#### Scenario: A plan changes nothing users see
+#### Scenario: A plan closes no document
 
-- **WHEN** the release cut reads an archived plan that declares
-  `release: internal`
-- **THEN** the plan adds no Added, Changed, or Fixed entry
+- **WHEN** Ship ships a plan that declares `release: internal`
+- **THEN** Ship marks the plan done and closes no feature or bug
 
 #### Scenario: A plan declares features and bugs
 
 - **WHEN** Ship ships a plan whose `release` lists feature and bug keys
 - **THEN** Ship marks each feature implemented and each bug done, and writes
   each bug's `## Fix` describing the shipped fix and linking the plan
-
-#### Scenario: A release cut collects declared documents
-
-- **WHEN** the release cut reads the archived plans of the release
-- **THEN** the release page links each listed document once — a feature no
-  earlier release page links under Added, a feature an earlier page links under
-  Changed, a bug under Fixed
 
 #### Scenario: A plan listing bugs is cancelled
 
@@ -526,6 +589,54 @@ SHALL build the release page from the `release` values of the plans under
 
 - **WHEN** a plan at `stage: done` or `stage: cancelled` has no `release`
 - **THEN** `iwe schema validate` accepts it
+
+### Requirement: Plans record intent, not the path taken to it
+
+Plan documents SHALL record what is settled rather than the sequence of attempts
+that settled it. `## Verification results` SHALL be a plan's only narrative
+section. Implement SHALL route a finding that does not change the plan's intent
+to its own document — `data/findings/`, `data/bugs/`, or `data/backlog/` —
+rather than into the plan's `## Context` or `## Approach`, which state intent
+and remain the Plan skill's to own. Every edit to a plan's intent sections SHALL
+be reviewed through `/agentdev:iwe-plan-review` before the edit is validated:
+audited for durable-knowledge residue by a reviewer holding no context beyond
+the audit scope and the plan file, and checked by `iwe-ship-reviewer` in plan
+mode for what Ship will need.
+
+#### Scenario: Implementation produces a durable finding
+
+- **WHEN** implementation establishes a constraint, root cause, or rejected
+  alternative that the plan did not anticipate
+- **THEN** Implement records it in the reference document that owns the area and
+  reports the capture, leaving the plan's intent sections unchanged
+
+#### Scenario: A session narrates its attempts into a plan
+
+- **WHEN** a plan would gain a running account of an in-flight investigation —
+  failed attempts, CI run identifiers, per-attempt tables
+- **THEN** that content is excluded from the plan, because it would not be true
+  had the work succeeded the first time
+
+#### Scenario: A finding changes the plan's intent
+
+- **WHEN** a finding alters scope, observable behavior, compatibility,
+  acceptance criteria, dependencies, or an out-of-scope boundary
+- **THEN** it goes back through the Plan skill's revise mode rather than being
+  captured elsewhere or written into the plan directly
+
+#### Scenario: A plan edit is audited before validation
+
+- **WHEN** Plan creates or revises a plan and reaches validation
+- **THEN** a reviewer holding only the audit scope and the plan file audits its
+  intent sections for durable-knowledge residue, its verdicts are applied, and
+  the narrative-sanctioned `## Verification results` and `- **Evidence:**`
+  children are left out of that audit
+
+#### Scenario: A plan edit is checked for what Ship needs
+
+- **WHEN** Plan creates or revises a plan and reaches validation
+- **THEN** `iwe-ship-reviewer` in plan mode reports whether the plan gives Ship
+  what it needs, and Plan resolves each finding before validating
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 
@@ -573,7 +684,7 @@ work done, and SHALL be safe to resume after a partial prior attempt.
 
 - **WHEN** a prior Ship attempt already performed some valid state changes
 - **THEN** Ship inspects current state, preserves completed valid work, avoids
-  duplicate `## Rationale` entries, archive moves, release, and log entries,
+  duplicate `## Rationale` entries, archive moves, and release pages,
   and continues from the first incomplete operation
 
 #### Scenario: A durable spec is retired
@@ -583,33 +694,6 @@ work done, and SHALL be safe to resume after a partial prior attempt.
 - **THEN** Ship uses IWE's graph-aware deletion operation, repairs references,
   and does not leave an empty or orphaned spec document
 
-### Requirement: Bug and feature documents keep the SCHEMA.md shape
-
-The bug and feature schemas SHALL require the body shape `SCHEMA.md` prescribes
-— a bug's `Bug:` H1 and its Symptom, Reproduction, and Root cause sections,
-followed by optional Potential solution and Fix sections; a feature's Purpose
-and Behaviour sections, followed by optional Edge cases and Open questions
-sections — in that order, while allowing additional sections. The bug schema
-SHALL require a `stage` of `pending`, `planned`, `done`, or `cancelled` and a
-`severity` of `critical`, `high`, `medium`, or `low`.
-
-#### Scenario: A document is written without Capture
-
-- **WHEN** a bug or feature document lacks a required section, has them out of
-  order, or a bug's H1 lacks the `Bug:` prefix
-- **THEN** `iwe schema validate` fails and names the document
-
-#### Scenario: A bug lacks its stage or severity
-
-- **WHEN** a bug document has no `stage` or no `severity`, or a value outside
-  its enum
-- **THEN** `iwe schema validate` fails and names the document
-
-#### Scenario: A bug has no Fix
-
-- **WHEN** a bug document has neither a Potential solution nor a Fix section
-- **THEN** `iwe schema validate` accepts it
-
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
@@ -618,13 +702,12 @@ attribution, and schema validation. Risk-scaled spec deltas SHALL remain
 embedded planning content without introducing OpenSpec change bundles, stores,
 separate delta files, or a claimed programmatic delta application engine. The
 graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md` lists the
-hubs, `data/log.md` stays date-grouped, and the `okf`, `okf-index`, and
-`okf-log` schemas check every document — and SHALL diverge from OKF only where
-OKF costs merges or upkeep. No document under `data/` SHALL set OKF's optional
-`status`, because `stage` is the lifecycle field, nor OKF's `generated` or
-`verified`, because source control records when and by whom a document changed.
-The `banned-frontmatter-keys` pre-commit check SHALL reject a document that
-sets any of them.
+hubs, and the `okf` and `okf-index` schemas check every document — and SHALL
+diverge from OKF only where OKF costs merges or upkeep. No document under
+`data/` SHALL set OKF's optional `status`, because `stage` is the lifecycle
+field, nor OKF's `generated` or `verified`, because source control records when
+and by whom a document changed. The `banned-frontmatter-keys` pre-commit check
+SHALL reject a document that sets any of them.
 
 #### Scenario: Updated skills write project memory
 
@@ -638,12 +721,16 @@ sets any of them.
 - **THEN** the `banned-frontmatter-keys` check fails and names the document and
   the key
 
-#### Scenario: A reserved file loses its OKF shape
+#### Scenario: The index loses its OKF shape
 
-- **WHEN** `data/index.md` or `data/log.md` departs from the shape its OKF
-  schema defines
+- **WHEN** `data/index.md` departs from the shape its OKF schema defines
 - **THEN** `iwe schema validate` fails and names the file
 ```
+
+Removed from "Plans declare their release impact": the scenario "A plan
+introduces user-visible behavior with no feature", because a plan no longer
+needs a feature. "A plan changes nothing users see" becomes "A plan closes no
+document".
 
 `## Rationale` entries for this spec: the decisions and rejected alternatives in
 `## Approach`.
@@ -656,11 +743,11 @@ sets any of them.
 ### Requirement: Ship records are gated in pre-commit
 
 A pre-commit hook SHALL run a checker CLI over every bug, plan, backlog task,
-and feature document pre-commit passes it, live or archived, at commit time,
+feature, and release document pre-commit passes it, live or archived, at commit time,
 over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
 `stage: done` that has no `## Fix` heading, and a plan whose `## Ship review`
 section differs from the fixed structure, and SHALL report every violation with
-`path:line`. Its archive placement and feature behaviour failures are those
+`path:line`. Its archive placement and release page failures are those
 `iwe-workflow-skills` states.
 
 #### Scenario: a done bug has no Fix
@@ -683,7 +770,7 @@ section differs from the fixed structure, and SHALL report every violation with
 #### Scenario: CI checks every file
 
 - **WHEN** CI runs pre-commit with `--all-files`
-- **THEN** the hook checks every bug, plan, task, and feature document.
+- **THEN** the hook checks every bug, plan, task, feature, and release document.
 ```
 
 [Line-free anchors](../spec/line-free-anchors.md):
@@ -771,7 +858,7 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 - **THEN** a lookup by slug `foo` reports `AMBIGUOUS_PLAN`
 ```
 
-Specs that Tasks 7 to 10 create or extend record behaviour the code already has
+Specs that Tasks 8 to 11 create or extend record behaviour the code already has
 and change none: `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
 `ci-workflows`, `pr-description`, `supported-harnesses`, `pr-review`,
 `ci-python-environment`.
@@ -779,9 +866,9 @@ and change none: `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
 ## Depends on
 
 [Give each Claude worktree its own agentdev
-catalog](20261103-per-worktree-catalog.md) ships first, so Task 9 archives it
-with the rest of the closed history and no plan is in flight while the rulebooks
-change.
+catalog](20261103-per-worktree-catalog.md) ships first, so Task 1's release
+includes it, Task 10 archives it with the rest of the closed history, and no
+plan is in flight while the rulebooks change.
 
 ## Verification
 
@@ -793,36 +880,41 @@ change.
 - `uv run scripts/check-anchors.py` exits 0.
 - `uv run scripts/check-ship-records.py $(git ls-files 'docs/knowledge/data/**/*.md')`
   exits 0.
-- `test ! -e docs/knowledge/data/architecture && test ! -e docs/knowledge/migration`
+- `test ! -e docs/knowledge/data/architecture && test ! -e docs/knowledge/migration && test ! -e docs/knowledge/data/log.md`
   succeeds.
 - `iwe find --filter '{released: {$exists: true}}' -f keys` prints nothing.
 - `iwe find --filter '{type: {$in: [plan, bug, task]}, stage: {$in: [done, cancelled]}}' -f keys`
+  prints only keys under `data/archive/`.
+- `iwe find --filter '{type: feature, stage: {$nin: [proposed, accepted]}}' -f keys`
   prints only keys under `data/archive/`.
 - `iwe stats` reports no broken link.
 
 ## Out of scope
 
-- Migrating a repository that already consumed the earlier scaffold; Task 6
+- Migrating a repository that already consumed the earlier scaffold; Task 7
   files the follow-up.
 - Rules about the graph that `docs/knowledge/AGENTS.md`, `SCHEMA.md`, and the
   rulebooks each restate.
 - The `product`, `milestone`, `concept`, and `someday` documents.
 - Any change to code the specs describe: a contradiction between a spec and the
   code is recorded or filed, never fixed here.
+- Rewriting the existing release pages from old spec diffs; their links become
+  plain titles.
 
 ## Key references
 
 - `.iwe/config.toml#schemas.plan` — the path binding each type's archive folders
   join.
 - `.iwe/config.toml#schemas.hub` — the closed hub set.
+- `.iwe/config.toml#schemas.okf-log` — the log binding being removed.
 - `.iwe/schemas/architecture.yaml` — the type being retired.
-- `.iwe/schemas/feature.yaml` — the feature body shape.
+- `.iwe/schemas/release.yaml` — the release page's schema.
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps` — the spec merge,
   the stage transitions, and the release cut.
 - `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md#ship-mode` — the
   fixed checklist.
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps` — where a plan
-  closes the backlog task it grew from.
+  sets `release` and closes the backlog task it grew from.
 - `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing` — where a
   decision is routed to `data/architecture/`.
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py::find_plan`
@@ -837,6 +929,7 @@ change.
   checks join.
 - `docs/knowledge/tests/test_released_stamp.py::test_released_must_be_a_version`
   — the test of the field being removed.
+- `docs/knowledge/tests/test_reserved_file_shapes.py` — holds the log shape
+  cases being removed.
 - `docs/knowledge/AGENTS.md#the-operating-loop` — the record step that names
   each home.
-- `docs/knowledge/SCHEMA.md#features--datafeaturesslugmd` — the feature shape.
