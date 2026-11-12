@@ -26,13 +26,13 @@ point at which to recheck them.
 | OpenCode    | No               | `experimental.subagent_depth` in `opencode.json`, default `1`                          | 2 with the setting at `2` |
 
 - **Claude Code.** An agent whose `tools:` omits `Agent` reports it has no way
-  to dispatch. That is why `iwe-shipper`, whose list is
-  `Bash, Read, Edit, Write, Grep, Glob, Skill`, cannot start a fresh-context
-  agent of its own. Each subagent transcript's `.meta.json` records `spawnDepth`
-  and `parentAgentId`. The environment variable
-  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the nesting limit; when it is
-  unset, a server-side flag sets the limit, falling back to 3. The agent at the
-  limit is not offered the `Agent` tool, and nothing reports an error.
+  to dispatch, which is why `iwe-shipper` lists `Agent` to dispatch
+  `iwe-verifier` ([Fresh-context Verify](fresh-context-verify.md)). Each
+  subagent transcript's `.meta.json` records `spawnDepth` and `parentAgentId`.
+  The environment variable `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the
+  nesting limit; when it is unset, a server-side flag sets the limit, falling
+  back to 3. The agent at the limit is not offered the `Agent` tool, and nothing
+  reports an error.
 - **OpenCode.** At the default depth a nested `task` call fails with "Subagent
   depth limit reached (1). Increase "experimental.subagent_depth" to allow
   nested subagents." The key is experimental, so a design that needs it takes on

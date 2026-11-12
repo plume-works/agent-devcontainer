@@ -9,7 +9,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: docs/knowledge/data/architecture/fresh-context-verify.md
-rank: 300
+stage: done
+completed: 2026-11-12
 ---
 
 # The Shipper dispatches Verify
@@ -52,37 +53,79 @@ same step.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] `tools:` includes `Agent`, and step 3 runs `/agentdev:iwe-verify` by its
+- [x] `tools:` includes `Agent`, and step 3 runs `/agentdev:iwe-verify` by its
   session route, forwarding the approvals its prompt quotes verbatim, instead of
   following the `iwe-verifier` rulebook in place; the line saying it never
   dispatches an agent is replaced.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md › "tools: Bash, Read, Edit, Write, Grep, Glob, Skill, Agent"`
+    and
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "and take its session route"`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
 
 ### Task 2: Verify has one route
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] `/agentdev:iwe-verify` drops its "From inside `iwe-shipper`" section, and
+- [x] `/agentdev:iwe-verify` drops its "From inside `iwe-shipper`" section, and
   its session route names the Shipper as a caller whose skill request and
   verifier prompt are the plan key and the approvals the Shipper's prompt
   quotes.
-- [ ] `iwe-verifier` drops its "In place inside `iwe-shipper`" mode and runs
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session › "the request is the plan you are shipping"`
+    and
+    `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "the Implement loop or the Shipper"`;
+    the "From inside `iwe-shipper`" section is gone.
+- [x] `iwe-verifier` drops its "In place inside `iwe-shipper`" mode and runs
   only as a dispatched agent.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run › "You run only"`
+    and its `description` frontmatter, "Dispatched only by the iwe-verify
+    skill"; the "In place inside `iwe-shipper`" mode is gone.
 
 ### Task 3: Record the decision
 
-**Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`
+**Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`,
+`docs/knowledge/data/architecture/nested-subagent-dispatch.md`
 
-- [ ] The document states that the Shipper dispatches `iwe-verifier` through
+- [x] The document states that the Shipper dispatches `iwe-verifier` through
   `/agentdev:iwe-verify`, and lists following the rulebook in place as a
   rejected alternative: it puts the whole Verify run in the Shipper's context
   ahead of its graph changes.
+  - **Evidence:**
+    `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "Every caller takes that route"`
+    and
+    `docs/knowledge/data/architecture/fresh-context-verify.md#rejected-alternatives › "rulebook in place"`;
+    `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior › "which is why"`
+    no longer quotes the Shipper's old tool list.
 
 ### Task 4: Ship runs a fresh-context Verify end to end
 
-- [ ] `/agentdev:iwe-ship` on a scratch plan with no saved report shows a
+- [x] `/agentdev:iwe-ship` on a scratch plan with no saved report shows a
   dispatched `iwe-verifier` in the transcript and a saved report afterwards, and
   the catalog validator passes.
+  - **Evidence:** the headless run in
+    `docs/knowledge/data/architecture/skill-rehearsal-runs.md#running-it`,
+    `/agentdev:iwe-ship` on a scratch plan whose `verify-cache.py lookup` is
+    `MISS`: the stream holds an `agentdev:iwe-verifier` Agent call whose
+    `parent_tool_use_id` is the `agentdev:iwe-shipper` call, and
+    `verify-cache.py lookup` on the commit Verify ran on returns `HIT`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
+
+### Task 5: The feature describes the dispatch
+
+**Files:** Modify:
+`docs/knowledge/data/features/verification-in-the-main-loop.md`
+
+- [x] `## Behaviour` states that `iwe-shipper` runs `/agentdev:iwe-verify`,
+  which dispatches `iwe-verifier`, so only the report enters the Shipper's
+  context, instead of the Shipper following the rulebook in place.
+  - **Evidence:**
+    `docs/knowledge/data/features/verification-in-the-main-loop.md#behaviour › "runs the same skill, which dispatches"`;
+    the "follows the same rulebook in place" sentence is gone.
 
 ## Spec changes
 
@@ -234,13 +277,35 @@ SHALL be a CRITICAL finding.
   — `tools:`;
   `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
   — step 3, Run Verify for normal shipping
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-inside-iwe-shipper`
-  — the "From inside `iwe-shipper`" section;
-  `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session` —
-  `## From a session`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run › "— the Shipper, already a fresh context"`
-  — the "In place inside `iwe-shipper`" mode
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session` —
+  `## From a session`, the one route
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run` —
+  `## How you run`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — Requirement: Normal shipping requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "— the Shipper is already a fresh context and"`
-  — the Shipper's in-place route
+- `docs/knowledge/data/architecture/fresh-context-verify.md#decision` —
+  `## Decision`
+- `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior` —
+  `## Host behavior`, which names the Shipper's tool list
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship —
+  data/plans/20261103-shipper-dispatches-verifier
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/iwe-workflow-skills
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — confirmed:
+  data/features/verification-in-the-main-loop
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed

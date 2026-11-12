@@ -6,6 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
+- resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 ---
 
@@ -31,9 +32,9 @@ separate persisted verification artifact is required.
 **Verify always runs from a fresh context.** Its rulebook is the `iwe-verifier`
 catalog agent. `/agentdev:iwe-verify` dispatches it with a prompt carrying only
 the plan key or audit mode and the user's quoted approvals, and re-posts its
-report. Inside `iwe-shipper`, itself a fresh context, the Shipper follows the
-same rulebook in place and still consumes the report in its own context. See
-[Fresh-context Verify](../architecture/fresh-context-verify.md).
+report. `iwe-shipper` runs the same skill, which dispatches `iwe-verifier`, so
+only the report enters the Shipper's context. See [Fresh-context
+Verify](../architecture/fresh-context-verify.md).
 
 This keeps the loop at four steps, makes verification non-optional, and makes
 the refusal mechanical rather than advisory.
