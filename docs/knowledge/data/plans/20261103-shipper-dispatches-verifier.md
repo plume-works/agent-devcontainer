@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: docs/knowledge/data/architecture/fresh-context-verify.md
+rank: 300
 ---
 
 # The Shipper dispatches Verify

@@ -9,6 +9,7 @@ sources:
 - resource: scripts/pre-commit-ci-range.py
 - resource: docs/knowledge/data/spec/image-pinning.md
 - resource: docs/knowledge/data/spec/pre-commit-gate.md
+rank: 600
 ---
 
 # Cool down Primary checks on main
