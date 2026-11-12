@@ -79,9 +79,17 @@ Modify: `.agents/plugins/agentdev/README.md`,
 `/agentdev:iwe-plan` headless (`claude -p --plugin-dir`) against this branch's
 catalog in a scratch worktree.
 
-- [ ] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
+- [x] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
   pending bug shows both agents dispatched in the transcript, and the plan ends
   with that bug at `stage: planned`.
+  - **Evidence:** observed 2026-11-12 by a session the user directed, in a
+    scratch worktree of this branch at a5dfe5f5, run from its root:
+    `claude -p --plugin-dir "$PWD/.agents/plugins/agentdev" --permission-mode acceptEdits --output-format stream-json --verbose "/agentdev:iwe-plan Create a plan that fixes the bug data/bugs/self-improve-unstageable-routing-option. Its release lists that bug. Decisions, already made so you need not ask: create mode; leave the plan unsequenced (no rank); choose the simplest fix you find and record it as an assumption; do not commit. This is a non-interactive run: where a step would ask the user, make the reasonable assumption, record it in the plan, and continue."`.
+    The transcript shows `agentdev:iwe-plan-review` dispatching
+    `agentdev:Durable Knowledge Auditor` with the plan file and `scope: plan`
+    and `agentdev:iwe-ship-reviewer` with the plan key and `mode: plan` in one
+    message; `data/bugs/self-improve-unstageable-routing-option` ended at
+    `stage: planned`.
 
 ## Spec changes
 
