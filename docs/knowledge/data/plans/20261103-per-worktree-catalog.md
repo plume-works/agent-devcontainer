@@ -138,8 +138,9 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
   `permissions.allow` into the worktree's `.claude/settings.local.json`, for
   every repository
   - **Evidence:**
-    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_plain_repository_gets_permissions_and_no_marketplace`
-    and `::test_permissions_merge_without_duplicates`
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_plain_repository_gets_permissions_and_no_marketplace`,
+    `::test_permissions_merge_without_duplicates`, and
+    `::test_a_malformed_main_settings_file_copies_nothing`
 - [x] when the worktree ships a complete catalog, it writes
   `.claude/marketplace.local.json` named `wt-<name>`, registers and installs it
   at local scope from the worktree, and disables every

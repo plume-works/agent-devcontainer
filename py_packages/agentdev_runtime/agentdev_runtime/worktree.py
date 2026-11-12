@@ -94,10 +94,17 @@ def copy_permissions(main: Path, path: Path) -> None:
     """Merge the main checkout's local ``permissions.allow`` into the worktree's."""
     source = main / '.claude' / 'settings.local.json'
     try:
-        allowed = json.loads(source.read_text()).get('permissions', {}).get('allow', [])
+        data = json.loads(source.read_text())
     except FileNotFoundError:
         return
-    if not allowed:
+    except ValueError as error:
+        print(
+            f'{PREFIX}: not copying permissions from unreadable {source}: {error}', file=sys.stderr
+        )
+        return
+    permissions = data.get('permissions') if isinstance(data, dict) else None
+    allowed = permissions.get('allow') if isinstance(permissions, dict) else None
+    if not isinstance(allowed, list) or not allowed:
         return
 
     def merge(data: dict) -> None:

@@ -130,3 +130,18 @@ def test_a_name_another_worktree_registered_fails_and_is_kept(
         ['plugin', 'marketplace', 'list'],
         ['plugin', 'marketplace', 'list'],
     ]
+
+
+@pytest.mark.parametrize('text', ['{not json', '[]', '{"permissions": []}'])
+def test_a_malformed_main_settings_file_copies_nothing(
+    tmp_path: Path,
+    claude_stub: Path,
+    make_repository: Callable[..., Path],
+    text: str,
+) -> None:
+    repo = make_repository(tmp_path / 'repo', with_catalog=False)
+    (repo / '.claude' / 'settings.local.json').write_text(text)
+    result = hook(repo, 'plain')
+    assert result.returncode == 0, result.stderr
+    path = Path(result.stdout.strip())
+    assert not (path / '.claude' / 'settings.local.json').exists()
