@@ -20,6 +20,18 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA = REPO_ROOT / 'docs' / 'knowledge' / 'data'
 IWE_CONFIG = REPO_ROOT / '.iwe'
+EXAMPLES = (
+    REPO_ROOT
+    / '.agents'
+    / 'plugins'
+    / 'agentdev'
+    / 'skills'
+    / 'iwe-bootstrap'
+    / 'assets'
+    / 'docs'
+    / 'knowledge'
+    / 'data'
+)
 TMP_ROOT = Path('/tmp/agentdev-tests')
 
 SECTION = re.compile(r'^## .+\n(?:(?!## ).*\n?)*', re.M)
@@ -97,6 +109,14 @@ def _strip_bug_prefix(content: str) -> str:
     return re.sub(r'^# Bug: ', '# ', content, count=1, flags=re.M)
 
 
+def _seed(data: Path, *examples: str) -> None:
+    """Copy bootstrap example documents into the graph, so each lane has a live member."""
+    for key in examples:
+        target = data / f'{key.replace(".example", "")}.md'
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(EXAMPLES / f'{key}.md', target)
+
+
 @pytest.fixture(scope='module')
 def workspace() -> Iterator[Path]:
     """Copy the configuration and graph into a workspace private to this run."""
@@ -106,6 +126,7 @@ def workspace() -> Iterator[Path]:
         (root / 'docs' / 'knowledge').mkdir(parents=True)
         shutil.copytree(IWE_CONFIG, root / '.iwe')
         shutil.copytree(DATA, root / 'docs' / 'knowledge' / 'data')
+        _seed(root / 'docs' / 'knowledge' / 'data', 'features/streak-widget.example')
         yield root
     finally:
         shutil.rmtree(root, ignore_errors=True)
