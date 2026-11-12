@@ -312,9 +312,9 @@ Modify, in this workspace and byte-identically in the scaffold:
 `docs/knowledge/data/backlog.md`,
 `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md`,
 `docs/knowledge/data/backlog/resilient-task-evidence.md`,
-`docs/knowledge/data/architecture/agent-metadata-files.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
-`docs/knowledge/data/architecture/pr-review-correctness-bar.md`.
+`docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/pr-review-correctness-bar.md`.
 
 - [x] `fresh-map-on-push` and `map-masks-version-bumps` move to
   `stage: deprecated`, with OKF `status` set from the `SCHEMA.md` table.
@@ -598,12 +598,12 @@ ships after this plan.
   `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "and codebase-map documents. They are the project's memory"`,
   `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe › "| Codebase archaeology: writes and refreshes the"`
   — map descriptions and skill rows
-- `docs/knowledge/data/architecture/agent-metadata-files.md#decision`,
-  `docs/knowledge/data/architecture/agent-metadata-files.md#consumers` —
-  decision, consumers, references
-- `docs/knowledge/data/architecture/template-boundary.md#adoption-state › "is classified per top-level key, unlike"`
+- `docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md#decision`,
+  `docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md#consumers`
+  — decision, consumers, references
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#adoption-state › "is classified per top-level key, unlike"`
   — root `iwe-map` rules
-- `docs/knowledge/data/architecture/pr-review-correctness-bar.md#rule-checking-noise-is-separate › "codebase-map metadata needs a broader review-ignore boundary"`
+- `docs/knowledge/data/archive/2.0.0/architecture/pr-review-correctness-bar.md#rule-checking-noise-is-separate › "codebase-map metadata needs a broader review-ignore boundary"`
   — map review-ignore item
 - `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md › "resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md"`,
   `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md#behaviour › "The nine workflow skills live in the plugin."`,

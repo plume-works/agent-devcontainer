@@ -9,7 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 ---
 
 # Track template consumption progress and choices
@@ -36,7 +36,7 @@ consumer intent from the diff alone.
 
 This extends the [template consumption
 contract](../spec/template-consumption.md) and classifies new consumer state in
-[Template boundary](../architecture/template-boundary.md).
+[Template boundary](../archive/1.0.0/architecture/template-boundary.md).
 
 ## Approach
 
@@ -67,10 +67,10 @@ as context only.
 
 That JSON record moves out of its own `.agentdev-template.json` and into a
 `template-consume` section of the root
-[.agent.metadata.json](../architecture/agent-metadata-files.md), whose top-level
-keys namespace one consumer apiece; `iwe-map` is currently its only section. The
-fields and their `jq` parse are unchanged by the move; what goes is a second
-root dotfile in every consuming repository.
+[.agent.metadata.json](../archive/1.0.0/architecture/agent-metadata-files.md),
+whose top-level keys namespace one consumer apiece; `iwe-map` is currently its
+only section. The fields and their `jq` parse are unchanged by the move; what
+goes is a second root dotfile in every consuming repository.
 
 Two properties of that format need extending, because consumption state is not
 the per-directory rule set it was built for. `consumed_ref` is a
@@ -124,15 +124,16 @@ this way; the root file stays the live record.
 
 ### Task 2: Classify the adoption-state files in the boundary
 
-**Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`.
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`.
 
 - [x] Add a subsection under `## Default template surface` classifying
   `.agent.metadata.json` per top-level key: `iwe-map` rules are Template and
   travel with the directory holding them, while the `template-consume` section
   is consumer-created adoption state, written by setup and never copied from the
   publisher. This is the one file the "inherits its directory's class" shortcut
-  in [Agent metadata files](../architecture/agent-metadata-files.md) does not
-  cover.
+  in [Agent metadata
+  files](../archive/1.0.0/architecture/agent-metadata-files.md) does not cover.
   - **Evidence:** `iwe schema validate` passed with the root metadata file
     classified per top-level key.
 - [x] Classify `.agentdev-template-progress.md` as Customize / consumer-created,
@@ -144,7 +145,8 @@ this way; the root file stays the live record.
 
 ### Task 3: Declare template-consume root-only in the metadata format
 
-**Files:** Modify: `docs/knowledge/data/architecture/agent-metadata-files.md`.
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md`.
 
 - [x] Add a root-only resolution rule to `## Resolution`: a consumer whose data
   is a repository-level singleton rather than a per-directory rule MAY declare
@@ -435,20 +437,20 @@ schema decision may add a match to the `.iwe/config.toml` it ships.
   — `## Ongoing maintenance`
 - `docs/knowledge/data/spec/template-consumption.md#requirement-adoption-is-recorded-for-later-updates`
   — `## Requirement: adoption is recorded for later updates`
-- `docs/knowledge/data/architecture/template-boundary.md#default-template-surface`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#default-template-surface`
   — `## Default template surface`
-- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "§4 captures a consumer's PR-template extras and the template"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#github-surface › "§4 captures a consumer's PR-template extras and the template"`
   — the `.github/pr-description-guidance.md` consumer-created row
 - `.iwe/config.toml › "schemas.tracker]"` — `[schemas.tracker]`, matching only
   `data/product` and `data/milestone`
 - `.agent.metadata.json` — the root file, currently carrying only an `iwe-map`
   section
-- `docs/knowledge/data/architecture/agent-metadata-files.md#resolution` —
-  `## Resolution`, the accumulation contract Task 3 extends
-- `docs/knowledge/data/architecture/agent-metadata-files.md#relationship-to-the-template-boundary`
+- `docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md#resolution`
+  — `## Resolution`, the accumulation contract Task 3 extends
+- `docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md#relationship-to-the-template-boundary`
   — `## Relationship to the template boundary`
-- `docs/knowledge/data/architecture/agent-metadata-files.md#consumers` —
-  `## Consumers`
+- `docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md#consumers`
+  — `## Consumers`
 - `.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh::marker_file_name`
   — `marker_file_name`, the single definition of the marker filename
 - `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh › "].consumed_ref // empty"`

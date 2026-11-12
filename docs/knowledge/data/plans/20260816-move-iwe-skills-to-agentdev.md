@@ -14,7 +14,7 @@ sources:
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 ---
 
 # Move the IWE workflow skills into the agentdev plugin
@@ -25,9 +25,10 @@ The seven IWE workflow skills — setup, explore, plan, implement, verify, ship,
 weekly — are tracked under `.claude/skills/`, which is the one place this
 repository says the catalog does not live. `.claude/README.md` documents
 `settings.json` as the sole remaining occupant of that directory, and [Template
-boundary](../architecture/template-boundary.md) classifies `.claude/` as "Shared
-Claude permissions, official plugins, local ignore rules, and explanatory
-README" with no mention of skills. Both descriptions have drifted from the tree.
+boundary](../archive/1.0.0/architecture/template-boundary.md) classifies
+`.claude/` as "Shared Claude permissions, official plugins, local ignore rules,
+and explanatory README" with no mention of skills. Both descriptions have
+drifted from the tree.
 
 The consequence is not cosmetic. `.claude/skills/` is retained by every project
 that copies the template surface, so a consuming project silently inherits seven
@@ -173,7 +174,7 @@ omission. Neither manifest enumerates individual skills — Codex points at
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`, `docs/knowledge/STRUCTURE.md`,
 `docs/knowledge/data/product.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 These are the documents that tell a session where the skills are. The workspace
 skills table is the highest-value fix: it is the router, and after the move
@@ -232,7 +233,7 @@ the old directory. None are markdown links between graph documents, so
     intact (git diff confirms only `resource:` lines changed there); this active
     plan's own move narrative and `## Key references` keep their pre-move
     `.claude/skills/` paths by design.
-    `docs/knowledge/data/architecture/ci-agent-plugin-availability.md#alternatives-considered › "Vendor a repository-local"`
+    `docs/knowledge/data/archive/1.0.0/architecture/ci-agent-plugin-availability.md#alternatives-considered › "Vendor a repository-local"`
     is out of scope — it names a hypothetical vendored
     `.claude/skills/pr-review/`, not one of the seven moved IWE skills.
     `iwe normalize` and `iwe schema validate` exit 0. Committed with this task.
@@ -376,9 +377,9 @@ shares no file with this plan and does not block it.
   — the five `sources:` entries
 - `docs/knowledge/data/spec/template-consumption.md#7-review-agent-configuration › "then review them as project policy"`
   — §7's `.claude/` enumeration, which omits `skills/`
-- `docs/knowledge/data/architecture/template-boundary.md#agent-facing-repository-configuration › "| Customize | Shared Claude permissions, official plugins"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#agent-facing-repository-configuration › "| Customize | Shared Claude permissions, official plugins"`
   — the `.claude/` disposition row
-- `docs/knowledge/data/architecture/template-boundary.md#publisher-only-source › "plugin source: four agents, 34 skills, hooks, helper"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#publisher-only-source › "plugin source: four agents, 34 skills, hooks, helper"`
   — "four agents, 24 skills", stale: the agentdev plugin already carries 27
   tracked skills
 - `docs/knowledge/data/product.md#users › "agents, 24+ skills), and the Ansible/Docker publishing"`

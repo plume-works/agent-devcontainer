@@ -11,8 +11,8 @@ sources:
 # Automatic CBM indexing for OpenCode workspaces
 
 Deprecated: superseded by [No code-graph
-index](../architecture/no-code-graph.md). The runtime no longer ships
-codebase-memory-mcp; this page records the behavior it had.
+index](../archive/2.1.0/architecture/no-code-graph.md). The runtime no longer
+ships codebase-memory-mcp; this page records the behavior it had.
 
 ## Purpose
 

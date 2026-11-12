@@ -222,7 +222,7 @@ tick was rejected for the cost of a Claude process every interval.
 ### Task 5: Document the runtime's Remote Control
 
 **Files:** Modify: `docker/opencode/README.md`,
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`
 
 - [x] The README's settings and log-in steps say how to opt in, that Remote
   Control starts by itself after `claude`'s `/login`, and how to read its line

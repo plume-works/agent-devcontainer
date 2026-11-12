@@ -3,7 +3,7 @@ type: feature
 stage: implemented
 description: The Dev Container runs as a non-root account matched to the host user, with its whole home on one per-instance volume, replacing the per-directory state volumes under /root and the ~/.claude.json symlink.
 sources:
-- resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/devcontainer-home-volume.md
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/docker-compose.yml
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -20,7 +20,7 @@ OpenCode's database, and the pre-commit cache each have one, and
 `~/.claude.json` needs a symlink into the `~/.claude` volume. The deploy runtime
 needs none of that: its account's whole home is one volume. This feature gives
 the Dev Container the same model (see [Dev Container home
-volume](../architecture/devcontainer-home-volume.md)).
+volume](../archive/2.0.0/architecture/devcontainer-home-volume.md)).
 
 ## Behaviour
 

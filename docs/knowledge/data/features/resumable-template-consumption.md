@@ -5,8 +5,8 @@ description: Template consumers can resume interrupted setup and preserve settle
 sources:
 - resource: docs/knowledge/data/plans/20260906-template-consumption-progress.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
-- resource: docs/knowledge/data/architecture/agent-metadata-files.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
@@ -53,5 +53,6 @@ None — every design question this feature raised is settled.
 - Plan: [Track template consumption progress and
   choices](../plans/20260906-template-consumption-progress.md)
 - Spec: [Template consumption](../spec/template-consumption.md)
-- Architecture: [Template boundary](../architecture/template-boundary.md) and
-  [Agent metadata files](../architecture/agent-metadata-files.md)
+- Architecture: [Template
+  boundary](../archive/1.0.0/architecture/template-boundary.md) and [Agent
+  metadata files](../archive/1.0.0/architecture/agent-metadata-files.md)

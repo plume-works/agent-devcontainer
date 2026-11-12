@@ -205,7 +205,7 @@ and inline Python inside bash is neither testable nor lintable.
 
 **Files:** Modify: `docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md`;
 `docs/knowledge/data/plans/20260905-digest-masks.md`;
-`docs/knowledge/data/architecture/agent-metadata-files.md`
+`docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md`
 
 - [x] Re-locate every `## Key references` anchor in those three files that cites
   a `stale-map-docs.sh` line number against `stale-map-docs.py`, and restamp

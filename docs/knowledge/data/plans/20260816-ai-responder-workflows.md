@@ -33,7 +33,8 @@ plus an indexed codebase-memory-mcp, which is what makes the review grounded.
 
 The reasoning, including the image-build-time install that was considered and
 rejected once the checkout was recognized as always present, is recorded in [CI
-agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+agent plugin
+availability](../archive/1.0.0/architecture/ci-agent-plugin-availability.md).
 
 ## Approach
 
@@ -71,7 +72,7 @@ The guards are not the whole story: the hooks also depend on
 `devcontainer.json`'s `containerEnv` and mounts, which a `container:` job does
 not apply. Tasks 7 and 8 supply what they need. The boundary and its minimal
 contract are recorded in [CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md).
+availability](../archive/1.0.0/architecture/ci-agent-plugin-availability.md).
 
 `ai-responder.yml` is imported Claude-only: the `codex-respond` job, the codex
 preflight conditions, the `AI_RESPONDERS` variable with its validation step and
@@ -285,7 +286,8 @@ proceed. Task 6 is blocked until this lands.
 The job supplies only `DEV_WORKSPACE_FOLDER`; the hooks also need
 `CBM_CACHE_DIR` and `UV_PROJECT_ENVIRONMENT`, and two directories a volume
 normally provides. The minimal contract and how it was derived are in [CI agent
-plugin availability](../architecture/ci-agent-plugin-availability.md).
+plugin
+availability](../archive/1.0.0/architecture/ci-agent-plugin-availability.md).
 
 This changes the *workflow*, not the lifecycle scripts, so it stays inside the
 Out of scope boundary. Whether the scripts should default these values

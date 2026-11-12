@@ -156,8 +156,9 @@ Rejected:
 
 ### Task 4: Record the decision
 
-**Files:** Create: `docs/knowledge/data/architecture/adversarial-review.md`;
-Modify: `docs/knowledge/data/architecture.md`
+**Files:** Create:
+`docs/knowledge/data/archive/2.1.0/architecture/adversarial-review.md`; Modify:
+`docs/knowledge/data/architecture.md`
 
 - [x] The document states why adversarial review is separate from Verify, its
   two targets, who may start it, and the three alternatives rejected in

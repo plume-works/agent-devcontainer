@@ -262,7 +262,7 @@ latest release.
     counts from the matrix instead of a fixed `2x`/`2x`. Commit "Hold findings
     validation at the light model" moved the validation slot to `light` at both
     tiers and rewrote the one-line rule to match; the rationale is in [PR review
-    effort tiers](../architecture/pr-review-effort-tiers.md).
+    effort tiers](../archive/2.0.0/architecture/pr-review-effort-tiers.md).
 
 - [x] Replace the prose model advice at Step 4 with a model argument on every
   dispatch at Steps 4 and 6, so the size named in the matrix is the size that
@@ -350,7 +350,8 @@ one.
 
 ### Task 5: Record the decision and its rejected alternatives
 
-**Files:** Create: `docs/knowledge/data/architecture/pr-review-effort-tiers.md`;
+**Files:** Create:
+`docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md`;
 Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
@@ -358,18 +359,18 @@ Modify: `docs/knowledge/data/architecture.md`,
   is absolute, why the no-override path is judgment rather than configuration,
   and why preflight rather than the skill resolves the tier.
   - **Evidence:** commit "Record the PR review effort tier decision";
-    `docs/knowledge/data/architecture/pr-review-effort-tiers.md` gives each one
-    its own section — what the two tiers fix, why a requested tier is absolute,
-    why the no-request path is judgment rather than a configured default, and
-    why preflight owns resolution. Another section records the subagent model
-    order that makes a per-dispatch argument the term in force. The document is
-    linked from the hub at
+    `docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md`
+    gives each one its own section — what the two tiers fix, why a requested
+    tier is absolute, why the no-request path is judgment rather than a
+    configured default, and why preflight owns resolution. Another section
+    records the subagent model order that makes a per-dispatch argument the term
+    in force. The document is linked from the hub at
     `docs/knowledge/data/architecture.md#-architecture › "PR review effort"`,
     and `iwe find --included-by data/architecture` lists it.
 - [x] Carry every alternative under `## Approach` above into the architecture
   document with its reason intact, so the reasoning outlives this plan.
   - **Evidence:** commit "Record the PR review effort tier decision";
-    `docs/knowledge/data/architecture/pr-review-effort-tiers.md#compliance-runs-light-at-both-tiers › ". Compliance work is quoting a rule"`
+    `docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md#compliance-runs-light-at-both-tiers › ". Compliance work is quoting a rule"`
     carries all five — whole-tier auto-escalation, the documentation-line
     threshold, dropping the metadata gate and durable-knowledge pass at light
     effort, batching full-effort validation, and the model alias — each with the
@@ -378,7 +379,7 @@ Modify: `docs/knowledge/data/architecture.md`,
     preflight resolves the tier" rather than duplicated.
 - [x] Record that compliance runs on the light model at both tiers.
   - **Evidence:** commit "Record the PR review effort tier decision";
-    `docs/knowledge/data/architecture/pr-review-effort-tiers.md#per-dispatch-models-are-what-put-the-matrix-in-force › "definition's frontmatter, the"`
+    `docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md#per-dispatch-models-are-what-put-the-matrix-in-force › "definition's frontmatter, the"`
     records compliance as the one slot that does not move between tiers, and why
     — quoting a rule and checking a diff against it is instruction-following,
     and the review's own high-signal bar already requires the exact rule text.

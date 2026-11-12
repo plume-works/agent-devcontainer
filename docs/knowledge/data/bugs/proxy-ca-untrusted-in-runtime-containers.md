@@ -38,4 +38,4 @@ The root bootstrap installs the bundle at `AGENTDEV_EXTRA_CA_CERTS` into the
 system store, `agentdev-base` points `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and
 `NODE_EXTRA_CA_CERTS` at that store, and `devcontainer-init.sh` hands the host's
 bundle to the Dev Container. Design: [Extra CA
-trust](../architecture/extra-ca-trust.md).
+trust](../archive/2.1.0/architecture/extra-ca-trust.md).

@@ -9,7 +9,7 @@ sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: compose.opencode.yml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
-- resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md
 stage: done
 completed: 2026-11-09
 released: 3.0.0
@@ -31,7 +31,7 @@ Claude Code 2.1.316 nests to depth 3 by default: the agent at the limit is not
 offered the `Agent` tool, and nothing reports an error. The environment variable
 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the limit. OpenCode refuses any
 nested dispatch at its default `experimental.subagent_depth` of 1 ([Nested
-subagent dispatch](../architecture/nested-subagent-dispatch.md)).
+subagent dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md)).
 
 ## Approach
 
@@ -106,9 +106,10 @@ the standalone runtime.
     `scripts/tests/test_devcontainer_compose.py`; `uv run pytest` of both files
     — 13 passed.
 - [x] In a container started from each compose file, the nesting fixture in
-  [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md),
-  extended to five levels, reaches depth 5 on Claude Code, read from each
-  subagent's `.meta.json` `spawnDepth`.
+  [Nested subagent
+  dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md), extended
+  to five levels, reaches depth 5 on Claude Code, read from each subagent's
+  `.meta.json` `spawnDepth`.
   - **Evidence:** commit e17c64a5. `docker compose run` of the `devcontainer`
     service (`.devcontainer/docker-compose.yml` with
     `devcontainer-compose-pins.yml`) and of the `opencode` service
@@ -122,7 +123,7 @@ the standalone runtime.
 ### Task 3: Record the depth limits
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/nested-subagent-dispatch.md`
+`docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md`
 
 - [x] `## Host behavior` records, for Claude Code 2.1.316: the variable
   `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` sets the nesting limit; when it is
@@ -131,7 +132,7 @@ the standalone runtime.
   records that the devcontainer and the standalone runtime set both harnesses to
   5, and replaces the 2.1.306 version the section names.
   - **Evidence:** commits 18cd734f and 67582b9f
-    (`docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior`);
+    (`docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md#host-behavior`);
     `iwe normalize` and `iwe schema validate` pass.
 
 ## Spec changes
@@ -213,9 +214,10 @@ host's value when it is set, and to `5` otherwise.
 
 - `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
 - In a rebuilt devcontainer and a standalone runtime container, the fixture in
-  [Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)
-  extended to five levels reaches depth 5 on Claude Code, read from each
-  subagent's `.meta.json` `spawnDepth`.
+  [Nested subagent
+  dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md) extended
+  to five levels reaches depth 5 on Claude Code, read from each subagent's
+  `.meta.json` `spawnDepth`.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -244,5 +246,5 @@ host's value when it is set, and to `5` otherwise.
   — the standalone core phase calls `apply_agent_policy`
 - `docs/knowledge/data/spec/devcontainer-opencode-policy.md#requirement-devcontainer-opencode-runs-with-unrestricted-filesystem-access`
   — Requirement: devcontainer OpenCode runs with unrestricted filesystem access
-- `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior` —
-  `## Host behavior`
+- `docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md#host-behavior`
+  — `## Host behavior`

@@ -121,8 +121,8 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/skills/local-reformat/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`docs/knowledge/data/architecture/formatter-ownership.md`,
-`docs/knowledge/data/architecture/template-boundary.md`; Delete:
+`docs/knowledge/data/archive/1.0.0/architecture/formatter-ownership.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`; Delete:
 `.agents/plugins/agentdev/bin/super-linter-defaults.sh`,
 `.agents/plugins/agentdev/bin/super-linter-env.sh`,
 `.agents/plugins/agentdev/bin/super-linter-local.sh`,
@@ -334,8 +334,8 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
 ### Task 11: Record the constraint and refresh the map
 
 **Files:** Create:
-`docs/knowledge/data/architecture/catalog-script-language.md`; Modify:
-`docs/knowledge/data/architecture.md`, `docs/knowledge/data/codebase/`
+`docs/knowledge/data/archive/2.0.0/architecture/catalog-script-language.md`;
+Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/codebase/`
 
 - [x] The architecture document records why catalog scripts are stdlib-only
   Python reaching `bin/` through `sys.path`, and the rejected alternatives

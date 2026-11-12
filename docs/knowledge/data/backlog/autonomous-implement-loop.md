@@ -26,7 +26,8 @@ depends on [Run Verify from a fresh context](verify-in-fresh-context.md).
   orchestrates `/agentdev:iwe-implement`, and the coordinator orchestrates
   `/agentdev:iwe-implement-all`. Both are in scope. Neither `iwe-implementer`,
   `iwe-verifier`, the planner, nor the evaluator dispatches another agent
-  ([Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)).
+  ([Nested subagent
+  dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md)).
 - **Loop.** After the tasks, dispatch `iwe-verifier`. Zero CRITICAL ends the run
   with a suggestion to ship. A code or evidence finding is fixed and verified
   again. A finding about intent, or a material deviation, becomes a drafted plan
@@ -45,10 +46,10 @@ depends on [Run Verify from a fresh context](verify-in-fresh-context.md).
   stops the run with a report.
 - **Revision rulebook.** `/agentdev:iwe-plan` is explicit-only, and reading its
   file to get around the gate is rejected in [Explicit-only workflow
-  agents](../architecture/explicit-only-workflow-agents.md). Its rulebook moves
-  into a planner catalog agent that the plan skill follows in place, and that
-  Implement becomes a named starter for. The Durable Knowledge Auditor gate and
-  validation still run on every revision.
+  agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md). Its
+  rulebook moves into a planner catalog agent that the plan skill follows in
+  place, and that Implement becomes a named starter for. The Durable Knowledge
+  Auditor gate and validation still run on every revision.
 
 ## Recorded decisions this reverses
 

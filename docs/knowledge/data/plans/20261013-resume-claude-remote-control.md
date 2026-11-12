@@ -21,8 +21,9 @@ every workspace restart or rebuild lists another claude.ai/code session and the
 previous chat goes offline for good. [Resume the Remote Control conversation
 across restarts](../features/claude-remote-control-resume.md) is the idea this
 plan builds; [Claude Remote Control
-resume](../architecture/claude-remote-control-resume.md) records the decision,
-its rejected alternatives, and the Claude Code behavior it relies on.
+resume](../archive/2.0.0/architecture/claude-remote-control-resume.md) records
+the decision, its rejected alternatives, and the Claude Code behavior it relies
+on.
 
 ## Approach
 

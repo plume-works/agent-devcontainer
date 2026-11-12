@@ -344,8 +344,8 @@ options as `RENOVATE_*` environment variables instead.
 ### Task 12: Record the decisions
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/renovate-config-validation.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] `renovate-config-validation` replaces its
   pinned-hook-versus-latest-workflow decision: the bot now runs the hook's
@@ -378,7 +378,7 @@ options as `RENOVATE_*` environment variables instead.
 ### Task 14: Waive the AI review for the App's bot
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`docs/knowledge/data/architecture/ai-review-event-selection.md`
+`docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md`
 
 - [x] `ai-review-present`'s `trusted-bot-actors` adds
   `plume-works-renovate[bot]`, the identity the self-hosted run commits and
@@ -407,8 +407,8 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: `.github/workflows/reformat.yml`,
 `.github/workflows/primary-checks.yml`,
-`docs/knowledge/data/architecture/renovate-post-upgrade.md`; Create:
-`scripts/tests/test_reformat_renovate_skip.py`
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-post-upgrade.md`;
+Create: `scripts/tests/test_reformat_renovate_skip.py`
 
 - [x] `primary-checks.yml` passes the pull request author to `reformat.yml`, and
   `commit-format-changes` skips the push when the author is a Renovate bot, so

@@ -37,8 +37,8 @@ Two existing behaviors depend on the current shape and change with it:
   published images; the Ubuntu base is excluded from Renovate entirely).
 - The `github_cli` role puts the opened checkout's `docker/bin` ahead of the
   image-baked `gh` wrapper on `PATH` ([gh authentication
-  shim](../architecture/gh-authentication-shim.md)), which is also why the base
-  build reads `docker/bin/gh` from the repository root.
+  shim](../archive/1.0.0/architecture/gh-authentication-shim.md)), which is also
+  why the base build reads `docker/bin/gh` from the repository root.
 
 ## Approach
 
@@ -242,7 +242,7 @@ host run still stages no catalog)
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] The consumption guide's image-build section describes opting out of the
   catalog and validator by removing their provisioning steps instead of the
@@ -259,14 +259,15 @@ host run still stages no catalog)
 
 ### Task 9: Record the image-only gh wrapper decision
 
-**Files:** Create: `docs/knowledge/data/architecture/gh-wrapper-image-only.md`;
+**Files:** Create:
+`docs/knowledge/data/archive/2.1.0/architecture/gh-wrapper-image-only.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
 - [x] A new architecture document records that the image's wrapper is the only
   `gh` shim and that no checkout path precedes it, with the reason and the
   rejected live-workspace override, linking [gh authentication
-  shim](../architecture/gh-authentication-shim.md) as the decision it
-  supersedes; it is linked from `data/architecture.md`.
+  shim](../archive/1.0.0/architecture/gh-authentication-shim.md) as the decision
+  it supersedes; it is linked from `data/architecture.md`.
   - **Evidence:** commit 52c9ed2 adds `architecture/gh-wrapper-image-only` and
     its hub link; `iwe schema validate` passes.
 
@@ -525,5 +526,5 @@ on this plan: its shell-setup task (Task 3) puts no checkout path on `PATH`.
   `agentdev-base.Dockerfile`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#optional-custom-image-setup › "Also retain the image job in"`
   — image-build opt-out through `agentic_tools_stage_catalog`
-- `docs/knowledge/data/architecture/template-boundary.md#optional-custom-image-bundle › "Keep these paths together only when a project needs to build"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#optional-custom-image-bundle › "Keep these paths together only when a project needs to build"`
   — custom image path set

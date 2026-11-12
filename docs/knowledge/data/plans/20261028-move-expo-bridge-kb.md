@@ -8,7 +8,7 @@ sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/architecture/vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 - resource: docs/knowledge/data/features/expo-eas-builds.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 stage: done
@@ -269,7 +269,7 @@ Modify: `docs/knowledge/data/backlog.md` (extension repository)
 ### Task 9: Point this repository's remaining links at the new home
 
 **Files:** Modify: `docs/knowledge/data/log.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
 `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md`,
 `docs/research/vscode-vulnerability/deep-technical.md`, this plan's `sources`
 and its link to `features/vscode-expo-bridge`
@@ -383,7 +383,7 @@ extension repository by URL and its Expo profile requirement is unchanged.
 
 - `docs/knowledge/data/releases/unreleased.md#added › "Expo apps build for iOS through"`
   — `features/expo-eas-builds` under `## Added`
-- `docs/knowledge/data/architecture/template-boundary.md#optional-expo-profile › "the profile lists the [VS Code Expo"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#optional-expo-profile › "the profile lists the [VS Code Expo"`
   — Expo profile paragraph, linking the extension repository's
   `architecture/vscode-expo-bridge` by URL
 - `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md › "resource"`

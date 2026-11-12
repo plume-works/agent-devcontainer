@@ -29,8 +29,6 @@ okf_version: '0.2'
 
 - [Spec](spec.md) - Behavioral specifications — the durable truth about how the
   product must work.
-- [Architecture](architecture.md) - System design notes and the reasoning behind
-  them, rejected alternatives included.
 - [Findings](findings.md) - Measurements of how the system behaves, with the
   hypotheses they eliminated and what would close them.
 - [Guides](guides.md) - Procedures a contributor follows, with code anchors

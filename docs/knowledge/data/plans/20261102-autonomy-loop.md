@@ -19,9 +19,10 @@ released: 2.1.0
 
 ## Context
 
-The [Autonomous Implement loop](../architecture/autonomous-implement-loop.md)
-runs Verify, acts on its findings, and revises the plan through an evaluator.
-The loop reaches its three-round stop bound instead of converging. The causes:
+The [Autonomous Implement
+loop](../archive/2.0.0/architecture/autonomous-implement-loop.md) runs Verify,
+acts on its findings, and revises the plan through an evaluator. The loop
+reaches its three-round stop bound instead of converging. The causes:
 
 - **Evidence timing.** A "CI passes" task, or a task citing a CI run, cannot be
   closed before the pull request exists, and every fix commit makes the cited
@@ -255,7 +256,7 @@ Rejected:
 ### Task 6: Record the decisions
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/autonomous-implement-loop.md`
+`docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md`
 
 - [x] The decision states what the loop acts on (CRITICALs; a WARNING only
   inside an existing task), that Verify is a conformance check, that CI belongs
@@ -534,9 +535,9 @@ that mechanism Plan knows.
   — step 3, Verify for normal shipping
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#report › "names the plan, and lists every"`
   — Ship blocker report
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md#decision` —
-  `## Decision`
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md#rejected-alternatives`
+- `docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md#decision`
+  — `## Decision`
+- `docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md#rejected-alternatives`
   — `## Rejected alternatives`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-implementation-starts-on-a-feature-branch › "Implement begins with a branch other than"`
   — Implement verifies requirement

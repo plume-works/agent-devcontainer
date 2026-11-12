@@ -9,8 +9,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
-- resource: docs/knowledge/data/architecture/ai-review-event-selection.md
-- resource: docs/knowledge/data/architecture/actions-approval-permission.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/actions-approval-permission.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/spec/template-consumption.md
 stage: done
@@ -29,9 +29,10 @@ responder workflows](../features/ai-responder-workflows.md).
 The `main` ruleset requires one approving review, with thread resolution
 required, stale reviews kept on push, and no last-push approval. An `APPROVE`
 from `github-actions[bot]` satisfies that approval, which [Actions approval
-permission](../architecture/actions-approval-permission.md) records along with
-the organization setting it depends on. A pending `CHANGES_REQUESTED` blocks
-merge until the same reviewer approves or the review is dismissed.
+permission](../archive/2.0.0/architecture/actions-approval-permission.md)
+records along with the organization setting it depends on. A pending
+`CHANGES_REQUESTED` blocks merge until the same reviewer approves or the review
+is dismissed.
 
 Under the rule this plan replaces:
 
@@ -207,7 +208,7 @@ Assumptions:
 ### Task 3: Architecture note records the new event rule
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/ai-review-event-selection.md`
+`docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md`
 
 - [x] `## Decision` states the severity-only rule from `## Approach`; the
   `COMMENT`-preference rationale is replaced by the one-approval ruleset and the
@@ -242,7 +243,7 @@ Assumptions:
 ### Task 5: Trusted-bot approval requires the bot's own commits
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`docs/knowledge/data/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
@@ -278,7 +279,7 @@ Assumptions:
 ### Task 6: Trusted-bot approval requires the bot's own pushes
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`docs/knowledge/data/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
@@ -312,8 +313,8 @@ Assumptions:
 ### Task 7: Push history covers the branch's current life, and the trust limit is recorded
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
-`docs/knowledge/data/architecture/ai-review-event-selection.md`,
-`docs/knowledge/data/architecture/actions-approval-permission.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/actions-approval-permission.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
 - [x] `trusted-bot-approval` reads the head branch's activity newest first and
@@ -521,11 +522,11 @@ branch's workflow and attach checks to that head.
   — `createReview` approval
 - `.github/actions/ai-review-status/action.yml#runs.steps.Evaluate AI review acceptance.with.script`
   — trusted-bot waiver
-- `docs/knowledge/data/architecture/ai-review-event-selection.md#decision` —
-  `## Decision`
-- `docs/knowledge/data/architecture/ai-review-event-selection.md#trusted-bot-approval-covers-only-the-bots-commits-and-pushes`
+- `docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md#decision`
+  — `## Decision`
+- `docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md#trusted-bot-approval-covers-only-the-bots-commits-and-pushes`
   — `## Trusted-bot approval covers only the bot's commits and pushes`
-- `docs/knowledge/data/architecture/ai-review-event-selection.md#alternatives-rejected`
+- `docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md#alternatives-rejected`
   — `## Alternatives rejected`
 - `docs/knowledge/data/spec/template-consumption.md#requirement-the-ai-review-gates-trust-is-explicit`
   — "the AI review gate's trust is explicit"

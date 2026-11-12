@@ -29,7 +29,7 @@ failures. Meanwhile `gh api user` returns the account, and `git ls-remote` and
 1. Start a Claude Code cloud session on this repository, so `.claude/startup.py`
    relays the agent proxy and writes `.devcontainer/cloud-session.env` (see
    [Cloud session host
-   toolchain](../architecture/cloud-session-host-toolchain.md)).
+   toolchain](../archive/3.0.0/architecture/cloud-session-host-toolchain.md)).
 2. In the devcontainer, run `gh api user` and `git ls-remote origin`; both
    succeed.
 3. Run `agentdev-runtime doctor`.

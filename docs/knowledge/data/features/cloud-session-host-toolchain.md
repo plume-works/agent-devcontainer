@@ -15,10 +15,10 @@ sources:
 
 A cloud session's host is reclaimed after a few idle minutes and cold-boots on
 the next event ([Cloud session host
-restarts](../architecture/cloud-session-host-restarts.md)). A toolchain on the
+restarts](../findings/cloud-session-host-restarts.md)). A toolchain on the
 host's disk survives that reboot, so a boot costs only the processes that
 stopped. The design is [Cloud session host
-toolchain](../architecture/cloud-session-host-toolchain.md).
+toolchain](../archive/3.0.0/architecture/cloud-session-host-toolchain.md).
 
 ## Behaviour
 

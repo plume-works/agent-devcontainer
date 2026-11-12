@@ -253,10 +253,6 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
         ('docs/knowledge/data/spec/thing.md', '---\ntype: spec\n---\n`a.py::b`\n'),
         ('docs/knowledge/data/findings/measured.md', '---\ntype: finding\n---\n`a.py::b`\n'),
         (
-            'docs/knowledge/data/architecture/design.md',
-            '---\ntype: architecture\n---\n`a.py::b`\n',
-        ),
-        (
             'docs/knowledge/data/archive/2.1.0/plans/20260101-old.md',
             plan('- `src/gone.py::main`'),
         ),
@@ -269,7 +265,7 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
 def test_out_of_scope_anchors_are_not_resolved(
     write: Write, run: Run, relative: str, text: str
 ) -> None:
-    """Closed plans, plan tasks, done bugs, specs, findings, and archived notes are unresolved."""
+    """Closed plans, plan tasks, done bugs, specs, findings, and archived documents are unresolved."""
     write(relative, text)
     assert run().returncode == 0, run().stdout
 

@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
 - resource: .github/pull_request_template.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 ---
 
 # Split PR How to Test into Verification and Reviewer Handoff
@@ -84,4 +84,4 @@ None — every design question this feature raised is settled.
 - Plan: [Split PR How to Test into Verification and Reviewer
   Handoff](../plans/20260815-pr-verification-sections.md)
 - Decision: [PR verification
-  sections](../architecture/pr-verification-sections.md)
+  sections](../archive/1.0.0/architecture/pr-verification-sections.md)

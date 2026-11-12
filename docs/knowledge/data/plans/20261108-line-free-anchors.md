@@ -254,7 +254,7 @@ shape they read, and the exemption needs its own rule).
 ### Task 7: Architecture prose
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/pr-review-scenario-validation.md`
+`docs/knowledge/data/archive/2.0.0/architecture/pr-review-scenario-validation.md`
 
 - [x] The three-part scenario's **Path** is an anchor chain, not a `file:line`
   chain.
@@ -344,8 +344,9 @@ carries a line-number reference (closed bugs and backlog items)
 
 ### Task 12: Record the decision
 
-**Files:** Create: `docs/knowledge/data/architecture/line-free-anchors.md`;
-Modify: `docs/knowledge/data/architecture.md`
+**Files:** Create:
+`docs/knowledge/data/archive/3.0.0/architecture/line-free-anchors.md`; Modify:
+`docs/knowledge/data/architecture.md`
 
 - [x] The architecture document records the decision, the anchor syntax by
   reference to `spec/line-free-anchors`, the resolver's scope and its limits,

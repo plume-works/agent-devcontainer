@@ -67,8 +67,7 @@ Code 2.1.316):
   session still loads the shared one.
 
 How to write the hooks themselves — triggers, stdin, the returned path, the
-default layout — is recorded in [Worktree
-hooks](../architecture/worktree-hooks.md).
+default layout — is recorded in [Worktree hooks](../guides/worktree-hooks.md).
 
 ## Approach
 
@@ -78,7 +77,7 @@ environment](20261101-per-checkout-uv-environments.md) provides
 `WorktreeCreate` and `WorktreeRemove` hooks (`$CLAUDE_CONFIG_DIR/settings.json`,
 default `~/.claude/settings.json`), and registers them in every Dev Container's
 create phase outside deploy mode. `worktree create` makes the worktree the way
-[Worktree hooks](../architecture/worktree-hooks.md) prescribes — at
+[Worktree hooks](../guides/worktree-hooks.md) prescribes — at
 `<repository>/.claude/worktrees/<name>` on a new branch `worktree-<name>` — and
 links its uv environment. This plan adds its catalog steps inside those two
 subcommands.
@@ -251,7 +250,8 @@ Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 
 ### Task 6: Record the design
 
-**Files:** Create: `docs/knowledge/data/architecture/per-worktree-catalog.md`;
+**Files:** Create:
+`docs/knowledge/data/archive/3.0.0/architecture/per-worktree-catalog.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
 - [x] `data/architecture/per-worktree-catalog` records the file-source
@@ -259,8 +259,8 @@ Modify: `docs/knowledge/data/architecture.md`
   registered, and every rejected alternative in `## Approach`, and links
   `data/architecture/worktree-hooks`; `data/architecture.md` links it
   - **Evidence:**
-    `docs/knowledge/data/architecture/per-worktree-catalog.md#design` and
-    `#rejected-alternatives`; `docs/knowledge/data/architecture.md` ›
+    `docs/knowledge/data/archive/3.0.0/architecture/per-worktree-catalog.md#design`
+    and `#rejected-alternatives`; `docs/knowledge/data/architecture.md` ›
     "[Per-worktree catalog](architecture/per-worktree-catalog.md)"
 
 ## Spec changes
@@ -360,7 +360,7 @@ environment](20261101-per-checkout-uv-environments.md)
   catalog at user scope and registers no hooks.
 - Sessions revived by a Remote Control server in another spawn mode ([Claude
   Remote Control spawn mode
-  switch](../architecture/claude-remote-control-spawn-mode-switch.md)).
+  switch](../findings/claude-remote-control-spawn-mode-switch.md)).
 
 ## Key references
 

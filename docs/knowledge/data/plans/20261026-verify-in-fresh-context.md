@@ -23,10 +23,10 @@ released: 2.0.0
 backlog task this plan replaces. Ship already rests on the code and the graph
 alone: `/agentdev:iwe-ship` dispatches `iwe-shipper` with only the plan key, the
 operation, and quoted approvals ([Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md)). Verify does not.
-`/agentdev:iwe-verify` runs inline in whatever context loads it, so a Verify run
-in the session that wrote the code judges that code with the conversation's
-claims in view.
+agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md)). Verify
+does not. `/agentdev:iwe-verify` runs inline in whatever context loads it, so a
+Verify run in the session that wrote the code judges that code with the
+conversation's claims in view.
 
 The change gives [Verification in the main
 loop](../features/verification-in-the-main-loop.md) new behavior: every Verify
@@ -66,7 +66,8 @@ Rejected:
 
 - **Give `iwe-shipper` the Agent tool and nest the dispatch.** OpenCode refuses
   a nested dispatch at its default depth, and raising it takes an experimental
-  key ([Nested subagent dispatch](../architecture/nested-subagent-dispatch.md)).
+  key ([Nested subagent
+  dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md)).
 - **Keep the rulebook in the skill behind a thin agent**, as the Durable
   Knowledge Auditor does with `iwe-audit`. Then the skill is both the rulebook
   and the entry point that must dispatch, so a session loading it already holds
@@ -185,7 +186,8 @@ Rejected:
 
 ### Task 6: Record the design and the changed behavior
 
-**Files:** Create: `docs/knowledge/data/architecture/fresh-context-verify.md`;
+**Files:** Create:
+`docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md`;
 Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 

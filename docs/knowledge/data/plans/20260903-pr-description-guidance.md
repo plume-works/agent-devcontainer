@@ -230,7 +230,8 @@ the Verification / Reviewer Handoff tense split.
 
 ### Task 5: Classify the guidance path in the template-boundary architecture doc
 
-**Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 Add `.github/pr-description-guidance.md` to the GitHub surface table as
 **Customize**, consumer-created, noting it holds `pr-gen-description`
@@ -353,7 +354,7 @@ from the pull request template itself.
   — consumer-deleted descendant regression
 - `docs/knowledge/data/spec/template-consumption.md#requirement-a-consumer-may-customize-generated-pr-descriptions-through-a-guidance-file`
   — guidance-file requirement
-- `docs/knowledge/data/architecture/template-boundary.md#github-surface` —
-  `### GitHub surface`
-- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "catalog, which owns PR structure. Copy-ready precisely"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#github-surface`
+  — `### GitHub surface`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#github-surface › "catalog, which owns PR structure. Copy-ready precisely"`
   — `pull_request_template.md` row

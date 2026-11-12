@@ -98,7 +98,7 @@ client's budget and dependency-ordered recovery.
 ### Task 3: Record the escalation rule
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`
 
 - [x] Add a bullet to `## Recovery`: a client failure is charged to the
   root-most long-running dependency that fails a probe at that moment, which is

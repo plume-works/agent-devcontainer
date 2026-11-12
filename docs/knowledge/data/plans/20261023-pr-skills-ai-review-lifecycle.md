@@ -13,7 +13,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-discover-ai-responder/SKILL.md
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
-- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/assignee-review-trigger.md
 stage: done
 completed: 2026-10-27
 released: 2.0.0
@@ -52,9 +52,9 @@ shape, so the skills are simplified outright with no shape detection, and that
 trigger](20261026-assignee-review-trigger.md) makes a `pull_request`/`assigned`
 event the only way to request a re-review, and the bridge rejects an
 `@claude review` comment. [Assignee-triggered AI
-re-reviews](../architecture/assignee-review-trigger.md) records why. The
-maintainer decided on 2026-10-27 that the catalog requests a review the same
-way:
+re-reviews](../archive/2.0.0/architecture/assignee-review-trigger.md) records
+why. The maintainer decided on 2026-10-27 that the catalog requests a review the
+same way:
 
 - the script removes and re-adds the pull request's author as assignee, and
   restores the assignees it found, so an author who was not assigned before is

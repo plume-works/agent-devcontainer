@@ -141,7 +141,7 @@ consumer memory.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`docs/knowledge/data/architecture/template-boundary.md`.
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`.
 
 - [x] Replace broad `docs/knowledge/` tracking with an explicit inventory of
   reusable support files/directories and `.iwe/`; exclude `docs/knowledge/data/`

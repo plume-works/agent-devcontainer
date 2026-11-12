@@ -146,7 +146,7 @@ keeps its ceilings and hard fallback unchanged.
 ### Task 4: Record the settings layering as a CI constraint
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/ci-agent-plugin-availability.md`
+`docs/knowledge/data/archive/1.0.0/architecture/ci-agent-plugin-availability.md`
 
 - [x] Under `## What a container: job must supply itself`, add that the settings
   handed to `claude-code-action` must include the hook-written user layer,

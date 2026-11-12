@@ -81,6 +81,6 @@ None — every design question this feature raised is settled.
 
 - Spec: [Catalog lifecycle](../spec/catalog-lifecycle.md)
 - Architecture: [CI agent plugin
-  availability](../architecture/ci-agent-plugin-availability.md)
+  availability](../archive/1.0.0/architecture/ci-agent-plugin-availability.md)
 - Plan: [Install the agentdev catalog into the
   image](../plans/20260817-catalog-install-in-image.md)

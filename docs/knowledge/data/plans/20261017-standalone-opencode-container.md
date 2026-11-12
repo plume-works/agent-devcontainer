@@ -40,11 +40,12 @@ than require its project to contain lifecycle scaffolding.
 
 [OpenCode web](../spec/opencode-web.md) supplies the Coder server and
 auth/session contract. [Agent auth
-persistence](../architecture/agent-auth-persistence.md) separates shared
-provider logins from instance state. This work extends those building blocks
-with a dedicated image, not a new default for `agent-desktop`.
+persistence](../archive/1.0.0/architecture/agent-auth-persistence.md) separates
+shared provider logins from instance state. This work extends those building
+blocks with a dedicated image, not a new default for `agent-desktop`.
 
-[Nested Docker provisioning](../architecture/nested-docker-provisioning.md)
+[Nested Docker
+provisioning](../archive/1.0.0/architecture/nested-docker-provisioning.md)
 assigns DinD to the Dev Containers feature. The standalone image needs its own
 supervised daemon; the existing devcontainer remains feature-managed. [Image
 pinning](../spec/image-pinning.md) applies to the new consumer examples and
@@ -748,8 +749,8 @@ built it, so the pinned-acceptance workflow is removed.
 ### Task 14: Document the runtime and refresh its codebase map
 
 **Files:** Modify: `README.md`, `docs/knowledge/data/product.md`; Create:
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`; Refresh:
-`docs/knowledge/data/codebase/docker.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`;
+Refresh: `docs/knowledge/data/codebase/docker.md`,
 `docs/knowledge/data/codebase/api-image-runtime.md`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`,
 `docs/knowledge/data/codebase/flow-image-build.md`, and other stale mapped
@@ -949,8 +950,8 @@ digest
 ### Task 21: Record per-container OpenCode logins in the runtime docs
 
 **Files:** Modify: `README.md`,
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`; Refresh:
-stale `docs/knowledge/data/codebase/` docs
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`;
+Refresh: stale `docs/knowledge/data/codebase/` docs
 
 - [x] `README.md` `## Standalone OpenCode runtime` says Claude and Codex logins
   reach every project container in the identity cohort and each project
@@ -979,8 +980,8 @@ reaches port 14500 without passing the proxy.
 **Files:** Modify: `docker/desktop/start-xpra.sh`,
 `.devcontainer/scripts/runtime-supervisor.py`, `compose.opencode.yml`,
 `docker/opencode/runtime.env.example`, `README.md`,
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`; Test:
-`scripts/tests/test_agent_runtime_ingress.py`,
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`;
+Test: `scripts/tests/test_agent_runtime_ingress.py`,
 `scripts/tests/test_agent_runtime_supervision.py`,
 `scripts/tests/test_agent_runtime_compose.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
@@ -1417,7 +1418,7 @@ Supersedes Task 10's 30-minute health start period.
 ### Task 35: Document failure handling and background indexing
 
 **Files:** Modify: `README.md`,
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`,
 `docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`; Refresh: stale
 `docs/knowledge/data/codebase/` docs
 
@@ -1438,10 +1439,10 @@ Supersedes Task 10's 30-minute health start period.
     background indexing": `README.md` gains `### Startup and failures` and
     rewrites `### Operating it`, the deploy guide's first start follows, and
     [Standalone OpenCode
-    runtime](../architecture/standalone-opencode-runtime.md) and CBM daemon
-    lifecycle carry the split, the latch with its rejected alternative,
-    background indexing, and `hooks.json`. Prettier passes on both READMEs, and
-    `iwe schema validate` exits 0.
+    runtime](../archive/2.0.0/architecture/standalone-opencode-runtime.md) and
+    CBM daemon lifecycle carry the split, the latch with its rejected
+    alternative, background indexing, and `hooks.json`. Prettier passes on both
+    READMEs, and `iwe schema validate` exits 0.
 
 - [x] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
@@ -1923,8 +1924,8 @@ Recorded 2026-10-18 at `afae3a2`.
     Xpra reclaims an orphaned X server.
 
   The settled design is in [Standalone OpenCode
-  runtime](../architecture/standalone-opencode-runtime.md) and CBM daemon
-  lifecycle.
+  runtime](../archive/2.0.0/architecture/standalone-opencode-runtime.md) and CBM
+  daemon lifecycle.
 
 - **Defect found, not absorbed.** With the firewall enabled, Docker Hub pulls
   fail on the CloudFront CDN host; filed as [Bug: firewalled Docker Hub pulls
@@ -2090,7 +2091,7 @@ Recorded 2026-10-18 at `afae3a2`.
   — current catalog installation and shared-agent-auth scope.
 - `docs/knowledge/data/spec/image-pinning.md#requirement-images-are-pinned-by-tag-and-digest-never-a-bare-moving-tag`
   — digest policy and pin-loop avoidance.
-- `docs/knowledge/data/architecture/nested-docker-provisioning.md#decision › "The nested Docker engine is provided by the upstream"`
+- `docs/knowledge/data/archive/1.0.0/architecture/nested-docker-provisioning.md#decision › "The nested Docker engine is provided by the upstream"`
   — feature-owned DinD decision.
 - `README.md#what-you-get › "The repository publishes two images"` — current
   images, adoption, and digest policy.
@@ -2151,7 +2152,7 @@ Recorded 2026-10-18 at `afae3a2`.
   — login sharing;
   `README.md#identity-and-storage › "| Shared Claude and Codex logins |"` — the
   auth volume's storage row.
-- `docs/knowledge/data/architecture/standalone-opencode-runtime.md#identity-and-state › "copying files into it, and is initialized after mounts."`
+- `docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md#identity-and-state › "copying files into it, and is initialized after mounts."`
   — the shared-credential decision.
 - `.github/workflows/opencode-runtime-checks.yml` — the pinned-acceptance
   workflow Task 23 removes.

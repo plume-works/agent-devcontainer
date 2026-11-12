@@ -11,7 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
-- resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md
 released: 2.1.0
 ---
 
@@ -29,9 +29,9 @@ the command in that session.
 
 The gate exists so that a description match cannot start a workflow — see
 [Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md). The maintainer
-decided that Implement no longer needs it: implementing directly from a
-just-written plan is reserved for small isolated changes, so Plan and Explore
+agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md). The
+maintainer decided that Implement no longer needs it: implementing directly from
+a just-written plan is reserved for small isolated changes, so Plan and Explore
 can drop Implement as a suggested next step, and those two were the sessions
 where an unintended start could happen. Ship keeps its gate: a stray Ship run
 reaches the remote.
@@ -205,7 +205,7 @@ Rejected:
 ### Task 7: Record the decision in the architecture document
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/explicit-only-workflow-agents.md`
+`docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md`
 
 - [x] **Who may start them** lists any session asked to implement a named plan,
   including on a coordinator's message, for Implement; Ship's callers are
@@ -554,13 +554,13 @@ SHALL stop and report at any point that needs a user decision it was not given.
   — `test_implement_coordinator_requested`
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement_coordinator_requested`
   — `test_implement_coordinator_requested`
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "Who may start them."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#decision › "Who may start them."`
   — **Who may start them**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "The gate is explicit-only on both harnesses."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#decision › "The gate is explicit-only on both harnesses."`
   — the gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "Implement keeps the user's session for a direct run."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#decision › "Implement keeps the user's session for a direct run."`
   — **Implement keeps the user's session**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#rejected-alternatives › "Drop the gate and rely on descriptions, for Ship."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#rejected-alternatives › "Drop the gate and rely on descriptions, for Ship."`
   — **Drop the gate and rely on descriptions, for Ship**
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`
   — Explore requirement

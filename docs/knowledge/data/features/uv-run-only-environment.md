@@ -47,8 +47,8 @@ Claude `WorktreeCreate` hook `agentdev-runtime worktree create` links each
 worktree Claude Code makes before its session starts. The `WorktreeRemove` hook
 deletes that worktree's environment with it, and attach deletes every
 environment no listed checkout uses. See [uv environment
-location](../architecture/uv-environment-location.md) for why the environments
-live on `/uv` and why there is one per checkout.
+location](../archive/1.0.0/architecture/uv-environment-location.md) for why the
+environments live on `/uv` and why there is one per checkout.
 
 CI follows the same invocation contract, by a different mechanism. The two
 provisioning styles stay distinct — a persistent volume in the devcontainer, an

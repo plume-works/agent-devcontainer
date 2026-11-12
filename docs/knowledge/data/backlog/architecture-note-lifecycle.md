@@ -7,9 +7,9 @@ description: Give architecture notes a lifecycle, so a note a newer decision rep
 sources:
 - resource: docs/knowledge/AGENTS.md
 - resource: .iwe/schemas/architecture.yaml
-- resource: docs/knowledge/data/architecture/label-review-triggers.md
-- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
-- resource: docs/knowledge/data/architecture/pr-review-effort-tiers.md
+- resource: docs/knowledge/data/archive/3.0.0/architecture/label-review-triggers.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/assignee-review-trigger.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md
 completed: 2026-11-12
 ---
 

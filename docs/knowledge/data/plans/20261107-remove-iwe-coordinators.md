@@ -71,9 +71,10 @@ Rejected:
   removed the coordinators instead.
 - **Remove in-session dispatch and relay too.** Verify, revision evaluation, and
   Ship would run in place, reversing [Explicit-only workflow
-  agents](../architecture/explicit-only-workflow-agents.md) and [Autonomous
-  Implement loop](../architecture/autonomous-implement-loop.md); the maintainer
-  kept them.
+  agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md) and
+  [Autonomous Implement
+  loop](../archive/2.0.0/architecture/autonomous-implement-loop.md); the
+  maintainer kept them.
 
 ## Implementation Steps
 
@@ -156,9 +157,9 @@ Rejected:
 ### Task 5: Graph documents stop describing coordinators
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/explicit-only-workflow-agents.md`,
-`docs/knowledge/data/architecture/autonomous-implement-loop.md`,
-`docs/knowledge/data/architecture/adversarial-review.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md`,
+`docs/knowledge/data/archive/2.1.0/architecture/adversarial-review.md`,
 `docs/knowledge/data/features/autonomous-implement-loop.md`,
 `docs/knowledge/data/features/verify-report-cache.md`,
 `docs/knowledge/data/backlog/observe-planned-adversarial-review.md`
@@ -456,7 +457,7 @@ this requirement governs only approvals that another session's message claims.
 - `test ! -e .agents/plugins/agentdev/skills/iwe-implement-all && test ! -e .agents/plugins/agentdev/skills/iwe-ship-all`
 - `grep -nE "coordinator|implement-all|ship-all|relay|requesting session|orchestrator|[Dd]ispatched mode|^- \*\*Dispatched" .agents/plugins/agentdev/agents/iwe-implementer.agent.md .agents/plugins/agentdev/agents/iwe-planner.agent.md .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md .agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
   prints nothing.
-- `grep -nE "coordinator|implement-all|ship-all|child session" .agents/plugins/agentdev/agents/iwe-shipper.agent.md .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md .agents/plugins/agentdev/README.md README.md docs/knowledge/data/architecture/explicit-only-workflow-agents.md docs/knowledge/data/architecture/autonomous-implement-loop.md docs/knowledge/data/architecture/adversarial-review.md docs/knowledge/data/features/autonomous-implement-loop.md docs/knowledge/data/features/verify-report-cache.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md`
+- `grep -nE "coordinator|implement-all|ship-all|child session" .agents/plugins/agentdev/agents/iwe-shipper.agent.md .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md .agents/plugins/agentdev/README.md README.md docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md docs/knowledge/data/archive/2.1.0/architecture/adversarial-review.md docs/knowledge/data/features/autonomous-implement-loop.md docs/knowledge/data/features/verify-report-cache.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md`
   prints only lines inside a `## Approach` rejected-alternative or a decision
   recording the removal.
 - `uv run validate_agent_files` on every changed `SKILL.md` and `.agent.md`.
@@ -517,9 +518,9 @@ this requirement governs only approvals that another session's message claims.
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
   — Implement loop requirement; 450 revision; 662 Verify verbatim; 751
   adversarial review; 846 start requirement
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "The Ship and Implement workflows are each defined once, as"`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#decision › "The Ship and Implement workflows are each defined once, as"`
   — `## Decision` callers and relay
-- `docs/knowledge/data/architecture/autonomous-implement-loop.md#decision › "Implement session is the session that loaded"`
+- `docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md#decision › "Implement session is the session that loaded"`
   — `## Decision` orchestrator and coordinator
 - `docs/knowledge/data/features/autonomous-implement-loop.md#behaviour › "is the session that loaded"`
   — orchestrator behaviour; implement-all edge case at 76

@@ -111,7 +111,8 @@ Rejected alternatives:
 
 ### Task 1: Settle the OpenCode host behavior the bridge relies on
 
-**Files:** Create: `docs/knowledge/data/architecture/opencode-catalog-bridge.md`
+**Files:** Create:
+`docs/knowledge/data/archive/2.0.0/architecture/opencode-catalog-bridge.md`
 
 - [x] With a throwaway prototype under `./.tmp/` and `bunx opencode-ai@1.18.34`,
   establish each point below. A result that contradicts this plan's Approach

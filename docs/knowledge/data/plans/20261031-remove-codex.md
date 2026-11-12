@@ -86,8 +86,9 @@ agents its skills dispatch, so the package would ship broken.
 
 ### Task 2: Record the supported-harness decision
 
-**Files:** Create: `docs/knowledge/data/architecture/supported-harnesses.md`;
-Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
+**Files:** Create:
+`docs/knowledge/data/archive/2.0.0/architecture/supported-harnesses.md`; Modify:
+`docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 
 - [x] `architecture/supported-harnesses` states that Claude Code and OpenCode
   are the supported harnesses and Codex is not, records the rejected

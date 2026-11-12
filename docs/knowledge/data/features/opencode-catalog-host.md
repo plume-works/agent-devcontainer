@@ -55,7 +55,7 @@ and `postAttachCommand` points the entry at the workspace checkout, through
   earlier bridge entry from another root is replaced.
 - **Provider logins.** OpenCode keeps them in its database on the per-worktree
   `agentdev-opencode` volume, so each worktree logs in once; see [Agent auth
-  persistence](../architecture/agent-auth-persistence.md).
+  persistence](../archive/1.0.0/architecture/agent-auth-persistence.md).
 
 ## Open questions
 
@@ -67,7 +67,7 @@ feature.
 - Spec: [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md), [Catalog
   lifecycle](../spec/catalog-lifecycle.md)
 - Architecture: [OpenCode catalog
-  bridge](../architecture/opencode-catalog-bridge.md)
+  bridge](../archive/2.0.0/architecture/opencode-catalog-bridge.md)
 - Plans: [Load the agentdev catalog into OpenCode through a bridge
   plugin](../plans/20261001-opencode-catalog-bridge.md), [Make OpenCode v2 the
   devcontainer default](../plans/20261018-opencode-v2-default.md)

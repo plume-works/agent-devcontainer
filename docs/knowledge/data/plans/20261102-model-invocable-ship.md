@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
-- resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md
 stage: cancelled
 ---
 
@@ -33,13 +33,13 @@ sessions it runs. The skill quotes a relayed approval into the dispatch prompt
 the same way as one the user typed.
 
 This reverses an alternative [Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md) rejected for Ship:
-"Drop the gate and rely on descriptions", because a description match could
-start Ship from Explore after a partial answer closes a plan's open question.
-This plan answers that risk the way the Implement plan does — a description
-narrowed to a request that names a plan, and an explicit Explore rule — instead
-of with the gate. The released behaviour is in [IWE workflow skills in the
-agentdev catalog](../features/agentdev-iwe-workflow-skills.md).
+agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md) rejected
+for Ship: "Drop the gate and rely on descriptions", because a description match
+could start Ship from Explore after a partial answer closes a plan's open
+question. This plan answers that risk the way the Implement plan does — a
+description narrowed to a request that names a plan, and an explicit Explore
+rule — instead of with the gate. The released behaviour is in [IWE workflow
+skills in the agentdev catalog](../features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 
@@ -80,7 +80,7 @@ Rejected:
 ### Task 3: Record the decision
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/explicit-only-workflow-agents.md`
+`docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md`
 
 - [ ] **Who may start them** lists any session asked to ship a named plan, and
   the gate bullet names only the two coordinators as explicit-only.
@@ -259,11 +259,11 @@ decision it was not given.
   — `iwe-ship` expected `deny`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts › "expect(config.permission.skill"`
   — `iwe-ship` expected `deny`
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "Who may start them."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#decision › "Who may start them."`
   — **Who may start them**
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#decision › "The gate is explicit-only on both harnesses."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#decision › "The gate is explicit-only on both harnesses."`
   — the gate bullet
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#rejected-alternatives › "Drop the gate and rely on descriptions, for Ship."`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#rejected-alternatives › "Drop the gate and rely on descriptions, for Ship."`
   — **Drop the gate and rely on descriptions, for Ship**
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-shipping-resumes-after-partial-graph-updates › "incomplete operation"`
   — Ship and Implement start requirement

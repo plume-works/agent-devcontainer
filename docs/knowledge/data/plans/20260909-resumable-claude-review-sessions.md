@@ -15,9 +15,9 @@ sources:
   title: Claude Code Action SDK execution
 - resource: https://github.com/github/docs/blob/main/data/reusables/actions/jobs/section-running-jobs-in-a-container-volumes.md
   title: GitHub Actions job-container volumes
-- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/assignee-review-trigger.md
 - resource: docs/knowledge/data/plans/20261030-responder-quill-app-identity.md
-- resource: docs/knowledge/data/architecture/label-review-triggers.md
+- resource: docs/knowledge/data/archive/3.0.0/architecture/label-review-triggers.md
 - resource: docs/knowledge/data/plans/20261108-label-review-triggers.md
 stage: cancelled
 ---
@@ -42,9 +42,9 @@ Resumption also requires the corresponding persistent transcript tree and
 session identifier.
 
 Reviews are requested with pull request labels ([Label-triggered AI
-reviews](../architecture/label-review-triggers.md), shipped by [Request and
-block AI reviews with labels](20261108-label-review-triggers.md)): adding
-`request-ai-review` fires a `pull_request`/`labeled` run whose
+reviews](../archive/3.0.0/architecture/label-review-triggers.md), shipped by
+[Request and block AI reviews with labels](20261108-label-review-triggers.md)):
+adding `request-ai-review` fires a `pull_request`/`labeled` run whose
 `ai-review-present` counts toward merge, and `block-ai-reviews` holds every
 review. A resume request follows the same model: it is a third label, handled by
 the same routing, block, and label-removal rules.

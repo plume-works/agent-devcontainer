@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
-- resource: docs/knowledge/data/architecture/module-layout.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/module-layout.md
 stage: done
 completed: 2026-10-08
 released: 2.0.0
@@ -100,7 +100,8 @@ a user-authored file with that prefix would be removed on reinstall.
 
 ### Task 4: Record the install-time agents in the module layout
 
-**Files:** Modify: `docs/knowledge/data/architecture/module-layout.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/module-layout.md`
 
 - [x] Restate the `.agents/plugins/agentdev/` single-source decision so it
   covers the generated Codex agents: the catalog stays the only source, and
@@ -199,7 +200,7 @@ produce, and SHALL NOT modify any other file in that directory.
   — bridge names each subagent by `<stem>`
 - `.agents/plugins/agentdev/bin/result_codes.py › "#!/usr/bin/env python3"` —
   Python result-code helpers
-- `docs/knowledge/data/architecture/module-layout.md#key-design-decisions › "Codex consumes its skills directly, with no"`
+- `docs/knowledge/data/archive/1.0.0/architecture/module-layout.md#key-design-decisions › "Codex consumes its skills directly, with no"`
   — single-source catalog decision
 - `docs/knowledge/data/spec/catalog-lifecycle.md#catalog-lifecycle` — install
   requirement

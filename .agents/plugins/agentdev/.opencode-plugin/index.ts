@@ -1,5 +1,5 @@
 // OpenCode bridge for the agentdev catalog. It must stay free of runtime
-// dependencies: see architecture/opencode-catalog-bridge.
+// dependencies: see spec/opencode-catalog-bridge.
 import type { Hooks, PluginModule } from "@opencode-ai/plugin"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
@@ -280,7 +280,7 @@ export function setupBridge(root: string, ctx: V2Context): void {
   })
 
   // Tool limits are enforced by the hooks below: the host appends the global
-  // permission rules after any rule set here. See architecture/opencode-catalog-bridge.
+  // permission rules after any rule set here. See spec/opencode-catalog-bridge.
   void ctx.agent.transform((editor) => {
     for (const agent of catalog.agents) {
       editor.update(agent.stem, (info) => {

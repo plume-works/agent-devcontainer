@@ -22,7 +22,7 @@ sources:
 feature this plan delivers. [Digest masks for map
 docs](20260905-digest-masks.md) built the masking mechanism; its rules live in
 `.agent.metadata.json` files per [Agent metadata
-files](../architecture/agent-metadata-files.md). Nothing in the
+files](../archive/1.0.0/architecture/agent-metadata-files.md). Nothing in the
 `/agentdev:iwe-map` refresh routes a version-only change to that mechanism: step
 8 tells the agent to re-read and rewrite every `STALE` doc, so a doc whose only
 change is a pinned value gets a hand refresh, and the missing mask is left for

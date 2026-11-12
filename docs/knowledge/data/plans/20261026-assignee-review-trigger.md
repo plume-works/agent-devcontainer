@@ -9,7 +9,7 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
-- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/assignee-review-trigger.md
 stage: done
 completed: 2026-10-27
 released: 2.0.0
@@ -28,8 +28,9 @@ branch. That run's `ai-review-present` is not counted by the pull request rollup
 or the `main` ruleset, so it neither holds a merge nor clears a red gate. A
 `pull_request`/`assigned` run is counted. It reviews whether or not an accepted
 review exists, and its gate is the one the ruleset reads. [Assignee-triggered AI
-re-reviews](../architecture/assignee-review-trigger.md) records those
-behaviours, the maintainer's decisions, and the alternatives they rule out.
+re-reviews](../archive/2.0.0/architecture/assignee-review-trigger.md) records
+those behaviours, the maintainer's decisions, and the alternatives they rule
+out.
 
 The maintainer decided on 2026-10-26:
 
@@ -467,10 +468,10 @@ branch does not declare is rejected on the key alone, whatever its value.
   event, accepted by decision.
 - AI review of bot-authored pull requests outside `TRUSTED_BOT_ACTORS`, which
   stay unreviewed by decision.
-- `docs/knowledge/data/architecture/pr-review-effort-tiers.md`, a decision
-  record that [Assignee-triggered AI
-  re-reviews](../architecture/assignee-review-trigger.md) supersedes for the
-  comment tier.
+- `docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md`, a
+  decision record that [Assignee-triggered AI
+  re-reviews](../archive/2.0.0/architecture/assignee-review-trigger.md)
+  supersedes for the comment tier.
 
 ## Key references
 

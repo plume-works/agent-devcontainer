@@ -132,9 +132,9 @@ Rejected:
 
 **Files:** Modify:
 `docs/knowledge/data/features/claude-and-opencode-only-harnesses.md`,
-`docs/knowledge/data/architecture/supported-harnesses.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/supported-harnesses.md`,
 `docs/knowledge/data/someday/revision-evaluator-calibration.md`,
-`docs/knowledge/data/architecture/fresh-context-verify.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md`,
 `docs/knowledge/data/features/verify-report-cache.md`,
 `docs/knowledge/data/backlog/incremental-re-verify.md`
 
@@ -233,7 +233,7 @@ session from adding such a test.
 
 - `git ls-files scripts/e2e 'scripts/tests/test_e2e_*'` prints nothing.
 - `uv run pytest --collect-only -q` collects with no error.
-- `grep -n -i 'e2e' pyproject.toml AGENTS.md docs/knowledge/data/product.md .agents/plugins/agentdev/agents/iwe-planner.agent.md docs/knowledge/data/features/claude-and-opencode-only-harnesses.md docs/knowledge/data/architecture/supported-harnesses.md docs/knowledge/data/someday/revision-evaluator-calibration.md docs/knowledge/data/architecture/fresh-context-verify.md docs/knowledge/data/features/verify-report-cache.md docs/knowledge/data/backlog/incremental-re-verify.md`
+- `grep -n -i 'e2e' pyproject.toml AGENTS.md docs/knowledge/data/product.md .agents/plugins/agentdev/agents/iwe-planner.agent.md docs/knowledge/data/features/claude-and-opencode-only-harnesses.md docs/knowledge/data/archive/2.0.0/architecture/supported-harnesses.md docs/knowledge/data/someday/revision-evaluator-calibration.md docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md docs/knowledge/data/features/verify-report-cache.md docs/knowledge/data/backlog/incremental-re-verify.md`
   prints nothing.
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `iwe normalize` and `iwe schema validate` pass.
@@ -267,11 +267,11 @@ session from adding such a test.
   — Plans test behaviour requirement
 - `docs/knowledge/data/features/claude-and-opencode-only-harnesses.md#behaviour › "package keeps its Codex ecosystem"`
   — the e2e Behaviour bullet
-- `docs/knowledge/data/architecture/supported-harnesses.md#decision › "CI validates the catalog with"`
+- `docs/knowledge/data/archive/2.0.0/architecture/supported-harnesses.md#decision › "CI validates the catalog with"`
   — the CI and e2e bullet
 - `docs/knowledge/data/someday/revision-evaluator-calibration.md#calibrate-the-revision-evaluator-against-human-review › "any of its verdicts with a human verdict."`
   — the e2e suite sentence
-- `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "repeating its test runs. The lookup and save are a bundled"`
+- `docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md#decision › "repeating its test runs. The lookup and save are a bundled"`
   — "test and e2e runs"
 - `docs/knowledge/data/features/verify-report-cache.md#purpose › "commands — full test suites. The"`
   — "full test suites and e2e runs"

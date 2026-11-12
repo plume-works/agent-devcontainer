@@ -10,8 +10,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
-- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
-- resource: docs/knowledge/data/architecture/pr-review-effort-tiers.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/assignee-review-trigger.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
 completed: 2026-11-08
@@ -27,8 +27,8 @@ Changes [AI responder workflows](../features/ai-responder-workflows.md).
 
 Before this plan, a re-review was requested by removing the pull request's
 author as assignee and adding them back ([Assignee-triggered AI
-re-reviews](../architecture/assignee-review-trigger.md)). The maintainer's goal
-is an easy, trusted, explicit way to request a re-review.
+re-reviews](../archive/2.0.0/architecture/assignee-review-trigger.md)). The
+maintainer's goal is an easy, trusted, explicit way to request a re-review.
 
 A label applied to a pull request fires `pull_request`/`labeled`, a
 `pull_request` event like `assigned`, so its run is counted by the `main`
@@ -346,14 +346,16 @@ Assumptions:
 
 ### Task 7: Architecture note records the label triggers
 
-**Files:** Create: `docs/knowledge/data/architecture/label-review-triggers.md`;
+**Files:** Create:
+`docs/knowledge/data/archive/3.0.0/architecture/label-review-triggers.md`;
 Modify: `docs/knowledge/data/architecture.md`
 
 - [x] The note records the decisions under `## Context`, the routing under
   `## Approach`, its known limits, and every rejected alternative, and states
   that it supersedes [Assignee-triggered AI
-  re-reviews](../architecture/assignee-review-trigger.md) and [PR review effort
-  tiers](../architecture/pr-review-effort-tiers.md), which are left unedited.
+  re-reviews](../archive/2.0.0/architecture/assignee-review-trigger.md) and [PR
+  review effort tiers](../archive/2.0.0/architecture/pr-review-effort-tiers.md),
+  which are left unedited.
   - **Evidence:** commit 38389c9b; `architecture/label-review-triggers` carries
     the decisions under `## Context`, the routing under `## Approach`,
     `## Known limits`, all five rejected alternatives, and the line superseding

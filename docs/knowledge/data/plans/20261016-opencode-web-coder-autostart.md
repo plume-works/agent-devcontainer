@@ -31,11 +31,13 @@ builds. Without a started server and a volume under its data directory,
 `~/.local/share/opencode`, a Dev Container rebuild would lose OpenCode provider
 logins and session chats.
 
-[Agent auth persistence](../architecture/agent-auth-persistence.md) is the split
-this plan extends to OpenCode: credentials on the shared `agentdev-agents-auth`
-volume, path-bearing state on a per-instance volume. [Coder IDE baseline
-template](../spec/coder-ide-baseline.md) makes `coder-agent-start.sh` the only
-start hook and the only place Coder user secrets reach.
+[Agent auth
+persistence](../archive/1.0.0/architecture/agent-auth-persistence.md) is the
+split this plan extends to OpenCode: credentials on the shared
+`agentdev-agents-auth` volume, path-bearing state on a per-instance volume.
+[Coder IDE baseline template](../spec/coder-ide-baseline.md) makes
+`coder-agent-start.sh` the only start hook and the only place Coder user secrets
+reach.
 
 OpenCode v1.19.0 behavior this plan relies on:
 
@@ -223,7 +225,8 @@ Rejected:
 
 ### Task 5: Record OpenCode in the auth-persistence architecture
 
-**Files:** Modify: `docs/knowledge/data/architecture/agent-auth-persistence.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/agent-auth-persistence.md`
 
 - [x] The Decision section names OpenCode's shared `auth.json` symlink and its
   `agentdev-opencode` volume beside Claude and Codex, and Consequences records

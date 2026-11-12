@@ -119,13 +119,6 @@ existing `~/.bashrc` and `~/.config/fish/config.fish`.
   `github_cli_wrapper` block
 - **THEN** the block is removed
 
-## Supplying the identity
-
-Create or update the four Git identity secrets in the Coder account, mapped to
-the exact `GIT_*` names listed above. Identity values are configuration, not
-credentials, but they should still be supplied through Coder rather than baked
-into the image.
-
 ## Rationale
 
 ### gh is authenticated by a wrapper baked into the image

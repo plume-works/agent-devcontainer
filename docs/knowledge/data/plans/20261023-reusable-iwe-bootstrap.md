@@ -211,7 +211,7 @@ Modify: `.agents/plugins/agentdev/README.md`,
 ### Task 5: Align the feature and boundary documents
 
 **Files:** Modify: `docs/knowledge/data/features/consumer-iwe-seed.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 Spec documents are not edited here: Ship merges `## Spec changes` into
 `data/spec/template-consumption` and creates `data/spec/iwe-bootstrap`.

@@ -419,7 +419,7 @@ loop:
     approved lines verbatim.
 
 ``` text
-NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/architecture/manual-stacked-prs.md`).
+NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests; work that depends on an open pull request is a normal pull request based on its predecessor's branch and kept current with merges (see `docs/knowledge/data/archive/2.1.0/architecture/manual-stacked-prs.md`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
 ```
 
@@ -439,8 +439,9 @@ NEVER rebase or reset a branch that has been pushed; bring in other history with
 
 ### Task 12: Project memory
 
-**Files:** Create: `docs/knowledge/data/architecture/manual-stacked-prs.md`;
-Delete: `docs/knowledge/data/architecture/stacked-prs.md`,
+**Files:** Create:
+`docs/knowledge/data/archive/2.1.0/architecture/manual-stacked-prs.md`; Delete:
+`docs/knowledge/data/architecture/stacked-prs.md`,
 `docs/knowledge/data/architecture/stack-push-guard.md`; Modify:
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/native-stacked-prs.md`,

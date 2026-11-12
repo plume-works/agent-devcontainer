@@ -35,8 +35,8 @@ reduces the report before it reaches the user:
   appeared in a `Read` result or a save heredoc, and reply with the path.
 
 The findings then live only in a file the user has to open. [Fresh-context
-Verify](../architecture/fresh-context-verify.md) makes the report the
-deliverable of a fresh context, so a caller that reduces it to a verdict
+Verify](../archive/2.0.0/architecture/fresh-context-verify.md) makes the report
+the deliverable of a fresh context, so a caller that reduces it to a verdict
 discards the evidence it was run to produce.
 
 ## Approach

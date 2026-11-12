@@ -1,0 +1,170 @@
+---
+type: architecture
+description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
+sources:
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
+- resource: .devcontainer/devcontainer.json
+- resource: ansible/roles/agentic_tools/README.md
+- resource: .github/actions/run-claude-responder/action.yml
+---
+
+# CI agent plugin availability
+
+## Decision
+
+A GitHub Actions job that needs an `agentdev:*` skill **checks out the branch
+and runs the devcontainer lifecycle hooks** — postCreate, postStart, and
+postAttach — before invoking the agent. The image is used as published; nothing
+about it changes.
+
+The skill the job gets is therefore the one **on the branch under review**, not
+one baked into the image. A pull request that changes a skill is reviewed by the
+skill as changed.
+
+The image is **public**, so a `container:` block needs no `credentials:` and the
+job needs no `packages: read` permission.
+
+## Problem this solved
+
+The agentdev images stage the plugin catalog at `/opt/agentdev` but does not
+install it: the marketplace is not registered and the plugin cache under
+`~/.claude` is empty. Installation belongs to the container's lifecycle
+commands, because `~/.claude` is commonly mounted as a volume that would shadow
+anything the build wrote.
+
+**A GitHub Actions `container:` job runs no lifecycle hooks.** It starts the
+image and runs steps. So a job that names a skill gets nothing, and the failure
+is quiet: an agent asked to use a skill that does not resolve does not
+necessarily fail — it improvises. For a PR-review responder gated by a required
+check, that produces a green gate over an ungrounded review, which is worse than
+a red one.
+
+## Which hooks, and why all three
+
+The naming does not match the responsibilities, so the split is worth stating.
+The checkout-scoped catalog install lives in **postAttach**.
+
+| hook                                                    | what a review job needs from it                            |
+| ------------------------------------------------------- | ---------------------------------------------------------- |
+| create: `agentdev-runtime lifecycle created`            | auth links, the project sync, image-scoped catalog install |
+| postStart: `agentdev-runtime lifecycle ready --no-wait` | the per-start repairs                                      |
+| postAttach: `agentdev-runtime lifecycle attached`       | the project sync, **catalog from this checkout**           |
+
+Running only postCreate and postStart would leave the responder with the image's
+catalog rather than the branch's, so the review would not be grounded in the
+change under review.
+
+## What a `container:` job must supply itself
+
+The hooks depend on `devcontainer.json` — its `containerEnv` and its `mounts` —
+not only on the image, and a `container:` job applies neither. The responder job
+supplies the load-bearing hook environment explicitly:
+
+| what                     | why                                                                  |
+| ------------------------ | -------------------------------------------------------------------- |
+| `DEV_WORKSPACE_FOLDER`   | workspace root for every lifecycle phase                             |
+| `UV_PROJECT_ENVIRONMENT` | see below — unset is silent, not fatal                               |
+| `mkdir -p /root/.claude` | the create phase writes `claude.json` where a volume normally mounts |
+
+The remaining devcontainer `containerEnv` variables are not required here:
+`ENABLE_FIREWALL` is already inert by default; `UV_CACHE_DIR` and
+`UV_PYTHON_INSTALL_DIR` fall back to uv defaults; and `DISPLAY`, `DOCKER_HOST`,
+`DEVCONTAINER_ID`, and `CLAUDE_SECURESTORAGE_CONFIG_DIR` are not exercised by
+the hooks. No volumes are required; plain directories suffice.
+
+`UV_PROJECT_ENVIRONMENT` deserves the emphasis. Unset, `uv sync` does not fail —
+it creates `.venv` **inside the checkout** and the job stays green. A review job
+would report success while having written into the very tree it is reviewing.
+That failure mode is invisible to CI, so the local reproducer checks for this
+side effect explicitly.
+
+Mounts have the same shape: `agentdev-runtime lifecycle created` chowns `/uv`,
+which exists only because `devcontainer.json` mounts it, and skips that chown
+when `/uv` is absent rather than failing the phase.
+
+**The settings handed to `claude-code-action` must include the hook-written user
+layer.** The hooks enable `agentdev@agent-devcontainer` in
+`$HOME/.claude/settings.json`, and the action merges its `settings:` input into
+that file one level deep, so an `enabledPlugins` in the input replaces the
+hook-written object wholesale and leaves the plugin installed but disabled. The
+responder's `Merge Claude settings` step therefore deep-merges the user layer,
+`.claude/settings.json`, and `.claude/settings.local.json`, in that order. This
+repository cannot observe the omission: its local-scope install also writes the
+plugin into `settings.local.json`, which a consumer repository never has.
+
+## What a review job should skip
+
+The create phase's one expensive step is guarded by an `AGENTDEV_*` variable
+that defaults to the devcontainer's behavior: `agentdev-runtime project hooks`
+runs `pre-commit install --install-hooks`, which eagerly builds a virtualenv for
+every hook in the repository — minutes of work for hooks a review job never
+fires. `AGENTDEV_SKIP_PRE_COMMIT` skips it.
+
+With no supervisor, `agentdev-runtime lifecycle ready --no-wait` runs only the
+per-start repairs. The keyring, the firewall, Xpra, and the other supervised
+services never start in a `container:` job; a review job needs none of them.
+
+`git config --global --add safe.directory` is *not* skippable — a CI checkout is
+owned by a different uid — which is why it runs as its own step,
+`agentdev-runtime git safe-directory`, rather than behind the pre-commit guard.
+
+## Alternatives considered
+
+**Install the catalog into the image at build time.** Decided, then reversed
+before implementation. It would have made skills resolve for any raw-image
+consumer with no extra step, and the devcontainer path would have been
+unaffected because its volume shadows `/root/.claude`.
+
+Rejected once the checkout was recognized as always present: a review job clones
+the repository anyway, so the catalog is already there, and using it is strictly
+better because it reflects the branch under review rather than the image's
+pinned `AGENTDEV_PLUGIN_VERSION`. The image change would also have made the
+image ship a `~/.claude.json` it does not ship today, changing which branch of
+the create phase's `~/.claude.json` link fires on a fresh volume — a real
+behavior change to the devcontainer path in exchange for a capability the
+checkout already provides.
+
+Rejected *for CI*, not discarded: it still closes a real gap for consumers that
+never run the lifecycle hooks — a plain `docker run`, a Codespace. That is
+planned separately in [Install the agentdev catalog into the
+image](../../../plans/20260817-catalog-install-in-image.md), which owns the
+`~/.claude.json` risk.
+
+**Install from an explicit workflow step rather than the lifecycle hooks.**
+Rejected: it duplicates logic the hooks already own and drifts from them. The
+hooks are the tested path.
+
+**Skip the container and run the responder on a bare runner.** Viable, and
+simpler, but it gives up the project toolchain (`uv`, `bun`, the linters) that
+makes a review grounded.
+
+**Vendor a repository-local `.claude/skills/pr-review/`.** Removes the plugin
+dependency entirely, but forks from the catalog's copy and drifts.
+
+## Cost of running the hooks
+
+`pre-commit install --install-hooks` is minutes. It eagerly builds a virtualenv
+for every hook in the repository — the single expensive step in the whole
+lifecycle, and the one a review job least needs, since it never commits.
+
+The expensive step is the one that looks incidental, which is why the guard
+exists and why upstream's 30-minute job timeout carries over unchanged.
+
+## Consequences
+
+- The lifecycle commands become a CI contract, not only a devcontainer one. They
+  must tolerate missing devcontainer mounts in `container:` jobs, not just the
+  absence of an interactive editor session.
+- Skill availability is a property of the *job*, not the image — reading the
+  Dockerfile will suggest otherwise, since it stages a catalog it never
+  installs.
+- `data/spec/catalog-lifecycle` is unaffected: nothing about staging, the
+  postCreate install, or the attach-time override changes.
+
+## Status
+
+Decided during exploration of the AI responder workflow import, and revised once
+when the checkout made the image change unnecessary. Not yet implemented.
+Planned in [AI responder
+workflows](../../../plans/20260816-ai-responder-workflows.md).

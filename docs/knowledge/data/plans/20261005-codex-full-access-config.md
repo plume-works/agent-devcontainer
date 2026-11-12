@@ -112,7 +112,7 @@ devcontainer script tests)
 **Files:** Create:
 `docs/knowledge/data/architecture/codex-full-access-in-devcontainer.md`; Modify:
 `docs/knowledge/data/architecture.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] Architecture doc stating the decision (container is the sandbox; Codex CLI
   sessions take the policy from `config.toml` unless a flag overrides it), the
@@ -204,7 +204,7 @@ run through `uv`, independent of the workspace `pyproject.toml`.
   — `codebase-memory-mcp-start.sh`
 - `.devcontainer/firewall-allowlist.txt › "pypi.org"` — `pypi.org`,
   `files.pythonhosted.org`
-- `docs/knowledge/data/architecture/template-boundary.md#devcontainer-runtime › "| Path | Responsibility |"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#devcontainer-runtime › "| Path | Responsibility |"`
   — tracked `.devcontainer/` path inventory
 - `docs/knowledge/data/codebase/devcontainer/scripts.md#public-surface › "| every start | CBM daemon + index, git safe.directory, auth"`
   — postStart row

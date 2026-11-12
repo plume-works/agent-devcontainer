@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 ---
 
 # Consumer PR description guidance

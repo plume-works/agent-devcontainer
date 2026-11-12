@@ -36,8 +36,8 @@ Claude Remote Control autostart stays. Its current gate treats a non-empty
 with emptied tokens, so autostart launches into a dead login.
 
 The shared `agentdev-agents-auth` volume ([Agent auth
-persistence](../architecture/agent-auth-persistence.md)) is a separate decision
-and stays: a `/login` inside any container persists there.
+persistence](../archive/1.0.0/architecture/agent-auth-persistence.md)) is a
+separate decision and stays: a `/login` inside any container persists there.
 
 ## Approach
 
@@ -175,7 +175,8 @@ Rejected:
 
 ### Task 5: Record the shared-volume refresh race
 
-**Files:** Modify: `docs/knowledge/data/architecture/agent-auth-persistence.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/agent-auth-persistence.md`
 
 - [x] Add a consequence: worktrees on one host share a single credential file,
   so each sees the others' refreshes, but two Claude processes refreshing at the

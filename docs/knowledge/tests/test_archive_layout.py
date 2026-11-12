@@ -53,6 +53,13 @@ type: guide
 Run it.
 """
 
+ARCHITECTURE_NOTE = """---
+type: architecture
+---
+
+# A retired design note
+"""
+
 ARCHIVED_PLAN = """---
 type: plan
 created: 2026-01-01
@@ -103,8 +110,9 @@ def _validate(workspace: Path) -> subprocess.CompletedProcess[str]:
         ('data/guides/run-the-thing', GUIDE),
         ('data/archive/2.1.0/plans/20260101-archived', ARCHIVED_PLAN),
         ('data/archive/next-release/plans/20260101-archived', ARCHIVED_PLAN),
+        ('data/archive/2.1.0/architecture/retired', ARCHITECTURE_NOTE),
     ],
-    ids=['finding', 'guide', 'archived-plan', 'next-release-plan'],
+    ids=['finding', 'guide', 'archived-plan', 'next-release-plan', 'archived-architecture'],
 )
 def test_conforming_document_validates(workspace: Path, key: str, content: str) -> None:
     """A document of each new kind that follows its schema passes."""
@@ -129,12 +137,16 @@ def test_conforming_document_validates(workspace: Path, key: str, content: str) 
             'data/guides/run-the-thing',
             GUIDE.replace('type: guide\n', 'type: guide\nstage: done\n'),
         ),
+        ('data/architecture/retired', ARCHITECTURE_NOTE),
+        ('data/notes/retired', ARCHITECTURE_NOTE),
     ],
     ids=[
         'archived-plan-invalid-stage',
         'finding-without-closing',
         'finding-with-stage',
         'guide-with-stage',
+        'live-architecture-note',
+        'architecture-note-in-an-unbound-folder',
     ],
 )
 def test_broken_document_is_rejected(workspace: Path, key: str, content: str) -> None:

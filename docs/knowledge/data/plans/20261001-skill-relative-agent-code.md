@@ -215,8 +215,8 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 
 **Files:** Modify: `docs/knowledge/data/spec/git-new-branch.md`,
 `docs/knowledge/data/spec/iwe-workflow-skills.md`,
-`docs/knowledge/data/architecture/self-improve-runtime.md`,
-`docs/knowledge/data/architecture/agent-metadata-files.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/self-improve-runtime.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md`,
 `docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md`, and whichever
 `docs/knowledge/data/codebase/` documents `stale-map-docs.py` reports
 
@@ -390,9 +390,9 @@ this plan. The specs it touches change only their `sources:` paths.
 - `docs/knowledge/data/spec/git-new-branch.md › "resource"`,
   `docs/knowledge/data/spec/iwe-workflow-skills.md › "resource"` — `sources:`
   script paths
-- `docs/knowledge/data/architecture/self-improve-runtime.md › "resource: .agents/plugins/self-improve/scripts/si"`,
-  `docs/knowledge/data/architecture/agent-metadata-files.md › "resource"` —
-  script paths
+- `docs/knowledge/data/archive/2.0.0/architecture/self-improve-runtime.md › "resource: .agents/plugins/self-improve/scripts/si"`,
+  `docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md › "resource"`
+  — script paths
 - `.claude-plugin/marketplace.json › "version"`,
   `.agents/plugins/agentdev/.claude-plugin/plugin.json › "version"`,
   `.agents/plugins/agentdev/.codex-plugin/plugin.json › "version"`,

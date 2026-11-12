@@ -27,8 +27,8 @@ engines, and all workspaces share one host disk:
 - the **workspace engine** — the `dockerd` Sysbox provides inside the workspace
   container, which holds the Dev Container image;
 - the **Dev Container engine** — the nested `dockerd` from the [docker-in-docker
-  feature](../architecture/nested-docker-provisioning.md), which holds the
-  images and build cache of work done inside the Dev Container.
+  feature](../archive/1.0.0/architecture/nested-docker-provisioning.md), which
+  holds the images and build cache of work done inside the Dev Container.
 
 Neither engine limits its build cache or removes images it no longer uses, so
 storage grows until the shared disk fills. A full disk stops any workspace from

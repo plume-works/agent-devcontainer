@@ -52,8 +52,8 @@ and dispatch.
 ## Fix
 
 Cancelled: Codex support was removed ([Supported
-harnesses](../architecture/supported-harnesses.md)), so the catalog no longer
-ships for Codex and this fix no longer applies.
+harnesses](../archive/2.0.0/architecture/supported-harnesses.md)), so the
+catalog no longer ships for Codex and this fix no longer applies.
 
 Every Codex install of the catalog runs its `bin/install-codex-agents.py`, which
 writes one `~/.codex/agents/agentdev-<stem>.toml` per catalog agent, with the
@@ -73,5 +73,5 @@ Codex](../plans/20261007-codex-catalog-agents.md).
   — step 7, the Durable Knowledge Auditor dispatch
 - `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#when-to-delegate › "| Runtime executable behavior | Application/library/CLI code"`
   — Principal Engineer delegation
-- `docs/knowledge/data/architecture/module-layout.md#key-design-decisions › "Codex consumes its skills directly, with no"`
+- `docs/knowledge/data/archive/1.0.0/architecture/module-layout.md#key-design-decisions › "Codex consumes its skills directly, with no"`
   — "no `.codex/agents` trampoline"

@@ -7,7 +7,7 @@ sources:
 - resource: docs/knowledge/data/plans/20261023-reusable-iwe-bootstrap.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
@@ -81,4 +81,5 @@ None — every design question this feature raised is settled.
   consumers](../plans/20260905-consumer-iwe-seed.md), [Extract a reusable IWE
   bootstrap skill](../plans/20261023-reusable-iwe-bootstrap.md)
 - Spec: [Template consumption](../spec/template-consumption.md)
-- Architecture: [Template boundary](../architecture/template-boundary.md)
+- Architecture: [Template
+  boundary](../archive/1.0.0/architecture/template-boundary.md)

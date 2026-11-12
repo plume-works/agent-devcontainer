@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
 - resource: docs/knowledge/data/spec/opencode-catalog-bridge.md
-- resource: docs/knowledge/data/architecture/opencode-catalog-bridge.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/opencode-catalog-bridge.md
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/client-slash-command.ts
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/submit.ts
 stage: done
@@ -90,7 +90,7 @@ supplied arguments, not whitespace the host has already removed.
 ### Task 3: Reconcile guidance and map provenance
 
 **Files:** Modify: `docs/knowledge/data/features/opencode-catalog-host.md`,
-`docs/knowledge/data/architecture/opencode-catalog-bridge.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/opencode-catalog-bridge.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`
@@ -222,7 +222,7 @@ the skill body.
   — v2 command payload test
 - `docs/knowledge/data/spec/opencode-catalog-bridge.md#requirement-every-skill-is-a-namespaced-slash-command`
   — namespaced-command requirement
-- `docs/knowledge/data/architecture/opencode-catalog-bridge.md#on-opencode-v2 › "re-prompts the session"`
+- `docs/knowledge/data/archive/2.0.0/architecture/opencode-catalog-bridge.md#on-opencode-v2 › "re-prompts the session"`
   — v2 command design
 - `docs/knowledge/data/features/opencode-catalog-host.md#behaviour › "OpenCode sees the catalog the way the other hosts do."`
   — catalog command behavior

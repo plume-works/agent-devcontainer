@@ -5,7 +5,7 @@ description: An iwe-map refresh that finds a map doc stale only because a versio
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
-- resource: docs/knowledge/data/architecture/agent-metadata-files.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/agent-metadata-files.md
 - resource: docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md
 ---
 

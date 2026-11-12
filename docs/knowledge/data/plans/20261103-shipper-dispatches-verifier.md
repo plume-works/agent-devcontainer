@@ -8,7 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
-- resource: docs/knowledge/data/architecture/fresh-context-verify.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md
 stage: done
 completed: 2026-11-12
 released: 3.0.0
@@ -31,8 +31,9 @@ another, the repository owner chose instead that `iwe-shipper` dispatches
 `iwe-verifier` itself. Every route that dispatches the Shipper —
 `/agentdev:iwe-ship` and `/agentdev:iwe-plan` answering a Ship blocker report —
 then gets a fresh-context Verify with no change of its own. This reverses the
-in-place route [Fresh-context Verify](../architecture/fresh-context-verify.md)
-chose to keep the Shipper a leaf. The change gives [Verification in the main
+in-place route [Fresh-context
+Verify](../archive/2.0.0/architecture/fresh-context-verify.md) chose to keep the
+Shipper a leaf. The change gives [Verification in the main
 loop](../features/verification-in-the-main-loop.md) new behavior.
 
 ## Approach
@@ -88,18 +89,19 @@ same step.
 
 ### Task 3: Record the decision
 
-**Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`,
-`docs/knowledge/data/architecture/nested-subagent-dispatch.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md`
 
 - [x] The document states that the Shipper dispatches `iwe-verifier` through
   `/agentdev:iwe-verify`, and lists following the rulebook in place as a
   rejected alternative: it puts the whole Verify run in the Shipper's context
   ahead of its graph changes.
   - **Evidence:**
-    `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "Every caller takes that route"`
+    `docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md#decision › "Every caller takes that route"`
     and
-    `docs/knowledge/data/architecture/fresh-context-verify.md#rejected-alternatives › "rulebook in place"`;
-    `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior › "which is why"`
+    `docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md#rejected-alternatives › "rulebook in place"`;
+    `docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md#host-behavior › "which is why"`
     no longer quotes the Shipper's old tool list.
 
 ### Task 4: Ship runs a fresh-context Verify end to end
@@ -108,7 +110,7 @@ same step.
   dispatched `iwe-verifier` in the transcript and a saved report afterwards, and
   the catalog validator passes.
   - **Evidence:** the headless run in
-    `docs/knowledge/data/architecture/skill-rehearsal-runs.md#running-it`,
+    `docs/knowledge/data/guides/skill-rehearsal-runs.md#running-it`,
     `/agentdev:iwe-ship` on a scratch plan whose `verify-cache.py lookup` is
     `MISS`: the stream holds an `agentdev:iwe-verifier` Agent call whose
     `parent_tool_use_id` is the `agentdev:iwe-shipper` call, and
@@ -284,10 +286,10 @@ SHALL be a CRITICAL finding.
   `## How you run`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — Requirement: Normal shipping requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md#decision` —
-  `## Decision`
-- `docs/knowledge/data/architecture/nested-subagent-dispatch.md#host-behavior` —
-  `## Host behavior`, which names the Shipper's tool list
+- `docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md#decision`
+  — `## Decision`
+- `docs/knowledge/data/archive/2.0.0/architecture/nested-subagent-dispatch.md#host-behavior`
+  — `## Host behavior`, which names the Shipper's tool list
 
 ## Ship review
 

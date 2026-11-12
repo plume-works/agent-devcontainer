@@ -6,7 +6,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/spec/template-consumption.md
-- resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: .devcontainer/devcontainer.json
 - resource: https://github.com/expo/skills
@@ -181,7 +181,8 @@ above requires.
 
 ### Task 4: Record the profile in the template boundary
 
-**Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] A `## Optional Expo profile` section after the knowledge-base bundle
   states that the profile edits Template and Customize files without adding
@@ -249,7 +250,7 @@ above requires.
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] The guide's `## Optional Expo setup` no longer edits `containerEnv`; its
   numbered edits are the five in `## Approach`, and its token paragraph states
@@ -423,15 +424,15 @@ receive a secret added after the workspace started.
   the Coder (`coder-ide-baseline`) bullet that Task 11 wrote
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md#update-mode › "and an applied change touches"`
   — update-mode bun-pin check for `"expo"` consumers
-- `docs/knowledge/data/architecture/template-boundary.md#optional-expo-profile`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#optional-expo-profile`
   — `## Optional Expo profile`
 - `.claude/settings.json › "enabledPlugins"` — `enabledPlugins`, already holding
   `claude-plugins-official` entries
 - `docs/knowledge/data/spec/template-consumption.md#requirement-adoption-is-recorded-for-later-updates`
   — Requirement: adoption is recorded for later updates
-- `docs/knowledge/data/architecture/template-boundary.md#optional-custom-image-bundle`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#optional-custom-image-bundle`
   — `## Optional custom-image bundle`;
-  `docs/knowledge/data/architecture/template-boundary.md#optional-knowledge-base-bundle`
+  `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#optional-knowledge-base-bundle`
   `## Optional knowledge-base bundle`
 - `docs/knowledge/data/spec/coder-ide-baseline.md#requirement-coder-user-secrets-reach-only-agent-started-processes`
   — Requirement: Coder user secrets reach only agent-started processes

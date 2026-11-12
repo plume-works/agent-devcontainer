@@ -26,7 +26,7 @@ own](autonomous-implement-loop.md), dispatches the agent this one creates.
 - Move Verify's rulebook into a new `iwe-verifier` catalog agent, the way the
   Ship and Implement rulebooks live in `iwe-shipper` and `iwe-implementer`
   ([Explicit-only workflow
-  agents](../architecture/explicit-only-workflow-agents.md)).
+  agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md)).
 - `/agentdev:iwe-verify` dispatches `iwe-verifier` with only the plan key (or
   audit mode) and the user's approvals quoted verbatim, then re-posts its
   report. A verification command whose effects reach beyond the working tree
@@ -34,7 +34,7 @@ own](autonomous-implement-loop.md), dispatches the agent this one creates.
 - `iwe-shipper` follows the `iwe-verifier` rulebook in place. It is already a
   fresh context, and keeping it a leaf avoids depending on nested dispatch,
   which OpenCode refuses at its default depth ([Nested subagent
-  dispatch](../architecture/nested-subagent-dispatch.md)).
+  dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md)).
 - On Codex, every dispatch that must start from a fresh context asks
   `spawn_agent` to forward no turns; the model otherwise forwards the whole
   conversation. That applies to the existing `iwe-shipper` dispatches too.

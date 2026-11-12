@@ -66,7 +66,7 @@ jobs:
           persist-credentials: false
 
       # The hook's bunx pin is the Renovate release the bot runs, and --no-global is
-      # load-bearing: see architecture/renovate-config-validation.
+      # load-bearing: see spec/dependency-updates.
       - name: Validate .github/renovate.json
         run: |
           rev=$(sed -nE 's/.*bunx --package renovate@([0-9][^ ]*) .*/\1/p' \

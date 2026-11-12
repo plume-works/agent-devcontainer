@@ -18,8 +18,8 @@ released: 2.0.0
 developed in its own repository and consumes this one's catalog. The
 consolidation decision, its rationale, and its rejected alternatives are
 recorded in [Self-improve
-consolidation](../architecture/self-improve-consolidation.md); this plan
-executes it and does not restate it.
+consolidation](../archive/2.0.0/architecture/self-improve-consolidation.md);
+this plan executes it and does not restate it.
 
 The merge source is `plume-works/agent-self-improvement` at `e94031a`: roughly
 3.5k lines of standard-library-only Python under `plugin/selfimprove/`, a
@@ -239,8 +239,8 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 
 **Files:** Create: `docs/knowledge/data/plans/20260909-self-improve-mvp.md`,
 `docs/knowledge/data/spec/self-improve-learning-loop.md`,
-`docs/knowledge/data/architecture/self-improve-runtime.md`; Modify:
-`docs/knowledge/data/plans.md`, `docs/knowledge/data/spec.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/self-improve-runtime.md`;
+Modify: `docs/knowledge/data/plans.md`, `docs/knowledge/data/spec.md`,
 `docs/knowledge/data/architecture.md`
 
 - [x] File the MVP as a plan at `stage: done`, absorbing the pty wake harness
@@ -444,7 +444,8 @@ plugin's hooks. That enablement lives in the gitignored
 Nothing the repository ships enables it: the tracked `.claude/settings.json`
 names it nowhere, and the Ansible role still stages `agentdev` alone, its
 `selectattr` matching exactly one entry. The distinction is recorded in
-[Self-improve consolidation](../architecture/self-improve-consolidation.md).
+[Self-improve
+consolidation](../archive/2.0.0/architecture/self-improve-consolidation.md).
 
 ## Out of scope
 

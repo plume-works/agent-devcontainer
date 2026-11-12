@@ -68,3 +68,17 @@ actually open or actually blocking required traffic.
 
 - **WHEN** `example.com` is still reachable after the rules are applied
 - **THEN** the verification step exits non-zero.
+
+## Rationale
+
+### The firewall is applied before the engine starts
+
+The bootstrap applies the firewall as root before supervisord starts `dockerd`,
+because applying the rules flushes the tables: run first, the flush leaves the
+rules the engine installs at its own start in place, and running as root at
+bootstrap needs no sudoers entry.
+
+Rejected:
+
+- **Applying the firewall from a supervised program after `dockerd`** — the
+  flush would remove the engine's rules.

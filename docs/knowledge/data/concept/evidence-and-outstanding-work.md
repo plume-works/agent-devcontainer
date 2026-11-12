@@ -84,4 +84,4 @@ a reader's attention.
   and omitting wrongly is the more dangerous error.
 
 Applied to pull request bodies by [PR verification
-sections](../architecture/pr-verification-sections.md).
+sections](../archive/1.0.0/architecture/pr-verification-sections.md).

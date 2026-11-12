@@ -8,7 +8,7 @@ release:
 - bugs/claude-json-symlink-replaced
 description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
 sources:
-- resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/devcontainer-home-volume.md
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: .devcontainer/devcontainer.json
@@ -31,13 +31,13 @@ released: 3.0.0
 
 [Dev Container home volume](../features/devcontainer-home-volume.md) is the
 feature this plan implements, and [Dev Container home
-volume](../architecture/devcontainer-home-volume.md) records the decision and
-the rejected alternatives. The Dev Container runs as root with `/root` on the
-container filesystem, so every piece of per-instance state has its own volume
-(`agentdev-claude`, `agentdev-opencode`, `agentdev-uv`, and the volume holding
-the pre-commit cache), and `~/.claude.json` is a symlink into the `~/.claude`
-volume. The deploy runtime is a non-root account whose home is one volume; it
-keeps only the `/uv` volume and the `~/.claude.json` link.
+volume](../archive/2.0.0/architecture/devcontainer-home-volume.md) records the
+decision and the rejected alternatives. The Dev Container runs as root with
+`/root` on the container filesystem, so every piece of per-instance state has
+its own volume (`agentdev-claude`, `agentdev-opencode`, `agentdev-uv`, and the
+volume holding the pre-commit cache), and `~/.claude.json` is a symlink into the
+`~/.claude` volume. The deploy runtime is a non-root account whose home is one
+volume; it keeps only the `/uv` volume and the `~/.claude.json` link.
 
 The owner's decisions for this plan: a non-root account; the work lands after
 [Replace the runtime shell scripts with one agentdev-runtime
@@ -423,22 +423,22 @@ before Task 5.
 ### Task 10: Record the shipped model
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/devcontainer-home-volume.md`,
-`docs/knowledge/data/architecture/agent-auth-persistence.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/devcontainer-home-volume.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/agent-auth-persistence.md`,
 `docs/knowledge/data/features/persist-pre-commit-cache.md`,
-`docs/knowledge/data/architecture/uv-environment-location.md`
+`docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md`
 
 - [x] The architecture document describes the shipped account and volumes; the
   auth document and the pre-commit feature name the home volume and the cohort
   auth volume instead of the per-directory volumes.
   - **Evidence:**
-    `docs/knowledge/data/architecture/devcontainer-home-volume.md#the-account-and-its-volumes`,
-    `docs/knowledge/data/architecture/agent-auth-persistence.md#decision`, and
-    `docs/knowledge/data/features/persist-pre-commit-cache.md#behaviour`
+    `docs/knowledge/data/archive/2.0.0/architecture/devcontainer-home-volume.md#the-account-and-its-volumes`,
+    `docs/knowledge/data/archive/1.0.0/architecture/agent-auth-persistence.md#decision`,
+    and `docs/knowledge/data/features/persist-pre-commit-cache.md#behaviour`
 - [x] The uv environment location document places the uv cache and every
   checkout's environment on the home volume instead of the `/uv` volume.
   - **Evidence:**
-    `docs/knowledge/data/architecture/uv-environment-location.md#why-the-environment-is-out-of-tree`
+    `docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md#why-the-environment-is-out-of-tree`
 
 ## Spec changes
 

@@ -52,8 +52,9 @@ One check separates them: in a running project with the symlink in place, run
 ## Fix
 
 Not fixed: cancelled. Codex support was removed ([Supported
-harnesses](../architecture/supported-harnesses.md)), so the runtime no longer
-shares a Codex login and the link this bug concerns no longer exists.
+harnesses](../archive/2.0.0/architecture/supported-harnesses.md)), so the
+runtime no longer shares a Codex login and the link this bug concerns no longer
+exists.
 
 ## Key references
 

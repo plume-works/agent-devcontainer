@@ -159,8 +159,8 @@ reviewed, so every #203 bug is present at it.
 ### Task 7: Record the decision
 
 **Files:** Create:
-`docs/knowledge/data/architecture/pr-review-correctness-bar.md` Modify:
-`docs/knowledge/data/architecture.md`
+`docs/knowledge/data/archive/2.0.0/architecture/pr-review-correctness-bar.md`
+Modify: `docs/knowledge/data/architecture.md`
 
 - [x] File the outcome against the criteria in `## Verification` as a decision:
   the bar changes (and a follow-up plan changes the shipped skill), the bar

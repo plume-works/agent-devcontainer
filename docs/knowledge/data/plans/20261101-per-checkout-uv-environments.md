@@ -34,13 +34,13 @@ Coder workspaces.
 This plan changes [uv-run-only
 environment](../features/uv-run-only-environment.md): the environment stops
 being one fixed path and becomes one per checkout. [uv environment
-location](../architecture/uv-environment-location.md#why-one-environment-per-checkout)
+location](../archive/1.0.0/architecture/uv-environment-location.md#why-one-environment-per-checkout)
 records why one `/uv` per Dev Container instance does not separate the checkouts
 inside it.
 
 How a `WorktreeCreate` or `WorktreeRemove` hook is written — triggers, stdin,
 the returned path, the default layout — is recorded in [Worktree
-hooks](../architecture/worktree-hooks.md).
+hooks](../guides/worktree-hooks.md).
 
 ## Approach
 
@@ -65,10 +65,10 @@ checkout:
 A `WorktreeCreate` hook replaces Claude Code's own worktree creation, so it
 covers Claude's worktrees whether or not git's hooks would run for them.
 `agentdev-runtime worktree create` does, with the default layout from [Worktree
-hooks](../architecture/worktree-hooks.md#writing-the-hooks), then runs
-`link-venv` in the new worktree before Claude Code starts the session there. Its
-own `git worktree add` also fires `post-checkout`; `link-venv` is idempotent, so
-the second run changes nothing.
+hooks](../guides/worktree-hooks.md#writing-the-hooks), then runs `link-venv` in
+the new worktree before Claude Code starts the session there. Its own
+`git worktree add` also fires `post-checkout`; `link-venv` is idempotent, so the
+second run changes nothing.
 
 The `post-checkout` trigger is a `link-venv` hook at the `post-checkout` stage
 of `.pre-commit-config.yaml`, installed by `project hooks` with the other hook
@@ -137,7 +137,7 @@ registration is idempotent and only adds.
 
 ### Task 2: Confirm the worktree hooks' triggers and removal input
 
-**Files:** Modify: `docs/knowledge/data/architecture/worktree-hooks.md`
+**Files:** Modify: `docs/knowledge/data/guides/worktree-hooks.md`
 
 **Closed by:** the user, on agent-dev3, with recording `WorktreeCreate` and
 `WorktreeRemove` command hooks in user settings that save their stdin to a file.
@@ -245,7 +245,7 @@ registration is idempotent and only adds.
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
 `.pre-commit-config.yaml`, `scripts/tests/test_agent_runtime_workspace.py`,
 `scripts/tests/test_agentdev_devcontainer_repository.py`,
-`docs/knowledge/data/architecture/uv-environment-location.md`
+`docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md`
 
 - [x] `HOOK_TYPES` includes `post-checkout`, and `.pre-commit-config.yaml` has a
   `link-venv` hook at the `post-checkout` stage that runs
@@ -271,8 +271,8 @@ registration is idempotent and only adds.
   - **Evidence:** commit 9edf4ace changes
     `scripts/tests/test_agentdev_devcontainer_repository.py::Checkout.__init__`
     › "core.hooksPath=/dev/null" and adds
-    `docs/knowledge/data/architecture/uv-environment-location.md#consequences` ›
-    "Git on the host is unsupported in a checkout the Dev Container mounts".
+    `docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md#consequences`
+    › "Git on the host is unsupported in a checkout the Dev Container mounts".
 
 ### Task 7: `agentdev-runtime worktree create`
 
@@ -346,8 +346,8 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
-`docs/knowledge/data/architecture/uv-environment-location.md`; Create:
-`py_packages/agentdev_runtime/tests/test_worktree_register.py`
+`docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md`;
+Create: `py_packages/agentdev_runtime/tests/test_worktree_register.py`
 
 - [x] A `register` function writes one `WorktreeCreate` command hook
   (`agentdev-runtime worktree create`) and one `WorktreeRemove` command hook
@@ -419,7 +419,7 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_remove.py`
 ### Task 13: Record the per-checkout environment design
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/uv-environment-location.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md`,
 `docs/knowledge/data/features/uv-run-only-environment.md`
 
 - [x] The architecture document states the per-checkout link design, the three
@@ -608,5 +608,5 @@ image's copy:
 - `scripts/tests/test_agent_runtime_workspace.py::test_standalone_leaves_the_venv_link_alone`
   — the deploy-mode `.venv` test
 - `.pre-commit-config.yaml › "repo: local"` — `repo: local`
-- `docs/knowledge/data/architecture/worktree-hooks.md#writing-the-hooks` — the
-  default worktree layout
+- `docs/knowledge/data/guides/worktree-hooks.md#writing-the-hooks` — the default
+  worktree layout

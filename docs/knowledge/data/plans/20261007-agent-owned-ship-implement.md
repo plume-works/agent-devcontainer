@@ -106,8 +106,8 @@ Rejected:
 ### Task 1: Record the decision
 
 **Files:** Create:
-`docs/knowledge/data/architecture/explicit-only-workflow-agents.md`; Modify:
-`docs/knowledge/data/architecture.md`
+`docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md`;
+Modify: `docs/knowledge/data/architecture.md`
 
 - [x] Write the decision: agent-owned rulebooks, the three-harness explicit-only
   gate, the callers allowed to dispatch, Ship always dispatched with a prompt
@@ -500,9 +500,9 @@ given.
   — catalog agents registered as subagents
 - `.agents/plugins/agentdev/tests/test_explicit_only_parity.py::parity_mismatches`
   — Claude and Codex gate parity
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#fixture` —
-  gate fixture
-- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md#opencode › "therefore needs OpenCode's"`
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#fixture`
+  — gate fixture
+- `docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md#opencode › "therefore needs OpenCode's"`
   — OpenCode `external_directory` grant for the catalog
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — normal shipping requirement

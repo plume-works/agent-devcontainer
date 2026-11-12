@@ -36,8 +36,8 @@ Two places still go through npm:
 commands by name.
 
 Related: [Renovate config
-validation](../architecture/renovate-config-validation.md), [Formatter
-ownership](../architecture/formatter-ownership.md).
+validation](../archive/2.0.0/architecture/renovate-config-validation.md),
+[Formatter ownership](../archive/1.0.0/architecture/formatter-ownership.md).
 
 ## Approach
 
@@ -168,7 +168,7 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md`,
-`docs/knowledge/data/architecture/renovate-config-validation.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md`,
 `docs/knowledge/data/codebase/flow-pull-request-checks.md`,
 `docs/knowledge/data/codebase/github/workflows.md`
 
@@ -250,7 +250,7 @@ Renovate pin.
 ## Verification
 
 - `uv run pre-commit validate-config .pre-commit-config.yaml`
-- `uv run pre-commit run --files .pre-commit-config.yaml .github/renovate.json .github/workflows/validate-renovate-config.yml Makefile .agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md docs/knowledge/data/architecture/renovate-config-validation.md`
+- `uv run pre-commit run --files .pre-commit-config.yaml .github/renovate.json .github/workflows/validate-renovate-config.yml Makefile .agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md`
   — `prettier` and `renovate-config-validator` both report Passed.
 - `grep -rnE 'npx|npm install|mirrors-prettier|additional_dependencies' .pre-commit-config.yaml .github Makefile`
   prints nothing.
@@ -312,7 +312,7 @@ after the first bot run on `main`.
   — authoring-rules mirror of Best Practice 1
 - `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md#workflow › "additional_dependencies"`
   — Prettier `additional_dependencies` wording
-- `docs/knowledge/data/architecture/renovate-config-validation.md#decision › "bunx --package renovate@<version>"`
+- `docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md#decision › "bunx --package renovate@<version>"`
   — the one-pin decision: the hook `rev` is the Renovate version everywhere
 - `scripts/validate-super-linter-tool-versions.sh › "configured_versions[prettier]=$(sed -nE"`
   — Prettier version extraction regex

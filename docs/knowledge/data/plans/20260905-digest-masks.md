@@ -21,8 +21,8 @@ stale whose prose is entirely accurate.
 Filter what the digest covers before hashing. The masks live in
 `.agent.metadata.json` files colocated with the sources they describe, under an
 `iwe-map.digest_ignore` key — the format and its resolution rules are [Agent
-metadata files](../architecture/agent-metadata-files.md), of which this is the
-first consumer.
+metadata files](../archive/1.0.0/architecture/agent-metadata-files.md), of which
+this is the first consumer.
 
 Resolving a source file walks from the repository root down to that file's own
 directory, accumulating every `.agent.metadata.json` on the way, shallowest
@@ -50,7 +50,8 @@ re-verify prose would send it to fix the wrong thing.
 Rejected alternatives to the metadata-file format — a single repository-level
 map, replace-instead-of-accumulate precedence, and repository-root-relative
 globs — are recorded in [Agent metadata
-files](../architecture/agent-metadata-files.md). Alternatives to masking itself:
+files](../archive/1.0.0/architecture/agent-metadata-files.md). Alternatives to
+masking itself:
 
 - **Per-doc `digest_ignore` frontmatter.** The rule "a compose pin's digest is
   machine-managed" is a property of the file, not of a doc. Per-doc, it is
@@ -302,9 +303,9 @@ moves)
 - [x] Extend the `source_digest` paragraph at
   `.agents/plugins/agentdev/skills/iwe-map/SKILL.md#frontmatter › "sources"` to
   state that machine-managed content is masked before hashing, and point at
-  [Agent metadata files](../architecture/agent-metadata-files.md) for where the
-  masks live and how they resolve. Add `--explain` and the `BROKEN` verdict to
-  the script's documented interface.
+  [Agent metadata files](../archive/1.0.0/architecture/agent-metadata-files.md)
+  for where the masks live and how they resolve. Add `--explain` and the
+  `BROKEN` verdict to the script's documented interface.
   - **Evidence:** the `source_digest` paragraph now states the placeholder
     normalization and names the `iwe-map.digest_ignore` key and the
     agent-metadata-files document in prose — a plugin file cannot link outside
@@ -410,8 +411,8 @@ moves in Task 6 is attributable to a mask and nothing else.
   format is general by design, but this plan adds exactly one key and no
   registry, discovery command, or schema for the rest.
 - An unignore or negation operation. [Agent metadata
-  files](../architecture/agent-metadata-files.md) records that accumulation has
-  no removal step; adding one is a new decision.
+  files](../archive/1.0.0/architecture/agent-metadata-files.md) records that
+  accumulation has no removal step; adding one is a new decision.
 - Masking anything outside `data/codebase/` digests. `verified`, `stale_after`,
   and the legacy `commit` fallback are untouched.
 - Renovate configuration. `.github/renovate.json` keeps automerging both
@@ -451,5 +452,5 @@ moves in Task 6 is attributable to a mask and nothing else.
   masked by the `.github` file
 - `docs/knowledge/data/codebase/devcontainer.md › "source"` — a directory-scoped
   `source` listing the pin file
-- `docs/knowledge/data/architecture/template-boundary.md#classification › "| Class | Meaning |"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#classification › "| Class | Meaning |"`
   — the classification a colocated metadata file inherits from its directory

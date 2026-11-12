@@ -132,7 +132,7 @@ plan's `## Verification results` and verification commands.
 ### Task 3: Document and map the shipped integration
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/opencode-catalog-bridge.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/opencode-catalog-bridge.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md`, the
 catalog and test-suite map documents whose aggregate source digests include the
 changed bridge and tests; Create: codebase-map children only if required by the

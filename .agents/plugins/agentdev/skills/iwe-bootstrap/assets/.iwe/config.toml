@@ -79,7 +79,7 @@ match = ["data/backlog/**", "data/archive/*/backlog/**"]
 match = "data/spec/**"
 
 [schemas.architecture]
-match = "data/architecture/**"
+match = "data/archive/*/architecture/**"
 
 [schemas.finding]
 match = "data/findings/**"
@@ -96,7 +96,6 @@ match = "data/someday/**"
 # Directory hubs are typed and validated like every other document.
 [schemas.hub]
 match = [
-  "data/architecture",
   "data/backlog",
   "data/bugs",
   "data/concept",
@@ -114,9 +113,10 @@ match = ["data/product", "data/milestone"]
 
 # OKF v0.2 conformance (SPEC §11), except the `status` field: `stage` records the
 # lifecycle (docs/knowledge/SCHEMA.md). okf stacks on the per-type schemas; the
-# reserved index file takes a body schema of its own.
+# reserved index file takes a body schema of its own. okf rejects the retired
+# architecture type, so the archived notes are checked by architecture.yaml alone.
 [schemas.okf]
-match = ["data/**", "!data/index", "!data/**/index"]
+match = ["data/**", "!data/index", "!data/**/index", "!data/archive/*/architecture/**"]
 
 [schemas.okf-index]
 match = ["data/index", "data/**/index"]

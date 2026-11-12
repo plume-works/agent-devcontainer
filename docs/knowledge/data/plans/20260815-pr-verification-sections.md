@@ -15,7 +15,8 @@ sources:
 
 ## Context
 
-[PR verification sections](../architecture/pr-verification-sections.md) decides
+[PR verification
+sections](../archive/1.0.0/architecture/pr-verification-sections.md) decides
 that a pull request body splits `## How to Test` into two sections:
 `## Verification`, holding closed items as checked boxes with an `**Evidence:**`
 child, and `## Reviewer Handoff`, holding open items as unchecked boxes with a
@@ -166,7 +167,8 @@ reads the template — `pr-open` always passes `gh pr create --body-file` — so
 link would preserve an unread file, the skill's structure is a section list
 inside `SKILL.md` rather than a standalone file to point at, and this repository
 tracks no symlinks, having just removed its only one for the reasons in [uv
-environment location](../architecture/uv-environment-location.md)).
+environment
+location](../archive/1.0.0/architecture/uv-environment-location.md)).
 
 ### Task 3: Review standards skill
 
@@ -194,7 +196,8 @@ environment location](../architecture/uv-environment-location.md)).
 
 ### Task 4: Template boundary
 
-**Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] **9. Reclassify the template row in the GitHub surface table.** The
   `.github/pull_request_template.md` row currently reads
@@ -229,8 +232,8 @@ None. No `data/spec/` document covers pull request body structure:
 `template-consumption.md` governs what a consuming repository copies and adapts,
 not the shape of a PR description. The contract here is prose in the plugin's
 skills, and the decision it derives from is [PR verification
-sections](../architecture/pr-verification-sections.md) — a `data/architecture/`
-document, which is where this belongs.
+sections](../archive/1.0.0/architecture/pr-verification-sections.md) — a
+`data/architecture/` document, which is where this belongs.
 
 If a spec is ever wanted for this, it would be a new `data/spec/` document about
 the plugin's authored-artifact formats, covering the plan-checkbox format
@@ -311,6 +314,6 @@ cannot be closed by the session doing the work — see `## Out of scope`.
 - `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#responding-to-review-feedback › "if testing changes"`
   — `Update "How to Test" if testing changes`, in
   `## Responding To Review Feedback`
-- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "| Template | General pull request structure. |"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#github-surface › "| Template | General pull request structure. |"`
   — the `.github/pull_request_template.md` row in the GitHub surface table,
   classed `Template`

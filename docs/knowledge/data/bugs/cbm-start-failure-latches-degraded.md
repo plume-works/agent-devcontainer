@@ -11,7 +11,6 @@ sources:
 - resource: .devcontainer/scripts/runtime-health.sh
 - resource: docker/opencode/supervisord.conf
 - resource: docker/opencode/agent-opencode.Dockerfile
-- resource: docs/knowledge/data/architecture/cbm-daemon-lifecycle.md
 ---
 
 # Bug: a CBM daemon start failure latches the standalone runtime degraded
@@ -85,8 +84,8 @@ somewhere a container restart clears.
 ## Fix
 
 Not fixed: cancelled. codebase-memory-mcp was removed ([No code-graph
-index](../architecture/no-code-graph.md)), so the runtime no longer starts the
-daemon this bug concerns.
+index](../archive/2.1.0/architecture/no-code-graph.md)), so the runtime no
+longer starts the daemon this bug concerns.
 
 ## Key references
 

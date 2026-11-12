@@ -24,8 +24,8 @@ before it launches Claude, so `/clear` in the pane leaves the pin on the
 pre-clear conversation. The next workspace restart resumes that conversation,
 whose remote binding `/clear` already moved away, and Claude Code mints a new
 claude.ai session URL for it. [Claude Remote Control
-resume](../architecture/claude-remote-control-resume.md) records the pinning
-decision this plan extends.
+resume](../archive/2.0.0/architecture/claude-remote-control-resume.md) records
+the pinning decision this plan extends.
 
 ## Approach
 
@@ -109,7 +109,7 @@ operator's terminal session.
 ### Task 3: Record the hook decision
 
 **Files:** Modify:
-`docs/knowledge/data/architecture/claude-remote-control-resume.md`
+`docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-resume.md`
 
 - [x] `## Decision` gains that the pane's `SessionStart` hook, supplied through
   `--settings`, rewrites the stored ID whenever the pane's conversation changes.
@@ -250,8 +250,8 @@ running `/remote-control` in the session restores it.
 - `/resume` of another conversation inside the pane is covered only through
   Claude Code's documented `source: "resume"`; the plan does not measure it.
 - Health checks for a pane whose Remote Control is off, which [Claude Remote
-  Control resume](../architecture/claude-remote-control-resume.md) already
-  rejects.
+  Control resume](../archive/2.0.0/architecture/claude-remote-control-resume.md)
+  already rejects.
 
 ## Key references
 
@@ -269,7 +269,7 @@ running `/remote-control` in the session restores it.
   `run_session`.
 - `docs/knowledge/data/spec/claude-remote-control.md#requirements` —
   Requirement: Remote Control autostarts only on a live claude.ai login.
-- `docs/knowledge/data/architecture/claude-remote-control-resume.md` —
-  `## Decision`.
-- `docs/knowledge/data/architecture/claude-remote-control-resume.md#claude-code-behavior-the-decision-relies-on › "Control documentation describes"`
+- `docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-resume.md`
+  — `## Decision`.
+- `docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-resume.md#claude-code-behavior-the-decision-relies-on › "Control documentation describes"`
   — `## Rejected alternatives`.

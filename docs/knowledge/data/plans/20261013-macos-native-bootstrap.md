@@ -67,7 +67,8 @@ on `PATH` for re-runs. Steps, each idempotent:
    `~/.local/bin`, at the same versions `ansible/roles/dev_tools` pins, each
    verified against a SHA-256 recorded in the script per architecture. `iwec`
    stays uninstalled even though the iwe tarball ships it, matching the image
-   ([IWE through the CLI, not MCP](../architecture/iwe-cli-over-mcp.md)).
+   ([IWE through the CLI, not
+   MCP](../archive/2.0.0/architecture/iwe-cli-over-mcp.md)).
 5. Write a marker-delimited block to `~/.zprofile` that evaluates
    `brew shellenv` and prepends `~/.local/bin`, so `env python3` resolves to the
    uv-provisioned Python in every new login shell. Rewrite the block in place on
@@ -267,8 +268,8 @@ arguments; point `HOME` at a temporary directory.
 ### Task 5: Document the native macOS path
 
 **Files:** Modify: `.agents/plugins/agentdev/README.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
-`docs/knowledge/data/architecture/catalog-script-language.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/catalog-script-language.md`
 
 - [x] The catalog README gains a "Native macOS" section: the one-line
   `curl -fsSL <raw URL> | zsh` invocation, what the script changes on the host
@@ -562,10 +563,10 @@ Python](20261029-catalog-scripts-python.md)
   `.agents/plugins/agentdev/README.md#native-macos` — `## Native macOS`;
   `.agents/plugins/agentdev/README.md#native-macos › "~/.config/fish/conf.d/agentdev.fish"`
   — its fish bullet
-- `docs/knowledge/data/architecture/template-boundary.md#publisher-only-source`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#publisher-only-source`
   — Publisher-only source section listing `.agents/`;
-  `docs/knowledge/data/architecture/template-boundary.md#native-macos-host` —
-  `## Native macOS host`
+  `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#native-macos-host`
+  — `## Native macOS host`
 - `.agents/AGENTS.md#validation-and-test-ownership › "Plugin tests must pass from a consumer's plugin cache."`
   — plugin tests must pass from a consumer's plugin cache, resolving scripts
   through `plugin_root`;

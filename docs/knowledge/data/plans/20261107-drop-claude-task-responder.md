@@ -10,7 +10,7 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: zizmor.yaml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
-- resource: docs/knowledge/data/architecture/dispatched-review-identity.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/dispatched-review-identity.md
 - resource: docs/knowledge/data/backlog/drop-claude-free-form-task-trigger.md
 stage: done
 completed: 2026-11-07
@@ -26,10 +26,11 @@ trigger](../backlog/drop-claude-free-form-task-trigger.md) and changes [AI
 responder workflows](../features/ai-responder-workflows.md).
 
 Reviews are requested by toggling the pull request author's assignment, as
-[Assignee-triggered AI re-reviews](../architecture/assignee-review-trigger.md)
-records. The free-form task path is the only remaining user of the comment,
-issue, and `workflow_dispatch` triggers, the `bridge` job, the forwarded
-`requester` input, and the one job holding `contents: write`.
+[Assignee-triggered AI
+re-reviews](../archive/2.0.0/architecture/assignee-review-trigger.md) records.
+The free-form task path is the only remaining user of the comment, issue, and
+`workflow_dispatch` triggers, the `bridge` job, the forwarded `requester` input,
+and the one job holding `contents: write`.
 
 The maintainer decided on 2026-11-07:
 
@@ -63,8 +64,8 @@ goes too.
 
 A new architecture note records that the responder runs only on pull request
 events and supersedes [Dispatched review
-identity](../architecture/dispatched-review-identity.md), which is left
-unedited.
+identity](../archive/1.0.0/architecture/dispatched-review-identity.md), which is
+left unedited.
 
 Rejected alternatives, recorded in the architecture note:
 
@@ -145,14 +146,14 @@ Rejected alternatives, recorded in the architecture note:
 ### Task 4: Knowledge records the pull-request-only responder
 
 **Files:** Create:
-`docs/knowledge/data/architecture/pull-request-only-responder.md`; Modify:
-`docs/knowledge/data/architecture.md`,
+`docs/knowledge/data/archive/2.1.0/architecture/pull-request-only-responder.md`;
+Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
 - [x] The architecture note records the decisions under `## Context`, the
   trigger set, both rejected alternatives, and that it supersedes [Dispatched
-  review identity](../architecture/dispatched-review-identity.md); it is linked
-  from `data/architecture.md`.
+  review identity](../archive/1.0.0/architecture/dispatched-review-identity.md);
+  it is linked from `data/architecture.md`.
   - **Evidence:** commit 4022927c; `iwe schema validate` passes.
 - [x] The feature's `## Purpose`, `## Behaviour`, and `## Edge cases` describe
   no task responder, bridge, or dispatch; the head-branch-without-workflow and

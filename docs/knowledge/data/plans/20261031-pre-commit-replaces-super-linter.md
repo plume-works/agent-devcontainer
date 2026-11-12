@@ -305,13 +305,14 @@ path filter: pre-commit skips hooks whose files did not change, except
 
 ### Task 11: Record the decision in the knowledge graph
 
-**Files:** Modify: `docs/knowledge/data/architecture/formatter-ownership.md`,
-`docs/knowledge/data/architecture/renovate-post-upgrade.md`,
-`docs/knowledge/data/architecture/validator-image-install.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
-`docs/knowledge/data/architecture/self-improve-consolidation.md`,
-`docs/knowledge/data/architecture/catalog-script-language.md`,
-`docs/knowledge/data/architecture/rereview-gate-pending.md`,
+**Files:** Modify:
+`docs/knowledge/data/archive/1.0.0/architecture/formatter-ownership.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-post-upgrade.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/validator-image-install.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/self-improve-consolidation.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/catalog-script-language.md`,
+`docs/knowledge/data/findings/rereview-gate-pending.md`,
 `docs/knowledge/data/features/bun-only-javascript-runner.md`,
 `docs/knowledge/data/features/renovate-maintains-checksums.md`,
 `docs/knowledge/data/someday/host-filesystem-dedup.md`,

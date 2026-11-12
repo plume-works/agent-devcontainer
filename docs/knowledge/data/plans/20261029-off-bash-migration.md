@@ -17,7 +17,7 @@ sources:
 - resource: ansible/roles/devcontainer_firewall/files/init-firewall.sh
 - resource: docker/desktop/start-xpra.sh
 - resource: .github/actions/run-claude-responder/action.yml
-- resource: docs/knowledge/data/architecture/ci-agent-plugin-availability.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/ci-agent-plugin-availability.md
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
 - resource: .pre-commit-config.yaml
@@ -55,8 +55,8 @@ the first time they ran, inside the deploy profile's core `prepare` phase. A
 second, no-supervisor start path for GitHub `container:` jobs and Codex Cloud
 kept `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh` alive
 beside their supervised twins ([CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
-bootstrap is removed at the user's decision.
+availability](../archive/1.0.0/architecture/ci-agent-plugin-availability.md)).
+The Codex Cloud bootstrap is removed at the user's decision.
 
 The user decided that the Coder template's agent-start parameter becomes a
 command defaulting to `agentdev-runtime coder start`, since a CLI subcommand is
@@ -660,7 +660,7 @@ Delete: `docker/desktop/start-xpra.sh`
 ### Task 15: Remove Codex Cloud
 
 **Files:** Modify: `.codex/README.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md`; Delete:
 `.codex/setup-codex-cloud.sh`
@@ -681,8 +681,9 @@ Delete: `docker/desktop/start-xpra.sh`
 `.github/renovate.json`, `.github/workflows/renovate.yml`,
 `scripts/analyze-claude-responder-costs.py`,
 `scripts/tests/test_renovate_post_upgrade.py`,
-`docs/knowledge/data/architecture/renovate-post-upgrade.md`; Delete:
-`scripts/download-claude-responder-runs.sh`, `scripts/renovate-post-upgrade.sh`,
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-post-upgrade.md`;
+Delete: `scripts/download-claude-responder-runs.sh`,
+`scripts/renovate-post-upgrade.sh`,
 `py_packages/validate_agent_files/tests/test_download_claude_responder_runs.py`
 
 - [x] Both scripts are Python with the same usage and output; the responder
@@ -698,14 +699,14 @@ Delete: `docker/desktop/start-xpra.sh`
 ### Task 17: Record the decisions and refresh the references
 
 **Files:** Create:
-`docs/knowledge/data/architecture/agentdev-runtime-package.md`; Modify:
-`docs/knowledge/data/architecture.md`,
-`docs/knowledge/data/architecture/ci-agent-plugin-availability.md`,
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/agentdev-runtime-package.md`;
+Modify: `docs/knowledge/data/architecture.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/ci-agent-plugin-availability.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`,
 `docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
-`docs/knowledge/data/architecture/module-layout.md`,
-`docs/knowledge/data/architecture/uv-environment-location.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/module-layout.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md`,
 `docs/knowledge/data/product.md`, `README.md`, `docker/deploy/README.md`,
 `AGENTS.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
@@ -1221,7 +1222,7 @@ image](20261023-reusable-agentdev-devcontainer.md)
   — `agentdev-runtime health status` operator command
 - `docs/knowledge/data/product.md#constraints › "run as root by the runtime bootstrap, is"`
   — firewall constraint
-- `docs/knowledge/data/architecture/template-boundary.md#agent-facing-repository-configuration › "| Customize | Codex Cloud bootstrap and explanation of where"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#agent-facing-repository-configuration › "| Customize | Codex Cloud bootstrap and explanation of where"`
   — `.codex/` row
 - `py_packages/agentdev_runtime/agentdev_runtime/integrity.py::verify` —
   `verify`: changed, missing, or added package files against `RECORD`

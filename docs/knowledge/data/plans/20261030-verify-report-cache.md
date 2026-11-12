@@ -28,11 +28,11 @@ first needs a merge — images published from the default branch and checked in 
 so the Implement loop's last Verify and the Shipper's Verify always judge the
 same commit. Both run the plan's `## Verification` commands, and those test and
 e2e runs are the cost. [Fresh-context
-Verify](../architecture/fresh-context-verify.md) requires the verdict to come
-from a fresh context, and the Implement loop's dispatched `iwe-verifier` already
-is one, so the Shipper's repeat adds nothing. The e2e scenarios that prove an
-agent follows the cache routing come from [Exercise the saved Verify report end
-to end](../backlog/e2e-verify-report-cache.md).
+Verify](../archive/2.0.0/architecture/fresh-context-verify.md) requires the
+verdict to come from a fresh context, and the Implement loop's dispatched
+`iwe-verifier` already is one, so the Shipper's repeat adds nothing. The e2e
+scenarios that prove an agent follows the cache routing come from [Exercise the
+saved Verify report end to end](../backlog/e2e-verify-report-cache.md).
 
 ## Approach
 
@@ -184,7 +184,8 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 
 ### Task 6: Record the cache in Fresh-context Verify
 
-**Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`
+**Files:** Modify:
+`docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md`
 
 - [x] `## Decision` gains the cache: a saved report is a fresh-context verdict
   keyed by commit and catalog digest, the lookup sits in the skill, and trust in
@@ -504,7 +505,7 @@ be a CRITICAL finding.
   — Implement verifies its own work
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#scenario-a-plan-edit-is-audited-before-validation › "children are left out of that audit"`
   — Normal shipping requires a clean independent verification
-- `docs/knowledge/data/architecture/fresh-context-verify.md#fresh-context-verify`
+- `docs/knowledge/data/archive/2.0.0/architecture/fresh-context-verify.md#fresh-context-verify`
   — `## Decision`
 - `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py::parse_arguments`
   — `parse_arguments`

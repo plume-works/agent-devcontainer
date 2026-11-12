@@ -311,17 +311,18 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 
 ### Task 8: Align the product contract and codebase map
 
-**Files:** Create: `docs/knowledge/data/architecture/devcontainer-runtime.md`;
+**Files:** Create:
+`docs/knowledge/data/archive/2.0.0/architecture/devcontainer-runtime.md`;
 Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 `docs/knowledge/data/product.md`,
-`docs/knowledge/data/architecture/ci-agent-plugin-availability.md`,
-`docs/knowledge/data/architecture/module-layout.md`,
-`docs/knowledge/data/architecture/nested-docker-provisioning.md`,
-`docs/knowledge/data/architecture/renovate-config-validation.md`,
-`docs/knowledge/data/architecture/self-improve-consolidation.md`,
-`docs/knowledge/data/architecture/standalone-opencode-runtime.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
-`docs/knowledge/data/architecture/validator-image-install.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/ci-agent-plugin-availability.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/module-layout.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/nested-docker-provisioning.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/self-improve-consolidation.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/standalone-opencode-runtime.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/validator-image-install.md`,
 `docs/knowledge/data/features/standalone-opencode-container.md`,
 `docs/knowledge/data/codebase/`, `docs/knowledge/data/architecture.md`
 

@@ -88,7 +88,7 @@ container on its old digest does not update `/start-xpra.sh`.
 ### Task 3: Align access instructions and project memory
 
 **Files:** Modify: `README.md`,
-`docs/knowledge/data/architecture/module-layout.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/module-layout.md`,
 `docs/knowledge/data/codebase/docker.md`,
 `docs/knowledge/data/codebase/api-image-runtime.md`,
 `docs/knowledge/data/codebase/devcontainer.md`
@@ -221,7 +221,7 @@ with both distinct desktops successfully.
 - `devcontainer-compose-pins.yml#services.devcontainer.image` — image digest
   override
 - `README.md#reaching-the-xpra-desktop` — Xpra desktop access instructions
-- `docs/knowledge/data/architecture/module-layout.md#unknowns › "The Xpra/VirtualGL desktop subsystem's internal wiring"`
+- `docs/knowledge/data/archive/1.0.0/architecture/module-layout.md#unknowns › "The Xpra/VirtualGL desktop subsystem's internal wiring"`
   — port-derivation detail
 - `docs/knowledge/data/codebase/docker.md#how-it-works › "serves the HTML5 client on container port"`
   — startup-script map

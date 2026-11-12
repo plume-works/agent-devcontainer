@@ -5,7 +5,7 @@ sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: docs/knowledge/data/spec/claude-remote-control.md
-- resource: docs/knowledge/data/architecture/claude-remote-control-resume.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-resume.md
 - resource: https://code.claude.com/docs/en/hooks
 stage: done
 severity: medium
@@ -85,5 +85,5 @@ session URL.
   the pin, before `exec claude`.
 - `docs/knowledge/data/spec/claude-remote-control.md#requirement-remote-control-autostarts-only-on-a-live-claudeai-login › "CLAUDE_CODE_OAUTH_TOKEN"`
   — the requirement that the pane resume the stored ID.
-- `docs/knowledge/data/architecture/claude-remote-control-resume.md#decision › "with no health check."`
+- `docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-resume.md#decision › "with no health check."`
   — "The transcript carries the binding."

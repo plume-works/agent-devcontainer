@@ -2,7 +2,7 @@
 Session hooks: the root-only tests, and the container acceptance suite.
 
 Tests marked ``requires_root`` skip unless the run is root; ``scripts/run-root-tests`` runs them
-as root and nothing else. Spec: architecture/devcontainer-home-volume.
+as root and nothing else. Spec: devcontainer-state.
 
 The acceptance suite runs against AGENTDEV_RUNTIME_TEST_IMAGE.
 Every container, volume, and network the suite makes carries ``ACCEPTANCE_LABEL``; the session

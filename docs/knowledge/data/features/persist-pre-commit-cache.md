@@ -23,9 +23,9 @@ across rebuilds at zero image-size cost.
 **The cache lives on the home volume.** No `PRE_COMMIT_HOME` is set, so
 pre-commit uses `~/.cache/pre-commit`, which is on the per-instance home volume
 mounted at `/home/agent` (see [Dev Container home
-volume](../architecture/devcontainer-home-volume.md)). The first create per
-instance installs the hook environments fresh into it; every rebuild after
-reuses them and completes in well under a second.
+volume](../archive/2.0.0/architecture/devcontainer-home-volume.md)). The first
+create per instance installs the hook environments fresh into it; every rebuild
+after reuses them and completes in well under a second.
 
 **The cache stays off the checkout.** No cache volume is mounted inside the
 workspace, so the checkout carries no mount point and its owner or filesystem

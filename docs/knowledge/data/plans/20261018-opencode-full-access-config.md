@@ -7,7 +7,7 @@ description: Configure OpenCode for unrestricted filesystem access inside the de
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
-- resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: docs/knowledge/data/archive/2.0.0/architecture/explicit-only-workflow-agents.md
 - resource: https://opencode.ai/docs/config/
 stage: done
 completed: 2026-10-18
@@ -112,9 +112,9 @@ Rejected:
 ### Task 3: Record the full-access design and refresh the codebase map
 
 **Files:** Create:
-`docs/knowledge/data/architecture/opencode-full-access-in-devcontainer.md`;
+`docs/knowledge/data/archive/2.0.0/architecture/opencode-full-access-in-devcontainer.md`;
 Modify: `docs/knowledge/data/architecture.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`,
 `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`
 
@@ -226,7 +226,7 @@ run with no policy auto-rejected the `external_directory` permission request.
   — OpenCode config-directory resolution and existing JSON merge/write behavior
 - `scripts/tests/test_configure_codex.py › "@pytest.fixture"` — neighboring
   devcontainer configuration test structure
-- `docs/knowledge/data/architecture/template-boundary.md#adoption-state › "tracked in git, survives template updates, and never appears"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#adoption-state › "tracked in git, survives template updates, and never appears"`
   — tracked devcontainer runtime inventory
 - `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md#trace › "and creates the shared"`
   — current postStart lifecycle sequence

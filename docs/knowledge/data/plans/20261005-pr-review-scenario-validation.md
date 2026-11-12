@@ -15,8 +15,9 @@ released: 2.0.0
 
 ## Context
 
-[PR review correctness bar](../architecture/pr-review-correctness-bar.md)
-records the mixed result of the [scenario-bar
+[PR review correctness
+bar](../archive/2.0.0/architecture/pr-review-correctness-bar.md) records the
+mixed result of the [scenario-bar
 spike](20260929-pr-review-scenario-bar-spike.md). The reachable-scenario
 correctness passes found the out-of-diff K4 bug in both #203 runs and added no
 correctness noise. In one of two #199 runs, however, the validator dropped K1.
@@ -64,7 +65,8 @@ in one edit to `pr-review/SKILL.md`, merged only if the replays in
   so the "Never argue the verdict in the prompt" rule holds.
 
 The validator stays on the `light` model at every effort level, as recorded in
-[PR review effort tiers](../architecture/pr-review-effort-tiers.md). Validating
+[PR review effort
+tiers](../archive/2.0.0/architecture/pr-review-effort-tiers.md). Validating
 correctness candidates on the `large` model is parked as [a someday
 idea](../someday/pr-review-large-validator.md) pending a cost/benefit
 evaluation.
@@ -284,22 +286,23 @@ part.
 ### Task 9: Record the decision
 
 **Files:** Create:
-`docs/knowledge/data/architecture/pr-review-scenario-validation.md` Modify:
-`docs/knowledge/data/architecture.md`
+`docs/knowledge/data/archive/2.0.0/architecture/pr-review-scenario-validation.md`
+Modify: `docs/knowledge/data/architecture.md`
 
 - [x] File the outcome against `## Verification` as a decision linking [PR
-  review correctness bar](../architecture/pr-review-correctness-bar.md). It
-  records the shipped bar, A, B, and C with the rejected alternatives; the
-  maintainer's decision to ship with the M1–M3 controls failing, because the
-  validator judges the fault rather than each stated part; the exclusion of
-  permission findings from evaluation; and that the current arm's bar
-  (`pr-review/SKILL.md` at `main`) confirmed F1 and F5 in every validator-only
-  run. Link it from `data/architecture.md`.
+  review correctness
+  bar](../archive/2.0.0/architecture/pr-review-correctness-bar.md). It records
+  the shipped bar, A, B, and C with the rejected alternatives; the maintainer's
+  decision to ship with the M1–M3 controls failing, because the validator judges
+  the fault rather than each stated part; the exclusion of permission findings
+  from evaluation; and that the current arm's bar (`pr-review/SKILL.md` at
+  `main`) confirmed F1 and F5 in every validator-only run. Link it from
+  `data/architecture.md`.
   - **Evidence:** the
     `docs(architecture): record the scenario validation decision` commit adds
     [PR review scenario
-    validation](../architecture/pr-review-scenario-validation.md) and its
-    `data/architecture.md` link; `iwe schema validate` passes.
+    validation](../archive/2.0.0/architecture/pr-review-scenario-validation.md)
+    and its `data/architecture.md` link; `iwe schema validate` passes.
 
 ## Spec changes
 
@@ -319,7 +322,8 @@ The change ships when all of the following hold:
   every one of K2, K3, K5, and K6; and each run has at most one unmatched
   correctness finding the maintainer judges noise. Compliance and
   durable-knowledge noise is excluded, as it has independent owners (see [PR
-  review correctness bar](../architecture/pr-review-correctness-bar.md)).
+  review correctness
+  bar](../archive/2.0.0/architecture/pr-review-correctness-bar.md)).
 - Every new-arm and full-replay `DROP` of a correctness candidate names a part.
 
 By the maintainer's decision, two checks do not gate shipping:
@@ -435,7 +439,8 @@ None is noise, so the full-replay criteria in `## Verification` hold.
 - Changing the validator's model; see [Validate correctness candidates on the
   large model](../someday/pr-review-large-validator.md).
 - The compliance, durable-knowledge, and map-metadata noise owners named in [PR
-  review correctness bar](../architecture/pr-review-correctness-bar.md).
+  review correctness
+  bar](../archive/2.0.0/architecture/pr-review-correctness-bar.md).
 - Changing the compliance or durable-knowledge validation bar.
 - Light-effort replays, Claude replays, and a permanent replay mode in
   `pr-review`.
@@ -467,7 +472,7 @@ None is noise, so the full-replay criteria in `## Verification` hold.
   — stated intent is evidence, not a verdict
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps › "Supplying reasons a candidate might not hold, or casting the"`
   — "Never argue the verdict in the prompt"
-- `docs/knowledge/data/architecture/pr-review-effort-tiers.md#validation-runs-light-at-every-effort-level`
+- `docs/knowledge/data/archive/2.0.0/architecture/pr-review-effort-tiers.md#validation-runs-light-at-every-effort-level`
   — "Validation runs light at every effort level"
 - `7e0413d:.github/workflows/renovate.yml#jobs.renovate` — comment presenting
   the concurrency split as deliberate (K1)

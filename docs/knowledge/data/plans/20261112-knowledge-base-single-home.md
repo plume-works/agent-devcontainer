@@ -350,44 +350,93 @@ specs `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
 `ci-workflows`, `pr-description`, `supported-harnesses`. Move:
 `docs/knowledge/data/architecture/*.md`.
 
-- [ ] The notes destined for `ai-review-gate` are folded and archived.
-- [ ] The notes destined for `iwe-workflow-skills` are folded and archived.
-- [ ] The notes destined for `agentdev-runtime-images` are folded and archived.
-- [ ] The notes destined for `dependency-updates` are folded and archived.
-- [ ] The notes destined for `catalog-lifecycle` and the new
+- [x] The notes destined for `ai-review-gate` are folded and archived.
+  - **Evidence:** `docs/knowledge/data/spec/ai-review-gate.md#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{actions-approval-permission,ai-review-event-selection,dispatched-review-identity,label-review-triggers,pr-review-effort-tiers,pr-review-scenario-validation,pull-request-only-responder,responder-app-identity,assignee-review-trigger,pr-review-correctness-bar}.md`
+    lists all ten.
+- [x] The notes destined for `iwe-workflow-skills` are folded and archived.
+  - **Evidence:** `docs/knowledge/data/spec/iwe-workflow-skills.md#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{adversarial-review,autonomous-implement-loop,explicit-only-workflow-agents,fresh-context-verify,iwe-cli-over-mcp,kb-conflict-free-layout}.md`
+    lists all six.
+- [x] The notes destined for `agentdev-runtime-images` are folded and archived.
+  - **Evidence:**
+    `docs/knowledge/data/spec/agentdev-runtime-images.md#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{agentdev-runtime-package,devcontainer-runtime,extra-ca-trust,no-launchpad-ppas,validator-image-install}.md`
+    lists all five.
+- [x] The notes destined for `dependency-updates` are folded and archived.
+  - **Evidence:** `docs/knowledge/data/spec/dependency-updates.md#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{ansible-apt-pins,renovate-config-validation,renovate-post-upgrade}.md`
+    lists all three.
+- [x] The notes destined for `catalog-lifecycle` and the new
   `supported-harnesses` are folded and archived.
-- [ ] The notes destined for `claude-remote-control` are folded and archived.
-- [ ] The notes with one destination each (`agent-file-discovery`,
+  - **Evidence:** `docs/knowledge/data/spec/catalog-lifecycle.md#rationale` and
+    `docs/knowledge/data/spec/supported-harnesses.md#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{ci-agent-plugin-availability,no-code-graph,per-worktree-catalog,supported-harnesses}.md`
+    lists all four.
+- [x] The notes destined for `claude-remote-control` are folded and archived.
+  - **Evidence:** `docs/knowledge/data/spec/claude-remote-control.md#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{claude-remote-control-resume,claude-remote-control-server-mode}.md`
+    lists both; the `-server-continue` and `-spawn-mode-switch` notes, whose
+    decisions are in that `## Rationale`, carry Measurement and Closing sections
+    and are findings under `docs/knowledge/data/findings/`.
+- [x] The notes with one destination each (`agent-file-discovery`,
   `plan-checkbox-evidence`, `pre-commit-gate`, `devcontainer-git-credentials`,
   `line-free-anchors`, `stacked-prs`, `devcontainer-docker-storage`,
   `devcontainer-opencode-policy`, `self-improve-learning-loop`) are folded and
   archived.
-- [ ] The notes destined for `template-consumption`, `opencode-catalog-bridge`,
+  - **Evidence:** each destination spec's `#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{agent-metadata-files,evidence-without-commit-ids,formatter-ownership,gh-authentication-shim,gh-wrapper-image-only,line-free-anchors,manual-stacked-prs,nested-docker-provisioning,opencode-full-access-in-devcontainer,self-improve-consolidation,self-improve-runtime}.md`
+    lists all eleven.
+- [x] The notes destined for `template-consumption`, `opencode-catalog-bridge`,
   `standalone-opencode-runtime`, and `nested-agent-dispatch` are folded and
   archived.
-- [ ] The notes that describe behaviour no spec owns are folded into the new
+  - **Evidence:** each destination spec's `#rationale`;
+    `ls docs/knowledge/data/archive/*/architecture/{module-layout,template-boundary,opencode-catalog-bridge,standalone-opencode-runtime,nested-subagent-dispatch}.md`
+    lists all five; the nested-dispatch fixture is
+    `docs/knowledge/data/guides/skill-rehearsal-runs.md#the-nested-dispatch-fixture`.
+- [x] The notes that describe behaviour no spec owns are folded into the new
   specs `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
   `ci-workflows`, and `pr-description`, each linked from `data/spec.md`, and
   archived.
-- [ ] Every note whose sections are Measurement, Question, or Closing is a
+  - **Evidence:** `docs/knowledge/data/spec.md` links each of the five;
+    `ls docs/knowledge/data/archive/*/architecture/{catalog-script-language,cloud-session-host-toolchain,agent-auth-persistence,uv-environment-location,devcontainer-home-volume,fork-pull-request-builds,self-repository-uses,pr-verification-sections}.md`
+    lists all eight.
+- [x] Every note whose sections are Measurement, Question, or Closing is a
   `data/findings/` document linked from `data/findings.md`.
-- [ ] `drqp-devcontainer-testing`, `sibling-devcontainer-testing`,
+  - **Evidence:** `docs/knowledge/data/findings.md` links the eleven documents
+    under `docs/knowledge/data/findings/`, and `iwe schema validate` passes them
+    against `.iwe/schemas/finding.yaml`.
+- [x] `drqp-devcontainer-testing`, `sibling-devcontainer-testing`,
   `skill-rehearsal-runs`, and `worktree-hooks` are `data/guides/` documents
   linked from `data/guides.md`.
-- [ ] `docs/knowledge/data/architecture/` and
+  - **Evidence:** `docs/knowledge/data/guides.md` links each of them, and
+    `uv run scripts/check-anchors.py` resolves their anchors.
+- [x] `docs/knowledge/data/architecture/` and
   `docs/knowledge/data/architecture.md` do not exist, and
   `.iwe/schemas/architecture.yaml` is bound only to
   `data/archive/*/architecture/**`.
-- [ ] `iwe schema validate` fails a document outside `data/archive/` whose
+  - **Evidence:**
+    `test ! -e docs/knowledge/data/architecture && test ! -e docs/knowledge/data/architecture.md`;
+    `.iwe/config.toml#schemas.architecture`.
+- [x] `iwe schema validate` fails a document outside `data/archive/` whose
   frontmatter says `type: architecture`, a test in
   `docs/knowledge/tests/test_archive_layout.py` expects that failure, and
   `iwe schema validate` passes on the graph.
-- [ ] No frontmatter `sources` entry under `docs/knowledge/data/` outside
+  - **Evidence:**
+    `uv run pytest 'docs/knowledge/tests/test_archive_layout.py::test_broken_document_is_rejected[live-architecture-note]'`
+    and `iwe schema validate`.
+- [x] No frontmatter `sources` entry under `docs/knowledge/data/` outside
   `data/archive/` names a path under `data/architecture/`.
-- [ ] No code comment, workflow, or script outside `docs/knowledge/` cites
+  - **Evidence:**
+    `git grep -nE 'resource: (docs/knowledge/)?data/architecture/' -- docs/knowledge/data ':!docs/knowledge/data/archive'`
+    prints nothing.
+- [x] No code comment, workflow, or script outside `docs/knowledge/` cites
   `architecture/<slug>`:
   `git grep -nE 'architecture/[a-z0-9-]+' -- ':!docs/knowledge' ':!docs/research'`
   prints nothing.
+  - **Evidence:**
+    `git grep -nE 'architecture/[a-z0-9-]+' -- ':!docs/knowledge' ':!docs/research'`
+    prints nothing.
 
 ### Task 8: Fold and archive the features
 

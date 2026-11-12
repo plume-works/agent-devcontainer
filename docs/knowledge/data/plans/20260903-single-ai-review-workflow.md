@@ -262,13 +262,13 @@ composite action so preflight and the gate evaluate the same rule.
 ### Task 5: Repository documentation names one workflow
 
 **Files:** Modify: `README.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] Rewrite
   `README.md#ai-pull-request-review › "provides automated review: its"` so it
   describes one workflow contributing `ai-review-present`, and drop the
   `require-ai-review.yml` row from
-  `docs/knowledge/data/architecture/template-boundary.md#github-surface › "merge gate, satisfiable only while the responder job is"`,
+  `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#github-surface › "merge gate, satisfiable only while the responder job is"`,
   folding its "satisfiable only with the responder" note into the
   `ai-responder.yml` row
   - **Evidence:** `README.md` "AI pull request review" opens with the
@@ -318,7 +318,8 @@ is testable only after the workflow is on `main`, because GitHub resolves
     APPROVED review on `3d4d5b0`, `ai-review-present` passed, and all four
     checks are filed on the head commit. The run link was appended to the
     comment body. Two prior gates had to be opened for this to work — see
-    [dispatched-review identity](../architecture/dispatched-review-identity.md).
+    [dispatched-review
+    identity](../archive/1.0.0/architecture/dispatched-review-identity.md).
 - [x] After merge: a comment on a fork PR or from a non-writer dispatches
   nothing
   - **Evidence:** fork PR #105 from `we-are-code-artisans` (permission `read`,
@@ -330,7 +331,8 @@ is testable only after the workflow is on `main`, because GitHub resolves
     additionally held all four workflow runs at `action_required` until a
     maintainer approved them, a gate upstream of the workflow's own. On a
     comment event the fork is caught one step later, by `isFork` — see
-    [dispatched-review identity](../architecture/dispatched-review-identity.md).
+    [dispatched-review
+    identity](../archive/1.0.0/architecture/dispatched-review-identity.md).
 
 ## Spec changes
 
@@ -515,7 +517,7 @@ requirement for comment mentions.
   `log-debug-stats`, kept
 - `README.md#ai-pull-request-review › "provides automated review: its"` — the
   two-workflow description Task 5 rewrites
-- `docs/knowledge/data/architecture/template-boundary.md#github-surface › "merge gate, satisfiable only while the responder job is"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#github-surface › "merge gate, satisfiable only while the responder job is"`
   — the two workflow rows Task 5 merges
 - `docs/knowledge/data/spec/template-consumption.md#ai-responder-and-the-review-gate`
   — the matched-pair section the spec change rewrites

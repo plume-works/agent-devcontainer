@@ -35,7 +35,7 @@ class Checkout:
             subprocess.run(['git', 'clone', '-q', str(REPO_ROOT), str(self.path)], check=True)
         else:
             # The host runs git here; the Dev Container owns the shared .git/hooks.
-            # See architecture/uv-environment-location.
+            # See spec/devcontainer-state.
             subprocess.run(
                 ['git', '-C', str(REPO_ROOT), '-c', 'core.hooksPath=/dev/null']
                 + ['worktree', 'add', '-q', '--detach', str(self.path)],

@@ -32,8 +32,8 @@ The out-of-tree environment itself stays. `/uv/cache` and `/uv/venvs` are the
 same mount (`/dev/vda1 /uv`), which is what lets uv hardlink packages out of its
 cache into the environment. An in-tree `.venv` would land on the host bind mount
 — a different filesystem — and uv would silently fall back to copying. [Template
-boundary](../architecture/template-boundary.md) currently records only the
-weaker "survives container rebuilds" reason; Task 6 fixes that.
+boundary](../archive/1.0.0/architecture/template-boundary.md) currently records
+only the weaker "survives container rebuilds" reason; Task 6 fixes that.
 
 ## Approach
 
@@ -137,7 +137,7 @@ ordered ahead of `uv tool run` so the common case never pays a network fetch.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/python-format-lint/SKILL.md`,
 `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md`
 
 - [x] `python-format-lint` SKILL.md: the two `.venv/bin/ruff` invocations become
   `uv run ruff`; fix the two troubleshooting rows that name `.venv`
@@ -149,8 +149,8 @@ ordered ahead of `uv tool run` so the common case never pays a network fetch.
 ### Task 6: Record the environment-location decision
 
 **Files:** Create:
-`docs/knowledge/data/architecture/uv-environment-location.md`; Modify:
-`docs/knowledge/data/architecture.md`, `docs/knowledge/data/index.md`
+`docs/knowledge/data/archive/1.0.0/architecture/uv-environment-location.md`;
+Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/index.md`
 
 - [x] Why the environment is out of tree: hardlinking from `UV_CACHE_DIR`
   requires cache and environment on one filesystem
@@ -232,7 +232,7 @@ document mentions the symlink, and no specified behavior changes.
   — advertised helper list
 - `.agents/plugins/agentdev/skills/python-format-lint/SKILL.md#workflow › "uv run ruff format path/to/file.py"`
 - `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md#microvm-sandbox › "does this, syncing into the cached"`
-- `docs/knowledge/data/architecture/template-boundary.md#devcontainer-runtime › "volume ([why](uv-environment-location.md)). |"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#devcontainer-runtime › "volume ([why](uv-environment-location.md)). |"`
   — `uv-sync.sh` row
-- `docs/knowledge/data/architecture/template-boundary.md#generated-and-local-only-state › "and tool caches"`
+- `docs/knowledge/data/archive/1.0.0/architecture/template-boundary.md#generated-and-local-only-state › "and tool caches"`
   — generated-state list (unchanged)

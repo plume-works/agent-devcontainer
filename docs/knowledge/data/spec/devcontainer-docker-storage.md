@@ -106,10 +106,10 @@ when it starts and another every `AGENTDEV_DOCKER_GC_INTERVAL` seconds, default
 3600\. A pass SHALL remove images no container references that were created more
 than 72 hours ago, then trim the build cache to at most 10 GB, then remove each
 volume that no container references, whose name matches
-`(^|_)dind-var-lib-(docker|containerd)-` or `_agentdev-(cache|codex)$`, and that
-was created more than 72 hours ago. A pass SHALL NOT remove any other volume. A
-failed step SHALL only warn, the pass SHALL continue with the next step, and a
-pass SHALL always exit successfully.
+`(^|_)dind-var-lib-(docker|containerd)-` or `_agentdev-(cache|cbm|codex)$`, and
+that was created more than 72 hours ago. A pass SHALL NOT remove any other
+volume. A failed step SHALL only warn, the pass SHALL continue with the next
+step, and a pass SHALL always exit successfully.
 
 #### Scenario: Docker is unavailable
 

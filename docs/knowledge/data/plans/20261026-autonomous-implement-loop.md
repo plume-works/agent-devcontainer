@@ -51,7 +51,7 @@ session runs it for `/agentdev:iwe-implement`; the coordinator runs it for
 `/agentdev:iwe-implement-all`, once per plan. `iwe-implementer`, `iwe-verifier`,
 and the new `iwe-revision-evaluator` never dispatch. That holds on all three
 harnesses without OpenCode's experimental depth setting ([Nested subagent
-dispatch](../architecture/nested-subagent-dispatch.md)).
+dispatch](../archive/2.0.0/architecture/nested-subagent-dispatch.md)).
 
 **The loop lives once, in the `iwe-implementer` rulebook,** as a section that
 only an orchestrator runs. The session already follows the rulebook in place.
@@ -62,11 +62,11 @@ it, and the coordinator takes the revision route.
 **Revision rules come from a new `iwe-planner` agent file.**
 `/agentdev:iwe-plan` is explicit-only, and reading a gated skill's file to get
 around the gate is rejected in [Explicit-only workflow
-agents](../architecture/explicit-only-workflow-agents.md). So the Plan rulebook
-moves into `iwe-planner`, which `/agentdev:iwe-plan` follows in place — the
-Implement pattern. The orchestrator follows its revise mode, never its create
-mode, so `close-issue.sh` stays bundled with the skill, which is the only route
-into create mode.
+agents](../archive/2.0.0/architecture/explicit-only-workflow-agents.md). So the
+Plan rulebook moves into `iwe-planner`, which `/agentdev:iwe-plan` follows in
+place — the Implement pattern. The orchestrator follows its revise mode, never
+its create mode, so `close-issue.sh` stays bundled with the skill, which is the
+only route into create mode.
 
 **The order is draft, audit, evaluate, commit.** The orchestrator drafts the
 revision under the `iwe-planner` revise rules, including the Durable Knowledge
@@ -279,8 +279,8 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 ### Task 7: Record the design and the changed behavior
 
 **Files:** Create:
-`docs/knowledge/data/architecture/autonomous-implement-loop.md`; Modify:
-`docs/knowledge/data/architecture.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/autonomous-implement-loop.md`;
+Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 
 - [x] Write `data/architecture/autonomous-implement-loop.md` with the decisions

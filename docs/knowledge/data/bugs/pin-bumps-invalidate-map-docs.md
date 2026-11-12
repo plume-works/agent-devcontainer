@@ -77,8 +77,8 @@ so a single entry serves `github`, `github/actions`, and
 `flow-pull-request-checks`. A directory copied into another repository carries
 its own rules, and a metadata file that cannot be read breaks only the subtree
 holding it. The format is [Agent metadata
-files](../architecture/agent-metadata-files.md); a single repository-level map
-was considered and rejected there.
+files](../archive/1.0.0/architecture/agent-metadata-files.md); a single
+repository-level map was considered and rejected there.
 
 Fixed by [Digest masks for map docs](../plans/20260905-digest-masks.md).
 

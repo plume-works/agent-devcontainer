@@ -8,9 +8,9 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: data/plans/20260816-ai-responder-workflows.md
 - resource: data/plans/20260903-single-ai-review-workflow.md
-- resource: data/architecture/label-review-triggers.md
-- resource: data/architecture/ai-review-event-selection.md
-- resource: data/architecture/pull-request-only-responder.md
+- resource: docs/knowledge/data/archive/3.0.0/architecture/label-review-triggers.md
+- resource: docs/knowledge/data/archive/1.0.0/architecture/ai-review-event-selection.md
+- resource: docs/knowledge/data/archive/2.1.0/architecture/pull-request-only-responder.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
@@ -32,7 +32,7 @@ run rather than polling for one.
 `pull_request_review`, and `merge_group`; no comment, issue, or `@claude`
 mention starts a run, and no job holds `contents: write`. The review responder
 keeps `contents: read`. The decision is recorded in [Pull-request-only AI
-responder](../architecture/pull-request-only-responder.md).
+responder](../archive/2.1.0/architecture/pull-request-only-responder.md).
 
 **The responder reviews with the branch's own catalog.** The review job must run
 in a container with the project toolchain to produce grounded output, and PR
@@ -64,7 +64,7 @@ and, in the review job, after the lifecycle scripts have run. Their secrets live
 in the `plume-works-review` environment; a job whose App secrets are missing
 fails instead of falling back to `GITHUB_TOKEN`. The App opens no pull request
 and pushes nothing. The decision is recorded in [Responder App
-identity](../architecture/responder-app-identity.md).
+identity](../archive/3.0.0/architecture/responder-app-identity.md).
 
 **The gate accepts one login.** `ai-review-present` accepts a review only from
 `plume-works-quill[bot]`, in state `approved`, `changes_requested`, or
@@ -80,7 +80,7 @@ request on a draft, or from someone without write access, waits for a later run
 that can review. Assigning someone, requesting a reviewer, and an
 `@claude review` comment start nothing, and any other label runs only the gate,
 outside the pull request's concurrency group. The design is recorded in [Label
-review triggers](../architecture/label-review-triggers.md).
+review triggers](../archive/3.0.0/architecture/label-review-triggers.md).
 
 **The review's verdict follows its findings.** The review submits `APPROVE` when
 it has no validated finding or only non-blocking ones, and `REQUEST_CHANGES`
@@ -89,7 +89,7 @@ one approving review, so an approving review is what lets a reviewed pull
 request merge; its inline comments still open threads that must be resolved
 first. A clean re-review approves, which replaces the reviewer's own earlier
 change request. The rule is recorded in [AI review event
-selection](../architecture/ai-review-event-selection.md).
+selection](../archive/1.0.0/architecture/ai-review-event-selection.md).
 
 **Trusted-bot pull requests are approved instead of reviewed.** A
 `trusted-bot-approval` job approves a same-repository pull request whose author
@@ -115,7 +115,7 @@ The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle
 scripts and the workflow that supplies their devcontainer contract is recorded
 in [CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md).
+availability](../archive/1.0.0/architecture/ci-agent-plugin-availability.md).
 
 **Pull requests can block every review, not the gate.** While the
 `block-ai-reviews` label is on, no review runs, an explicit `request-ai-review`
