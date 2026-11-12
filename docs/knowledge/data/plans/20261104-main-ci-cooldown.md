@@ -133,27 +133,34 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 **Files:** Modify: `.github/workflows/primary-checks.yml`
 
-- [ ] The workflow-level concurrency group uses `github.run_id` on
+- [x] The workflow-level concurrency group uses `github.run_id` on
   `refs/heads/main` and `github.ref` elsewhere, so a run on `main` waiting for
   the `ci` queue never blocks the next run's `cooldown`. Other refs keep
   cancelling in progress as today.
-- [ ] A `cooldown` job runs `scripts/ci-cooldown.py` when
+  - **Evidence:** `.github/workflows/primary-checks.yml#concurrency.group`;
+    `uv run pre-commit run actionlint --files .github/workflows/primary-checks.yml`
+- [x] A `cooldown` job runs `scripts/ci-cooldown.py` when
   `github.event_name == 'push' && github.ref == 'refs/heads/main'`, on the
   `ubuntu-24.04` runner with `timeout-minutes: 35`, permissions `actions: read`
   and `contents: read`, concurrency group `${{ github.workflow }}-main-cooldown`
   with `cancel-in-progress: true`, and `MAIN_COOLDOWN_SECONDS` /
   `MAIN_COOLDOWN_MAX_SECONDS` from `vars`.
-- [ ] `pre-commit` needs `cooldown` and runs when
+  - **Evidence:** `.github/workflows/primary-checks.yml#jobs.cooldown`
+- [x] `pre-commit` needs `cooldown` and runs when
   `!cancelled() && (needs.cooldown.result == 'success' || needs.cooldown.result == 'skipped')`.
   It gains `actions: read` and `GH_TOKEN: ${{ github.token }}` for the range
   lookup.
-- [ ] `ci` needs `cooldown` and `pre-commit`, runs when `!cancelled()`,
+  - **Evidence:** `.github/workflows/primary-checks.yml#jobs.pre-commit`
+- [x] `ci` needs `cooldown` and `pre-commit`, runs when `!cancelled()`,
   `needs.pre-commit.result == 'success'`, and `cooldown` succeeded or was
   skipped, and carries concurrency group `${{ github.workflow }}-ci-main` with
   `cancel-in-progress: false` on `refs/heads/main` and `github.run_id`
   elsewhere.
-- [ ] The comment above the workflow-level `concurrency` block points at
+  - **Evidence:** `.github/workflows/primary-checks.yml#jobs.ci`
+- [x] The comment above the workflow-level `concurrency` block points at
   `spec/image-pinning` for the cooldown rule.
+  - **Evidence:**
+    `.github/workflows/primary-checks.yml › "a burst of merges builds once; see spec/image-pinning"`
 
 ### Task 5: Observe a burst of merges on main
 
@@ -296,8 +303,8 @@ after it succeeds.
 
 ## Key references
 
-- `.github/workflows/primary-checks.yml › "main queues instead of cancelling, so edge keeps advancing"`
-  — workflow-level `concurrency`, queueing on `main`
+- `.github/workflows/primary-checks.yml › "On main the cooldown job cancels a waiting run"`
+  — workflow-level `concurrency`
 - `.github/workflows/primary-checks.yml#jobs.pre-commit` — `pre-commit` job and
   its permissions
 - `.github/workflows/primary-checks.yml › "name: Select the range"` —
