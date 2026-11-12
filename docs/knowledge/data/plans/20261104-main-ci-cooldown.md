@@ -59,16 +59,22 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 ### Task 1: Shared workflow-run lookup
 
-**Files:** Create: `scripts/ci_runs.py`, `scripts/tests/test_ci_runs.py`
+**Files:** Create: `scripts/ci_runs.py`, `scripts/tests/test_ci_runs.py`,
+`scripts/tests/github_api_stub.py`
 
-- [ ] `scripts/ci_runs.py` (standard library only) resolves the calling
+- [x] `scripts/ci_runs.py` (standard library only) resolves the calling
   workflow's id from `GITHUB_RUN_ID`, lists its `push` runs on a branch newest
   first through the REST API at `GITHUB_API_URL`, and returns the head commit of
   the last successful run, authenticating with `GH_TOKEN`. A failed request
   raises one module-defined error carrying the cause.
-- [ ] Tests run the module against a local HTTP stub the test starts and owns:
+  - **Evidence:** `scripts/ci_runs.py::last_success_sha`,
+    `scripts/ci_runs.py::CIRunsError`;
+    `uv run pytest scripts/tests/test_ci_runs.py`
+- [x] Tests run the module against a local HTTP stub the test starts and owns:
   the last successful run's head commit, no successful run, and a request that
   fails.
+  - **Evidence:** `uv run pytest scripts/tests/test_ci_runs.py` — stub in
+    `scripts/tests/github_api_stub.py::serve`
 
 ### Task 2: Cooldown script
 
