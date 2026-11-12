@@ -154,12 +154,23 @@ in any subagent it dispatches; CI runs them. The `pr-review` skill SHALL state
 this, and the review job SHALL deny those commands and nested shells through
 `--disallowedTools`.
 
+Only the main review session SHALL read CI results, once, while composing the
+review, and only to cite a check that has already finished. No part of the
+review SHALL wait for CI: the review job SHALL deny `sleep`, `gh run watch`,
+`gh pr checks --watch`, and the `Monitor` tool.
+
 ### Scenario: a review pass tries to confirm a finding by running tests
 
 - **WHEN** a review pass or validator runs `uv run pytest`, alone, chained after
   another command, or inside `bash -c`
-- **THEN** the command is denied and the finding rests on the code or on the CI
-  check that reports the failure.
+- **THEN** the command is denied and the finding rests on the code alone.
+
+### Scenario: CI is still running when the review is composed
+
+- **WHEN** the main review session reads `gh pr checks` and the check behind a
+  finding has not finished
+- **THEN** the review posts the finding without citing that check, and does not
+  wait for it.
 
 ## Requirement: a review runs on first push and on explicit request
 
@@ -481,7 +492,11 @@ Rejected:
 - **The deny list alone.** It binds only the Claude Code review job, while the
   skill also runs under other harnesses and locally.
 - **Letting a validator run tests to confirm a finding.** CI reports the same
-  failure; the validator cites that check instead.
+  failure, and a finding with a complete Trigger, Path, and Outcome stands
+  without it.
+- **Letting passes and validators read CI, or anyone wait for it.** CI's suites
+  run alongside the review and often finish after it, so a pass that consults CI
+  waits on it; one look from the main session at composition costs nothing.
 
 ### The gate is a job of the review workflow
 

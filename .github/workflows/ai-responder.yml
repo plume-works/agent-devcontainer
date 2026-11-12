@@ -45,7 +45,8 @@ env:
     Bash(uv run *),Bash(uv sync*),Bash(uv pip *),Bash(uv tool *),Bash(uv build*),Bash(uvx *),
     Bash(python -m *),Bash(python3 -m *),Bash(pytest*),Bash(pre-commit *),
     Bash(bun *),Bash(bunx *),Bash(npm *),Bash(npx *),Bash(make*),
-    Bash(docker *),Bash(docker-compose *),Bash(devcontainer *)
+    Bash(docker *),Bash(docker-compose *),Bash(devcontainer *),
+    Bash(sleep*),Bash(gh run watch*),Bash(gh pr checks *--watch*),Monitor
   # Bots whose pull requests skip the AI review and are approved instead.
   TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
 
