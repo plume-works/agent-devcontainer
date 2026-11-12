@@ -161,7 +161,7 @@ leaf and dispatches nothing.
       evaluator's diff is only the revision and a restore keeps that edit.
    2. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
       its **From the Implement session** mode: draft the revision, run
-      its Durable Knowledge Auditor gate and validation, and leave the plan
+      its `/agentdev:iwe-plan-review` gate and validation, and leave the plan
       uncommitted. The revision changes only lines that answer the quoted
       finding and adds or sharpens no claim the code must newly meet.
    3. Dispatch `iwe-revision-evaluator` with a prompt carrying only the plan

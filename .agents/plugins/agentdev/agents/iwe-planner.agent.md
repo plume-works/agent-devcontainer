@@ -25,8 +25,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
   waiting for the answer.
 - **From the Implement session** — the session running
   `/agentdev:iwe-implement` follows this file to draft one revision that answers a finding. Revise mode
-  only: draft the revision through steps 1-4, 6, and 7, including the Durable
-  Knowledge Auditor gate, run step 8's validation, and stop with the revision
+  only: draft the revision through steps 1-4, 6, and 7, including the
+  `/agentdev:iwe-plan-review` gate, run step 8's validation, and stop with the revision
   uncommitted for the `iwe-revision-evaluator`. Never create a plan, close an
   issue, or re-dispatch the Shipper. Wherever a step would ask the user, stop,
   restore the plan from `HEAD`, and report the decision needed.
@@ -157,13 +157,16 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    one another and with every recorded decision or assumption. For every
    checkbox, ask which single observation closes it, and split any checkbox
    that names more than one.
-7. **Audit the plan from a fresh context.** In both create and revise mode,
-   dispatch the `Durable Knowledge Auditor` agent on the plan draft in plan
-   scope — its prompt names the plan file and the scope, nothing more, so it
-   reads the draft with none of this conversation's context. Apply its
-   report-only verdicts to the draft (DROP/REWRITE/MOVE as recommended), then
-   continue. This gate runs on every plan-intent edit: create, revise, and each
-   route Implement, Verify, and Ship take back to revise mode all funnel here.
+7. **Review the plan from a fresh context.** In both create and revise mode,
+   run `/agentdev:iwe-plan-review` on the plan draft. It dispatches the
+   `Durable Knowledge Auditor` agent in plan scope and `iwe-ship-reviewer` in
+   plan mode, each reading the draft with none of this conversation's context,
+   and returns both reports. Apply the auditor's report-only verdicts to the
+   draft (DROP/REWRITE/MOVE as recommended). Fix the draft for each
+   `iwe-ship-reviewer` gap, asking the user where a fix is a material choice
+   (step 2), and resolve every gap before step 8. This gate runs on every
+   plan-intent edit: create, revise, and each route Implement, Verify, and Ship
+   take back to revise mode all funnel here.
 8. **Validate, close the issue, re-ship a blocked plan, and stop.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. When a created plan grew from a
    GitHub issue, close that issue now with the bundled script, which posts a

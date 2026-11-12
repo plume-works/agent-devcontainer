@@ -63,10 +63,16 @@ Modify: `.agents/plugins/agentdev/README.md`,
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Step 7 runs `/agentdev:iwe-plan-review`, applies the auditor's verdicts,
+- [x] Step 7 runs `/agentdev:iwe-plan-review`, applies the auditor's verdicts,
   and resolves each `iwe-ship-reviewer` finding before step 8.
-- [ ] `iwe-implementer`'s revision step names the review in place of the
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Review the plan from a fresh context.** In both create and"`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
+- [x] `iwe-implementer`'s revision step names the review in place of the
   `Durable Knowledge Auditor` gate.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its `/agentdev:iwe-plan-review` gate and validation, and leave"`.
 
 ### Task 3: A plan edit runs both reviewers
 
@@ -192,10 +198,10 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 
 ## Key references
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Audit the plan from a fresh context.** In both create and"`
-  — step 7, Audit the plan from a fresh context
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its Durable Knowledge Auditor gate and validation, and leave"`
-  — the revision step's Durable Knowledge Auditor gate
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Review the plan from a fresh context.** In both create and"`
+  — step 7, Review the plan from a fresh context
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its `/agentdev:iwe-plan-review` gate and validation, and leave"`
+  — the revision step's review gate
 - `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md › "tools: Bash, Read, Grep, Glob, Skill"`
   — `tools:`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
