@@ -44,7 +44,13 @@ Code 2.1.316):
   the manifest's unchanged `./.agents/plugins/<plugin>` entries resolve into the
   worktree. A plugin installed from it at local scope is read in place from
   `<worktree>/.agents/plugins/<plugin>`, uncommitted changes included.
-  `marketplace add` declares the marketplace in user settings.
+  `marketplace add` declares the marketplace in user settings, and a
+  marketplace's name is global to the user, so worktrees of the same name in two
+  checkouts would share one.
+- Run in a git worktree, a local-scope install writes its `enabledPlugins` entry
+  to the main checkout's `.claude/settings.local.json`, not the worktree's.
+- `claude plugin marketplace remove` also uninstalls every plugin installed from
+  that marketplace.
 - `.claude/.gitignore` ignores `*.local.json`, so that file leaves the worktree
   clean.
 - A worktree session reads the main checkout's `.claude/settings.local.json` as
@@ -81,16 +87,20 @@ repository. When the new worktree ships a complete catalog (`catalog.complete`),
 it also:
 
 1. writes `<worktree>/.claude/marketplace.local.json`, the worktree's
-   `.claude-plugin/marketplace.json` with `name` set to `wt-<name>`;
+   `.claude-plugin/marketplace.json` with `name` set to `wt-<name>`, and fails
+   when `wt-<name>` is already registered from another worktree's file;
 2. registers it with `claude plugin marketplace add` and installs every plugin
    it publishes as `<plugin>@wt-<name>` at local scope, from the worktree;
-3. sets `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins`
+3. removes each `<plugin>@wt-<name>` the install wrote to the main checkout's
+   `.claude/settings.local.json` and sets it to `true` in the worktree's
+   `.claude/settings.local.json`;
+4. sets `<plugin>@<shared marketplace name>` to `false` under `enabledPlugins`
    in the worktree's `.claude/settings.local.json`, for every plugin the
    manifest publishes.
 
-`agentdev-runtime worktree remove` uninstalls and removes the `wt-<name>`
-marketplace, which also drops its entry from user settings, before it removes
-the worktree.
+`agentdev-runtime worktree remove` removes the `wt-<name>` marketplace when it
+is registered from that worktree's file, which uninstalls its plugins and drops
+its entry from user settings, before it removes the worktree.
 
 The standalone runtime's catalog step (`Workspace.catalog`) also registers the
 hooks, through the same `worktree.register`, when it selects the checkout's
@@ -165,8 +175,8 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
-- [x] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
-  `wt-<name>` marketplace when one is registered, before it removes the
+- [x] `worktree remove` removes the `wt-<name>` marketplace, which uninstalls
+  every `<plugin>@wt-<name>`, when one is registered, before it removes the
   worktree, and also when the worktree is already gone
   - **Evidence:**
     `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`,
