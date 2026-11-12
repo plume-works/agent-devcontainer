@@ -356,7 +356,7 @@ environment](20261101-per-checkout-uv-environments.md)
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
   `attached`
 - `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` —
-  `catalog.install(settings, folder, None)`
+  `catalog.install(settings, folder, 'user')`
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::complete` —
   `complete`
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — `claude`
