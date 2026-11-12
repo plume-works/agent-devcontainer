@@ -68,12 +68,21 @@ same step.
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] `/agentdev:iwe-verify` drops its "From inside `iwe-shipper`" section, and
+- [x] `/agentdev:iwe-verify` drops its "From inside `iwe-shipper`" section, and
   its session route names the Shipper as a caller whose skill request and
   verifier prompt are the plan key and the approvals the Shipper's prompt
   quotes.
-- [ ] `iwe-verifier` drops its "In place inside `iwe-shipper`" mode and runs
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session › "the request is the plan you are shipping"`
+    and
+    `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#the-saved-report › "the Implement loop or the Shipper"`;
+    the "From inside `iwe-shipper`" section is gone.
+- [x] `iwe-verifier` drops its "In place inside `iwe-shipper`" mode and runs
   only as a dispatched agent.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run › "You run only"`
+    and its `description` frontmatter, "Dispatched only by the iwe-verify
+    skill"; the "In place inside `iwe-shipper`" mode is gone.
 
 ### Task 3: Record the decision
 
@@ -240,12 +249,10 @@ SHALL be a CRITICAL finding.
   — `tools:`;
   `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "Run Verify for normal shipping.** Invoke the report-only"`
   — step 3, Run Verify for normal shipping
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-inside-iwe-shipper`
-  — the "From inside `iwe-shipper`" section;
-  `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session` —
-  `## From a session`
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run › "— the Shipper, already a fresh context"`
-  — the "In place inside `iwe-shipper`" mode
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md#from-a-session` —
+  `## From a session`, the one route
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md#how-you-run` —
+  `## How you run`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-normal-shipping-requires-a-clean-independent-verification`
   — Requirement: Normal shipping requires a clean independent verification
 - `docs/knowledge/data/architecture/fresh-context-verify.md#decision › "— the Shipper is already a fresh context and"`
