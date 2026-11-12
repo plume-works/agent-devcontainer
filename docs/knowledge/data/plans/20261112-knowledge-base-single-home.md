@@ -648,18 +648,31 @@ The checks land once Tasks 8 and 9 have moved every document they would fail.
 **Files:** Modify: `scripts/check-ship-records.py`,
 `scripts/tests/test_check_ship_records.py`, `.pre-commit-config.yaml`.
 
-- [ ] `scripts/check-ship-records.py` fails a plan, bug, or task at
+- [x] `scripts/check-ship-records.py` fails a plan, bug, or task at
   `stage: done` or `stage: cancelled` that is outside `data/archive/`, with a
   test.
-- [ ] It fails a plan without `stage`, or a bug or task at an open stage, that
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py::test_closed_item_outside_the_archive_fails`.
+- [x] It fails a plan without `stage`, or a bug or task at an open stage, that
   is inside `data/archive/`, with a test.
-- [ ] It fails a feature outside `data/archive/` at any stage but `proposed` or
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py::test_open_item_inside_the_archive_fails`.
+- [x] It fails a feature outside `data/archive/` at any stage but `proposed` or
   `accepted`, and a feature inside it at either of those, with a test.
-- [ ] It fails a release page that holds a Markdown link, with a test.
-- [ ] The `ship-records` hook's `files` pattern covers `data/backlog/`,
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py::test_feature_placement_follows_its_stage`.
+- [x] It fails a release page that holds a Markdown link, with a test.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_check_ship_records.py::test_release_page_with_a_link_fails_naming_the_line`.
+- [x] The `ship-records` hook's `files` pattern covers `data/backlog/`,
   `data/features/`, `data/releases/`, and `data/archive/`.
-- [ ] `uv run scripts/check-ship-records.py` over every document under
+  - **Evidence:** `.pre-commit-config.yaml#repos` ›
+    "(archive|backlog|bugs|features|plans|releases)".
+- [x] `uv run scripts/check-ship-records.py` over every document under
   `docs/knowledge/data/` passes.
+  - **Evidence:**
+    `uv run scripts/check-ship-records.py $(find docs/knowledge/data -name '*.md')`
+    exits 0.
 
 ### Task 11: One home for each rule inside a spec
 

@@ -171,12 +171,12 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
-      # A done bug needs `## Fix`; a Ship review has the fixed shape. See spec/pre-commit-gate.
+      # Ship records, archive placement, and link-free release pages. See spec/pre-commit-gate.
       - id: ship-records
         name: ship-records
         entry: uv run scripts/check-ship-records.py
         language: system
-        files: '^docs/knowledge/data/(bugs|plans)/.*\.md$'
+        files: '^docs/knowledge/data/(archive|backlog|bugs|features|plans|releases)/.*\.md$'
         pass_filenames: true
 
       # Always runs: a code rename anywhere can break a live anchor. See spec/line-free-anchors.

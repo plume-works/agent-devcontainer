@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -28,14 +29,29 @@ def tree() -> Iterator[Path]:
     shutil.rmtree(root)
 
 
-@pytest.fixture
-def write(tree: Path) -> Write:
-    """Return a helper that writes a document under the tree."""
+CLOSED_STAGE = re.compile(r'^stage: (done|cancelled)$', re.M)
 
-    def _write(name: str, text: str) -> Path:
-        path = tree / name
+
+@pytest.fixture
+def write_at(tree: Path) -> Write:
+    """Return a helper that writes a document at a path relative to the tree."""
+
+    def _write(relative: str, text: str) -> Path:
+        path = tree / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text)
         return path
+
+    return _write
+
+
+@pytest.fixture
+def write(write_at: Write) -> Write:
+    """Return a helper that writes a document where it belongs: closed ones in the archive."""
+
+    def _write(name: str, text: str) -> Path:
+        folder = 'data/archive/1.0.0/items' if CLOSED_STAGE.search(text) else 'data/items'
+        return write_at(f'{folder}/{name}', text)
 
     return _write
 
@@ -259,3 +275,64 @@ def test_wrapped_unticked_item_fails_naming_its_first_line(write: Write) -> None
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, "- [ ] Every bug in `release` has")} ' in result.stdout
+
+
+def item(kind: str, stage: str | None) -> str:
+    """Return a minimal document of ``kind`` at ``stage`` (no stage when None)."""
+    line = '' if stage is None else f'stage: {stage}\n'
+    fix = '\n## Fix\n\nFixed.\n' if kind == 'bug' else ''
+    return f'---\ntype: {kind}\n{line}---\n\n# Example\n{fix}'
+
+
+@pytest.mark.parametrize(
+    ('kind', 'stage'),
+    [('plan', 'done'), ('plan', 'cancelled'), ('bug', 'done'), ('task', 'cancelled')],
+)
+def test_closed_item_outside_the_archive_fails(write_at: Write, kind: str, stage: str) -> None:
+    """A closed plan, bug, or task left outside data/archive/ fails, naming the document."""
+    path = write_at(f'docs/knowledge/data/{kind}s/example.md', item(kind, stage))
+    result = run(path)
+    assert result.returncode == 1
+    assert f'{path}:1 ' in result.stdout
+    assert 'outside data/archive/' in result.stdout
+
+
+@pytest.mark.parametrize(
+    ('kind', 'stage'),
+    [('plan', None), ('bug', 'pending'), ('bug', 'planned'), ('task', 'pending')],
+)
+def test_open_item_inside_the_archive_fails(write_at: Write, kind: str, stage: str | None) -> None:
+    """An active plan, or an open bug or task, inside data/archive/ fails."""
+    path = write_at(f'docs/knowledge/data/archive/next-release/{kind}s/x.md', item(kind, stage))
+    result = run(path)
+    assert result.returncode == 1
+    assert 'sits in data/archive/' in result.stdout
+
+
+@pytest.mark.parametrize(
+    ('folder', 'stage', 'fails'),
+    [
+        ('features', 'implemented', True),
+        ('features', 'deprecated', True),
+        ('features', 'accepted', False),
+        ('archive/1.0.0/features', 'proposed', True),
+        ('archive/1.0.0/features', 'implemented', False),
+    ],
+)
+def test_feature_placement_follows_its_stage(
+    write_at: Write, folder: str, stage: str, fails: bool
+) -> None:
+    """A feature is live only at proposed or accepted, and archived at any other stage."""
+    path = write_at(f'docs/knowledge/data/{folder}/x.md', item('feature', stage))
+    assert run(path).returncode == (1 if fails else 0)
+
+
+def test_release_page_with_a_link_fails_naming_the_line(write_at: Write) -> None:
+    """A release page holding a Markdown link fails at that line; plain text passes."""
+    text = '---\ntype: release\nstage: released\n---\n\n# 1.0.0\n\n## Added\n\n[Focus](../features/focus.md)\n'
+    path = write_at('docs/knowledge/data/releases/1.0.0.md', text)
+    result = run(path)
+    assert result.returncode == 1
+    assert f'{path}:{line_of(text, "[Focus]")} ' in result.stdout
+    path.write_text(text.replace('[Focus](../features/focus.md)', 'Focus sessions'))
+    assert run(path).returncode == 0

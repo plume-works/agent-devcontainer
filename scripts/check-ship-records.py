@@ -2,8 +2,9 @@
 """
 Gate the records Ship leaves in the knowledge graph.
 
-Checks each bug and plan document named on the command line, prints every violation as
-``path:line message``, and exits 1 when there is any. The rules: see spec/pre-commit-gate.
+Checks each bug, plan, backlog task, feature, and release document named on the command line,
+prints every violation as ``path:line message``, and exits 1 when there is any. The rules: see
+spec/pre-commit-gate and spec/iwe-workflow-skills.
 """
 
 from __future__ import annotations
@@ -18,6 +19,9 @@ FRONTMATTER_FIELD = re.compile(r'^(?P<key>[\w-]+):\s*(?P<value>.*?)\s*$')
 HEADING = re.compile(r'^(?P<level>#{1,6})\s')
 REVIEWER = re.compile(r'^Reviewed by `iwe-ship-reviewer` on \d{4}-\d{2}-\d{2}\.$')
 ITEM = re.compile(r'^- \[(?P<tick>.)\] (?P<text>.+?) — (?P<ending>.*)$')
+LINK = re.compile(r'(?<!!)\[[^\]]*\]\([^)\s]+\)')
+CLOSED = frozenset({'done', 'cancelled'})
+LIVE_FEATURE = frozenset({'proposed', 'accepted'})
 
 
 class Item:
@@ -181,15 +185,48 @@ def check_structure(
     return violations
 
 
+def archived(path: Path) -> bool:
+    """Return whether ``path`` lies under the knowledge base's ``data/archive/``."""
+    parts = path.parts
+    return any(parts[i : i + 2] == ('data', 'archive') for i in range(len(parts) - 1))
+
+
+def check_placement(kind: str, stage: str, inside: bool) -> list[tuple[int, str]]:
+    """Return a violation when a work item or feature sits on the wrong side of the archive."""
+    if kind == 'feature':
+        live = stage in LIVE_FEATURE
+    elif kind in ('plan', 'bug', 'task'):
+        live = stage not in CLOSED
+    else:
+        return []
+    if inside and live:
+        return [(1, f'{kind} at {stage or "no stage"} is open but sits in data/archive/')]
+    if not inside and not live:
+        return [(1, f'{kind} at stage: {stage} is closed but sits outside data/archive/')]
+    return []
+
+
+def check_release(lines: list[str]) -> list[tuple[int, str]]:
+    """Return one violation per release-page line that holds a Markdown link."""
+    return [
+        (number, 'release page holds a Markdown link; write its text instead')
+        for number, line in body_lines(lines)
+        if LINK.search(line)
+    ]
+
+
 def check(path: Path) -> list[str]:
     """Return every violation in one document, formatted ``path:line message``."""
     lines = path.read_text(encoding='utf-8').splitlines()
-    kind = frontmatter(lines).get('type')
-    violations = []
+    fields = frontmatter(lines)
+    kind = fields.get('type', '')
+    violations = check_placement(kind, fields.get('stage', ''), archived(path))
     if kind == 'bug':
-        violations = check_bug(lines)
+        violations += check_bug(lines)
     elif kind == 'plan':
-        violations = check_plan(lines)
+        violations += check_plan(lines)
+    elif kind == 'release':
+        violations += check_release(lines)
     return [f'{path}:{line} {message}' for line, message in violations]
 
 
