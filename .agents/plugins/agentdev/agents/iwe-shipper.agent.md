@@ -1,7 +1,7 @@
 ---
 name: iwe-shipper
 description: Ship, cancel, fix Ship review gaps in, or cut a release for an IWE plan from a fresh context — Verify gate, spec merge, idempotent graph transitions. Dispatched only by the iwe-ship skill and iwe-plan revise answering a Ship blocker report or Ship review gaps; never on a description match.
-tools: Bash, Read, Edit, Write, Grep, Glob, Skill
+tools: Bash, Read, Edit, Write, Grep, Glob, Skill, Agent
 ---
 
 # Ship or cancel finished work
@@ -80,12 +80,12 @@ needed. In particular:
    it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
    `/agentdev:iwe-verify` skill for the selected plan, forwarding every
-   approval your prompt quotes, verbatim, and take its route for a
-   caller inside `iwe-shipper`: it returns the report saved for this commit and
-   catalog when one exists, and otherwise you follow the `iwe-verifier`
-   rulebook in your own context, including its named verification commands and
-   evidence checks. Never dispatch an agent. A saved report is the Verify
-   report for every later step. When the skill stops on a dirty worktree —
+   approval your prompt quotes, verbatim, and take its session route: it
+   returns the report saved for this commit and catalog when one exists, and
+   otherwise dispatches `iwe-verifier` with the plan key and those approvals,
+   saves its report, and returns it, so only the report enters your context.
+   Run no Verify step yourself, and dispatch no agent but through that route.
+   A saved report is the Verify report for every later step. When the skill stops on a dirty worktree —
    typically uncommitted edits an earlier, interrupted Ship left behind — make
    no mutation and return a Ship blocker report listing the dirty paths. A
    command with effects beyond

@@ -52,10 +52,16 @@ same step.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] `tools:` includes `Agent`, and step 3 runs `/agentdev:iwe-verify` by its
+- [x] `tools:` includes `Agent`, and step 3 runs `/agentdev:iwe-verify` by its
   session route, forwarding the approvals its prompt quotes verbatim, instead of
   following the `iwe-verifier` rulebook in place; the line saying it never
   dispatches an agent is replaced.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md › "tools: Bash, Read, Edit, Write, Grep, Glob, Skill, Agent"`
+    and
+    `.agents/plugins/agentdev/agents/iwe-shipper.agent.md#steps › "and take its session route"`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
 
 ### Task 2: Verify has one route
 
