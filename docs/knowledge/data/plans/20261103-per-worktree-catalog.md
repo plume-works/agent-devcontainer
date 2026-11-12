@@ -193,11 +193,16 @@ Create: `py_packages/agentdev_runtime/tests/test_workspace_worktree_register.py`
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`;
 Create: `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py`
 
-- [ ] `lifecycle.attached` installs a complete checkout catalog with
+- [x] `lifecycle.attached` installs a complete checkout catalog with
   `catalog.install(settings, folder, 'user')`
-- [ ] a test runs the attach-phase catalog step with a recording `claude` stub
+  - **Evidence:**
+    `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` ›
+    "catalog.install(settings, folder, 'user')"
+- [x] a test runs the attach-phase catalog step with a recording `claude` stub
   and asserts every `marketplace add` and `plugin install` carries
   `--scope user`
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py::test_attach_installs_the_checkout_catalog_at_user_scope`
 
 ### Task 5: Prove the route end to end on agent-dev3
 
