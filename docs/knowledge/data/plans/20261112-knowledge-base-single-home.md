@@ -333,6 +333,9 @@ closed document under `docs/knowledge/data/plans/`, `bugs/`, and `backlog/`.
 - [ ] Every item in `closed-5.md` is in a spec or struck with a reason.
 - [ ] Every item in `closed-6.md` is in a spec or struck with a reason.
 - [ ] Every item in `closed-7.md` is in a spec or struck with a reason.
+- [ ] Every plan, bug, and task that is closed and has no section in
+  `closed-0.md` to `closed-7.md` is read the same way, and each durable item it
+  alone holds is in a spec.
 - [ ] `data/spec/iwe-workflow-skills.md` states where Ship reads a dependency's
   stage, and no spec contradicts it.
 - [ ] A `## Rationale` entry in `data/spec/template-consumption.md` records why
@@ -770,6 +773,13 @@ Specs that Tasks 7 to 10 create or extend record behaviour the code already has
 and change none: `catalog-scripts`, `cloud-session-host`, `devcontainer-state`,
 `ci-workflows`, `pr-description`, `supported-harnesses`, `pr-review`,
 `ci-python-environment`.
+
+## Depends on
+
+[Give each Claude worktree its own agentdev
+catalog](20261103-per-worktree-catalog.md) is the only other active plan. It
+ships first, so Task 9 archives it with the rest of the closed history and no
+plan is in flight while the rulebooks change.
 
 ## Verification
 
