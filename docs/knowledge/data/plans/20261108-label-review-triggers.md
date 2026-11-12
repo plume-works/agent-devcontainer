@@ -16,6 +16,7 @@ sources:
 - resource: docs/knowledge/data/spec/ai-review-refresh.md
 completed: 2026-11-08
 stage: done
+released: 3.0.0
 ---
 
 # AI reviews are requested and skipped with labels

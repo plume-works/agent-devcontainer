@@ -11,6 +11,7 @@ sources:
 - resource: docs/knowledge/data/architecture/fresh-context-verify.md
 stage: done
 completed: 2026-11-12
+released: 3.0.0
 ---
 
 # The Shipper dispatches Verify

@@ -12,6 +12,7 @@ sources:
 - resource: .pre-commit-config.yaml
 stage: done
 completed: 2026-11-08
+released: 3.0.0
 ---
 
 # Replace line-number anchors with symbol, heading, key, and quote anchors

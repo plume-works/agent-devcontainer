@@ -14,6 +14,7 @@ sources:
 - resource: https://code.claude.com/docs/en/hooks
 stage: done
 completed: 2026-11-10
+released: 3.0.0
 ---
 
 # Give each checkout its own uv environment
