@@ -189,14 +189,20 @@ def create(text: str) -> int:
 
 
 def remove(text: str) -> int:
-    """Delete the worktree's uv environment, then the worktree; its branch stays."""
+    """Drop the worktree's catalog and uv environment, then the worktree; its branch stays."""
     try:
         path = Path(str(json.loads(text)['worktree_path']))
     except (ValueError, KeyError, TypeError) as error:
         return fail(f'unreadable hook input: {error}')
+    settings = env.Settings()
+    try:
+        with agent_state.config_lock(settings):
+            uninstall_catalog(path)
+    except (catalog.CatalogError, agent_state.StateError) as error:
+        return fail(f'removing the catalog of {path} failed: {error}')
     if not path.exists():
         return 0
-    root = Path(os.path.abspath(env.Settings().get('AGENTDEV_VENV_ROOT')))
+    root = Path(os.path.abspath(settings.get('AGENTDEV_VENV_ROOT')))
     target = project.linked(path)
     if target and project.within(root, target) and target != root and target.is_dir():
         shutil.rmtree(target)

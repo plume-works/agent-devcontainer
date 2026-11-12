@@ -161,12 +161,19 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/worktree.py`;
 Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
-- [ ] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
+- [x] `worktree remove` uninstalls every `<plugin>@wt-<name>` and removes the
   `wt-<name>` marketplace when one is registered, before it removes the
   worktree, and also when the worktree is already gone
-- [ ] a worktree with no `wt-<name>` marketplace is not an error
-- [ ] tests run the subcommand against a worktree Task 1's subcommand made, with
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`
+    and `::test_a_gone_worktree_still_loses_its_marketplace`
+- [x] a worktree with no `wt-<name>` marketplace is not an error
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_a_worktree_without_a_marketplace_is_removed`
+- [x] tests run the subcommand against a worktree Task 1's subcommand made, with
   the same `claude` stub
+  - **Evidence:**
+    `uv run pytest py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
 
 ### Task 3: Register the hooks from the standalone runtime
 
