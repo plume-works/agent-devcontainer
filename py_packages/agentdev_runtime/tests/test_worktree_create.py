@@ -148,23 +148,62 @@ def rev(repo: Path, ref: str) -> str:
     ).stdout.strip()
 
 
-def test_a_new_worktree_starts_at_the_freshly_fetched_remote_default_branch(
-    repository: Path, tmp_path: Path
-) -> None:
+@pytest.fixture
+def upstream(repository: Path, tmp_path: Path) -> Path:
+    """Give the repository an origin whose default branch is one commit ahead of it."""
     origin = tmp_path / 'origin.git'
     subprocess.run(['git', 'clone', '-q', '--bare', str(repository), str(origin)], check=True)
     subprocess.run(['git', '-C', str(repository), 'remote', 'add', 'origin', str(origin)])
     subprocess.run(['git', '-C', str(repository), 'fetch', '-q', 'origin'], check=True)
     subprocess.run(['git', '-C', str(repository), 'remote', 'set-head', 'origin', '--auto'])
-    upstream = tmp_path / 'upstream'
-    subprocess.run(['git', 'clone', '-q', str(origin), str(upstream)], check=True)
-    subprocess.run(
-        ['git', *GIT_ID, '-C', str(upstream), 'commit', '-q', '--allow-empty', '-m', 'n']
-    )
-    subprocess.run(['git', '-C', str(upstream), 'push', '-q', 'origin', 'HEAD'], check=True)
+    clone = tmp_path / 'upstream'
+    subprocess.run(['git', 'clone', '-q', str(origin), str(clone)], check=True)
+    subprocess.run(['git', *GIT_ID, '-C', str(clone), 'commit', '-q', '--allow-empty', '-m', 'n'])
+    subprocess.run(['git', '-C', str(clone), 'push', '-q', 'origin', 'HEAD'], check=True)
+    return clone
+
+
+def base_ref(settings: Path, value: str) -> None:
+    settings.parent.mkdir(parents=True, exist_ok=True)
+    settings.write_text(json.dumps({'worktree': {'baseRef': value}}))
+
+
+def test_a_new_worktree_starts_at_the_freshly_fetched_remote_default_branch(
+    repository: Path, upstream: Path
+) -> None:
     result = run(repository, 'fresh')
     assert result.returncode == 0, result.stderr
     assert rev(repository, 'worktree-fresh') == rev(upstream, 'HEAD') != rev(repository, 'HEAD')
+
+
+@pytest.mark.parametrize('settings', ['settings.json', 'settings.local.json'])
+def test_a_project_base_ref_of_head_starts_the_worktree_at_head(
+    repository: Path, upstream: Path, settings: str
+) -> None:
+    base_ref(repository / '.claude' / settings, 'head')
+    result = run(repository, 'head')
+    assert result.returncode == 0, result.stderr
+    assert rev(repository, 'worktree-head') == rev(repository, 'HEAD')
+
+
+def test_a_user_base_ref_of_head_starts_the_worktree_at_head(
+    repository: Path, upstream: Path, tmp_path: Path
+) -> None:
+    base_ref(tmp_path / 'home' / '.claude' / 'settings.json', 'head')
+    result = run(repository, 'user-head')
+    assert result.returncode == 0, result.stderr
+    assert rev(repository, 'worktree-user-head') == rev(repository, 'HEAD')
+
+
+def test_local_settings_override_project_and_user_base_ref(
+    repository: Path, upstream: Path, tmp_path: Path
+) -> None:
+    base_ref(tmp_path / 'home' / '.claude' / 'settings.json', 'head')
+    base_ref(repository / '.claude' / 'settings.json', 'head')
+    base_ref(repository / '.claude' / 'settings.local.json', 'fresh')
+    result = run(repository, 'local-fresh')
+    assert result.returncode == 0, result.stderr
+    assert rev(repository, 'worktree-local-fresh') == rev(upstream, 'HEAD')
 
 
 def test_a_repository_without_a_remote_starts_the_worktree_at_head(repository: Path) -> None:

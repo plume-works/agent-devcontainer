@@ -155,8 +155,29 @@ def uninstall_catalog(path: Path) -> None:
         claude('/', 'plugin', 'marketplace', 'remove', marketplace(path))
 
 
+def base_ref(repository: str) -> str:
+    """Return Claude's ``worktree.baseRef`` from local, project, then user settings."""
+    for path in (
+        Path(repository, '.claude', 'settings.local.json'),
+        Path(repository, '.claude', 'settings.json'),
+        remote_control.config_dir() / 'settings.json',
+    ):
+        try:
+            value = json.loads(path.read_text()).get('worktree', {}).get('baseRef')
+        except FileNotFoundError:
+            continue
+        except (OSError, ValueError, AttributeError) as error:
+            print(f'{PREFIX}: ignoring unreadable {path}: {error}', file=sys.stderr)
+            continue
+        if value is not None:
+            return value
+    return 'fresh'
+
+
 def base(repository: str) -> str:
-    """Return ``origin``'s default branch, fetched now, or ``HEAD`` when it has none."""
+    """Return ``HEAD`` under ``baseRef: head``, else ``origin``'s default branch, fetched now."""
+    if base_ref(repository) == 'head':
+        return 'HEAD'
     if git('-C', repository, 'remote', 'get-url', 'origin') != 0:
         return 'HEAD'
     if git('-C', repository, 'fetch', '--quiet', 'origin') != 0:
