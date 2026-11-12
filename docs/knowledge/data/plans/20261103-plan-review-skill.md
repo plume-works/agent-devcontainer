@@ -8,7 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-rank: 200
+stage: done
+completed: 2026-11-12
 ---
 
 # The iwe-plan-review skill
@@ -18,8 +19,7 @@ rank: 200
 [Ship review](../features/ship-review.md) gives `iwe-ship-reviewer` a plan mode
 that reports whether a plan gives Ship what it needs. The repository owner
 decided that a new skill, `/agentdev:iwe-plan-review`, runs it alongside the
-`Durable Knowledge Auditor` agent on every plan edit. Today step 7 of
-`iwe-planner.agent.md` dispatches only the `Durable Knowledge Auditor` agent.
+`Durable Knowledge Auditor` agent on every plan edit.
 
 ## Approach
 
@@ -30,10 +30,10 @@ else. It returns both reports together and changes nothing. The skill is
 model-invocable so `iwe-planner` can run it.
 
 `iwe-planner` step 7 runs `/agentdev:iwe-plan-review` in place of its direct
-`Durable Knowledge Auditor` dispatch. It applies the auditor's verdicts as
-today, and fixes the plan for each `iwe-ship-reviewer` finding, asking the user
-where a fix is a material choice. Every mode of the rulebook runs it, so the
-Implement session's revisions are reviewed the same way.
+`Durable Knowledge Auditor` dispatch. It applies the auditor's report-only
+verdicts to the draft, and fixes the plan for each `iwe-ship-reviewer` finding,
+asking the user where a fix is a material choice. Every mode of the rulebook
+runs it, so the Implement session's revisions are reviewed the same way.
 
 Rejected: widening the `Durable Knowledge Auditor` agent's rubric to Ship's
 obligations. `iwe-ship-reviewer` has to exist for its ship mode anyway, and one
@@ -43,27 +43,54 @@ rubric in two agents would drift.
 
 ### Task 1: The fan-out skill
 
-**Files:** Create: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`
+**Files:** Create: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`;
+Modify: `.agents/plugins/agentdev/README.md`,
+`.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md`
 
-- [ ] The skill dispatches both agents in parallel with prompts carrying only
+- [x] The skill dispatches both agents in parallel with prompts carrying only
   the plan file and scope, or the plan key and plan mode, and returns both
   reports unchanged.
+  - **Evidence:**
+    `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md#steps`; the
+    skill's row in
+    `.agents/plugins/agentdev/README.md#knowledge-graph-workflow-iwe` and the
+    `iwe-ship-reviewer` frontmatter `description` naming it as a dispatcher;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
 
 ### Task 2: Plan runs the review
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Step 7 runs `/agentdev:iwe-plan-review`, applies the auditor's verdicts,
+- [x] Step 7 runs `/agentdev:iwe-plan-review`, applies the auditor's verdicts,
   and resolves each `iwe-ship-reviewer` finding before step 8.
-- [ ] `iwe-implementer`'s revision step names the review in place of the
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Review the plan from a fresh context.** In both create and"`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
+- [x] `iwe-implementer`'s revision step names the review in place of the
   `Durable Knowledge Auditor` gate.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its `/agentdev:iwe-plan-review` gate and validation, and leave"`.
 
 ### Task 3: A plan edit runs both reviewers
 
-- [ ] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
+**Closed by:** the user, or a session the user directs, running
+`/agentdev:iwe-plan` headless (`claude -p --plugin-dir`) against this branch's
+catalog in a scratch worktree.
+
+- [x] `/agentdev:iwe-plan` creating a scratch plan whose `release` lists a
   pending bug shows both agents dispatched in the transcript, and the plan ends
   with that bug at `stage: planned`.
+  - **Evidence:** observed 2026-11-12 by a session the user directed, in a
+    scratch worktree of this branch at a5dfe5f5, run from its root:
+    `claude -p --plugin-dir "$PWD/.agents/plugins/agentdev" --permission-mode acceptEdits --output-format stream-json --verbose "/agentdev:iwe-plan Create a plan that fixes the bug data/bugs/self-improve-unstageable-routing-option. Its release lists that bug. Decisions, already made so you need not ask: create mode; leave the plan unsequenced (no rank); choose the simplest fix you find and record it as an assumption; do not commit. This is a non-interactive run: where a step would ask the user, make the reasonable assumption, record it in the plan, and continue."`.
+    The transcript shows `agentdev:iwe-plan-review` dispatching
+    `agentdev:Durable Knowledge Auditor` with the plan file and `scope: plan`
+    and `agentdev:iwe-ship-reviewer` with the plan key and `mode: plan` in one
+    message; `data/bugs/self-improve-unstageable-routing-option` ended at
+    `stage: planned`.
 
 ## Spec changes
 
@@ -124,19 +151,22 @@ mode for what Ship will need.
 ### Requirement: Implement verifies its own work and acts on the report
 
 When a plan's last task closes, the Implement session — the session that loaded
-`/agentdev:iwe-implement` — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
-every CRITICAL finding and every WARNING that names a concrete route, reporting
-SUGGESTIONs only. A code or evidence finding SHALL be fixed under the Implement
-rules and verified again, and a finding about the plan's intent SHALL go through
-an evaluated revision. The Implement session SHALL stop when a finding recurs after a
-fix attempt, after three Verify rounds, or after one approved revision in the
-run. No agent the loop dispatches SHALL dispatch another, except the two
-agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
+`/agentdev:iwe-implement` — SHALL run Verify through `/agentdev:iwe-verify` and
+SHALL act on every CRITICAL finding, and on a WARNING only when its fix fits a
+task the plan already has and adds no claim the code must newly meet. It SHALL
+file every other WARNING through `/agentdev:iwe-capture`, report SUGGESTIONs
+only, and SHALL not stop for an outstanding observation. A code or evidence
+finding SHALL be fixed under the Implement rules and verified again, and a
+finding about the plan's intent SHALL go through an evaluated revision. The
+Implement session SHALL stop when a finding recurs after a fix attempt, after
+three Verify rounds, or after one approved revision in the run. No agent the
+loop dispatches SHALL dispatch another; while a revision is drafted, the loop
+may also dispatch the two agents `/agentdev:iwe-plan-review` names.
 
 #### Scenario: Verify finds nothing to act on
 
 - **WHEN** the plan's tasks are closed and Verify reports zero CRITICAL findings
-  and no WARNING with a concrete route
+  and no WARNING whose fix fits an existing task
 - **THEN** the run ends with its rollup and the Verify verdict, and suggests
   `/agentdev:iwe-ship`
 
@@ -145,6 +175,18 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 - **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
 - **THEN** the Implement session fixes it under the Implement rules, closes it
   with evidence, and runs Verify again through `/agentdev:iwe-verify`
+
+#### Scenario: A warning would add work
+
+- **WHEN** Verify reports a WARNING whose fix needs a new task or a new claim
+- **THEN** the Implement session files it through `/agentdev:iwe-capture`, names
+  it in the report, and does not act on it in this run
+
+#### Scenario: An observation is outstanding
+
+- **WHEN** Verify lists an unticked `**Closed by:**` task under Outstanding
+  observations and reports nothing else to act on
+- **THEN** the run ends with its rollup naming the observation
 
 #### Scenario: A finding recurs
 
@@ -170,7 +212,6 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
-- The Task 3 run on a scratch plan.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -183,13 +224,35 @@ agents `/agentdev:iwe-plan-review` dispatches while a revision is drafted.
 
 ## Key references
 
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Audit the plan from a fresh context.** In both create and"`
-  — step 7, Audit the plan from a fresh context
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its Durable Knowledge Auditor gate and validation, and leave"`
-  — the revision step's Durable Knowledge Auditor gate
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps › "Review the plan from a fresh context.** In both create and"`
+  — step 7, Review the plan from a fresh context
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#running-the-loop › "its `/agentdev:iwe-plan-review` gate and validation, and leave"`
+  — the revision step's review gate
 - `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md › "tools: Bash, Read, Grep, Glob, Skill"`
   — `tools:`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-implement-verifies-its-own-work-and-acts-on-the-report`
   — Requirement: Implement verifies its own work and acts on the report;
   `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plans-record-intent-not-the-path-taken-to-it`
   — Requirement: Plans record intent, not the path taken to it
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-12.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship:
+  data/plans/20261103-plan-review-skill
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/iwe-workflow-skills
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-12
+- [x] Every feature in `release` is `stage: implemented` — confirmed:
+  data/features/ship-review
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Ship edited no hub, release page, or `data/log.md` — confirmed

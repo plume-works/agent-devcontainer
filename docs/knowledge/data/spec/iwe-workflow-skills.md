@@ -437,7 +437,8 @@ finding SHALL be fixed under the Implement rules and verified again, and a
 finding about the plan's intent SHALL go through an evaluated revision. The
 Implement session SHALL stop when a finding recurs after a fix attempt, after
 three Verify rounds, or after one approved revision in the run. No agent the
-loop dispatches SHALL dispatch another.
+loop dispatches SHALL dispatch another; while a revision is drafted, the loop
+may also dispatch the two agents `/agentdev:iwe-plan-review` names.
 
 #### Scenario: Verify finds nothing to act on
 
@@ -541,8 +542,10 @@ section. Implement SHALL route a finding that does not change the plan's intent
 to its own document — `data/architecture/`, `data/bugs/`, or `data/backlog/` —
 rather than into the plan's `## Context` or `## Approach`, which state intent
 and remain the Plan skill's to own. Every edit to a plan's intent sections SHALL
-be audited for durable-knowledge residue by a reviewer holding no context beyond
-the audit scope and the plan file, before the edit is validated.
+be reviewed through `/agentdev:iwe-plan-review` before the edit is validated:
+audited for durable-knowledge residue by a reviewer holding no context beyond
+the audit scope and the plan file, and checked by `iwe-ship-reviewer` in plan
+mode for what Ship will need.
 
 #### Scenario: Implementation produces a durable finding
 
@@ -572,6 +575,12 @@ the audit scope and the plan file, before the edit is validated.
   intent sections for durable-knowledge residue, its verdicts are applied, and
   the narrative-sanctioned `## Verification results` and `- **Evidence:**`
   children are left out of that audit
+
+#### Scenario: A plan edit is checked for what Ship needs
+
+- **WHEN** Plan creates or revises a plan and reaches validation
+- **THEN** `iwe-ship-reviewer` in plan mode reports whether the plan gives Ship
+  what it needs, and Plan resolves each finding before validating
 
 ### Requirement: Normal shipping requires a clean independent verification
 
