@@ -107,6 +107,9 @@ rewrites](backlog/resilient-task-evidence.md)
 [Run Verify from the iwe-ship skill, not inside the
 Shipper](backlog/ship-verifies-before-dispatch.md)
 
+[Shrink the knowledge base to an issue tracker and decision
+records](backlog/shrink-knowledge-base-to-issues-and-adrs.md)
+
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 

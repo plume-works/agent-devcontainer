@@ -73,6 +73,15 @@ request](bugs/eval-skips-rereview-after-changes-requested.md)
 [Bug: firewalled Docker Hub pulls fail at the CloudFront
 CDN](bugs/firewall-docker-hub-cloudfront.md)
 
+[Bug: the enabled firewall leaves IPv6 open when ip6tables is
+missing](bugs/firewall-ipv6-open-without-ip6tables.md)
+
+[Bug: the firewall spec misstates the enabled
+policy](bugs/firewall-spec-misstates-enabled-policy.md)
+
+[Bug: wildcard firewall allowlist entries never take
+effect](bugs/firewall-wildcard-allowlist-entries-never-apply.md)
+
 [Fisher install over untracked
 plugins](bugs/fisher-install-over-untracked-plugins.md)
 
@@ -187,6 +196,9 @@ confirmed](bugs/supervisor-client-recovered-before-dependency.md)
 
 [Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing
 says so](bugs/workspace-image-lacks-hook-binaries.md)
+
+[Bug: AGENTDEV_XPRA_PORT does not change the port Xpra listens
+on](bugs/xpra-port-setting-ignored.md)
 
 [Bug: xpra_setup installs Ubuntu's xpra
 3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)
