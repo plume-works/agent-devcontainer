@@ -195,12 +195,6 @@ OpenCode.
   the conversation, or the transcript, shows what it recovered, and writes the
   task only once the user confirms it is the text they approved
 
-#### Scenario: The model tries to start Plan
-
-- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-plan` without a
-  user request
-- **THEN** the harness withholds it
-
 ### Requirement: Plans express spec impact at risk-appropriate fidelity
 
 The Plan skill SHALL record the intended spec impact in the plan's existing
@@ -270,12 +264,6 @@ durable spec its normative outcome or structured delta touches.
 - **THEN** Verify accepts it and judges the implementation against that
   contract, and Ship creates the spec and replaces the key with a link
 
-#### Scenario: A requirement is renamed
-
-- **WHEN** a plan changes a requirement's title
-- **THEN** its delta carries a `REMOVED` entry for the old title and an `ADDED`
-  entry for the new one
-
 #### Scenario: A planned rule already has a home
 
 - **WHEN** a plan's normative outcome or an ADDED or MODIFIED requirement would
@@ -310,16 +298,6 @@ to `stage: pending` when it cancels the plan.
   template consumer sees, and no feature describes it
 - **THEN** Plan hands the feature to Capture, lists its key in `release`, and
   sets the feature to `stage: accepted`
-
-#### Scenario: A plan lists a bug
-
-- **WHEN** Plan files a plan whose `release` lists a bug at `stage: pending`
-- **THEN** Plan sets the bug to `stage: planned`
-
-#### Scenario: A revision drops a bug from a plan
-
-- **WHEN** Plan revises a plan and removes a bug from its `release`
-- **THEN** Plan returns the bug to `stage: pending`
 
 #### Scenario: A milestone aggregator plan is filed
 
@@ -380,24 +358,12 @@ Dev Container or container the agent already runs in, without starting a nested
 Dev Container or CI. A requirement SHALL claim only what its mechanism delivers
 and name each limit of that mechanism Plan knows.
 
-#### Scenario: A plan's work needs CI
-
-- **WHEN** Plan writes a plan whose change is checked by CI
-- **THEN** the plan carries no "CI passes" task or verification step
-
 #### Scenario: Behaviour is visible only after merge
 
 - **WHEN** a requirement can be observed only once the change is on the default
   branch
 - **THEN** Plan writes a task for it carrying a `**Closed by:**` line naming who
   or what closes it
-
-#### Scenario: Behaviour only a live agent session shows
-
-- **WHEN** a requirement can be observed only by driving an agent session
-  through the workflow skills against a live model
-- **THEN** Plan writes an observation task naming who closes it and adds no
-  end-to-end test for it
 
 #### Scenario: A requirement disagrees with the code
 
@@ -412,11 +378,6 @@ and name each limit of that mechanism Plan knows.
   nested Dev Container
 - **THEN** `## Verification` does not list the command; the plan cites a CI job
   that runs it or adds a task carrying a `**Closed by:**` line
-
-#### Scenario: A mechanism has a known limit
-
-- **WHEN** Plan writes a requirement for a mechanism with a limit it knows of
-- **THEN** the requirement names that limit
 
 ### Requirement: Implement starts work on its own branch
 
@@ -435,23 +396,6 @@ that sits below another in the same chain.
   out and every dependency shipped
 - **THEN** it creates branch `iwe/<slug>/iter-<N>-impl`, with `N` from
   iwe-branch-name, from `main` through git-new-branch before executing any task
-
-#### Scenario: Implementation starts on a feature branch
-
-- **WHEN** Implement begins with a branch other than `main` or `master` checked
-  out
-- **THEN** it executes the plan on that branch without creating another
-
-#### Scenario: Dependency in review
-
-- **WHEN** a `## Depends on` plan is not shipped and has an open pull request
-- **THEN** the work branch is created with `--depends-on` for that pull request
-
-#### Scenario: Dependencies in two chains
-
-- **WHEN** two unshipped dependencies have open pull requests in different
-  chains
-- **THEN** the work branch is created with `--depends-on` for both
 
 ### Requirement: Implement stops on a dependency with nothing to build on
 
@@ -604,18 +548,6 @@ claim the code must newly meet.
   the finding does not concern
 - **THEN** the evaluator returns `REJECT` naming the stray hunk
 
-#### Scenario: The evaluator rejects a sharpened promise
-
-- **WHEN** a drafted revision rewrites a requirement into a stricter claim the
-  code must newly meet
-- **THEN** the evaluator returns `REJECT`
-
-#### Scenario: The evaluator sees no conversation
-
-- **WHEN** the Implement session dispatches `iwe-revision-evaluator`
-- **THEN** the prompt holds the plan key and the quoted finding and nothing else
-  from the conversation
-
 #### Scenario: A plan edit is pending when a revision starts
 
 - **WHEN** the plan file carries an uncommitted tactical correction, such as a
@@ -726,14 +658,6 @@ verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
 - **THEN** the skill dispatches `iwe-verifier`, which produces its
   evidence-backed report and stops without invoking Ship or mutating the graph
 
-#### Scenario: The user verifies a plan without an approval
-
-- **WHEN** the user runs `/agentdev:iwe-verify <plan>` and a `## Verification`
-  command reaches beyond the working tree
-- **THEN** the dispatch prompt carries the plan key and nothing else from the
-  conversation, and `iwe-verifier` stops before that command and reports the
-  approval it needs
-
 #### Scenario: The user verifies a plan with an approval
 
 - **WHEN** the user re-runs `/agentdev:iwe-verify <plan>` granting the approval
@@ -773,12 +697,6 @@ verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
   from the catalog the commit holds, and a report was saved on that commit under
   the commit's catalog
 - **THEN** the digests differ and Verify runs in full
-
-#### Scenario: The Implement session invokes Verify
-
-- **WHEN** the Implement session loads `/agentdev:iwe-verify` without the user
-  typing it
-- **THEN** the harness lets the skill load
 
 #### Scenario: The worktree is dirty
 
@@ -823,13 +741,6 @@ report SHALL route each Verify CRITICAL by its ID without restating it, and
 SHALL state in full, with anchored evidence, each blocker Ship found outside
 Verify.
 
-#### Scenario: A session verifies a plan
-
-- **WHEN** the user runs `/agentdev:iwe-verify <plan>` and the verifier returns
-  a report, or the skill finds a saved one
-- **THEN** the session's final message contains that report verbatim, not only
-  its verdict or the saved report's path
-
 #### Scenario: Ship is blocked by Verify
 
 - **WHEN** `iwe-shipper` gets a Verify report with CRITICAL findings
@@ -873,25 +784,6 @@ Outstanding observations rather than as a CRITICAL.
   scenario, task, or verification step of the plan addresses
 - **THEN** it reports no CRITICAL or WARNING for it
 
-#### Scenario: A scenario has only a content test
-
-- **WHEN** the only test for a scenario reads a repository file to check its
-  text
-- **THEN** Verify counts the scenario as uncovered only if a test that runs the
-  behaviour could cover it, and never counts the content test as coverage
-
-#### Scenario: A post-merge observation is unticked
-
-- **WHEN** the plan's only unticked task carries a `**Closed by:**` line
-- **THEN** Verify lists it under Outstanding observations and reports no
-  CRITICAL for it
-
-#### Scenario: A CI job ran on an earlier commit
-
-- **WHEN** a task cites a CI job that exercises behaviour only CI reaches, and
-  the run cited is on an earlier commit than `HEAD`
-- **THEN** Verify accepts the evidence
-
 ### Requirement: Adversarial review runs only when asked
 
 The adversarial review SHALL be defined once, as the catalog agent
@@ -910,19 +802,6 @@ model-invocable, so the Implement session can run that task. The Implement
 session SHALL run it once per plan, after committing every earlier task. In the
 Implement loop, a finding that defeats a plan claim SHALL take the code route,
 and any other finding SHALL be filed through `/agentdev:iwe-capture`.
-
-#### Scenario: A plan task runs the review
-
-- **WHEN** Implement reaches a task that runs
-  `/agentdev:iwe-adversarial-review <plan> code` and the report names a defeated
-  plan claim
-- **THEN** the Implement session fixes it under the Implement rules, and files
-  every finding that names no plan claim
-
-#### Scenario: A person reviews a plan
-
-- **WHEN** the user runs `/agentdev:iwe-adversarial-review <plan> plan`
-- **THEN** the agent reports the plan's weaknesses and changes nothing
 
 #### Scenario: A plan's claims are worth attacking
 
@@ -944,12 +823,6 @@ plan in the plan's `## Depends on` in the checkout's working tree, live or
 archived, through `/agentdev:iwe-branch-name plan-state`, never on another
 branch, and SHALL return a Ship blocker report naming each one that is not
 `stage: done`, making no state change.
-
-#### Scenario: Dependency not shipped
-
-- **WHEN** Ship runs on a plan whose dependency is still active
-- **THEN** it returns a blocker report naming the dependency and leaves the plan
-  active
 
 #### Scenario: Dependency shipped on the same branch
 
@@ -985,13 +858,6 @@ to resume after a partial prior attempt.
   durable spec
 - **THEN** Ship updates the changed behavior while preserving all unaffected
   requirements, scenarios, ordering, and still-accurate explanatory content
-
-#### Scenario: A structured delta agrees with implementation
-
-- **WHEN** Verify confirms that every planned delta operation and post-change
-  scenario agrees with implementation evidence
-- **THEN** Ship intelligently merges that behavior into the durable spec and
-  verifies the complete resulting contract
 
 #### Scenario: Plan intent and implementation disagree
 
@@ -1073,11 +939,6 @@ requirement governs only approvals that another session's message claims.
 - **THEN** the session loads `/agentdev:iwe-implement` and follows the
   `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
 
-#### Scenario: A dispatched Shipper reaches a user decision
-
-- **WHEN** a dispatched `iwe-shipper` reaches a point that needs the user
-- **THEN** it stops without taking that step and reports what it needs.
-
 #### Scenario: Explore hears a partial answer to an open question
 
 - **WHEN** during `/agentdev:iwe-explore` the user answers an open question in a
@@ -1091,18 +952,6 @@ requirement governs only approvals that another session's message claims.
   blocker report Ship returned for it, and validation passes
 - **THEN** Plan dispatches `iwe-shipper` on that plan, whose Verify decides
   whether it ships.
-
-#### Scenario: The model tries to start a gated skill
-
-- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` without a
-  user request
-- **THEN** the harness withholds it.
-
-#### Scenario: The user asks to ship every finished plan
-
-- **WHEN** the user asks for every finished plan to be shipped
-- **THEN** no catalog skill takes them in turn; each plan is shipped by its own
-  `/agentdev:iwe-ship` request.
 
 ### Requirement: Every ship is reviewed against Ship's obligations
 
@@ -1162,12 +1011,6 @@ resolves outside the plugin root.
 - **WHEN** an IWE skill hands work to another IWE skill
 - **THEN** it names the sibling as `/agentdev:iwe-<name>`, which resolves from
   the installed catalog in a consuming project
-
-#### Scenario: A plugin file references a path outside the plugin
-
-- **WHEN** a Markdown file the plugin ships links to a path that resolves
-  outside the plugin root
-- **THEN** `validate_agent_files` reports the reference
 
 ### Requirement: The durable-knowledge audit reads from a fresh context and changes nothing
 
@@ -1245,12 +1088,6 @@ impact, not urgency, and set nothing, `rank` included.
   `SCHEMA.md` derives for it, stamps `sources`, links it from its hub at its
   sorted position, and validates the graph
 
-#### Scenario: A bug fixed in the same change is captured
-
-- **WHEN** Capture is invoked for a bug the same change already fixed, with a
-  `## Fix` describing that fix
-- **THEN** Capture files the bug at `stage: done`
-
 #### Scenario: A required section is missing
 
 - **WHEN** the supplied content lacks any section or field required for its
@@ -1303,11 +1140,6 @@ allowing additional sections. The bug schema SHALL require a `stage` of
   its enum
 - **THEN** `iwe schema validate` fails and names the document
 
-#### Scenario: A bug has no Fix
-
-- **WHEN** a bug document has neither a Potential solution nor a Fix section
-- **THEN** `iwe schema validate` accepts it
-
 ### Requirement: Agents reach the graph through the iwe CLI
 
 Every IWE skill and agent in the catalog SHALL read and write the knowledge
@@ -1315,12 +1147,6 @@ graph through `iwe` commands run from the repository root, and SHALL not assume
 `mcp__iwe__*` tools exist. The repository SHALL register no IWE MCP server, and
 the `dev_tools` role SHALL install `iwe` and `iwes` from the IWE release tarball
 and not `iwec`.
-
-#### Scenario: A skill needs a graph operation
-
-- **WHEN** a catalog skill or agent queries, renames, or validates graph
-  documents
-- **THEN** it runs the `iwe` CLI from the repository root
 
 #### Scenario: The image installs IWE
 
@@ -1364,11 +1190,6 @@ edited only when a member is created, archived, or renamed.
 
 - **WHEN** a hub carries a `##` heading
 - **THEN** `iwe schema validate` fails and names the hub
-
-#### Scenario: A work item changes stage
-
-- **WHEN** a plan, bug, or task moves to another stage while staying live
-- **THEN** only that item's own document changes, and no hub is edited
 
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 

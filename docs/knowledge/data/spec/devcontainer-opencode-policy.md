@@ -62,11 +62,6 @@ keeping those services from starting.
 - **THEN** the configure step patches the higher-precedence JSONC config,
   preserves its setting values, and leaves `opencode.json` unchanged.
 
-#### Scenario: a session changed the policy
-
-- **WHEN** any managed value holds a different value
-- **THEN** the next container start restores the approved value.
-
 #### Scenario: the config repeats a key
 
 - **WHEN** the selected config declares the same key twice

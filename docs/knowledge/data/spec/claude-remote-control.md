@@ -69,23 +69,11 @@ unchanged and writes a message to stderr. A transient failure to reconnect a
 resumed conversation leaves Claude running with Remote Control off; running
 `/remote-control` in the session restores it.
 
-#### Scenario: the Coder agent restarts
-
-- **WHEN** the `coder_script` runs while `claude-remote` is already live
-- **THEN** it leaves the existing session running and creates no additional
-  Claude process.
-
 #### Scenario: the saved login has expired
 
 - **WHEN** the credential file exists but `claude auth status --json` reports
   `loggedIn: false`
 - **THEN** no session is started and the command exits successfully.
-
-#### Scenario: only a setup token is available
-
-- **WHEN** `claude auth status --json` reports `loggedIn: true` with an
-  `authMethod` other than `claude.ai`
-- **THEN** no session is started.
 
 #### Scenario: the operator logs in after the workspace started
 
@@ -100,12 +88,6 @@ resumed conversation leaves Claude running with Remote Control off; running
 - **THEN** Remote Control stays off until the next agent start, or until an
   operator runs the command from a Coder terminal.
 
-#### Scenario: the session starts in a Coder workspace
-
-- **WHEN** the command starts `claude-remote` with `CODER_WORKSPACE_NAME` set
-- **THEN** claude.ai/code lists the Remote Control session under that workspace
-  name.
-
 #### Scenario: the workspace restarts or is rebuilt
 
 - **WHEN** `claude-remote` starts in session mode with a stored conversation ID
@@ -113,29 +95,12 @@ resumed conversation leaves Claude running with Remote Control off; running
 - **THEN** it resumes that conversation, and claude.ai/code shows it under the
   same session URL with its earlier turns.
 
-#### Scenario: the first start in a new volume
-
-- **WHEN** `claude-remote` starts in session mode with no stored conversation ID
-- **THEN** it starts a new conversation and stores its ID.
-
-#### Scenario: the stored conversation cannot be resumed
-
-- **WHEN** resuming the stored conversation exits non-zero
-- **THEN** a new conversation starts under a new ID, and that ID replaces the
-  stored one.
-
 #### Scenario: the operator clears the conversation
 
 - **WHEN** `/clear` runs in `claude-remote` in session mode and the workspace
   then restarts
 - **THEN** the pane resumes the post-clear conversation under the same session
   URL.
-
-#### Scenario: the pin hook receives unusable input
-
-- **WHEN** the pin hook's input is not JSON or has no `session_id`
-- **THEN** the stored ID is unchanged, a message goes to stderr, and the hook
-  exits 0, so the session continues.
 
 ### Requirement: the standalone runtime starts Remote Control when a mode is set
 
@@ -158,39 +123,12 @@ exiting, so the runtime restarts it and, once the recovery budget is exhausted,
 reports degraded naming `remote-control`, or latches failed under strict
 startup.
 
-#### Scenario: the mode is unset
-
-- **WHEN** the standalone runtime starts with `AGENTDEV_CLAUDE_RC_MODE` unset or
-  empty
-- **THEN** no `claude-remote` tmux session exists and `status` names no
-  `remote-control` component.
-
-#### Scenario: the mode is set before any login
-
-- **WHEN** the runtime starts with `AGENTDEV_CLAUDE_RC_MODE=server` and no
-  claude.ai login in the auth volume
-- **THEN** the runtime reports `ready` and `status` says Remote Control is
-  waiting for a claude.ai login.
-
 #### Scenario: the operator logs in after the runtime started
 
 - **WHEN** `/login` completes in a container sharing the auth volume while the
   watcher waits
 - **THEN** `claude-remote` starts in the workspace folder without a container
   restart, and a conversation started from claude.ai/code works there.
-
-#### Scenario: the Remote Control session exits
-
-- **WHEN** the live `claude-remote` session ends while the login holds
-- **THEN** the runtime restarts it, and once the recovery budget is exhausted
-  reports degraded naming `remote-control`, or latches failed under strict
-  startup.
-
-#### Scenario: the mode value is unrecognized in the runtime
-
-- **WHEN** the runtime starts with `AGENTDEV_CLAUDE_RC_MODE=sever`
-- **THEN** it latches a configuration failure naming `AGENTDEV_CLAUDE_RC_MODE`
-  before the bootstrap.
 
 ### Requirement: Claude sessions default to auto mode
 
@@ -227,13 +165,6 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 - **THEN** the session runs
   `claude remote-control --spawn worktree --permission-mode auto` and reaches a
   connected server with no terminal interaction.
-
-#### Scenario: same-dir spawn mode is selected
-
-- **WHEN** the command starts `claude-remote` with
-  `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN=same-dir`
-- **THEN** the session runs
-  `claude remote-control --spawn same-dir --permission-mode auto`.
 
 #### Scenario: a conversation is spawned in worktree mode
 
@@ -275,12 +206,6 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
   `AGENTDEV_CLAUDE_RC_SPAWN` set to a value other than `worktree` or `same-dir`
 - **THEN** it prints the value and the valid options `worktree` and `same-dir`,
   starts no session, and exits non-zero.
-
-#### Scenario: the spawn value is set in session mode
-
-- **WHEN** the command runs in session mode with `AGENTDEV_CLAUDE_RC_SPAWN` set
-  to any value
-- **THEN** it starts the pinned pane exactly as with the variable unset.
 
 #### Scenario: the mode or spawn mode changes while a session is live
 
@@ -328,12 +253,6 @@ The hostname SHALL NOT change the Remote Control session name.
   checkout outside VS Code and Coder
 - **THEN** the hostname is `cli-builder-agent-devcontainer`.
 
-#### Scenario: Compose runs without the initialize command
-
-- **WHEN** `docker compose up` creates the `devcontainer` service with no
-  `CONTAINER_HOSTNAME` in its environment or `.env`
-- **THEN** the hostname is `agentdev`.
-
 #### Scenario: one launcher opens the same checkout twice on one machine
 
 - **WHEN** the same launcher on the same machine creates two containers for
@@ -353,12 +272,6 @@ SHALL carry the Coder user secrets and the agent's git credential helper.
 - **WHEN** the workspace owner has a `GITHUB_TOKEN` env user secret and the
   `coder_script` starts `claude-remote`
 - **THEN** `gh auth status` succeeds from the Remote Control session.
-
-#### Scenario: a default tmux server is already running
-
-- **WHEN** a tmux server is live on the default socket before the command runs
-- **THEN** `claude-remote` starts on its own server and its Claude process
-  receives the command's environment.
 
 ### Requirement: every container pre-approves first-run Claude state
 

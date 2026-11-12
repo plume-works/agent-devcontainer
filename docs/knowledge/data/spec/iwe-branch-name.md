@@ -51,16 +51,6 @@ when those pull requests cannot be read.
   and `iwe/foo/iter-1-impl` exists locally
 - **THEN** the next `impl` name is `iwe/foo/iter-3-impl`
 
-#### Scenario: Iterations run in order across phases
-
-- **WHEN** `iwe/foo/iter-2-impl` was used before
-- **THEN** the next `ship` name is `iwe/foo/iter-3-ship`
-
-#### Scenario: A planning branch takes the first iteration
-
-- **WHEN** `iwe/foo/iter-1-plan` was used before
-- **THEN** the next `impl` name is `iwe/foo/iter-2-impl`
-
 #### Scenario: Names from before the iwe/ shape are not counted
 
 - **WHEN** only `impl/foo/iter-4` exists for plan `foo`

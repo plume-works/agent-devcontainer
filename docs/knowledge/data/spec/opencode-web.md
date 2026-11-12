@@ -42,22 +42,6 @@ unset or empty.
 - **THEN** `opencode serve` runs in the `opencode` session on
   `tmux -L opencode`.
 
-#### Scenario: the agent start runs again
-
-- **WHEN** the `opencode` session is already live
-- **THEN** no second session or server starts.
-
-#### Scenario: the start prints the server's URL
-
-- **WHEN** the command starts or reuses the `opencode` session
-- **THEN** its output carries Coder's port URL for 4096, which opens the web UI
-  through Coder.
-
-#### Scenario: the start runs outside Coder
-
-- **WHEN** `VSCODE_PROXY_URI` is unset
-- **THEN** the printed link is `http://127.0.0.1:4096`.
-
 #### Scenario: the OpenCode start fails
 
 - **WHEN** `agentdev-runtime opencode coder-start` exits non-zero
@@ -78,18 +62,6 @@ the output SHALL name the password file when that file is in use.
 - **WHEN** `OPENCODE_SERVER_PASSWORD` is unset or empty
 - **THEN** the server listens on `127.0.0.1:4096` only, rejects a request
   without the password from the password file, and the output names that file.
-
-#### Scenario: the workspace starts again without a password
-
-- **WHEN** the password file already exists and `OPENCODE_SERVER_PASSWORD` is
-  unset
-- **THEN** the server uses the existing password.
-
-#### Scenario: a password is set
-
-- **WHEN** `OPENCODE_SERVER_PASSWORD` is non-empty
-- **THEN** the server listens on `0.0.0.0:4096` and rejects a request without
-  that password.
 
 ### Requirement: OpenCode logins and chats survive a rebuild
 

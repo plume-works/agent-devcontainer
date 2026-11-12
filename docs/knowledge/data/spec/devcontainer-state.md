@@ -68,11 +68,6 @@ are, with no claim and no sudoers entry.
 - **THEN** the volume is empty and owned by the remapped account, and an
   interactive shell still gets the image's `PATH`
 
-#### Scenario: the checkout belongs to another user
-
-- **WHEN** the host checkout is not writable by the remapped account
-- **THEN** the bootstrap fails, naming the UID and GID the checkout must allow
-
 #### Scenario: the host user is root
 
 - **WHEN** the host user is root, so the account keeps 1000:1000, and the
@@ -107,12 +102,6 @@ account's home. Attach SHALL replace a real uv environment (one holding
 `pyvenv.cfg`) in the workspace folder with the link. The Dev Container SHALL set
 no `UV_PROJECT_ENVIRONMENT`, and its editor settings that take a path SHALL name
 `${workspaceFolder}/.venv/bin/...`.
-
-#### Scenario: the host made an environment in the mounted checkout
-
-- **WHEN** the workspace folder holds a real `.venv` with `pyvenv.cfg` at attach
-- **THEN** attach deletes it and links `.venv` to the checkout's environment
-  under the root
 
 #### Scenario: run outside a Dev Container
 

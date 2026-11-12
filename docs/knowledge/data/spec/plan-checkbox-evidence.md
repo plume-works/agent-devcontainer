@@ -33,16 +33,15 @@ them apart.
 
 Every ticked `- [x]` task under a plan's task section SHALL carry an indented
 `- **Evidence:**` child naming what closed it, specifically enough that a later
-session can repeat the check: for code, a test id (`path::name`) or a command,
-which Verify re-runs against the current tree; for docs or config with no test,
-the file and anchor that changed; for external work, the CI run or the PR that
-closes it, which stands alone. A commit id on its own SHALL NOT count as
-evidence, and neither SHALL residue: raw command stdout transcribed as evidence,
-an ephemeral identifier, or an uncommitted `.tmp/` harness. Plan SHALL specify
-the format, Implement SHALL write the evidence line in the same edit that ticks
-the box and commit it together with the change it describes, and the convention
-SHALL be recorded where every session loads it rather than only where a skill is
-invoked.
+session can repeat the check: for code, a test id (`path::name`) or a command;
+for docs or config with no test, the file and anchor that changed; for external
+work, the CI run or the PR that closes it, which stands alone. A commit id on
+its own SHALL NOT count as evidence, and neither SHALL residue: raw command
+stdout transcribed as evidence, an ephemeral identifier, or an uncommitted
+`.tmp/` harness. Plan SHALL specify the format, Implement SHALL write the
+evidence line in the same edit that ticks the box and commit it together with
+the change it describes, and the convention SHALL be recorded where every
+session loads it rather than only where a skill is invoked.
 
 #### Scenario: A task is completed
 
@@ -85,11 +84,6 @@ invoked.
   substitution is itself the defect and produces bytes indistinguishable from
   verified ticks
 
-#### Scenario: A tick lands in a commit
-
-- **WHEN** a task closes
-- **THEN** its code, the checkbox flip, and its evidence line land in one commit
-
 ### Requirement: Plan tasks are sized so a tick can be honest
 
 The Plan skill SHALL constrain task granularity so that one task is one outcome
@@ -98,12 +92,6 @@ SHALL be split, a task whose evidence is external SHALL stand alone, and a
 checkbox that joins independently observable events SHALL be split into one
 checkbox per event. Plan's coherence check SHALL ask, for every checkbox, which
 single observation closes it.
-
-#### Scenario: A task bundles two outcomes
-
-- **WHEN** a planned task could ever be described as half-done
-- **THEN** Plan splits it, preventing a tick earned by the half done locally
-  from reading as a claim about the half that was not
 
 #### Scenario: A task's evidence is external
 

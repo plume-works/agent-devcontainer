@@ -75,11 +75,6 @@ SHALL warn and do the same. Every job that runs the action SHALL grant
 - **THEN** the filter compares from the commit of the last passing run, so the
   cancelled push's changed paths still match
 
-#### Scenario: the run lookup fails
-
-- **WHEN** the workflow-run lookup fails
-- **THEN** the action logs a warning and compares against the previous push
-
 ## Rationale
 
 ### Paths are filtered from the last passing run

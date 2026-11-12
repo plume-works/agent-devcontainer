@@ -29,13 +29,6 @@ Homebrew itself. It SHALL run the same whether started from a file or piped into
 zsh from its raw URL (`curl -fsSL <raw URL> | zsh`): its commands SHALL read
 standard input from `/dev/null`, never from the pipe that carries the script.
 
-#### Scenario: Piped from its raw URL
-
-- **WHEN** the script is run as `curl -fsSL <raw URL> | zsh`
-- **THEN** no command it runs consumes the rest of the script from standard
-  input
-- **AND** it provisions the host as when run from a file
-
 #### Scenario: Homebrew is missing
 
 - **WHEN** `brew` is not on `PATH`
@@ -71,12 +64,6 @@ before installing anything from it. It SHALL NOT install `iwec`.
 - **THEN** the script exits nonzero
 - **AND** no binary from that archive is installed
 
-#### Scenario: The iwe archive ships an MCP server
-
-- **WHEN** the iwe archive contains `iwe`, `iwes`, and `iwec`
-- **THEN** `iwe` and `iwes` are installed
-- **AND** `iwec` is not
-
 ### Requirement: login shells resolve the provisioned tools first
 
 The script SHALL maintain exactly one marker-delimited block in `~/.zprofile`
@@ -87,12 +74,6 @@ block in `~/.config/fish/conf.d/agentdev.fish`, running `brew shellenv` for fish
 and then `fish_add_path` for `~/.local/bin`. A `$SHELL` other than zsh or fish
 SHALL get no block, so the final check names that shell rather than reporting a
 `PATH` the user's terminal does not have.
-
-#### Scenario: Re-run
-
-- **WHEN** the script runs twice
-- **THEN** `~/.zprofile` holds one marker block
-- **AND** content outside the block is unchanged
 
 #### Scenario: fish is installed
 
@@ -117,12 +98,6 @@ scope in Claude Code. It SHALL NOT install `self-improve`, and SHALL NOT invoke
 
 - **WHEN** the script runs with `--skip-plugins`
 - **THEN** it does not invoke `claude`
-
-#### Scenario: Codex is installed
-
-- **WHEN** `codex` is on `PATH`
-- **THEN** the script installs `agentdev` in Claude Code
-- **AND** it does not invoke `codex`
 
 ### Requirement: the bootstrap verifies its result
 

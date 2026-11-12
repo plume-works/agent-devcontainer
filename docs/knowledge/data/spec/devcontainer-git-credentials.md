@@ -51,11 +51,6 @@ Control.
   starts
 - **THEN** post-start configures `gh` as the github.com helper.
 
-#### Scenario: a helper is already configured
-
-- **WHEN** a git credential helper already matches `https://github.com`
-- **THEN** neither post-start nor `agentdev-runtime coder start` changes it.
-
 #### Scenario: helper setup fails at agent start
 
 - **WHEN** `agentdev-runtime git credential-helper` exits non-zero during
@@ -75,11 +70,6 @@ skipping every script that contains the marker `gh-wrapper`, falling back to
 `/usr/bin/gh`, and SHALL exit 127 with a message on stderr when none is found.
 Under `GH_WRAPPER_ACTIVE`, set by the first wrapper in a process tree, a further
 wrapper SHALL exec the real `gh` without extracting a token.
-
-#### Scenario: a token is already supplied
-
-- **WHEN** `gh` runs with `GH_TOKEN` or `GITHUB_TOKEN` set
-- **THEN** the wrapper execs the real `gh` with that token unchanged
 
 #### Scenario: a credential helper holds a github.com login
 

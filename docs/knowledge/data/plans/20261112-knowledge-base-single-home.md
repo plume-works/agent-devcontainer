@@ -678,10 +678,19 @@ The checks land once Tasks 8 and 9 have moved every document they would fail.
 
 **Files:** Modify: `docs/knowledge/data/spec/*.md`.
 
-- [ ] In every spec, a rule stated in more than one requirement is stated in one
+- [x] In every spec, a rule stated in more than one requirement is stated in one
   and referenced from the others, and a scenario that only restates its
   requirement is removed. `/agentdev:semantic-refactor-audit` reports every
   behaviour the specs stated before the task has exactly one home after it.
+  - **Evidence:** `git diff 85e8c2eb -- docs/knowledge/data/spec` removes 150
+    restating scenarios and merges duplicate rules in ai-review-gate,
+    devcontainer-docker-storage, plan-checkbox-evidence,
+    self-improve-learning-loop, stacked-prs, standalone-opencode-runtime, and
+    template-consumption; every requirement title, `## Rationale` section, and
+    frontmatter is unchanged, and the requirement count stays 261. The audit
+    judged every hunk of that diff against the spec text before it, and each
+    scenario or sentence it found carrying a case nothing else states was
+    restored.
 
 ### Task 12: Remove the migration inputs
 

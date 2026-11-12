@@ -151,12 +151,6 @@ repository's latest and SHALL never replace a release that exists.
   pinned key, or a file whose SHA-256 differs from the signed index
 - **THEN** it publishes nothing and fails
 
-#### Scenario: the newest build is already released
-
-- **WHEN** a `pinned-deps/git/<version>` release exists for the PPA's newest
-  build
-- **THEN** the workflow leaves it unchanged
-
 ### Requirement: image builds read only their declared inputs
 
 The image build context SHALL contain only `ansible.cfg`, `ansible/`, `docker/`,
@@ -168,12 +162,6 @@ inputs it reads, so a change outside a step's inputs SHALL leave that step's
 cached layer valid. `ubuntu-ansible` SHALL carry no per-run labels, so unchanged
 inputs keep its digest. A `clean_build` dispatch or a `[ci:clean_build]` marker
 SHALL build without the layer cache.
-
-#### Scenario: a change outside the image inputs
-
-- **WHEN** an image build runs with the layer cache after a change only to files
-  outside the build context
-- **THEN** every provisioning step is reused from the cache
 
 #### Scenario: a catalog-only change
 
@@ -197,11 +185,6 @@ unless the installed `xpra` is major version 6 or newer.
 
 - **WHEN** the role runs on an image that already holds Ubuntu's xpra 3.x
 - **THEN** the upgrade step replaces it with the Xpra repository's release
-
-#### Scenario: apt resolves Ubuntu's xpra
-
-- **WHEN** the installed `xpra` is older than major version 6
-- **THEN** the build fails
 
 ### Requirement: gh resolves to the image's wrapper
 
@@ -338,13 +321,6 @@ directory that resolves inside the workspace SHALL be refused.
 - **THEN** `agentdev-runtime lifecycle ready` fails naming the hook and its exit
   status
 
-#### Scenario: a direct consumer has no lifecycle scripts
-
-- **WHEN** its descriptor selects the image, mounts, workspace, and editor
-  settings without repository-local agentdev scripts
-- **THEN** managed startup, lifecycle commands, tools, and the staged catalog
-  remain available
-
 #### Scenario: a derived image adds a hook
 
 - **WHEN** it installs an executable hook in a documented phase directory
@@ -374,17 +350,6 @@ metadata or rewrites its `RECORD` passes it.
 - **WHEN** a derived image replaces a file of the installed `agentdev_runtime`
   distribution and the container starts
 - **THEN** the bootstrap fails naming that file and the extension points
-
-#### Scenario: a derived image adds a file to the package
-
-- **WHEN** a derived image adds a file below the installed distribution's
-  package directory
-- **THEN** the bootstrap fails naming the added file
-
-#### Scenario: an unmodified image starts
-
-- **WHEN** the installed distribution matches its `RECORD`
-- **THEN** the bootstrap continues
 
 ### Requirement: the bootstrap trusts an extra CA bundle
 
@@ -504,13 +469,6 @@ the `.venv` of any checkout, in any repository, and remove the rest.
   next attached
 - **THEN** its environment directory is deleted, and no environment a checkout
   of any repository still links to is touched
-
-#### Scenario: a consumer sets no environment root
-
-- **WHEN** a consumer of `agentdev-devcontainer` that sets no
-  `AGENTDEV_VENV_ROOT` attaches to a Python checkout
-- **THEN** the checkout's `.venv` links to its directory under
-  `/home/agent/.local/share/uv/venvs`, on the home volume that holds uv's cache
 
 ### Requirement: full adoption remains supported
 

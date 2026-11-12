@@ -72,12 +72,6 @@ validates a repository that publishes `.agents/plugins/marketplace.json` and
 - **THEN** it requires the Claude marketplace and passes without any Codex
   manifest.
 
-#### Scenario: another repository publishes a Codex catalog
-
-- **WHEN** `validate_agent_files` runs on a repository that publishes
-  `.agents/plugins/marketplace.json` with `.codex-plugin/plugin.json` plugins
-- **THEN** it discovers and validates those plugins.
-
 ## Rationale
 
 ### Claude Code and OpenCode are the only supported harnesses

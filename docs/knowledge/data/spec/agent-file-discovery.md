@@ -87,11 +87,6 @@ SHALL apply no file-level ignore filtering.
   the default excluded-directory set
 - **THEN** discovery omits that file
 
-#### Scenario: A caller supplies a custom excluded-directory set
-
-- **WHEN** a plain-directory walk receives a custom excluded-directory set
-- **THEN** discovery uses that set instead of the default set
-
 ### Requirement: Git failures do not abort discovery
 
 Discovery SHALL continue when git is unavailable, reports that a root is not
@@ -99,11 +94,6 @@ inside a work tree, or cannot classify ignore status for candidate paths. A
 failure to identify a work tree SHALL use plain-directory discovery; a failure
 while classifying candidates inside an identified work tree SHALL treat those
 candidates as not ignored.
-
-#### Scenario: Git cannot identify a work tree
-
-- **WHEN** the work-tree probe fails or reports a non-work-tree root
-- **THEN** discovery falls back to plain-directory discovery
 
 #### Scenario: Git cannot classify ignored candidates
 
@@ -158,11 +148,6 @@ warning and win over `--recommend`.
 - **WHEN** `--recommend` runs on a skill whose frontmatter
   `SkillFrontmatterValidator` rejects at error level
 - **THEN** that issue is not reported and the skill's validity is unchanged
-
-#### Scenario: Both flags are given
-
-- **WHEN** `validate_agent_files` runs with `--recommend` and `--errors-only`
-- **THEN** no warning is reported
 
 ## Rationale
 

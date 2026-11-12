@@ -399,8 +399,9 @@ incompatible bootstrap destinations to explicit reconciliation, and resolve
 collisions with the user. Updates SHALL never invoke bootstrap, SHALL exclude
 publisher data and bootstrap scaffold changes from consumer-memory changes,
 SHALL narrow legacy broad knowledge tracking before checking updates, and SHALL
-preserve the consumed ref until selected updates are applied. Schema changes
-SHALL be reviewed against existing consumer data.
+NOT advance the consumed ref past what was applied, as Requirement: adoption is
+recorded for later updates states. Schema changes SHALL be reviewed against
+existing consumer data.
 
 ### Scenario: knowledge already exists
 
@@ -446,12 +447,6 @@ decision.
   and CI step are removed, each removal is reported, and schema validation
   passes
 
-### Scenario: metadata holds another key
-
-- **WHEN** an `.agent.metadata.json` carries an `iwe-map` key beside another
-  key, such as the root `template-consume` section
-- **THEN** only the `iwe-map` key is removed and the file stays
-
 ### Scenario: a consumer never adopted the map
 
 - **WHEN** update mode finds no codebase-map artifact
@@ -473,12 +468,6 @@ no longer reachable from the container.
   `gateway`
 - **THEN** the file and its `tracked_paths` entry are removed and each removal
   is reported
-
-### Scenario: `.mcp.json` holds another server
-
-- **WHEN** a consumer's `.mcp.json` registers `gateway` beside its own server
-- **THEN** only `gateway` is removed, the file stays, and its `tracked_paths`
-  entry is removed
 
 ### Scenario: the consumer chose to keep the gateway
 

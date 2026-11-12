@@ -169,11 +169,6 @@ and none of the catalog agent's tool limits. On v1 the bridge SHALL NOT register
 its agent under that name; on v2 a field the user's agent leaves unset keeps the
 catalog agent's value.
 
-#### Scenario: the user defines a command with the same name
-
-- **WHEN** the user's config defines a command `agentdev:pr-open`
-- **THEN** OpenCode runs the user's command, not the bridge's.
-
 #### Scenario: the user defines an agent with a catalog agent's name
 
 - **WHEN** the user's config defines an agent `iwe-revision-evaluator` with its

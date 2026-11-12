@@ -99,13 +99,6 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
   unfinished
 - **THEN** the script adds no label and reports `ALREADY_REQUESTED`.
 
-### Scenario: the pull request is blocked
-
-- **WHEN** the pull request carries `block-ai-reviews`, and no accepted review
-  or responder check covers its input
-- **THEN** the script adds `request-ai-review` unless it is already present, and
-  reports `BLOCKED`.
-
 ### Scenario: a blocked pull request that is already reviewed
 
 - **WHEN** the pull request carries `block-ai-reviews`, and an accepted AI

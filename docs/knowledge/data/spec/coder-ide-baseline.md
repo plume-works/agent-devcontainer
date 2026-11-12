@@ -39,11 +39,6 @@ SHALL NOT rely on the template running any other command in it.
 - **THEN** `agentdev-runtime coder start` runs in the Dev Container with the
   Coder user secrets in its environment.
 
-#### Scenario: a new agent-start step
-
-- **WHEN** a setup step must run on every Coder agent start
-- **THEN** it is added to `agentdev-runtime coder start`, not to the template.
-
 ### Requirement: Coder user secrets reach only agent-started processes
 
 Dev Container lifecycle hooks (`postCreateCommand`, `postStartCommand`) run

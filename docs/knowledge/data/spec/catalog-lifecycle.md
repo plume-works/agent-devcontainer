@@ -49,14 +49,6 @@ volume.
   `agentdev:*` skill resolves in Claude Code, and OpenCode loads the staged
   bridge plugin and lists the catalog's skills.
 
-#### Scenario: a devcontainer starts for the first time on a fresh home volume
-
-- **WHEN** the create phase runs, `$AGENTDEV_CATALOG_DIR` exists, and the home
-  volume is empty
-- **THEN** the staged catalog is installed at Claude user scope and into the
-  OpenCode user config on the home volume, and `~/.claude.json` is a regular
-  file holding no image content.
-
 #### Scenario: a devcontainer starts with a catalog already installed on its home volume
 
 - **WHEN** the home volume already holds a prior install and `~/.claude.json`,
@@ -83,12 +75,6 @@ agents, skill, and hook scripts, and its binary and cache in the home. It SHALL
 leave every other entry and file in place, SHALL NOT rewrite a file that holds
 nothing of CBM's, and SHALL NOT fail the create phase over a file it cannot
 read.
-
-#### Scenario: a volume holds a CBM install beside the user's configuration
-
-- **WHEN** the create phase runs on a volume holding CBM's hooks and entries
-  next to the user's own hooks, MCP servers, agents, and instructions
-- **THEN** only CBM's are removed.
 
 #### Scenario: a home holds a CBM entry behind the ~/.claude.json link
 
@@ -126,11 +112,6 @@ contain a complete catalog. A complete catalog SHALL consist of
 - **WHEN** this checkout's catalog changed and attach runs
 - **THEN** all clients resolve the checkout version without an image rebuild.
 
-#### Scenario: a normal consumer attaches
-
-- **WHEN** its repository has no complete agentdev catalog
-- **THEN** attach succeeds without changing the staged catalog registration.
-
 #### Scenario: a checkout with only the Claude manifest and the OpenCode bridge
 
 - **WHEN** the checkout holds `.claude-plugin/marketplace.json` and the OpenCode
@@ -167,14 +148,6 @@ lifecycle commands enabled stay enabled.
   `agentdev:*` skill
 - **THEN** the agent resolves that skill from the pull request's checkout, not
   from the catalog staged in the image.
-
-#### Scenario: a consumer repository has no local settings
-
-- **WHEN** the responder runs in a repository without
-  `.claude/settings.local.json` whose `.claude/settings.json` sets
-  `enabledPlugins`
-- **THEN** the plugins the lifecycle commands enabled in the user's settings
-  stay enabled in the settings handed to `claude-code-action`.
 
 #### Scenario: the create phase runs with pre-commit skipped
 
@@ -244,25 +217,11 @@ repository, `worktree create` SHALL merge the main checkout's local
   `agentdev@wt-<worktree name>` key, and `git status` in the worktree lists no
   file the hook wrote.
 
-#### Scenario: another checkout already registered the marketplace name
-
-- **WHEN** `wt-<worktree name>` is registered from another worktree's
-  `marketplace.local.json` and the hook creates a worktree of the same name
-- **THEN** the hook exits non-zero, leaves the other registration in place, and
-  leaves no worktree or branch of its own behind.
-
 #### Scenario: Claude Code removes a worktree that is already gone
 
 - **WHEN** the worktree directory no longer exists and its `wt-<worktree name>`
   marketplace is registered from it
 - **THEN** `worktree remove` removes the marketplace and exits zero.
-
-#### Scenario: the main checkout allows commands locally
-
-- **WHEN** the main checkout's `.claude/settings.local.json` lists
-  `permissions.allow` rules and the hook creates a worktree
-- **THEN** the worktree's `.claude/settings.local.json` lists those rules
-  alongside any it already had, whether or not the checkout ships a catalog.
 
 #### Scenario: the main checkout's local settings cannot be read
 
@@ -289,12 +248,6 @@ and sessions and the generated OpenCode server password.
 - **THEN** each gets its own catalog install on its own home volume but shares
   the same logged-in Claude credentials on the shared auth volume.
 
-#### Scenario: two host users open Dev Containers on one engine
-
-- **WHEN** their UID/GID pairs differ
-- **THEN** each container mounts its own auth volume and neither reads the
-  other's credentials.
-
 ### Requirement: registering a catalog root replaces earlier registrations
 
 `agentdev-runtime catalog install <root>` SHALL uninstall every plugin the
@@ -308,20 +261,6 @@ any entry for another root's bridge and keeping every other key and plugin. A
 root that ships no Claude manifest or no OpenCode bridge SHALL leave that
 client's registration as it was.
 
-#### Scenario: the catalog publishes a new plugin
-
-- **WHEN** the root's manifest publishes a plugin that was not installed before
-  and the catalog is registered
-- **THEN** that plugin is installed at the requested scope with no change to the
-  runtime.
-
-#### Scenario: the OpenCode config holds another root's bridge
-
-- **WHEN** the OpenCode config lists the bridge of the staged catalog, other
-  plugins, and other keys, and the checkout's catalog is registered
-- **THEN** the config lists the checkout's bridge once, the other plugins and
-  keys are unchanged, and the staged catalog's bridge entry is gone.
-
 ### Requirement: standalone startup selects and reconciles the runtime catalog
 
 Standalone `agentdev-deploy` startup SHALL use a valid checkout-provided
@@ -332,11 +271,6 @@ registration already matching the selected catalog SHALL be left in place
 without rewriting client configuration. A failed reconciliation SHALL mark the
 runtime degraded and SHALL NOT stop OpenCode from starting, unless strict
 startup is selected.
-
-#### Scenario: the project provides the catalog
-
-- **WHEN** the checkout contains the required catalog manifests and bridge
-- **THEN** both clients use that checkout catalog for the container start.
 
 #### Scenario: a catalog is absent or the image is upgraded
 

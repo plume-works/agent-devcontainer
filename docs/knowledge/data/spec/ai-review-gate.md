@@ -165,12 +165,10 @@ therefore leaves the label until the next run in that group takes it, or until
 reviewer request's removal SHALL NOT start a run. The review job SHALL NOT run
 for a `pull_request` event on a draft pull request.
 
-Removing `block-ai-reviews` SHALL start a run in the pull request's concurrency
-group, which takes a waiting `request-ai-review`. Every other label event,
-adding or removing any other label, SHALL NOT run a review and SHALL NOT share
-the pull request's concurrency group, so it never replaces a queued review run.
-Preflight does not run on a fork or bot-authored pull request, so a
-`request-ai-review` label added there is not removed.
+Every other label event, adding or removing any other label, SHALL NOT run a
+review and SHALL NOT share the pull request's concurrency group, so it never
+replaces a queued review run. Preflight does not run on a fork or bot-authored
+pull request, so a `request-ai-review` label added there is not removed.
 
 The workflow SHALL be triggered only by pull request, pull request review, and
 merge group events: a comment, an issue, or a mention of `@claude` SHALL start
@@ -178,11 +176,6 @@ no run, and the workflow SHALL accept no `workflow_dispatch`.
 
 The `ai-review-present` gate SHALL run for every pull request, pull request
 review, and merge group event, every label event included.
-
-### Scenario: a draft is opened
-
-- **WHEN** a pull request is opened as a draft
-- **THEN** no review runs until the pull request is marked ready for review.
 
 ### Scenario: a writer requests a review with the label
 
@@ -210,17 +203,6 @@ review, and merge group event, every label event included.
 - **THEN** preflight fails, no review runs, and the label stays until a run a
   writer starts reviews the pull request.
 
-### Scenario: a writer assigns a pull request
-
-- **WHEN** a writer assigns a reviewed pull request
-- **THEN** no run of the workflow starts.
-
-### Scenario: a reviewer is requested
-
-- **WHEN** a writer requests a reviewer on a pull request, or removes that
-  request
-- **THEN** no run of the workflow starts.
-
 ### Scenario: an unrelated label is added
 
 - **WHEN** a label other than `request-ai-review` is added while a requested
@@ -228,19 +210,14 @@ review, and merge group event, every label event included.
 - **THEN** no review runs for the label, the queued review keeps its place, and
   `ai-review-present` in the label's run reports on the existing reviews.
 
-### Scenario: a writer comments `@claude`
-
-- **WHEN** a writer opens a pull request comment, review comment, or issue with
-  `@claude`
-- **THEN** no run of the workflow starts.
-
 ## Requirement: a pull request can block every AI review
 
 While a pull request carries the `block-ai-reviews` label, no review SHALL run
 for it, whatever event starts the run, an explicit `request-ai-review` included.
 A `request-ai-review` added while the block is on SHALL stay on the pull
-request, and removing `block-ai-reviews` SHALL start a run that reviews it. The
-label SHALL NOT waive the `ai-review-present` gate.
+request, and removing `block-ai-reviews` SHALL start a run in the pull request's
+concurrency group, which takes the waiting `request-ai-review` and reviews it.
+The label SHALL NOT waive the `ai-review-present` gate.
 
 Preflight SHALL read the pull request's labels when it runs, not from the event
 payload. A label added after a run's preflight read them does not apply to that
@@ -264,19 +241,6 @@ ruleset bypass can merge it.
   receives a push
 - **THEN** no review responder runs, and `ai-review-present` passes on the
   existing review.
-
-### Scenario: a writer requests a review on a blocked pull request
-
-- **WHEN** a writer adds `request-ai-review` to a pull request carrying
-  `block-ai-reviews`
-- **THEN** no review runs, and `request-ai-review` stays on the pull request.
-
-### Scenario: the block is lifted with a request waiting
-
-- **WHEN** `block-ai-reviews` is removed from a pull request carrying
-  `request-ai-review`
-- **THEN** a run reviews the pull request, and its review job then removes
-  `request-ai-review`.
 
 ## Requirement: the AI review verdict follows its findings
 

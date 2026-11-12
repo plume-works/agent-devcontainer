@@ -162,12 +162,6 @@ that is set and from `$HOME/.cache/pre-commit` otherwise.
 - **WHEN** a Dev Container is rebuilt on its existing home volume
 - **THEN** pre-commit finds its store where the previous container left it
 
-#### Scenario: a host sets PRE_COMMIT_HOME
-
-- **WHEN** hook installation fails where `PRE_COMMIT_HOME` names another
-  directory
-- **THEN** the failure report prints the log from that directory
-
 ### Requirement: a tool-version change is checked against every file
 
 When the commit range changes `uv.lock`, `pyproject.toml`,
@@ -215,11 +209,6 @@ and the staged change otherwise.
 - **WHEN** `git push` runs the pre-push hooks
 - **THEN** gitleaks scans every commit being pushed.
 
-#### Scenario: a commit
-
-- **WHEN** `git commit` runs the pre-commit hooks
-- **THEN** gitleaks scans the staged change.
-
 #### Scenario: a manual run scans all history
 
 - **WHEN** Primary checks is started by `workflow_dispatch`
@@ -238,11 +227,6 @@ pre-commit passes it, at commit time, over a commit range, and with
 heading, and a plan whose `## Ship review` section differs from the fixed
 structure, and SHALL report every violation with `path:line`.
 
-#### Scenario: a done bug has no Fix
-
-- **WHEN** a commit stages a bug document at `stage: done` with no `## Fix`
-- **THEN** the hook fails and names the document.
-
 #### Scenario: an open bug has no Fix
 
 - **WHEN** a bug document at `stage: pending` or `stage: planned` has no
@@ -254,11 +238,6 @@ structure, and SHALL report every violation with `path:line`.
 - **WHEN** a plan's `## Ship review` misses an item, reorders the items, leaves
   one unticked, or marks the Verify, plan-stage, or hub-edit item `N/A`
 - **THEN** the hook fails and names the line.
-
-#### Scenario: CI checks every file
-
-- **WHEN** CI runs pre-commit with `--all-files`
-- **THEN** the hook checks every bug and plan document.
 
 ## Rationale
 

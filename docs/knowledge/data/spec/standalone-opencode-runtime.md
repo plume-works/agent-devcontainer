@@ -73,12 +73,6 @@ fresh home volume starts empty.
 - **THEN** agent tools, caches, client configuration, and sudo work as that user
   without access to root's private home.
 
-#### Scenario: a fresh home volume is mounted
-
-- **WHEN** the container starts on an empty home volume
-- **THEN** the bootstrap creates the runtime account and the volume receives no
-  file from the image.
-
 #### Scenario: shared ownership is incompatible
 
 - **WHEN** an existing auth volume belongs to another identity
@@ -161,13 +155,14 @@ enabled Remote Control with readiness probes, bounded startup, bounded
 per-service retries/backoff, and orderly termination. It SHALL detect actual
 daemon failure even when the public tool daemonizes, mark dependency outages
 unready, and recover affected clients coherently. OpenCode and D-Bus/keyring
-SHALL be core services; DinD, Xpra, and Remote Control SHALL be optional, and
-OpenCode SHALL NOT wait for Xpra. OpenCode SHALL run as a supervised foreground
-`opencode serve` that keeps `DISPLAY`, not in a tmux session. A core service
-exhausting its budget SHALL latch the runtime failed; an optional one SHALL mark
-it degraded while OpenCode keeps serving. With `AGENTDEV_STRICT_STARTUP=true`,
-every optional failure other than a Docker garbage-collection error SHALL be
-treated as a core failure.
+SHALL be core services; DinD, Xpra, and Remote Control SHALL be optional (Xpra
+launches alongside OpenCode, as Requirement: OpenCode starts on the core path
+states). OpenCode SHALL run as a supervised foreground `opencode serve` that
+keeps `DISPLAY`, not in a tmux session. A core service exhausting its budget
+SHALL latch the runtime failed; an optional one SHALL mark it degraded while
+OpenCode keeps serving. With `AGENTDEV_STRICT_STARTUP=true`, every optional
+failure other than a Docker garbage-collection error SHALL be treated as a core
+failure.
 
 A process exit, or `AGENTDEV_PROBE_FAILURES` consecutive failed probes, SHALL
 count against that service's own budget of `AGENTDEV_RECOVERY_ATTEMPTS`
@@ -194,12 +189,6 @@ default with an explicit disable option.
 - **WHEN** `keyring` exits while `dbus` is running but fails its probe
 - **THEN** the runtime recovers `dbus`, restarts `keyring` through `dbus`'s
   refresh without charging `keyring`'s budget, and does not latch.
-
-#### Scenario: a service crashes during a long phase
-
-- **WHEN** a ready service exits while the `project` one-shot is still running
-- **THEN** the runtime recovers that service without waiting for the phase to
-  finish.
 
 #### Scenario: a core service keeps failing
 
@@ -273,12 +262,6 @@ SHALL latch a configuration failure naming the variable.
 - **THEN** the runtime resumes from the failed component in the same container
   and reports ready on success.
 
-#### Scenario: an operator retries catalog registration
-
-- **WHEN** `config` failed, OpenCode is serving, and the retry of `config`
-  succeeds
-- **THEN** `opencode` is restarted and reads the registered catalog.
-
 #### Scenario: a boolean is spelled literally
 
 - **WHEN** `AGENTDEV_SKIP_XPRA=false` is set
@@ -321,13 +304,6 @@ inferred from a response that does not require the password.
   nonempty `XPRA_PASSWORD`
 - **THEN** it latches failed before the bootstrap, naming `XPRA_PASSWORD` and
   `AGENTDEV_SKIP_XPRA=1`, without restarting the container.
-
-#### Scenario: a peer on the proxy network connects to Xpra directly
-
-- **WHEN** another container on the proxy network opens an Xpra session on port
-  14500
-- **THEN** the session is refused without the correct `XPRA_PASSWORD` and
-  accepted with it.
 
 #### Scenario: proxy requests reach the runtime
 

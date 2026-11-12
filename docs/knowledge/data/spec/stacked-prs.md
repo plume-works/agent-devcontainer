@@ -60,24 +60,12 @@ stack. Another branch's history SHALL be brought in with a merge.
 `git-new-branch --depends-on <P>`, repeatable, SHALL require every named pull
 request to be open and its head to be a branch of the remote, SHALL cut the
 branch from the first one's head branch and merge the others' heads, SHALL add
-an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push
-without force.
-
-#### Scenario: One open predecessor
-
-- **WHEN** `git-new-branch <name> --depends-on <P>` runs and P is open
-- **THEN** the branch starts at P's head with a `Depends-on: #<P>` commit and is
-  pushed
+an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push.
 
 #### Scenario: Predecessor without an open pull request
 
 - **WHEN** a named pull request is not open
 - **THEN** it stops before creating a branch
-
-#### Scenario: Two predecessors
-
-- **WHEN** `--depends-on` names two open pull requests
-- **THEN** the branch contains both heads and one trailer line for each
 
 #### Scenario: Predecessor in a fork
 
@@ -93,13 +81,6 @@ request's base to the unmerged predecessor's head branch, or `main` when none is
 unmerged, SHALL write its first `## Depends on` section with one `- #<P>` entry
 per dependency in merge order, and SHALL open the pull request ready for review
 unless the user asks for a draft.
-
-#### Scenario: Open predecessor
-
-- **WHEN** pr-open creates the pull request of a branch depending on open P
-- **THEN** its base is P's head branch and its body lists `- #<P>` under
-  `## Depends on`
-- **AND** the pull request is not a draft
 
 #### Scenario: Two unmerged dependencies
 
@@ -119,11 +100,6 @@ cannot find or edit.
 - **WHEN** a pull request whose section carries a merge record is synced
 - **THEN** the new body carries the same section
 
-#### Scenario: Unparseable section
-
-- **WHEN** a candidate body's `## Depends on` section cannot be parsed
-- **THEN** the body is not applied
-
 ### Requirement: pr-restack-all restacks a chain with merges
 
 pr-restack-all SHALL take a top pull request or a branch. For a pull request it
@@ -141,25 +117,16 @@ branch; when P is merged and P's merge commit is already in the branch, do
 nothing; when P is merged otherwise, take HEAD as P's `headRefOid` and MERGE as
 P's `mergeCommit.oid`, require `refs/pull/<P>/head` to equal HEAD, merge MERGE
 into a detached copy of HEAD, and merge that copy into the branch; when P is
-closed unmerged, stop. It SHALL push without force and, after the push lands,
-replace the `- #<P>` entry with
-`- #<P> — merged as <MERGE> (head <HEAD>), reconnected`, keeping every other
-byte of the body. It SHALL NOT merge `main` and SHALL stop on a merge conflict,
-printing the worktree path.
+closed unmerged, stop. It SHALL push and, after the push lands, replace the
+`- #<P>` entry with `- #<P> — merged as <MERGE> (head <HEAD>), reconnected`,
+keeping every other byte of the body. It SHALL NOT merge `main` and SHALL stop
+on a merge conflict, printing the worktree path.
 
 #### Scenario: Predecessor open
 
 - **WHEN** a pull request's predecessor is open
 - **THEN** the predecessor's head branch is merged in and pushed, and no record
   is written
-
-#### Scenario: Predecessor merged
-
-- **WHEN** a pull request's predecessor was squash-merged and its merge commit
-  is not in the branch
-- **THEN** the merge commit is merged into a copy of the predecessor's final
-  head, the copy is merged into the branch, the branch is pushed without force,
-  and the entry records the merge commit and head
 
 #### Scenario: Two predecessors already merged
 
@@ -177,12 +144,6 @@ printing the worktree path.
 - **WHEN** pr-restack-all runs on a branch whose trailers name one merged and
   one open pull request
 - **THEN** the merged one is reconnected and the branch is pushed
-
-#### Scenario: Trailer inherited from a predecessor
-
-- **WHEN** pr-restack-all runs on a branch cut from P's branch, which itself
-  carries a `Depends-on: #<O>` trailer
-- **THEN** only P is treated as the branch's dependency
 
 #### Scenario: Local branches
 
@@ -217,12 +178,6 @@ then restack the rest with one `pr-restack-all` run of the top.
 
 - **WHEN** pr-merge-stack runs on the top of a chain of three open pull requests
 - **THEN** each merges in order, with a restack after each of the first two
-
-#### Scenario: Next pull request retargeted
-
-- **WHEN** the bottom pull request has merged
-- **THEN** pr-merge-stack reads the next pull request's `baseRefName` and
-  restacks only once it is `main`
 
 ### Requirement: Merges into dependent branches are blocked
 

@@ -73,12 +73,6 @@ the durable-knowledge pass. Only the `light` tier SHALL validate its candidates
 in one batched dispatch; a `full` or self-sized review SHALL validate each
 candidate in its own dispatch.
 
-#### Scenario: a large documentation rewrite
-
-- **WHEN** a pull request rewrites documentation only
-- **THEN** the review still runs the metadata gate and the durable-knowledge
-  pass at whatever tier it sizes itself to.
-
 #### Scenario: a review at full effort
 
 - **WHEN** the review sizes itself to `full`

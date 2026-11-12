@@ -92,23 +92,6 @@ SHALL count as a failure only when the daemon still does not answer.
 - **THEN** resume removes the pid file, starts `dockerd`, and returns once
   `docker info` succeeds
 
-#### Scenario: the started daemon exits once it answers
-
-- **WHEN** the `dockerd` resume started has exited by the time resume checks it,
-  and `docker info` succeeds
-- **THEN** resume counts the daemon as started and does not fail
-
-#### Scenario: resume inside a runtime image
-
-- **WHEN** the hook runs where `AGENTDEV_RUNTIME_MODE` is set
-- **THEN** resume does nothing
-
-#### Scenario: run again with everything up
-
-- **WHEN** resume runs while `dockerd` and the relay for the current proxy port
-  are running
-- **THEN** it starts nothing
-
 ### Requirement: containers reach the agent proxy through a fixed relay
 
 When `HTTPS_PROXY` names a loopback proxy `http://127.0.0.1:<port>`, resume

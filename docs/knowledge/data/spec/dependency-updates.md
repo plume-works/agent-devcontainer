@@ -40,12 +40,6 @@ alone. The `ansible role dependency pins` group SHALL move a tool's `dev_tools`
 and macOS bootstrap pins in one pull request, and SHALL automerge once required
 checks pass.
 
-#### Scenario: a checksum-carrying pin is bumped
-
-- **WHEN** Renovate raises a pinned version whose asset carries checksums
-- **THEN** the pull request carries the new version and a checksum for every
-  architecture computed from the new asset.
-
 #### Scenario: an asset cannot be fetched
 
 - **WHEN** any architecture's asset fails to download during the refresh
@@ -114,11 +108,6 @@ one another. Renovate SHALL authenticate with a GitHub App token, never
 - **WHEN** a Renovate run opens or updates a pull request
 - **THEN** the pull request's required workflows run on it, so automerge can
   fire once they pass.
-
-#### Scenario: the bot rewrites the dashboard
-
-- **WHEN** Renovate itself edits the Dependency Dashboard
-- **THEN** no new Renovate run starts.
 
 #### Scenario: a person ticks a dashboard checkbox
 

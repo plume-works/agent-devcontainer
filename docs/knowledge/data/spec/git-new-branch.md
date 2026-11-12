@@ -31,12 +31,6 @@ The git-new-branch skill SHALL fetch the remote, create the branch at
 does not exist), SHALL NOT set the base as the branch's upstream, and SHALL push
 the branch immediately so it tracks `<remote>/<name>`.
 
-#### Scenario: Branch created from main
-
-- **WHEN** the user asks for branch `X` and `origin/main` exists
-- **THEN** `X` points at the just-fetched `origin/main` commit
-- **AND** `X` is pushed and tracks `origin/X`
-
 #### Scenario: The remote has no main
 
 - **WHEN** `origin/main` does not exist after fetching
@@ -114,23 +108,10 @@ checkout lives there and the account can write it, and under the checkout's
 ignored `.worktrees/` directory when not, and SHALL NOT change the current
 checkout.
 
-#### Scenario: Repository outside /workspaces
-
-- **WHEN** the main checkout is not directly under `/workspaces`
-- **THEN** the worktree is created under `<checkout>/.worktrees/` and that
-  directory is ignored by Git
-
 #### Scenario: Deploy runtime
 
 - **WHEN** `AGENTDEV_RUNTIME_MODE` is `deploy`, whether or not the main checkout
   is directly under `/workspaces`
-- **THEN** the worktree is created under `<checkout>/.worktrees/` and that
-  directory is ignored by Git
-
-#### Scenario: An account that cannot write /workspaces
-
-- **WHEN** the main checkout is directly under `/workspaces` and the account
-  cannot write `/workspaces`
 - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
   directory is ignored by Git
 
@@ -155,12 +136,6 @@ branch unmoved.
 - **THEN** the new branch starts at local `main`, the script reports
   `LOCAL_COMMITS=2`, and local `main` points at the fetched `origin/main`
 - **AND** `origin/main` is then merged into the new branch through update-branch
-
-#### Scenario: Local commits on main in worktree mode
-
-- **WHEN** local `main` is ahead of `origin/main` and worktree mode is used
-- **THEN** the worktree branch starts at local `main` and local `main` is not
-  moved
 
 ### Requirement: The git-commit skill never commits on the default branch
 

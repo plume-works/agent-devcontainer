@@ -27,12 +27,6 @@ The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` in the container environment to the
 host's value when it is set, and to `5` otherwise.
 
-#### Scenario: a container starts with no override
-
-- **WHEN** either container starts and the host sets no
-  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
-- **THEN** Claude Code in the container nests subagent dispatch to depth 5.
-
 #### Scenario: the host overrides the depth
 
 - **WHEN** the host, or for the standalone runtime `runtime.env`, sets

@@ -60,11 +60,6 @@ is. When `SELF_IMPROVE_DISABLE` is `1`, every subcommand SHALL exit 0 doing
 nothing. A capture subcommand that raises SHALL record a redacted error class
 and exit 0.
 
-#### Scenario: No usable interpreter
-
-- **WHEN** a hook runs on a machine whose only `python3` is older than 3.12
-- **THEN** `si` exits 0 and the session continues
-
 #### Scenario: The plugin is disabled
 
 - **WHEN** `SELF_IMPROVE_DISABLE=1` is set and any hook fires
@@ -89,12 +84,12 @@ SHALL fail open: a capture that errors, times out, or finds no usable input
 SHALL leave the completed task undisturbed rather than surfacing an error.
 
 `UserPromptSubmit` SHALL record session and prompt identifiers and detect
-correction and retention markers, placing the prompt in a mode-`0600` ephemeral
-turn file only when a review signal requires it. `PostToolUseFailure` SHALL
-record tool category, normalized operation signature, error class, and turn
-identifier — never raw tool output, command secrets, or environment values.
-`PostToolUse` SHALL pair a successful operation with a prior compatible failure
-to produce a `failed_then_succeeded` signal deterministically.
+correction and retention markers, placing the prompt in an ephemeral turn file
+only when a review signal requires it. `PostToolUseFailure` SHALL record tool
+category, normalized operation signature, error class, and turn identifier —
+nothing that Requirement: Durable state is private and carries no raw content
+forbids. `PostToolUse` SHALL pair a successful operation with a prior compatible
+failure to produce a `failed_then_succeeded` signal deterministically.
 
 #### Scenario: A capture hook fails
 
@@ -102,11 +97,6 @@ to produce a `failed_then_succeeded` signal deterministically.
   input
 - **THEN** the hook exits successfully, the completed task is preserved, and
   only a redacted error class is recorded
-
-#### Scenario: A turn carries no review signal
-
-- **WHEN** `UserPromptSubmit` detects no correction or retention marker
-- **THEN** no ephemeral turn file holding the prompt is written
 
 ### Requirement: The Stop hook orchestrates without delaying the response
 
@@ -116,12 +106,6 @@ when `stop_hook_active` is true, while relevant background work or session
 wakeups remain active, and for reviewer-originated or plugin-generated sessions.
 It SHALL run the deterministic gate, invoke the reviewer only when the gate
 passes, and use the `asyncRewake` signal only for a valid candidate.
-
-#### Scenario: The primary task completes
-
-- **WHEN** the main agent finishes responding
-- **THEN** the response returns without waiting for review, and review begins
-  afterwards
 
 #### Scenario: The session is reviewer-originated
 
@@ -219,13 +203,6 @@ Brevity SHALL NOT be grounds for discard: a stated directive is explicit
 evidence even when the user supplies no rationale, and the reviewer SHALL
 propose the behavior stated rather than invent a justification for it.
 
-#### Scenario: A review ends without a candidate
-
-- **WHEN** the reviewer declines, fails transport or schema validation, or its
-  candidate is a suppressed duplicate
-- **THEN** the outcome is journaled with its distinguishing class, so a later
-  investigation need not re-run a check that costs model usage
-
 #### Scenario: A discard carries an unrecognized category
 
 - **WHEN** the reviewer returns a discard whose category is absent or outside
@@ -274,12 +251,6 @@ the importing `CLAUDE.md` or to a rule.
   root, is a symlink
 - **THEN** the mutation is refused before any I/O
 
-#### Scenario: The target is outside the allowlist
-
-- **WHEN** a proposal names `settings.json`, `AGENTS.md`, or an arbitrary source
-  file
-- **THEN** the mutator rejects it
-
 ### Requirement: Mutation is authorized by the user against exact bytes
 
 A candidate SHALL be inert until the user enters an explicit command carrying
@@ -308,12 +279,6 @@ reverse and SHALL NOT overwrite a target that changed independently.
 
 - **WHEN** the target's current hash does not match the proposal preimage
 - **THEN** application is refused and regeneration is required
-
-#### Scenario: Claude invokes the skill rather than the user typing the command
-
-- **WHEN** the apply path is reached without a matching `UserPromptExpansion`
-  slash-command event from the plugin
-- **THEN** no authorization exists and no mutation occurs
 
 ### Requirement: Durable state is private and carries no raw content
 
@@ -344,15 +309,8 @@ and proposed nothing, since the class is all a later investigation has.
 
 When no session is available as review completes, the candidate SHALL be
 retained for explicit retrieval at the next session start, with no mutation. A
-duplicate candidate SHALL be suppressed. A user rejection SHALL invalidate the
-candidate and retain only its fingerprint and reason category. A backup or
-verification failure SHALL NOT claim success.
-
-#### Scenario: The reviewer is unavailable
-
-- **WHEN** the provider returns a rate limit, overload, or unreachable model
-- **THEN** the run stays silent and journals a provider-failure class distinct
-  from a decline
+user rejection SHALL invalidate the candidate and retain only its fingerprint
+and reason category. A backup or verification failure SHALL NOT claim success.
 
 #### Scenario: No session is available to wake
 
@@ -374,18 +332,12 @@ publishes other than exactly one plugin of that name, and the committed
 - **THEN** `self-improve` is installed and enabled in that checkout's local
   scope only, and no tracked file changes
 
-#### Scenario: The image is built
-
-- **WHEN** the image provisions its catalog
-- **THEN** it installs `agentdev` and not `self-improve`
-
 ### Requirement: Live tests are opt-in at collection
 
 The plugin's `tests/conftest.py` SHALL skip, at collection, every test marked
 `smoke` or `pty` unless `SELF_IMPROVE_RUN_LIVE` is set to a value other than
 empty, `0`, `false`, `no`, or `off`, and each skip SHALL name the variable. The
-harness self-check against a fake terminal SHALL run in the ordinary suite. The
-Makefile targets that run live tests SHALL set the variable.
+harness self-check against a fake terminal SHALL run in the ordinary suite.
 
 #### Scenario: A live test is named by path
 

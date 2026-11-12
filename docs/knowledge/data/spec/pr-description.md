@@ -40,12 +40,6 @@ show one item of each kind, each with its child.
 - **THEN** it is a `- [ ]` item under `## Reviewer Handoff` whose
   `**Closed by:**` names that party, never an item under `## Verification`
 
-#### Scenario: a handoff item is closed during review
-
-- **WHEN** the author runs an open handoff check after review feedback
-- **THEN** the item moves to `## Verification` as `- [x]` with the evidence that
-  closed it
-
 ### Requirement: verification states only the residue
 
 `pr-gen-description` SHALL read `.github/workflows/` for what CI runs on the
@@ -53,11 +47,6 @@ branch and SHALL omit from both sections every linter, formatter, image build,
 and test suite CI executes, and any "CI is green" line. It SHALL link a plan
 that carries per-task evidence under `## Related` instead of copying its
 verification list. An empty `## Verification` SHALL be left empty.
-
-#### Scenario: CI covers the whole change
-
-- **WHEN** every check the change needs runs in CI on the branch
-- **THEN** `## Verification` is empty, and nothing is added to fill it
 
 #### Scenario: the change implements a plan
 
@@ -81,12 +70,6 @@ pointer to the skill, with no section heading.
 - **WHEN** a repository's template has its own section headings
 - **THEN** the description follows the skill's section list and the caller is
   told the template was not consulted
-
-#### Scenario: a stub with the marker
-
-- **WHEN** the template holds the marker and no section heading
-- **THEN** the description follows the skill's section list and the template is
-  not mentioned
 
 ## Rationale
 

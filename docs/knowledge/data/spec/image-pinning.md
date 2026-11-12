@@ -56,12 +56,6 @@ Every workflow job that runs in the development runtime SHALL reference the same
 `agentdev-devcontainer` tag and digest as `devcontainer-compose-pins.yml`, and a
 digest update SHALL move every reference in one change.
 
-### Scenario: Renovate bumps the Dev Container digest
-
-- **WHEN** Renovate proposes a new `agentdev-devcontainer` digest
-- **THEN** one pull request changes the Compose pin and every workflow
-  `container.image` reference to that digest.
-
 ### Scenario: a bumped digest is exercised before merge
 
 - **WHEN** a pull request changes the Dev Container digest
@@ -93,11 +87,6 @@ ref.
 - **THEN** every moving tag keeps its previous digest, and only the immutable
   commit tag names the new image family.
 
-### Scenario: an older run is re-run
-
-- **WHEN** an older commit passes after a newer commit was promoted
-- **THEN** moving tags keep the newer image family.
-
 ### Scenario: a moving tag names a commit outside the history
 
 - **WHEN** a moving tag's image carries a revision label naming a commit the
@@ -110,12 +99,6 @@ ref.
   run completes
 - **THEN** that run completes, and the newest waiting run follows it.
 
-### Scenario: a pull request branch is pushed again during a run
-
-- **WHEN** a new commit lands on a pull request's branch while that branch's
-  Primary checks run is in progress
-- **THEN** the older run is cancelled and the new one runs.
-
 ## Requirement: pushes to main build after a cooldown
 
 A Primary checks run started by a push to `main` SHALL wait
@@ -126,13 +109,6 @@ oldest push run since the newest push run that was not cancelled. Pull requests,
 merge groups, tags, and `workflow_dispatch` SHALL NOT wait. When the run history
 cannot be read, the run SHALL wait the full cooldown. The waiting job holds a
 runner for the whole wait.
-
-### Scenario: pushes arrive within the cooldown
-
-- **WHEN** several pushes land on `main`, each within the cooldown of the one
-  before
-- **THEN** every run but the newest ends cancelled before building, and the
-  newest builds once.
 
 ### Scenario: pushes keep arriving past the cap
 
@@ -180,11 +156,6 @@ automerge the update once required checks pass; the release SHALL NOT move off
 - **THEN** it opens one pull request that changes only the digest, the run
   rebuilds and accepts the images from the new base, and the pull request
   automerges when its checks pass
-
-### Scenario: a newer Ubuntu release exists
-
-- **WHEN** a release newer than 24.04 is published
-- **THEN** Renovate proposes no update to the base
 
 ### Scenario: a pull request builds the images
 

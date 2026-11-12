@@ -29,8 +29,9 @@ template's
 ### Requirement: the Dev Container image supervises its nested Docker engine
 
 `agentdev-devcontainer` SHALL run the nested Docker daemon through its managed
-service profile on non-overlay persistent storage and SHALL apply the image's
-BuildKit garbage-collection policy.
+service profile on non-overlay persistent storage, under the BuildKit
+garbage-collection policy that Requirement: the Dev Container engine limits its
+build cache states.
 
 #### Scenario: Docker becomes ready
 
@@ -58,11 +59,6 @@ and the image SHALL install no `openssh-server`.
 - **WHEN** `agentdev-runtime docker run` finds `/var/lib/docker` on `overlayfs`
 - **THEN** it exits non-zero naming the overlay filesystem, and `dockerd` does
   not start.
-
-#### Scenario: the deploy image starts
-
-- **WHEN** the deploy image's supervisor starts
-- **THEN** it runs the same supervised `dockerd` as the Dev Container image.
 
 ### Requirement: the host-side init runs without HOME
 
@@ -104,12 +100,12 @@ Both runtime profiles SHALL supervise a non-core `docker-gc` service after
 `dockerd` that runs `agentdev-runtime docker gc --every`. It SHALL run one pass
 when it starts and another every `AGENTDEV_DOCKER_GC_INTERVAL` seconds, default
 3600\. A pass SHALL remove images no container references that were created more
-than 72 hours ago, then trim the build cache to at most 10 GB, then remove each
-volume that no container references, whose name matches
-`(^|_)dind-var-lib-(docker|containerd)-` or `_agentdev-(cache|cbm|codex)$`, and
-that was created more than 72 hours ago. A pass SHALL NOT remove any other
-volume. A failed step SHALL only warn, the pass SHALL continue with the next
-step, and a pass SHALL always exit successfully.
+than 72 hours ago, then trim the build cache as Requirement: the Dev Container
+engine limits its build cache states, then remove each volume that no container
+references, whose name matches `(^|_)dind-var-lib-(docker|containerd)-` or
+`_agentdev-(cache|cbm|codex)$`, and that was created more than 72 hours ago. A
+pass SHALL NOT remove any other volume. A failed step SHALL only warn, the pass
+SHALL continue with the next step, and a pass SHALL always exit successfully.
 
 #### Scenario: Docker is unavailable
 

@@ -86,12 +86,6 @@ other, with no fetch and no existence check.
   status other than `0` or `2`
 - **THEN** the skill reports `FETCH_FAILED` and merges nothing
 
-#### Scenario: The upstream is a local branch
-
-- **WHEN** `X` tracks a branch of the local repository
-- **THEN** no fetch or existence check runs for it, and it is brought in like a
-  remote upstream before the base is merged
-
 ### Requirement: Each conflicted merge stops the run and a rerun continues
 
 The update-branch skill SHALL stop at the first merge that conflicts, report

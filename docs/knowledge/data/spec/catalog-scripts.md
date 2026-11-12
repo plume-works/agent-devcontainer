@@ -36,11 +36,6 @@ plugin's shared `bin/` modules, and modules beside it in its own `agent-code/`.
 It SHALL depend on nothing installed for it beyond `python3` and the external
 tools it drives, such as `git` and `gh`.
 
-#### Scenario: a script runs from a consuming repository's plugin cache
-
-- **WHEN** a skill script runs on a host where no project environment exists
-- **THEN** every import resolves from the standard library or the plugin itself
-
 #### Scenario: a script needs a third-party parser
 
 - **WHEN** a script needs a capability only a third-party package offers
@@ -61,12 +56,6 @@ NOT import a sibling skill's code.
 - **WHEN** a skill script runs from the plugin cache rather than this checkout
 - **THEN** it imports `result_codes` and `skill_common` from the cache's own
   `bin/`
-
-#### Scenario: two skills need the same helper
-
-- **WHEN** a second skill needs code one skill's `agent-code/` holds
-- **THEN** the code moves to `bin/`, and neither skill imports from the other's
-  directory
 
 ### Requirement: a skill names its bundled code relative to its own directory
 
@@ -102,11 +91,6 @@ It is a user-run command, not a skill script, and SHALL NOT follow the `RESULT=`
 contract. The `shellcheck` pre-commit hook SHALL exclude it. Its behaviour
 belongs to `macos-native-bootstrap`.
 
-#### Scenario: the pre-commit shellcheck hook runs on the catalog
-
-- **WHEN** the `shellcheck` hook runs over every file
-- **THEN** it does not check `bin/macos-bootstrap.zsh`
-
 ### Requirement: the Python lint check finds ruff without installing anything
 
 `bin/python_lint_check.py` SHALL run ruff's format check and then its lint check
@@ -121,11 +105,6 @@ It SHALL never sync or install a package.
 - **WHEN** the check runs in a repository whose uv project provides ruff
 - **THEN** it runs that ruff through `uv run --no-sync`, and changes no
   installed package even when `pyproject.toml` has unsynced edits
-
-#### Scenario: no ruff anywhere
-
-- **WHEN** neither uv, an in-tree `.venv`, nor `PATH` provides ruff
-- **THEN** the check exits non-zero and names `uv sync` as the fix
 
 ## Rationale
 

@@ -37,12 +37,6 @@ the CLI and the browser together.
 - **THEN** the same pinned Playwright release and matching Chromium capability
   are present and a headless browser launch succeeds.
 
-#### Scenario: the Playwright pin is updated
-
-- **WHEN** the image is built with a new Playwright version
-- **THEN** the image carries that CLI version and the Chromium release it
-  matches.
-
 ### Requirement: project Playwright dependencies remain project-owned
 
 The bundled browser capability SHALL NOT claim compatibility with a consumer

@@ -78,7 +78,7 @@ code comments, or PR bodies; those rest on the catalog's instructions.
 
 The same script SHALL resolve every anchor under `## Key references` in a plan
 without `stage`, and every anchor in a bug or backlog item at `stage: pending`
-or `stage: planned` and in every `architecture/` document, against the current
+or `stage: planned` and in every `guides/` document, against the current
 checkout, and SHALL fail naming each anchor that does not resolve. A Python
 symbol resolves through its syntax tree; a symbol in any other language resolves
 when each dotted segment occurs as a whole word in order, so a symbol moved into
@@ -88,22 +88,10 @@ are not resolved.
 
 #### Scenario: A refactor renames an anchored function
 
-- **WHEN** a commit renames a function an active plan's `## Key references` or
-  an `architecture/` document anchors
+- **WHEN** a commit renames a function an active plan's `## Key references` or a
+  `guides/` document anchors
 - **THEN** the hook fails naming the document and the anchor, until the anchor
   is updated
-
-#### Scenario: A plan names code it will create
-
-- **WHEN** an active plan's task names `scripts/new.py::main`, which does not
-  exist yet
-- **THEN** the resolver does not check it, because it is outside
-  `## Key references`
-
-#### Scenario: A shipped plan names deleted code
-
-- **WHEN** a plan with `stage: done` anchors a file that has since been deleted
-- **THEN** the resolver does not check it
 
 ## Rationale
 

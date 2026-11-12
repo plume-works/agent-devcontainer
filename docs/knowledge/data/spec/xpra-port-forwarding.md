@@ -15,12 +15,6 @@ sources:
 `agentdev-runtime xpra` SHALL use TCP port 14500 by default, independently of
 `DEVCONTAINER_ID`, and SHALL honor an explicit `--port` argument.
 
-### Scenario: default startup
-
-- **WHEN** Xpra starts without `--port`, with `DEVCONTAINER_ID` either unset or
-  set
-- **THEN** it listens on container port 14500.
-
 ### Scenario: explicit override
 
 - **WHEN** Xpra starts with `--port 14600` and `DEVCONTAINER_ID` is set
