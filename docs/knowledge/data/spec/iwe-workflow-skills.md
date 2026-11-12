@@ -581,24 +581,22 @@ finding. Verify SHALL remain independently invocable and SHALL not edit code or
 project state. Verify's rulebook SHALL be defined once, as the catalog agent
 `iwe-verifier`, and every Verify run SHALL start from a fresh context:
 `/agentdev:iwe-verify` SHALL dispatch `iwe-verifier` with a prompt carrying only
-the plan key or audit mode and the user's approvals quoted verbatim, and
-`iwe-shipper` SHALL follow that rulebook in its own context without dispatching
-an agent. Verify SHALL run a verification command whose effects reach beyond the
-working tree only under a quoted approval that names it, and otherwise SHALL
-stop before it and report the approval it needs.
+the plan key or audit mode and the approvals quoted verbatim, whether the user's
+session or `iwe-shipper` invokes it. Verify SHALL run a verification command
+whose effects reach beyond the working tree only under a quoted approval that
+names it, and otherwise SHALL stop before it and report the approval it needs.
 
 `/agentdev:iwe-verify` SHALL refuse to run on a dirty worktree, SHALL save each
 report whose verdict is `Ready to ship`, `Blocked`, or `Audit` as the one saved
 report for its plan or for audit mode, keyed by the commit it ran on and the
 digest of the active agentdev catalog, and SHALL never save a `Needs decision`
-report. On both routes it SHALL return the saved report, marked as saved and
-without running any check or verification command, when that report's commit is
-`HEAD` and its catalog digest is the active catalog's, unless the user's request
-carries `--fresh`. The saved report SHALL record the request
-`/agentdev:iwe-verify` was invoked with and the prompt the `iwe-verifier`
-rulebook ran under, whether dispatched or followed in place, and neither SHALL
-be part of the key. A verification command that leaves the worktree dirty SHALL
-be a CRITICAL finding.
+report. It SHALL return the saved report, marked as saved and without running
+any check or verification command, when that report's commit is `HEAD` and its
+catalog digest is the active catalog's, unless the user's request carries
+`--fresh`. The saved report SHALL record the request `/agentdev:iwe-verify` was
+invoked with and the prompt `iwe-verifier` was dispatched with, and neither
+SHALL be part of the key. A verification command that leaves the worktree dirty
+SHALL be a CRITICAL finding.
 
 #### Scenario: Verification reports no critical findings
 
@@ -640,11 +638,12 @@ be a CRITICAL finding.
 - **THEN** the dispatch prompt quotes the approval verbatim and leaves the other
   claims out, and `iwe-verifier` runs the approved command
 
-#### Scenario: Ship runs Verify in place
+#### Scenario: Ship dispatches Verify
 
-- **WHEN** `iwe-shipper` reaches its Verify step
-- **THEN** it follows the `iwe-verifier` rulebook in its own context and
-  dispatches no agent
+- **WHEN** `iwe-shipper` reaches its Verify step and no saved report matches
+- **THEN** it runs `/agentdev:iwe-verify`, which dispatches `iwe-verifier` with
+  the plan key and the approvals the Shipper's prompt quotes, and only the
+  report returns to the Shipper
 
 #### Scenario: Ship reuses the Implement loop's report
 
@@ -680,7 +679,7 @@ be a CRITICAL finding.
 
 #### Scenario: The saved report records how Verify was invoked
 
-- **WHEN** Verify saves a report on either route
+- **WHEN** Verify saves a report
 - **THEN** its frontmatter carries the request the skill was invoked with and
   the verifier prompt, verbatim, including every approval the prompt quotes
 
