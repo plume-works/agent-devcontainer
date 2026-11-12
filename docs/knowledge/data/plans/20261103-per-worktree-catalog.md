@@ -10,6 +10,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/claude_state.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py
 - resource: https://code.claude.com/docs/en/hooks
+rank: 400
 ---
 
 # Give each Claude worktree its own agentdev catalog

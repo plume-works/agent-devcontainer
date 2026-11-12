@@ -114,8 +114,6 @@ pins](features/renovate-maintains-checksums.md)
 
 [Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)
 
-[Shared BuildKit builder](features/shared-buildkit-builder.md)
-
 [Ship review](features/ship-review.md)
 
 [Standalone OpenCode container](features/standalone-opencode-container.md)
