@@ -8,7 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-rank: 200
+stage: done
+completed: 2026-11-12
 ---
 
 # The iwe-plan-review skill
