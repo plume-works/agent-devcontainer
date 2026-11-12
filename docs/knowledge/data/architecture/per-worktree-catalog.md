@@ -33,6 +33,11 @@ recorded in [Worktree hooks](worktree-hooks.md).
   write `enabledPlugins` into the main checkout's `.claude/settings.local.json`,
   which every worktree session also reads and which wins over the worktree's
   own, so no worktree could turn the shared catalog off.
+- **A `wt-<name>` belongs to the file that registered it.** Marketplace names
+  are global to the user, so worktrees of the same name in two checkouts would
+  share one. `worktree create` fails rather than take over a `wt-<name>`
+  registered from another worktree's file, and `worktree remove` removes
+  `wt-<name>` only when it is registered from its own worktree's file.
 - **`worktree remove` drops the marketplace first.** It removes `wt-<name>` when
   one is registered, also when the worktree is already gone, before it removes
   the worktree. A failing catalog step in `worktree create` removes what the

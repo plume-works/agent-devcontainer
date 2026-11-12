@@ -150,6 +150,7 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py`
   `wt-<name>` registration it made, and exits non-zero with the reason on stderr
   - **Evidence:**
     `py_packages/agentdev_runtime/tests/test_worktree_catalog_create.py::test_a_failing_install_removes_the_worktree_and_registration`
+    and `::test_a_name_another_worktree_registered_fails_and_is_kept`
 - [x] tests run the subcommand against a made-up repository and catalog, with
   `claude` replaced by a recording stub on `PATH`, covering a plain repository,
   a catalog repository, and a failing install
@@ -165,8 +166,9 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py`
   `wt-<name>` marketplace when one is registered, before it removes the
   worktree, and also when the worktree is already gone
   - **Evidence:**
-    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`
-    and `::test_a_gone_worktree_still_loses_its_marketplace`
+    `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_removing_a_worktree_removes_its_marketplace_first`,
+    `::test_a_gone_worktree_still_loses_its_marketplace`, and
+    `::test_a_same_named_marketplace_of_another_worktree_is_kept`
 - [x] a worktree with no `wt-<name>` marketplace is not an error
   - **Evidence:**
     `py_packages/agentdev_runtime/tests/test_worktree_catalog_remove.py::test_a_worktree_without_a_marketplace_is_removed`

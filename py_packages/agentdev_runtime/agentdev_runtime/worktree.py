@@ -67,6 +67,19 @@ def marketplace(path: Path) -> str:
     return f'wt-{path.name}'
 
 
+def marketplace_file(path: Path) -> Path:
+    return path / '.claude' / 'marketplace.local.json'
+
+
+def registered_file(path: Path) -> str | None:
+    """Return the file ``wt-<name>`` is registered from, or ``None`` when it is not registered."""
+    name = marketplace(path)
+    for entry in catalog.listing('claude', 'plugin', 'marketplace', 'list', '--json'):
+        if isinstance(entry, dict) and entry.get('name') == name:
+            return entry.get('path')
+    return None
+
+
 def main_checkout(repository: str) -> Path:
     common = subprocess.run(
         ['git', '-C', repository, 'rev-parse', '--path-format=absolute', '--git-common-dir'],
@@ -99,7 +112,10 @@ def install_catalog(path: Path) -> None:
     manifest = catalog.read_manifest(path / catalog.CLAUDE_MANIFEST)
     shared, name = manifest['name'], marketplace(path)
     plugins = [plugin['name'] for plugin in manifest.get('plugins') or []]
-    local = path / '.claude' / 'marketplace.local.json'
+    local = marketplace_file(path)
+    owner = registered_file(path)
+    if owner not in (None, str(local)):
+        raise catalog.CatalogError(f'{name} is already registered from {owner}')
     local.parent.mkdir(parents=True, exist_ok=True)
     local.write_text(json.dumps({**manifest, 'name': name}, indent=2) + '\n')
     claude(path, 'plugin', 'marketplace', 'add', str(local))
@@ -114,11 +130,9 @@ def install_catalog(path: Path) -> None:
 
 
 def uninstall_catalog(path: Path) -> None:
-    """Remove the ``wt-<name>`` marketplace, which also uninstalls its plugins."""
-    name = marketplace(path)
-    registered = catalog.listing('claude', 'plugin', 'marketplace', 'list', '--json')
-    if any(isinstance(entry, dict) and entry.get('name') == name for entry in registered):
-        claude('/', 'plugin', 'marketplace', 'remove', name)
+    """Remove this worktree's ``wt-<name>`` marketplace, which also uninstalls its plugins."""
+    if registered_file(path) == str(marketplace_file(path)):
+        claude('/', 'plugin', 'marketplace', 'remove', marketplace(path))
 
 
 def create(text: str) -> int:

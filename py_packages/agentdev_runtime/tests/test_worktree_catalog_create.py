@@ -63,7 +63,7 @@ def test_a_catalog_repository_installs_its_own_catalog(
     local = path / '.claude' / 'marketplace.local.json'
     assert json.loads(local.read_text())['name'] == 'wt-task'
     assert json.loads(local.read_text())['plugins'][0]['source'] == './.agents/plugins/agentdev'
-    assert calls(claude_stub) == [
+    assert calls(claude_stub)[1:] == [
         {'argv': ['plugin', 'marketplace', 'add', str(local)], 'cwd': str(path)},
         {
             'argv': ['plugin', 'install', 'agentdev@wt-task', '--scope', 'local'],
@@ -85,7 +85,9 @@ def test_a_failing_install_removes_the_worktree_and_registration(
 ) -> None:
     repo = make_repository(tmp_path / 'repo', with_catalog=True)
     monkeypatch.setenv('CLAUDE_STUB_FAIL', 'install extra@wt-doomed')
-    Path(os.environ['CLAUDE_STUB_MARKETPLACES']).write_text(json.dumps([{'name': 'wt-doomed'}]))
+    local = repo / '.claude' / 'worktrees' / 'doomed' / '.claude' / 'marketplace.local.json'
+    entry = {'name': 'wt-doomed', 'path': str(local)}
+    Path(os.environ['CLAUDE_STUB_MARKETPLACES']).write_text(json.dumps([entry]))
     result = hook(repo, 'doomed')
     assert result.returncode != 0
     assert result.stdout == ''
@@ -99,3 +101,22 @@ def test_a_failing_install_removes_the_worktree_and_registration(
     )
     assert branches.stdout == ''
     assert calls(claude_stub)[-1]['argv'] == ['plugin', 'marketplace', 'remove', 'wt-doomed']
+
+
+def test_a_name_another_worktree_registered_fails_and_is_kept(
+    tmp_path: Path,
+    claude_stub: Path,
+    make_repository: Callable[..., Path],
+) -> None:
+    repo = make_repository(tmp_path / 'repo', with_catalog=True)
+    other = tmp_path / 'other' / '.claude' / 'worktrees' / 'feature' / '.claude'
+    entry = {'name': 'wt-feature', 'path': str(other / 'marketplace.local.json')}
+    Path(os.environ['CLAUDE_STUB_MARKETPLACES']).write_text(json.dumps([entry]))
+    result = hook(repo, 'feature')
+    assert result.returncode != 0
+    assert f'wt-feature is already registered from {other}' in result.stderr
+    assert not (repo / '.claude' / 'worktrees' / 'feature').exists()
+    assert [call['argv'][:3] for call in calls(claude_stub)] == [
+        ['plugin', 'marketplace', 'list'],
+        ['plugin', 'marketplace', 'list'],
+    ]
