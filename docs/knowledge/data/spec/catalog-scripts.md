@@ -2,6 +2,7 @@
 type: spec
 description: The language and import rules for every script the agentdev catalog ships under bin/ and skills/*/agent-code/ — standard-library-only Python that reaches the shared bin/ modules through a path resolved from its own file, never a sibling skill's code, and bash_quote for every command line handed to a shell — with bin/macos-bootstrap.zsh the one exception.
 sources:
+- resource: .agents/plugins/agentdev/bin/python_lint_check.py
 - resource: .agents/plugins/agentdev/bin/result_codes.py
 - resource: .agents/plugins/agentdev/bin/skill_common.py
 - resource: .agents/plugins/agentdev/bin/pr_restack_all.py
@@ -88,6 +89,26 @@ belongs to `macos-native-bootstrap`.
 
 - **WHEN** the `shellcheck` hook runs over every file
 - **THEN** it does not check `bin/macos-bootstrap.zsh`
+
+### Requirement: the Python lint check finds ruff without installing anything
+
+`bin/python_lint_check.py` SHALL run ruff's format check and then its lint check
+on the targets it is given, or on the repository root when given none. It SHALL
+take ruff from the repository's uv project through `uv run --no-sync`, else from
+an executable `.venv/bin/ruff` in the repository, else from `PATH`, and SHALL
+exit non-zero, telling the user to run `uv sync`, when none of the three has it.
+It SHALL never sync or install a package.
+
+#### Scenario: a uv project carries ruff
+
+- **WHEN** the check runs in a repository whose uv project provides ruff
+- **THEN** it runs that ruff through `uv run --no-sync`, and changes no
+  installed package even when `pyproject.toml` has unsynced edits
+
+#### Scenario: no ruff anywhere
+
+- **WHEN** neither uv, an in-tree `.venv`, nor `PATH` provides ruff
+- **THEN** the check exits non-zero and names `uv sync` as the fix
 
 ## Rationale
 

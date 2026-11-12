@@ -25,6 +25,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Catalog scripts](spec/catalog-scripts.md)
 
+[CI Python environment](spec/ci-python-environment.md)
+
 [CI workflows](spec/ci-workflows.md)
 
 [Claude Remote Control](spec/claude-remote-control.md)
@@ -72,6 +74,8 @@ whenever a plan ships, so this section never drifts from the code.*
 [PR description](spec/pr-description.md)
 
 [PR merge conflicts](spec/pr-merge-conflicts.md)
+
+[PR review](spec/pr-review.md)
 
 [pre-commit gate](spec/pre-commit-gate.md)
 

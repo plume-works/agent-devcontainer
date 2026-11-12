@@ -212,7 +212,11 @@ repeats Verify — runs before merge, and nothing reads a shipped plan's evidenc
 after it. A commit id buys none of those readers anything, while rebase, squash
 merge, and amend rewrite it; a check Verify can re-run lets Verify judge a tick
 the same way every time. With nothing left that must name a commit, a task's
-code, its tick, and its evidence line land in one commit.
+code, its tick, and its evidence line land in one commit. Evidence lines sit
+outside the plan-mode durable-knowledge audit, so Implement and Verify apply its
+residue vocabulary at that surface themselves: transcribed stdout, an ephemeral
+identifier, or an uncommitted `.tmp/` harness names nothing a later session can
+repeat.
 
 Rejected:
 

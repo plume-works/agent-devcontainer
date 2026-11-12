@@ -190,7 +190,12 @@ When the consumer is an Expo app, setup SHALL record `"expo"` in
 the firewall allowlist; `.env.eas-simulator` ignored by git; every `eas.json`
 build profile pinning `bun` to the devcontainer's bun version; and one root
 `AGENTS.md` that keeps the template's content and holds the Expo template's
-`AGENTS.md` body under an `## Expo` section.
+`AGENTS.md` body under an `## Expo` section, followed by a line telling agents
+to run each `npx` command Expo's skills write with `bunx`.
+`.claude/settings.json` SHALL keep `expo@claude-plugins-official` in
+`enabledPlugins`. The guide SHALL require the app to be tracked in the consumer
+repository, never under an ignored path, because EAS archives the project by
+cloning the enclosing repository.
 
 ### Scenario: an Expo app adopts the template
 
@@ -288,11 +293,16 @@ The protocol contract and security model are specified in
 
 Template setup and update SHALL evaluate a consuming repository's existing
 `.github/pull_request_template.md` against the section structure the
-`pr-gen-description` skill generates, proposing a section-by-section mapping for
-the user to confirm. Sections with no equivalent in that structure MAY be
-captured, at the user's choice, as instructions in a consumer-owned
-`.github/pr-description-guidance.md`; capturing SHALL translate a template
-section into a generation instruction rather than copying its heading verbatim.
+`pr-gen-description` skill generates, proposing a section-by-section mapping in
+two buckets — covered and extras — for the user to correct, and SHALL write or
+delete nothing until the user confirms them. The extras SHALL be decided as one
+batch, defaulting to capture, with three outcomes: capture them as instructions
+in a consumer-owned `.github/pr-description-guidance.md` and reduce the template
+to the `<!-- pr-gen-description: no-template -->` stub; drop them all and reduce
+the template to the stub; or keep the template as it is. Capturing SHALL
+translate a template section into a generation instruction rather than copying
+its heading verbatim: the guidance file holds instructions, never section
+headings.
 
 When `.github/pr-description-guidance.md` exists, `pr-gen-description` SHALL
 apply its instructions with precedence over the default generation of its own
@@ -309,6 +319,12 @@ structure from the pull request template itself.
   `.github/pr-description-guidance.md`, the template is reduced to the
   `<!-- pr-gen-description: no-template -->` stub, and later PR-template updates
   preserve the guidance file unless the user explicitly replaces or removes it
+
+#### Scenario: the user keeps the template as it is
+
+- **WHEN** the user chooses to keep a template that has extras
+- **THEN** no guidance file is written, the template is unchanged, and
+  `pr-gen-description` reports it as not consulted on every generation
 
 #### Scenario: guidance may not break the tense split
 

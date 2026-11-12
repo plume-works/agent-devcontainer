@@ -43,6 +43,23 @@ excluded-directory set SHALL NOT be applied in this mode.
   unignored matching file
 - **THEN** discovery omits the ignored file and keeps the unignored file
 
+### Requirement: An explicit file path bypasses the walk
+
+When discovery receives a path to a file rather than a directory, it SHALL
+return that file when its name matches the discovered kind (`SKILL.md`,
+`.agent.md`, or `.prompt.md`) and nothing otherwise, applying neither git ignore
+rules nor directory pruning.
+
+#### Scenario: A caller passes a gitignored matching file
+
+- **WHEN** a caller passes the path of a matching file that git ignores
+- **THEN** discovery returns that file
+
+#### Scenario: A caller passes a file of another kind
+
+- **WHEN** `find_agent_files` receives the path of a `SKILL.md`
+- **THEN** it returns no files
+
 ### Requirement: Git internals are never discovered
 
 Directory discovery SHALL prune `.git/` in both git work trees and plain

@@ -17,6 +17,9 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/git.py
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .claude/.gitignore
+- resource: ansible/roles/agentic_tools/defaults/main.yml
+- resource: .devcontainer/docker-compose.yml
+- resource: py_packages/agentdev_runtime/agentdev_runtime/opencode.py
 ---
 
 # Catalog lifecycle
@@ -29,9 +32,14 @@ The `agentdev` catalog staged at `$AGENTDEV_CATALOG_DIR` SHALL be installed into
 each agent's plugin state during the `agentdev-base` build, at Claude user scope
 and by registering the catalog's OpenCode bridge plugin in the user's OpenCode
 config, so a consumer that runs the image without lifecycle commands resolves
-`agentdev:*` skills. `agentdev-devcontainer`'s create phase SHALL also install
-it into the runtime account's home volume, which starts empty and receives no
-image content. `~/.claude.json` SHALL be a regular file on that volume.
+`agentdev:*` skills. The install step SHALL take the marketplace name from the
+staged `.claude-plugin/marketplace.json` and add the marketplace from the staged
+path, needing no network access and no authentication. `agentdev-base` SHALL
+install OpenCode v2 from the npm package `@opencode/cli` at the version
+`agentic_tools_opencode_version` pins. `agentdev-devcontainer`'s create phase
+SHALL also install it into the runtime account's home volume, which starts empty
+and receives no image content. `~/.claude.json` SHALL be a regular file on that
+volume.
 
 #### Scenario: the image runs with no volumes and no lifecycle hooks
 
@@ -261,7 +269,12 @@ repository, `worktree create` SHALL merge the main checkout's local
 The shared auth volume SHALL hold only Claude's authentication state, mounted at
 `/var/lib/agentdev/auth/<agent>`, and SHALL be named after the host user's UID
 and GID, so only containers whose account has the same IDs share it. All other
-client state SHALL live on each instance's home volume.
+client state SHALL live at its default path on each instance's home volume — in
+the Dev Container the per-instance `agentdev-home-${devcontainerId}` volume the
+image mounts at `/home/agent`. That state includes Claude's configuration,
+sessions, and `~/.claude.json`, OpenCode's configuration, and OpenCode's data
+directory `~/.local/share/opencode`, which holds its database of provider logins
+and sessions and the generated OpenCode server password.
 
 #### Scenario: two worktrees of the same repository are opened as separate devcontainers
 
@@ -274,6 +287,33 @@ client state SHALL live on each instance's home volume.
 - **WHEN** their UID/GID pairs differ
 - **THEN** each container mounts its own auth volume and neither reads the
   other's credentials.
+
+### Requirement: registering a catalog root replaces earlier registrations
+
+`agentdev-runtime catalog install <root>` SHALL uninstall every plugin the
+root's `.claude-plugin/marketplace.json` publishes from the `user`, `project`,
+and `local` scopes, under the manifest's marketplace name and under any
+marketplace already registered from the same root, SHALL remove those
+marketplaces, and SHALL then add the root as a marketplace and install every
+published plugin at the requested scope. It SHALL leave exactly one bridge entry
+in the OpenCode config's `plugin` list, pointing at the root's bridge, replacing
+any entry for another root's bridge and keeping every other key and plugin. A
+root that ships no Claude manifest or no OpenCode bridge SHALL leave that
+client's registration as it was.
+
+#### Scenario: the catalog publishes a new plugin
+
+- **WHEN** the root's manifest publishes a plugin that was not installed before
+  and the catalog is registered
+- **THEN** that plugin is installed at the requested scope with no change to the
+  runtime.
+
+#### Scenario: the OpenCode config holds another root's bridge
+
+- **WHEN** the OpenCode config lists the bridge of the staged catalog, other
+  plugins, and other keys, and the checkout's catalog is registered
+- **THEN** the config lists the checkout's bridge once, the other plugins and
+  keys are unchanged, and the staged catalog's bridge entry is gone.
 
 ### Requirement: standalone startup selects and reconciles the runtime catalog
 
@@ -303,6 +343,19 @@ startup is selected.
 - **THEN** every client's configuration file is byte-identical afterwards.
 
 ## Rationale
+
+### The image installs the catalog, and the create phase installs it again
+
+The catalog is installed during the image build so a consumer that runs the
+image with no volumes and no lifecycle commands resolves `agentdev:*` skills.
+The Dev Container's home volume shadows everything the build wrote into a home,
+so its create phase installs the catalog again.
+
+Rejected:
+
+- **Each raw-image consumer installing the catalog itself.** It duplicates the
+  lifecycle commands' logic and leaves the image carrying a staged catalog that
+  looks installed but is not.
 
 ### CI agent jobs run the lifecycle commands against their checkout
 

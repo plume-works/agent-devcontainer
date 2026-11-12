@@ -21,9 +21,8 @@ sources:
 
 # Standalone OpenCode runtime
 
-The single-project runtime of the `agentdev-deploy` image, for the [Standalone
-OpenCode container](../features/standalone-opencode-container.md) feature.
-[OpenCode web](opencode-web.md), [Devcontainer Git
+The single-project runtime of the `agentdev-deploy` image. [OpenCode
+web](opencode-web.md), [Devcontainer Git
 credentials](devcontainer-git-credentials.md), and [Devcontainer Docker
 storage](devcontainer-docker-storage.md) keep their integration-specific
 requirements; the standalone requirements below do not change Coder's
@@ -334,6 +333,20 @@ inferred from a response that does not require the password.
 - **WHEN** an authorized user accesses the configured proxy routes
 - **THEN** OpenCode API/assets and Xpra HTTP/WebSocket work, and OpenCode
   rejects API requests lacking its password.
+
+### Requirement: the Compose deployment owns per-project volumes and one shared auth volume
+
+`compose.opencode.yml` SHALL create the project's home, Docker, and workspace
+volumes per Compose project, and SHALL mount one agent-auth volume whose name is
+`AGENTDEV_AUTH_VOLUME`, defaulting to `agentdev-opencode-auth`, so every project
+container of one UID/GID cohort shares it.
+
+#### Scenario: two projects are deployed with the default settings
+
+- **WHEN** two Compose projects start from `compose.opencode.yml` without
+  `AGENTDEV_AUTH_VOLUME`
+- **THEN** each gets its own home, Docker, and workspace volumes, and both mount
+  `agentdev-opencode-auth`.
 
 ### Requirement: nested Docker and opt-in firewall retain their policies
 

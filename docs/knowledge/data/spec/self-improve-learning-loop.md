@@ -14,6 +14,7 @@ sources:
 - resource: .agents/plugins/self-improve/selfimprove/config.py
 - resource: .agents/plugins/self-improve/tests/unit/test_no_runtime_deps.py
 - resource: .agents/plugins/self-improve/tests/conftest.py
+- resource: Makefile
 - resource: .claude-plugin/marketplace.json
 - resource: .claude/settings.json
 - resource: ansible/roles/agent_catalog/tasks/stage_catalog.yml
@@ -362,7 +363,8 @@ verification failure SHALL NOT claim success.
 The catalog's Claude marketplace manifest SHALL publish `self-improve` beside
 `agentdev`, and `agentdev-runtime catalog install` SHALL install every plugin
 that manifest publishes. The image build SHALL stage and install only the plugin
-named by `agent_catalog_plugin_name` (`agentdev`), and the committed
+named by `agent_catalog_plugin_name` (`agentdev`), failing when the manifest
+publishes other than exactly one plugin of that name, and the committed
 `.claude/settings.json` SHALL NOT enable `self-improve`.
 
 #### Scenario: A developer reinstalls the catalog
@@ -389,6 +391,27 @@ Makefile targets that run live tests SHALL set the variable.
 - **WHEN** `pytest` is given the path of a `smoke` test and
   `SELF_IMPROVE_RUN_LIVE` is unset or `0`
 - **THEN** the test is skipped and spends no model usage
+
+### Requirement: The root Makefile runs the plugin's checks
+
+The repository-root `Makefile` SHALL provide the live-session targets `smoke`,
+`smoke-auto`, `wake`, `wake-memory`, and `wake-repeat`, each setting
+`SELF_IMPROVE_RUN_LIVE`; `test-harness`, which runs the `harness` marker without
+it; `validate`, which runs `claude plugin validate` on the plugin and on the
+repository root, skipping when no `claude` CLI is on `PATH`; and `check`, which
+runs `test` and `validate`. It SHALL have no formatting or linting target; those
+belong to the pre-commit hooks.
+
+#### Scenario: A developer runs the default checks
+
+- **WHEN** a developer runs `make check`
+- **THEN** the test suite and manifest validation run
+- **AND** no live test spends model usage
+
+#### Scenario: wake-repeat meets a failure
+
+- **WHEN** one of `wake-repeat`'s ten consecutive live runs fails
+- **THEN** the target stops at that run and exits nonzero
 
 ## Rationale
 

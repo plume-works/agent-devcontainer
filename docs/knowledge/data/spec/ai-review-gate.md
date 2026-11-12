@@ -1,6 +1,6 @@
 ---
 type: spec
-description: How the required AI review gate accepts a review, when the responder is allowed to act on a pull request, and how the AI review sizes itself, validates its findings, and picks its verdict.
+description: How the required AI review gate accepts a review, when the responder is allowed to act on a pull request, which identity and skill review it, and how the review's verdict follows its findings.
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -11,7 +11,6 @@ sources:
 - resource: data/plans/20261030-responder-quill-app-identity.md
 - resource: data/plans/20261108-label-review-triggers.md
 - resource: .agents/plugins/agentdev/skills/pr-review/agent-code/post-review.py
-- resource: .claude/settings.json
 ---
 
 # AI review gate
@@ -125,6 +124,20 @@ SHALL forward a requester identity to another, and the responder SHALL NOT pass
 - **WHEN** the actor of a `pull_request` event has a permission other than
   `admin`, `maintain`, or `write`
 - **THEN** preflight fails and no responder job runs.
+
+## Requirement: the review job reviews with the pr-review skill as a submitted review
+
+The review job SHALL run in the `agentdev-devcontainer` image and SHALL prompt
+Claude to review with the fully qualified `agentdev:pr-review` skill, naming the
+built-in `code-review` skill as one not to use. `run-claude-responder` SHALL NOT
+set `claude-code-action`'s `track_progress` input, so the review's findings
+reach the pull request as a submitted pull request review.
+
+### Scenario: the review job reviews a pull request
+
+- **WHEN** the review job runs on a pull request
+- **THEN** Claude reviews it with `agentdev:pr-review`, and its findings appear
+  as a pull request review with inline comments, not as an issue comment.
 
 ## Requirement: a review runs on first push and on explicit request
 
@@ -335,65 +348,6 @@ the App secrets in the `plume-works-review` environment.
 - **THEN** the workflow approves it, while a run `dependabot[bot]` itself
   triggered approves nothing.
 
-## Requirement: every AI review sizes itself
-
-The `pr-review` skill SHALL size each review from the diff it holds, at the
-`light` or `full` effort tier, and nothing SHALL request a tier: no pull request
-body marker, label, or prompt line selects one, and `run-claude-responder` SHALL
-pass Claude no model, so the orchestrator runs on the model the repository's
-`.claude/settings.json` pins. At `full` effort every slot SHALL run on the
-`large` model except compliance and validation; at `light` effort every slot
-SHALL run on the `light` model. Each dispatch SHALL carry the model its slot
-gets. Validation SHALL run on the `light` model at every effort level. Both
-tiers SHALL run the metadata gate and, when the diff holds docs or skills files,
-the durable-knowledge pass. Only the `light` tier SHALL validate its candidates
-in one batched dispatch; a `full` or self-sized review SHALL validate each
-candidate in its own dispatch.
-
-### Scenario: a large documentation rewrite
-
-- **WHEN** a pull request rewrites documentation only
-- **THEN** the review still runs the metadata gate and the durable-knowledge
-  pass at whatever tier it sizes itself to.
-
-### Scenario: a review at full effort
-
-- **WHEN** the review sizes itself to `full`
-- **THEN** it runs two compliance passes on the `light` model, two correctness
-  passes on the `large` model, and one validation dispatch per surviving
-  candidate on the `light` model.
-
-## Requirement: a correctness finding names a reachable scenario
-
-A correctness pass SHALL read, at the head commit, the code the changed lines
-call, the code that calls them, and the code that runs beside them in the same
-lifecycle or workflow. Every correctness candidate SHALL state a **Trigger**, an
-input or state the code can receive at the head commit; a **Path**, an anchor
-chain from the trigger to the fault; and an **Outcome**, the wrong result it
-produces. A candidate with an empty part SHALL be discarded before validation.
-
-The validator SHALL receive a scenario candidate's three parts in place of its
-claim, SHALL judge them as written in trigger, path, outcome order, and SHALL
-return `CONFIRM` only when every part holds, or `DROP` naming the first part
-that does not. A candidate without a scenario SHALL be judged on its claim and
-dropped unless it is clearly a violation. A comment or pull request description
-presenting a behavior as deliberate SHALL NOT by itself refute a reachable wrong
-outcome, and a guarantee the description promises that the code breaks SHALL
-count toward the outcome. The validator SHALL NOT be told which pass raised a
-candidate.
-
-### Scenario: a candidate with no outcome
-
-- **WHEN** a correctness pass reports a candidate with a Trigger and a Path but
-  no Outcome
-- **THEN** the candidate is discarded before validation and never posted.
-
-### Scenario: a false path
-
-- **WHEN** a candidate's Trigger can occur but its Path does not lead to the
-  fault as written
-- **THEN** the validator returns `DROP: path` and the finding is not posted.
-
 ## Rationale
 
 ### The AI review verdict follows severity alone
@@ -497,40 +451,16 @@ Rejected:
   Claude outage, and a pause would still need bypass merges unless it waived the
   gate.
 
-### Every review sizes itself
+### The review is a submitted review from the repository's own skill
 
-The review holds the diff, so it judges its own pass count and models; no caller
-requests a tier. Validation stays on the `light` model because its bar,
-confirming only what the validator re-derives from the files, lives in the
-prompt: a stronger model argues more persuasively for dropping rather than
-judging more accurately, and validation is the only slot whose dispatch count
-scales with findings. Compliance stays `light` because quoting a rule and
-checking the diff against it is instruction-following.
+The required gate counts only a submitted review, and only the agentdev
+`pr-review` skill publishes its findings as one.
 
 Rejected:
 
-- **A requested tier from a body marker, a comment, or a label.** A tier request
-  has to be resolved before the session starts, since a session cannot change
-  its own model, and the review is better placed to size itself than a setting
-  chosen ahead of the diff.
-- **Escalating a `light` review to `full` on a large documentation diff.** It
-  overrules a stated tier and returns the cheap documentation case to full cost.
-- **Failing a `light` review above a documentation-line threshold.** The
-  threshold is a number nobody can source and drifts as the corpus changes.
-- **Dropping the metadata gate and the durable-knowledge pass at `light`.** It
-  makes `light` a weaker review rather than a cheaper one.
-- **Batching validation at `full` effort.** Per-candidate isolation stops a weak
-  finding reading as strong beside strong ones.
-
-### Correctness findings are validated part by part
-
-A correctness finding needs a reachable scenario, and the validator judges its
-three parts as written rather than the claim they support.
-
-Rejected:
-
-- **Give the validator the claim alongside the parts.** It re-derives the claim
-  and confirms candidates whose stated part is false.
-- **Keep the diff-only correctness bar with the part-by-part validator.** The
-  validator acts only on the scenario candidates the reachable-scenario bar
-  produces.
+- **An unqualified "pr-review skill" in the prompt.** It also matches Claude
+  Code's built-in `code-review` skill, whose findings are never posted in a
+  headless run.
+- **Setting `track_progress` for the custom prompt.** It restores tag-mode
+  tracking comments and routes the findings into a regular pull request comment
+  instead of a submitted review.

@@ -90,14 +90,16 @@ For a branch with `Depends-on:` trailers, pr-open SHALL run
 `pr-restack-all <branch>` before creating or updating the pull request, SHALL
 refuse while more than one dependency is unmerged, SHALL set a new pull
 request's base to the unmerged predecessor's head branch, or `main` when none is
-unmerged, and SHALL write its first `## Depends on` section with one `- #<P>`
-entry per dependency in merge order.
+unmerged, SHALL write its first `## Depends on` section with one `- #<P>` entry
+per dependency in merge order, and SHALL open the pull request ready for review
+unless the user asks for a draft.
 
 #### Scenario: Open predecessor
 
 - **WHEN** pr-open creates the pull request of a branch depending on open P
 - **THEN** its base is P's head branch and its body lists `- #<P>` under
   `## Depends on`
+- **AND** the pull request is not a draft
 
 #### Scenario: Two unmerged dependencies
 
@@ -208,12 +210,19 @@ pr-merge SHALL refuse a pull request whose base is not `main` and SHALL NOT pass
 
 pr-merge-stack SHALL take the top pull request and repeat until it has merged:
 find the chain as pr-restack-all does, merge the bottom pull request through
-pr-merge, then restack the rest with one `pr-restack-all` run of the top.
+pr-merge, confirm that GitHub retargeted the next pull request's base to `main`,
+then restack the rest with one `pr-restack-all` run of the top.
 
 #### Scenario: Chain of three
 
 - **WHEN** pr-merge-stack runs on the top of a chain of three open pull requests
 - **THEN** each merges in order, with a restack after each of the first two
+
+#### Scenario: Next pull request retargeted
+
+- **WHEN** the bottom pull request has merged
+- **THEN** pr-merge-stack reads the next pull request's `baseRefName` and
+  restacks only once it is `main`
 
 ### Requirement: Merges into dependent branches are blocked
 

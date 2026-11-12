@@ -15,9 +15,7 @@ sources:
 ## Purpose
 
 `bin/macos-bootstrap.zsh` in the agentdev catalog turns a stock macOS host with
-Homebrew into one that runs agentdev natively, without a devcontainer. See
-[Native macOS bootstrap](../features/macos-native-bootstrap.md) for the
-user-facing feature.
+Homebrew into one that runs agentdev natively, without a devcontainer.
 
 ## Requirements
 
@@ -25,8 +23,18 @@ user-facing feature.
 
 `bin/macos-bootstrap.zsh` SHALL run under macOS's `/bin/zsh`, SHALL refuse any
 OS other than Darwin, and SHALL install through Homebrew `uv`, `jq`, `gh`,
-`shellcheck`, `bun`, `pre-commit`, and the `claude-code` cask. It SHALL NOT
-install Homebrew itself.
+`shellcheck`, `bun`, `pre-commit`, and the `claude-code` cask, at whatever
+version Homebrew currently ships, with no version pinned. It SHALL NOT install
+Homebrew itself. It SHALL run the same whether started from a file or piped into
+zsh from its raw URL (`curl -fsSL <raw URL> | zsh`): its commands SHALL read
+standard input from `/dev/null`, never from the pipe that carries the script.
+
+#### Scenario: Piped from its raw URL
+
+- **WHEN** the script is run as `curl -fsSL <raw URL> | zsh`
+- **THEN** no command it runs consumes the rest of the script from standard
+  input
+- **AND** it provisions the host as when run from a file
 
 #### Scenario: Homebrew is missing
 

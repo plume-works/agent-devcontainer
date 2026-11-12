@@ -36,7 +36,9 @@ Ansible with `docker/ansible/setup-ansible.sh` and run
 `uv sync` and `pre-commit install --install-hooks` for the `pre-commit`,
 `pre-push`, `pre-merge-commit`, and `post-checkout` hook types. It SHALL set the
 standard streams to blocking before each command. A failing step SHALL end the
-script with a nonzero status and run no later step.
+script with a nonzero status and run no later step. Setup SHALL NOT start a
+devcontainer or provision the supervised desktop services, Xpra and the keyring,
+so tools that need them are unavailable in a cloud session.
 
 #### Scenario: setup completes
 
@@ -55,6 +57,21 @@ script with a nonzero status and run no later step.
 - **WHEN** any command the session runs invokes `zizmor`
 - **THEN** it inherits `ZIZMOR_OFFLINE=true` from the user-level Claude Code
   settings and skips the online audits
+
+### Requirement: the cloud instructions describe the host toolchain
+
+`.claude/CLAUDE.cloud.md`, which setup installs as the session's user-level
+instructions, SHALL tell the session that no devcontainer runs; that tools,
+tests, `git commit`, `git push`, and `gh` run directly on the host, with
+`git push` and `gh` authenticating through the session's agent proxy; that only
+short-lived containers are supported; and that `.claude/startup.py resume`
+restores Docker after a worker restart.
+
+#### Scenario: a cloud session commits and pushes
+
+- **WHEN** a cloud session commits and pushes its work
+- **THEN** it runs `git commit` and `git push` on the host, and the git hooks
+  run `pre-commit` from the project environment
 
 ### Requirement: resume restores the host's Docker and relay on a cloud host only
 

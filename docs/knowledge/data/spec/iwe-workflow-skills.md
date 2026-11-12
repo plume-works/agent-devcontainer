@@ -36,6 +36,10 @@ sources:
 - resource: docs/knowledge/tests/test_hub_order.py
 - resource: docs/knowledge/tests/test_rank_and_base_schemas.py
 - resource: .github/workflows/validate-knowledge-base.yml
+- resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md
+- resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
+- resource: py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py
+- resource: AGENTS.md
 ---
 
 # IWE workflow skills
@@ -123,8 +127,11 @@ SHALL keep a created or revised plan coherent across context, approach, tasks,
 spec impact, dependencies, verification, out-of-scope boundaries, and current
 code anchors. Plan SHALL neither start Implement nor name it as a next step.
 When a decision was made as specific text, Plan SHALL reproduce that text
-verbatim in the task that applies it and SHALL never paraphrase it. Plan's entry
-skill `/agentdev:iwe-plan` SHALL be explicit-only on Claude Code and OpenCode.
+verbatim in the task that applies it and SHALL never paraphrase it; when the
+text is not at hand, Plan SHALL recover it from `.tmp/`, the conversation, or
+the transcript and have the user confirm it before writing the task. Plan's
+entry skill `/agentdev:iwe-plan` SHALL be explicit-only on Claude Code and
+OpenCode.
 
 #### Scenario: A plan grows from a GitHub issue
 
@@ -175,6 +182,14 @@ skill `/agentdev:iwe-plan` SHALL be explicit-only on Claude Code and OpenCode.
   consulting `.tmp/approved-wording-<slug>.md` rather than writing it from
   memory, so a session holding only the plan can reproduce the approved bytes
 
+#### Scenario: Approved text is not at hand
+
+- **WHEN** a plan task would apply approved text that Plan cannot find in the
+  conversation or in `.tmp/approved-wording-<slug>.md`
+- **THEN** Plan stops before writing the task, recovers the text from `.tmp/`,
+  the conversation, or the transcript, shows what it recovered, and writes the
+  task only once the user confirms it is the text they approved
+
 #### Scenario: The model tries to start Plan
 
 - **WHEN** a model on Claude Code or OpenCode tries to load `iwe-plan` without a
@@ -185,9 +200,15 @@ skill `/agentdev:iwe-plan` SHALL be explicit-only on Claude Code and OpenCode.
 
 The Plan skill SHALL record the intended spec impact in the plan's existing
 `## Spec changes` section, SHALL scale detail with behavioral risk, and SHALL
-keep that contract coherent when material decisions change. Plan SHALL keep each
-rule of a durable spec in one requirement: before validation it SHALL read in
-full every durable spec its normative outcome or structured delta touches.
+keep that contract coherent when material decisions change. A structured delta
+SHALL sit in a Markdown-tagged fence, so its Requirement and Scenario headings
+stay out of the plan's own hierarchy. `ADDED` and `MODIFIED` SHALL carry the
+complete post-change requirement with every surviving scenario, `REMOVED` SHALL
+name the requirement and why its behavior is retired, and a rename SHALL be a
+removal plus an addition, with no `RENAMED` operation. A spec the plan creates
+SHALL stay a back-ticked key until Ship creates it. Plan SHALL keep each rule of
+a durable spec in one requirement: before validation it SHALL read in full every
+durable spec its normative outcome or structured delta touches.
 
 #### Scenario: A plan has no behavioral change
 
@@ -222,6 +243,33 @@ full every durable spec its normative outcome or structured delta touches.
   spec still describes current released behavior
 - **THEN** Verify evaluates the implementation against the effective contract
   formed by the durable spec and the plan's risk-appropriate spec changes
+
+#### Scenario: The chosen form is too weak for the change
+
+- **WHEN** a plan records `None` or a normative outcome for a change that
+  touches compatibility, acceptance criteria, security/privacy/data-loss
+  behavior, or a requirement's scenario set
+- **THEN** Verify reports a CRITICAL
+
+#### Scenario: A MODIFIED block omits an unaffected scenario
+
+- **WHEN** a MODIFIED requirement leaves out a scenario the change does not
+  affect, and the plan does not name it as a deliberate removal
+- **THEN** Verify reports a CRITICAL, because the merged spec would drop that
+  scenario
+
+#### Scenario: A plan introduces a spec
+
+- **WHEN** a plan's `## Spec changes` names a spec that does not exist yet, in
+  back-ticks, and supplies its planned contract
+- **THEN** Verify accepts it and judges the implementation against that
+  contract, and Ship creates the spec and replaces the key with a link
+
+#### Scenario: A requirement is renamed
+
+- **WHEN** a plan changes a requirement's title
+- **THEN** its delta carries a `REMOVED` entry for the old title and an `ADDED`
+  entry for the new one
 
 #### Scenario: A planned rule already has a home
 
@@ -691,6 +739,11 @@ verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
   without running any check or verification command, and Ship proceeds on its
   verdict
 
+#### Scenario: No report is saved
+
+- **WHEN** no saved report exists for the plan, as in a fresh container
+- **THEN** Verify runs in full and saves its report
+
 #### Scenario: The commit or the catalog changed
 
 - **WHEN** `HEAD` or the active catalog digest differs from the saved report's
@@ -1041,7 +1094,10 @@ in ship mode with the plan key. When it reports gaps, they SHALL dispatch
 `iwe-shipper` with the operation `fix` and the gaps quoted, which SHALL perform
 only those operations without running Verify, and review again, for at most 3
 fix rounds. `iwe-ship-reviewer` SHALL append the `## Ship review` checklist to
-the plan only when every item is `confirmed` or `N/A`.
+the plan only when every item is `confirmed` or `N/A`. The checklist SHALL be
+fixed — no item added, dropped, reordered, or reworded — and its Verify,
+plan-stage, and archive items SHALL never be `N/A`. A plan that already ends
+with a `## Ship review` that holds SHALL keep it unchanged.
 
 #### Scenario: a ship meets every obligation
 
@@ -1060,11 +1116,67 @@ the plan only when every item is `confirmed` or `N/A`.
 - **WHEN** a gap remains after 3 fix rounds
 - **THEN** Ship reports the gap and the plan has no `## Ship review`.
 
+#### Scenario: an always-applicable item has nothing to confirm
+
+- **WHEN** a shipped plan has no saved Verify report, is not `stage: done`, or
+  is not archived
+- **THEN** `iwe-ship-reviewer` reports that item as a gap rather than `N/A` and
+  writes no `## Ship review`.
+
 #### Scenario: a plan is reviewed before implementation
 
 - **WHEN** `iwe-ship-reviewer` runs in plan mode
 - **THEN** it reports whether the plan gives Ship what it needs and changes
   nothing.
+
+### Requirement: The IWE workflow skills ship in the agentdev catalog
+
+The IWE workflow skills SHALL ship from `.agents/plugins/agentdev/skills/iwe-*/`
+and be invoked as `/agentdev:iwe-<name>`, with no copy under `.claude/skills/`.
+A skill SHALL reach a sibling skill by its namespaced invocation and its own
+bundled code as `agent-code/<file>`, never by a repository-relative path, and
+`validate_agent_files` SHALL report every reference inside the plugin that
+resolves outside the plugin root.
+
+#### Scenario: A skill hands off to a sibling
+
+- **WHEN** an IWE skill hands work to another IWE skill
+- **THEN** it names the sibling as `/agentdev:iwe-<name>`, which resolves from
+  the installed catalog in a consuming project
+
+#### Scenario: A plugin file references a path outside the plugin
+
+- **WHEN** a Markdown file the plugin ships links to a path that resolves
+  outside the plugin root
+- **THEN** `validate_agent_files` reports the reference
+
+### Requirement: The durable-knowledge audit reads from a fresh context and changes nothing
+
+The `Durable Knowledge Auditor` agent SHALL take only the file to audit and the
+audit scope as inputs, SHALL hold no `Edit` or `Write` tool, SHALL invoke
+`/agentdev:iwe-audit` as its only rulebook, and SHALL return that skill's report
+verbatim. `/agentdev:iwe-audit` SHALL audit the graph's specs, findings, guides,
+features, and `product.md`, code comments, and outside the graph `README.md`,
+`AGENTS.md`, skill and agent definitions, and docstrings; it SHALL not audit
+`data/bugs/`, `data/releases/`, `data/archive/`, or commit messages. In diff and
+plan scope it SHALL report without editing. Its durable and not-durable
+definitions SHALL match the wording of Best Practice 8 in the repository
+`AGENTS.md`, so the skill states its criteria without a reference outside the
+plugin.
+
+#### Scenario: A plan draft is audited
+
+- **WHEN** a caller dispatches the `Durable Knowledge Auditor` on a plan in plan
+  scope
+- **THEN** it returns the `/agentdev:iwe-audit` report table and the plan file
+  is unchanged
+
+#### Scenario: A commit message reads as a logbook
+
+- **WHEN** `/agentdev:iwe-audit` runs over a change that includes commit
+  messages
+- **THEN** it leaves the commit messages out of the audit, since
+  `/agentdev:git-commit` owns them
 
 ### Requirement: Capture files complete inbox documents
 
@@ -1460,3 +1572,79 @@ Rejected:
   order and leaves independent work unordered.
 - **Hubs generated from frontmatter, not committed.** It drops the browsable
   list and the editor tree and adds a generator to maintain.
+
+### Approved wording is carried in `.tmp/` and inlined in the plan
+
+Approved text is the deliverable, and conversation is not storage, so Explore
+writes it to `.tmp/approved-wording-<slug>.md` at approval time and Plan copies
+it into a fenced block under the task that applies it. `.tmp/` is the scratch
+directory `AGENTS.md` mandates and is gitignored; once a plan absorbs the text,
+the plan is its durable copy. The obligation is split: Explore writes and Plan
+inlines, because approved wording also reaches Plan without Explore. No CI gate
+can see `.tmp/`, so the verbatim check is one a session runs.
+
+Rejected:
+
+- **A `data/drafts/` hub.** The hub set is closed, a drafts hub would be the
+  only one whose members are temporary and would need a deletion lifecycle, and
+  a second copy would drift from the plan.
+- **Carrying approved text across the plan-to-implement and implement-to-ship
+  handoffs.** Those sessions start from the written plan alone, so the plan is
+  already the only channel.
+
+### Plan deltas adopt the notation, not an application engine
+
+A behavior-changing plan carries a reviewable contract before implementation,
+scaled to risk: a delta only where a prose outcome could hide a disagreement.
+The delta is intent inside the one plan document; the durable spec describes
+released behavior until Ship merges it by judgment, accounting for every
+operation. Determinism is not claimed.
+
+Rejected:
+
+- **A delta in every plan.** It taxes refactors and docs-only work with ceremony
+  that resolves nothing.
+- **A separate change bundle, store, or delta file.** A second lifecycle would
+  duplicate the plan's own.
+- **A parser that applies deltas.** Operation order, conflict rules, and
+  postconditions would be machinery for a merge Ship performs by reading.
+- **Reconciling a stale delta from the implementation.** It erases the reviewed
+  contract; a material mismatch returns to Plan revision.
+
+### A CRITICAL blocks Ship with no override
+
+Normal Ship runs Verify itself, so verification is not a step a user can forget,
+and a CRITICAL refuses the ship mechanically. A plan with a CRITICAL stays
+active for fixes, is revised to drop the offending work through Plan's revise
+mode, or is cancelled; a known-false durable claim is never shipped.
+Cancellation is exempt from Verify because it records abandonment, not behavior.
+The gate only blocks defects Verify has a rule for; a defect outside its rules
+passes it.
+
+Rejected:
+
+- **A user override of a CRITICAL.** It would ship a durable claim known to be
+  false.
+- **Cancelling the plan over one undone task.** Out of scale; a revision that
+  drops the task is the proportionate route.
+
+### The durable-knowledge audit is an isolated leaf
+
+Session residue survives because the writer reads its draft through the session
+that produced it, so the audit runs in an agent that never saw the work and
+cannot edit what it reads, and the rule lives in one rulebook, `iwe-audit`.
+Every plan-intent edit funnels through Plan, so one gate there covers create,
+revise, and every route back to revise.
+
+Rejected:
+
+- **A self-audit step inside Plan's own context.** It re-reads the polluted
+  context.
+- **Each caller inlining the rule into a spawned subagent.** The rule drifts at
+  every call site.
+- **Making `## Context` and `## Approach` read-only to Implement.** Genuine
+  intent corrections arrive mid-implementation; the material-deviation route
+  handles them.
+- **Detecting narration mechanically in the plan-shape gate.** Narration has no
+  shape: a length or prose-ratio heuristic fires on long plans and misses a
+  short dense logbook.

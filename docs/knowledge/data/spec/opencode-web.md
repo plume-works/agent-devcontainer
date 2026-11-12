@@ -8,6 +8,8 @@ sources:
 - resource: .devcontainer/devcontainer.json
 - resource: scripts/tests/test_opencode_web_start.py
 - resource: scripts/tests/test_coder_agent_start.py
+- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
+- resource: .devcontainer/docker-compose.yml
 ---
 
 # OpenCode web
@@ -90,9 +92,11 @@ the output SHALL name the password file when that file is in use.
 
 ### Requirement: OpenCode logins and chats survive a rebuild
 
-`~/.local/share/opencode`, which holds OpenCode's provider logins, sessions, and
-the generated server password, SHALL live on the per-instance
-`agentdev-opencode` volume.
+`~/.local/share/opencode`, which holds OpenCode's database of provider logins
+and sessions and the generated server password, SHALL live at that default path
+on the runtime account's per-instance home volume,
+`agentdev-home-${devcontainerId}` mounted at `/home/agent`, and on no volume of
+its own.
 
 #### Scenario: a provider is connected and the container is rebuilt
 

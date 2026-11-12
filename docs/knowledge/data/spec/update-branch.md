@@ -24,7 +24,9 @@ The update-branch skill SHALL bring the commits of the current branch's
 configured upstream into the branch before it merges the base ref — by
 fast-forward when the branch is only behind the upstream, by a merge commit when
 they diverged — and SHALL NOT rebase, reset, or force-push to do so. It SHALL
-decide whether the branch is already up to date only after that sync.
+decide whether the branch is already up to date only after that sync. When the
+upstream branch no longer exists on its remote, it SHALL warn, merge the base,
+and let its push recreate the remote branch.
 
 #### Scenario: The branch is behind its upstream
 
@@ -63,6 +65,7 @@ decide whether the branch is already up to date only after that sync.
 - **WHEN** `X` tracks `origin/X` and `origin/X` no longer exists on the remote
 - **THEN** a warning is printed, the base is merged, and `UPSTREAM_ACTION` is
   `gone`
+- **AND** the push that follows recreates `origin/X`
 
 #### Scenario: The upstream lives on another remote
 
@@ -94,3 +97,18 @@ merge as done and continue with the next one.
 
 - **WHEN** the upstream sync succeeds and merging `origin/main` conflicts
 - **THEN** the skill reports `MERGE_CONFLICTS` with `SOURCE=origin/main`
+
+## Rationale
+
+### The upstream comes in before the base
+
+A remote branch can hold commits the local one lacks — pushed from another
+checkout, an autofix bot, or GitHub's "Update branch" button. Bringing them in
+first means the base merge lands on the branch the remote holds, so the update
+pushes as a plain fast-forward.
+
+Rejected:
+
+- **Merging the base onto the stale local branch.** The remote refuses the push,
+  and the second merge needed to reconcile it can bring back conflicts already
+  resolved.

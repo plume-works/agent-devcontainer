@@ -128,6 +128,13 @@ step, and a pass SHALL always exit successfully.
   container
 - **THEN** it is kept.
 
+#### Scenario: an old image was pulled recently
+
+- **WHEN** no container references an image that was built more than 72 hours
+  ago and pulled within the last hour
+- **THEN** the pass removes it, because the age is the image's creation time,
+  not its last pull or use.
+
 #### Scenario: a disposable volume is old and unused
 
 - **WHEN** no container references `dind-var-lib-docker-<id>` and it was created

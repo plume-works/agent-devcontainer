@@ -11,6 +11,14 @@ sources:
 - resource: scripts/check-ship-records.py
 - resource: pyproject.toml
 - resource: ansible/roles/dev_tools/defaults/main.yml
+- resource: .github/renovate.json
+- resource: ansible/roles/nodejs/tasks/main.yml
+- resource: Makefile
+- resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
+- resource: .devcontainer/devcontainer.json
+- resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
+- resource: .agents/plugins/agentdev/agents/principal-engineer.agent.md
+- resource: .agents/plugins/agentdev/bin/python_lint_check.py
 ---
 
 # pre-commit gate
@@ -22,7 +30,8 @@ sources:
 Primary checks SHALL run `pre-commit run` inside the `agentdev-devcontainer`
 image pinned by the same tag and digest as `devcontainer-compose-pins.yml`, over
 the files the event's commit range changed, and the `ci` job SHALL start only
-after it succeeds.
+after it succeeds. `uv sync --locked`, `pre-commit install-hooks`, and
+`pre-commit run` SHALL be separate steps, so each is timed on its own.
 
 #### Scenario: a pull request changes source files
 
@@ -49,6 +58,11 @@ after it succeeds.
 - **WHEN** Primary checks is started by `workflow_dispatch`
 - **THEN** the job checks every file.
 
+#### Scenario: hooks bypassed locally
+
+- **WHEN** a commit was made with `--no-verify` or without the hooks installed
+- **THEN** the pre-commit job runs the hooks on it and fails where they fail.
+
 ### Requirement: every hook runs a tool from one version owner
 
 Every hook in `.pre-commit-config.yaml` SHALL be a `repo: local` hook with
@@ -58,7 +72,9 @@ ruff-format, ansible-lint, clang-format, the `pre-commit-hooks` fixers), an
 image binary pinned in `dev_tools_pinned_tools` under a `# renovate:` comment
 (hadolint, shellcheck, gitleaks, actionlint, zizmor, iwe), or
 `bunx <package>@<version>` (prettier, the Renovate config validator). No hook
-SHALL name a remote repository.
+SHALL name a remote repository. Each `bunx` pin SHALL sit in the hook's `entry`,
+where a `custom.regex` manager in `.github/renovate.json` tracks it against the
+npm registry.
 
 #### Scenario: hooks are installed
 
@@ -70,6 +86,84 @@ SHALL name a remote repository.
 
 - **WHEN** a hook whose tool is an image binary runs on a host
 - **THEN** it runs whatever binary of that name is on `PATH`
+
+#### Scenario: npm publishes a new Prettier
+
+- **WHEN** a Prettier release newer than the hook's `bunx prettier@<version>`
+  pin is published
+- **THEN** Renovate proposes a pull request that moves the pin in the hook's
+  `entry`
+
+### Requirement: JavaScript runs through bun
+
+Every JavaScript tool this repository runs — from a pre-commit hook, a CI
+workflow, an Ansible role, a script, or a Makefile target — SHALL be invoked
+through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`. A
+JavaScript-based hook SHALL be a `language: system` hook whose `entry` runs
+`bunx`. The image SHALL NOT carry Ubuntu's `npm` package; a global JavaScript
+package it provides SHALL be installed with `bun add --global`.
+
+#### Scenario: a JavaScript hook runs
+
+- **WHEN** the prettier or renovate-config-validator hook runs
+- **THEN** `bunx` fetches the pinned package release and runs it, and pre-commit
+  builds no Node environment
+
+### Requirement: every commit path runs the hooks, merges included
+
+`agentdev-runtime project hooks` SHALL install the `pre-commit`, `pre-push`, and
+`pre-merge-commit` hook types, and `.pre-commit-config.yaml`'s `default_stages`
+SHALL include `pre-merge-commit`, so a merge commit runs the same hooks as an
+ordinary commit.
+
+#### Scenario: a merge commits on its own
+
+- **WHEN** `git merge` completes without conflicts and creates a merge commit
+- **THEN** the `pre-merge-commit` hook runs the hooks on the merged files before
+  the commit is written
+
+#### Scenario: a conflicted merge is concluded
+
+- **WHEN** a conflicted merge is resolved and concluded with `git commit`
+- **THEN** the `pre-commit` hook runs the hooks
+
+#### Scenario: a hook rewrites a staged file
+
+- **WHEN** a formatter hook rewrites a file in the commit
+- **THEN** the commit stops, and succeeds once the rewritten file is staged and
+  the commit retried
+
+### Requirement: formatting is left to the hooks
+
+The pre-commit hooks SHALL be the only local formatting step. No catalog skill
+or agent SHALL run a formatter of its own or require a formatting pass before a
+commit; a Python check outside a commit SHALL use `python_lint_check.py`, which
+runs ruff's format and lint checks without rewriting files.
+
+#### Scenario: a pull request is opened
+
+- **WHEN** `/agentdev:pr-open` commits pending changes
+- **THEN** the pre-commit hooks format the staged files as part of that commit,
+  and the skill runs no formatter itself
+
+### Requirement: pre-commit's store lives on the home volume
+
+The Dev Container SHALL NOT set `PRE_COMMIT_HOME`, so pre-commit keeps its store
+at `~/.cache/pre-commit` on the per-instance home volume, and SHALL mount no
+cache volume inside the checkout. When `agentdev-runtime project hooks` fails to
+install the hooks, it SHALL print `pre-commit.log` from `PRE_COMMIT_HOME` when
+that is set and from `$HOME/.cache/pre-commit` otherwise.
+
+#### Scenario: the Dev Container is rebuilt
+
+- **WHEN** a Dev Container is rebuilt on its existing home volume
+- **THEN** pre-commit finds its store where the previous container left it
+
+#### Scenario: a host sets PRE_COMMIT_HOME
+
+- **WHEN** hook installation fails where `PRE_COMMIT_HOME` names another
+  directory
+- **THEN** the failure report prints the log from that directory
 
 ### Requirement: a tool-version change is checked against every file
 
@@ -190,3 +284,26 @@ Rejected:
   hook.
 - **Remote hook repositories.** Each installs its own copy of a tool beside
   `uv.lock` or the image, which is the drift single ownership removes.
+
+### JavaScript hooks run through bunx
+
+A `language: system` hook running `bunx <package>@<version>` keeps one runner,
+bun, for every JavaScript invocation, and keeps the version in the hook's own
+`entry` where Renovate can move it.
+
+Rejected:
+
+- **`language: node` hooks.** pre-commit installs their environments with npm, a
+  second JavaScript runner beside bun.
+
+### pre-commit's store stays off the checkout
+
+The store takes its default path on the home volume, which belongs to the
+container and outlives a rebuild. A cache mounted inside the checkout would make
+its usability depend on the checkout's owner and filesystem.
+
+Rejected:
+
+- **A cache volume shared by every worktree.** Warm across worktrees after the
+  first create, but one more volume to manage; each instance's home volume
+  already isolates a worktree's state.

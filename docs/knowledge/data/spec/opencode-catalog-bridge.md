@@ -184,7 +184,9 @@ catalog agent's value.
 The bridge plugin SHALL import only types and Bun or Node built-ins at runtime,
 and its `package.json` SHALL declare no dependencies, so it loads from the
 root-owned, read-only catalog staged in the image, where no `node_modules` can
-be installed beside it.
+be installed beside it. It SHALL resolve the catalog root from its own location,
+the plugin directory above `.opencode-plugin/`, so the same bridge serves the
+staged catalog and a checkout's catalog.
 
 #### Scenario: OpenCode loads the staged catalog's bridge
 

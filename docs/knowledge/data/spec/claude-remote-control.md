@@ -45,9 +45,11 @@ every devcontainer answers Claude's first-run prompts ahead of time.
 one detached tmux session named `claude-remote`, on the dedicated tmux server
 `tmux -L claude-remote`, naming the Remote Control session after
 `CODER_WORKSPACE_NAME` when it is set, only when `claude auth status --json`
-reports `loggedIn: true` with `authMethod: "claude.ai"`. The Coder template's
-`coder_script` on the dev container's sub-agent runs it on every agent start,
-and the standalone runtime's `remote-control` watcher runs it when
+reports `loggedIn: true` with `authMethod: "claude.ai"`. On Coder,
+`agentdev-runtime coder start`, which the template's `coder_script` on the dev
+container's sub-agent runs on every agent start, runs it after its other steps,
+and nothing restarts a session that ends until the next agent start or a manual
+run; the standalone runtime's `remote-control` watcher runs it when
 `AGENTDEV_CLAUDE_RC_MODE` is set; no devcontainer lifecycle hook runs it.
 Repeated or concurrent runs SHALL reuse a live session rather than create
 another. It SHALL skip startup when `claude` or `tmux` is unavailable. The
@@ -86,6 +88,13 @@ a resumed conversation leaves Claude running with Remote Control off; running
 - **WHEN** an operator completes `/login` and runs the command from a Coder
   terminal
 - **THEN** `claude-remote` starts without a workspace restart.
+
+#### Scenario: the Remote Control session ends on Coder
+
+- **WHEN** the `claude-remote` session exits in a Coder workspace, a server-mode
+  server included
+- **THEN** Remote Control stays off until the next agent start, or until an
+  operator runs the command from a Coder terminal.
 
 #### Scenario: the session starts in a Coder workspace
 
@@ -287,7 +296,9 @@ agentdev image does not keep. It checks, in this order of precedence:
 `<host>` is the launching machine's hostname without its domain, and
 `<checkout>` is the base name of the checkout directory. The value SHALL be one
 RFC 1123 label: lowercase, every run of other characters replaced by one hyphen,
-no leading or trailing hyphen, and at most 63 characters.
+no leading or trailing hyphen, and at most 63 characters. Without the initialize
+command's value, the `devcontainer` service SHALL take the hostname `agentdev`.
+The hostname SHALL NOT change the Remote Control session name.
 
 #### Scenario: a Coder workspace starts the dev container
 
@@ -306,6 +317,19 @@ no leading or trailing hyphen, and at most 63 characters.
 - **WHEN** `devcontainer up` runs on `builder` for the `agent-devcontainer`
   checkout outside VS Code and Coder
 - **THEN** the hostname is `cli-builder-agent-devcontainer`.
+
+#### Scenario: Compose runs without the initialize command
+
+- **WHEN** `docker compose up` creates the `devcontainer` service with no
+  `CONTAINER_HOSTNAME` in its environment or `.env`
+- **THEN** the hostname is `agentdev`.
+
+#### Scenario: one launcher opens the same checkout twice on one machine
+
+- **WHEN** the same launcher on the same machine creates two containers for
+  checkouts with the same directory name
+- **THEN** both containers get the same hostname, and so the same Remote Control
+  environment name.
 
 ### Requirement: Remote Control inherits the Coder agent's environment
 

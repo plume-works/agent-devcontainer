@@ -30,7 +30,8 @@ only open items, each a `- [ ]` box with a `**Closed by:**` child naming the
 party who can close it. Neither section SHALL hold the other's box type. When a
 pull request's description is updated after review, work closed since SHALL move
 from `## Reviewer Handoff` to `## Verification` with its evidence, and never
-back.
+back. The `### Recommended Template` example in `code-review-standards` SHALL
+show one item of each kind, each with its child.
 
 #### Scenario: a check the reviewer cannot perform
 

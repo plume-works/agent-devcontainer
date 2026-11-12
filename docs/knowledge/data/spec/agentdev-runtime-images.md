@@ -32,13 +32,14 @@ sources:
 - resource: .dockerignore
 - resource: .github/actions/docker/build-push-action/action.yml
 - resource: ansible/roles/github_cli/tasks/main.yml
+- resource: .devcontainer/devcontainer.json
+- resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
 ---
 
 # agentdev runtime images
 
-The image family for the [Reusable agentdev Dev
-Container](../features/reusable-agentdev-devcontainer.md) feature. The deploy
-runtime's own requirements are in [Standalone OpenCode
+The image family of the reusable agentdev Dev Container. The deploy runtime's
+own requirements are in [Standalone OpenCode
 runtime](standalone-opencode-runtime.md).
 
 ## Requirements
@@ -78,13 +79,22 @@ SHALL install it from the build context with
 with the entry point on `/usr/local/bin`, no uv cache, and no interpreter
 download. The package SHALL pin its dependencies, `supervisor` among them, so
 the images carry no apt `supervisor` and nothing resolves a dependency at
-container start.
+container start. The image `ENTRYPOINT`, its `HEALTHCHECK`
+(`agentdev-runtime health ready`), every supervisord program, and the lifecycle
+commands of the image's Dev Container metadata SHALL invoke
+`/usr/local/bin/agentdev-runtime`.
 
 #### Scenario: a runtime container starts
 
 - **WHEN** an `agentdev-deploy` or `agentdev-devcontainer` container starts
 - **THEN** PID 1 is `/usr/local/bin/agentdev-runtime supervisor run`, and every
   module it runs was installed at build time
+
+#### Scenario: the engine checks a runtime container's health
+
+- **WHEN** Docker runs the image's health check
+- **THEN** it runs `agentdev-runtime health ready`, which passes only while the
+  runtime publishes readiness
 
 ### Requirement: the base image carries the agent-file validator
 
@@ -217,9 +227,29 @@ after the create phase finishes and never gate readiness.
 
 The Dev Container image SHALL run its user services, lifecycle commands, and
 editor sessions as a non-root account remapped to the host user's UID and GID,
-with its home on one per-instance volume. Its create phase SHALL run under the
-supervisor after the root bootstrap, once per container, and gate readiness;
+with its home on one per-instance volume. The supervisor SHALL stay root and
+SHALL run every user service as that account. Its create phase SHALL run under
+the supervisor after the root bootstrap, once per container, and gate readiness;
 `postCreateCommand` SHALL wait for it and fail when the runtime fails first.
+
+#### Scenario: an editor opens a shell in the Dev Container
+
+- **WHEN** a Dev Container client attaches on a Linux host
+- **THEN** the shell runs as `agent` with the host user's UID and GID, while
+  supervisord runs as root and its user services as `agent`
+
+### Requirement: uv and pre-commit state lives on the home volume
+
+Neither runtime image SHALL move uv's cache, uv's Python installs, or
+pre-commit's cache away from their default paths under the runtime account's
+home, so they persist on its home volume. `agentdev-deploy` SHALL set
+`UV_PROJECT_ENVIRONMENT` to `/home/agent/.local/share/uv/venvs/project`.
+
+#### Scenario: a deploy container is recreated on the same home volume
+
+- **WHEN** an `agentdev-deploy` container is recreated with its home volume kept
+- **THEN** the project environment, uv's cache, and its Python installs are
+  still present under `/home/agent`
 
 ### Requirement: lifecycle phases remain distinct
 
