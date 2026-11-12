@@ -102,9 +102,17 @@ same step.
 
 ### Task 4: Ship runs a fresh-context Verify end to end
 
-- [ ] `/agentdev:iwe-ship` on a scratch plan with no saved report shows a
+- [x] `/agentdev:iwe-ship` on a scratch plan with no saved report shows a
   dispatched `iwe-verifier` in the transcript and a saved report afterwards, and
   the catalog validator passes.
+  - **Evidence:** the headless run in
+    `docs/knowledge/data/architecture/skill-rehearsal-runs.md#running-it`,
+    `/agentdev:iwe-ship` on a scratch plan whose `verify-cache.py lookup` is
+    `MISS`: the stream holds an `agentdev:iwe-verifier` Agent call whose
+    `parent_tool_use_id` is the `agentdev:iwe-shipper` call, and
+    `verify-cache.py lookup` on the commit Verify ran on returns `HIT`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    passes.
 
 ## Spec changes
 
