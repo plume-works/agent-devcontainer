@@ -39,7 +39,8 @@ could start Ship from Explore after a partial answer closes a plan's open
 question. This plan answers that risk the way the Implement plan does — a
 description narrowed to a request that names a plan, and an explicit Explore
 rule — instead of with the gate. The released behaviour is in [IWE workflow
-skills in the agentdev catalog](../features/agentdev-iwe-workflow-skills.md).
+skills in the agentdev
+catalog](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 

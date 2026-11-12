@@ -23,10 +23,10 @@ released: 2.0.0
 The maintainer decided that Claude Code and OpenCode are the only harnesses this
 repository supports, and that Codex goes entirely: [Claude Code and OpenCode are
 the only supported
-harnesses](../features/claude-and-opencode-only-harnesses.md). Codex support
-reaches the image build, the `agentdev-runtime` package, the catalog's
-packaging, CI, the e2e suites, and the knowledge documents listed in Tasks 11
-and 12.
+harnesses](../archive/2.0.0/features/claude-and-opencode-only-harnesses.md).
+Codex support reaches the image build, the `agentdev-runtime` package, the
+catalog's packaging, CI, the e2e suites, and the knowledge documents listed in
+Tasks 11 and 12.
 
 This lands after [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), which moves the Codex code this plan
@@ -37,9 +37,10 @@ Container as a non-root account with one home
 volume](20261030-devcontainer-home-volume.md), so that plan no longer carries
 Codex volume and auth work.
 
-[Codex full-access config](../features/codex-full-access-config.md) is
-superseded and becomes `deprecated`. Task 11 deprecates it; it stays out of
-`release`, because Ship sets every feature listed there to `implemented`.
+[Codex full-access
+config](../archive/2.0.0/features/codex-full-access-config.md) is superseded and
+becomes `deprecated`. Task 11 deprecates it; it stays out of `release`, because
+Ship sets every feature listed there to `implemented`.
 
 ## Approach
 
@@ -324,7 +325,8 @@ agents its skills dispatch, so the package would ship broken.
 - [x] `features/codex-full-access-config` is `stage: deprecated` with
   `status: deprecated`, and its body states that [Claude Code and OpenCode are
   the only supported
-  harnesses](../features/claude-and-opencode-only-harnesses.md) supersedes it.
+  harnesses](../archive/2.0.0/features/claude-and-opencode-only-harnesses.md)
+  supersedes it.
   - **Evidence:** `51acc1cb`; `iwe schema validate` passes.
 
 ### Task 12: Update the knowledge documents that describe current Codex behavior

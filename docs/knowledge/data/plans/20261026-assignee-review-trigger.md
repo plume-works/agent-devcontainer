@@ -21,7 +21,7 @@ released: 2.0.0
 
 Fixes [Bug: a comment-requested review's gate does not count toward
 merge](../bugs/dispatched-review-gate-not-counted.md), and changes [AI responder
-workflows](../features/ai-responder-workflows.md).
+workflows](../archive/1.0.0/features/ai-responder-workflows.md).
 
 An `@claude review` comment runs its review as a `workflow_dispatch` on the head
 branch. That run's `ai-review-present` is not counted by the pull request rollup

@@ -18,11 +18,11 @@ released: 3.0.0
 
 ## Context
 
-[Ship review](../features/ship-review.md) is the feature this plan delivers.
-`iwe-shipper` step 6 requires a `## Fix` on each bug its plan's `release` lists,
-but step 7 only re-inspects that section, does not refuse to commit without it,
-and no fresh-context check confirms Ship's obligations after the ship commit.
-The repository owner decided:
+[Ship review](../archive/3.0.0/features/ship-review.md) is the feature this plan
+delivers. `iwe-shipper` step 6 requires a `## Fix` on each bug its plan's
+`release` lists, but step 7 only re-inspects that section, does not refuse to
+commit without it, and no fresh-context check confirms Ship's obligations after
+the ship commit. The repository owner decided:
 
 - `iwe-shipper` enforces a listed bug's `## Fix`.
 - A new catalog agent, `iwe-ship-reviewer`, checks Ship's obligations from a

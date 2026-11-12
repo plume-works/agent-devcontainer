@@ -260,8 +260,8 @@ Modify: `docs/knowledge/data/architecture.md`
   `data/architecture/worktree-hooks`; `data/architecture.md` links it
   - **Evidence:**
     `docs/knowledge/data/archive/3.0.0/architecture/per-worktree-catalog.md#design`
-    and `#rejected-alternatives`; `docs/knowledge/data/architecture.md` ›
-    "[Per-worktree catalog](architecture/per-worktree-catalog.md)"
+    and `#rejected-alternatives`;
+    `docs/knowledge/data/architecture.md › "[Per-worktree catalog](architecture/per-worktree-catalog.md)"`
 
 ## Spec changes
 

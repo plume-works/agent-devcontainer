@@ -29,8 +29,9 @@ released: 3.0.0
 
 ## Context
 
-[Dev Container home volume](../features/devcontainer-home-volume.md) is the
-feature this plan implements, and [Dev Container home
+[Dev Container home
+volume](../archive/3.0.0/features/devcontainer-home-volume.md) is the feature
+this plan implements, and [Dev Container home
 volume](../archive/2.0.0/architecture/devcontainer-home-volume.md) records the
 decision and the rejected alternatives. The Dev Container runs as root with
 `/root` on the container filesystem, so every piece of per-instance state has

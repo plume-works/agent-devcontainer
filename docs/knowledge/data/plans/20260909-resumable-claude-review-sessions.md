@@ -32,10 +32,10 @@ not a recurring failure worth a persistent-session resume path.
 
 ## Context
 
-The [AI responder workflow](../features/ai-responder-workflows.md) runs each
-Claude review in a disposable job container. A long review can therefore reach a
-usage limit after substantial work, while the next job has neither the local
-Claude transcript nor a supported way to continue it.
+The [AI responder workflow](../archive/1.0.0/features/ai-responder-workflows.md)
+runs each Claude review in a disposable job container. A long review can
+therefore reach a usage limit after substantial work, while the next job has
+neither the local Claude transcript nor a supported way to continue it.
 
 The responder uploads its execution file when one is available after execution.
 Resumption also requires the corresponding persistent transcript tree and

@@ -18,9 +18,9 @@ On Coder, the workspace template's `coder_script` on the dev container's
 sub-agent runs the repository's agent-start command, by default
 `agentdev-runtime coder start`, on every agent start, and that command execs
 `agentdev-runtime remote-control start` ([Devcontainer Git
-credentials](devcontainer-git-credentials.md)). The `coder_script` runs nothing
-when the repository ships no agent-start command ([Coder IDE
-baseline](coder-ide-baseline.md)).
+credentials](../spec/devcontainer-git-credentials.md)). The `coder_script` runs
+nothing when the repository ships no agent-start command ([Coder IDE
+baseline](../spec/coder-ide-baseline.md)).
 
 In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
 `session` or `server` (and, in server mode, optionally

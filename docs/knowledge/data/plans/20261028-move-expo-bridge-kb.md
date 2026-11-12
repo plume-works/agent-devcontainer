@@ -28,8 +28,8 @@ template finds none of that record, and its repository's `AGENTS.md` covers only
 packaging a VSIX.
 
 This plan changes [Expo apps build for iOS through
-EAS](../features/expo-eas-builds.md): its behaviour gains the Expo profile's
-bridge wiring, which the moved [VS Code Expo
+EAS](../archive/2.0.0/features/expo-eas-builds.md): its behaviour gains the Expo
+profile's bridge wiring, which the moved [VS Code Expo
 bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
 feature also describes.
 

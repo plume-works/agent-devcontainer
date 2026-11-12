@@ -35,8 +35,8 @@ to name the commit holding its code, which forces the code and the tick into
 separate commits, because a commit cannot name its own hash.
 
 The change reaches every workspace user and template consumer through [agentdev
-IWE workflow skills](../features/agentdev-iwe-workflow-skills.md) and the
-bootstrap copy of the operating manual.
+IWE workflow skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md)
+and the bootstrap copy of the operating manual.
 
 Every decision below is the maintainer's.
 

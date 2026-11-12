@@ -25,10 +25,10 @@ ship — before its own work can start. Ship has the opposite gap: it never read
 plan whose prerequisite has not
 shipped](../bugs/ship-ignores-unshipped-dependency.md)).
 
-[Manual stacked pull requests](../features/manual-stacked-prs.md) make it safe
-to build on an open pull request. This plan lets [the IWE workflow
-skills](../features/agentdev-iwe-workflow-skills.md) use them: implementation
-may run ahead of an unshipped dependency, shipping may not.
+[Manual stacked pull requests](../archive/2.1.0/features/manual-stacked-prs.md)
+make it safe to build on an open pull request. This plan lets [the IWE workflow
+skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) use them:
+implementation may run ahead of an unshipped dependency, shipping may not.
 
 The maintainer decided that a branch whose candidate predecessors sit in
 different chains is based on all of them, with one `Depends-on:` trailer each,

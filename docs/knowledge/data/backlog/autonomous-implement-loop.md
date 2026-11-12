@@ -54,7 +54,7 @@ depends on [Run Verify from a fresh context](verify-in-fresh-context.md).
 ## Recorded decisions this reverses
 
 - "Implement does not gain a second automatic invocation" in [Verification in
-  the main loop](../features/verification-in-the-main-loop.md).
+  the main loop](../archive/1.0.0/features/verification-in-the-main-loop.md).
 - Implement "waits for user direction" on a material deviation, in [IWE workflow
   skills](../spec/iwe-workflow-skills.md), and the starter list in its
   explicit-only requirement.

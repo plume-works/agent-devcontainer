@@ -37,7 +37,7 @@ where an unintended start could happen. Ship keeps its gate: a stray Ship run
 reaches the remote.
 
 The released behavior this changes is in [IWE workflow skills in the agentdev
-catalog](../features/agentdev-iwe-workflow-skills.md).
+catalog](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 

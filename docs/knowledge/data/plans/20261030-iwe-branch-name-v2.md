@@ -24,8 +24,8 @@ names therefore cannot say in which order a plan's pull requests happened: an
 opened before it. The maintainer wants one sequence per plan, so that `N` is the
 plan's Nth work branch across its whole lifecycle.
 
-Feature: [iwe-branch-name](../features/iwe-branch-name.md). Builds on the done
-plan [iwe-branch-name skill](20261020-iwe-branch-name.md).
+Feature: [iwe-branch-name](../archive/2.0.0/features/iwe-branch-name.md). Builds
+on the done plan [iwe-branch-name skill](20261020-iwe-branch-name.md).
 
 ## Approach
 

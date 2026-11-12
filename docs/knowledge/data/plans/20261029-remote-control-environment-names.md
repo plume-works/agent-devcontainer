@@ -23,7 +23,7 @@ process's `os.hostname()`; `--name` and `--remote-control-session-name-prefix`
 name sessions only. Without an explicit `hostname`, a Compose service's
 container is named after its Docker container ID, so Coder workspaces would be
 indistinguishable in Claude Desktop. The feature is [Remote Control environment
-names](../features/remote-control-environment-names.md).
+names](../archive/2.0.0/features/remote-control-environment-names.md).
 
 ## Approach
 

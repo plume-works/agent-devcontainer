@@ -32,8 +32,9 @@ merge of an unrelated pull request. This applies to Mac checkouts as much as to
 Coder workspaces.
 
 This plan changes [uv-run-only
-environment](../features/uv-run-only-environment.md): the environment stops
-being one fixed path and becomes one per checkout. [uv environment
+environment](../archive/1.0.0/features/uv-run-only-environment.md): the
+environment stops being one fixed path and becomes one per checkout. [uv
+environment
 location](../archive/1.0.0/architecture/uv-environment-location.md#why-one-environment-per-checkout)
 records why one `/uv` per Dev Container instance does not separate the checkouts
 inside it.

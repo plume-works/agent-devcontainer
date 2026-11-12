@@ -27,7 +27,7 @@ The maintainer decided that adversarial review is a separate agent. The planner
 may add it as a closing or near-closing task for a plan that warrants it, and a
 person may run it on a plan before the plan is finalized. Plan never invokes it.
 It joins the [IWE workflow skills in the agentdev
-catalog](../features/agentdev-iwe-workflow-skills.md).
+catalog](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 

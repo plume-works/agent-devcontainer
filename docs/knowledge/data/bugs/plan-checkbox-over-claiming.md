@@ -78,9 +78,9 @@ verify is the loop's last gate before ship, the most dangerous claim in the
 document is the one nothing tests.
 
 The consequence reaches further than this incident: the proposed [Verification
-in the main loop](../features/verification-in-the-main-loop.md) would make ship
-invoke verify and refuse on CRITICAL — and would still not have caught this,
-because verify has no CRITICAL to raise about a ticked box.
+in the main loop](../archive/1.0.0/features/verification-in-the-main-loop.md)
+would make ship invoke verify and refuse on CRITICAL — and would still not have
+caught this, because verify has no CRITICAL to raise about a ticked box.
 
 ## Fix
 

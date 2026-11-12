@@ -25,7 +25,8 @@ released: 2.1.0
 
 [Bug: Docker storage accumulates on long-running Coder
 workspaces](../bugs/coder-docker-storage-accumulates.md) found three gaps in the
-storage limits of [Docker storage limits](../features/docker-storage-limits.md):
+storage limits of [Docker storage
+limits](../archive/2.0.0/features/docker-storage-limits.md):
 
 - Each engine prunes images only when an agent starts, and workspaces have no
   autostop.

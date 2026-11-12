@@ -23,7 +23,8 @@ released: 3.0.0
 
 ## Context
 
-Changes [AI responder workflows](../features/ai-responder-workflows.md).
+Changes [AI responder
+workflows](../archive/1.0.0/features/ai-responder-workflows.md).
 
 The responder posts with the workflow's `GITHUB_TOKEN`, so its reviews and
 comments appear as `github-actions[bot]`, a login every workflow in the

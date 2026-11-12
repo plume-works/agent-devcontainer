@@ -33,8 +33,8 @@ released: 2.0.0
 
 ## Context
 
-[agentdev-runtime CLI](../features/agentdev-runtime-cli.md) is the feature this
-plan implements. [Publish the reusable agentdev Dev Container
+[agentdev-runtime CLI](../archive/2.0.0/features/agentdev-runtime-cli.md) is the
+feature this plan implements. [Publish the reusable agentdev Dev Container
 image](20261023-reusable-agentdev-devcontainer.md) moved the lifecycle into the
 `agentdev-devcontainer` and `agentdev-deploy` images and sealed it under
 `/opt/agentdev-runtime`; consumers no longer copy `.devcontainer/scripts/`. The

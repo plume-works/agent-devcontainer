@@ -48,7 +48,7 @@ task, because `pr-merge` already gates every merge on CI; post-merge
 observations stay tasks that Ship waits for; only CRITICALs create work; a
 revision adds no promise and changes only lines that answer a finding. The
 released behaviour this changes is in [IWE workflow skills in the agentdev
-catalog](../features/agentdev-iwe-workflow-skills.md).
+catalog](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 

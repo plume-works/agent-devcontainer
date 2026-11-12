@@ -17,10 +17,11 @@ released: 3.0.0
 
 ## Context
 
-[Ship review](../features/ship-review.md) gives `iwe-ship-reviewer` a plan mode
-that reports whether a plan gives Ship what it needs. The repository owner
-decided that a new skill, `/agentdev:iwe-plan-review`, runs it alongside the
-`Durable Knowledge Auditor` agent on every plan edit.
+[Ship review](../archive/3.0.0/features/ship-review.md) gives
+`iwe-ship-reviewer` a plan mode that reports whether a plan gives Ship what it
+needs. The repository owner decided that a new skill,
+`/agentdev:iwe-plan-review`, runs it alongside the `Durable Knowledge Auditor`
+agent on every plan edit.
 
 ## Approach
 

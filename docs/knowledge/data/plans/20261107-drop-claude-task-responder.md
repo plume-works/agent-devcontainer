@@ -23,7 +23,7 @@ released: 2.1.0
 
 Replaces the backlog task [Drop the `@claude <custom prompt>` free-form task
 trigger](../backlog/drop-claude-free-form-task-trigger.md) and changes [AI
-responder workflows](../features/ai-responder-workflows.md).
+responder workflows](../archive/1.0.0/features/ai-responder-workflows.md).
 
 Reviews are requested by toggling the pull request author's assignment, as
 [Assignee-triggered AI

@@ -44,8 +44,8 @@ constrains it, and that this is one plan.
 The feature is [One home for each kind of
 knowledge](../features/single-home-knowledge.md). It changes what the workflow
 skills of [agentdev IWE workflow
-skills](../features/agentdev-iwe-workflow-skills.md) write. It absorbs two
-backlog tasks: [Remove redundancy from the durable
+skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) write. It
+absorbs two backlog tasks: [Remove redundancy from the durable
 specs](../backlog/deduplicate-spec-requirements.md) and [Give architecture notes
 a lifecycle](../backlog/architecture-note-lifecycle.md).
 
@@ -453,24 +453,75 @@ change. Then the feature moves, unchanged, to `data/archive/<release>/features/`
 `ci-python-environment`. Move: every `docs/knowledge/data/features/*.md` at
 `stage: implemented` or `stage: deprecated`.
 
-- [ ] Every conflict listed under `## Conflicts` in `features.md` has its stale
+- [x] Every conflict listed under `## Conflicts` in `features.md` has its stale
   side corrected, or a bug filed through `/agentdev:iwe-capture bug` when the
   code is the wrong side.
-- [ ] `data/spec/opencode-web.md` and `data/spec/catalog-lifecycle.md` agree on
+  - **Evidence:** the two spec-side conflicts are corrected in
+    `docs/knowledge/data/spec/opencode-web.md#requirement-opencode-logins-and-chats-survive-a-rebuild`
+    and
+    `docs/knowledge/data/spec/claude-remote-control.md#requirement-remote-control-autostarts-only-on-a-live-claudeai-login`
+    › "`agentdev-runtime coder start`"; every other conflict's feature side is
+    stale and the feature is archived unchanged, the code agreeing with the
+    spec: `iwe-implementer.agent.md#running-the-loop`,
+    `verify-cache.py::run_save`, `agent_state.py::unlink_claude_json`,
+    `bootstrap.py::prepare_shared_auth`, `settings.py` › "AGENTDEV_VENV_ROOT",
+    `iwe-branch-name.py::read_plan_state`, `supervisor.py` › "DEPLOY_SERVICES",
+    `xpra.py` › "--tcp-auth=env:name=XPRA_PASSWORD",
+    `.github/workflows/ci.yml#jobs.candidate-pre-commit`, and
+    `.github/workflows/renovate.yml#jobs.renovate.container.image`. No bug was
+    needed.
+- [x] `data/spec/opencode-web.md` and `data/spec/catalog-lifecycle.md` agree on
   where OpenCode's data lives, matching `.devcontainer/docker-compose.yml`.
-- [ ] The unique statements of every implemented feature whose owning spec is
+  - **Evidence:**
+    `docs/knowledge/data/spec/opencode-web.md#requirement-opencode-logins-and-chats-survive-a-rebuild`
+    and
+    `docs/knowledge/data/spec/catalog-lifecycle.md#requirement-only-agent-credentials-are-shared-across-worktrees`
+    both place `~/.local/share/opencode` on the per-instance home volume;
+    `git grep -nE 'agentdev-opencode([^-]|$)' -- .devcontainer docker` prints
+    nothing.
+- [x] The unique statements of every implemented feature whose owning spec is
   `iwe-workflow-skills`, `plan-checkbox-evidence`, `git-new-branch`,
   `iwe-branch-name`, `stacked-prs`, `update-branch`, or `pr-merge-conflicts` are
   in that spec.
-- [ ] The unique statements of every implemented feature whose owning spec is
+  - **Evidence:**
+    `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-the-iwe-workflow-skills-ship-in-the-agentdev-catalog`,
+    `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-the-durable-knowledge-audit-reads-from-a-fresh-context-and-changes-nothing`,
+    `docs/knowledge/data/spec/update-branch.md#requirement-update-branch-brings-in-the-branchs-upstream-before-the-base`,
+    and
+    `docs/knowledge/data/spec/stacked-prs.md#requirement-pr-merge-stack-merges-a-chain-bottom-up`
+    › "retargeted"; the other features' statements were already stated.
+- [x] The unique statements of every implemented feature whose owning spec is
   `ai-review-gate`, `template-consumption`, `pre-commit-gate`,
   `dependency-updates`, or `image-pinning` are in that spec, with the new
   `pr-review` and `ci-python-environment` specs linked from `data/spec.md`.
-- [ ] The unique statements of every other implemented feature are in their
+  - **Evidence:**
+    `docs/knowledge/data/spec/ai-review-gate.md#requirement-the-review-job-reviews-with-the-pr-review-skill-as-a-submitted-review`,
+    `docs/knowledge/data/spec/pre-commit-gate.md#requirement-javascript-runs-through-bun`,
+    `docs/knowledge/data/spec/pre-commit-gate.md#requirement-every-commit-path-runs-the-hooks-merges-included`,
+    `docs/knowledge/data/spec/dependency-updates.md#requirement-renovate-runs-self-hosted-in-the-development-image`,
+    `docs/knowledge/data/spec/pr-review.md#requirement-docs-and-skills-get-a-durable-knowledge-pass`,
+    `docs/knowledge/data/spec/ci-python-environment.md#requirement-one-action-provisions-the-environment-and-activates-nothing`;
+    `docs/knowledge/data/spec.md` links `spec/pr-review.md` and
+    `spec/ci-python-environment.md`.
+- [x] The unique statements of every other implemented feature are in their
   destination spec.
-- [ ] Every feature at `stage: implemented` or `stage: deprecated` is under
+  - **Evidence:**
+    `docs/knowledge/data/spec/catalog-lifecycle.md#requirement-registering-a-catalog-root-replaces-earlier-registrations`,
+    `docs/knowledge/data/spec/agentdev-runtime-images.md#requirement-uv-and-pre-commit-state-lives-on-the-home-volume`,
+    `docs/knowledge/data/spec/standalone-opencode-runtime.md#requirement-the-compose-deployment-owns-per-project-volumes-and-one-shared-auth-volume`,
+    `docs/knowledge/data/spec/agent-file-discovery.md#requirement-an-explicit-file-path-bypasses-the-walk`,
+    `docs/knowledge/data/spec/self-improve-learning-loop.md#requirement-the-root-makefile-runs-the-plugins-checks`,
+    `docs/knowledge/data/spec/cloud-session-host.md#requirement-the-cloud-instructions-describe-the-host-toolchain`,
+    and
+    `docs/knowledge/data/spec/catalog-scripts.md#requirement-the-python-lint-check-finds-ruff-without-installing-anything`.
+- [x] Every feature at `stage: implemented` or `stage: deprecated` is under
   `data/archive/`, and `data/features.md` links only features at
   `stage: proposed` or `stage: accepted`.
+  - **Evidence:**
+    `iwe find --filter '{type: feature, stage: {$nin: [proposed, accepted]}}' -f keys`
+    prints only keys under `data/archive/`, and
+    `docs/knowledge/data/features.md` links only
+    `features/single-home-knowledge.md`, at `stage: accepted`.
 
 ### Task 9: Distil and archive the closed history
 

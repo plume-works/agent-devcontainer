@@ -25,13 +25,13 @@ released: 2.0.0
 
 ## Context
 
-[Reusable agentdev Dev Container](../features/reusable-agentdev-devcontainer.md)
-defines the runtime boundary described by the container user stories: projects
-should consume a development runtime and agent workflow without absorbing its
-lifecycle implementation. The current `agent-desktop` image supplies tools and
-the staged catalog, while this repository's `.devcontainer/` owns the lifecycle
-scripts and every consuming repository must copy them to get equivalent
-behaviour.
+[Reusable agentdev Dev
+Container](../archive/2.0.0/features/reusable-agentdev-devcontainer.md) defines
+the runtime boundary described by the container user stories: projects should
+consume a development runtime and agent workflow without absorbing its lifecycle
+implementation. The current `agent-desktop` image supplies tools and the staged
+catalog, while this repository's `.devcontainer/` owns the lifecycle scripts and
+every consuming repository must copy them to get equivalent behaviour.
 
 [Ship a standalone OpenCode
 container](20261017-standalone-opencode-container.md) establishes the reusable

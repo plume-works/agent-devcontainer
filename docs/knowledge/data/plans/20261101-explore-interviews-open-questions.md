@@ -23,7 +23,8 @@ interview on the open questions: one topic at a time, one decision per question,
 each answer recorded as it is given.
 
 The change refines the behavior the [agentdev IWE workflow
-skills](../features/agentdev-iwe-workflow-skills.md) feature ships.
+skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) feature
+ships.
 
 ## Approach
 

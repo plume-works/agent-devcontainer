@@ -25,10 +25,10 @@ nothing on the remote records which iteration comes next, and hand-picked names
 drift (`impl-<slug>-iter2`, `<slug>-impl`). A branch named after the bare plan
 slug leaves no room for a second iteration.
 
-Feature: [iwe-branch-name](../features/iwe-branch-name.md). The first planned
-consumer after the implementer is [Clean up the local checkout after
-pr-merge](../backlog/pr-merge-post-merge-cleanup.md), which stays out of this
-plan.
+Feature: [iwe-branch-name](../archive/2.0.0/features/iwe-branch-name.md). The
+first planned consumer after the implementer is [Clean up the local checkout
+after pr-merge](../backlog/pr-merge-post-merge-cleanup.md), which stays out of
+this plan.
 
 ## Approach
 

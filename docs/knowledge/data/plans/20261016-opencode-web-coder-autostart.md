@@ -26,10 +26,10 @@ sources:
 ## Context
 
 [OpenCode web UI autostart on
-Coder](../features/opencode-web-coder-autostart.md) is the feature this plan
-builds. Without a started server and a volume under its data directory,
-`~/.local/share/opencode`, a Dev Container rebuild would lose OpenCode provider
-logins and session chats.
+Coder](../archive/2.0.0/features/opencode-web-coder-autostart.md) is the feature
+this plan builds. Without a started server and a volume under its data
+directory, `~/.local/share/opencode`, a Dev Container rebuild would lose
+OpenCode provider logins and session chats.
 
 [Agent auth
 persistence](../archive/1.0.0/architecture/agent-auth-persistence.md) is the

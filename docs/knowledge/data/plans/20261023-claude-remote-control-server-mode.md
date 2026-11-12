@@ -18,10 +18,11 @@ released: 2.0.0
 
 ## Context
 
-[Remote Control server mode](../features/claude-remote-control-server-mode.md)
-proposes letting a workspace accept new conversations from claude.ai/code, the
-Claude mobile app, or a claude.ai Project. Today the autostarted `claude-remote`
-pane serves one pinned conversation ([Claude Remote Control
+[Remote Control server
+mode](../archive/2.0.0/features/claude-remote-control-server-mode.md) proposes
+letting a workspace accept new conversations from claude.ai/code, the Claude
+mobile app, or a claude.ai Project. Today the autostarted `claude-remote` pane
+serves one pinned conversation ([Claude Remote Control
 resume](../archive/2.0.0/architecture/claude-remote-control-resume.md)), under
 the contract in [Claude Remote Control](../spec/claude-remote-control.md). The
 maintainer chose an opt-in trial run that keeps the pinned pane as the default,

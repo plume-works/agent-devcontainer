@@ -22,12 +22,12 @@ released: 2.0.0
 
 The `data/codebase/` map is a derived description of the code, one document per
 component, each pinned to a `source_digest` of the files it describes. The
-[workflow skills](../features/agentdev-iwe-workflow-skills.md) give it one
-writer, `/agentdev:iwe-map`. [Fresh codebase map on
-push](../features/fresh-map-on-push.md) gates every agent push on the digest
-check, CI runs the same check, and [digest masks for version
-bumps](../features/map-masks-version-bumps.md) keep pin updates from marking
-docs stale.
+[workflow skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md)
+give it one writer, `/agentdev:iwe-map`. [Fresh codebase map on
+push](../archive/2.0.0/features/fresh-map-on-push.md) gates every agent push on
+the digest check, CI runs the same check, and [digest masks for version
+bumps](../archive/2.0.0/features/map-masks-version-bumps.md) keep pin updates
+from marking docs stale.
 
 No workflow skill or agent is instructed to read the map. Every instruction that
 names `data/codebase/` writes, refreshes, or gates it. Agents orient with `grep`

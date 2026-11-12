@@ -20,10 +20,10 @@ released: 2.0.0
 
 ## Context
 
-[OpenCode as a catalog host](../features/opencode-catalog-host.md) registers
-`/agentdev:<skill>` commands. This plan changes their v2 presentation contract
-so the submitted user message retains the full namespaced invocation, including
-bare commands.
+[OpenCode as a catalog host](../archive/2.0.0/features/opencode-catalog-host.md)
+registers `/agentdev:<skill>` commands. This plan changes their v2 presentation
+contract so the submitted user message retains the full namespaced invocation,
+including bare commands.
 
 The user wants the submitted command and accompanying text visible together,
 without expanding the skill instructions into chat. The current [bridge

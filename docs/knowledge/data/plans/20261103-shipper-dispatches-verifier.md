@@ -34,7 +34,7 @@ then gets a fresh-context Verify with no change of its own. This reverses the
 in-place route [Fresh-context
 Verify](../archive/2.0.0/architecture/fresh-context-verify.md) chose to keep the
 Shipper a leaf. The change gives [Verification in the main
-loop](../features/verification-in-the-main-loop.md) new behavior.
+loop](../archive/1.0.0/features/verification-in-the-main-loop.md) new behavior.
 
 ## Approach
 

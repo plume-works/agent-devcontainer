@@ -20,8 +20,8 @@ released: 1.0.0
 [Issue #95](https://github.com/plume-works/agent-devcontainer/issues/95) asks
 for a review flow without race conditions, ready for an autonomous merge path.
 The shipped flow ([AI responder
-workflows](../features/ai-responder-workflows.md)) is two workflows coupled only
-by polling, and the coupling fails in both directions:
+workflows](../archive/1.0.0/features/ai-responder-workflows.md)) is two
+workflows coupled only by polling, and the coupling fails in both directions:
 
 - **The gate cannot observe the review it waits for.** The responder posts its
   review with `GITHUB_TOKEN`, and GitHub creates no workflow run for events that

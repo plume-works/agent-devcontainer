@@ -24,7 +24,7 @@ released: 2.1.0
 ## Context
 
 Changes [IWE workflow skills in
-agentdev](../features/agentdev-iwe-workflow-skills.md).
+agentdev](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md).
 
 A bug's `## Fix` carries lifecycle state as prose. Capture requires it
 (`iwe-capture/SKILL.md`: "An unfixed bug says so in `## Fix`"), so an open bug

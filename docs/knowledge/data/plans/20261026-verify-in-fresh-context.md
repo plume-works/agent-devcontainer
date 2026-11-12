@@ -29,9 +29,9 @@ Verify run in the session that wrote the code judges that code with the
 conversation's claims in view.
 
 The change gives [Verification in the main
-loop](../features/verification-in-the-main-loop.md) new behavior: every Verify
-run starts from a fresh context. It is the first of two plans. The second, [Let
-Implement verify, fix, and revise on its
+loop](../archive/1.0.0/features/verification-in-the-main-loop.md) new behavior:
+every Verify run starts from a fresh context. It is the first of two plans. The
+second, [Let Implement verify, fix, and revise on its
 own](../backlog/autonomous-implement-loop.md), dispatches the agent this plan
 creates and stays out of scope here.
 
@@ -198,9 +198,9 @@ Modify: `docs/knowledge/data/architecture.md`,
     `data/architecture/fresh-context-verify.md`, linked from
     `data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
 - [x] Update `## Behaviour` in [Verification in the main
-  loop](../features/verification-in-the-main-loop.md): Verify always runs from a
-  fresh context — dispatched by the skill, in place inside the Shipper — and the
-  Shipper still consumes the report in its own context.
+  loop](../archive/1.0.0/features/verification-in-the-main-loop.md): Verify
+  always runs from a fresh context — dispatched by the skill, in place inside
+  the Shipper — and the Shipper still consumes the report in its own context.
   - **Evidence:** commit "Record fresh-context Verify in the graph": the
     `## Behaviour` paragraph "Verify always runs from a fresh context" in
     `data/features/verification-in-the-main-loop.md`; `iwe schema validate`

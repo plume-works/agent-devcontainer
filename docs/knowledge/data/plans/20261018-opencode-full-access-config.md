@@ -18,12 +18,13 @@ released: 2.0.0
 
 ## Context
 
-[OpenCode full-access config](../features/opencode-full-access-config.md) makes
-the devcontainer, rather than OpenCode's permission prompts, the isolation
-boundary. The maintainer approved an OpenCode config that allows every action
-and every external directory. The policy must be restored on each container
-start, as the existing Codex full-access policy is, while keeping OpenCode's
-catalog bridge registration and unrelated user settings.
+[OpenCode full-access
+config](../archive/2.0.0/features/opencode-full-access-config.md) makes the
+devcontainer, rather than OpenCode's permission prompts, the isolation boundary.
+The maintainer approved an OpenCode config that allows every action and every
+external directory. The policy must be restored on each container start, as the
+existing Codex full-access policy is, while keeping OpenCode's catalog bridge
+registration and unrelated user settings.
 
 [Make OpenCode v2 the devcontainer default](20261018-opencode-v2-default.md)
 also changes OpenCode lifecycle files, but its outcome is the v2 migration. This

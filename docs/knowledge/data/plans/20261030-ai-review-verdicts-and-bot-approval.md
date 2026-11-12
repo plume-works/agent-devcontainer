@@ -24,7 +24,7 @@ released: 2.0.0
 
 Fixes [Bug: an AI re-review that comments leaves its own change request blocking
 merge](../bugs/ai-rereview-comment-keeps-changes-requested.md), and changes [AI
-responder workflows](../features/ai-responder-workflows.md).
+responder workflows](../archive/1.0.0/features/ai-responder-workflows.md).
 
 The `main` ruleset requires one approving review, with thread resolution
 required, stale reviews kept on push, and no last-push approval. An `APPROVE`

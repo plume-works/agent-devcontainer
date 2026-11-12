@@ -33,8 +33,8 @@ tasks become observation tasks. That is planning state, so no task below carries
 it.
 
 The planner rule changes what [IWE workflow skills in the agentdev
-catalog](../features/agentdev-iwe-workflow-skills.md) ships to template
-consumers.
+catalog](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) ships to
+template consumers.
 
 ## Approach
 

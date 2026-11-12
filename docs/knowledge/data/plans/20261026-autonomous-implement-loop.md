@@ -23,16 +23,16 @@ released: 2.0.0
 [Let Implement verify, fix, and revise on its
 own](../backlog/autonomous-implement-loop.md) is the backlog task this plan
 replaces, and [Autonomous Implement
-loop](../features/autonomous-implement-loop.md) is the behavior it builds. Today
-Implement ends by suggesting `/agentdev:iwe-verify` and stops for the user at
-every material deviation. The maintainer decided Implement should run Verify
-itself, act on the report, and revise its plan without them once an independent
-evaluation approves the revision.
+loop](../archive/2.0.0/features/autonomous-implement-loop.md) is the behavior it
+builds. Today Implement ends by suggesting `/agentdev:iwe-verify` and stops for
+the user at every material deviation. The maintainer decided Implement should
+run Verify itself, act on the report, and revise its plan without them once an
+independent evaluation approves the revision.
 
 That reverses a recorded decision in [Verification in the main
-loop](../features/verification-in-the-main-loop.md): "Implement does not gain a
-second automatic invocation". The feature is listed in `release` because its
-behavior changes.
+loop](../archive/1.0.0/features/verification-in-the-main-loop.md): "Implement
+does not gain a second automatic invocation". The feature is listed in `release`
+because its behavior changes.
 
 The maintainer settled four choices:
 
@@ -290,10 +290,11 @@ Modify: `docs/knowledge/data/architecture.md`,
     `data/architecture/autonomous-implement-loop.md`, linked from
     `data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
 - [x] In [Verification in the main
-  loop](../features/verification-in-the-main-loop.md), replace the Behaviour
-  property and the resolved decision that Implement does not invoke Verify. The
-  replacement says the Implement orchestrator dispatches `iwe-verifier` after
-  the tasks, and Ship stays the mandatory gate before any shipping state change.
+  loop](../archive/1.0.0/features/verification-in-the-main-loop.md), replace the
+  Behaviour property and the resolved decision that Implement does not invoke
+  Verify. The replacement says the Implement orchestrator dispatches
+  `iwe-verifier` after the tasks, and Ship stays the mandatory gate before any
+  shipping state change.
   - **Evidence:** commit "Record the autonomous Implement loop in the graph":
     the Behaviour property and the first resolved decision in
     `data/features/verification-in-the-main-loop.md` now say so;

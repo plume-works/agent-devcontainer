@@ -14,11 +14,11 @@ completed: 2026-10-30
 
 # Exercise the saved Verify report end to end
 
-[Verify report cache](../features/verify-report-cache.md) tests its script in
-`.agents/plugins/agentdev/tests/test_verify_cache.py`, but the routing that
-reacts to the script's results lives in skill and agent prose, and the IWE
-workflow e2e suite asserts only dispatch counts. Nothing proves that an agent
-following the prose actually skips the work on a hit.
+[Verify report cache](../archive/2.0.0/features/verify-report-cache.md) tests
+its script in `.agents/plugins/agentdev/tests/test_verify_cache.py`, but the
+routing that reacts to the script's results lives in skill and agent prose, and
+the IWE workflow e2e suite asserts only dispatch counts. Nothing proves that an
+agent following the prose actually skips the work on a hit.
 
 Add scenarios on Claude Code, Codex, and OpenCode for:
 

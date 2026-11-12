@@ -28,8 +28,8 @@ nothing in it checks whether a planned rule already lives in another requirement
 of the same spec.
 
 The change alters what [Risk-scaled spec
-deltas](../features/risk-scaled-spec-deltas.md) does for every repository that
-installs the catalog. [Remove redundancy from the durable
+deltas](../archive/1.0.0/features/risk-scaled-spec-deltas.md) does for every
+repository that installs the catalog. [Remove redundancy from the durable
 specs](../backlog/deduplicate-spec-requirements.md) cleans up the redundancy
 already in the specs, and depends on this plan so the cleaned specs stay clean.
 

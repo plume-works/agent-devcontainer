@@ -36,8 +36,8 @@ planning boundaries, ambiguity handling, implementation deviations,
 verification, and spec synchronization.
 
 The sharpest instance was already recorded in project memory. [Verification in
-the main loop](../features/verification-in-the-main-loop.md) noted that
-`docs/knowledge/AGENTS.md` describes shipping as following a green Verify
+the main loop](../archive/1.0.0/features/verification-in-the-main-loop.md) noted
+that `docs/knowledge/AGENTS.md` describes shipping as following a green Verify
 result, while Ship treated Verify as the optional thorough form of a looser
 confirmation step. Normal shipping could therefore proceed without requirement
 tracing, scenario coverage, or coherence checks.

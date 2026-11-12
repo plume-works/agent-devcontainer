@@ -23,12 +23,14 @@ released: 2.0.0
 
 ## Context
 
-Delivers [pre-commit is the CI gate](../features/pre-commit-ci-gate.md).
+Delivers [pre-commit is the CI
+gate](../archive/2.0.0/features/pre-commit-ci-gate.md).
 
-[Let pre-commit own formatting](../features/pre-commit-owns-formatting.md) made
-the hooks the only local formatting path but left Super-Linter as the CI gate.
-Every check Super-Linter makes is also made by a pre-commit hook, so the gate is
-a slower, Docker-image-bound duplicate of the hooks. Its image is the version
+[Let pre-commit own
+formatting](../archive/1.0.0/features/pre-commit-owns-formatting.md) made the
+hooks the only local formatting path but left Super-Linter as the CI gate. Every
+check Super-Linter makes is also made by a pre-commit hook, so the gate is a
+slower, Docker-image-bound duplicate of the hooks. Its image is the version
 authority that forces the manual `sync-super-linter-tool-versions` loop and
 keeps Renovate from bumping the tools it pins.
 
@@ -330,9 +332,9 @@ path filter: pre-commit skips hooks whose files did not change, except
     `product.md` Changelog. `someday/host-filesystem-dedup` needed no edit: its
     "reformat" is about a disk.
 - [x] `features/pre-commit-owns-formatting` names [pre-commit is the CI
-  gate](../features/pre-commit-ci-gate.md) as the CI gate instead of
-  Super-Linter, and `backlog/parallel-ci-with-pre-commit` cites no deleted file
-  and no longer reads as blocked on this plan.
+  gate](../archive/2.0.0/features/pre-commit-ci-gate.md) as the CI gate instead
+  of Super-Linter, and `backlog/parallel-ci-with-pre-commit` cites no deleted
+  file and no longer reads as blocked on this plan.
   - **Evidence:** commit `6f9001dc`;
     `git grep -i -E 'super-?linter|reformat\.yml|local-reformat'` over both
     documents finds nothing, and `iwe schema validate` passes.

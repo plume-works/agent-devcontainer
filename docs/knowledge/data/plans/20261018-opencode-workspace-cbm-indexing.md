@@ -21,11 +21,11 @@ released: 2.0.0
 ## Context
 
 [Automatic CBM indexing for OpenCode
-workspaces](../features/opencode-workspace-cbm-indexing.md) lets a developer
-open another repository in an existing container and use its codebase graph
-without asking an agent to initialize it. The container's CBM start and attach
-scripts index `DEV_WORKSPACE_FOLDER`; the OpenCode bridge currently loads the
-catalog but does not register the active repository.
+workspaces](../archive/2.0.0/features/opencode-workspace-cbm-indexing.md) lets a
+developer open another repository in an existing container and use its codebase
+graph without asking an agent to initialize it. The container's CBM start and
+attach scripts index `DEV_WORKSPACE_FOLDER`; the OpenCode bridge currently loads
+the catalog but does not register the active repository.
 
 The scope is OpenCode first, owned by agentdev and distributed with its catalog.
 No active plan in the plans hub covers this topic.

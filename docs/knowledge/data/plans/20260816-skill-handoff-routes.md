@@ -33,8 +33,8 @@ dies with the conversation.
 
 **Verify's unchecked-box recommendation is no longer exhaustive.** It reads
 "complete it, or tick it if already done". Since [Verification in the main
-loop](../features/verification-in-the-main-loop.md) made a zero-CRITICAL Verify
-report a hard precondition of normal Ship —
+loop](../archive/1.0.0/features/verification-in-the-main-loop.md) made a
+zero-CRITICAL Verify report a hard precondition of normal Ship —
 `.claude/skills/ship/SKILL.md#steps › "the report contains any CRITICAL finding, make no shipping"`,
 "there is no CRITICAL override" — a task the user has decided not to do now
 blocks shipping outright. Ticking it is forbidden by
@@ -132,7 +132,7 @@ It states that Explore "SHALL offer capture or a phase handoff" and that Verify
 destinations nor the routes out of an unchecked box, so both edits sit below its
 altitude and refine behavior it already permits. The ship↔verify coupling's own
 detail stays where it already lives, in [Verification in the main
-loop](../features/verification-in-the-main-loop.md).
+loop](../archive/1.0.0/features/verification-in-the-main-loop.md).
 
 ## Verification
 

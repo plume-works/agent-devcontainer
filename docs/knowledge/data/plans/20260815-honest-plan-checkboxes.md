@@ -32,11 +32,11 @@ both have since moved, and Task 1 closes the first of them. `## Key references`
 carries the current lines.)
 
 This also unblocks [Verification in the main
-loop](../features/verification-in-the-main-loop.md): making ship invoke verify
-only helps if verify has something to say about a ticked box. That feature
-reached `stage: implemented` on 2026-08-15, before this plan started, so what it
-inherits is no longer hypothetical: until Task 1 lands, the mandatory pre-ship
-gate is silent about the claim it most depends on.
+loop](../archive/1.0.0/features/verification-in-the-main-loop.md): making ship
+invoke verify only helps if verify has something to say about a ticked box. That
+feature reached `stage: implemented` on 2026-08-15, before this plan started, so
+what it inherits is no longer hypothetical: until Task 1 lands, the mandatory
+pre-ship gate is silent about the claim it most depends on.
 
 ## Approach
 
@@ -310,9 +310,9 @@ Recorded 2026-08-16 while implementing, at `017876a` plus the working tree.
 ## Out of scope
 
 - Making ship invoke verify — that is [Verification in the main
-  loop](../features/verification-in-the-main-loop.md), which reached
-  `stage: implemented` on 2026-08-15, after this plan was written. This plan
-  only removes the reason it would have been toothless; Task 9 records that
+  loop](../archive/1.0.0/features/verification-in-the-main-loop.md), which
+  reached `stage: implemented` on 2026-08-15, after this plan was written. This
+  plan only removes the reason it would have been toothless; Task 9 records that
   limit in the feature doc without touching its lifecycle.
 - Backfilling evidence lines into `stage: done` plans. The four closed plans
   stay as written. The two other live plans ([PR verification

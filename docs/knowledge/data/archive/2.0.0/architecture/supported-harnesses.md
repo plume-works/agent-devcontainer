@@ -13,8 +13,8 @@ sources:
 
 The maintainer chose Claude Code and OpenCode as the only agent harnesses this
 repository supports ([Claude Code and OpenCode are the only supported
-harnesses](../../../features/claude-and-opencode-only-harnesses.md)). Codex is
-not supported anywhere:
+harnesses](../features/claude-and-opencode-only-harnesses.md)). Codex is not
+supported anywhere:
 
 - the images do not install the Codex CLI, and the runtime writes no Codex
   configuration, hooks, credential links, or `CODEX_HOME`;

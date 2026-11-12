@@ -35,9 +35,9 @@ finds reports that cite `path:line` impossible to read, and wants anchors there
 too, as human-readable references.
 
 The change belongs to the [agentdev IWE workflow
-skills](../features/agentdev-iwe-workflow-skills.md): the planner, implementer,
-verifier, shipper, and reviewer rules and the knowledge templates the bootstrap
-skill ships.
+skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md): the planner,
+implementer, verifier, shipper, and reviewer rules and the knowledge templates
+the bootstrap skill ships.
 
 ## Approach
 

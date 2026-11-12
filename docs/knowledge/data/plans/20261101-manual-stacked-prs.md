@@ -34,8 +34,9 @@ same branch is rejected as non-fast-forward.
 
 The maintainer's decision: "GET RID OF GH STACKS. WE DO ONLY NORMAL PRs".
 Dependent work becomes [Manual stacked pull
-requests](../features/manual-stacked-prs.md), replacing [Native stacked pull
-requests](../features/native-stacked-prs.md). Prior art: `implement-agent-specs`
+requests](../archive/2.1.0/features/manual-stacked-prs.md), replacing [Native
+stacked pull requests](../archive/2.0.0/features/native-stacked-prs.md). Prior
+art: `implement-agent-specs`
 (`c1dce219:.claude/skills/implement-agent-specs/SKILL.md`) cut a dependent
 branch from its predecessor's; `pr-merge-chain`
 (`9ecc8876^:.agents/plugins/agentdev/skills/pr-merge-chain/SKILL.md`)

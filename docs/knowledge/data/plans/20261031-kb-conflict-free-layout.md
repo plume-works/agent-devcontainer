@@ -36,8 +36,9 @@ applies them.
 
 The workflow skills and the scaffold they ship to template consumers change
 together, so the [IWE workflow
-skills](../features/agentdev-iwe-workflow-skills.md) and the [consumer IWE
-seed](../features/consumer-iwe-seed.md) both gain the new layout.
+skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) and the
+[consumer IWE seed](../archive/1.0.0/features/consumer-iwe-seed.md) both gain
+the new layout.
 
 ## Approach
 

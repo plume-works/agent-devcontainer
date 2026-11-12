@@ -19,14 +19,15 @@ released: 2.0.0
 
 ## Context
 
-[Remote Control server mode](../features/claude-remote-control-server-mode.md)
-runs `claude remote-control --spawn same-dir`, so every conversation spawned
-from claude.ai/code, the Claude app, or a claude.ai Project edits the same
-workspace folder, and concurrent conversations collide on the same files. The
-maintainer decided that server mode spawns each on-demand conversation in its
-own git worktree by default, with `same-dir` still selectable. The pinned
-session pane stays the default `AGENTDEV_CLAUDE_RC_MODE`; only the spawn mode of
-server mode changes.
+[Remote Control server
+mode](../archive/2.0.0/features/claude-remote-control-server-mode.md) runs
+`claude remote-control --spawn same-dir`, so every conversation spawned from
+claude.ai/code, the Claude app, or a claude.ai Project edits the same workspace
+folder, and concurrent conversations collide on the same files. The maintainer
+decided that server mode spawns each on-demand conversation in its own git
+worktree by default, with `same-dir` still selectable. The pinned session pane
+stays the default `AGENTDEV_CLAUDE_RC_MODE`; only the spawn mode of server mode
+changes.
 
 This replaces the `--spawn worktree` rejection in [Claude Remote Control server
 mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md). The

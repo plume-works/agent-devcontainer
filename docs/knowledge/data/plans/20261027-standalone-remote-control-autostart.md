@@ -24,14 +24,14 @@ released: 2.0.0
 ## Context
 
 [Remote Control autostart in the standalone
-runtime](../features/standalone-remote-control-autostart.md) grows from the
-backlog task [Start Claude Remote Control in the standalone runtime when
-asked](../backlog/standalone-claude-remote-control.md). Only the Coder agent
-starts Remote Control today; the standalone `agent-opencode` runtime has no
-component for it, so a project container never starts it, even with a claude.ai
-login in its auth volume. The maintainer asked for standalone support, gated on
-`AGENTDEV_CLAUDE_RC_MODE`, and chose a supervised watcher as what starts Remote
-Control after a login that happens once the runtime is already up.
+runtime](../archive/2.0.0/features/standalone-remote-control-autostart.md) grows
+from the backlog task [Start Claude Remote Control in the standalone runtime
+when asked](../backlog/standalone-claude-remote-control.md). Only the Coder
+agent starts Remote Control today; the standalone `agent-opencode` runtime has
+no component for it, so a project container never starts it, even with a
+claude.ai login in its auth volume. The maintainer asked for standalone support,
+gated on `AGENTDEV_CLAUDE_RC_MODE`, and chose a supervised watcher as what
+starts Remote Control after a login that happens once the runtime is already up.
 
 The contracts are [Claude Remote Control](../spec/claude-remote-control.md) and
 [Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md), which the

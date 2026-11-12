@@ -20,8 +20,8 @@ released: 2.0.0
 
 ## Context
 
-[Consumer IWE seed](../features/consumer-iwe-seed.md) currently initializes
-project memory only as an optional phase of full
+[Consumer IWE seed](../archive/1.0.0/features/consumer-iwe-seed.md) currently
+initializes project memory only as an optional phase of full
 [`template-consume`](../spec/template-consumption.md) adoption. The seed lives
 under `templates/iwe/`, outside the installed agentdev catalog, so an agent
 working from a persistent agentdev runtime cannot initialize an unrelated

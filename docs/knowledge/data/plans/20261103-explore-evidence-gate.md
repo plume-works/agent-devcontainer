@@ -27,7 +27,8 @@ opened as open questions risks that existed only because of its own proposal.
 The plans that came out of it kept only the changes backed by counted incidents.
 
 The change refines the behavior the [agentdev IWE workflow
-skills](../features/agentdev-iwe-workflow-skills.md) feature ships.
+skills](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md) feature
+ships.
 
 ## Approach
 

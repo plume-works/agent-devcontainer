@@ -33,10 +33,11 @@ released: 2.0.0
 
 ## Context
 
-[Standalone OpenCode container](../features/standalone-opencode-container.md)
-defines a single-project environment operated without Coder or a Dev Containers
-client. The image must own startup and persistent-state reconciliation rather
-than require its project to contain lifecycle scaffolding.
+[Standalone OpenCode
+container](../archive/2.0.0/features/standalone-opencode-container.md) defines a
+single-project environment operated without Coder or a Dev Containers client.
+The image must own startup and persistent-state reconciliation rather than
+require its project to contain lifecycle scaffolding.
 
 [OpenCode web](../spec/opencode-web.md) supplies the Coder server and
 auth/session contract. [Agent auth

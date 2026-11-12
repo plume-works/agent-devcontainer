@@ -144,7 +144,8 @@ stay different; only the *invocation* contract is unified.
   location](../archive/1.0.0/architecture/uv-environment-location.md) — its
   Consequences section currently says CI "builds their own in-tree environment",
   which stays true, but should record that CI no longer *activates* it. Add the
-  CI half to [uv-run-only environment](../features/uv-run-only-environment.md).
+  CI half to [uv-run-only
+  environment](../archive/1.0.0/features/uv-run-only-environment.md).
 - [x] **8. Verify locally.** Check that `python-lint-check.sh` still resolves
   ruff with no ruff on `PATH` (the `uv run` rung is then its only source) and
   that it installs nothing when `pyproject.toml` has an unlocked dependency. Run

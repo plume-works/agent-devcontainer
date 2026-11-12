@@ -19,8 +19,8 @@ released: 3.0.0
 
 ## Context
 
-[Nested agent dispatch](../features/nested-agent-dispatch.md) is the feature
-this plan delivers, and [Nested dispatch from catalog
+[Nested agent dispatch](../archive/3.0.0/features/nested-agent-dispatch.md) is
+the feature this plan delivers, and [Nested dispatch from catalog
 agents](../backlog/nested-catalog-agent-dispatch.md) is the backlog task it
 replaces. The repository owner decided that both harnesses nest subagent
 dispatch to depth 5, so later plans can have a dispatched catalog agent start a

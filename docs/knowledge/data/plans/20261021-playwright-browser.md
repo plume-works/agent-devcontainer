@@ -19,12 +19,13 @@ released: 2.0.0
 
 ## Context
 
-[Playwright browser in the development image](../features/playwright-browser.md)
-makes browser automation available without downloading a browser after the
-container starts. Playwright browser binaries are coupled to the client release,
-while this repository publishes the development image for both `linux/amd64` and
-`linux/arm64`; the image must therefore install and verify the CLI and Chromium
-as one pinned capability on both architectures.
+[Playwright browser in the development
+image](../archive/2.0.0/features/playwright-browser.md) makes browser automation
+available without downloading a browser after the container starts. Playwright
+browser binaries are coupled to the client release, while this repository
+publishes the development image for both `linux/amd64` and `linux/arm64`; the
+image must therefore install and verify the CLI and Chromium as one pinned
+capability on both architectures.
 
 ## Approach
 

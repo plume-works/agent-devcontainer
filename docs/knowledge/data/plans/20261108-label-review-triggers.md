@@ -23,7 +23,8 @@ released: 3.0.0
 
 ## Context
 
-Changes [AI responder workflows](../features/ai-responder-workflows.md).
+Changes [AI responder
+workflows](../archive/1.0.0/features/ai-responder-workflows.md).
 
 Before this plan, a re-review was requested by removing the pull request's
 author as assignee and adding them back ([Assignee-triggered AI

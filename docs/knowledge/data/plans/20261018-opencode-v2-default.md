@@ -26,17 +26,18 @@ released: 2.0.0
 
 ## Context
 
-[OpenCode as a catalog host](../features/opencode-catalog-host.md), [OpenCode
-web UI autostart on Coder](../features/opencode-web-coder-autostart.md), and
-[Automatic CBM indexing for OpenCode
-workspaces](../features/opencode-workspace-cbm-indexing.md) are the features
-this plan changes. All three are built on OpenCode v1 (`opencode-ai`, pinned at
-1.19.3); the CBM registration runs from the bridge's v1 `config` hook, which v2
-does not call. In v1 a command's template is sent as the user's message, so
-every `/agentdev:<name>` command posts the whole skill body into the chat;
-OpenCode's own skill-derived commands do the same. OpenCode v2 (`@opencode/cli`)
-attaches a skill to a message as a structured skill reference instead, and the
-chat shows only the user's text and a skill chip.
+[OpenCode as a catalog
+host](../archive/2.0.0/features/opencode-catalog-host.md), [OpenCode web UI
+autostart on Coder](../archive/2.0.0/features/opencode-web-coder-autostart.md),
+and [Automatic CBM indexing for OpenCode
+workspaces](../archive/2.0.0/features/opencode-workspace-cbm-indexing.md) are
+the features this plan changes. All three are built on OpenCode v1
+(`opencode-ai`, pinned at 1.19.3); the CBM registration runs from the bridge's
+v1 `config` hook, which v2 does not call. In v1 a command's template is sent as
+the user's message, so every `/agentdev:<name>` command posts the whole skill
+body into the chat; OpenCode's own skill-derived commands do the same. OpenCode
+v2 (`@opencode/cli`) attaches a skill to a message as a structured skill
+reference instead, and the chat shows only the user's text and a skill chip.
 
 The current design is in [OpenCode catalog
 bridge](../archive/2.0.0/architecture/opencode-catalog-bridge.md) and [Agent
@@ -45,11 +46,11 @@ contracts are [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md),
 [OpenCode web](../spec/opencode-web.md), OpenCode workspace CBM indexing, and
 [Coder IDE baseline template](../spec/coder-ide-baseline.md).
 
-[OpenCode full-access config](../features/opencode-full-access-config.md) writes
-a v1-shaped `permission` block into `opencode.json` on every start
-([Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md)). v2
-reads that block, so the policy needs no change; this plan only verifies it on
-v2.
+[OpenCode full-access
+config](../archive/2.0.0/features/opencode-full-access-config.md) writes a
+v1-shaped `permission` block into `opencode.json` on every start ([Devcontainer
+OpenCode policy](../spec/devcontainer-opencode-policy.md)). v2 reads that block,
+so the policy needs no change; this plan only verifies it on v2.
 
 [Ship a standalone OpenCode
 container](20261017-standalone-opencode-container.md) builds on

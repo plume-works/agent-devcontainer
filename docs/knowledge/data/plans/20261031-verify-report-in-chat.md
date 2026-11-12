@@ -21,9 +21,9 @@ released: 2.1.0
 
 ## Context
 
-[Verify report cache](../features/verify-report-cache.md) saves each Verify
-report to `.tmp/verify/<plan>.md`. Every caller except the session route then
-reduces the report before it reaches the user:
+[Verify report cache](../archive/2.0.0/features/verify-report-cache.md) saves
+each Verify report to `.tmp/verify/<plan>.md`. Every caller except the session
+route then reduces the report before it reaches the user:
 
 - The Implement loop's final report and the `iwe-implement-all` rollup carry
   "each Verify verdict", not the report.

@@ -21,10 +21,10 @@ sources:
 
 ## Symptom
 
-[Docker storage limits](../features/docker-storage-limits.md) promises that both
-engines of a Coder workspace bound their storage so workspaces sharing one host
-disk do not fill it. On 2026-11-01, five workspaces on one host held about 263
-GB that no container used:
+[Docker storage limits](../archive/2.0.0/features/docker-storage-limits.md)
+promises that both engines of a Coder workspace bound their storage so
+workspaces sharing one host disk do not fill it. On 2026-11-01, five workspaces
+on one host held about 263 GB that no container used:
 
 - The Dev Container engine of `agent-dev1` held 61 images (59 GB), with no
   container running, 42 GB of build cache, and 65 volumes. 58 of those volumes

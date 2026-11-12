@@ -19,8 +19,8 @@ okf_version: '0.2'
 
 # Delivery
 
-- [Features](features.md) - Feature design documents, each carrying its
-  lifecycle stage.
+- [Features](features.md) - Feature proposals, each live until the plan that
+  implements it ships.
 - [Bugs](bugs.md) - Bug reports, investigations, and repro notes.
 - [Releases](releases.md) - One page per version, saying in plain text what
   changed and which bugs it fixed.

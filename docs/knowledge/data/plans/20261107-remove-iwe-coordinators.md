@@ -44,9 +44,9 @@ the relayer, so a peer's claim can stand in for the user's consent to an
 always-escalate deviation. Removing the rule fixes it.
 
 The released behavior is in [IWE workflow skills in the agentdev
-catalog](../features/agentdev-iwe-workflow-skills.md), [Autonomous Implement
-loop](../features/autonomous-implement-loop.md), and [Verify report
-cache](../features/verify-report-cache.md).
+catalog](../archive/1.0.0/features/agentdev-iwe-workflow-skills.md), [Autonomous
+Implement loop](../archive/2.0.0/features/autonomous-implement-loop.md), and
+[Verify report cache](../archive/2.0.0/features/verify-report-cache.md).
 
 ## Approach
 
