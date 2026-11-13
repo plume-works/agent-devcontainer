@@ -179,15 +179,24 @@ after this plan merges, and the AI review of that pull request.
 
 Ship merges no spec, so this task makes the spec edits that this plan needs.
 
-- [ ] `spec/pr-review` has no requirement "added prose gets an ASD-STE100 pass
+- [x] `spec/pr-review` has no requirement "added prose gets an ASD-STE100 pass
   before the durable-knowledge pass".
 
-- [ ] The `description` of `spec/pr-review` does not name the ASD-STE100 pass.
+  - **Evidence:** Removed the requirement and its two scenarios;
+    `grep -n -i ste100` on the spec finds nothing.
 
-- [ ] `spec/pr-review` has no `## Rationale` entry "The ASD-STE100 pass checks
+- [x] The `description` of `spec/pr-review` does not name the ASD-STE100 pass.
+
+  - **Evidence:** The description now lists the fast-approved diffs, the
+    durable-knowledge pass, the review size, and the correctness rules; the
+    stale `audit-ste100` source entry is gone too.
+
+- [x] `spec/pr-review` has no `## Rationale` entry "The ASD-STE100 pass checks
   from the model's knowledge of the standard".
 
-- [ ] The requirement "Plan review runs its reviewers from fresh contexts and
+  - **Evidence:** Removed the entry.
+
+- [x] The requirement "Plan review runs its reviewers from fresh contexts and
   changes nothing" in `spec/iwe-workflow-skills` holds this text and these
   scenarios:
 
@@ -244,6 +253,9 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
     return unchanged. Plan applies the `STE100 Auditor` findings and does not run
     the `STE100 Auditor` again.
   ```
+
+  - **Evidence:** Replaced the requirement with the fenced text and its three
+    scenarios; `iwe normalize` changed only the line breaks.
 
 ## Acceptance
 
@@ -318,6 +330,6 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps` › "Review the
   plan from a fresh context" — the step that counts the runs.
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plan-review-runs-its-reviewers-from-fresh-contexts-and-changes-nothing`
-  — the requirement that Ship modifies.
-- `docs/knowledge/data/spec/pr-review.md#requirement-added-prose-gets-an-asd-ste100-pass-before-the-durable-knowledge-pass`
-  — the requirement that Ship removes.
+  — the requirement that Task 6 modifies.
+- `docs/knowledge/data/spec/pr-review.md` — the spec whose ASD-STE100
+  requirement Task 6 removes.

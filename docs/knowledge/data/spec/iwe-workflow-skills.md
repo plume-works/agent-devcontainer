@@ -947,15 +947,21 @@ plugin.
 `/agentdev:iwe-plan-review <plan>` SHALL first dispatch the `STE100 Auditor`
 alone, with a prompt that carries only the plan file path and the scope `plan`.
 When that report holds a finding, the skill SHALL return it verbatim under the
-agent's name and SHALL dispatch no other agent.
+agent's name and SHALL dispatch no other agent, unless the request names the run
+as the last `STE100 Auditor` run.
 
-When it holds none, the skill SHALL dispatch the `Durable Knowledge Auditor`,
+When the report holds none, or the request names the run as the last
+`STE100 Auditor` run, the skill SHALL dispatch the `Durable Knowledge Auditor`,
 `iwe-plan-reviewer`, and `iwe-ship-reviewer` in one message. The skill SHALL NOT
 forward conversation turns. The prompt of the auditor SHALL carry only the plan
 file path and the scope `plan`. The prompt of `iwe-plan-reviewer` SHALL carry
 only the plan key and the absolute path of the skill's
 `references/plan-rules.md`. The prompt of `iwe-ship-reviewer` SHALL carry only
 the plan key and the mode `plan`.
+
+The `iwe-planner` rulebook SHALL run the `STE100 Auditor` on one draft three
+times at most. Its third request SHALL name the run as the last `STE100 Auditor`
+run, and Plan SHALL apply the findings of that run without a fourth run.
 
 The skill SHALL perform no review step itself. It SHALL return every report
 verbatim under the name of each agent. It SHALL edit no file and SHALL commit
@@ -972,9 +978,18 @@ the `iwe-planner` rulebook can run it in every mode.
 
 #### Scenario: The draft breaks the prose rule
 
-- **WHEN** the `STE100 Auditor` reports a finding on the draft
+- **WHEN** the `STE100 Auditor` reports a finding on the draft, and the request
+  does not name the run as the last `STE100 Auditor` run
 - **THEN** only that report returns, no other agent is dispatched, and the plan
   file is unchanged
+
+#### Scenario: The last STE100 Auditor run reports a finding
+
+- **WHEN** the `STE100 Auditor` reports a finding on the third run for one
+  draft, which the request names as the last `STE100 Auditor` run
+- **THEN** the skill dispatches the three other agents, and the four reports
+  return unchanged. Plan applies the `STE100 Auditor` findings and does not run
+  the `STE100 Auditor` again.
 
 ### Requirement: Capture files complete inbox documents
 

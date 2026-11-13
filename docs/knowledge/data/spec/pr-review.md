@@ -1,10 +1,9 @@
 ---
 type: spec
-description: This spec defines how the agentdev pr-review skill reviews a pull request. It covers the diffs that the skill fast-approves, the ASD-STE100 pass, the durable-knowledge pass, the review size, and the rules for a correctness finding.
+description: This spec defines how the agentdev pr-review skill reviews a pull request. It covers the diffs that the skill fast-approves, the durable-knowledge pass, the review size, and the rules for a correctness finding.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
-- resource: .agents/plugins/agentdev/skills/audit-ste100/SKILL.md
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .claude/settings.json
 - resource: .github/workflows/ai-responder.yml
@@ -58,34 +57,6 @@ one review.
 - **WHEN** a pull request changes no docs or skills file
 - **THEN** no durable-knowledge pass runs, and the compliance and correctness
   passes run unchanged.
-
-### Requirement: added prose gets an ASD-STE100 pass before the durable-knowledge pass
-
-The diff can add prose in two places. The first place is a line in a docs or
-skills file, as "docs and skills get a durable-knowledge pass" defines those
-files. The second place is a comment or docstring in a code file. Then
-`pr-review` SHALL run `/agentdev:audit-ste100` in diff scope over the added
-lines. It SHALL run the audit before the durable-knowledge pass, at both effort
-tiers. It SHALL NOT run the audit on a diff that adds no prose.
-
-Each finding SHALL become an inline review comment on the diff line that holds
-its quoted text. The pass SHALL keep a finding only when it can quote the added
-line and name the rule that the line breaks. Each finding SHALL block the merge.
-The pass SHALL NOT read the pull request title, the pull request body, or a
-commit message.
-
-#### Scenario: a diff adds a code comment
-
-- **WHEN** a pull request adds a comment to a code file and changes no docs or
-  skills file
-- **THEN** the ASD-STE100 pass reads the added comment, and no durable-knowledge
-  pass runs.
-
-#### Scenario: a diff adds no prose
-
-- **WHEN** a pull request changes code lines and adds no comment, no docstring,
-  and no line in a docs or skills file
-- **THEN** no ASD-STE100 pass runs.
 
 ### Requirement: every AI review sizes itself
 
@@ -230,21 +201,3 @@ Rejected:
   drift apart.
 - **An `iwe-audit` mode that emits GitHub review comments.** It puts review
   mechanics inside the auditor.
-
-### The ASD-STE100 pass checks from the model's knowledge of the standard
-
-The repository owner made ASD-STE100 Issue 9 the rule for the prose that a
-change adds or edits. `/agentdev:audit-ste100` checks the added prose from the
-model's knowledge of the standard and from the glossary of the repository. It
-holds no copy of the standard or of its dictionary.
-
-Rejected:
-
-- **A rule page written from the Issue 9 document.** The repository owner chose
-  a less formal first version, because the standard is a 434-page document.
-- **A check of each word against the ASD-STE100 dictionary.** ASD owns the
-  dictionary, and the terms for a copy in the repository are not known.
-- **A pre-commit script that counts the words in a sentence.** The script must
-  tell new text from old text and a procedure from a description.
-- **An audit of each commit message, or of the pull request title and body.**
-  The repository owner chose the written rule alone for these.
