@@ -27,3 +27,6 @@ instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 
 [Unstageable routing option in the improve
 skill](bugs/self-improve-unstageable-routing-option.md)
+
+[Bug: the ASD-STE100 audit gives different findings for the same
+text](bugs/ste100-audit-not-deterministic.md)

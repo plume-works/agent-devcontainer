@@ -23,5 +23,8 @@ ADRs](plans/20261113-move-decisions-into-adrs.md)
 [Remove the spec text that is redundant or
 wrong](plans/20261113-remove-redundant-and-wrong-spec-text.md)
 
+[Audit the added prose in pr-open, and limit the plan-review
+reruns](plans/20261113-ste100-audit-in-pr-open.md)
+
 [Test the decisions that the workflows
 make](plans/20261113-test-the-workflow-decisions.md)

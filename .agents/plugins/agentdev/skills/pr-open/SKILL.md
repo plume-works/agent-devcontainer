@@ -204,6 +204,21 @@ rather than re-deriving the link.
 **CRITICAL:** Run this only after the branch is synchronized and clean, so the
 description reflects the final changes the PR will contain.
 
+**Audit the added prose first.** The base is `PR_BASE` in update mode, or the
+base from step 4 in create mode. Dispatch the `STE100 Auditor` agent one time.
+Its prompt gives these three items and nothing more:
+
+- the scope `diff`;
+- the diff from the merge base to `HEAD`, which
+  `git diff "$(git merge-base origin/<base> HEAD)" HEAD` prints;
+- the text to audit: the lines that the diff adds to document files and skill
+  files, and the comments and docstrings that the diff adds to code files.
+
+Apply each replacement in the report. Then commit the changes through the
+`git-commit` skill. Do not run the audit again after you apply the
+replacements, because a second run can report new findings on the same text.
+When the report is `No findings.`, continue with no commit.
+
 Generate the PR description by following the
 [pr-gen-description](../pr-gen-description/) skill. That skill performs the
 change review; do not review the diff separately here. Give it the base branch

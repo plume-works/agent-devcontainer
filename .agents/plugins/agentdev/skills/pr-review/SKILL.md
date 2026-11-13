@@ -61,13 +61,6 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
 - **High-signal bar:** flag a finding only when you can quote the added line and name the specific rule it breaks — the same anti-nitpick threshold the Compliance focus uses. Drop any finding you cannot tie to a quoted line and a named rule.
 
-**Prose focus** (ASD-STE100 Issue 9). This focus applies to two sets of added lines. The first set is the lines that the diff adds to the docs and skills files that the Documentation focus names. The second set is the comments and docstrings that the diff adds to code files.
-
-- Run `/agentdev:audit-ste100` in diff scope over those added lines, before the durable-knowledge pass.
-- Put each finding in an inline review comment on the diff line that holds its quoted text. The comment body gives the rule that the text breaks and the replacement.
-- Use the same high-signal bar as the Documentation focus: keep a finding only when you can quote the added line and name the rule that it breaks.
-- Do not read the PR title, the PR description, or a commit message in this pass.
-
 **PR metadata focus** (title/description relevance) — use `/agentdev:pr-gen-description` before the in-depth passes:
 
 - Compare the current PR title and description from Step 1 against the actual PR diff, base branch, and repository pull request template.
@@ -76,7 +69,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — a finding from one of three passes. A **correctness pass** finds compile or parse failures, wrong outcomes of a reachable scenario, and security problems. A **durable-knowledge pass** finds session residue that a rule forbids. An **ASD-STE100 pass** finds added prose that breaks ASD-STE100 Issue 9. Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
+- **Blocking (critical/P1)** — a finding from one of two passes. A **correctness pass** finds compile or parse failures, wrong outcomes of a reachable scenario, and security problems. A **durable-knowledge pass** finds session residue that a rule forbids. Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed. A review whose findings are all non-blocking is an `APPROVE`; its inline threads still hold the merge until resolved.
 
@@ -102,12 +95,11 @@ Which size each slot gets, and how many of it run:
 | compliance    | 1x light         | 2x light             |
 | correctness   | 1x light         | 2x large             |
 | iwe-audit     | light            | large                |
-| audit-ste100  | light            | large                |
 | validation    | one batch, light | per-candidate, light |
 
 The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
 
-Both tiers run the same checks. The Step 3 metadata gate, the Step 4 ASD-STE100 pass, and the Step 4 durable-knowledge pass run at `light` as they run at `full`. The light tier costs less, but it does not check less. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
+Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` as they run at `full`. The light tier costs less, but it does not check less. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
 
 ## Steps
 
@@ -123,12 +115,11 @@ Both tiers run the same checks. The Step 3 metadata gate, the Step 4 ASD-STE100 
 4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"); a correctness issue also carries its scenario's Trigger, Path, and Outcome:
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
-   - 1x **ASD-STE100 pass**. Run it only when the diff adds prose that the Prose focus list defines. Audit those added lines against the Prose focus list. It runs at both tiers, in the same message as the compliance and correctness passes.
-   - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers. When the ASD-STE100 pass runs, the durable-knowledge pass is a second batch of its own: dispatch it after the first batch returns.
-   - **The lens follows the file.** The correctness passes scan code files. The durable-knowledge pass scans docs and skills files. The ASD-STE100 pass scans the prose that the diff adds to these two types of file. Each pass ignores the text outside its lens. On a mixed docs+code diff, each lens runs against its own subset in the same review. On a code-only diff, the durable-knowledge pass does not run. The ASD-STE100 pass runs only when the diff adds a comment or a docstring.
+   - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers.
+   - **The lens follows the file.** The correctness passes scan code files. The durable-knowledge pass scans docs and skills files. Each pass ignores the text outside its lens. On a mixed docs+code diff, each lens runs against its own subset in the same review. On a code-only diff, the durable-knowledge pass does not run, so four passes run at full effort and two at light.
    - **Every pass prompt carries the "Never execute code" constraint** (see Constraints) verbatim: a pass does not inherit this skill's text.
    - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
-   - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. A durable-knowledge pass that follows an ASD-STE100 pass is a second batch, and its single message comes after the first batch returns. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
+   - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
    - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
 5. **Merge and deduplicate.** Collect the candidate findings from every pass. Discard every correctness candidate with an empty Trigger, Path, or Outcome; it never reaches validation. Collapse candidates that name the same file/line and describe the same underlying issue into one, retaining one of them whole — its description and, for a correctness candidate, its scenario — and keeping the **blocking** tier if either collapsed candidate was blocking.
 6. **Validate the surviving candidates, on the `light` model at every effort level.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Preserve each surviving candidate's severity tier from Step 5 unchanged — validation confirms or drops a finding, it never changes its tier.

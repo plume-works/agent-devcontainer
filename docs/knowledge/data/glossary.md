@@ -30,6 +30,9 @@ term in the same change that first uses it.
 - **attach phase** (noun): The Dev Container lifecycle command
   `agentdev-runtime lifecycle attached`, which runs each time an editor attaches
   to the container.
+- **audit** (noun): The check of prose against ASD-STE100 Issue 9 that
+  `/agentdev:audit-ste100` does.
+- **audit** (verb): To do an audit.
 - **auth volume** (noun): The Docker volume that holds only the Claude
   credentials, which all Dev Container instances of one host user share.
 - **base** (noun): The remote branch that a work branch starts from and merges
@@ -271,6 +274,8 @@ term in the same change that first uses it.
   digest, without a new build.
 - **proposal** (noun): The new content that self-improve stages for one
   permitted target file, with an ID and a hash prefix.
+- **prose** (noun): The text of a file, except text in code formatting, text in
+  a fenced block, and quoted text.
 - **publisher-only source** (noun): The directories `.agents/`,
   `.claude-plugin/`, and `py_packages/`, which each consumer deletes.
 - **recommendation** (noun): A warning-level skill finding that shows only with
