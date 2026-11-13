@@ -662,19 +662,32 @@ Modify: the other files under
 **Files:** Modify: `docs/knowledge/data/spec/iwe-workflow-skills.md`,
 `docs/knowledge/data/spec/pre-commit-gate.md`
 
-- [ ] `spec/iwe-workflow-skills` has no requirement "Plans express spec impact
+- [x] `spec/iwe-workflow-skills` has no requirement "Plans express spec impact
   at risk-appropriate fidelity".
-- [ ] `spec/iwe-workflow-skills` has no requirement "Ship synchronizes durable
+  - **Evidence:** Removed the requirement and its scenarios.
+- [x] `spec/iwe-workflow-skills` has no requirement "Ship synchronizes durable
   specs by intelligent merge".
-- [ ] `spec/iwe-workflow-skills` has no requirement "Release notes are written
+  - **Evidence:** Removed the requirement and its scenarios.
+- [x] `spec/iwe-workflow-skills` has no requirement "Release notes are written
   from the spec diff".
-- [ ] `spec/iwe-workflow-skills` has no requirement "Each kind of knowledge has
+  - **Evidence:** Removed the requirement and its scenarios.
+- [x] `spec/iwe-workflow-skills` has no requirement "Each kind of knowledge has
   one home".
-- [ ] No clause that remains in `spec/iwe-workflow-skills` says that a skill
+  - **Evidence:** Removed the requirement and its scenarios.
+- [x] No clause that remains in `spec/iwe-workflow-skills` says that a skill
   reads or writes a spec, `## Spec changes`, or `## Rationale`.
-- [ ] No clause that remains in `spec/pre-commit-gate` gives a `## Ship review`
+  - **Evidence:** Rewrote the Plan, Implement, Verify, Ship, and archive clauses
+    that named a spec, and removed four `## Rationale` entries about the spec
+    merge; `grep -n -i "\bspec\b\|effective contract"` finds only two
+    rejected-option bullets that name no skill reading a spec.
+- [x] No clause that remains in `spec/pre-commit-gate` gives a `## Ship review`
   item that Task 6 removed.
-- [ ] `iwe find --references` shows no broken link to a removed requirement.
+  - **Evidence:** The ship-records requirement names no removed item and now
+    accepts two earlier structures.
+- [x] `iwe find --references` shows no broken link to a removed requirement.
+  - **Evidence:** `uv run scripts/check-anchors.py` passes after the
+    `plan-tasks-edit-specs` bug lost its anchor to the removed requirement; a
+    scan of live documents finds no anchor to a missing heading.
 
 ### Task 12: Update the documents that this plan changes
 
