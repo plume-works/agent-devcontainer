@@ -28,9 +28,11 @@ applies them.
 3. **Stop on a finding.** When the report has a finding, write the report in
    your last message, with no change, under the name `STE100 Auditor`.
    Dispatch no other agent. The caller corrects the draft and runs this skill
-   again.
+   again. Do not stop when the request names the run as the
+   last `STE100 Auditor` run. Continue to step 4.
 4. **Dispatch the three other agents at the same time**, in one message, when
-   the report has no finding. Send no conversation turns. Each prompt holds
+   the report has no finding, or when the request names the run as the
+   last `STE100 Auditor` run. Send no conversation turns. Each prompt holds
    only this text:
    - `Durable Knowledge Auditor` — the plan file path and the scope `plan`.
    - `iwe-plan-reviewer` — the plan key and the absolute path of

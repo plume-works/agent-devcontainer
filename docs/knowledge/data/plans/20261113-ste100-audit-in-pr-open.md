@@ -135,14 +135,22 @@ applies the findings and does not run the `STE100 Auditor` again.
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `iwe-plan-review` step 3 does not stop on a finding when the request names
+- [x] `iwe-plan-review` step 3 does not stop on a finding when the request names
   the run as the last `STE100 Auditor` run.
-- [ ] `iwe-plan-review` step 4 dispatches the three other agents after the last
+  - **Evidence:** `iwe-plan-review/SKILL.md#steps` › "Do not stop when the
+    request names the run as the last `STE100 Auditor` run".
+- [x] `iwe-plan-review` step 4 dispatches the three other agents after the last
   `STE100 Auditor` run, also when its report has findings.
-- [ ] `iwe-planner` step 7 tells Plan to name the third run of
+  - **Evidence:** step 4 dispatches "when the report has no finding, or when the
+    request names the run as the last `STE100 Auditor` run".
+- [x] `iwe-planner` step 7 tells Plan to name the third run of
   `/agentdev:iwe-plan-review` on one draft as the last `STE100 Auditor` run.
-- [ ] `iwe-planner` step 7 tells Plan to apply the findings of the last
+  - **Evidence:** `iwe-planner.agent.md#steps` › "In the request of the third
+    run, name that run as the last `STE100 Auditor` run".
+- [x] `iwe-planner` step 7 tells Plan to apply the findings of the last
   `STE100 Auditor` run and not to run the `STE100 Auditor` again.
+  - **Evidence:** step 7 › "Apply the findings of the last `STE100 Auditor` run,
+    and do not run the `STE100 Auditor` again".
 
 ### Task 4: Observe the audit in a real pull request
 

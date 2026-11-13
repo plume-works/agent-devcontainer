@@ -153,10 +153,14 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    run `/agentdev:iwe-plan-review` on the plan draft. It dispatches the
    `STE100 Auditor` agent first and alone. When that agent reports a finding,
    the skill returns only that report. Correct the draft for each finding.
-   Then run `/agentdev:iwe-plan-review` again. When it reports no finding, the
-   skill dispatches three agents: the `Durable Knowledge Auditor` agent in plan
-   scope, `iwe-plan-reviewer` with the plan rules, and `iwe-ship-reviewer` in
-   plan mode. Each agent reads the draft without the context of this
+   Then run `/agentdev:iwe-plan-review` again. Run it three times at most on
+   one draft. In the request of the third run, name that run as the
+   last `STE100 Auditor` run. The skill then dispatches the three other agents
+   also when the `STE100 Auditor` reports a finding. Apply the findings of the
+   last `STE100 Auditor` run, and do not run the `STE100 Auditor` again. When
+   the `STE100 Auditor` reports no finding, the skill dispatches three agents:
+   the `Durable Knowledge Auditor` agent in plan scope, `iwe-plan-reviewer`
+   with the plan rules, and `iwe-ship-reviewer` in plan mode. Each agent reads the draft without the context of this
    conversation. The skill returns the four reports.
    Apply the `Durable Knowledge Auditor` report-only verdicts to the draft (DROP/REWRITE/MOVE as
    recommended). Fix the draft for each `iwe-plan-reviewer` and
