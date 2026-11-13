@@ -222,17 +222,24 @@ Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `/agentdev:iwe-plan-review` dispatches the `STE100 Auditor` alone, before
+- [x] `/agentdev:iwe-plan-review` dispatches the `STE100 Auditor` alone, before
   any other agent. The prompt carries only the plan file path and the scope
   `plan`.
-- [ ] When that report has a finding, the skill returns it under the agent's
+  - **Evidence:** Step 2 of `iwe-plan-review/SKILL.md#steps` dispatches it alone
+    with only those two inputs.
+- [x] When that report has a finding, the skill returns it under the agent's
   name and dispatches no other agent.
-- [ ] When that report has no finding, the skill dispatches
+  - **Evidence:** Step 3 of `iwe-plan-review/SKILL.md#steps` stops on a finding.
+- [x] When that report has no finding, the skill dispatches
   `durable-knowledge-auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in
   one message and returns the four reports.
-- [ ] Step 7 of `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps`
+  - **Evidence:** Steps 4 and 5 of `iwe-plan-review/SKILL.md#steps`;
+    `validate_agent_files` passes.
+- [x] Step 7 of `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps`
   tells Plan to correct each `STE100 Auditor` finding and to run the review
   again.
+  - **Evidence:** Step 7 says to correct the draft for each finding and to run
+    `/agentdev:iwe-plan-review` again.
 
 ### Task 7: Run the audit in pull request review
 
