@@ -155,19 +155,38 @@ Rejected:
 Modify: `docs/knowledge/data/index.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/index.md`
 
-- [ ] `docs/knowledge/data/glossary.md` has `type: tracker`, `stage: living`,
+- [x] `docs/knowledge/data/glossary.md` has `type: tracker`, `stage: living`,
   and a `description`.
-- [ ] Each entry is one list item: the term in bold, then `(noun)` or `(verb)`,
+  - **Evidence:** The frontmatter has the three fields; `iwe schema validate`
+    passes.
+- [x] Each entry is one list item: the term in bold, then `(noun)` or `(verb)`,
   then the meaning in one sentence.
-- [ ] The entries are in alphabetical order.
-- [ ] Each term in `docs/spec-audit/specs.jsonl` under `glossary_terms` that
+  - **Evidence:** The page has 187 entries in this form, each meaning one
+    sentence of at most 25 words.
+- [x] The entries are in alphabetical order.
+  - **Evidence:** A script compared the bold terms with their case-insensitive
+    sort.
+- [x] Each term in `docs/spec-audit/specs.jsonl` under `glossary_terms` that
   prose uses as a word has an entry.
-- [ ] No entry is a term that is only a code identifier, such as a file name or
+  - **Evidence:** All 244 seed terms were read. Terms used as words have an
+    entry, with synonyms joined. Code identifiers, section headings, and four
+    terms that no text outside `docs/spec-audit/` uses have none.
+- [x] No entry is a term that is only a code identifier, such as a file name or
   a result code.
-- [ ] Each meaning agrees with the code or the rulebook that defines the term.
-- [ ] `docs/knowledge/data/index.md#reference` links the glossary.
-- [ ] The `iwe-bootstrap` seed holds a glossary page that has no entries.
-- [ ] The seed copy of `data/index.md` links the glossary.
+  - **Evidence:** A fresh-context agent checked all 187 entries and found no
+    entry that is only a code identifier.
+- [x] Each meaning agrees with the code or the rulebook that defines the term.
+  - **Evidence:** A fresh-context agent checked each meaning against the code,
+    the rulebooks, and the specs. The seven meanings that it found wrong were
+    corrected.
+- [x] `docs/knowledge/data/index.md#reference` links the glossary.
+  - **Evidence:** The last bullet of `# Reference` links `glossary.md`.
+- [x] The `iwe-bootstrap` seed holds a glossary page that has no entries.
+  - **Evidence:** The seed `data/glossary.md` has the frontmatter and the intro
+    and no entries; `test_iwe_seed.py` passes.
+- [x] The seed copy of `data/index.md` links the glossary.
+  - **Evidence:** The seed index links `glossary.md`; `test_every_link_resolves`
+    passes.
 
 ### Task 4: Add the `audit-ste100` skill
 
