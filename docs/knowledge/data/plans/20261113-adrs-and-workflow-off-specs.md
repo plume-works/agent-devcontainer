@@ -393,22 +393,41 @@ both decisions before this plan.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md`
 
-- [ ] The `iwe-shipper` rulebook has no spec merge and no check of a spec merge.
-- [ ] Normal shipping sets each ADR that the plan's `## ADRs` links to
+- [x] The `iwe-shipper` rulebook has no spec merge and no check of a spec merge.
+  - **Evidence:** Replaced steps 4 and 5 with the ADR acceptance and its
+    validation; the only spec text left is the release step, which Task 7
+    changes.
+- [x] Normal shipping sets each ADR that the plan's `## ADRs` links to
   `stage: accepted`.
-- [ ] For each key in the `supersedes` list of such an ADR, Ship sets that ADR
+  - **Evidence:** Step 4 sets each ADR that `## ADRs` links to
+    `stage: accepted`.
+- [x] For each key in the `supersedes` list of such an ADR, Ship sets that ADR
   to `stage: superseded`, moves it with `iwe rename` to
   `data/archive/next-release/adr/`, and removes its link from `data/adr.md`.
-- [ ] Ship changes nothing else in an ADR.
-- [ ] Cancellation sets each proposed ADR of the plan to `stage: rejected`,
+  - **Evidence:** Step 4 sets it to `stage: superseded`, moves it with
+    `iwe rename` to `data/archive/next-release/adr/`, and removes its hub link.
+- [x] Ship changes nothing else in an ADR.
+  - **Evidence:** Step 4 says "Change nothing else in an ADR".
+- [x] Cancellation sets each proposed ADR of the plan to `stage: rejected`,
   moves it to `data/archive/next-release/adr/`, and removes its hub link.
-- [ ] A linked ADR that does not exist, or that is not at `proposed` before the
+  - **Evidence:** Step 2 sets each proposed ADR to `stage: rejected`, moves it
+    to `data/archive/next-release/adr/`, and removes its hub link.
+- [x] A linked ADR that does not exist, or that is not at `proposed` before the
   ship, ends the run with a Ship blocker report. The route is
   `/agentdev:iwe-plan` revise mode.
-- [ ] Ship writes no `## Rationale`. The root cause of a bug stays in the bug.
-- [ ] The Ship blocker report and the rules name no spec.
-- [ ] The descriptions of the `iwe-shipper` agent and of `/agentdev:iwe-ship`
+  - **Evidence:** Step 1 ends the run with a Ship blocker report before Verify;
+    the report section routes it to `/agentdev:iwe-plan` revise mode.
+- [x] Ship writes no `## Rationale`. The root cause of a bug stays in the bug.
+  - **Evidence:** Step 4 and the rules say Ship writes no `## Rationale`, and
+    step 4 says the root cause of a bug stays in the bug.
+- [x] The Ship blocker report and the rules name no spec.
+  - **Evidence:** The blocker routes now name a scenario and an ADR, and the
+    rules name the ADR acceptance; `grep -n -i spec` finds only the release
+    step.
+- [x] The descriptions of the `iwe-shipper` agent and of `/agentdev:iwe-ship`
   name the ADR step, not a spec merge.
+  - **Evidence:** Both descriptions name the ADR acceptance in place of the spec
+    merge.
 
 ### Task 6: Review a ship against the new obligations
 
