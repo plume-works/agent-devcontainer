@@ -157,11 +157,19 @@ applies the findings and does not run the `STE100 Auditor` again.
 **Closed by:** the first pull request that `/agentdev:pr-open` opens or updates
 after this plan merges, and the AI review of that pull request.
 
-- [ ] The `pr-open` run dispatches the `STE100 Auditor` before it generates the
+- [x] The `pr-open` run dispatches the `STE100 Auditor` before it generates the
   body.
-- [ ] When the pull request adds a document line with a word that ASD-STE100
+  - **Evidence:** The `pr-open` run that opened #877 dispatched the
+    `STE100 Auditor` with the scope `diff` before it generated the body.
+- [x] When the pull request adds a document line with a word that ASD-STE100
   does not approve, the `pr-open` run pushes a commit with the replacement.
-- [ ] The AI review of that pull request posts no ASD-STE100 finding.
+  - **Evidence:** The audit of #877 reported unapproved words, and the run
+    pushed commit `010b5834` with the replacements before it created the pull
+    request.
+- [x] The AI review of that pull request posts no ASD-STE100 finding.
+  - **Evidence:** The `plume-works-quill` review of #877 is APPROVED with "No
+    issues found", names only the correctness, compliance, and durable-knowledge
+    passes, and has no inline comment.
 
 ### Task 5: Observe the rerun limit in a real plan review
 
