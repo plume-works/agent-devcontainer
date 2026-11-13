@@ -171,15 +171,12 @@ software project's memory and system of record. The division of labor:
   anywhere: it is wrong the next time the file changes.
 - **A ticked task carries the evidence that closed it**: every `- [x]` under a
   plan's `## Implementation Steps` has an indented `- **Evidence:**` child,
-  written in the same edit as the tick. The tick and its evidence line land in
-  the same commit as the code they describe. One edit ticks one box — a sweep
-  across the file is the defect, not a shortcut. Unticked boxes stay bare. A
-  commit id on its own is not evidence; the line names a check Verify can
-  repeat:
-  - Code: a test id (`path::name`) or a command, which Verify re-runs against
-    the current tree.
-  - Docs or config with no test: the file and anchor that changed.
-  - External work: the CI run or the PR that closes it, which must stand alone.
+  written in the same edit as the tick — a short free-form note of what was
+  done and how it was checked. The tick and its evidence line land in the
+  same commit as the code they describe. One edit ticks one box — a sweep
+  across the file is the defect, not a shortcut. Unticked boxes stay bare. The
+  line exists only so a box is never ticked for work that was not done: its
+  form is never audited, and Verify never re-runs what it records.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less

@@ -88,23 +88,16 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      message — reproduce that text verbatim in a fenced block under the task
      that applies it, and check `.tmp/approved-wording-<slug>.md` for it before
      writing the task from memory. A checkbox stays bare while it is unticked;
-     once ticked, it carries an indented `- **Evidence:**` child naming what
-     closed it as a check Verify can repeat:
-     - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
-     - Docs or config with no test: the file and anchor that changed.
-     - External work: the CI run or the PR that closes it, which must stand alone.
+     once ticked, it carries an indented `- **Evidence:**` child, a short
+     free-form note of what was done. A plan never prescribes the evidence's
+     form.
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change, written in whichever of the three forms below fits the risk;
      name not-yet-existing specs in back-ticks (never dangling links)
    - `## Depends on` — inline links to plans that must ship first (omit if
      none)
-   - `## Verification` — how a session proves the work is done: commands,
-     tests, manual checks. A search for leftover text covers only the files
-     the plan changes. Each command runs in the checkout the `iwe-verifier`
-     agent works in — inside the Dev Container or container the agent already
-     runs in — without starting a nested Dev Container and without CI; a check
-     that needs either is a cited CI job or a task carrying a `**Closed by:**`
-     line
+   - `## Verification` — the commands and tests the `iwe-verifier` agent runs
+     to prove the work is done, under the plan rules' `## Verification`
    - `## Verification results` — narrative evidence for the plan as a whole,
      written as the work happens rather than reconstructed at the end (omit
      until there is something to record). This is the plan's only narrative
@@ -158,10 +151,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    that names more than one.
 7. **Review the plan from a fresh context.** In both create and revise mode,
    run `/agentdev:iwe-plan-review` on the plan draft. It dispatches the
-   `Durable Knowledge Auditor` agent in plan scope and `iwe-ship-reviewer` in
-   plan mode, each reading the draft with none of this conversation's context,
-   and returns both reports. Apply the auditor's report-only verdicts to the
-   draft (DROP/REWRITE/MOVE as recommended). Fix the draft for each
+   `Durable Knowledge Auditor` agent in plan scope, `iwe-plan-reviewer` with
+   the plan rules, and `iwe-ship-reviewer` in plan mode, each reading the draft
+   with none of this conversation's context, and returns the three reports.
+   Apply the auditor's report-only verdicts to the draft (DROP/REWRITE/MOVE as
+   recommended). Fix the draft for each `iwe-plan-reviewer` and
    `iwe-ship-reviewer` gap, asking the user where a fix is a material choice
    (step 2), and resolve every gap before step 8. This gate runs on every
    plan-intent edit: create, revise, and each route Implement, Verify, and Ship
@@ -274,6 +268,13 @@ requirement instead.
 
 ## Rules
 
+- **A plan satisfies every rule in
+  [the plan rules](../skills/iwe-plan-review/references/plan-rules.md).** Read
+  that file in full before drafting. It is the only home of the rules a plan
+  document is checked against — task and checkbox shape, `## Verification`
+  steps, planned tests, and anchors — and `iwe-plan-reviewer` checks the draft
+  against the same file. The rules below are the ones that need judgment and
+  are not reviewed.
 - One plan per topic; if the plan needs two unrelated verification stories,
   it's two plans.
 - **YAGNI: plan the simplest thing that could possibly work.** Plan only the
@@ -281,28 +282,10 @@ requirement instead.
   unrequested config flag, option, or parameter, an interface with a single
   implementation, or a hook "for later"; generality waits for a second real
   caller or a user request.
-- One task is one outcome; if the task could ever be described as half-done,
-  split it. A task whose evidence is external — a CI run, a deploy, a review, a
-  published artifact — always stands alone, because the session writing the code
-  cannot close it. The failure this prevents is a bundled task ticked for the
-  half that was done locally, which then reads as a claim about the half that
-  was not. Each checkbox names exactly one observation that closes it: a
-  checkbox joining independently observable events, such as a passing run and
-  a failing run, is split into one checkbox per event, so each is ticked with
-  its own evidence as it is observed. An event that may never occur on its own,
-  such as a failure or cancellation path, names how it is provoked.
-- Code anchors are verified against the current checkout, never cited from
-  memory, and never carry a line number.
-- A plan carries no task or `## Verification` step whose only claim is that CI
-  passes: `pr-merge` gates every merge on CI.
 - A plan may carry one task, closing or near-closing, that runs
   `/agentdev:iwe-adversarial-review <plan> code`, when its claims are worth
   attacking — a trust boundary, an integrity check. Planning never invokes that
   skill and never dispatches `iwe-adversarial-reviewer`, in either mode.
-- Behaviour observable only after merge is a task carrying a
-  `**Closed by:** <who or what event>` line, and Ship waits for it.
-- A scenario is covered by a test only when the test runs the behaviour: it executes the code, script, hook, or command under test with inputs it controls, owns every resource it uses, and checks what results. These do not cover behaviour: a test that reads a repository file to check its text, keys, steps, or versions, or that two files agree; a test that checks another tool did its job; and a test that queries a live service or waits on CI. Behaviour no such test can reach is an observation task that names who closes it, and Ship waits for it.
-- A plan adds no end-to-end test that drives an agent session through the workflow skills against a live model; behaviour only such a session can show is an observation task naming who closes it, and Ship waits for it.
 - Before validation, check each requirement in `## Spec changes` that the plan
   adds or modifies against the plan's `## Approach` and against the code it
   describes, and resolve every disagreement in the plan before it is written.
@@ -316,11 +299,8 @@ requirement instead.
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as
   described above, but never application code or implementation tests.
-- **Approved text is copied, never described.** A plan that says what wording
-  should accomplish, in place of the wording itself, has lost it: the session
-  that applies the plan starts cold, writes something reasonable and different,
-  and no one can see what was dropped. The test is whether a session with only
-  this plan could reproduce the approved bytes. If the text isn't at hand, stop
+- **Recover approved text before writing its task.** The plan rules require
+  approved wording verbatim. If the text isn't at hand, stop
   and recover it — from `.tmp/`, from the conversation, from the transcript —
   before writing the task. Recovered text is a candidate, not a source of
   truth: `.tmp/` is the repo-wide scratch directory, so a file sitting at a
