@@ -20,8 +20,8 @@ its most load-bearing claim. This specifies what a tick must carry, how tasks
 must be sized so a tick can be honest, and the gate that checks a tick carries
 its note.
 
-Evidence has one purpose: to stop a box being ticked for work that was not
-done, where a blanket substitution and a set of careful verifications produce
+Evidence has one purpose: to stop a box being ticked for work that was not done,
+where a blanket substitution and a set of careful verifications produce
 identical bytes and only the evidence line tells them apart. Nothing else reads
 it: the `plan-checkboxes` gate checking the note is present is the only check on
 a tick, and Verify never checks ticks or their notes.

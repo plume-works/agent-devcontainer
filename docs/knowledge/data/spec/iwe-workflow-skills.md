@@ -615,8 +615,8 @@ ticked task or its evidence.
 
 #### Scenario: A draft has a weakness no plan rule names
 
-- **WHEN** `iwe-plan-reviewer` notices a weakness in a draft that no rule of
-  the plan rules file states
+- **WHEN** `iwe-plan-reviewer` notices a weakness in a draft that no rule of the
+  plan rules file states
 - **THEN** it reports nothing about it
 
 #### Scenario: A plan edit is checked for what Ship needs
