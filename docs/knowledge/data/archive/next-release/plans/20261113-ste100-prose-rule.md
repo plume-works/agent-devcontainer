@@ -12,6 +12,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: docs/spec-audit/specs.jsonl
+stage: done
+completed: 2026-11-13
 ---
 
 # Make ASD-STE100 the rule for all prose
@@ -22,7 +24,7 @@ The repository has no rule for how prose is written. The repository owner
 decided that ASD-STE100 Issue 9 (Simplified Technical English, released
 2025-01-15) is a hard rule for all prose that agents write, and that this rule
 comes before the work in [Shrink the knowledge base to an issue tracker and
-decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+decision records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
 
 The repository owner's decisions:
 
@@ -30,15 +32,15 @@ The repository owner's decisions:
   rulebooks, `AGENTS.md` files, READMEs, code comments, commit messages, and
   pull request titles and bodies.
 - The rule applies only to the text that a change adds or edits. [Migrate
-  existing prose to ASD-STE100](../backlog/migrate-prose-to-ste100.md) converts
-  the earlier text.
+  existing prose to ASD-STE100](../../../backlog/migrate-prose-to-ste100.md)
+  converts the earlier text.
 - The rule names the issue of the standard, so that a later issue does not
   change the rule without a decision.
 - A new skill, `audit-ste100`, checks the rule from a fresh context and runs
   before the Durable Knowledge Auditor.
 - The skill checks from the model's own knowledge of the standard. [Full
-  ASD-STE100 compliance](../someday/ste100-full-compliance.md) holds the idea of
-  a check against the standard itself.
+  ASD-STE100 compliance](../../../someday/ste100-full-compliance.md) holds the
+  idea of a check against the standard itself.
 - A glossary is the list of project terms that the rule permits.
 - Commit messages and pull request text follow the written rule. No audit reads
   them.
@@ -294,8 +296,15 @@ Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 **Closed by:** the `/agentdev:iwe-plan-review` run on the next plan that a
 session drafts after this change is on the default branch.
 
-- [ ] The `STE100 Auditor` report returns before any other reviewer runs.
-- [ ] After the draft has no finding, the review returns four reports.
+- [x] The `STE100 Auditor` report returns before any other reviewer runs.
+  - **Evidence:** In the review of
+    `data/plans/20261113-remove-knowledge-base-changelog`, the `STE100 Auditor`
+    ran alone six times. No other reviewer ran until its report was
+    `No findings.`
+- [x] After the draft has no finding, the review returns four reports.
+  - **Evidence:** After `No findings.`, the review dispatched the
+    `Durable Knowledge Auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in
+    one message, and returned their reports with the `STE100 Auditor` report.
 
 ## Spec changes
 
@@ -303,7 +312,7 @@ The repository owner decided that this plan writes spec text only for plan
 review and for pull request review: one changed requirement and one added
 requirement. The rule, the skill, and the glossary get no spec.
 
-[agentdev IWE workflow skills](../spec/iwe-workflow-skills.md):
+[agentdev IWE workflow skills](../../../spec/iwe-workflow-skills.md):
 
 ``` markdown
 ## MODIFIED Requirements
@@ -342,7 +351,7 @@ so the `iwe-planner` rulebook can run it in every mode.
 `## Rationale` entry that the spec gains: "The ASD-STE100 audit runs before the
 other plan reviewers". It records the rejected fourth parallel reviewer.
 
-[PR review](../spec/pr-review.md):
+[PR review](../../../spec/pr-review.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -391,9 +400,9 @@ uv run scripts/check-anchors.py
 ## Out of scope
 
 - The conversion of text that existed before the rule. [Migrate existing prose
-  to ASD-STE100](../backlog/migrate-prose-to-ste100.md) owns it.
+  to ASD-STE100](../../../backlog/migrate-prose-to-ste100.md) owns it.
 - A check against the standard itself or its dictionary. [Full ASD-STE100
-  compliance](../someday/ste100-full-compliance.md) owns it.
+  compliance](../../../someday/ste100-full-compliance.md) owns it.
 - An audit of commit messages, pull request titles, or pull request bodies.
 - A change to `/agentdev:git-commit`, `/agentdev:pr-open`, or
   `/agentdev:pr-gen-description`.
@@ -427,3 +436,28 @@ uv run scripts/check-anchors.py
   table.
 - `.agents/plugins/agentdev/tests/test_iwe_seed.py::test_scaffold_support_files_match_the_publisher_workspace`
   — the test that compares the asset copies with the workspace.
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-13.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship:
+  data/plans/20261113-ste100-prose-rule
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/iwe-workflow-skills, data/spec/pr-review
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-13
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Every `## Rationale` entry the plan names is in its spec — confirmed:
+  data/spec/iwe-workflow-skills, data/spec/pr-review
+- [x] The plan and every feature and bug it closed are archived with no hub link
+  — confirmed: data/archive/next-release/plans/20261113-ste100-prose-rule

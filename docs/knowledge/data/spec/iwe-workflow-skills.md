@@ -1079,23 +1079,37 @@ plugin.
 
 ### Requirement: Plan review runs its reviewers from fresh contexts and changes nothing
 
-`/agentdev:iwe-plan-review <plan>` SHALL dispatch the
-`Durable Knowledge Auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in one
-message, forwarding no conversation turns: the auditor's prompt SHALL carry only
-the plan file path and the scope `plan`, `iwe-plan-reviewer`'s only the plan key
-and the absolute path of the skill's `references/plan-rules.md`, and
-`iwe-ship-reviewer`'s only the plan key and the mode `plan`. It SHALL perform no
-review step itself, SHALL return the three reports verbatim under each agent's
-name, and SHALL edit no file and commit nothing; applying the verdicts belongs
-to its caller. The skill SHALL be model-invocable, so the `iwe-planner` rulebook
-can run it in every mode.
+`/agentdev:iwe-plan-review <plan>` SHALL first dispatch the `STE100 Auditor`
+alone, with a prompt that carries only the plan file path and the scope `plan`.
+When that report holds a finding, the skill SHALL return it verbatim under the
+agent's name and SHALL dispatch no other agent.
+
+When it holds none, the skill SHALL dispatch the `Durable Knowledge Auditor`,
+`iwe-plan-reviewer`, and `iwe-ship-reviewer` in one message. The skill SHALL NOT
+forward conversation turns. The prompt of the auditor SHALL carry only the plan
+file path and the scope `plan`. The prompt of `iwe-plan-reviewer` SHALL carry
+only the plan key and the absolute path of the skill's
+`references/plan-rules.md`. The prompt of `iwe-ship-reviewer` SHALL carry only
+the plan key and the mode `plan`.
+
+The skill SHALL perform no review step itself. It SHALL return every report
+verbatim under the name of each agent. It SHALL edit no file and SHALL commit
+nothing. Its caller applies the verdicts. The skill SHALL be model-invocable, so
+the `iwe-planner` rulebook can run it in every mode.
 
 #### Scenario: Plan reaches its review step
 
-- **WHEN** `iwe-planner` reaches its review step on a created or revised plan
-- **THEN** the three agents are dispatched in parallel with only those prompts,
-  the three reports return unchanged, and the plan file is unchanged until Plan
-  applies them
+- **WHEN** `iwe-planner` reaches its review step on a created or revised plan,
+  and the `STE100 Auditor` reports no finding
+- **THEN** the skill dispatches the three other agents in parallel with only
+  those prompts. The four reports return unchanged. The plan file stays
+  unchanged until Plan applies them.
+
+#### Scenario: The draft breaks the prose rule
+
+- **WHEN** the `STE100 Auditor` reports a finding on the draft
+- **THEN** only that report returns, no other agent is dispatched, and the plan
+  file is unchanged
 
 ### Requirement: Capture files complete inbox documents
 
@@ -1922,6 +1936,17 @@ Rejected:
 - **Widening the `Durable Knowledge Auditor`'s rubric to Ship's obligations.**
   `iwe-ship-reviewer` exists for its ship mode anyway, and one rubric held by
   two agents would drift.
+
+### The ASD-STE100 audit runs before the other plan reviewers
+
+`/agentdev:iwe-plan-review` dispatches the `STE100 Auditor` alone and first. The
+other reviewers read the draft only after it has no ASD-STE100 finding, so they
+read the final text.
+
+Rejected:
+
+- **The `STE100 Auditor` as a fourth parallel plan reviewer.** The other
+  reviewers would read text that the corrections then change.
 
 ### Each kind of knowledge has one home, and finished work is archived by release
 

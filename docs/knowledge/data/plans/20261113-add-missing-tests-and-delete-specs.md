@@ -149,7 +149,8 @@ None — no behavioral change
 [Move the decisions from the specs into
 ADRs](20261113-move-decisions-into-adrs.md)
 
-[Make ASD-STE100 the rule for all prose](20261113-ste100-prose-rule.md)
+[Make ASD-STE100 the rule for all
+prose](../archive/next-release/plans/20261113-ste100-prose-rule.md)
 
 [Test the decisions that the workflows
 make](20261113-test-the-workflow-decisions.md)
