@@ -69,7 +69,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
+- **Blocking (critical/P1)** — a finding from one of two passes. A **correctness pass** finds compile or parse failures, wrong outcomes of a reachable scenario, and security problems. A **durable-knowledge pass** finds session residue that a rule forbids. Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed. A review whose findings are all non-blocking is an `APPROVE`; its inline threads still hold the merge until resolved.
 
@@ -99,7 +99,7 @@ Which size each slot gets, and how many of it run:
 
 The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
 
-Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` exactly as they do at `full`: the light tier is a cheaper review, not a weaker one. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
+Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` as they run at `full`. The light tier costs less, but it does not check less. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
 
 ## Steps
 
@@ -116,7 +116,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
    - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers.
-   - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run, leaving four passes at full effort and two at light.
+   - **The lens follows the file.** The correctness passes scan code files. The durable-knowledge pass scans docs and skills files. Each pass ignores the text outside its lens. On a mixed docs+code diff, each lens runs against its own subset in the same review. On a code-only diff, the durable-knowledge pass does not run, so four passes run at full effort and two at light.
    - **Every pass prompt carries the "Never execute code" constraint** (see Constraints) verbatim: a pass does not inherit this skill's text.
    - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
    - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
