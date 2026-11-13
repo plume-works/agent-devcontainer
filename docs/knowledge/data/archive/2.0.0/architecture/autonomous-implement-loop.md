@@ -35,11 +35,11 @@ create mode — keeps its script bundled with the skill.
 
 **A revision is drafted, audited, evaluated, then committed.** The Implement
 session drafts it under the `iwe-planner` revise rules, including
-`/agentdev:iwe-plan-review` — the `Durable Knowledge Auditor`,
-`iwe-plan-reviewer`, and `iwe-ship-reviewer` in plan mode — and validation, and
-leaves it uncommitted. `iwe-revision-evaluator` then judges the final text: its
-prompt carries only the plan key and the quoted finding, and it reads
-`git show HEAD:<plan>` and `git diff -- <plan>`. It returns:
+`/agentdev:iwe-plan-review` — the `Durable Knowledge Auditor` and
+`iwe-ship-reviewer` in plan mode — and validation, and leaves it uncommitted.
+`iwe-revision-evaluator` then judges the final text: its prompt carries only the
+plan key and the quoted finding, and it reads `git show HEAD:<plan>` and
+`git diff -- <plan>`. It returns:
 
 - `APPROVE` — the revision answers the finding and keeps every specified
   behavior; the Implement session commits it and resumes.

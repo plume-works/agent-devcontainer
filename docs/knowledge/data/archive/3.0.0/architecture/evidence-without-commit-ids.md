@@ -1,43 +1,50 @@
 ---
 type: architecture
-description: Plan task evidence is a free-form note whose only job is to stop a box being ticked for work that was not done; the plan-checkboxes gate is the only check on it, and Verify never checks ticks or their notes.
+description: Plan task evidence names a check Verify can repeat — a test id or command, a file and anchor, or a CI run or PR — never a commit id alone, so a task's tick lands in the same commit as its code.
 sources:
-- resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
-- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: docs/knowledge/data/plans/20261109-evidence-without-commit-ids.md
+- resource: docs/knowledge/data/backlog/resilient-task-evidence.md
 ---
 
-# Task evidence is a note, not a check
+# Evidence without commit ids
 
 ## Decision
 
-A ticked plan task's `- **Evidence:**` line is a short free-form note of what
-was done and how it was checked — a test, a command, a file, a manual or live
-check, a CI run, a PR, or a commit, in whatever words fit. Its one purpose is to
-stop a box being ticked for work that was not done: writing the note forces the
-implementer to state what it did, and the `plan-checkboxes` gate checks the note
-is present.
+A ticked plan task's `- **Evidence:**` line names a check Verify can repeat in
+the current tree, by kind:
 
-Nothing else reads it. The `plan-checkboxes` gate is the only check on a tick
-and its note: Verify reports nothing about a ticked task or its note, and never
-re-runs, re-observes, or asks approval to repeat what the note records.
+- Code: a test id (its path and test name) or a command, which Verify re-runs
+  against the current tree.
+- Docs or config with no test: the file and anchor that changed.
+- External work: the CI run or the PR that closes it, which must stand alone.
 
-A task's code, its checkbox flip, and its evidence line land in one commit. One
-edit ticks one box, and one task makes one commit.
+A commit id on its own is not evidence. Verify re-runs a named test or command
+and treats one that fails or no longer exists as an unsupported tick. The
+residue rule stands: raw command stdout, an ephemeral identifier, and an
+uncommitted `.tmp/` harness are not evidence. The `plan-checkboxes` gate checks
+shape only.
 
 ## Why
 
-Grading the note made it a second deliverable with its own failure modes. A note
-naming a code anchor instead of a test, a check Verify could not repeat without
-approval, or a live observation Verify could not re-observe each blocked Ship
-although the code was done, and every fix to the note was another Implement and
-Verify round with no change to the product.
+Every reader of evidence — the `plan-checkboxes` gate, Verify, and the Ship run
+that repeats Verify — runs before merge; nothing reads a shipped plan's evidence
+after merge. A commit id buys nothing those readers need, while rebase, squash
+merge, and amend rewrite it, and a check Verify can re-run is what lets Verify
+judge a tick the same way every time.
+
+## Same-commit rule
+
+With nothing left that must name a commit, a task's code, its checkbox flip, and
+its evidence line land in one commit. One edit still ticks one box, and one task
+still makes one commit.
 
 ## Alternatives rejected
 
-- **Evidence by kind, re-run by Verify** — a test id or command for code, a file
-  and anchor for docs, a CI run or PR for external work, with commit ids and
-  "residue" rejected. Verify's judgment of the kind flipped between runs, and a
-  recorded live check became an approval Ship could not get past.
-- **No evidence line at all.** Nothing would then distinguish a careful tick
-  from a blanket `- [ ]` → `- [x]` sweep.
+- **Keep commit ids.** Nothing reads evidence after merge, and the rule costs a
+  second commit per task and a revision round whenever the named hash is wrong.
+- **The PR number.** It survives squash, but it points at the whole change, so
+  Verify still has nothing per task to repeat.
+- **A test id only.** Docs, config, and external work have no test; each needs
+  its own kind of evidence anyway.
+- **Free text checked for shape only.** Verify's judgment flips between runs
+  when a line names nothing it can repeat.
