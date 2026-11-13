@@ -1084,14 +1084,15 @@ alone, with a prompt that carries only the plan file path and the scope `plan`.
 When that report holds a finding, the skill SHALL return it verbatim under the
 agent's name and SHALL dispatch no other agent. When it holds none, the skill
 SHALL dispatch the `Durable Knowledge Auditor`, `iwe-plan-reviewer`, and
-`iwe-ship-reviewer` in one message, forwarding no conversation turns: the
-auditor's prompt SHALL carry only the plan file path and the scope `plan`,
-`iwe-plan-reviewer`'s only the plan key and the absolute path of the skill's
-`references/plan-rules.md`, and `iwe-ship-reviewer`'s only the plan key and the
-mode `plan`. It SHALL perform no review step itself, SHALL return every report
-verbatim under each agent's name, and SHALL edit no file and commit nothing;
-applying the verdicts belongs to its caller. The skill SHALL be model-invocable,
-so the `iwe-planner` rulebook can run it in every mode.
+`iwe-ship-reviewer` in one message. The skill SHALL NOT forward conversation
+turns. The prompt of the auditor SHALL carry only the plan file path and the
+scope `plan`. The prompt of `iwe-plan-reviewer` SHALL carry only the plan key
+and the absolute path of the skill's `references/plan-rules.md`. The prompt of
+`iwe-ship-reviewer` SHALL carry only the plan key and the mode `plan`. The skill
+SHALL perform no review step itself. It SHALL return every report verbatim under
+the name of each agent. It SHALL edit no file and SHALL commit nothing. Its
+caller applies the verdicts. The skill SHALL be model-invocable, so the
+`iwe-planner` rulebook can run it in every mode.
 
 #### Scenario: Plan reaches its review step
 

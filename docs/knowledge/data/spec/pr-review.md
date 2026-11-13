@@ -61,13 +61,14 @@ one review.
 
 ### Requirement: added prose gets an ASD-STE100 pass before the durable-knowledge pass
 
-When the diff adds prose — a line in a docs or skills file, as "docs and skills
-get a durable-knowledge pass" defines those files, or a comment or docstring in
-a code file — `pr-review` SHALL run `/agentdev:audit-ste100` in diff scope over
-those added lines before the durable-knowledge pass, at both effort tiers, and
-SHALL NOT run it on a diff that adds none. Each finding SHALL become an inline
-review comment on the diff line that holds its quoted text, kept only when the
-added line can be quoted and the rule it breaks named, and SHALL be blocking.
+The diff can add prose: a line in a docs or skills file, as "docs and skills get
+a durable-knowledge pass" defines those files, or a comment or docstring in a
+code file. Then `pr-review` SHALL run `/agentdev:audit-ste100` in diff scope
+over the added lines. It SHALL run the audit before the durable-knowledge pass,
+at both effort tiers. It SHALL NOT run the audit on a diff that adds no prose.
+Each finding SHALL become an inline review comment on the diff line that holds
+its quoted text. The pass SHALL keep a finding only when it can quote the added
+line and name the rule that the line breaks. Each finding SHALL block the merge.
 The pass SHALL NOT read the pull request title, the pull request body, or a
 commit message.
 
