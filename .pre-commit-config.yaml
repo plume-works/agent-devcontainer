@@ -176,7 +176,7 @@ repos:
         name: ship-records
         entry: uv run scripts/check-ship-records.py
         language: system
-        files: '^docs/knowledge/data/(archive|backlog|bugs|features|plans|releases)/.*\.md$'
+        files: '^docs/knowledge/data/(adr|archive|backlog|bugs|features|plans|releases)/.*\.md$'
         pass_filenames: true
 
       # Always runs: a code rename anywhere can break a live anchor. See spec/line-free-anchors.

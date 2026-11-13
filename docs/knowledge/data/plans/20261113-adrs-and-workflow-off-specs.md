@@ -93,36 +93,70 @@ both decisions before this plan.
 `docs/knowledge/SCHEMA.md`, `docs/knowledge/data/index.md`,
 `scripts/check-ship-records.py`, `scripts/tests/test_check_ship_records.py`
 
-- [ ] `.iwe/schemas/adr.yaml` requires the frontmatter `type: adr`, `stage`, and
+- [x] `.iwe/schemas/adr.yaml` requires the frontmatter `type: adr`, `stage`, and
   `description`. It has no date field: git holds the date.
-- [ ] The schema permits only these values of `stage`: `proposed`, `accepted`,
+  - **Evidence:** Wrote `.iwe/schemas/adr.yaml` with
+    `required: [type, stage, description]` and no date field;
+    `test_adr_schema.py` passes.
+- [x] The schema permits only these values of `stage`: `proposed`, `accepted`,
   `rejected`, `deprecated`, `superseded`.
-- [ ] The schema permits the optional frontmatter `supersedes`, a list of
+  - **Evidence:** The `stage` enum is
+    `proposed, accepted, rejected, deprecated, superseded`;
+    `test_unknown_stage_is_rejected` passes.
+- [x] The schema permits the optional frontmatter `supersedes`, a list of
   `adr/NNNN-<slug>` keys.
-- [ ] The schema requires one H1, the short title of the decision.
-- [ ] The schema permits only these sections below that text, each optional:
+  - **Evidence:** Added an optional `supersedes` array whose items match
+    `^adr/[0-9]{4}-<slug>$`.
+- [x] The schema requires one H1, the short title of the decision.
+  - **Evidence:** The top section rule has `minContains: 1` and
+    `maxContains: 1`.
+- [x] The schema permits only these sections below that text, each optional:
   `## Considered Options` and `## Consequences`.
-- [ ] `.iwe/config.toml` binds the `adr` schema to `data/adr/**` and
+  - **Evidence:** The H1 permits only optional `Considered Options` and
+    `Consequences`, with `additionalSections: false`;
+    `test_unknown_section_is_rejected` passes.
+- [x] `.iwe/config.toml` binds the `adr` schema to `data/adr/**` and
   `data/archive/*/adr/**`.
-- [ ] `.iwe/config.toml#schemas.hub` matches `data/adr`.
-- [ ] `docs/knowledge/data/adr.md` is a hub with no member.
-- [ ] `docs/knowledge/data/index.md#reference` links the ADR hub.
-- [ ] `docs/knowledge/SCHEMA.md` has a section for ADRs. It gives the file name,
+  - **Evidence:** Added `[schemas.adr]` with both globs; `iwe schema validate`
+    passes.
+- [x] `.iwe/config.toml#schemas.hub` matches `data/adr`.
+  - **Evidence:** Added `data/adr` to `[schemas.hub]`.
+- [x] `docs/knowledge/data/adr.md` is a hub with no member.
+  - **Evidence:** Created the hub with `type: hub` and no inclusion link;
+    `iwe schema validate` passes.
+- [x] `docs/knowledge/data/index.md#reference` links the ADR hub.
+  - **Evidence:** Added the `ADRs` bullet first under `# Reference`.
+- [x] `docs/knowledge/SCHEMA.md` has a section for ADRs. It gives the file name,
   the frontmatter, the format (a short title, then 1 to 3 sentences that give
   the context, the decision, and the reason), the stages, the rule that an
   accepted ADR is never edited, and the `ADR-NNNN` form for a code comment.
-- [ ] That section says that the value of an ADR is the record that a decision
+  - **Evidence:** Added `## ADRs — data/adr/NNNN-<slug>.md` with the file name,
+    frontmatter, format, stages, the never-edited rule, and `ADR-NNNN`.
+- [x] That section says that the value of an ADR is the record that a decision
   was made and why, and that an optional section is written only when it adds
   value.
-- [ ] `docs/knowledge/SCHEMA.md` names `adr/` as an archive folder.
-- [ ] `docs/knowledge/tests/test_adr_schema.py` runs `iwe schema validate` on a
+  - **Evidence:** The section says "The value of an ADR is the record that a
+    decision was made and why" and to write an optional section only when it
+    adds value.
+- [x] `docs/knowledge/SCHEMA.md` names `adr/` as an archive folder.
+  - **Evidence:** The archive section lists `adr/` with the other folders.
+- [x] `docs/knowledge/tests/test_adr_schema.py` runs `iwe schema validate` on a
   fixture workspace. An ADR of one paragraph passes. An ADR with an unknown
   section fails. An ADR with an unknown stage fails.
-- [ ] `scripts/check-ship-records.py` reports an ADR at `proposed` or `accepted`
+  - **Evidence:** `uv run pytest docs/knowledge/tests/test_adr_schema.py`: 4
+    passed.
+- [x] `scripts/check-ship-records.py` reports an ADR at `proposed` or `accepted`
   that is in `data/archive/`.
-- [ ] `scripts/check-ship-records.py` reports an ADR at `rejected`,
+  - **Evidence:** `check_placement` treats an ADR as live only at `proposed` or
+    `accepted`; the `ship-records` hook now also matches `data/adr/`.
+- [x] `scripts/check-ship-records.py` reports an ADR at `rejected`,
   `deprecated`, or `superseded` that is outside `data/archive/`.
-- [ ] `scripts/tests/test_check_ship_records.py` runs the script on both cases.
+  - **Evidence:** The same `check_placement` branch reports a closed ADR outside
+    `data/archive/`.
+- [x] `scripts/tests/test_check_ship_records.py` runs the script on both cases.
+  - **Evidence:** `test_adr_placement_follows_its_stage` covers each stage on
+    both sides; `uv run pytest scripts/tests/test_check_ship_records.py`: 46
+    passed.
 
 ### Task 2: Write the first two ADRs
 

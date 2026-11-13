@@ -64,9 +64,9 @@ holds no `data/log.md`, which OKF makes optional.
 
 Finished work is archived, never deleted. `data/archive/` holds one folder per
 cut version plus `next-release`, and each holds the subfolder its documents
-lived in — `plans/`, `bugs/`, `backlog/`, `features/`, or `architecture/` — so
-every archived document stays bound to its type's schema and is validated in
-full.
+lived in — `plans/`, `bugs/`, `backlog/`, `features/`, `adr/`, or
+`architecture/` — so every archived document stays bound to its type's schema
+and is validated in full.
 
 - Whoever closes a plan, bug, task, or feature moves it with `iwe rename` to
   `data/archive/next-release/<folder>/` in the same change and removes its hub
@@ -149,6 +149,37 @@ done or cancelled bug moves to the archive in the same change. A Reproduction or
 Root cause not yet known records what is known, the hypotheses eliminated and
 what eliminated them, and links the backlog task whose spike settles it. No
 section states lifecycle; `stage` does.
+
+## ADRs — `data/adr/NNNN-<slug>.md`
+
+An ADR records one decision. `NNNN` is the next free four-digit number in
+`data/adr/` and `data/archive/*/adr/`.
+
+``` yaml
+---
+type: adr # required
+stage: proposed # proposed | accepted | rejected | deprecated | superseded — required
+description: One sentence that gives the decision. # required
+supersedes: # optional: the earlier ADRs that this ADR replaces
+- adr/0001-code-and-tests-state-behaviour
+---
+```
+
+The frontmatter has no date field. Git records the date.
+
+Body: an H1 that is the short title of the decision, then 1 to 3 sentences that
+give the context, the decision, and the reason. `## Considered Options` and
+`## Consequences` are optional, and no other section is permitted. The value of
+an ADR is the record that a decision was made and why. Write an optional section
+only when it adds value.
+
+- `stage`: Plan files an ADR at `proposed`. Ship sets it to `accepted`, or to
+  `rejected` when it cancels the plan. An ADR at `proposed` or `accepted` is in
+  `data/adr/`, with a link in `data/adr.md`. An ADR at `rejected`, `deprecated`,
+  or `superseded` is in `data/archive/`.
+- An accepted ADR is never edited. A new ADR that names it in `supersedes`
+  replaces it.
+- A code comment refers to an ADR as `ADR-NNNN`.
 
 ## Releases — `data/releases/<version>.md`
 

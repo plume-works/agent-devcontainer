@@ -17,6 +17,8 @@ term in the same change that first uses it.
 - **accepted review** (noun): A review by the AI reviewer app, in the state
   approved, changes requested, or commented, on a commit of the pull request.
 - **active plan** (noun): A plan that has no `stage` field in its frontmatter.
+- **ADR** (noun): An architecture decision record: a document in `data/adr/`
+  that records one decision, its context, and the reason for it.
 - **agent policy** (noun): The values that the runtime writes into the OpenCode
   configuration of the user at each start.
 - **agent proxy** (noun): The local HTTPS proxy of a cloud session, which adds

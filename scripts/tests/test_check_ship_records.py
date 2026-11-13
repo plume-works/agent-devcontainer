@@ -327,6 +327,32 @@ def test_feature_placement_follows_its_stage(
     assert run(path).returncode == (1 if fails else 0)
 
 
+@pytest.mark.parametrize(
+    ('folder', 'stage', 'fails'),
+    [
+        ('adr', 'proposed', False),
+        ('adr', 'accepted', False),
+        ('adr', 'rejected', True),
+        ('adr', 'deprecated', True),
+        ('adr', 'superseded', True),
+        ('archive/next-release/adr', 'proposed', True),
+        ('archive/next-release/adr', 'accepted', True),
+        ('archive/next-release/adr', 'rejected', False),
+        ('archive/next-release/adr', 'deprecated', False),
+        ('archive/next-release/adr', 'superseded', False),
+    ],
+)
+def test_adr_placement_follows_its_stage(
+    write_at: Write, folder: str, stage: str, fails: bool
+) -> None:
+    """An ADR is live only at proposed or accepted, and archived at any other stage."""
+    path = write_at(f'docs/knowledge/data/{folder}/0001-x.md', item('adr', stage))
+    result = run(path)
+    assert result.returncode == (1 if fails else 0)
+    if fails:
+        assert f'{path}:1 adr at ' in result.stdout
+
+
 def test_release_page_with_a_link_fails_naming_the_line(write_at: Write) -> None:
     """A release page holding a Markdown link fails at that line; plain text passes."""
     text = '---\ntype: release\nstage: released\n---\n\n# 1.0.0\n\n## Added\n\n[Focus](../features/focus.md)\n'

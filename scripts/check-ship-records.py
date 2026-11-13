@@ -2,7 +2,7 @@
 """
 Gate the records Ship leaves in the knowledge graph.
 
-Checks each bug, plan, backlog task, feature, and release document named on the command line,
+Checks each bug, plan, backlog task, feature, ADR, and release document named on the command line,
 prints every violation as ``path:line message``, and exits 1 when there is any. The rules: see
 spec/pre-commit-gate and spec/iwe-workflow-skills.
 """
@@ -22,6 +22,7 @@ ITEM = re.compile(r'^- \[(?P<tick>.)\] (?P<text>.+?) — (?P<ending>.*)$')
 LINK = re.compile(r'(?<!!)\[[^\]]*\]\([^)\s]+\)')
 CLOSED = frozenset({'done', 'cancelled'})
 LIVE_FEATURE = frozenset({'proposed', 'accepted'})
+LIVE_ADR = frozenset({'proposed', 'accepted'})
 
 
 class Item:
@@ -192,9 +193,11 @@ def archived(path: Path) -> bool:
 
 
 def check_placement(kind: str, stage: str, inside: bool) -> list[tuple[int, str]]:
-    """Return a violation when a work item or feature sits on the wrong side of the archive."""
+    """Return a violation when a work item, feature, or ADR is on the wrong side of the archive."""
     if kind == 'feature':
         live = stage in LIVE_FEATURE
+    elif kind == 'adr':
+        live = stage in LIVE_ADR
     elif kind in ('plan', 'bug', 'task'):
         live = stage not in CLOSED
     else:
