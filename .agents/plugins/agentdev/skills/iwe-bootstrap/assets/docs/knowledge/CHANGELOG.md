@@ -54,12 +54,12 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   live only at `proposed` or `accepted`; a plan needs no feature to change what
   users see.
 - **Plan task evidence is a free-form note, never audited.** A ticked task's
-  `- **Evidence:**` line says what was done and how it was checked, in any
-  form. It exists only so a box is never ticked for work that was not done.
-  The `plan-checkboxes` gate is the only check on it; Verify never checks ticks
-  or their evidence: it no longer grades the line's kind, flags "residue" or a
-  bare commit id, or re-runs the test, command, or live check it names. The tick and its
-  evidence line still land in the same commit as the code they describe.
+  `- **Evidence:**` line says what was done and how it was checked, in any form.
+  It exists only so a box is never ticked for work that was not done. The
+  `plan-checkboxes` gate is the only check on it; Verify never checks ticks or
+  their evidence: it no longer grades the line's kind, flags "residue" or a bare
+  commit id, or re-runs the test, command, or live check it names. The tick and
+  its evidence line still land in the same commit as the code they describe.
   Nothing needs migrating.
 - **Bugs carry a `stage` and a `severity`.** A bug's `stage` is required:
   `pending | planned | done | cancelled`, with "absent means open" retired.
