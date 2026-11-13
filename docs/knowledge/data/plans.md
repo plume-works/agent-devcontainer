@@ -20,6 +20,9 @@ specs](plans/20261113-adrs-and-workflow-off-specs.md)
 [Move the decisions from the specs into
 ADRs](plans/20261113-move-decisions-into-adrs.md)
 
+[Remove `CHANGELOG.md` from
+`docs/knowledge/`](plans/20261113-remove-knowledge-base-changelog.md)
+
 [Remove the spec text that is redundant or
 wrong](plans/20261113-remove-redundant-and-wrong-spec-text.md)
 
