@@ -26,7 +26,7 @@ The repository owner decided these points:
 - `/agentdev:pr-open` audits the added prose in diff scope before it writes the
   pull request body. It fixes each finding, and then it pushes the branch.
 - `pr-review` does not audit prose against ASD-STE100.
-- The new `pr-open` behavior has no spec text. Task 6 removes the `pr-review`
+- The new `pr-open` behavior has no spec text. Task 5 removes the `pr-review`
   requirement.
 - Plan review runs the `STE100 Auditor` again two times at most for one draft.
   The third report is the last. Plan applies its findings, and the three other
@@ -171,16 +171,7 @@ after this plan merges, and the AI review of that pull request.
     issues found", names only the correctness, compliance, and durable-knowledge
     passes, and has no inline comment.
 
-### Task 5: Observe the rerun limit in a real plan review
-
-**Closed by:** the first plan draft after this plan merges whose third
-`/agentdev:iwe-plan-review` run receives an `STE100 Auditor` finding.
-
-- [ ] On that run, the skill dispatches the three other reviewers.
-- [ ] Plan applies the `STE100 Auditor` findings of that run without a fourth
-  `STE100 Auditor` run.
-
-### Task 6: Edit the specs by hand
+### Task 5: Edit the specs by hand
 
 **Files:** Modify: `docs/knowledge/data/spec/pr-review.md`,
 `docs/knowledge/data/spec/iwe-workflow-skills.md`
@@ -338,6 +329,6 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps` › "Review the
   plan from a fresh context" — the step that counts the runs.
 - `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-plan-review-runs-its-reviewers-from-fresh-contexts-and-changes-nothing`
-  — the requirement that Task 6 modifies.
+  — the requirement that Task 5 modifies.
 - `docs/knowledge/data/spec/pr-review.md` — the spec whose ASD-STE100
-  requirement Task 6 removes.
+  requirement Task 5 removes.
