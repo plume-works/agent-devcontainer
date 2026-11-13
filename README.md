@@ -326,6 +326,7 @@ complete workflow:
 | `iwe-ship`        | Block CRITICAL findings and record released behavior.                 |
 | `iwe-weekly`      | Summarize project status and graph health.                            |
 | `iwe-audit`       | Keep durable documents free of session residue.                       |
+| `audit-ste100`    | Check new prose against ASD-STE100 Issue 9.                           |
 
 Plan checkboxes carry traceable evidence, and behavior-changing plans state their
 intended contract before implementation. Machine-managed dependency pins can be

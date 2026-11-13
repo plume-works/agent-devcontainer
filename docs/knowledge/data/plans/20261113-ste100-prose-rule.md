@@ -174,23 +174,36 @@ Modify: `docs/knowledge/data/index.md`,
 **Files:** Create: `.agents/plugins/agentdev/skills/audit-ste100/SKILL.md`;
 Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 
-- [ ] The skill names the standard as ASD-STE100 Issue 9.
-- [ ] The skill says that it checks from the model's knowledge of the standard
+- [x] The skill names the standard as ASD-STE100 Issue 9.
+  - **Evidence:** `audit-ste100/SKILL.md#asd-ste100-audit` names Issue 9 as the
+    only issue it applies.
+- [x] The skill says that it checks from the model's knowledge of the standard
   and holds no copy of the standard or of its dictionary.
-- [ ] The skill gives the same definition of prose as Best Practice 15: text in
+  - **Evidence:** `audit-ste100/SKILL.md#the-source-of-the-rules` says so.
+- [x] The skill gives the same definition of prose as Best Practice 15: text in
   code formatting, text in a fenced block, and quoted text are not prose.
-- [ ] The skill has three scopes. The file scope reads a whole file. The diff
+  - **Evidence:** `audit-ste100/SKILL.md#what-is-prose` lists the same three
+    exceptions.
+- [x] The skill has three scopes. The file scope reads a whole file. The diff
   scope reads only the lines that a diff adds. The plan scope reads every
   section of a plan.
-- [ ] The skill checks the writing rules of the standard, the words that the
+  - **Evidence:** `audit-ste100/SKILL.md#scopes` defines the three scopes.
+- [x] The skill checks the writing rules of the standard, the words that the
   standard approves, and each project term against the glossary of the
   repository that it runs in.
-- [ ] The report is one table. Each row gives the place as an anchor, the quoted
+  - **Evidence:** `audit-ste100/SKILL.md#what-to-check` lists the three types of
+    break and reads `docs/knowledge/data/glossary.md` of the repository.
+- [x] The report is one table. Each row gives the place as an anchor, the quoted
   text, the rule that the text breaks, and a replacement. A report with no row
   says that there are no findings.
-- [ ] The skill edits no file in any scope.
-- [ ] The skill table in `.agents/plugins/agentdev/README.md` lists the skill.
-- [ ] The skill table in `README.md` lists the skill.
+  - **Evidence:** `audit-ste100/SKILL.md#report` gives the four columns and the
+    `No findings.` sentence.
+- [x] The skill edits no file in any scope.
+  - **Evidence:** `audit-ste100/SKILL.md#rules` forbids an edit in any scope.
+- [x] The skill table in `.agents/plugins/agentdev/README.md` lists the skill.
+  - **Evidence:** A row is in the review table; `validate_agent_files` passes.
+- [x] The skill table in `README.md` lists the skill.
+  - **Evidence:** A row is in the `IWE project memory` skill table.
 
 ### Task 5: Add the `STE100 Auditor` agent
 
