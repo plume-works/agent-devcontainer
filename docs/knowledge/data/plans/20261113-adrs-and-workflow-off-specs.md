@@ -434,14 +434,23 @@ both decisions before this plan.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md`,
 `scripts/check-ship-records.py`, `scripts/tests/test_check_ship_records.py`
 
-- [ ] Plan mode of `iwe-ship-reviewer` checks that `## Acceptance` is
+- [x] Plan mode of `iwe-ship-reviewer` checks that `## Acceptance` is
   `None — no behavioral change` or holds only complete scenarios.
 
-- [ ] Plan mode checks that each ADR in `## ADRs` exists at `stage: proposed`.
+  - **Evidence:** Plan mode check 4 accepts `None — no behavioral change` or
+    only scenarios with WHEN, THEN, and Test or Checked at ship lines.
 
-- [ ] Plan mode has no check of `## Spec changes`.
+- [x] Plan mode checks that each ADR in `## ADRs` exists at `stage: proposed`.
 
-- [ ] The fixed `## Ship review` structure in the rulebook is this text:
+  - **Evidence:** Plan mode check 5 says each linked ADR exists at
+    `stage: proposed`.
+
+- [x] Plan mode has no check of `## Spec changes`.
+
+  - **Evidence:** Removed the old check 4; `grep -n "Spec changes"` finds only
+    the text about earlier structures.
+
+- [x] The fixed `## Ship review` structure in the rulebook is this text:
 
   ``` markdown
   ## Ship review
@@ -458,17 +467,33 @@ both decisions before this plan.
   - [x] The plan and every feature and bug it closed are archived with no hub link — confirmed: <archive keys>
   ```
 
-- [ ] Ship mode checks each item of that structure and no item about a spec or a
+  - **Evidence:** The structure block holds the fenced text byte for byte;
+    prettier writes the fence tag as `markdown` with no space.
+
+- [x] Ship mode checks each item of that structure and no item about a spec or a
   `## Rationale`.
 
-- [ ] `scripts/check-ship-records.py::SHIP_REVIEW_ITEMS` holds the items of that
+  - **Evidence:** Step 3 checks Verify, the accepted and superseded ADRs, plan
+    stage, features, bugs, and archive, and has no spec or rationale item.
+
+- [x] `scripts/check-ship-records.py::SHIP_REVIEW_ITEMS` holds the items of that
   structure.
 
-- [ ] `scripts/check-ship-records.py` accepts a `## Ship review` that matches
+  - **Evidence:** `SHIP_REVIEW_ITEMS` holds the eight items of the new
+    structure.
+
+- [x] `scripts/check-ship-records.py` accepts a `## Ship review` that matches
   one of the two earlier structures.
 
-- [ ] `scripts/tests/test_check_ship_records.py` runs the script on a review in
+  - **Evidence:** `check_plan` passes a review that matches either structure in
+    `EARLIER_STRUCTURES`; the script passes on every archived plan.
+
+- [x] `scripts/tests/test_check_ship_records.py` runs the script on a review in
   the new structure and on a review in each earlier structure.
+
+  - **Evidence:** `test_well_formed_ship_review_passes`,
+    `test_spec_ship_review_passes`, and `test_earlier_ship_review_passes` cover
+    the three structures; 48 passed.
 
 ### Task 7: Cut a release from the archive
 

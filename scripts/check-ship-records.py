@@ -49,25 +49,33 @@ class Item:
 
 SHIP_REVIEW_ITEMS = (
     Item('Verify reported zero CRITICAL', not_applicable=False),
-    Item('Every `## Spec changes` operation is in its spec'),
-    Item('Every spec the plan created is linked from `data/spec.md`'),
-    Item('Every spec the plan retired was removed with `iwe delete`'),
+    Item('Every ADR the plan proposed is `stage: accepted`'),
+    Item('Every ADR the plan superseded is `stage: superseded` and archived'),
     Item('The plan is `stage: done` with `completed` and no `rank`', not_applicable=False),
     Item('Every feature in `release` is `stage: implemented`'),
     Item('Every bug in `release` is `stage: done` with no `rank`'),
     Item('Every bug in `release` has a `## Fix` that links this plan'),
-    Item('Every `## Rationale` entry the plan names is in its spec'),
     Item(
         'The plan and every feature and bug it closed are archived with no hub link',
         not_applicable=False,
     ),
 )
-EARLIER_SHIP_REVIEW_ITEMS = (
-    *SHIP_REVIEW_ITEMS[:-2],
+SPEC_SHIP_REVIEW_ITEMS = (
+    SHIP_REVIEW_ITEMS[0],
+    Item('Every `## Spec changes` operation is in its spec'),
+    Item('Every spec the plan created is linked from `data/spec.md`'),
+    Item('Every spec the plan retired was removed with `iwe delete`'),
+    *SHIP_REVIEW_ITEMS[3:7],
+    Item('Every `## Rationale` entry the plan names is in its spec'),
+    SHIP_REVIEW_ITEMS[7],
+)
+EARLIEST_SHIP_REVIEW_ITEMS = (
+    *SPEC_SHIP_REVIEW_ITEMS[:-2],
     Item(
         'Ship edited no hub, release page, or `data/log.md`', evidence=False, not_applicable=False
     ),
 )
+EARLIER_STRUCTURES = (SPEC_SHIP_REVIEW_ITEMS, EARLIEST_SHIP_REVIEW_ITEMS)
 
 
 def frontmatter(lines: list[str]) -> dict[str, str]:
@@ -148,14 +156,14 @@ def check_plan(lines: list[str]) -> list[tuple[int, str]]:
     """
     Return the violations of a plan's Ship review against the fixed structure.
 
-    A review that matches the earlier structure passes; otherwise the violations
-    reported are those against the current one.
+    A review that matches one of the earlier structures passes; otherwise the
+    violations reported are those against the current one.
     """
     found = ship_review(lines)
     if found is None:
         return []
     violations = check_structure(*found, SHIP_REVIEW_ITEMS)
-    if violations and not check_structure(*found, EARLIER_SHIP_REVIEW_ITEMS):
+    if violations and any(not check_structure(*found, e) for e in EARLIER_STRUCTURES):
         return []
     return violations
 
