@@ -41,6 +41,8 @@ asking](backlog/implement-opens-pr.md)
 [Migrate a repository that consumed the earlier IWE
 scaffold](backlog/migrate-earlier-iwe-scaffold.md)
 
+[Migrate existing prose to ASD-STE100](backlog/migrate-prose-to-ste100.md)
+
 [Check adversarial review depth on
 OpenCode](backlog/observe-adversarial-review-depth-on-opencode.md)
 
