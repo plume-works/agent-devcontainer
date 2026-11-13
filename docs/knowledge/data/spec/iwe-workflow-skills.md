@@ -651,10 +651,11 @@ skill runs from, and SHALL never save a `Needs decision` report. Only the
 skill's bundled `verify-cache.py` SHALL write a saved report. It SHALL return
 the saved report, marked as saved and without running any check or verification
 command, when that report's commit is `HEAD` and its catalog digest is the
-active catalog's, unless the user's request carries `--fresh`. The saved report
-SHALL record the request `/agentdev:iwe-verify` was invoked with and the prompt
-`iwe-verifier` was dispatched with, and neither SHALL be part of the key. A
-verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
+active catalog's, unless the request carries `--fresh` or quotes an approval.
+The saved report SHALL record the request `/agentdev:iwe-verify` was invoked
+with and the prompt `iwe-verifier` was dispatched with, and neither SHALL be
+part of the key. A verification command that leaves the worktree dirty SHALL be
+a CRITICAL finding.
 
 #### Scenario: Verification reports no critical findings
 
@@ -693,8 +694,9 @@ verification command that leaves the worktree dirty SHALL be a CRITICAL finding.
 
 - **WHEN** the user re-runs `/agentdev:iwe-verify <plan>` granting the approval
   the verifier reported, alongside other claims about the work
-- **THEN** the dispatch prompt quotes the approval verbatim and leaves the other
-  claims out, and `iwe-verifier` runs the approved command
+- **THEN** the look-up skips any saved report, the dispatch prompt quotes the
+  approval verbatim and leaves the other claims out, and `iwe-verifier` runs the
+  approved command
 
 #### Scenario: Ship dispatches Verify
 
@@ -1075,23 +1077,25 @@ plugin.
 - **THEN** it leaves the commit messages out of the audit, since
   `/agentdev:git-commit` owns them
 
-### Requirement: Plan review runs both reviewers from fresh contexts and changes nothing
+### Requirement: Plan review runs its reviewers from fresh contexts and changes nothing
 
 `/agentdev:iwe-plan-review <plan>` SHALL dispatch the
-`Durable Knowledge Auditor` and `iwe-ship-reviewer` in one message, forwarding
-no conversation turns: the auditor's prompt SHALL carry only the plan file path
-and the scope `plan`, and the reviewer's only the plan key and the mode `plan`.
-It SHALL perform no review step itself, SHALL return both reports verbatim under
-each agent's name, and SHALL edit no file and commit nothing; applying the
-verdicts belongs to its caller. The skill SHALL be model-invocable, so the
-`iwe-planner` rulebook can run it in every mode.
+`Durable Knowledge Auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in one
+message, forwarding no conversation turns: the auditor's prompt SHALL carry only
+the plan file path and the scope `plan`, `iwe-plan-reviewer`'s only the plan key
+and the absolute path of the skill's `references/plan-rules.md`, and
+`iwe-ship-reviewer`'s only the plan key and the mode `plan`. It SHALL perform no
+review step itself, SHALL return the three reports verbatim under each agent's
+name, and SHALL edit no file and commit nothing; applying the verdicts belongs
+to its caller. The skill SHALL be model-invocable, so the `iwe-planner` rulebook
+can run it in every mode.
 
 #### Scenario: Plan reaches its review step
 
 - **WHEN** `iwe-planner` reaches its review step on a created or revised plan
-- **THEN** both agents are dispatched in parallel with only those prompts, both
-  reports return unchanged, and the plan file is unchanged until Plan applies
-  them
+- **THEN** the three agents are dispatched in parallel with only those prompts,
+  the three reports return unchanged, and the plan file is unchanged until Plan
+  applies them
 
 ### Requirement: Capture files complete inbox documents
 
@@ -1475,12 +1479,12 @@ bundled with the skill, the one place every caller reaches on every harness.
 
 Each plan keeps one saved report, overwritten, because only the latest report is
 ever looked up. The user's approvals are recorded in the report but are not part
-of its key: an approval changes a verdict only by unblocking a command, and a
-run blocked on a missing approval ends in `Needs decision`, which is never
-saved. `verify-cache.py` writes a `.gitignore` holding `*` into `.tmp/verify/`,
-so a save never dirties the worktree Verify refuses to run on, even in a
-consuming repository that does not ignore `.tmp/`. A saved report is not reused
-across a rebase, a squash merge, or a fresh container, and trust in
+of its key: an approval changes a verdict only by running a command a saved
+report lists as `not run`, so a request that quotes an approval skips the
+look-up instead. `verify-cache.py` writes a `.gitignore` holding `*` into
+`.tmp/verify/`, so a save never dirties the worktree Verify refuses to run on,
+even in a consuming repository that does not ignore `.tmp/`. A saved report is
+not reused across a rebase, a squash merge, or a fresh container, and trust in
 `.tmp/verify/` rests on the rule that only the skill's script writes it, not on
 any protection against a hand-written file.
 
