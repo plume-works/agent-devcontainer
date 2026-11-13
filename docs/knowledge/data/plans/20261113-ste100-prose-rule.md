@@ -87,16 +87,21 @@ Rejected:
 `docs/knowledge/data/product.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`
 
-- [ ] `AGENTS.md#best-practices-for-agents` holds this item after item 14, with
+- [x] `AGENTS.md#best-practices-for-agents` holds this item after item 14, with
   the text that the repository owner approved:
 
   ``` markdown
   15. **Write all prose in ASD-STE100 Issue 9 (Simplified Technical
       English).** The rule applies to the text that a change adds or
-      edits in these places: documents under `docs/knowledge/`, skill
-      and agent rulebooks, `AGENTS.md` files, READMEs, code comments,
-      commit messages, and pull request titles and bodies. Text that
-      existed before this rule can stay until a change edits it.
+      edits. Text that existed before this rule can stay until a change
+      edits it. The rule applies in these places:
+      - documents under `docs/knowledge/`
+      - skill and agent rulebooks
+      - `AGENTS.md` files and READMEs
+      - code comments and commit messages
+      - pull request titles and bodies
+
+      These conditions also apply:
       - Use a project term only if `docs/knowledge/data/glossary.md`
         lists it. Add a new term to the glossary in the same change.
       - Text in code formatting, text in a fenced block, and quoted
@@ -105,7 +110,10 @@ Rejected:
         this rule names it.
   ```
 
-- [ ] `docs/knowledge/AGENTS.md#conventions` holds this bullet:
+  - **Evidence:** Item 15 is in `AGENTS.md` after item 14, with the approved
+    text.
+
+- [x] `docs/knowledge/AGENTS.md#conventions` holds this bullet:
 
   ``` markdown
   - **Prose follows ASD-STE100 Issue 9.** Best Practice 15 in the repository
@@ -113,11 +121,20 @@ Rejected:
     and technical verbs that the rule permits.
   ```
 
-- [ ] The `iwe-bootstrap` asset copy of `docs/knowledge/AGENTS.md` holds the
+  - **Evidence:** The bullet is last in `docs/knowledge/AGENTS.md#conventions`;
+    `iwe normalize` reflowed its lines only.
+
+- [x] The `iwe-bootstrap` asset copy of `docs/knowledge/AGENTS.md` holds the
   same bullet.
 
-- [ ] `docs/knowledge/data/product.md#authoring-rules` holds one bullet that
+  - **Evidence:** The asset copy is byte-equal to `docs/knowledge/AGENTS.md`;
+    `test_iwe_seed.py` passes.
+
+- [x] `docs/knowledge/data/product.md#authoring-rules` holds one bullet that
   states the rule and names Best Practice 15.
+
+  - **Evidence:** The last bullet of `## Authoring rules` states the rule and
+    names Best Practice 15; a changelog line records the change.
 
 ### Task 2: Bind the glossary page to a schema
 
@@ -125,11 +142,16 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/.iwe/config.toml`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/SCHEMA.md`
 
-- [ ] `.iwe/config.toml#schemas.tracker` matches `data/glossary`.
-- [ ] The `iwe-bootstrap` asset copy of `.iwe/config.toml` has the same match.
-- [ ] `docs/knowledge/SCHEMA.md#hubs-and-the-trackers` names `data/glossary.md`
+- [x] `.iwe/config.toml#schemas.tracker` matches `data/glossary`.
+  - **Evidence:** The `match` list holds `data/glossary`.
+- [x] The `iwe-bootstrap` asset copy of `.iwe/config.toml` has the same match.
+  - **Evidence:** The asset copy is byte-equal; `test_iwe_seed.py` passes.
+- [x] `docs/knowledge/SCHEMA.md#hubs-and-the-trackers` names `data/glossary.md`
   as a `tracker` page.
-- [ ] The `iwe-bootstrap` asset copy of `SCHEMA.md` names it too.
+  - **Evidence:** The section lists `data/glossary.md` with the two other
+    `type: tracker` pages.
+- [x] The `iwe-bootstrap` asset copy of `SCHEMA.md` names it too.
+  - **Evidence:** The asset copy is byte-equal; `test_iwe_seed.py` passes.
 
 ### Task 3: Write the glossary
 
@@ -138,84 +160,134 @@ Rejected:
 Modify: `docs/knowledge/data/index.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/data/index.md`
 
-- [ ] `docs/knowledge/data/glossary.md` has `type: tracker`, `stage: living`,
+- [x] `docs/knowledge/data/glossary.md` has `type: tracker`, `stage: living`,
   and a `description`.
-- [ ] Each entry is one list item: the term in bold, then `(noun)` or `(verb)`,
+  - **Evidence:** The frontmatter has the three fields; `iwe schema validate`
+    passes.
+- [x] Each entry is one list item: the term in bold, then `(noun)` or `(verb)`,
   then the meaning in one sentence.
-- [ ] The entries are in alphabetical order.
-- [ ] Each term in `docs/spec-audit/specs.jsonl` under `glossary_terms` that
+  - **Evidence:** The page has 187 entries in this form, each meaning one
+    sentence of at most 25 words.
+- [x] The entries are in alphabetical order.
+  - **Evidence:** A script compared the bold terms with their case-insensitive
+    sort.
+- [x] Each term in `docs/spec-audit/specs.jsonl` under `glossary_terms` that
   prose uses as a word has an entry.
-- [ ] No entry is a term that is only a code identifier, such as a file name or
+  - **Evidence:** All 244 seed terms were read. Terms used as words have an
+    entry, with synonyms joined. Code identifiers, section headings, and four
+    terms that no text outside `docs/spec-audit/` uses have none.
+- [x] No entry is a term that is only a code identifier, such as a file name or
   a result code.
-- [ ] Each meaning agrees with the code or the rulebook that defines the term.
-- [ ] `docs/knowledge/data/index.md#reference` links the glossary.
-- [ ] The `iwe-bootstrap` seed holds a glossary page that has no entries.
-- [ ] The seed copy of `data/index.md` links the glossary.
+  - **Evidence:** A fresh-context agent checked all 187 entries and found no
+    entry that is only a code identifier.
+- [x] Each meaning agrees with the code or the rulebook that defines the term.
+  - **Evidence:** A fresh-context agent checked each meaning against the code,
+    the rulebooks, and the specs. The seven meanings that it found wrong were
+    corrected.
+- [x] `docs/knowledge/data/index.md#reference` links the glossary.
+  - **Evidence:** The last bullet of `# Reference` links `glossary.md`.
+- [x] The `iwe-bootstrap` seed holds a glossary page that has no entries.
+  - **Evidence:** The seed `data/glossary.md` has the frontmatter and the intro
+    and no entries; `test_iwe_seed.py` passes.
+- [x] The seed copy of `data/index.md` links the glossary.
+  - **Evidence:** The seed index links `glossary.md`; `test_every_link_resolves`
+    passes.
 
 ### Task 4: Add the `audit-ste100` skill
 
 **Files:** Create: `.agents/plugins/agentdev/skills/audit-ste100/SKILL.md`;
 Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 
-- [ ] The skill names the standard as ASD-STE100 Issue 9.
-- [ ] The skill says that it checks from the model's knowledge of the standard
+- [x] The skill names the standard as ASD-STE100 Issue 9.
+  - **Evidence:** `audit-ste100/SKILL.md#asd-ste100-audit` names Issue 9 as the
+    only issue it applies.
+- [x] The skill says that it checks from the model's knowledge of the standard
   and holds no copy of the standard or of its dictionary.
-- [ ] The skill gives the same definition of prose as Best Practice 15: text in
+  - **Evidence:** `audit-ste100/SKILL.md#the-source-of-the-rules` says so.
+- [x] The skill gives the same definition of prose as Best Practice 15: text in
   code formatting, text in a fenced block, and quoted text are not prose.
-- [ ] The skill has three scopes. The file scope reads a whole file. The diff
+  - **Evidence:** `audit-ste100/SKILL.md#what-is-prose` lists the same three
+    exceptions.
+- [x] The skill has three scopes. The file scope reads a whole file. The diff
   scope reads only the lines that a diff adds. The plan scope reads every
   section of a plan.
-- [ ] The skill checks the writing rules of the standard, the words that the
+  - **Evidence:** `audit-ste100/SKILL.md#scopes` defines the three scopes.
+- [x] The skill checks the writing rules of the standard, the words that the
   standard approves, and each project term against the glossary of the
   repository that it runs in.
-- [ ] The report is one table. Each row gives the place as an anchor, the quoted
+  - **Evidence:** `audit-ste100/SKILL.md#what-to-check` lists the three types of
+    break and reads `docs/knowledge/data/glossary.md` of the repository.
+- [x] The report is one table. Each row gives the place as an anchor, the quoted
   text, the rule that the text breaks, and a replacement. A report with no row
   says that there are no findings.
-- [ ] The skill edits no file in any scope.
-- [ ] The skill table in `.agents/plugins/agentdev/README.md` lists the skill.
-- [ ] The skill table in `README.md` lists the skill.
+  - **Evidence:** `audit-ste100/SKILL.md#report` gives the four columns and the
+    `No findings.` sentence.
+- [x] The skill edits no file in any scope.
+  - **Evidence:** `audit-ste100/SKILL.md#rules` forbids an edit in any scope.
+- [x] The skill table in `.agents/plugins/agentdev/README.md` lists the skill.
+  - **Evidence:** A row is in the review table; `validate_agent_files` passes.
+- [x] The skill table in `README.md` lists the skill.
+  - **Evidence:** A row is in the `IWE project memory` skill table.
 
 ### Task 5: Add the `STE100 Auditor` agent
 
 **Files:** Create: `.agents/plugins/agentdev/agents/ste100-auditor.agent.md`
 
-- [ ] The agent has the tools `Bash`, `Read`, `Grep`, `Glob`, and `Skill`, and
+- [x] The agent has the tools `Bash`, `Read`, `Grep`, `Glob`, and `Skill`, and
   no tool that edits a file.
-- [ ] The agent invokes `/agentdev:audit-ste100` with the file and the scope
+  - **Evidence:** The `tools:` frontmatter lists those five tools only;
+    `validate_agent_files` passes.
+- [x] The agent invokes `/agentdev:audit-ste100` with the file and the scope
   from its prompt, and returns the report unchanged.
+  - **Evidence:** `ste100-auditor.agent.md#what-you-do` gives the two steps.
 
 ### Task 6: Run the audit first in plan review
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
-- [ ] `/agentdev:iwe-plan-review` dispatches the `STE100 Auditor` alone, before
+- [x] `/agentdev:iwe-plan-review` dispatches the `STE100 Auditor` alone, before
   any other agent. The prompt carries only the plan file path and the scope
   `plan`.
-- [ ] When that report has a finding, the skill returns it under the agent's
+  - **Evidence:** Step 2 of `iwe-plan-review/SKILL.md#steps` dispatches it alone
+    with only those two inputs.
+- [x] When that report has a finding, the skill returns it under the agent's
   name and dispatches no other agent.
-- [ ] When that report has no finding, the skill dispatches
+  - **Evidence:** Step 3 of `iwe-plan-review/SKILL.md#steps` stops on a finding.
+- [x] When that report has no finding, the skill dispatches
   `durable-knowledge-auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in
   one message and returns the four reports.
-- [ ] Step 7 of `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps`
+  - **Evidence:** Steps 4 and 5 of `iwe-plan-review/SKILL.md#steps`;
+    `validate_agent_files` passes.
+- [x] Step 7 of `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps`
   tells Plan to correct each `STE100 Auditor` finding and to run the review
   again.
+  - **Evidence:** Step 7 says to correct the draft for each finding and to run
+    `/agentdev:iwe-plan-review` again.
 
 ### Task 7: Run the audit in pull request review
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus` runs
+- [x] `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus` runs
   `/agentdev:audit-ste100` in the diff scope before `/agentdev:iwe-audit`.
-- [ ] The pass reads the lines that the diff adds to docs and skills files, and
+  - **Evidence:** The Prose focus runs it in diff scope; Step 4 dispatches the
+    durable-knowledge pass after the ASD-STE100 pass returns.
+- [x] The pass reads the lines that the diff adds to docs and skills files, and
   the comments and docstrings that it adds to code files.
-- [ ] A finding becomes an inline review comment under the same bar as a
+  - **Evidence:** The Prose focus names both sets of added lines; the Step 4
+    lens bullet runs the pass on a code-only diff that adds a comment.
+- [x] A finding becomes an inline review comment under the same bar as a
   durable-knowledge finding, and it blocks.
-- [ ] The pass does not read the pull request title, the pull request body, or a
+  - **Evidence:** The Prose focus gives the inline comment and the same bar; the
+    blocking severity tier names the ASD-STE100 pass.
+- [x] The pass does not read the pull request title, the pull request body, or a
   commit message.
-- [ ] The table in
+  - **Evidence:** The last bullet of the Prose focus forbids all three.
+- [x] The table in
   `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers` has a row
   for the pass: `light` at light effort and `large` at full effort.
+  - **Evidence:** The slot table has the row `audit-ste100 | light | large`.
 
 ### Task 8: Observe the audit in a plan review
 

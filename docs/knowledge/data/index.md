@@ -35,3 +35,5 @@ okf_version: '0.2'
   checked on every commit.
 - [Concept](concept.md) - Product vision and the principles that outlive any
   single release.
+- [Glossary](glossary.md) - The project terms that the prose rule permits, each
+  with its meaning.

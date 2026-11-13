@@ -187,6 +187,9 @@ software project's memory and system of record. The division of labor:
   the end of onboarding.
 - **Frontmatter shapes are enforced** — `.iwe/schemas/*.yaml` is the validation
   gate, bound to key globs in `.iwe/config.toml`.
+- **Prose follows ASD-STE100 Issue 9.** Best Practice 15 in the repository
+  `AGENTS.md` is the rule. `data/glossary.md` is the list of technical nouns and
+  technical verbs that the rule permits.
 
 ## Where narrative is the format
 
