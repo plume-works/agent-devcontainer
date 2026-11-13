@@ -23,10 +23,10 @@ change](bugs/plan-tasks-edit-specs.md)
 [Bug: Remote Control sessions on a workspace receive cloud-session
 instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 
-[Bug: the ASD-STE100 audit gives different findings for the same
-text](bugs/ste100-audit-not-deterministic.md)
-
 [Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
 
 [Unstageable routing option in the improve
 skill](bugs/self-improve-unstageable-routing-option.md)
+
+[Bug: the ASD-STE100 audit gives different findings for the same
+text](bugs/ste100-audit-not-deterministic.md)
