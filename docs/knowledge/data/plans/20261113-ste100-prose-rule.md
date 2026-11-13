@@ -18,12 +18,11 @@ sources:
 
 ## Context
 
-The repository has no rule that sets a writing standard for prose. The
-repository owner decided that ASD-STE100 Issue 9 (Simplified Technical English,
-released 2025-01-15) is a hard rule for all prose that agents write, and that
-this rule comes before the work in [Shrink the knowledge base to an issue
-tracker and decision
-records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+The repository has no rule for how prose is written. The repository owner
+decided that ASD-STE100 Issue 9 (Simplified Technical English, released
+2025-01-15) is a hard rule for all prose that agents write, and that this rule
+comes before the work in [Shrink the knowledge base to an issue tracker and
+decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
 
 The repository owner's decisions:
 
@@ -72,7 +71,7 @@ Rejected:
 - **A rule page written from the Issue 9 document.** The repository owner chose
   a less formal first version, because the standard is a 434-page document.
 - **A check of each word against the ASD-STE100 dictionary.** ASD owns the
-  dictionary, and a copy in the repository needs terms from ASD that permit it.
+  dictionary, and the terms for a copy in the repository are not known.
 - **A pre-commit script that counts the words in a sentence.** The script must
   tell new text from old text and a procedure from a description.
 - **The `STE100 Auditor` as a fourth parallel plan reviewer.** The other
@@ -197,8 +196,8 @@ Modify: `.agents/plugins/agentdev/README.md`, `README.md`
   `plan`.
 - [ ] When that report has a finding, the skill returns it under the agent's
   name and dispatches no other agent.
-- [ ] When that report has no finding, the skill dispatches the
-  `Durable Knowledge Auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in
+- [ ] When that report has no finding, the skill dispatches
+  `durable-knowledge-auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in
   one message and returns the four reports.
 - [ ] Step 7 of `.agents/plugins/agentdev/agents/iwe-planner.agent.md#steps`
   tells Plan to correct each `STE100 Auditor` finding and to run the review
