@@ -104,9 +104,8 @@ Every decision here is the maintainer's.
 - **Build order.** Only stories and bugs carry `rank`.
 - **Iteration.** `data/milestone.md` holds the current iteration's goal and the
   product goal it serves; `data/product.md` gains `## Goals`.
-- **Specs stay.** A plan copies its story's acceptance scenarios into
-  `## Spec changes`, and `/agentdev:iwe-ship` merges them into `data/spec/` as
-  today.
+- **Specs stay.** The acceptance scenarios stay on the story and are never
+  merged into a spec.
 - **Switch-over.** Every active plan ships under the current rules, and one last
   release is cut under them, before the graph moves to the new model.
 - **Rejected:**
@@ -116,8 +115,6 @@ Every decision here is the maintainer's.
   - keeping a plan only on its work branch or in `.tmp/`: that breaks the plan
     pull request, resuming work, and the checkbox evidence
     `/agentdev:iwe-verify` reads;
-  - dropping or folding `data/spec/`: most specs have no feature, and a story's
-    criteria go stale once a later story changes the behaviour;
   - `/agentdev:iwe-ship` deleting the plan once it is on the default branch:
     that forces a separate ship pull request for every plan.
 

@@ -694,9 +694,12 @@ Modify: the other files under
 **Files:** Modify: `docs/knowledge/data/backlog/ephemeral-plans-and-stories.md`,
 `docs/knowledge/data/plans/20261113-ste100-prose-rule.md`
 
-- [ ] The decision "Specs stay" in `backlog/ephemeral-plans-and-stories` says
+- [x] The decision "Specs stay" in `backlog/ephemeral-plans-and-stories` says
   that the scenarios stay on the story and are never merged into a spec.
-- [ ] The rejected option about `data/spec/` in that task is removed.
+  - **Evidence:** The bullet now says the scenarios stay on the story and are
+    never merged into a spec.
+- [x] The rejected option about `data/spec/` in that task is removed.
+  - **Evidence:** Removed the "dropping or folding `data/spec/`" bullet.
 - [ ] Each active plan other than this plan has `## Acceptance` and `## ADRs` in
   the new shape, and no `## Spec changes`.
 
