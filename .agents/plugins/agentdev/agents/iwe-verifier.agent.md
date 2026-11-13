@@ -61,26 +61,11 @@ decision your prompt does not carry, stop and report it under
      doing it. The third route exists because Ship refuses any CRITICAL and has
      no override: a task the user has decided against can't be ticked while
      undone, so without it the plan is unshippable. Naming a route is not
-     taking it. Mirroring it, every ticked `- [x]` task whose indented
-     `- **Evidence:**` line is missing or empty, names nothing of the three
-     kinds below, or names a test or command that fails or no longer exists
-     when you re-run it in the current tree, is also a CRITICAL,
-     recommendation "untick it". Evidence names a check you can repeat:
-     - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
-     - Docs or config with no test: the file and anchor that changed.
-     - External work: the CI run or the PR that closes it, which must stand alone.
-
-     A commit id on its own is not evidence. Residue is not evidence either:
-     raw command stdout transcribed as evidence, an ephemeral identifier that will not exist
-     next session (a container or machine id, a temp path), and a citation of an
-     uncommitted `.tmp/` harness each fail this check the same way an empty line
-     does. A CI job is evidence for behaviour only CI exercises when the job
-     exercises that behaviour; it need not have run on the current head. Audit
-     the two asymmetrically, because they fail asymmetrically: an
-     unchecked box that is actually done is a nuisance the next session clears
-     in a minute, while a checked box that is not done is a false premise the
-     next session builds on. Taking a tick on faith is how the second one
-     survives verification. Every entry in `## Spec changes` is judged against
+     taking it. A ticked `- [x]` task and its `- **Evidence:**` line are never
+     checked: the `plan-checkboxes` gate is the only check on them. Never
+     report on a ticked task, its evidence's form or wording, and never re-run,
+     re-observe, or seek approval to repeat what the evidence records. Every
+     entry in `## Spec changes` is judged against
      the **effective contract**: the current durable spec plus the intent the
      plan records against it. Durable specs are not expected to describe the
      unshipped change — Ship merges them after this report — so a back-ticked
@@ -99,11 +84,15 @@ decision your prompt does not carry, stop and report it under
      whether the implementation matches its SHALL statement (divergence is a
      WARNING naming the anchors to review). For each `#### Scenario:`,
      check the condition is handled in code and covered by a test, judged by
-     the `iwe-planner` coverage rule: a test covers a scenario only when it
+     the plan rules the `iwe-planner` rulebook follows: a test covers a scenario only when it
      runs the behaviour.
      An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
      Run the plan's `## Verification` commands and
-     report their actual output — a failing command is a CRITICAL. Then run
+     report their actual output — a failing command is a CRITICAL. A step you
+     cannot run in this checkout, or whose effects reach beyond the working
+     tree with no quoted approval naming it, is not run: list it as `not run`
+     with the reason and continue. It is never a finding and never a reason
+     to stop. Then run
      `git status --porcelain`: any output is a CRITICAL naming the dirty paths,
      recommending that the command leave the worktree clean, because a saved
      report describes a clean commit.
@@ -150,10 +139,10 @@ then:
   way.
 - **Outstanding observations** — each unticked task carrying a
   `**Closed by:**` line, with who or what closes it.
-- **Verification commands** — each `## Verification` command run and its actual
-  result.
-- **Needs decision** — the exact command or choice and why, when you stopped
-  for one, so the user can re-run `/agentdev:iwe-verify` granting it.
+- **Verification commands** — each `## Verification` step: its actual result,
+  or `not run` and the reason.
+- **Needs decision** — the exact choice and why, when you stopped for one, so
+  the user can re-run `/agentdev:iwe-verify` making it.
 
 ## Rules
 
@@ -165,11 +154,13 @@ then:
   labeled
   "unverified" — a requirement you couldn't trace is unverified, not failed,
   and says so.
-- Run only the verification commands the plan itself names (tests, builds). A
+- Run only the verification commands the plan's `## Verification` names (tests,
+  builds); a task's `- **Evidence:**` line is a record, never a command to run. A
   command whose effects reach beyond the working tree — a deploy, a push, a
   published artifact, a CI trigger, anything remote — runs only under a quoted
-  approval that names it; otherwise stop before it and report the exact command
-  under `Needs decision`.
+  approval that names it; otherwise do not run it, list it as `not run` under
+  **Verification commands**, and continue. An unrunnable step never ends the
+  run with `Needs decision`.
 - Ship follows a clean verify; a verify with CRITICALs ends with the blocker
   list, not a softened verdict.
 - Never wait for a reply: a decision you were not given ends the run with a

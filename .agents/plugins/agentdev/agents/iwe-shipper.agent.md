@@ -247,7 +247,7 @@ unresolvable `release` declaration, an unshipped prerequisite — is written out
 in full with its anchored evidence — never a line number — and route, because no Verify report holds it.
 
 - **Code or verification failure** — a failing `## Verification` command, a
-  requirement or task with no implementation, missing evidence:
+  requirement or task with no implementation:
   `/agentdev:iwe-implement` on that plan, then `/agentdev:iwe-ship` again.
 - **Intent the plan got wrong** — a recorded spec change the verified behavior
   rightly departs from, a plan that no longer states what should ship, or a
@@ -260,7 +260,7 @@ in full with its anchored evidence — never a line number — and route, becaus
   checkout: `/agentdev:iwe-ship` on that plan first, then
   `/agentdev:iwe-ship` again.
 - **Outstanding observation** — an unticked task carrying a `**Closed by:**`
-  line: observe it, tick it with evidence, then run `/agentdev:iwe-ship` again.
+  line: observe it, tick it, then run `/agentdev:iwe-ship` again.
 
 ## Rules
 

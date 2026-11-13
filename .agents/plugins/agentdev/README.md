@@ -171,7 +171,7 @@ documents. They are the project's memory across sessions.
 | `/agentdev:iwe-setup`              | Brownfield onboarding: drafts the product and architecture docs.    |
 | `/agentdev:iwe-explore`            | Thinking partner from an idea or a GitHub issue; never writes code. |
 | `/agentdev:iwe-plan`               | Files a plan with verified anchors and its spec impact.             |
-| `/agentdev:iwe-plan-review`        | Reviews a plan draft for residue and for what Ship will need.       |
+| `/agentdev:iwe-plan-review`        | Reviews a plan draft for residue, the plan rules, and Ship's needs. |
 | `/agentdev:iwe-capture`            | Files a complete bug, proposed feature, or task, deduplicated.      |
 | `/agentdev:iwe-implement`          | Executes a plan task-by-task, ticking boxes with evidence.          |
 | `/agentdev:iwe-branch-name`        | Names a plan's next `iwe/` iteration branch.                        |
