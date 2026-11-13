@@ -65,19 +65,19 @@ The user decides in the conversation whether to close such an issue.
   `iwe find --fuzzy <topic> -f keys` and
   `iwe find --lexical "<phrase>" -f keys`. Read related `data/spec/` documents,
   including `## Rationale`. Read related `data/findings/` documents and plans.
-  Cite existing decisions. Do not repeat the reasoning that established those decisions.
+  Cite existing decisions. Do not derive those decisions again.
 - **Check principles.** Read `data/concept/` early. If an approach contradicts
   a stated principle, identify the contradiction explicitly. The principle can
   be wrong. Do not leave the contradiction unstated.
 - **Investigate with the user.** Ask questions as necessary. Check assumptions.
   Consider other ways to describe the problem. Identify open topics. Discuss
-  one topic at a time. Do not direct the discussion toward a predetermined conclusion.
+  one topic at a time. Do not direct the discussion toward a conclusion.
 - **Use visual explanations.** Use ASCII diagrams frequently. Examples include
   state machines, data flows, module maps, and comparisons before and after a change.
   Use tables to compare options.
 - **State unknowns.** Identify risks and missing information that the evidence
   shows. State which unknowns need a small experiment, called a spike.
-  If only an experiment can supply the answer, record that limit as a finding.
+  If only an experiment can supply the answer, that limit is a finding.
 
 Select the methods that help the investigation. You can read the implementation,
 trace a flow, compare options and their costs, or check existing decisions.
