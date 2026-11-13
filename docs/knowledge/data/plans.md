@@ -14,4 +14,7 @@ moves it to `archive/` and removes it from this list.*
 [Add ADRs and take the workflow off
 specs](plans/20261113-adrs-and-workflow-off-specs.md)
 
+[Remove the spec text that is redundant or
+wrong](plans/20261113-remove-redundant-and-wrong-spec-text.md)
+
 [Make ASD-STE100 the rule for all prose](plans/20261113-ste100-prose-rule.md)
