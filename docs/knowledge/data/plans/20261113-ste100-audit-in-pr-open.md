@@ -86,18 +86,25 @@ applies the findings and does not run the `STE100 Auditor` again.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] Step 6 starts with a prose audit that dispatches the `STE100 Auditor`
+- [x] Step 6 starts with a prose audit that dispatches the `STE100 Auditor`
   agent. The prompt gives the scope `diff`. It also gives the diff from the
   merge base to `HEAD`. The merge base is the merge base of `HEAD` and the base
   that step 6 uses.
-- [ ] The prompt limits the audit to two types of text. These are the lines that
+  - **Evidence:** `pr-open/SKILL.md#6-pr-draft-construction` › "Audit the added
+    prose first" dispatches the agent with the scope `diff` and
+    `git diff "$(git merge-base origin/<base> HEAD)" HEAD`.
+- [x] The prompt limits the audit to two types of text. These are the lines that
   the diff adds to document files and skill files, and the comments and
   docstrings that the diff adds to code files.
-- [ ] The step tells the session to apply each replacement in the report, and to
+  - **Evidence:** the third prompt item names those two types of text.
+- [x] The step tells the session to apply each replacement in the report, and to
   commit the changes through `/agentdev:git-commit` before it generates the
   body.
-- [ ] The step tells the session not to run the audit again after it applies the
+  - **Evidence:** "Apply each replacement in the report. Then commit the changes
+    through the `git-commit` skill." comes before the body generation.
+- [x] The step tells the session not to run the audit again after it applies the
   replacements.
+  - **Evidence:** "Do not run the audit again after you apply the replacements".
 
 ### Task 2: Remove the ASD-STE100 audit from `pr-review`
 
