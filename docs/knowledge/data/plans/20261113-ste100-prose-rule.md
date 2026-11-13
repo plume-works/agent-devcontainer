@@ -103,8 +103,6 @@ Rejected:
         text are not prose. The rule does not apply to them.
       - The rule names the issue. A later issue applies only after
         this rule names it.
-      - `/agentdev:audit-ste100` checks the rule. A finding stops the
-        change until the text is corrected.
   ```
 
 - [ ] `docs/knowledge/AGENTS.md#conventions` holds this bullet:
