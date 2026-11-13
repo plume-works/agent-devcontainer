@@ -209,10 +209,13 @@ Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 
 **Files:** Create: `.agents/plugins/agentdev/agents/ste100-auditor.agent.md`
 
-- [ ] The agent has the tools `Bash`, `Read`, `Grep`, `Glob`, and `Skill`, and
+- [x] The agent has the tools `Bash`, `Read`, `Grep`, `Glob`, and `Skill`, and
   no tool that edits a file.
-- [ ] The agent invokes `/agentdev:audit-ste100` with the file and the scope
+  - **Evidence:** The `tools:` frontmatter lists those five tools only;
+    `validate_agent_files` passes.
+- [x] The agent invokes `/agentdev:audit-ste100` with the file and the scope
   from its prompt, and returns the report unchanged.
+  - **Evidence:** `ste100-auditor.agent.md#what-you-do` gives the two steps.
 
 ### Task 6: Run the audit first in plan review
 
