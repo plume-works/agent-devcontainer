@@ -65,23 +65,14 @@ claims the user gave is not one.
 6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
    the code; run every test and check required for that task. Closing it is
    then a single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's
-   indented `- **Evidence:**` child naming what closed it as a check Verify can
-   repeat — code named by anchor, never by line number:
-   - Code: a test id (`path::name`) or a command, which Verify re-runs against the current tree.
-   - Docs or config with no test: the file and anchor that changed.
-   - External work: the CI run or the PR that closes it, which must stand alone.
-
-   The code, the tick, and its evidence line land together in one commit. A
-   commit id on its own is not evidence. Cite what survives the session, not
-   what it produced: raw command stdout transcribed as evidence, an ephemeral
-   identifier that will not exist next session (a container or machine id, a
-   temp path), and a citation of an uncommitted `.tmp/` harness are all
-   residue, not evidence — name a test, command, file and anchor, CI run, or
-   PR instead. Do it only when the task's complete specified behavior is
-   implemented with passing evidence, then run `iwe normalize`.
-   Partial work, deferred behavior, or a failing required test or check stays
-   unchecked, with no evidence line. If you cannot name the evidence, the box is
-   not closable: that is the check working, not a formatting obstacle.
+   indented `- **Evidence:**` child: one short line saying what you did and how
+   you know it works — a test, a command, a file, a manual or live check, a
+   PR, in whatever words fit. It exists only so a box is never ticked for work
+   that was not done; nobody audits its form or re-runs it. The code, the
+   tick, and its evidence line land together in one commit. Do it only when
+   the task's complete specified behavior is implemented and its checks pass,
+   then run `iwe normalize`. Partial work, deferred behavior, or a failing
+   required test or check stays unchecked, with no evidence line.
 
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
@@ -150,8 +141,8 @@ leaf and dispatches nothing.
    name it in the report. Report SUGGESTIONs only. Outstanding observations do
    not stop the run; the report names them. With none to act on, the run ends
    with the report (step 6) and suggests the `/agentdev:iwe-ship` skill.
-3. **Code route** — a finding about code or evidence. Fix it under the Steps
-   above: the code, the test, and the task's evidence line in one commit. Then
+3. **Code route** — a finding about code. Fix it under the Steps
+   above: the code and its test in one commit. Then
    run Verify again (step 1).
 4. **Revision route** — a finding about the plan's intent, such as a
    requirement no task covers, or a material deviation that is not
@@ -176,8 +167,8 @@ leaf and dispatches nothing.
    appears in the next Verify report — naming the finding, the fix attempted,
    and the report — after three Verify rounds, or when a second revision would
    be needed after one approved revision in the run. Stop too when Verify
-   reports `Needs decision` for a command it did not run: name the approval,
-   which the user grants by re-running the skill. A choice between routes is a
+   reports `Needs decision`: name the choice it needs,
+   which the user makes by re-running the skill. A choice between routes is a
    finding like any other — take a route the steps above allow. An
    always-escalate deviation stops for the user as Step 7 says.
 6. **Report once.** The Finish rollup; then the last Verify report verbatim,
@@ -198,10 +189,8 @@ the review reads committed code. Act on each finding by its **Defeats** line:
 - A finding that names no claim is filed through the `/agentdev:iwe-capture`
   skill and named in the report.
 
-Tick the task once every claim-defeating finding is fixed. Its evidence names,
-for each fix, the test id or command that now catches the finding — or, for a
-fix no test covers, the file and anchor that changed — and each captured
-document's key.
+Tick the task once every claim-defeating finding is fixed. Its evidence says
+what fixed each finding and names each captured document's key.
 
 ## Capturing what implementation turns up
 
@@ -242,8 +231,7 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   session builds on.
 - One edit never changes more than one checkbox. A blanket `- [ ]` → `- [x]`
   substitution across the file is itself the defect, not a faster route to the
-  same result: eight verified ticks and one careless sweep produce identical
-  bytes, and only the per-box evidence line tells them apart.
+  same result.
 - A task's code, its checkbox flip, and its evidence line land in one commit.
 - Small honest increments beat a big unreviewable one: one task per commit,
   even when the run never pauses between them.

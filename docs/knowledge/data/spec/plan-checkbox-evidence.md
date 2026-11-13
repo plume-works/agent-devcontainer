@@ -1,11 +1,9 @@
 ---
 type: spec
-description: A ticked plan checkbox must carry the evidence that closed it, tasks must be atomic, and a mechanical gate enforces the shape on every commit and CI run.
+description: A ticked plan checkbox carries a free-form evidence note so a box is never ticked for work that was not done, tasks are atomic, and a mechanical gate checking the note is present is the only check on ticks; Verify never checks them.
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
@@ -19,59 +17,36 @@ sources:
 
 A plan document is the record the next session builds on, and its checkboxes are
 its most load-bearing claim. This specifies what a tick must carry, how tasks
-must be sized so a tick can be honest, and the gate that enforces the shape.
+must be sized so a tick can be honest, and the gate that checks a tick carries
+its note.
 
-The gate reads shape only — that a tick is accompanied by a claim. Whether the
-claim is *true* is Verify's judgment and a human's; no mechanical check can
-supply it. Shape is what a check can hold: a blanket substitution and a set of
-careful verifications produce identical bytes, and only the evidence line tells
-them apart.
+Evidence has one purpose: to stop a box being ticked for work that was not done,
+where a blanket substitution and a set of careful verifications produce
+identical bytes and only the evidence line tells them apart. Nothing else reads
+it: the `plan-checkboxes` gate checking the note is present is the only check on
+a tick, and Verify never checks ticks or their notes.
 
 ## Requirements
 
 ### Requirement: A ticked task carries the evidence that closed it
 
 Every ticked `- [x]` task under a plan's task section SHALL carry an indented
-`- **Evidence:**` child naming what closed it, specifically enough that a later
-session can repeat the check: for code, a test id (`path::name`) or a command;
-for docs or config with no test, the file and anchor that changed; for external
-work, the CI run or the PR that closes it, which stands alone. A commit id on
-its own SHALL NOT count as evidence, and neither SHALL residue: raw command
-stdout transcribed as evidence, an ephemeral identifier, or an uncommitted
-`.tmp/` harness. Plan SHALL specify the format, Implement SHALL write the
-evidence line in the same edit that ticks the box and commit it together with
-the change it describes, and the convention SHALL be recorded where every
-session loads it rather than only where a skill is invoked.
+`- **Evidence:**` child: a short free-form note of what was done and how it was
+checked, in any form — a test, a command, a file, a manual or live check, a CI
+run, a PR, or a commit. No form of the note SHALL be preferred, required, or
+rejected. Implement SHALL write the evidence line in the same edit that ticks
+the box and commit it together with the change it describes, and the convention
+SHALL be recorded where every session loads it rather than only where a skill is
+invoked.
 
 #### Scenario: A task is completed
 
 - **WHEN** a task's complete specified behavior is implemented and its required
   tests and checks pass
-- **THEN** one edit ticks the box and writes its `- **Evidence:**` child naming
-  what closed it
+- **THEN** one edit ticks the box and writes its `- **Evidence:**` child noting
+  what was done
 
-#### Scenario: Evidence names only a commit
-
-- **WHEN** a ticked task's evidence line names a commit and no test, command,
-  file and anchor, CI run, or PR
-- **THEN** it is residue rather than evidence, and Verify reports it as a ticked
-  task without usable evidence
-
-#### Scenario: Evidence cites residue
-
-- **WHEN** a ticked task's evidence line quotes command output, names an
-  ephemeral identifier, or cites a script under `.tmp/` that is not committed
-- **THEN** it is residue rather than evidence, and Verify reports it as a ticked
-  task without usable evidence
-
-#### Scenario: Evidence cannot be named
-
-- **WHEN** a session would tick a box but cannot name a test, command, file and
-  anchor, CI run, or PR behind it
-- **THEN** the box stays unticked, and the inability to name evidence is treated
-  as the check working rather than as a formatting obstacle
-
-#### Scenario: Work is partial or its evidence fails
+#### Scenario: Work is partial or its checks fail
 
 - **WHEN** a task is only partially implemented, contains deferred behavior, or
   its required tests or checks do not pass
@@ -81,8 +56,7 @@ session loads it rather than only where a skill is invoked.
 
 - **WHEN** more than one checkbox would change state
 - **THEN** each is a separate edit, because a blanket `- [ ]` → `- [x]`
-  substitution is itself the defect and produces bytes indistinguishable from
-  verified ticks
+  substitution is itself the defect
 
 ### Requirement: Plan tasks are sized so a tick can be honest
 
@@ -127,24 +101,25 @@ something to record.
 - **THEN** it records the result under `## Verification results` rather than
   improvising a section per plan
 
-### Requirement: Verify audits ticked and unticked boxes asymmetrically
+### Requirement: Verify never checks ticked tasks or their evidence
 
-The Verify skill SHALL treat an unsupported tick as a CRITICAL finding with the
-recommendation "untick it", alongside its existing CRITICAL for an unchecked
-task, and SHALL state the asymmetry that justifies auditing both. Verify SHALL
-re-run each test or command a ticked task names, in the current tree.
+The `plan-checkboxes` gate SHALL be the only check on a ticked task and its
+`- **Evidence:**` note. Verify SHALL report no finding of any severity about a
+ticked task or its note, and SHALL NOT re-run, re-observe, or seek approval to
+repeat a test, command, or live check the note records. An unticked task with no
+`**Closed by:**` line SHALL remain a CRITICAL.
 
-#### Scenario: A ticked task has no usable evidence
+#### Scenario: The evidence note records a live or manual check
 
-- **WHEN** a ticked `- [x]` task's `- **Evidence:**` line is missing or empty,
-  or names no test, command, file and anchor, CI run, or PR
-- **THEN** Verify reports a CRITICAL recommending that the box be unticked
+- **WHEN** a ticked task's evidence note records a check Verify cannot or would
+  need approval to repeat, such as a live session or a deploy
+- **THEN** Verify neither re-runs it nor stops for a decision about it
 
-#### Scenario: A named check fails or is gone
+#### Scenario: The evidence note has any form
 
-- **WHEN** a ticked task's evidence names a test or command that fails, or no
-  longer exists, when Verify re-runs it in the current tree
-- **THEN** Verify reports a CRITICAL recommending that the box be unticked
+- **WHEN** a ticked task's evidence note names only a commit, only a code
+  anchor, raw output, or prose
+- **THEN** Verify reports nothing about it
 
 #### Scenario: A task is left unticked
 
@@ -153,13 +128,6 @@ re-run each test or command a ticked task names, in the current tree.
   task, tick it if it is already done, or drop it through Plan's revise mode,
   which treats dropping a task as a material scope change and asks the user —
   and takes none of them
-
-#### Scenario: The two failures are weighed
-
-- **WHEN** Verify reports on checkbox state
-- **THEN** it records that an unchecked box which is actually done is a nuisance
-  the next session clears, while a checked box that is not done is a false
-  premise the next session builds on
 
 ### Requirement: The checkbox format is mechanically gated
 
@@ -200,32 +168,23 @@ from a pre-commit hook when a plan changes, and in the knowledge-base CI job.
 
 ## Rationale
 
-### Evidence names a check Verify can repeat, never a commit id
+### Evidence is a free-form note the gate alone checks
 
-A ticked task's evidence names a test id or command, a file and anchor, or a CI
-run or PR, and Verify re-runs a named test or command in the current tree. Every
-reader of evidence — the `plan-checkboxes` gate, Verify, and the Ship run that
-repeats Verify — runs before merge, and nothing reads a shipped plan's evidence
-after it. A commit id buys none of those readers anything, while rebase, squash
-merge, and amend rewrite it; a check Verify can re-run lets Verify judge a tick
-the same way every time. With nothing left that must name a commit, a task's
-code, its tick, and its evidence line land in one commit. Evidence lines sit
-outside the plan-mode durable-knowledge audit, so Implement and Verify apply its
-residue vocabulary at that surface themselves: transcribed stdout, an ephemeral
-identifier, or an uncommitted `.tmp/` harness names nothing a later session can
-repeat.
+A ticked task's evidence is a short note in any form, and Verify never reads it.
+The note exists only so a box is never ticked without a claim beside it; that is
+a shape the `plan-checkboxes` gate holds on every commit. Grading the note's
+form or re-running what it names made Verify stop on checks it could not repeat
+in its checkout — a live session, a deploy, a person — and report findings
+against plans whose code conformed. A task's code, its tick, and its evidence
+line land in one commit.
 
 Rejected:
 
-- **Keeping commit ids.** Nothing reads evidence after merge, and the rule costs
-  a second commit per task and a revision round whenever the named hash is
-  wrong.
-- **The PR number.** It survives a squash, but it names the whole change, so
-  Verify still has nothing per task to repeat.
-- **A test id only.** Docs, config, and external work have no test, and each
-  needs its own kind of evidence anyway.
-- **Free text checked for shape only.** Verify's judgment flips between runs
-  when a line names nothing it can repeat.
+- **Evidence that names a check Verify repeats.** Live, manual, and external
+  checks have nothing Verify can re-run, so the rule either blocks Verify or
+  pushes such work out of plans.
+- **Rejecting commit ids or raw output.** The note's only reader is the gate,
+  which needs a claim, not a particular form.
 
 ### Honest ticks come from the artifact's shape, not more prose rules
 

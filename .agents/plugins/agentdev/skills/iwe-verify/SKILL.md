@@ -28,7 +28,7 @@ report appearing only inside a tool call or a tool result, such as a `Read`
 result or the save heredoc.
 
 **Look up** before any Verify step, adding `--fresh` only when the user's own
-request carries it:
+request carries it or quotes an approval, so an approved command always runs:
 
 ```bash
 agent-code/verify-cache.py lookup <plan-key|audit> [--fresh]
@@ -82,7 +82,7 @@ approvals your own prompt quotes, and your final message text is the Shipper's
 report, which carries the Verify report.
 
 1. **Look up** the plan the user named, or `audit` in audit mode, with
-   `--fresh` only when the request carries it. If neither a plan nor audit mode
+   `--fresh` only when the request carries it or quotes an approval. If neither a plan nor audit mode
    is clear from the request, ask the user first — inside `iwe-shipper`, end with
    `Needs decision` instead. On a `HIT`, re-post the saved
    report verbatim in your final message text, led by
@@ -106,8 +106,10 @@ report, which carries the Verify report.
 5. **Re-post its report verbatim** in your final message text: the subagent's
    result and the save heredoc are tool output the user may never see, and a
    path to the saved report does not count. When it reports `Needs decision`,
-   name the approval or choice it needs and tell the user to re-run
-   `/agentdev:iwe-verify <plan>` granting it.
+   name the choice it needs and tell the user to re-run
+   `/agentdev:iwe-verify <plan>` making it. When it lists a `## Verification`
+   step as `not run`, say so, and that `/agentdev:iwe-verify <plan>` with an
+   approval naming the step runs it.
 
 ## Rules
 

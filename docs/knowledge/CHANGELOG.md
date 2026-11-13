@@ -53,12 +53,14 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 - **A plan's `release` lists the documents it closes.** A feature is a proposal,
   live only at `proposed` or `accepted`; a plan needs no feature to change what
   users see.
-- **Plan task evidence names a check Verify can repeat, not a commit.** A ticked
-  task's `- **Evidence:**` line names a test id or command, the file and anchor
-  that changed, or the CI run or PR that closes it; a commit id on its own is no
-  longer evidence. The tick and its evidence line land in the same commit as the
-  code they describe. Nothing needs migrating: an existing evidence line that
-  names a commit alongside a valid check still counts.
+- **Plan task evidence is a free-form note, never audited.** A ticked task's
+  `- **Evidence:**` line says what was done and how it was checked, in any form.
+  It exists only so a box is never ticked for work that was not done. The
+  `plan-checkboxes` gate is the only check on it; Verify never checks ticks or
+  their evidence: it no longer grades the line's kind, flags "residue" or a bare
+  commit id, or re-runs the test, command, or live check it names. The tick and
+  its evidence line still land in the same commit as the code they describe.
+  Nothing needs migrating.
 - **Bugs carry a `stage` and a `severity`.** A bug's `stage` is required:
   `pending | planned | done | cancelled`, with "absent means open" retired.
   Capture files a bug at `pending`, or at `done` when the same change fixed it;
