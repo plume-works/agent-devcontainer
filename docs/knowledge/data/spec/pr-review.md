@@ -1,6 +1,6 @@
 ---
 type: spec
-description: This spec defines how the agentdev pr-review skill reviews a pull request. It covers the diffs that the skill fast-approves, the ASD-STE100 pass, the durable-knowledge pass, the size of each review, and the rules for a correctness finding.
+description: This spec defines how the agentdev pr-review skill reviews a pull request. It covers the diffs that the skill fast-approves, the ASD-STE100 pass, the durable-knowledge pass, the review size, and the rules for a correctness finding.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
@@ -66,12 +66,13 @@ skills file, as "docs and skills get a durable-knowledge pass" defines those
 files. The second place is a comment or docstring in a code file. Then
 `pr-review` SHALL run `/agentdev:audit-ste100` in diff scope over the added
 lines. It SHALL run the audit before the durable-knowledge pass, at both effort
-tiers. It SHALL NOT run the audit on a diff that adds no prose. Each finding
-SHALL become an inline review comment on the diff line that holds its quoted
-text. The pass SHALL keep a finding only when it can quote the added line and
-name the rule that the line breaks. Each finding SHALL block the merge. The pass
-SHALL NOT read the pull request title, the pull request body, or a commit
-message.
+tiers. It SHALL NOT run the audit on a diff that adds no prose.
+
+Each finding SHALL become an inline review comment on the diff line that holds
+its quoted text. The pass SHALL keep a finding only when it can quote the added
+line and name the rule that the line breaks. Each finding SHALL block the merge.
+The pass SHALL NOT read the pull request title, the pull request body, or a
+commit message.
 
 #### Scenario: a diff adds a code comment
 
