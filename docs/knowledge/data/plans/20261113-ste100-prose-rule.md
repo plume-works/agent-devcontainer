@@ -245,17 +245,25 @@ Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus` runs
+- [x] `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus` runs
   `/agentdev:audit-ste100` in the diff scope before `/agentdev:iwe-audit`.
-- [ ] The pass reads the lines that the diff adds to docs and skills files, and
+  - **Evidence:** The Prose focus runs it in diff scope; Step 4 dispatches the
+    durable-knowledge pass after the ASD-STE100 pass returns.
+- [x] The pass reads the lines that the diff adds to docs and skills files, and
   the comments and docstrings that it adds to code files.
-- [ ] A finding becomes an inline review comment under the same bar as a
+  - **Evidence:** The Prose focus names both sets of added lines; the Step 4
+    lens bullet runs the pass on a code-only diff that adds a comment.
+- [x] A finding becomes an inline review comment under the same bar as a
   durable-knowledge finding, and it blocks.
-- [ ] The pass does not read the pull request title, the pull request body, or a
+  - **Evidence:** The Prose focus gives the inline comment and the same bar; the
+    blocking severity tier names the ASD-STE100 pass.
+- [x] The pass does not read the pull request title, the pull request body, or a
   commit message.
-- [ ] The table in
+  - **Evidence:** The last bullet of the Prose focus forbids all three.
+- [x] The table in
   `.agents/plugins/agentdev/skills/pr-review/SKILL.md#effort-tiers` has a row
   for the pass: `light` at light effort and `large` at full effort.
+  - **Evidence:** The slot table has the row `audit-ste100 | light | large`.
 
 ### Task 8: Observe the audit in a plan review
 
