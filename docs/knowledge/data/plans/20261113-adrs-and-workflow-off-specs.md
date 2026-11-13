@@ -511,7 +511,7 @@ uv run validate_agent_files --recommend . --require-marketplace claude
 - The tests that are missing, and the removal of `data/spec/`, its schema, and
   its hub.
 - The glossary. [Make ASD-STE100 the rule for all
-  prose](20261113-ste100-prose-rule.md) writes it.
+  prose](../archive/next-release/plans/20261113-ste100-prose-rule.md) writes it.
 - The other parts of [Plans as ephemeral implementation documents; stories as
   the planned work](../backlog/ephemeral-plans-and-stories.md).
 - A check that stops an edit to an accepted ADR.
