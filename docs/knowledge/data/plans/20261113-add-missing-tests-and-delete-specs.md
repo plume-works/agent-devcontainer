@@ -35,7 +35,9 @@ not code. The 2 other `no-home` requirements are the bugs about the consumption
 guide that an earlier plan filed.
 
 Then `data/spec/` and each thing that exists only for it are deleted. The
-glossary loses each term that no prose uses after the specs are gone.
+glossary loses each term that no prose uses after the specs are gone. The audit
+data in `docs/spec-audit/` is deleted last, because each plan in the series
+reads it.
 
 ## Implementation Steps
 
@@ -128,7 +130,15 @@ Each test shows what the `fate_note` of its row says.
 
 - [ ] Each term in the glossary is used in prose outside `data/archive/`.
 
-### Task 5: Close the backlog task
+### Task 5: Delete the audit data
+
+**Files:** Delete: `docs/spec-audit/`; Modify:
+`docs/knowledge/data/findings/spec-usefulness-audit.md`
+
+- [ ] `docs/spec-audit/` does not exist.
+- [ ] `findings/spec-usefulness-audit` names no file under `docs/spec-audit/`.
+
+### Task 6: Close the backlog task
 
 **Files:** Modify:
 `docs/knowledge/data/backlog/shrink-knowledge-base-to-issues-and-adrs.md`,
@@ -163,7 +173,6 @@ uv run validate_agent_files --recommend . --require-marketplace claude
 
 - A fix for a defect that a new test finds. `/agentdev:iwe-capture bug` files
   it.
-- The data in `docs/spec-audit/`. It stays as the record of the audit.
 - The archived plans and their `## Spec changes` sections.
 
 ## Key references
