@@ -533,24 +533,42 @@ both decisions before this plan.
 `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md`,
 `.agents/plugins/agentdev/README.md`
 
-- [ ] The `iwe-implementer` rulebook loads the plan's `## Acceptance` and its
+- [x] The `iwe-implementer` rulebook loads the plan's `## Acceptance` and its
   ADRs, and no spec.
-- [ ] The `iwe-implementer` rulebook treats a change to a scenario or to an ADR
+  - **Evidence:** Step 2 reads the plan, its `## Acceptance` scenarios, and its
+    ADRs, and says "Read no spec".
+- [x] The `iwe-implementer` rulebook treats a change to a scenario or to an ADR
   as a material deviation.
-- [ ] `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#capturing-what-implementation-turns-up`
+  - **Evidence:** Step 7 makes any change to a scenario or a proposed ADR
+    material by definition.
+- [x] `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#capturing-what-implementation-turns-up`
   sends a durable design fact to a plan revision that proposes an ADR.
-- [ ] The `iwe-revision-evaluator` rulebook names `## Acceptance` where it named
+  - **Evidence:** The durable design fact bullet now routes to a plan revision
+    that proposes an ADR.
+- [x] The `iwe-revision-evaluator` rulebook names `## Acceptance` where it named
   `## Spec changes`.
-- [ ] The `iwe-adversarial-reviewer` rulebook reads the plan's `## Acceptance`
+  - **Evidence:** The ESCALATE and APPROVE items name `## Acceptance`; the spec
+    read in step 2 is gone.
+- [x] The `iwe-adversarial-reviewer` rulebook reads the plan's `## Acceptance`
   scenarios and its ADRs.
-- [ ] `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance` reads
+  - **Evidence:** Step 1 reads each ADR the plan links and takes the
+    `## Acceptance` scenarios as claims.
+- [x] `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#the-stance` reads
   the related ADRs before it proposes a direction.
-- [ ] `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing` gives a
+  - **Evidence:** The "Check existing knowledge" bullet reads the related ADRs
+    in `data/adr/`.
+- [x] `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md#capturing` gives a
   decision to Plan in the handoff and writes no `## Rationale`.
-- [ ] `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope` lists
+  - **Evidence:** The "A decision" bullet gives the decision to Plan in the
+    handoff and says not to write an ADR or a `## Rationale`.
+- [x] `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md#scope` lists
   `data/adr/`.
-- [ ] `.agents/plugins/agentdev/README.md` describes Plan, Verify, and Ship
+  - **Evidence:** The scope names `data/adr/` first.
+- [x] `.agents/plugins/agentdev/README.md` describes Plan, Verify, and Ship
   without specs.
+  - **Evidence:** The Plan, Verify, and Ship rows name acceptance scenarios and
+    ADRs; `grep -n -i spec` finds only the unrelated "Specs and escalation"
+    heading.
 
 ### Task 9: Update the manuals
 

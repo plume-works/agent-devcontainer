@@ -32,15 +32,11 @@ claims the user gave is not one.
    — and ask which one. Announce:
    "Working on: <plan> — task N of M". No plan exists for what the user wants
    built? Stop and point at the `/agentdev:iwe-plan` skill.
-2. **Load the context.** Read the full plan, the specs in its
-   `## Spec changes`, and `data/product.md` `## Constraints` and
-   `## Authoring rules` — they bind the code you're about to write. Note which
-   form the plan's spec impact takes — an explicit `None`, a concise normative
-   outcome, or a fenced `ADDED` / `MODIFIED` / `REMOVED` delta — and read it
-   against the current durable spec. The recorded form is the behavior this
-   work is meant to produce; the durable spec is what remains true until Ship
-   merges that intent. Both bind the code, and where they differ, the
-   difference is the work.
+2. **Load the context.** Read the full plan, its `## Acceptance` scenarios,
+   each ADR its `## ADRs` links, and `data/product.md` `## Constraints` and
+   `## Authoring rules` — they bind the code you're about to write. Read no
+   spec. The scenarios are the behavior this work is meant to produce, and
+   each one names the test that proves it.
 3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
    ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
    prerequisite plan that is not `stage: done` in the checkout
@@ -82,22 +78,22 @@ claims the user gave is not one.
      boundary, update the plan first, report the correction and why it
      preserves intent, then continue within the user's requested task boundary.
      Adding a task is never a tactical correction.
-     The plan's recorded spec impact is one of those boundaries: a correction
-     may proceed only while the recorded behavioral outcome still holds exactly
-     as written.
+     The plan's `## Acceptance` scenarios are one of those boundaries: a
+     correction may proceed only while each scenario still holds exactly as
+     written.
    - **Material deviation:** if completing the task would add scope or drop,
      narrow, defer, or accept an exception to specified behavior, leave the
-     task unchecked. Any change to a recorded normative outcome, delta
-     operation, requirement, or scenario is material by definition — never
-     edit the delta to match what you built. Route it by kind:
+     task unchecked. Any change to a scenario in `## Acceptance` or to an ADR
+     the plan proposes is material by definition — never edit a scenario or
+     an ADR to match what you built. Route it by kind:
      - **Always-escalate** — the change would drop, narrow, defer, or accept
        an exception to specified behavior, change `release`, or change text
        the user approved. Explain the needed change and wait for user
        direction before changing the plan or coding beyond it; it goes back
        through the `/agentdev:iwe-plan` skill's revise mode, with the user's
        direction, before coding continues.
-     - **Any other material deviation** — an added task or requirement, a
-       heavier `## Spec changes` form, a corrected verification step, each
+     - **Any other material deviation** — an added task or scenario, a new or
+       changed ADR, a corrected verification step, each
        keeping every specified behavior. It takes the revision route in
        `## Running the loop` before coding past it.
 
@@ -145,7 +141,7 @@ leaf and dispatches nothing.
    above: the code and its test in one commit. Then
    run Verify again (step 1).
 4. **Revision route** — a finding about the plan's intent, such as a
-   requirement no task covers, or a material deviation that is not
+   scenario no task covers, or a material deviation that is not
    always-escalate (Step 7). Never code past a gap in the tasks:
    1. Commit any pending edit to the plan file, such as refreshed anchors or a
       tactical correction, in a commit of its own. `HEAD` then holds it, so the
@@ -197,8 +193,8 @@ what fixed each finding and names each captured document's key.
 Implementation findings do not belong in the plan. Route each finding by type:
 
 - A durable design fact — a constraint, a boundary, why the obvious approach
-  fails → the `## Rationale` of the spec that owns the behaviour. Add to the
-  entry that owns the area before writing a new one.
+  fails → a plan revision that proposes an ADR, through the revision route in
+  `## Running the loop`.
 - A measurement that settles nothing yet → `data/findings/<slug>.md`, linked
   from `data/findings.md`.
 - A procedure a contributor will repeat → `data/guides/<slug>.md`, linked from
@@ -242,5 +238,5 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   the task needs. Never add a speculative abstraction, an unrequested config
   flag, option, or parameter, an interface with a single implementation, or a
   hook "for later". Inline before you extract; hard-code before you configure.
-- This rulebook implements; it doesn't ship. Status flips, spec sync, and
+- This rulebook implements; it doesn't ship. Status flips, ADR acceptance, and
   release recording stay with the `/agentdev:iwe-ship` skill.

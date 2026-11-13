@@ -40,7 +40,8 @@ The last stdout line is `RESULT=<NAME>`.
 | `SCRIPT_FAILURE`  | `1`    | Stop. Report the error text exactly. Do not retry or use an alternative method.                                                                  |
 | `SIGNAL_*`        | `129`+ | Stop. Report that the run was interrupted.                                                                                                       |
 
-The issue describes the user's view of the problem. It is not the spec.
+The issue describes the user's view of the problem. It is not a statement of
+the required behavior.
 Check claims against the code and the graph before you use those claims.
 State each difference between the issue and the checkout clearly.
 Search the repository for specific terms from the issue. Identify the code
@@ -63,8 +64,8 @@ The user decides in the conversation whether to close such an issue.
   under "not observed". Do not design changes for imagined cases.
 - **Check existing knowledge.** Before you propose an approach, use
   `iwe find --fuzzy <topic> -f keys` and
-  `iwe find --lexical "<phrase>" -f keys`. Read related `data/spec/` documents,
-  including `## Rationale`. Read related `data/findings/` documents and plans.
+  `iwe find --lexical "<phrase>" -f keys`. Read the related ADRs in
+  `data/adr/`. Read related `data/findings/` documents and plans.
   Cite existing decisions. Do not derive those decisions again.
 - **Check principles.** Read `data/concept/` early. If an approach contradicts
   a stated principle, identify the contradiction explicitly. The principle can
@@ -118,9 +119,9 @@ When the user wants a record, select the applicable destination:
 
 - **An idea without a commitment:** Write `data/someday/<slug>.md`.
   Link the document from `data/someday.md`.
-- **A decision about behavior covered by an existing spec:** Record the decision
-  and rejected alternatives in that spec's `## Rationale`. For behavior not yet
-  implemented, use the plan's `## Approach`. Include that decision in the plan handoff below.
+- **A decision:** Give the decision and its rejected alternatives to Plan in
+  the plan handoff below. Plan proposes the ADR. Do not write an ADR or a
+  `## Rationale` from explore mode.
 - **A measurement that does not yet settle a question:** Write
   `data/findings/<slug>.md`. Include `## Measurement`, eliminated hypotheses,
   and `## Closing`. Link the document from `data/findings.md`.
@@ -130,7 +131,7 @@ When the user wants a record, select the applicable destination:
   Link the document from `data/concept.md`.
 - **An established defect, proposed feature, or actionable task:** Hand the
   settled content to `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.
-  A defect includes code that contradicts a `data/spec/` document or reproducible
+  A defect includes code that contradicts an accepted ADR or reproducible
   incorrect behavior. `/agentdev:iwe-capture` controls the document format, hub
   link, and duplicate check. If the investigation started from a GitHub issue,
   include `ISSUE_URL`. The captured document links the issue and closes the issue.
