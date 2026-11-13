@@ -110,15 +110,25 @@ applies the findings and does not run the `STE100 Auditor` again.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `## Review Focus` has no ASD-STE100 item.
-- [ ] In `## Review Focus`, the tier that blocks the merge has two passes: the
+- [x] `## Review Focus` has no ASD-STE100 item.
+  - **Evidence:** reverse-applied the `pr-review` hunks of #871;
+    `grep -i ste100` on the skill prints nothing.
+- [x] In `## Review Focus`, the tier that blocks the merge has two passes: the
   correctness pass and the durable-knowledge pass.
-- [ ] The table of effort tiers has no `audit-ste100` row.
-- [ ] The tier paragraph under the table of effort tiers does not name an
+  - **Evidence:** the blocking tier reads "anything from a **correctness pass**
+    ... or a **durable-knowledge pass**".
+- [x] The table of effort tiers has no `audit-ste100` row.
+  - **Evidence:** the table ends with the `iwe-audit` and `validation` rows.
+- [x] The tier paragraph under the table of effort tiers does not name an
   ASD-STE100 pass.
-- [ ] Step 4 has no ASD-STE100 pass. The durable-knowledge pass runs in the same
+  - **Evidence:** the paragraph names the Step 3 metadata gate and the Step 4
+    durable-knowledge pass only.
+- [x] Step 4 has no ASD-STE100 pass. The durable-knowledge pass runs in the same
   message as the compliance and correctness passes, and no step dispatches
   passes in a second message.
+  - **Evidence:** Step 4 lists the compliance, correctness, and
+    durable-knowledge passes, and the Claude Code item issues every pass in a
+    single message.
 
 ### Task 3: Limit the `STE100 Auditor` reruns in plan review to two
 
