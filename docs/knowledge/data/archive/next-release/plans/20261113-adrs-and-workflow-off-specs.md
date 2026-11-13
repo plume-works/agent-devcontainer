@@ -11,6 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-ship-reviewer.agent.md
 - resource: scripts/check-ship-records.py
+stage: done
+completed: 2026-11-13
 ---
 
 # Add ADRs and take the workflow off specs
@@ -20,8 +22,9 @@ sources:
 The repository owner decided that code and tests are the only statement of
 behaviour, that an ADR registry holds the reasons, and that a glossary holds the
 project terms: [Shrink the knowledge base to an issue tracker and decision
-records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). [The spec
-usefulness audit](../findings/spec-usefulness-audit.md) is the evidence.
+records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). [The
+spec usefulness audit](../../../findings/spec-usefulness-audit.md) is the
+evidence.
 
 The workflow skills write specs today. Plan writes `## Spec changes`, Ship
 merges it into `data/spec/`, and the release cut reads the spec diff. This plan
@@ -714,9 +717,16 @@ Modify: the other files under
 `docs/knowledge/data/plans/20261113-adrs-and-workflow-off-specs.md`,
 `docs/knowledge/data/plans.md`
 
-- [ ] The commands in `## Verification` pass.
-- [ ] This plan has `stage: done` and `completed`, is in
+- [x] The commands in `## Verification` pass.
+  - **Evidence:** `iwe normalize && iwe schema validate` exit 0,
+    `check-anchors.py` exit 0, `docs/knowledge/tests` 102 passed,
+    `test_check_ship_records.py` 48 passed, `test_iwe_seed.py` 6 passed,
+    `validate_agent_files` 0 errors and 0 warnings.
+- [x] This plan has `stage: done` and `completed`, is in
   `data/archive/next-release/plans/`, and has no link in `data/plans.md`.
+  - **Evidence:** Set `stage: done` and `completed: 2026-11-13`, moved the plan
+    with `iwe rename` to `data/archive/next-release/plans/`, and removed its
+    link from `data/plans.md`.
 
 ## Verification
 
@@ -740,9 +750,9 @@ uv run validate_agent_files --recommend . --require-marketplace claude
 - The tests that are missing, and the removal of `data/spec/`, its schema, and
   its hub.
 - The glossary. [Make ASD-STE100 the rule for all
-  prose](../archive/next-release/plans/20261113-ste100-prose-rule.md) writes it.
+  prose](20261113-ste100-prose-rule.md) writes it.
 - The other parts of [Plans as ephemeral implementation documents; stories as
-  the planned work](../backlog/ephemeral-plans-and-stories.md).
+  the planned work](../../../backlog/ephemeral-plans-and-stories.md).
 - A check that stops an edit to an accepted ADR.
 
 ## Key references
