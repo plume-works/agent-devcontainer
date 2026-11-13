@@ -69,11 +69,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    ---
    ```
 
-   `release` is the plan's release impact, and Ship applies it as written. List
-   every feature and bug document the work adds, changes, or fixes, and link
-   each from `## Context`. Declare `internal` only when no workspace user or
-   template consumer sees a difference: refactors, tooling only this repository
-   runs, project-memory-only edits, spikes, and milestone aggregators.
+   `release` lists the documents the plan closes, and Ship applies it as
+   written: each feature the work implements and each bug it fixes, each linked
+   from `## Context`. Declare `internal` when the plan closes no feature and no
+   bug. The field feeds no release page — the release cut writes the page from
+   the spec diff — so a plan whose work users see needs no feature.
 
    Body sections, in order (omit a section only when it's genuinely empty):
    - `## Context` — why now, linking the feature/bug/backlog doc that
@@ -132,13 +132,12 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    hub has no sections. When the user names where the plan belongs in the build
    order, set `rank` to the midpoint of its neighbours' ranks in
    `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`, and
-   edit no other document's `rank`; otherwise leave it unsequenced. A plan
-   whose work users see but that no
-   feature describes first hands the feature to `/agentdev:iwe-capture feature`
-   and lists its key in `release`. Set every proposed feature the plan lists to
-   `stage: accepted`, and every pending bug it lists to `stage: planned`. If it
-   grew from a backlog task,
-   mark the task done with `completed: <today>` and remove its `rank`. An issue it grew from is closed in
+   edit no other document's `rank`; otherwise leave it unsequenced. Set every
+   proposed feature the plan lists to `stage: accepted`, and every pending bug
+   it lists to `stage: planned`. If it grew from a backlog task, mark the task
+   done with `completed: <today>`, remove its `rank`, move it with
+   `iwe rename` to `data/archive/next-release/backlog/`, and remove its link
+   from `data/backlog.md`. An issue it grew from is closed in
    step 8, after validation — never before the plan is known to be sound. In revise mode, preserve the plan's
    existing graph membership and lifecycle unless the requested planning
    change explicitly requires another valid planning-state update. A revision
@@ -254,6 +253,12 @@ output, not damage, so leave it alone:
 
 A spec that does not exist yet stays a back-ticked key here and in the delta;
 Ship creates the document and replaces the key with a real link.
+
+Below each touched spec's entry, name the `## Rationale` entries that spec
+gains or rewrites: the decision in force and the alternatives it rejected, as
+`## Approach` records them. Ship writes them; Verify does not check them, since
+they state no behaviour. A spec gains none when the plan decides nothing about
+its behaviour.
 
 Each rule of a spec lives in one requirement. For the normative-outcome and
 fenced-delta forms, read every durable spec the section touches in full before

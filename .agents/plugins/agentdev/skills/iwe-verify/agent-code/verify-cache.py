@@ -32,7 +32,9 @@ Usage:
                   --skill-request <text> --verifier-prompt <text> < report
 
 Arguments:
-  <plan-key|audit>  data/plans/<YYYYMMDD>-<slug>, its file path, or audit.
+  <plan-key|audit>  data/plans/<YYYYMMDD>-<slug>, an archived plan's key
+                    data/archive/<release>/plans/<YYYYMMDD>-<slug>, either's
+                    file path, or audit.
 
 Options:
   --fresh           lookup only: report a miss even when a saved report matches.
@@ -81,6 +83,7 @@ DIRTY_WORKTREE = 5
 HEAD_MOVED = 6
 
 AUDIT = 'audit'
+ARCHIVED_PLAN = re.compile(r'data/archive/[^/]+/plans/[^/]+$')
 SAVED_VERDICTS = ('Ready to ship', 'Blocked', 'Audit')
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 CACHE_DIRECTORY = Path('.tmp') / 'verify'
@@ -146,8 +149,11 @@ def parse_arguments(arguments: list[str]) -> Options | None:
 
 
 def canonical_target(target: str) -> str:
-    """Normalize a plan key or plan file path to data/plans/<name>; audit stays audit."""
-    return AUDIT if target == AUDIT else f'data/plans/{Path(target).stem}'
+    """Normalize a plan key or file path to its live or archived plan key; audit stays audit."""
+    if target == AUDIT:
+        return AUDIT
+    archived = ARCHIVED_PLAN.search(Path(target).with_suffix('').as_posix())
+    return archived.group(0) if archived else f'data/plans/{Path(target).stem}'
 
 
 def catalog_digest(root: Path = PLUGIN_ROOT) -> str:

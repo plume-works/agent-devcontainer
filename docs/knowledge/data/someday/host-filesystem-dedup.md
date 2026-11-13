@@ -26,4 +26,5 @@ Open questions:
   behave on each filesystem.
 - How much space it would actually save. Pruning unused images and capping the
   build cache already remove most of the waste: [Cap Docker storage with
-  automatic garbage collection](../plans/20261013-docker-storage-gc.md).
+  automatic garbage
+  collection](../archive/2.0.0/plans/20261013-docker-storage-gc.md).

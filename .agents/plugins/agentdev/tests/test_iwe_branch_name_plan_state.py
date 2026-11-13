@@ -112,6 +112,35 @@ def test_plan_state_refuses_a_shared_slug(plugin_root: Path, plugin_tmp_path: Pa
     assert by_key['PLAN_KEY'] == later
 
 
+def test_plan_state_reads_an_archived_plan(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A plan that exists only in a release's archive folder is found by slug or key."""
+    archived = f'data/archive/2.1.0/plans/{PLAN_KEY.removeprefix("data/plans/")}'
+    workspace = Workspace(plugin_tmp_path, {archived: plan_document(stage='done')})
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+    _, by_key = run_script(plugin_root, workspace.work, 'plan-state', archived)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_KEY'] == archived
+    assert values['PLAN_STATE'] == 'done'
+    assert by_key['PLAN_KEY'] == archived
+
+
+def test_plan_state_refuses_a_slug_shared_with_the_archive(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A live plan and an archived plan that share a slug are ambiguous."""
+    archived = 'data/archive/2.1.0/plans/20241020-focus-timer'
+    workspace = Workspace(
+        plugin_tmp_path, {PLAN_KEY: plan_document(), archived: plan_document(stage='done')}
+    )
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+
+    assert outcome(completed) == (4, 'RESULT=AMBIGUOUS_PLAN')
+    assert 'PLAN_STATE' not in values
+
+
 def test_plan_state_needs_an_iwe_workspace(plugin_root: Path, plugin_tmp_path: Path) -> None:
     """A repository without .iwe/config.toml is a preflight error."""
     workspace = Workspace(plugin_tmp_path)

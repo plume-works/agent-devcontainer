@@ -21,7 +21,8 @@ conversation that dispatched you, you cannot reach the user, and your final
 message goes to your dispatcher. Your prompt carries exactly these, and nothing
 else counts as one:
 
-- **Plan key** — `data/plans/<YYYYMMDD>-<slug>` or the plan file path — or
+- **Plan key** — `data/plans/<YYYYMMDD>-<slug>`, an archived plan's
+  `data/archive/<release>/plans/<YYYYMMDD>-<slug>`, or either's file path — or
   **audit mode**.
 - **Approvals** — anything the user granted, quoted verbatim. An approval
   applies only to the command or step its words name.
@@ -44,7 +45,7 @@ decision your prompt does not carry, stop and report it under
    (a just-finished plan may carry `stage: done`), report them under
    `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan, every spec named in
    its `## Spec changes`, and the linked feature/bug docs
-   (`iwe retrieve -k data/plans/<key>`).
+   (`iwe retrieve -k <plan key>`).
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation. Every CRITICAL and WARNING
    cites the requirement, scenario, task, or verification step of the
@@ -108,17 +109,18 @@ decision your prompt does not carry, stop and report it under
    codebase:
    - Specs whose requirements the code now contradicts (sample the
      highest-traffic specs first: `iwe find --references <key>` counts).
-   - Features marked `implemented` with no trace in the code; shipped
-     behavior with no feature doc.
+   - Live features (`stage: proposed` or `accepted`) whose behaviour the code
+     already has, with no plan in flight for them.
    - Open bugs
      (`iwe find --filter '{type: bug, stage: {$in: [pending, planned]}}' -f keys`)
      — still reproducible? Point at ones whose `sources` paths, or
      `## Key references` where a bug has them, no longer exist.
    - Consistency: a done or cancelled plan, bug, or task that still carries a
      `rank`
-     (`iwe find --filter '{rank: {$exists: true}, stage: {$in: [done, cancelled]}}' -f keys`);
-     `iwe schema validate` violations; `iwe stats` dangling links and `data/`
-     documents listed under Orphans.
+     (`iwe find --filter '{rank: {$exists: true}, stage: {$in: [done, cancelled]}}' -f keys`)
+     or lives outside `data/archive/`; `iwe schema validate` violations;
+     `iwe stats` dangling links and the documents outside `data/archive/`
+     listed under Orphans.
    - Report in the same CRITICAL/WARNING/SUGGESTION format, grouped by fix
      owner: "run `/agentdev:iwe-ship` on X", "update spec Y", "close bug Z".
 

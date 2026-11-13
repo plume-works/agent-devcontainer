@@ -60,24 +60,12 @@ stack. Another branch's history SHALL be brought in with a merge.
 `git-new-branch --depends-on <P>`, repeatable, SHALL require every named pull
 request to be open and its head to be a branch of the remote, SHALL cut the
 branch from the first one's head branch and merge the others' heads, SHALL add
-an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push
-without force.
-
-#### Scenario: One open predecessor
-
-- **WHEN** `git-new-branch <name> --depends-on <P>` runs and P is open
-- **THEN** the branch starts at P's head with a `Depends-on: #<P>` commit and is
-  pushed
+an empty commit with a `Depends-on: #<P>` trailer for each, and SHALL push.
 
 #### Scenario: Predecessor without an open pull request
 
 - **WHEN** a named pull request is not open
 - **THEN** it stops before creating a branch
-
-#### Scenario: Two predecessors
-
-- **WHEN** `--depends-on` names two open pull requests
-- **THEN** the branch contains both heads and one trailer line for each
 
 #### Scenario: Predecessor in a fork
 
@@ -90,14 +78,9 @@ For a branch with `Depends-on:` trailers, pr-open SHALL run
 `pr-restack-all <branch>` before creating or updating the pull request, SHALL
 refuse while more than one dependency is unmerged, SHALL set a new pull
 request's base to the unmerged predecessor's head branch, or `main` when none is
-unmerged, and SHALL write its first `## Depends on` section with one `- #<P>`
-entry per dependency in merge order.
-
-#### Scenario: Open predecessor
-
-- **WHEN** pr-open creates the pull request of a branch depending on open P
-- **THEN** its base is P's head branch and its body lists `- #<P>` under
-  `## Depends on`
+unmerged, SHALL write its first `## Depends on` section with one `- #<P>` entry
+per dependency in merge order, and SHALL open the pull request ready for review
+unless the user asks for a draft.
 
 #### Scenario: Two unmerged dependencies
 
@@ -117,11 +100,6 @@ cannot find or edit.
 - **WHEN** a pull request whose section carries a merge record is synced
 - **THEN** the new body carries the same section
 
-#### Scenario: Unparseable section
-
-- **WHEN** a candidate body's `## Depends on` section cannot be parsed
-- **THEN** the body is not applied
-
 ### Requirement: pr-restack-all restacks a chain with merges
 
 pr-restack-all SHALL take a top pull request or a branch. For a pull request it
@@ -129,32 +107,26 @@ SHALL find the chain by walking each pull request's base to the open pull
 request whose head is that branch, down to a base of `main`, and SHALL stop when
 a pull request's last `## Depends on` entry is not the pull request below it, or
 when a pull request in the chain or an open predecessor has its head in a fork.
-For a branch it SHALL read the dependencies from its `Depends-on:` trailers. It
-SHALL work in one fresh detached worktree under `./.tmp/` built from remote
-refs, and SHALL NOT check out, create, or move a local branch. Bottom-up, for
-each pull request it SHALL act only on the nearest predecessor P: when P is
-open, merge P's head branch; when P is merged and P's merge commit is already in
-the branch, do nothing; when P is merged otherwise, take HEAD as P's
-`headRefOid` and MERGE as P's `mergeCommit.oid`, require `refs/pull/<P>/head` to
-equal HEAD, merge MERGE into a detached copy of HEAD, and merge that copy into
-the branch; when P is closed unmerged, stop. It SHALL push without force and,
-after the push lands, replace the `- #<P>` entry with
-`- #<P> — merged as <MERGE> (head <HEAD>), reconnected`. It SHALL NOT merge
-`main` and SHALL stop on a merge conflict, printing the worktree path.
+For a branch it SHALL read the dependencies from its own `Depends-on:` trailers:
+those on commits not reachable from any named predecessor's final head, so a
+trailer inherited through a predecessor's branch is not counted. It SHALL work
+in one fresh detached worktree under `./.tmp/` built from remote refs, and SHALL
+NOT check out, create, or move a local branch. Bottom-up, for each pull request
+it SHALL act only on the nearest predecessor P: when P is open, merge P's head
+branch; when P is merged and P's merge commit is already in the branch, do
+nothing; when P is merged otherwise, take HEAD as P's `headRefOid` and MERGE as
+P's `mergeCommit.oid`, require `refs/pull/<P>/head` to equal HEAD, merge MERGE
+into a detached copy of HEAD, and merge that copy into the branch; when P is
+closed unmerged, stop. It SHALL push and, after the push lands, replace the
+`- #<P>` entry with `- #<P> — merged as <MERGE> (head <HEAD>), reconnected`,
+keeping every other byte of the body. It SHALL NOT merge `main` and SHALL stop
+on a merge conflict, printing the worktree path.
 
 #### Scenario: Predecessor open
 
 - **WHEN** a pull request's predecessor is open
 - **THEN** the predecessor's head branch is merged in and pushed, and no record
   is written
-
-#### Scenario: Predecessor merged
-
-- **WHEN** a pull request's predecessor was squash-merged and its merge commit
-  is not in the branch
-- **THEN** the merge commit is merged into a copy of the predecessor's final
-  head, the copy is merged into the branch, the branch is pushed without force,
-  and the entry records the merge commit and head
 
 #### Scenario: Two predecessors already merged
 
@@ -199,7 +171,8 @@ pr-merge SHALL refuse a pull request whose base is not `main` and SHALL NOT pass
 
 pr-merge-stack SHALL take the top pull request and repeat until it has merged:
 find the chain as pr-restack-all does, merge the bottom pull request through
-pr-merge, then restack the rest with one `pr-restack-all` run of the top.
+pr-merge, confirm that GitHub retargeted the next pull request's base to `main`,
+then restack the rest with one `pr-restack-all` run of the top.
 
 #### Scenario: Chain of three
 
@@ -221,3 +194,45 @@ bypass actors, and no workflow SHALL report that check.
 
 - **WHEN** a user with Write access pushes to an `iwe/` branch
 - **THEN** the push is accepted
+
+## Rationale
+
+### Dependent work is stacked with merges only
+
+Work that depends on an open pull request is an ordinary pull request based on
+its predecessor's branch, so its diff is its own work only, and no branch is
+ever rewritten: every update is a merge and every push is a plain push. After a
+squash merge the successor still holds the predecessor's original commits, so it
+is reconnected by merging the squash commit into a detached copy of the
+predecessor's final head and merging that copy in; the copy carries `main`
+exactly up to the squash commit, and catching up with later `main` stays a
+separate update-branch run. The reconnect is a normal `git merge`, so git
+reports a conflict instead of hiding one. One restack from one detached worktree
+built from remote refs moves no local branch, so another session whose branch it
+advanced sees an ordinary non-fast-forward rejection and merges.
+
+Merges into `iwe/` branches are blocked by a ruleset requiring a status check
+nothing reports, with repository roles as bypass actors. A ruleset bypass list
+accepts only repository roles and GitHub Apps owned by the repository or its
+organization, not the built-in GitHub Actions app that `GITHUB_TOKEN` acts as,
+so a workflow pushing to an `iwe/` branch must push as an owned App the ruleset
+exempts.
+
+Only branches of the remote are cut from or restacked, so a pull request whose
+head lives in a fork is refused: its head names a branch that the remote may
+also hold under the same name.
+
+Rejected:
+
+- **GitHub native stacks driven by `gh stack`.** GitHub rebases every remaining
+  layer on the server after a lower layer merges, and `gh stack rebase` rewrites
+  them again locally before a force-push; a lease protects remote-only commits,
+  not the consumers of a rewritten branch, and every local copy goes stale.
+- **Every pull request targets `main`.** Its diff includes every predecessor
+  until they merge.
+- **Resolving the reconnect merge with `-s ours`.** Correct by construction but
+  silent; a normal merge lets git report a conflict.
+- **Owners restacking their own pull requests, or a coordinator pausing its
+  sessions.** More coordination than one restack from a detached worktree.
+- **A required `base-is-main` check without bypass.** It also rejects the
+  owners' own pushes and branch creation.

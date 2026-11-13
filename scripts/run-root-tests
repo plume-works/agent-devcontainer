@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run the tests marked requires_root as root, from a non-root account with passwordless sudo.
-# Extra arguments go to pytest. Design: architecture/devcontainer-home-volume.
+# Extra arguments go to pytest. Design: spec/devcontainer-state.
 set -euo pipefail
 
 if [[ "$(id -u)" == 0 ]]; then

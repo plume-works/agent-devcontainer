@@ -74,8 +74,8 @@ Extend the lifecycle with executable hooks in
 `/etc/agentdev/hooks/{created,started,attached}.d/`, which run in name order at the end
 of their phase, and override the image's documented environment. Files below
 `/opt/agentdev-runtime/` belong to the image: the runtime refuses to start when one is
-changed, added, or removed. See [Dev Container
-runtime](docs/knowledge/data/architecture/devcontainer-runtime.md).
+changed, added, or removed. See [agentdev runtime
+images](docs/knowledge/data/spec/agentdev-runtime-images.md).
 
 ### Adopt the complete template
 
@@ -431,7 +431,7 @@ The canonical plugin sources are
 [`.agents/plugins/agentdev/`](.agents/plugins/agentdev/) and
 [`.agents/plugins/self-improve/`](.agents/plugins/self-improve/). Repository
 conventions live in [AGENTS.md](AGENTS.md), while the
-[template boundary](docs/knowledge/data/architecture/template-boundary.md) classifies
+[template boundary](docs/knowledge/data/spec/template-consumption.md) classifies
 the reusable, customizable, and publisher-only parts of the tree.
 
 ## License

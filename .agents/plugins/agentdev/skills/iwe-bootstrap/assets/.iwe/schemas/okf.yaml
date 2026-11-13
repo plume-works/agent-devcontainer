@@ -3,6 +3,10 @@ description: OKF v0.2 concept document — frontmatter with a non-empty type (SP
 frontmatter:
   type: object
   required: [type]
+  not:
+    properties:
+      type: { const: architecture }
+    description: 'type: architecture is valid only under data/archive/'
   properties:
     type: { type: string, minLength: 1 }
     title: { type: string }

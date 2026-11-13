@@ -5,6 +5,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
+- resource: .agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py
 ---
 
 # PR merge conflicts
@@ -79,3 +80,27 @@ the user or by a calling skill, and SHALL otherwise use `origin/main`.
 - **WHEN** pr-feedback-resolution invokes update-branch with
   `--base <baseRefName>`
 - **THEN** update-branch merges `origin/<baseRefName>`
+
+## Rationale
+
+### Conflicts are resolved and pushed before any feedback work
+
+A pull request that conflicts with its base gets no `pull_request` workflow
+runs, so its CI picture is missing or stale until the resolved merge is pushed.
+That is why the conflict step runs before feedback work and why `pr-merge`
+cannot wait on checks for a conflicted pull request. Resolving first also keeps
+the working tree clean, which `update-branch` requires.
+
+Rejected:
+
+- **Pushing the merge together with the feedback fixes.** It saves one CI cycle
+  but leaves CI blind while the feedback is worked.
+
+### The conflict step merges the pull request's own base
+
+The conflict step passes the pull request's `baseRefName`, not `update-branch`'s
+`main` default, so a pull request based on a predecessor's branch merges its
+real base. `update-branch` names a calling skill as a legitimate source of
+`--remote` and `--base`, so the override is not read as unrequested. The step
+keeps `update-branch`'s `origin` default, so a fork pull request whose base
+branch lives on another remote is not handled.

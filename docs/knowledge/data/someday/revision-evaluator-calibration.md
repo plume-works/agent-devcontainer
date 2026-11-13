@@ -8,9 +8,9 @@ sources:
 # Calibrate the revision evaluator against human review
 
 In the [Autonomous Implement
-loop](../architecture/autonomous-implement-loop.md), an `APPROVE` from
-`iwe-revision-evaluator` is the only check before the orchestrator commits a
-plan revision with no user in the loop. A false `APPROVE` is the costly error,
+loop](../archive/2.0.0/architecture/autonomous-implement-loop.md), an `APPROVE`
+from `iwe-revision-evaluator` is the only check before the orchestrator commits
+a plan revision with no user in the loop. A false `APPROVE` is the costly error,
 because the plan then specifies whatever the revision says. No check compares
 any of its verdicts with a human verdict.
 

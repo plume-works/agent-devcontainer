@@ -20,7 +20,7 @@ on:
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
 # review of an older head. Other label changes get their own group, so they
-# never replace a queued review: see architecture/label-review-triggers.
+# never replace a queued review: see spec/ai-review-gate.
 concurrency:
   group: >-
     ${{ github.workflow }}-${{
@@ -38,6 +38,15 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
+  # The review never executes code: see spec/ai-review-gate. Shells are denied
+  # because `bash -c` hides the command inside it from these rules.
+  CLAUDE_PR_REVIEW_DISALLOWED_TOOLS: >-
+    Bash(bash *),Bash(sh *),Bash(zsh *),
+    Bash(uv run *),Bash(uv sync*),Bash(uv pip *),Bash(uv tool *),Bash(uv build*),Bash(uvx *),
+    Bash(python -m *),Bash(python3 -m *),Bash(pytest*),Bash(pre-commit *),
+    Bash(bun *),Bash(bunx *),Bash(npm *),Bash(npx *),Bash(make*),
+    Bash(docker *),Bash(docker-compose *),Bash(devcontainer *),
+    Bash(sleep*),Bash(gh run watch*),Bash(gh pr checks *--watch*),Monitor
   # Bots whose pull requests skip the AI review and are approved instead.
   TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
 
@@ -220,7 +229,7 @@ jobs:
       needs.preflight.outputs.wants_review == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:c48b76e5d977b7e639d7109ce5d5b7ad6b41b4b6ad77ccb1a1cd67bde3e94053
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:754284446cd787898c6871b393a96e35cb2301882c93e04bec601037273d3525
     permissions:
       contents: read
       pull-requests: write # For PR reviews and inline comments
@@ -338,7 +347,7 @@ jobs:
             }
             core.setOutput('approve', 'true');
 
-      # No GITHUB_TOKEN fallback: see architecture/responder-app-identity.
+      # No GITHUB_TOKEN fallback: see spec/ai-review-gate.
       - name: Require the App secrets
         if: steps.eligible.outputs.approve == 'true'
         env:

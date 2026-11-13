@@ -10,6 +10,14 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Added
 
+- **One home for each kind of knowledge.** Behaviour lives only in spec
+  requirements, and the decision behind it only in that spec's `## Rationale`.
+  Two new reference types hold the rest: `finding` (`data/findings/`, a
+  measurement with `## Measurement` and `## Closing`) and `guide`
+  (`data/guides/`, a procedure whose anchors resolve on every commit).
+- **`data/archive/`.** Closed plans, bugs, tasks, and features move to
+  `data/archive/next-release/<folder>/` when they close, and the release cut
+  moves them to `data/archive/<X.Y.Z>/`; each keeps its schema.
 - **`rank`, one build order.** Active plans, open bugs, and planned tasks may
   carry a positive integer `rank`; lower builds first, and
   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` lists the sequence
@@ -39,6 +47,12 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Changed
 
+- **Release pages are plain text written from the spec diff.** The release cut
+  says what changed in the requirements and scenarios since the previous cut and
+  lists the titles of the release's bugs; a page holds no link.
+- **A plan's `release` lists the documents it closes.** A feature is a proposal,
+  live only at `proposed` or `accepted`; a plan needs no feature to change what
+  users see.
 - **Plan task evidence is a free-form note, never audited.** A ticked task's
   `- **Evidence:**` line says what was done and how it was checked, in any
   form. It exists only so a box is never ticked for work that was not done.
@@ -82,6 +96,10 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Removed
 
+- **The `architecture` type outside the archive, `data/log.md`, and
+  `released`.** Decisions go to a spec's `## Rationale`, measurements to
+  `data/findings/`, procedures to `data/guides/`; the archive folder records a
+  document's release.
 - **`status`.** No document or schema carries OKF's optional `status`; `stage`
   is the only lifecycle field. If you cloned an earlier copy, drop `status:`
   from every document and schema.

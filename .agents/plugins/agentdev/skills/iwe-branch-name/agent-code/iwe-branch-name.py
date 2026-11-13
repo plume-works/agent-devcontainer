@@ -32,7 +32,9 @@ Usage:
 
 Arguments:
   <branch>          A branch name to split into phase, slug, and iteration.
-  <plan-key|slug>   data/plans/<YYYYMMDD>-<slug>, <YYYYMMDD>-<slug>, or <slug>.
+  <plan-key|slug>   data/plans/<YYYYMMDD>-<slug>, its archived key
+                    data/archive/<release>/plans/<YYYYMMDD>-<slug>,
+                    <YYYYMMDD>-<slug>, or <slug>.
 
 Options:
   --remote <name>   The remote whose default branch `next` names for a finished
@@ -55,7 +57,8 @@ missing plan, the next ship iteration for a complete one, and the next impl
 iteration for an incomplete one. The next iteration is one more than the
 highest used for the slug, in any phase, across local branches, the remote's
 branches, and the pull requests in any state of the repository the remote's
-URL names. plan-state counts task checkboxes under ## Implementation Steps or
+URL names. A plan is looked up under data/plans/ and every
+data/archive/<release>/plans/. plan-state counts task checkboxes under ## Implementation Steps or
 ## Tasks; a plan with none is incomplete.
 
 Results (RESULT / exit code):
@@ -81,6 +84,7 @@ GH_UNAVAILABLE = 6
 PHASES = ('plan', 'impl', 'ship')
 WORK_BRANCH = re.compile(r'iwe/([^/]+)/iter-([1-9][0-9]*)-(plan|impl|ship)')
 DATED_PLAN = re.compile(r'([0-9]{8})-(.+)')
+PLAN_PREFIX = re.compile(r'^data/(?:archive/[^/]+/)?plans/')
 # The task sections the repository's plan-checkbox gate also reads.
 TASK_SECTIONS = ('## Implementation Steps', '## Tasks')
 
@@ -137,9 +141,8 @@ def parse_work_branch(branch: str) -> WorkBranch | None:
 
 
 def plan_name(target: str) -> str:
-    """Strip an optional data/plans/ prefix and .md suffix from a plan argument."""
-    name = target.removeprefix('data/plans/')
-    return name.removesuffix('.md')
+    """Strip an optional live or archived plans-folder prefix and .md suffix from a plan."""
+    return PLAN_PREFIX.sub('', target).removesuffix('.md')
 
 
 def slug_of(target: str) -> str:
@@ -200,26 +203,39 @@ def remote_default_branch(remote: str) -> str:
     return name
 
 
+def plan_directories(root: Path, library: str) -> list[str]:
+    """Return the live plans folder and every archived release's plans folder, relative to root."""
+    data = 'data' if library == '.' else f'{library}/data'
+    archived = sorted(
+        f'{data}/archive/{release.name}/plans'
+        for release in (root / data / 'archive').glob('*')
+        if (release / 'plans').is_dir()
+    )
+    return [f'{data}/plans', *archived]
+
+
 def find_plan(root: Path, library: str, target: str) -> str:
     """Return the path of the plan `target` names in the working tree, or '' when missing."""
-    plans_dir = 'data/plans' if library == '.' else f'{library}/data/plans'
-    directory = root / plans_dir
-    names = sorted(entry.name for entry in directory.iterdir()) if directory.is_dir() else []
     name = plan_name(target)
-    if DATED_PLAN.fullmatch(name):
-        matches = [entry for entry in names if entry == f'{name}.md']
-    else:
-        matches = [
-            entry
-            for entry in names
-            if (dated := DATED_PLAN.fullmatch(entry.removesuffix('.md')))
-            and entry.endswith('.md')
-            and dated.group(2) == name
-        ]
+    matches: list[str] = []
+    for plans_dir in plan_directories(root, library):
+        directory = root / plans_dir
+        names = sorted(entry.name for entry in directory.iterdir()) if directory.is_dir() else []
+        if DATED_PLAN.fullmatch(name):
+            found = [entry for entry in names if entry == f'{name}.md']
+        else:
+            found = [
+                entry
+                for entry in names
+                if (dated := DATED_PLAN.fullmatch(entry.removesuffix('.md')))
+                and entry.endswith('.md')
+                and dated.group(2) == name
+            ]
+        matches.extend(f'{plans_dir}/{entry}' for entry in found)
     if len(matches) > 1:
         print_error(f"Slug '{name}' matches more than one plan: {', '.join(sorted(matches))}.")
         raise Stop(AMBIGUOUS_PLAN)
-    return f'{plans_dir}/{matches[0]}' if matches else ''
+    return matches[0] if matches else ''
 
 
 def frontmatter_stage(lines: list[str]) -> str:
@@ -276,8 +292,7 @@ def read_plan_state(target: str, remote: str) -> PlanState:
     if not path:
         return PlanState(default_branch, 'missing', '')
     text = (root / path).read_text()
-    plans_dir = path.rsplit('/', 1)[0]
-    key = f'data/plans/{path.removeprefix(plans_dir + "/").removesuffix(".md")}'
+    key = path.removeprefix('' if library == '.' else f'{library}/').removesuffix('.md')
     return PlanState(default_branch, classify_plan(text), key)
 
 

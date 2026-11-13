@@ -1,0 +1,321 @@
+---
+created: 2026-09-25
+release:
+- features/bun-only-javascript-runner
+type: plan
+description: Run the npm-backed pre-commit hooks and the Claude Code upgrade hint through bun, move the Renovate pin to the bunx hook entry, and record bun/bunx as the only JavaScript runner in AGENTS.md.
+sources:
+- resource: .pre-commit-config.yaml
+- resource: .github/renovate.json
+- resource: .github/workflows/validate-renovate-config.yml
+- resource: Makefile
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/extract.ts
+stage: done
+completed: 2026-10-09
+---
+
+# Run Node tooling through bun instead of npm
+
+## Context
+
+`AGENTS.md` makes `bun` the JavaScript toolchain. The Ansible roles already
+follow it: `agentic_tools` and `nodejs` install every global package with
+`bun add --global --exact` into `BUN_INSTALL=/usr/local`. Once [Self-hosted
+Renovate in the agent-desktop image](20260925-self-hosted-renovate.md) has
+shipped, both Renovate workflows already run `bunx` in the agent-desktop image.
+Two places still go through npm:
+
+- The `mirrors-prettier` and `renovatebot/pre-commit-hooks` pre-commit hooks use
+  pre-commit's `language: node`, which builds a nodeenv and runs `npm install`
+  for each hook environment.
+- The `validate` target in `Makefile` tells users to upgrade Claude Code with
+  `npm install -g`, which is not how the image installs it.
+
+`AGENTS.md` says which toolchain to use but does not rule out the npm-family
+commands by name.
+
+Related: [Renovate config
+validation](../architecture/renovate-config-validation.md), [Formatter
+ownership](../../1.0.0/architecture/formatter-ownership.md).
+
+## Approach
+
+Replace both Node-based pre-commit hooks with `language: system` hooks in the
+existing `repo: local` block. Each hook runs its tool through `bunx`, and the
+package version is pinned in `entry`. The Prettier version still follows the
+Super-Linter image: `scripts/validate-super-linter-tool-versions.sh` reads it
+with `prettier@v?([0-9.]+)`, and the new entry still matches that pattern.
+
+Renovate's `pre-commit` manager reads a remote repo's `rev` and the
+`additional_dependencies` of `node`, `python`, and `golang` hooks; it never
+parses a `language: system` hook's `entry`. The Renovate pin therefore moves to
+a `custom.regex` manager over `.pre-commit-config.yaml`, with automerge, and the
+rules that only existed for the `mirrors-prettier` hook are removed. After the
+self-hosted Renovate plan, `renovate.yml` and `validate-renovate-config.yml`
+read that pin from the hook's `rev`; this plan points them at the `bunx` entry.
+
+Rejected: keeping `language: node` and pointing pre-commit's nodeenv at bun.
+pre-commit has no bun backend, so the hook environments would still be built by
+npm.
+
+The standing rule is recorded where agents read it: `AGENTS.md` Best Practice 1
+names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
+`yarn`, and `pnpm`, with the `product.md` authoring-rules mirror kept in step.
+
+## Implementation Steps
+
+### Task 1: Local bunx hooks for Prettier and the Renovate validator
+
+**Files:** Modify: `.pre-commit-config.yaml`
+
+- [x] Delete the `https://github.com/pre-commit/mirrors-prettier` repo block and
+  the `https://github.com/renovatebot/pre-commit-hooks` repo block.
+  - **Evidence:** commit `2403e73` (PR #289); neither repo URL remains in
+    `.pre-commit-config.yaml`, and `pre-commit validate-config` passes.
+- [x] Put the two hooks at the head of the existing `repo: local` block, above
+  `zizmor`, exactly as follows:
+  - **Evidence:** commit `2403e73` (PR #289); `pre-commit run prettier` and
+    `pre-commit run renovate-config-validator --files .github/renovate.json`
+    both report Passed through `bunx`.
+
+``` yaml
+  - repo: local
+    hooks:
+      # language: system + bunx: pre-commit's language: node installs hook envs with npm.
+      # Prettier's file set matches Super-Linter's; .prettierignore still applies.
+      - id: prettier
+        name: prettier
+        entry: bunx prettier@3.8.4 --write --ignore-unknown
+        language: system
+        files: '\.(md|markdown|ya?ml|json|jsonc)$'
+
+      # Both flags, and why this pin is also the bot's and the workflow's
+      # Renovate version: see architecture/renovate-config-validation.
+      - id: renovate-config-validator
+        name: renovate-config-validator
+        entry: bunx --package renovate@44.148.5 renovate-config-validator --no-global --strict
+        language: system
+        files: '^\.github/renovate\.json$'
+
+      - id: zizmor
+```
+
+### Task 2: Renovate tracks the bunx pin
+
+**Files:** Modify: `.github/renovate.json`
+
+- [x] Remove `"pre-commit/mirrors-prettier",` from the Super-Linter
+  `matchPackageNames` list.
+  - **Evidence:** commit `cfeb56b` (PR #289); the Super-Linter rule in
+    `.github/renovate.json` no longer lists it.
+- [x] Remove the package rule whose description begins "Prettier's
+  additional_dependencies pin in the mirrors-prettier hook".
+  - **Evidence:** commit `cfeb56b` (PR #289); no `additional_dependencies` rule
+    remains in `.github/renovate.json`.
+- [x] Add this custom manager to `customManagers`, before the "Commit pins in
+  the Ansible roles' defaults" manager:
+  - **Evidence:** commit `cfeb56b` (PR #289); the manager's `matchStrings`
+    regex, run with `bun` over `.pre-commit-config.yaml`, yields
+    `depName: renovate`, `currentValue: 44.138.1`;
+    `renovate-config-validator --strict` passes.
+
+``` json
+    {
+      "description": "npm packages the local pre-commit hooks run through `bunx --package <name>@<version>`. Prettier is excluded: its version follows the Super-Linter image (see the rule above).",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.pre-commit-config\\.yaml$/"],
+      "matchStrings": [
+        "bunx --package (?<depName>renovate)@(?<currentValue>[0-9][^\\s]*)"
+      ],
+      "datasourceTemplate": "npm"
+    },
+```
+
+- [x] Add a package rule that automerges the `renovate` dependency this manager
+  extracts: a bump edits `.pre-commit-config.yaml`, which runs the required
+  validation check at the new version.
+  - **Evidence:** commit `cfeb56b` (PR #289); the `custom.regex` rule matching
+    `.pre-commit-config.yaml` and `renovate` in `.github/renovate.json`, whose
+    description now carries the validator-pin rationale the `pre-commit` rule's
+    description dropped.
+
+### Task 3: Renovate workflows read the bunx pin
+
+**Files:** Modify: `.github/workflows/renovate.yml`,
+`.github/workflows/validate-renovate-config.yml`
+
+- [x] Both workflows read the Renovate version from the
+  `bunx --package renovate@<version>` entry of the local
+  `renovate-config-validator` hook instead of the removed hook's `rev`.
+  - **Evidence:** commit `06000b8` (PR #289); each workflow's extraction, run
+    locally against `.pre-commit-config.yaml`, yields `44.138.1` and passes its
+    semver guard; actionlint and zizmor pass on both files.
+
+### Task 4: bun upgrade hint in the Makefile
+
+**Files:** Modify: `Makefile`
+
+- [x] Replace the upgrade hint in the `validate` target with:
+  - **Evidence:** commit `66bfede` (PR #289); `Makefile#validate` prints the
+    `bun add` hint, and `make -n validate` parses.
+
+``` make
+	  echo "Upgrade with: bun add --global @anthropic-ai/claude-code"; \
+```
+
+### Task 5: Skill and knowledge docs describe the bunx hooks
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md`,
+`docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md`,
+`docs/knowledge/data/codebase/flow-pull-request-checks.md`,
+`docs/knowledge/data/codebase/github/workflows.md`
+
+- [x] In the sync skill, step 3 becomes:
+  - **Evidence:** commit `e943209` (PR #289); step 3 of
+    `sync-super-linter-tool-versions/SKILL.md` names the
+    `bunx prettier@<version>` entry; `pre-commit run validate-agent-files`
+    passes.
+
+``` markdown
+3. Update the matching values in the repository's `.pre-commit-config.yaml`:
+   the Prettier version in the local hook's `bunx prettier@<version>` entry,
+   plus the Clang Format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks,
+   and Actionlint repository revisions. Preserve the `shellcheck-py` wrapper's fourth version
+```
+
+The rest of the step is unchanged.
+
+- [x] In `architecture/renovate-config-validation`, the one Renovate pin is
+  described as the hook's `bunx --package renovate@<version>` entry, tracked by
+  a custom manager, instead of the hook's `rev`. The decision itself is
+  unchanged.
+  - **Evidence:** commit `e943209` (PR #289); `## Decision` in
+    `architecture/renovate-config-validation` names the `bunx` entry and the
+    `custom.regex` manager; `iwe schema validate` passes.
+- [x] In both codebase map docs, point the
+  `.github/workflows/validate-renovate-config.yml` citation at the validator's
+  `run` step as it stands after Task 3.
+  - **Evidence:** commit `e943209` (PR #289); the step still spans the same
+    lines after Task 3, so both citations stand, and the prose beside them now
+    names the hook's `bunx` pin instead of its `rev`, as does
+    `codebase/github.md`.
+
+### Task 6: Record the bun-only rule for future work
+
+**Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
+
+- [x] In `AGENTS.md`, Best Practice 1 becomes:
+  - **Evidence:** commit `d68c4ea` (PR #289);
+    `AGENTS.md#best-practices-for-agents › ") after changing dependencies. Never install packages"`
+    carries the text below verbatim.
+
+``` markdown
+1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
+```
+
+- [x] In `data/product.md` `## Authoring rules`, the matching bullet becomes:
+  - **Evidence:** commit `d68c4ea` (PR #289); the `## Authoring rules` bullet
+    carries the text below, with a matching `## Changelog` entry;
+    `iwe schema validate` passes.
+
+``` markdown
+- Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
+  install globally. JavaScript runs through `bun`/`bunx` everywhere — never
+  `npm`, `npx`, `yarn`, or `pnpm`.
+```
+
+### Task 7: CI green on the pull request
+
+- [x] `Validate Renovate config` and the reformat workflow's
+  `Validate pre-commit and local tool versions` step pass on the PR.
+  - **Evidence:** PR #289 at `07e33c6`: `Validate Renovate config` passed in
+    Actions run 37851407591, and `Validate pre-commit and local tool versions`
+    succeeded in the Super-Linter job of run 37851407789.
+
+## Spec changes
+
+None — no behavioral change. This is developer tooling; no `data/spec/` document
+describes these hooks.
+
+## Depends on
+
+[Self-hosted Renovate in the agent-desktop
+image](20260925-self-hosted-renovate.md) ships first: it moves both Renovate
+workflows onto `bunx` in the agent-desktop image and rewrites
+`architecture/renovate-config-validation`, so this plan only relocates the
+Renovate pin.
+
+## Verification
+
+- `uv run pre-commit validate-config .pre-commit-config.yaml`
+- `uv run pre-commit run --files .pre-commit-config.yaml .github/renovate.json .github/workflows/validate-renovate-config.yml Makefile .agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md`
+  — `prettier` and `renovate-config-validator` both report Passed.
+- `grep -rnE 'npx|npm install|mirrors-prettier|additional_dependencies' .pre-commit-config.yaml .github Makefile`
+  prints nothing.
+- `sed -nE 's/.*prettier@v?([0-9.]+).*/\1/p' .pre-commit-config.yaml | head -n 1`
+  prints `3.8.4`.
+- `grep -rnwE 'npm|npx|yarn|pnpm' .pre-commit-config.yaml .github Makefile scripts .devcontainer/scripts`
+  shows no invocation of those commands; remaining hits are names in Renovate
+  datasources, firewall allowlist entries, or prose.
+- `iwe normalize && iwe schema validate` from the repo root.
+
+## Verification results
+
+Every `## Verification` command passed on `4b9b8ab`:
+`pre-commit validate-config`; `prettier` and `renovate-config-validator` both
+Passed; the npm-family grep printed nothing; the Prettier extraction printed
+`3.8.4`; `iwe normalize && iwe schema validate` left the tree clean. The
+whole-word `npm|npx|yarn|pnpm` grep found no invocation — its hits are the hook
+comment, the Renovate `npm` datasource, and the post-upgrade script's datasource
+comment.
+
+Renovate's own extraction through the new `custom.regex` manager is not covered
+by either gate (`architecture/renovate-config-validation`, `## Scope`); it is
+confirmed by the dependency dashboard listing `renovate` under the regex manager
+after the first bot run on `main`.
+
+## Out of scope
+
+- The Ansible roles: they already install every global package with bun.
+- Removing Node.js or its bundled `npm` from the image. The NodeSource install
+  in the `nodejs` role stays.
+- Removing Yarn from the image. The `nodejs` role installs it with bun as a tool
+  for the image's users; the rule governs how this repository runs JavaScript,
+  not what the image ships.
+- Refreshing `source_digest` on the codebase map docs whose sources change. That
+  belongs to the `/agentdev:iwe-map` refresh.
+
+## Key references
+
+- `.pre-commit-config.yaml#repos.repo` — `mirrors-prettier` repo block
+- `.pre-commit-config.yaml#repos.repo.hooks.prettier.files` —
+  `renovatebot/pre-commit-hooks` repo block
+- `.pre-commit-config.yaml#repos.repo.hooks.zizmor.entry` — existing
+  `repo: local` block
+- `.github/renovate.json › "pre-commit/mirrors-clang-format"` —
+  `pre-commit/mirrors-prettier` in the Super-Linter rule
+- `.github/renovate.json › "matchManagers"` — Prettier `additional_dependencies`
+  rule
+- `.github/renovate.json › "# renovate: datasource=(?<datasource>[a-z-]+)"` —
+  "Commit pins in the Ansible roles' defaults" custom manager
+- `.github/workflows/validate-renovate-config.yml#jobs.validate.steps` —
+  validator call; reads the hook `rev` and runs
+  `bunx --package "renovate@${rev}"`
+- `.github/workflows/renovate.yml#jobs.renovate.steps` —
+  `Read the Renovate version` step; reads the hook `rev`
+- `Makefile#validate` — `npm install -g` upgrade hint
+- `AGENTS.md#best-practices-for-agents › ") after changing dependencies. Never install packages"`
+  — Best Practice 1, `uv` and `bun` toolchain rule
+- `docs/knowledge/data/product.md#authoring-rules › "for JavaScript; run through"`
+  — authoring-rules mirror of Best Practice 1
+- `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md#workflow › "additional_dependencies"`
+  — Prettier `additional_dependencies` wording
+- `docs/knowledge/data/archive/2.0.0/architecture/renovate-config-validation.md#decision › "bunx --package renovate@<version>"`
+  — the one-pin decision: the hook `rev` is the Renovate version everywhere
+- `scripts/validate-super-linter-tool-versions.sh › "configured_versions[prettier]=$(sed -nE"`
+  — Prettier version extraction regex
+- `docs/knowledge/data/codebase/flow-pull-request-checks.md#trace › "validate-renovate-config.yml"`
+  — validator step and its line citation
+- `docs/knowledge/data/codebase/github/workflows.md#key-references › "bridge's review-versus-task split and effort label"`
+  — validator line citations

@@ -7,6 +7,7 @@ sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
+- resource: py_packages/validate_agent_files/README.md
 - resource: docs/knowledge/AGENTS.md
 ---
 
@@ -20,11 +21,10 @@ must be sized so a tick can be honest, and the gate that checks a tick carries
 its note.
 
 Evidence has one purpose: to stop a box being ticked for work that was not
-done, which is what failed in [Plan checkbox
-over-claiming](../bugs/plan-checkbox-over-claiming.md), where a blanket
-substitution and a set of careful verifications produced identical bytes.
-Nothing else reads it: the `plan-checkboxes` gate checking the note is present
-is the only check on a tick, and Verify never checks ticks or their notes.
+done, where a blanket substitution and a set of careful verifications produce
+identical bytes and only the evidence line tells them apart. Nothing else reads
+it: the `plan-checkboxes` gate checking the note is present is the only check on
+a tick, and Verify never checks ticks or their notes.
 
 ## Requirements
 
@@ -58,11 +58,6 @@ invoked.
 - **THEN** each is a separate edit, because a blanket `- [ ]` → `- [x]`
   substitution is itself the defect
 
-#### Scenario: A tick lands in a commit
-
-- **WHEN** a task closes
-- **THEN** its code, the checkbox flip, and its evidence line land in one commit
-
 ### Requirement: Plan tasks are sized so a tick can be honest
 
 The Plan skill SHALL constrain task granularity so that one task is one outcome
@@ -71,12 +66,6 @@ SHALL be split, a task whose evidence is external SHALL stand alone, and a
 checkbox that joins independently observable events SHALL be split into one
 checkbox per event. Plan's coherence check SHALL ask, for every checkbox, which
 single observation closes it.
-
-#### Scenario: A task bundles two outcomes
-
-- **WHEN** a planned task could ever be described as half-done
-- **THEN** Plan splits it, preventing a tick earned by the half done locally
-  from reading as a claim about the half that was not
 
 #### Scenario: A task's evidence is external
 
@@ -117,7 +106,8 @@ something to record.
 The `plan-checkboxes` gate SHALL be the only check on a ticked task and its
 `- **Evidence:**` note. Verify SHALL report no finding of any severity about a
 ticked task or its note, and SHALL NOT re-run, re-observe, or seek approval to
-repeat a test, command, or live check the note records.
+repeat a test, command, or live check the note records. An unticked task with no
+`**Closed by:**` line SHALL remain a CRITICAL.
 
 #### Scenario: The evidence note records a live or manual check
 
@@ -130,6 +120,14 @@ repeat a test, command, or live check the note records.
 - **WHEN** a ticked task's evidence note names only a commit, only a code
   anchor, raw output, or prose
 - **THEN** Verify reports nothing about it
+
+#### Scenario: A task is left unticked
+
+- **WHEN** an unticked `- [ ]` task carries no `**Closed by:**` line
+- **THEN** Verify reports a CRITICAL naming three routes out — complete the
+  task, tick it if it is already done, or drop it through Plan's revise mode,
+  which treats dropping a task as a material scope change and asks the user —
+  and takes none of them
 
 ### Requirement: The checkbox format is mechanically gated
 
@@ -167,3 +165,58 @@ from a pre-commit hook when a plan changes, and in the knowledge-base CI job.
 - **WHEN** a checkbox appears under another section, such as a format example
   under `## Approach`, or inside a fenced code block
 - **THEN** the gate does not treat it as a task
+
+## Rationale
+
+### Evidence is a free-form note the gate alone checks
+
+A ticked task's evidence is a short note in any form, and Verify never reads it.
+The note exists only so a box is never ticked without a claim beside it; that is
+a shape the `plan-checkboxes` gate holds on every commit. Grading the note's
+form or re-running what it names made Verify stop on checks it could not repeat
+in its checkout — a live session, a deploy, a person — and report findings
+against plans whose code conformed. A task's code, its tick, and its evidence
+line land in one commit.
+
+Rejected:
+
+- **Evidence that names a check Verify repeats.** Live, manual, and external
+  checks have nothing Verify can re-run, so the rule either blocks Verify or
+  pushes such work out of plans.
+- **Rejecting commit ids or raw output.** The note's only reader is the gate,
+  which needs a claim, not a particular form.
+
+### Honest ticks come from the artifact's shape, not more prose rules
+
+A tick is honest only when it carries an evidence line, because rules telling
+Implement when it may tick were already written and were violated anyway. A
+find-and-replace can flip every box in a file; it cannot write the evidence line
+each tick needs.
+
+Rejected:
+
+- **Another round of prose rules in the Implement rulebook.** The rules that
+  would have prevented over-claiming already existed; more of the same changes
+  nothing a sweep can bypass.
+
+### The gate is a knowledge-base test, not a validator extension
+
+The checkbox gate is `docs/knowledge/tests/test_plan_checkboxes.py`, run by
+pytest, because plan documents are this workspace's knowledge graph, not agent
+files.
+
+Rejected:
+
+- **Extending `validate_agent_files`.** That package validates skills, agents,
+  and prompts in any repository and must stay usable with no knowledge of this
+  one's graph.
+
+### Checkbox granularity is the planner's rule
+
+One observation per checkbox is a planning rule, so `iwe-planner` owns it.
+
+Rejected:
+
+- **The Durable Knowledge Auditor flags bundled checkboxes in its plan scope.**
+  That audit asks one question, durable-knowledge residue, and a second gate
+  would widen it.

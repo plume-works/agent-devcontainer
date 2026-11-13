@@ -57,4 +57,4 @@ merge confirmed, pr-merge ran in place on the PR head branch
   delete.
 
 Stacked PRs are out of scope here; see [Clean up the local checkout after
-pr-merge-stack](pr-merge-stack-post-merge-cleanup.md).
+pr-merge-stack](../archive/2.1.0/backlog/pr-merge-stack-post-merge-cleanup.md).

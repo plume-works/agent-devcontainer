@@ -11,9 +11,9 @@ sources:
 `agentdev-runtime lifecycle attached` re-registers the agentdev catalog for
 every harness — Claude and OpenCode — on each editor attachment. Sessions that
 the Coder agent started earlier, such as Claude Remote Control and the [OpenCode
-web UI](../features/opencode-web-coder-autostart.md), read their configuration
-when they started, so they can keep serving the previous catalog until they
-restart.
+web UI](../archive/2.0.0/features/opencode-web-coder-autostart.md), read their
+configuration when they started, so they can keep serving the previous catalog
+until they restart.
 
 The idea: `agentdev-runtime lifecycle attached` touches one marker file after
 its catalog install finishes, and each Coder-started session watches it —

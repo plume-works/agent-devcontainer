@@ -36,8 +36,8 @@ file, so parallel pull requests rarely conflict in the graph.
 
 3. **Open the workspace in your coding agent** (Claude Code, or anything that
    reads `AGENTS.md`) and say: **"run the setup"**. The setup skill reads your
-   codebase, drafts the product doc and a starting architecture note from it,
-   asks you only what the code can't answer, and deletes the example documents.
+   codebase, drafts the product doc and the first specs from it, asks you only
+   what the code can't answer, and deletes the example documents.
 
 ## How you use it
 
@@ -52,11 +52,12 @@ verified code anchors and the specs it will touch) → **implement**
 as tests pass) → **verify** (`"is it ready to ship?"` — an optional standalone
 check of tasks, requirements, and scenarios against the actual code) → **ship**
 (`"ship dark mode"` — invokes that verification as a mandatory gate, then syncs
-the specs and flips stages; a release cut later builds the release page) →
-occasionally **weekly** (`"weekly digest"` — what moved, what's stuck, what's
-next). Enter and leave the loop anywhere — invoking Ship directly still runs its
-verification gate. Each step leaves the graph consistent, so the next session —
-or the next agent — picks up exactly where this one stopped.
+the specs, flips stages, and archives the finished work; a release cut later
+writes the release page from the spec diff) → occasionally **weekly**
+(`"weekly digest"` — what moved, what's stuck, what's next). Enter and leave the
+loop anywhere — invoking Ship directly still runs its verification gate. Each
+step leaves the graph consistent, so the next session — or the next agent —
+picks up exactly where this one stopped.
 
 Ask questions against the graph instead of re-reading the codebase:
 
@@ -65,7 +66,7 @@ iwe find --filter '{type: plan, stage: done}' -f keys               # what shipp
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys    # the build order
 iwe find --references data/spec/timer -f keys                        # what depends on this spec
 iwe retrieve -k data/plans/mvp --expand-includes 1                   # a milestone and its plans
-iwe tree -k data/features                                            # the feature landscape
+iwe tree -k data/features                                            # the open proposals
 ```
 
 ## What's inside
@@ -75,15 +76,17 @@ data/
 ├── index.md          # the graph root — every hub is a child
 ├── product.md        # what you're building — the doc every session reads first
 ├── plans.md    plans/         # implementation plans, stage in frontmatter
-├── features.md features/      # feature docs, proposed → implemented
+├── features.md features/      # proposals, live until their plan ships
 ├── bugs.md     bugs/          # symptom / repro / root cause / fix
-├── spec.md     spec/          # behavioral specs — the durable truth, synced at ship time
-├── architecture.md architecture/  # design decisions, with the rejected alternatives
+├── spec.md     spec/          # behaviour and its rationale — synced at ship time
+├── findings.md findings/      # measurements and what would close them
+├── guides.md   guides/        # procedures, anchors checked on every commit
 ├── concept.md  concept/       # product vision — the tiebreaker for feature debates
-├── releases.md releases/      # one page per cut version
+├── releases.md releases/      # one plain-text page per cut version
 ├── backlog.md  backlog/       # prioritized next work
 ├── someday.md  someday/       # ideas that aren't commitments
-└── milestone.md               # milestones: plans whose children are plans
+├── milestone.md               # milestones: plans whose children are plans
+└── archive/                   # finished work, one folder per release
 ```
 
 Every document carries typed, schema-validated frontmatter —

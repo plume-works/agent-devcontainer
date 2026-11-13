@@ -1,0 +1,67 @@
+$schema: https://document-schema.org/draft/2026-06/schema
+description: >-
+  Findings (data/findings/<slug>.md) — a measurement, the hypotheses it
+  eliminated, and what closing the question looks like. A finding states no
+  lifecycle stage.
+maxDepth: 4
+sections:
+  - header: { pattern: '.+' }
+    minContains: 1
+    maxContains: 1
+    sections:
+      - header: { const: Measurement }
+        minContains: 1
+        description: 'a finding records its Measurement before its Closing'
+      - header: { const: Closing }
+        minContains: 1
+        description: 'a finding states what closing it looks like under Closing'
+    additionalSections: true
+additionalSections: false
+frontmatter:
+  type: object
+  required: [type]
+  not:
+    required: [stage]
+    description: 'a finding carries no stage'
+  properties:
+    type: { const: finding }
+    description:
+      type: string
+      description: one sentence summarizing this document
+    resource:
+      type: string
+      description: canonical URI of the underlying asset this document describes
+    tags: { type: array, items: { type: string } }
+    stale_after:
+      type: string
+      format: date
+      description: the day this content goes stale; set it on anything that rots
+    sources:
+      type: array
+      description: the materials this document derives from; cite per claim with a footnote keyed to an entry id
+      items:
+        type: object
+        required: [resource]
+        properties:
+          id:
+            {
+              type: string,
+              description: footnote label used to attribute a claim in the body,
+            }
+          resource:
+            {
+              type: string,
+              description: a URL,
+              a repo path,
+              or a scope descriptor,
+            }
+          title: { type: string }
+          author: { type: string, description: actor }
+          usage_count: { type: integer }
+          last_modified: { type: string, format: date }
+    usage_window:
+      type: object
+      description: the date range every usage_count is measured over
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }

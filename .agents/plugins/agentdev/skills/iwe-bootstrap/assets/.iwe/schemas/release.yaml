@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Releases (data/releases/<version>.md); each page aggregates the features
-  added, the released features changed, and the fixes shipped in one version. A
+  Releases (data/releases/<version>.md); each page says in plain text, with no
+  link, what one version changed in the specs and which bugs it fixed. A
   released version carries its ship date.
 maxDepth: 4
 frontmatter:
