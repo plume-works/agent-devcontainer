@@ -12,10 +12,10 @@ sources:
 
 # Migrate existing prose to ASD-STE100
 
-The repository owner decided on 2026-11-12 that ASD-STE100 is a hard rule for
-all prose the agents write. The rule applies only to text that a change adds or
-edits. Text written before the rule stays as it is, so one document can hold
-both styles. This task converts the earlier text.
+The repository owner decided on 2026-11-12 that ASD-STE100 Issue 9 is a hard
+rule for all prose the agents write. The rule applies only to text that a change
+adds or edits. Text written before the rule stays as it is, so one document can
+hold both styles. This task converts the earlier text.
 
 ## Scope
 
@@ -26,7 +26,11 @@ The rule, and this task, cover:
   `docs/knowledge/STRUCTURE.md`, and the copies that the `iwe-bootstrap` skill
   installs;
 - the skill and agent rulebooks under `.agents/plugins/`;
-- the root `AGENTS.md` and the READMEs.
+- the root `AGENTS.md` and the READMEs;
+- code comments.
+
+The rule also covers pull request bodies and commit messages. This task does not
+change them, because history is not rewritten.
 
 ## Decisions
 
