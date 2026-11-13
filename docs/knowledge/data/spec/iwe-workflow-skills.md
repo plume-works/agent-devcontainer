@@ -1098,9 +1098,9 @@ caller applies the verdicts. The skill SHALL be model-invocable, so the
 
 - **WHEN** `iwe-planner` reaches its review step on a created or revised plan,
   and the `STE100 Auditor` reports no finding
-- **THEN** the three other agents are dispatched in parallel with only those
-  prompts, the four reports return unchanged, and the plan file is unchanged
-  until Plan applies them
+- **THEN** the skill dispatches the three other agents in parallel with only
+  those prompts. The four reports return unchanged. The plan file stays
+  unchanged until Plan applies them.
 
 #### Scenario: The draft breaks the prose rule
 
