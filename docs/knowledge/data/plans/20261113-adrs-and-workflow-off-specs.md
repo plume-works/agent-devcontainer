@@ -4,7 +4,7 @@ created: 2026-11-13
 release: internal
 description: Add ADRs to the graph and change Plan, Verify, Ship, and the release cut so that no workflow skill reads or writes a spec.
 sources:
-- resource: https://github.com/adr/madr/blob/develop/template/adr-template.md
+- resource: https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/ADR-FORMAT.md
 - resource: docs/spec-audit/requirements.jsonl
 - resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -30,8 +30,13 @@ them.
 
 The repository owner's decisions:
 
-- An ADR is a document in the graph at `data/adr/NNNN-<slug>.md`. It has the
-  MADR headings. Code comments cite it as `ADR-NNNN`.
+- An ADR is a document in the graph at `data/adr/NNNN-<slug>.md`. Code comments
+  cite it as `ADR-NNNN`.
+- An ADR has the simplest format: a short title and 1 to 3 sentences that give
+  the context, the decision, and the reason. `## Considered Options` and
+  `## Consequences` are optional. The format and the rules for when to write an
+  ADR come from the `ADR-FORMAT.md` of the `mattpocock/skills` repository. The
+  MADR template was rejected as too formal.
 - `stage` is the lifecycle key: `proposed`, `accepted`, `rejected`,
   `deprecated`, or `superseded`.
 - An accepted ADR is never edited. A new ADR supersedes it, and the superseded
@@ -92,25 +97,26 @@ both decisions before this plan.
   `description`. It has no date field: git holds the date.
 - [ ] The schema permits only these values of `stage`: `proposed`, `accepted`,
   `rejected`, `deprecated`, `superseded`.
-- [ ] The schema permits the optional frontmatter `decision-makers`, a list of
-  strings, and `supersedes`, a list of `adr/NNNN-<slug>` keys.
-- [ ] The schema requires these sections under one H1, in this order:
-  `## Context and Problem Statement`, `## Considered Options`,
-  `## Decision Outcome`.
-- [ ] The schema permits these optional sections at their MADR positions:
-  `## Decision Drivers`, `## Pros and Cons of the Options`,
-  `## More Information`.
+- [ ] The schema permits the optional frontmatter `supersedes`, a list of
+  `adr/NNNN-<slug>` keys.
+- [ ] The schema requires one H1, the short title of the decision.
+- [ ] The schema permits only these sections below that text, each optional:
+  `## Considered Options` and `## Consequences`.
 - [ ] `.iwe/config.toml` binds the `adr` schema to `data/adr/**` and
   `data/archive/*/adr/**`.
 - [ ] `.iwe/config.toml#schemas.hub` matches `data/adr`.
 - [ ] `docs/knowledge/data/adr.md` is a hub with no member.
 - [ ] `docs/knowledge/data/index.md#reference` links the ADR hub.
 - [ ] `docs/knowledge/SCHEMA.md` has a section for ADRs. It gives the file name,
-  the frontmatter, the sections, the stages, the rule that an accepted ADR is
-  never edited, and the `ADR-NNNN` form for a code comment.
+  the frontmatter, the format (a short title, then 1 to 3 sentences that give
+  the context, the decision, and the reason), the stages, the rule that an
+  accepted ADR is never edited, and the `ADR-NNNN` form for a code comment.
+- [ ] That section says that the value of an ADR is the record that a decision
+  was made and why, and that an optional section is written only when it adds
+  value.
 - [ ] `docs/knowledge/SCHEMA.md` names `adr/` as an archive folder.
 - [ ] `docs/knowledge/tests/test_adr_schema.py` runs `iwe schema validate` on a
-  fixture workspace. A complete ADR passes. An ADR with a missing required
+  fixture workspace. An ADR of one paragraph passes. An ADR with an unknown
   section fails. An ADR with an unknown stage fails.
 - [ ] `scripts/check-ship-records.py` reports an ADR at `proposed` or `accepted`
   that is in `data/archive/`.
@@ -122,7 +128,7 @@ both decisions before this plan.
 
 **Files:** Create:
 `docs/knowledge/data/adr/0001-code-and-tests-state-behaviour.md`,
-`docs/knowledge/data/adr/0002-decisions-are-madr-adrs-in-the-graph.md`; Modify:
+`docs/knowledge/data/adr/0002-decisions-are-adrs-in-the-graph.md`; Modify:
 `docs/knowledge/data/adr.md`
 
 - [ ] `docs/knowledge/data/adr/0001-code-and-tests-state-behaviour.md` holds
@@ -132,156 +138,56 @@ both decisions before this plan.
   ---
   type: adr
   stage: accepted
-  decision-makers:
-  - the repository owner
   description: Code and tests are the only statement of how the product behaves; ADRs hold the reasons and the glossary holds the terms.
   ---
 
   # Code and tests are the only statement of behaviour
 
-  ## Context and Problem Statement
-
-  `data/spec/` states the behaviour of the repository a second time, in prose.
-  [The spec usefulness audit](../findings/spec-usefulness-audit.md) compared
-  264 requirements with the code. 207 of them repeat a test, a rulebook, or code
-  that reads plainly. 34 of them are not fully true, and 20 of the 40 specs
-  hold one of those. Which document states how the product behaves?
-
-  ## Decision Drivers
-
-  - A statement of behaviour that no test runs moves away from the code.
-  - The code does not show the reason for a decision or the options that were
-    rejected.
-  - A project term needs one definition.
+  `data/spec/` states the behaviour of the repository a second time in prose,
+  and [the spec usefulness audit](../findings/spec-usefulness-audit.md) found
+  that 207 of its 264 requirements repeat a test, a rulebook, or plain code,
+  and that 34 are not fully true. Code and tests are the only statement of
+  behaviour, ADRs hold the reasons, and the glossary holds the terms, because a
+  statement that no test runs moves away from the code.
 
   ## Considered Options
 
-  - Code and tests state behaviour. ADRs state reasons. The glossary states
-    terms.
-  - Keep the specs and merge each change into them at ship.
-  - Keep a spec only for behaviour that no test can reach.
+  - Keep the specs and merge each change into them at ship. Rejected: the merge
+    is a careful reading, and nothing fails when it is wrong.
+  - Keep a spec only for behaviour that no test can reach. Rejected: the
+    rulebook is that text already.
 
-  ## Decision Outcome
+  ## Consequences
 
-  Chosen option: "Code and tests state behaviour. ADRs state reasons. The
-  glossary states terms.", because each statement then has one home, and a
-  change cannot merge without an update to that home.
-
-  ### Consequences
-
-  - Good, because a statement of behaviour cannot be false while its test
-    passes.
-  - Good, because Plan, Verify, and Ship do no spec work.
-  - Bad, because the behaviour of a rulebook has no test. Its acceptance
-    scenarios are checked one time at ship and then stay only in the archived
-    plan.
-  - A plan holds its acceptance scenarios in `## Acceptance`, and each scenario
-    names its test. Ship copies nothing.
-  - The release cut reads the archived plans, the closed bugs, and the ADRs.
-  - `data/spec/` gets no new text. Later work moves its reasons into ADRs, adds
-    the tests that are missing, and deletes it.
-
-  ### Confirmation
-
-  No workflow skill and no agent rulebook reads or writes a file under
-  `data/spec/`.
-
-  ## Pros and Cons of the Options
-
-  ### Keep the specs and merge each change into them at ship
-
-  - Good, because one document gathers behaviour that many files implement.
-  - Bad, because the merge is a careful reading, and nothing fails when it is
-    wrong.
-  - Bad, because 87% of the requirements only repeat what a test or a rulebook
-    states.
-
-  ### Keep a spec only for behaviour that no test can reach
-
-  - Good, because the behaviour of a rulebook keeps a written contract.
-  - Bad, because the rulebook is that text already. The audit found 67
-    requirements that are a second copy of a rulebook.
-
-  ## More Information
-
-  The decision and its scope are in [Shrink the knowledge base to an issue
-  tracker and decision
-  records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+  - The behaviour of a rulebook has no test. A plan states it as acceptance
+    scenarios, Verify checks them one time at ship, and then they stay only in
+    the archived plan.
+  - `data/spec/` gets no new text.
   ```
 
-- [ ] `docs/knowledge/data/adr/0002-decisions-are-madr-adrs-in-the-graph.md`
-  holds this text:
+- [ ] `docs/knowledge/data/adr/0002-decisions-are-adrs-in-the-graph.md` holds
+  this text:
 
   ``` markdown
   ---
   type: adr
   stage: accepted
-  decision-makers:
-  - the repository owner
-  description: Each decision is one MADR document in data/adr/, proposed by Plan, accepted by Ship, and never edited after that.
+  description: Each decision is one short ADR in data/adr/, proposed by Plan, accepted by Ship, and never edited after that.
   ---
 
-  # Each decision is a MADR ADR in the graph
-
-  ## Context and Problem Statement
+  # Each decision is a short ADR in the graph
 
   A decision and its rejected options were entries in the `## Rationale` of a
-  spec. An entry was edited in place when the decision changed. [The spec
-  usefulness audit](../findings/spec-usefulness-audit.md) found 189 entries, and
-  the code contradicts 4 of them. Where is a decision kept, and how does it
-  change?
+  spec, edited in place, and the code contradicts 4 of the 189 entries. Each
+  decision is one short document at `data/adr/NNNN-<slug>.md` that Plan
+  proposes and Ship accepts. An accepted ADR is never edited: a new ADR
+  supersedes it, so that a reader sees each decision as it was made.
 
   ## Considered Options
 
-  - One MADR document for each decision, in the graph at `data/adr/`.
-  - One MADR document for each decision, in a folder outside the graph.
-  - Entries in a `## Rationale` section that are edited in place.
-
-  ## Decision Outcome
-
-  Chosen option: "One MADR document for each decision, in the graph at
-  `data/adr/`", because plans and bugs can link an ADR, and the schema can check
-  its headings and its stage.
-
-  - The file is `data/adr/NNNN-<slug>.md`. A number is never used again.
-  - The headings are those of the MADR template.
-  - `stage` is the lifecycle key, as in each other document: `proposed`,
-    `accepted`, `rejected`, `deprecated`, `superseded`. The MADR `status` key is
-    not used.
-  - Plan files an ADR at `proposed` in the pull request of the plan. Ship sets
-    it to `accepted`. The ADR of a cancelled plan becomes `rejected`.
-  - An accepted ADR is never edited. A new ADR supersedes it. The superseded ADR
-    moves to `data/archive/`.
-  - A code comment cites an ADR as `ADR-NNNN`.
-
-  ### Consequences
-
-  - Good, because a reader sees each decision as it was made.
-  - Good, because the hub lists only the ADRs that are in force or proposed.
-  - Bad, because a small correction to a decision needs a new ADR.
-
-  ### Confirmation
-
-  `iwe schema validate` checks the headings and the stage. The `ship-records`
-  hook checks that an ADR is on the correct side of the archive.
-
-  ## Pros and Cons of the Options
-
-  ### One MADR document for each decision, in a folder outside the graph
-
-  - Good, because tools for ADRs find the folder.
-  - Bad, because `iwe` does not check the links or the schema of a document
-    outside the graph.
-
-  ### Entries in a `## Rationale` section that are edited in place
-
-  - Good, because the reason is near the statement of behaviour.
-  - Bad, because an edit removes the decision that was in force before.
-
-  ## More Information
-
-  The template is the MADR template at
-  <https://github.com/adr/madr/blob/develop/template/adr-template.md>.
+  - A folder outside the graph. Rejected: `iwe` checks no link and no stage
+    there.
+  - The MADR template. Rejected: its sections fill with text that says nothing.
   ```
 
 - [ ] `docs/knowledge/data/adr.md` links both ADRs in sorted order.
@@ -293,34 +199,71 @@ both decisions before this plan.
 
 - [ ] The section list in step 4 of the `iwe-planner` rulebook has
   `## Acceptance` and `## ADRs`, and no `## Spec changes`.
+
 - [ ] The rulebook defines `## Acceptance`: one `### Scenario:` block for each
   behaviour that the plan adds, changes, or removes, with a `- **WHEN**` line
   and a `- **THEN**` line.
+
 - [ ] The rulebook says that each scenario ends with one of two lines.
   `- **Test:**` names the test as `path::test_name`. `- **Checked at ship:**`
   names the rulebook or the file that the verifier reads, for behaviour that no
   test can reach.
+
 - [ ] The rulebook says that a plan with no change in behaviour writes
   `None — no behavioral change` under `## Acceptance`.
+
 - [ ] The rulebook defines `## ADRs`: one link for each ADR that the plan
   proposes. A plan that proposes none omits the section.
-- [ ] The rulebook says when a plan proposes an ADR: the plan makes a decision
-  that a developer must know and that the code cannot show.
+
+- [ ] The rulebook holds this text on when a plan proposes an ADR:
+
+  ``` markdown
+  Propose an ADR only when all three of these are true:
+
+  1. **Hard to reverse.** The cost of a change of mind later is meaningful.
+  2. **Surprising without context.** A future reader will look at the code and
+     ask why it is done this way.
+  3. **The result of a real trade-off.** There were genuine alternatives, and
+     one was picked for specific reasons.
+
+  A decision that is easy to reverse, that is not surprising, or that had no
+  real alternative gets no ADR.
+
+  What qualifies:
+
+  - **Architectural shape.**
+  - **Integration patterns between parts of the system.**
+  - **Technology choices that carry lock-in.** Not every library: only the ones
+    that would be expensive to swap out.
+  - **Boundary and scope decisions.** The explicit no-s are as valuable as the
+    yes-s.
+  - **Deliberate deviations from the obvious path.** Anything where a
+    reasonable reader would assume the opposite.
+  - **Constraints not visible in the code.**
+  - **Rejected alternatives when the rejection is non-obvious.**
+  ```
+
 - [ ] Step 4 tells Plan to file each ADR at `data/adr/<NNNN>-<slug>.md` with
   `stage: proposed`, the next free number in `data/adr/` and
   `data/archive/*/adr/`, and a link in `data/adr.md`.
-- [ ] The rulebook says that the rejected options go in the ADR, and that
-  `## Approach` gives the shape of the solution.
+
+- [ ] The rulebook says that the rejected options go in the ADR, only when they
+  are worth remembering, and that `## Approach` gives the shape of the solution.
+
 - [ ] The rulebook says that Plan never edits an accepted ADR, and that a plan
   which changes a decision proposes a new ADR that names the earlier ADR in
   `supersedes`.
+
 - [ ] The rulebook has no section `## The three forms of ## Spec changes` and no
   rule that names `## Spec changes`, a spec, or `## Rationale`.
+
 - [ ] The text about `release` in step 4 says that the release cut writes the
   page from the archive.
+
 - [ ] `plan-rules.md` has a section `## Acceptance` with one rule: each scenario
   has a `**WHEN**` line, a `**THEN**` line, and a `**Test:**` line or a
   `**Checked at ship:**` line.
+
 - [ ] `plan-rules.md` has a rule that each ADR in `## ADRs` exists at
   `stage: proposed`.
 
