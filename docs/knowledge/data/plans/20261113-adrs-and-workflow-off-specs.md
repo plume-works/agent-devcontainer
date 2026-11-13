@@ -165,7 +165,7 @@ both decisions before this plan.
 `docs/knowledge/data/adr/0002-decisions-are-adrs-in-the-graph.md`; Modify:
 `docs/knowledge/data/adr.md`
 
-- [ ] `docs/knowledge/data/adr/0001-code-and-tests-state-behaviour.md` holds
+- [x] `docs/knowledge/data/adr/0001-code-and-tests-state-behaviour.md` holds
   this text:
 
   ``` markdown
@@ -199,7 +199,11 @@ both decisions before this plan.
   - `data/spec/` gets no new text.
   ```
 
-- [ ] `docs/knowledge/data/adr/0002-decisions-are-adrs-in-the-graph.md` holds
+  - **Evidence:** Wrote the fenced text with its list indent removed;
+    `iwe normalize` moved only line breaks, and the text is the same word for
+    word.
+
+- [x] `docs/knowledge/data/adr/0002-decisions-are-adrs-in-the-graph.md` holds
   this text:
 
   ``` markdown
@@ -224,7 +228,14 @@ both decisions before this plan.
   - The MADR template. Rejected: its sections fill with text that says nothing.
   ```
 
-- [ ] `docs/knowledge/data/adr.md` links both ADRs in sorted order.
+  - **Evidence:** Wrote the fenced text with its list indent removed;
+    `iwe normalize` moved only line breaks, and the text is the same word for
+    word.
+
+- [x] `docs/knowledge/data/adr.md` links both ADRs in sorted order.
+
+  - **Evidence:** Added two inclusion links, 0001 then 0002;
+    `iwe schema validate` passes.
 
 ### Task 3: Change the plan shape
 
