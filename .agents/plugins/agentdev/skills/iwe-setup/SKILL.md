@@ -1,6 +1,6 @@
 ---
 name: iwe-setup
-description: Brownfield-first workspace onboarding — scan the codebase and draft data/product.md plus starting spec and guide docs from what the code shows, interview the developer only for what the code can't answer, mark the onboarding tasks done, and delete the example documents. Use when the user says "run the setup", "set up the workspace", or when product.md still contains ✏️ placeholders.
+description: Brownfield-first workspace onboarding — scan the codebase and draft data/product.md plus starting guide docs from what the code shows, interview the developer only for what the code can't answer, mark the onboarding tasks done, and delete the example documents. Use when the user says "run the setup", "set up the workspace", or when product.md still contains ✏️ placeholders.
 disable-model-invocation: true
 ---
 
@@ -24,11 +24,7 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - Propose (don't yet write) spec docs for the 2–3 most load-bearing
-     behaviors you can identify, each with the design decisions visible in the
-     code behind it (state management, storage, process boundaries) for its
-     `## Rationale`. Say "unknown" where you'd be guessing.
-   - Propose a `data/guides/<slug>.md` for each procedure a contributor must
+   - Propose (don't yet write) a `data/guides/<slug>.md` for each procedure a contributor must
      follow that the README does not already give — building, testing,
      releasing.
 4. **Interview.** Ask in batches, conversationally:
@@ -41,14 +37,13 @@ what the code can't answer. Every future session reads what you write here.
      or contributors — these become the Authoring rules section.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
    instruction lines as sections fill; add a dated entry to its Changelog.
-   Write the spec stubs, with their `## Rationale`, and the guides the
-   developer approved, linking each from `data/spec.md` / `data/guides.md`. A
+   Write the guides the developer approved, linking each from
+   `data/guides.md`. Write no spec. A
    measurement the scan made that settles nothing yet goes to
    `data/findings/<slug>.md`, linked from `data/findings.md`.
-6. **Close the loop.** Mark the finished onboarding tasks
-   (`fill-product-doc`, and `draft-first-specs` if step 3 ran):
+6. **Close the loop.** Mark the finished onboarding task `fill-product-doc`:
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
-   remove any `rank` they carry, move each with
+   remove any `rank` it carries, move it with
    `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`,
    and remove its link from `data/backlog.md`. Delete the example
    docs — every `*.example.md` under `data/` (`iwe delete <key>` per doc).
@@ -57,7 +52,7 @@ what the code can't answer. Every future session reads what you write here.
    docs for leftover de-linked example lines and remove them.
 7. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — both
    must pass clean. Commit with a message like
-   `setup: product doc filled, first specs drafted, examples removed`.
+   `setup: product doc filled, first guides drafted, examples removed`.
 
 ## Rules
 
@@ -66,7 +61,6 @@ what the code can't answer. Every future session reads what you write here.
 - Never leave a ✏️ block half-filled — ask follow-ups until each section is
   concrete, but let the user say "skip for now" (leave the ✏️ so the gap stays
   visible).
-- Propose before bulk-writing: spec stubs and guides get a
-  one-line pitch each and the developer's yes before they exist.
+- Propose before bulk-writing: guides get a one-line pitch each and the developer's yes before they exist.
 - Don't delete the examples until real documents exist for the developer to
   learn the conventions from (product.md filled is the minimum).

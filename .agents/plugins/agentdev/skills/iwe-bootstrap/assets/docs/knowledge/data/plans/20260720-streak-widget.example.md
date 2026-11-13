@@ -17,8 +17,7 @@ onboarding.*
 
 The [streak widget feature](../features/streak-widget.example) is proposed: an
 always-on-top widget showing the daily focus streak. Streaks are derived from
-the session log at read time per the [timer rationale](../spec/timer.example) —
-no new stored state.
+the session log at read time — no new stored state.
 
 ## Approach
 
@@ -42,10 +41,22 @@ completion time so timezone changes never double-count.
 - [ ] Frameless always-on-top window, click opens history
 - [ ] No notifications, no negative framing (concept constraint)
 
-## Spec changes
+## Acceptance
 
-`spec/streaks` — to be created at ship time: day-boundary and derivation
-requirements from Task 1.
+### Scenario: A day without a session restarts the streak
+
+- **WHEN** the session log has sessions on Monday and Wednesday and none on
+  Tuesday
+- **THEN** `computeStreak` on Wednesday returns 1
+- **Test:** `src/store/streak.test.ts::restarts after a skipped day`
+
+### Scenario: A time zone change does not count a day twice
+
+- **WHEN** the user completes a session, moves three time zones west, and
+  completes another session on the same local day
+- **THEN** `computeStreak` counts that day once
+- **Test:**
+  `src/store/streak.test.ts::counts a day once across a time zone change`
 
 ## Depends on
 
@@ -68,5 +79,5 @@ it in the build order that
 `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` lists.
 `## Depends on` uses inline links (soft references), so the dependency is
 queryable via `iwe find --references` without making this plan a child of the
-other. A spec that doesn't exist yet is named in back-ticks, not linked — links
-must never dangle.*
+other. Each `## Acceptance` scenario names the test that proves it; Verify runs
+that test before Ship.*

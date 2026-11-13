@@ -1,12 +1,12 @@
 ---
 type: tracker
-description: What the product is, who it is for, and the decisions every plan and spec derives from.
+description: What the product is, who it is for, and the decisions every plan and ADR derives from.
 stage: living
 ---
 
 # Product
 
-*The foundation document. Every plan, spec, and release decision derives from
+*The foundation document. Every plan, ADR, and release decision derives from
 what's written here — fill it in before anything else (the setup skill walks you
 through it, drafting most sections from your codebase). Replace each ✏️ block;
 delete the instruction lines when done. Log every material change in the
@@ -58,7 +58,7 @@ constraint written here is a constraint no plan has to rediscover.*
 writing each document type, checked by the plan and ship skills before they
 write. Group by target, e.g.:*
 
-- *specs — "every requirement touching file paths must state cross-platform
+- *acceptance — "every scenario touching file paths must state cross-platform
   behavior"*
 - *plans — "any task touching the storage layer must include a migration step"*
 - *code anchors — "verify line numbers against the current checkout, never cite

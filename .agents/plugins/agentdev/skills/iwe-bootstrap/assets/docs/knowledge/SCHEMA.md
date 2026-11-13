@@ -64,9 +64,9 @@ holds no `data/log.md`, which OKF makes optional.
 
 Finished work is archived, never deleted. `data/archive/` holds one folder per
 cut version plus `next-release`, and each holds the subfolder its documents
-lived in — `plans/`, `bugs/`, `backlog/`, `features/`, or `architecture/` — so
-every archived document stays bound to its type's schema and is validated in
-full.
+lived in — `plans/`, `bugs/`, `backlog/`, `features/`, `adr/`, or
+`architecture/` — so every archived document stays bound to its type's schema
+and is validated in full.
 
 - Whoever closes a plan, bug, task, or feature moves it with `iwe rename` to
   `data/archive/next-release/<folder>/` in the same change and removes its hub
@@ -96,21 +96,21 @@ release: # required while active: internal, or the keys below
 `release` lists the documents the plan closes: the `features/` and `bugs/` keys
 Ship marks implemented or done when the plan ships, or `internal` when it closes
 none. It feeds no release page. A plan needs no feature to change what users
-see: the release page is written from the specs.
+see: the release cut writes the page from the archived plans.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
-`**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
-`## Verification`, `## Out of scope`, `## Key references` (anchors, never line
-numbers). Ship moves a done or cancelled plan to the archive and removes its
-link from `data/plans.md`. Every plan `## Depends on` links is a prerequisite,
-unless the section's text starts with `None`: then it has none, and any plan it
-links is only related.
+`**Files:**`, checkboxes), `## Acceptance`, `## ADRs` (optional),
+`## Depends on` (optional), `## Verification`, `## Out of scope`,
+`## Key references` (anchors, never line numbers). Ship moves a done or
+cancelled plan to the archive and removes its link from `data/plans.md`. Every
+plan `## Depends on` links is a prerequisite, unless the section's text starts
+with `None`: then it has none, and any plan it links is only related.
 
 ## Features — `data/features/<slug>.md`
 
 A feature is a proposal: what users should get, written before the work. It is
-live at `proposed` or `accepted`; once its plan ships, the behaviour lives in
-the specs and the feature moves to the archive.
+live at `proposed` or `accepted`; once its plan ships, the code and tests state
+the behaviour and the feature moves to the archive.
 
 ``` yaml
 ---
@@ -150,6 +150,37 @@ Root cause not yet known records what is known, the hypotheses eliminated and
 what eliminated them, and links the backlog task whose spike settles it. No
 section states lifecycle; `stage` does.
 
+## ADRs — `data/adr/NNNN-<slug>.md`
+
+An ADR records one decision. `NNNN` is the next free four-digit number in
+`data/adr/` and `data/archive/*/adr/`.
+
+``` yaml
+---
+type: adr # required
+stage: proposed # proposed | accepted | rejected | deprecated | superseded — required
+description: One sentence that gives the decision. # required
+supersedes: # optional: the earlier ADRs that this ADR replaces
+- adr/0001-code-and-tests-state-behaviour
+---
+```
+
+The frontmatter has no date field. Git records the date.
+
+Body: an H1 that is the short title of the decision, then 1 to 3 sentences that
+give the context, the decision, and the reason. `## Considered Options` and
+`## Consequences` are optional, and no other section is permitted. The value of
+an ADR is the record that a decision was made and why. Write an optional section
+only when it adds value.
+
+- `stage`: Plan files an ADR at `proposed`. Ship sets it to `accepted`, or to
+  `rejected` when it cancels the plan. An ADR at `proposed` or `accepted` is in
+  `data/adr/`, with a link in `data/adr.md`. An ADR at `rejected`, `deprecated`,
+  or `superseded` is in `data/archive/`.
+- An accepted ADR is never edited. A new ADR that names it in `supersedes`
+  replaces it.
+- A code comment refers to an ADR as `ADR-NNNN`.
+
 ## Releases — `data/releases/<version>.md`
 
 One page per cut version, written only by the release cut, in plain text with no
@@ -164,12 +195,13 @@ stage: released # required, always released
 ---
 ```
 
-Body: what changed in the requirements and scenarios of `data/spec/` between the
-commit that added the previous release page and the cut, in plain language,
-grouped by theme; `## Removed` for behaviour that went away; `## Upgrade notes`
-when a change needs action; and `## Fixed`, the titles of the bugs in the
-release's archive folder. A `## Rationale` change alone is not a release change.
-Nothing edits a page after its cut.
+Body: the changes that the `## Acceptance` scenarios of the plans in the
+release's archive folder state, in plain language, grouped by theme — for an
+archived plan with no `## Acceptance`, its `## Spec changes`; `## Removed` for
+behaviour that went away; `## Upgrade notes` when a change needs action;
+`## Decisions`, the titles of the ADRs accepted or superseded since the commit
+that added the previous release page; and `## Fixed`, the titles of the bugs in
+the release's archive folder. Nothing edits a page after its cut.
 
 ## Backlog tasks — `data/backlog/<slug>.md`
 
@@ -194,10 +226,9 @@ A done or cancelled task moves to the archive in the same change.
 `someday`) and nothing else that is required: they are durable reference, not
 work items, so no `stage` applies, and the finding and guide schemas reject one.
 
-- **Spec** — the only home of behaviour: `### Requirement:` + SHALL,
-  `#### Scenario:` + WHEN/THEN. Its `## Rationale` section is the only home of
-  the decision in force behind that behaviour and the alternatives it rejected;
-  it states no behaviour.
+- **Spec** — `### Requirement:` + SHALL, `#### Scenario:` + WHEN/THEN, and a
+  `## Rationale` section. `data/spec/` gets no new text: code and tests state
+  behaviour, and an ADR records a decision.
 - **Finding** — a measurement: required `## Measurement` and `## Closing`, plus
   the hypotheses eliminated and what would settle the rest. It states no
   behaviour the code must meet.

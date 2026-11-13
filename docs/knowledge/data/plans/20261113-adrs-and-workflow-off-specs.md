@@ -626,18 +626,36 @@ Modify: the other files under
 `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] The seed copies of `.iwe/config.toml`, `SCHEMA.md`, `STRUCTURE.md`,
+- [x] The seed copies of `.iwe/config.toml`, `SCHEMA.md`, `STRUCTURE.md`,
   `AGENTS.md`, and `README.md` agree with the workspace files after Tasks 1, 7,
   and 9.
-- [ ] The seed holds the ADR hub and one example ADR that passes the schema.
-- [ ] The seed holds no spec example and no `draft-first-specs` task.
-- [ ] No seed document links the spec example or the `draft-first-specs` task.
-- [ ] The example plans in the seed have `## Acceptance` and no
+  - **Evidence:** Copied the five files and `adr.yaml` from the workspace;
+    `test_scaffold_support_files_match_the_publisher_workspace` passes.
+- [x] The seed holds the ADR hub and one example ADR that passes the schema.
+  - **Evidence:** Added `data/adr.md` and
+    `adr/0001-timer-counts-wall-clock-time.example.md`; `iwe schema validate`
+    passes on a copy of the seed.
+- [x] The seed holds no spec example and no `draft-first-specs` task.
+  - **Evidence:** Deleted `spec/timer.example.md` and
+    `backlog/draft-first-specs.md` with `git rm`.
+- [x] No seed document links the spec example or the `draft-first-specs` task.
+  - **Evidence:** `grep -rn "spec/timer\|draft-first"` on the seed finds
+    nothing; `test_every_link_resolves` passes.
+- [x] The example plans in the seed have `## Acceptance` and no
   `## Spec changes`.
-- [ ] `scaffold.md` names `fill-product-doc` as the one task that
+  - **Evidence:** The focus-sessions and streak-widget plans have
+    `## Acceptance` scenarios; `grep -rn "Spec changes"` on the seed finds
+    nothing.
+- [x] `scaffold.md` names `fill-product-doc` as the one task that
   `/agentdev:iwe-setup` closes.
-- [ ] `/agentdev:iwe-setup` proposes and writes guides only. It writes no spec.
-- [ ] The consumption guide does not say that the setup drafts specs.
+  - **Evidence:** The onboarding bullet names `fill-product-doc` as the one
+    task; `ONBOARDING_KEYS` in `test_iwe_bootstrap.py` now holds only that key.
+- [x] `/agentdev:iwe-setup` proposes and writes guides only. It writes no spec.
+  - **Evidence:** Removed the spec proposal and write steps; step 5 says "Write
+    no spec".
+- [x] The consumption guide does not say that the setup drafts specs.
+  - **Evidence:** The setup bullet now says it writes the first guides and
+    closes `fill-product-doc`.
 
 ### Task 11: Remove the spec text that is now false
 
