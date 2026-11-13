@@ -294,8 +294,15 @@ Modify: `.agents/plugins/agentdev/README.md`, `README.md`
 **Closed by:** the `/agentdev:iwe-plan-review` run on the next plan that a
 session drafts after this change is on the default branch.
 
-- [ ] The `STE100 Auditor` report returns before any other reviewer runs.
-- [ ] After the draft has no finding, the review returns four reports.
+- [x] The `STE100 Auditor` report returns before any other reviewer runs.
+  - **Evidence:** In the review of
+    `data/plans/20261113-remove-knowledge-base-changelog`, the `STE100 Auditor`
+    ran alone six times. No other reviewer ran until its report was
+    `No findings.`
+- [x] After the draft has no finding, the review returns four reports.
+  - **Evidence:** After `No findings.`, the review dispatched the
+    `Durable Knowledge Auditor`, `iwe-plan-reviewer`, and `iwe-ship-reviewer` in
+    one message, and returned their reports with the `STE100 Auditor` report.
 
 ## Spec changes
 
