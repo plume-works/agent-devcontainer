@@ -102,10 +102,10 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 ```
 
 A `## Ship review` recorded before this structure has one of two earlier
-structures, and it stays valid and is never rewritten. The earlier structure
-has three items about `## Spec changes` and created and retired specs in place
-of the two ADR items, and an item about `## Rationale` entries before the
-archive item. The oldest structure is the same without the `## Rationale` and
+structures, and it stays valid, and nobody writes it again. The earlier structure
+has three items about `## Spec changes` and about created and retired specs, in
+place of the two ADR items. It also has an item about `## Rationale` entries
+before the archive item. The oldest structure is the same without the `## Rationale` and
 archive items, and ends with one item stating that Ship edited no hub or
 release page.
 

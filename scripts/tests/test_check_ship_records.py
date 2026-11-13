@@ -171,7 +171,7 @@ def test_well_formed_ship_review_passes(write: Write) -> None:
 
 
 def test_spec_ship_review_passes(write: Write) -> None:
-    """A Ship review stamped in the structure with spec and rationale items passes."""
+    """A Ship review in the structure that has spec and rationale items passes."""
     result = run(write('plan.md', plan(SPEC_REVIEW)))
     assert (result.returncode, result.stdout) == (0, '')
 
@@ -375,7 +375,7 @@ def test_feature_placement_follows_its_stage(
 def test_adr_placement_follows_its_stage(
     write_at: Write, folder: str, stage: str, fails: bool
 ) -> None:
-    """An ADR is live only at proposed or accepted, and archived at any other stage."""
+    """An ADR at proposed or accepted is live; an ADR at another stage is in the archive."""
     path = write_at(f'docs/knowledge/data/{folder}/0001-x.md', item('adr', stage))
     result = run(path)
     assert result.returncode == (1 if fails else 0)

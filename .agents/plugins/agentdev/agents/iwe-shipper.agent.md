@@ -12,8 +12,8 @@ message goes to your dispatcher. That is the point — whether a plan ships rest
 on what the code and the graph record, never on what a conversation asserted.
 
 Shipping is a state change across the whole graph, not one frontmatter flip.
-The plan's ADRs are accepted and validated first, before any other lifecycle
-change. Every operation is restart-safe:
+Ship accepts and validates the ADRs of the plan before it makes another
+lifecycle change. Every operation is restart-safe:
 inspect current state before mutating it, preserve an already-correct result,
 and continue from the first incomplete operation.
 
@@ -106,7 +106,7 @@ needed. In particular:
    task carrying a `**Closed by:**` line is unticked — Verify lists it under
    Outstanding observations — make no shipping state transition either, and
    return a Ship blocker report naming each such task.
-4. **Accept the plan's ADRs.** Before each mutation, re-inspect the ADR and
+4. **Accept the plan's ADRs.** Before each mutation, examine the ADR again and
    skip a result that is already correct.
    - Set each ADR that `## ADRs` links to `stage: accepted`.
    - For each key in the `supersedes` list of such an ADR, set that ADR to
@@ -160,12 +160,12 @@ needed. In particular:
      from the `### Scenario:` blocks of its `## Acceptance`, in plain language:
      what changed, not only that it changed. For an archived plan that has no
      `## Acceptance`, read its `## Spec changes` instead. A plan whose
-     `## Acceptance` is `None — no behavioral change` adds nothing. A change
-     still unclear stays off the page and goes in your report.
-   - Find each ADR that was accepted or superseded after the base: an ADR under
-     `data/adr/` or `data/archive/next-release/adr/` whose `stage` is
-     `accepted` or `superseded` now and was not that stage at the base commit
-     (`git show <base>:<path>`, or no file at the base).
+     `## Acceptance` is `None — no behavioral change` adds nothing. Do not write
+     an unclear change on the page; put it in your report.
+   - Find each ADR whose stage changed to `accepted` or `superseded` after the
+     base. Look in `data/adr/` and `data/archive/next-release/adr/`. Compare
+     each stage with the stage at the base commit (`git show <base>:<path>`, or
+     no file at the base).
    - Create `data/releases/<X.Y.Z>.md` with `type: release`,
      `version: <X.Y.Z>`, `stage: released`, and `date: <today>`. The body groups
      the changes by theme under `##` headings, then `## Removed` for behaviour
@@ -175,7 +175,7 @@ needed. In particular:
      archive folder. Omit an empty section. The page holds no Markdown link. A
      page that already exists stays as it is.
    - Move every document under `data/archive/next-release/` to
-     `data/archive/<X.Y.Z>/` with `iwe rename`, keeping its subfolder:
+     `data/archive/<X.Y.Z>/` with `iwe rename`, and keep its subfolder:
      `plans/`, `features/`, `bugs/`, `backlog/`, and `adr/`.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
@@ -249,13 +249,14 @@ in full with its anchored evidence — never a line number — and route, becaus
   release work.
 - Normal shipping never proceeds past a Verify report containing a CRITICAL,
   nor while a task carrying a `**Closed by:**` line is unticked.
-- The plan's ADRs are accepted and validated before the other lifecycle stage
-  changes, never after them.
+- Ship accepts and validates the ADRs of the plan before the other lifecycle
+  stage changes, never after them.
 - Ship never edits the plan's intent to match the code. When the reviewed
-  intent and the verified behavior disagree, the plan goes back for revision.
+  intent and the verified behavior disagree, send the plan to Plan revise mode.
 - Ship and cancel write frontmatter, `## Fix` sections, and the archive move
   with its hub-link removal — never a `## Rationale` and never a release page.
-  Inspect before every mutation so rerunning cannot duplicate a `## Fix`, an
+  Inspect before every mutation so that a second run cannot duplicate a
+  `## Fix`, an
   archive move, a release link, or a release page.
 - Never invent verification results or mark durable state complete after a
   mismatch or validation failure.

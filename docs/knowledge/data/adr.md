@@ -8,8 +8,8 @@ stage: living
 
 *One decision per document in `adr/NNNN-<slug>.md`, `type: adr`: a short title,
 then 1 to 3 sentences that give the context, the decision, and the reason. This
-hub lists each ADR at `stage: proposed` or `stage: accepted`. An accepted ADR is
-never edited; a new ADR supersedes it.*
+hub lists each ADR at `stage: proposed` or `stage: accepted`. Nobody edits an
+accepted ADR; a new ADR supersedes it.*
 
 [Code and tests are the only statement of
 behaviour](adr/0001-code-and-tests-state-behaviour.md)

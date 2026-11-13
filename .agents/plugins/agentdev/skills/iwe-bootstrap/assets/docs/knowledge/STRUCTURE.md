@@ -82,12 +82,12 @@ visible while reading and traversable via `iwe find --references`.
 the plan archived → a cut release. Each promotion is a new doc, a frontmatter
 change, or an archive move.
 
-**ADRs are short and never edited.** An ADR is a short title and 1 to 3
-sentences that give the context, the decision, and the reason. Plan files it at
-`stage: proposed`, Ship sets it to `accepted`, and a cancelled plan's ADR
-becomes `rejected`. A changed decision is a new ADR that supersedes the earlier
-one, so a reader sees each decision as it was made. Code comments cite an ADR as
-`ADR-NNNN`.
+**ADRs are short, and nobody edits an accepted ADR.** An ADR is a short title
+and 1 to 3 sentences that give the context, the decision, and the reason. Plan
+files it at `stage: proposed`, Ship sets it to `accepted`, and a cancelled
+plan's ADR becomes `rejected`. A changed decision is a new ADR that supersedes
+the earlier one, so a reader sees each decision as it was made. Code comments
+cite an ADR as `ADR-NNNN`.
 
 **Acceptance lives in the plan.** A plan states each behaviour it adds, changes,
 or removes as an `## Acceptance` scenario that names the test that proves it,
@@ -144,8 +144,7 @@ Deliberately not adopted:
   plan document with sections is leaner; when a plan genuinely outgrows one
   file, inclusion links split it natively.
 - **Spec deltas and their merge at archive** — a plan states acceptance
-  scenarios that stay in the plan, and nothing merges them into a canonical
-  spec.
+  scenarios that stay in the plan, and nothing merges them into a spec.
 
 ## Improvements over the source KB
 

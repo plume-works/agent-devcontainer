@@ -37,7 +37,7 @@ what the code can't answer. Every future session reads what you write here.
      or contributors — these become the Authoring rules section.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
    instruction lines as sections fill; add a dated entry to its Changelog.
-   Write the guides the developer approved, linking each from
+   Write the guides the developer approved, and link each from
    `data/guides.md`. Write no spec. A
    measurement the scan made that settles nothing yet goes to
    `data/findings/<slug>.md`, linked from `data/findings.md`.
@@ -61,6 +61,7 @@ what the code can't answer. Every future session reads what you write here.
 - Never leave a ✏️ block half-filled — ask follow-ups until each section is
   concrete, but let the user say "skip for now" (leave the ✏️ so the gap stays
   visible).
-- Propose before bulk-writing: guides get a one-line pitch each and the developer's yes before they exist.
+- Propose each guide in one line, and get the developer's approval before you
+  write it.
 - Don't delete the examples until real documents exist for the developer to
   learn the conventions from (product.md filled is the minimum).

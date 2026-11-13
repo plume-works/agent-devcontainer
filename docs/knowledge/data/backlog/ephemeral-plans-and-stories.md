@@ -104,8 +104,8 @@ Every decision here is the maintainer's.
 - **Build order.** Only stories and bugs carry `rank`.
 - **Iteration.** `data/milestone.md` holds the current iteration's goal and the
   product goal it serves; `data/product.md` gains `## Goals`.
-- **Specs stay.** The acceptance scenarios stay on the story and are never
-  merged into a spec.
+- **Specs stay.** The acceptance scenarios stay on the story, and nothing merges
+  them into a spec.
 - **Switch-over.** Every active plan ships under the current rules, and one last
   release is cut under them, before the graph moves to the new model.
 - **Rejected:**

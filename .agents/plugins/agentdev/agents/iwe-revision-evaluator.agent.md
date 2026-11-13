@@ -53,7 +53,7 @@ Any hunk that:
 - does not answer the quoted finding — the finding would still hold against the
   revised plan;
 - rewrites intent to describe the code instead of the outcome: a scenario, an
-  ADR, an approach, or task restated to match what was built, in place of
+  ADR, an approach, or a task that the revision changes to agree with the code, in place of
   work that delivers what was planned;
 - has a hunk that answers no quoted finding;
 - has a hunk that adds or sharpens a claim the code must newly meet.

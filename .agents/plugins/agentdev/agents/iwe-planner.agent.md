@@ -80,7 +80,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      motivates it. A plan that grew from a GitHub issue links the issue URL
      here and lists it under `sources:` in the frontmatter
    - `## Approach` — the shape of the solution, in a few sentences. The
-     rejected options go in the ADR, and only when they are worth remembering
+     rejected options go in the ADR, and only when a future reader needs them
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
      `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. A task may
      describe an _action_; it may never paraphrase _approved content_. When a
@@ -124,9 +124,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    edit, and an Approach edit may require new tasks or new scenarios. When the
    decision changes behavior, `## Acceptance` moves with it in the same pass,
    and the tasks, verification, and out-of-scope boundaries that depend on it
-   are reconciled together. A scenario edited alone, or left describing the old
-   intent while the tasks around it change, is the split this pass exists to
-   prevent. When the decision changes a proposed ADR, edit that ADR in the same
+   are reconciled together. This pass prevents a split: do not edit a scenario
+   alone, and do not keep the old intent in a scenario when its tasks change. When the decision changes a proposed ADR, edit that ADR in the same
    pass. A change of intent moves `release` with it. Re-locate every affected code
    anchor in the current checkout. Identify checked tasks or existing implementation evidence made stale
    by the revision and report them; do not rewrite that implementation from
@@ -249,8 +248,8 @@ A plan with no change in behaviour writes `None — no behavioral change` under
 ## ADRs
 
 `## ADRs` links each ADR that the plan proposes. A design decision and the
-options it rejected go in the ADR, and the rejected options only when they are
-worth remembering. `## Approach` gives the shape of the solution.
+options it rejected go in the ADR, and the rejected options only when a future
+reader needs them. `## Approach` gives the shape of the solution.
 
 Propose an ADR only when all three of these are true:
 
@@ -301,12 +300,12 @@ ADR that names the earlier ADR in its `supersedes` list.
   skill and never dispatches `iwe-adversarial-reviewer`, in either mode.
 - Before validation, check each scenario in `## Acceptance` against the plan's
   `## Approach` and against the code it describes, and resolve every
-  disagreement in the plan before it is written.
+  disagreement before you write the plan.
 - A scenario claims only what its mechanism delivers and names each limit of
   that mechanism you know.
-- `## Acceptance` is mandatory thinking, even when its honest content is
+- Always write `## Acceptance`, also when its only correct content is
   "None — no behavioral change". A behaviour that changes with no scenario is a
-  Verify CRITICAL, not a matter of taste.
+  Verify CRITICAL.
 - Scale ceremony with risk: a small low-risk plan can be short, but never
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as

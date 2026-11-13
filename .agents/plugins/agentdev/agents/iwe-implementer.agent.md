@@ -34,7 +34,7 @@ claims the user gave is not one.
    built? Stop and point at the `/agentdev:iwe-plan` skill.
 2. **Load the context.** Read the full plan, its `## Acceptance` scenarios,
    each ADR its `## ADRs` links, and `data/product.md` `## Constraints` and
-   `## Authoring rules` — they bind the code you're about to write. Read no
+   `## Authoring rules` — they are rules for the code that you will write. Read no
    spec. The scenarios are the behavior this work is meant to produce, and
    each one names the test that proves it.
 3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
@@ -78,13 +78,13 @@ claims the user gave is not one.
      boundary, update the plan first, report the correction and why it
      preserves intent, then continue within the user's requested task boundary.
      Adding a task is never a tactical correction.
-     The plan's `## Acceptance` scenarios are one of those boundaries: a
-     correction may proceed only while each scenario still holds exactly as
-     written.
+     The plan's `## Acceptance` scenarios are one of those boundaries: you
+     can continue with a correction only while each scenario stays true as the
+     plan states it.
    - **Material deviation:** if completing the task would add scope or drop,
      narrow, defer, or accept an exception to specified behavior, leave the
      task unchecked. Any change to a scenario in `## Acceptance` or to an ADR
-     the plan proposes is material by definition — never edit a scenario or
+     the plan proposes is always a material deviation — never edit a scenario or
      an ADR to match what you built. Route it by kind:
      - **Always-escalate** — the change would drop, narrow, defer, or accept
        an exception to specified behavior, change `release`, or change text

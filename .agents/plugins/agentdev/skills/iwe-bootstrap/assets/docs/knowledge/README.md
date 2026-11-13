@@ -51,13 +51,13 @@ verified code anchors, acceptance scenarios, and proposed ADRs) → **implement*
 (`"work on the next task"` — executes the plan task-by-task, ticking checkboxes
 as tests pass) → **verify** (`"is it ready to ship?"` — an optional standalone
 check of tasks and acceptance scenarios against the actual code) → **ship**
-(`"ship dark mode"` — invokes that verification as a mandatory gate, then
-accepts the plan's ADRs, flips stages, and archives the finished work; a release
-cut later writes the release page from the archive) → occasionally **weekly**
-(`"weekly digest"` — what moved, what's stuck, what's next). Enter and leave the
-loop anywhere — invoking Ship directly still runs its verification gate. Each
-step leaves the graph consistent, so the next session — or the next agent —
-picks up exactly where this one stopped.
+(`"ship dark mode"` — runs that verification as a gate that must pass, then
+accepts the ADRs of the plan, changes the stages, and archives the finished
+work; a release cut later writes the release page from the archive) →
+occasionally **weekly** (`"weekly digest"` — what moved, what's stuck, what's
+next). Enter and leave the loop anywhere — invoking Ship directly still runs its
+verification gate. Each step leaves the graph consistent, so the next session —
+or the next agent — picks up exactly where this one stopped.
 
 Ask questions against the graph instead of re-reading the codebase:
 
@@ -108,11 +108,11 @@ refactors it safely (`iwe rename` updates every reference), and validates it
 
 ## Acknowledgments
 
-The WHEN/THEN scenario format is adapted from
-[OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven workflow. It is
-used inside the single plan document, without OpenSpec's change bundles or its
-merge into canonical specs. The ADR format follows the `ADR-FORMAT.md` of the
-[mattpocock/skills](https://github.com/mattpocock/skills) repository. The
+This workspace adapts the WHEN/THEN scenario format from
+[OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven workflow. A
+plan holds its scenarios in its own document, without OpenSpec's change bundles
+or its merge into canonical specs. The ADR format follows the `ADR-FORMAT.md` of
+the [mattpocock/skills](https://github.com/mattpocock/skills) repository. The
 workspace shape follows its sibling template,
 [marketing-workspace](https://github.com/iwe-org/marketing-workspace).
 

@@ -70,7 +70,8 @@ store. Completion appends to the session log through the existing writer.
 ### Scenario: Sleep does not corrupt a session
 
 - **WHEN** the machine sleeps for an hour during a session with 10:00 remaining
-- **THEN** the session shows no negative or drifted time when the machine wakes
+- **THEN** the session shows no negative or incorrect time when the machine
+  wakes
 - **Test:** `src/timer/engine.test.ts::survives sleep`
 
 ## ADRs

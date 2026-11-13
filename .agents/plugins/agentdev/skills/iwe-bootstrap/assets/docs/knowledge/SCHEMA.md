@@ -169,16 +169,16 @@ The frontmatter has no date field. Git records the date.
 
 Body: an H1 that is the short title of the decision, then 1 to 3 sentences that
 give the context, the decision, and the reason. `## Considered Options` and
-`## Consequences` are optional, and no other section is permitted. The value of
-an ADR is the record that a decision was made and why. Write an optional section
-only when it adds value.
+`## Consequences` are optional, and the schema permits no other section. The
+value of an ADR is the record of a decision and its reason. Write an optional
+section only when it adds value.
 
 - `stage`: Plan files an ADR at `proposed`. Ship sets it to `accepted`, or to
   `rejected` when it cancels the plan. An ADR at `proposed` or `accepted` is in
   `data/adr/`, with a link in `data/adr.md`. An ADR at `rejected`, `deprecated`,
   or `superseded` is in `data/archive/`.
-- An accepted ADR is never edited. A new ADR that names it in `supersedes`
-  replaces it.
+- Nobody edits an accepted ADR. A new ADR that names it in `supersedes` replaces
+  it.
 - A code comment refers to an ADR as `ADR-NNNN`.
 
 ## Releases — `data/releases/<version>.md`

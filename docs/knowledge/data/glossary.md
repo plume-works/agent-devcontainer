@@ -14,6 +14,9 @@ term in the same change that first uses it.
 - **acceptance** (noun): The test jobs that must pass before CI promotes a
   candidate image: the deploy and Dev Container tests on each architecture, and
   the pre-commit run.
+- **acceptance scenario** (noun): A `### Scenario:` block in the `## Acceptance`
+  section of a plan, with a WHEN line, a THEN line, and a Test line or a Checked
+  at ship line.
 - **accepted review** (noun): A review by the AI reviewer app, in the state
   approved, changes requested, or commented, on a commit of the pull request.
 - **active plan** (noun): A plan that has no `stage` field in its frontmatter.
@@ -29,6 +32,10 @@ term in the same change that first uses it.
   entry, whose IPv4 addresses the firewall permits for outgoing traffic.
 - **anchor** (noun): A name for a place in a file, such as `path::symbol` or
   `path#heading-slug`, that does not use a line number.
+- **archive** (noun): The `data/archive/` tree, which holds the closed documents
+  in one folder for each release and the folder `next-release`.
+- **archive** (verb): To move a closed document with `iwe rename` into
+  `data/archive/next-release/` and remove its hub link.
 - **attach phase** (noun): The Dev Container lifecycle command
   `agentdev-runtime lifecycle attached`, which runs each time an editor attaches
   to the container.
@@ -126,8 +133,12 @@ term in the same change that first uses it.
   discovery skips outside a git work tree.
 - **explicit-only skill** (noun): A skill whose frontmatter sets
   `disable-model-invocation: true`, so that only the user can start it.
+- **Explore** (noun): The workflow phase that examines a problem before a plan,
+  through `/agentdev:iwe-explore`.
 - **fast-approve** (verb): To approve a pull request without review passes, when
   the diff changes only versions or generated files.
+- **file** (verb): To write a new document in the graph and link it from its
+  hub.
 - **fingerprint** (noun): A normalized hash of a lesson and its destination,
   which self-improve keeps to stop a lesson that was accepted or rejected
   before.
@@ -141,12 +152,16 @@ term in the same change that first uses it.
   request starts, in which the responder check does not run.
 - **global-only option** (noun): A Renovate option that only the global
   configuration of the self-hosted bot accepts.
+- **handoff** (noun): The part of an Explore report that gives Plan the settled
+  content for a plan.
 - **harness** (noun): An agent client that the images install and that the
   catalog registers with: Claude Code or OpenCode.
 - **home volume** (noun): The Docker volume `agentdev-home-${devcontainerId}`,
   one for each Dev Container instance, mounted at `/home/agent`.
 - **hook directory** (noun): A directory under `/etc/agentdev/hooks/` that holds
   executables that run in C-locale order at the end of a lifecycle phase.
+- **hub** (noun): A document of `type: hub` that has one inclusion link to each
+  live member of its folder.
 - **image family** (noun): The four images that one CI run builds:
   `ubuntu-ansible`, `agentdev-base`, `agentdev-deploy`, and
   `agentdev-devcontainer`.
@@ -194,6 +209,9 @@ term in the same change that first uses it.
   `.agent.metadata.json` of a consumer, which records the template state.
 - **marker block** (noun): The block of `PATH` lines that the macOS bootstrap
   script owns in the shell profile files.
+- **material deviation** (noun): A change during Implement that affects the
+  scope, the behaviour, the acceptance scenarios, the ADRs, or the boundaries of
+  the plan.
 - **merge record** (noun): The line that replaces a `## Depends on` entry after
   its pull request merges.
 - **merge state** (noun): The `mergeable` and `mergeStateStatus` fields that
@@ -294,6 +312,9 @@ term in the same change that first uses it.
   dependency that it reads at startup recovered.
 - **relay** (noun): The TCP forwarder `.claude/agent-proxy-relay.py` from the
   Docker bridge address to the port of the agent proxy.
+- **release cut** (noun): The release mode of `iwe-shipper`, which moves
+  `data/archive/next-release/` to the folder of the version and writes the
+  release page.
 - **release-only tools** (noun): The tools `iwe` and `iwes`, which the macOS
   bootstrap script installs from a GitHub release archive.
 - **remapped account** (noun): The `agent` account of the image after the
@@ -312,8 +333,12 @@ term in the same change that first uses it.
   that a review run read when it started.
 - **reviewer** (noun): In self-improve, a separate `claude -p` call without
   tools that reads the evidence and returns a proposal or a discard.
+- **revise mode** (noun): The mode of the `iwe-planner` rulebook that changes an
+  active plan.
 - **root-test launcher** (noun): The script `scripts/run-root-tests`, which runs
   the `requires_root` tests as root.
+- **rulebook** (noun): The file of instructions that an agent or a skill
+  follows, such as `iwe-planner.agent.md`.
 - **rulebook followed in place** (noun): An agent definition that the session of
   a skill reads and follows itself, and does not dispatch.
 - **runner job** (noun): A workflow job on a GitHub runner and not in the
@@ -352,6 +377,10 @@ term in the same change that first uses it.
 - **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
 - **spawn mode** (noun): The place where a server-mode conversation runs: its
   own git worktree or the workspace directory.
+- **spec** (noun): A document in `data/spec/` that states behaviour as SHALL
+  requirements, and that gets no new text.
+- **spike** (noun): A short trial implementation that answers one design
+  question.
 - **staged catalog** (noun): The read-only copy of the catalog in the image at
   `AGENTDEV_CATALOG_DIR`.
 - **stale label** (noun): A `request-ai-review` label that no unfinished review
@@ -361,6 +390,10 @@ term in the same change that first uses it.
   commands.
 - **start phase** (noun): The Dev Container lifecycle command
   `agentdev-runtime lifecycle ready`, which runs at each container start.
+- **story** (noun): A planned unit of work with acceptance scenarios, as the
+  backlog task on ephemeral plans proposes.
+- **supersede** (verb): To replace an earlier ADR with a new ADR that names it
+  in its `supersedes` list.
 - **task section** (noun): The `## Implementation Steps` section of a plan, or
   the older `## Tasks` section, where a checkbox counts as a task.
 - **tense split** (noun): The rule that closed work goes under Verification and
@@ -386,6 +419,8 @@ term in the same change that first uses it.
   that confirms or drops each candidate finding.
 - **venv root** (noun): The directory on the home volume that holds one uv
   environment for each checkout.
+- **verifier** (noun): The `iwe-verifier` agent, which compares a plan with the
+  code.
 - **Verify** (noun): The workflow phase that compares the code with a plan
   before Ship, through `/agentdev:iwe-verify`.
 - **version owner** (noun): The one place that pins the version of a pre-commit
@@ -394,6 +429,8 @@ term in the same change that first uses it.
   Playwright CLI installs, so that the client and the browser have one version.
 - **work branch** (noun): A feature branch that tracks its own remote branch,
   which for a plan has the name `iwe/<slug>/iter-<N>-<phase>`.
+- **work item** (noun): A plan, feature, bug, release, backlog task, or ADR: a
+  document that has a lifecycle `stage`.
 - **worker restart** (noun): A restart of the session host that keeps the disk
   and stops all processes.
 - **Workflow A** (noun): The adoption of the template through a copy of the full

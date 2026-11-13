@@ -68,18 +68,18 @@ decision your prompt does not carry, stop and report it under
 
      Judge each `### Scenario:` in `## Acceptance`. A scenario with a
      `**Test:**` line whose test does not exist, does not run the behaviour,
-     or fails is a CRITICAL. A scenario with a `**Checked at ship:**` line is
-     judged from the rulebook or file that the line names: a scenario that
-     the file contradicts is a CRITICAL. For `None — no behavioral change`,
+     or fails is a CRITICAL. Judge a scenario with a `**Checked at ship:**`
+     line from the rulebook or file that the line names: a scenario that the
+     file contradicts is a CRITICAL. For `None — no behavioral change`,
      confirm that no externally observable behaviour changed. A plan with no
      `## Acceptance` section is a CRITICAL; its route is the
      `/agentdev:iwe-plan` skill's revise mode.
 
-   - **Correctness** — map each scenario to anchored evidence and judge
-     whether the implementation matches its THEN line (divergence is a
-     WARNING naming the anchors to review). A test covers a scenario only
-     when it runs the behaviour, judged by the plan rules the `iwe-planner`
-     rulebook follows; a check of file contents never counts as coverage.
+   - **Correctness** — map each scenario to anchored evidence and judge if
+     the implementation agrees with its THEN line. A difference is a WARNING
+     that names the anchors to examine. A test covers a scenario only when it
+     runs the behaviour, as the plan rules that the `iwe-planner` rulebook
+     follows decide; a check of file contents never counts as coverage.
      Run the plan's `## Verification` commands and
      report their actual output — a failing command is a CRITICAL. A step you
      cannot run in this checkout, or whose effects reach beyond the working
@@ -143,7 +143,7 @@ then:
   supplies that verdict but never performs Ship's ADR or lifecycle mutations.
 - Every claim cites anchored evidence, never a line number, or is explicitly
   labeled
-  "unverified" — a scenario you couldn't trace is unverified, not failed,
+  "unverified" — a scenario that you cannot trace is unverified, not failed,
   and says so.
 - Run only the verification commands the plan's `## Verification` names (tests,
   builds); a task's `- **Evidence:**` line is a record, never a command to run. A

@@ -6,11 +6,11 @@ software project's memory and system of record. The division of labor:
 - **Code** lives in the project's own repository. Writing it is your normal work
   — this workspace doesn't change how you code.
 - **Project state** lives here, in `data/` — what the product is, the decisions
-  and why they were made (ADRs), what was measured (findings), how to do
-  recurring jobs (guides), what's proposed, planned, broken, and released, and
-  the finished work in the archive. Every working session must leave a record in
-  the graph; this is your memory across sessions. Never keep project state only
-  in conversation.
+  and their reasons (ADRs), what was measured (findings), how to do recurring
+  jobs (guides), what's proposed, planned, broken, and released, and the
+  finished work in the archive. Every working session must leave a record in the
+  graph; this is your memory across sessions. Never keep project state only in
+  conversation.
 
 ## Start of every session
 
@@ -28,7 +28,7 @@ software project's memory and system of record. The division of labor:
 
 1. **Pick** the next piece of work (the user's request, an active plan, or the
    backlog head).
-2. **Consult** before acting: the related ADRs in `data/adr/` (the decisions in
+2. **Consult** before you act: the related ADRs in `data/adr/` (the decisions in
    force and the alternatives they rejected), any `data/findings/` doc on the
    area, and the feature/bug doc the work belongs to. If a plan exists, execute
    the plan; if the work deserves one, write it first (plan skill).
@@ -66,8 +66,8 @@ software project's memory and system of record. The division of labor:
      `stage: pending` + link from `data/bugs.md`. Fixed in the same change →
      filed at `stage: done` with a `## Fix` describing the fix, straight into
      `data/archive/next-release/bugs/`.
-   - Design decision made → an ADR that a plan proposes. An accepted ADR is
-     never edited; a new ADR supersedes it.
+   - A design decision → an ADR that a plan proposes. Nobody edits an accepted
+     ADR; a new ADR supersedes it.
    - Measurement that settles nothing yet → `data/findings/<slug>.md` + link
      from `data/findings.md`.
    - Procedure a contributor repeats → `data/guides/<slug>.md` + link from
@@ -148,13 +148,13 @@ software project's memory and system of record. The division of labor:
   `data/features/`; work in flight in plans, bugs, and tasks; what a release
   changed on its release page; finished work in `data/archive/`.
   `type: architecture` is valid only in the archive.
-- **An accepted ADR is never edited.** Plan files an ADR at `stage: proposed`
-  and Ship sets it to `accepted`. A changed decision is a new ADR that names the
+- **Nobody edits an accepted ADR.** Plan files an ADR at `stage: proposed` and
+  Ship sets it to `accepted`. A changed decision is a new ADR that names the
   earlier one in `supersedes`; Ship then archives the earlier one at
   `stage: superseded`.
 - **`data/spec/` gets no new text.** A plan states the behaviour it changes as
-  `## Acceptance` scenarios, each naming the test that proves it, and Verify
-  checks them against the code. Nothing merges them into a spec.
+  `## Acceptance` scenarios. Each scenario names the test that proves it, and
+  Verify checks the scenarios against the code. Nothing merges them into a spec.
 - **Code anchors**: `## Key references` lists the code a plan touches as anchors
   taken from the current checkout, never from memory — `path::symbol` in code,
   `path#heading-slug` in Markdown, `path#key.path` in YAML, JSON, and TOML,
@@ -253,12 +253,12 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 
 | Skill                       | What it does                                                          |
 | --------------------------- | --------------------------------------------------------------------- |
-| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product and guides  |
+| `/agentdev:iwe-setup`       | Sets up the workspace from the codebase: product doc and guides       |
 | `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code    |
 | `/agentdev:iwe-plan`        | Files a plan: verified anchors, acceptance, ADRs, hub link, rank      |
 | `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated |
 | `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries |
 | `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it         |
 | `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code |
-| `/agentdev:iwe-ship`        | Closes the loop: ADR acceptance, stage flips, release cut             |
+| `/agentdev:iwe-ship`        | Accepts the ADRs, changes the stages, and cuts a release              |
 | `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health     |

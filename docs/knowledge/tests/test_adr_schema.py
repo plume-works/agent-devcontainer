@@ -2,7 +2,7 @@
 Checks for the shape the `adr` schema requires.
 
 Each test copies the graph into `/tmp`, writes one ADR into `data/adr/`, and
-asserts whether `iwe schema validate` accepts it or refuses it and names it.
+checks if `iwe schema validate` accepts it, or refuses it and names it.
 """
 
 from __future__ import annotations
@@ -104,7 +104,7 @@ def test_conforming_adr_validates(workspace: Path, body: str) -> None:
 
 
 def test_unknown_section_is_rejected(workspace: Path) -> None:
-    """An ADR with a section the schema does not permit fails and is named."""
+    """An ADR with a section the schema does not permit fails, and the validator names it."""
     path = _write_adr(workspace, FRONTMATTER.format(stage='accepted') + UNKNOWN_SECTION)
     result = _validate(workspace)
     assert result.returncode != 0
@@ -112,7 +112,7 @@ def test_unknown_section_is_rejected(workspace: Path) -> None:
 
 
 def test_unknown_stage_is_rejected(workspace: Path) -> None:
-    """An ADR with a stage outside the lifecycle fails and is named."""
+    """An ADR with a stage outside the lifecycle fails, and the validator names it."""
     path = _write_adr(workspace, FRONTMATTER.format(stage='approved') + ONE_PARAGRAPH)
     result = _validate(workspace)
     assert result.returncode != 0
