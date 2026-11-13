@@ -87,7 +87,7 @@ Rejected:
 `docs/knowledge/data/product.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`
 
-- [ ] `AGENTS.md#best-practices-for-agents` holds this item after item 14, with
+- [x] `AGENTS.md#best-practices-for-agents` holds this item after item 14, with
   the text that the repository owner approved:
 
   ``` markdown
@@ -105,7 +105,10 @@ Rejected:
         this rule names it.
   ```
 
-- [ ] `docs/knowledge/AGENTS.md#conventions` holds this bullet:
+  - **Evidence:** Item 15 is in `AGENTS.md` after item 14, with the approved
+    text.
+
+- [x] `docs/knowledge/AGENTS.md#conventions` holds this bullet:
 
   ``` markdown
   - **Prose follows ASD-STE100 Issue 9.** Best Practice 15 in the repository
@@ -113,11 +116,20 @@ Rejected:
     and technical verbs that the rule permits.
   ```
 
-- [ ] The `iwe-bootstrap` asset copy of `docs/knowledge/AGENTS.md` holds the
+  - **Evidence:** The bullet is last in `docs/knowledge/AGENTS.md#conventions`;
+    `iwe normalize` reflowed its lines only.
+
+- [x] The `iwe-bootstrap` asset copy of `docs/knowledge/AGENTS.md` holds the
   same bullet.
 
-- [ ] `docs/knowledge/data/product.md#authoring-rules` holds one bullet that
+  - **Evidence:** The asset copy is byte-equal to `docs/knowledge/AGENTS.md`;
+    `test_iwe_seed.py` passes.
+
+- [x] `docs/knowledge/data/product.md#authoring-rules` holds one bullet that
   states the rule and names Best Practice 15.
+
+  - **Evidence:** The last bullet of `## Authoring rules` states the rule and
+    names Best Practice 15; a changelog line records the change.
 
 ### Task 2: Bind the glossary page to a schema
 

@@ -170,6 +170,9 @@ it):
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/AGENTS.md` when editing it
   directly.
+- Write all prose in ASD-STE100 Issue 9 (Simplified Technical English), as Best
+  Practice 15 in `AGENTS.md` tells. The rule applies to the text that a change
+  adds or edits. Use a project term only if `data/glossary.md` lists it.
 
 ## Changelog
 
@@ -208,3 +211,4 @@ it):
 - 2026-11-12 — routed a spike's design decision to the owning spec's
   `## Rationale` and a measurement to `data/findings/`, replacing
   `data/architecture/`.
+- 2026-11-13 — added the rule that all new prose follows ASD-STE100 Issue 9.

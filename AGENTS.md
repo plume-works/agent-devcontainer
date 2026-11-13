@@ -101,6 +101,19 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
     git hook through `.pre-commit-config.yaml` (a local hook with the matching
     `stages:`) and let `pre-commit install` own the hook scripts.
 
+15. **Write all prose in ASD-STE100 Issue 9 (Simplified Technical
+    English).** The rule applies to the text that a change adds or
+    edits in these places: documents under `docs/knowledge/`, skill
+    and agent rulebooks, `AGENTS.md` files, READMEs, code comments,
+    commit messages, and pull request titles and bodies. Text that
+    existed before this rule can stay until a change edits it.
+    - Use a project term only if `docs/knowledge/data/glossary.md`
+      lists it. Add a new term to the glossary in the same change.
+    - Text in code formatting, text in a fenced block, and quoted
+      text are not prose. The rule does not apply to them.
+    - The rule names the issue. A later issue applies only after
+      this rule names it.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
