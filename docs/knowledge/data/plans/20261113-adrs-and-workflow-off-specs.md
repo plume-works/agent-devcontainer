@@ -88,8 +88,8 @@ both decisions before this plan.
 `docs/knowledge/SCHEMA.md`, `docs/knowledge/data/index.md`,
 `scripts/check-ship-records.py`, `scripts/tests/test_check_ship_records.py`
 
-- [ ] `.iwe/schemas/adr.yaml` requires the frontmatter `type: adr`, `stage`,
-  `date`, and `description`.
+- [ ] `.iwe/schemas/adr.yaml` requires the frontmatter `type: adr`, `stage`, and
+  `description`. It has no date field: git holds the date.
 - [ ] The schema permits only these values of `stage`: `proposed`, `accepted`,
   `rejected`, `deprecated`, `superseded`.
 - [ ] The schema permits the optional frontmatter `decision-makers`, a list of
@@ -132,7 +132,6 @@ both decisions before this plan.
   ---
   type: adr
   stage: accepted
-  date: 2026-11-13
   decision-makers:
   - the repository owner
   description: Code and tests are the only statement of how the product behaves; ADRs hold the reasons and the glossary holds the terms.
@@ -217,7 +216,6 @@ both decisions before this plan.
   ---
   type: adr
   stage: accepted
-  date: 2026-11-13
   decision-makers:
   - the repository owner
   description: Each decision is one MADR document in data/adr/, proposed by Plan, accepted by Ship, and never edited after that.
