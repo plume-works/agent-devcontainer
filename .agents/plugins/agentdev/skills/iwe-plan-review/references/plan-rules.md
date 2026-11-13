@@ -30,7 +30,8 @@ and its `- **Evidence:**` line are outside them.
   user decided — text for a document, a snippet, a message — carries that
   wording verbatim in a fenced block. A task that says what the wording should
   accomplish has lost it: the session that applies the plan starts cold and
-  writes something reasonable and different.
+  writes something reasonable and different. The copy keeps each word: the
+  formatters and `iwe normalize` can change only its line breaks and indent.
 
 ## Verification
 

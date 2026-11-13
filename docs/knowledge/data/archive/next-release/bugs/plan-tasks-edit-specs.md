@@ -1,6 +1,6 @@
 ---
 type: bug
-stage: pending
+stage: cancelled
 severity: medium
 description: Plan accepts implementation tasks that create or edit data/spec/ documents, which only Ship may change, and the plan-scope audit does not flag them.
 sources:

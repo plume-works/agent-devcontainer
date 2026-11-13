@@ -17,9 +17,6 @@ CDN](bugs/firewall-docker-hub-cloudfront.md)
 [Bug: Nothing runs `zsh -n` on the macOS bootstrap that shellcheck
 skips](bugs/macos-bootstrap-not-syntax-checked.md)
 
-[Bug: plan tasks edit spec documents that only Ship may
-change](bugs/plan-tasks-edit-specs.md)
-
 [Bug: Remote Control sessions on a workspace receive cloud-session
 instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 
