@@ -436,3 +436,28 @@ uv run scripts/check-anchors.py
   table.
 - `.agents/plugins/agentdev/tests/test_iwe_seed.py::test_scaffold_support_files_match_the_publisher_workspace`
   — the test that compares the asset copies with the workspace.
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-13.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship:
+  data/plans/20261113-ste100-prose-rule
+- [x] Every `## Spec changes` operation is in its spec — confirmed:
+  data/spec/iwe-workflow-skills, data/spec/pr-review
+- [x] Every spec the plan created is linked from `data/spec.md` — N/A: no spec
+  created
+- [x] Every spec the plan retired was removed with `iwe delete` — N/A: no spec
+  retired
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-13
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] Every `## Rationale` entry the plan names is in its spec — confirmed:
+  data/spec/iwe-workflow-skills, data/spec/pr-review
+- [x] The plan and every feature and bug it closed are archived with no hub link
+  — confirmed: data/archive/next-release/plans/20261113-ste100-prose-rule
