@@ -137,11 +137,16 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/.iwe/config.toml`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/SCHEMA.md`
 
-- [ ] `.iwe/config.toml#schemas.tracker` matches `data/glossary`.
-- [ ] The `iwe-bootstrap` asset copy of `.iwe/config.toml` has the same match.
-- [ ] `docs/knowledge/SCHEMA.md#hubs-and-the-trackers` names `data/glossary.md`
+- [x] `.iwe/config.toml#schemas.tracker` matches `data/glossary`.
+  - **Evidence:** The `match` list holds `data/glossary`.
+- [x] The `iwe-bootstrap` asset copy of `.iwe/config.toml` has the same match.
+  - **Evidence:** The asset copy is byte-equal; `test_iwe_seed.py` passes.
+- [x] `docs/knowledge/SCHEMA.md#hubs-and-the-trackers` names `data/glossary.md`
   as a `tracker` page.
-- [ ] The `iwe-bootstrap` asset copy of `SCHEMA.md` names it too.
+  - **Evidence:** The section lists `data/glossary.md` with the two other
+    `type: tracker` pages.
+- [x] The `iwe-bootstrap` asset copy of `SCHEMA.md` names it too.
+  - **Evidence:** The asset copy is byte-equal; `test_iwe_seed.py` passes.
 
 ### Task 3: Write the glossary
 
