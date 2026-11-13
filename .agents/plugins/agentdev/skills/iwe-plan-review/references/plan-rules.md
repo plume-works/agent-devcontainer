@@ -46,6 +46,17 @@ and its `- **Evidence:**` line are outside them.
   every merge on CI.
 - **A search for leftover text covers only the files the plan changes.**
 
+## Acceptance
+
+- **Each scenario is complete.** Each `### Scenario:` block in `## Acceptance`
+  has a `**WHEN**` line, a `**THEN**` line, and a `**Test:**` line or a
+  `**Checked at ship:**` line.
+
+## ADRs
+
+- **Each linked ADR is proposed.** Each ADR that `## ADRs` links exists, and
+  its frontmatter has `stage: proposed`.
+
 ## Tests
 
 - **A planned test runs the behaviour it covers.** It executes the code,

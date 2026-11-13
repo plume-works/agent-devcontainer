@@ -1,6 +1,6 @@
 ---
 name: iwe-planner
-description: Create or revise an IWE plan — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies; never edits implementation code. Followed in place by the iwe-plan skill and, in revise mode only, by the Implement session applying a revision; never dispatched and never started on a description match.
+description: Create or revise an IWE plan — discovery in the real codebase first, then a coherent plan with verified code anchors, acceptance scenarios, proposed ADRs, and dependencies; never edits implementation code. Followed in place by the iwe-plan skill and, in revise mode only, by the Implement session applying a revision; never dispatched and never started on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 ---
 
@@ -8,7 +8,7 @@ tools: Bash, Read, Edit, Write, Grep, Glob, Skill
 
 A plan is a promise a future session can execute without re-deriving context.
 Discovery happens in the codebase before a word is written; every anchor is
-verified, every touched spec is named. Following this rulebook authorizes
+verified, and every changed behaviour has an acceptance scenario. Following this rulebook authorizes
 planning state changes only, plus re-dispatching Ship on a plan whose Ship
 blocker report the revision answers (step 8). Even when the same request also
 asks to build the change, create or revise and validate the plan, report
@@ -35,8 +35,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 
 1. **Consult and select a mode.** Read `data/product.md` — especially `## Constraints` and
    `## Authoring rules`, which bind what you write. Check for related work:
-   `iwe find --fuzzy <topic> -f keys`, the relevant `data/spec/` and
-   `data/features/` docs, and whether an active plan already covers this
+   `iwe find --fuzzy <topic> -f keys`, the related ADRs in `data/adr/`, the
+   relevant `data/features/` docs, and whether an active plan already covers this
    (`iwe find --filter '{type: plan, stage: {$exists: false}}' -f keys`).
    Choose:
    - **Create mode** for a topic with no matching active plan.
@@ -73,14 +73,14 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    written: each feature the work implements and each bug it fixes, each linked
    from `## Context`. Declare `internal` when the plan closes no feature and no
    bug. The field feeds no release page — the release cut writes the page from
-   the spec diff — so a plan whose work users see needs no feature.
+   the archive — so a plan whose work users see needs no feature.
 
    Body sections, in order (omit a section only when it's genuinely empty):
    - `## Context` — why now, linking the feature/bug/backlog doc that
      motivates it. A plan that grew from a GitHub issue links the issue URL
      here and lists it under `sources:` in the frontmatter
-   - `## Approach` — the shape of the solution and the alternative you
-     rejected, in a few sentences
+   - `## Approach` — the shape of the solution, in a few sentences. The
+     rejected options go in the ADR, and only when they are worth remembering
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
      `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. A task may
      describe an _action_; it may never paraphrase _approved content_. When a
@@ -91,9 +91,10 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      once ticked, it carries an indented `- **Evidence:**` child, a short
      free-form note of what was done. A plan never prescribes the evidence's
      form.
-   - `## Spec changes` — every `data/spec/` doc this work will create or
-     change, written in whichever of the three forms below fits the risk;
-     name not-yet-existing specs in back-ticks (never dangling links)
+   - `## Acceptance` — one scenario for each behaviour that the plan adds,
+     changes, or removes, in the form that `## Acceptance` below gives
+   - `## ADRs` — one link for each ADR that the plan proposes. A plan that
+     proposes no ADR omits the section
    - `## Depends on` — inline links to plans that must ship first (omit if
      none)
    - `## Verification` — the commands and tests the `iwe-verifier` agent runs
@@ -111,18 +112,22 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      the anchor plus ` › "verbatim quote"` for a spot inside one. No date
      stamp. A plan never records a line number anywhere in its body.
 
+   File each ADR that the plan proposes at `data/adr/<NNNN>-<slug>.md` with
+   `stage: proposed`. `<NNNN>` is the next free number in `data/adr/` and
+   `data/archive/*/adr/`. Add a link to the ADR in `data/adr.md`. `## ADRs`
+   below gives when to propose an ADR.
+
    In revise mode, apply the requested decision and reconcile every affected
-   section in either direction: Context, Approach, Implementation Steps, Spec
-   changes, Depends on, Verification, Out of scope, and Key references. For
-   example, a task edit may require an Approach or Verification edit, and an
-   Approach edit may require new tasks or spec impact. When the decision
-   changes behavior, `## Spec changes` moves with it in the same pass — the
-   form may need to escalate, and the tasks, verification, and out-of-scope
-   boundaries that depend on it are reconciled together. A delta edited alone,
-   or left describing the old intent while the tasks around it change, is the
-   split this pass exists to prevent. What you are updating is intent: the
-   durable spec keeps describing current released behavior until Ship succeeds.
-   A change of intent moves `release` with it. Re-locate every affected code
+   section in either direction: Context, Approach, Implementation Steps,
+   Acceptance, ADRs, Depends on, Verification, Out of scope, and Key
+   references. For example, a task edit may require an Approach or Verification
+   edit, and an Approach edit may require new tasks or new scenarios. When the
+   decision changes behavior, `## Acceptance` moves with it in the same pass,
+   and the tasks, verification, and out-of-scope boundaries that depend on it
+   are reconciled together. A scenario edited alone, or left describing the old
+   intent while the tasks around it change, is the split this pass exists to
+   prevent. When the decision changes a proposed ADR, edit that ADR in the same
+   pass. A change of intent moves `release` with it. Re-locate every affected code
    anchor in the current checkout. Identify checked tasks or existing implementation evidence made stale
    by the revision and report them; do not rewrite that implementation from
    this skill.
@@ -144,7 +149,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    that adds a bug to `release` sets it to `stage: planned`; one that removes a
    bug returns it to `stage: pending`.
 6. **Check coherence.** Re-read the complete plan as a future implementer.
-   Confirm its context, approach, tasks, spec impact, dependencies,
+   Confirm its context, approach, tasks, acceptance scenarios, ADRs, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with
    one another and with every recorded decision or assumption. For every
    checkbox, ask which single observation closes it, and split any checkbox
@@ -220,59 +225,59 @@ created plan only; revising a plan never touches the issue it came from.
 | `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                    |
 | `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it and whether the issue closed.                                                                                |
 
-## The three forms of `## Spec changes`
+## Acceptance
 
-This section is the plan's spec impact in one place: what the affected contract
-is _intended_ to say once this work ships. It is not a second durable truth —
-the spec documents keep describing current released behavior until Ship merges
-the change. Choose the lightest form that leaves a reviewer no room to guess.
+`## Acceptance` holds one `### Scenario:` block for each behaviour that the plan
+adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
+line, and ends with one of two lines:
 
-1. **No behavioral change** — `None — no behavioral change`. Refactors, tooling,
-   and docs-only work stop here. Never invent requirements to fill the section.
-2. **Simple, low-risk behavior** — link the affected spec and state a concise
-   **normative outcome**: the intended post-change behavior in a sentence or
-   two, written with SHALL. That phrase is what the other skills check against
-   this form, so keep it recognizable as one. Use it when
-   one unambiguous behavior changes and a scenario block would add ceremony
-   without resolving anything.
-3. **Contract-heavy or risky behavior** — link the affected spec and embed a
-   fenced delta. Required when the change touches compatibility, acceptance
-   criteria, security/privacy/data-loss behavior, or a requirement's scenario
-   set: exactly the cases where a prose summary reads as agreement while hiding
-   a disagreement.
+- `- **Test:**` names the test that proves the scenario, as `path::test_name`.
+- `- **Checked at ship:**` names the rulebook or the file that the verifier
+  reads, for behaviour that no test can reach.
 
-The delta goes in a Markdown-tagged fence, so canonical Requirement/Scenario
-headings survive inside the plan without turning it into a spec. `iwe normalize`
-rewrites the opening fence as ` ``` markdown ` — that spacing is normalized
-output, not damage, so leave it alone:
+```markdown
+### Scenario: A done bug without a fix fails the check
 
-- `## ADDED Requirements` and `## MODIFIED Requirements` carry the **complete
-  post-change** requirement — its SHALL statement and _every_ surviving
-  scenario, not only the edited ones. A scenario left out of a MODIFIED block
-  reads as one this plan deliberately dropped, and Verify treats it that way.
-  The one exception: a scenario that added a case before the change and adds
-  none after it, because the new SHALL statement settles everything it says,
-  is left out and named below the fence as a deliberate removal. A scenario
-  that already restated its requirement before the change stays.
-- `## REMOVED Requirements` names the requirement and why the behavior is
-  intentionally retired.
-- There is no `RENAMED` operation. A rename is an explicit removal plus an
-  addition.
+- **WHEN** a bug at `stage: done` has no `## Fix` section
+- **THEN** the `ship-records` check reports the bug and exits 1
+- **Test:** `scripts/tests/test_check_ship_records.py::test_done_bug_without_fix_fails`
+```
 
-A spec that does not exist yet stays a back-ticked key here and in the delta;
-Ship creates the document and replaces the key with a real link.
+A plan with no change in behaviour writes `None — no behavioral change` under
+`## Acceptance`. Never invent a scenario to fill the section.
 
-Below each touched spec's entry, name the `## Rationale` entries that spec
-gains or rewrites: the decision in force and the alternatives it rejected, as
-`## Approach` records them. Ship writes them; Verify does not check them, since
-they state no behaviour. A spec gains none when the plan decides nothing about
-its behaviour.
+## ADRs
 
-Each rule of a spec lives in one requirement. For the normative-outcome and
-fenced-delta forms, read every durable spec the section touches in full before
-validation. A normative outcome or an `ADDED` or `MODIFIED` requirement that
-would restate a rule another requirement of that spec already holds names that
-requirement instead.
+`## ADRs` links each ADR that the plan proposes. A design decision and the
+options it rejected go in the ADR, and the rejected options only when they are
+worth remembering. `## Approach` gives the shape of the solution.
+
+Propose an ADR only when all three of these are true:
+
+1. **Hard to reverse.** The cost of a change of mind later is meaningful.
+2. **Surprising without context.** A future reader will look at the code and
+   ask why it is done this way.
+3. **The result of a real trade-off.** There were genuine alternatives, and
+   one was picked for specific reasons.
+
+A decision that is easy to reverse, that is not surprising, or that had no
+real alternative gets no ADR.
+
+What qualifies:
+
+- **Architectural shape.**
+- **Integration patterns between parts of the system.**
+- **Technology choices that carry lock-in.** Not every library: only the ones
+  that would be expensive to swap out.
+- **Boundary and scope decisions.** The explicit no-s are as valuable as the
+  yes-s.
+- **Deliberate deviations from the obvious path.** Anything where a
+  reasonable reader would assume the opposite.
+- **Constraints not visible in the code.**
+- **Rejected alternatives when the rejection is non-obvious.**
+
+Plan never edits an accepted ADR. A plan that changes a decision proposes a new
+ADR that names the earlier ADR in its `supersedes` list.
 
 ## Rules
 
@@ -294,15 +299,14 @@ requirement instead.
   `/agentdev:iwe-adversarial-review <plan> code`, when its claims are worth
   attacking — a trust boundary, an integrity check. Planning never invokes that
   skill and never dispatches `iwe-adversarial-reviewer`, in either mode.
-- Before validation, check each requirement in `## Spec changes` that the plan
-  adds or modifies against the plan's `## Approach` and against the code it
-  describes, and resolve every disagreement in the plan before it is written.
-- A requirement in `## Spec changes` claims only what its mechanism delivers
-  and names each limit of that mechanism you know.
-- `## Spec changes` is mandatory thinking, even when its honest content is
-  "none — no behavioral change". Picking the form is part of that thinking:
-  a contract-heavy change written as a one-line summary is a Verify CRITICAL,
-  not a matter of taste.
+- Before validation, check each scenario in `## Acceptance` against the plan's
+  `## Approach` and against the code it describes, and resolve every
+  disagreement in the plan before it is written.
+- A scenario claims only what its mechanism delivers and names each limit of
+  that mechanism you know.
+- `## Acceptance` is mandatory thinking, even when its honest content is
+  "None — no behavioral change". A behaviour that changes with no scenario is a
+  Verify CRITICAL, not a matter of taste.
 - Scale ceremony with risk: a small low-risk plan can be short, but never
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as

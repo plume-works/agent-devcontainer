@@ -242,25 +242,40 @@ both decisions before this plan.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-plan-review/references/plan-rules.md`
 
-- [ ] The section list in step 4 of the `iwe-planner` rulebook has
+- [x] The section list in step 4 of the `iwe-planner` rulebook has
   `## Acceptance` and `## ADRs`, and no `## Spec changes`.
 
-- [ ] The rulebook defines `## Acceptance`: one `### Scenario:` block for each
+  - **Evidence:** Step 4 lists `## Acceptance` and `## ADRs` where
+    `## Spec changes` was; `grep -n "Spec changes"` on the rulebook finds
+    nothing.
+
+- [x] The rulebook defines `## Acceptance`: one `### Scenario:` block for each
   behaviour that the plan adds, changes, or removes, with a `- **WHEN**` line
   and a `- **THEN**` line.
 
-- [ ] The rulebook says that each scenario ends with one of two lines.
+  - **Evidence:** Added `## Acceptance`: one `### Scenario:` block per
+    behaviour, with `- **WHEN**` and `- **THEN**` lines, and an example.
+
+- [x] The rulebook says that each scenario ends with one of two lines.
   `- **Test:**` names the test as `path::test_name`. `- **Checked at ship:**`
   names the rulebook or the file that the verifier reads, for behaviour that no
   test can reach.
 
-- [ ] The rulebook says that a plan with no change in behaviour writes
+  - **Evidence:** `## Acceptance` gives the `- **Test:**` line as
+    `path::test_name` and the `- **Checked at ship:**` line.
+
+- [x] The rulebook says that a plan with no change in behaviour writes
   `None — no behavioral change` under `## Acceptance`.
 
-- [ ] The rulebook defines `## ADRs`: one link for each ADR that the plan
+  - **Evidence:** `## Acceptance` says to write `None — no behavioral change`.
+
+- [x] The rulebook defines `## ADRs`: one link for each ADR that the plan
   proposes. A plan that proposes none omits the section.
 
-- [ ] The rulebook holds this text on when a plan proposes an ADR:
+  - **Evidence:** Step 4 and the `## ADRs` section give one link per proposed
+    ADR, and omit the section when there is none.
+
+- [x] The rulebook holds this text on when a plan proposes an ADR:
 
   ``` markdown
   Propose an ADR only when all three of these are true:
@@ -288,29 +303,53 @@ both decisions before this plan.
   - **Rejected alternatives when the rejection is non-obvious.**
   ```
 
-- [ ] Step 4 tells Plan to file each ADR at `data/adr/<NNNN>-<slug>.md` with
+  - **Evidence:** The fenced text is in `## ADRs` byte for byte; a Python `in`
+    check against the plan fence prints `True`.
+
+- [x] Step 4 tells Plan to file each ADR at `data/adr/<NNNN>-<slug>.md` with
   `stage: proposed`, the next free number in `data/adr/` and
   `data/archive/*/adr/`, and a link in `data/adr.md`.
 
-- [ ] The rulebook says that the rejected options go in the ADR, only when they
+  - **Evidence:** Step 4 files each ADR at `data/adr/<NNNN>-<slug>.md` with
+    `stage: proposed`, the next free number in both folders, and a link in
+    `data/adr.md`.
+
+- [x] The rulebook says that the rejected options go in the ADR, only when they
   are worth remembering, and that `## Approach` gives the shape of the solution.
 
-- [ ] The rulebook says that Plan never edits an accepted ADR, and that a plan
+  - **Evidence:** Step 4 `## Approach` and `## ADRs` put the rejected options in
+    the ADR only when worth remembering.
+
+- [x] The rulebook says that Plan never edits an accepted ADR, and that a plan
   which changes a decision proposes a new ADR that names the earlier ADR in
   `supersedes`.
 
-- [ ] The rulebook has no section `## The three forms of ## Spec changes` and no
+  - **Evidence:** The `## ADRs` section ends with the rule and the `supersedes`
+    list.
+
+- [x] The rulebook has no section `## The three forms of ## Spec changes` and no
   rule that names `## Spec changes`, a spec, or `## Rationale`.
 
-- [ ] The text about `release` in step 4 says that the release cut writes the
+  - **Evidence:** Removed the section and the three `## Spec changes` rules;
+    `grep -n -i "spec\b\|specs\|rationale"` on the rulebook finds nothing.
+
+- [x] The text about `release` in step 4 says that the release cut writes the
   page from the archive.
 
-- [ ] `plan-rules.md` has a section `## Acceptance` with one rule: each scenario
+  - **Evidence:** Step 4 says "the release cut writes the page from the
+    archive".
+
+- [x] `plan-rules.md` has a section `## Acceptance` with one rule: each scenario
   has a `**WHEN**` line, a `**THEN**` line, and a `**Test:**` line or a
   `**Checked at ship:**` line.
 
-- [ ] `plan-rules.md` has a rule that each ADR in `## ADRs` exists at
+  - **Evidence:** Added `## Acceptance` with the one rule "Each scenario is
+    complete".
+
+- [x] `plan-rules.md` has a rule that each ADR in `## ADRs` exists at
   `stage: proposed`.
+
+  - **Evidence:** Added `## ADRs` with the rule "Each linked ADR is proposed".
 
 ### Task 4: Verify against `## Acceptance`
 
