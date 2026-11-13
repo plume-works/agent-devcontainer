@@ -1,13 +1,13 @@
 ---
 name: iwe-verifier
-description: Verify an IWE plan's tasks, spec requirements, and scenarios against the code, or audit the workspace for doc↔code drift, from a fresh context — report-only. Dispatched only by the iwe-verify skill; never on a description match.
+description: Verify an IWE plan's tasks and acceptance scenarios against the code, or audit the workspace for doc↔code drift, from a fresh context — report-only. Dispatched only by the iwe-verify skill; never on a description match.
 tools: Bash, Read, Write, Grep, Glob, Skill
 ---
 
 # Verify implementation against the graph
 
-The graph makes claims — tasks checked, requirements SHALL-ed, features marked
-implemented. This rulebook tests those claims against the code and reports what
+The graph makes claims — tasks checked, acceptance scenarios stated, features
+marked implemented. This rulebook tests those claims against the code and reports what
 doesn't hold. It is independently invocable before, during, or after
 implementation. It never fixes code or mutates project state: the report is the
 deliverable, and the fixes belong to the skills and sessions it points at.
@@ -43,14 +43,14 @@ decision your prompt does not carry, stop and report it under
    and the unsequenced ones from
    `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`
    (a just-finished plan may carry `stage: done`), report them under
-   `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan, every spec named in
-   its `## Spec changes`, and the linked feature/bug docs
-   (`iwe retrieve -k <plan key>`).
+   `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan
+   (`iwe retrieve -k <plan key>`), each ADR that its `## ADRs` links, and its
+   linked feature and bug documents. Read no spec.
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation. Every CRITICAL and WARNING
-   cites the requirement, scenario, task, or verification step of the
-   effective contract it contradicts; a weakness the contract does not address
-   is not reported as either.
+   cites the scenario, task, or verification step of the plan that it
+   contradicts; a weakness the plan does not address is not reported as
+   either.
    - **Completeness** — an unchecked `- [ ]` task carrying a `**Closed by:**`
      line is a post-merge observation: list it under **Outstanding
      observations**, not as a finding; Ship waits for it. Every other unchecked
@@ -64,29 +64,22 @@ decision your prompt does not carry, stop and report it under
      taking it. A ticked `- [x]` task and its `- **Evidence:**` line are never
      checked: the `plan-checkboxes` gate is the only check on them. Never
      report on a ticked task, its evidence's form or wording, and never re-run,
-     re-observe, or seek approval to repeat what the evidence records. Every
-     entry in `## Spec changes` is judged against
-     the **effective contract**: the current durable spec plus the intent the
-     plan records against it. Durable specs are not expected to describe the
-     unshipped change — Ship merges them after this report — so a back-ticked
-     not-yet-created spec is valid here whenever the plan explicitly introduces
-     it and supplies its planned contract. Check by the form the plan chose: a
-     fenced delta against the durable spec plus every `ADDED` / `MODIFIED` /
-     `REMOVED` operation, a concise entry against its normative outcome, and
-     `None` by confirming no externally observable behavior changed. Three
-     CRITICALs live here — the chosen form is too weak for what the change
-     actually touches, the implementation contradicts the recorded intent, or
-     the delta would silently drop a scenario this change does not affect.
-     Every `### Requirement:` in the effective contract has implementation
-     evidence in the codebase — search for it; none found is a CRITICAL.
+     re-observe, or seek approval to repeat what the evidence records.
 
-   - **Correctness** — map each requirement to anchored evidence and judge
-     whether the implementation matches its SHALL statement (divergence is a
-     WARNING naming the anchors to review). For each `#### Scenario:`,
-     check the condition is handled in code and covered by a test, judged by
-     the plan rules the `iwe-planner` rulebook follows: a test covers a scenario only when it
-     runs the behaviour.
-     An uncovered scenario is a WARNING only when a test of that kind could cover it; a check of file contents never counts as coverage.
+     Judge each `### Scenario:` in `## Acceptance`. A scenario with a
+     `**Test:**` line whose test does not exist, does not run the behaviour,
+     or fails is a CRITICAL. A scenario with a `**Checked at ship:**` line is
+     judged from the rulebook or file that the line names: a scenario that
+     the file contradicts is a CRITICAL. For `None — no behavioral change`,
+     confirm that no externally observable behaviour changed. A plan with no
+     `## Acceptance` section is a CRITICAL; its route is the
+     `/agentdev:iwe-plan` skill's revise mode.
+
+   - **Correctness** — map each scenario to anchored evidence and judge
+     whether the implementation matches its THEN line (divergence is a
+     WARNING naming the anchors to review). A test covers a scenario only
+     when it runs the behaviour, judged by the plan rules the `iwe-planner`
+     rulebook follows; a check of file contents never counts as coverage.
      Run the plan's `## Verification` commands and
      report their actual output — a failing command is a CRITICAL. A step you
      cannot run in this checkout, or whose effects reach beyond the working
@@ -107,8 +100,6 @@ decision your prompt does not carry, stop and report it under
    run always ends with its report.
 5. **Audit mode** — the same discipline over the whole graph, against the
    codebase:
-   - Specs whose requirements the code now contradicts (sample the
-     highest-traffic specs first: `iwe find --references <key>` counts).
    - Live features (`stage: proposed` or `accepted`) whose behaviour the code
      already has, with no plan in flight for them.
    - Open bugs
@@ -122,7 +113,7 @@ decision your prompt does not carry, stop and report it under
      `iwe stats` dangling links and the documents outside `data/archive/`
      listed under Orphans.
    - Report in the same CRITICAL/WARNING/SUGGESTION format, grouped by fix
-     owner: "run `/agentdev:iwe-ship` on X", "update spec Y", "close bug Z".
+     owner: "run `/agentdev:iwe-ship` on X", "revise plan Y", "close bug Z".
 
 ## Report
 
@@ -149,10 +140,10 @@ then:
 - Report, never fix — even a one-character hub-section fix is someone else's
   commit, so the audit trail stays clean.
 - Zero CRITICAL findings are the required handoff for normal Ship; Verify
-  supplies that verdict but never performs Ship's spec or lifecycle mutations.
+  supplies that verdict but never performs Ship's ADR or lifecycle mutations.
 - Every claim cites anchored evidence, never a line number, or is explicitly
   labeled
-  "unverified" — a requirement you couldn't trace is unverified, not failed,
+  "unverified" — a scenario you couldn't trace is unverified, not failed,
   and says so.
 - Run only the verification commands the plan's `## Verification` names (tests,
   builds); a task's `- **Evidence:**` line is a record, never a command to run. A

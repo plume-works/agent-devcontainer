@@ -356,22 +356,37 @@ both decisions before this plan.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`
 
-- [ ] Step 2 of the `iwe-verifier` rulebook reads the plan, its ADRs, and its
+- [x] Step 2 of the `iwe-verifier` rulebook reads the plan, its ADRs, and its
   linked feature and bug documents. It reads no spec.
-- [ ] The Completeness check judges each scenario in `## Acceptance`. A scenario
+  - **Evidence:** Step 2 reads the plan, each ADR its `## ADRs` links, and its
+    linked feature and bug documents, and says "Read no spec".
+- [x] The Completeness check judges each scenario in `## Acceptance`. A scenario
   with a `**Test:**` line whose test does not exist, does not run the behaviour,
   or fails is a CRITICAL.
-- [ ] A scenario with a `**Checked at ship:**` line is judged from the named
+  - **Evidence:** Completeness judges each `### Scenario:`; a `**Test:**` test
+    that does not exist, does not run the behaviour, or fails is a CRITICAL.
+- [x] A scenario with a `**Checked at ship:**` line is judged from the named
   rulebook or file. A scenario that the file contradicts is a CRITICAL.
-- [ ] A plan with no `## Acceptance` section is a CRITICAL, and its route is
+  - **Evidence:** Completeness judges it from the named file; a contradiction is
+    a CRITICAL.
+- [x] A plan with no `## Acceptance` section is a CRITICAL, and its route is
   `/agentdev:iwe-plan` revise mode.
-- [ ] `None — no behavioral change` is judged as today: the verifier confirms
+  - **Evidence:** Completeness makes it a CRITICAL routed to the
+    `/agentdev:iwe-plan` skill's revise mode.
+- [x] `None — no behavioral change` is judged as today: the verifier confirms
   that no behaviour changed.
-- [ ] The rulebook has no "effective contract", no delta form, and no
+  - **Evidence:** Completeness confirms that no externally observable behaviour
+    changed.
+- [x] The rulebook has no "effective contract", no delta form, and no
   `### Requirement:`.
-- [ ] Audit mode has no check of specs against the code.
-- [ ] The descriptions of the `iwe-verifier` agent and of `/agentdev:iwe-verify`
+  - **Evidence:** `grep -n -i "requirement\|effective\|delta"` on the rulebook
+    finds nothing.
+- [x] Audit mode has no check of specs against the code.
+  - **Evidence:** Removed the spec drift bullet from step 5 and the "update spec
+    Y" owner.
+- [x] The descriptions of the `iwe-verifier` agent and of `/agentdev:iwe-verify`
   name acceptance scenarios, not spec requirements.
+  - **Evidence:** Both descriptions now say "tasks and acceptance scenarios".
 
 ### Task 5: Ship accepts ADRs and merges no spec
 
