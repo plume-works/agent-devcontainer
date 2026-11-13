@@ -155,26 +155,28 @@ needed. In particular:
    missing operations:
    - Find the base: the commit that added the newest earlier release page,
      `git log --diff-filter=A --format=%H -1 -- docs/knowledge/data/releases/<previous>.md`.
-   - Diff the requirements and scenarios of every spec under `data/spec/`
-     between the base and the working tree, ignoring `## Rationale`. For each
-     requirement or scenario added, changed, or removed, state in plain
-     language what changed in it, not only that it changed. A requirement that
-     left a spec counts as removed behaviour only when an archived plan of the
-     release says it was retired; one that moved to another spec is not a
-     change.
-   - Read the release's archived plans — under `data/archive/next-release/plans/`
-     before the move, `data/archive/<X.Y.Z>/plans/` after it — only to settle
-     what the diff leaves unclear. A change still unclear stays off the page and
-     goes in your report.
+   - Read each plan of the release — in `data/archive/next-release/plans/`
+     before the move, `data/archive/<X.Y.Z>/plans/` after it. Write the changes
+     from the `### Scenario:` blocks of its `## Acceptance`, in plain language:
+     what changed, not only that it changed. For an archived plan that has no
+     `## Acceptance`, read its `## Spec changes` instead. A plan whose
+     `## Acceptance` is `None — no behavioral change` adds nothing. A change
+     still unclear stays off the page and goes in your report.
+   - Find each ADR that was accepted or superseded after the base: an ADR under
+     `data/adr/` or `data/archive/next-release/adr/` whose `stage` is
+     `accepted` or `superseded` now and was not that stage at the base commit
+     (`git show <base>:<path>`, or no file at the base).
    - Create `data/releases/<X.Y.Z>.md` with `type: release`,
      `version: <X.Y.Z>`, `stage: released`, and `date: <today>`. The body groups
      the changes by theme under `##` headings, then `## Removed` for behaviour
      that went away, `## Upgrade notes` when a change needs action from a
-     consumer, and `## Fixed` with the H1 title of each bug in the release's
+     consumer, `## Decisions` with the H1 title of each ADR from the step
+     above, and `## Fixed` with the H1 title of each bug in the release's
      archive folder. Omit an empty section. The page holds no Markdown link. A
      page that already exists stays as it is.
    - Move every document under `data/archive/next-release/` to
-     `data/archive/<X.Y.Z>/` with `iwe rename`, keeping its subfolder.
+     `data/archive/<X.Y.Z>/` with `iwe rename`, keeping its subfolder:
+     `plans/`, `features/`, `bugs/`, `backlog/`, and `adr/`.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
 

@@ -500,18 +500,29 @@ both decisions before this plan.
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
 `docs/knowledge/SCHEMA.md`
 
-- [ ] The release step of the `iwe-shipper` rulebook reads no spec and makes no
+- [x] The release step of the `iwe-shipper` rulebook reads no spec and makes no
   spec diff.
-- [ ] The step writes the themed sections from the `## Acceptance` scenarios of
+  - **Evidence:** Removed the spec diff bullet from step 8; the step now reads
+    the archived plans and the ADRs.
+- [x] The step writes the themed sections from the `## Acceptance` scenarios of
   each plan in `data/archive/next-release/plans/`.
-- [ ] For an archived plan that has no `## Acceptance`, the step reads its
+  - **Evidence:** Step 8 writes the changes from the `### Scenario:` blocks of
+    each archived plan.
+- [x] For an archived plan that has no `## Acceptance`, the step reads its
   `## Spec changes`.
-- [ ] The step writes `## Decisions` with the title of each ADR that was
+  - **Evidence:** Step 8 reads its `## Spec changes` instead.
+- [x] The step writes `## Decisions` with the title of each ADR that was
   accepted or superseded after the base commit.
-- [ ] The step writes `## Fixed` from the archived bugs, as today.
-- [ ] The step moves `data/archive/next-release/adr/` with the other folders.
-- [ ] The section for releases in `docs/knowledge/SCHEMA.md` describes that
+  - **Evidence:** Step 8 finds each ADR whose stage became `accepted` or
+    `superseded` after the base and lists its H1 title under `## Decisions`.
+- [x] The step writes `## Fixed` from the archived bugs, as today.
+  - **Evidence:** The `## Fixed` text of step 8 is unchanged.
+- [x] The step moves `data/archive/next-release/adr/` with the other folders.
+  - **Evidence:** The move bullet names `adr/` with the other subfolders.
+- [x] The section for releases in `docs/knowledge/SCHEMA.md` describes that
   body.
+  - **Evidence:** The `## Releases` body text names the acceptance scenarios,
+    the `## Spec changes` fallback, `## Decisions`, and `## Fixed`.
 
 ### Task 8: Update the other rulebooks
 
