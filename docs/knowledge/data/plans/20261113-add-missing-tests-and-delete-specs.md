@@ -26,8 +26,10 @@ it, the repository has no spec.
 ## Approach
 
 Each `needs-test` requirement gets a test that runs the behaviour, as the test
-rules in `AGENTS.md#tests` require. Logic that is inline in a workflow file
-moves to a script, so that a test can run it. The move changes no behaviour.
+rules in `AGENTS.md#tests` require. Five of the 18 are decisions in workflow
+files, and [Test the decisions that the workflows
+make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
+the other 13.
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to a guide, because the ruleset is a repository setting and
@@ -43,8 +45,7 @@ reads it.
 
 ### Task 1: Add the missing tests
 
-**Files:** Create and Modify: the test files that each `fate_note` names, and a
-script for each piece of workflow logic that moves
+**Files:** Create and Modify: the test files that each `fate_note` names
 
 Each test shows what the `fate_note` of its row says.
 
@@ -55,13 +56,6 @@ Each test shows what the `fate_note` of its row says.
   wrapper".
 - [ ] A test runs `agentdev-runtime-images` "the bootstrap trusts an extra CA
   bundle".
-- [ ] A test runs `ai-review-gate` "PRs are blocked until an AI review exists".
-- [ ] A test runs `ai-review-gate` "the responder only acts for authorized
-  same-repository requests".
-- [ ] A test runs `ai-review-gate` "a review runs on first push and on explicit
-  request".
-- [ ] A test runs `ai-review-gate` "trusted-bot pull requests are approved
-  without an AI review".
 - [ ] A test runs `catalog-lifecycle` "the catalog is installed at image build
   time and again by postCreateCommand".
 - [ ] A test runs `catalog-lifecycle` "registering a catalog root replaces
@@ -74,14 +68,12 @@ Each test shows what the `fate_note` of its row says.
   credential helper".
 - [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
   checkout volume".
-- [ ] A test runs `image-pinning` "published tags name only tested images".
 - [ ] A test runs `pre-commit-gate` "every commit path runs the hooks, merges
   included".
 - [ ] A test runs `standalone-opencode-runtime` "startup prepares or reuses one
   workspace" on a reused checkout.
 - [ ] A test runs `update-branch` "update-branch brings in the branch's upstream
   before the base" for a branch that has no upstream.
-- [ ] Each workflow that lost inline logic calls the script that holds it.
 
 ### Task 2: Move the last spec text to its home
 
@@ -158,6 +150,9 @@ None — no behavioral change
 ADRs](20261113-move-decisions-into-adrs.md)
 
 [Make ASD-STE100 the rule for all prose](20261113-ste100-prose-rule.md)
+
+[Test the decisions that the workflows
+make](20261113-test-the-workflow-decisions.md)
 
 ## Verification
 
