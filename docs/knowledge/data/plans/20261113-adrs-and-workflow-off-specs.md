@@ -700,8 +700,13 @@ Modify: the other files under
     never merged into a spec.
 - [x] The rejected option about `data/spec/` in that task is removed.
   - **Evidence:** Removed the "dropping or folding `data/spec/`" bullet.
-- [ ] Each active plan other than this plan has `## Acceptance` and `## ADRs` in
+- [x] Each active plan other than this plan has `## Acceptance` and `## ADRs` in
   the new shape, and no `## Spec changes`.
+  - **Evidence:** Four active plans already had `## Acceptance` and no ADR to
+    link. By the decision of the user, `20261113-ste100-audit-in-pr-open` now
+    has four `## Acceptance` scenarios in place of its `## Spec changes`, and a
+    new unticked Task 6 that makes its spec edits by hand.
+    `20261113-ste100-prose-rule` is archived, so it was not changed.
 
 ### Task 13: Close this plan
 

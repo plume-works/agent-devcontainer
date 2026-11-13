@@ -26,7 +26,7 @@ The repository owner decided these points:
 - `/agentdev:pr-open` audits the added prose in diff scope before it writes the
   pull request body. It fixes each finding, and then it pushes the branch.
 - `pr-review` does not audit prose against ASD-STE100.
-- The new `pr-open` behavior has no spec text. Ship removes only the `pr-review`
+- The new `pr-open` behavior has no spec text. Task 6 removes the `pr-review`
   requirement.
 - Plan review runs the `STE100 Auditor` again two times at most for one draft.
   The third report is the last. Plan applies its findings, and the three other
@@ -172,91 +172,112 @@ after this plan merges, and the AI review of that pull request.
 - [ ] Plan applies the `STE100 Auditor` findings of that run without a fourth
   `STE100 Auditor` run.
 
-## Spec changes
+### Task 6: Edit the specs by hand
 
-[PR review](../spec/pr-review.md):
+**Files:** Modify: `docs/knowledge/data/spec/pr-review.md`,
+`docs/knowledge/data/spec/iwe-workflow-skills.md`
 
-``` markdown
-## REMOVED Requirements
+Ship merges no spec, so this task makes the spec edits that this plan needs.
 
-### Requirement: added prose gets an ASD-STE100 pass before the durable-knowledge pass
+- [ ] `spec/pr-review` has no requirement "added prose gets an ASD-STE100 pass
+  before the durable-knowledge pass".
 
-`pr-review` no longer audits prose against ASD-STE100. `pr-open` audits the
-added prose before it pushes. By the decision of the repository owner, that
-behavior has no spec text.
-```
+- [ ] The `description` of `spec/pr-review` does not name the ASD-STE100 pass.
 
-Ship removes the words on the ASD-STE100 pass from the spec `description`.
+- [ ] `spec/pr-review` has no `## Rationale` entry "The ASD-STE100 pass checks
+  from the model's knowledge of the standard".
 
-`## Rationale` changes:
+- [ ] The requirement "Plan review runs its reviewers from fresh contexts and
+  changes nothing" in `spec/iwe-workflow-skills` holds this text and these
+  scenarios:
 
-- Ship removes the entry
-  `The ASD-STE100 pass checks from the model's knowledge of the standard`.
-- A new entry records that `pr-review` does not audit prose against ASD-STE100.
-  The audit gives different findings for the same text, so a pass that blocks
-  the merge can request changes again after each fix. `pr-open` audits the prose
-  one time before the push. The entry gives the three rejected options from
-  `## Approach`.
+  ``` markdown
+  ## MODIFIED Requirements
 
-[Workflow skills](../spec/iwe-workflow-skills.md):
+  ### Requirement: Plan review runs its reviewers from fresh contexts and changes nothing
 
-``` markdown
-## MODIFIED Requirements
+  `/agentdev:iwe-plan-review <plan>` SHALL first dispatch the `STE100 Auditor`
+  alone, with a prompt that carries only the plan file path and the scope `plan`.
+  When that report holds a finding, the skill SHALL return it verbatim under the
+  agent's name and SHALL dispatch no other agent, unless the request names the
+  run as the last `STE100 Auditor` run.
 
-### Requirement: Plan review runs its reviewers from fresh contexts and changes nothing
+  When the report holds none, or the request names the run as the last `STE100
+  Auditor` run, the skill SHALL dispatch the `Durable Knowledge Auditor`,
+  `iwe-plan-reviewer`, and `iwe-ship-reviewer` in one message. The skill SHALL
+  NOT forward conversation turns. The prompt of the auditor SHALL carry only the
+  plan file path and the scope `plan`. The prompt of `iwe-plan-reviewer` SHALL
+  carry only the plan key and the absolute path of the skill's
+  `references/plan-rules.md`. The prompt of `iwe-ship-reviewer` SHALL carry only
+  the plan key and the mode `plan`.
 
-`/agentdev:iwe-plan-review <plan>` SHALL first dispatch the `STE100 Auditor`
-alone, with a prompt that carries only the plan file path and the scope `plan`.
-When that report holds a finding, the skill SHALL return it verbatim under the
-agent's name and SHALL dispatch no other agent, unless the request names the
-run as the last `STE100 Auditor` run.
+  The `iwe-planner` rulebook SHALL run the `STE100 Auditor` on one draft three
+  times at most. Its third request SHALL name the run as the last `STE100
+  Auditor` run, and Plan SHALL apply the findings of that run without a fourth
+  run.
 
-When the report holds none, or the request names the run as the last `STE100
-Auditor` run, the skill SHALL dispatch the `Durable Knowledge Auditor`,
-`iwe-plan-reviewer`, and `iwe-ship-reviewer` in one message. The skill SHALL
-NOT forward conversation turns. The prompt of the auditor SHALL carry only the
-plan file path and the scope `plan`. The prompt of `iwe-plan-reviewer` SHALL
-carry only the plan key and the absolute path of the skill's
-`references/plan-rules.md`. The prompt of `iwe-ship-reviewer` SHALL carry only
-the plan key and the mode `plan`.
+  The skill SHALL perform no review step itself. It SHALL return every report
+  verbatim under the name of each agent. It SHALL edit no file and SHALL commit
+  nothing. Its caller applies the verdicts. The skill SHALL be model-invocable, so
+  the `iwe-planner` rulebook can run it in every mode.
 
-The `iwe-planner` rulebook SHALL run the `STE100 Auditor` on one draft three
-times at most. Its third request SHALL name the run as the last `STE100
-Auditor` run, and Plan SHALL apply the findings of that run without a fourth
-run.
+  #### Scenario: Plan reaches its review step
 
-The skill SHALL perform no review step itself. It SHALL return every report
-verbatim under the name of each agent. It SHALL edit no file and SHALL commit
-nothing. Its caller applies the verdicts. The skill SHALL be model-invocable, so
-the `iwe-planner` rulebook can run it in every mode.
+  - **WHEN** `iwe-planner` reaches its review step on a created or revised plan,
+    and the `STE100 Auditor` reports no finding
+  - **THEN** the skill dispatches the three other agents in parallel with only
+    those prompts. The four reports return unchanged. The plan file stays
+    unchanged until Plan applies them.
 
-#### Scenario: Plan reaches its review step
+  #### Scenario: The draft breaks the prose rule
 
-- **WHEN** `iwe-planner` reaches its review step on a created or revised plan,
-  and the `STE100 Auditor` reports no finding
-- **THEN** the skill dispatches the three other agents in parallel with only
-  those prompts. The four reports return unchanged. The plan file stays
-  unchanged until Plan applies them.
+  - **WHEN** the `STE100 Auditor` reports a finding on the draft, and the request
+    does not name the run as the last `STE100 Auditor` run
+  - **THEN** only that report returns, no other agent is dispatched, and the plan
+    file is unchanged
 
-#### Scenario: The draft breaks the prose rule
+  #### Scenario: The last STE100 Auditor run reports a finding
 
-- **WHEN** the `STE100 Auditor` reports a finding on the draft, and the request
-  does not name the run as the last `STE100 Auditor` run
-- **THEN** only that report returns, no other agent is dispatched, and the plan
-  file is unchanged
+  - **WHEN** the `STE100 Auditor` reports a finding on the third run for one
+    draft, which the request names as the last `STE100 Auditor` run
+  - **THEN** the skill dispatches the three other agents, and the four reports
+    return unchanged. Plan applies the `STE100 Auditor` findings and does not run
+    the `STE100 Auditor` again.
+  ```
 
-#### Scenario: The last STE100 Auditor run reports a finding
+## Acceptance
+
+### Scenario: pr-open audits the added prose before it pushes
+
+- **WHEN** `/agentdev:pr-open` reaches step 6 on a branch whose diff adds prose
+- **THEN** it dispatches the `STE100 Auditor` with the scope `diff`, applies
+  each replacement, commits it, and only then writes the body and pushes
+- **Checked at ship:** `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
+
+### Scenario: pr-review does not audit prose against ASD-STE100
+
+- **WHEN** `/agentdev:pr-review` reviews a pull request that adds prose
+- **THEN** no pass checks the prose against ASD-STE100, and the
+  durable-knowledge pass runs in the same message as the compliance and
+  correctness passes
+- **Checked at ship:** `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
+
+### Scenario: The draft breaks the prose rule
+
+- **WHEN** the `STE100 Auditor` reports a finding on a plan draft, and the
+  request does not name the run as the last `STE100 Auditor` run
+- **THEN** `/agentdev:iwe-plan-review` returns only that report and dispatches
+  no other agent
+- **Checked at ship:**
+  `.agents/plugins/agentdev/skills/iwe-plan-review/SKILL.md`
+
+### Scenario: The last STE100 Auditor run reports a finding
 
 - **WHEN** the `STE100 Auditor` reports a finding on the third run for one
   draft, which the request names as the last `STE100 Auditor` run
-- **THEN** the skill dispatches the three other agents, and the four reports
-  return unchanged. Plan applies the `STE100 Auditor` findings and does not run
-  the `STE100 Auditor` again.
-```
-
-`## Rationale` gains an entry: the `STE100 Auditor` runs three times at most on
-one draft, because the bug makes the number of runs to `No findings.` unknown.
-The rejected option is to run it until `No findings.`.
+- **THEN** the skill dispatches the three other agents, and Plan applies the
+  `STE100 Auditor` findings without a fourth `STE100 Auditor` run
+- **Checked at ship:** `.agents/plugins/agentdev/agents/iwe-planner.agent.md`
 
 ## Verification
 
