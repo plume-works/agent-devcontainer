@@ -28,7 +28,7 @@ STRUCTURE.md       # this file: design rationale
 data/              # the graph
   index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
-  <hub>.md + <hub>/  # plans, features, bugs, spec, findings, guides, concept,
+  <hub>.md + <hub>/  # plans, features, bugs, adr, spec, findings, guides, concept,
                      # releases, backlog, someday (+ milestone.md)
   archive/<release>/<folder>/  # finished work, one folder per cut version
                      # plus next-release
@@ -43,8 +43,8 @@ graph is truth. A hub is one flat list sorted by member key, with no sections,
 so it changes only when a member is created, archived, or renamed — two pull
 requests conflict on a hub only when their members sort next to each other.
 
-**Work items vs. reference.** Plans, features, bugs, releases, and backlog tasks
-are *work items*: a lifecycle `stage`, dates, a commit gate
+**Work items vs. reference.** Plans, features, bugs, releases, backlog tasks,
+and ADRs are *work items*: a lifecycle `stage`, dates, a commit gate
 (`iwe schema validate`). Specs, findings, guides, concept, and someday docs are
 *durable reference*: they carry a `type` and the shared OKF families, but no
 `stage`, because nothing about them is a lifecycle. The split keeps the ceremony
@@ -56,51 +56,51 @@ everywhere — but only work items are asked for more than that.
 file that only its own pull request touches. The build order is a query over
 `rank`, not a file.
 
-**One home for each kind of knowledge.** Behaviour lives only in spec
-requirements, and the decision behind it, with the alternatives it rejected,
-only in that spec's `## Rationale` — the section the Consult step reads, and the
-one Ship maintains. A finding is a measurement and lives in `findings/`; a
-procedure lives in `guides/`, whose anchors are checked on every commit. A
-feature is a proposal, live only until its plan ships. A statement with two
-homes drifts in the one nobody maintains, so no type restates another's content.
+**One home for each kind of knowledge.** Behaviour lives in the code and its
+tests. A decision, with the alternatives it rejected, lives in an ADR — the
+document the Consult step reads. A finding is a measurement and lives in
+`findings/`; a procedure lives in `guides/`, whose anchors are checked on every
+commit. A feature is a proposal, live only until its plan ships. A statement
+with two homes drifts in the one nobody maintains, so no type restates another's
+content. `data/spec/` gets no new text.
 
-**Finished work is archived, not deleted.** Whoever closes a plan, bug, task, or
-feature moves it with `iwe rename` to `archive/next-release/<folder>/` and
-removes its hub link; the release cut moves `next-release` to the version's
+**Finished work is archived, not deleted.** Whoever closes a plan, bug, task,
+feature, or ADR moves it with `iwe rename` to `archive/next-release/<folder>/`
+and removes its hub link; the release cut moves `next-release` to the version's
 folder. Keeping the original subfolder keeps every archived document under its
 type's schema, and the folder is the only record of which release took it, so no
 field repeats it. Hubs list live work only.
 
-**Minimal frontmatter; relationships are links.** Five stage vocabularies, three
-date fields, and one `rank` — that's the entire frontmatter surface. Everything
-relational (plan → spec, bug → requirement, plan → feature, plan → plan
-dependency) is a markdown link in the body, which keeps relationships visible
-while reading and traversable via `iwe find --references`.
+**Minimal frontmatter; relationships are links.** Six stage vocabularies, three
+date fields, one `rank`, and the `supersedes` list of an ADR — that's the entire
+frontmatter surface. Everything relational (plan → ADR, plan → feature, plan →
+plan dependency) is a markdown link in the body, which keeps relationships
+visible while reading and traversable via `iwe find --references`.
 
 **The funnel.** Ideas harden stepwise: `someday/` (no commitment) → `backlog/`
-(prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → specs synced and
+(prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → ADRs accepted and
 the plan archived → a cut release. Each promotion is a new doc, a frontmatter
-change, or an archive move. The release cut writes the release page in plain
-text from the difference in the specs' requirements and scenarios since the
-previous cut: the specs are what changed, so the page needs no link to a
-document written before the work.
+change, or an archive move.
 
-**Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`)
-and says what they should end up saying; the ship skill updates those specs
-*before* the plan's stage flips. This is the single strongest defense against
-the failure mode of every long-lived doc set: specs that describe last quarter's
-behavior.
+**ADRs are short and never edited.** An ADR is a short title and 1 to 3
+sentences that give the context, the decision, and the reason. Plan files it at
+`stage: proposed`, Ship sets it to `accepted`, and a cancelled plan's ADR
+becomes `rejected`. A changed decision is a new ADR that supersedes the earlier
+one, so a reader sees each decision as it was made. Code comments cite an ADR as
+`ADR-NNNN`.
 
-**Spec impact scales with risk.** `## Spec changes` has three forms: an explicit
-`None — no behavioral change`, a linked spec plus a concise normative outcome,
-or a fenced `ADDED` / `MODIFIED` / `REMOVED Requirements` delta with complete
-post-change requirements. The delta is *intent*, not a second durable truth —
-the spec still describes released behavior until ship merges it, and verify
-therefore judges implementation against the durable spec plus the plan's intent.
-Nothing applies the delta mechanically: ship reads it, merges deliberately, and
-stops for plan revision when intent and verified behavior disagree. The point is
-a reviewable contract before implementation, bought without a second document
-lifecycle.
+**Acceptance lives in the plan.** A plan states each behaviour it adds, changes,
+or removes as an `## Acceptance` scenario that names the test that proves it,
+or, for behaviour no test can reach, the file that the verifier reads. Verify
+checks the scenarios against the code before Ship. Ship copies nothing: the
+scenarios stay in the archived plan.
+
+**The release cut reads the archive.** The cut writes the release page in plain
+text from the `## Acceptance` scenarios of the plans in
+`archive/next-release/plans/`, the titles of the ADRs accepted or superseded
+since the previous cut, and the titles of the archived bugs. The archived plans
+are what changed, so the page needs no link to a document written before the
+work.
 
 **Milestones are plans of plans.** An aggregator plan inclusion-links its child
 plans as one flat list; their `rank` sets the build order, and dependencies stay
@@ -123,9 +123,6 @@ data, not in forked skill prompts.
 
 Adopted, in IWE-native form:
 
-- **Spec sync at ship** — OpenSpec's archive step folds a change's spec deltas
-  into the canonical specs; here the ship skill does the same walk over
-  `## Spec changes`.
 - **Requirement/Scenario format** — `### Requirement:` + SHALL +
   `#### Scenario:` WHEN/THEN, with OpenSpec's "progressive rigor" stance: scale
   ceremony with risk, as a convention rather than a validation gate.
@@ -133,12 +130,6 @@ Adopted, in IWE-native form:
   relocated into the product doc.
 - **Dependencies** — OpenSpec's `dependsOn` metadata becomes a `## Depends on`
   section of inline links: queryable, no new machinery.
-- **Delta headers** (`## ADDED/MODIFIED/REMOVED Requirements`) — adopted as a
-  *representation* inside the plan's `## Spec changes`, for changes whose risk
-  makes a prose summary ambiguous. What is adopted is the notation and the
-  discipline of writing complete post-change requirements before implementing;
-  what is not adopted is the parser behind it. See "deliberately not adopted"
-  below.
 - **The explore / implement / verify skills** — adapted from OpenSpec's explore
   (thinking-partner stance, never writes code), apply/continue (task-by-task
   execution with artifact discipline), and verify-change (completeness /
@@ -152,13 +143,9 @@ Deliberately not adopted:
 - **Per-change file bundles** (proposal/design/tasks/specs per change) — one
   plan document with sections is leaner; when a plan genuinely outgrows one
   file, inclusion links split it natively.
-- **The delta *application engine*** — no parser, no fixed operation order, no
-  conflict resolution rules, no executable postconditions. The headers are read
-  by an agent performing an intelligent merge, gated on a zero-CRITICAL verify
-  report; a disagreement between intent and verified behavior returns the plan
-  for revision rather than being resolved automatically. `iwe` still handles
-  renames and references, which is why there is no `RENAMED` operation — a
-  rename is an explicit removal plus an addition.
+- **Spec deltas and their merge at archive** — a plan states acceptance
+  scenarios that stay in the plan, and nothing merges them into a canonical
+  spec.
 
 ## Improvements over the source KB
 

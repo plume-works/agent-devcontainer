@@ -576,22 +576,40 @@ both decisions before this plan.
 `docs/knowledge/STRUCTURE.md`, `docs/knowledge/README.md`,
 `docs/knowledge/data/product.md`
 
-- [ ] `AGENTS.md#project-memory` sends a decision to an ADR that a plan
+- [x] `AGENTS.md#project-memory` sends a decision to an ADR that a plan
   proposes.
-- [ ] Comment rule 3 in `AGENTS.md#comments` permits a reference to an ADR as
+  - **Evidence:** The paragraph sends "a decision in an ADR that a plan proposes
+    under `docs/knowledge/data/adr/`".
+- [x] Comment rule 3 in `AGENTS.md#comments` permits a reference to an ADR as
   `ADR-NNNN`.
-- [ ] The operating loop in `docs/knowledge/AGENTS.md` consults ADRs, verifies
+  - **Evidence:** Rule 3 says to refer to an ADR as `ADR-NNNN`, with an example.
+- [x] The operating loop in `docs/knowledge/AGENTS.md` consults ADRs, verifies
   against `## Acceptance`, and ships without a spec step.
-- [ ] `docs/knowledge/AGENTS.md#conventions` gives the home of a decision as an
+  - **Evidence:** The Consult step reads the related ADRs, the ship bullet
+    verifies `## Acceptance` scenarios, and the ship and release bullets name no
+    spec.
+- [x] `docs/knowledge/AGENTS.md#conventions` gives the home of a decision as an
   ADR, and states that an accepted ADR is never edited.
-- [ ] `docs/knowledge/AGENTS.md#conventions` says that `data/spec/` gets no new
+  - **Evidence:** The one-home bullet puts a decision in an ADR, and the new
+    bullet "An accepted ADR is never edited" states the rule.
+- [x] `docs/knowledge/AGENTS.md#conventions` says that `data/spec/` gets no new
   text.
-- [ ] `docs/knowledge/STRUCTURE.md#design-decisions` describes ADRs, acceptance
+  - **Evidence:** Added the bullet "`data/spec/` gets no new text".
+- [x] `docs/knowledge/STRUCTURE.md#design-decisions` describes ADRs, acceptance
   in the plan, and the release cut from the archive.
-- [ ] `docs/knowledge/README.md` describes the workflow without specs.
-- [ ] `docs/knowledge/data/product.md#authoring-rules` sends the decision from a
+  - **Evidence:** Replaced the two spec paragraphs with "ADRs are short and
+    never edited", "Acceptance lives in the plan", and "The release cut reads
+    the archive".
+- [x] `docs/knowledge/README.md` describes the workflow without specs.
+  - **Evidence:** The loop, the query example, the layout, and the
+    acknowledgments name ADRs and acceptance scenarios; `grep -n -i "spec\b"`
+    finds only OKF and OpenSpec links.
+- [x] `docs/knowledge/data/product.md#authoring-rules` sends the decision from a
   spike to an ADR.
-- [ ] `docs/knowledge/data/product.md#changelog` has a line for this change.
+  - **Evidence:** The spike rule sends a design decision to an ADR that a plan
+    proposes.
+- [x] `docs/knowledge/data/product.md#changelog` has a line for this change.
+  - **Evidence:** Added the 2026-11-13 line for this change.
 
 ### Task 10: Switch the seed and the setup skill
 

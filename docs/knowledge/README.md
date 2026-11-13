@@ -36,7 +36,7 @@ file, so parallel pull requests rarely conflict in the graph.
 
 3. **Open the workspace in your coding agent** (Claude Code, or anything that
    reads `AGENTS.md`) and say: **"run the setup"**. The setup skill reads your
-   codebase, drafts the product doc and the first specs from it, asks you only
+   codebase, drafts the product doc and the first guides from it, asks you only
    what the code can't answer, and deletes the example documents.
 
 ## How you use it
@@ -47,13 +47,13 @@ skill drafts from your code and you correct; greenfield, it's a short interview.
 **Every session after.** The loop is: **explore**
 (`"let's think about dark mode"` — a thinking partner that reads code and graph
 but never implements) → **plan** (`"plan dark mode"` — files a plan with
-verified code anchors and the specs it will touch) → **implement**
+verified code anchors, acceptance scenarios, and proposed ADRs) → **implement**
 (`"work on the next task"` — executes the plan task-by-task, ticking checkboxes
 as tests pass) → **verify** (`"is it ready to ship?"` — an optional standalone
-check of tasks, requirements, and scenarios against the actual code) → **ship**
-(`"ship dark mode"` — invokes that verification as a mandatory gate, then syncs
-the specs, flips stages, and archives the finished work; a release cut later
-writes the release page from the spec diff) → occasionally **weekly**
+check of tasks and acceptance scenarios against the actual code) → **ship**
+(`"ship dark mode"` — invokes that verification as a mandatory gate, then
+accepts the plan's ADRs, flips stages, and archives the finished work; a release
+cut later writes the release page from the archive) → occasionally **weekly**
 (`"weekly digest"` — what moved, what's stuck, what's next). Enter and leave the
 loop anywhere — invoking Ship directly still runs its verification gate. Each
 step leaves the graph consistent, so the next session — or the next agent —
@@ -64,7 +64,7 @@ Ask questions against the graph instead of re-reading the codebase:
 ``` bash
 iwe find --filter '{type: plan, stage: done}' -f keys               # what shipped
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys    # the build order
-iwe find --references data/spec/timer -f keys                        # what depends on this spec
+iwe find --references data/adr/0001-timer-counts-wall-clock-time -f keys  # what cites this ADR
 iwe retrieve -k data/plans/mvp --expand-includes 1                   # a milestone and its plans
 iwe tree -k data/features                                            # the open proposals
 ```
@@ -78,7 +78,7 @@ data/
 ├── plans.md    plans/         # implementation plans, stage in frontmatter
 ├── features.md features/      # proposals, live until their plan ships
 ├── bugs.md     bugs/          # symptom / repro / root cause / fix
-├── spec.md     spec/          # behaviour and its rationale — synced at ship time
+├── adr.md      adr/           # decisions: proposed by a plan, accepted at ship
 ├── findings.md findings/      # measurements and what would close them
 ├── guides.md   guides/        # procedures, anchors checked on every commit
 ├── concept.md  concept/       # product vision — the tiebreaker for feature debates
@@ -108,12 +108,12 @@ refactors it safely (`iwe rename` updates every reference), and validates it
 
 ## Acknowledgments
 
-The spec-sync-at-ship discipline, the Requirement/Scenario spec format, and the
-`ADDED` / `MODIFIED` / `REMOVED Requirements` delta notation are adapted from
-[OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven workflow. The
-notation is used inside the single plan document, without OpenSpec's change
-bundles or its programmatic delta application. The workspace shape follows its
-sibling template,
+The WHEN/THEN scenario format is adapted from
+[OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven workflow. It is
+used inside the single plan document, without OpenSpec's change bundles or its
+merge into canonical specs. The ADR format follows the `ADR-FORMAT.md` of the
+[mattpocock/skills](https://github.com/mattpocock/skills) repository. The
+workspace shape follows its sibling template,
 [marketing-workspace](https://github.com/iwe-org/marketing-workspace).
 
 ## License

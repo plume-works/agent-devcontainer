@@ -5,12 +5,12 @@ software project's memory and system of record. The division of labor:
 
 - **Code** lives in the project's own repository. Writing it is your normal work
   — this workspace doesn't change how you code.
-- **Project state** lives here, in `data/` — what the product is, how it must
-  behave and why (specs), what was measured (findings), how to do recurring jobs
-  (guides), what's proposed, planned, broken, and released, and the finished
-  work in the archive. Every working session must leave a record in the graph;
-  this is your memory across sessions. Never keep project state only in
-  conversation.
+- **Project state** lives here, in `data/` — what the product is, the decisions
+  and why they were made (ADRs), what was measured (findings), how to do
+  recurring jobs (guides), what's proposed, planned, broken, and released, and
+  the finished work in the archive. Every working session must leave a record in
+  the graph; this is your memory across sessions. Never keep project state only
+  in conversation.
 
 ## Start of every session
 
@@ -28,11 +28,10 @@ software project's memory and system of record. The division of labor:
 
 1. **Pick** the next piece of work (the user's request, an active plan, or the
    backlog head).
-2. **Consult** before acting: the relevant `data/spec/` docs (intended behavior,
-   and under `## Rationale` the decisions behind it and the alternatives they
-   rejected), any `data/findings/` doc on the area, and the feature/bug doc the
-   work belongs to. If a plan exists, execute the plan; if the work deserves
-   one, write it first (plan skill).
+2. **Consult** before acting: the related ADRs in `data/adr/` (the decisions in
+   force and the alternatives they rejected), any `data/findings/` doc on the
+   area, and the feature/bug doc the work belongs to. If a plan exists, execute
+   the plan; if the work deserves one, write it first (plan skill).
 3. **Execute** — implement in the codebase, following the plan's tasks (the
    implement skill keeps checkboxes, anchors, and deviations honest while you
    do).
@@ -46,31 +45,29 @@ software project's memory and system of record. The division of labor:
      `data/features/<slug>.md` at `stage: proposed`, linked from
      `data/features.md`.
    - Work starts → plan skill: `data/plans/YYYYMMDD-<slug>.md` (`created`,
-     verified code anchors, and `## Spec changes` in the form the risk calls
-     for), plus a link in `data/plans.md`, and a `rank` when its place in the
-     build order is known. Each bug the plan lists in `release` moves to
-     `stage: planned`.
-   - Work ships → verify skill green (tasks, requirements, and scenarios checked
-     against the code), then ship skill: specs synced first, the plan's decision
-     and each closed bug's lasting root cause written to the owning spec's
-     `## Rationale`, then `stage: done` with `completed` and `rank` removed,
-     feature doc `implemented`, bug `stage: done` with a `## Fix` describing the
-     shipped fix — and the plan and each feature and bug it closed moved with
-     `iwe rename` to `data/archive/next-release/<folder>/`, their hub links
-     removed.
+     verified code anchors, `## Acceptance` scenarios, and `## ADRs`), each
+     proposed ADR at `data/adr/NNNN-<slug>.md` with `stage: proposed`, plus a
+     link in `data/plans.md`, and a `rank` when its place in the build order is
+     known. Each bug the plan lists in `release` moves to `stage: planned`.
+   - Work ships → verify skill green (tasks and `## Acceptance` scenarios
+     checked against the code), then ship skill: the plan's ADRs set to
+     `stage: accepted` and each ADR they supersede archived, then `stage: done`
+     with `completed` and `rank` removed, feature doc `implemented`, bug
+     `stage: done` with a `## Fix` describing the shipped fix — and the plan and
+     each feature and bug it closed moved with `iwe rename` to
+     `data/archive/next-release/<folder>/`, their hub links removed.
    - Plan abandoned → `stage: cancelled` and `rank` removed, moved to
      `data/archive/next-release/plans/` with its hub link removed (the archive
-     keeps the record of why); each bug it lists returns to `stage: pending`.
+     keeps the record of why); each bug it lists returns to `stage: pending`,
+     and each ADR it proposed becomes `stage: rejected` and moves to
+     `data/archive/next-release/adr/`.
    - Bug found → `/agentdev:iwe-capture bug`: `data/bugs/<slug>.md` (Symptom /
      Reproduction / Root cause, optional Potential solution, a `severity`) at
      `stage: pending` + link from `data/bugs.md`. Fixed in the same change →
      filed at `stage: done` with a `## Fix` describing the fix, straight into
      `data/archive/next-release/bugs/`.
-   - Behavior defined or changed → the matching `data/spec/` doc
-     (Requirement/Scenario format); this happens *inside* the ship flow, not as
-     an afterthought.
-   - Design decision made → the `## Rationale` of the spec that owns the
-     behaviour, with the rejected alternatives.
+   - Design decision made → an ADR that a plan proposes. An accepted ADR is
+     never edited; a new ADR supersedes it.
    - Measurement that settles nothing yet → `data/findings/<slug>.md` + link
      from `data/findings.md`.
    - Procedure a contributor repeats → `data/guides/<slug>.md` + link from
@@ -83,10 +80,11 @@ software project's memory and system of record. The division of labor:
      the same way.
    - Release cut → ship skill's release mode: it moves everything under
      `data/archive/next-release/` to `data/archive/<X.Y.Z>/`, writes
-     `data/releases/<X.Y.Z>.md` in plain text from the difference in the specs'
-     requirements and scenarios since the previous release page was added, with
-     the titles of the release's bugs, and links it from `data/releases.md`.
-     Nothing edits the page afterwards.
+     `data/releases/<X.Y.Z>.md` in plain text from the `## Acceptance` scenarios
+     of the archived plans, with the titles of the ADRs accepted or superseded
+     since the previous release page was added and the titles of the release's
+     bugs, and links it from `data/releases.md`. Nothing edits the page
+     afterwards.
 5. **Stamp** — every document you create or meaningfully change gets a
    one-sentence `description` if it has none, and — when you derived it from
    code or an external page — a `sources` entry naming that path or URL.
@@ -122,7 +120,9 @@ software project's memory and system of record. The division of labor:
   features `proposed|accepted|implemented|deprecated|cancelled` (live only at
   `proposed` or `accepted`); bugs `pending|planned|done|cancelled` (open =
   `pending` or `planned`); releases `released`; backlog
-  `pending|done|cancelled`. A closed plan, bug, task, or feature lives under
+  `pending|done|cancelled`; ADRs
+  `proposed|accepted|rejected|deprecated|superseded` (live only at `proposed` or
+  `accepted`). A closed plan, bug, task, feature, or ADR lives under
   `data/archive/`, an open one outside it, and the `ship-records` check fails
   either breach. Reference docs (spec/finding/guide/concept/someday) carry a
   `type` and no stage.
@@ -141,28 +141,20 @@ software project's memory and system of record. The division of labor:
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.
-- **Each kind of knowledge has one home.** Behaviour lives only in `data/spec/`
-  requirements; the decision in force and the alternatives it rejected only in
-  that spec's `## Rationale`; a finding only in `data/findings/`; a procedure
-  only in `data/guides/`; a proposal in `data/features/`; work in flight in
-  plans, bugs, and tasks; what a release changed on its release page; finished
-  work in `data/archive/`. `type: architecture` is valid only in the archive.
-- **Specs are the durable truth** and use `### Requirement:` + SHALL +
-  `#### Scenario:` WHEN/THEN. The ship skill syncs them whenever a plan ships —
-  a plan is not done while the specs it touched describe the old behavior. Scale
-  rigor with risk: low-risk behavior gets two lines, contract behavior gets full
-  scenarios.
-- **A plan states its spec impact at the fidelity the risk deserves.** The three
-  forms of `## Spec changes` are an explicit `None — no behavioral change`; a
-  linked spec plus a concise normative outcome; or a fenced `ADDED` / `MODIFIED`
-  / `REMOVED Requirements` delta carrying complete post-change requirements and
-  every surviving scenario. The plan skill owns the threshold. What a plan
-  records is *intent*: the durable spec keeps describing released behavior until
-  ship succeeds, which is why verify judges code against the durable spec plus
-  the plan's intent rather than expecting an unshipped change to already be
-  synced. The delta lives inside the one plan document — there is no change
-  bundle, no separate delta file, and no engine that applies it; ship reads it
-  and merges deliberately, and stops when intent and verified behavior disagree.
+- **Each kind of knowledge has one home.** Behaviour lives in the code and its
+  tests; a decision and the alternatives it rejected in an ADR under
+  `data/adr/`; a project term in `data/glossary.md`; a finding only in
+  `data/findings/`; a procedure only in `data/guides/`; a proposal in
+  `data/features/`; work in flight in plans, bugs, and tasks; what a release
+  changed on its release page; finished work in `data/archive/`.
+  `type: architecture` is valid only in the archive.
+- **An accepted ADR is never edited.** Plan files an ADR at `stage: proposed`
+  and Ship sets it to `accepted`. A changed decision is a new ADR that names the
+  earlier one in `supersedes`; Ship then archives the earlier one at
+  `stage: superseded`.
+- **`data/spec/` gets no new text.** A plan states the behaviour it changes as
+  `## Acceptance` scenarios, each naming the test that proves it, and Verify
+  checks them against the code. Nothing merges them into a spec.
 - **Code anchors**: `## Key references` lists the code a plan touches as anchors
   taken from the current checkout, never from memory — `path::symbol` in code,
   `path#heading-slug` in Markdown, `path#key.path` in YAML, JSON, and TOML,
@@ -180,7 +172,8 @@ software project's memory and system of record. The division of labor:
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less
-  (`[Timer](spec/timer)`), relative to the containing file.
+  (`[Timer](adr/0001-timer-counts-wall-clock-time)`), relative to the containing
+  file.
 - **Example docs**: files suffixed `.example.md` demonstrate each directory's
   document shape (a fictional product; schema-validated so they can't rot).
   Ignore them when reporting real project state; the setup skill deletes them at
@@ -234,12 +227,12 @@ know:
 ## iwe CLI cheatsheet
 
 ``` bash
-iwe retrieve -k data/spec/timer                                  # read a doc
+iwe retrieve -k data/adr/0001-timer-counts-wall-clock-time       # read a doc
 iwe retrieve -k data/plans --expand-includes 1                   # hub + children
 iwe find --fuzzy timer -f keys                                   # fuzzy title+key match
 iwe find --lexical "session log storage" -f keys                 # full-text ranking
 iwe find --filter '{type: plan}' -f keys                         # every plan
-iwe find --references data/spec/timer -f keys                    # backlinks
+iwe find --references data/adr/0001-timer-counts-wall-clock-time -f keys  # backlinks
 iwe find --filter '{type: plan, stage: done}' -f keys           # frontmatter query
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys   # the build order
 iwe tree -k data/plans -d 2                                      # subtree overview
@@ -258,14 +251,14 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 
 ## Workspace skills
 
-| Skill                       | What it does                                                           |
-| --------------------------- | ---------------------------------------------------------------------- |
-| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product and specs    |
-| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code     |
-| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, hub link, rank |
-| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated  |
-| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries  |
-| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it          |
-| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code  |
-| `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release cut                   |
-| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health      |
+| Skill                       | What it does                                                          |
+| --------------------------- | --------------------------------------------------------------------- |
+| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product and guides  |
+| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code    |
+| `/agentdev:iwe-plan`        | Files a plan: verified anchors, acceptance, ADRs, hub link, rank      |
+| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated |
+| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries |
+| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it         |
+| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code |
+| `/agentdev:iwe-ship`        | Closes the loop: ADR acceptance, stage flips, release cut             |
+| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health     |
