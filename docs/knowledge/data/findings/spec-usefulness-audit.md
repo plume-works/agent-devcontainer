@@ -3,6 +3,7 @@ type: finding
 description: Every requirement and rationale entry in data/spec/ compared with the code — most requirements repeat a test or a rulebook, the rationale is the part found nowhere else, and one requirement in eight is not fully true.
 sources:
 - resource: docs/knowledge/data/spec
+- resource: docs/spec-audit
 - resource: docs/knowledge/data/backlog/shrink-knowledge-base-to-issues-and-adrs.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -37,6 +38,10 @@ it tells a reader that the implementation does not, and where its content would
 go if the spec were deleted. The specs were consolidated one commit earlier
 (`05a5aa7d` added 5,854 lines to `data/spec/` and removed 1,010), so the
 accuracy figures are measured at the specs' best.
+
+The row for each requirement, rationale entry, and spec is in
+`docs/spec-audit/`, with the meaning of every label in
+`docs/spec-audit/README.md`.
 
 ### Requirements
 
