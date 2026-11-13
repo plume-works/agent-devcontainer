@@ -103,10 +103,15 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
 
 15. **Write all prose in ASD-STE100 Issue 9 (Simplified Technical
     English).** The rule applies to the text that a change adds or
-    edits in these places: documents under `docs/knowledge/`, skill
-    and agent rulebooks, `AGENTS.md` files, READMEs, code comments,
-    commit messages, and pull request titles and bodies. Text that
-    existed before this rule can stay until a change edits it.
+    edits. Text that existed before this rule can stay until a change
+    edits it. The rule applies in these places:
+    - documents under `docs/knowledge/`
+    - skill and agent rulebooks
+    - `AGENTS.md` files and READMEs
+    - code comments and commit messages
+    - pull request titles and bodies
+
+    These conditions also apply:
     - Use a project term only if `docs/knowledge/data/glossary.md`
       lists it. Add a new term to the glossary in the same change.
     - Text in code formatting, text in a fenced block, and quoted

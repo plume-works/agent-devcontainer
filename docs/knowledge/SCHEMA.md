@@ -208,8 +208,8 @@ work items, so no `stage` applies, and the finding and guide schemas reject one.
 
 Hub files (`data/plans.md`, `data/features.md`, …) carry `type: hub`;
 `data/product.md`, `data/milestone.md`, and `data/glossary.md` carry
-`type: tracker`. Both take `stage: living`. A hub's body is one flat list of
-inclusion links, one per member, sorted by the member's key with any `YYYYMMDD-`
-prefix removed, with no `##` sections — `.iwe/schemas/hub.yaml` rejects a
-section, and a test checks the order. A hub changes only when a member is
-created, removed, or renamed.
+`type: tracker`. Hubs and trackers take `stage: living`. A hub's body is one
+flat list of inclusion links, one per member, sorted by the member's key with
+any `YYYYMMDD-` prefix removed, with no `##` sections — `.iwe/schemas/hub.yaml`
+rejects a section, and a test checks the order. A hub changes only when a member
+is created, removed, or renamed.
