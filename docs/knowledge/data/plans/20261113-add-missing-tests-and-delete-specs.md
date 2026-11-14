@@ -77,8 +77,12 @@ Each test shows what the `fate_note` of its row says.
     `catalog.claude` with the recording `claude` stub: each marketplace from the
     same root is swept in every scope before the add, an absent plugin does not
     stop it, and a failed add raises; 3 passed.
-- [ ] A test runs `devcontainer-git-credentials` "gh authenticates from the git
+- [x] A test runs `devcontainer-git-credentials` "gh authenticates from the git
   credential helper".
+  - **Evidence:** `scripts/tests/test_gh_wrapper.py` runs the wrapper with a
+    stand-in real gh and a real git credential helper: the helper token, no
+    helper, a set token, the `GH_WRAPPER_ACTIVE` guard, a second wrapper copy,
+    and no real gh on `PATH`; 6 passed.
 - [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
   checkout volume".
 - [ ] A test runs `update-branch` "update-branch brings in the branch's upstream
