@@ -40,10 +40,9 @@ matter. It costs:
 
 `verified: { by, at }` is the same actor-and-date shape. No document sets it.
 
-The [IWE workflow skills](../../../spec/iwe-workflow-skills.md) requirement
-"Workflow improvements preserve the IWE and OKF model" reads "existing stage and
-status conventions" and lacks the OKF bundle sentence and the two scenarios
-[Keep the graph an OKF bundle in the
+The IWE workflow skills requirement "Workflow improvements preserve the IWE and
+OKF model" reads "existing stage and status conventions" and lacks the OKF
+bundle sentence and the two scenarios [Keep the graph an OKF bundle in the
 spec](../../2.1.0/plans/20261101-okf-bundle-in-spec.md) specified for it. The
 modified requirement below restores them along with the new divergence.
 
@@ -63,10 +62,10 @@ cut before this change that re-adds `generated` to a document fails it.
 
 Consumers get the check the way they get `test_plan_checkboxes.py`: template
 adoption's knowledge-base bundle tracks the test file and the consumption guide
-lists its hook among those to retain. `iwe-bootstrap` stays unchanged — the [IWE
-bootstrap](../../../spec/iwe-bootstrap.md) spec forbids it from adding
-pre-commit configuration. The test skips the scaffold graph when its directory
-is absent, since consumers delete `.agents/`.
+lists its hook among those to retain. `iwe-bootstrap` stays unchanged — the IWE
+bootstrap spec forbids it from adding pre-commit configuration. The test skips
+the scaffold graph when its directory is absent, since consumers delete
+`.agents/`.
 
 A separate test and hook beside `no-status-field` was rejected: a second
 near-copy of the same file.
@@ -263,9 +262,8 @@ whose frontmatter sets either key
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — contract-heavy:
-the OKF requirement's text and scenario set change, and Capture's stamping
-scenario changes.
+IWE workflow skills — contract-heavy: the OKF requirement's text and scenario
+set change, and Capture's stamping scenario changes.
 
 ``` markdown
 ## MODIFIED Requirements

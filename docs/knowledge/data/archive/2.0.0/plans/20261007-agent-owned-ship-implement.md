@@ -366,8 +366,8 @@ plans, the publish script, and the OpenCode project config)
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — who may start Ship
-and Implement is a contract across three harnesses:
+IWE workflow skills — who may start Ship and Implement is a contract across
+three harnesses:
 
 ``` markdown
 ## ADDED Requirements

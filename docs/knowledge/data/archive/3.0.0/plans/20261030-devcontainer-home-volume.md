@@ -543,7 +543,7 @@ share it. All other client state SHALL live on each instance's home volume.
   other's credentials.
 ```
 
-### [Claude Remote Control](../../../spec/claude-remote-control.md)
+### Claude Remote Control
 
 The verification procedure SHALL check the credential store at
 `/var/lib/agentdev/auth/claude` in place of `/root/.agents-auth/claude`.

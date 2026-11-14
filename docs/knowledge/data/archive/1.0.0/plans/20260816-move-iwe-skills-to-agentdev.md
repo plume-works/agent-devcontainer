@@ -289,11 +289,10 @@ session that reads it.
   enumeration becomes complete as written, and the spec gains the positive
   statement that the IWE workflow skills arrive with the installed `agentdev`
   catalog rather than with the copied `.claude/` directory.
-- [IWE workflow skills](../../../spec/iwe-workflow-skills.md) — its five
-  `sources:` entries point at `.claude/skills/`. The requirements themselves are
-  stated at the role level ("The Ship skill SHALL run the report-only Verify
-  workflow"), which the rename does not disturb, so this is a provenance refresh
-  and not a requirement change.
+- IWE workflow skills — its five `sources:` entries point at `.claude/skills/`.
+  The requirements themselves are stated at the role level ("The Ship skill
+  SHALL run the report-only Verify workflow"), which the rename does not
+  disturb, so this is a provenance refresh and not a requirement change.
 
 No other spec is affected. [Catalog
 lifecycle](../../../spec/catalog-lifecycle.md) governs how the catalog is staged

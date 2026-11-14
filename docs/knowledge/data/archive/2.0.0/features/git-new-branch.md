@@ -36,7 +36,7 @@ repository's pre-commit configuration rejects a direct `git commit` on `main` or
 **Implement starts on a work branch.** `/agentdev:iwe-implement` creates the
 branch, named from the plan slug, when it starts on `main` or `master`.
 
-The contract is [git-new-branch](../../../spec/git-new-branch.md).
+The contract is git-new-branch.
 
 ## Edge cases
 

@@ -831,8 +831,7 @@ code, choose dependencies, or invent CI for the consuming project's product.
 
 Ship also renames `agent-desktop` to `agentdev-base` and `agent-opencode` to
 `agentdev-deploy` in the descriptions, `sources`, and non-requirement prose of
-the specs above and of [Claude Remote
-Control](../../../spec/claude-remote-control.md).
+the specs above and of Claude Remote Control.
 
 ## Depends on
 

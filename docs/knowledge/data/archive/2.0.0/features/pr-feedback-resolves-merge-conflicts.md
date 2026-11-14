@@ -26,7 +26,7 @@ merge pushed, so CI starts on the merged head.
 **pr-merge routes conflicts.** `/agentdev:pr-merge`'s monitoring loop sends a
 conflicting PR to that step and restarts at its refresh.
 
-The contract is [PR merge conflicts](../../../spec/pr-merge-conflicts.md).
+The contract is PR merge conflicts.
 
 ## Edge cases
 

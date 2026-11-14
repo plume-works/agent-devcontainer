@@ -66,8 +66,7 @@ boundary](../../1.0.0/architecture/template-boundary.md).
 - **A Coder workspace.** The token is a Coder user secret. It reaches the
   processes the Dev Container's sub-agent starts — terminals, IDE sessions,
   agents — while `${localEnv:EXPO_TOKEN}` resolves empty in the container's base
-  environment and lifecycle hooks ([Coder IDE baseline
-  template](../../../spec/coder-ide-baseline.md)).
+  environment and lifecycle hooks (Coder IDE baseline template).
 - **A local Docker host.** The token comes from the environment that runs
   `devcontainer up`.
 - **The app lives under an ignored path.** EAS archives the project with a

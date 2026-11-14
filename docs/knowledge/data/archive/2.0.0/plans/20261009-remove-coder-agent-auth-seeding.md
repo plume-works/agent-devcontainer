@@ -58,9 +58,8 @@ container from `postCreateCommand.sh`, skipped only when
 that `enableAllProjectMcpServers` does not reach the headless responder, whose
 `.mcp.json` names an `mcp-gateway` server that CI does not run.
 
-The spec is retired and split: [Claude Remote
-Control](../../../spec/claude-remote-control.md) (autostart and pre-approval)
-and [Devcontainer Git
+The spec is retired and split: Claude Remote Control (autostart and
+pre-approval) and [Devcontainer Git
 credentials](../../../spec/devcontainer-git-credentials.md) (Git identity
 passthrough and the `gh` credential helper), since neither half is about agent
 auth once seeding is gone.
@@ -208,9 +207,8 @@ Rejected:
 Retire Devcontainer agent authentication and Claude Remote Control (`iwe delete`
 at Ship, replaced in `data/spec.md` by the two new specs). Its
 `## Setup procedure` steps 1–3 and `## Rotation and recovery` go with it; the
-`## Diagnose Login expired` section moves to [Claude Remote
-Control](../../../spec/claude-remote-control.md) with its seed references
-removed.
+`## Diagnose Login expired` section moves to Claude Remote Control with its seed
+references removed.
 
 ``` markdown
 ## REMOVED Requirements
@@ -241,7 +239,7 @@ Moved unchanged to `spec/devcontainer-git-credentials`.
 Moved unchanged to `spec/devcontainer-git-credentials`.
 ```
 
-New [Claude Remote Control](../../../spec/claude-remote-control.md):
+New Claude Remote Control:
 
 ``` markdown
 ## ADDED Requirements

@@ -38,8 +38,8 @@ constraints:
   is inert.
 - **Coder:** in a `coder-ide-baseline` workspace, a Coder user secret reaches
   the processes the Dev Container's sub-agent starts — terminals, IDE sessions,
-  agents — and not the Dev Container's lifecycle hooks ([Coder IDE baseline
-  template](../../../spec/coder-ide-baseline.md)).
+  agents — and not the Dev Container's lifecycle hooks (Coder IDE baseline
+  template).
 - **bun version:** EAS macOS workers do not default to the image's bun, and the
   image's bun writes `bun.lock` `lockfileVersion: 2`, which an older bun cannot
   read under `--frozen-lockfile`; every build profile therefore pins `bun` to

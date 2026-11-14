@@ -118,7 +118,7 @@ every dependent plan behind a full ship cycle.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md):
+IWE workflow skills:
 
 ``` markdown
 ## MODIFIED Requirements

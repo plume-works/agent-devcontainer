@@ -116,10 +116,21 @@ decision got no ADR, the citation is removed.
 **Files:** Modify: the documents under `docs/knowledge/data/spec/`,
 `docs/knowledge/data/spec.md`
 
-- [ ] No spec has a `## Rationale` section.
-- [ ] No requirement whose `fate` is `adr` or `code-comment` is in `data/spec/`.
-- [ ] Each spec that has no requirement is deleted with `iwe delete`.
-- [ ] No document outside `data/archive/` links a spec that was deleted.
+- [x] No spec has a `## Rationale` section.
+  - **Evidence:** A script removed each `## Rationale` section, and
+    `grep -l "## Rationale" docs/knowledge/data/spec/` finds nothing.
+- [x] No requirement whose `fate` is `adr` or `code-comment` is in `data/spec/`.
+  - **Evidence:** The same script removed the 34 requirements with their
+    scenarios and reported no title that it did not find. One requirement has a
+    new title in the spec, "The catalog publishes the plugin and the runtime
+    enables it".
+- [x] Each spec that has no requirement is deleted with `iwe delete`.
+  - **Evidence:** `iwe delete` removed the 25 specs with no requirement. 15
+    specs stay, and each has at least one requirement.
+- [x] No document outside `data/archive/` links a spec that was deleted.
+  - **Evidence:** `iwe delete` turned each link into text. The guide
+    `claude-remote-control-setup` now links ADR-0077 and ADR-0078.
+    `iwe schema validate` and `scripts/check-anchors.py` pass.
 
 ## Acceptance
 

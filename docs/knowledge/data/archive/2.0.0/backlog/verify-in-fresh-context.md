@@ -39,5 +39,5 @@ own](autonomous-implement-loop.md), dispatches the agent this one creates.
   `spawn_agent` to forward no turns; the model otherwise forwards the whole
   conversation. That applies to the existing `iwe-shipper` dispatches too.
 - Update the "Normal shipping requires a clean independent verification"
-  requirement in [IWE workflow skills](../../../spec/iwe-workflow-skills.md) and
-  the agent and dispatcher lists in the architecture doc.
+  requirement in IWE workflow skills and the agent and dispatcher lists in the
+  architecture doc.

@@ -20,8 +20,7 @@ records. This plan is the transcription of that work: it is filed `done` because
 the behavior shipped before the move, and it exists so the graph carries the
 acceptance record rather than only the code.
 
-The durable behavior is [Self-improve learning
-loop](../../../spec/self-improve-learning-loop.md); the runtime decisions are
+The durable behavior is Self-improve learning loop; the runtime decisions are
 [Self-improve runtime](../../2.0.0/architecture/self-improve-runtime.md). This
 plan records what was accepted and on what evidence.
 
@@ -125,9 +124,8 @@ per run, and running behind its own target — have been observed.
 ## Spec changes
 
 None by this plan. It transcribes behavior that shipped in the merge source;
-[Self-improve learning loop](../../../spec/self-improve-learning-loop.md)
-records that behavior as it arrived, adding, modifying, and removing no
-requirement.
+Self-improve learning loop records that behavior as it arrived, adding,
+modifying, and removing no requirement.
 
 ## Verification
 

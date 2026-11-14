@@ -44,9 +44,9 @@ cannot tell a metadata-gate stop, which reviewed no code, from a full review.
 `requesting_check()` refuses too: the gate run's responder check on the head
 completed with success, which counts as that head's request. The script takes no
 argument to override either check. The rule it enforces is specified that way:
-the "one AI review trigger per head commit" requirement in [AI review
-refresh](../../../spec/ai-review-refresh.md) forbids a toggle for any head an
-accepted AI review names, with no exception for a gate-only review.
+the "one AI review trigger per head commit" requirement in AI review refresh
+forbids a toggle for any head an accepted AI review names, with no exception for
+a gate-only review.
 
 ## Fix
 

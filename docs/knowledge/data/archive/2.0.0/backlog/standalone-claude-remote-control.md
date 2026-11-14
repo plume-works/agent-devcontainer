@@ -21,10 +21,9 @@ Only the Coder agent starts Claude Remote Control today
 The standalone `agent-opencode` runtime has no component for it, so a project
 container never starts it, even after a claude.ai login. The [standalone
 OpenCode container plan](../plans/20261017-standalone-opencode-container.md)
-left Remote Control autostart out of scope, and [Claude Remote
-Control](../../../spec/claude-remote-control.md) scopes autostart to the Coder
-agent. The maintainer has asked for standalone support, gated on
-`AGENTDEV_CLAUDE_RC_MODE`.
+left Remote Control autostart out of scope, and Claude Remote Control scopes
+autostart to the Coder agent. The maintainer has asked for standalone support,
+gated on `AGENTDEV_CLAUDE_RC_MODE`.
 
 ## What to do
 
@@ -47,9 +46,8 @@ agent. The maintainer has asked for standalone support, gated on
   report as `done`.
 - **Settings.** `compose.opencode.yml` passes `AGENTDEV_CLAUDE_RC_MODE` through,
   and `runtime.env.example` documents it.
-- **Docs and spec.** Extend [Claude Remote
-  Control](../../../spec/claude-remote-control.md) to the standalone runtime,
-  and update the standalone runtime architecture doc and README.
+- **Docs and spec.** Extend Claude Remote Control to the standalone runtime, and
+  update the standalone runtime architecture doc and README.
 
 ## Done when
 
