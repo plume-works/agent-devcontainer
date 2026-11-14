@@ -17,8 +17,6 @@ correction, gets a revision that removes the work, or Ship cancels it.
   through `/agentdev:iwe-plan` revise mode removes the task. Removal is a
   material scope change, so revise mode asks the user, and the Verify check
   stays complete.
-- Cancel the plan because of one task that is not done. Rejected: a revision
-  that removes the task is the correct size of change.
 - Ship does its own copy of the Verify checks. Rejected: two copies of one
   rulebook become different.
 
@@ -26,4 +24,3 @@ correction, gets a revision that removes the work, or Ship cancels it.
 
 - A cancellation does not run Verify, because it records that the work stopped,
   not a behaviour.
-- The Verify check stops only the defects that Verify has a rule for.

@@ -28,6 +28,3 @@ different name.
 - Two builds of one commit can ship different apt versions.
 - A regression from an upstream package update has no commit in this repository
   to bisect to.
-- Each role names its apt packages in its `ansible.builtin.apt` task. When a
-  Kitware `cmake` is already installed, `cmake_kitware` changes it to the newest
-  version that Kitware publishes.

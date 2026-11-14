@@ -25,6 +25,3 @@ metadata for tools that a checkout does not have.
 - The setup mode of `template-consume` writes the marker in the consumer. The
   template never copies it from the publisher. As a result, the template
   classifies the root file by its top-level keys, not as one file.
-  `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.py::read_marker`
-  stops with `INVALID_MARKER` for a file that it cannot parse, and with
-  `NO_MARKER` when the file has no `template-consume` key.

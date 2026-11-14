@@ -7,12 +7,10 @@ description: Verify keeps one saved report for each plan, keyed by the commit an
 # The saved Verify report is keyed by commit and catalog hash
 
 Verify refuses a worktree that has uncommitted changes, so a commit names all
-that Verify examined.
-`.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py` keeps
-one saved Verify report for each plan, and one for the `audit` argument, with
-that commit and a hash of the catalog files on disk as its key. As a result,
-`iwe-shipper` uses the verdict of the Implement loop again, and does not run the
-tests again.
+that Verify examined. Verify keeps one saved report for each plan, and one for
+the `audit` argument, with that commit and a hash of the catalog files on disk
+as its key. As a result, `iwe-shipper` uses the verdict of the Implement loop
+again, and does not run the tests again.
 
 ## Considered Options
 
@@ -32,14 +30,7 @@ tests again.
 
 - The approvals of the user are in the report but not in its key. A request that
   quotes an approval does not use the saved report.
-- `verify-cache.py` never saves a `Needs decision` report. As a result, when the
-  user runs Verify again and gives the approval, Verify runs.
-- `--fresh` makes the lookup a miss, also when a saved report matches.
 - A verification command that leaves uncommitted changes is a CRITICAL, because
   a saved report must describe a clean commit.
 - Only `verify-cache.py` writes `.tmp/verify/`. A saved report is reliable only
   because of this rule.
-- `verify-cache.py` writes a `.gitignore` that holds `*` into `.tmp/verify/`, so
-  a save does not add uncommitted changes to the worktree.
-- Verify does not use a saved report again after a rebase, after a squash merge,
-  or in a new container.

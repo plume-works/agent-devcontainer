@@ -26,9 +26,3 @@ request from a fork fails at the push.
 ## Consequences
 
 - A maintainer runs an external contribution from a branch of this repository.
-- Support for fork builds becomes useful only when a later stage can use an
-  image of the run without a registry write, also for consumers. A local
-  registry service on the runner, or an image store that all stages use, can
-  give this.
-- An optional push is correct for a repository whose image build is the last
-  stage, because no later stage uses its image.

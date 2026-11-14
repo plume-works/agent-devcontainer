@@ -37,9 +37,6 @@ work](adr/0008-graph-diverges-from-okf-only-for-merge-cost.md)
 [The graph layout keeps parallel pull requests free of merge
 conflicts](adr/0009-graph-layout-avoids-merge-conflicts.md)
 
-[Implement can stack on a dependency in review; Ship
-cannot](adr/0010-implement-stacks-on-a-dependency-in-review.md)
-
 [The IWE workflow skills are in agentdev, with an iwe-
 prefix](adr/0011-iwe-skills-in-agentdev-with-iwe-prefix.md)
 

@@ -16,10 +16,6 @@ path.
 ## Considered Options
 
 - One orientation page in its place. Rejected: it duplicates the README.
-- A digest gate that only warns. Rejected: it keeps the refresh cost and the
-  risk of wrong text.
-- Tell planners to read text that a tool derived from the code. Rejected: no
-  check confirms that text.
 
 ## Consequences
 

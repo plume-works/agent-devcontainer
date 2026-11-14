@@ -20,10 +20,6 @@ directories and the documented environment variables.
 
 ## Consequences
 
-- The bootstrap does the check before all other work. Each file in `RECORD` must
-  have its recorded hash, and the installed directories of the package must hold
-  no other file. The check ignores Python bytecode.
-- The check ignores a source checkout, because its egg-info records no file.
 - The check finds accidental and partial edits. It is not a security boundary:
   an image that deletes the metadata of the package or writes a new `RECORD`
   passes it.

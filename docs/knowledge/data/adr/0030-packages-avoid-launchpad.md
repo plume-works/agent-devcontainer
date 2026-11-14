@@ -29,8 +29,6 @@ than the upstream release.
   publish from this repository needs a credential for the other repository.
 - Pinned URLs into the pool of the PPA. Rejected: the PPA deletes a build when
   it publishes a newer build, so each pin breaks.
-- The git of Ubuntu. Rejected: it is older than the upstream release by the age
-  of the Ubuntu release of the base image.
 - Build git from its source release in the image. Rejected: each build then
   compiles for more than one minute for each architecture and needs a Rust
   toolchain.
@@ -40,14 +38,3 @@ than the upstream release.
 - The PPA keeps only its newest build, so the release is the only permanent
   copy. `scripts/cache-git-ppa-release.py` never replaces a release, and it
   never marks a release as the latest release of the repository.
-- The script accepts the `InRelease` index of the PPA only with a valid
-  signature of the pinned key in `scripts/git-core-ppa.asc`. It checks each
-  `Packages` index and each `.deb` file against the SHA-256 that the signed
-  index gives.
-- The `git_ppa` role installs `git` and `git-man` in one apt transaction,
-  because `git` needs `git-man` at the same version. The role also removes the
-  `git-core-ppa` apt source, so an image or a host that got git from the PPA
-  before stops its access to Launchpad.
-- Renovate changes `git_ppa_release_tag` to a newer `pinned-deps/git/` release,
-  and `scripts/refresh-pin-checksums.py` changes the SHA-256 of both packages in
-  the same commit.

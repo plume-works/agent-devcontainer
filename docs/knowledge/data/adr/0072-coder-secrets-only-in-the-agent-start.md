@@ -23,10 +23,8 @@ github.com, git uses `GIT_ASKPASS=/.coder-agent/coder`, which never returns, and
 ## Consequences
 
 - The template runs one configurable command, `agentdev-runtime coder start`,
-  that has no information about the steps of this repository
-  (`py_packages/agentdev_runtime/agentdev_runtime/coder.py::STEPS`). A rename of
-  the command breaks the template.
-- The agent start installs the helper only when `gh` is authenticated.
+  that has no information about the steps of this repository. A rename of the
+  command breaks the template.
 - This repository does not change the Coder `GIT_ASKPASS` and configures no
   Coder external authentication for GitHub.
 - The start phase keeps its own helper setup for containers with a stored `gh`

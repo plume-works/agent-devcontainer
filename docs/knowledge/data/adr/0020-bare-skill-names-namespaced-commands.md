@@ -23,11 +23,7 @@ because OpenCode does not show its skill-derived commands in autocomplete.
 
 ## Consequences
 
-- The v1 `tool.execute.before` hook removes the `agentdev:` prefix from the
-  `name` argument. The v2 `tool.hook("execute.before")` removes it from the `id`
-  argument.
-- An explicit-only skill gets `permission.skill.<name> = "deny"` on v1 and
-  `autoinvoke: false` on v2. Its `agentdev:<name>` command still runs, because
+- The `agentdev:<name>` command of an explicit-only skill still runs, because
   the skill permission does not apply to commands.
 - A skill or a command that the user defines with the same name replaces the one
   from the bridge. On v1, the bridge does not change a key that the user

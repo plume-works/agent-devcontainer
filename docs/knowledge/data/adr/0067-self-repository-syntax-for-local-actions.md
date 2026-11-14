@@ -21,9 +21,6 @@ starts with `$/`.
 
 ## Consequences
 
-- The zizmor `self-repository` audit enforces the rule in workflow steps, in
-  calls to reusable workflows, and in composite actions that call a local
-  action.
 - A step under `if: always()`, such as `log-debug-stats`, loads its action also
   after a checkout that failed or did not run.
 - A step cannot load an action that an earlier step wrote to disk.
@@ -33,7 +30,6 @@ starts with `$/`.
 - The action content is the same as with `./`. The change does not repair a
   security problem: with each syntax, the responder jobs run a commit that the
   pull request controls.
-- A job runs `actions/checkout` only when a step reads the working tree.
 - The syntax works only on github.com, with runner v2.336.0 or later. A consumer
   on GitHub Enterprise Server, or with older self-hosted runners, must change
   these workflows before it can use them.

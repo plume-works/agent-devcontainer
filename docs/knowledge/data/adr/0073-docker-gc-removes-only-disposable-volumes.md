@@ -10,7 +10,7 @@ All Coder workspaces share one host disk. When the disk is full, a workspace
 cannot extract its Dev Container image, and nothing that the agent start runs
 can start. Workspaces have no autostop, so a prune at agent start almost never
 runs. As a result, the supervised `docker-gc` service runs a pass when it starts
-and then each `AGENTDEV_DOCKER_GC_INTERVAL` seconds, 3600 by default.
+and then each hour.
 
 ## Considered Options
 
@@ -20,16 +20,9 @@ and then each `AGENTDEV_DOCKER_GC_INTERVAL` seconds, 3600 by default.
   containers.
 - Coder autostop, so that a prune at start runs. Rejected: it changes the
   workspace behaviour for a cleanup schedule.
-- No containerd image store, so that all storage is in one directory. Rejected:
-  both limits are still necessary, and Docker can then not use its default
-  store.
 
 ## Consequences
 
-- A pass removes unused images older than 72 hours, decreases the build cache to
-  10 GB, and removes old disposable volumes
-  (`py_packages/agentdev_runtime/agentdev_runtime/docker.py::gc`). The
-  maintainer chose the two values.
 - Each pass runs `docker builder prune` itself, because BuildKit can run its own
   collection only after a build.
 - The cache limit counts only cache that no kept image shares. Shared cache is

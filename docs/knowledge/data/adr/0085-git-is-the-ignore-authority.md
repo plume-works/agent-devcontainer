@@ -18,9 +18,3 @@ files of a repository are the one source of ignore rules.
   state of a path with its tracked state.
 - Use the excluded-directory set inside a work tree too. Rejected: a repository
   then cannot include a directory that the set names.
-
-## Consequences
-
-- Discovery never examines `.git/`, because the ignore rules of git do not name
-  it
-  (`py_packages/validate_agent_files/validate_agent_files/loaders.py::_kept_subdirs`).

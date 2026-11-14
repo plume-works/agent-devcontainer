@@ -22,15 +22,7 @@ and this repository has typed destinations and skills that write to them.
 
 ## Consequences
 
-- `agentdev-runtime catalog install` installs each plugin that the marketplace
-  publishes. In a Dev Container, the create phase and the attach phase install
-  at user scope. The standalone runtime also installs at user scope
-  (`py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.catalog`).
-  As a result, each Dev Container and standalone runtime enables `self-improve`
-  and its hooks.
 - The committed `.claude/settings.json` does not enable `self-improve`.
-- `validate_agent_files` checks each plugin that the marketplace publishes.
 - Some tests of `self-improve` start real Claude sessions and use the model.
-  `.agents/plugins/self-improve/tests/conftest.py::pytest_collection_modifyitems`
-  skips them unless `SELF_IMPROVE_RUN_LIVE` is set. A marker filter in `addopts`
-  does not prevent the run, because a test path or `-m` replaces it.
+  They are skipped unless `SELF_IMPROVE_RUN_LIVE` is set. A marker filter in
+  `addopts` does not prevent the run, because a test path or `-m` replaces it.

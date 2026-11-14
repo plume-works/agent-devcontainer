@@ -22,6 +22,3 @@ Plan.
 - A script in the check of the plan shape that finds a story of the work.
   Rejected: a story has no shape. A length or prose ratio rule fails on long
   plans and misses a short story.
-- `## Context` and `## Approach` are read-only to Implement. Rejected: correct
-  changes to intent come during Implement, and the material deviation route
-  handles them.

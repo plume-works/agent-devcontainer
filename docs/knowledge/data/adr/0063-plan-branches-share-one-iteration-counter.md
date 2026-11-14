@@ -21,11 +21,3 @@ merges, so `N` also counts the pull requests in all states.
   reference next to a reference below it, so it blocks each later work branch.
 - A lower limit from branches alone when `gh` fails. Rejected: it can use again
   the name of a merged iteration and mix the history of two pull requests.
-
-## Consequences
-
-- Two checkouts can take the same `N` in different phases. The next name is
-  still after both.
-- The counter ignores branches in the earlier `impl/<slug>/iter-<N>` and
-  `ship/<slug>/iter-<N>` shapes.
-- `iwe-branch-name.py next` stops with `GH_UNAVAILABLE` when `gh` fails.

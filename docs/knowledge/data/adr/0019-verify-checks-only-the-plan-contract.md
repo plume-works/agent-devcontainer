@@ -20,14 +20,3 @@ Verify rounds, or when it needs a second revision.
 - Verify reports a stricter result when Ship calls it. Rejected: the saved
   report then changes with the caller, and Ship uses the report of the loop
   again.
-
-## Consequences
-
-- The loop acts on each `CRITICAL` result. It acts on a `WARNING` result only
-  when the fix fits a task that the plan has and adds no claim that the code
-  must then meet. It files each other `WARNING` result through
-  `/agentdev:iwe-capture`.
-- Ship, not Verify, refuses a plan while a task with a Closed by line is
-  unticked. Verify lists that task as an outstanding observation.
-- A plan has no step that only says that CI passes, and a search for remaining
-  text examines only the files that the plan changes.

@@ -21,15 +21,7 @@ ecosystem. Only the CI of this repository uses `--require-marketplace claude`.
 
 ## Consequences
 
-- The catalog has a Claude Code plugin and the OpenCode bridge, and nothing for
-  Codex. A complete catalog holds only these two, so
-  `agentdev-runtime catalog install` registers the catalog only for Claude Code
-  and OpenCode.
-- A user can install Codex in a container, but nothing configures it or
-  registers the catalog for it.
 - No test checks that the images and the runtime have no Codex. This ADR records
   that the absence is a decision.
-  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_never_invokes_codex_on_path`
-  checks only that the macOS bootstrap does not start `codex`.
 - The `chatgpt-codex-connector[bot]` reviewer on GitHub is not a harness. A test
   that identifies this bot is not Codex support.

@@ -11,8 +11,7 @@ tools of an IWE MCP server copied an interface that nothing used. A registered
 server also adds its prompts `explore`, `review`, and `refactor` to the slash
 command menu of each client. These prompts ignore the schemas of this repository
 and have the same names as catalog skills. For this reason, the repository
-registers no IWE MCP server, and `dev_tools_pinned_tools` installs `iwe` and
-`iwes` but not `iwec`.
+registers no IWE MCP server, and the image does not install `iwec`.
 
 ## Considered Options
 
@@ -27,5 +26,3 @@ registers no IWE MCP server, and `dev_tools_pinned_tools` installs `iwe` and
 
 - A skill that needs a graph operation uses the `iwe` CLI. A new skill must not
   use `mcp__iwe__*` tools, because they are not there.
-- `iwes`, the language server of the IWE editor extension, stays installed.
-- A consumer gets no IWE MCP server by default.

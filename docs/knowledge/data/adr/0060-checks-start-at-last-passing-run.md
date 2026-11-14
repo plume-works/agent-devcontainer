@@ -15,16 +15,3 @@ at the previous push.
 
 - Compare with the previous push only. Rejected: the changes of a cancelled or
   failed run never start the filtered jobs, and gitleaks never scans them.
-
-## Consequences
-
-- Each commit on `main` gets the filtered jobs, the hooks, and the gitleaks
-  scan.
-- When the search for the last passing run fails or finds no passing run, the
-  check uses the previous push and writes a warning.
-- The gitleaks hook scans the commits of the range, not only the tree. It reads
-  the patch of each commit, so it finds a secret that one commit adds and a
-  later commit removes. A push that creates a branch scans only the pushed
-  commit, and a manual run scans all of the history.
-- The searches are in `.github/actions/paths-filter/action.yml` and
-  `scripts/pre-commit-ci-range.py::_widen_to_last_pass`.

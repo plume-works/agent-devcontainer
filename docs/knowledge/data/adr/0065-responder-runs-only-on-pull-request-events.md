@@ -19,12 +19,6 @@ the default branch, and no job needs contents write.
 - A review that a comment requests, dispatched onto the head branch. Rejected:
   the `main` ruleset does not count the checks of a `workflow_dispatch` run, and
   the actor of that run is `github-actions[bot]`, not the requester.
-- A reply that refuses `@claude review` comments. Rejected: it keeps a
-  privileged comment trigger only to send a request to the label, which already
-  does the same work.
-- Keep the task responder, with reviews only as the default. Rejected: the task
-  path is the part that needs contents write, the dispatch, and the identity of
-  the requester between runs.
 
 ## Consequences
 

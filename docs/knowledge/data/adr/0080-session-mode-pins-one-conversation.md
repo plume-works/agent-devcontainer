@@ -27,8 +27,6 @@ sufficient, because each instance has one workspace folder.
 
 ## Consequences
 
-- Only the pane gets the pin hook, through `claude --settings`
-  (`py_packages/agentdev_runtime/agentdev_runtime/remote_control.py::session`).
 - A resume that exits non-zero starts a new pinned conversation. As a result, a
   crash of a resumed session also starts a new conversation.
 - The transcript records the claude.ai session of the conversation, so a resume
@@ -42,5 +40,3 @@ sufficient, because each instance has one workspace folder.
 - A reconnect that fails for a temporary cause leaves Remote Control off in a
   session that continues to run. Only `/remote-control` in that session tries
   again.
-- A removal of the home volume removes the stored ID and the conversation, and
-  the next start makes a new conversation.

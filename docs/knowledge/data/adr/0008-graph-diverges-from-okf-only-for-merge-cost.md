@@ -23,9 +23,6 @@ the lifecycle field.
 
 ## Consequences
 
-- The `banned-frontmatter-keys` pre-commit check
-  (`docs/knowledge/tests/test_banned_frontmatter_keys.py::BANNED_KEYS`) rejects
-  a document that sets one of the three keys.
 - `sources` stays. It records what a document comes from, and it does not change
   at each edit.
 - `data/index.md` stays as OKF requires. It lists only hubs and changes only

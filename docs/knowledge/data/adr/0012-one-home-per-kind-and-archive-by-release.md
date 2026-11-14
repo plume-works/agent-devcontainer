@@ -15,10 +15,6 @@ type, so that the schema of its type still applies.
 
 ## Considered Options
 
-- Keep specs in OpenSpec. Rejected: OpenSpec keeps specs outside the graph and
-  outside the Plan and Ship workflow.
-- Keep `data/architecture/` for decisions only. Rejected: no script can make
-  sure that a note states no behaviour, and no workflow step updates a note.
 - A smaller validation for documents in the archive. Rejected: the user chose
   full validation. A schema change applies to the archived documents of that
   type in the same change.

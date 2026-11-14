@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The Dev Container and the standalone runtime set the subagent depth limit of Claude Code and OpenCode to 5, and the compose files hold the Claude Code value.
+description: The Dev Container and the standalone runtime set the subagent depth limit of Claude Code and OpenCode to 5.
 ---
 
 # Both harnesses permit a subagent depth of 5 in the containers
@@ -26,14 +26,7 @@ macOS keeps the default limit of Claude Code.
 ## Consequences
 
 - A Claude Code agent can dispatch only when its `tools:` list includes `Agent`,
-  or when it has no `tools:` list. For this reason, `iwe-shipper` lists `Agent`,
-  and it dispatches `iwe-verifier` through `/agentdev:iwe-verify`. This dispatch
-  is nested.
-- The agents that the Implement loop dispatches start no other agent, so the
-  loop does not need the depth setting.
-- `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` is in the `environment:` of
-  `.devcontainer/docker-compose.yml` and `compose.opencode.yml`, and a value on
-  the host replaces it.
+  or when it has no `tools:` list.
 - `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py` writes
   `experimental.subagent_depth`. OpenCode can rename or remove an `experimental`
   key, and the maintainer accepts this risk.

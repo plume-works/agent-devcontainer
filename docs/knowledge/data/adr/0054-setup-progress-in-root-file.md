@@ -18,8 +18,6 @@ marker, because JSON has one parse with one failure result, `INVALID_MARKER`.
 - Read the consumed commit from the progress document. Rejected: a commit SHA in
   prose has no parse and no failure result. If the recorded commit moves to a
   wrong commit, the update misses upstream changes and nothing shows it.
-- A copy of the task list in the knowledge-base summary. Rejected: the two
-  copies become different.
 
 ## Consequences
 

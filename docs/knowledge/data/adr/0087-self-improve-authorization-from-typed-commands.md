@@ -19,9 +19,3 @@ authorization.
 - A matcher that names the commands. Rejected: Claude Code does not make sure
   that the `command_name` of a plugin skill has the namespaced form. A matcher
   that does not match removes the authorization of the user and shows no error.
-
-## Consequences
-
-- `.agents/plugins/self-improve/selfimprove/authz.py` creates authorization
-  records only from this event, and it accepts the bare and the namespaced
-  command names.

@@ -22,9 +22,6 @@ could not occur.
 
 ## Consequences
 
-- `.github/workflows/renovate.yml` permits only
-  `scripts/renovate-post-upgrade.py`, through an anchored
-  `RENOVATE_ALLOWED_COMMANDS` pattern.
 - Each workflow job that runs in the image pins the same digest, and Renovate
   moves each copy in one pull request. As a result, a digest update runs the
   required check of `.github/workflows/validate-renovate-config.yml` in the new

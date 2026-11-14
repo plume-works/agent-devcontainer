@@ -43,10 +43,5 @@ ask its user about an unclear plan and a material deviation. As a result,
   it changes the graph. This dispatch is nested, so it needs the depth limit
   that [Both harnesses permit a subagent depth of 5 in the
   containers](0091-subagent-nesting-depth-five.md) sets.
-- `iwe-verifier` has the `Write` and `Skill` tools. A rule of its rulebook, not
-  its tool list, keeps it report-only.
 - The Implement loop runs in the Implement session. Each agent that the loop
   dispatches starts no other agent, so no dispatch is nested.
-- Only `/agentdev:iwe-ship` and `/agentdev:iwe-plan` revise mode dispatch
-  `iwe-shipper`. The catalog has no skill that implements or ships more than one
-  plan for each request.

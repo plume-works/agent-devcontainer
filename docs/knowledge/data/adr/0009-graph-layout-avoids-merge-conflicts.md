@@ -41,10 +41,6 @@ sorted by key.
 - The interval between two ranks is 100, and an insertion takes the midpoint of
   the two adjacent ranks, so an insertion edits no other item. Only a pull
   request that changes the order gives new numbers.
-- Ship removes `rank`, so only work that did not ship has a `rank`. Equal ranks
-  are valid, the key sorts them, and CI writes a warning for them.
-- Ship writes no release page. Only the release cut writes one, so no file
-  changes at each ship.
 - Two pull requests conflict in a hub only when their new members are adjacent
   in the sort order.
 - A query selects documents by `type` and frontmatter, not by hub membership.

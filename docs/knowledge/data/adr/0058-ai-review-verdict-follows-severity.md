@@ -26,13 +26,7 @@ one.
 
 ## Consequences
 
-- A blocking finding without an inline thread also makes the verdict
-  `REQUEST_CHANGES`. The metadata gate is a blocking finding.
-- A review that has only findings that do not block is an `APPROVE` with inline
-  comments. A review with a blocking finding stops the merge until a later
-  review from the same reviewer approves.
 - The inline threads of a review with the `APPROVE` verdict stop the merge until
   a person resolves them.
 - The review uses `COMMENT` only when GitHub refuses a verdict on a pull request
-  that the review account owns. The responder does not review a pull request
-  whose author is a bot.
+  that the review account owns.

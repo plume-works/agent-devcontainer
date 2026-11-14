@@ -18,8 +18,6 @@ a consumer has it without the publisher-only source.
 
 ## Consequences
 
-- The tests of the validator are in `py_packages/validate_agent_files/tests/`,
-  and the tests of the catalog scripts are in `.agents/plugins/agentdev/tests/`.
 - A full template copy deletes `py_packages/validate_agent_files/` as
   publisher-only source. The consumer then runs `validate_agent_files` from the
   image, without `uv run`, also in a CI job that runs in the image.

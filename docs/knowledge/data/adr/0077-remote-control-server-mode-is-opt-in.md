@@ -34,15 +34,6 @@ with no message.
 
 ## Consequences
 
-- The start checks the mode before each other check. It reads the spawn value
-  only in server mode, and session mode ignores it.
-- The server runs in the `claude-remote` session of the `tmux -L claude-remote`
-  server, as the pinned pane does. It has the same claude.ai login check, it
-  uses a live session again, and it gets no `CLAUDE_CODE_OAUTH_TOKEN`. When
-  `CODER_WORKSPACE_NAME` is set, the start gives it as `--name` and
-  `--remote-control-session-name-prefix`.
-- A change of mode or spawn value does not change a live `claude-remote`
-  session. It applies at the next start.
 - The server refuses `--settings`, so it has no pin hook. The start always gives
   `--spawn`, because without it the server stops at a prompt. `worktree` is the
   default spawn mode, by decision of the maintainer.

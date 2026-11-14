@@ -19,10 +19,3 @@ environment on `PATH`.
 - `uv sync --frozen`. Rejected: it does not make sure that `uv.lock` is current.
   A later `uv run` can then install a dependency that `uv.lock` does not have,
   in the middle of a job.
-
-## Consequences
-
-- uv creates the environment, so the action caches the uv package cache and not
-  the environment directory.
-- `UV_PYTHON_PREFERENCE=only-system` makes uv use the interpreter that
-  `actions/setup-python` installed.
