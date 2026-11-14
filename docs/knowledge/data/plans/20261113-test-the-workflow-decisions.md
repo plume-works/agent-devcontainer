@@ -71,10 +71,15 @@ Each test shows what the `fate_note` of its row in
 **Files:** Create: a script and a test file for the decision; Modify:
 `.github/actions/docker/promote/action.yml`
 
-- [ ] A test runs "published tags name only tested images" for a descendant
+- [x] A test runs "published tags name only tested images" for a descendant
   commit, for an unknown commit, and for an image that has no label.
-- [ ] `.github/actions/docker/promote/action.yml` calls the script and holds no
+  - **Evidence:** `scripts/tests/test_promote_tag_decision.py` runs
+    `.github/actions/docker/promote/tag-decision.sh` in a fixture repository for
+    these cases and for an ancestor and the same commit; 5 tests pass.
+- [x] `.github/actions/docker/promote/action.yml` calls the script and holds no
   copy of the decision.
+  - **Evidence:** the tag loop calls `tag-decision.sh` and keeps only the
+    registry calls; shellcheck, zizmor, and actionlint pass.
 
 ### Task 3: Observe the AI review gate on a pull request
 
