@@ -64,8 +64,12 @@ Each test shows what the `fate_note` of its row says.
     against a locally signed fake PPA: release with `--latest=false`, no
     replacement, and nothing published on a wrong key or a broken hash chain; 5
     passed.
-- [ ] A test runs `agentdev-runtime-images` "the bootstrap trusts an extra CA
+- [x] A test runs `agentdev-runtime-images` "the bootstrap trusts an extra CA
   bundle".
+  - **Evidence:** `scripts/tests/test_devcontainer_init.py` runs the init
+    script: an empty `.extra-ca.crt` with no CA, the named bundle over the Node
+    one, the Node fallback, a skipped unreadable Node bundle, and exit 1 on an
+    unreadable named bundle; 7 passed.
 - [ ] A test runs `catalog-lifecycle` "registering a catalog root replaces
   earlier registrations".
 - [ ] A test runs `devcontainer-git-credentials` "gh authenticates from the git
