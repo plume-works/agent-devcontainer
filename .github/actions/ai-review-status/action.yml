@@ -28,12 +28,13 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Read the pull request and its reviews
-      id: facts
+    - name: Evaluate AI review acceptance
+      id: check
       uses: actions/github-script@v9.0.0
       env:
         PR_NUMBER: ${{ inputs.pr-number }}
         TRUSTED_BOT_ACTORS: ${{ inputs.trusted-bot-actors }}
+        ACTION_PATH: ${{ github.action_path }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -46,6 +47,7 @@ runs:
             throw new Error(`pr-number must be a positive integer, got ${JSON.stringify(process.env.PR_NUMBER)}`);
           }
 
+          const { reviewAcceptance } = require(`${process.env.ACTION_PATH}/review-gate.js`);
           const { data: pr } = await github.rest.pulls.get(pullRequest);
           const reviews = await github.paginate(github.rest.pulls.listReviews, {
             ...pullRequest,
@@ -56,19 +58,8 @@ runs:
               .map((review) => `${review?.user?.login ?? 'unknown'}:${review.state}:${review.commit_id}`)
               .join(', ') || 'none'}`
           );
-          core.setOutput('facts', JSON.stringify({
-            author: { login: pr.user?.login, type: pr.user?.type },
-            trusted_bots: process.env.TRUSTED_BOT_ACTORS ?? '',
-            reviews: reviews.map((review) => ({
-              login: review?.user?.login,
-              state: review?.state,
-              commit_id: review?.commit_id,
-            })),
-          }));
 
-    - name: Evaluate AI review acceptance
-      id: check
-      uses: $/.github/actions/ai-review-gate
-      with:
-        decision: review-accepted
-        facts: ${{ steps.facts.outputs.facts }}
+          const { found, reason } = reviewAcceptance(pr.user, reviews, process.env.TRUSTED_BOT_ACTORS);
+          core.info(reason);
+          core.setOutput('found', String(found));
+          core.setOutput('reason', reason);

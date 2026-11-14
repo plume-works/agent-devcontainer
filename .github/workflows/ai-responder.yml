@@ -72,31 +72,28 @@ jobs:
     outputs:
       checkout_ref: ${{ steps.checkout_ref.outputs.ref }}
       head_ref: ${{ steps.checkout_ref.outputs.headRef }}
-      is_fork: ${{ steps.fork.outputs.is_fork }}
+      is_fork: ${{ steps.checkout_ref.outputs.isFork }}
       is_pull_request: ${{ steps.checkout_ref.outputs.isPullRequest }}
       is_draft: ${{ steps.checkout_ref.outputs.isDraft }}
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
       review_exists: ${{ steps.review_status.outputs.found }}
-      wants_review: ${{ steps.wants_review.outputs.wants_review }}
+      wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
       request_label: ${{ steps.checkout_ref.outputs.requestLabel }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
-      - name: Classify the head repository
-        id: fork
-        uses: $/.github/actions/ai-review-gate
+      # The github-script steps load the gate decisions from this module.
+      - name: Check out the AI review gate module
+        uses: actions/checkout@v7.0.1
         with:
-          decision: is-fork
-          facts: >-
-            {"head_repository": ${{ toJSON(github.event.pull_request.head.repo.full_name) }},
-            "repository": ${{ toJSON(github.repository) }}}
+          sparse-checkout: .github/actions/ai-review-status
+          persist-credentials: false
 
       - name: Determine checkout ref
         id: checkout_ref
         uses: actions/github-script@v9.0.0
-        env:
-          IS_FORK: ${{ steps.fork.outputs.is_fork }}
         with:
           script: |
+            const { isFork: headIsFork } = require('./.github/actions/ai-review-status/review-gate.js');
             const { payload } = context;
             let ref = context.sha;
             const pullRequest = payload.pull_request;
@@ -106,7 +103,7 @@ jobs:
               ref = pullRequest.head.sha;
             }
 
-            const isFork = process.env.IS_FORK === 'true';
+            const isFork = headIsFork(pullRequest, `${context.repo.owner}/${context.repo.repo}`);
 
             if (isFork) {
               console.log(`Pull request originates from a fork: ${pullRequest.head.repo.full_name}. Not checking out the forked repository for security reasons.`);
@@ -116,6 +113,7 @@ jobs:
               core.setOutput('prNumber', prNumber);
               core.setOutput('headRef', pullRequest?.head?.ref ?? '');
             }
+            core.setOutput('isFork', isFork);
             core.setOutput('isPullRequest', Boolean(pullRequest));
             core.setOutput('isDraft', Boolean(pullRequest?.draft));
             // Read live, not from the payload, so a label added just after the
@@ -133,18 +131,18 @@ jobs:
 
       - name: Check for an accepted AI review
         id: review_status
-        if: steps.fork.outputs.is_fork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
+        if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
         uses: $/.github/actions/ai-review-status
         with:
           pr-number: ${{ steps.checkout_ref.outputs.prNumber }}
           github-token: ${{ github.token }}
 
-      - name: Read the permission of the triggering actor
-        id: permission
-        if: steps.fork.outputs.is_fork != 'true'
+      - name: Authorize the triggering actor
+        if: steps.checkout_ref.outputs.isFork != 'true'
         uses: actions/github-script@v9.0.0
         with:
           script: |
+            const { canTrigger } = require('./.github/actions/ai-review-status/review-gate.js');
             const actor = context.actor;
             let permission;
             try {
@@ -159,40 +157,38 @@ jobs:
                 `Could not verify write access for ${actor}: ${error.message}`
               );
             }
-            core.setOutput('facts', JSON.stringify({ actor, permission }));
 
-      - name: Authorize the triggering actor
-        if: steps.fork.outputs.is_fork != 'true'
-        uses: $/.github/actions/ai-review-gate
-        with:
-          decision: authorize
-          facts: ${{ steps.permission.outputs.facts }}
-
-      - name: Decide whether to review
-        id: wants_review
-        if: steps.fork.outputs.is_fork != 'true'
-        uses: $/.github/actions/ai-review-gate
-        with:
-          decision: wants-review
-          facts: >-
-            {"event": ${{ toJSON(github.event_name) }},
-            "action": ${{ toJSON(github.event.action) }},
-            "label": ${{ toJSON(github.event.label.name) }},
-            "draft": ${{ toJSON(steps.checkout_ref.outputs.isDraft) }},
-            "block_ai_reviews": ${{ toJSON(steps.checkout_ref.outputs.blockAiReviews) }},
-            "request_label": ${{ toJSON(steps.checkout_ref.outputs.requestLabel) }},
-            "review_exists": ${{ toJSON(steps.review_status.outputs.found) }}}
+            if (!canTrigger(permission)) {
+              throw new Error(
+                `User ${actor} does not have permission to trigger the responder.`
+              );
+            }
 
       - name: Determine agent prompts
         id: agent_prompts
-        if: steps.fork.outputs.is_fork != 'true'
+        if: steps.checkout_ref.outputs.isFork != 'true'
         uses: actions/github-script@v9.0.0
         env:
           PR_NUMBER: ${{ steps.checkout_ref.outputs.prNumber }}
+          IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
+          BLOCK_AI_REVIEWS: ${{ steps.checkout_ref.outputs.blockAiReviews }}
+          REQUEST_LABEL: ${{ steps.checkout_ref.outputs.requestLabel }}
+          REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
         with:
           script: |
-            const { eventName } = context;
+            const { eventName, payload } = context;
             const prNumber = process.env.PR_NUMBER;
+            const { wantsReview: decide } = require('./.github/actions/ai-review-status/review-gate.js');
+            const wantsReview = decide({
+              eventName,
+              action: payload.action,
+              label: payload.label?.name,
+              isDraft: process.env.IS_DRAFT === 'true',
+              blockAiReviews: process.env.BLOCK_AI_REVIEWS === 'true',
+              requestLabel: process.env.REQUEST_LABEL === 'true',
+              reviewExists: process.env.REVIEW_EXISTS === 'true',
+            });
+            core.setOutput('wantsReview', wantsReview);
             // Fully qualified on purpose. An unqualified "pr-review skill" also
             // matches Claude Code's built-in `code-review` skill, whose
             // `ReportFindings` is a no-op in a headless action.
@@ -276,14 +272,23 @@ jobs:
           trusted-bot-actors: ${{ env.TRUSTED_BOT_ACTORS }}
 
       - name: Verify AI reviewed PR
-        uses: $/.github/actions/ai-review-gate
-        with:
-          decision: gate
-          facts: >-
-            {"event": ${{ toJSON(github.event_name) }},
-            "review_job_result": ${{ toJSON(needs.claude-respond.result) }},
-            "found": ${{ toJSON(steps.review_status.outputs.found) }},
-            "reason": ${{ toJSON(steps.review_status.outputs.reason) }}}
+        env:
+          REVIEW_JOB_RESULT: ${{ needs.claude-respond.result }}
+          REVIEW_FOUND: ${{ steps.review_status.outputs.found }}
+          REVIEW_REASON: ${{ steps.review_status.outputs.reason }}
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == 'merge_group' ]]; then
+            echo 'Merge group event, skipping AI review check'
+            exit 0
+          fi
+          case "${REVIEW_JOB_RESULT}" in
+            failure | cancelled)
+              echo "::error::The review job ended with ${REVIEW_JOB_RESULT}."
+              exit 1
+              ;;
+          esac
+          echo "Review job: ${REVIEW_JOB_RESULT}. ${REVIEW_REASON}"
+          [[ "${REVIEW_FOUND}" == 'true' ]]
 
       - name: Log debug stats
         if: ${{ always() }}
@@ -310,14 +315,25 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      # The github-script steps load the gate decisions from this module.
+      - name: Check out the AI review gate module
+        uses: actions/checkout@v7.0.1
+        with:
+          sparse-checkout: .github/actions/ai-review-status
+          persist-credentials: false
+
       - name: Decide whether to approve
         id: eligible
-        uses: $/.github/actions/ai-review-gate
+        uses: actions/github-script@v9.0.0
         with:
-          decision: trusted-bot
-          facts: >-
-            {"login": ${{ toJSON(github.event.pull_request.user.login) }},
-            "trusted_bots": ${{ toJSON(env.TRUSTED_BOT_ACTORS) }}}
+          script: |
+            const { isTrustedBot } = require('./.github/actions/ai-review-status/review-gate.js');
+            const login = context.payload.pull_request.user.login;
+            if (!isTrustedBot(login, process.env.TRUSTED_BOT_ACTORS)) {
+              core.info(`${login} is not a trusted bot; nothing to approve.`);
+              return;
+            }
+            core.setOutput('approve', 'true');
 
       # Do not use GITHUB_TOKEN as an alternative token: see ADR-0066.
       - name: Require the App secrets
@@ -343,13 +359,31 @@ jobs:
           private-key: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
           permission-pull-requests: write
 
-      - name: Read the branch history and commits
-        id: history
+      - name: Approve on behalf of the trusted bot
         if: steps.eligible.outputs.approve == 'true'
         uses: actions/github-script@v9.0.0
+        env:
+          APP_TOKEN: ${{ steps.app_token.outputs.token }}
         with:
           script: |
+            const { botApprovalFailure } = require('./.github/actions/ai-review-status/review-gate.js');
             const { payload } = context;
+            const login = payload.pull_request.user.login;
+            const app = getOctokit(process.env.APP_TOKEN);
+
+            const pullRequest = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: payload.pull_request.number,
+            };
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              ...pullRequest,
+              per_page: 100,
+            });
+            const ownApprovals = reviews.filter(
+              (review) => review.user?.login === 'plume-works-quill[bot]' && review.state === 'APPROVED',
+            );
+
             // The list starts with the newest activity. The pagination stops at the latest branch creation.
             const activities = await github.paginate(
               github.rest.repos.listActivities,
@@ -368,61 +402,10 @@ jobs:
               },
             );
             const commits = await github.paginate(github.rest.pulls.listCommits, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: payload.pull_request.number,
-              per_page: 100,
-            });
-            core.setOutput('facts', JSON.stringify({
-              login: payload.pull_request.user.login,
-              activities: activities.map((activity) => ({
-                type: activity.activity_type,
-                actor: activity.actor?.login,
-                after: activity.after,
-              })),
-              commits: commits.map((commit) => ({
-                sha: commit.sha,
-                author: commit.author?.login,
-                committer: commit.committer?.login,
-                verified: commit.commit.verification?.verified,
-                verification_reason: commit.commit.verification?.reason,
-              })),
-            }));
-
-      - name: Check the branch history and commits
-        id: approval
-        if: steps.eligible.outputs.approve == 'true'
-        uses: $/.github/actions/ai-review-gate
-        with:
-          decision: bot-approval
-          facts: ${{ steps.history.outputs.facts }}
-
-      - name: Approve on behalf of the trusted bot
-        if: steps.eligible.outputs.approve == 'true'
-        uses: actions/github-script@v9.0.0
-        env:
-          APP_TOKEN: ${{ steps.app_token.outputs.token }}
-          FAILURE: ${{ steps.approval.outputs.failure }}
-        with:
-          script: |
-            const { payload } = context;
-            const login = payload.pull_request.user.login;
-            const app = getOctokit(process.env.APP_TOKEN);
-            const failure = process.env.FAILURE;
-
-            const pullRequest = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: payload.pull_request.number,
-            };
-            const reviews = await github.paginate(github.rest.pulls.listReviews, {
               ...pullRequest,
               per_page: 100,
             });
-            const ownApprovals = reviews.filter(
-              (review) => review.user?.login === 'plume-works-quill[bot]' && review.state === 'APPROVED',
-            );
-
+            const failure = botApprovalFailure(login, activities, commits);
             if (failure) {
               for (const review of ownApprovals) {
                 await app.rest.pulls.dismissReview({
