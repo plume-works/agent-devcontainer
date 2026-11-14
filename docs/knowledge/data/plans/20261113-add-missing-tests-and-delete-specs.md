@@ -83,8 +83,13 @@ Each test shows what the `fate_note` of its row says.
     stand-in real gh and a real git credential helper: the helper token, no
     helper, a set token, the `GH_WRAPPER_ACTIVE` guard, a second wrapper copy,
     and no real gh on `PATH`; 6 passed.
-- [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
+- [x] A test runs `devcontainer-state` "the create phase re-owns the sibling
   checkout volume".
+  - **Evidence:** The Docker tests in
+    `scripts/tests/test_agentdev_devcontainer_lifecycle.py` cover the re-own, an
+    owned volume, and the open workspace;
+    `py_packages/agentdev_runtime/tests/test_claim_project.py` adds a root
+    account and no mount; 2 passed.
 - [ ] A test runs `update-branch` "update-branch brings in the branch's upstream
   before the base" for a branch that has no upstream.
 
