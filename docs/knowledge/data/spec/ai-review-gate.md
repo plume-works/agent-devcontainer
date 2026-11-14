@@ -268,35 +268,6 @@ ruleset bypass can merge it.
 - **THEN** no review responder runs, and `ai-review-present` passes on the
   existing review.
 
-## Requirement: the AI review verdict follows its findings
-
-The review responder SHALL submit `APPROVE` when no validated finding remains or
-every validated finding is non-blocking, and SHALL submit `REQUEST_CHANGES` when
-any blocking finding remains, whether or not it is attached inline. It SHALL NOT
-choose `COMMENT`, except as the retry when GitHub rejects a verdict because the
-reviewer owns the pull request.
-
-### Scenario: a re-review finds only non-blocking issues
-
-- **WHEN** the AI reviewer earlier requested changes on a pull request and a
-  re-review finds only non-blocking issues
-- **THEN** the re-review is an `APPROVE` with inline comments, the reviewer's
-  change request no longer blocks merge, and merge waits only for the inline
-  threads to be resolved.
-
-### Scenario: a review finds an anchored blocking issue
-
-- **WHEN** a review finds a blocking issue and attaches it inline
-- **THEN** the review is `REQUEST_CHANGES`, and the pull request stays blocked
-  until a later review from the same reviewer approves it.
-
-### Scenario: the title or description is stale
-
-- **WHEN** the pull request's title or description materially misdescribes its
-  diff
-- **THEN** the review stops before the in-depth passes and submits
-  `REQUEST_CHANGES` with the metadata finding in its body.
-
 ## Requirement: trusted-bot pull requests are approved without an AI review
 
 The AI responder workflow SHALL approve a same-repository pull request whose

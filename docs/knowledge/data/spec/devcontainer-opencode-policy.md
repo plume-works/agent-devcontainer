@@ -18,66 +18,6 @@ devcontainer, which is itself the isolation boundary.
 
 ## Requirements
 
-### Requirement: devcontainer OpenCode runs with unrestricted filesystem access
-
-On every container start, `agentdev-runtime lifecycle ready` SHALL, through
-`agentdev-runtime state agent-policy`, set `$schema` to
-`https://opencode.ai/config.json`, `permission["*"]` to `"allow"`,
-`permission.external_directory["/**"]` to `"allow"`, and
-`experimental.subagent_depth` to `5` in the OpenCode `opencode.json` resolved
-from `OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`, or the user's default config
-directory. It SHALL patch `opencode.jsonc` when that file exists and
-`opencode.json` otherwise, SHALL parse either as JSONC and reject duplicate
-keys, and SHALL write the result as strict JSON, replacing the file atomically
-through a temporary file in the same directory. It SHALL keep every existing
-top-level key in its position, replacing only the managed keys' values, and
-SHALL add `$schema` first and `permission` and `experimental` last only when
-missing. The config directory SHALL have mode `0700` and the file SHALL have
-mode `0600`. The step SHALL run after the supervised services are ready and
-after the git credential helper setup, so a failure fails the start hook without
-keeping those services from starting.
-
-#### Scenario: a container starts with no OpenCode config
-
-- **WHEN** the container starts and `opencode.json` does not exist
-- **THEN** it is created with the schema, both permission rules, and the nesting
-  depth at mode `0600`.
-
-#### Scenario: the config carries catalog and user settings
-
-- **WHEN** `opencode.json` contains a plugin list, unrelated top-level keys,
-  additional permission rules, or other `experimental` keys
-- **THEN** those values survive and the managed values are set.
-
-#### Scenario: the container restarts with a configured config
-
-- **WHEN** the container starts again and `opencode.json` is unchanged since the
-  configure step last wrote it
-- **THEN** the configure step leaves it byte-identical.
-
-#### Scenario: the config directory contains JSON and JSONC
-
-- **WHEN** `opencode.jsonc` contains comments or trailing commas and exists
-  alongside `opencode.json`
-- **THEN** the configure step patches the higher-precedence JSONC config,
-  preserves its setting values, and leaves `opencode.json` unchanged.
-
-#### Scenario: the config repeats a key
-
-- **WHEN** the selected config declares the same key twice
-- **THEN** the configure step fails and leaves the file unchanged.
-
-#### Scenario: a JSONC config carries comments
-
-- **WHEN** the configure step patches an `opencode.jsonc` that holds comments
-- **THEN** the setting values survive and the file is rewritten as strict JSON
-  without the comments.
-
-#### Scenario: the config is malformed
-
-- **WHEN** the existing `opencode.json` is not valid JSON
-- **THEN** the configure step fails and leaves the file unchanged.
-
 ### Requirement: the OpenCode configure step is consumer-independent
 
 `agentdev-runtime state agent-policy` SHALL take its pinned JSONC parser

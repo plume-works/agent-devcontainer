@@ -129,12 +129,21 @@ the row in `docs/spec-audit/requirements.jsonl`.
 
 **Files:** Modify: the documents under `docs/knowledge/data/spec/`
 
-- [ ] Each requirement that changed after commit `c81efa7e` was read against the
+- [x] Each requirement that changed after commit `c81efa7e` was read against the
   code again, and its `fate` still applies.
-- [ ] No requirement whose `fate` is `drop-tested` is in `data/spec/`.
-- [ ] No requirement whose `fate` is `drop-prose-duplicate` is in `data/spec/`.
-- [ ] No requirement whose `fate` is `drop-restates` is in `data/spec/`.
-- [ ] Each requirement with another `fate` is in its spec with its scenarios.
+  - **Evidence:** 13 changed and 2 renamed requirements were read against the
+    rulebooks and tests they repeat; each fate holds. `ai-review-gate` "the
+    review never executes code" has no audit row, so it stays.
+- [x] No requirement whose `fate` is `drop-tested` is in `data/spec/`.
+  - **Evidence:** A parse of each spec finds none of the 118 `drop-tested` rows.
+- [x] No requirement whose `fate` is `drop-prose-duplicate` is in `data/spec/`.
+  - **Evidence:** A parse of each spec finds none of the 67 rows, and neither
+    renamed copy.
+- [x] No requirement whose `fate` is `drop-restates` is in `data/spec/`.
+  - **Evidence:** A parse of each spec finds none of the 22 rows.
+- [x] Each requirement with another `fate` is in its spec with its scenarios.
+  - **Evidence:** All 57 rows are present, and each block is byte-equal to its
+    text before the removal.
 
 ### Task 3: Correct the requirements that stay and are not fully true
 

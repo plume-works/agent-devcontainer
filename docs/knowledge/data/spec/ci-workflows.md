@@ -58,23 +58,6 @@ that accepts `$/`.
 - **WHEN** a workflow under `.github/` references a local action as `./...`
 - **THEN** the `zizmor` hook fails
 
-### Requirement: a push to the base branch filters paths from the last passing run
-
-On a push to its base branch, the shared `paths-filter` action SHALL compare
-against the head commit of the calling workflow's last successful `push` run on
-that branch, so commits whose runs were cancelled or failed stay in the compared
-range until a run passes. When there is no such run, or it is the pushed commit,
-the action SHALL compare against the previous push; when the lookup fails, it
-SHALL warn and do the same. Every job that runs the action SHALL grant
-`actions: read`.
-
-#### Scenario: the previous push's run was cancelled
-
-- **WHEN** a push to `main` follows a push whose run was cancelled before
-  passing
-- **THEN** the filter compares from the commit of the last passing run, so the
-  cancelled push's changed paths still match
-
 ## Rationale
 
 ### Paths are filtered from the last passing run

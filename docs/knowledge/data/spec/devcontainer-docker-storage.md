@@ -26,24 +26,6 @@ template's
 
 ## Requirements
 
-### Requirement: the Dev Container image supervises its nested Docker engine
-
-`agentdev-devcontainer` SHALL run the nested Docker daemon through its managed
-service profile on non-overlay persistent storage, under the BuildKit
-garbage-collection policy that Requirement: the Dev Container engine limits its
-build cache states.
-
-#### Scenario: Docker becomes ready
-
-- **WHEN** the Dev Container runtime starts
-- **THEN** runtime readiness remains blocked until the managed Docker daemon
-  answers its probe.
-
-#### Scenario: Docker exhausts recovery
-
-- **WHEN** the daemon cannot recover within its bounded budget
-- **THEN** the runtime fails and reports Docker as the terminal service.
-
 ### Requirement: the engine runs on a per-container volume, with no SSH server
 
 The image's Dev Container metadata SHALL mount a per-container volume
@@ -71,88 +53,6 @@ default.
 - **WHEN** the initialize command runs with no `HOME` in its environment
 - **THEN** the script writes `.devcontainer/.env` and exits 0, and the build
   continues.
-
-### Requirement: the Dev Container engine limits its build cache
-
-The image's Docker configuration SHALL enable BuildKit garbage collection with a
-10 GB build-cache limit, and the supervised daemon SHALL run with it. Each
-garbage-collection pass SHALL also trim the build cache that no kept image
-shares to at most 10 GB, and SHALL leave cache that a kept image shares.
-
-#### Scenario: the build cache passes the limit
-
-- **WHEN** builds inside the Dev Container push the build cache past 10 GB
-- **THEN** BuildKit garbage collection reduces it to at most 10 GB.
-
-#### Scenario: the cache stays over the limit without a build
-
-- **WHEN** the build cache is over 10 GB and no build runs
-- **THEN** the next garbage-collection pass reduces it to at most 10 GB.
-
-#### Scenario: a kept image shares build cache
-
-- **WHEN** build cache holds layers of an image the pass keeps
-- **THEN** the pass keeps that cache until the image is removed.
-
-### Requirement: the Dev Container engine collects garbage hourly
-
-Both runtime profiles SHALL supervise a non-core `docker-gc` service after
-`dockerd` that runs `agentdev-runtime docker gc --every`. It SHALL run one pass
-when it starts and another every `AGENTDEV_DOCKER_GC_INTERVAL` seconds, default
-3600\. A pass SHALL remove images no container references that were created more
-than 72 hours ago, then trim the build cache as Requirement: the Dev Container
-engine limits its build cache states, then remove each volume that no container
-references, whose name matches `(^|_)dind-var-lib-(docker|containerd)-` or
-`_agentdev-(cache|cbm|codex)$`, and that was created more than 72 hours ago. A
-pass SHALL NOT remove any other volume. A failed step SHALL only warn, the pass
-SHALL continue with the next step, and a pass SHALL always exit successfully.
-
-#### Scenario: Docker is unavailable
-
-- **WHEN** `docker` is missing or its daemon does not answer
-- **THEN** the pass removes nothing and exits successfully.
-
-#### Scenario: a step fails
-
-- **WHEN** the image prune exits non-zero
-- **THEN** the pass warns, still trims the build cache and removes volumes, and
-  exits successfully.
-
-#### Scenario: an image is in use
-
-- **WHEN** an image older than 72 hours is referenced by a running or stopped
-  container
-- **THEN** it is kept.
-
-#### Scenario: an old image was pulled recently
-
-- **WHEN** no container references an image that was built more than 72 hours
-  ago and pulled within the last hour
-- **THEN** the pass removes it, because the age is the image's creation time,
-  not its last pull or use.
-
-#### Scenario: a disposable volume is old and unused
-
-- **WHEN** no container references `dind-var-lib-docker-<id>` and it was created
-  more than 72 hours ago
-- **THEN** the pass removes it.
-
-#### Scenario: a disposable volume is young
-
-- **WHEN** no container references a `dind-var-lib-docker-<id>` created less
-  than 72 hours ago
-- **THEN** the pass keeps it.
-
-#### Scenario: a login volume is unused
-
-- **WHEN** no container references `agentdev-agents-auth` or a
-  `_agentdev-claude` volume
-- **THEN** the pass keeps it, however old it is.
-
-#### Scenario: the collector fails
-
-- **WHEN** the `docker-gc` service exits or fails to start
-- **THEN** the runtime does not latch, and every other service keeps running.
 
 ## Rationale
 

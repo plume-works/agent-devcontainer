@@ -18,34 +18,6 @@ standalone runtime, so a dispatched agent can dispatch another. OpenCode's limit
 is a managed value of [Devcontainer OpenCode
 policy](devcontainer-opencode-policy.md).
 
-## Requirements
-
-### Requirement: Claude Code nests subagent dispatch to depth 5
-
-The `devcontainer` service in `.devcontainer/docker-compose.yml` and the
-`opencode` service in `compose.opencode.yml` SHALL set
-`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` in the container environment to the
-host's value when it is set, and to `5` otherwise.
-
-#### Scenario: the host overrides the depth
-
-- **WHEN** the host, or for the standalone runtime `runtime.env`, sets
-  `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`
-- **THEN** the container's Claude Code uses that value.
-
-### Requirement: a catalog agent that dispatches lists `Agent`
-
-A catalog agent that runs as a dispatched subagent and dispatches another agent
-SHALL list `Agent` in its `tools:` frontmatter, because Claude Code offers a
-subagent the `Agent` tool only when its `tools:` list names it or is omitted. A
-rulebook followed in place dispatches with the session's own tools and needs no
-such entry.
-
-#### Scenario: the shipper dispatches the verifier
-
-- **WHEN** `iwe-shipper` runs as a subagent and reaches its Verify gate
-- **THEN** it has the `Agent` tool and dispatches `iwe-verifier`.
-
 ## Rationale
 
 ### Both harnesses nest to depth 5

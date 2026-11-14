@@ -26,38 +26,6 @@ pre-commit output the bump implies.
 
 ## Requirements
 
-### Requirement: checksums move with their version
-
-A bump of a pinned download that carries a per-architecture SHA-256 SHALL
-recompute every architecture's checksum from the released asset and commit it in
-the same change as the version. The asset SHALL be fetched from the URL its
-consumer's own template renders — the `dev_tools` install task, a
-`*_download_url` default, or the macOS bootstrap's `install_release` calls — and
-only pin files registered in `scripts/refresh-pin-checksums.py::PIN_FILES` are
-refreshed. Only a pin whose version moved SHALL have its checksums rewritten,
-and a recorded checksum SHALL be replaced only where it appears for that pin
-alone. The `ansible role dependency pins` group SHALL move a tool's `dev_tools`
-and macOS bootstrap pins in one pull request, and SHALL automerge once required
-checks pass.
-
-#### Scenario: an asset cannot be fetched
-
-- **WHEN** any architecture's asset fails to download during the refresh
-- **THEN** Renovate fails the branch and commits no version change.
-
-#### Scenario: a tag moves under an unchanged version
-
-- **WHEN** a pin whose version did not change hashes differently than its
-  recorded checksum
-- **THEN** the refresh fails and the recorded checksum is kept.
-
-#### Scenario: one file holds several pins
-
-- **WHEN** one tool's version moves in `dev_tools_pinned_tools` beside tools
-  whose versions did not
-- **THEN** only the moved tool's checksums change, and every other pin's
-  checksums stay byte-identical.
-
 ### Requirement: derived files are regenerated with the bump
 
 A Renovate change SHALL carry the lock files and pre-commit output its edits
@@ -92,27 +60,6 @@ automerge, so lock files are also refreshed when no manifest changed.
 
 - **WHEN** a pre-commit hook still fails on the post-upgrade task's second pass
 - **THEN** Renovate fails the branch and commits no version change.
-
-### Requirement: Renovate runs self-hosted in the development image
-
-Renovate SHALL run from `.github/workflows/renovate.yml` in this repository, in
-the `agentdev-devcontainer` image at the digest `devcontainer-compose-pins.yml`
-pins, on every push to `main`, daily, on `workflow_dispatch`, and when a person
-edits the body of the Dependency Dashboard issue or of a Renovate pull request;
-an edit made by a bot SHALL NOT start a run. Runs SHALL queue rather than cancel
-one another. Renovate SHALL authenticate with a GitHub App token, never
-`GITHUB_TOKEN`.
-
-#### Scenario: Renovate opens a pull request
-
-- **WHEN** a Renovate run opens or updates a pull request
-- **THEN** the pull request's required workflows run on it, so automerge can
-  fire once they pass.
-
-#### Scenario: a person ticks a dashboard checkbox
-
-- **WHEN** a person ticks a checkbox in the Dependency Dashboard
-- **THEN** a Renovate run starts and acts on it.
 
 ### Requirement: Renovate's token carries only Renovate's permissions
 

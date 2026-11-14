@@ -9,50 +9,6 @@ sources:
 
 # Firewall
 
-## Requirement: the firewall is inert unless explicitly enabled
-
-`agentdev-runtime firewall apply` SHALL apply egress rules only when
-`ENABLE_FIREWALL` is `true`. The runtime's bootstrap SHALL run it as root before
-supervisord starts, in both profiles, so no sudoers entry is needed, and with
-any other value it SHALL report that the firewall stays inert and exit 0.
-
-### Scenario: a container starts with no `ENABLE_FIREWALL` set
-
-- **WHEN** the container starts
-- **THEN** no egress restriction is applied.
-
-## Requirement: enabled firewall default-DROPs IPv4 and blocks IPv6 entirely
-
-When enabled, `agentdev-runtime firewall apply` SHALL set IPv4
-`INPUT`/`FORWARD`/`OUTPUT` policies to `DROP` and block IPv6 entirely, while
-preserving Docker's embedded DNS NAT rules and allowing only hosts on the
-allowlist. When `FIREWALL_ALLOWLIST` is set, both profiles SHALL read the file
-it names. Otherwise the devcontainer profile SHALL read
-`<workspace>/.devcontainer/firewall-allowlist.txt` when it exists, so per-branch
-edits take effect on the next start without an image rebuild, and
-`/etc/agentdev/firewall-allowlist.txt` otherwise; the deploy profile SHALL read
-the image copy.
-
-### Scenario: `FIREWALL_ALLOWLIST` is set in a devcontainer
-
-- **WHEN** a devcontainer starts with `FIREWALL_ALLOWLIST` naming a file and a
-  checkout allowlist present
-- **THEN** the firewall applies the file `FIREWALL_ALLOWLIST` names.
-
-## Requirement: the firewall self-verifies at start and fails loudly
-
-`agentdev-runtime firewall apply` SHALL check, immediately after applying rules,
-that a known-blocked host (`example.com`) fails and that
-`https://api.github.com/zen` succeeds, exiting non-zero if either check goes the
-wrong way, so a misconfigured firewall never silently passes as enabled while
-actually open or actually blocking required traffic.
-
-### Scenario: the allowlist accidentally omits `api.github.com`
-
-- **WHEN** the self-verification runs
-- **THEN** the `api.github.com/zen` reachability check fails and the command
-  exits non-zero, surfacing the misconfiguration at container start.
-
 ## Rationale
 
 ### The firewall is applied before the engine starts

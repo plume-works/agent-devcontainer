@@ -86,32 +86,6 @@ other, with no fetch and no existence check.
   status other than `0` or `2`
 - **THEN** the skill reports `FETCH_FAILED` and merges nothing
 
-### Requirement: Each conflicted merge stops the run and a rerun continues
-
-The update-branch skill SHALL stop at the first merge that conflicts, report
-`MERGE_CONFLICTS` with `SOURCE` naming the ref being merged, and leave any later
-merge undone. A rerun after the resolution is committed SHALL treat the resolved
-merge as done and continue with the next one. Both merges SHALL run the
-`git-merge-resolve` helper as a child process and report through the one result
-table the skill's callers follow.
-
-#### Scenario: The upstream merge conflicts
-
-- **WHEN** merging `origin/X` into `X` conflicts
-- **THEN** the skill reports `MERGE_CONFLICTS` with `SOURCE=origin/X`
-- **AND** `origin/main` is not merged in that run
-
-#### Scenario: Rerun after resolving the upstream merge
-
-- **WHEN** the upstream conflict is resolved and committed and the skill runs
-  again
-- **THEN** `UPSTREAM_ACTION` is `none` and `origin/main` is merged
-
-#### Scenario: The base merge conflicts
-
-- **WHEN** the upstream sync succeeds and merging `origin/main` conflicts
-- **THEN** the skill reports `MERGE_CONFLICTS` with `SOURCE=origin/main`
-
 ## Rationale
 
 ### The upstream comes in before the base
