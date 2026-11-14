@@ -19,9 +19,9 @@ authenticates each caller with no agent action.
   tools that call `gh` themselves.
 - The `docker/bin` directory of the open checkout first on `PATH`. Rejected: it
   gives the token to each executable that a repository puts at that path.
-- A `GIT_ASKPASS` fallback in the wrapper. Rejected: `GITHUB_TOKEN` is a Coder
-  user secret that does not change for the life of the agent. As a result, the
-  copy that a session gets does not expire.
+- A token from `GIT_ASKPASS` in the wrapper when it has no other token.
+  Rejected: `GITHUB_TOKEN` is a Coder user secret that does not change for the
+  life of the agent. As a result, the copy that a session gets does not expire.
 
 ## Consequences
 

@@ -15,7 +15,7 @@ sources:
 
 The `org.opencontainers.image.description` label of `agentdev-base` is
 "Lifecycle-neutral agentdev tools, staged catalog, and default policy." The
-image contains no firewall allowlist and no agent policy, so a consumer who
+image contains no firewall allowlist and no agent policy. Thus, a consumer who
 reads the label expects a policy that the image does not have.
 
 ## Reproduction

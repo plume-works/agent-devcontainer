@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The template setup progress lives in the root file .agentdev-template-progress.md, and consumed_ref stays in the marker in .agent.metadata.json.
+description: The template setup progress is in the root file .agentdev-template-progress.md, and consumed_ref stays in the marker in .agent.metadata.json.
 ---
 
 # Setup progress is a root file and the Git reference of the consumed commit stays in JSON
@@ -24,4 +24,4 @@ marker, because JSON has one parse with one failure result, `INVALID_MARKER`.
 - The consumer owns `.agentdev-template-progress.md`. Git tracks it, a template
   update keeps it, and it is never in `tracked_paths`.
 - The `template-consume` key of `.agent.metadata.json` is state that the setup
-  of the consumer writes. The setup never copies it from the publisher.
+  of the consumer writes. The setup never copies it from this repository.

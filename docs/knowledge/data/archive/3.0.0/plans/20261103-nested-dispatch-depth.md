@@ -222,8 +222,8 @@ host's value when it is set, and to `5` otherwise.
 
 - Any catalog agent gaining the `Agent` tool or dispatching another agent; the
   first is `iwe-shipper` dispatching `iwe-verifier`, in its own plan.
-- The requirement in IWE workflow skills that no agent the Implement loop
-  dispatches dispatches another.
+- The requirement in IWE workflow skills that no agent that the Implement
+  session starts as a subagent starts another agent as a subagent.
 - Raising the depth outside the devcontainer, such as on a native macOS host.
 
 ## Key references

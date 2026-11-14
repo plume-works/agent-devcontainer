@@ -1,13 +1,13 @@
 ---
 type: adr
 stage: accepted
-description: The full record of the VS Code Expo bridge lives in the graph of plume-works/vscode-expo-bridge, and this repository keeps only the configuration of the Expo bundle.
+description: The full record of the VS Code Expo bridge is in the graph of plume-works/vscode-expo-bridge, and this repository keeps only the configuration of the Expo bundle.
 ---
 
 # The Expo bridge keeps its record in its own repository
 
 The design, plans, bugs, and backlog of the VS Code Expo bridge, and its closed
-items, live in the graph of `plume-works/vscode-expo-bridge`. This repository
+items, are in the graph of `plume-works/vscode-expo-bridge`. This repository
 keeps only the configuration of the `expo` optional bundle and its release
 notes. It links to bridge documents by an absolute GitHub URL on `main`.
 

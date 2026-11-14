@@ -1,16 +1,16 @@
 ---
 type: adr
 stage: accepted
-description: The self-improve plugin lives in this repository beside agentdev, and the runtime installs and enables it with each other plugin that the marketplace publishes.
+description: The self-improve plugin is in this repository next to agentdev, and the runtime installs and enables it with each other plugin that the marketplace publishes.
 ---
 
-# The self-improve plugin lives in this repository
+# The self-improve plugin is in this repository
 
 The `self-improve` loop changes the skills, agents, and instructions that this
 repository supplies. As a result, the loop and the catalog are in one
-repository, and `.claude-plugin/marketplace.json` publishes `self-improve`
-beside `agentdev`. The loop also needs a permanent destination for each lesson,
-and this repository has typed destinations and skills that write to them.
+repository, and `.claude-plugin/marketplace.json` publishes `self-improve` next
+to `agentdev`. The loop also needs a permanent destination for each lesson, and
+this repository has typed destinations and skills that write to them.
 
 ## Considered Options
 
@@ -24,5 +24,5 @@ and this repository has typed destinations and skills that write to them.
 
 - The committed `.claude/settings.json` does not enable `self-improve`.
 - Some tests of `self-improve` start real Claude sessions and use the model.
-  They are skipped unless `SELF_IMPROVE_RUN_LIVE` is set. A marker filter in
+  They run only when `SELF_IMPROVE_RUN_LIVE` is set. A marker filter in
   `addopts` does not prevent the run, because a test path or `-m` replaces it.

@@ -1,5 +1,5 @@
 """
-Answer the first-run prompts of Claude before they show.
+Answer the first-run prompts of Claude before Claude shows them.
 
 The prompts are onboarding, Remote Control, trust, and project MCP.
 """

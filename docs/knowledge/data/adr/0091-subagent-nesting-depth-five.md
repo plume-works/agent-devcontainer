@@ -25,8 +25,8 @@ macOS keeps the default limit of Claude Code.
 
 ## Consequences
 
-- A Claude Code agent can dispatch only when its `tools:` list includes `Agent`,
-  or when it has no `tools:` list.
+- A Claude Code agent can start a subagent only when its `tools:` list includes
+  `Agent`, or when it has no `tools:` list.
 - `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py` writes
   `experimental.subagent_depth`. OpenCode can rename or remove an `experimental`
   key, and the maintainer accepts this risk.

@@ -17,8 +17,8 @@ it.
 - More prose rules in the Implement rulebook. Rejected: the rules against false
   ticks were there already, and a find-and-replace does not obey them.
 - Evidence that names a check that Verify does again. Rejected: Verify cannot do
-  a live, manual, or external check again, so the rule stops Verify or removes
-  such work from plans.
+  a manual check, an external check, or a check on a service that runs again. As
+  a result, the rule stops Verify or removes such work from plans.
 - The check in `validate_agent_files`. Rejected: that package validates the
   agent files of any repository and must not know the graph of this repository.
 

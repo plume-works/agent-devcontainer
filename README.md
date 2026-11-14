@@ -304,7 +304,7 @@ runtime import — so the plugin adds no dependency to a consuming project. Test
 that drive a real Claude session and spend model usage are skipped at collection
 unless `SELF_IMPROVE_RUN_LIVE` is set; the root `Makefile` carries those live
 targets. The decisions behind the plugin are
-[ADR-0087 to ADR-0090](docs/knowledge/data/adr.md), and the comparative analysis behind it is in [`docs/research/`](docs/research/).
+[ADR-0087 to ADR-0090](docs/knowledge/data/adr.md), and the comparison of the options is in [`docs/research/`](docs/research/).
 
 ## IWE project memory
 

@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-13
 release: internal
-description: Write an ADR for each decision in the specs that passes the three ADR conditions, put each short invariant in a code comment, point the code comments at ADRs, and remove every Rationale section.
+description: Move the decisions out of the specs into ADRs and code comments, point the code comments at ADRs, and remove every Rationale section.
 sources:
 - resource: docs/spec-audit/rationale.jsonl
 - resource: docs/spec-audit/requirements.jsonl
@@ -30,10 +30,11 @@ it, no reason is only in a spec.
 ## Approach
 
 The session judges each `## Rationale` entry and each requirement whose `fate`
-is `adr` against the three conditions for an ADR: hard to reverse, surprising
-without context, and the result of a real trade-off. A decision that passes gets
-an ADR in the short format. A decision that fails gets no ADR, and the session
-removes its text. One ADR can hold several entries that record one decision.
+is `adr` against the three conditions for an ADR. The decision is hard to
+reverse, it is a surprise without context, and it is the result of a real choice
+between costs. A decision that passes gets an ADR in the short format. A
+decision that fails gets no ADR, and the session removes its text. One ADR can
+hold several entries that record one decision.
 
 The session that does the tasks writes the ADRs at `stage: accepted`. Each one
 records a decision that is in force already, so Plan does not propose it and
@@ -86,9 +87,10 @@ decision got no ADR, the session removes the citation.
 
 - [x] Each of the 13 requirements whose `fate` is `code-comment` has its
   invariant in a comment at its implementation, as its `fate_note` says.
-  - **Evidence:** Added the comment that each `fate_note` names in 13 files. The
-    macOS bootstrap already had its comment. The pre-commit hooks pass on the
-    changed files, and `test_integrity.py` and `test_coder_agent_start.py` pass.
+  - **Evidence:** The session added the comment that each `fate_note` names, in
+    13 files. The macOS bootstrap already had its comment. The pre-commit hooks
+    pass on the changed files, and `test_integrity.py` and
+    `test_coder_agent_start.py` pass.
 - [x] No such comment is longer than 3 lines.
   - **Evidence:** Each new comment has 1 or 2 lines. The two longest comment
     blocks have 3 lines, in the two Dockerfiles and in `devcontainer.json`.
@@ -103,15 +105,15 @@ decision got no ADR, the session removes the citation.
     `Spec: <key>`, and link forms.
     `git grep -E "spec/[a-z][a-z-]+|Spec:" -- ':!docs'` now finds only test
     fixtures and the `data/spec/` directory itself.
-- [x] Each citation that replaced one names an ADR that states the cited
-  decision.
+- [x] Each new citation names the ADR that states the decision of the old
+  citation.
   - **Evidence:** The session read each comment with its context and matched it
     to the ADR of its decision. A comment whose decision got no ADR lost its
     citation. The pre-commit hooks and 291 tests pass on the changed files.
 - [x] Rule 3 in `AGENTS.md#comments` names ADRs as the home of a decision and
   `ADR-NNNN` as the reference. It names no spec and no `## Rationale`.
-  - **Evidence:** Removed the sentence that permitted a `spec/<key>` reference.
-    The rule now names only ADRs.
+  - **Evidence:** The session removed the sentence that permitted a `spec/<key>`
+    reference. The rule now names only ADRs.
 - [x] `docs/knowledge/AGENTS.md#conventions` names no `## Rationale`.
   - **Evidence:** `grep Rationale docs/knowledge/AGENTS.md` finds nothing, so
     the section needed no change.

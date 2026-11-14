@@ -137,7 +137,7 @@ Three hard rules, in every language:
 3. **Never duplicate the knowledge base.** A decision and the alternatives it
    rejected live in an ADR under `docs/knowledge/data/adr/`. Refer to it as
    `ADR-NNNN` instead of copying it: `// Behaviour lives in tests: see ADR-0001.`
-   A short reason the code cannot express belongs in the comment itself.
+   Put a short reason that the code cannot show in the comment itself.
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
 the mechanism never does. Only durable rationale is worth forwarding — see Best

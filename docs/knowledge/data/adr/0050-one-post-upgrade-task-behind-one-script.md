@@ -14,10 +14,10 @@ of Renovate. `.github/renovate.json#postUpgradeTasks` names one script,
 
 ## Considered Options
 
-- One `postUpgradeTasks` for each type of pin. Rejected: a checksum rule would
-  replace the pre-commit step, and nothing would show it.
+- One `postUpgradeTasks` for each type of pin. Rejected: a checksum rule then
+  replaces the pre-commit step, and nothing shows it.
 - No lint gate on Renovate pull requests. Rejected: a gap in the post-upgrade
-  task would then merge and nothing would show it.
+  task then merges and nothing shows it.
 
 ## Consequences
 

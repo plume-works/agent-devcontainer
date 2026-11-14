@@ -6,7 +6,7 @@ default_stages: [pre-commit, pre-merge-commit, pre-push, manual]
 repos:
   - repo: local
     hooks:
-      # See ADR-0081; no-op where agentdev-runtime is absent (host, CI).
+      # See ADR-0081. The hook does nothing where agentdev-runtime is not installed (host, CI).
       - id: link-venv
         name: link .venv to its own uv environment
         entry: sh -c 'command -v agentdev-runtime >/dev/null || exit 0; exec agentdev-runtime project link-venv'
@@ -44,7 +44,7 @@ repos:
         types: [text]
         args: [--fix=lf]
 
-      # Work lands through pull requests.
+      # Changes go into the default branch only through pull requests.
       - id: no-commit-to-branch
         name: don't commit to branch
         entry: uv run no-commit-to-branch
@@ -179,7 +179,7 @@ repos:
         files: '^docs/knowledge/data/(adr|archive|backlog|bugs|features|plans|releases)/.*\.md$'
         pass_filenames: true
 
-      # Always runs: a code rename anywhere can break a live anchor. See ADR-0083.
+      # Always runs: a code rename in any file can break an anchor in use. See ADR-0083.
       - id: check-anchors
         name: check-anchors
         entry: uv run scripts/check-anchors.py

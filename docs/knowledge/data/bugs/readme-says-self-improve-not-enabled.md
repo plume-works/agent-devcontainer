@@ -1,6 +1,6 @@
 ---
 type: bug
-description: README.md says that nothing this repository ships enables the self-improve plugin, but the create phase installs and enables each plugin of the catalog, self-improve too.
+description: README.md says that nothing that this repository contains enables the self-improve plugin, but the create phase installs and enables each plugin of the catalog, self-improve too.
 stage: pending
 severity: low
 sources:

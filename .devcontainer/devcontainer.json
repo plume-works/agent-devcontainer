@@ -23,7 +23,7 @@
     // From the host environment or the hosting platform's secret store; empty when unset.
     "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
 
-    // uv's cache, interpreters, and pre-commit's cache take their defaults on the home volume,
+    // uv's cache, interpreters, and pre-commit's cache are at their default places on the home volume,
     // never on a volume inside the checkout.
     // Each checkout's .venv links to its own environment here: see ADR-0081.
     "AGENTDEV_VENV_ROOT": "/home/agent/.local/share/uv/venvs"

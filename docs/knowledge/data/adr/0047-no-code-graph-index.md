@@ -1,16 +1,16 @@
 ---
 type: adr
 stage: accepted
-description: The images, the runtime, and the catalog ship no code-graph daemon, MCP server, hook, or index, and the create phase removes an old codebase-memory-mcp installation.
+description: The images, the runtime, and the catalog contain no code-graph daemon, MCP server, hook, or index, and the create phase removes an old codebase-memory-mcp installation.
 ---
 
-# The runtime ships no code-graph index
+# The runtime contains no code-graph index
 
-The images, the runtime, and the catalog ship no code-graph daemon, MCP server,
-hook, or index. Agents find code with `grep`. Agents did not call
+The images, the runtime, and the catalog contain no code-graph daemon, MCP
+server, hook, or index. Agents find code with `grep`. Agents did not call
 codebase-memory-mcp without an instruction, and they passed the same tests
 without it. When an instruction told them to use it, they used more time and
-cost. Its graph also missed virtual C++ calls and Python calls on untyped
+cost. Its index also missed virtual C++ calls and Python calls on untyped
 receivers.
 
 ## Considered Options

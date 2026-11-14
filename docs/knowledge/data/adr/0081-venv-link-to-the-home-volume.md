@@ -26,8 +26,8 @@ so each `uv run` finds it with no wrapper.
   breaks.
 - A `PreToolUse`, `SessionStart`, or `SubagentStart` hook. Rejected:
   `PreToolUse` runs at each tool call, `SessionStart` at each session, and
-  `SubagentStart` at a dispatch, not when Claude Code makes a worktree. A
-  session that disables the plugin gets no plugin hook.
+  `SubagentStart` when a session starts a subagent, not when Claude Code makes a
+  worktree. A session that disables the plugin gets no plugin hook.
 
 ## Consequences
 
@@ -37,7 +37,7 @@ so each `uv run` finds it with no wrapper.
   `post-checkout` stage links a worktree that `git worktree add` makes.
 - The `WorktreeRemove` hook removes the environment of its worktree. A worktree
   that Claude Code made for a subagent gets no `WorktreeRemove`, so its
-  environment stays until the next attach after the worktree is removed.
+  environment stays until the next attach after the removal of the worktree.
 - Two checkouts with the same directory name share one environment.
 - The mounted checkout belongs to the container. The attach phase replaces a
   real uv environment in the workspace folder with the link. A host that works

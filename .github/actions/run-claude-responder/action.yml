@@ -27,7 +27,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # No GITHUB_TOKEN fallback: see ADR-0066.
+    # Do not use GITHUB_TOKEN as an alternative token: see ADR-0066.
     - name: Require the App secrets
       shell: bash
       env:

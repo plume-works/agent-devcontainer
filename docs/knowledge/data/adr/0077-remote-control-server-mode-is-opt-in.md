@@ -4,7 +4,7 @@ stage: accepted
 description: AGENTDEV_CLAUDE_RC_MODE=server selects the `claude remote-control` server, session mode stays the default, and an unrecognized mode or spawn value stops the start.
 ---
 
-# Server mode is an opt-in next to session mode
+# Server mode is an option next to session mode
 
 `AGENTDEV_CLAUDE_RC_MODE=server` selects the `claude remote-control` server, and
 session mode stays the default. The server resumes sessions for only about four
@@ -18,7 +18,7 @@ with no message.
 - Replace the pinned pane with the server. Rejected: the four-hour limit does
   not keep the conversation after a stop for one night.
 - Run a server next to the pinned pane. Rejected: it gives two Remote Control
-  entries and two processes that refresh the single-use login token.
+  entries and two processes that renew the single-use login token.
 - Put the spawn mode into `AGENTDEV_CLAUDE_RC_MODE`, for example
   `server-same-dir`. Rejected: one list of values then holds two independent
   choices and grows with each spawn mode.

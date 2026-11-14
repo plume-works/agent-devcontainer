@@ -18,10 +18,10 @@ request from a fork fails at the push.
   second CI structure next to the one that publishes. Also, each image builds
   from the digest of the image that the same run pushed before it. A run with no
   push builds on the last published image, so a change to a lower image does not
-  get into the images above it. The acceptance jobs pull the candidate image
-  from the registry, so with no push they have no image to test.
+  go into the images above it. The acceptance jobs pull the candidate image from
+  the registry, so with no push they have no image to test.
 - A personal access token or `pull_request_target` for fork builds. Rejected:
-  code that nobody reviewed could write to the registry.
+  code that nobody reviewed can then write to the registry.
 
 ## Consequences
 

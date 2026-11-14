@@ -18,7 +18,7 @@ the build when the home is not there.
 - A volume on `/root`, with root as the user. Rejected: the base image builds
   shell configuration, `gh` extensions, and tool state into `/root`. A volume
   there keeps all of it at the image of the first create phase.
-- A volume on `/root` that the image refreshes at each start. Rejected: it
+- A volume on `/root` that the image updates at each start. Rejected: it
   overwrites the edits of the user and needs an ownership decision for each
   file.
 - An account that the container start creates, as the standalone runtime does.
@@ -33,8 +33,8 @@ the build when the home is not there.
 - Docker gives the owner of the empty `/home/agent` to a new volume, so the
   volume starts empty and the remapped account owns it.
 - The repository owner supports no root host. On a root host, the devcontainer
-  CLI does not remap `agent`, which stays 1000:1000, and the root bootstrap
-  refuses the checkout that root owns.
+  CLI does not remap `agent`, which stays 1000:1000, and
+  `agentdev-runtime bootstrap` refuses the checkout that root owns.
 - Editor servers such as `~/.vscode-server` stay on the home volume with no
   cleanup. The owner accepted unlimited growth, and a broken server installation
   that stays after a rebuild. The owner did not accept a location off the volume

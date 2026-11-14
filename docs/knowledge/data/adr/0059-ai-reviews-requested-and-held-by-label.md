@@ -19,7 +19,7 @@ pull request while it is on.
   `pull_request` run, so its `ai-review-present` check does not count toward the
   merge.
 - A waiver of `ai-review-present` for a person with write access who adds the
-  label. Rejected: a writer could then merge work without review, and branch
+  label. Rejected: a writer can then merge work without review, and branch
   protection records nothing. A ruleset bypass gives the same result through a
   permission that GitHub records.
 
@@ -32,8 +32,8 @@ pull request while it is on.
 - Only the addition of `request-ai-review` and the removal of `block-ai-reviews`
   join the `pr-<n>` concurrency group. Each other label event has its own group,
   so it never replaces a review that waits in `pr-<n>`.
-- Preflight reads the labels from the API, not from the event, so a label added
-  just after the pull request opens still counts.
+- Preflight reads the labels from the API, not from the event, so a label that a
+  person adds immediately after the pull request opens still counts.
 - GitHub sends no event when a person adds a label that is already on the pull
   request. For this reason, `pr-request-ai-review` removes and adds the label
   again when no unfinished run will take it.

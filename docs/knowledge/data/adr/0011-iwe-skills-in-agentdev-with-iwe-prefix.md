@@ -8,7 +8,7 @@ description: The IWE workflow skills are in the agentdev catalog, and their name
 
 The maintainer put the IWE workflow skills in the `agentdev` catalog, so that
 the user installs only one catalog, with one version. As a result, `agentdev`
-ships a workflow that needs an IWE graph. The names keep the `iwe-` prefix,
+contains a workflow that needs an IWE graph. The names keep the `iwe-` prefix,
 because `plan`, `ship`, and `verify` alone look like skills of the same kind as
 the `pr-*` skills in the same directory.
 

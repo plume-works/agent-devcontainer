@@ -1,7 +1,7 @@
 """
 A phase's image-installed executable hooks, run in C-locale name order.
 
-A mounted workspace never contributes hooks.
+A mounted workspace never adds hooks.
 """
 
 from __future__ import annotations

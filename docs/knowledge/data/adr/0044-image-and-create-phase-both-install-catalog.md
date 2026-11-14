@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The image build installs the catalog for a consumer that runs the bare image, and the create phase installs it again because the home volume hides what the build wrote.
+description: The image build installs the catalog for a consumer that runs only the image, and the create phase installs it again because the home volume hides what the build wrote.
 ---
 
 # The image installs the catalog, and the create phase installs it again
@@ -14,9 +14,9 @@ user scope.
 
 ## Considered Options
 
-- Each consumer of the bare image installs the catalog. Rejected: it duplicates
-  the logic of the lifecycle commands. Also, the image holds a staged catalog,
-  but no client reads it.
+- Each consumer that runs only the image installs the catalog. Rejected: it
+  duplicates the logic of the lifecycle commands. Also, the image holds a staged
+  catalog, but no client reads it.
 
 ## Consequences
 

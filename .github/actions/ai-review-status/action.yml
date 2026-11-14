@@ -1,7 +1,7 @@
 name: AI review status
 description: >-
-  Report whether a pull request carries an accepted AI review, and
-  evaluate it one time with no wait.
+  Report whether a pull request carries an accepted AI review. Examine
+  the pull request one time, without a wait.
 
 inputs:
   pr-number:
@@ -62,7 +62,7 @@ runs:
             return;
           }
 
-          // The rule asserts that the PR has been reviewed, not that the AI
+          // The rule makes sure that the PR has a review, not that the AI
           // reviewer reviewed its current head. Do not compare
           // review.commit_id against the head SHA.
           const reviewerLogin = 'plume-works-quill[bot]';

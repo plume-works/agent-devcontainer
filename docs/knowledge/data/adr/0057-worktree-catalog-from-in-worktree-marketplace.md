@@ -26,13 +26,15 @@ the user, so the hook names it `wt-<worktree name>` and checks its owner.
   so the reinstall applies only from the next session.
 - Hooks in the agentdev plugin. Rejected: a worktree session disables the shared
   plugin, so a worktree made from one has no hook.
-- A `SubagentStart` hook. Rejected: it runs when a session dispatches a
-  subagent, not when Claude Code makes a worktree.
+- A `SubagentStart` hook. Rejected: it runs when a session starts a subagent,
+  not when Claude Code makes a worktree.
 
 ## Consequences
 
 - A worktree session reads `.claude/settings.local.json` of the main checkout,
-  and its `enabledPlugins` overrides the worktree. A local-scope installation in
-  a worktree writes there. As a result, the hook moves its `enabledPlugins`
-  entries into the file of the worktree and removes them from the main checkout.
-- Each shared installation runs at user scope, which a worktree can override.
+  and its `enabledPlugins` has priority over the worktree. A local-scope
+  installation in a worktree writes there. As a result, the hook moves its
+  `enabledPlugins` entries into the file of the worktree and removes them from
+  the main checkout.
+- Each shared installation runs at user scope, and the settings of a worktree
+  have priority over user scope.

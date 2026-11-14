@@ -6,10 +6,11 @@ description: Image builds get no package from a Launchpad host; the git build of
 
 # Image builds get no package from Launchpad
 
-The `ppa:` shorthand gets the signing key from the Launchpad API at build time,
-so a failure of that API stops the image build on each architecture. A PPA apt
-source makes each build depend on the archive host of Launchpad. For this
-reason, a package comes from one of these sources, in this order of preference:
+The `ppa:` shorthand gets the signing key from the Launchpad API at build time.
+As a result, a failure of that API stops the image build on each architecture. A
+PPA apt source makes each build depend on the archive host of Launchpad. For
+this reason, a package comes from one of these sources, in this order of
+preference:
 
 1. The Ubuntu archive.
 2. The apt repository of the vendor, with a `signed-by` key.

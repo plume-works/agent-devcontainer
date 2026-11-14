@@ -20,7 +20,7 @@ sub-agent runs the repository's agent-start command, by default
 `agentdev-runtime coder start`, on every agent start, and that command execs
 `agentdev-runtime remote-control start` ([Devcontainer Git
 credentials](../spec/devcontainer-git-credentials.md)). The `coder_script` runs
-nothing when the repository ships no agent-start command.
+nothing when the repository has no agent-start command.
 
 In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
 `session` or `server` (and, in server mode, optionally

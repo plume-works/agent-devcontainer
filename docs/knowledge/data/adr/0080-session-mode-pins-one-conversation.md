@@ -9,8 +9,8 @@ description: Session mode resumes the one conversation whose ID a pin hook keeps
 The pinned pane resumes the conversation whose ID it keeps in
 `remote-control-session-id`, in the Claude configuration directory on the home
 volume. A pin hook writes the ID again at each `SessionStart`, because `/clear`
-moves the session to a new conversation. One ID for each home volume is
-sufficient, because each instance has one workspace folder.
+moves the session to a new conversation. One ID for each home volume is enough,
+because each instance has one workspace folder.
 
 ## Considered Options
 
@@ -31,9 +31,10 @@ sufficient, because each instance has one workspace folder.
   crash of a resumed session also starts a new conversation.
 - The transcript records the claude.ai session of the conversation, so a resume
   uses the same session URL again while that session exists for the account.
-  When the recorded session does not exist, or the login is for a different
-  account, Claude Code starts a new claude.ai session for the same conversation.
-  For a different account, the new session does not show the earlier turns.
+  Claude Code starts a new claude.ai session for the same conversation when the
+  recorded session does not exist. It also does this when the login is for a
+  different account. For a different account, the new session does not show the
+  earlier turns.
 - A resume of an ID with no transcript exits non-zero. As a result, the
   transcript cleanup of Claude Code can make the pane start a new pinned
   conversation.

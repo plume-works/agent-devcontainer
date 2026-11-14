@@ -17,7 +17,7 @@ ecosystem. Only the CI of this repository uses `--require-marketplace claude`.
 - A `.codex-plugin/plugin.json` package that users install themselves and that
   no test checks. Rejected: Codex loads catalog agents only through TOML agents
   that an installer writes. Without that installer, no agent that the skills
-  dispatch can load, so the package does not work.
+  start as a subagent can load, so the package does not work.
 
 ## Consequences
 

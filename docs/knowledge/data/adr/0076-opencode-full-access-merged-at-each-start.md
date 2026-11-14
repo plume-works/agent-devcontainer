@@ -15,8 +15,8 @@ the managed keys.
 
 - Replace the whole configuration with the policy. Rejected: it removes the
   OpenCode bridge and the settings of the user.
-- Change only `opencode.json`. Rejected: an `opencode.jsonc` has priority and
-  can override the policy.
+- Change only `opencode.json`. Rejected: an `opencode.jsonc` has priority over
+  the policy.
 - Parse or edit the JSONC text locally. Rejected: comments, trailing commas,
   strings, and duplicate keys need a maintained parser.
 - Apply the policy when the catalog installs. Rejected: catalog registration
@@ -29,4 +29,5 @@ the managed keys.
   does not keep the comments and the format.
 - The start phase applies the policy after the required services are ready. As a
   result, a bad OpenCode configuration makes the start phase fail where the user
-  can see it, but it does not stop the services, and the file stays unchanged.
+  can see it. The failure does not stop the services, and the file stays
+  unchanged.

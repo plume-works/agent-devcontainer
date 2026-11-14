@@ -71,7 +71,7 @@ jobs:
 
       # A pull request opened with GITHUB_TOKEN starts no workflows, so Renovate
       # authenticates as its GitHub App. The App has only the permissions of Renovate:
-      # the post-upgrade task runs the code that it just updated with this token.
+      # the post-upgrade task runs the updated code with this token.
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v3.3.0
@@ -97,8 +97,8 @@ jobs:
           echo "git-author=${APP_SLUG}[bot] <${id}+${APP_SLUG}[bot]@users.noreply.github.com>" \
             >> "$GITHUB_OUTPUT"
 
-      # Global-only options come from the environment: the checked-in config is
-      # validated with --no-global. See ADR-0052.
+      # Global-only options come from the environment: the validation of the
+      # checked-in config uses --no-global. See ADR-0052.
       - name: Run Renovate
         env:
           RENOVATE_VERSION: ${{ steps.version.outputs.rev }}

@@ -11,8 +11,8 @@ sources:
 # Self-improve runtime
 
 How the maintainer built the self-improve learning loop, and why. The behavior
-itself is specified there; this records the decisions that constrain any
-reimplementation of it.
+itself was in the self-improve learning loop spec; this records the decisions
+that constrain any reimplementation of it.
 
 ## Runtime code imports the standard library only
 

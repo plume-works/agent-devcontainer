@@ -16,9 +16,9 @@ code rename anywhere can break a live anchor.
 
 - Line numbers with a date. Rejected: the date tells the reader how much to
   trust the number, but it does not keep the number correct.
-- Anchors written into the target files, such as `<a id>` or `anchor:` comments.
-  Rejected: each reference then changes the file that it points to, but a symbol
-  or a heading already identifies the place.
+- Anchors that a writer puts into the target files, such as `<a id>` or
+  `anchor:` comments. Rejected: each reference then changes the file that it
+  points to, but a symbol or a heading already identifies the place.
 - No line-number check for closed documents. Rejected: agents copy the form of
   what they read, and the exception needs its own rule.
 
@@ -27,5 +27,5 @@ code rename anywhere can break a live anchor.
 - The resolver examines only live anchors. The tasks of a plan name code that
   does not exist yet, and a closed document can name code that a later change
   removed.
-- Chat reports, code comments, and pull request bodies rely only on the catalog
-  instructions.
+- Only the catalog instructions control the anchors in chat reports, code
+  comments, and pull request bodies.

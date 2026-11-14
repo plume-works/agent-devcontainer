@@ -18,8 +18,8 @@ result, no copy of a branch in a different checkout becomes out of date.
   becomes out of date.
 - Each pull request has `main` as its base. Rejected: its diff includes each
   predecessor until they merge.
-- Resolve the reconnect merge with `-s ours`. Rejected: it is correct but
-  silent. A normal merge lets git report a conflict.
+- Resolve the reconnect merge with `-s ours`. Rejected: it is correct, but git
+  then reports no conflict. A normal merge lets git report a conflict.
 - A required `base-is-main` check with no bypass actor. Rejected: it also
   refuses a push or a new branch from an owner.
 

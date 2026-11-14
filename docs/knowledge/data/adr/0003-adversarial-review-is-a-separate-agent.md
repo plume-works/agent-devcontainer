@@ -13,14 +13,15 @@ request.
 
 ## Considered Options
 
-- Run it in each Verify round. Rejected: the Implement loop then gets results
-  outside the contract of the plan, and it cannot end.
+- Run it in each run of Verify. Rejected: the Implement session then gets
+  results outside the contract of the plan, and it cannot end.
 - Make `/agentdev:iwe-adversarial-review` an explicit-only skill. Rejected: the
-  Implement loop then cannot run a plan task that starts the review.
-- Let the `pr-review` flow replace Verify. Rejected: `pr-review` reads only the
-  diff and the code that the diff changes, so it does not see an unchanged line
-  that a new requirement makes wrong. It also does not run the verification
-  commands of the plan or examine the evidence of a task, and Ship needs both.
+  Implement session then cannot run a plan task that starts the review.
+- Let the `pr-review` skill replace Verify. Rejected: `pr-review` reads only the
+  diff and the code that the diff changes. As a result, it does not see an
+  unchanged line that a new requirement makes wrong. It also does not run the
+  verification commands of the plan or examine the evidence of a task, and Ship
+  needs both.
 
 ## Consequences
 

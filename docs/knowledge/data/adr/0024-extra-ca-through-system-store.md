@@ -1,10 +1,10 @@
 ---
 type: adr
 stage: accepted
-description: The root bootstrap adds an extra CA bundle from the host to the system store, and the images point each tool with its own root store at the system store.
+description: The bootstrap that runs as root adds an additional CA bundle from the host to the system store, and the images point each tool that has its own root store at the system store.
 ---
 
-# Extra CA trust goes through the system store
+# Additional CA trust goes through the system store
 
 A host behind a TLS proxy that intercepts traffic gives its CA bundle as a file.
 `agentdev_runtime.bootstrap::install_extra_ca` adds it to the system store

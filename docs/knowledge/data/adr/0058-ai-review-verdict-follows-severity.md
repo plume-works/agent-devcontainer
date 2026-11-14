@@ -14,15 +14,15 @@ one.
 
 ## Considered Options
 
-- `COMMENT` when each blocking finding has an inline thread. Rejected: a
-  `COMMENT` does not give the approval and does not cancel an earlier change
-  request.
-- `APPROVE` with inline blocking findings, and thread resolution to stop the
-  merge. Rejected: an approval next to an open blocking finding looks like
-  agreement with it.
-- `COMMENT` for each finding, and never `REQUEST_CHANGES`. Rejected: a blocking
-  finding then never stops the merge through the verdict, and no review gives
-  the approval.
+- `COMMENT` when each finding that blocks the merge has an inline thread.
+  Rejected: a `COMMENT` does not give the approval and does not cancel an
+  earlier change request.
+- `APPROVE` with inline findings that block the merge, and thread resolution to
+  stop the merge. Rejected: an approval next to an open finding that blocks the
+  merge looks like agreement with it.
+- `COMMENT` for each finding, and never `REQUEST_CHANGES`. Rejected: a finding
+  that must block the merge then never stops it through the verdict, and no
+  review gives the approval.
 
 ## Consequences
 

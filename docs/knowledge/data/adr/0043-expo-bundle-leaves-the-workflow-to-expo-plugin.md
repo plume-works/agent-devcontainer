@@ -20,13 +20,13 @@ an empty token as no token.
   `.devcontainer/devcontainer.json` makes each later devcontainer update a
   manual merge.
 - Keep the token on the shared auth volume. Rejected: the token belongs to the
-  host environment, where its owner can limit and revoke it.
+  host environment, where its owner can limit and cancel it.
 
 ## Consequences
 
 - The bundle adds no `tracked_paths`. It edits files that the consumer already
-  has, and `eas.json`. As a result, no diff shows its edits, and update mode
-  compares the Expo setup steps of the consumption guide with the files of the
-  consumer at each update.
+  has, and `eas.json`. As a result, no diff shows its edits. At each update,
+  update mode compares the Expo setup steps of the consumption guide with the
+  files of the consumer.
 - The setup writes no trust or security setting of the bridge, because only the
   Mac gives trust to a workspace.

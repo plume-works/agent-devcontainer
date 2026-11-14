@@ -174,7 +174,7 @@ def hooks(settings: env.Settings) -> int:
                     file=sys.stderr,
                 )
                 return 1
-        # Hook environments build on first use, never at startup.
+        # pre-commit builds the hook environments at their first use, never at startup.
         installed = subprocess.run(
             ['pre-commit', 'install', *(f'--hook-type={hook}' for hook in HOOK_TYPES)],
             cwd=workspace,

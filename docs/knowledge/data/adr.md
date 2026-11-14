@@ -25,17 +25,17 @@ server](adr/0004-agents-use-the-iwe-cli.md)
 
 [A bug records its own correction](adr/0005-bug-records-its-own-fix.md)
 
-[A CRITICAL result stops Ship with no
-override](adr/0006-critical-blocks-ship-with-no-override.md)
+[A CRITICAL result always stops
+Ship](adr/0006-critical-blocks-ship-with-no-override.md)
 
-[The durable-knowledge audit runs in an isolated
+[The durable-knowledge check runs in an isolated
 agent](adr/0007-durable-knowledge-audit-is-an-isolated-agent.md)
 
 [The graph is different from OKF only where OKF causes merge
 work](adr/0008-graph-diverges-from-okf-only-for-merge-cost.md)
 
-[The graph layout keeps parallel pull requests free of merge
-conflicts](adr/0009-graph-layout-avoids-merge-conflicts.md)
+[The graph layout prevents merge conflicts between parallel pull
+requests](adr/0009-graph-layout-avoids-merge-conflicts.md)
 
 [The IWE workflow skills are in agentdev, with an iwe-
 prefix](adr/0011-iwe-skills-in-agentdev-with-iwe-prefix.md)
@@ -46,16 +46,16 @@ release](adr/0012-one-home-per-kind-and-archive-by-release.md)
 [The release impact of a plan is a frontmatter
 field](adr/0013-release-impact-is-a-plan-frontmatter-field.md)
 
-[A plan revision is evaluated after its audit, then
-committed](adr/0014-revision-is-evaluated-after-its-audit.md)
+[The Implement session evaluates a plan revision after its plan review, then
+commits it](adr/0014-revision-is-evaluated-after-its-audit.md)
 
 [The workflow rulebooks are catalog
 agents](adr/0015-rulebooks-live-in-catalog-agents.md)
 
-[The saved Verify report is keyed by commit and catalog
+[The key of the saved Verify report is the commit and the catalog
 hash](adr/0016-saved-verify-report-keyed-by-commit-and-catalog.md)
 
-[Only the Ship and Plan entry skills are
+[Only the Ship and Plan skills are
 explicit-only](adr/0017-ship-and-plan-skills-are-explicit-only.md)
 
 [Ship and Verify start from a prompt without the conversation; Implement runs in
@@ -64,7 +64,7 @@ place](adr/0018-ship-and-verify-run-from-a-conversation-free-prompt.md)
 [Verify checks only what the plan
 promised](adr/0019-verify-checks-only-the-plan-contract.md)
 
-[Skills keep their bare names, and commands have a
+[Skills keep their names without a namespace, and commands have a
 namespace](adr/0020-bare-skill-names-namespaced-commands.md)
 
 [Configuration is documented variables, never shell
@@ -75,13 +75,13 @@ commands](adr/0022-deploy-image-reuses-runtime-helpers.md)
 
 [Each service authenticates on its own](adr/0023-every-service-authenticates.md)
 
-[Extra CA trust goes through the system
+[Additional CA trust goes through the system
 store](adr/0024-extra-ca-through-system-store.md)
 
 [The session bus address is an image
 ENV](adr/0025-fixed-session-bus-address-in-image-env.md)
 
-[A latch waits for a retry in deploy and ends a Dev
+[A latch waits for a new attempt in deploy and ends a Dev
 Container](adr/0026-latch-waits-for-retry-or-ends-devcontainer.md)
 
 [One bridge module serves OpenCode v1 and
@@ -105,8 +105,8 @@ runtime](adr/0032-runtime-integrity-from-wheel-record.md)
 [The runtime is one Python package that the base image does not
 contain](adr/0033-runtime-is-one-python-package.md)
 
-[supervisord runs in the PID 1 process, and a controller owns the
-order](adr/0034-supervisord-in-process-as-pid1.md)
+[supervisord runs in the PID 1 process, and the controller event listener owns
+the order](adr/0034-supervisord-in-process-as-pid1.md)
 
 [On OpenCode v2, hooks apply the tool limits of a catalog
 agent](adr/0035-v2-tool-limits-in-hooks.md)
@@ -114,7 +114,7 @@ agent](adr/0035-v2-tool-limits-in-hooks.md)
 [validate_agent_files comes from the build
 context](adr/0036-validator-built-from-build-context.md)
 
-[The AI review gate trusts only named
+[The `ai-review-present` check trusts only named
 bots](adr/0037-ai-review-trusts-named-bots.md)
 
 [apt packages have no fixed version within a fixed Ubuntu
@@ -144,9 +144,9 @@ path](adr/0045-knowledge-data-is-never-a-template-path.md)
 [Pushes to main build after a cooldown that a newer push
 cancels](adr/0046-main-builds-after-cancellable-cooldown.md)
 
-[The runtime ships no code-graph index](adr/0047-no-code-graph-index.md)
+[The runtime contains no code-graph index](adr/0047-no-code-graph-index.md)
 
-[The graph keeps no codebase map](adr/0048-no-codebase-map.md)
+[The graph keeps no map of the code](adr/0048-no-codebase-map.md)
 
 [One catalog tree, installed and not
 copied](adr/0049-one-catalog-tree-installed-not-copied.md)
@@ -169,8 +169,8 @@ stays in JSON](adr/0054-setup-progress-in-root-file.md)
 [A run promotes only the images it built and
 accepted](adr/0055-tags-move-only-to-accepted-images-of-the-run.md)
 
-[validate_agent_files ships on its
-own](adr/0056-validate-agent-files-ships-on-its-own.md)
+[validate_agent_files is a separate
+package](adr/0056-validate-agent-files-ships-on-its-own.md)
 
 [Each worktree loads its catalog from a marketplace in the
 worktree](adr/0057-worktree-catalog-from-in-worktree-marketplace.md)
@@ -184,7 +184,7 @@ it](adr/0059-ai-reviews-requested-and-held-by-label.md)
 [Push checks on main start at the last passing
 run](adr/0060-checks-start-at-last-passing-run.md)
 
-[CI provisions the Python environment and never activates
+[CI makes the Python environment and never activates
 it](adr/0061-ci-python-through-uv-run.md)
 
 [The CI image build always publishes](adr/0062-image-build-always-publishes.md)
@@ -232,7 +232,7 @@ instance](adr/0075-one-empty-home-volume.md)
 [OpenCode runs with full access, merged into its configuration at each
 start](adr/0076-opencode-full-access-merged-at-each-start.md)
 
-[Server mode is an opt-in next to session
+[Server mode is an option next to session
 mode](adr/0077-remote-control-server-mode-is-opt-in.md)
 
 [No Dev Container lifecycle command starts Remote
@@ -265,7 +265,7 @@ checks](adr/0086-plan-ticks-need-evidence-lines.md)
 [Only a command that the user types authorizes a self-improve
 change](adr/0087-self-improve-authorization-from-typed-commands.md)
 
-[The self-improve plugin lives in this
+[The self-improve plugin is in this
 repository](adr/0088-self-improve-lives-in-this-repository.md)
 
 [The self-improve reviewer holds no

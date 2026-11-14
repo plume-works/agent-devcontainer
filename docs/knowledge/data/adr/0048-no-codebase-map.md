@@ -1,17 +1,17 @@
 ---
 type: adr
 stage: accepted
-description: The graph keeps no codebase map and the catalog ships no map skill; update mode removes a map that is no longer used from a consumer without a question.
+description: The graph keeps no data/codebase/ documents and the catalog contains no map skill; update mode removes these documents from a consumer without a question.
 ---
 
-# The graph keeps no codebase map
+# The graph keeps no map of the code
 
-The graph keeps no `data/codebase/` map, and the catalog ships no map skill. No
-workflow skill or agent read the map. A source digest proved only that a map
+The graph keeps no `data/codebase/` map, and the catalog contains no map skill.
+No workflow skill or agent read the map. A source digest proved only that a map
 document had a new stamp, not that its text was correct. Each pull request that
-changed mapped code paid for a refresh, a CI gate, and digest lines that
-conflict between branches. A new reader uses the code and the README to find a
-path.
+changed mapped code paid for an update of the map, a CI check, and digest lines
+that conflict between branches. A new reader uses the code and the README to
+find a path.
 
 ## Considered Options
 
@@ -19,6 +19,6 @@ path.
 
 ## Consequences
 
-- Update mode of `template-consume` removes the codebase map of a consumer
-  without a question. The installed catalog no longer ships `stale-map-docs.py`,
-  so a kept map leaves a CI step or hook that cannot pass.
+- Update mode of `template-consume` removes the `data/codebase/` documents of a
+  consumer without a question. The installed catalog no longer contains
+  `stale-map-docs.py`, so a kept map leaves a CI step or hook that cannot pass.

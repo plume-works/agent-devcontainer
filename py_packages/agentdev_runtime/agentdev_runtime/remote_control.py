@@ -2,7 +2,8 @@
 Claude Remote Control: the supervised watcher, its start, the pinned pane, and the pin hook.
 
 The watcher waits for a claude.ai login, starts ``claude-remote``, and exits once a session it
-started stopped or did not start, so the controller's recovery budget restarts it.
+started stopped or did not start. The recovery budget of the ``controller`` event listener
+then restarts it.
 """
 
 from __future__ import annotations

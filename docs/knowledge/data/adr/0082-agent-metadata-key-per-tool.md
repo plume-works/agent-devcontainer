@@ -23,5 +23,5 @@ metadata for tools that a checkout does not have.
   file, because a repository uses the template at one commit. The same key in a
   file in a subdirectory is broken metadata.
 - The setup mode of `template-consume` writes the marker in the consumer. The
-  template never copies it from the publisher. As a result, the template
+  template never copies it from this repository. As a result, the template
   classifies the root file by its top-level keys, not as one file.

@@ -15,11 +15,11 @@ also starts it, but only when `AGENTDEV_CLAUDE_RC_MODE` is set.
 
 - A start-phase entry next to the agent-start entry, where one entry gives
   priority to the other. Rejected: the start-phase entry must then see a Coder
-  signal that does not exist yet. If not, the agent start must stop a live
-  session that it did not start.
+  signal that does not exist yet. If not, the agent start must stop a session
+  that runs and that it did not start.
 - A one-shot component in the supervisor that skips the start when no claude.ai
-  login exists. Rejected: an operator must then retry it after the first login,
-  and nothing starts a session again after it exits.
+  login exists. Rejected: an operator must then start it again after the first
+  login, and nothing starts a session again after it exits.
 - A run of `claude auth status` at each interval. Rejected: each run starts a
   Claude process.
 

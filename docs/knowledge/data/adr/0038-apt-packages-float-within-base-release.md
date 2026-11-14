@@ -10,7 +10,7 @@ The roles pin each downloaded binary and each tool from an installer or a
 registry. They install apt packages by name with no version. The base image
 fixes the Ubuntu release, and apt keeps the packages of one release compatible.
 The base stays at Ubuntu 24.04 because consumers use it, and Renovate does not
-change the Ubuntu release. A different release ships as an image tag with a
+change the Ubuntu release. A different release goes into an image tag with a
 different name.
 
 ## Considered Options
@@ -25,6 +25,6 @@ different name.
 
 ## Consequences
 
-- Two builds of one commit can ship different apt versions.
+- Two builds of one commit can contain different apt versions.
 - A regression from an upstream package update has no commit in this repository
   to bisect to.

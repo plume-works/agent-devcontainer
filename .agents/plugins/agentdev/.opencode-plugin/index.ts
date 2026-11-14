@@ -1,4 +1,4 @@
-// OpenCode bridge for the agentdev catalog. It must stay free of runtime dependencies:
+// OpenCode bridge for the agentdev catalog. It must have no runtime dependencies:
 // the staged catalog is root-owned and read-only, so no node_modules can be next to it.
 import type { Hooks, PluginModule } from "@opencode-ai/plugin"
 import { existsSync, readdirSync, readFileSync } from "node:fs"

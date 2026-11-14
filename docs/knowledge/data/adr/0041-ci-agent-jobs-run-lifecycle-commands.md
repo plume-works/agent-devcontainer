@@ -23,9 +23,9 @@ writes a review with no basis, and that review can pass a required check.
 - Start the supervisor in the background in the container job. Rejected: the
   nested `dockerd` needs a privileged job container, and the only gain is to
   remove the `--no-wait` path.
-- Run the review responder on a bare runner or as a host job through
-  `devcontainers/ci`. Rejected: the review then has no project toolchain, or it
-  loses `claude-code-action` and its GitHub App authentication.
+- Run the review responder on a runner with no container or as a host job
+  through `devcontainers/ci`. Rejected: the review then has no project
+  toolchain, or it loses `claude-code-action` and its GitHub App authentication.
 
 ## Consequences
 

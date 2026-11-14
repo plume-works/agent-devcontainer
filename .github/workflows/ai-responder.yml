@@ -256,7 +256,7 @@ jobs:
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
 
   # Depends on the review job so the check stays pending while a review runs.
-  # This job must never read block-ai-reviews: that label does not remove the requirement of the gate.
+  # This job must never read block-ai-reviews: that label does not remove the requirement for this check.
   ai-review-present:
     name: ai-review-present
     needs:
@@ -341,7 +341,7 @@ jobs:
             }
             core.setOutput('approve', 'true');
 
-      # No GITHUB_TOKEN fallback: see ADR-0066.
+      # Do not use GITHUB_TOKEN as an alternative token: see ADR-0066.
       - name: Require the App secrets
         if: steps.eligible.outputs.approve == 'true'
         env:

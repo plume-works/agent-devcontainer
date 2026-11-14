@@ -100,7 +100,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
-  # Provisions a stock macOS runner with the catalog's bootstrap.
+  # Prepares an unchanged macOS runner with the bootstrap of the catalog.
   macos-bootstrap:
     name: macOS native bootstrap
     runs-on: macos-latest
