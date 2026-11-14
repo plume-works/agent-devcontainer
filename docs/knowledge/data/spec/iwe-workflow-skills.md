@@ -131,9 +131,9 @@ and SHALL record each answer verbatim as it is given.
 The Plan skill SHALL treat its invocation as authorization to write planning
 state only, SHALL resolve material ambiguity before committing the plan, and
 SHALL keep a created or revised plan coherent across context, approach, tasks,
-spec impact, dependencies, verification, out-of-scope boundaries, and current
-code anchors. Plan SHALL neither start Implement nor name it as a next step.
-When a decision was made as specific text, Plan SHALL reproduce that text
+acceptance scenarios, dependencies, verification, out-of-scope boundaries, and
+current code anchors. Plan SHALL neither start Implement nor name it as a next
+step. When a decision was made as specific text, Plan SHALL reproduce that text
 verbatim in the task that applies it and SHALL never paraphrase it; when the
 text is not at hand, Plan SHALL recover it from `.tmp/`, the conversation, or
 the transcript and have the user confirm it before writing the task. Plan's
@@ -196,89 +196,6 @@ OpenCode.
 - **THEN** Plan stops before writing the task, recovers the text from `.tmp/`,
   the conversation, or the transcript, shows what it recovered, and writes the
   task only once the user confirms it is the text they approved
-
-### Requirement: Plans express spec impact at risk-appropriate fidelity
-
-The Plan skill SHALL record the intended spec impact in the plan's existing
-`## Spec changes` section, SHALL scale detail with behavioral risk, and SHALL
-keep that contract coherent when material decisions change. A structured delta
-SHALL sit in a Markdown-tagged fence, so its Requirement and Scenario headings
-stay out of the plan's own hierarchy. `ADDED` and `MODIFIED` SHALL carry the
-complete post-change requirement with every surviving scenario, `REMOVED` SHALL
-name the requirement and why its behavior is retired, and a rename SHALL be a
-removal plus an addition, with no `RENAMED` operation. A spec the plan creates
-SHALL stay a back-ticked key until Ship creates it. Plan SHALL keep each rule of
-a durable spec in one requirement: before validation it SHALL read in full every
-durable spec its normative outcome or structured delta touches.
-
-#### Scenario: A plan has no behavioral change
-
-- **WHEN** planned work changes no externally observable behavior
-- **THEN** Plan records `None — no behavioral change` rather than inventing a
-  spec delta
-
-#### Scenario: A simple low-risk behavior changes
-
-- **WHEN** one unambiguous low-risk behavior changes and a full scenario delta
-  would add ceremony without resolving uncertainty
-- **THEN** Plan links the affected durable spec and records a concise normative
-  post-change outcome
-
-#### Scenario: Contract-heavy or risky behavior changes
-
-- **WHEN** a change affects compatibility, acceptance criteria,
-  security/privacy/data-loss behavior, or a requirement's scenario set
-- **THEN** Plan embeds complete ADDED, MODIFIED, or REMOVED requirement content
-  for every affected durable spec
-
-#### Scenario: Implementation would contradict the planned contract
-
-- **WHEN** implementation requires a material change to a recorded normative
-  outcome, delta operation, requirement, or scenario
-- **THEN** Implement leaves the current task unchecked and waits for user
-  direction and Plan revision before coding through the change
-
-#### Scenario: Verify runs before durable spec synchronization
-
-- **WHEN** implementation is ready for pre-ship verification while the durable
-  spec still describes current released behavior
-- **THEN** Verify evaluates the implementation against the effective contract
-  formed by the durable spec and the plan's risk-appropriate spec changes
-
-#### Scenario: The chosen form is too weak for the change
-
-- **WHEN** a plan records `None` or a normative outcome for a change that
-  touches compatibility, acceptance criteria, security/privacy/data-loss
-  behavior, or a requirement's scenario set
-- **THEN** Verify reports a CRITICAL
-
-#### Scenario: A MODIFIED block omits an unaffected scenario
-
-- **WHEN** a MODIFIED requirement leaves out a scenario the change does not
-  affect, and the plan does not name it as a deliberate removal
-- **THEN** Verify reports a CRITICAL, because the merged spec would drop that
-  scenario
-
-#### Scenario: A plan introduces a spec
-
-- **WHEN** a plan's `## Spec changes` names a spec that does not exist yet, in
-  back-ticks, and supplies its planned contract
-- **THEN** Verify accepts it and judges the implementation against that
-  contract, and Ship creates the spec and replaces the key with a link
-
-#### Scenario: A planned rule already has a home
-
-- **WHEN** a plan's normative outcome or an ADDED or MODIFIED requirement would
-  state a rule another requirement of the same spec already holds
-- **THEN** Plan names that requirement instead of restating the rule
-
-#### Scenario: A modification makes a scenario redundant
-
-- **WHEN** a MODIFIED requirement's post-change statement settles everything one
-  of its scenarios says, and that scenario added a case before the change
-- **THEN** Plan leaves the scenario out of the block and names it below the
-  fence as a deliberate removal, while a scenario that already restated its
-  requirement before the change stays
 
 ### Requirement: Plans declare their release impact
 
@@ -349,26 +266,26 @@ behaviour, and SHALL scope a verification search for leftover text to the files
 the plan changes. Plan SHALL add no end-to-end test that drives an agent session
 through the workflow skills against a live model; behaviour only such a session
 can show SHALL be an observation task naming who closes it. Before validation,
-Plan SHALL check each requirement it adds or modifies against the plan's
-`## Approach` and the code that requirement describes. Every `## Verification`
+Plan SHALL check each acceptance scenario it adds or modifies against the plan's
+`## Approach` and the code that scenario describes. Every `## Verification`
 command SHALL run in the checkout the `iwe-verifier` agent works in, inside the
 Dev Container or container the agent already runs in, without starting a nested
-Dev Container or CI. A requirement SHALL claim only what its mechanism delivers
-and name each limit of that mechanism Plan knows.
+Dev Container or CI. A scenario SHALL claim only what its mechanism delivers and
+name each limit of that mechanism Plan knows.
 
 #### Scenario: Behaviour is visible only after merge
 
-- **WHEN** a requirement can be observed only once the change is on the default
+- **WHEN** a scenario can be observed only once the change is on the default
   branch
 - **THEN** Plan writes a task for it carrying a `**Closed by:**` line naming who
   or what closes it
 
-#### Scenario: A requirement disagrees with the code
+#### Scenario: A scenario disagrees with the code
 
-- **WHEN** a requirement Plan adds or modifies states a restriction the code it
+- **WHEN** a scenario Plan adds or modifies states a restriction the code it
   describes does not hold, or contradicts the plan's `## Approach`
-- **THEN** Plan changes the requirement, the `## Approach`, or adds a task
-  before validation, and the plan carries no disagreement
+- **THEN** Plan changes the scenario, the `## Approach`, or adds a task before
+  validation, and the plan carries no disagreement
 
 #### Scenario: A check needs a nested Dev Container
 
@@ -426,9 +343,8 @@ evidence.
 
 #### Scenario: Completing a task requires extending the plan
 
-- **WHEN** implementation would need an added task or requirement, a heavier
-  `## Spec changes` form, or a corrected verification step, keeping every
-  specified behavior
+- **WHEN** implementation would need an added task or scenario, or a corrected
+  verification step, keeping every specified behavior
 - **THEN** Implement leaves the task unchecked and takes the plan through an
   evaluated revision before coding past it
 
@@ -521,7 +437,7 @@ claim the code must newly meet.
 
 #### Scenario: The evaluator approves an added task
 
-- **WHEN** Verify reports a requirement with no implementation, the drafted
+- **WHEN** Verify reports a scenario with no implementation, the drafted
   revision adds a task that covers it, and the evaluator returns `APPROVE`
 - **THEN** the revision commits, Implement executes the new task, and
   `iwe-verifier` runs again
@@ -661,8 +577,7 @@ a CRITICAL finding.
 
 - **WHEN** Ship invokes Verify for a completed plan and Verify returns zero
   CRITICAL findings
-- **THEN** Ship may proceed to spec synchronization and later durable state
-  transitions
+- **THEN** Ship may proceed to its ADR and durable state transitions
 
 #### Scenario: Verification reports a critical finding
 
@@ -673,8 +588,7 @@ a CRITICAL finding.
 
 - **WHEN** the user explicitly cancels an active plan
 - **THEN** Ship records cancellation without requiring implementation
-  verification or spec synchronization and performs no release or
-  implemented-feature transition
+  verification and performs no release or implemented-feature transition
 
 #### Scenario: Verify is invoked outside Ship
 
@@ -783,10 +697,10 @@ Verify.
 
 #### Scenario: Ship finds a blocker Verify did not
 
-- **WHEN** Verify reports zero CRITICAL findings and the spec merge finds an
-  intent-versus-implementation mismatch
+- **WHEN** Verify reports zero CRITICAL findings and Ship finds a blocker of its
+  own, such as an unshipped prerequisite
 - **THEN** the Shipper's final message carries the Verify report verbatim and
-  states the mismatch in full with its anchored evidence and route
+  states the blocker in full with its anchored evidence and route
 
 #### Scenario: A plan ships
 
@@ -802,17 +716,17 @@ Verify.
 
 ### Requirement: Verify judges conformance to the plan
 
-Verify SHALL report a CRITICAL or WARNING finding only against a requirement,
-scenario, task, or verification step of the plan's effective contract, citing
-it. It SHALL treat a scenario as uncovered only when a test that runs the
-behaviour could cover it, and SHALL never count a check of file contents as
-coverage. It SHALL list an unticked task carrying a `**Closed by:**` line under
-Outstanding observations rather than as a CRITICAL.
+Verify SHALL report a CRITICAL or WARNING finding only against an acceptance
+scenario, task, or verification step of the plan, citing it. It SHALL treat a
+scenario as uncovered only when a test that runs the behaviour could cover it,
+and SHALL never count a check of file contents as coverage. It SHALL list an
+unticked task carrying a `**Closed by:**` line under Outstanding observations
+rather than as a CRITICAL.
 
 #### Scenario: A weakness the plan does not address
 
-- **WHEN** Verify notices a way to defeat the code that no requirement,
-  scenario, task, or verification step of the plan addresses
+- **WHEN** Verify notices a way to defeat the code that no scenario, task, or
+  verification step of the plan addresses
 - **THEN** it reports no CRITICAL or WARNING for it
 
 ### Requirement: Adversarial review runs only when asked
@@ -874,55 +788,6 @@ evidence, then run Ship again.
   outstanding observation
 - **THEN** the Shipper returns `Blocked` naming the observation and changes no
   state
-
-### Requirement: Ship synchronizes durable specs by intelligent merge
-
-The Ship skill SHALL treat a plan-local spec delta as reviewed intent, SHALL
-derive durable updates only from intent that agrees with verified shipped
-behavior, SHALL preserve unaffected requirements, scenarios, and `## Rationale`
-entries, SHALL complete and verify all required spec updates before marking work
-done, and SHALL be safe to resume after a partial prior attempt.
-
-#### Scenario: Existing behavior remains unaffected
-
-- **WHEN** a shipped change modifies one requirement or scenario in an existing
-  durable spec
-- **THEN** Ship updates the changed behavior while preserving all unaffected
-  requirements, scenarios, ordering, and `## Rationale` entries
-
-#### Scenario: A decision is overturned
-
-- **WHEN** a shipped plan replaces a decision a spec's `## Rationale` records
-- **THEN** Ship rewrites that entry to state the new decision and lists the old
-  one among its rejected alternatives
-
-#### Scenario: Plan intent and implementation disagree
-
-- **WHEN** a normative outcome or structured delta disagrees with the verified
-  implementation
-- **THEN** Ship makes no lifecycle transition, does not rewrite intent from
-  code, and reports that the plan requires revision
-
-#### Scenario: A spec update cannot be validated
-
-- **WHEN** any planned spec update is incomplete, disagrees with the verified
-  implementation, or fails graph validation
-- **THEN** Ship does not mark the plan or related feature or bug complete and
-  reports the mismatch
-
-#### Scenario: Shipping resumes after partial graph updates
-
-- **WHEN** a prior Ship attempt already performed some valid state changes
-- **THEN** Ship inspects current state, preserves completed valid work, avoids
-  duplicate `## Rationale` entries, archive moves, and release pages, and
-  continues from the first incomplete operation
-
-#### Scenario: A durable spec is retired
-
-- **WHEN** the verified implementation and plan explicitly remove the final
-  behavior represented by a durable spec
-- **THEN** Ship uses IWE's graph-aware deletion operation, repairs references,
-  and does not leave an empty or orphaned spec document
 
 ### Requirement: Ship and Implement start only from an explicit request or a named dispatcher
 
@@ -1082,15 +947,21 @@ plugin.
 `/agentdev:iwe-plan-review <plan>` SHALL first dispatch the `STE100 Auditor`
 alone, with a prompt that carries only the plan file path and the scope `plan`.
 When that report holds a finding, the skill SHALL return it verbatim under the
-agent's name and SHALL dispatch no other agent.
+agent's name and SHALL dispatch no other agent, unless the request names the run
+as the last `STE100 Auditor` run.
 
-When it holds none, the skill SHALL dispatch the `Durable Knowledge Auditor`,
+When the report holds none, or the request names the run as the last
+`STE100 Auditor` run, the skill SHALL dispatch the `Durable Knowledge Auditor`,
 `iwe-plan-reviewer`, and `iwe-ship-reviewer` in one message. The skill SHALL NOT
 forward conversation turns. The prompt of the auditor SHALL carry only the plan
 file path and the scope `plan`. The prompt of `iwe-plan-reviewer` SHALL carry
 only the plan key and the absolute path of the skill's
 `references/plan-rules.md`. The prompt of `iwe-ship-reviewer` SHALL carry only
 the plan key and the mode `plan`.
+
+The `iwe-planner` rulebook SHALL run the `STE100 Auditor` on one draft three
+times at most. Its third request SHALL name the run as the last `STE100 Auditor`
+run, and Plan SHALL apply the findings of that run without a fourth run.
 
 The skill SHALL perform no review step itself. It SHALL return every report
 verbatim under the name of each agent. It SHALL edit no file and SHALL commit
@@ -1107,9 +978,18 @@ the `iwe-planner` rulebook can run it in every mode.
 
 #### Scenario: The draft breaks the prose rule
 
-- **WHEN** the `STE100 Auditor` reports a finding on the draft
+- **WHEN** the `STE100 Auditor` reports a finding on the draft, and the request
+  does not name the run as the last `STE100 Auditor` run
 - **THEN** only that report returns, no other agent is dispatched, and the plan
   file is unchanged
+
+#### Scenario: The last STE100 Auditor run reports a finding
+
+- **WHEN** the `STE100 Auditor` reports a finding on the third run for one
+  draft, which the request names as the last `STE100 Auditor` run
+- **THEN** the skill dispatches the three other agents, and the four reports
+  return unchanged. Plan applies the `STE100 Auditor` findings and does not run
+  the `STE100 Auditor` again.
 
 ### Requirement: Capture files complete inbox documents
 
@@ -1249,11 +1129,10 @@ edited only when a member is created, archived, or renamed.
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
-workflow, graph links, durable specs, existing stage conventions, `sources`
-attribution, and schema validation. Risk-scaled spec deltas SHALL remain
-embedded planning content without introducing OpenSpec change bundles, stores,
-separate delta files, or a claimed programmatic delta application engine. The
-graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md` lists the
+workflow, graph links, existing stage conventions, `sources` attribution, and
+schema validation. Acceptance scenarios SHALL remain embedded planning content
+without introducing OpenSpec change bundles, stores, or separate delta files.
+The graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md` lists the
 hubs, and the `okf` and `okf-index` schemas check every document — and SHALL
 diverge from OKF only where OKF costs merges or upkeep. No document under
 `data/` SHALL set OKF's optional `status`, because `stage` is the lifecycle
@@ -1278,41 +1157,17 @@ SHALL reject a document that sets any of them.
 - **WHEN** `data/index.md` departs from the shape its OKF schema defines
 - **THEN** `iwe schema validate` fails and names the file
 
-### Requirement: Each kind of knowledge has one home
-
-The graph SHALL hold behaviour only in `data/spec/` requirements, the decision
-in force and the alternatives it rejected only in the `## Rationale` section of
-the spec that owns the behaviour, a finding only in `data/findings/`, and a
-procedure only in `data/guides/`. The schemas SHALL reject a document of type
-`architecture` outside `data/archive/`. A feature SHALL be a proposal: outside
-`data/archive/` its `stage` is `proposed` or `accepted`, and the `ship-records`
-check SHALL fail any other. Nothing checks mechanically that a `## Rationale`
-states no behaviour; the Durable Knowledge Auditor and review judge it.
-
-#### Scenario: An architecture note is written
-
-- **WHEN** a document outside `data/archive/` carries `type: architecture`
-- **THEN** `iwe schema validate` fails and names the document
-
-#### Scenario: An implemented feature is left in place
-
-- **WHEN** a feature under `data/features/` is at `stage: implemented`
-- **THEN** the `ship-records` check fails and names the document
-
 ### Requirement: Closed work is distilled and archived by release
 
 Whoever sets a plan, bug, or backlog task to `stage: done` or
 `stage: cancelled`, or a feature to `stage: implemented` or `stage: cancelled`,
 SHALL, in the same change, move it with `iwe rename` to
-`data/archive/next-release/<type>/` and remove its hub link. Before Ship moves a
-plan, it SHALL write the plan's decision in force and its rejected alternatives,
-and each closed bug's lasting root cause, into the `## Rationale` of the spec
-that owns the behaviour. The release cut SHALL move every document under
-`data/archive/next-release/` to `data/archive/<X.Y.Z>/`, keeping the type
-subfolders. The folder SHALL be the only record of a document's release: no
-document SHALL carry `released`. Every archived document SHALL pass the schema
-of its type. The `ship-records` check SHALL fail a closed document outside
-`data/archive/` and an open one inside it.
+`data/archive/next-release/<type>/` and remove its hub link. The release cut
+SHALL move every document under `data/archive/next-release/` to
+`data/archive/<X.Y.Z>/`, keeping the type subfolders. The folder SHALL be the
+only record of a document's release: no document SHALL carry `released`. Every
+archived document SHALL pass the schema of its type. The `ship-records` check
+SHALL fail a closed document outside `data/archive/` and an open one inside it.
 
 #### Scenario: A plan ships
 
@@ -1320,13 +1175,6 @@ of its type. The `ship-records` check SHALL fail a closed document outside
 - **THEN** the plan and each feature and bug it closed are under
   `data/archive/next-release/`, no hub links them, and every link to them
   resolves
-
-#### Scenario: A plan made a decision
-
-- **WHEN** Ship ships a plan whose `## Approach` records a decision and a
-  rejected alternative for behaviour a spec owns
-- **THEN** that spec's `## Rationale` states the decision and the rejected
-  alternative before the plan is moved
 
 #### Scenario: A release is cut
 
@@ -1344,49 +1192,6 @@ of its type. The `ship-records` check SHALL fail a closed document outside
 
 - **WHEN** an archived plan carries a `stage` its schema does not allow
 - **THEN** `iwe schema validate` fails and names the document
-
-### Requirement: Release notes are written from the spec diff
-
-The release cut SHALL write the release page from the difference in the
-requirements and scenarios of `data/spec/` between the commit that added the
-previous release page and the cut, ignoring `## Rationale`. The page SHALL say
-in plain language what changed, grouped by theme, with a Removed section for
-behaviour that went away, an Upgrade notes section when a change requires
-action, and a Fixed section listing the titles of the bugs in the release's
-folder. The page SHALL hold no Markdown link, and the `ship-records` check SHALL
-fail one that does. The cut SHALL read the release's archived plans only to
-settle what the diff leaves unclear, and SHALL report each change it could not
-settle and leave it off the page. No skill SHALL edit a release page after its
-cut; nothing checks that mechanically. The graph SHALL hold no `data/log.md`.
-
-#### Scenario: A requirement changed between cuts
-
-- **WHEN** a requirement's statement or a scenario differs between the previous
-  cut and this one
-- **THEN** the release page says what changed in it, not only that it changed
-
-#### Scenario: A requirement left a spec
-
-- **WHEN** a requirement present at the previous cut is absent at this one and
-  an archived plan of the release retired the behaviour
-- **THEN** the release page lists the behaviour under Removed
-
-#### Scenario: The diff does not say why
-
-- **WHEN** a requirement left a spec and no archived plan of the release says
-  whether the behaviour was retired or moved
-- **THEN** the cut reports the requirement and leaves it off the page
-
-#### Scenario: Only rationale changed
-
-- **WHEN** the only difference in a spec between the cuts is under
-  `## Rationale`
-- **THEN** the release page does not mention the spec
-
-#### Scenario: A release page links a document
-
-- **WHEN** a commit stages a release page holding a Markdown link
-- **THEN** the `ship-records` check fails and names the line
 
 ## Rationale
 
@@ -1695,25 +1500,6 @@ Rejected:
   handoffs.** Those sessions start from the written plan alone, so the plan is
   already the only channel.
 
-### Plan deltas adopt the notation, not an application engine
-
-A behavior-changing plan carries a reviewable contract before implementation,
-scaled to risk: a delta only where a prose outcome could hide a disagreement.
-The delta is intent inside the one plan document; the durable spec describes
-released behavior until Ship merges it by judgment, accounting for every
-operation. Determinism is not claimed.
-
-Rejected:
-
-- **A delta in every plan.** It taxes refactors and docs-only work with ceremony
-  that resolves nothing.
-- **A separate change bundle, store, or delta file.** A second lifecycle would
-  duplicate the plan's own.
-- **A parser that applies deltas.** Operation order, conflict rules, and
-  postconditions would be machinery for a merge Ship performs by reading.
-- **Reconciling a stale delta from the implementation.** It erases the reviewed
-  contract; a material mismatch returns to Plan revision.
-
 ### A plan's release impact is a frontmatter field chosen when it is written
 
 The maintainer decided that a plan's release impact is chosen and reviewed when
@@ -1799,12 +1585,11 @@ Rejected:
 - **The rule under the graph manual only.** Code comments, skills, and pull
   request bodies would fall outside it.
 
-### Revision and spec synchronization belong to Plan and Ship
+### Revision belongs to Plan
 
-Plan's revise mode owns every change to an active plan and Ship is the only
-workflow that writes durable specs, which keeps one owner per kind of state:
-Explore investigates, Plan owns planning state, Implement records tactical
-deviations, Verify proves, Ship merges specs.
+Plan's revise mode owns every change to an active plan, which keeps one owner
+per kind of state: Explore investigates, Plan owns planning state, Implement
+records tactical deviations, Verify proves, Ship records the result.
 
 Rejected:
 
@@ -1822,31 +1607,6 @@ Rejected:
 
 - **Revising any active plan in place, whatever the change.** It silently
   rewrites the meaning of work already ticked.
-
-### Ship merges specs from verified evidence before it moves any state
-
-Ship derives each durable spec update from the plan's `## Spec changes` and
-Verify's implementation evidence, validates the merged specs, and only then
-moves plan, feature, bug, and release state, so a plan is never recorded as done
-while a spec it touched still describes the old behaviour.
-
-Rejected:
-
-- **Overwriting a spec from plan prose.** A plan can be stale, and a whole-spec
-  overwrite erases scenarios the change never touched.
-- **Moving stages before the spec merge is verified.** A failed merge then
-  leaves a plan marked done that is not.
-
-### A spec contradiction found outside a plan becomes a bug
-
-A spec-versus-code contradiction found with no plan in flight is handed to
-Capture as a bug, because Ship acts only on a selected plan's `## Spec changes`
-and has nothing to merge without one.
-
-Rejected:
-
-- **Handing the contradiction to Ship.** No plan carries the intent Ship would
-  merge.
 
 ### The IWE workflow skills carry an iwe prefix in the agentdev catalog
 
@@ -1884,20 +1644,6 @@ Rejected:
 
 - **No live-model test anywhere in the repository.** It would remove the
   self-improve live-session tests the maintainer kept.
-
-### Only the planner keeps a rule from being restated in a spec
-
-Ship preserves every requirement and scenario a plan's `## Spec changes` does
-not touch, so a restated rule can only be kept out where the delta is written. A
-spec stating the behaviour its code or rulebook also carries is intended and is
-not that redundancy: a statement of how the catalog is wired keeps its copy in
-the spec.
-
-Rejected:
-
-- **Verify or `iwe-revision-evaluator` flags a restated rule.** The check
-  belongs where the delta is written, and a Verify finding arrives after
-  implementation.
 
 ### The Ship review loop belongs to the Ship skill
 
@@ -1951,17 +1697,13 @@ Rejected:
 ### Each kind of knowledge has one home, and finished work is archived by release
 
 The user set DRY and KISS as the principles of the graph's layout, so each kind
-of knowledge has one home: behaviour in spec requirements, the decision in force
-and what it rejected in the same spec's `## Rationale`, findings and procedures
-in their own types, proposals in features, work in flight in plans, bugs, and
-tasks. The `architecture` type is retired, and a feature is a proposal that is
-archived with the plan that implements it. Finished work is archived, never
-deleted, in one folder per release plus `next-release`, each with one subfolder
-per type so every archived document stays under its type's schema; the folder is
-the only record of a document's release, so no `released` field repeats it. Ship
-writes a plan's lasting decision into the owning spec's `## Rationale` before it
-archives the plan, because the operating loop's Consult step reads specs, not
-closed plans.
+of knowledge has one home: findings and procedures in their own types, proposals
+in features, work in flight in plans, bugs, and tasks. The `architecture` type
+is retired, and a feature is a proposal that is archived with the plan that
+implements it. Finished work is archived, never deleted, in one folder per
+release plus `next-release`, each with one subfolder per type so every archived
+document stays under its type's schema; the folder is the only record of a
+document's release, so no `released` field repeats it.
 
 Rejected:
 
@@ -1969,8 +1711,6 @@ Rejected:
   outside the plan and Ship flow; the user chose to fix the graph in place.
 - **`data/architecture/` kept for decisions only.** No script can check that a
   note states no behaviour, and no workflow step maintains a note.
-- **Rationale only in the plan that made the decision.** The Consult step reads
-  specs, not closed plans, so rationale needs a home that step reads.
 - **Minimal validation for archived documents.** The user chose full validation;
   a schema change is applied to that type's archived documents in the same
   change.
@@ -1978,13 +1718,11 @@ Rejected:
   keeps a second document per behaviour for a release page that no longer reads
   it.
 
-### Release notes are written from the spec diff
+### Release pages are written once, by the release cut
 
-The release cut writes the release page in plain language from the difference in
-the specs' requirements and scenarios since the previous cut, because the specs
-are the one maintained statement of behaviour, and the page is not edited
-afterwards. The plan's `release` field names only the documents the plan closes.
-`data/log.md` is removed, which OKF makes optional.
+The release cut writes the release page in plain language, and the page is not
+edited afterwards. The plan's `release` field names only the documents the plan
+closes. `data/log.md` is removed, which OKF makes optional.
 
 Rejected:
 

@@ -147,7 +147,7 @@ None — no behavioral change
 ## Depends on
 
 [Add ADRs and take the workflow off
-specs](20261113-adrs-and-workflow-off-specs.md)
+specs](../archive/next-release/plans/20261113-adrs-and-workflow-off-specs.md)
 
 ## Verification
 

@@ -134,12 +134,12 @@ Three hard rules, in every language:
 2. **Never restate the code next to it.** A comment that names what the adjacent
    line already shows is noise, and goes stale the moment the line
    changes. Before writing one, ask what it adds that the code cannot express.
-3. **Never duplicate the knowledge base.** Invariants live in the matching
-   `docs/knowledge/data/spec/` document, and the rationale and rejected
-   alternatives in its `## Rationale`. Reference it by key instead of copying it:
-   `// Trust-list policy: see spec/template-consumption.` A short reason the code
-   cannot express belongs in the comment itself. When a spec already records it,
-   reference that key instead of repeating it.
+3. **Never duplicate the knowledge base.** A decision and the alternatives it
+   rejected live in an ADR under `docs/knowledge/data/adr/`. Refer to it as
+   `ADR-NNNN` instead of copying it: `// Behaviour lives in tests: see ADR-0001.`
+   A reference to a `docs/knowledge/data/spec/` document by key, such as
+   `spec/template-consumption`, is also permitted. A short reason the code
+   cannot express belongs in the comment itself.
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
 the mechanism never does. Only durable rationale is worth forwarding — see Best
@@ -209,9 +209,10 @@ This repository uses IWE project memory under `docs/knowledge/data/`.
 
 **Never record durable knowledge in an agent's own memory store** — it is wiped
 when the devcontainer is recreated and is invisible to everyone else. Standing
-rules and conventions go in `AGENTS.md`; project state, plans, and specs go in
-`docs/knowledge/data/`, a decision in the `## Rationale` of the spec that owns
-the behaviour, and a measurement in `docs/knowledge/data/findings/`. This
+rules and conventions go in `AGENTS.md`; project state and plans go in
+`docs/knowledge/data/`, a decision in an ADR that a plan proposes under
+`docs/knowledge/data/adr/`, and a measurement in
+`docs/knowledge/data/findings/`. This
 applies to explicit "remember this" requests and to any automatic save the
 harness prompts for. Auto-memory stays enabled for session-local scratch only.
 

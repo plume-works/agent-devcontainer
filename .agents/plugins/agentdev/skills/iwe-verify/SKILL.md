@@ -1,6 +1,6 @@
 ---
 name: iwe-verify
-description: Verify that implementation matches the graph — check a plan's tasks, spec requirements, and scenarios against the actual code before shipping, or sweep the whole workspace for doc↔code drift.
+description: Verify that implementation matches the graph — check a plan's tasks and acceptance scenarios against the actual code before shipping, or sweep the whole workspace for doc↔code drift.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 

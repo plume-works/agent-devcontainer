@@ -9,15 +9,15 @@ completed: 2026-07-18
 # Focus sessions
 
 *Example document — this shows the full body template of a shipped plan,
-including the `## Spec changes` section the ship skill synced before flipping
-the stage to done and moving the plan to `archive/0.1.0/plans/`. The setup skill
+including the `## Acceptance` scenarios Verify checked before the ship skill set
+the stage to done and moved the plan to `archive/0.1.0/plans/`. The setup skill
 deletes `*.example.md` files after onboarding.*
 
 ## Context
 
 Pomodux has a window and a session log but no working timer. This plan builds
-the core loop: countdown, pause/resume, completion logging. The session log
-([timer rationale](../../../spec/timer.example)) is already in place.
+the core loop: countdown, pause/resume, completion logging. The session log is
+already in place.
 
 ## Approach
 
@@ -51,10 +51,33 @@ store. Completion appends to the session log through the existing writer.
 - [x] Tray controls mirroring the window
 - [x] Completion chime
 
-## Spec changes
+## Acceptance
 
-[Timer](../../../spec/timer.example) — session countdown, pause/resume, and
-wall-clock independence requirements written from this plan's behavior.
+### Scenario: A focus session ends at 00:00
+
+- **WHEN** the user starts a focus session with a 25-minute setting and closes
+  the window
+- **THEN** the timer fires the completion signal at 00:00 and records the
+  session
+- **Test:** `src/timer/engine.test.ts::completes with the window closed`
+
+### Scenario: A paused session resumes where it stopped
+
+- **WHEN** the user resumes a session paused at 12:34 remaining
+- **THEN** the countdown continues from 12:34
+- **Test:** `src/timer/engine.test.ts::resumes from the paused time`
+
+### Scenario: Sleep does not corrupt a session
+
+- **WHEN** the machine sleeps for an hour during a session with 10:00 remaining
+- **THEN** the session shows no negative or incorrect time when the machine
+  wakes
+- **Test:** `src/timer/engine.test.ts::survives sleep`
+
+## ADRs
+
+[The timer counts wall-clock
+time](../../../adr/0001-timer-counts-wall-clock-time.example)
 
 ## Verification
 
@@ -74,6 +97,6 @@ wall-clock independence requirements written from this plan's behavior.
 
 *Convention notes: `stage: done` requires `completed` (schema-enforced), and a
 shipped plan carries no `rank`. Ship moved it out of the plans hub into the
-archive; the release cut moved it from `next-release` to `0.1.0`.
-`## Spec changes` names every spec this work touches — the ship skill walks that
-list before the stage flips, which is what keeps specs from drifting.*
+archive; the release cut moved it from `next-release` to `0.1.0`. Each
+`## Acceptance` scenario names the test that proves it, and Ship set the ADR
+that `## ADRs` links to `stage: accepted`.*

@@ -1,6 +1,6 @@
 ---
 type: bug
-stage: pending
+stage: cancelled
 severity: medium
 description: Plan accepts implementation tasks that create or edit data/spec/ documents, which only Ship may change, and the plan-scope audit does not flag them.
 sources:
@@ -68,5 +68,5 @@ that routes back to `/agentdev:iwe-plan` revise mode.
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#rules › "This rulebook implements; it doesn't ship. Status flips"`
   — "spec sync ... stay with the `/agentdev:iwe-ship` skill", with no
   instruction for a task that asks for it
-- `docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-ship-synchronizes-durable-specs-by-intelligent-merge`
-  — Requirement: Ship synchronizes durable specs by intelligent merge
+- `docs/knowledge/data/spec/iwe-workflow-skills.md` — the workflow spec, which
+  no longer has a requirement for a spec merge at ship

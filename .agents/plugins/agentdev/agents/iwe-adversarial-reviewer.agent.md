@@ -31,14 +31,14 @@ missing input.
 
 ## Steps
 
-1. **Load the plan.** Read the full plan, every spec its `## Spec changes`
-   names, and the feature and bug documents it links. The plan's claims are its
-   `## Spec changes` requirements and scenarios, its tasks, and the outcomes
-   its `## Approach` states.
+1. **Load the plan.** Read the full plan, each ADR its `## ADRs` links, and the
+   feature and bug documents it links. The plan's claims are its
+   `## Acceptance` scenarios, its tasks, the decisions its ADRs record, and the
+   outcomes its `## Approach` states.
 2. **Apply the rubric for the target.**
    - **`plan`** — look for:
-     - claims the design cannot keep: a requirement whose mechanism, as
-       `## Approach` describes it, cannot deliver what the SHALL says;
+     - claims the design cannot keep: a scenario whose mechanism, as
+       `## Approach` describes it, cannot deliver what its THEN line says;
      - scenarios the plan misses: an input, state, actor, or ordering under
        which a claim fails and no scenario or task addresses it;
      - limits a promise does not state: a bound the mechanism has — scope,
@@ -60,7 +60,7 @@ Lead with one line — `Adversarial review: <plan key> — <target>` — then:
 - **Findings**, most severe first, each opening with its ID `A<n>`, numbered
   from 1 in report order, then:
   - **Defeats** — the plan claim the finding defeats, quoted or named by its
-    requirement, scenario, or task title. A `code` finding that defeats no
+    scenario, ADR, or task title. A `code` finding that defeats no
     claim says `none`; a `plan` finding names the claim it weakens or `none`.
   - **Evidence** — an anchor relative to the repository root (`path::symbol`, `path#heading-slug`, `path#key.path`, or one of them plus ` › "verbatim quote"`; never
     a line number), the command

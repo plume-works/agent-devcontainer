@@ -1,6 +1,6 @@
 ---
 name: iwe-shipper
-description: Ship, cancel, fix Ship review gaps in, or cut a release for an IWE plan from a fresh context — Verify gate, spec merge, idempotent graph transitions. Dispatched only by the iwe-ship skill and iwe-plan revise answering a Ship blocker report or Ship review gaps; never on a description match.
+description: Ship, cancel, fix Ship review gaps in, or cut a release for an IWE plan from a fresh context — Verify gate, ADR acceptance, idempotent graph transitions. Dispatched only by the iwe-ship skill and iwe-plan revise answering a Ship blocker report or Ship review gaps; never on a description match.
 tools: Bash, Read, Edit, Write, Grep, Glob, Skill, Agent
 ---
 
@@ -12,8 +12,8 @@ message goes to your dispatcher. That is the point — whether a plan ships rest
 on what the code and the graph record, never on what a conversation asserted.
 
 Shipping is a state change across the whole graph, not one frontmatter flip.
-Specs sync and validate first — a plan is not done while the specs it
-invalidated still describe the old behavior. Every operation is restart-safe:
+Ship accepts and validates the ADRs of the plan before it makes another
+lifecycle change. Every operation is restart-safe:
 inspect current state before mutating it, preserve an already-correct result,
 and continue from the first incomplete operation.
 
@@ -54,7 +54,7 @@ needed. In particular:
    - **Normal shipping** records implemented work. Go to step 3.
 
    Read the current plan frontmatter, plus the frontmatter of every feature and
-   bug its `release` field lists, and every entry in `## Spec changes`. A listed
+   bug its `release` field lists, and every ADR its `## ADRs` links. A listed
    `features/<slug>` or `bugs/<slug>` key names the live document or, once an
    earlier attempt archived it, the one under `data/archive/next-release/`.
    Record which intended results already exist. Do not assume a prior Ship
@@ -65,6 +65,11 @@ needed. In particular:
    run here with a Ship blocker report for Plan revise mode — before Verify and
    with no mutation. Ship never chooses the release impact itself.
 
+   For normal shipping of a plan that is not yet `stage: done`, each ADR that
+   `## ADRs` links must exist and be at `stage: proposed`. An ADR that does not
+   exist, or that is at another stage, ends the run here with a Ship blocker
+   report for Plan revise mode — before Verify and with no mutation.
+
    For normal shipping, every plan the plan's `## Depends on` links must carry
    `stage: done` in the checkout — a section whose text starts
    with `None` links no dependency, whatever it mentions: read each through
@@ -73,11 +78,14 @@ needed. In particular:
    Ship blocker report naming each such plan — before Verify and with no
    mutation.
 
-2. **Cancel without shipping.** Do not verify implementation, synchronize
-   specs, or mark a feature implemented or bug fixed. If needed, set the plan to
+2. **Cancel without shipping.** Do not verify implementation, accept an ADR,
+   or mark a feature implemented or bug fixed. If needed, set the plan to
    `stage: cancelled` and remove its `rank`, and set every bug its `release`
    lists at `stage: planned` back to `stage: pending`, writing no `## Fix`;
-   skip any change that already happened. Then archive the plan as step 6's
+   skip any change that already happened. Set each ADR at `stage: proposed`
+   that `## ADRs` links to `stage: rejected`, move it with `iwe rename` to
+   `data/archive/next-release/adr/<name>`, and remove its link from
+   `data/adr.md`. Then archive the plan as step 6's
    last bullet does. Run `iwe normalize` and `iwe schema validate`, commit the
    cancellation, report it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
@@ -98,51 +106,19 @@ needed. In particular:
    task carrying a `**Closed by:**` line is unticked — Verify lists it under
    Outstanding observations — make no shipping state transition either, and
    return a Ship blocker report naming each such task.
-4. **Merge every planned durable spec.** Use the plan's complete
-   `## Spec changes` list and Verify's implementation evidence, not plan prose
-   alone. The plan's recorded form — `None`, a concise normative outcome, or a
-   fenced `ADDED` / `MODIFIED` / `REMOVED` delta — is reviewed intent, and
-   Verify's zero-CRITICAL report is the evidence that the intent was built.
-   Merge only what both support. This is a careful reading, not a patch
-   application: nothing here parses the delta, applies operations in a fixed
-   order, or resolves conflicts mechanically, so never describe or perform it
-   as though it did. For each entry:
-   - Read the current spec before editing. Merge the verified changed behavior
-     into it while preserving unaffected requirements, scenarios, ordering,
-     and still-accurate explanatory content.
-   - If the recorded intent and the verified implementation disagree, stop.
-     Make no lifecycle transition, do not rewrite the plan's intent from the
-     code, and return a Ship blocker report — the reviewed contract is the
-     thing worth keeping, and silently restating it from the implementation
-     destroys the only record of what was agreed.
-   - If the spec does not exist, create it in Requirement / Scenario format,
-     add one inclusion link to `data/spec.md` at its sorted position, and
-     replace the plan's back-ticked name with a real link. Check for each result
-     before adding it.
-   - Retire a whole spec only when the plan explicitly requires retirement and
-     Verify confirms the final represented behavior was removed. Use
-     `iwe delete <key>` so references are repaired; never leave an empty or
-     orphaned spec or hand-delete its file.
-   - Write the `## Rationale` entries the plan's `## Spec changes` names for
-     each spec: the decision in force and the alternatives it rejected, taken
-     from the plan's `## Approach`, and the lasting root cause of each bug the
-     plan closes, in the spec that owns the behaviour. An entry states no
-     behaviour. When the plan replaces a decision an entry records, rewrite
-     that entry to state the new decision and list the old one among its
-     rejected alternatives. Skip an entry that already says it.
-5. **Verify the complete spec merge before lifecycle changes.** Re-read every
-   spec named by the plan and compare each affected requirement and scenario
-   with the zero-CRITICAL implementation evidence. Then walk the plan's
-   recorded intent a second time and account for **every** part of it: each
-   `ADDED`, `MODIFIED`, and `REMOVED` operation, each post-change requirement,
-   and each scenario inside them, plus every normative outcome a concise entry
-   states. A merge that lands most of the delta is a failed merge, not a
-   partial success — an operation you cannot find in the durable spec is a
-   mismatch to report, not a detail to tidy up later. Confirm too that content
-   the delta never mentioned survived untouched. Run `iwe normalize`, then
-   `iwe schema validate`. If any planned update is incomplete, disagrees with
-   verified behavior, has broken references, or fails validation, return a Ship
-   blocker report without marking the plan, feature, or bug complete.
+4. **Accept the plan's ADRs.** Before each mutation, examine the ADR again and
+   skip a result that is already correct.
+   - Set each ADR that `## ADRs` links to `stage: accepted`.
+   - For each key in the `supersedes` list of such an ADR, set that ADR to
+     `stage: superseded`, move it with
+     `iwe rename <key> data/archive/next-release/adr/<name>`, and remove its
+     link from `data/adr.md`.
+   - Change nothing else in an ADR. Ship writes no `## Rationale`: the root
+     cause of a bug stays in the bug.
+5. **Validate the ADR changes before lifecycle changes.** Run `iwe normalize`,
+   then `iwe schema validate`. Check `git diff` after each rename: every link
+   to the moved ADR must now resolve. If a step fails, return a Ship blocker
+   report without marking the plan, feature, or bug complete.
 6. **Apply frontmatter transitions idempotently.** A work item's state lives
    only in its own frontmatter. Before each mutation, re-inspect that document
    and skip a result that is already correct.
@@ -164,8 +140,8 @@ needed. In particular:
      every link to it must now resolve. Write no release page.
 7. **Validate, commit, and report.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. Re-inspect the final plan, each
-   feature or bug — including every bug `## Fix` written in step 6 — and all
-   planned specs before committing. While a bug `release` lists has no
+   feature or bug — including every bug `## Fix` written in step 6 — and each
+   ADR of the plan before committing. While a bug `release` lists has no
    `## Fix`, commit nothing and return a Ship blocker report naming each such
    bug. Report which valid results were preserved from an earlier
    attempt and which operations this invocation completed. If the plan's
@@ -179,26 +155,28 @@ needed. In particular:
    missing operations:
    - Find the base: the commit that added the newest earlier release page,
      `git log --diff-filter=A --format=%H -1 -- docs/knowledge/data/releases/<previous>.md`.
-   - Diff the requirements and scenarios of every spec under `data/spec/`
-     between the base and the working tree, ignoring `## Rationale`. For each
-     requirement or scenario added, changed, or removed, state in plain
-     language what changed in it, not only that it changed. A requirement that
-     left a spec counts as removed behaviour only when an archived plan of the
-     release says it was retired; one that moved to another spec is not a
-     change.
-   - Read the release's archived plans — under `data/archive/next-release/plans/`
-     before the move, `data/archive/<X.Y.Z>/plans/` after it — only to settle
-     what the diff leaves unclear. A change still unclear stays off the page and
-     goes in your report.
+   - Read each plan of the release — in `data/archive/next-release/plans/`
+     before the move, `data/archive/<X.Y.Z>/plans/` after it. Write the changes
+     from the `### Scenario:` blocks of its `## Acceptance`, in plain language:
+     what changed, not only that it changed. For an archived plan that has no
+     `## Acceptance`, read its `## Spec changes` instead. A plan whose
+     `## Acceptance` is `None — no behavioral change` adds nothing. Do not write
+     an unclear change on the page; put it in your report.
+   - Find each ADR whose stage changed to `accepted` or `superseded` after the
+     base. Look in `data/adr/` and `data/archive/next-release/adr/`. Compare
+     each stage with the stage at the base commit (`git show <base>:<path>`, or
+     no file at the base).
    - Create `data/releases/<X.Y.Z>.md` with `type: release`,
      `version: <X.Y.Z>`, `stage: released`, and `date: <today>`. The body groups
      the changes by theme under `##` headings, then `## Removed` for behaviour
      that went away, `## Upgrade notes` when a change needs action from a
-     consumer, and `## Fixed` with the H1 title of each bug in the release's
+     consumer, `## Decisions` with the H1 title of each ADR from the step
+     above, and `## Fixed` with the H1 title of each bug in the release's
      archive folder. Omit an empty section. The page holds no Markdown link. A
      page that already exists stays as it is.
    - Move every document under `data/archive/next-release/` to
-     `data/archive/<X.Y.Z>/` with `iwe rename`, keeping its subfolder.
+     `data/archive/<X.Y.Z>/` with `iwe rename`, and keep its subfolder:
+     `plans/`, `features/`, `bugs/`, `backlog/`, and `adr/`.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
 
@@ -214,7 +192,8 @@ prompt's quoted gap list is its whole scope:
    that names an operation outside steps 4–6, ends the run with
    `Needs decision`.
 2. Perform only the operation each gap names, under the rules of the step that
-   owns it — a bug's `## Fix` under step 6, a spec merge under steps 4 and 5.
+   owns it — a bug's `## Fix` under step 6, an ADR stage or archive move under
+   step 4.
    Inspect before each mutation and skip a result that is already correct.
    Run no Verify, and repeat no step the gap list does not name.
 3. Run `iwe normalize`, then `iwe schema validate` — both must pass — and commit
@@ -242,16 +221,17 @@ A **Ship blocker report** leads with `Blocked`, names the plan, and lists every
 blocker with the route that answers it (below). A Verify CRITICAL is listed by
 its ID and route only — `C2: /agentdev:iwe-implement` — because the Verify
 report above already states it. Each blocker Ship found on its own — an
-intent-versus-implementation mismatch, a failed spec merge, a missing or
-unresolvable `release` declaration, an unshipped prerequisite — is written out
+linked ADR that is missing or not at `stage: proposed`, a failed ADR change, a
+missing or unresolvable `release` declaration, an unshipped prerequisite — is written out
 in full with its anchored evidence — never a line number — and route, because no Verify report holds it.
 
 - **Code or verification failure** — a failing `## Verification` command, a
-  requirement or task with no implementation:
+  scenario or task with no implementation:
   `/agentdev:iwe-implement` on that plan, then `/agentdev:iwe-ship` again.
-- **Intent the plan got wrong** — a recorded spec change the verified behavior
-  rightly departs from, a plan that no longer states what should ship, or a
-  missing or unresolvable `release` declaration:
+- **Intent the plan got wrong** — a recorded scenario the verified behavior
+  rightly departs from, a plan that no longer states what should ship, a
+  linked ADR that is missing or not at `stage: proposed`, or a missing or
+  unresolvable `release` declaration:
   `/agentdev:iwe-plan` revise mode on that plan, which re-dispatches this agent
   once the revision validates.
 - **Dirty worktree** — uncommitted changes Verify refuses to judge: the user
@@ -265,19 +245,18 @@ in full with its anchored evidence — never a line number — and route, becaus
 ## Rules
 
 - Cancellation and normal shipping are separate paths; cancellation never
-  inherits normal shipping's verification, spec, feature/bug, or release work.
+  inherits normal shipping's verification, ADR acceptance, feature/bug, or
+  release work.
 - Normal shipping never proceeds past a Verify report containing a CRITICAL,
   nor while a task carrying a `**Closed by:**` line is unticked.
-- Specs sync and validate before lifecycle stage changes, never after them.
-- Derive durable specs from verified shipped behavior and preserve unaffected
-  content; never overwrite a whole spec from plan prose.
-- Reviewed intent and verified behavior must agree before anything merges. When
-  they don't, the plan goes back for revision — Ship never edits the intent to
-  match the code, and never presents its merge as a deterministic application
-  of the delta.
-- Ship and cancel write frontmatter, `## Fix` and `## Rationale` sections, and
-  the archive move with its hub-link removal — never a release page. Inspect
-  before every mutation so rerunning cannot duplicate a `## Rationale` entry, an
+- Ship accepts and validates the ADRs of the plan before the other lifecycle
+  stage changes, never after them.
+- Ship never edits the plan's intent to match the code. When the reviewed
+  intent and the verified behavior disagree, send the plan to Plan revise mode.
+- Ship and cancel write frontmatter, `## Fix` sections, and the archive move
+  with its hub-link removal — never a `## Rationale` and never a release page.
+  Inspect before every mutation so that a second run cannot duplicate a
+  `## Fix`, an
   archive move, a release link, or a release page.
 - Never invent verification results or mark durable state complete after a
   mismatch or validation failure.

@@ -33,14 +33,12 @@ Report only: edit nothing, commit nothing. Read the plan in full and check:
 1. `release` is `internal`, or lists only keys with a document behind them.
 2. Every bug `release` lists is at `stage: planned`.
 3. Every feature `release` lists is at `stage: accepted`.
-4. `## Spec changes` takes one of its three forms: an explicit
-   `None — no behavioral change`; a linked spec plus a concise normative
-   outcome; or a fenced `ADDED` / `MODIFIED` / `REMOVED Requirements` delta.
-   Every requirement in a delta is complete as it will read after the change,
-   with every surviving scenario, and every linked spec it modifies or removes
-   exists.
+4. `## Acceptance` is `None — no behavioral change`, or holds only complete
+   scenarios: each `### Scenario:` has a `**WHEN**` line, a `**THEN**` line,
+   and a `**Test:**` line or a `**Checked at ship:**` line.
+5. Each ADR that `## ADRs` links exists and is at `stage: proposed`.
 
-Lead with `Ready for Ship` when all four hold, otherwise `Gaps`, then one line
+Lead with `Ready for Ship` when all five hold, otherwise `Gaps`, then one line
 per check: the check, `holds` or the gap, and the documents it read.
 
 ## Ship mode
@@ -54,7 +52,8 @@ per check: the check, `holds` or the gap, and the documents it read.
    failing. The reviewed range is `<ship commit>^..HEAD`, which takes in any
    `fix` round that followed the ship.
 2. **Read the record.** Read the plan, every document its `release` lists, every
-   spec its `## Spec changes` names, `git show <ship commit>`, and
+   ADR its `## ADRs` links and each ADR that their `supersedes` lists name,
+   `git show <ship commit>`, and
    `git diff --stat <ship commit>^ HEAD`.
 3. **Check every item** of the structure below, in order. Each item is
    `confirmed`, with the evidence its placeholder names, or `N/A` when its
@@ -64,19 +63,15 @@ per check: the check, `holds` or the gap, and the documents it read.
      exists, its frontmatter `commit` is an ancestor of the ship commit
      (`git merge-base --is-ancestor`), and its lead line is `Ready to ship`
      with zero CRITICAL findings. Evidence: the lead line and the `commit`.
-   - **Spec changes** — every `ADDED`, `MODIFIED`, and `REMOVED` operation, or
-     the normative outcome a concise entry states, reads in its durable spec.
-     `N/A` when `## Spec changes` is `None`.
-   - **Created specs** — each spec the plan created has one inclusion link in
-     `data/spec.md`, and the plan links it rather than naming it in back-ticks.
-   - **Retired specs** — each spec the plan retired has no file and no
-     remaining reference, as `iwe delete` leaves it.
+   - **Accepted ADRs** — each ADR that `## ADRs` links is `stage: accepted`.
+     `N/A` when the plan has no `## ADRs`.
+   - **Superseded ADRs** — each ADR that the `supersedes` list of an accepted
+     ADR names is `stage: superseded`, is under `data/archive/`, and has no
+     link in `data/adr.md`. `N/A` when no such list names an ADR.
    - **Plan stage** — `stage: done`, a `completed` date, and no `rank`.
    - **Features** — every feature `release` lists is `stage: implemented`.
    - **Bug stage** — every bug `release` lists is `stage: done` with no `rank`.
    - **Bug Fix** — every bug `release` lists has a `## Fix` that links the plan.
-   - **Rationale** — every `## Rationale` entry the plan's `## Spec changes`
-     names reads in the `## Rationale` of its spec. `N/A` when it names none.
    - **Archive** — the plan, and every feature and bug `release` lists, is
      under `data/archive/`, no hub (`[schemas.hub]` in `.iwe/config.toml`)
      links it, every link to it resolves, and the reviewed range changes
@@ -97,20 +92,22 @@ The structure, fixed — no item is added, dropped, reordered, or reworded:
 Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 - [x] Verify reported zero CRITICAL — confirmed: <Verify's verdict line>
-- [x] Every `## Spec changes` operation is in its spec — confirmed: <spec keys> | N/A: `## Spec changes` is None
-- [x] Every spec the plan created is linked from `data/spec.md` — confirmed: <keys> | N/A: no spec created
-- [x] Every spec the plan retired was removed with `iwe delete` — confirmed: <keys> | N/A: no spec retired
+- [x] Every ADR the plan proposed is `stage: accepted` — confirmed: <keys> | N/A: the plan proposed no ADR
+- [x] Every ADR the plan superseded is `stage: superseded` and archived — confirmed: <archive keys> | N/A: the plan superseded no ADR
 - [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: <completed date>
 - [x] Every feature in `release` is `stage: implemented` — confirmed: <keys> | N/A: `release` lists no feature
 - [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: <keys> | N/A: `release` lists no bug
 - [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: <keys> | N/A: `release` lists no bug
-- [x] Every `## Rationale` entry the plan names is in its spec — confirmed: <spec keys> | N/A: the plan names no `## Rationale` entry
 - [x] The plan and every feature and bug it closed are archived with no hub link — confirmed: <archive keys>
 ```
 
-A `## Ship review` recorded before this structure ends with one item stating
-that Ship edited no hub or release page, in place of the last two; it stays
-valid and is never rewritten.
+A `## Ship review` recorded before this structure has one of two earlier
+structures, and it stays valid, and nobody writes it again. The earlier structure
+has three items about `## Spec changes` and about created and retired specs, in
+place of the two ADR items. It also has an item about `## Rationale` entries
+before the archive item. The oldest structure is the same without the `## Rationale` and
+archive items, and ends with one item stating that Ship edited no hub or
+release page.
 
 ## Report
 

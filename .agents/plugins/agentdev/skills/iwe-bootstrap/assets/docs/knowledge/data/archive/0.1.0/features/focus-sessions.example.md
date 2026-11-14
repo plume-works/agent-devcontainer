@@ -18,8 +18,9 @@ records a completed focus session to the local history log.
 
 Start, pause, resume, and abandon from the main window or the tray. Completion
 plays a soft chime and logs the session; abandoned sessions log with an
-`abandoned` flag so history stays honest. Timing follows the [Timer
-spec](../../../spec/timer.example) — monotonic clock, sleep-safe.
+`abandoned` flag so history stays honest. Timing follows the [timer
+ADR](../../../adr/0001-timer-counts-wall-clock-time.example) — monotonic clock,
+sleep-safe.
 
 ## Edge cases
 
@@ -34,4 +35,5 @@ spec](../../../spec/timer.example) — monotonic clock, sleep-safe.
 *Convention notes: a feature is a proposal. Ship set it to `implemented` and
 archived it with the [focus sessions
 plan](../plans/20260701-focus-sessions.example), which lists it in `release`;
-its behaviour now lives in the [timer spec](../../../spec/timer.example).*
+its behaviour now lives in the code and the tests that the plan's
+`## Acceptance` names.*

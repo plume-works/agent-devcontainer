@@ -5,7 +5,7 @@ okf_version: '0.2'
 # Foundation
 
 - [Product](product.md) - What the product is, who it is for, and the decisions
-  every plan and spec derives from.
+  every plan and ADR derives from.
 
 # Work
 
@@ -27,6 +27,8 @@ okf_version: '0.2'
 
 # Reference
 
+- [ADRs](adr.md) - Architecture decision records — each one decision, its
+  context, and the reason for it.
 - [Spec](spec.md) - Behavioral specifications — the durable truth about how the
   product must work.
 - [Findings](findings.md) - Measurements of how the system behaves, with the

@@ -27,6 +27,8 @@ okf_version: '0.2'
 
 # Reference
 
+- [ADRs](adr.md) - Architecture decision records — each one decision, its
+  context, and the reason for it.
 - [Spec](spec.md) - Behavioral specifications — the durable truth about how the
   product must work.
 - [Findings](findings.md) - Measurements of how the system behaves, with the

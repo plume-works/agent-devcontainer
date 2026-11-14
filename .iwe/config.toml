@@ -78,6 +78,9 @@ match = ["data/backlog/**", "data/archive/*/backlog/**"]
 [schemas.spec]
 match = "data/spec/**"
 
+[schemas.adr]
+match = ["data/adr/**", "data/archive/*/adr/**"]
+
 [schemas.architecture]
 match = "data/archive/*/architecture/**"
 
@@ -96,6 +99,7 @@ match = "data/someday/**"
 # Directory hubs are typed and validated like every other document.
 [schemas.hub]
 match = [
+  "data/adr",
   "data/backlog",
   "data/bugs",
   "data/concept",

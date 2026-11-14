@@ -225,10 +225,10 @@ A pre-commit hook SHALL run a checker CLI over every bug, plan, backlog task,
 feature, and release document pre-commit passes it, live or archived, at commit
 time, over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
 `stage: done` that has no `## Fix` heading, and a plan whose `## Ship review`
-section matches neither the fixed structure nor the earlier one, which ends with
-the item "Ship edited no hub, release page, or `data/log.md`", and SHALL report
-every violation with `path:line`. Its archive placement and release page
-failures are those `iwe-workflow-skills` states.
+section matches neither the fixed structure nor one of the two earlier ones, the
+oldest of which ends with the item "Ship edited no hub, release page, or
+`data/log.md`", and SHALL report every violation with `path:line`. Its archive
+placement and release page failures are those `iwe-workflow-skills` states.
 
 #### Scenario: an open bug has no Fix
 

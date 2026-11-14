@@ -12,8 +12,6 @@ stage: living
 moves to `archive/` and leaves this list. When a task grows past a single
 sitting, promote it: write a plan and link the plan instead.*
 
-[Draft the first specs](backlog/draft-first-specs.md)
-
 [Fill in the product doc](backlog/fill-product-doc.md)
 
 [Import the existing backlog](backlog/import-existing-backlog.md)

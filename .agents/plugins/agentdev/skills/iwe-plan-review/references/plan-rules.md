@@ -30,7 +30,8 @@ and its `- **Evidence:**` line are outside them.
   user decided — text for a document, a snippet, a message — carries that
   wording verbatim in a fenced block. A task that says what the wording should
   accomplish has lost it: the session that applies the plan starts cold and
-  writes something reasonable and different.
+  writes something reasonable and different. The copy keeps each word: the
+  formatters and `iwe normalize` can change only its line breaks and indent.
 
 ## Verification
 
@@ -45,6 +46,17 @@ and its `- **Evidence:**` line are outside them.
   `## Verification` step whose only claim is that CI passes: `pr-merge` gates
   every merge on CI.
 - **A search for leftover text covers only the files the plan changes.**
+
+## Acceptance
+
+- **Each scenario is complete.** Each `### Scenario:` block in `## Acceptance`
+  has a `**WHEN**` line, a `**THEN**` line, and a `**Test:**` line or a
+  `**Checked at ship:**` line.
+
+## ADRs
+
+- **Each linked ADR is proposed.** Each ADR that `## ADRs` links exists, and
+  its frontmatter has `stage: proposed`.
 
 ## Tests
 

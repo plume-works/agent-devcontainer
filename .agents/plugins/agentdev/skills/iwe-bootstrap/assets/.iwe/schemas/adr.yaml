@@ -1,0 +1,77 @@
+$schema: https://document-schema.org/draft/2026-06/schema
+description: >-
+  Architecture decision records (data/adr/NNNN-<slug>.md): a short title, then 1
+  to 3 sentences that give the context, the decision, and the reason. An
+  accepted ADR is never edited; a new ADR supersedes it.
+maxDepth: 2
+sections:
+  - header: { pattern: '.+' }
+    description: the H1 is the short title of the decision
+    minContains: 1
+    maxContains: 1
+    sections:
+      - header: { const: Considered Options }
+        minContains: 0
+        maxContains: 1
+        description: &order-hint 'an ADR permits only the optional Considered Options and Consequences sections, in that order'
+      - header: { const: Consequences }
+        minContains: 0
+        maxContains: 1
+        description: *order-hint
+    additionalSections: false
+additionalSections: false
+frontmatter:
+  type: object
+  required: [type, stage, description]
+  properties:
+    type: { const: adr }
+    stage:
+      enum: [proposed, accepted, rejected, deprecated, superseded]
+      description: 'stage must be one of: proposed, accepted, rejected, deprecated, superseded'
+    supersedes:
+      type: array
+      description: the keys of the earlier ADRs that this ADR replaces
+      items:
+        type: string
+        pattern: '^adr/[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*$'
+        description: 'each supersedes entry is an adr/NNNN-<slug> key'
+    description:
+      type: string
+      description: one sentence summarizing this document
+    resource:
+      type: string
+      description: canonical URI of the underlying asset this document describes
+    tags: { type: array, items: { type: string } }
+    stale_after:
+      type: string
+      format: date
+      description: the day this content goes stale; set it on anything that rots
+    sources:
+      type: array
+      description: the materials this document derives from; cite per claim with a footnote keyed to an entry id
+      items:
+        type: object
+        required: [resource]
+        properties:
+          id:
+            {
+              type: string,
+              description: footnote label used to attribute a claim in the body,
+            }
+          resource:
+            {
+              type: string,
+              description: a URL,
+              a repo path,
+              or a scope descriptor,
+            }
+          title: { type: string }
+          author: { type: string, description: actor }
+          usage_count: { type: integer }
+          last_modified: { type: string, format: date }
+    usage_window:
+      type: object
+      description: the date range every usage_count is measured over
+      properties:
+        from: { type: string, format: date }
+        to: { type: string, format: date }

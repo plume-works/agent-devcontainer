@@ -163,7 +163,7 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 #### Knowledge-graph workflow (IWE)
 
 These skills run against an [IWE](https://iwe.md) workspace — a markdown
-knowledge graph with a `data/` bundle of product, spec, architecture, and plan
+knowledge graph with a `data/` bundle of product, ADR, plan, and archive
 documents. They are the project's memory across sessions.
 
 | Skill                              | What it does                                                        |
@@ -171,14 +171,14 @@ documents. They are the project's memory across sessions.
 | `/agentdev:iwe-bootstrap`          | Installs a blank IWE workspace without touching existing knowledge. |
 | `/agentdev:iwe-setup`              | Brownfield onboarding: drafts the product and architecture docs.    |
 | `/agentdev:iwe-explore`            | Thinking partner from an idea or a GitHub issue; never writes code. |
-| `/agentdev:iwe-plan`               | Files a plan with verified anchors and its spec impact.             |
+| `/agentdev:iwe-plan`               | Files a plan with verified anchors, acceptance scenarios, and ADRs. |
 | `/agentdev:iwe-plan-review`        | Reviews a plan draft for residue, the plan rules, and Ship's needs. |
 | `/agentdev:iwe-capture`            | Files a complete bug, proposed feature, or task, deduplicated.      |
 | `/agentdev:iwe-implement`          | Executes a plan task-by-task, ticking boxes with evidence.          |
 | `/agentdev:iwe-branch-name`        | Names a plan's next `iwe/` iteration branch.                        |
-| `/agentdev:iwe-verify`             | Pre-ship gate and drift audit: graph claims checked against code.   |
+| `/agentdev:iwe-verify`             | Compares the acceptance scenarios with the code before Ship.        |
 | `/agentdev:iwe-adversarial-review` | Tries to defeat a plan's design or its code; runs only when asked.  |
-| `/agentdev:iwe-ship`               | Closes the loop: spec sync, stage flips, release recording.         |
+| `/agentdev:iwe-ship`               | Accepts the ADRs, changes the stages, and records the release.      |
 | `/agentdev:iwe-weekly`             | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |
 | `/agentdev:iwe-audit`              | Prunes session residue from documents and comments.                 |
 

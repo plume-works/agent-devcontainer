@@ -112,6 +112,20 @@ def test_every_violation_is_reported(write: Write) -> None:
 
 REVIEW = """## Ship review
 
+Reviewed by `iwe-ship-reviewer` on 2026-11-13.
+
+- [x] Verify reported zero CRITICAL — confirmed: PASS, 0 CRITICAL
+- [x] Every ADR the plan proposed is `stage: accepted` — confirmed: data/adr/0001-example
+- [x] Every ADR the plan superseded is `stage: superseded` and archived — N/A: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: 2026-11-13
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: data/bugs/example
+- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: data/bugs/example
+- [x] The plan and every feature and bug it closed are archived with no hub link — confirmed: data/archive/next-release/plans/example
+"""
+
+SPEC_REVIEW = """## Ship review
+
 Reviewed by `iwe-ship-reviewer` on 2026-11-11.
 
 - [x] Verify reported zero CRITICAL — confirmed: PASS, 0 CRITICAL
@@ -127,7 +141,7 @@ Reviewed by `iwe-ship-reviewer` on 2026-11-11.
 """
 
 EARLIER_REVIEW = (
-    REVIEW.split('- [x] Every `## Rationale`')[0]
+    SPEC_REVIEW.split('- [x] Every `## Rationale`')[0]
     + '- [x] Ship edited no hub, release page, or `data/log.md` — confirmed\n'
 )
 
@@ -154,6 +168,20 @@ def test_well_formed_ship_review_passes(write: Write) -> None:
     """A Ship review in the fixed structure passes, followed by another section."""
     result = run(write('plan.md', plan() + '\n## Verification results\n\nAll green.\n'))
     assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_spec_ship_review_passes(write: Write) -> None:
+    """A Ship review in the structure that has spec and rationale items passes."""
+    result = run(write('plan.md', plan(SPEC_REVIEW)))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_spec_ship_review_still_fails_when_malformed(write: Write) -> None:
+    """A spec-structure review with an unticked item fails against the current one."""
+    text = plan(SPEC_REVIEW.replace('- [x] Every `## Rationale`', '- [ ] Every `## Rationale`'))
+    result = run(write('plan.md', text))
+    assert result.returncode == 1
+    assert 'Every ADR the plan proposed' in result.stdout
 
 
 def test_earlier_ship_review_passes(write: Write) -> None:
@@ -199,27 +227,29 @@ def test_reordered_items_fail_naming_the_line(write: Write) -> None:
 def test_unticked_item_fails_naming_the_line(write: Write) -> None:
     """An unticked item fails, naming its line."""
     text = plan(
-        REVIEW.replace('- [x] Every spec the plan retired', '- [ ] Every spec the plan retired')
+        REVIEW.replace(
+            '- [x] Every ADR the plan superseded', '- [ ] Every ADR the plan superseded'
+        )
     )
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
-    assert f'{path}:{line_of(text, "plan retired")} ' in result.stdout
+    assert f'{path}:{line_of(text, "plan superseded")} ' in result.stdout
     assert 'not ticked' in result.stdout
 
 
 def test_item_with_neither_ending_fails(write: Write) -> None:
     """An item ending in neither `confirmed` nor `N/A:` fails, naming its line."""
-    text = plan(REVIEW.replace('— confirmed: data/spec/example', '— looks fine'))
+    text = plan(REVIEW.replace('— confirmed: data/adr/0001-example', '— looks fine'))
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
-    assert f'{path}:{line_of(text, "Spec changes")} ' in result.stdout
+    assert f'{path}:{line_of(text, "plan proposed")} ' in result.stdout
 
 
 @pytest.mark.parametrize(
     ('needle', 'ending'),
     [
         ('Verify reported', '— confirmed: PASS, 0 CRITICAL'),
-        ('The plan is `stage: done`', '— confirmed: 2026-11-11'),
+        ('The plan is `stage: done`', '— confirmed: 2026-11-13'),
         ('archived with no hub link', '— confirmed: data/archive/next-release/plans/example'),
     ],
 )
@@ -238,7 +268,7 @@ def test_na_on_a_mandatory_item_fails(write: Write, needle: str, ending: str) ->
 
 def test_missing_reviewer_line_fails(write: Write) -> None:
     """A Ship review without its reviewer line fails."""
-    text = plan(REVIEW.replace('Reviewed by `iwe-ship-reviewer` on 2026-11-11.\n', ''))
+    text = plan(REVIEW.replace('Reviewed by `iwe-ship-reviewer` on 2026-11-13.\n', ''))
     result = run(write('plan.md', text))
     assert result.returncode == 1
     assert 'Reviewed by' in result.stdout
@@ -325,6 +355,32 @@ def test_feature_placement_follows_its_stage(
     """A feature is live only at proposed or accepted, and archived at any other stage."""
     path = write_at(f'docs/knowledge/data/{folder}/x.md', item('feature', stage))
     assert run(path).returncode == (1 if fails else 0)
+
+
+@pytest.mark.parametrize(
+    ('folder', 'stage', 'fails'),
+    [
+        ('adr', 'proposed', False),
+        ('adr', 'accepted', False),
+        ('adr', 'rejected', True),
+        ('adr', 'deprecated', True),
+        ('adr', 'superseded', True),
+        ('archive/next-release/adr', 'proposed', True),
+        ('archive/next-release/adr', 'accepted', True),
+        ('archive/next-release/adr', 'rejected', False),
+        ('archive/next-release/adr', 'deprecated', False),
+        ('archive/next-release/adr', 'superseded', False),
+    ],
+)
+def test_adr_placement_follows_its_stage(
+    write_at: Write, folder: str, stage: str, fails: bool
+) -> None:
+    """An ADR at proposed or accepted is live; an ADR at another stage is in the archive."""
+    path = write_at(f'docs/knowledge/data/{folder}/0001-x.md', item('adr', stage))
+    result = run(path)
+    assert result.returncode == (1 if fails else 0)
+    if fails:
+        assert f'{path}:1 adr at ' in result.stdout
 
 
 def test_release_page_with_a_link_fails_naming_the_line(write_at: Write) -> None:
