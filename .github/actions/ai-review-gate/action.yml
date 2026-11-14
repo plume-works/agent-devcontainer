@@ -1,6 +1,6 @@
 name: AI review gate decision
 description: >-
-  Make one decision of the AI review gate from facts that the caller got from
+  Make one decision of the AI review gate from facts that the caller reads from
   GitHub. The step fails when the decision stops the job.
 
 inputs:
@@ -8,15 +8,15 @@ inputs:
     description: The decision to make, one of the names that decide.py accepts
     required: true
   facts:
-    description: JSON object with the facts that the decision reads
+    description: A JSON object with the facts that the decision reads
     required: true
 
 outputs:
   found:
-    description: "review-accepted: 'true' when the pull request satisfies the acceptance rule"
+    description: "review-accepted: 'true' when the pull request has an accepted AI review"
     value: ${{ steps.decide.outputs.found }}
   reason:
-    description: 'review-accepted: what satisfied the rule, or why nothing did'
+    description: 'review-accepted: what agrees with the rule, or why nothing agrees with it'
     value: ${{ steps.decide.outputs.reason }}
   is_fork:
     description: "is-fork: 'true' when the head is in another repository"
@@ -25,10 +25,10 @@ outputs:
     description: "wants-review: 'true' when this run starts an AI review"
     value: ${{ steps.decide.outputs.wants_review }}
   approve:
-    description: "trusted-bot: 'true' when the author is on the trust list"
+    description: "trusted-bot: 'true' when the author is a trusted bot"
     value: ${{ steps.decide.outputs.approve }}
   failure:
-    description: 'bot-approval: why the approval is refused, empty when it is given'
+    description: 'bot-approval: why the decision does not approve, empty when the decision approves'
     value: ${{ steps.decide.outputs.failure }}
 
 runs:

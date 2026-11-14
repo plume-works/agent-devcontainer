@@ -350,7 +350,7 @@ jobs:
         with:
           script: |
             const { payload } = context;
-            // Newest first; paging stops at the latest branch creation.
+            // The list starts with the newest activity. The pagination stops at the latest branch creation.
             const activities = await github.paginate(
               github.rest.repos.listActivities,
               {

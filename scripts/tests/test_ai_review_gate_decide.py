@@ -1,4 +1,4 @@
-"""Tests that run each decision of the AI review gate with facts the test controls."""
+"""Tests that run each decision of the AI review gate with facts that the test controls."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def _decide(tmp_path: Path, decision: str, facts: dict) -> tuple[int, dict[str, 
     return result.returncode, outputs, result.stdout
 
 
-# PRs are blocked until an AI review exists.
+# Requirement: "PRs are blocked until an AI review exists".
 
 
 def _review(login: str, state: str) -> dict:
@@ -90,7 +90,7 @@ def test_gate_passes_a_merge_group(tmp_path):
     assert code == 0
 
 
-# The responder only acts for authorized same-repository requests.
+# Requirement: "the responder only acts for authorized same-repository requests".
 
 
 @pytest.mark.parametrize(
@@ -115,7 +115,7 @@ def test_only_write_access_authorizes_the_actor(tmp_path, permission, allowed):
         assert '::error::User dev does not have permission' in stdout
 
 
-# A review runs on first push and on explicit request.
+# Requirement: "a review runs on first push and on explicit request".
 
 
 def _pull_request(action: str, **facts: str) -> dict:
@@ -162,7 +162,7 @@ def test_a_review_runs_on_first_push_and_on_request(tmp_path, facts, wants):
     assert outputs['wants_review'] == wants
 
 
-# Trusted-bot pull requests are approved without an AI review.
+# Requirement: "trusted-bot pull requests are approved without an AI review".
 
 
 @pytest.mark.parametrize(

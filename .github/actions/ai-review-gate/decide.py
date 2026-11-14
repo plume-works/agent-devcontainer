@@ -2,7 +2,7 @@
 """
 Make one decision of the AI review gate from the JSON facts in the FACTS variable.
 
-The caller gets the facts from GitHub. This script makes no call to GitHub. It
+The caller reads the facts from GitHub. This script makes no call to GitHub. It
 writes each output as `name=value` to the GITHUB_OUTPUT file and exits 1 when
 the decision stops the job.
 """
@@ -29,12 +29,12 @@ class Blocked(Exception):
 
 
 def trusted_bots(value: object) -> list[str]:
-    """Return the logins of a comma-separated trust list."""
+    """Return the logins in a comma-separated `TRUSTED_BOT_ACTORS` value."""
     return [login.strip() for login in str(value or '').split(',') if login.strip()]
 
 
 def review_accepted(facts: Facts) -> Outputs:
-    """Decide whether the pull request carries an accepted AI review."""
+    """Find if the pull request has an accepted AI review."""
     author = facts.get('author') or {}
     if author.get('type') == 'Bot' and author.get('login') in trusted_bots(
         facts.get('trusted_bots')
@@ -59,7 +59,7 @@ def review_accepted(facts: Facts) -> Outputs:
 
 
 def gate(facts: Facts) -> Outputs:
-    """Pass the ai-review-present check only when the review job is sound and a review exists."""
+    """Pass the ai-review-present check only when the review job did not fail or stop and a review exists."""
     if facts.get('event') == 'merge_group':
         print('Merge group event, skipping AI review check')
         return {}
@@ -73,13 +73,13 @@ def gate(facts: Facts) -> Outputs:
 
 
 def is_fork(facts: Facts) -> Outputs:
-    """Decide whether the pull request head lives in another repository."""
+    """Find if the head of the pull request is in another repository."""
     head = facts.get('head_repository') or ''
     return {'is_fork': str(bool(head) and head != facts.get('repository')).lower()}
 
 
 def authorize(facts: Facts) -> Outputs:
-    """Let only an actor with write access start the responder."""
+    """Let only an actor with write access start the review responder."""
     actor = facts.get('actor')
     if facts.get('permission') not in WRITE_PERMISSIONS:
         raise Blocked(f'User {actor} does not have permission to trigger the responder.')
@@ -87,15 +87,16 @@ def authorize(facts: Facts) -> Outputs:
 
 
 def wants_review(facts: Facts) -> Outputs:
-    """Decide whether this pull_request run starts an AI review."""
+    """Find if this `pull_request` run starts an AI review."""
     action = facts.get('action')
     label = facts.get('label')
 
     def decide() -> bool:
         if facts.get('event') != 'pull_request' or facts.get('draft') == 'true':
             return False
-        # Any run in pr-<n> takes a waiting request unless reviews are blocked;
-        # a run in a label-<run id> group never does. Label lifecycle: ADR-0059.
+        # A run in the pr-<n> group takes an open request if block-ai-reviews is
+        # not on the pull request. A run in a label-<run id> group never takes it.
+        # Label lifecycle: ADR-0059.
         label_event = action in ('labeled', 'unlabeled')
         in_pr_group = (
             not label_event
@@ -116,7 +117,7 @@ def wants_review(facts: Facts) -> Outputs:
 
 
 def trusted_bot(facts: Facts) -> Outputs:
-    """Decide whether the pull request author is on the trust list."""
+    """Find if the author of the pull request is a trusted bot."""
     login = facts.get('login')
     if login not in trusted_bots(facts.get('trusted_bots')):
         print(f'{login} is not a trusted bot; nothing to approve.')
@@ -140,11 +141,12 @@ def bot_approval(facts: Facts) -> Outputs:
     """
     Approve only when the trusted bot alone pushed the branch and wrote every commit.
 
-    Approval covers only the bot's own commits, see ADR-0069.
+    Approval covers only the commits of the bot. Refer to ADR-0069.
     """
     login = facts.get('login')
     activities = facts.get('activities') or []
-    # Newest first. A reused branch name starts clean at its latest creation.
+    # The list starts with the newest activity. For a branch name used again,
+    # the decision reads only the activities since the latest branch creation.
     created = next(
         (i for i, a in enumerate(activities) if a.get('type') == 'branch_creation'), None
     )

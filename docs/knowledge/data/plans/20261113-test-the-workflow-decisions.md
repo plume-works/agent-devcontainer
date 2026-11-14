@@ -61,8 +61,8 @@ Each test shows what the `fate_note` of its row in
     decisions for foreign commits, foreign pushes, and a reused branch.
 - [x] `.github/workflows/ai-responder.yml` calls the script for each of the four
   decisions and holds no copy of them in a step. The `concurrency:` group and
-  the `if:` of each job stay, because GitHub evaluates them before a step runs.
-  - **Evidence:** each step decision and the acceptance rule in
+  the `if:` of each job stay, because GitHub reads them before a step runs.
+  - **Evidence:** each decision in a step and the AI review decision in
     `.github/actions/ai-review-status/action.yml` call
     `.github/actions/ai-review-gate`; zizmor and actionlint pass.
 
