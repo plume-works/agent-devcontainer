@@ -1,4 +1,4 @@
-// The decisions of the AI review gate. The github-script steps of
+// This module holds the decisions of the AI review gate. The github-script steps of
 // ai-responder.yml and of this action read GitHub and call these functions.
 
 const REVIEWER_LOGIN = 'plume-works-quill[bot]';
@@ -21,7 +21,7 @@ function reviewAcceptance(author, reviews, trustedBots) {
       reason: `Pull request authored by ${author.login} (bot); AI review is not required.`,
     };
   }
-  // The rule makes sure that the PR has a review, not that the AI reviewer
+  // The rule makes sure that the pull request has a review, not that the AI reviewer
   // reviewed its current head. Do not compare review.commit_id against the head SHA.
   const accepted = [...reviews]
     .reverse()
@@ -44,13 +44,14 @@ const isFork = (pullRequest, repository) =>
 
 const canTrigger = (permission) => ['admin', 'maintain', 'write'].includes(permission);
 
-/** Decide whether this pull_request run starts an AI review. */
+/** Decide if this pull_request run starts an AI review. */
 function wantsReview({ eventName, action, label, isDraft, blockAiReviews, requestLabel, reviewExists }) {
   if (eventName !== 'pull_request' || isDraft) {
     return false;
   }
-  // Any run in pr-<n> takes a waiting request unless reviews are blocked; a
-  // run in a label-<run id> group never does. Label lifecycle: see ADR-0059.
+  // A run in the pr-<n> group starts the review that a label requests, if no label blocks
+  // the reviews. A run in a label-<run id> group never starts it. For the sequence of the
+  // labels, see ADR-0059.
   const labelEvent = ['labeled', 'unlabeled'].includes(action);
   const inPrGroup =
     !labelEvent ||
@@ -87,10 +88,12 @@ function commitFailure(commit, login) {
 
 /**
  * Return why the trusted bot `login` gets no approval, or '' to approve.
- * `activities` starts with the newest. Approval covers only the bot's own commits, see ADR-0069.
+ * The list `activities` starts with the newest activity. An approval covers only the commits
+ * of the bot. See ADR-0069.
  */
 function botApprovalFailure(login, activities, commits) {
-  // A reused branch name starts clean at its latest creation.
+  // For a branch name that GitHub used before, the check uses only the activities since the
+  // latest creation of the branch.
   const created = activities.findIndex((activity) => activity.activity_type === 'branch_creation');
   const current = created === -1 ? activities : activities.slice(0, created + 1);
   const foreignPush = current.find(

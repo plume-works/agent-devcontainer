@@ -4,7 +4,8 @@
 set -euo pipefail
 
 current="${1:-}"
-# A tag that is already on a descendant of this commit stays there, thus a new run never moves it back.
+# A tag that is already on a descendant of this commit stays there.
+# A new run never moves the tag back to an older commit.
 if [[ -n "${current}" && "${current}" != "${GITHUB_SHA}" ]] \
   && git cat-file -e "${current}^{commit}" 2>/dev/null \
   && git merge-base --is-ancestor "${GITHUB_SHA}" "${current}"; then

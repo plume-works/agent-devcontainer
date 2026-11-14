@@ -1,4 +1,4 @@
-"""Tests that the promote action moves a tag only when it does not name a newer commit."""
+"""These tests make sure that the promote action moves a tag only when it is not on a newer commit."""
 
 from __future__ import annotations
 

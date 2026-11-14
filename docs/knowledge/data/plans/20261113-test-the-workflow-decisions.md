@@ -67,11 +67,11 @@ Each test shows what the `fate_note` of its row in
 - [x] `.github/workflows/ai-responder.yml` calls the module for each of the four
   decisions and holds no copy of them in a step. The `concurrency:` group and
   the `if:` of each job stay, because GitHub reads them before a step runs.
-  - **Evidence:** the `github-script` steps of the `preflight` and
-    `trusted-bot-approval` jobs and of
-    `.github/actions/ai-review-status/action.yml` call the module; the two jobs
-    check out `.github/actions/ai-review-status` for it; zizmor and actionlint
-    pass.
+  - **Evidence:** The `github-script` steps of the `preflight` job, the
+    `trusted-bot-approval` job, and
+    `.github/actions/ai-review-status/action.yml` call the module. The two jobs
+    check out `.github/actions/ai-review-status` for the module. Zizmor and
+    actionlint pass.
 
 ### Task 2: Move and test the decision of the image promotion
 
