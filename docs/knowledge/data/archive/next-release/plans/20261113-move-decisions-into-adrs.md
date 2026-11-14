@@ -7,6 +7,8 @@ sources:
 - resource: docs/spec-audit/rationale.jsonl
 - resource: docs/spec-audit/requirements.jsonl
 - resource: AGENTS.md
+stage: done
+completed: 2026-11-14
 ---
 
 # Move the decisions from the specs into ADRs
@@ -15,15 +17,15 @@ sources:
 
 The reasons behind the code are in the `## Rationale` sections of `data/spec/`
 and in some requirements. [The spec usefulness
-audit](../findings/spec-usefulness-audit.md) counted 189 `## Rationale` entries,
-21 requirements that hold a decision, and 13 requirements that hold a short
-invariant. The labels are in `docs/spec-audit/`. Code comments cite a spec as
-`spec/<key>`, as rule 3 in `AGENTS.md#comments` tells them to.
+audit](../../../findings/spec-usefulness-audit.md) counted 189 `## Rationale`
+entries, 21 requirements that hold a decision, and 13 requirements that hold a
+short invariant. The labels are in `docs/spec-audit/`. Code comments cite a spec
+as `spec/<key>`, as rule 3 in `AGENTS.md#comments` tells them to.
 
 This plan is the second removal step of [Shrink the knowledge base to an issue
 tracker and decision
-records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). After it, no
-reason is only in a spec.
+records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). After
+it, no reason is only in a spec.
 
 ## Approach
 
@@ -139,7 +141,7 @@ None — no behavioral change
 ## Depends on
 
 [Remove the spec text that is redundant or
-wrong](../archive/next-release/plans/20261113-remove-redundant-and-wrong-spec-text.md)
+wrong](20261113-remove-redundant-and-wrong-spec-text.md)
 
 ## Verification
 
