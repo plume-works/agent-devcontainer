@@ -28,5 +28,5 @@ code rename anywhere can break a live anchor.
   is not Python resolves when its parts occur as whole words in sequence.
 - Chat reports, code comments, and pull request bodies rely only on the catalog
   instructions.
-- A link to a file of a different repository at a fixed commit can keep its line
-  fragment, because that target cannot change.
+- The check also reports the `#L` line fragment of a link to a file of a
+  different repository at a fixed commit.

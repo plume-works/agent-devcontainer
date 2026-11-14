@@ -21,7 +21,9 @@ uses `--require-marketplace claude`.
 
 ## Consequences
 
-- No test checks that Codex is absent. This ADR records that the absence is a
-  decision.
+- No test checks that the images and the runtime have no Codex. This ADR records
+  that the absence is a decision.
+  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_never_invokes_codex_on_path`
+  checks only that the macOS bootstrap does not start `codex`.
 - The `chatgpt-codex-connector[bot]` reviewer on GitHub is not a harness. A test
   that identifies this bot is not Codex support.

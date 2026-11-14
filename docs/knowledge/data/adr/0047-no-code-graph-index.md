@@ -23,5 +23,5 @@ receivers.
 ## Consequences
 
 - An old installation stays in the home volume after an image change.
-  `agentdev_runtime/cbm_purge.py` removes it in the create phase, until no
-  supported instance can have one.
+  `py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py` removes it in the
+  create phase, until no supported instance can have one.

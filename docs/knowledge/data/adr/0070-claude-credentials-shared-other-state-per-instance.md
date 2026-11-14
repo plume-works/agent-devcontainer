@@ -6,11 +6,12 @@ description: Containers share only the Claude credentials, on one auth volume fo
 
 # Containers share only the Claude credentials, on one auth volume for each UID/GID pair
 
-The auth volume holds only the Claude credentials. Its name
-`agentdev-agents-auth-<uid>-<gid>` contains the IDs of the user. As a result,
-one login serves each container of that user, and two users on one engine stay
-apart. All other agent state stays on the home volume of the instance, because
-it records absolute workspace paths and holds the data of one project.
+The auth volume holds only the Claude credentials. In the Dev Container, its
+name `agentdev-agents-auth-<uid>-<gid>` contains the IDs of the user. As a
+result, one login serves each container of that user, and two users on one
+engine stay apart. All other agent state stays on the home volume of the
+instance, because it records absolute workspace paths and holds the data of one
+project.
 
 ## Considered Options
 

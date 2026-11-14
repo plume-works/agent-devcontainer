@@ -9,8 +9,7 @@ description: No Dev Container lifecycle command starts Remote Control; the agent
 In a Coder workspace, the start phase always runs before the Coder agent exists.
 As a result, the agent start `agentdev-runtime coder start` starts Remote
 Control, and no Dev Container lifecycle command starts it. A runtime supervisor
-also starts it as an opt-in client, but only when `AGENTDEV_CLAUDE_RC_MODE` is
-set
+also starts it, but only when `AGENTDEV_CLAUDE_RC_MODE` is set
 (`py_packages/agentdev_runtime/agentdev_runtime/supervisor.py::enabled_services`).
 
 ## Considered Options

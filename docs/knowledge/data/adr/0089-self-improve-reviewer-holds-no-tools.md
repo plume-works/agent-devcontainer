@@ -21,4 +21,6 @@ to limit, so its isolation does not depend on a correct list of permitted paths.
 ## Consequences
 
 - `.agents/plugins/self-improve/selfimprove/reviewer.py::build_command` sets the
-  flags, and `::build_environment` sets `CLAUDE_CODE_EFFORT_LEVEL`.
+  flags, and
+  `.agents/plugins/self-improve/selfimprove/reviewer.py::build_environment` sets
+  `CLAUDE_CODE_EFFORT_LEVEL`.

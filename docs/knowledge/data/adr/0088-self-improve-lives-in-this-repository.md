@@ -22,7 +22,9 @@ beside `agentdev`.
 ## Consequences
 
 - `agentdev-runtime catalog install` installs each plugin that the marketplace
-  publishes. The create phase and the attach phase install at user scope, so
-  each Dev Container and standalone runtime enables `self-improve` and its
-  hooks.
+  publishes. In a Dev Container, the create phase and the attach phase install
+  at user scope. The standalone runtime also installs at user scope
+  (`py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.catalog`).
+  As a result, each Dev Container and standalone runtime enables `self-improve`
+  and its hooks.
 - The committed `.claude/settings.json` does not enable `self-improve`.

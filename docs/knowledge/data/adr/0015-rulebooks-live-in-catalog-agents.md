@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The Plan, Implement, Verify, and Ship rulebooks are catalog agents, and the skills that start them hold no rules.
+description: The Plan, Implement, Verify, and Ship rulebooks are catalog agents; the Verify and Ship skills dispatch theirs, and the Plan and Implement skills follow theirs in place.
 ---
 
 # The workflow rulebooks are catalog agents
@@ -9,8 +9,10 @@ description: The Plan, Implement, Verify, and Ship rulebooks are catalog agents,
 Claude Code refuses an explicit-only skill to the Skill tool in each context,
 and it does not preload one into an agent. For this reason, the rulebooks of
 Plan, Implement, Verify, and Ship are the agents `iwe-planner`,
-`iwe-implementer`, `iwe-verifier`, and `iwe-shipper`. Each entry skill only
-starts its agent.
+`iwe-implementer`, `iwe-verifier`, and `iwe-shipper`. The Verify and Ship skills
+dispatch their agent. The Plan and Implement skills tell the session of the user
+to follow the agent file in place, so that the session can ask the user. No
+skill holds the rules of its workflow.
 
 ## Considered Options
 

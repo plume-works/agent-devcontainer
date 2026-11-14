@@ -9,8 +9,7 @@ description: The AI review and the trusted-bot approval post as the plume-works-
 The approval that the `main` ruleset requires must come from an identity that no
 other workflow can use. For this reason, the review responder and the
 trusted-bot approval post as `plume-works-quill[bot]`, with a token of that App.
-Each job gets its token, which has no contents write, after the code of the pull
-request ran.
+Each job makes its own token, which has no contents write.
 
 ## Considered Options
 

@@ -35,5 +35,5 @@ and then each `AGENTDEV_DOCKER_GC_INTERVAL` seconds, 3600 by default.
 - The cache limit counts only cache that no kept image shares. Shared cache is
   the layers of a kept image, so its removal gives no free disk space.
 - A pass never removes a volume whose name does not match
-  `docker.py::DISPOSABLE_VOLUME`. Test volumes stay until the age limit of a
-  pass removes them.
+  `py_packages/agentdev_runtime/agentdev_runtime/docker.py::DISPOSABLE_VOLUME`.
+  Test volumes stay until the age limit of a pass removes them.

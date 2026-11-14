@@ -142,7 +142,8 @@ term in the same change that first uses it.
 - **effort tier** (noun): The `light` or `full` setting of a pull request
   review, which controls how many passes run and which model each slot uses.
 - **entry skill** (noun): A skill that a user calls to start a workflow step,
-  such as `/agentdev:iwe-ship`, and that only starts its catalog agent.
+  such as `/agentdev:iwe-ship`. It holds no workflow rules: it starts its
+  catalog agent, or tells the session of the user to follow the agent in place.
 - **evidence line** (noun): The indented `- **Evidence:**` item under a ticked
   plan task, which says what was done and how it was checked.
 - **excluded-directory set** (noun): The directory names that agent file

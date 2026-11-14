@@ -7,10 +7,11 @@ description: Verify keeps one saved report for each plan, keyed by the commit an
 # The saved Verify report is keyed by commit and catalog hash
 
 Verify refuses a worktree that has uncommitted changes, so a commit names all
-that Verify examined. `verify-cache.py` keeps one saved Verify report for each
-plan, keyed by that commit and by a hash of the catalog files on disk. As a
-result, `iwe-shipper` uses the verdict of the Implement loop again, and does not
-run the tests again.
+that Verify examined.
+`.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py` keeps
+one saved Verify report for each plan, keyed by that commit and by a hash of the
+catalog files on disk. As a result, `iwe-shipper` uses the verdict of the
+Implement loop again, and does not run the tests again.
 
 ## Considered Options
 

@@ -9,7 +9,8 @@ description: Each ticked task of an active plan needs an evidence line in any fo
 A find-and-replace can tick each box in a file, but it cannot write the evidence
 line that each tick needs. As a result, each ticked task of an active plan has
 an evidence line in any form. `docs/knowledge/tests/test_plan_checkboxes.py`
-checks its shape on each commit, and Verify does not read it.
+checks its shape on each commit that changes a plan, and Verify does not read
+it.
 
 ## Considered Options
 

@@ -7,9 +7,9 @@ description: The runtime images run one Python package, agentdev_runtime, behind
 # The runtime is one Python package that the base image does not contain
 
 The two runtime images need lifecycle code. They run one Python package,
-`agentdev_runtime`, as a uv tool with pinned dependencies. The package has one
-command, `agentdev-runtime`, and it is not on PyPI. `agentdev-base` does not
-contain the package, so a consumer can run the base image without a lifecycle.
+`agentdev_runtime`, as a uv tool. The package has one command,
+`agentdev-runtime`, and it is not on PyPI. `agentdev-base` does not contain the
+package, so a consumer can run the base image without a lifecycle.
 `agentdev-deploy` and `agentdev-devcontainer` start from `agentdev-base` and
 install the package.
 

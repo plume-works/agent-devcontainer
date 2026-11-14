@@ -6,11 +6,13 @@ description: The self-improve runtime imports only the Python standard library, 
 
 # The self-improve runtime uses only the standard library
 
-The hooks of `self-improve` run in the environment of Claude Code and have a
-time limit of five seconds. They must let the session continue when they fail. A
-third-party import needs a step that installs the package, in the code that must
-be the most reliable. As a result, the runtime imports only the standard
-library, and `agent-code/si` is the one entry point for each hook and skill.
+The hooks of `self-improve` run in the environment of Claude Code. Each hook
+except the `Stop` hook has a time limit of five seconds. The hooks must let the
+session continue when they fail. A third-party import needs a step that installs
+the package, in the code that must be the most reliable. As a result, the
+runtime imports only the standard library, and
+`.agents/plugins/self-improve/agent-code/si` is the one entry point for each
+hook and skill.
 
 ## Considered Options
 
@@ -27,5 +29,6 @@ library, and `agent-code/si` is the one entry point for each hook and skill.
 
 - `.agents/plugins/self-improve/tests/unit/test_no_runtime_deps.py` reads each
   runtime import and fails on an import outside the standard library.
-- `agent-code/si` uses the first Python 3.12 or later interpreter that it finds.
-  A hook can get a shell where `python3` is an old virtual environment.
+- `.agents/plugins/self-improve/agent-code/si` uses the first Python 3.12 or
+  later interpreter that it finds. A hook can get a shell where `python3` is an
+  old virtual environment.

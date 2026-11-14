@@ -9,7 +9,7 @@ description: Adversarial review runs in its own report-only agent, iwe-adversari
 A search for ways to break a design asks a different question from a check of
 conformance, and its results have no fixed end. For this reason, it runs in the
 report-only agent `iwe-adversarial-reviewer`, from a fresh context, and only on
-request. Each `code` result names the claim of the plan that it breaks.
+request. Each result names the claim of the plan that it breaks, or `none`.
 
 ## Considered Options
 

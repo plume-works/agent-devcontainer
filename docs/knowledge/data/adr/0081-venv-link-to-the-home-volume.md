@@ -33,6 +33,8 @@ so each `uv run` finds it with no wrapper
 ## Consequences
 
 - The attach phase and the `WorktreeCreate` hook make the link for one checkout
-  only, and do not examine all worktrees.
+  only. The attach phase then removes each environment in the venv root that no
+  checkout uses
+  (`py_packages/agentdev_runtime/agentdev_runtime/project.py::prune_venvs`).
 - The mounted checkout belongs to the container. A host that works in it sets
   its own `UV_PROJECT_ENVIRONMENT`.

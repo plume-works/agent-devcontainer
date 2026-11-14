@@ -15,8 +15,9 @@ the lifecycle field.
 
 ## Considered Options
 
-- Remove the declaration of the keys from `okf.yaml`. Rejected: `okf.yaml`
-  accepts fields that it does not declare, so only a check can stop a key.
+- Remove the declaration of the keys from `okf.yaml`, and add no check.
+  Rejected: `okf.yaml` accepts fields that it does not declare, so only a check
+  can stop a key.
 
 ## Consequences
 

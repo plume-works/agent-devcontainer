@@ -6,7 +6,7 @@ description: A push to main waits a cooldown in a job that a newer push cancels,
 
 # Pushes to main build after a cooldown that a newer push cancels
 
-Each Primary checks run on `main` is a clean multi-arch build, and these runs
+Each Primary checks run on `main` is a full multi-arch build, and these runs
 wait in a queue after their build starts. The `cooldown` job in
 `.github/workflows/primary-checks.yml` has its own cancel-in-progress group, so
 a newer push cancels a run before its build starts. `scripts/ci-cooldown.py`
