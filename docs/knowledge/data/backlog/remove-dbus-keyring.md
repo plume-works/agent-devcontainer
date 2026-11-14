@@ -3,7 +3,7 @@ type: task
 created: 2026-11-14
 stage: pending
 priority: medium
-description: Remove the supervised D-Bus session bus and GNOME Keyring from the agentdev runtime images, because they give no security and their only consumer, gh, can keep its token in its own file.
+description: Remove the supervised D-Bus session bus and GNOME Keyring from the agentdev runtime images. They give no security, and `gh` can keep its token in its own file.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/keyring.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
@@ -33,29 +33,33 @@ The keyring gives no security in a container:
   secret through the bus. The Secret Service has no access control for each
   application.
 - A master password must come from inside the container, because no person types
-  it at start. Thus the password is in the same boundary as the keyring.
+  it when the container starts. Thus the password is in the same boundary as the
+  keyring.
 
 When `gh` finds no keyring, it keeps its token in `~/.config/gh/hosts.yml` with
 mode `0600`. That file gives the same protection as the keyring in the
-container. The bus and the keyring add two supervised services, a restart chain,
-health checks, an image `ENV`, three packages, and spec requirements. The `gh`
-bus-autolaunch leak that the image `ENV` prevents occurs only because `dbus-x11`
-and `gnome-keyring` are installed.
+container. The bus and the keyring add two supervised services, the order in
+which the supervisor restarts them, health checks, an image `ENV`, three
+packages, and spec requirements. The image `ENV` prevents `gh` from starting a
+D-Bus bus that does not stop. This problem occurs only because the images
+install `dbus-x11` and `gnome-keyring`.
 
 ## Work
 
-- Remove the `dbus` and `keyring` programs from both `supervisord.conf` files,
-  and remove their services, dependencies, and refresh rules from the supervisor
-  service tables.
-- Remove `agentdev-runtime keyring`, its health and doctor checks, the
-  keyring-session file (`AGENTDEV_KEYRING_ENV_FILE`), and the keyring wait
-  before git credential setup.
-- Remove `dbus-x11`, `gnome-keyring`, and `libsecret-1-0` from `basic_prereqs`,
-  and remove `DBUS_SESSION_BUS_ADDRESS` from both Dockerfiles.
+- Remove the `dbus` and `keyring` programs from the two `supervisord.conf`
+  files. Then remove their services, dependencies, and refresh rules from the
+  service tables in `agentdev_runtime/supervisor.py`.
+- Remove `agentdev-runtime keyring`, its checks in `agentdev-runtime health` and
+  `agentdev-runtime doctor`, the keyring-session file
+  (`AGENTDEV_KEYRING_ENV_FILE`), and the step that waits for the keyring before
+  the git credential configuration.
+- Remove `dbus-x11`, `gnome-keyring`, and `libsecret-1-0` from `basic_prereqs`.
+  Then remove `DBUS_SESSION_BUS_ADDRESS` from the two Dockerfiles.
 - Make sure that Xpra starts with no session bus, or that Xpra starts its own
   bus.
 - Move a `gh` token that is in an existing keyring into `hosts.yml`, or tell the
-  user to log in again. Find out which one is necessary first.
+  user to do the `gh auth login` procedure again. Before you start this step,
+  find which of the two actions is necessary.
 - Remove or change the D-Bus and keyring requirements in
   `spec/agentdev-runtime-images`, `spec/standalone-opencode-runtime`, and
   `spec/devcontainer-git-credentials`, and the keyring terms in the glossary.
