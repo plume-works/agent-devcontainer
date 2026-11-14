@@ -3,29 +3,30 @@ type: task
 stage: pending
 priority: medium
 created: 2026-11-08
-description: Make the anchor resolver check bare-path anchors, or narrow the "Live anchors resolve" requirement to `::`, `#`, and quoted anchors, so the code and the spec agree.
+description: Decide if scripts/check-anchors.py must also check that a bare back-ticked path names a file that exists, or if a bare path stays a reference that the resolver does not check.
 sources:
 - resource: scripts/check-anchors.py
 - resource: docs/knowledge/data/plans/20261108-line-free-anchors.md
 ---
 
-# Resolve bare-path anchors or narrow the live-anchor requirement
+# Resolve bare-path anchors or narrow the anchor rule
 
-The [line-free anchors
-plan](../archive/3.0.0/plans/20261108-line-free-anchors.md)'s spec delta for
-`spec/line-free-anchors` counts a bare `<path>` naming a whole file as an anchor
-(Requirement "References never record a line number"), and Requirement "Live
-anchors resolve" says every anchor in the resolver's scope SHALL resolve.
-`scripts/check-anchors.py::anchors` yields only spans holding `::`, `#`, or a
-quote, as the plan's Task 2 defines an anchor, so a bare back-ticked path under
-an active plan's `## Key references`, in an open bug or backlog item, or in an
-architecture document is never checked for existence. Code and spec disagree
-until one of them changes.
+`AGENTS.md#best-practices-for-agents` › "NEVER RECORD LINE NUMBERS" counts a
+bare `<path>` that names a full file as an anchor, and says that
+`scripts/check-anchors.py` enforces the graph and the catalog.
+`scripts/check-anchors.py::anchors` gives only spans that hold `::`, `#`, or a
+quote, as Task 2 of the [line-free anchors
+plan](../archive/3.0.0/plans/20261108-line-free-anchors.md) defines an anchor.
+Thus the resolver does not check that a bare back-ticked path exists when it is
+under the `## Key references` of an active plan, in an open bug or backlog item,
+or in a guide.
 
 The work is to decide one of:
 
 - **Resolve bare paths.** The resolver checks that a bare-path span in its scope
-  names an existing file. It has to tell a path from other back-ticked tokens
-  that look like one, such as a file name without a directory.
-- **Narrow the requirement.** "Live anchors resolve" covers every `::`, `#`, or
-  quoted anchor, and a bare path stays an unchecked reference to a whole file.
+  names a file that exists. It must know the difference between a path and other
+  back-ticked tokens that look like a path, such as a file name without a
+  directory.
+- **Narrow the rule.** The resolver checks only `::`, `#`, and quoted anchors,
+  and a bare path stays a reference to a full file that the resolver does not
+  check. Record this limit where the rule is.
