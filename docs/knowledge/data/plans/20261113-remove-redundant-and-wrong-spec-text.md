@@ -189,11 +189,18 @@ the row in `docs/spec-audit/requirements.jsonl`.
 **Files:** Modify: `docs/knowledge/data/spec.md`, and each file that cites a
 removed requirement or a deleted spec
 
-- [ ] Each spec that has no requirement and no `## Rationale` entry is deleted
+- [x] Each spec that has no requirement and no `## Rationale` entry is deleted
   with `iwe delete`.
-- [ ] No code comment cites a spec that was deleted.
-- [ ] No document outside `data/archive/` links a requirement that was removed.
-- [ ] `README.md` and `AGENTS.md` link no spec that was deleted.
+  - **Evidence:** A count per spec finds at least one `## Rationale` entry in
+    each of the 40, so no spec qualifies and none was deleted.
+- [x] No code comment cites a spec that was deleted.
+  - **Evidence:** No spec was deleted; each spec a comment cites still exists.
+- [x] No document outside `data/archive/` links a requirement that was removed.
+  - **Evidence:** `data/backlog/observe-planned-adversarial-review` now points
+    at the `iwe-implementer` rulebook; the merge of #881 archived the plan that
+    linked a removed heading, and `check-anchors.py` passes.
+- [x] `README.md` and `AGENTS.md` link no spec that was deleted.
+  - **Evidence:** No spec was deleted, and `data/spec.md` still lists all 40.
 
 ## Acceptance
 
