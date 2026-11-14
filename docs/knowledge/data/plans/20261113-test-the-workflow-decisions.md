@@ -28,10 +28,12 @@ real publish.
 
 ## Approach
 
-Each decision moves to a script that the workflow step calls. The script gets
-its inputs as arguments or environment variables and prints its decision. The
-workflow keeps the calls to GitHub. A test runs the script with inputs that the
-test controls.
+The decisions of the AI review gate move to the JavaScript module
+`.github/actions/ai-review-status/review-gate.js`. Each `actions/github-script`
+step keeps its calls to GitHub, loads the module with `require`, and calls one
+function. A `bun test` runs each function with inputs that the test controls.
+The decision of the image promotion moves to a shell script that the action
+calls. A test runs the script with inputs that the test controls.
 
 The move changes no behaviour. Two observation tasks confirm that on GitHub.
 
@@ -39,29 +41,52 @@ The move changes no behaviour. Two observation tasks confirm that on GitHub.
 
 ### Task 1: Move and test the decisions of the AI review gate
 
-**Files:** Create: a script and a test file for the decisions; Modify:
-`.github/workflows/ai-responder.yml`
+**Files:** Create: `.github/actions/ai-review-status/review-gate.js`,
+`.github/actions/ai-review-status/review-gate.test.js`; Modify:
+`.github/workflows/ai-responder.yml`,
+`.github/actions/ai-review-status/action.yml`, `.github/workflows/ci.yml`
 
 Each test shows what the `fate_note` of its row in
 `docs/spec-audit/requirements.jsonl` says.
 
-- [ ] A test runs "PRs are blocked until an AI review exists".
-- [ ] A test runs "the responder only acts for authorized same-repository
+- [x] A test runs "PRs are blocked until an AI review exists".
+  - **Evidence:** `.github/actions/ai-review-status/review-gate.test.js` runs
+    `reviewAcceptance` of `.github/actions/ai-review-status/review-gate.js`;
+    `bun test ./.github/actions/ai-review-status` passes 42 tests.
+- [x] A test runs "the responder only acts for authorized same-repository
   requests".
-- [ ] A test runs "a review runs on first push and on explicit request".
-- [ ] A test runs "trusted-bot pull requests are approved without an AI review".
-- [ ] `.github/workflows/ai-responder.yml` calls the script for each of the four
-  decisions and holds no copy of them.
+  - **Evidence:** the same test file runs `isFork` and `canTrigger` for each
+    head repository and permission level.
+- [x] A test runs "a review runs on first push and on explicit request".
+  - **Evidence:** the same test file runs `wantsReview` for each pull request
+    action, label event, draft, and label state.
+- [x] A test runs "trusted-bot pull requests are approved without an AI review".
+  - **Evidence:** the same test file runs `isTrustedBot` and
+    `botApprovalFailure` for foreign commits, foreign pushes, and a reused
+    branch.
+- [x] `.github/workflows/ai-responder.yml` calls the module for each of the four
+  decisions and holds no copy of them in a step. The `concurrency:` group and
+  the `if:` of each job stay, because GitHub reads them before a step runs.
+  - **Evidence:** The `github-script` steps of the `preflight` job, the
+    `trusted-bot-approval` job, and
+    `.github/actions/ai-review-status/action.yml` call the module. The two jobs
+    check out `.github/actions/ai-review-status` for the module. Zizmor and
+    actionlint pass.
 
 ### Task 2: Move and test the decision of the image promotion
 
 **Files:** Create: a script and a test file for the decision; Modify:
 `.github/actions/docker/promote/action.yml`
 
-- [ ] A test runs "published tags name only tested images" for a descendant
+- [x] A test runs "published tags name only tested images" for a descendant
   commit, for an unknown commit, and for an image that has no label.
-- [ ] `.github/actions/docker/promote/action.yml` calls the script and holds no
+  - **Evidence:** `scripts/tests/test_promote_tag_decision.py` runs
+    `.github/actions/docker/promote/tag-decision.sh` in a fixture repository for
+    these cases and for an ancestor and the same commit; 5 tests pass.
+- [x] `.github/actions/docker/promote/action.yml` calls the script and holds no
   copy of the decision.
+  - **Evidence:** the tag loop calls `tag-decision.sh` and keeps only the
+    registry calls; shellcheck, zizmor, and actionlint pass.
 
 ### Task 3: Observe the AI review gate on a pull request
 
@@ -90,6 +115,7 @@ specs](../archive/next-release/plans/20261113-adrs-and-workflow-off-specs.md)
 
 ``` bash
 uv run pytest scripts/tests
+bun test ./.github/actions/ai-review-status
 uv run pre-commit run --all-files zizmor
 uv run pre-commit run --all-files actionlint
 ```

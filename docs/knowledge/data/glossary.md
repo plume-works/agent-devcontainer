@@ -28,6 +28,9 @@ term in the same change that first uses it.
   GitHub credentials and limits access to the repositories of the session.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
+- **AI review gate** (noun): The decisions in
+  `.github/actions/ai-review-status/review-gate.js` that control the
+  `ai-review-present` check and the trusted-bot approval.
 - **AI reviewer** (noun): The `plume-works-quill` GitHub App account that
   submits the AI review of a pull request.
 - **allowlist** (noun): The file of domain names and the optional `github-meta`

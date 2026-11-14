@@ -34,6 +34,7 @@ runs:
       env:
         PR_NUMBER: ${{ inputs.pr-number }}
         TRUSTED_BOT_ACTORS: ${{ inputs.trusted-bot-actors }}
+        ACTION_PATH: ${{ github.action_path }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -46,53 +47,19 @@ runs:
             throw new Error(`pr-number must be a positive integer, got ${JSON.stringify(process.env.PR_NUMBER)}`);
           }
 
-          const report = (found, reason) => {
-            core.info(reason);
-            core.setOutput('found', String(found));
-            core.setOutput('reason', reason);
-          };
-
-          const trustedBotActors = (process.env.TRUSTED_BOT_ACTORS ?? '')
-            .split(',')
-            .map((login) => login.trim())
-            .filter(Boolean);
+          const { reviewAcceptance } = require(`${process.env.ACTION_PATH}/review-gate.js`);
           const { data: pr } = await github.rest.pulls.get(pullRequest);
-          if (pr.user?.type === 'Bot' && trustedBotActors.includes(pr.user.login)) {
-            report(true, `Pull request authored by ${pr.user.login} (bot); AI review is not required.`);
-            return;
-          }
-
-          // The rule makes sure that the PR has a review, not that the AI
-          // reviewer reviewed its current head. Do not compare
-          // review.commit_id against the head SHA.
-          const reviewerLogin = 'plume-works-quill[bot]';
-          const acceptedReviewStates = new Set(['approved', 'changes_requested', 'commented']);
-
-          const reviewLogin = (review) => review?.user?.login;
-          const reviewState = (review) => review?.state?.toLowerCase();
-          const isAcceptedReview = (review) =>
-            reviewLogin(review) === reviewerLogin && acceptedReviewStates.has(reviewState(review));
-
           const reviews = await github.paginate(github.rest.pulls.listReviews, {
             ...pullRequest,
             per_page: 100,
           });
           core.info(
             `Observed PR reviews: ${reviews
-              .map((review) => `${reviewLogin(review) ?? 'unknown'}:${review.state}:${review.commit_id}`)
+              .map((review) => `${review?.user?.login ?? 'unknown'}:${review.state}:${review.commit_id}`)
               .join(', ') || 'none'}`
           );
 
-          const acceptedReview = [...reviews].reverse().find(isAcceptedReview);
-          if (acceptedReview) {
-            report(
-              true,
-              `Found accepted AI review by ${acceptedReview.user.login} for ${acceptedReview.commit_id} with state ${acceptedReview.state}.`
-            );
-            return;
-          }
-
-          report(
-            false,
-            `No AI review found. Expected a review from ${reviewerLogin}.`
-          );
+          const { found, reason } = reviewAcceptance(pr.user, reviews, process.env.TRUSTED_BOT_ACTORS);
+          core.info(reason);
+          core.setOutput('found', String(found));
+          core.setOutput('reason', reason);
