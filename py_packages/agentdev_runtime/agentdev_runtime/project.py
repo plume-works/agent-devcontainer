@@ -1,7 +1,7 @@
 """
 The checkout's own environment: its uv environment link, the uv sync, and the pre-commit hooks.
 
-Spec: standalone-opencode-runtime, agentdev-runtime-images.
+See ADR-0081.
 """
 
 from __future__ import annotations
@@ -174,7 +174,7 @@ def hooks(settings: env.Settings) -> int:
                     file=sys.stderr,
                 )
                 return 1
-        # Hook environments build on first use, never at startup. Spec: standalone-opencode-runtime.
+        # Hook environments build on first use, never at startup.
         installed = subprocess.run(
             ['pre-commit', 'install', *(f'--hook-type={hook}' for hook in HOOK_TYPES)],
             cwd=workspace,

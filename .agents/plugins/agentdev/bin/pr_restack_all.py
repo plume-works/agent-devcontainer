@@ -4,8 +4,8 @@
 Restack a chain of manual stacked pull requests with merges, never a rewrite.
 
 Works in one fresh detached worktree under ``./.tmp/`` built from remote refs,
-so no local branch is checked out, created, or moved. Design: see the
-``spec/stacked-prs`` document of the repository's IWE graph.
+so no local branch is checked out, created, or moved. Design: see
+ADR-0068 of the repository's IWE graph.
 
 Standard library only.
 """

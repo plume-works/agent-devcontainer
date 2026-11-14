@@ -1,8 +1,4 @@
-"""
-Pre-answer Claude's first-run prompts: onboarding, Remote Control, trust, and project MCP.
-
-Spec: claude-remote-control.
-"""
+"""Pre-answer Claude's first-run prompts: onboarding, Remote Control, trust, and project MCP."""
 
 from __future__ import annotations
 
@@ -45,7 +41,7 @@ def preapprove(settings: env.Settings) -> None:
         project['hasTrustDialogAccepted'] = True
 
     def approve_mcp(project_settings: dict) -> None:
-        # Keeps disabledMcpjsonServers; see spec/claude-remote-control.
+        # Keeps disabledMcpjsonServers.
         project_settings['enableAllProjectMcpServers'] = True
 
     update_json(settings.path('AGENTDEV_CLAUDE_STATE_PATH'), approve_state)

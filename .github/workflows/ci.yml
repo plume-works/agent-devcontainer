@@ -139,7 +139,7 @@ jobs:
             PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}
 
       # Both runtimes are siblings layered on exactly the base digest this job just
-      # built, never on each other; see spec/agentdev-runtime-images.
+      # built, never on each other.
       - name: Build agentdev deploy image
         uses: $/.github/actions/docker/build-push-action
         with:
@@ -332,8 +332,8 @@ jobs:
             uv run pytest -n 8 py_packages .agents/plugins/agentdev/tests \
               .agents/plugins/self-improve/tests scripts/tests
 
-            # The tests the runtime account skips, run as root; see
-            # spec/devcontainer-state. They must leave nothing root-owned behind.
+            # The tests the runtime account skips, run as root.
+            # They must leave nothing root-owned behind.
             touch .tmp/root-tests.stamp
             scripts/run-root-tests -n 8 scripts/tests
             left="$(find . /tmp/agentdev-tests -newer .tmp/root-tests.stamp -user root -print 2>/dev/null | head -n 5)"
@@ -346,7 +346,7 @@ jobs:
           github-token: ${{ github.token }}
 
   # Every hook on every file with the tools the rebuilt image provisions, so a bump that
-  # breaks a hook fails before promotion. See spec/pre-commit-gate.
+  # breaks a hook fails before promotion. See ADR-0064.
   candidate-pre-commit:
     name: pre-commit on the candidate image
     needs: [merge-dev-image]

@@ -6,7 +6,7 @@ default_stages: [pre-commit, pre-merge-commit, pre-push, manual]
 repos:
   - repo: local
     hooks:
-      # Spec: agentdev-runtime-images; no-op where agentdev-runtime is absent (host, CI).
+      # See ADR-0081; no-op where agentdev-runtime is absent (host, CI).
       - id: link-venv
         name: link .venv to its own uv environment
         entry: sh -c 'command -v agentdev-runtime >/dev/null || exit 0; exec agentdev-runtime project link-venv'
@@ -44,7 +44,7 @@ repos:
         types: [text]
         args: [--fix=lf]
 
-      # Work lands through pull requests; see spec/git-new-branch.
+      # Work lands through pull requests.
       - id: no-commit-to-branch
         name: don't commit to branch
         entry: uv run no-commit-to-branch
@@ -105,7 +105,7 @@ repos:
         require_serial: true
 
       # Scans GITLEAKS_LOG_OPTS when set (CI), the pushed range at pre-push, and the
-      # staged change otherwise; see spec/pre-commit-gate.
+      # staged change otherwise.
       - id: gitleaks
         name: Detect hardcoded secrets
         entry: >-
@@ -136,7 +136,7 @@ repos:
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
 
       # Both flags, and why this pin is also the bot's and the workflow's
-      # Renovate version: see spec/dependency-updates.
+      # Renovate version: see ADR-0052.
       - id: renovate-config-validator
         name: renovate-config-validator
         entry: bunx --package renovate@44.239.1 renovate-config-validator --no-global --strict
@@ -151,7 +151,7 @@ repos:
 
       # `uv run` on purpose. The agentdev images also ship a
       # `validate_agent_files` on PATH, and that is what a consuming project
-      # should call (see docs/knowledge/data/spec/template-consumption.md),
+      # should call (see ADR-0056),
       # but the publisher must validate against the working-tree source it is
       # editing rather than the copy frozen into the image.
       - id: validate-agent-files
@@ -171,7 +171,7 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
-      # Ship records, archive placement, and link-free release pages. See spec/pre-commit-gate.
+      # Ship records, archive placement, and link-free release pages.
       - id: ship-records
         name: ship-records
         entry: uv run scripts/check-ship-records.py
@@ -179,7 +179,7 @@ repos:
         files: '^docs/knowledge/data/(adr|archive|backlog|bugs|features|plans|releases)/.*\.md$'
         pass_filenames: true
 
-      # Always runs: a code rename anywhere can break a live anchor. See spec/line-free-anchors.
+      # Always runs: a code rename anywhere can break a live anchor. See ADR-0083.
       - id: check-anchors
         name: check-anchors
         entry: uv run scripts/check-anchors.py
@@ -188,7 +188,7 @@ repos:
         pass_filenames: false
 
       # The graph never sets `status`, `generated`, or `verified`; see
-      # spec/iwe-workflow-skills.
+      # ADR-0008.
       - id: banned-frontmatter-keys
         name: banned-frontmatter-keys
         entry: uv run pytest docs/knowledge/tests/test_banned_frontmatter_keys.py

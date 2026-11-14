@@ -63,7 +63,7 @@
       "enabled": false
     },
     {
-      "description": "The 24.04 base's digest moves weekly, which is the images' scheduled clean rebuild; see spec/image-pinning. A bump edits docker/ansible/Dockerfile, which rebuilds and accepts every image from the new base before it can merge. That is what makes automerge safe here.",
+      "description": "The 24.04 base's digest moves weekly, which is the images' scheduled clean rebuild. A bump edits docker/ansible/Dockerfile, which rebuilds and accepts every image from the new base before it can merge. That is what makes automerge safe here.",
       "matchManagers": ["dockerfile"],
       "matchFileNames": ["docker/ansible/Dockerfile"],
       "matchDepNames": ["ubuntu"],

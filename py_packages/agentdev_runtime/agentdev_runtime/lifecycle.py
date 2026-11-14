@@ -3,7 +3,7 @@ The Dev Container lifecycle commands: create, start, and attach phases.
 
 ``created`` prepares client state, project dependencies and hooks, and the staged catalog;
 ``ready`` waits for the supervised runtime and repairs per-start state; ``attached`` indexes,
-syncs, and layers a complete checkout catalog. Spec: agentdev-runtime-images, catalog-lifecycle.
+syncs, and layers a complete checkout catalog. See ADR-0031 and ADR-0044.
 """
 
 from __future__ import annotations

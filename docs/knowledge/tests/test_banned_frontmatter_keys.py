@@ -1,7 +1,7 @@
 """
 Checks that no graph document sets a frontmatter key the graph bans.
 
-The banned keys are the graph's departures from OKF; see spec/iwe-workflow-skills.
+The banned keys are the graph's departures from OKF; see ADR-0008.
 Both the workspace graph and, where it exists, the bootstrap scaffold's seed graph
 are checked.
 """

@@ -1,7 +1,7 @@
 name: AI review status
 description: >-
   Report whether a pull request carries an accepted AI review, evaluated once
-  with no waiting. Acceptance policy: see spec/ai-review-gate.
+  with no waiting.
 
 inputs:
   pr-number:
@@ -13,7 +13,7 @@ inputs:
   trusted-bot-actors:
     description: >-
       Comma-separated bot logins whose pull requests need no AI review.
-      Trust-list policy: see spec/template-consumption.
+      Trust-list policy: see ADR-0037.
     required: false
     default: ''
 
@@ -63,7 +63,7 @@ runs:
           }
 
           // The rule asserts that the PR has been reviewed, not that its
-          // current head has been -- see spec/ai-review-gate. Do not compare
+          // current head has been. Do not compare
           // review.commit_id against the head SHA.
           const reviewerLogin = 'plume-works-quill[bot]';
           const acceptedReviewStates = new Set(['approved', 'changes_requested', 'commented']);

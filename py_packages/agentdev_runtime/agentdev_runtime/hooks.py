@@ -1,7 +1,7 @@
 """
 A phase's image-installed executable hooks, run in C-locale name order.
 
-A mounted workspace never contributes hooks. Spec: agentdev-runtime-images.
+A mounted workspace never contributes hooks.
 """
 
 from __future__ import annotations

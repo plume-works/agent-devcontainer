@@ -1,8 +1,7 @@
 """
 Workspace preparation as the runtime user.
 
-A valid checkout is reused offline; only deploy clones, into an empty destination. Spec:
-standalone-opencode-runtime, agentdev-runtime-images.
+A valid checkout is reused offline; only deploy clones, into an empty destination.
 """
 
 from __future__ import annotations

@@ -2,9 +2,7 @@
 Start an Xpra server with the HTML5 web client enabled.
 
 ``--supervised`` replaces this process with a foreground Xpra for the supervisor;
-``--background`` starts a daemon and returns; ``--stop`` stops the session on the display.
-Spec: xpra-port-forwarding.
-"""
+``--background`` starts a daemon and returns; ``--stop`` stops the session on the display."""
 
 from __future__ import annotations
 

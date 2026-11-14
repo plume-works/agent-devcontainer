@@ -205,7 +205,7 @@ def stale_windows(runs: list[dict[str, Any]], cutoff: datetime | None) -> list[W
 def reviewed(
     reviews: list[dict[str, Any]], head_sha: str, cutoff: datetime | None, stale: list[Window]
 ) -> bool:
-    """Return whether an accepted AI review saw the head's input (spec/ai-review-refresh)."""
+    """Return whether an accepted AI review saw the head's input."""
 
     def from_stale_run(item: dict[str, Any]) -> bool:
         moment = timestamp(item.get('submitted_at'))
@@ -224,7 +224,7 @@ def reviewed(
 
 
 def requesting_check(runs: list[dict[str, Any]], cutoff: datetime | None) -> str:
-    """Return the URL of a responder check that counts as a request (spec/ai-review-refresh)."""
+    """Return the URL of a responder check that counts as a request."""
     for run in runs:
         if run.get('name') == RESPONDER and (
             run.get('status') != 'completed'

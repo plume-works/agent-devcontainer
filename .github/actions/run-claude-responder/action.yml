@@ -27,7 +27,7 @@ inputs:
 runs:
   using: composite
   steps:
-    # No GITHUB_TOKEN fallback: see spec/ai-review-gate.
+    # No GITHUB_TOKEN fallback: see ADR-0066.
     - name: Require the App secrets
       shell: bash
       env:
@@ -42,7 +42,7 @@ runs:
         done
         [[ ${#missing[@]} -eq 0 ]]
 
-    # See docs/knowledge/data/spec/catalog-lifecycle.md.
+    # See ADR-0041.
     - name: Run devcontainer lifecycle commands
       shell: bash
       env:
@@ -138,7 +138,7 @@ runs:
         show_full_output: true
         prompt: ${{ inputs.prompt }}
 
-    # The finished review takes the request: see spec/ai-review-gate. A
+    # The finished review takes the request: see ADR-0059. A
     # cancelled review keeps the label for the run that replaced it, and another
     # run may already have taken it, so a missing label is not an error.
     - name: Take the review request label

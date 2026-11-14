@@ -6,7 +6,7 @@ FROM $FROM_IMAGE
 
 ARG FROM_IMAGE
 
-# UID rationale: see spec/standalone-opencode-runtime.
+# UID rationale: see ADR-0070.
 RUN userdel --remove ubuntu
 
 # The runtime CLI is a uv tool on the system interpreter, like validate_agent_files; the

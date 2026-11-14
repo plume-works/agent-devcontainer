@@ -94,12 +94,22 @@ decision got no ADR, the citation is removed.
 **Files:** Modify: each file outside `docs/` that cites `spec/<key>`,
 `AGENTS.md`, `docs/knowledge/AGENTS.md`
 
-- [ ] No file outside `docs/` cites `spec/<key>`.
-- [ ] Each citation that replaced one names an ADR that states the cited
+- [x] No file outside `docs/` cites `spec/<key>`.
+  - **Evidence:** 112 citations in the `spec/<key>`, `Spec: <key>`, and link
+    forms were changed. `git grep -E "spec/[a-z][a-z-]+|Spec:" -- ':!docs'` now
+    finds only test fixtures and the `data/spec/` directory itself.
+- [x] Each citation that replaced one names an ADR that states the cited
   decision.
-- [ ] Rule 3 in `AGENTS.md#comments` names ADRs as the home of a decision and
+  - **Evidence:** Each comment was read with its context and matched to the ADR
+    of its decision. A comment whose decision got no ADR lost its citation. The
+    pre-commit hooks and 291 tests pass on the changed files.
+- [x] Rule 3 in `AGENTS.md#comments` names ADRs as the home of a decision and
   `ADR-NNNN` as the reference. It names no spec and no `## Rationale`.
-- [ ] `docs/knowledge/AGENTS.md#conventions` names no `## Rationale`.
+  - **Evidence:** Removed the sentence that permitted a `spec/<key>` reference.
+    The rule now names only ADRs.
+- [x] `docs/knowledge/AGENTS.md#conventions` names no `## Rationale`.
+  - **Evidence:** `grep Rationale docs/knowledge/AGENTS.md` finds nothing, so
+    the section needed no change.
 
 ### Task 4: Remove the text that moved
 

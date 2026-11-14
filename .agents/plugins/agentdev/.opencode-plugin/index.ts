@@ -280,7 +280,7 @@ export function setupBridge(root: string, ctx: V2Context): void {
   })
 
   // Tool limits are enforced by the hooks below: the host appends the global
-  // permission rules after any rule set here. See spec/opencode-catalog-bridge.
+  // permission rules after any rule set here. See ADR-0035.
   void ctx.agent.transform((editor) => {
     for (const agent of catalog.agents) {
       editor.update(agent.stem, (info) => {

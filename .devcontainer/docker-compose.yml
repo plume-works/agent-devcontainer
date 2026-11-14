@@ -4,7 +4,7 @@ services:
     # use. The digest pin lives in ../devcontainer-compose-pins.yml, which devcontainer.json layers on
     # top of this file; pass `-f devcontainer-compose-pins.yml` too when invoking compose directly.
     image: ghcr.io/plume-works/agentdev-devcontainer:edge
-    # Written by devcontainer-init.sh; see spec/claude-remote-control.
+    # Written by devcontainer-init.sh.
     hostname: ${CONTAINER_HOSTNAME:-agentdev}
     # No `init` or `command`: the image's supervisor is PID 1, owns the persistent
     # services, and reaps every orphan.
@@ -35,7 +35,7 @@ services:
       - ${LOCAL_WORKSPACE_FOLDER:-$PWD}:/workspaces/${WORKSPACE_BASENAME:-project}:rw
 
       # Claude's credentials, shared by every Dev Container of the host user's UID and GID;
-      # see spec/devcontainer-state.
+      # see ADR-0070.
       - agentdev-agents-auth:/var/lib/agentdev/auth
 
       # Written by devcontainer-init.sh, empty when the host names no extra CA.

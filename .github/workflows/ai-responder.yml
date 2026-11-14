@@ -20,7 +20,7 @@ on:
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
 # review of an older head. Other label changes get their own group, so they
-# never replace a queued review: see spec/ai-review-gate.
+# never replace a queued review.
 concurrency:
   group: >-
     ${{ github.workflow }}-${{
@@ -38,7 +38,7 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
-  # The review never executes code: see spec/ai-review-gate. Shells are denied
+  # The review never executes code. Shells are denied
   # because `bash -c` hides the command inside it from these rules.
   CLAUDE_PR_REVIEW_DISALLOWED_TOOLS: >-
     Bash(bash *),Bash(sh *),Bash(zsh *),
@@ -54,7 +54,7 @@ jobs:
   preflight:
     name: AI responder preflight
     # Only a pull_request event can start a review. Bot-authored pull requests
-    # get no automatic review, see spec/template-consumption. A label change
+    # get no automatic review, see ADR-0037. A label change
     # outside pr-<n> never reviews, so only the gate runs for it.
     if: |
       github.repository_owner == 'plume-works' &&
@@ -172,15 +172,13 @@ jobs:
           script: |
             const { eventName, payload } = context;
             const prNumber = process.env.PR_NUMBER;
-            // When the review job runs: see spec/ai-review-gate, "a review
-            // runs on first push and on explicit request".
             const wantsReview = (() => {
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
                 return false;
               }
               // Any run in pr-<n> takes a waiting request unless reviews are
               // blocked; a run in a label-<run id> group never does. Label
-              // lifecycle: see spec/ai-review-gate.
+              // lifecycle: see ADR-0059.
               const labelEvent = ['labeled', 'unlabeled'].includes(payload.action);
               const inPrGroup =
                 !labelEvent ||
@@ -258,7 +256,6 @@ jobs:
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
 
   # Depends on the review job so the check stays pending while a review runs.
-  # Acceptance rule: see spec/ai-review-gate.
   # This job must never read block-ai-reviews: that label does not waive the gate.
   ai-review-present:
     name: ai-review-present
@@ -310,7 +307,7 @@ jobs:
           github-token: ${{ github.token }}
 
   # Stands in for the AI review on trusted-bot pull requests, see
-  # spec/ai-review-gate. A Dependabot-triggered run holds a read-only token.
+  # ADR-0069. A Dependabot-triggered run holds a read-only token.
   trusted-bot-approval:
     name: Approve trusted-bot pull request
     if: |
@@ -348,7 +345,7 @@ jobs:
             }
             core.setOutput('approve', 'true');
 
-      # No GITHUB_TOKEN fallback: see spec/ai-review-gate.
+      # No GITHUB_TOKEN fallback: see ADR-0066.
       - name: Require the App secrets
         if: steps.eligible.outputs.approve == 'true'
         env:
@@ -396,7 +393,7 @@ jobs:
               (review) => review.user?.login === 'plume-works-quill[bot]' && review.state === 'APPROVED',
             );
 
-            // Approval covers only the bot's own commits, see spec/ai-review-gate.
+            // Approval covers only the bot's own commits, see ADR-0069.
             const commitFailure = (commit) => {
               if (commit.author?.login !== login) {
                 return `author is ${commit.author?.login ?? 'not a GitHub account'}`;
