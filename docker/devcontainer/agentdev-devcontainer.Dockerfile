@@ -31,6 +31,7 @@ COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-al
 
 # Defaults a consumer's descriptor or derived image may override; see
 # spec/agentdev-runtime-images.
+# Do not set UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR, or PRE_COMMIT_HOME: their defaults are on the home volume.
 ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     AGENTDEV_USER=agent \
     AGENTDEV_HOME=/home/agent \

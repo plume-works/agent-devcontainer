@@ -65,9 +65,14 @@ decision got no ADR, the citation is removed.
 **Files:** Modify: the implementation file of each requirement whose `fate` is
 `code-comment`
 
-- [ ] Each of the 13 requirements whose `fate` is `code-comment` has its
+- [x] Each of the 13 requirements whose `fate` is `code-comment` has its
   invariant in a comment at its implementation, as its `fate_note` says.
-- [ ] No such comment is longer than 3 lines.
+  - **Evidence:** Added the comment that each `fate_note` names in 13 files. The
+    macOS bootstrap already had its comment. The pre-commit hooks pass on the
+    changed files, and `test_integrity.py` and `test_coder_agent_start.py` pass.
+- [x] No such comment is longer than 3 lines.
+  - **Evidence:** Each new comment has 1 or 2 lines. The two longest comment
+    blocks have 3 lines, in the two Dockerfiles and in `devcontainer.json`.
 
 ### Task 3: Point the code comments at ADRs
 

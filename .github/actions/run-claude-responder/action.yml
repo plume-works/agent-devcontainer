@@ -124,6 +124,7 @@ runs:
           echo "name=${APP_SLUG}[bot]"
         } >>"$GITHUB_OUTPUT"
 
+    # Do not set track_progress: the review must reach the pull request as a submitted review.
     - name: Claude Responder
       id: claude_responder
       uses: anthropics/claude-code-action@v1

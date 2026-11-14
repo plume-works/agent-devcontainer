@@ -259,6 +259,7 @@ jobs:
 
   # Depends on the review job so the check stays pending while a review runs.
   # Acceptance rule: see spec/ai-review-gate.
+  # This job must never read block-ai-reviews: that label does not waive the gate.
   ai-review-present:
     name: ai-review-present
     needs:

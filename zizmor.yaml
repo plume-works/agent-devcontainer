@@ -1,3 +1,4 @@
+# Never disable the self-repository audit: it makes same-repository references use `$/`.
 rules:
   unpinned-uses:
     disable: true

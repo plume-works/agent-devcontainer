@@ -1,6 +1,9 @@
 """
 The Coder agent's start, run by the template's ``coder_script`` on every agent start.
 
+The template in plume-works/coder-ide-baseline uses ``agentdev-runtime coder start`` as the
+default value of its ``agent_start_script`` parameter. A rename of this command breaks it.
+
 Spec: devcontainer-git-credentials, opencode-web.
 """
 

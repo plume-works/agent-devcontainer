@@ -70,8 +70,8 @@ jobs:
           echo "rev=$rev" >> "$GITHUB_OUTPUT"
 
       # A pull request opened with GITHUB_TOKEN starts no workflows, so Renovate
-      # authenticates as its GitHub App. Token scope: see
-      # spec/dependency-updates.
+      # authenticates as its GitHub App. The App has only the permissions of Renovate:
+      # the post-upgrade task runs the code that it just updated with this token.
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v3.3.0
