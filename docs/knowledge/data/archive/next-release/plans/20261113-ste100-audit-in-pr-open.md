@@ -334,3 +334,24 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
   — the requirement that Task 5 modifies.
 - `docs/knowledge/data/spec/pr-review.md` — the spec whose ASD-STE100
   requirement Task 5 removes.
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-14.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship:
+  data/plans/20261113-ste100-audit-in-pr-open
+- [x] Every ADR the plan proposed is `stage: accepted` — N/A: the plan proposed
+  no ADR
+- [x] Every ADR the plan superseded is `stage: superseded` and archived — N/A:
+  the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-14
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] The plan and every feature and bug it closed are archived with no hub link
+  — confirmed: data/archive/next-release/plans/20261113-ste100-audit-in-pr-open
