@@ -29,9 +29,11 @@ Each `needs-test` requirement gets a test that runs the behaviour, as the test
 rules in `AGENTS.md#tests` require. Five of the 18 are decisions in workflow
 files, and [Test the decisions that the workflows
 make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
-tests for 8 of the other 13. The 5 other requirements get no test, because each
+tests for 7 of the other 13. The 5 other requirements get no test, because each
 one is configuration, a rule, or a guard against a possible future edit, and not
-logic.
+logic. The last one is [a deploy runtime that reuses a checkout does not
+configure the git credential
+helper](../bugs/reused-checkout-gets-no-credential-helper.md).
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to a guide, because the ruleset is a repository setting and
@@ -62,8 +64,6 @@ Each test shows what the `fate_note` of its row says.
   credential helper".
 - [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
   checkout volume".
-- [ ] A test runs `standalone-opencode-runtime` "startup prepares or reuses one
-  workspace" on a reused checkout.
 - [ ] A test runs `update-branch` "update-branch brings in the branch's upstream
   before the base" for a branch that has no upstream.
 

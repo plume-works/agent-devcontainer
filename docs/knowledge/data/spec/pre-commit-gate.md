@@ -36,7 +36,7 @@ SHALL include `pre-merge-commit`, so a merge commit runs the same hooks as an
 ordinary commit. `end-of-file-fixer` and `trailing-whitespace` set their own
 `stages` without `pre-merge-commit`, so a merge that commits on its own skips
 them: [Bug: a merge commit skips `end-of-file-fixer` and
-`trailing-whitespace`](../bugs/merge-commit-skips-two-hooks.md).
+`trailing-whitespace`](../archive/next-release/bugs/merge-commit-skips-two-hooks.md).
 
 #### Scenario: a merge commits on its own
 
