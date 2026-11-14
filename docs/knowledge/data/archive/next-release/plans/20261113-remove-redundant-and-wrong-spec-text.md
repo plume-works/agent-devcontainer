@@ -7,21 +7,23 @@ sources:
 - resource: docs/spec-audit/requirements.jsonl
 - resource: docs/spec-audit/rationale.jsonl
 - resource: docs/spec-audit/README.md
+stage: done
+completed: 2026-11-14
 ---
 
 # Remove the spec text that is redundant or wrong
 
 ## Context
 
-[The spec usefulness audit](../findings/spec-usefulness-audit.md) labelled each
-of the 264 requirements in `data/spec/`. 207 of them repeat a test, a rulebook,
-or code that reads plainly. 34 are not fully true. The code contradicts 4
-`## Rationale` entries. The labels are in `docs/spec-audit/`.
+[The spec usefulness audit](../../../findings/spec-usefulness-audit.md) labelled
+each of the 264 requirements in `data/spec/`. 207 of them repeat a test, a
+rulebook, or code that reads plainly. 34 are not fully true. The code
+contradicts 4 `## Rationale` entries. The labels are in `docs/spec-audit/`.
 
 This plan is the first removal step of [Shrink the knowledge base to an issue
 tracker and decision
-records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It removes
-only what the audit already shows to be redundant or wrong.
+records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It
+removes only what the audit already shows to be redundant or wrong.
 
 The repository owner's decisions:
 
@@ -121,7 +123,7 @@ the row in `docs/spec-audit/requirements.jsonl`.
     both runtime Dockerfiles still mount `py_packages/agentdev_runtime`.
 - [x] `line-free-anchors` "Live anchors resolve" gets no new bug: [Resolve
   bare-path anchors or narrow the live-anchor
-  requirement](../backlog/bare-path-anchors.md) records it already.
+  requirement](../../../backlog/bare-path-anchors.md) records it already.
   - **Evidence:** `data/backlog/bare-path-anchors` is still pending; no bug was
     filed for it.
 
@@ -209,7 +211,7 @@ None — no behavioral change
 ## Depends on
 
 [Add ADRs and take the workflow off
-specs](../archive/next-release/plans/20261113-adrs-and-workflow-off-specs.md)
+specs](20261113-adrs-and-workflow-off-specs.md)
 
 ## Verification
 
