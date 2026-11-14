@@ -8,6 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/agents/ste100-auditor.agent.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/873
+stage: done
+completed: 2026-11-14
 ---
 
 # Audit the added prose in pr-open, and limit the plan-review reruns
@@ -18,7 +20,7 @@ The `pr-review` skill runs `/agentdev:audit-ste100` on the prose that a pull
 request adds. Each finding blocks the merge. The audit does not give the same
 findings two times for the same text: see [Bug: the ASD-STE100 audit gives
 different findings for the same
-text](../bugs/ste100-audit-not-deterministic.md). Thus the AI reviewer can
+text](../../../bugs/ste100-audit-not-deterministic.md). Thus the AI reviewer can
 request changes again after each fix.
 
 The repository owner decided these points:
@@ -305,7 +307,7 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
 ## Out of scope
 
 - The fix of [Bug: the ASD-STE100 audit gives different findings for the same
-  text](../bugs/ste100-audit-not-deterministic.md).
+  text](../../../bugs/ste100-audit-not-deterministic.md).
 - An audit of the pull request title, the pull request body, or a commit
   message.
 - A spec for `pr-open`.
@@ -332,3 +334,24 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
   — the requirement that Task 5 modifies.
 - `docs/knowledge/data/spec/pr-review.md` — the spec whose ASD-STE100
   requirement Task 5 removes.
+
+## Ship review
+
+Reviewed by `iwe-ship-reviewer` on 2026-11-14.
+
+- [x] Verify reported zero CRITICAL — confirmed: Ready to ship:
+  data/plans/20261113-ste100-audit-in-pr-open
+- [x] Every ADR the plan proposed is `stage: accepted` — N/A: the plan proposed
+  no ADR
+- [x] Every ADR the plan superseded is `stage: superseded` and archived — N/A:
+  the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed:
+  2026-11-14
+- [x] Every feature in `release` is `stage: implemented` — N/A: `release` lists
+  no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — N/A: `release`
+  lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — N/A:
+  `release` lists no bug
+- [x] The plan and every feature and bug it closed are archived with no hub link
+  — confirmed: data/archive/next-release/plans/20261113-ste100-audit-in-pr-open
