@@ -29,8 +29,9 @@ Each `needs-test` requirement gets a test that runs the behaviour, as the test
 rules in `AGENTS.md#tests` require. Five of the 18 are decisions in workflow
 files, and [Test the decisions that the workflows
 make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
-tests for 9 of the other 13. The 4 other requirements get no test, because each
-one is configuration or a rule, and not logic.
+tests for 8 of the other 13. The 5 other requirements get no test, because each
+one is configuration, a rule, or a guard against a possible future edit, and not
+logic.
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to a guide, because the ruleset is a repository setting and
@@ -57,8 +58,6 @@ Each test shows what the `fate_note` of its row says.
   bundle".
 - [ ] A test runs `catalog-lifecycle` "registering a catalog root replaces
   earlier registrations".
-- [ ] A test runs `devcontainer-docker-storage` "the host-side init runs without
-  HOME".
 - [ ] A test runs `devcontainer-git-credentials` "gh authenticates from the git
   credential helper".
 - [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
