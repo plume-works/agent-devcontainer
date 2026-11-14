@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 import os
 from pathlib import Path
+import shutil
 import subprocess
+from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / '.github/actions/docker/promote/tag-decision.sh'
@@ -20,8 +24,11 @@ def _git(repo: Path, *args: str) -> str:
 
 
 @pytest.fixture
-def history(tmp_path: Path) -> tuple[Path, list[str]]:
-    """Return a repository with three commits, oldest first."""
+def history() -> Iterator[tuple[Path, list[str]]]:
+    """Yield a repository with three commits, oldest first."""
+    TMP_ROOT.mkdir(exist_ok=True)
+    tmp_path = TMP_ROOT / f'promote-tag-{uuid4().hex}'
+    tmp_path.mkdir()
     _git(tmp_path, 'init', '-q')
     shas = []
     for n in range(3):
@@ -38,7 +45,8 @@ def history(tmp_path: Path) -> tuple[Path, list[str]]:
             str(n),
         )
         shas.append(_git(tmp_path, 'rev-parse', 'HEAD'))
-    return tmp_path, shas
+    yield tmp_path, shas
+    shutil.rmtree(tmp_path)
 
 
 def _decide(repo: Path, sha: str, current: str) -> str:
