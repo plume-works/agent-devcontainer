@@ -112,6 +112,20 @@ def test_every_violation_is_reported(write: Write) -> None:
 
 REVIEW = """## Ship review
 
+`iwe-ship-reviewer` did this review on 2026-11-14.
+
+- [x] Verify found no CRITICAL problem — correct: PASS, 0 CRITICAL
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct: data/adr/0001-example
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the archive — not applicable: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct: 2026-11-14
+- [x] Every feature in `release` is `stage: implemented` — not applicable: `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — correct: data/bugs/example
+- [x] Every bug in `release` has a `## Fix` that links this plan — correct: data/bugs/example
+- [x] The plan and every feature and bug that it completed are in the archive, and no hub links them — correct: data/archive/next-release/plans/example
+"""
+
+ADR_REVIEW = """## Ship review
+
 Reviewed by `iwe-ship-reviewer` on 2026-11-13.
 
 - [x] Verify reported zero CRITICAL — confirmed: PASS, 0 CRITICAL
@@ -181,7 +195,31 @@ def test_spec_ship_review_still_fails_when_malformed(write: Write) -> None:
     text = plan(SPEC_REVIEW.replace('- [x] Every `## Rationale`', '- [ ] Every `## Rationale`'))
     result = run(write('plan.md', text))
     assert result.returncode == 1
-    assert 'Every ADR the plan proposed' in result.stdout
+    assert 'Every ADR that the plan proposed' in result.stdout
+
+
+def test_adr_ship_review_passes(write: Write) -> None:
+    """A Ship review in the structure whose items end with `confirmed` or `N/A` passes."""
+    result = run(write('plan.md', plan(ADR_REVIEW)))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_adr_ship_review_still_fails_when_malformed(write: Write) -> None:
+    """An ADR-structure review that has an item with no tick fails, and the output names the new structure."""
+    text = plan(ADR_REVIEW.replace('- [x] Every feature', '- [ ] Every feature'))
+    result = run(write('plan.md', text))
+    assert result.returncode == 1
+    assert 'did this review on' in result.stdout
+
+
+def test_old_endings_in_the_current_structure_fail(write: Write) -> None:
+    """The items of the new structure fail when they end with `confirmed` or `N/A`."""
+    text = plan(
+        REVIEW.replace('— correct:', '— confirmed:').replace('— not applicable:', '— N/A:')
+    )
+    result = run(write('plan.md', text))
+    assert result.returncode == 1
+    assert 'must end in `correct: <evidence>`' in result.stdout
 
 
 def test_earlier_ship_review_passes(write: Write) -> None:
@@ -205,11 +243,13 @@ def test_ship_review_inside_a_code_fence_is_not_checked(write: Write) -> None:
 
 def test_missing_item_fails_naming_the_section(write: Write) -> None:
     """A Ship review missing its last item fails and names the missing item."""
-    text = plan(''.join(line for line in REVIEW.splitlines(True) if 'archived with' not in line))
+    text = plan(
+        ''.join(line for line in REVIEW.splitlines(True) if 'in the archive, and' not in line)
+    )
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, "## Ship review")} ' in result.stdout
-    assert 'missing item "The plan and every feature and bug it closed' in result.stdout
+    assert 'missing item "The plan and every feature and bug that it completed' in result.stdout
 
 
 def test_reordered_items_fail_naming_the_line(write: Write) -> None:
@@ -228,7 +268,7 @@ def test_unticked_item_fails_naming_the_line(write: Write) -> None:
     """An unticked item fails, naming its line."""
     text = plan(
         REVIEW.replace(
-            '- [x] Every ADR the plan superseded', '- [ ] Every ADR the plan superseded'
+            '- [x] Every ADR that the plan superseded', '- [ ] Every ADR that the plan superseded'
         )
     )
     result = run(path := write('plan.md', text))
@@ -238,8 +278,8 @@ def test_unticked_item_fails_naming_the_line(write: Write) -> None:
 
 
 def test_item_with_neither_ending_fails(write: Write) -> None:
-    """An item ending in neither `confirmed` nor `N/A:` fails, naming its line."""
-    text = plan(REVIEW.replace('— confirmed: data/adr/0001-example', '— looks fine'))
+    """An item that ends in neither `correct:` nor `not applicable:` fails, and the output names its line."""
+    text = plan(REVIEW.replace('— correct: data/adr/0001-example', '— looks fine'))
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, "plan proposed")} ' in result.stdout
@@ -248,30 +288,30 @@ def test_item_with_neither_ending_fails(write: Write) -> None:
 @pytest.mark.parametrize(
     ('needle', 'ending'),
     [
-        ('Verify reported', '— confirmed: PASS, 0 CRITICAL'),
-        ('The plan is `stage: done`', '— confirmed: 2026-11-13'),
-        ('archived with no hub link', '— confirmed: data/archive/next-release/plans/example'),
+        ('Verify found', '— correct: PASS, 0 CRITICAL'),
+        ('The plan is `stage: done`', '— correct: 2026-11-14'),
+        ('no hub links them', '— correct: data/archive/next-release/plans/example'),
     ],
 )
 def test_na_on_a_mandatory_item_fails(write: Write, needle: str, ending: str) -> None:
-    """The Verify, plan-stage, and archive items never take `N/A`."""
+    """The Verify, plan-stage, and archive items can never be `not applicable`."""
     review = ''.join(
-        line.replace(ending, '— N/A: skipped') if needle in line else line
+        line.replace(ending, '— not applicable: skipped') if needle in line else line
         for line in REVIEW.splitlines(True)
     )
     text = plan(review)
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, needle)} ' in result.stdout
-    assert 'never takes `N/A`' in result.stdout
+    assert 'never takes `not applicable`' in result.stdout
 
 
 def test_missing_reviewer_line_fails(write: Write) -> None:
     """A Ship review without its reviewer line fails."""
-    text = plan(REVIEW.replace('Reviewed by `iwe-ship-reviewer` on 2026-11-13.\n', ''))
+    text = plan(REVIEW.replace('`iwe-ship-reviewer` did this review on 2026-11-14.\n', ''))
     result = run(write('plan.md', text))
     assert result.returncode == 1
-    assert 'Reviewed by' in result.stdout
+    assert 'did this review on' in result.stdout
     assert 'expected item' not in result.stdout
 
 

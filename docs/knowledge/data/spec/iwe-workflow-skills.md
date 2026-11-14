@@ -864,16 +864,16 @@ in ship mode with the plan key. When it reports gaps, they SHALL dispatch
 `iwe-shipper` with the operation `fix` and the gaps quoted, which SHALL perform
 only those operations without running Verify, and review again, for at most 3
 fix rounds. `iwe-ship-reviewer` SHALL append the `## Ship review` checklist to
-the plan only when every item is `confirmed` or `N/A`. The checklist SHALL be
-fixed — no item added, dropped, reordered, or reworded — and its Verify,
-plan-stage, and archive items SHALL never be `N/A`. A plan that already ends
-with a `## Ship review` that holds SHALL keep it unchanged.
+the plan only when every item is `correct` or `not applicable`. Nobody SHALL
+add, remove, move, or change an item of the checklist. The Verify, plan-stage,
+and archive items SHALL never be `not applicable`. A plan that already ends with
+a correct `## Ship review` SHALL keep that section unchanged.
 
 #### Scenario: a ship meets every obligation
 
 - **WHEN** `iwe-ship-reviewer` finds every obligation met
 - **THEN** the plan ends with a `## Ship review` whose every item is ticked
-  `confirmed` or `N/A`.
+  `correct` or `not applicable`.
 
 #### Scenario: a ship leaves a gap
 
@@ -890,8 +890,8 @@ with a `## Ship review` that holds SHALL keep it unchanged.
 
 - **WHEN** a shipped plan has no saved Verify report, is not `stage: done`, or
   is not archived
-- **THEN** `iwe-ship-reviewer` reports that item as a gap rather than `N/A` and
-  writes no `## Ship review`.
+- **THEN** `iwe-ship-reviewer` reports that the item is not correct, not that it
+  is `not applicable`, and writes no `## Ship review`.
 
 #### Scenario: a plan is reviewed before implementation
 

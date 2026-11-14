@@ -17,7 +17,6 @@ import sys
 FENCE = re.compile(r'^\s*(```|~~~)')
 FRONTMATTER_FIELD = re.compile(r'^(?P<key>[\w-]+):\s*(?P<value>.*?)\s*$')
 HEADING = re.compile(r'^(?P<level>#{1,6})\s')
-REVIEWER = re.compile(r'^Reviewed by `iwe-ship-reviewer` on \d{4}-\d{2}-\d{2}\.$')
 ITEM = re.compile(r'^- \[(?P<tick>.)\] (?P<text>.+?) — (?P<ending>.*)$')
 LINK = re.compile(r'(?<!!)\[[^\]]*\]\([^)\s]+\)')
 CLOSED = frozenset({'done', 'cancelled'})
@@ -33,21 +32,58 @@ class Item:
         self.evidence = evidence
         self.not_applicable = not_applicable
 
-    def ending_error(self, ending: str) -> str | None:
+
+class Structure:
+    """One fixed Ship review structure: its first line, the words at the end of its items, and its items."""
+
+    def __init__(self, opening: str, items: tuple[Item, ...], *, holds: str, absent: str) -> None:
+        self.opening = opening
+        parts = map(re.escape, opening.split('<YYYY-MM-DD>'))
+        self.reviewer = re.compile('^' + r'\d{4}-\d{2}-\d{2}'.join(parts) + '$')
+        self.items = items
+        self.holds = holds
+        self.absent = absent
+
+    def ending_error(self, item: Item, ending: str) -> str | None:
         """Return why an item's ending is malformed, or None when it is well formed."""
-        if self.not_applicable and re.fullmatch(r'N/A: \S.*', ending):
+        absent = re.escape(self.absent)
+        if item.not_applicable and re.fullmatch(rf'{absent}: \S.*', ending):
             return None
-        if ending.startswith('N/A'):
-            return 'never takes `N/A`' if not self.not_applicable else 'must be `N/A: <reason>`'
-        if self.evidence and re.fullmatch(r'confirmed: \S.*', ending):
+        if ending.startswith(self.absent):
+            if not item.not_applicable:
+                return f'never takes `{self.absent}`'
+            return f'must be `{self.absent}: <reason>`'
+        if item.evidence and re.fullmatch(rf'{re.escape(self.holds)}: \S.*', ending):
             return None
-        if not self.evidence and ending == 'confirmed':
+        if not item.evidence and ending == self.holds:
             return None
-        shape = '`confirmed: <evidence>`' if self.evidence else '`confirmed`'
-        return f'must end in {shape}' + (' or `N/A: <reason>`' if self.not_applicable else '')
+        shape = f'`{self.holds}: <evidence>`' if item.evidence else f'`{self.holds}`'
+        return f'must end in {shape}' + (
+            f' or `{self.absent}: <reason>`' if item.not_applicable else ''
+        )
 
 
-SHIP_REVIEW_ITEMS = (
+SHIP_REVIEW = Structure(
+    '`iwe-ship-reviewer` did this review on <YYYY-MM-DD>.',
+    (
+        Item('Verify found no CRITICAL problem', not_applicable=False),
+        Item('Every ADR that the plan proposed is `stage: accepted`'),
+        Item('Every ADR that the plan superseded is `stage: superseded` and in the archive'),
+        Item('The plan is `stage: done` with `completed` and no `rank`', not_applicable=False),
+        Item('Every feature in `release` is `stage: implemented`'),
+        Item('Every bug in `release` is `stage: done` with no `rank`'),
+        Item('Every bug in `release` has a `## Fix` that links this plan'),
+        Item(
+            'The plan and every feature and bug that it completed are in the archive, '
+            'and no hub links them',
+            not_applicable=False,
+        ),
+    ),
+    holds='correct',
+    absent='not applicable',
+)
+OLD_OPENING = 'Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.'
+ADR_ITEMS = (
     Item('Verify reported zero CRITICAL', not_applicable=False),
     Item('Every ADR the plan proposed is `stage: accepted`'),
     Item('Every ADR the plan superseded is `stage: superseded` and archived'),
@@ -60,22 +96,25 @@ SHIP_REVIEW_ITEMS = (
         not_applicable=False,
     ),
 )
-SPEC_SHIP_REVIEW_ITEMS = (
-    SHIP_REVIEW_ITEMS[0],
+SPEC_ITEMS = (
+    ADR_ITEMS[0],
     Item('Every `## Spec changes` operation is in its spec'),
     Item('Every spec the plan created is linked from `data/spec.md`'),
     Item('Every spec the plan retired was removed with `iwe delete`'),
-    *SHIP_REVIEW_ITEMS[3:7],
+    *ADR_ITEMS[3:7],
     Item('Every `## Rationale` entry the plan names is in its spec'),
-    SHIP_REVIEW_ITEMS[7],
+    ADR_ITEMS[7],
 )
-EARLIEST_SHIP_REVIEW_ITEMS = (
-    *SPEC_SHIP_REVIEW_ITEMS[:-2],
+EARLIEST_ITEMS = (
+    *SPEC_ITEMS[:-2],
     Item(
         'Ship edited no hub, release page, or `data/log.md`', evidence=False, not_applicable=False
     ),
 )
-EARLIER_STRUCTURES = (SPEC_SHIP_REVIEW_ITEMS, EARLIEST_SHIP_REVIEW_ITEMS)
+EARLIER_STRUCTURES = tuple(
+    Structure(OLD_OPENING, items, holds='confirmed', absent='N/A')
+    for items in (ADR_ITEMS, SPEC_ITEMS, EARLIEST_ITEMS)
+)
 
 
 def frontmatter(lines: list[str]) -> dict[str, str]:
@@ -139,7 +178,7 @@ def ship_review(lines: list[str]) -> tuple[int, list[tuple[int, str]]] | None:
     return None if heading is None else (heading, section)
 
 
-def check_item(item: Item, line: str) -> str | None:
+def check_item(structure: Structure, item: Item, line: str) -> str | None:
     """Return why one item line differs from the expected item, or None when it matches."""
     match = ITEM.match(line)
     if not match:
@@ -148,7 +187,7 @@ def check_item(item: Item, line: str) -> str | None:
         return f'expected item "{item.text}", found "{match["text"]}"'
     if match['tick'] != 'x':
         return f'item "{item.text}" is not ticked'
-    error = item.ending_error(match['ending'])
+    error = structure.ending_error(item, match['ending'])
     return None if error is None else f'item "{item.text}" {error}'
 
 
@@ -162,29 +201,28 @@ def check_plan(lines: list[str]) -> list[tuple[int, str]]:
     found = ship_review(lines)
     if found is None:
         return []
-    violations = check_structure(*found, SHIP_REVIEW_ITEMS)
+    violations = check_structure(*found, SHIP_REVIEW)
     if violations and any(not check_structure(*found, e) for e in EARLIER_STRUCTURES):
         return []
     return violations
 
 
 def check_structure(
-    heading: int, section: list[tuple[int, str]], expected: tuple[Item, ...]
+    heading: int, section: list[tuple[int, str]], structure: Structure
 ) -> list[tuple[int, str]]:
     """Return the violations of a Ship review's lines against one fixed structure."""
     violations: list[tuple[int, str]] = []
+    expected = structure.items
     items = section
-    if section and REVIEWER.match(section[0][1]):
+    if section and structure.reviewer.match(section[0][1]):
         items = section[1:]
     else:
         line = section[0][0] if section else heading
-        violations.append(
-            (line, 'Ship review must open with "Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>."')
-        )
+        violations.append((line, f'Ship review must open with "{structure.opening}"'))
         if section and not ITEM.match(section[0][1]):
             items = section[1:]
     for item, (number, line) in zip(expected, items, strict=False):
-        error = check_item(item, line)
+        error = check_item(structure, item, line)
         if error:
             violations.append((number, error))
     for item in expected[len(items) :]:

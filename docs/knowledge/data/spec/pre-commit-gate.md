@@ -224,11 +224,12 @@ and the staged change otherwise.
 A pre-commit hook SHALL run a checker CLI over every bug, plan, backlog task,
 feature, and release document pre-commit passes it, live or archived, at commit
 time, over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
-`stage: done` that has no `## Fix` heading, and a plan whose `## Ship review`
-section matches neither the fixed structure nor one of the two earlier ones, the
-oldest of which ends with the item "Ship edited no hub, release page, or
-`data/log.md`", and SHALL report every violation with `path:line`. Its archive
-placement and release page failures are those `iwe-workflow-skills` states.
+`stage: done` that has no `## Fix` heading. It SHALL fail a plan whose
+`## Ship review` section is different from the fixed structure and from each of
+the three earlier structures. The oldest earlier structure ends with the item
+"Ship edited no hub, release page, or `data/log.md`". The CLI SHALL report every
+error with `path:line`. The CLI SHALL also fail a document for each archive
+location error and release page error that `iwe-workflow-skills` gives.
 
 #### Scenario: an open bug has no Fix
 
@@ -238,8 +239,9 @@ placement and release page failures are those `iwe-workflow-skills` states.
 
 #### Scenario: a Ship review is malformed
 
-- **WHEN** a plan's `## Ship review` misses an item, reorders the items, leaves
-  one unticked, or marks the Verify, plan-stage, or archive-move item `N/A`
+- **WHEN** a plan's `## Ship review` does not have an item, has the items in a
+  different order, has an item with no tick, or marks the Verify, plan-stage, or
+  archive-move item `not applicable`
 - **THEN** the hook fails and names the line.
 
 #### Scenario: a Ship review carries the earlier checklist
