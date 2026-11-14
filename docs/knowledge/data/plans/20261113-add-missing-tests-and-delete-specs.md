@@ -53,7 +53,11 @@ reads it.
 
 Each test shows what the `fate_note` of its row says.
 
-- [ ] A test runs `agent-file-discovery` "Git failures do not abort discovery".
+- [x] A test runs `agent-file-discovery` "Git failures do not abort discovery".
+  - **Evidence:**
+    `py_packages/validate_agent_files/tests/test_gitignore_discovery.py` runs
+    discovery with a `git` that fails `check-ignore` and with no `git` on
+    `PATH`; 21 passed.
 - [ ] A test runs `agentdev-runtime-images` "image builds contact no Launchpad
   host".
 - [ ] A test runs `agentdev-runtime-images` "the bootstrap trusts an extra CA

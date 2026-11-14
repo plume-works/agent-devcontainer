@@ -4,7 +4,9 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
+import shutil
 import subprocess
 
 import pytest
@@ -140,3 +142,57 @@ def test_non_repo_prunes_git_directory(tmp_path: Path, matcher_case) -> None:
 
     assert str(kept) in found
     assert not any('.git' in Path(match).parts for match in found)
+
+
+def _git_failing_check_ignore(bin_dir: Path) -> None:
+    """Put a ``git`` on ``bin_dir`` that fails ``check-ignore`` and runs the real git otherwise."""
+    real_git = shutil.which('git')
+    bin_dir.mkdir()
+    shim = bin_dir / 'git'
+    shim.write_text(
+        '#!/usr/bin/env bash\n'
+        'for arg in "$@"; do [ "$arg" = check-ignore ] && exit 128; done\n'
+        f'exec {real_git} "$@"\n'
+    )
+    shim.chmod(0o755)
+
+
+@pytest.mark.parametrize('matcher_case', MATCHER_CASES, indirect=True)
+def test_failing_check_ignore_keeps_every_candidate(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, matcher_case
+) -> None:
+    """When ``git check-ignore`` fails, discovery keeps the ignored files instead of aborting."""
+    find_files, filename, body = matcher_case
+    repo = tmp_path / 'workspace'
+    repo.mkdir()
+    _init_repo(repo)
+    (repo / '.gitignore').write_text('vendored/\n')
+    tracked = _write(repo / 'kept' / filename, body)
+    ignored = _write(repo / 'vendored' / filename, body)
+    _git_failing_check_ignore(tmp_path / 'bin')
+    monkeypatch.setenv('PATH', f'{tmp_path / "bin"}{os.pathsep}{os.environ["PATH"]}')
+
+    found = find_files(str(repo))
+
+    assert str(tracked) in found
+    assert str(ignored) in found
+
+
+@pytest.mark.parametrize('matcher_case', MATCHER_CASES, indirect=True)
+def test_missing_git_falls_back_to_excluded_dirs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, matcher_case
+) -> None:
+    """With no ``git`` on ``PATH``, a repository is walked by ``excluded_dirs``, not aborted."""
+    find_files, filename, body = matcher_case
+    repo = tmp_path / 'workspace'
+    repo.mkdir()
+    _init_repo(repo)
+    (repo / '.gitignore').write_text('vendored/\n')
+    ignored = _write(repo / 'vendored' / filename, body)
+    pruned = _write(repo / 'skipme' / filename, body)
+    monkeypatch.setenv('PATH', str(tmp_path / 'no-bin'))
+
+    found = find_files(str(repo), excluded_dirs={'skipme'})
+
+    assert str(ignored) in found
+    assert str(pruned) not in found
