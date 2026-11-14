@@ -1,6 +1,6 @@
 ---
 type: bug
-description: When git-new-branch cannot find the default branch, it prints a git remote set-head command with the remote name not quoted by bash_quote.
+description: When git-new-branch cannot find the default branch, it prints a git remote set-head command and bash_quote does not quote the remote name.
 stage: pending
 severity: low
 sources:
@@ -16,14 +16,14 @@ sources:
 Each command line that a catalog script gives to a shell must quote its values
 with `bash_quote`. `git-new-branch.py` prints
 `run: git remote set-head <remote> --auto` with the remote name as it is. A
-remote name with a space or a shell metacharacter gives a command that does not
-work when you copy it, or that does a different thing.
+remote name can have a space or a shell metacharacter. Then the copied command
+does not operate, or it does a different thing.
 
 ## Reproduction
 
 1. Add a remote whose name holds a shell metacharacter, with no `HEAD` set.
-2. Run `git-new-branch.py` with that remote and no `--base`, so that the base
-   cannot be found.
+2. Run `git-new-branch.py` with that remote and no `--base`, so that the script
+   cannot find the base.
 3. The hint shows the remote name without quotes.
 
 ## Root cause

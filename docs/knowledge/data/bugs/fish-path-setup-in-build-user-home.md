@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The fish_setup role writes dev.fish into the build user's home, but the home volume starts empty, so the fish PATH setup is not in the home of the account that runs the container.
+description: The fish_setup role writes dev.fish into the build user's home. The home volume starts empty. Thus the fish PATH setup is not in the home of the account that runs the container.
 stage: pending
 severity: low
 sources:

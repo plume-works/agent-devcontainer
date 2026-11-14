@@ -1,6 +1,6 @@
 ---
 type: bug
-description: After a full-copy adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still reference the deleted agentdev_runtime package, self-improve tests, and scripts/tests.
+description: After a full-copy adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still refer to the removed trees agentdev_runtime, the self-improve tests, and scripts/tests.
 stage: pending
 severity: medium
 sources:
@@ -15,11 +15,11 @@ sources:
 
 ## Symptom
 
-Publisher-only source must not stay after adoption: each CI workflow, hook,
-`pyproject.toml` entry, and path filter that refers to a deleted tree must be
-adapted. The guide removes only the `validate_agent_files` entries. A consumer
-who follows it keeps entries that name trees the guide told them to delete, and
-`uv sync` or CI fails.
+Publisher-only source must not stay after adoption: the consumer must adapt each
+CI workflow, hook, `pyproject.toml` entry, and path filter that refers to a
+removed tree. The guide removes only the `validate_agent_files` entries. A
+consumer who follows it keeps entries that name trees that the guide told them
+to remove, and `uv sync` or CI fails.
 
 ## Reproduction
 
@@ -41,4 +41,4 @@ names only `validate_agent_files`, `pydantic`, `python-frontmatter`, and two
 `testpaths` entries.
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#agent-file-validation`
 does not name the `macos-bootstrap` job. The guide did not change when the
-template tree got these entries.
+template tree received these entries.

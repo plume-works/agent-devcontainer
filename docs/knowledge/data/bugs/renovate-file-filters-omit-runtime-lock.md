@@ -1,6 +1,6 @@
 ---
 type: bug
-description: postUpgradeTasks.fileFilters in .github/renovate.json lists the root uv.lock but not py_packages/agentdev_runtime/uv.lock, so Renovate drops a post-upgrade change to that file.
+description: postUpgradeTasks.fileFilters in .github/renovate.json lists the root uv.lock but not py_packages/agentdev_runtime/uv.lock, so Renovate does not keep a post-upgrade change to that file.
 stage: pending
 severity: low
 sources:
@@ -10,7 +10,7 @@ sources:
 - resource: docs/spec-audit/requirements.jsonl
 ---
 
-# Bug: Renovate's post-upgrade file filters omit the runtime package's lock file
+# Bug: Renovate's post-upgrade file filters do not include the runtime package's lock file
 
 ## Symptom
 

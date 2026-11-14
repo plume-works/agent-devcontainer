@@ -30,8 +30,8 @@ names; a label naming a commit outside the checkout's history SHALL NOT block
 the move. The `ubuntu-ansible` image has no such label, so its tags always move:
 [Bug: the promote step can move the `ubuntu-ansible` tags to an older
 image](../bugs/ubuntu-ansible-tags-can-move-backwards.md). No Primary checks run
-SHALL cancel a run on `main` whose `ci` job has started, while a newer run on
-any other ref SHALL cancel the older run for that ref.
+SHALL cancel a run on `main` whose `ci` job has started. On each other ref, a
+newer run SHALL cancel the older run for that ref.
 
 ### Scenario: every acceptance check passes
 

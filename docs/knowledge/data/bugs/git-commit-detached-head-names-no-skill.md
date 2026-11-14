@@ -1,6 +1,6 @@
 ---
 type: bug
-description: On a detached HEAD the git-commit script refuses with PREFLIGHT_ERROR, and the skill only reports the error, so the user is not sent to git-new-branch.
+description: On a detached HEAD the git-commit script refuses with PREFLIGHT_ERROR, and the skill only reports the error, so the skill does not send the user to git-new-branch.
 stage: pending
 severity: low
 sources:

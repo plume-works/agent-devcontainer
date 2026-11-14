@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The ubuntu-ansible image is built without a revision label, so the promote guard that keeps a tag on the newest commit cannot read it and always moves that image's tags.
+description: CI builds the ubuntu-ansible image without a revision label. Thus the promote guard that keeps a tag on the newest commit cannot read the label, and it always moves the tags of that image.
 stage: pending
 severity: medium
 sources:

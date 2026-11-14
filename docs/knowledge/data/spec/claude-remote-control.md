@@ -152,19 +152,19 @@ Rejected:
 
 ### Session mode resumes one pinned conversation per volume
 
-The pane resumes the conversation whose ID is stored in Claude's configuration
-directory on the per-instance home volume `agentdev-home-${devcontainerId}`, and
-falls back to a new pinned conversation on any non-zero resume exit. Claude
-Code's transcript records the claude.ai session a conversation is bound to, so
-resuming the conversation reattaches the same session URL, and Claude Code mints
-a fresh remote session itself when the recorded one is gone or belongs to
-another account. A resume whose transcript is gone exits non-zero, which is the
-case the fallback covers; its cost is that a crash of a resumed session also
-starts a fresh conversation. The pin hook reaches the pane alone through
-`claude --settings`, and `/clear` moves the binding to the new conversation,
-which is why the hook rewrites the stored ID on every `SessionStart`. One stored
-ID per volume suffices because each devcontainer instance has one workspace
-folder.
+The pane resumes the conversation whose ID Claude's configuration directory
+keeps on the home volume `agentdev-home-${devcontainerId}` of the instance. If
+the resume exits with a non-zero status, the pane starts a new pinned
+conversation. Claude Code's transcript records the claude.ai session that each
+conversation uses. Thus, when the pane resumes the conversation, it uses the
+same session URL again. If the recorded session is gone or is for a different
+account, Claude Code makes a new remote session. A resume whose transcript is
+gone exits with a non-zero status, and the fallback is for this case. As a
+result, a crash of a resumed session also starts a new conversation. Only the
+pane gets the pin hook, through `claude --settings`. `/clear` moves the binding
+to the new conversation. Thus the hook writes the stored ID again at each
+`SessionStart`. One stored ID for each volume is sufficient because each
+devcontainer instance has one workspace folder.
 
 Rejected:
 

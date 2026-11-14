@@ -1,6 +1,6 @@
 ---
 type: bug
-description: agentdev-runtime coder start runs the git credential helper setup at once, so when gh keeps its login in the keyring and the keyring session is not ready, HTTPS git gets no gh login.
+description: agentdev-runtime coder start runs the git credential helper setup immediately. When gh keeps its login in the keyring and the keyring session is not ready, HTTPS git cannot use the gh login.
 stage: pending
 severity: medium
 sources:
@@ -11,20 +11,20 @@ sources:
 - resource: docs/spec-audit/requirements.jsonl
 ---
 
-# Bug: the Coder start sets up the git credential helper without a wait for the keyring
+# Bug: the Coder start configures the git credential helper without a wait for the keyring
 
 ## Symptom
 
 HTTPS git must use the gh login, and the check of that login must occur only
 after the keyring session is available. The Dev Container start phase waits for
-the runtime. `agentdev-runtime coder start` does not wait. When it runs before
-the keyring session file exists, the helper setup cannot read the login, writes
-a warning, and Remote Control starts without a working helper.
+the runtime. `agentdev-runtime coder start` does not wait. If it runs before the
+keyring session file exists, the helper setup cannot read the login and writes a
+warning. Then Remote Control starts, and the helper does not operate.
 
 ## Reproduction
 
-1. In a Coder workspace where gh keeps its login in the keyring, let the Coder
-   agent start before the runtime writes the keyring session file.
+1. Use a Coder workspace where gh keeps its login in the keyring. Start the
+   Coder agent before the runtime writes the keyring session file.
 2. The agent log shows "Warning: git credential helper setup failed; starting
    Remote Control anyway.".
 3. A later `git fetch` over HTTPS cannot authenticate.

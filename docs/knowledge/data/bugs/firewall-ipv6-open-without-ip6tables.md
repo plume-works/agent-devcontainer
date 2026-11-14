@@ -1,6 +1,6 @@
 ---
 type: bug
-description: When ENABLE_FIREWALL is true and ip6tables is not available, the firewall writes a warning and applies no IPv6 rule, so IPv6 egress goes past the allowlist.
+description: When ENABLE_FIREWALL is true and ip6tables is not available, the firewall writes a warning and applies no IPv6 rule. Thus the allowlist does not limit outgoing IPv6 traffic.
 stage: pending
 severity: high
 sources:
@@ -29,10 +29,10 @@ send IPv6 traffic to a host that is not on the allowlist.
 ## Root cause
 
 `py_packages/agentdev_runtime/agentdev_runtime/firewall.py::block_ipv6` returns
-after the warning when `system.has('ip6tables')` is false. It does not fail the
-start.
+after the warning when `system.has('ip6tables')` is false. It does not stop the
+start with an error.
 
 ## Potential solution
 
-Make `firewall apply` fail when IPv6 cannot be blocked and the container has an
+Make `firewall apply` fail when it cannot block IPv6 and the container has an
 IPv6 route.

@@ -1,6 +1,6 @@
 ---
 type: bug
-description: scripts/run-root-tests always selects only requires_root tests, so the conftest guard that stops a run with unmarked tests never sees one and the usage error it promises never occurs.
+description: scripts/run-root-tests always selects only requires_root tests. Thus the conftest guard that stops a run with unmarked tests never finds one, and its usage error never occurs.
 stage: pending
 severity: low
 sources:
@@ -11,7 +11,7 @@ sources:
 - resource: docs/spec-audit/requirements.jsonl
 ---
 
-# Bug: the root-test launcher guard against unmarked tests cannot fire
+# Bug: the root-test launcher guard against unmarked tests cannot operate
 
 ## Symptom
 
@@ -31,5 +31,5 @@ marked tests and deselects the unmarked ones without a message.
 `scripts/run-root-tests` always passes `-m requires_root`. pytest deselects the
 unmarked tests before `scripts/tests/conftest.py::pytest_collection_finish`
 reads `session.items`, so its list of other tests is always empty. The guard
-fires only when a caller gives a second `-m`. `.github/workflows/ci.yml` runs
+operates only when a caller gives a second `-m`. `.github/workflows/ci.yml` runs
 `scripts/run-root-tests -n 8 scripts/tests` and expects success.

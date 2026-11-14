@@ -1,6 +1,6 @@
 ---
 type: bug
-description: Two local pre-commit hooks omit the pre-merge-commit stage, so a merge that commits without a conflict does not run them.
+description: Two local pre-commit hooks do not include the pre-merge-commit stage, so a merge that commits without a conflict does not run them.
 stage: pending
 severity: low
 sources:
@@ -20,8 +20,8 @@ file with trailing whitespace or no final newline on a branch.
 
 ## Reproduction
 
-1. On a branch, commit a file with trailing whitespace while the two hooks are
-   skipped, for example with `SKIP=trailing-whitespace`.
+1. On a branch, skip the two hooks and commit a file with trailing whitespace,
+   for example with `SKIP=trailing-whitespace`.
 2. Merge that branch into a second branch with `git merge --no-ff`, with no
    conflict.
 3. The merge commit completes, and the `pre-merge-commit` output does not show

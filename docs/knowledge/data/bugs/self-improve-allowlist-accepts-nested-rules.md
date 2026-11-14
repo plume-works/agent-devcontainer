@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The self-improve mutator should accept only rules/*.md, but allowlist._kind_of accepts a rule file in any subdirectory of rules/.
+description: The self-improve mutator must accept only rules/*.md, but allowlist._kind_of accepts a rule file in any subdirectory of rules/.
 stage: pending
 severity: low
 sources:

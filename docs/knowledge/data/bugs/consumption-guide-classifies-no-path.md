@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The consumption guide names its five path classes once but labels no path with a class, and many tracked template paths are not in the guide.
+description: The consumption guide names its five path classes one time but gives no path a class. Many tracked template paths are not in the guide.
 stage: pending
 severity: low
 sources:
@@ -13,10 +13,10 @@ sources:
 
 ## Symptom
 
-The guide must put each tracked template path in one of its five classes, so
-that a consumer knows what to keep, merge, or delete. The guide names the
-classes in its opening only. It gives no path a class, and it does not name many
-tracked paths. A consumer must guess what to do with them.
+The guide must put each tracked template path in one of its five classes. Then a
+consumer knows what to keep, merge, or remove. The guide names the classes in
+its opening only. It gives no path a class, and it does not name many tracked
+paths. A consumer must guess what to do with them.
 
 ## Reproduction
 
@@ -33,4 +33,4 @@ tracked paths. A consumer must guess what to do with them.
 
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 gives its steps by workflow, not by path. The guide did not change when the
-template tree got these paths.
+template tree received these paths.

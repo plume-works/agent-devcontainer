@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-13
 release: internal
-description: File a bug for each guarantee that the code does not deliver, then remove the spec requirements that a test, a rulebook, or plain code already states and correct or remove the spec text that is wrong.
+description: File a bug for each guarantee that the code does not deliver. Then remove each spec requirement that a test, a rulebook, or clear code already states. Correct or remove the spec text that is wrong.
 sources:
 - resource: docs/spec-audit/requirements.jsonl
 - resource: docs/spec-audit/rationale.jsonl
@@ -15,38 +15,40 @@ completed: 2026-11-14
 
 ## Context
 
-[The spec usefulness audit](../../../findings/spec-usefulness-audit.md) labelled
-each of the 264 requirements in `data/spec/`. 207 of them repeat a test, a
-rulebook, or code that reads plainly. 34 are not fully true. The code
-contradicts 4 `## Rationale` entries. The labels are in `docs/spec-audit/`.
+[The spec usefulness audit](../../../findings/spec-usefulness-audit.md) gave a
+label to each of the 264 requirements in `data/spec/`. 207 of them repeat a
+test, a rulebook, or code that is clear. 34 are not fully true. The code does
+not agree with 4 `## Rationale` entries. The labels are in `docs/spec-audit/`.
 
 This plan is the first removal step of [Shrink the knowledge base to an issue
 tracker and decision
 records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It
-removes only what the audit already shows to be redundant or wrong.
+removes only the text that the audit already shows is not necessary or is wrong.
 
 The repository owner's decisions:
 
-- A guarantee that the code does not deliver gets a bug before its text is
-  removed. The bug can close later as a dropped promise.
-- After the bug is filed, the requirement text is removed freely.
+- Before you remove the text of a guarantee that the code does not deliver, file
+  a bug for it. Later, the bug can close as a guarantee that the project does
+  not keep.
+- After you file the bug, you can remove the requirement text with no other
+  condition.
 
 ## Approach
 
-The `fate` field in `docs/spec-audit/requirements.jsonl` decides what happens to
+The `fate` field in `docs/spec-audit/requirements.jsonl` decides what to do with
 a requirement:
 
-- `drop-tested`, `drop-prose-duplicate`, `drop-restates`: the requirement and
-  its scenarios are removed.
+- `drop-tested`, `drop-prose-duplicate`, `drop-restates`: remove the requirement
+  and its scenarios.
 - Any other fate: the requirement stays for the later work. If it is not fully
-  true, its text is corrected to agree with the code.
+  true, correct its text so that it agrees with the code.
 
-The audit data describes commit `c81efa7e`. A requirement that changed after
-that commit is read against the code again before it is removed or corrected.
+The audit data describes commit `c81efa7e`. Before you remove or correct a
+requirement that changed after that commit, compare it with the code again.
 
-A `## Rationale` section stays, except for the 4 entries that the code
-contradicts. A spec that has no requirement and no `## Rationale` entry is
-deleted.
+A `## Rationale` section stays, except for the 4 entries that the code does not
+agree with. Remove each spec that has no requirement and no `## Rationale`
+entry.
 
 ## Implementation Steps
 
@@ -55,7 +57,7 @@ deleted.
 **Files:** Create: one document under `docs/knowledge/data/bugs/` for each bug;
 Modify: `docs/knowledge/data/bugs.md`
 
-Each bug is filed with `/agentdev:iwe-capture bug`. Its evidence is the entry in
+File each bug with `/agentdev:iwe-capture bug`. Its evidence is the entry in
 `data/findings/spec-usefulness-audit#requirements-that-are-not-fully-true` and
 the row in `docs/spec-audit/requirements.jsonl`.
 
@@ -68,7 +70,7 @@ the row in `docs/spec-audit/requirements.jsonl`.
   - **Evidence:** Filed `data/bugs/firewall-ipv6-open-without-ip6tables`; read
     `firewall.py::block_ipv6`, which returns after the warning.
 - [x] A bug records `pre-commit-gate` "every commit path runs the hooks, merges
-  included": two hooks omit the `pre-merge-commit` stage.
+  included": two hooks do not include the `pre-merge-commit` stage.
   - **Evidence:** Filed `data/bugs/merge-commit-skips-two-hooks`; both hooks
     still set `stages: [pre-commit, pre-push, manual]`.
 - [x] A bug records `image-pinning` "published tags name only tested images":
@@ -76,7 +78,7 @@ the row in `docs/spec-audit/requirements.jsonl`.
   - **Evidence:** Filed `data/bugs/ubuntu-ansible-tags-can-move-backwards`;
     `stable-labels: 'true'` and `select-labels.sh` still remove the label.
 - [x] A bug records `standalone-opencode-runtime` "startup prepares or reuses
-  one workspace": a reused checkout gets no credential helper.
+  one workspace": a reused checkout has no credential helper.
   - **Evidence:** Filed `data/bugs/reused-checkout-gets-no-credential-helper`;
     only `Workspace.clone` calls `git.credential_helper` in the deploy profile.
 - [x] A bug records `devcontainer-git-credentials` "HTTPS git uses the gh
@@ -88,7 +90,7 @@ the row in `docs/spec-audit/requirements.jsonl`.
   - **Evidence:** Filed `data/bugs/fish-path-setup-in-build-user-home`; the
     role's `dev.fish` destination is still `{{ user_home }}`.
 - [x] A bug records `devcontainer-state` "root-only tests run through a
-  launcher": the guard for unmarked tests cannot fire.
+  launcher": the guard for unmarked tests cannot operate.
   - **Evidence:** Filed `data/bugs/root-test-guard-cannot-fire`;
     `scripts/run-root-tests` still passes `-m requires_root`.
 - [x] A bug records `dependency-updates` "derived files are regenerated with the
@@ -100,7 +102,7 @@ the row in `docs/spec-audit/requirements.jsonl`.
   - **Evidence:** Filed `data/bugs/git-new-branch-hint-unquoted-remote`; the
     hint in `git-new-branch.py::resolve_base` has no `bash_quote`.
 - [x] A bug records `self-improve-learning-loop` "The mutator enforces a
-  normative path allowlist": a rule is accepted at any depth.
+  normative path allowlist": the mutator accepts a rule at any depth.
   - **Evidence:** Filed `data/bugs/self-improve-allowlist-accepts-nested-rules`;
     `allowlist.py::_kind_of` checks `len(parts) >= 2` only.
 - [x] A bug records `git-new-branch` "The git-commit skill never commits on the
@@ -108,34 +110,35 @@ the row in `docs/spec-audit/requirements.jsonl`.
   - **Evidence:** Filed `data/bugs/git-commit-detached-head-names-no-skill`; the
     `PREFLIGHT_ERROR` row of the git-commit skill still names no skill.
 - [x] A bug records `template-consumption` "publisher-only source never survives
-  adoption": the consumption guide is behind the template tree.
+  adoption": the consumption guide is older than the template tree.
   - **Evidence:** Filed
     `data/bugs/consumption-guide-keeps-publisher-source-references`; the guide
     still names no `agentdev_runtime` entry of `pyproject.toml`.
 - [x] A bug records `template-consumption` "every template path has one class":
-  the consumption guide is behind the template tree.
+  the consumption guide is older than the template tree.
   - **Evidence:** Filed `data/bugs/consumption-guide-classifies-no-path`; `grep`
     finds none of the listed paths in the guide.
 - [x] A bug records `template-consumption` "a retained custom-image bundle
-  builds from an explicit choice": the consumption guide is behind the template
-  tree.
+  builds from an explicit choice": the consumption guide is older than the
+  template tree.
   - **Evidence:** Filed `data/bugs/custom-image-bundle-misses-runtime-inputs`;
     both runtime Dockerfiles still mount `py_packages/agentdev_runtime`.
-- [x] `line-free-anchors` "Live anchors resolve" gets no new bug: [Resolve
+- [x] `line-free-anchors` "Live anchors resolve" has no new bug: [Resolve
   bare-path anchors or narrow the live-anchor
   requirement](../../../backlog/bare-path-anchors.md) records it already.
-  - **Evidence:** `data/backlog/bare-path-anchors` is still pending; no bug was
-    filed for it.
+  - **Evidence:** `data/backlog/bare-path-anchors` is still pending; this plan
+    filed no bug for it.
 
 ### Task 2: Remove the redundant requirements
 
 **Files:** Modify: the documents under `docs/knowledge/data/spec/`
 
-- [x] Each requirement that changed after commit `c81efa7e` was read against the
+- [x] We compared each requirement that changed after commit `c81efa7e` with the
   code again, and its `fate` still applies.
-  - **Evidence:** 13 changed and 2 renamed requirements were read against the
-    rulebooks and tests they repeat; each fate holds. `ai-review-gate` "the
-    review never executes code" has no audit row, so it stays.
+  - **Evidence:** We compared 13 changed and 2 renamed requirements with the
+    rulebooks and tests that they repeat; each fate is still correct.
+    `ai-review-gate` "the review never executes code" has no audit row, so it
+    stays.
 - [x] No requirement whose `fate` is `drop-tested` is in `data/spec/`.
   - **Evidence:** A parse of each spec finds none of the 118 `drop-tested` rows.
 - [x] No requirement whose `fate` is `drop-prose-duplicate` is in `data/spec/`.
@@ -144,8 +147,8 @@ the row in `docs/spec-audit/requirements.jsonl`.
 - [x] No requirement whose `fate` is `drop-restates` is in `data/spec/`.
   - **Evidence:** A parse of each spec finds none of the 22 rows.
 - [x] Each requirement with another `fate` is in its spec with its scenarios.
-  - **Evidence:** All 57 rows are present, and each block is byte-equal to its
-    text before the removal.
+  - **Evidence:** All 57 rows are present, and each block has the same bytes as
+    its text before the removal.
 
 ### Task 3: Correct the requirements that stay and are not fully true
 
@@ -154,9 +157,9 @@ the row in `docs/spec-audit/requirements.jsonl`.
 - [x] Each of the 11 requirements whose `truth` is not `true` and whose `fate`
   is `adr`, `needs-test`, or `no-home` agrees with the code that its
   `truth_note` names.
-  - **Evidence:** Ten were corrected after a read of the code their notes name;
+  - **Evidence:** We corrected ten after we read the code that their notes name;
     six now name their filed bug. `stacked-prs` "Merges into dependent branches
-    are blocked" is unchanged: its one checkable clause holds.
+    are blocked" is unchanged: the one clause that we can check is correct.
 - [x] No correction removes a guarantee for which Task 1 filed no bug.
   - **Evidence:** Each correction with a Task 1 bug keeps its `SHALL` and adds
     the exception. The other four only state what the code was built to do.
@@ -181,8 +184,8 @@ the row in `docs/spec-audit/requirements.jsonl`.
   - **Evidence:** `grep` finds no such entry; commit `3fef60bc` removed it
     before this plan started.
 - [x] The entry "The plugin lives in this repository as a second catalog plugin"
-  in `spec/self-improve-learning-loop` says that the plugin is installed by
-  default.
+  in `spec/self-improve-learning-loop` says that the runtime installs the plugin
+  by default.
   - **Evidence:** The entry now says that the runtime installs and enables it by
     default in every container; `lifecycle.py::created` installs at user scope.
 
@@ -191,12 +194,14 @@ the row in `docs/spec-audit/requirements.jsonl`.
 **Files:** Modify: `docs/knowledge/data/spec.md`, and each file that cites a
 removed requirement or a deleted spec
 
-- [x] Each spec that has no requirement and no `## Rationale` entry is deleted
-  with `iwe delete`.
+- [x] Remove each spec that has no requirement and no `## Rationale` entry with
+  `iwe delete`.
   - **Evidence:** A count per spec finds at least one `## Rationale` entry in
-    each of the 40, so no spec qualifies and none was deleted.
+    each of the 40, so no spec agrees with the condition, and we removed no
+    spec.
 - [x] No code comment cites a spec that was deleted.
-  - **Evidence:** No spec was deleted; each spec a comment cites still exists.
+  - **Evidence:** No spec was deleted; each spec that a comment cites still
+    exists.
 - [x] No document outside `data/archive/` links a requirement that was removed.
   - **Evidence:** `data/backlog/observe-planned-adversarial-review` now points
     at the `iwe-implementer` rulebook; the merge of #881 archived the plan that

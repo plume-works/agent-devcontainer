@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The agentdev runtime package declares pyyaml and setuptools as ranges, so an image build can install a different version of each without a change in the repository.
+description: The agentdev runtime package declares pyyaml and setuptools as ranges. Thus an image build can install a different version of each when the repository does not change.
 stage: pending
 severity: low
 sources:
@@ -28,5 +28,5 @@ from the same commit can install different versions of these packages.
 ## Root cause
 
 `py_packages/agentdev_runtime/pyproject.toml#project.dependencies` declares
-`"pyyaml>=6.0"` and `"setuptools<85"`. The ceiling on `setuptools` keeps
+`"pyyaml>=6.0"` and `"setuptools<85"`. The upper limit on `setuptools` keeps
 `pkg_resources` for `supervisor`, but it does not pin one version.

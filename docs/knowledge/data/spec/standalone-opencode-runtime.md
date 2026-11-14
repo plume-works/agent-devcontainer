@@ -60,14 +60,14 @@ The runtime SHALL support a bind-mounted checkout or first clone into an empty
 persistent workspace, defaulting to /workspaces/project. It SHALL preserve an
 existing checkout without fetch, pull, reset, clean, branch switching, or
 ownership migration. It SHALL authenticate supported GitHub HTTPS operations
-with injected GH_TOKEN/GITHUB_TOKEN without storing those tokens. Only a start
-that clones sets up this authentication; a start that reuses a checkout does
-not: [Bug: a deploy runtime that reuses a checkout does not set up the git
-credential helper](../bugs/reused-checkout-gets-no-credential-helper.md). It
-SHALL run matching uv synchronization and register pre-commit's Git hook scripts
-without building hook environments. None of these SHALL delay OpenCode, and
-their failure SHALL mark the runtime degraded. A checkout that cannot be used
-SHALL latch the runtime failed.
+with injected GH_TOKEN/GITHUB_TOKEN, and it SHALL NOT store those tokens. Only a
+start that clones configures this authentication; a start that reuses a checkout
+does not: [Bug: a deploy runtime that reuses a checkout does not configure the
+git credential helper](../bugs/reused-checkout-gets-no-credential-helper.md). It
+SHALL run the applicable uv synchronization and register pre-commit's Git hook
+scripts. It SHALL NOT build hook environments. None of these SHALL delay
+OpenCode, and their failure SHALL mark the runtime degraded. If the runtime
+cannot use a checkout, the runtime SHALL latch its state as failed.
 
 #### Scenario: the first clone is private
 

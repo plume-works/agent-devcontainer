@@ -37,16 +37,16 @@ improves future behavior.
 
 ## Requirements
 
-### Requirement: The plugin is published and the runtime enables it
+### Requirement: The catalog publishes the plugin and the runtime enables it
 
 The catalog's Claude marketplace manifest SHALL publish `self-improve` beside
 `agentdev`, and `agentdev-runtime catalog install` SHALL install every plugin
-that manifest publishes. The image build SHALL stage the whole catalog and
-install only the plugin named by `agent_catalog_plugin_name` (`agentdev`),
-failing when the manifest does not publish exactly one plugin of that name. The
-create and attach phases install the catalog at user scope, so every Dev
-Container and standalone runtime enables `self-improve`. The committed
-`.claude/settings.json` SHALL NOT enable `self-improve`.
+that manifest publishes. The image build SHALL stage the full catalog and
+install only the plugin that `agent_catalog_plugin_name` (`agentdev`) names. The
+build SHALL stop with an error if the manifest does not publish exactly one
+plugin with that name. The create and attach phases install the catalog at user
+scope, so every Dev Container and standalone runtime enables `self-improve`. The
+committed `.claude/settings.json` SHALL NOT enable `self-improve`.
 
 #### Scenario: A developer reinstalls the catalog
 
@@ -61,10 +61,11 @@ Container and standalone runtime enables `self-improve`. The committed
 The catalog is the set of behaviours agents have and the learning loop is how
 that set changes, so both share one checkout rather than a dependency edge, and
 the loop routes approved lessons into destinations this repository already
-types. The runtime installs every plugin that the catalog publishes, so the
-plugin is installed and enabled by default in every container the repository
-builds. Its seven hook events, including `UserPromptSubmit`, `PostToolUse`, and
-an asynchronously rewaking `Stop`, change every session there. The committed
+types. The runtime installs each plugin that the catalog publishes. Thus, by
+default, the runtime installs and enables the plugin in each container that the
+repository builds. It has seven hook events, for example `UserPromptSubmit`,
+`PostToolUse`, and a `Stop` hook that starts the session again at a later time.
+These events change each session in that container. The committed
 `.claude/settings.json` does not enable it.
 
 Rejected:

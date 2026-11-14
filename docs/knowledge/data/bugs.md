@@ -11,8 +11,8 @@ bug moves to `archive/` and leaves this list. Its title, body sections, and
 stages are defined under Bugs in `SCHEMA.md` and enforced by
 `.iwe/schemas/bug.yaml`.*
 
-[Bug: the Coder start sets up the git credential helper without a wait for the
-keyring](bugs/coder-start-does-not-wait-for-keyring.md)
+[Bug: the Coder start configures the git credential helper without a wait for
+the keyring](bugs/coder-start-does-not-wait-for-keyring.md)
 
 [Bug: the consumption guide does not give each template path a
 class](bugs/consumption-guide-classifies-no-path.md)
@@ -20,8 +20,8 @@ class](bugs/consumption-guide-classifies-no-path.md)
 [Bug: the consumption guide leaves references to deleted publisher
 source](bugs/consumption-guide-keeps-publisher-source-references.md)
 
-[Bug: the consumption guide's custom-image choices omit the runtime package
-input](bugs/custom-image-bundle-misses-runtime-inputs.md)
+[Bug: the consumption guide's custom-image choices do not include the runtime
+package input](bugs/custom-image-bundle-misses-runtime-inputs.md)
 
 [Bug: firewalled Docker Hub pulls fail at the CloudFront
 CDN](bugs/firewall-docker-hub-cloudfront.md)
@@ -47,14 +47,14 @@ skips](bugs/macos-bootstrap-not-syntax-checked.md)
 [Bug: Remote Control sessions on a workspace receive cloud-session
 instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 
-[Bug: Renovate's post-upgrade file filters omit the runtime package's lock
-file](bugs/renovate-file-filters-omit-runtime-lock.md)
+[Bug: Renovate's post-upgrade file filters do not include the runtime package's
+lock file](bugs/renovate-file-filters-omit-runtime-lock.md)
 
-[Bug: a deploy runtime that reuses a checkout does not set up the git credential
-helper](bugs/reused-checkout-gets-no-credential-helper.md)
+[Bug: a deploy runtime that reuses a checkout does not configure the git
+credential helper](bugs/reused-checkout-gets-no-credential-helper.md)
 
 [Bug: the root-test launcher guard against unmarked tests cannot
-fire](bugs/root-test-guard-cannot-fire.md)
+operate](bugs/root-test-guard-cannot-fire.md)
 
 [Bug: the runtime package installs two dependencies from a version
 range](bugs/runtime-dependencies-not-pinned.md)

@@ -1,6 +1,6 @@
 ---
 type: bug
-description: In the deploy profile the git credential helper is set up only before a clone, so a start that reuses a mounted checkout cannot use the injected token for HTTPS git.
+description: In the deploy profile, the runtime configures the git credential helper only before a clone. Thus a start that reuses a mounted checkout cannot use the injected token for HTTPS git.
 stage: pending
 severity: medium
 sources:
@@ -11,7 +11,7 @@ sources:
 - resource: docs/spec-audit/requirements.jsonl
 ---
 
-# Bug: a deploy runtime that reuses a checkout does not set up the git credential helper
+# Bug: a deploy runtime that reuses a checkout does not configure the git credential helper
 
 ## Symptom
 

@@ -144,10 +144,10 @@ The strengthened skills SHALL continue to use IWE's single-plan-document
 workflow, graph links, existing stage conventions, `sources` attribution, and
 schema validation. Acceptance scenarios SHALL remain embedded planning content
 without introducing OpenSpec change bundles, stores, or separate delta files.
-The graph SHALL remain a conformant OKF v0.2 bundle — `data/index.md` lists the
-hubs, and the `okf` and `okf-index` schemas check every document except the
-archived architecture notes, which the `architecture` schema checks — and SHALL
-diverge from OKF only where OKF costs merges or upkeep. No document under
+The graph SHALL agree with OKF v0.2. `data/index.md` lists the hubs. The `okf`
+and `okf-index` schemas check each document, except the archived architecture
+notes, which the `architecture` schema checks. The graph SHALL be different from
+OKF only where OKF causes merge work or maintenance work. No document under
 `data/` SHALL set OKF's optional `status`, because `stage` is the lifecycle
 field, nor OKF's `generated` or `verified`, because source control records when
 and by whom a document changed. The `banned-frontmatter-keys` pre-commit check
