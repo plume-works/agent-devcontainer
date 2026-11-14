@@ -58,8 +58,12 @@ Each test shows what the `fate_note` of its row says.
     `py_packages/validate_agent_files/tests/test_gitignore_discovery.py` runs
     discovery with a `git` that fails `check-ignore` and with no `git` on
     `PATH`; 21 passed.
-- [ ] A test runs `agentdev-runtime-images` "image builds contact no Launchpad
+- [x] A test runs `agentdev-runtime-images` "image builds contact no Launchpad
   host".
+  - **Evidence:** `scripts/tests/test_cache_git_ppa_release.py` runs the script
+    against a locally signed fake PPA: release with `--latest=false`, no
+    replacement, and nothing published on a wrong key or a broken hash chain; 5
+    passed.
 - [ ] A test runs `agentdev-runtime-images` "the bootstrap trusts an extra CA
   bundle".
 - [ ] A test runs `catalog-lifecycle` "registering a catalog root replaces
