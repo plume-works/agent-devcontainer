@@ -64,10 +64,10 @@ per check: the check, `holds` or the gap, and the documents it read.
      (`git merge-base --is-ancestor`), and its lead line is `Ready to ship`
      with zero CRITICAL findings. Evidence: the lead line and the `commit`.
    - **Accepted ADRs** — each ADR that `## ADRs` links is `stage: accepted`.
-     `not applicable` when the plan has no `## ADRs`.
+     The item is `not applicable` when the plan has no `## ADRs`.
    - **Superseded ADRs** — each ADR that the `supersedes` list of an accepted
      ADR names is `stage: superseded`, is under `data/archive/`, and has no
-     link in `data/adr.md`. `not applicable` when no such list names an ADR.
+     link in `data/adr.md`. The item is `not applicable` when no such list names an ADR.
    - **Plan stage** — `stage: done`, a `completed` date, and no `rank`.
    - **Features** — every feature `release` lists is `stage: implemented`.
    - **Bug stage** — every bug `release` lists is `stage: done` with no `rank`.

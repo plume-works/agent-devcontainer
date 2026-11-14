@@ -865,9 +865,9 @@ in ship mode with the plan key. When it reports gaps, they SHALL dispatch
 only those operations without running Verify, and review again, for at most 3
 fix rounds. `iwe-ship-reviewer` SHALL append the `## Ship review` checklist to
 the plan only when every item is `correct` or `not applicable`. Nobody SHALL
-add, remove, move, or change an item of the checklist, and its Verify,
-plan-stage, and archive items SHALL never be `not applicable`. A plan that
-already ends with a correct `## Ship review` SHALL keep that section unchanged.
+add, remove, move, or change an item of the checklist. The Verify, plan-stage,
+and archive items SHALL never be `not applicable`. A plan that already ends with
+a correct `## Ship review` SHALL keep that section unchanged.
 
 #### Scenario: a ship meets every obligation
 
@@ -890,8 +890,8 @@ already ends with a correct `## Ship review` SHALL keep that section unchanged.
 
 - **WHEN** a shipped plan has no saved Verify report, is not `stage: done`, or
   is not archived
-- **THEN** `iwe-ship-reviewer` reports that item as a missing obligation, not as
-  `not applicable`, and writes no `## Ship review`.
+- **THEN** `iwe-ship-reviewer` reports that the item is not correct, not that it
+  is `not applicable`, and writes no `## Ship review`.
 
 #### Scenario: a plan is reviewed before implementation
 
