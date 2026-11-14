@@ -56,18 +56,18 @@ per check: the check, `holds` or the gap, and the documents it read.
    `git show <ship commit>`, and
    `git diff --stat <ship commit>^ HEAD`.
 3. **Check every item** of the structure below, in order. Each item is
-   `confirmed`, with the evidence its placeholder names, or `N/A` when its
-   condition is absent from the plan. The Verify, plan-stage, and archive items
-   never take `N/A`.
+   `correct`, with the evidence its placeholder names, or `not applicable` when
+   its condition is absent from the plan. The Verify, plan-stage, and archive
+   items can never be `not applicable`.
    - **Verify** — the saved Verify report `.tmp/verify/<plan file name>.md`
      exists, its frontmatter `commit` is an ancestor of the ship commit
      (`git merge-base --is-ancestor`), and its lead line is `Ready to ship`
      with zero CRITICAL findings. Evidence: the lead line and the `commit`.
    - **Accepted ADRs** — each ADR that `## ADRs` links is `stage: accepted`.
-     `N/A` when the plan has no `## ADRs`.
+     The item is `not applicable` when the plan has no `## ADRs`.
    - **Superseded ADRs** — each ADR that the `supersedes` list of an accepted
      ADR names is `stage: superseded`, is under `data/archive/`, and has no
-     link in `data/adr.md`. `N/A` when no such list names an ADR.
+     link in `data/adr.md`. The item is `not applicable` when no such list names an ADR.
    - **Plan stage** — `stage: done`, a `completed` date, and no `rank`.
    - **Features** — every feature `release` lists is `stage: implemented`.
    - **Bug stage** — every bug `release` lists is `stage: done` with no `rank`.
@@ -89,20 +89,24 @@ The structure, fixed — no item is added, dropped, reordered, or reworded:
 ```markdown
 ## Ship review
 
-Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
+`iwe-ship-reviewer` did this review on <YYYY-MM-DD>.
 
-- [x] Verify reported zero CRITICAL — confirmed: <Verify's verdict line>
-- [x] Every ADR the plan proposed is `stage: accepted` — confirmed: <keys> | N/A: the plan proposed no ADR
-- [x] Every ADR the plan superseded is `stage: superseded` and archived — confirmed: <archive keys> | N/A: the plan superseded no ADR
-- [x] The plan is `stage: done` with `completed` and no `rank` — confirmed: <completed date>
-- [x] Every feature in `release` is `stage: implemented` — confirmed: <keys> | N/A: `release` lists no feature
-- [x] Every bug in `release` is `stage: done` with no `rank` — confirmed: <keys> | N/A: `release` lists no bug
-- [x] Every bug in `release` has a `## Fix` that links this plan — confirmed: <keys> | N/A: `release` lists no bug
-- [x] The plan and every feature and bug it closed are archived with no hub link — confirmed: <archive keys>
+- [x] Verify found no CRITICAL problem — correct: <Verify's verdict line>
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct: <keys> | not applicable: the plan proposed no ADR
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the archive — correct: <archive keys> | not applicable: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct: <completed date>
+- [x] Every feature in `release` is `stage: implemented` — correct: <keys> | not applicable: `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — correct: <keys> | not applicable: `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — correct: <keys> | not applicable: `release` lists no bug
+- [x] The plan and every feature and bug that it completed are in the archive, and no hub links them — correct: <archive keys>
 ```
 
-A `## Ship review` recorded before this structure has one of two earlier
-structures, and it stays valid, and nobody writes it again. The earlier structure
+A `## Ship review` that a reviewer wrote before this structure has one of three
+earlier structures. That review stays valid. Nobody writes it again. All three
+start with
+"Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>." and end each item with
+`confirmed` or `N/A` in place of `correct` or `not applicable`. The newest of
+them has the same eight items in different words. The next structure
 has three items about `## Spec changes` and about created and retired specs, in
 place of the two ADR items. It also has an item about `## Rationale` entries
 before the archive item. The oldest structure is the same without the `## Rationale` and
@@ -128,6 +132,7 @@ with one line — `Reviewed`, `Gaps`, or `Needs decision` — and the plan key, 
 - Plan mode never writes. Ship mode writes only `## Ship review`, only when
   every item holds, and commits only the plan file.
 - Never repair a gap yourself: the `fix` operation of `iwe-shipper` does.
-- Never mark an item `confirmed` without reading the record that confirms it.
+- Read the record that shows that an item is correct before you mark the item
+  `correct`.
 - Never wait for a reply: a decision you were not given ends the run with a
   report.
