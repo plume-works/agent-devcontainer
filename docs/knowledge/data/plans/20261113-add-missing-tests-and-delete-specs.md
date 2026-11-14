@@ -29,7 +29,8 @@ Each `needs-test` requirement gets a test that runs the behaviour, as the test
 rules in `AGENTS.md#tests` require. Five of the 18 are decisions in workflow
 files, and [Test the decisions that the workflows
 make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
-the other 13.
+tests for 9 of the other 13. The 4 other requirements get no test, because each
+one is configuration or a rule, and not logic.
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to a guide, because the ruleset is a repository setting and
@@ -52,24 +53,16 @@ Each test shows what the `fate_note` of its row says.
 - [ ] A test runs `agent-file-discovery` "Git failures do not abort discovery".
 - [ ] A test runs `agentdev-runtime-images` "image builds contact no Launchpad
   host".
-- [ ] A test runs `agentdev-runtime-images` "gh resolves to the image's
-  wrapper".
 - [ ] A test runs `agentdev-runtime-images` "the bootstrap trusts an extra CA
   bundle".
-- [ ] A test runs `catalog-lifecycle` "the catalog is installed at image build
-  time and again by postCreateCommand".
 - [ ] A test runs `catalog-lifecycle` "registering a catalog root replaces
   earlier registrations".
-- [ ] A test runs `catalog-scripts` "catalog scripts are standard-library
-  Python".
 - [ ] A test runs `devcontainer-docker-storage` "the host-side init runs without
   HOME".
 - [ ] A test runs `devcontainer-git-credentials` "gh authenticates from the git
   credential helper".
 - [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
   checkout volume".
-- [ ] A test runs `pre-commit-gate` "every commit path runs the hooks, merges
-  included".
 - [ ] A test runs `standalone-opencode-runtime` "startup prepares or reuses one
   workspace" on a reused checkout.
 - [ ] A test runs `update-branch` "update-branch brings in the branch's upstream
