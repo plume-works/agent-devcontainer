@@ -28,6 +28,6 @@ working directory. Running from here silently loses the inventory and roles path
   version alone. Track a commit instead of a version only where the upstream's tags
   are unusable, as `fish_setup` does for `bass`.
 - Apt packages are installed unpinned, at whatever the enabled repositories serve —
-  see `docs/knowledge/data/spec/dependency-updates.md`.
+  see `docs/knowledge/data/adr/0038-apt-packages-float-within-base-release.md`.
 - Read paths that vary per consuming project from `DEV_WORKSPACE_FOLDER` at runtime, with
   `workspace_folder` as the fallback. Never hardcode a workspace path.

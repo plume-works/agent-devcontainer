@@ -1,7 +1,7 @@
 name: Docker promote tested image
 description: >-
   Point the event's moving tags at an already pushed, tested multiarch digest without rebuilding.
-  Needs a full-history checkout; see spec/image-pinning.
+  Needs a full-history checkout.
 inputs:
   image:
     description: Image name, without tag or digest

@@ -19,76 +19,26 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [AI review gate](spec/ai-review-gate.md)
 
-[AI review refresh](spec/ai-review-refresh.md)
-
 [Catalog lifecycle](spec/catalog-lifecycle.md)
 
 [Catalog scripts](spec/catalog-scripts.md)
-
-[CI Python environment](spec/ci-python-environment.md)
-
-[CI workflows](spec/ci-workflows.md)
-
-[Claude Remote Control](spec/claude-remote-control.md)
-
-[Cloud session host](spec/cloud-session-host.md)
-
-[Coder IDE baseline contract](spec/coder-ide-baseline.md)
-
-[Dependency updates](spec/dependency-updates.md)
 
 [Devcontainer Docker storage](spec/devcontainer-docker-storage.md)
 
 [Devcontainer Git credentials](spec/devcontainer-git-credentials.md)
 
-[Devcontainer OpenCode policy](spec/devcontainer-opencode-policy.md)
-
 [Dev Container state](spec/devcontainer-state.md)
-
-[Firewall](spec/firewall.md)
-
-[git-new-branch](spec/git-new-branch.md)
 
 [Image pinning](spec/image-pinning.md)
 
-[IWE bootstrap](spec/iwe-bootstrap.md)
-
-[iwe-branch-name](spec/iwe-branch-name.md)
-
-[IWE workflow skills](spec/iwe-workflow-skills.md)
-
-[Line-free anchors](spec/line-free-anchors.md)
-
-[macOS native bootstrap](spec/macos-native-bootstrap.md)
-
-[Nested agent dispatch](spec/nested-agent-dispatch.md)
-
-[OpenCode catalog bridge](spec/opencode-catalog-bridge.md)
-
-[OpenCode web](spec/opencode-web.md)
-
-[Plan checkbox evidence](spec/plan-checkbox-evidence.md)
-
 [Playwright browser](spec/playwright-browser.md)
 
-[PR description](spec/pr-description.md)
-
-[PR merge conflicts](spec/pr-merge-conflicts.md)
-
-[PR review](spec/pr-review.md)
-
 [pre-commit gate](spec/pre-commit-gate.md)
-
-[Self-improve learning loop](spec/self-improve-learning-loop.md)
 
 [Stacked PRs](spec/stacked-prs.md)
 
 [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md)
 
-[Supported harnesses](spec/supported-harnesses.md)
-
 [Template consumption](spec/template-consumption.md)
 
 [update-branch](spec/update-branch.md)
-
-[Xpra port forwarding](spec/xpra-port-forwarding.md)

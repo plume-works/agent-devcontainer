@@ -16,12 +16,12 @@ completed: 2026-10-30
 
 ## Context
 
-[iwe-branch-name](../../../spec/iwe-branch-name.md) names a plan's work branches
-`<phase>/<slug>/iter-<N>` and counts `N` separately for `impl` and `ship`. The
-names therefore cannot say in which order a plan's pull requests happened: an
-`impl/foo/iter-3` opened after `ship/foo/iter-1` sorts and reads the same as one
-opened before it. The maintainer wants one sequence per plan, so that `N` is the
-plan's Nth work branch across its whole lifecycle.
+iwe-branch-name names a plan's work branches `<phase>/<slug>/iter-<N>` and
+counts `N` separately for `impl` and `ship`. The names therefore cannot say in
+which order a plan's pull requests happened: an `impl/foo/iter-3` opened after
+`ship/foo/iter-1` sorts and reads the same as one opened before it. The
+maintainer wants one sequence per plan, so that `N` is the plan's Nth work
+branch across its whole lifecycle.
 
 Feature: [iwe-branch-name](../features/iwe-branch-name.md). Builds on the done
 plan [iwe-branch-name skill](20261020-iwe-branch-name.md).
@@ -172,7 +172,7 @@ a clean break over carrying two shapes.
 
 ## Spec changes
 
-[iwe-branch-name](../../../spec/iwe-branch-name.md):
+iwe-branch-name:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -253,11 +253,10 @@ plan. The skill SHALL NOT create, switch, or delete any branch.
 
 The requirement "Plan state is read at the remote default branch" is unchanged.
 
-[iwe-workflow-skills](../../../spec/iwe-workflow-skills.md): the scenario
-"Implementation starts on main" SHALL read "**THEN** it creates branch
-`iwe/<slug>/iter-<N>-impl`, with `N` from iwe-branch-name, through
-git-new-branch before executing any task"; the requirement's SHALL statement is
-unchanged.
+iwe-workflow-skills: the scenario "Implementation starts on main" SHALL read
+"**THEN** it creates branch `iwe/<slug>/iter-<N>-impl`, with `N` from
+iwe-branch-name, through git-new-branch before it does a task"; the
+requirement's SHALL statement is unchanged.
 
 ## Verification
 

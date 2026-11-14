@@ -22,16 +22,15 @@ completed: 2026-10-12
 
 ## Context
 
-[Claude Remote Control](../../../spec/claude-remote-control.md) autostarts from
-`postStartCommand.sh`, gated by `AGENTDEV_CLAUDE_AUTOSTART`, a flag that exists
-only for Coder workspaces. In Coder, `devcontainer up` waits for
-`postStartCommand` (`"waitFor": "postStartCommand"`), and the Coder agent is
-injected into the dev container only after `up` returns. The Remote Control
-Claude process is therefore never a descendant of the Coder agent and lacks
-everything the agent gives its sessions: Coder user secrets such as
-`GITHUB_TOKEN`, and the agent's git credentials (`GIT_ASKPASS`,
-`CODER_AGENT_URL`, `CODER_AGENT_TOKEN`). `gh` and `git push` are unauthenticated
-in the autostarted session.
+Claude Remote Control autostarts from `postStartCommand.sh`, gated by
+`AGENTDEV_CLAUDE_AUTOSTART`, a flag that exists only for Coder workspaces. In
+Coder, `devcontainer up` waits for `postStartCommand`
+(`"waitFor": "postStartCommand"`), and Coder adds its agent to the Dev Container
+only after `up` returns. As a result, the Claude process of Remote Control is
+never a child of the Coder agent. It does not get the values that the agent
+gives its sessions: Coder user secrets such as `GITHUB_TOKEN`, and the agent's
+git credentials (`GIT_ASKPASS`, `CODER_AGENT_URL`, `CODER_AGENT_TOKEN`). `gh`
+and `git push` are unauthenticated in the autostarted session.
 
 Coder delivers env user secrets to new shells, apps, SSH sessions, and startup
 scripts at agent start; a process already running keeps its environment. A
@@ -225,10 +224,9 @@ resource "coder_script" "claude_remote_control" {
 
 ## Spec changes
 
-[Claude Remote Control](../../../spec/claude-remote-control.md): the autostart
-requirement changes trigger and tmux server, a requirement is added for the
-inherited environment, and the pre-approval requirement's scenario that named
-the flag is restated.
+Claude Remote Control: the autostart requirement changes trigger and tmux
+server, a requirement is added for the inherited environment, and the
+pre-approval requirement's scenario that named the flag is restated.
 
 ``` markdown
 ## MODIFIED Requirements

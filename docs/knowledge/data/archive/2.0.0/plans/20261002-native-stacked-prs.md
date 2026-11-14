@@ -338,7 +338,7 @@ SHALL direct the caller to `gh stack sync`.
 - **THEN** it stops without merging and names `gh stack sync`
 ```
 
-[PR merge conflicts](../../../spec/pr-merge-conflicts.md):
+PR merge conflicts:
 
 ``` markdown
 ## MODIFIED Requirements

@@ -2,7 +2,7 @@
 The runtime's own nested Docker engine, and the garbage collection that runs once it is up.
 
 Exactly one root dockerd on a private Unix socket over per-instance storage, with no TCP
-listener and no host socket. Spec: standalone-opencode-runtime, devcontainer-docker-storage.
+listener and no host socket. See ADR-0079.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ CAP_SYS_ADMIN = 21
 GC_AGE = timedelta(hours=72)
 CACHE_LIMIT = '10GB'
 # Volumes a collection may remove; every other volume is never touched.
-# Spec: devcontainer-docker-storage.
+# See ADR-0073.
 DISPOSABLE_VOLUME = re.compile(
     r'(^|_)dind-var-lib-(docker|containerd)-|_agentdev-(cache|cbm|codex)$'
 )

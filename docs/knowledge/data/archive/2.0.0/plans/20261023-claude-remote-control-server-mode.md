@@ -22,9 +22,8 @@ proposes letting a workspace accept new conversations from claude.ai/code, the
 Claude mobile app, or a claude.ai Project. Today the autostarted `claude-remote`
 pane serves one pinned conversation ([Claude Remote Control
 resume](../architecture/claude-remote-control-resume.md)), under the contract in
-[Claude Remote Control](../../../spec/claude-remote-control.md). The maintainer
-chose an opt-in trial run that keeps the pinned pane as the default, with
-`--spawn same-dir` as the only spawn mode.
+Claude Remote Control. The maintainer chose an opt-in trial run that keeps the
+pinned pane as the default, with `--spawn same-dir` as the only spawn mode.
 
 ## Approach
 
@@ -137,9 +136,8 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[Claude Remote Control](../../../spec/claude-remote-control.md): the autostart
-requirement makes pinned-conversation resume specific to session mode, and a new
-requirement adds server mode.
+Claude Remote Control: the autostart requirement makes pinned-conversation
+resume specific to session mode, and a new requirement adds server mode.
 
 ``` markdown
 ## MODIFIED Requirements

@@ -359,11 +359,10 @@ carries a line-number reference (closed bugs and backlog items)
 
 ## Spec changes
 
-A new spec, [Line-free anchors](../../../spec/line-free-anchors.md), and a
-modified requirement in [IWE workflow
-skills](../../../spec/iwe-workflow-skills.md).
+A new spec, Line-free anchors, and a modified requirement in IWE workflow
+skills.
 
-[Line-free anchors](../../../spec/line-free-anchors.md):
+Line-free anchors:
 
 ``` markdown
 ## ADDED Requirements
@@ -451,7 +450,7 @@ are not resolved.
 - **THEN** the resolver does not check it
 ```
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md):
+IWE workflow skills:
 
 ``` markdown
 ## MODIFIED Requirements

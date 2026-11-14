@@ -202,8 +202,7 @@ deferred task or a defect mid-run without stopping for the user.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) gains the Capture
-contract and the enforced document shape:
+IWE workflow skills gains the Capture contract and the enforced document shape:
 
 ``` markdown
 ## ADDED Requirements

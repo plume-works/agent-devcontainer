@@ -25,11 +25,10 @@ so the submitted user message retains the full namespaced invocation, including
 bare commands.
 
 The user wants the submitted command and accompanying text visible together,
-without expanding the skill instructions into chat. The current [bridge
-spec](../../../spec/opencode-catalog-bridge.md) describes an arguments-only
-message; this plan changes that presentation contract. The [v2
-migration](20261018-opencode-v2-default.md) is already shipped; no active plan
-covers this change.
+without expanding the skill instructions into chat. The current bridge spec
+describes an arguments-only message; this plan changes that presentation
+contract. The [v2 migration](20261018-opencode-v2-default.md) is already
+shipped; no active plan covers this change.
 
 ## Approach
 
@@ -117,9 +116,8 @@ supplied arguments, not whitespace the host has already removed.
 
 ## Spec changes
 
-[OpenCode catalog bridge](../../../spec/opencode-catalog-bridge.md) — replace
-the complete namespaced-command requirement with this delta, preserving v1 and
-autocomplete behavior:
+OpenCode catalog bridge — replace the complete namespaced-command requirement
+with this delta, which keeps the v1 and autocomplete behaviour:
 
 ``` markdown
 ## MODIFIED Requirements

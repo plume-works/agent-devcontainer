@@ -90,8 +90,7 @@ Verify finding would arrive after the plan is already implemented.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — Plan keeps each
-rule of a touched spec in one requirement.
+IWE workflow skills — Plan keeps each rule of a touched spec in one requirement.
 
 ``` markdown
 ## MODIFIED Requirements

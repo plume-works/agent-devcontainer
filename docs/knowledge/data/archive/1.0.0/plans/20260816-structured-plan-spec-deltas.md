@@ -331,9 +331,8 @@ Rejected alternatives:
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — add the
-risk-scaled plan-local contract and revise Ship and model-preservation behavior
-as follows:
+IWE workflow skills — add the risk-scaled plan-local contract and revise Ship
+and model-preservation behavior as follows:
 
 ``` markdown
 ## ADDED Requirements

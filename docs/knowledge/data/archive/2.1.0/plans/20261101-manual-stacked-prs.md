@@ -710,8 +710,7 @@ bypass actors, and no workflow SHALL report that check.
 - **THEN** the push is accepted
 ```
 
-[PR merge conflicts](../../../spec/pr-merge-conflicts.md) — its Purpose drops
-the `gh stack` path, and:
+PR merge conflicts — its Purpose drops the `gh stack` path, and:
 
 ``` markdown
 ## MODIFIED Requirements

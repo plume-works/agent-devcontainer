@@ -7,7 +7,7 @@
 - **Commit date:** 2026-03-28
 - **Paper:** [arXiv `2511.10395v1`](https://arxiv.org/abs/2511.10395v1)
 - **Source license:** [Apache-2.0](https://github.com/modelscope/AgentEvolver/blob/a5a8db8689d6493b028107dcb4c27415441581dc/LICENSE)
-- **Related design:** [Self-improve learning loop](../../../knowledge/data/spec/self-improve-learning-loop.md); [hypothetical extensions](../../hypothetical-extensions/specs/README.md)
+- **Related design:** [the self-improve ADRs, ADR-0087 to ADR-0090](../../../knowledge/data/adr.md); [hypothetical extensions](../../hypothetical-extensions/specs/README.md)
 
 ## Executive verdict
 

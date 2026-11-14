@@ -705,7 +705,7 @@ The checks land once Tasks 8 and 9 have moved every document they would fail.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md):
+IWE workflow skills:
 
 ``` markdown
 ## ADDED Requirements
@@ -1161,7 +1161,7 @@ over a commit range, and with `--all-files`. The CLI SHALL fail a bug at
 - **THEN** the hook passes it.
 ```
 
-[Line-free anchors](../../../spec/line-free-anchors.md):
+Line-free anchors:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -1192,7 +1192,7 @@ archived documents are not resolved.
 - **THEN** the resolver does not check it
 ```
 
-[iwe-branch-name](../../../spec/iwe-branch-name.md):
+iwe-branch-name:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -1241,14 +1241,9 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 
 Specs that Tasks 7 to 9 and 11 create or extend record behaviour the code
 already has and change none:
-[catalog-scripts](../../../spec/catalog-scripts.md),
-[cloud-session-host](../../../spec/cloud-session-host.md),
-[devcontainer-state](../../../spec/devcontainer-state.md),
-[ci-workflows](../../../spec/ci-workflows.md),
-[pr-description](../../../spec/pr-description.md),
-[supported-harnesses](../../../spec/supported-harnesses.md),
-[pr-review](../../../spec/pr-review.md),
-[ci-python-environment](../../../spec/ci-python-environment.md).
+[catalog-scripts](../../../spec/catalog-scripts.md), cloud-session-host,
+[devcontainer-state](../../../spec/devcontainer-state.md), ci-workflows,
+pr-description, supported-harnesses, pr-review, ci-python-environment.
 
 ## Depends on
 

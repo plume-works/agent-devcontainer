@@ -1,8 +1,7 @@
 """
 Register a catalog root with Claude Code and OpenCode.
 
-A root that ships no manifest for a client leaves that client's registration as it was. Spec:
-catalog-lifecycle.
+A root that has no manifest for a client leaves that client's registration as it was.
 """
 
 from __future__ import annotations

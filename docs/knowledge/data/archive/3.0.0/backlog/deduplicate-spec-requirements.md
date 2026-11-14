@@ -20,11 +20,11 @@ rule drift apart. Two kinds are in scope, across every document under
 `data/spec/`:
 
 - **A rule restated across requirements.** One rule written into several
-  requirements, typically once per phase it touches. In [IWE workflow
-  skills](../../../spec/iwe-workflow-skills.md), for example, "Explore and Plan
-  never start Implement" appears in five places, "a narrowing deviation waits
-  for the user" in five, and "a dispatch prompt carries only the key and the
-  user's approvals quoted verbatim" in seven.
+  requirements, usually one time for each phase that it changes. In IWE workflow
+  skills, for example, "Explore and Plan never start Implement" appears in five
+  places, "a narrowing deviation waits for the user" in five, and "a dispatch
+  prompt carries only the key and the user's approvals quoted verbatim" in
+  seven.
 - **A scenario that only restates its requirement.** A WHEN/THEN that re-renders
   a SHALL clause and adds no case the clause leaves open, such as the single
   scenario under

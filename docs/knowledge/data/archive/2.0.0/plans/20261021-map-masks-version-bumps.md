@@ -191,8 +191,8 @@ missed.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — a new requirement;
-it governs when a staleness signal may be silenced, so it is a delta.
+IWE workflow skills — a new requirement; it governs when a staleness signal may
+be silenced, so it is a delta.
 
 ``` markdown
 ## ADDED Requirements

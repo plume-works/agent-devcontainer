@@ -388,7 +388,7 @@ doc `stale-map-docs.py` reports
 
 ## Spec changes
 
-[AI review refresh](../../../spec/ai-review-refresh.md):
+AI review refresh:
 
 ``` markdown
 ## MODIFIED Requirements

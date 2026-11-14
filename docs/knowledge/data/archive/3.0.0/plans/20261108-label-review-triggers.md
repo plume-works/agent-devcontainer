@@ -644,7 +644,7 @@ Removed: replaced by "a pull request can block every AI review"; the
 `[ci:skip-ai-review]` body marker and its scenarios are gone.
 ```
 
-[AI review refresh](../../../spec/ai-review-refresh.md):
+AI review refresh:
 
 ``` markdown
 ## MODIFIED Requirements

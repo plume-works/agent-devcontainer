@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Renovate's one post-upgrade task: see spec/dependency-updates."""
+"""Renovate's one post-upgrade task: see ADR-0050."""
 
 from __future__ import annotations
 
@@ -56,8 +56,8 @@ def main() -> int:
             )
             os.environ['PATH'] = f'{os.path.realpath(iwe_dir)}:{os.environ["PATH"]}'
             run('iwe', 'normalize')
-        # pre-commit through uv, not the image's apt copy: see spec/dependency-updates.
-        # Post-upgrade runs on the base branch; the guard is for commits: see spec/git-new-branch.
+        # pre-commit through uv, not the image's apt copy: see ADR-0050.
+        # Post-upgrade runs on the base branch; the guard is for commits.
         skip = os.environ.get('SKIP')
         os.environ['SKIP'] = f'{skip},no-commit-to-branch' if skip else 'no-commit-to-branch'
         if run(

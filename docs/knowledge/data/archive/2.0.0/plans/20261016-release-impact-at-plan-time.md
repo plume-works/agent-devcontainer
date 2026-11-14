@@ -288,9 +288,8 @@ plan link from the feature are missing.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — new requirement;
-the plan schema and Ship's release behavior change, so this is a structured
-delta:
+IWE workflow skills — new requirement; the plan schema and Ship's release
+behavior change, so this is a structured delta:
 
 ``` markdown
 ## ADDED Requirements

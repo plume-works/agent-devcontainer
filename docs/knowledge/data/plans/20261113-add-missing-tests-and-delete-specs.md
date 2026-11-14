@@ -147,7 +147,7 @@ None — no behavioral change
 ## Depends on
 
 [Move the decisions from the specs into
-ADRs](20261113-move-decisions-into-adrs.md)
+ADRs](../archive/next-release/plans/20261113-move-decisions-into-adrs.md)
 
 [Make ASD-STE100 the rule for all
 prose](../archive/next-release/plans/20261113-ste100-prose-rule.md)

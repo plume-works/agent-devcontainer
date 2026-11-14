@@ -11,6 +11,9 @@ bug moves to `archive/` and leaves this list. Its title, body sections, and
 stages are defined under Bugs in `SCHEMA.md` and enforced by
 `.iwe/schemas/bug.yaml`.*
 
+[Bug: The agentdev-base label says that the image holds a default
+policy](bugs/base-image-label-names-a-policy.md)
+
 [Bug: the Coder start configures the git credential helper without a wait for
 the keyring](bugs/coder-start-does-not-wait-for-keyring.md)
 
@@ -43,6 +46,9 @@ skips](bugs/macos-bootstrap-not-syntax-checked.md)
 
 [Bug: a merge commit skips `end-of-file-fixer` and
 `trailing-whitespace`](bugs/merge-commit-skips-two-hooks.md)
+
+[Bug: The README says that the containers do not enable
+self-improve](bugs/readme-says-self-improve-not-enabled.md)
 
 [Bug: Remote Control sessions on a workspace receive cloud-session
 instructions](bugs/remote-control-sessions-get-cloud-prompt.md)

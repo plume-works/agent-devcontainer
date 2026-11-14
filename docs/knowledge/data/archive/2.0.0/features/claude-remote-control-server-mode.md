@@ -36,7 +36,7 @@ workspace folder either way.
 **Same environment.** Spawned conversations inherit the Coder agent's
 environment, Coder user secrets and git credentials included.
 
-The contract is [Claude Remote Control](../../../spec/claude-remote-control.md).
+The contract is Claude Remote Control.
 
 ## Edge cases
 

@@ -42,7 +42,7 @@ stale map, and CI still fails it.
 **The AI review leaves staleness to CI.** `pr-review` raises no map-staleness
 finding when the repository's CI runs the staleness check.
 
-The contract is [IWE workflow skills](../../../spec/iwe-workflow-skills.md).
+The contract is IWE workflow skills.
 
 ## Edge cases
 

@@ -3,7 +3,7 @@ Egress firewall, inert unless ``ENABLE_FIREWALL=true``.
 
 The bootstrap runs ``agentdev-runtime firewall apply`` as root before supervisord starts dockerd,
 so the flush keeps the engine's rules. Only deploy admits a proxy. Adapted from the Claude Code
-reference implementation. Spec: firewall, standalone-opencode-runtime.
+reference implementation.
 """
 
 from __future__ import annotations

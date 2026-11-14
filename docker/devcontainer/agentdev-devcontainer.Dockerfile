@@ -7,7 +7,7 @@ FROM $FROM_IMAGE
 ARG FROM_IMAGE
 
 # The devcontainer CLI's UID update re-owns the account's home and fails when it is missing,
-# so the home exists and stays empty; spec: devcontainer-state.
+# so the home exists and stays empty; see ADR-0075.
 RUN userdel --remove ubuntu \
     && groupadd --gid 1000 agent \
     && useradd --no-create-home --uid 1000 --gid 1000 --home-dir /home/agent \
@@ -25,12 +25,12 @@ RUN --mount=type=bind,source=py_packages/agentdev_runtime,target=/tmp/agentdev-r
     uv tool install --reinstall --python /usr/bin/python3 /tmp/agentdev-runtime
 
 # The runtime root is image-owned; derived images extend it only through the hook
-# directories and documented environment. Spec: agentdev-runtime-images.
+# directories and documented environment. See ADR-0032.
 COPY --chmod=0644 docker/devcontainer/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
-# Defaults a consumer's descriptor or derived image may override; see
-# spec/agentdev-runtime-images.
+# A consumer descriptor or a derived image can change these defaults.
+# Do not set UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR, or PRE_COMMIT_HOME: their defaults are on the home volume.
 ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     AGENTDEV_USER=agent \
     AGENTDEV_HOME=/home/agent \

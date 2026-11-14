@@ -61,7 +61,7 @@ beyond its one question.
 
 ## Spec changes
 
-[Plan checkbox evidence](../../../spec/plan-checkbox-evidence.md):
+Plan checkbox evidence:
 
 ``` markdown
 ## MODIFIED Requirements

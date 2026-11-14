@@ -85,9 +85,8 @@ approval, and it adds a review per push in that state for no gain.
 
 ## Spec changes
 
-[AI review refresh](../../../spec/ai-review-refresh.md) — the evaluation
-requirement gains the verdict check, and the scenario for applied feedback is
-limited to an approved pull request.
+AI review refresh — the evaluation requirement gains the verdict check, and the
+scenario for applied feedback is limited to an approved pull request.
 
 ``` markdown
 ## MODIFIED Requirements

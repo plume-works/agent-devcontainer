@@ -331,9 +331,9 @@ only where it asserts the old layout
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — contract-heavy:
-shipping, capture, and the release cut change what they write, and the
-release-impact and OKF requirements change their scenarios.
+IWE workflow skills — contract-heavy: shipping, capture, and the release cut
+change what they write, and the release-impact and OKF requirements change their
+scenarios.
 
 ``` markdown
 ## ADDED Requirements

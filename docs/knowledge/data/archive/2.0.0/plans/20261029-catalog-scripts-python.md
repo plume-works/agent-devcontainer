@@ -393,11 +393,10 @@ place of the `.sh` script it names today, and every requirement, `RESULT` name,
 exit code, and scenario keeps its behaviour, except the git-new-branch worktree
 requirement, whose delta is in its own entry below.
 
-- [Git new branch](../../../spec/git-new-branch.md) — `git-new-branch.sh`,
-  `git-commit.sh`, `git-default-branch.sh`
+- Git new branch — `git-new-branch.sh`, `git-commit.sh`, `git-default-branch.sh`
 
-- [Git new branch](../../../spec/git-new-branch.md) — the worktree requirement
-  changes for the standalone runtime (Task 3):
+- Git new branch — the worktree requirement changes for the standalone runtime
+  (Task 3):
 
   ``` markdown
   ## MODIFIED Requirements
@@ -433,17 +432,16 @@ requirement, whose delta is in its own entry below.
 
 - [Update branch](../../../spec/update-branch.md) — `update-branch.sh`
 
-- [IWE bootstrap](../../../spec/iwe-bootstrap.md) — `bootstrap-iwe.sh`
+- IWE bootstrap — `bootstrap-iwe.sh`
 
-- [IWE workflow skills](../../../spec/iwe-workflow-skills.md) —
-  `close-issue.sh`, `fetch-issue.sh`, `push-branch.sh`
+- IWE workflow skills — `close-issue.sh`, `fetch-issue.sh`, `push-branch.sh`
 
-- [Stacked PRs](../../../spec/stacked-prs.md) and [PR merge
-  conflicts](../../../spec/pr-merge-conflicts.md) — `stack-guard.sh`
+- [Stacked PRs](../../../spec/stacked-prs.md) and PR merge conflicts —
+  `stack-guard.sh`
 
-- [AI review refresh](../../../spec/ai-review-refresh.md) — `request-review.sh`
+- AI review refresh — `request-review.sh`
 
-- [iwe-branch-name](../../../spec/iwe-branch-name.md) — `git-default-branch.sh`
+- iwe-branch-name — `git-default-branch.sh`
 
 - [Template consumption](../../../spec/template-consumption.md) —
   `check-updates.sh`, `scripts/validate-super-linter-tool-versions.sh`

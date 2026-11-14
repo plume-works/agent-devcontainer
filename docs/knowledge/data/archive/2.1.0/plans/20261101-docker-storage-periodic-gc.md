@@ -34,8 +34,7 @@ limits](../../2.0.0/features/docker-storage-limits.md):
 
 The Dev Container engine's limits are specified in [Devcontainer Docker
 storage](../../../spec/devcontainer-docker-storage.md), the workspace engine's
-in [Coder IDE baseline](../../../spec/coder-ide-baseline.md), and the deploy
-image's in [Standalone OpenCode
+in Coder IDE baseline, and the deploy image's in [Standalone OpenCode
 runtime](../../../spec/standalone-opencode-runtime.md).
 
 ## Approach
@@ -335,7 +334,7 @@ pass SHALL always exit successfully.
 - **THEN** the runtime does not latch, and every other service keeps running.
 ```
 
-[Coder IDE baseline](../../../spec/coder-ide-baseline.md):
+Coder IDE baseline:
 
 ``` markdown
 ## MODIFIED Requirements

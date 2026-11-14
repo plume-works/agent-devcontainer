@@ -4,7 +4,7 @@ Hold a Primary checks run on main for the cooldown before any build job starts.
 
 A newer push cancels the waiting run, so a burst of merges builds once. The wait never runs past
 the cap, measured from the oldest push run since the newest one that was not cancelled.
-See spec/image-pinning.
+See ADR-0046.
 """
 
 from __future__ import annotations

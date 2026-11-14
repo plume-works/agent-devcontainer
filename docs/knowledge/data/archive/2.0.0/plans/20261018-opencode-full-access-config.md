@@ -127,9 +127,8 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 ## Spec changes
 
-New spec [Devcontainer OpenCode
-policy](../../../spec/devcontainer-opencode-policy.md) — unrestricted filesystem
-access is a security-sensitive behavior, so the contract is stated in full:
+New spec Devcontainer OpenCode policy — unrestricted filesystem access is a
+security-sensitive behavior, so the contract is stated in full:
 
 ``` markdown
 ## ADDED Requirements

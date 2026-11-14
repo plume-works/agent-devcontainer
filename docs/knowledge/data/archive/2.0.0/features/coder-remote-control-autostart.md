@@ -27,7 +27,7 @@ script's presence in the template is the opt-in; autostart is Coder-only.
 Claude process inherits the agent's environment even when another tmux server is
 already running.
 
-The contract is [Claude Remote Control](../../../spec/claude-remote-control.md).
+The contract is Claude Remote Control.
 
 ## Edge cases
 

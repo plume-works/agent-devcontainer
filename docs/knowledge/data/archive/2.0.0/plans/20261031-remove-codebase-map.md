@@ -376,9 +376,8 @@ Modify, in this workspace and byte-identically in the scaffold:
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — the Map skill and
-the push gate are retired; the spec's `description` and `sources` drop Map and
-`iwe-map`:
+IWE workflow skills — the Map skill and the push gate are retired; the spec's
+`description` and `sources` drop Map and `iwe-map`:
 
 ``` markdown
 ## REMOVED Requirements
@@ -402,7 +401,7 @@ Retired: the push helper runs no map check, and the AI review has no map
 staleness to defer to CI.
 ```
 
-[IWE bootstrap](../../../spec/iwe-bootstrap.md):
+IWE bootstrap:
 
 ``` markdown
 ## MODIFIED Requirements

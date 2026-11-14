@@ -7,7 +7,7 @@ listener that starts services in dependency order, gates them on readiness, and 
 failures within a bounded budget. A failure it cannot recover latches the runtime ``failed``:
 deploy waits for ``retry`` and exits nonzero only when the controller or supervisord itself
 fails, while devcontainer exits nonzero. ``exec`` wraps each program to keep its last result for
-the failure record. Spec: standalone-opencode-runtime, agentdev-runtime-images.
+the failure record. See ADR-0026 and ADR-0034.
 """
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ class Settings:
     skip_xpra: bool = False
     # Starts OpenCode Web in a Dev Container; deploy always serves it.
     opencode_web: bool = False
-    # Empty leaves Remote Control out. Spec: claude-remote-control.
+    # An empty value disables Remote Control. See ADR-0078.
     remote_control: str = ''
     strict: bool = False
     firewall: bool = False
@@ -206,7 +206,7 @@ class Profile:
 
 
 # Startup order. Optional work before OpenCode is what OpenCode reads when it starts;
-# the rest follows it. Spec: standalone-opencode-runtime.
+# the rest follows it. See ADR-0028.
 DEPLOY_SERVICES = (
     Service('dbus', refresh=('keyring', 'xpra'), core=True),
     Service('keyring', after=('dbus',), core=True),
@@ -215,7 +215,7 @@ DEPLOY_SERVICES = (
     Service('opencode', after=('keyring', 'prepare'), core=True, alongside=('xpra',)),
     Service('xpra', after=('keyring',)),
     Service('dockerd'),
-    # A client: the collector never gates readiness. Spec: devcontainer-docker-storage.
+    # A client: the collector never stops readiness. See ADR-0073.
     Service('docker-gc', after=('dockerd',), client=True),
     Service('project', after=('prepare',), oneshot=True),
     Service('remote-control', after=('prepare',)),
@@ -223,7 +223,7 @@ DEPLOY_SERVICES = (
 
 # Every service the editor relies on is core. The create phase runs here, after the root
 # bootstrap, as deploy's prepare does; postCreateCommand only waits for it.
-# Spec: agentdev-runtime-images.
+# See ADR-0031.
 DEVCONTAINER_SERVICES = (
     Service('dbus', refresh=('keyring', 'xpra'), core=True),
     Service('keyring', after=('dbus',), core=True),
@@ -673,7 +673,7 @@ class Controller:
             if self.shutting_down():
                 return
             log(f'{name}: {failed}')
-            # Escalation to a failing dependency: see spec/standalone-opencode-runtime.
+            # Escalation to a dependency that fails.
             cause = self.failing_dependency(name)
             if cause is not None:
                 log(f'{name}: failure escalated to {cause}, which fails its readiness probe')

@@ -125,9 +125,9 @@ access.
 
 ## Spec changes
 
-Create [Xpra port forwarding](../../../spec/xpra-port-forwarding.md) during Ship
-and include it in the spec hub. Existing specs remain unchanged. The new spec
-captures the changed default and preserved explicit-port contract:
+Create Xpra port forwarding during Ship and include it in the spec hub. Existing
+specs remain unchanged. The new spec captures the changed default and preserved
+explicit-port contract:
 
 ``` markdown
 ## ADDED Requirements

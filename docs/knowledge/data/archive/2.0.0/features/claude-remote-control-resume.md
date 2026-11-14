@@ -31,9 +31,8 @@ new conversation under a newly generated ID and stores that ID.
 **A failed resume starts over.** When resuming exits non-zero, the pane starts a
 new conversation under a new ID, which replaces the stored one.
 
-The requirement and its scenarios live in [Claude Remote
-Control](../../../spec/claude-remote-control.md); the decision and the Claude
-Code behavior it relies on live in [Claude Remote Control
+The requirement and its scenarios live in Claude Remote Control; the decision
+and the Claude Code behavior it relies on live in [Claude Remote Control
 resume](../architecture/claude-remote-control-resume.md).
 
 ## Edge cases

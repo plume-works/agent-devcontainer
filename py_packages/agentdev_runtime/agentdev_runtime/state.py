@@ -1,8 +1,7 @@
 """
 The controller's on-disk shapes: ``state.json``, the retry request, and the failure record.
 
-Every reader and writer in the package goes through this module. Spec:
-standalone-opencode-runtime.
+Every reader and writer in the package goes through this module.
 """
 
 from __future__ import annotations

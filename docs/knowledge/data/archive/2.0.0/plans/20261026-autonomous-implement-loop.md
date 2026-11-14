@@ -316,8 +316,8 @@ doc the map skill reports stale
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — scenario sets
-change and two requirements are added, so a delta:
+IWE workflow skills — scenario sets change and two requirements are added, so a
+delta:
 
 ``` markdown
 ## MODIFIED Requirements

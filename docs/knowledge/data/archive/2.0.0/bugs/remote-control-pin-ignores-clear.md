@@ -15,9 +15,8 @@ severity: medium
 
 ## Symptom
 
-[Claude Remote Control](../../../spec/claude-remote-control.md) has the
-`claude-remote` pane resume the conversation stored in
-`remote-control-session-id`. Running `/clear` in the pane starts a new
+Claude Remote Control has the `claude-remote` pane resume the conversation
+stored in `remote-control-session-id`. Running `/clear` in the pane starts a new
 conversation in the same process, and the claude.ai/code session follows it, but
 the stored ID still names the pre-clear conversation. On the next workspace
 restart the pane resumes the pre-clear conversation, and because its remote

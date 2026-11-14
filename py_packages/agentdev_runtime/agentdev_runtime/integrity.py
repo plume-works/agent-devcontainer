@@ -2,8 +2,11 @@
 Refuse a runtime whose installed files differ from what the image installed.
 
 A derived image that replaced, added, or removed a package file would run lifecycle code nobody
-tested. The installed distribution's ``RECORD`` holds each file's hash. Spec:
-agentdev-runtime-images.
+tested. The installed distribution's ``RECORD`` holds each file's hash. See
+ADR-0032.
+
+This check is not a security boundary: a deleted metadata directory or a rewritten ``RECORD``
+passes it.
 """
 
 from __future__ import annotations

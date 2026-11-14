@@ -32,8 +32,7 @@ login in its auth volume. The maintainer asked for standalone support, gated on
 `AGENTDEV_CLAUDE_RC_MODE`, and chose a supervised watcher as what starts Remote
 Control after a login that happens once the runtime is already up.
 
-The contracts are [Claude Remote
-Control](../../../spec/claude-remote-control.md) and [Standalone OpenCode
+The contracts are Claude Remote Control and [Standalone OpenCode
 runtime](../../../spec/standalone-opencode-runtime.md), which the [standalone
 OpenCode container plan](20261017-standalone-opencode-container.md) creates.
 
@@ -254,10 +253,10 @@ tick was rejected for the cost of a Claude process every interval.
 
 ## Spec changes
 
-[Claude Remote Control](../../../spec/claude-remote-control.md): its first
-requirement names the standalone watcher as the second thing that runs the start
-script, and a new requirement covers the standalone runtime. Ship also replaces
-the setup procedure's "Autostart is Coder-only" with the standalone opt-in.
+Claude Remote Control: its first requirement names the standalone watcher as the
+second thing that runs the start script, and a new requirement covers the
+standalone runtime. Ship also replaces the setup procedure's "Autostart is
+Coder-only" with the standalone opt-in.
 
 ``` markdown
 ## MODIFIED Requirements

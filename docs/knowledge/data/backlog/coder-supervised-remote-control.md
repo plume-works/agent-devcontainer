@@ -32,9 +32,9 @@ starts (VS Code, the devcontainer CLI) stay without Remote Control autostart.
   every tick, start `claude-remote` once the login exists, and restart a session
   it saw live that is gone, within a bounded recovery budget.
 - Reuse `agentdev-runtime remote-control` where it fits, and keep the existing
-  behavior that `spec/claude-remote-control` requires of Coder starts: the Coder
-  user secrets and git credential helper reach the Claude process,
-  `CODER_WORKSPACE_NAME` names the session, and a live session is reused.
+  behavior of Coder starts: the Coder user secrets and git credential helper
+  reach the Claude process, `CODER_WORKSPACE_NAME` names the session, and a live
+  session is reused.
 - Decide how Coder reports the service's state, since Coder workspaces have no
   `agentdev-runtime health status`.
 

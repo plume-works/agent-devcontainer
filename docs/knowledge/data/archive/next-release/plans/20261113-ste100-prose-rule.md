@@ -312,7 +312,7 @@ The repository owner decided that this plan writes spec text only for plan
 review and for pull request review: one changed requirement and one added
 requirement. The rule, the skill, and the glossary get no spec.
 
-[agentdev IWE workflow skills](../../../spec/iwe-workflow-skills.md):
+agentdev IWE workflow skills:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -351,7 +351,7 @@ so the `iwe-planner` rulebook can run it in every mode.
 `## Rationale` entry that the spec gains: "The ASD-STE100 audit runs before the
 other plan reviewers". It records the rejected fourth parallel reviewer.
 
-[PR review](../../../spec/pr-review.md):
+PR review:
 
 ``` markdown
 ## ADDED Requirements

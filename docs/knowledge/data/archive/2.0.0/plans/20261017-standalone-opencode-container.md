@@ -37,8 +37,7 @@ defines a single-project environment operated without Coder or a Dev Containers
 client. The image must own startup and persistent-state reconciliation rather
 than require its project to contain lifecycle scaffolding.
 
-[OpenCode web](../../../spec/opencode-web.md) supplies the Coder server and
-auth/session contract. [Agent auth
+OpenCode web supplies the Coder server and auth/session contract. [Agent auth
 persistence](../../1.0.0/architecture/agent-auth-persistence.md) separates
 shared provider logins from instance state. This work extends those building
 blocks with a dedicated image, not a new default for `agent-desktop`.
@@ -1498,7 +1497,7 @@ digest
 
 Create [Standalone OpenCode
 runtime](../../../spec/standalone-opencode-runtime.md) with the following full
-contract. [OpenCode web](../../../spec/opencode-web.md), as the [OpenCode v2
+contract. OpenCode web, as the [OpenCode v2
 plan](20261018-opencode-v2-default.md) amends it, [Devcontainer Git
 credentials](../../../spec/devcontainer-git-credentials.md), and [Devcontainer
 Docker storage](../../../spec/devcontainer-docker-storage.md) keep their

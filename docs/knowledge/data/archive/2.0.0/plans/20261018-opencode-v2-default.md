@@ -40,15 +40,13 @@ chat shows only the user's text and a skill chip.
 The current design is in [OpenCode catalog
 bridge](../architecture/opencode-catalog-bridge.md) and [Agent auth
 persistence](../../1.0.0/architecture/agent-auth-persistence.md); the contracts
-are [OpenCode catalog bridge](../../../spec/opencode-catalog-bridge.md),
-[OpenCode web](../../../spec/opencode-web.md), OpenCode workspace CBM indexing,
-and [Coder IDE baseline template](../../../spec/coder-ide-baseline.md).
+are OpenCode catalog bridge, OpenCode web, OpenCode workspace CBM indexing, and
+Coder IDE baseline template.
 
 [OpenCode full-access config](../features/opencode-full-access-config.md) writes
-a v1-shaped `permission` block into `opencode.json` on every start
-([Devcontainer OpenCode policy](../../../spec/devcontainer-opencode-policy.md)).
-v2 reads that block, so the policy needs no change; this plan only verifies it
-on v2.
+a v1-shaped `permission` block into `opencode.json` on every start (Devcontainer
+OpenCode policy). v2 reads that block, so the policy needs no change; this plan
+only verifies it on v2.
 
 [Ship a standalone OpenCode
 container](20261017-standalone-opencode-container.md) builds on
@@ -551,7 +549,7 @@ map document whose source digest the changed files move
 
 ## Spec changes
 
-- [OpenCode catalog bridge](../../../spec/opencode-catalog-bridge.md):
+- OpenCode catalog bridge:
 
 ``` markdown
 ## ADDED Requirements
@@ -696,7 +694,7 @@ keeps the catalog agent's value.
   the user's permissions allow, including `webfetch`.
 ```
 
-- [OpenCode web](../../../spec/opencode-web.md):
+- OpenCode web:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -862,13 +860,11 @@ through the logging client on v1 and through the host's logger on v2.
   existing indexing instead of starting competing jobs.
 ```
 
-- [Devcontainer OpenCode policy](../../../spec/devcontainer-opencode-policy.md):
-  None — no behavioral change; v2 reads the same `opencode.json` `permission`
-  block.
-- [Coder IDE baseline template](../../../spec/coder-ide-baseline.md): the
-  `OpenCode` app requirement SHALL describe the repository's agent-start script
-  as starting the OpenCode server (`opencode serve`) rather than `opencode web`;
-  its behavior is unchanged.
+- Devcontainer OpenCode policy: None — no behavioral change; v2 reads the same
+  `opencode.json` `permission` block.
+- Coder IDE baseline template: the `OpenCode` app requirement SHALL describe the
+  repository's agent-start script as starting the OpenCode server
+  (`opencode serve`) rather than `opencode web`; its behavior is unchanged.
 
 ## Verification
 
