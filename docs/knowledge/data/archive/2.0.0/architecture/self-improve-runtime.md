@@ -10,9 +10,9 @@ sources:
 
 # Self-improve runtime
 
-How the self-improve learning loop is built, and why. The behavior itself is
-specified there; this records the decisions that constrain any reimplementation
-of it.
+How the maintainer built the self-improve learning loop, and why. The behavior
+itself is specified there; this records the decisions that constrain any
+reimplementation of it.
 
 ## Runtime code imports the standard library only
 

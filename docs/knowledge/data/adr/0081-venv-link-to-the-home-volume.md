@@ -8,9 +8,9 @@ description: Each checkout links its .venv to its own uv environment in the venv
 
 The uv environments are in the venv root on the home volume, next to the uv
 cache. As a result, uv can hardlink packages from the cache. Each checkout gets
-its own environment, because `uv run` points editable installs at the checkout
-that calls it. A `.venv` link in the checkout selects the environment, so each
-`uv run` finds it with no wrapper
+its own environment, because `uv run` points editable installations at the
+checkout that calls it. A `.venv` link in the checkout selects the environment,
+so each `uv run` finds it with no wrapper
 (`py_packages/agentdev_runtime/agentdev_runtime/project.py::link_venv`).
 
 ## Considered Options
@@ -21,9 +21,10 @@ that calls it. A `.venv` link in the checkout selects the environment, so each
 - `UV_PROJECT_ENVIRONMENT`. Rejected: it has one value for the whole container,
   and uv ignores `.venv` while it is set. A value for each checkout from a `uv`
   wrapper or `CLAUDE_ENV_FILE` applies to one session only.
-- One shared environment without editable installs. Rejected: the dependencies
-  of branches are still different.
-- `UV_LINK_MODE=symlink`. Rejected: a cache clean breaks each environment.
+- One shared environment without editable installations. Rejected: the
+  dependencies of branches are still different.
+- `UV_LINK_MODE=symlink`. Rejected: when uv cleans its cache, each environment
+  breaks.
 - A `PreToolUse`, `SessionStart`, or `SubagentStart` hook. Rejected:
   `PreToolUse` runs at each tool call, `SessionStart` at each session, and
   `SubagentStart` at a dispatch, not when Claude Code makes a worktree. A

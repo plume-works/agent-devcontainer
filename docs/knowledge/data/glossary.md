@@ -28,6 +28,8 @@ term in the same change that first uses it.
   GitHub credentials and limits access to the repositories of the session.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
+- **AI review gate** (noun): The `ai-review-present` check, which must pass
+  before a pull request can merge.
 - **AI reviewer** (noun): The `plume-works-quill` GitHub App account that
   submits the AI review of a pull request.
 - **allowlist** (noun): The file of domain names and the optional `github-meta`
@@ -64,6 +66,8 @@ term in the same change that first uses it.
   published by digest before acceptance.
 - **candidate** (noun): In self-improve, a validated reviewer result that the
   foreground session routes and that changes nothing by itself.
+- **Capture** (noun): The workflow step that files a bug, a feature, or a task
+  through `/agentdev:iwe-capture`.
 - **carry** (verb): To keep uncommitted and untracked changes in the working
   tree when `git-new-branch` switches to the new branch.
 - **catalog** (noun): The `.agents/plugins/agentdev/` tree of skills, agents,
@@ -84,8 +88,8 @@ term in the same change that first uses it.
   which names who or what closes the task outside the session tests.
 - **cloud session** (noun): A Claude Code session that runs on a hosted machine
   and not on the computer of the user.
-- **codebase map** (noun): A retired set of `data/codebase/` documents that
-  described the code by path, each with a stamped source digest.
+- **codebase map** (noun): A set, no longer used, of `data/codebase/` documents
+  that described the code by path, each with a stamped source digest.
 - **Coder user secret** (noun): A value for one user, such as `GITHUB_TOKEN`,
   that Coder puts only in the environment of its agent.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
@@ -124,6 +128,8 @@ term in the same change that first uses it.
 - **disposable volume** (noun): A Docker volume whose name matches
   `docker.py::DISPOSABLE_VOLUME`, which is the only type of volume that a
   garbage collection pass can remove.
+- **Durable Knowledge Auditor** (noun): The catalog agent that runs
+  `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
 - **durable-knowledge pass** (noun): The pass of a pull request review that runs
   `/agentdev:iwe-audit` on the changed docs and skills files.
 - **ecosystem** (noun): In `validate_agent_files`, the marketplace and plugin
@@ -162,6 +168,8 @@ term in the same change that first uses it.
   request starts, in which the responder check does not run.
 - **global-only option** (noun): A Renovate option that only the global
   configuration of the self-hosted bot accepts.
+- **graph** (noun): The IWE knowledge graph of the documents under
+  `docs/knowledge/data/`.
 - **handoff** (noun): The part of an Explore report that gives Plan the settled
   content for a plan.
 - **harness** (noun): An agent client that the images install and that the

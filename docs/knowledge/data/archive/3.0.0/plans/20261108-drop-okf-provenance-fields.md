@@ -62,10 +62,10 @@ cut before this change that re-adds `generated` to a document fails it.
 
 Consumers get the check the way they get `test_plan_checkboxes.py`: template
 adoption's knowledge-base bundle tracks the test file and the consumption guide
-lists its hook among those to retain. `iwe-bootstrap` stays unchanged — the IWE
-bootstrap spec forbids it from adding pre-commit configuration. The test skips
-the scaffold graph when its directory is absent, since consumers delete
-`.agents/`.
+lists its hook among those to retain. `iwe-bootstrap` does not change, because
+the IWE bootstrap spec does not permit it to add pre-commit configuration. The
+test skips the scaffold graph when its directory is absent, because consumers
+delete `.agents/`.
 
 A separate test and hook beside `no-status-field` was rejected: a second
 near-copy of the same file.

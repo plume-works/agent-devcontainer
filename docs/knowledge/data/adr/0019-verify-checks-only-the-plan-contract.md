@@ -8,7 +8,7 @@ description: Verify reports only what contradicts the plan, CI stays with pr-mer
 
 Verify is a conformance check. Each `CRITICAL` or `WARNING` result names the
 part of the plan that the code contradicts, and CI stays with `pr-merge`, which
-gates each merge on it. As a result, the Implement loop ends when the code
+must pass before each merge. As a result, the Implement loop ends when the code
 agrees with the plan. It also stops on a result that occurs again, after three
 Verify rounds, or when it needs a second revision.
 
@@ -25,5 +25,5 @@ Verify rounds, or when it needs a second revision.
 
 - Ship, not Verify, refuses a plan while a task with a Closed by line is
   unticked. Verify lists that task as an outstanding observation.
-- A plan has no step that only says that CI passes, and a search for leftover
+- A plan has no step that only says that CI passes, and a search for remaining
   text examines only the files that the plan changes.

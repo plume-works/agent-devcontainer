@@ -4,7 +4,7 @@ stage: accepted
 description: The runtime supervises the nested Docker engine on a volume of its own in both runtime profiles, and the image has no SSH server.
 ---
 
-# The runtime supervises the nested engine, and the image has no SSH server
+# The runtime supervises the Dev Container engine, and the image has no SSH server
 
 A nested Docker engine cannot keep `/var/lib/docker` on the overlay layer of the
 container. As a result, it needs a separate volume and an owner that starts,

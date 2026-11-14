@@ -16,8 +16,8 @@ the installed catalog.
 
 - Track `docs/knowledge/data/`. Rejected: each difference is the history of one
   owner, and to apply it in either direction destroys the memory of the other.
-- Seed the consumer from the template checkout. Rejected: it needs the checkout,
-  and the consumer starts with the memory of the publisher.
+- Copy the memory into the consumer from the template checkout. Rejected: it
+  needs the checkout, and the consumer starts with the memory of the publisher.
 
 ## Consequences
 

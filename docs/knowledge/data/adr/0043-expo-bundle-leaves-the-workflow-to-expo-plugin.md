@@ -28,4 +28,5 @@ an empty token as no token.
 
 - The marker records `expo` in `optional_bundles`, so that update mode knows
   that the consumer is an Expo app.
-- A person does the Apple code signature setup one time, with `eas credentials`.
+- A person does the setup of the Apple code signature one time, with
+  `eas credentials`.

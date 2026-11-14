@@ -1027,10 +1027,10 @@ scenario keeps its behaviour.
 
 Claude Remote Control, Task 10: the requirement "the standalone runtime starts
 Remote Control when a mode is set" gains a normative outcome. A start that
-returns without leaving a live `claude-remote` session SHALL count as the
-session exiting, so the runtime restarts it and, once the recovery budget is
-exhausted, reports degraded naming `remote-control`, or latches failed under
-strict startup.
+returns without leaving a live `claude-remote` session SHALL count as an exit of
+the session. The runtime then restarts it. When the recovery budget is empty,
+the runtime reports a degraded state that names `remote-control`, or latches
+under strict startup.
 
 Coder IDE baseline, Task 19 — the start hook becomes a command, so the script
 requirement is removed and a command requirement added, and every other mention

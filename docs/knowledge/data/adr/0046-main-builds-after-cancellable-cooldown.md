@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: A push to main waits a cooldown in a job that a newer push cancels, so a burst of merges builds once, and a cap stops a steady flow from a delay of each build.
+description: A push to main waits a cooldown in a job that a newer push cancels, so a burst of merges builds once, and a time limit makes sure that a steady flow of merges cannot delay each build.
 ---
 
 # Pushes to main build after a cooldown that a newer push cancels

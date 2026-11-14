@@ -8,9 +8,9 @@ description: On OpenCode v2, the bridge applies the declared tools of a catalog 
 
 Claude Code applies the declared tools of a catalog agent under full access, and
 the OpenCode bridge gives OpenCode the same limits. v2 adds the global
-`permission` rules at the end of each agent after all plugin transforms, and the
-last rule that matches applies. For this reason, the bridge removes each denied
-tool in `session.hook("context")` and denies its actions in
+`permission` rules at the end of each agent after all plugins change the agent,
+and the last rule that matches applies. For this reason, the bridge removes each
+denied tool in `session.hook("context")` and denies its actions in
 `permission.hook("evaluate")`.
 
 ## Considered Options

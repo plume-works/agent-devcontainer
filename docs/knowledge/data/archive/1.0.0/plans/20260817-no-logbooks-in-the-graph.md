@@ -43,9 +43,9 @@ defines `## Verification results` as "narrative evidence for the plan as a
 whole, written as the work happens rather than reconstructed at the end", and
 Plan checkbox evidence reinforces it with a scenario covering results "or
 discovers something that changes what the plan claims". Both are correct and
-deliberately scoped. But read mid-implementation they land as a general licence
-to write narrative into the plan as things happen, and because neither says
-*which section*, it bleeds into the ungoverned ones.
+deliberately scoped. But during Implement, a reader can think that the rules
+permit a story in the plan. Neither rule names *which section*, so the story
+goes into sections that no rule controls.
 
 The pressure behind it is structural rather than careless. Implementation
 produces findings that are true and expensive — that `UV_PROJECT_ENVIRONMENT`

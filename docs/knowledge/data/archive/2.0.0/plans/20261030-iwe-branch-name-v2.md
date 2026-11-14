@@ -255,7 +255,7 @@ The requirement "Plan state is read at the remote default branch" is unchanged.
 
 iwe-workflow-skills: the scenario "Implementation starts on main" SHALL read
 "**THEN** it creates branch `iwe/<slug>/iter-<N>-impl`, with `N` from
-iwe-branch-name, through git-new-branch before executing any task"; the
+iwe-branch-name, through git-new-branch before it does a task"; the
 requirement's SHALL statement is unchanged.
 
 ## Verification

@@ -32,8 +32,8 @@ engines, and all workspaces share one host disk:
 Neither engine limits its build cache or removes images it no longer uses, so
 storage grows until the shared disk fills. A full disk stops any workspace from
 pulling or unpacking its Dev Container image, and with no Dev Container its
-sub-agent never starts, so nothing in coder-agent-start.sh runs either —
-including Claude Remote Control.
+sub-agent never starts, so nothing in coder-agent-start.sh runs, and Claude
+Remote Control does not run.
 
 The Dev Container engine stays in place: replacing it with
 docker-outside-of-docker breaks bind mounts of Dev Container paths outside the

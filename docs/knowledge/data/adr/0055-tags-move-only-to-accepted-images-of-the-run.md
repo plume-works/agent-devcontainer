@@ -8,7 +8,7 @@ description: Each CI run builds, tests, and then promotes its own candidate imag
 
 A CI run builds candidate images, runs acceptance on them, and then promotes
 them. A squash merge or a Renovate commit gives `main` a tree that no pull
-request tested. A rebuild also differs, because apt packages and upstream
+request tested. A rebuild is also different, because apt packages and upstream
 repositories change between builds. As a result, a moving tag names only an
 image that passed acceptance in the same run.
 

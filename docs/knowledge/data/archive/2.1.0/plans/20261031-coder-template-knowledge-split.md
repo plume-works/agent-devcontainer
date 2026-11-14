@@ -186,10 +186,11 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
 ## Spec changes
 
-Coder IDE baseline template is retitled `Coder IDE baseline contract`, its
-description and introduction say it is this repository's side of the template
-contract and link `coder-ide-baseline`'s `spec/workspace-template` on `main`,
-and its `## Working on the template` section is removed.
+Ship gives Coder IDE baseline template the title `Coder IDE baseline contract`.
+Its description and introduction say that it is this repository's side of the
+template contract, and they link `coder-ide-baseline`'s
+`spec/workspace-template` on `main`. Ship removes its
+`## Working on the template` section.
 `Coder user secrets reach only agent-started processes` is unchanged.
 
 ``` markdown

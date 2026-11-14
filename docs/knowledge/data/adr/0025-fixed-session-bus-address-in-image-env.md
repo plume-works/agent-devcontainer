@@ -8,7 +8,7 @@ description: The runtime images set one fixed D-Bus session bus address as an im
 
 `gh` reads its token from the Secret Service at each call. When a process has no
 session bus address, the D-Bus client library starts a new bus through
-`dbus-launch`. The token lookup then starts a new `gnome-keyring-daemon`, and
+`dbus-launch`. The token search then starts a new `gnome-keyring-daemon`, and
 neither process stops. Each process must get one fixed address. Only an image
 `ENV` goes to all processes: supervised programs, `docker exec` shells, the VS
 Code server, and agent sessions.

@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The runtime refuses to start when its installed files differ from the RECORD file of the installed wheel.
+description: The runtime refuses to start when its installed files are different from the RECORD file of the installed wheel.
 ---
 
 # The wheel RECORD is the integrity record of the runtime

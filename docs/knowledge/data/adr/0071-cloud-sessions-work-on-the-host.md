@@ -1,19 +1,19 @@
 ---
 type: adr
 stage: accepted
-description: A cloud session installs its toolchain on the session host and runs no devcontainer.
+description: A cloud session installs its toolchain on the session host and runs no Dev Container.
 ---
 
-# A cloud session works on its host, not in a devcontainer
+# A cloud session works on its host, not in a Dev Container
 
 The session host stops after some idle minutes and starts again with a new agent
 proxy port. A toolchain on the host disk stays after this, but the session must
 restore a container that runs for a long time before each turn. As a result, a
-cloud session runs no devcontainer, by decision of the repository owner.
+cloud session runs no Dev Container, by decision of the repository owner.
 
 ## Considered Options
 
-- A devcontainer that runs for a long time on the session host. Rejected: a
+- A Dev Container that runs for a long time on the session host. Rejected: a
   worker restart stops each container, so each turn starts with a rebuild or a
   restart.
 

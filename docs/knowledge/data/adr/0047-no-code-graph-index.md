@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The images, the runtime, and the catalog ship no code-graph daemon, MCP server, hook, or index, and the create phase removes an old codebase-memory-mcp install.
+description: The images, the runtime, and the catalog ship no code-graph daemon, MCP server, hook, or index, and the create phase removes an old codebase-memory-mcp installation.
 ---
 
 # The runtime ships no code-graph index
@@ -22,6 +22,6 @@ receivers.
 
 ## Consequences
 
-- An old install stays in the home volume after an image change.
+- An old installation stays in the home volume after an image change.
   `agentdev_runtime/cbm_purge.py` removes it in the create phase, until no
   supported instance can have one.

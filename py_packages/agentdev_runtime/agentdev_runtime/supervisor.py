@@ -64,7 +64,7 @@ class Settings:
     skip_xpra: bool = False
     # Starts OpenCode Web in a Dev Container; deploy always serves it.
     opencode_web: bool = False
-    # Empty leaves Remote Control out. See ADR-0078.
+    # An empty value disables Remote Control. See ADR-0078.
     remote_control: str = ''
     strict: bool = False
     firewall: bool = False
@@ -215,7 +215,7 @@ DEPLOY_SERVICES = (
     Service('opencode', after=('keyring', 'prepare'), core=True, alongside=('xpra',)),
     Service('xpra', after=('keyring',)),
     Service('dockerd'),
-    # A client: the collector never gates readiness. See ADR-0073.
+    # A client: the collector never stops readiness. See ADR-0073.
     Service('docker-gc', after=('dockerd',), client=True),
     Service('project', after=('prepare',), oneshot=True),
     Service('remote-control', after=('prepare',)),
@@ -673,7 +673,7 @@ class Controller:
             if self.shutting_down():
                 return
             log(f'{name}: {failed}')
-            # Escalation to a failing dependency.
+            # Escalation to a dependency that fails.
             cause = self.failing_dependency(name)
             if cause is not None:
                 log(f'{name}: failure escalated to {cause}, which fails its readiness probe')

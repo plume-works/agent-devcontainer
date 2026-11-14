@@ -55,7 +55,8 @@ rather than two.
 Every `- [x]` carries an indented `- **Evidence:**` child. Nothing mechanically
 gates this file — the check in `docs/knowledge/tests/test_plan_checkboxes.py` is
 scoped to `docs/knowledge/data/plans/` — so the convention in Plan checkbox
-evidence is the only thing distinguishing a real tick from an optimistic one.
+evidence is the only thing that shows the difference between a real tick and a
+tick without work.
 
 `consumed_ref` stays in JSON and is parsed only there. `check-updates.sh`
 returns `INVALID_MARKER` on a malformed marker, giving the SHA one parse with
@@ -107,7 +108,7 @@ this way; the root file stays the live record.
   - **Evidence:** `iwe schema validate` passed with setup ordered to persist the
     progress document before guide execution.
 - [x] Add a requirement that a ticked task in the progress document carries an
-  `- **Evidence:**` child, matching Plan checkbox evidence.
+  `- **Evidence:**` child, as Plan checkbox evidence states.
   - **Evidence:** `iwe schema validate` passed with the checkbox-evidence
     scenario in the durable specification.
 - [x] Add a requirement that the progress document is never a `tracked_paths`

@@ -24,11 +24,10 @@ merged before that PR opened. They were caught only in review.
 [Never write a working logbook](20260817-no-logbooks-in-the-graph.md) changed
 the *wording* of those rules after the same failure recurred across tasks, and
 Plans record intent, not the path taken to it made the rule normative. Neither
-added enforcement: the author who wrote the residue is the party trusted to
-notice it, in the same session that accumulated the context which buried the
-rule. A polluted context does not reliably audit itself — a writer cannot
-proofread their own draft cold. This plan adds the enforcement layer those left
-out.
+added enforcement: the author who wrote the residue must find it, in the same
+session whose context hid the rule. A context that holds residue cannot audit
+itself correctly — a writer cannot proofread their own draft cold. This plan
+adds the enforcement layer those left out.
 
 ## Approach
 

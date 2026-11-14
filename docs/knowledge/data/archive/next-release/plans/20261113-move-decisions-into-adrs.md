@@ -29,21 +29,21 @@ it, no reason is only in a spec.
 
 ## Approach
 
-Each `## Rationale` entry and each requirement whose `fate` is `adr` is judged
-against the three conditions for an ADR: hard to reverse, surprising without
-context, and the result of a real trade-off. A decision that passes gets an ADR
-in the short format. A decision that fails gets no ADR, and its text is removed.
-One ADR can hold several entries that record one decision.
+The session judges each `## Rationale` entry and each requirement whose `fate`
+is `adr` against the three conditions for an ADR: hard to reverse, surprising
+without context, and the result of a real trade-off. A decision that passes gets
+an ADR in the short format. A decision that fails gets no ADR, and the session
+removes its text. One ADR can hold several entries that record one decision.
 
-The ADRs are written at `stage: accepted` by the session that does the tasks.
-Each one records a decision that is in force already, so Plan does not propose
-it and Ship does not accept it. The pull request review is the check.
+The session that does the tasks writes the ADRs at `stage: accepted`. Each one
+records a decision that is in force already, so Plan does not propose it and
+Ship does not accept it. The pull request review is the check.
 
 A requirement whose `fate` is `code-comment` becomes a comment of 3 lines or
 fewer at its implementation.
 
 A code comment that cites `spec/<key>` cites the ADR as `ADR-NNNN`. If the
-decision got no ADR, the citation is removed.
+decision got no ADR, the session removes the citation.
 
 ## Implementation Steps
 
@@ -54,28 +54,30 @@ decision got no ADR, the citation is removed.
 
 - [x] Each `## Rationale` entry in `data/spec/` whose decision passes the three
   conditions has its decision and its reason in an ADR.
-  - **Evidence:** All 186 entries were judged against the three conditions. 102
-    of them are in ADR-0003 to ADR-0091, and the other 84 fail a condition. A
-    script confirmed that each `###` entry under each `## Rationale` has a
-    judgement.
+  - **Evidence:** The session judged all 186 entries against the three
+    conditions. 102 of them are in ADR-0003 to ADR-0091, and the other 84 fail a
+    condition. A script confirmed that each `###` entry under each
+    `## Rationale` has a judgement.
 - [x] Each requirement whose `fate` is `adr`, and whose decision passes the
   three conditions, has its decision and its reason in an ADR.
   - **Evidence:** 19 of the 21 requirements are in an ADR. One fails condition 2
     and condition 3. The code contradicts the other, "The plugin is published
     but not enabled by default", because the runtime enables the plugin.
 - [x] Each ADR lists a rejected option only when the rejection is not obvious.
-  - **Evidence:** Each draft dropped the spec's obvious rejections, and some
-    ADRs have no `## Considered Options`. A full reading of ADR-0041, 0047,
+  - **Evidence:** Each draft removed the obvious rejections of the spec, and
+    some ADRs have no `## Considered Options`. A full reading of ADR-0041, 0047,
     0055, 0059, 0066, 0070, and 0086 found no rejection that is obvious.
 - [x] Each ADR is at `stage: accepted`, passes the schema, and has a link in
   `data/adr.md`.
   - **Evidence:** `iwe schema validate` passes, the hub links all 89 new ADRs,
     and `uv run pytest docs/knowledge/tests` passes (102 tests).
-- [x] Each ADR agrees with the code. The entries whose `accurate` is not `true`
-  in `docs/spec-audit/rationale.jsonl` were read against the code first.
-  - **Evidence:** Each ADR was written from the code in the current checkout.
-    Where an entry differs from the code, the ADR states what the code does or
-    the entry gets no ADR, as for the agent metadata and the session ID file.
+- [x] Each ADR agrees with the code. The session read the entries whose
+  `accurate` is not `true` in `docs/spec-audit/rationale.jsonl` against the code
+  first.
+  - **Evidence:** The session wrote each ADR from the code in the current
+    checkout. Where an entry differs from the code, the ADR states what the code
+    does or the entry gets no ADR, as for the agent metadata and the session ID
+    file.
 
 ### Task 2: Put the short invariants in code comments
 
@@ -97,14 +99,15 @@ decision got no ADR, the citation is removed.
 `AGENTS.md`, `docs/knowledge/AGENTS.md`
 
 - [x] No file outside `docs/` cites `spec/<key>`.
-  - **Evidence:** 112 citations in the `spec/<key>`, `Spec: <key>`, and link
-    forms were changed. `git grep -E "spec/[a-z][a-z-]+|Spec:" -- ':!docs'` now
-    finds only test fixtures and the `data/spec/` directory itself.
+  - **Evidence:** The session changed 112 citations in the `spec/<key>`,
+    `Spec: <key>`, and link forms.
+    `git grep -E "spec/[a-z][a-z-]+|Spec:" -- ':!docs'` now finds only test
+    fixtures and the `data/spec/` directory itself.
 - [x] Each citation that replaced one names an ADR that states the cited
   decision.
-  - **Evidence:** Each comment was read with its context and matched to the ADR
-    of its decision. A comment whose decision got no ADR lost its citation. The
-    pre-commit hooks and 291 tests pass on the changed files.
+  - **Evidence:** The session read each comment with its context and matched it
+    to the ADR of its decision. A comment whose decision got no ADR lost its
+    citation. The pre-commit hooks and 291 tests pass on the changed files.
 - [x] Rule 3 in `AGENTS.md#comments` names ADRs as the home of a decision and
   `ADR-NNNN` as the reference. It names no spec and no `## Rationale`.
   - **Evidence:** Removed the sentence that permitted a `spec/<key>` reference.
@@ -126,10 +129,10 @@ decision got no ADR, the citation is removed.
     scenarios and reported no title that it did not find. One requirement has a
     new title in the spec, "The catalog publishes the plugin and the runtime
     enables it".
-- [x] Each spec that has no requirement is deleted with `iwe delete`.
+- [x] `iwe delete` deletes each spec that has no requirement.
   - **Evidence:** `iwe delete` removed the 25 specs with no requirement. 15
     specs stay, and each has at least one requirement.
-- [x] No document outside `data/archive/` links a spec that was deleted.
+- [x] No document outside `data/archive/` links a deleted spec.
   - **Evidence:** `iwe delete` turned each link into text. The guide
     `claude-remote-control-setup` now links ADR-0077 and ADR-0078.
     `iwe schema validate` and `scripts/check-anchors.py` pass.

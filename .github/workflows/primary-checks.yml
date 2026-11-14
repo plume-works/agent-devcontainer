@@ -18,8 +18,8 @@ on:
         default: false
         type: boolean
 
-# On main the cooldown job cancels a waiting run and the ci job queues, so edge keeps
-# advancing and a burst of merges builds once; see ADR-0046.
+# On main the cooldown job cancels a waiting run and the ci job queues, so `edge`
+# continues to move and a burst of merges builds once; see ADR-0046.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref || github.run_id }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}

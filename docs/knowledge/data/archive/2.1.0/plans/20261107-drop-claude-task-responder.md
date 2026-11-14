@@ -280,8 +280,8 @@ Removed with the free-form task responder: no comment starts a run, so nothing
 is bridged to the head branch.
 ```
 
-AI review refresh — a rationale comment starts no workflow run, rather than
-being one the bridge dispatches nothing for.
+AI review refresh — a rationale comment starts no workflow run, and the bridge
+does not dispatch work for it.
 
 [Template consumption](../../../spec/template-consumption.md) — the AI review
 gate's trust requirement forbids comment, issue, and `workflow_dispatch`

@@ -11,7 +11,7 @@
   "service": "devcontainer",
   // agentdev-devcontainer supplies the lifecycle commands, waitFor, and the supervised
   // services, nested Docker included, through its image metadata; see
-  // ADR-0031. Declaring them here too would run each twice.
+  // ADR-0031. A declaration here too runs each command two times.
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "containerEnv": {
     // The firewall is installed in the image but inert until this is "true".

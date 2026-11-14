@@ -36,7 +36,7 @@ not know that its hooks run.
 plugin that the manifest publishes, and
 `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::created` and
 `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::attached` call it
-at user scope. The README text was not changed when the runtime started to
+at user scope. Nobody changed the README text when the runtime started to
 install the full catalog.
 
 ## Potential solution

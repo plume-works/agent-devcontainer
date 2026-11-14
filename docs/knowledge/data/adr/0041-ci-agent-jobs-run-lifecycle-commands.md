@@ -37,6 +37,6 @@ writes a review with no basis, and that review can pass a required check.
   level deep. An `enabledPlugins` in the input replaces the lifecycle value, so
   the action deep-merges the user, project, and local settings first.
 - The job sets `AGENTDEV_SKIP_PRE_COMMIT`, because the review never commits and
-  the hook install takes minutes.
+  the hook installation takes minutes.
 - The create phase always marks the checkout a git safe directory, because a CI
   checkout has a different owner UID.

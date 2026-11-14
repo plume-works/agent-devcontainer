@@ -17,8 +17,8 @@ merges, so `N` also counts the pull requests in all states.
   before or after `ship/foo/iter-1`.
 - `<slug>/iter-<N>-<phase>` without a prefix. Rejected: a branch with the name
   of the slug blocks all the work branches of that plan.
-- A bare `iwe/<slug>` for the first iteration. Rejected: git cannot keep a ref
-  next to a ref below it, so it blocks each later work branch.
+- A bare `iwe/<slug>` for the first iteration. Rejected: git cannot keep a
+  reference next to a reference below it, so it blocks each later work branch.
 - A lower limit from branches alone when `gh` fails. Rejected: it can use again
   the name of a merged iteration and mix the history of two pull requests.
 

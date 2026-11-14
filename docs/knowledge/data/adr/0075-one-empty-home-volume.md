@@ -17,7 +17,7 @@ the build when the home is not there.
 
 - A volume on `/root`, with root as the user. Rejected: the base image builds
   shell configuration, `gh` extensions, and tool state into `/root`. A volume
-  there keeps all of it at the image of the first create.
+  there keeps all of it at the image of the first create phase.
 - A volume on `/root` that the image refreshes at each start. Rejected: it
   overwrites the edits of the user and needs an ownership decision for each
   file.
@@ -34,7 +34,7 @@ the build when the home is not there.
 - The uv cache, interpreters, and environments are on the home volume, with no
   separate `/uv` volume.
 - Editor servers such as `~/.vscode-server` stay on the home volume with no
-  cleanup. The owner accepted unlimited growth, and a broken server install that
-  stays after a rebuild.
+  cleanup. The owner accepted unlimited growth, and a broken server installation
+  that stays after a rebuild.
 - The fish configuration that the `fish_setup` role writes into the home of the
   build user does not go into the home of the `agent` account.

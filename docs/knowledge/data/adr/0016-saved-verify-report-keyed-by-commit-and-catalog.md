@@ -6,10 +6,11 @@ description: Verify keeps one saved report for each plan, keyed by the commit an
 
 # The saved Verify report is keyed by commit and catalog hash
 
-Verify refuses a dirty worktree, so a commit names all that Verify examined.
-`verify-cache.py` keeps one saved Verify report for each plan, keyed by that
-commit and by a hash of the catalog files on disk. As a result, `iwe-shipper`
-uses the verdict of the Implement loop again, and does not run the tests again.
+Verify refuses a worktree that has uncommitted changes, so a commit names all
+that Verify examined. `verify-cache.py` keeps one saved Verify report for each
+plan, keyed by that commit and by a hash of the catalog files on disk. As a
+result, `iwe-shipper` uses the verdict of the Implement loop again, and does not
+run the tests again.
 
 ## Considered Options
 
@@ -21,7 +22,7 @@ uses the verdict of the Implement loop again, and does not run the tests again.
   in the commit.
 - A handoff file that Implement commits for `iwe-shipper`. Rejected: the commit
   of the file changes the commit that the file identifies.
-- Do the look-up in the `iwe-verifier` rulebook. Rejected: a match then still
+- Do the search in the `iwe-verifier` rulebook. Rejected: a match then still
   needs one dispatch.
 
 ## Consequences
@@ -29,6 +30,6 @@ uses the verdict of the Implement loop again, and does not run the tests again.
 - The approvals of the user are in the report but not in its key. A request that
   quotes an approval does not use the saved report.
 - `verify-cache.py` writes a `.gitignore` that holds `*` into `.tmp/verify/`, so
-  a save does not make the worktree dirty.
+  a save does not add uncommitted changes to the worktree.
 - Verify does not use a saved report again after a rebase, after a squash merge,
   or in a new container.

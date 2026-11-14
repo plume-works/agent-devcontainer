@@ -253,12 +253,12 @@ no enforcement, or an enforced format with nothing specifying it.
 
 ## Spec changes
 
-Plan checkbox evidence — new. The contract the linter enforces: a ticked task
-carries an `**Evidence:**` line; a plan marked done has no unchecked tasks;
-closed plans are exempt from the evidence rule. Written at ship time, per the
-ship skill's spec-sync step. It also carries the task-atomicity,
-`## Verification results`, and Verify ticked-box requirements, since those are
-the same contract seen from the other three skills.
+Plan checkbox evidence — new. The linter applies this contract: a ticked task
+has an `**Evidence:**` line, a plan marked done has no unchecked tasks, and the
+evidence rule does not apply to closed plans. Ship writes it in the spec-sync
+step of the ship skill. It also has the task-atomicity,
+`## Verification results`, and Verify ticked-box requirements. The other three
+skills see the same contract.
 
 ## Verification
 

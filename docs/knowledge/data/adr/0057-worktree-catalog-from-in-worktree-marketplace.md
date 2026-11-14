@@ -30,8 +30,8 @@ the user, so the hook names it `wt-<worktree name>` and checks its owner.
 ## Consequences
 
 - A worktree session reads `.claude/settings.local.json` of the main checkout,
-  and its `enabledPlugins` overrides the worktree. A local-scope install in a
-  worktree writes there. As a result, the hook moves its enables into the file
-  of the worktree and removes them from the main checkout.
-- Each shared install runs at user scope, which a worktree can override.
+  and its `enabledPlugins` overrides the worktree. A local-scope installation in
+  a worktree writes there. As a result, the hook moves its `enabledPlugins`
+  entries into the file of the worktree and removes them from the main checkout.
+- Each shared installation runs at user scope, which a worktree can override.
 - The hooks are in the user settings, because they apply to each session.

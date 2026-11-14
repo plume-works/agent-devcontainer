@@ -20,7 +20,7 @@ at the previous push.
 
 - Each commit on `main` gets the filtered jobs, the hooks, and the gitleaks
   scan.
-- When the lookup of the last passing run fails, the check uses the previous
+- When the search for the last passing run fails, the check uses the previous
   push and writes a warning.
-- The lookups are in `.github/actions/paths-filter/action.yml` and
+- The searches are in `.github/actions/paths-filter/action.yml` and
   `scripts/pre-commit-ci-range.py::_widen_to_last_pass`.

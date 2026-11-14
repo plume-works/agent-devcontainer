@@ -1,14 +1,14 @@
 ---
 type: adr
 stage: accepted
-description: Renovate runs one top-level post-upgrade task, scripts/renovate-post-upgrade.py, which commits the derived files of a bump in the bump commit of Renovate.
+description: Renovate runs one top-level post-upgrade task, scripts/renovate-post-upgrade.py, which commits the derived files of a version update in the update commit of Renovate.
 ---
 
 # One post-upgrade task behind one script
 
 Renovate stops its updates to a branch that has a commit from a different
-author. As a result, the derived files of a bump must be in the commit of
-Renovate. `.github/renovate.json#postUpgradeTasks` names one script,
+author. As a result, the derived files of a version update must be in the commit
+of Renovate. `.github/renovate.json#postUpgradeTasks` names one script,
 `scripts/renovate-post-upgrade.py`, in `branch` mode. A `packageRule` that sets
 `postUpgradeTasks` replaces the top-level object and does not add to it.
 
@@ -22,7 +22,7 @@ Renovate. `.github/renovate.json#postUpgradeTasks` names one script,
 ## Consequences
 
 - The script runs pre-commit through `uv run --frozen`. As a result, the hooks
-  run at the versions that the bump pins, not at the apt copy in the image.
+  run at the versions that the update pins, not at the apt copy in the image.
 - When the `dev_tools` pins change, the script runs `iwe normalize` with the new
   `iwe`, because the image still has the old version.
 - Renovate keeps the output of the task only for paths that `fileFilters`

@@ -12,8 +12,8 @@ both. Both entries read the catalog through one parser.
 
 ## Considered Options
 
-- A bridge for v2 only. Rejected: a v1 install, such as a consumer image or a
-  Mac that still uses v1, then loses the catalog.
+- A bridge for v2 only. Rejected: a v1 installation, such as a consumer image or
+  a Mac that still uses v1, then loses the catalog.
 - One plugin directory for each major version. Rejected: the configuration must
   then know the installed major version, and two copies of the catalog parser
   are necessary.

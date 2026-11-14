@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: AGENTDEV_CLAUDE_RC_MODE=server opts into the claude remote-control server, session mode stays the default, and an unrecognized mode or spawn value stops the start.
+description: AGENTDEV_CLAUDE_RC_MODE=server selects the `claude remote-control` server, session mode stays the default, and an unrecognized mode or spawn value stops the start.
 ---
 
 # Server mode is an opt-in next to session mode

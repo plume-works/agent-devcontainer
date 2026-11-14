@@ -120,7 +120,7 @@ context](adr/0036-validator-built-from-build-context.md)
 [The AI review gate trusts only named
 bots](adr/0037-ai-review-trusts-named-bots.md)
 
-[apt packages float within a fixed Ubuntu
+[apt packages have no fixed version within a fixed Ubuntu
 release](adr/0038-apt-packages-float-within-base-release.md)
 
 [Bundled code is relative to the skill, under
@@ -166,8 +166,8 @@ it](adr/0052-renovate-config-validated-at-bot-version.md)
 [Renovate runs self-hosted as a GitHub
 App](adr/0053-renovate-self-hosted-as-github-app.md)
 
-[Setup progress is a root file and the consumed ref stays in
-JSON](adr/0054-setup-progress-in-root-file.md)
+[Setup progress is a root file and the Git reference of the consumed commit
+stays in JSON](adr/0054-setup-progress-in-root-file.md)
 
 [A run promotes only the images it built and
 accepted](adr/0055-tags-move-only-to-accepted-images-of-the-run.md)
@@ -198,7 +198,7 @@ counter](adr/0063-plan-branches-share-one-iteration-counter.md)
 [The pre-commit hooks own each formatter and the CI
 check](adr/0064-pre-commit-hooks-own-formatters-and-ci-gate.md)
 
-[The AI responder runs only on pull request
+[The review responder workflow runs only on pull request
 events](adr/0065-responder-runs-only-on-pull-request-events.md)
 
 [The AI review posts as a GitHub App of the
@@ -216,14 +216,15 @@ history](adr/0069-trusted-bot-approval-checks-push-history.md)
 [Containers share only the Claude credentials, on one auth volume for each
 UID/GID pair](adr/0070-claude-credentials-shared-other-state-per-instance.md)
 
-[A cloud session works on its host, not in a
-devcontainer](adr/0071-cloud-sessions-work-on-the-host.md)
+[A cloud session works on its host, not in a Dev
+Container](adr/0071-cloud-sessions-work-on-the-host.md)
 
 [Setup that needs Coder user secrets runs from the agent
 start](adr/0072-coder-secrets-only-in-the-agent-start.md)
 
-[Docker garbage collection is a supervised hourly service with an
-allow-list](adr/0073-docker-gc-removes-only-disposable-volumes.md)
+[Docker garbage collection is a supervised hourly service with a list of the
+volumes that it can
+remove](adr/0073-docker-gc-removes-only-disposable-volumes.md)
 
 [Only the gh wrapper of the image authenticates
 gh](adr/0074-image-gh-wrapper-is-the-only-gh-shim.md)
@@ -240,7 +241,7 @@ mode](adr/0077-remote-control-server-mode-is-opt-in.md)
 [No Dev Container lifecycle command starts Remote
 Control](adr/0078-remote-control-starts-from-the-agent-start.md)
 
-[The runtime supervises the nested engine, and the image has no SSH
+[The runtime supervises the Dev Container engine, and the image has no SSH
 server](adr/0079-runtime-supervises-the-nested-engine.md)
 
 [Session mode resumes one pinned

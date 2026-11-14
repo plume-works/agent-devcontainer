@@ -16,7 +16,7 @@ skills, commands, and agents when OpenCode starts.
 - The Claude compatibility layer of oh-my-opencode. Rejected: its license is the
   Sustainable Use License, which is not an open-source license. It sends
   telemetry by default. It finds plugins through the `installed_plugins.json` of
-  Claude Code, so OpenCode then needs a Claude install.
+  Claude Code, so OpenCode then needs a Claude installation.
 - Distribution through the OCX registry. Rejected: it copies files into
   `.opencode/` without conversion, so it gives no namespaced commands and no
   agent mapping.

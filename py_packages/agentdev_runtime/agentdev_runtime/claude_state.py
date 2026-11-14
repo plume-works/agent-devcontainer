@@ -1,4 +1,8 @@
-"""Pre-answer Claude's first-run prompts: onboarding, Remote Control, trust, and project MCP."""
+"""
+Answer the first-run prompts of Claude before they show.
+
+The prompts are onboarding, Remote Control, trust, and project MCP.
+"""
 
 from __future__ import annotations
 

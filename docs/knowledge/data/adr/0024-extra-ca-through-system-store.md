@@ -31,4 +31,4 @@ uv, Python `requests`, Node, and Bun otherwise read their own root stores.
 - The nested `dockerd` reads the system store, so image pulls trust the CA.
 - `.devcontainer/devcontainer-init.sh` uses the host `NODE_EXTRA_CA_CERTS` when
   the operator does not set `AGENTDEV_EXTRA_CA_CERTS`.
-- The containers that the nested engine starts do not get the CA.
+- The containers that the Dev Container engine starts do not get the CA.

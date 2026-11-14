@@ -38,7 +38,7 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
-  # The review never executes code. Shells are denied
+  # The review never executes code. The rules deny shells
   # because `bash -c` hides the command inside it from these rules.
   CLAUDE_PR_REVIEW_DISALLOWED_TOOLS: >-
     Bash(bash *),Bash(sh *),Bash(zsh *),
@@ -256,7 +256,7 @@ jobs:
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
 
   # Depends on the review job so the check stays pending while a review runs.
-  # This job must never read block-ai-reviews: that label does not waive the gate.
+  # This job must never read block-ai-reviews: that label does not remove the requirement of the gate.
   ai-review-present:
     name: ai-review-present
     needs:

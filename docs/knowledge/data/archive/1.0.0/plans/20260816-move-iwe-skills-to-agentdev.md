@@ -291,8 +291,8 @@ session that reads it.
   catalog rather than with the copied `.claude/` directory.
 - IWE workflow skills — its five `sources:` entries point at `.claude/skills/`.
   The requirements themselves are stated at the role level ("The Ship skill
-  SHALL run the report-only Verify workflow"), which the rename does not
-  disturb, so this is a provenance refresh and not a requirement change.
+  SHALL run the report-only Verify workflow"). The rename does not change these
+  requirements. This change updates only the `sources` entries.
 
 No other spec is affected. [Catalog
 lifecycle](../../../spec/catalog-lifecycle.md) governs how the catalog is staged

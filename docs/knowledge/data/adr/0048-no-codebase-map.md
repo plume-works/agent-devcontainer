@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: accepted
-description: The graph keeps no codebase map and the catalog ships no map skill; update mode removes a retired map from a consumer without a question.
+description: The graph keeps no codebase map and the catalog ships no map skill; update mode removes a map that is no longer used from a consumer without a question.
 ---
 
 # The graph keeps no codebase map
@@ -9,7 +9,7 @@ description: The graph keeps no codebase map and the catalog ships no map skill;
 The graph keeps no `data/codebase/` map, and the catalog ships no map skill. No
 workflow skill or agent read the map. A source digest proved only that a map
 document had a new stamp, not that its text was correct. Each pull request that
-touched mapped code paid for a refresh, a CI gate, and digest lines that
+changed mapped code paid for a refresh, a CI gate, and digest lines that
 conflict between branches. A new reader uses the code and the README to find a
 path.
 

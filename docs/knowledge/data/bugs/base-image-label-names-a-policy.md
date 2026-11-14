@@ -30,8 +30,8 @@ reads the label expects a policy that the image does not have.
 ## Root cause
 
 The two runtime images copy the allowlist, and the runtime writes the agent
-policy at each start. The label of `agentdev-base` was not changed when the
-policy files moved out of the base image.
+policy at each start. Nobody changed the label of `agentdev-base` when the
+policy files moved from the base image.
 
 ## Potential solution
 

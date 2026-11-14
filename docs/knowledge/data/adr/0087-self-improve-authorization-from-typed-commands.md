@@ -16,9 +16,9 @@ authorization.
 
 - A `PreToolUse` hook. Rejected: it does not see a command that the user types
   directly.
-- A matcher that names the commands. Rejected: Claude Code does not guarantee
-  the namespaced form of the `command_name` of a plugin skill. A matcher that
-  does not match removes the authorization of the user and shows no error.
+- A matcher that names the commands. Rejected: Claude Code does not make sure
+  that the `command_name` of a plugin skill has the namespaced form. A matcher
+  that does not match removes the authorization of the user and shows no error.
 
 ## Consequences
 

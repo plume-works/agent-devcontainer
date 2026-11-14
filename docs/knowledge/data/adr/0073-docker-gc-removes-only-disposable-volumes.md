@@ -4,7 +4,7 @@ stage: accepted
 description: A supervised service collects Docker garbage when it starts and then each hour, and it removes only old disposable volumes.
 ---
 
-# Docker garbage collection is a supervised hourly service with an allow-list
+# Docker garbage collection is a supervised hourly service with a list of the volumes that it can remove
 
 All Coder workspaces share one host disk. When the disk is full, a workspace
 cannot extract its Dev Container image, and nothing that the agent start runs

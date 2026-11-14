@@ -117,7 +117,7 @@ supplied arguments, not whitespace the host has already removed.
 ## Spec changes
 
 OpenCode catalog bridge — replace the complete namespaced-command requirement
-with this delta, preserving v1 and autocomplete behavior:
+with this delta, which keeps the v1 and autocomplete behaviour:
 
 ``` markdown
 ## MODIFIED Requirements

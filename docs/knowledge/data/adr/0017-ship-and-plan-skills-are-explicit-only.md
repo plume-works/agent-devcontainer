@@ -7,11 +7,11 @@ description: The Ship and Plan entry skills are explicit-only; the Implement, Ve
 # Only the Ship and Plan entry skills are explicit-only
 
 `/agentdev:iwe-ship` and `/agentdev:iwe-plan` set
-`disable-model-invocation: true`, because a Ship run that nobody asked for
-changes the remote. `/agentdev:iwe-implement`, `/agentdev:iwe-verify`,
-`/agentdev:iwe-adversarial-review`, and `/agentdev:iwe-capture` are
-model-invocable, because the Implement session must start them without a stop
-for the user.
+`disable-model-invocation: true`, because a Ship run that the user did not start
+changes the remote repository. `/agentdev:iwe-implement`,
+`/agentdev:iwe-verify`, `/agentdev:iwe-adversarial-review`, and
+`/agentdev:iwe-capture` are model-invocable, because the Implement session must
+start them without a stop for the user.
 
 ## Considered Options
 

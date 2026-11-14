@@ -365,8 +365,8 @@ plume-works/coder-ide-baseline pushed without being made active
 
 ## Spec changes
 
-A new spec, OpenCode web, holds the server contract; it exposes a network
-service, so the full requirements are stated. [Catalog
+A new spec, OpenCode web, holds the server contract; it opens a network service,
+so the plan states the full requirements. [Catalog
 lifecycle](../../../spec/catalog-lifecycle.md) widens its credential-sharing
 requirement to OpenCode. Coder IDE baseline template gains the OpenCode app.
 

@@ -1,15 +1,15 @@
 ---
 type: adr
 stage: accepted
-description: The AI responder workflow has no comment or dispatch trigger, so each run executes the workflow from the pull request and no job needs contents write.
+description: The review responder workflow has no comment or dispatch trigger, so each run executes the workflow from the pull request and no job needs contents write.
 ---
 
-# The AI responder runs only on pull request events
+# The review responder workflow runs only on pull request events
 
-The AI responder workflow starts only on `pull_request`, `pull_request_review`,
-and `merge_group` events. Each run then executes the copy of the workflow in the
-pull request. No trigger gives a run the privileges of the default branch, and
-no job needs contents write.
+The review responder workflow starts only on `pull_request`,
+`pull_request_review`, and `merge_group` events. Each run then executes the copy
+of the workflow in the pull request. No trigger gives a run the privileges of
+the default branch, and no job needs contents write.
 
 ## Considered Options
 

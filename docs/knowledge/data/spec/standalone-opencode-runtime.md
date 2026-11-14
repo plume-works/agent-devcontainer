@@ -25,8 +25,8 @@ sources:
 The single-project runtime of the `agentdev-deploy` image. OpenCode web,
 [Devcontainer Git credentials](devcontainer-git-credentials.md), and
 [Devcontainer Docker storage](devcontainer-docker-storage.md) keep their
-integration-specific requirements; the standalone requirements below do not
-change Coder's tmux/failure semantics.
+requirements for each integration. The standalone requirements below do not
+change how Coder uses tmux and handles failures.
 
 ## Requirements
 

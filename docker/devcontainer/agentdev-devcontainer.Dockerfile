@@ -29,7 +29,7 @@ RUN --mount=type=bind,source=py_packages/agentdev_runtime,target=/tmp/agentdev-r
 COPY --chmod=0644 docker/devcontainer/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
-# Defaults a consumer's descriptor or derived image may override.
+# A consumer descriptor or a derived image can change these defaults.
 # Do not set UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR, or PRE_COMMIT_HOME: their defaults are on the home volume.
 ENV AGENTDEV_RUNTIME_MODE=devcontainer \
     AGENTDEV_USER=agent \
