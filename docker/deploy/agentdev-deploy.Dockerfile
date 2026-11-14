@@ -6,7 +6,7 @@ FROM $FROM_IMAGE
 
 ARG FROM_IMAGE
 
-# UID rationale: see spec/standalone-opencode-runtime.
+# UID rationale: see ADR-0070.
 RUN userdel --remove ubuntu
 
 # The runtime CLI is a uv tool on the system interpreter, like validate_agent_files; the
@@ -21,6 +21,7 @@ COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-al
 
 # The runtime identity, paths, and service defaults. Every value is overridable at
 # `docker run`/Compose time; see docker/deploy/runtime.env.example.
+# Do not set UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR, or PRE_COMMIT_HOME: their defaults are on the home volume.
 ENV AGENTDEV_RUNTIME_MODE=deploy \
     AGENTDEV_USER=agent \
     AGENTDEV_UID=1000 \

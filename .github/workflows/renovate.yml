@@ -49,7 +49,7 @@ jobs:
       cancel-in-progress: false
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     # The same digest as devcontainer-compose-pins.yml; Renovate's agentdev-devcontainer
-    # group moves every copy together. See spec/image-pinning.
+    # group moves every copy together.
     container:
       image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:4ac42fce5b14d5553e58b6798a8bb584482e71a931f8d66c8b459c677ba49acd
     timeout-minutes: 60
@@ -70,8 +70,8 @@ jobs:
           echo "rev=$rev" >> "$GITHUB_OUTPUT"
 
       # A pull request opened with GITHUB_TOKEN starts no workflows, so Renovate
-      # authenticates as its GitHub App. Token scope: see
-      # spec/dependency-updates.
+      # authenticates as its GitHub App. The App has only the permissions of Renovate:
+      # the post-upgrade task runs the code that it just updated with this token.
       - name: Create GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v3.3.0
@@ -98,7 +98,7 @@ jobs:
             >> "$GITHUB_OUTPUT"
 
       # Global-only options come from the environment: the checked-in config is
-      # validated with --no-global. See spec/dependency-updates.
+      # validated with --no-global. See ADR-0052.
       - name: Run Renovate
         env:
           RENOVATE_VERSION: ${{ steps.version.outputs.rev }}

@@ -74,8 +74,7 @@ Extend the lifecycle with executable hooks in
 `/etc/agentdev/hooks/{created,started,attached}.d/`, which run in name order at the end
 of their phase, and override the image's documented environment. Files below
 `/opt/agentdev-runtime/` belong to the image: the runtime refuses to start when one is
-changed, added, or removed. See [agentdev runtime
-images](docs/knowledge/data/spec/agentdev-runtime-images.md).
+changed, added, or removed. See [ADR-0032](docs/knowledge/data/adr/0032-runtime-integrity-from-wheel-record.md).
 
 ### Adopt the complete template
 
@@ -304,9 +303,8 @@ Its runtime is standard-library-only — a rule enforced by a test that walks ev
 runtime import — so the plugin adds no dependency to a consuming project. Tests
 that drive a real Claude session and spend model usage are skipped at collection
 unless `SELF_IMPROVE_RUN_LIVE` is set; the root `Makefile` carries those live
-targets. Behavior is specified in
-[the learning-loop spec](docs/knowledge/data/spec/self-improve-learning-loop.md),
-and the comparative analysis behind it is in [`docs/research/`](docs/research/).
+targets. The decisions behind the plugin are
+[ADR-0087 to ADR-0090](docs/knowledge/data/adr.md), and the comparative analysis behind it is in [`docs/research/`](docs/research/).
 
 ## IWE project memory
 
@@ -432,7 +430,7 @@ The canonical plugin sources are
 [`.agents/plugins/agentdev/`](.agents/plugins/agentdev/) and
 [`.agents/plugins/self-improve/`](.agents/plugins/self-improve/). Repository
 conventions live in [AGENTS.md](AGENTS.md), while the
-[template boundary](docs/knowledge/data/spec/template-consumption.md) classifies
+[consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md) classifies
 the reusable, customizable, and publisher-only parts of the tree.
 
 ## License

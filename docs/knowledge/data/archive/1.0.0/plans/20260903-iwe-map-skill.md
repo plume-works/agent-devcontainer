@@ -167,8 +167,7 @@ to explicit map and refresh requests to constrain incidental use.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) gains the Map
-contract:
+IWE workflow skills gains the Map contract:
 
 ``` markdown
 ## ADDED Requirements

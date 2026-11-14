@@ -595,7 +595,7 @@ storage.
   logins, sessions, keyring databases, caches, and Docker engines.
 ```
 
-### [IWE workflow skills](../../../spec/iwe-workflow-skills.md)
+### IWE workflow skills
 
 ``` markdown
 ## MODIFIED Requirements

@@ -16,14 +16,14 @@ completed: 2026-11-02
 ## Context
 
 [Conflict-free knowledge
-layout](../../2.0.0/plans/20261031-kb-conflict-free-layout.md) replaced the [IWE
-workflow skills](../../../spec/iwe-workflow-skills.md) requirement "Workflow
-improvements preserve the IWE and OKF model" with "Workflow improvements
-preserve the IWE model". That recorded a divergence the maintainer did not
-intend: the graph is not leaving OKF, it departs from OKF only where OKF costs
-merges or upkeep. `data/index.md`, the `okf`, `okf-index`, and `okf-log`
-schemas, and the OKF text in the workspace manuals are already restored; the
-spec is the one place that still says otherwise.
+layout](../../2.0.0/plans/20261031-kb-conflict-free-layout.md) replaced the IWE
+workflow skills requirement "Workflow improvements preserve the IWE and OKF
+model" with "Workflow improvements preserve the IWE model". That recorded a
+divergence the maintainer did not intend: the graph stays an OKF bundle. It is
+different from OKF only where OKF causes merge work or maintenance work.
+`data/index.md`, the `okf`, `okf-index`, and `okf-log` schemas, and the OKF text
+in the workspace manuals are already restored; the spec is the one place that
+still says otherwise.
 
 The one divergence is OKF's optional `status`: `stage` is the lifecycle field,
 so no document sets `status`. Schema validation alone does not enforce that —
@@ -101,9 +101,8 @@ maintainer asked for a pre-commit test instead.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — contract-heavy:
-the requirement that names the graph's model changes, and a scenario set comes
-with it.
+IWE workflow skills — contract-heavy: the requirement that names the graph's
+model changes, and a scenario set comes with it.
 
 ``` markdown
 ## REMOVED Requirements

@@ -131,8 +131,7 @@ same step.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — Ship's Verify step
-dispatches `iwe-verifier`.
+IWE workflow skills — Ship's Verify step dispatches `iwe-verifier`.
 
 ``` markdown
 ## MODIFIED Requirements

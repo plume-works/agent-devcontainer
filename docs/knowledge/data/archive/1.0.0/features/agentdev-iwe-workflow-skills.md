@@ -60,8 +60,8 @@ None — every design question this feature raised is settled.
 
 - Plan: [Move the IWE workflow skills into the agentdev
   plugin](../plans/20260816-move-iwe-skills-to-agentdev.md)
-- Specs: [Template consumption](../../../spec/template-consumption.md) and [IWE
-  workflow skills](../../../spec/iwe-workflow-skills.md)
+- Specs: [Template consumption](../../../spec/template-consumption.md) and IWE
+  workflow skills
 - Plan: [Agent-owned Ship and Implement
   workflows](../../2.0.0/plans/20261007-agent-owned-ship-implement.md)
 - Plan: [Audit every plan edit in a fresh

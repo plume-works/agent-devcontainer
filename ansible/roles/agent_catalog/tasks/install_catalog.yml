@@ -1,6 +1,6 @@
 ---
 # Mirrors `agentdev-runtime catalog install` so a raw-image consumer resolves
-# agentdev:* skills; see spec/catalog-lifecycle. The marketplace name comes from the
+# agentdev:* skills; see ADR-0044. The marketplace name comes from the
 # staged manifest, so a rename needs no edit here.
 - name: Read the staged Claude marketplace manifest
   ansible.builtin.slurp:

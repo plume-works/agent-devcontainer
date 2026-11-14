@@ -197,9 +197,9 @@ rather than described. Apply the blocks exactly as given.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — the durable
-contract for these skills. Two existing requirements already own the behavior
-this work changes, so both are modified rather than joined by a peer:
+IWE workflow skills — the durable contract for these skills. Two existing
+requirements already own the behavior this work changes, so both are modified
+rather than joined by a peer:
 `Requirement: Explore remains an adaptive thinking mode`
 (`docs/knowledge/data/spec/iwe-workflow-skills.md#requirement-explore-remains-an-adaptive-thinking-mode`)
 covers capture and handoff, and

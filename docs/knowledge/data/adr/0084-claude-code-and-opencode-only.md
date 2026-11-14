@@ -1,0 +1,35 @@
+---
+type: adr
+stage: accepted
+description: Claude Code and OpenCode are the only harnesses, but `validate_agent_files` keeps its `codex` ecosystem for other repositories.
+---
+
+# Claude Code and OpenCode are the only harnesses
+
+The maintainer chose Claude Code and OpenCode as the only harnesses. The images
+do not install Codex, and the runtime writes no Codex configuration, hooks,
+credential links, or `CODEX_HOME`. `validate_agent_files` has its own releases
+and validates the catalogs of other repositories, so it keeps its `codex`
+ecosystem. Only the CI of this repository uses `--require-marketplace claude`.
+
+## Considered Options
+
+- A `.codex-plugin/plugin.json` package that users install themselves and that
+  no test checks. Rejected: Codex loads catalog agents only through TOML agents
+  that an installer writes. Without that installer, no agent that the skills
+  dispatch can load, so the package does not work.
+
+## Consequences
+
+- The catalog has a Claude Code plugin and the OpenCode bridge, and nothing for
+  Codex. A complete catalog holds only these two, so
+  `agentdev-runtime catalog install` registers the catalog only for Claude Code
+  and OpenCode.
+- A user can install Codex in a container, but nothing configures it or
+  registers the catalog for it.
+- No test checks that the images and the runtime have no Codex. This ADR records
+  that the absence is a decision.
+  `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_never_invokes_codex_on_path`
+  checks only that the macOS bootstrap does not start `codex`.
+- The `chatgpt-codex-connector[bot]` reviewer on GitHub is not a harness. A test
+  that identifies this bot is not Codex support.

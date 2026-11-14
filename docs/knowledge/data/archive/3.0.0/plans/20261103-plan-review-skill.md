@@ -94,8 +94,8 @@ catalog in a scratch worktree.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — every plan edit
-gets both reviews, and the Implement loop allows that dispatch.
+IWE workflow skills — every plan edit gets both reviews, and the Implement loop
+allows that dispatch.
 
 ``` markdown
 ## MODIFIED Requirements

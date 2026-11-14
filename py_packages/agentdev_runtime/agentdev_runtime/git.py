@@ -1,4 +1,4 @@
-"""Git trust and HTTPS credentials for the checkout. Spec: devcontainer-git-credentials."""
+"""Git trust and HTTPS credentials for the checkout."""
 
 from __future__ import annotations
 

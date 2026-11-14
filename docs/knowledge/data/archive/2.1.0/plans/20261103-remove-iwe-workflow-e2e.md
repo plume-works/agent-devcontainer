@@ -164,8 +164,8 @@ Rejected:
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — the Plan testing
-requirement gains the no-e2e rule and a scenario for it.
+IWE workflow skills — the Plan testing requirement gains the no-e2e rule and a
+scenario for it.
 
 ``` markdown
 ## MODIFIED Requirements

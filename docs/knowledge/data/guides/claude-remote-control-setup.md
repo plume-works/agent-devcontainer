@@ -7,8 +7,9 @@ sources:
 
 # Claude Remote Control setup
 
-The behaviour this procedure relies on is in the [Claude Remote Control
-spec](../spec/claude-remote-control.md).
+The decisions for this procedure are in
+[ADR-0078](../adr/0078-remote-control-starts-from-the-agent-start.md) and
+[ADR-0077](../adr/0077-remote-control-server-mode-is-opt-in.md).
 
 ## Set it up
 
@@ -19,8 +20,7 @@ sub-agent runs the repository's agent-start command, by default
 `agentdev-runtime coder start`, on every agent start, and that command execs
 `agentdev-runtime remote-control start` ([Devcontainer Git
 credentials](../spec/devcontainer-git-credentials.md)). The `coder_script` runs
-nothing when the repository ships no agent-start command ([Coder IDE
-baseline](../spec/coder-ide-baseline.md)).
+nothing when the repository ships no agent-start command.
 
 In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
 `session` or `server` (and, in server mode, optionally

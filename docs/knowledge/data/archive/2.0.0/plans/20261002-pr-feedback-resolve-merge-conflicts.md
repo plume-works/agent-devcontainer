@@ -125,7 +125,7 @@ this plan fixes.
 
 ## Spec changes
 
-[PR merge conflicts](../../../spec/pr-merge-conflicts.md) — normative outcome:
+PR merge conflicts — normative outcome:
 
 - `pr-feedback-resolution` SHALL read the PR's merge state before any feedback
   edit; when `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY` it

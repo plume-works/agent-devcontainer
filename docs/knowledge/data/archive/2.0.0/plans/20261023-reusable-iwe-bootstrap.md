@@ -246,7 +246,7 @@ Spec documents are not edited here: Ship merges `## Spec changes` into
 
 ## Spec changes
 
-### [IWE bootstrap](../../../spec/iwe-bootstrap.md)
+### IWE bootstrap
 
 ``` markdown
 ## ADDED Requirements

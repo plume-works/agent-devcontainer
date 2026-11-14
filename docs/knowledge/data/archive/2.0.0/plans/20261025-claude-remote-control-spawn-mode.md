@@ -38,7 +38,7 @@ more than about four hours of server downtime is a separate open question in
 that finding, independent of the spawn mode. Per the maintainer, sessions of a
 running server stay live overnight; the four-hour window bounds downtime only.
 
-The contract is [Claude Remote Control](../../../spec/claude-remote-control.md).
+The contract is Claude Remote Control.
 
 ## Approach
 
@@ -215,8 +215,8 @@ Assumptions:
 
 ## Spec changes
 
-[Claude Remote Control](../../../spec/claude-remote-control.md) — the
-server-mode requirement gains the spawn mode and its validation:
+Claude Remote Control — the server-mode requirement gains the spawn mode and its
+validation:
 
 ``` markdown
 ## MODIFIED Requirements

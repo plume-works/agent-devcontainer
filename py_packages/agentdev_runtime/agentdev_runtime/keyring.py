@@ -2,7 +2,7 @@
 Instance-local D-Bus session and GNOME Keyring Secret Service, one supervised piece each.
 
 The login keyring is created with an empty password, so its secrets are stored unencrypted:
-the container boundary, not the keyring, protects them. Spec: standalone-opencode-runtime.
+the container boundary, not the keyring, protects them.
 """
 
 from __future__ import annotations

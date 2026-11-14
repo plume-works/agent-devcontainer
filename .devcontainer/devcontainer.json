@@ -11,7 +11,7 @@
   "service": "devcontainer",
   // agentdev-devcontainer supplies the lifecycle commands, waitFor, and the supervised
   // services, nested Docker included, through its image metadata; see
-  // spec/agentdev-runtime-images. Declaring them here too would run each twice.
+  // ADR-0031. A declaration here too runs each command two times.
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "containerEnv": {
     // The firewall is installed in the image but inert until this is "true".
@@ -23,13 +23,15 @@
     // From the host environment or the hosting platform's secret store; empty when unset.
     "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
 
-    // uv's cache, interpreters, and pre-commit's cache take their defaults on the home volume.
-    // Each checkout's .venv links to its own environment here: see spec/agentdev-runtime-images.
+    // uv's cache, interpreters, and pre-commit's cache take their defaults on the home volume,
+    // never on a volume inside the checkout.
+    // Each checkout's .venv links to its own environment here: see ADR-0081.
     "AGENTDEV_VENV_ROOT": "/home/agent/.local/share/uv/venvs"
   },
 
   "forwardPorts": [14500],
   "portsAttributes": {
+    // No requireLocalPort: the Ports panel can map Xpra to a different local port.
     "14500": {
       "label": "Xpra HTML5",
       "onAutoForward": "silent"

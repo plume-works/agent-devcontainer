@@ -6,7 +6,7 @@ Writes ``from_ref``, ``to_ref``, ``all_files``, and ``gitleaks_log_opts`` to ``G
 A range that changes a tool-version owner checks every file, so a formatter bump fails at the
 pull request that made it; gitleaks still scans only the range's commits. A push to main starts
 at the last commit Primary checks passed on, so commits whose runs were cancelled stay checked.
-See spec/pre-commit-gate.
+See ADR-0060.
 """
 
 from __future__ import annotations

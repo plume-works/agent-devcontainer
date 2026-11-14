@@ -3,7 +3,7 @@
 Relay TCP connections from a listen address to the session's agent proxy.
 
 Usage: agent-proxy-relay.py LISTEN_HOST LISTEN_PORT TARGET_HOST TARGET_PORT
-Design: spec/cloud-session-host.
+Design: ADR-0071.
 """
 
 import asyncio

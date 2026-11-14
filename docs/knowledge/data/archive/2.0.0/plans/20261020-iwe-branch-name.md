@@ -430,7 +430,7 @@ reports stale after Tasks 15–17
 
 ## Spec changes
 
-[iwe-branch-name](../../../spec/iwe-branch-name.md) (new):
+iwe-branch-name (new):
 
 ``` markdown
 ## ADDED Requirements
@@ -527,7 +527,7 @@ plan. The skill SHALL NOT create, switch, or delete any branch.
 - **THEN** `next foo` reports `NEXT_KIND=default` and the default branch's name
 ```
 
-[iwe-workflow-skills](../../../spec/iwe-workflow-skills.md):
+iwe-workflow-skills:
 
 ``` markdown
 ## MODIFIED Requirements

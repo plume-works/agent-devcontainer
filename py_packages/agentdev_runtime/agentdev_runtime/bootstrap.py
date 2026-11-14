@@ -3,7 +3,7 @@ Root bootstrap PID 1 runs before supervisord.
 
 Deploy creates or reuses the runtime account, then validates and initializes only its own
 storage; a Dev Container keeps the image's account and, for a non-root one, initializes the
-same storage. Ownership is never rewritten recursively. Spec: standalone-opencode-runtime, agentdev-runtime-images.
+same storage. Ownership is never rewritten recursively. See ADR-0070.
 """
 
 from __future__ import annotations

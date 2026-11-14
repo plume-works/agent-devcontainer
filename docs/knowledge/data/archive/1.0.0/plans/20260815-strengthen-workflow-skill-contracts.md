@@ -286,11 +286,11 @@ each skill's handoffs were settled before the next skill referenced them.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — **created**. Six
-requirements covering Explore's adaptive thinking mode, Plan's write-planning-
-state-only boundary and materiality threshold, Implement's material-deviation
-rule, Ship's mandatory clean verification, Ship's intelligent spec merge, and
-the preservation of the IWE/OKF model.
+IWE workflow skills — **created**. It has six requirements. They cover the
+adaptive thinking mode of Explore, the boundary of Plan that permits it to write
+only planning state, the materiality threshold of Plan, the material-deviation
+rule of Implement, the clean verification that Ship must have, the spec merge of
+Ship, and the IWE/OKF model that stays the same.
 
 The spec landed in `b0bc56a` ahead of this reconstruction, imported from the
 change bundle's capability spec. That delta was a pure `## ADDED Requirements`

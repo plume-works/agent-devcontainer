@@ -16,9 +16,9 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 ARG PLAYWRIGHT_VERSION
 
 # The shell PATH and history setup goes to system-wide files, so an account whose home
-# starts empty gets it too; spec: devcontainer-state.
+# starts empty gets it too; see ADR-0075.
 # Three provisioning steps, each bind-mounting only the inputs it reads at its context
-# path under /provision, so a change elsewhere keeps its layer; see spec/agentdev-runtime-images.
+# path under /provision, so a change elsewhere keeps its layer.
 # `cd`, not WORKDIR: /provision exists only during a step. ansible.cfg's log path is read-only.
 # hadolint ignore=DL3003
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -95,7 +95,7 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
 # Tools with their own root store read the system one, so an added CA reaches them all.
-# Design: spec/agentdev-runtime-images.
+# See ADR-0024.
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
     REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
     NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt

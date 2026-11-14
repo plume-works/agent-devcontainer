@@ -387,9 +387,8 @@ after the push.
 - **THEN** `publish` reports the layer as not published
 ```
 
-[PR merge conflicts](../../../spec/pr-merge-conflicts.md). The stacked-PR route
-of conflict resolution moves to the guard. Every other scenario of the
-requirement is unchanged.
+PR merge conflicts. The stacked-PR route of conflict resolution moves to the
+guard. Every other scenario of the requirement is unchanged.
 
 ``` markdown
 ## MODIFIED Requirements

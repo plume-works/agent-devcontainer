@@ -20,7 +20,7 @@ gitdir=$(realpath "$(git rev-parse --git-common-dir)")
 echo "GIT_REPO=$gitdir" >> "$script_dir/.env"
 
 LOCAL_WORKSPACE_FOLDER=$(realpath "$script_dir/..")
-# Remote Control names its environment after this hostname; spec: claude-remote-control.
+# Remote Control names its environment after this hostname.
 # Inline because a migrated consumer keeps no .devcontainer/scripts/.
 host="${HOSTNAME:-$(hostname)}"
 host="${host%%.*}"
@@ -45,7 +45,7 @@ container_hostname="${container_hostname%-}"
     echo "CONTAINER_HOSTNAME=$container_hostname"
 } >> "$script_dir/.env"
 
-# A TLS-intercepting proxy's CA, for the runtime to trust; design: spec/agentdev-runtime-images.
+# A TLS-intercepting proxy's CA, for the runtime to trust; see ADR-0024.
 # Always written, empty when the host names none, so Compose bind-mounts a file.
 extra_ca="$script_dir/.extra-ca.crt"
 : > "$extra_ca"

@@ -41,12 +41,11 @@ One clause actively invites it.
 `.claude/skills/plan/SKILL.md#steps › "— narrative evidence for the plan as a whole"`
 defines `## Verification results` as "narrative evidence for the plan as a
 whole, written as the work happens rather than reconstructed at the end", and
-[Plan checkbox evidence](../../../spec/plan-checkbox-evidence.md) reinforces it
-with a scenario covering results "or discovers something that changes what the
-plan claims". Both are correct and deliberately scoped. But read
-mid-implementation they land as a general licence to write narrative into the
-plan as things happen, and because neither says *which section*, it bleeds into
-the ungoverned ones.
+Plan checkbox evidence reinforces it with a scenario covering results "or
+discovers something that changes what the plan claims". Both are correct and
+deliberately scoped. But during Implement, a reader can think that the rules
+permit a story in the plan. Neither rule names *which section*, so the story
+goes into sections that no rule controls.
 
 The pressure behind it is structural rather than careless. Implementation
 produces findings that are true and expensive — that `UV_PROJECT_ENVIRONMENT`
@@ -411,11 +410,10 @@ move, not a deletion.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — the durable
-contract for these skills. This work adds a requirement that no existing one
-covers: today's `Requirement: Implement never hides a material deviation`
-governs checkboxes and deviations, and says nothing about what a session may
-write into a plan's prose.
+IWE workflow skills — the durable contract for these skills. This work adds a
+requirement that no existing one covers: today's
+`Requirement: Implement never hides a material deviation` governs checkboxes and
+deviations, and says nothing about what a session may write into a plan's prose.
 
 The requirement below is scoped to the workflow skills, which is all this spec
 governs. The general rule binding every file in the repository is an authoring

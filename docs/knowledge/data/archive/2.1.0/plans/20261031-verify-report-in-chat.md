@@ -235,8 +235,8 @@ Nothing refers to a finding across reports by ID.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — add a requirement;
-no existing requirement or scenario changes.
+IWE workflow skills — add a requirement; no existing requirement or scenario
+changes.
 
 ``` markdown
 ## ADDED Requirements

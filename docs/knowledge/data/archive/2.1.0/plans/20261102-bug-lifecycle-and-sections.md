@@ -352,7 +352,7 @@ describes a superseded fix
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md):
+IWE workflow skills:
 
 ``` markdown
 ## MODIFIED Requirements

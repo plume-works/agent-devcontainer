@@ -1,4 +1,4 @@
-"""Agent state shared by the Dev Container lifecycle and deploy startup. Spec: catalog-lifecycle."""
+"""Agent state shared by the Dev Container lifecycle and deploy startup."""
 
 from __future__ import annotations
 

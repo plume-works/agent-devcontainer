@@ -2,7 +2,7 @@
 Clear what ``codebase-memory-mcp install`` left in persisted agent configuration.
 
 Its hooks and MCP entries outlive the binary in the home and ``~/.claude`` volumes, where they
-would fail on every tool call. Every step is idempotent. Spec: catalog-lifecycle.
+would fail on every tool call. Every step is idempotent. See ADR-0047.
 """
 
 from __future__ import annotations

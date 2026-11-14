@@ -20,14 +20,14 @@ sources:
 
 ## Context
 
-[Coder IDE baseline template](../../../spec/coder-ide-baseline.md) specifies two
-repositories at once. Most of its requirements describe what the
-`plume-works/coder-ide-baseline` Terraform template does: run the agent-start
-script, keep state in per-workspace volumes, bound the workspace engine, offer
-the OpenCode app, ship versions from `main`. Its `## Working on the template`
-section is a runbook for that repository. Only one requirement constrains this
-repository. The template repository has no project memory, so its contract and
-runbook live where its own changes cannot update them.
+Coder IDE baseline template specifies two repositories at once. Most of its
+requirements describe what the `plume-works/coder-ide-baseline` Terraform
+template does: run the agent-start script, keep state in per-workspace volumes,
+bound the workspace engine, offer the OpenCode app, ship versions from `main`.
+Its `## Working on the template` section is a runbook for that repository. Only
+one requirement constrains this repository. The template repository has no
+project memory, so its contract and runbook live where its own changes cannot
+update them.
 
 The maintainer decided:
 
@@ -186,12 +186,12 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
 ## Spec changes
 
-[Coder IDE baseline template](../../../spec/coder-ide-baseline.md) is retitled
-`Coder IDE baseline contract`, its description and introduction say it is this
-repository's side of the template contract and link `coder-ide-baseline`'s
-`spec/workspace-template` on `main`, and its `## Working on the template`
-section is removed. `Coder user secrets reach only agent-started processes` is
-unchanged.
+Ship gives Coder IDE baseline template the title `Coder IDE baseline contract`.
+Its description and introduction say that it is this repository's side of the
+template contract, and they link `coder-ide-baseline`'s
+`spec/workspace-template` on `main`. Ship removes its
+`## Working on the template` section.
+`Coder user secrets reach only agent-started processes` is unchanged.
 
 ``` markdown
 ## ADDED Requirements (spec/coder-ide-baseline)
@@ -230,8 +230,8 @@ to `coder-ide-baseline`'s `spec/workspace-template`:
 
 Introductions only, no requirement changes: [Devcontainer Docker
 storage](../../../spec/devcontainer-docker-storage.md) links the workspace
-engine's bound, and [OpenCode web](../../../spec/opencode-web.md) links the
-dashboard app, to `coder-ide-baseline`'s `spec/workspace-template` URL.
+engine's bound, and OpenCode web links the dashboard app, to
+`coder-ide-baseline`'s `spec/workspace-template` URL.
 [Specifications](../../../spec.md) lists the retitled spec.
 
 ## Depends on

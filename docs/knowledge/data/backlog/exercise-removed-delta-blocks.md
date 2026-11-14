@@ -16,12 +16,11 @@ rank: 1800
 [Embed structured spec deltas in IWE
 plans](../archive/1.0.0/plans/20260816-structured-plan-spec-deltas.md) specified
 three delta operations and worked two of them. `ADDED` and `MODIFIED` were
-written, verified, and merged into [IWE workflow
-skills](../spec/iwe-workflow-skills.md) by that plan's own `## Spec changes`,
-which is why the contract for those two is backed by a real merge. `REMOVED` was
-specified in the same pass and never run: no plan in this workspace has retired
-a requirement, so no `## REMOVED Requirements` block has ever been authored,
-verified, or merged.
+written, verified, and merged into IWE workflow skills by that plan's own
+`## Spec changes`. For this reason, a real merge supports the contract for those
+two. The same pass specified `REMOVED`, but nothing ran it. No plan in this
+workspace removed a requirement, so nobody wrote, verified, or merged a
+`## REMOVED Requirements` block.
 
 The plan's `## Verification` asked for more than was delivered — it names a
 contract-heavy fixture carrying complete `ADDED`, `MODIFIED`, **and** `REMOVED`

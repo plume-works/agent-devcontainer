@@ -37,8 +37,7 @@ the two threads, and `pr-feedback-resolution` reported "not requested".
 The skill's test asks only whether the diff since the newest reviewed commit
 goes beyond what the review threads and comments asked for, and never reads the
 newest review's verdict. The "every push to a reviewed pull request is
-evaluated" requirement in [AI review
-refresh](../../../spec/ai-review-refresh.md) specifies exactly that, and its
+evaluated" requirement in AI review refresh specifies exactly that, and its
 scenario "an update only applies requested feedback" requires that no review be
 requested, with no exception for a blocking verdict.
 
@@ -60,9 +59,8 @@ decides only when that verdict is `APPROVED`.
 `APPROVED` or `CHANGES_REQUESTED` review — before the scope test. While that
 verdict is `CHANGES_REQUESTED` it requests a re-review whatever the diff holds
 and names the change request as the reason; otherwise the scope test decides.
-The contract is the [AI review refresh](../../../spec/ai-review-refresh.md)
-requirement "every push to a reviewed pull request is evaluated", changed by
-[Re-request an AI review after a change
+The contract is the AI review refresh requirement "every push to a reviewed pull
+request is evaluated", changed by [Re-request an AI review after a change
 request](../plans/20261103-rereview-after-changes-requested.md).
 
 ## Key references

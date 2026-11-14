@@ -149,8 +149,7 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ## Spec changes
 
-[IWE workflow skills](../../../spec/iwe-workflow-skills.md) — a new requirement
-for the review.
+IWE workflow skills — a new requirement for the review.
 
 ``` markdown
 ## ADDED Requirements

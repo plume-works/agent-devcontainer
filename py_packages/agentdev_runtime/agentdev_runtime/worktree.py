@@ -3,7 +3,7 @@ Claude Code's ``WorktreeCreate`` and ``WorktreeRemove`` hooks.
 
 Each worktree they make gets its own uv environment and, in a catalog checkout, its own catalog.
 
-Hook contract: guides/worktree-hooks. Spec: agentdev-runtime-images, catalog-lifecycle.
+Hook contract: guides/worktree-hooks. See ADR-0057 and ADR-0081.
 """
 
 from __future__ import annotations
@@ -132,7 +132,7 @@ def install_catalog(main: Path, path: Path) -> None:
             data.get('enabledPlugins', {}).pop(key, None)
 
     # Run in a worktree, a local-scope install enables the plugin in the main checkout's
-    # local settings, which every worktree reads: spec/catalog-lifecycle.
+    # local settings, which every worktree reads: ADR-0057.
     try:
         claude(path, 'plugin', 'marketplace', 'add', str(local))
         for key in ours:

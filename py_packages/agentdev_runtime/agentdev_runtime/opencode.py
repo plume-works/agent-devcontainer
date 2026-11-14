@@ -1,8 +1,4 @@
-"""
-The OpenCode server: the supervised ``serve``, its probe, its link, and the Coder start.
-
-Spec: opencode-web, standalone-opencode-runtime.
-"""
+"""The OpenCode server: the supervised ``serve``, its probe, its link, and the Coder start."""
 
 from __future__ import annotations
 

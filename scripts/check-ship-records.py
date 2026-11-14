@@ -3,8 +3,7 @@
 Gate the records Ship leaves in the knowledge graph.
 
 Checks each bug, plan, backlog task, feature, ADR, and release document named on the command line,
-prints every violation as ``path:line message``, and exits 1 when there is any. The rules: see
-spec/pre-commit-gate and spec/iwe-workflow-skills.
+prints every violation as ``path:line message``, and exits 1 when there is any.
 """
 
 from __future__ import annotations
