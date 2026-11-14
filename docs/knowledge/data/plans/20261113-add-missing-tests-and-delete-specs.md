@@ -70,8 +70,13 @@ Each test shows what the `fate_note` of its row says.
     script: an empty `.extra-ca.crt` with no CA, the named bundle over the Node
     one, the Node fallback, a skipped unreadable Node bundle, and exit 1 on an
     unreadable named bundle; 7 passed.
-- [ ] A test runs `catalog-lifecycle` "registering a catalog root replaces
+- [x] A test runs `catalog-lifecycle` "registering a catalog root replaces
   earlier registrations".
+  - **Evidence:**
+    `py_packages/agentdev_runtime/tests/test_catalog_claude_register.py` runs
+    `catalog.claude` with the recording `claude` stub: each marketplace from the
+    same root is swept in every scope before the add, an absent plugin does not
+    stop it, and a failed add raises; 3 passed.
 - [ ] A test runs `devcontainer-git-credentials` "gh authenticates from the git
   credential helper".
 - [ ] A test runs `devcontainer-state` "the create phase re-owns the sibling
