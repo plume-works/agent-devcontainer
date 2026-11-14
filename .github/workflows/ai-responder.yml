@@ -48,7 +48,7 @@ env:
     Bash(docker *),Bash(docker-compose *),Bash(devcontainer *),
     Bash(sleep*),Bash(gh run watch*),Bash(gh pr checks *--watch*),Monitor
   # Bots whose pull requests skip the AI review and are approved instead.
-  TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
+  TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot]'
 
 jobs:
   preflight:
@@ -307,7 +307,7 @@ jobs:
           github-token: ${{ github.token }}
 
   # Stands in for the AI review on trusted-bot pull requests, see
-  # ADR-0069. A Dependabot-triggered run holds a read-only token.
+  # ADR-0069.
   trusted-bot-approval:
     name: Approve trusted-bot pull request
     if: |
@@ -337,10 +337,6 @@ jobs:
               .filter(Boolean);
             if (!trustedBotActors.includes(login)) {
               core.info(`${login} is not a trusted bot; nothing to approve.`);
-              return;
-            }
-            if (context.actor === 'dependabot[bot]') {
-              core.notice('Run triggered by dependabot[bot] cannot read the App secrets; skipping the approval.');
               return;
             }
             core.setOutput('approve', 'true');

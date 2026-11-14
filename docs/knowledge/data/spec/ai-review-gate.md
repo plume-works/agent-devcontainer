@@ -190,9 +190,8 @@ verified signature, and only when that bot made the head branch's latest
 creation and every push and force push since. When any commit or update fails
 that check it SHALL NOT approve, SHALL dismiss its own standing approval, and
 SHALL post a notice naming the failing push or commit. It SHALL NOT check out
-the pull request, SHALL NOT approve a pull request that already carries its
-approval, and SHALL skip a run triggered by `dependabot[bot]`, which cannot read
-the App secrets in the `plume-works-review` environment.
+the pull request, and SHALL NOT approve a pull request that already carries its
+approval.
 
 ### Scenario: Renovate opens a pull request
 
@@ -220,10 +219,3 @@ the App secrets in the `plume-works-review` environment.
   person's push, and opens a new pull request from it
 - **THEN** only the pushes since the branch's latest creation are checked, and
   the workflow approves the new pull request.
-
-### Scenario: a person's run on a Dependabot pull request
-
-- **WHEN** a writer's event starts a run on a pull request whose every commit
-  and push is `dependabot[bot]`'s own
-- **THEN** the workflow approves it, while a run `dependabot[bot]` itself
-  triggered approves nothing.

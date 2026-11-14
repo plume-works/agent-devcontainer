@@ -15,10 +15,6 @@ bot as author and a verified signature.
 
 - Check only the actor of the `synchronize` run. Rejected: a push from a person,
   then a close and a reopen of the pull request, makes the approval valid again.
-- No approval for pull requests that Dependabot opens. Rejected: the commit and
-  push checks already make sure that the approval includes no change from a
-  person. The exception only removes the approval from pull requests that hold
-  only Dependabot commits.
 - A ruleset bypass for the Renovate App. Rejected: it removes the approval
   requirement for dependency updates and records no approval.
 

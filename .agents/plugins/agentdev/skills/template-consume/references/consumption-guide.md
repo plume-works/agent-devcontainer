@@ -418,9 +418,7 @@ Then adapt the workflows themselves:
   it, committed by it or `web-flow`, signature verified — and every push in
   the head branch's repository activity came from the bot; otherwise it
   dismisses its approval, so a person's commit never merges under a bot
-  approval. Reading that activity needs `contents: read` on the job. A Dependabot-triggered run holds a read-only
-  token and is skipped; a run a person triggers on a Dependabot pull request
-  approves it when that check passes.
+  approval. Reading that activity needs `contents: read` on the job.
 - Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
   comma-separated list of bot logins, matched exactly and only for authors
   whose `user.type` is `Bot`. A consuming project running its own Renovate
