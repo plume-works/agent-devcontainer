@@ -53,76 +53,17 @@ runtime](standalone-opencode-runtime.md).
 
 ### Requirement: the base image is lifecycle-neutral
 
-`agentdev-base` SHALL contain the shared development tools, agentdev catalog,
-and default policy without containing deploy or Dev Container lifecycle
-implementation; it SHALL NOT carry the `agentdev_runtime` package.
+`agentdev-base` SHALL contain the shared development tools and the agentdev
+catalog. It SHALL NOT contain the lifecycle code of the deploy image or the Dev
+Container. It SHALL NOT contain the `agentdev_runtime` package. The firewall
+allowlist and the agent policy are not in the base: the deploy and Dev Container
+images copy the allowlist, and the runtime applies the agent policy at start.
 
 #### Scenario: a consumer runs the base image directly
 
 - **WHEN** a consumer starts `agentdev-base` with its own command
 - **THEN** the tools and staged catalog are available, and no agentdev runtime
   supervisor or workspace lifecycle starts implicitly
-
-### Requirement: deploy and Dev Container images are sibling runtimes
-
-`agentdev-deploy` and `agentdev-devcontainer` SHALL derive from the same
-accepted `agentdev-base` digest and SHALL package their own runtime entrypoint,
-profile, and lifecycle surface.
-
-#### Scenario: one base build feeds both runtimes
-
-- **WHEN** CI builds an accepted image family
-- **THEN** both runtime images identify the exact base digest produced in that
-  run, without deriving either runtime image from the other
-
-### Requirement: the runtime is one CLI installed as a uv tool
-
-The runtime of `agentdev-deploy` and `agentdev-devcontainer` SHALL be the one
-`agentdev_runtime` package and its one console script, `agentdev-runtime`: PID 1
-and its supervisor, the health probes, every supervised service, the lifecycle
-commands, the bootstrap, and the firewall SHALL be its subcommands. Both images
-SHALL install it from the build context with
-`uv tool install --reinstall --python /usr/bin/python3` into `/opt/uv-tools`,
-with the entry point on `/usr/local/bin`, no uv cache, and no interpreter
-download. The package SHALL pin its dependencies, `supervisor` among them, so
-the images carry no apt `supervisor` and nothing resolves a dependency at
-container start. The image `ENTRYPOINT`, its `HEALTHCHECK`
-(`agentdev-runtime health ready`), every supervisord program, and the lifecycle
-commands of the image's Dev Container metadata SHALL invoke
-`/usr/local/bin/agentdev-runtime`.
-
-#### Scenario: a runtime container starts
-
-- **WHEN** an `agentdev-deploy` or `agentdev-devcontainer` container starts
-- **THEN** PID 1 is `/usr/local/bin/agentdev-runtime supervisor run`, and every
-  module it runs was installed at build time
-
-#### Scenario: the engine checks a runtime container's health
-
-- **WHEN** Docker runs the image's health check
-- **THEN** it runs `agentdev-runtime health ready`, which passes only while the
-  runtime publishes readiness
-
-### Requirement: the base image carries the agent-file validator
-
-`agentdev-base` SHALL install `validate_agent_files`, built from the
-`py_packages/validate_agent_files/` of the build context, as an isolated uv tool
-under `/opt/uv-tools` on the system interpreter, with its entry point at
-`/usr/local/bin/validate_agent_files`. The build SHALL fail unless the installed
-distribution's version equals `VALIDATE_AGENT_FILES_VERSION`, which the image
-carries as its `org.opencontainers.image.version.validate-agent-files` label.
-
-#### Scenario: a non-root user validates without a checkout
-
-- **WHEN** the non-root runtime account runs `validate_agent_files --help` in a
-  container from the image, with no repository checked out and no `uv run`
-- **THEN** the command resolves on `PATH` and exits 0
-
-#### Scenario: the pin and the package disagree
-
-- **WHEN** `VALIDATE_AGENT_FILES_VERSION` differs from the version in
-  `py_packages/validate_agent_files/pyproject.toml`
-- **THEN** the image build fails naming both versions
 
 ### Requirement: image builds contact no Launchpad host
 
@@ -151,41 +92,6 @@ repository's latest and SHALL never replace a release that exists.
   pinned key, or a file whose SHA-256 differs from the signed index
 - **THEN** it publishes nothing and fails
 
-### Requirement: image builds read only their declared inputs
-
-The image build context SHALL contain only `ansible.cfg`, `ansible/`, `docker/`,
-`.claude-plugin/`, `.agents/plugins/` without plugin `tests/`,
-`py_packages/validate_agent_files/`, `py_packages/agentdev_runtime/`, and
-`.devcontainer/firewall-allowlist.txt`. `agentdev-base` SHALL provision in three
-steps — Ansible roles, the validator, the catalog — each bind-mounting only the
-inputs it reads, so a change outside a step's inputs SHALL leave that step's
-cached layer valid. `ubuntu-ansible` SHALL carry no per-run labels, so unchanged
-inputs keep its digest. A `clean_build` dispatch or a `[ci:clean_build]` marker
-SHALL build without the layer cache.
-
-#### Scenario: a catalog-only change
-
-- **WHEN** only files under `.agents/plugins/` change
-- **THEN** only the catalog step runs again; the roles and validator steps are
-  reused from the cache
-
-#### Scenario: a clean build is requested
-
-- **WHEN** a run is dispatched with `clean_build` or its commit or pull request
-  body carries `[ci:clean_build]`
-- **THEN** no provisioning step is reused from the layer cache
-
-### Requirement: the image carries Xpra 6 or newer
-
-The `xpra_setup` role SHALL install `xpra` by name from the Xpra stable
-repository, then run an upgrade-only install of it, and SHALL fail the build
-unless the installed `xpra` is major version 6 or newer.
-
-#### Scenario: the base image already holds Ubuntu's xpra
-
-- **WHEN** the role runs on an image that already holds Ubuntu's xpra 3.x
-- **THEN** the upgrade step replaces it with the Xpra repository's release
-
 ### Requirement: gh resolves to the image's wrapper
 
 The images SHALL install the `gh` authentication wrapper at `/usr/local/bin/gh`
@@ -205,57 +111,6 @@ on `PATH`.
   `config.fish` carries the `github_cli_wrapper` block
 - **THEN** the block is removed
 
-### Requirement: the Dev Container image owns persistent services
-
-`agentdev-devcontainer` SHALL start Docker, D-Bus, keyring, and enabled Xpra
-through its supervised entrypoint, SHALL publish readiness only after required
-services are healthy, and SHALL recover or fail with the bounded policy shared
-with deploy. OpenCode and Remote Control SHALL be opt-in clients that start only
-after the create phase finishes and never gate readiness.
-
-#### Scenario: an editor attaches to a healthy runtime
-
-- **WHEN** the Dev Container start lifecycle waits for runtime readiness
-- **THEN** attachment proceeds only after every required service reports ready
-
-#### Scenario: a required service exhausts recovery
-
-- **WHEN** a required service cannot recover within its configured budget
-- **THEN** readiness is withdrawn, the failure names the service, and the
-  container exits nonzero
-
-#### Scenario: an opt-in client fails
-
-- **WHEN** OpenCode or Remote Control is enabled and fails
-- **THEN** the runtime is degraded, not failed, and readiness stays published
-
-### Requirement: every process names the runtime's session bus
-
-`agentdev-deploy` and `agentdev-devcontainer` SHALL set
-`DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus` as an image `ENV`, so
-every process in the container names the bus the runtime's keyring serves.
-
-#### Scenario: gh runs in a shell
-
-- **WHEN** `gh` runs from the `agent` or the `root` shell of a ready runtime
-- **THEN** the shell's `DBUS_SESSION_BUS_ADDRESS` is the runtime's bus, and no
-  `dbus-daemon` or `gnome-keyring-daemon` is added
-
-### Requirement: the Dev Container runs as a non-root account on one home volume
-
-The Dev Container image SHALL run its user services, lifecycle commands, and
-editor sessions as a non-root account remapped to the host user's UID and GID,
-with its home on one per-instance volume. The supervisor SHALL stay root and
-SHALL run every user service as that account. Its create phase SHALL run under
-the supervisor after the root bootstrap, once per container, and gate readiness;
-`postCreateCommand` SHALL wait for it and fail when the runtime fails first.
-
-#### Scenario: an editor opens a shell in the Dev Container
-
-- **WHEN** a Dev Container client attaches on a Linux host
-- **THEN** the shell runs as `agent` with the host user's UID and GID, while
-  supervisord runs as root and its user services as `agent`
-
 ### Requirement: uv and pre-commit state lives on the home volume
 
 Neither runtime image SHALL move uv's cache, uv's Python installs, or
@@ -268,70 +123,6 @@ home, so they persist on its home volume. `agentdev-deploy` SHALL set
 - **WHEN** an `agentdev-deploy` container is recreated with its home volume kept
 - **THEN** the project environment, uv's cache, and its Python installs are
   still present under `/home/agent`
-
-### Requirement: lifecycle phases remain distinct
-
-The image SHALL provide stable create, start/readiness, and attach commands —
-`agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
-`agentdev-runtime lifecycle attached`, published through the image's Dev
-Container metadata — and SHALL NOT move create-once or attach-scoped work into
-the entrypoint. The same `devcontainer.metadata` label SHALL set `waitFor` to
-`postStartCommand`, `overrideCommand` to `false`, `DEV_WORKSPACE_FOLDER` to the
-container workspace folder through `containerEnv`, and a per-container volume at
-`/var/lib/docker`. `agentdev-runtime lifecycle ready --no-wait` SHALL run the
-per-start repairs without waiting for supervised services, so a container with
-no supervisor as PID 1 — the Claude responder's GitHub `container:` job — runs
-`created`, `ready --no-wait`, and `attached` and starts no service.
-
-#### Scenario: a descriptor selects the image and declares no lifecycle
-
-- **WHEN** a Dev Container client starts a descriptor that selects
-  `agentdev-devcontainer`
-- **THEN** the client keeps the image entrypoint, runs the three lifecycle
-  commands, and attaches only after `postStartCommand` finishes
-
-#### Scenario: a job runs the image without its entrypoint
-
-- **WHEN** the responder's container job runs the lifecycle commands with
-  `ready --no-wait`
-- **THEN** the checkout's catalog is installed and no keyring, firewall, Docker
-  engine, or desktop starts
-
-#### Scenario: only the attach lifecycle runs
-
-- **WHEN** an attach-only lifecycle event occurs
-- **THEN** attach-scoped catalog and index refresh runs without rerunning
-  create-once initialization or restarting supervised services
-
-### Requirement: consumers do not copy lifecycle implementation
-
-A direct or derived consumer SHALL be able to obtain the complete managed
-lifecycle by referencing `agentdev-devcontainer` and SHALL customize it through
-documented environment values and executable files in explicit ordered hook
-directories. The documented environment SHALL be the variables
-`agentdev_runtime.settings` declares, each with one default, which
-`agentdev-runtime settings` prints. The executable files in
-`/etc/agentdev/hooks/{created,started,attached}.d/` SHALL run in C-locale name
-order at the end of their phase, and a failing hook SHALL fail the phase; a hook
-directory that resolves inside the workspace SHALL be refused.
-
-#### Scenario: a hook fails
-
-- **WHEN** a hook in `started.d` exits nonzero
-- **THEN** `agentdev-runtime lifecycle ready` fails naming the hook and its exit
-  status
-
-#### Scenario: a derived image adds a hook
-
-- **WHEN** it installs an executable hook in a documented phase directory
-- **THEN** the hook runs in deterministic order after the managed phase without
-  changing, adding, or removing any file of the installed `agentdev_runtime`
-  distribution
-
-#### Scenario: a mounted repository contains a similarly named script
-
-- **WHEN** no explicit image hook registers that script
-- **THEN** mounting or attaching the repository does not execute it
 
 ### Requirement: the bootstrap refuses a changed runtime package
 
@@ -392,102 +183,6 @@ container start.
 
 - **WHEN** the host sets `AGENTDEV_EXTRA_CA_CERTS` to a file it cannot read
 - **THEN** `devcontainer-init.sh` fails and the container does not start
-
-### Requirement: missing pre-commit hook executables are reported
-
-`agentdev-runtime project hooks` SHALL warn, without failing, about each
-`language: system` pre-commit hook whose executable is not on `PATH`, and
-`agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as required
-tools.
-
-### Requirement: doctor judges a healthy Compose Dev Container healthy
-
-In the devcontainer profile, `agentdev-runtime doctor` SHALL accept the git
-identity git resolves, including one set through `GIT_AUTHOR_*` and
-`GIT_COMMITTER_*`.
-
-### Requirement: the agentdev checkout overrides the staged catalog
-
-The complete catalog in this repository's checkout SHALL override the staged
-catalog on attach, while repositories without all required catalog manifests
-SHALL continue using the staged version.
-
-#### Scenario: an agentdev developer reloads the editor
-
-- **WHEN** the checkout contains the Claude and OpenCode catalog manifests and
-  the attach lifecycle runs
-- **THEN** both clients register the checkout catalog without rebuilding the
-  image
-
-### Requirement: each checkout has its own project environment
-
-The Dev Container SHALL give every checkout of the workspace repository,
-including each Git worktree, its own uv project environment: `.venv` in the
-checkout SHALL be a link to a directory named after the checkout under
-`AGENTDEV_VENV_ROOT` (`/home/agent/.local/share/uv/venvs` in
-`agentdev-devcontainer`, else `/uv/venvs`), on the same volume as the uv cache.
-The create phase SHALL register `agentdev-runtime worktree create` and
-`agentdev-runtime worktree remove` as the user's Claude `WorktreeCreate` and
-`WorktreeRemove` hooks. The `WorktreeCreate` hook SHALL honour Claude's
-`worktree.baseRef` setting, read from the repository's
-`.claude/settings.local.json`, then `.claude/settings.json`, then the user's
-`settings.json`: `head` SHALL start a new `worktree-<name>` branch at the main
-checkout's `HEAD`, and `fresh` or no setting at `origin`'s default branch,
-fetched first, or at `HEAD` when `origin` has no default branch. The repository
-SHALL set `baseRef` to `fresh`. The link SHALL exist before a worktree's first
-command when the worktree is made by `git worktree add` or by that
-`WorktreeCreate` hook, and the attach phase SHALL create it for the workspace
-folder. The `WorktreeRemove` hook SHALL delete the environment of the worktree
-it removes; attach SHALL keep every environment named after a listed checkout or
-linked from the `.venv` of any checkout, in any repository, and remove the rest.
-
-#### Scenario: two worktrees run uv at once
-
-- **WHEN** two worktrees with different versions of the project's packages run
-  `uv run` concurrently
-- **THEN** each imports its own checkout's packages, and neither sync changes
-  the other's environment
-
-#### Scenario: an agent creates a worktree
-
-- **WHEN** a Claude Code session or a worktree-isolated subagent starts in a new
-  worktree
-- **THEN** the worktree is at `.claude/worktrees/<name>` on branch
-  `worktree-<name>`, and its `.venv` links to its own environment before the
-  session starts
-
-#### Scenario: a new worktree starts at the fetched default branch
-
-- **WHEN** `WorktreeCreate` fires with a new name and `origin`'s default branch
-  is ahead of the main checkout
-- **THEN** the new `worktree-<name>` branch points at `origin`'s default branch
-  as just fetched, not at the main checkout's `HEAD`
-
-#### Scenario: a user keeps worktrees on HEAD
-
-- **WHEN** `WorktreeCreate` fires with a new name and the user's `settings.json`
-  sets `worktree.baseRef` to `head`, with no repository setting
-- **THEN** the new `worktree-<name>` branch points at the main checkout's `HEAD`
-
-#### Scenario: a worktree name is used again
-
-- **WHEN** `WorktreeCreate` fires with a name used before, such as a session
-  Remote Control revives
-- **THEN** the hook reuses that name's worktree, or checks out its kept
-  `worktree-<name>` branch when the worktree was removed, and prints its path
-
-#### Scenario: Claude Code removes a worktree
-
-- **WHEN** Claude Code removes a worktree its `WorktreeCreate` hook made
-- **THEN** that worktree's environment directory is deleted at once, and its
-  `worktree-<name>` branch is kept
-
-#### Scenario: a worktree is removed outside Claude Code
-
-- **WHEN** a worktree is removed with `git worktree remove` and the workspace is
-  next attached
-- **THEN** its environment directory is deleted, and no environment a checkout
-  of any repository still links to is touched
 
 ### Requirement: full adoption remains supported
 

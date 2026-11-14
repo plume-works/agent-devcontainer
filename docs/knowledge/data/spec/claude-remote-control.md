@@ -39,108 +39,6 @@ every devcontainer answers Claude's first-run prompts ahead of time.
 
 ## Requirements
 
-### Requirement: Remote Control autostarts only on a live claude.ai login
-
-`agentdev-runtime remote-control start` SHALL start Remote Control in exactly
-one detached tmux session named `claude-remote`, on the dedicated tmux server
-`tmux -L claude-remote`, naming the Remote Control session after
-`CODER_WORKSPACE_NAME` when it is set, only when `claude auth status --json`
-reports `loggedIn: true` with `authMethod: "claude.ai"`. On Coder,
-`agentdev-runtime coder start`, which the template's `coder_script` on the dev
-container's sub-agent runs on every agent start, runs it after its other steps,
-and nothing restarts a session that ends until the next agent start or a manual
-run; the standalone runtime's `remote-control` watcher runs it when
-`AGENTDEV_CLAUDE_RC_MODE` is set; no devcontainer lifecycle hook runs it.
-Repeated or concurrent runs SHALL reuse a live session rather than create
-another. It SHALL skip startup when `claude` or `tmux` is unavailable. The
-Claude process SHALL NOT receive `CLAUDE_CODE_OAUTH_TOKEN`.
-
-In session mode, the session SHALL resume the conversation whose ID is stored in
-`remote-control-session-id` under Claude's configuration directory. When no ID
-is stored, or the resume exits non-zero, it SHALL start a new conversation under
-a newly generated ID and store that ID in place of the old one. Whenever the
-session's conversation changes while Claude runs, including through `/clear`,
-the session SHALL store the new conversation's ID in place of the old one; no
-other Claude process SHALL write the stored ID. The pin hook SHALL replace the
-stored ID through a temporary file in the same directory and a rename, so an
-interrupted write never leaves a truncated ID, and SHALL exit 0 in every case:
-input that does not parse or carries no `session_id` leaves the stored ID
-unchanged and writes a message to stderr. A transient failure to reconnect a
-resumed conversation leaves Claude running with Remote Control off; running
-`/remote-control` in the session restores it.
-
-#### Scenario: the saved login has expired
-
-- **WHEN** the credential file exists but `claude auth status --json` reports
-  `loggedIn: false`
-- **THEN** no session is started and the command exits successfully.
-
-#### Scenario: the operator logs in after the workspace started
-
-- **WHEN** an operator completes `/login` and runs the command from a Coder
-  terminal
-- **THEN** `claude-remote` starts without a workspace restart.
-
-#### Scenario: the Remote Control session ends on Coder
-
-- **WHEN** the `claude-remote` session exits in a Coder workspace, a server-mode
-  server included
-- **THEN** Remote Control stays off until the next agent start, or until an
-  operator runs the command from a Coder terminal.
-
-#### Scenario: the workspace restarts or is rebuilt
-
-- **WHEN** `claude-remote` starts in session mode with a stored conversation ID
-  whose conversation still exists
-- **THEN** it resumes that conversation, and claude.ai/code shows it under the
-  same session URL with its earlier turns.
-
-#### Scenario: the operator clears the conversation
-
-- **WHEN** `/clear` runs in `claude-remote` in session mode and the workspace
-  then restarts
-- **THEN** the pane resumes the post-clear conversation under the same session
-  URL.
-
-### Requirement: the standalone runtime starts Remote Control when a mode is set
-
-A nonempty `AGENTDEV_CLAUDE_RC_MODE` SHALL add an optional, supervised
-`remote-control` component to the standalone runtime, started after `prepare`;
-unset or empty SHALL leave the component out, so the runtime neither starts nor
-reports it. A value other than `session` or `server`, or in server mode an
-`AGENTDEV_CLAUDE_RC_SPAWN` other than empty, `worktree`, or `same-dir`, SHALL
-latch a configuration failure naming the variable before the bootstrap. While no
-claude.ai login exists, the component SHALL be ready, the runtime SHALL stay
-`ready`, and `agentdev-runtime health status` SHALL say it is waiting for a
-claude.ai login. Once a claude.ai login exists, the component SHALL run
-`agentdev-runtime remote-control start` as the runtime user in the workspace
-folder, with no operator action, and check for the login without starting a
-Claude process unless the credential file changed. When a `claude-remote`
-session it saw live is gone while the login holds, it SHALL restart the session
-within the runtime's recovery budget for optional services. A start that returns
-without leaving a live `claude-remote` session SHALL count as the session
-exiting, so the runtime restarts it and, once the recovery budget is exhausted,
-reports degraded naming `remote-control`, or latches failed under strict
-startup.
-
-#### Scenario: the operator logs in after the runtime started
-
-- **WHEN** `/login` completes in a container sharing the auth volume while the
-  watcher waits
-- **THEN** `claude-remote` starts in the workspace folder without a container
-  restart, and a conversation started from claude.ai/code works there.
-
-### Requirement: Claude sessions default to auto mode
-
-`.claude/settings.json` SHALL set `permissions.defaultMode` to `auto`, so a
-Claude session in the workspace, the session-mode pane included, starts in
-Claude Code's `auto` permission mode unless its launch names another mode.
-
-#### Scenario: the session-mode pane starts
-
-- **WHEN** session mode starts the pinned pane in the workspace folder
-- **THEN** its conversation starts in the `auto` permission mode.
-
 ### Requirement: server mode is opt-in
 
 `AGENTDEV_CLAUDE_RC_MODE` SHALL select the mode: `server` selects server mode,
@@ -214,96 +112,6 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 - **THEN** it leaves the existing session running, and the new setting applies
   on the next session start.
 
-### Requirement: the dev container hostname names its launcher
-
-Claude Remote Control names its environment after the container hostname, and no
-Claude option overrides that name. `devcontainer-init.sh` SHALL write
-`CONTAINER_HOSTNAME` to the Compose `.env`, and the `devcontainer` service SHALL
-take its `hostname` from it. The init script SHALL derive the value itself,
-reading no file under `.devcontainer/scripts/`, which a consumer migrated to the
-agentdev image does not keep. It checks, in this order of precedence:
-
-- `coder-<CODER_WORKSPACE_NAME>` when `CODER_WORKSPACE_NAME` is set;
-- `vscode-<host>-<checkout>` when `VSCODE_PID` or `VSCODE_IPC_HOOK` is set,
-  which the VS Code extension host exports to the initialize command;
-- `cli-<host>-<checkout>` otherwise.
-
-`<host>` is the launching machine's hostname without its domain, and
-`<checkout>` is the base name of the checkout directory. The value SHALL be one
-RFC 1123 label: lowercase, every run of other characters replaced by one hyphen,
-no leading or trailing hyphen, and at most 63 characters. Without the initialize
-command's value, the `devcontainer` service SHALL take the hostname `agentdev`.
-The hostname SHALL NOT change the Remote Control session name.
-
-#### Scenario: a Coder workspace starts the dev container
-
-- **WHEN** the initialize command runs with `CODER_WORKSPACE_NAME=agent-dev2`
-- **THEN** the container hostname, and so the Remote Control environment name,
-  is `coder-agent-dev2`, whatever VS Code variables Coder also sets.
-
-#### Scenario: VS Code on a laptop starts the dev container
-
-- **WHEN** VS Code on `Antons-MBP.local` opens the `agent-devcontainer` checkout
-  in a container
-- **THEN** the hostname is `vscode-antons-mbp-agent-devcontainer`.
-
-#### Scenario: the devcontainer CLI starts the dev container
-
-- **WHEN** `devcontainer up` runs on `builder` for the `agent-devcontainer`
-  checkout outside VS Code and Coder
-- **THEN** the hostname is `cli-builder-agent-devcontainer`.
-
-#### Scenario: one launcher opens the same checkout twice on one machine
-
-- **WHEN** the same launcher on the same machine creates two containers for
-  checkouts with the same directory name
-- **THEN** both containers get the same hostname, and so the same Remote Control
-  environment name.
-
-### Requirement: Remote Control inherits the Coder agent's environment
-
-The Claude process in `claude-remote` SHALL receive the environment of the
-process that ran `agentdev-runtime remote-control start`, including when another
-tmux server is live on the default socket. Started by the `coder_script`, it
-SHALL carry the Coder user secrets and the agent's git credential helper.
-
-#### Scenario: a GitHub token is a Coder user secret
-
-- **WHEN** the workspace owner has a `GITHUB_TOKEN` env user secret and the
-  `coder_script` starts `claude-remote`
-- **THEN** `gh auth status` succeeds from the Remote Control session.
-
-### Requirement: every container pre-approves first-run Claude state
-
-Unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is non-empty, post-create SHALL record
-in Claude's state file (`~/.claude.json`, written through its symlink into the
-persistent volume) that onboarding is complete, the Remote Control confirmation
-was seen, and the workspace is trusted. It SHALL set
-`enableAllProjectMcpServers` in the workspace's `.claude/settings.local.json`
-and SHALL keep any existing `disabledMcpjsonServers` list. Existing keys in both
-files SHALL be preserved. The CI responder SHALL set the opt-out.
-
-#### Scenario: a new workspace autostarts Remote Control
-
-- **WHEN** a Coder workspace is created on a template whose `coder_script`
-  starts Remote Control, with a valid claude.ai login in the shared volume
-- **THEN** `claude-remote` reaches `/rc active` with no terminal interaction and
-  every project `.mcp.json` server enabled except those listed in
-  `disabledMcpjsonServers`.
-
-#### Scenario: Remote Control is not started
-
-- **WHEN** a container is created where nothing starts Remote Control
-- **THEN** the first interactive `claude` session shows no onboarding, trust, or
-  project-MCP prompt.
-
-#### Scenario: the CI responder runs the lifecycle commands
-
-- **WHEN** `agentdev-runtime lifecycle created` runs with
-  `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` set
-- **THEN** neither `~/.claude.json` nor `.claude/settings.local.json` is
-  modified.
-
 ## Rationale
 
 ### The autostart gate reads the live login status
@@ -344,18 +152,19 @@ Rejected:
 
 ### Session mode resumes one pinned conversation per volume
 
-The pane resumes the conversation whose ID is stored on the `agentdev-claude`
-volume, and falls back to a new pinned conversation on any non-zero resume exit.
-Claude Code's transcript records the claude.ai session a conversation is bound
-to, so resuming the conversation reattaches the same session URL, and Claude
-Code mints a fresh remote session itself when the recorded one is gone or
-belongs to another account. A resume whose transcript is gone exits non-zero,
-which is the case the fallback covers; its cost is that a crash of a resumed
-session also starts a fresh conversation. The pin hook reaches the pane alone
-through `claude --settings`, and `/clear` moves the binding to the new
-conversation, which is why the hook rewrites the stored ID on every
-`SessionStart`. One stored ID per volume suffices because each devcontainer
-instance has one workspace folder.
+The pane resumes the conversation whose ID Claude's configuration directory
+keeps on the home volume `agentdev-home-${devcontainerId}` of the instance. If
+the resume exits with a non-zero status, the pane starts a new pinned
+conversation. Claude Code's transcript records the claude.ai session that each
+conversation uses. Thus, when the pane resumes the conversation, it uses the
+same session URL again. If the recorded session is gone or is for a different
+account, Claude Code makes a new remote session. A resume whose transcript is
+gone exits with a non-zero status, and the fallback is for this case. As a
+result, a crash of a resumed session also starts a new conversation. Only the
+pane gets the pin hook, through `claude --settings`. `/clear` moves the binding
+to the new conversation. Thus the hook writes the stored ID again at each
+`SessionStart`. One stored ID for each volume is sufficient because each
+devcontainer instance has one workspace folder.
 
 Rejected:
 

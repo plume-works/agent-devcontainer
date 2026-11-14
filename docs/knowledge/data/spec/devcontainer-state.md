@@ -30,51 +30,6 @@ preparation, the `.venv` link's edge cases, and the root-test launcher.
 
 ## Requirements
 
-### Requirement: the host init creates the shared auth volume
-
-`.devcontainer/devcontainer-init.sh` SHALL create the Docker volume
-`agentdev-agents-auth-<uid>-<gid>`, named after the host user's `id -u` and
-`id -g`, and write its name to `.devcontainer/.env` as `AGENTDEV_AUTH_VOLUME`.
-`.devcontainer/docker-compose.yml` SHALL declare that volume `external: true`
-with an explicit `name:`, so Compose adds no project prefix, and mount it at
-`/var/lib/agentdev/auth`. The image SHALL set `CLAUDE_SECURESTORAGE_CONFIG_DIR`
-to `/var/lib/agentdev/auth/claude`.
-
-#### Scenario: a second worktree opens a Dev Container
-
-- **WHEN** the same host user opens a Dev Container from a second worktree
-- **THEN** its Compose project mounts the volume the first one uses, and Claude
-  Code finds the existing login
-
-### Requirement: the home volume starts empty and the bootstrap claims it
-
-The Dev Container image SHALL define the account `agent` (1000:1000) with an
-empty `/home/agent` it owns, declare `remoteUser: agent` and
-`updateRemoteUserUID: true`, and mount the volume
-`agentdev-home-${devcontainerId}` at `/home/agent`. The base image SHALL write
-its shell `PATH` and history setup to `/etc/bash.bashrc` and
-`/etc/fish/conf.d/`, never into a home. For a non-root account the bootstrap
-SHALL write a validated passwordless sudoers entry, give an empty home mount to
-the account, refuse a populated home another UID owns, refuse a checkout the
-account cannot write with an error naming the UID and GID it needs, and refuse a
-populated auth volume holding an entry another UID owns. It SHALL initialize an
-empty auth volume under an exclusive lock, so only the first of several
-containers writes it. A root account SHALL keep its mounts and checkout as they
-are, with no claim and no sudoers entry.
-
-#### Scenario: first start on a fresh home volume
-
-- **WHEN** a Dev Container starts with a new home volume
-- **THEN** the volume is empty and owned by the remapped account, and an
-  interactive shell still gets the image's `PATH`
-
-#### Scenario: the host user is root
-
-- **WHEN** the host user is root, so the account keeps 1000:1000, and the
-  checkout is root-owned
-- **THEN** the bootstrap refuses the checkout with an error naming the UID it
-  needs
-
 ### Requirement: the create phase re-owns the sibling checkout volume
 
 The create phase SHALL re-own `/workspaces/project` recursively to the account
@@ -87,74 +42,6 @@ folder or the account is root.
   another UID
 - **THEN** it is re-owned to the account, and its uncommitted work stays
   editable
-
-### Requirement: link-venv leaves a .venv it does not own in place
-
-`agentdev-runtime project link-venv [PATH]` SHALL link the checkout's `.venv` to
-`$AGENTDEV_VENV_ROOT/<checkout directory name>`, creating the target first, and
-record the checkout's path in `<name>.checkout` beside it. It SHALL be
-idempotent, SHALL replace a link into another directory under the root or a
-dangling link, and SHALL leave a real `.venv` directory, or a link to an
-existing path outside the root, in place with a warning. It SHALL do nothing in
-deploy mode, outside a Git checkout, or while the root's parent directory is
-missing; the create phase SHALL therefore create a root that lies inside the
-account's home. Attach SHALL replace a real uv environment (one holding
-`pyvenv.cfg`) in the workspace folder with the link. The Dev Container SHALL set
-no `UV_PROJECT_ENVIRONMENT`, and its editor settings that take a path SHALL name
-`${workspaceFolder}/.venv/bin/...`.
-
-#### Scenario: run outside a Dev Container
-
-- **WHEN** `link-venv` runs where the root's parent directory does not exist
-- **THEN** it changes nothing and exits 0
-
-#### Scenario: two checkouts share a directory name
-
-- **WHEN** two checkouts have the same directory name
-- **THEN** both `.venv` links name the same environment
-
-### Requirement: only link-venv runs at post-checkout
-
-`agentdev-runtime project hooks` SHALL install pre-commit's `post-checkout` hook
-type with the other hook types. This repository's `.pre-commit-config.yaml`
-SHALL set `default_stages` without `post-checkout`, and its only `post-checkout`
-hook SHALL be `link-venv`, which exits 0 where `agentdev-runtime` is not on
-`PATH`.
-
-#### Scenario: a worktree is added on the host
-
-- **WHEN** `git worktree add` runs where `agentdev-runtime` is absent
-- **THEN** the `post-checkout` hook succeeds and changes nothing
-
-#### Scenario: a checkout of main
-
-- **WHEN** a checkout switches to `main` in the Dev Container
-- **THEN** no hook without its own `stages`, such as `no-commit-to-branch`, runs
-
-### Requirement: root-only tests run through a launcher
-
-A test that needs root SHALL carry the `requires_root` marker, and a run that is
-not root SHALL skip it. `scripts/run-root-tests` SHALL refuse to start as root
-and SHALL run the project environment's own Python as root through
-`sudo -- env -i`, passing only `PATH`, `HOME=/root`,
-`PYTHONDONTWRITEBYTECODE=1`, its own scratch root `/tmp/agentdev-root-tests`,
-and the launcher flag, with `-m requires_root` and pytest's cache provider off.
-Under the launcher, a root run that selects any test without the marker SHALL
-fail before running. A root run without the launcher SHALL stay unrestricted.
-CI's Dev Container image job SHALL run the launcher after the suite and fail
-when it left a root-owned file in the checkout or the runtime account's scratch
-root.
-
-#### Scenario: the launcher selects an unmarked test
-
-- **WHEN** `scripts/run-root-tests` is given a path holding a test without
-  `requires_root`
-- **THEN** pytest stops with a usage error naming it, and no test runs
-
-#### Scenario: started as root
-
-- **WHEN** `scripts/run-root-tests` runs as root
-- **THEN** it exits 2 and suggests `pytest -m requires_root`
 
 ## Rationale
 

@@ -10,16 +10,6 @@ sources:
 
 # Xpra port forwarding
 
-## Requirement: Xpra has a fixed default container port
-
-`agentdev-runtime xpra` SHALL use TCP port 14500 by default, independently of
-`DEVCONTAINER_ID`, and SHALL honor an explicit `--port` argument.
-
-### Scenario: explicit override
-
-- **WHEN** Xpra starts with `--port 14600` and `DEVCONTAINER_ID` is set
-- **THEN** it listens on container port 14600.
-
 ## Requirement: devcontainer forwarding permits local remapping
 
 The default devcontainer configuration SHALL explicitly forward container port

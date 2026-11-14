@@ -43,21 +43,6 @@ Registering a catalog root SHALL register it with Claude Code and OpenCode only.
   again
 - **THEN** nothing configures Codex or registers the catalog for it.
 
-### Requirement: the catalog ships a Claude plugin and an OpenCode bridge only
-
-The `agentdev` catalog SHALL publish its plugins through
-`.claude-plugin/marketplace.json` and its OpenCode bridge plugin at
-`.agents/plugins/agentdev/.opencode-plugin/`, and SHALL ship no
-`.codex-plugin/plugin.json`, no `.agents/plugins/marketplace.json`, no per-skill
-`agents/openai.yaml`, and no Codex agent installer. A checkout SHALL be a
-complete catalog with the Claude manifest and the OpenCode bridge alone.
-
-#### Scenario: a checkout without a Codex marketplace is attached
-
-- **WHEN** a checkout holds `.claude-plugin/marketplace.json` and the OpenCode
-  bridge but no `.agents/plugins/marketplace.json`
-- **THEN** `agentdev-runtime catalog complete` reports it complete.
-
 ### Requirement: CI validates the catalog for Claude only
 
 This repository's agent-file validation SHALL run `validate_agent_files` with

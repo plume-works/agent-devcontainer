@@ -18,43 +18,6 @@ the `agentdev-devcontainer` image, provisions the project's Python environment
 and invokes its tools, so CI follows the same `uv run` contract as the Dev
 Container.
 
-## Requirements
-
-### Requirement: one action provisions the environment and activates nothing
-
-A runner job that needs the project's Python environment SHALL get it from
-`.github/actions/setup-python-venv`, which SHALL install Python with
-`actions/setup-python`, install uv with `astral-sh/setup-uv` at a pinned version
-with uv's package cache enabled, and run
-`uv sync --locked --all-groups --all-extras` with
-`UV_PYTHON_PREFERENCE=only-system`. The action SHALL NOT create a virtualenv
-itself, export `VIRTUAL_ENV`, add the environment to `GITHUB_PATH`, or cache the
-environment directory.
-
-#### Scenario: the lock file is out of date
-
-- **WHEN** `pyproject.toml` declares a dependency `uv.lock` does not hold
-- **THEN** the sync step fails, and no later step installs the dependency
-
-#### Scenario: the runner has another Python on PATH
-
-- **WHEN** the runner carries a Python besides the one `actions/setup-python`
-  installed
-- **THEN** uv syncs against the interpreter `actions/setup-python` installed,
-  and downloads none of its own
-
-### Requirement: CI invokes Python tools through uv run
-
-Every step that runs a project Python tool after `setup-python-venv` SHALL
-invoke it as `uv run <tool>`. The in-tree `.venv` uv creates on a runner SHALL
-NOT be referenced by name.
-
-#### Scenario: agent files are validated
-
-- **WHEN** `validate-agent-files.yml` runs its tests and the validator
-- **THEN** each runs as `uv run pytest …` or `uv run validate_agent_files …`
-  against the environment the action synced
-
 ## Rationale
 
 ### Provision, never activate

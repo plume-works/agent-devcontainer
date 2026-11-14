@@ -17,8 +17,5 @@ specs](plans/20261113-add-missing-tests-and-delete-specs.md)
 [Move the decisions from the specs into
 ADRs](plans/20261113-move-decisions-into-adrs.md)
 
-[Remove the spec text that is redundant or
-wrong](plans/20261113-remove-redundant-and-wrong-spec-text.md)
-
 [Test the decisions that the workflows
 make](plans/20261113-test-the-workflow-decisions.md)

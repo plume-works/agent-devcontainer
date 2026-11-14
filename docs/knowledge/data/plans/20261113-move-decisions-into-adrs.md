@@ -98,7 +98,7 @@ None — no behavioral change
 ## Depends on
 
 [Remove the spec text that is redundant or
-wrong](20261113-remove-redundant-and-wrong-spec-text.md)
+wrong](../archive/next-release/plans/20261113-remove-redundant-and-wrong-spec-text.md)
 
 ## Verification
 

@@ -11,13 +11,12 @@ sources:
 
 # Observe a planned adversarial review task through the Implement loop
 
-The requirement "Adversarial review runs only when asked" in [IWE workflow
-skills](../spec/iwe-workflow-skills.md) has a scenario, "A plan task runs the
-review", that no session has been observed to follow: the Implement session
-running `/agentdev:iwe-adversarial-review <plan> code` once, taking each finding
-that names a plan claim down the code route, and filing every other finding
-through `/agentdev:iwe-capture`. The rule lives in
-`## The adversarial review task` of the `iwe-implementer` rulebook.
+No person has seen a session that obeys the rule in
+`.agents/plugins/agentdev/agents/iwe-implementer.agent.md#the-adversarial-review-task`.
+The rule tells the Implement session to run
+`/agentdev:iwe-adversarial-review <plan> code` one time. The session sends each
+finding that names a plan claim to the code route. It files each other finding
+through `/agentdev:iwe-capture`.
 
 Until it is observed, a plan that schedules the review can end with the review
 run and its findings unhandled while the plan reads as reviewed.

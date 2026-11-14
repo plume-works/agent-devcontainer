@@ -100,7 +100,9 @@ login is matched, with no variable or input that repoints it.
 ## Requirement: the responder only acts for authorized same-repository requests
 
 The responder SHALL NOT check out or execute code for a pull request originating
-from a fork, and SHALL NOT act for an actor without write access. The PR review
+from a fork, and its review jobs SHALL NOT act for an actor without write
+access. The trusted-bot approval job checks no actor permission: it runs for a
+same-repository pull request whose author is a trusted bot. The PR review
 responder SHALL run with read-only repository contents access, and no responder
 job SHALL hold write repository contents access.
 
@@ -119,7 +121,7 @@ SHALL forward a requester identity to another, and the responder SHALL NOT pass
 
 - **WHEN** the actor of a `pull_request` event has a permission other than
   `admin`, `maintain`, or `write`
-- **THEN** preflight fails and no responder job runs.
+- **THEN** preflight fails and no review job runs.
 
 ## Requirement: the review job reviews with the pr-review skill as a submitted review
 
@@ -267,35 +269,6 @@ ruleset bypass can merge it.
   receives a push
 - **THEN** no review responder runs, and `ai-review-present` passes on the
   existing review.
-
-## Requirement: the AI review verdict follows its findings
-
-The review responder SHALL submit `APPROVE` when no validated finding remains or
-every validated finding is non-blocking, and SHALL submit `REQUEST_CHANGES` when
-any blocking finding remains, whether or not it is attached inline. It SHALL NOT
-choose `COMMENT`, except as the retry when GitHub rejects a verdict because the
-reviewer owns the pull request.
-
-### Scenario: a re-review finds only non-blocking issues
-
-- **WHEN** the AI reviewer earlier requested changes on a pull request and a
-  re-review finds only non-blocking issues
-- **THEN** the re-review is an `APPROVE` with inline comments, the reviewer's
-  change request no longer blocks merge, and merge waits only for the inline
-  threads to be resolved.
-
-### Scenario: a review finds an anchored blocking issue
-
-- **WHEN** a review finds a blocking issue and attaches it inline
-- **THEN** the review is `REQUEST_CHANGES`, and the pull request stays blocked
-  until a later review from the same reviewer approves it.
-
-### Scenario: the title or description is stale
-
-- **WHEN** the pull request's title or description materially misdescribes its
-  diff
-- **THEN** the review stops before the in-depth passes and submits
-  `REQUEST_CHANGES` with the metadata finding in its body.
 
 ## Requirement: trusted-bot pull requests are approved without an AI review
 

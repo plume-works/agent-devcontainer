@@ -27,37 +27,6 @@ an empty value as an override of `user.name` or `user.email`:
 - `GIT_COMMITTER_NAME`
 - `GIT_COMMITTER_EMAIL`
 
-### Requirement: HTTPS git uses the gh login
-
-When `gh` is authenticated to github.com and no git credential helper matches
-`https://github.com`, post-start (`agentdev-runtime lifecycle ready`) SHALL
-configure `gh` as the helper, and so SHALL `agentdev-runtime coder start`, which
-the Coder template's `coder_script` runs on every agent start. Both SHALL check
-authentication only after the keyring session is available, so git never waits
-at an interactive credential prompt. An existing helper SHALL be kept. A failed
-helper setup SHALL NOT stop `agentdev-runtime coder start` from starting Remote
-Control.
-
-#### Scenario: gh's only login is a Coder user secret
-
-- **WHEN** a Coder workspace supplies `GITHUB_TOKEN` as a user secret, `gh` has
-  no stored login, and the agent starts
-- **THEN** `agentdev-runtime coder start` configures `gh` as the github.com
-  helper, and `git push` over HTTPS completes without a prompt.
-
-#### Scenario: gh has a stored login outside Coder
-
-- **WHEN** a container whose `gh` login is stored on disk or in the keyring
-  starts
-- **THEN** post-start configures `gh` as the github.com helper.
-
-#### Scenario: helper setup fails at agent start
-
-- **WHEN** `agentdev-runtime git credential-helper` exits non-zero during
-  `agentdev-runtime coder start`
-- **THEN** a warning is printed and `agentdev-runtime remote-control start`
-  still runs.
-
 ### Requirement: gh authenticates from the git credential helper
 
 The image's `gh` SHALL be a wrapper that derives `GH_TOKEN` from the git

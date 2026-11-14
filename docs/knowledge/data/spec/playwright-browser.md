@@ -14,29 +14,6 @@ sources:
 
 ## Requirements
 
-### Requirement: the development image provides a version-matched Playwright browser
-
-The published `agentdev-base` image SHALL provide a pinned Playwright CLI and
-its matching Chromium browser and Linux dependencies from an image-owned path,
-and both runtime images SHALL inherit it. The build SHALL install Chromium with
-the pinned CLI itself, from the one version the image is built with, and SHALL
-fail when the installed CLI reports another version, so a version update changes
-the CLI and the browser together.
-
-#### Scenario: a consumer launches the bundled browser
-
-- **WHEN** a user starts the published image without mounting a home-directory
-  browser cache
-- **THEN** the Playwright CLI launches the bundled Chromium without downloading
-  browser binaries at runtime.
-
-#### Scenario: the image is built for a supported architecture
-
-- **WHEN** CI builds and accepts either the `linux/amd64` or `linux/arm64`
-  variant
-- **THEN** the same pinned Playwright release and matching Chromium capability
-  are present and a headless browser launch succeeds.
-
 ### Requirement: project Playwright dependencies remain project-owned
 
 The bundled browser capability SHALL NOT claim compatibility with a consumer

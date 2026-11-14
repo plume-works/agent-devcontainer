@@ -19,58 +19,6 @@ verification item's state readable from its box alone. The `## Depends on`
 section belongs to `stacked-prs`, and the consumer guidance file to
 `template-consumption`.
 
-## Requirements
-
-### Requirement: verification is split by tense
-
-A generated pull request description SHALL carry verification in two sections.
-`## Verification` SHALL hold only closed items, each a `- [x]` box with an
-`**Evidence:**` child naming what closed it. `## Reviewer Handoff` SHALL hold
-only open items, each a `- [ ]` box with a `**Closed by:**` child naming the
-party who can close it. Neither section SHALL hold the other's box type. When a
-pull request's description is updated after review, work closed since SHALL move
-from `## Reviewer Handoff` to `## Verification` with its evidence, and never
-back. The `### Recommended Template` example in `code-review-standards` SHALL
-show one item of each kind, each with its child.
-
-#### Scenario: a check the reviewer cannot perform
-
-- **WHEN** a change needs a check only a human with specific hardware or network
-  access can run
-- **THEN** it is a `- [ ]` item under `## Reviewer Handoff` whose
-  `**Closed by:**` names that party, never an item under `## Verification`
-
-### Requirement: verification states only the residue
-
-`pr-gen-description` SHALL read `.github/workflows/` for what CI runs on the
-branch and SHALL omit from both sections every linter, formatter, image build,
-and test suite CI executes, and any "CI is green" line. It SHALL link a plan
-that carries per-task evidence under `## Related` instead of copying its
-verification list. An empty `## Verification` SHALL be left empty.
-
-#### Scenario: the change implements a plan
-
-- **WHEN** the pull request implements a plan whose ticked tasks carry evidence
-- **THEN** the description links the plan under `## Related` and does not
-  restate its evidence
-
-### Requirement: a pull request template is reported, never read
-
-`pr-gen-description` SHALL use its own section list unconditionally. When the
-repository has `.github/pull_request_template.md` or a file under
-`.github/PULL_REQUEST_TEMPLATE/`, it SHALL tell the caller that its structure
-was used and the template was not consulted, unless the template contains
-`<!-- pr-gen-description: no-template -->` and no Markdown section heading, in
-which case it SHALL say nothing about it. This repository's
-`.github/pull_request_template.md` SHALL be such a stub: the marker and a
-pointer to the skill, with no section heading.
-
-#### Scenario: a consumer keeps a structured template
-
-- **WHEN** a repository's template has its own section headings
-- **THEN** the description follows the skill's section list and the caller is
-  told the template was not consulted
-
 ## Rationale
 
 ### Two verification sections, distinguished by tense, with per-item children
