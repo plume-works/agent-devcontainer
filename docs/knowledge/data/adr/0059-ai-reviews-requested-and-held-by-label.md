@@ -33,6 +33,10 @@ pull request while it is on.
   effort.
 - A pause of all reviews in the repository. Rejected: a `block-ai-reviews` label
   on each pull request covers a time when Claude is not available.
+- A marker commit as the request. Rejected: no rule can tell if a review covers
+  the marker. A commit ID changes after a rebase, an empty commit has the same
+  diff as its parent, and a match on author, date, and message fails when one of
+  them changes. Also, each request adds a commit.
 
 ## Consequences
 
@@ -56,3 +60,6 @@ pull request while it is on.
   removes and adds the label again when no unfinished run will take it.
 - `block-ai-reviews` never removes the requirement of `ai-review-present`. It
   only stops new reviews.
+- A push starts a review only when the pull request has no accepted AI review.
+  After an accepted review, a push does not start a review, and a person adds
+  `request-ai-review` to get a new review.

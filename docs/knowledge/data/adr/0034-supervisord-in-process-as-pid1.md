@@ -37,3 +37,7 @@ recovery.
   has the highest priority, so it stops first and does not see the shutdown as a
   failure. `stopasgroup` and `killasgroup` stop the full process group of each
   program.
+- In the standalone runtime, `opencode serve` runs in the foreground as a
+  supervisord program, not in tmux, because tmux hides a crash from the
+  controller and continues after a stop. The Coder agent start keeps its tmux
+  session, so that OpenCode continues when the Coder agent starts again.

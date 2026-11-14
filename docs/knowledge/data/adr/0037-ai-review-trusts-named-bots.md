@@ -30,3 +30,8 @@ pull request from a bot. The workflow has no comment, issue, or
   required check. If the AI review gate skips, a person who can only add labels
   can make the check pass.
 - A consumer edits the list for its own bots and does not add a trigger.
+- `claude-respond` and `ai-review-present` stay two jobs. With one job, each run
+  that only checks the gate pulls the review container, uses the
+  `plume-works-review` environment, and holds the permissions of the review.
+  Also, `request-review.py` then cannot tell a review run from a gate run by the
+  name of the check.
