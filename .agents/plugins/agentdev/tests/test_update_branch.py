@@ -6,9 +6,11 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import shutil
 import subprocess
 
 from git_fixtures import FIXTURE_ENV, git, outcome
+import pytest
 
 
 def initialize_repository(path: Path, branch: str = 'fixture-feature') -> None:
@@ -375,3 +377,72 @@ def test_unreachable_upstream_remote_reports_fetch_failure(
 
     # Assert
     assert outcome(completed) == (6, 'RESULT=FETCH_FAILED')
+
+
+def test_branch_without_an_upstream_merges_only_the_base(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A branch that tracks nothing reports `untracked` and still merges the base."""
+    # Arrange
+    fixture = UpstreamFixture(plugin_tmp_path)
+    git(fixture.work, 'branch', '--unset-upstream')
+    fixture.publish('main', 'base.txt', 'base\n')
+
+    # Act
+    completed, keys = run_update(plugin_root, fixture.work)
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert keys['UPSTREAM_ACTION'] == 'untracked'
+    assert is_ancestor(fixture.work, 'origin/main')
+
+
+def test_failed_upstream_query_is_a_fetch_failure_not_a_gone_upstream(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An `ls-remote` that fails for a reason other than a missing branch stops the update."""
+    # Arrange
+    fixture = UpstreamFixture(plugin_tmp_path)
+    shim = plugin_tmp_path / 'shim'
+    shim.mkdir()
+    real_git = shutil.which('git')
+    (shim / 'git').write_text(
+        f'#!/usr/bin/env bash\n[ "$1" = ls-remote ] && exit 128\nexec {real_git} "$@"\n'
+    )
+    (shim / 'git').chmod(0o755)
+    monkeypatch.setenv('PATH', f'{shim}{os.pathsep}{os.environ["PATH"]}')
+
+    # Act
+    completed, keys = run_update(plugin_root, fixture.work)
+
+    # Assert
+    assert outcome(completed) == (6, 'RESULT=FETCH_FAILED')
+    assert "Failed to query upstream remote 'origin'" in completed.stderr
+    assert 'UPSTREAM_ACTION' not in keys
+
+
+def test_local_upstream_is_brought_in_without_a_remote_query(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A branch that tracks a local branch (`remote = .`) fast-forwards to it before the base."""
+    # Arrange
+    fixture = UpstreamFixture(plugin_tmp_path)
+    git(fixture.work, 'switch', '-c', 'fixture-local')
+    commit_file(fixture.work, 'local.txt', 'local\n')
+    local_sha = git(fixture.work, 'rev-parse', 'HEAD')
+    git(fixture.work, 'switch', fixture.branch)
+    git(fixture.work, 'branch', '--set-upstream-to', 'fixture-local')
+    fixture.publish('main', 'base.txt', 'base\n')
+
+    # Act
+    completed, keys = run_update(plugin_root, fixture.work)
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert (keys['UPSTREAM'], keys['UPSTREAM_ACTION']) == ('fixture-local', 'fast-forward')
+    assert git(fixture.work, 'rev-parse', 'HEAD^1') == local_sha
+    assert is_ancestor(fixture.work, 'origin/main')

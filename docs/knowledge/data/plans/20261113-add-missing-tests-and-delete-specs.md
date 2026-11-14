@@ -90,8 +90,11 @@ Each test shows what the `fate_note` of its row says.
     owned volume, and the open workspace;
     `py_packages/agentdev_runtime/tests/test_claim_project.py` adds a root
     account and no mount; 2 passed.
-- [ ] A test runs `update-branch` "update-branch brings in the branch's upstream
+- [x] A test runs `update-branch` "update-branch brings in the branch's upstream
   before the base" for a branch that has no upstream.
+  - **Evidence:** `.agents/plugins/agentdev/tests/test_update_branch.py` adds a
+    branch with no upstream (`untracked`), a failed `ls-remote` (`FETCH_FAILED`,
+    not `gone`), and a local upstream (`remote = .`); 14 passed.
 
 ### Task 2: Move the last spec text to its home
 
