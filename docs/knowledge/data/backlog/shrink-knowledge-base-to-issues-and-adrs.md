@@ -6,8 +6,6 @@ priority: medium
 description: After the single-home plan ships, reduce the knowledge base to an issue tracker and architecture decision records, with code and executable tests as the only statement of behaviour.
 sources:
 - resource: docs/knowledge/data/plans/20261112-knowledge-base-single-home.md
-- resource: docs/knowledge/data/spec/firewall.md
-- resource: docs/knowledge/data/spec/xpra-port-forwarding.md
 ---
 
 # Shrink the knowledge base to an issue tracker and decision records

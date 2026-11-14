@@ -4,7 +4,7 @@ The documents in this directory preserve the earlier architecture and phased des
 
 They are **not normative for the MVP**, are not on the current implementation path, and must not be treated as MVP dependencies or release gates. They have been moved here without attempting to reconcile or rewrite their internal assumptions. The [original specification index](legacy-index.md) is preserved verbatim as historical context.
 
-The current implementation target is [Self-improve learning loop](../../../knowledge/data/spec/self-improve-learning-loop.md).
+The current implementation target is [the self-improve ADRs, ADR-0087 to ADR-0090](../../../knowledge/data/adr.md).
 
 ## Preserved documents
 

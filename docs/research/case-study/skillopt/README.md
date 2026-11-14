@@ -8,7 +8,7 @@
 - **Paper inspected:** [`arXiv:2605.23904v2`](https://arxiv.org/abs/2605.23904v2), _SkillOpt: Executive Strategy for Self-Evolving Agent Skills_
 - **Source license:** [MIT](https://github.com/microsoft/SkillOpt/blob/374c832c5afc2ba314a7bf4be3343eb8e6ad63c7/LICENSE)
 - **Related studies:** [`claude-improve`](../claude-improve/README.md), [`learning-loop`](../learning-loop/README.md), [Hermes Agent](../hermes/README.md)
-- **Related design:** [Self-improve learning loop](../../../knowledge/data/spec/self-improve-learning-loop.md), [hypothetical Phase 1](../../hypothetical-extensions/specs/0002-phase-1-review-only.md), [Phase 2](../../hypothetical-extensions/specs/0003-phase-2-trusted-automatic-updates.md), and [Phase 3](../../hypothetical-extensions/specs/0004-phase-3-skill-curator.md)
+- **Related design:** [the self-improve ADRs, ADR-0087 to ADR-0090](../../../knowledge/data/adr.md), [hypothetical Phase 1](../../hypothetical-extensions/specs/0002-phase-1-review-only.md), [Phase 2](../../hypothetical-extensions/specs/0003-phase-2-trusted-automatic-updates.md), and [Phase 3](../../hypothetical-extensions/specs/0004-phase-3-skill-curator.md)
 
 ## Executive verdict
 

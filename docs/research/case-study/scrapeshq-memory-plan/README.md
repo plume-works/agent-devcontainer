@@ -16,7 +16,7 @@ The plan proposes durable capture of conversations and direct mutation of memory
 
 - Preserved source capture: [`source/`](source/README.md)
 - Machine-readable matrix: [`evaluation.json`](evaluation.json)
-- Current normative target: [Self-improve learning loop](../../../knowledge/data/spec/self-improve-learning-loop.md)
+- Current normative target: [the self-improve ADRs, ADR-0087 to ADR-0090](../../../knowledge/data/adr.md)
 - Official Claude Code documentation checked on 2026-08-04:
   - [Memory](https://code.claude.com/docs/en/memory)
   - [Hooks](https://code.claude.com/docs/en/hooks)
