@@ -20,7 +20,17 @@ bot as author and a verified signature.
 
 ## Consequences
 
-- When a check fails, the job dismisses its earlier approval.
+- The commits alone cannot show who pushed them. A different account can use the
+  API to make a commit that names the bot as author and has a verified
+  signature. For this reason, the job also examines the push history.
+- The committer of each commit must be the bot or `web-flow`, which is the
+  committer of a commit that an App makes through the API.
+- The push history check stops at the latest `branch_creation`, so a branch name
+  that a bot uses again, such as `renovate/<dep>`, starts with no history.
+- `GITHUB_TOKEN` reads the push history with `contents: read`. The job posts or
+  dismisses its approval with an App token that has only pull requests write.
+- When a check fails, the job dismisses its earlier approval and posts a notice
+  that names the push or commit that failed.
 - The job runs the copy of the workflow in the pull request. A writer can change
   the job to remove the checks. As a result, the approval is only as strong as
   the trust in the writers of the repository.

@@ -27,8 +27,22 @@ uv, Python `requests`, Node, and Bun otherwise read their own root stores.
 
 ## Consequences
 
+- The file is at `AGENTDEV_EXTRA_CA_CERTS`. The bootstrap writes one file for
+  each certificate in it as `agentdev-extra-*.crt`, and first removes the files
+  of an earlier start. As a result, the store holds only the extra CAs of the
+  current bundle.
+- An empty or missing bundle adds nothing. A bundle that is not empty but has no
+  PEM certificate stops the bootstrap.
+- The bootstrap reads the bundle one time at each container start. A new CA of
+  the proxy needs a container restart.
 - With no extra CA, the variables name the stock bundle and change nothing.
 - The nested `dockerd` reads the system store, so image pulls trust the CA.
-- `.devcontainer/devcontainer-init.sh` uses the host `NODE_EXTRA_CA_CERTS` when
-  the operator does not set `AGENTDEV_EXTRA_CA_CERTS`.
+- `.devcontainer/devcontainer-init.sh` writes `.devcontainer/.extra-ca.crt`, and
+  Compose mounts it read-only at `/etc/agentdev/extra-ca.crt`. The script copies
+  the host `AGENTDEV_EXTRA_CA_CERTS`, If it cannot, it copies the host
+  `NODE_EXTRA_CA_CERTS`. If neither is set, it writes an empty file.
+  `NODE_EXTRA_CA_CERTS` names the CAs that a host adds to the defaults, so it
+  holds the same bundle.
+- A host `AGENTDEV_EXTRA_CA_CERTS` that the script cannot read stops the script.
+  A changed host bundle needs the script to run again.
 - The containers that the Dev Container engine starts do not get the CA.

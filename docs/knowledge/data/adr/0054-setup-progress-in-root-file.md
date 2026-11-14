@@ -20,3 +20,10 @@ marker, because JSON has one parse with one failure result, `INVALID_MARKER`.
   wrong commit, the update misses upstream changes and nothing shows it.
 - A copy of the task list in the knowledge-base summary. Rejected: the two
   copies become different.
+
+## Consequences
+
+- The consumer owns `.agentdev-template-progress.md`. Git tracks it, a template
+  update keeps it, and it is never in `tracked_paths`.
+- The `template-consume` key of `.agent.metadata.json` is state that the setup
+  of the consumer writes. The setup never copies it from the publisher.

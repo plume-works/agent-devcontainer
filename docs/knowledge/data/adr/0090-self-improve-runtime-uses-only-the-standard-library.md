@@ -27,8 +27,14 @@ hook and skill.
 
 ## Consequences
 
+- The rule applies only to runtime code. The tests and the development tools of
+  the plugin can import other packages, and `uv` manages them.
+- `.agents/plugins/self-improve/selfimprove/hookio.py` is the one place that
+  reads the hook JSON from standard input. Capture, review, authorization,
+  change, and rollback are modules, not separate executable files.
 - `.agents/plugins/self-improve/tests/unit/test_no_runtime_deps.py` reads each
   runtime import and fails on an import outside the standard library.
 - `.agents/plugins/self-improve/agent-code/si` uses the first Python 3.12 or
   later interpreter that it finds. A hook can get a shell where `python3` is an
-  old virtual environment.
+  old virtual environment. When it finds no such interpreter, it stops with exit
+  code 0, so the session continues.

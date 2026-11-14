@@ -7,8 +7,9 @@ description: The standalone runtime calls the same agentdev_runtime functions as
 # The standalone runtime shares functions, not lifecycle commands
 
 `agentdev-deploy` installs `agentdev_runtime` and calls the same functions that
-the Dev Container lifecycle commands call. Each path that the functions use has
-a setting, with the Dev Container layout as the default.
+the Dev Container lifecycle commands call, such as `agentdev-runtime state`, the
+settings module, the keyring, and the git helpers. Each path that the functions
+use has a setting, with the Dev Container layout as the default.
 `AGENTDEV_RUNTIME_MODE=deploy` makes a step fail where the Dev Container
 lifecycle writes a log entry and continues.
 
@@ -21,5 +22,7 @@ lifecycle writes a log entry and continues.
 
 ## Consequences
 
-- The catalog stays the staged catalog. A checkout that holds a complete catalog
-  replaces it for that start.
+- The catalog stays the staged catalog at `/opt/agentdev`, which
+  `AGENTDEV_CATALOG_DIR` names. A checkout that holds a complete catalog
+  replaces it for that start
+  (`py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.select_catalog`).

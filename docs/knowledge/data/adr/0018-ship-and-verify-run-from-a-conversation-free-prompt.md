@@ -24,13 +24,27 @@ ask its user about an unclear plan and a material deviation. As a result,
   graph.
 - `/agentdev:iwe-ship` dispatches `iwe-verifier` before `iwe-shipper`. Rejected:
   each other route that dispatches `iwe-shipper` must then do the same step.
+- Run the Implement loop in a dispatched `iwe-implementer`. Rejected: the loop
+  then needs a nested dispatch, and a dispatched agent cannot ask the user about
+  an unclear plan or a material deviation.
 
 ## Consequences
 
 - An approval that a message from a different session claims is not an approval.
   The rule does not apply to a message in the conversation of the session
   itself, because nothing authenticates who typed it.
+- A dispatched agent cannot reach the user. When its rulebook needs a decision,
+  it stops before the step and reports `Needs decision` with the exact command
+  or choice. The user then starts the skill again and quotes the approval.
+- A command whose effects go outside the working tree runs only when a quoted
+  approval names it.
 - Each caller of Verify, `iwe-shipper` too, goes through `/agentdev:iwe-verify`.
+  As a result, `iwe-shipper` gets only the Verify report into its context before
+  it changes the graph. This dispatch is nested, so it needs the depth limit
+  that [Both harnesses permit a subagent depth of 5 in the
+  containers](0091-subagent-nesting-depth-five.md) sets.
+- `iwe-verifier` has the `Write` and `Skill` tools. A rule of its rulebook, not
+  its tool list, keeps it report-only.
 - The Implement loop runs in the Implement session. Each agent that the loop
   dispatches starts no other agent, so no dispatch is nested.
 - Only `/agentdev:iwe-ship` and `/agentdev:iwe-plan` revise mode dispatch

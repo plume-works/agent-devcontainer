@@ -26,3 +26,5 @@ it.
 
 - Verify reports no finding on a ticked task or on the form of its evidence
   line.
+- The code of a task, its tick, and its evidence line go into one commit. One
+  edit ticks one box.

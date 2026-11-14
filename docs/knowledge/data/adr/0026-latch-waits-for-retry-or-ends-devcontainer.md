@@ -24,3 +24,21 @@ not ready looks attached and serviceable.
 
 - `agentdev_runtime.supervisor::Profile` sets `exit_on_latch` only for the
   `devcontainer` profile.
+- A failed bootstrap, an incorrect setting, a failed core phase, or a core
+  service with no recovery budget left latches the runtime. With
+  `AGENTDEV_STRICT_STARTUP=true`, a failed optional service also latches it.
+- A latch stops OpenCode, also when OpenCode is the failed service, because a
+  service whose probes used all of its budget can continue to run. Nothing
+  restarts, and the runtime does not become ready again.
+- `agentdev-runtime supervisor retry` continues from the failed component in the
+  same container. Before supervisord starts, PID 1 itself waits for the retry
+  and runs the configuration check and the bootstrap again.
+- The bootstrap runs in its own process session. PID 1 stops a failed bootstrap
+  together with each process that it started, so no part of it runs at the same
+  time as the retry.
+- PID 1 parses `ENABLE_FIREWALL` and gives the firewall exactly `true` or
+  `false`. A value that the firewall does not know latches the runtime and does
+  not leave egress open.
+- Each failure writes the command, the exit status, and the end of the output of
+  the failed attempt to `last-failure.json` on the home volume. A failure before
+  the home volume is ready goes only to stderr.

@@ -24,3 +24,14 @@ to limit, so its isolation does not depend on a correct list of permitted paths.
   flags, and
   `.agents/plugins/self-improve/selfimprove/reviewer.py::build_environment` sets
   `CLAUDE_CODE_EFFORT_LEVEL`.
+- `--tools ""` removes each built-in tool, and `--disallowedTools "*"` removes
+  each MCP tool. The reviewer runs with no hooks, so the `Stop` hook of the
+  plugin does not run in the review.
+- The orchestrator collects the owner paths and summaries and puts them into the
+  input, because the reviewer cannot read a file.
+- The environment of the reviewer sets `SELF_IMPROVE_REVIEWER=1`, so a session
+  that the reviewer starts does not look for a lesson. It does not hold
+  `SELF_IMPROVE_STATE_DIR` or `CLAUDE_PLUGIN_DATA`.
+- `SELF_IMPROVE_REVIEW_EFFORT` sets the effort. An empty value removes an
+  inherited `CLAUDE_CODE_EFFORT_LEVEL`, so the review runs at the default of the
+  CLI.

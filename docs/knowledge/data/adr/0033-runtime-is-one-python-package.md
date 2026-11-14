@@ -29,3 +29,17 @@ install the package.
   `docker/desktop/entrypoint.sh` is the entrypoint of `agentdev-base`.
 - `agentdev-base` installs `iptables` and `ipset`, but the firewall allowlist
   and the agent policy are not in it.
+- Both images install the package from the build context with
+  `uv tool install --python /usr/bin/python3` into `/opt/uv-tools`, with the
+  command in `/usr/local/bin`. The install uses no cache and downloads no
+  interpreter.
+- The package pins `supervisor` and its other dependencies. As a result, the
+  images have no apt `supervisor`, and no dependency resolves at container
+  start.
+- The root bootstrap applies the firewall as root in both runtime profiles, so
+  no sudoers entry is necessary.
+- `FIREWALL_ALLOWLIST` names the allowlist in both runtime profiles. When it is
+  not set, a Dev Container uses the allowlist of its checkout if it exists, and
+  else the copy in the image. The standalone runtime then uses the copy in the
+  image
+  (`py_packages/agentdev_runtime/agentdev_runtime/firewall.py::allowlist_path`).

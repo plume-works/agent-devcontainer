@@ -9,7 +9,8 @@ description: The self-improve plugin lives in this repository beside agentdev, a
 The `self-improve` loop changes the skills, agents, and instructions that this
 repository supplies. As a result, the loop and the catalog are in one
 repository, and `.claude-plugin/marketplace.json` publishes `self-improve`
-beside `agentdev`.
+beside `agentdev`. The loop also needs a permanent destination for each lesson,
+and this repository has typed destinations and skills that write to them.
 
 ## Considered Options
 
@@ -28,3 +29,8 @@ beside `agentdev`.
   As a result, each Dev Container and standalone runtime enables `self-improve`
   and its hooks.
 - The committed `.claude/settings.json` does not enable `self-improve`.
+- `validate_agent_files` checks each plugin that the marketplace publishes.
+- Some tests of `self-improve` start real Claude sessions and use the model.
+  `.agents/plugins/self-improve/tests/conftest.py::pytest_collection_modifyitems`
+  skips them unless `SELF_IMPROVE_RUN_LIVE` is set. A marker filter in `addopts`
+  does not prevent the run, because a test path or `-m` replaces it.

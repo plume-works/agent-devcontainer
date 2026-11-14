@@ -21,10 +21,16 @@ both. Both entries read the catalog through one parser.
   never runs.
 - Run the v2 setup through `console` reports or through `Effect.runPromise` of
   the plugin. Rejected: neither sends failures to `opencode.log`.
+- A log file of the bridge for v2 failures. Rejected: the file is outside the
+  log of OpenCode.
 
 ## Consequences
 
 - `v2Effect` runs the v2 setup through the `fromPromise` adapter of the host, so
-  its failures go to `opencode.log`.
+  its failures go to `opencode.log`. The bridge loads the adapter only when v2
+  calls `effect`, so v1 never loads it.
+- The bridge has no runtime dependencies. It uses only type imports and the
+  built-in modules of Bun. Root owns the staged catalog and it is read-only, so
+  no `node_modules` can be next to it.
 - The v2 setup waits for no registration, because v2 holds each request until
   the setup of a plugin is complete.

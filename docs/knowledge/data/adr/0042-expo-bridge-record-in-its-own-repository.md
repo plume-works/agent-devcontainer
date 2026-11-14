@@ -19,3 +19,12 @@ notes. It links to bridge documents by an absolute GitHub URL on `main`.
 - Adopt the full template in the bridge repository. Rejected: it adds a
   devcontainer and a catalog that the bridge does not need. The bridge uses
   `/agentdev:iwe-bootstrap` alone for its project memory.
+
+## Consequences
+
+- The `expo` optional bundle adds no tracked path. Its edits are in files that
+  the template tracks or that the consumer owns, so no diff shows them. For this
+  reason, update mode compares the Expo edits with the consumption guide at each
+  update.
+- The setup writes no trust or security setting for the bridge in a file of the
+  consumer. A workspace gets trust only on the Mac, when the bridge asks for it.

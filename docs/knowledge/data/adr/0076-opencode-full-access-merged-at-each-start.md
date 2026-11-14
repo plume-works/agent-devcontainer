@@ -31,3 +31,15 @@ the managed keys
   dependency.
 - The write changes JSONC to strict JSON. It keeps each setting value, but it
   does not keep the comments and the format.
+- The policy sets `"*": "allow"` and `external_directory` `"/**": "allow"`. It
+  keeps the other permission rules, the other external directory rules, and the
+  bridge registration of the user.
+- The configuration directory comes from `OPENCODE_CONFIG_DIR`, then from
+  `XDG_CONFIG_HOME/opencode`, then from `~/.config/opencode`. The runtime
+  changes `opencode.jsonc` when it exists, and `opencode.json` if not.
+- The start phase applies the policy after the required services are ready. As a
+  result, a bad OpenCode configuration makes the start phase fail where the user
+  can see it, but it does not stop the services, and the file stays unchanged.
+- The parser refuses a duplicate key, because its meaning is not clear.
+- The runtime writes the file at mode `0600` through a temporary file in the
+  same directory, and sets the directory to mode `0700`.

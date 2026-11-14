@@ -20,3 +20,12 @@ of an optional service degrades the runtime, and OpenCode continues.
 
 - `agentdev_runtime.supervisor::DEPLOY_SERVICES` marks only `dbus`, `keyring`,
   `prepare`, and `opencode` as core services.
+- The `config` service registers the catalog before OpenCode starts, because
+  OpenCode reads the catalog at start. `xpra` starts together with OpenCode.
+  `dockerd`, `project`, and the other optional services start after it.
+- A service whose dependency failed stays `blocked` until a retry of that
+  dependency.
+- `AGENTDEV_STRICT_STARTUP=true` makes each optional service a core service, but
+  not a client service such as `docker-gc`.
+- The start period of the image health check covers only the core path
+  (`docker/deploy/agentdev-deploy.Dockerfile`).

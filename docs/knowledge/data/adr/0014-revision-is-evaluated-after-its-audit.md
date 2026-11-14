@@ -22,3 +22,19 @@ with the plan at `HEAD` and returns `APPROVE`, `REJECT`, or `ESCALATE`.
   agent and returns a fixed verdict.
 - The evaluation comes before the audit. Rejected: the audit can change the
   text, so the evaluator approves text that the session does not commit.
+
+## Consequences
+
+- The prompt of `iwe-revision-evaluator` holds only the plan key and the quoted
+  finding. The agent reads `git show HEAD:<plan>` and `git diff -- <plan>`, and
+  it has only the `Bash`, `Read`, `Grep`, and `Glob` tools.
+- `APPROVE` means that the revision answers the finding and keeps each specified
+  behaviour. The session then commits the revision and continues.
+- `REJECT` means that the revision does not answer the finding, changes the plan
+  to agree with the code, has a hunk that answers no quoted finding, or adds a
+  claim that the code must then meet.
+- `ESCALATE` means that the revision removes or decreases specified behaviour,
+  moves it to a later time, accepts an exception to it, changes `release`, or
+  changes text that the user approved.
+- On `REJECT` or `ESCALATE`, the session replaces the plan with the plan at
+  `HEAD` and stops.

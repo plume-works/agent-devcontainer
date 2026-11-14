@@ -25,6 +25,12 @@ macOS keeps the default limit of Claude Code.
 
 ## Consequences
 
+- A Claude Code agent can dispatch only when its `tools:` list includes `Agent`,
+  or when it has no `tools:` list. For this reason, `iwe-shipper` lists `Agent`,
+  and it dispatches `iwe-verifier` through `/agentdev:iwe-verify`. This dispatch
+  is nested.
+- The agents that the Implement loop dispatches start no other agent, so the
+  loop does not need the depth setting.
 - `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` is in the `environment:` of
   `.devcontainer/docker-compose.yml` and `compose.opencode.yml`, and a value on
   the host replaces it.

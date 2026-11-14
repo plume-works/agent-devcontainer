@@ -20,3 +20,10 @@ do not execute them.
 - Relative paths under the Agent Skills name `scripts/`. Rejected: a path can
   start at the working directory. Then it runs the script of the consumer with
   the same name, and nothing fails.
+
+## Consequences
+
+- A path in a script starts at the file of the script, never at the repository,
+  because a repository path does not exist in the plugin cache.
+- A skill script never imports the code of a different skill. Code that two
+  skills share goes into the `bin/` directory of the plugin.

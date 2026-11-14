@@ -25,7 +25,19 @@ authenticates each caller with no agent action.
 
 ## Consequences
 
-- A change to the wrapper applies only after an image build.
+- A change to the wrapper applies only after an image build. The wrapper is in
+  the `files/` directory of the role, so the provisioning step of the role
+  mounts only `ansible/`.
+- The wrapper never replaces a `GH_TOKEN` or `GITHUB_TOKEN` that is set. It asks
+  the credential helper only when Git has one, and it stops the request after
+  two seconds.
+- The wrapper writes nothing to stdout, so a program that reads the output of
+  `gh` gets only the output of `gh`. It writes reports to stderr only when
+  `VERBOSE_GH` is set.
+- `GH_WRAPPER_ACTIVE` makes the wrapper do its work one time in each process
+  tree. The wrapper stops with exit code 127 when it finds no real `gh`.
+- The wrapper is on the `PATH` of the image, so it also applies to a container
+  that `docker run` starts without the Dev Container lifecycle.
 - The wrapper finds the real `gh` on `PATH` and skips copies of itself, so it
   does not break when `gh` moves. It continues with no message when the
   credential helper does not apply, for example in CI with its own token.

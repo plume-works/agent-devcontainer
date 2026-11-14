@@ -34,6 +34,15 @@ with no message.
 
 ## Consequences
 
+- The start checks the mode before each other check. It reads the spawn value
+  only in server mode, and session mode ignores it.
+- The server runs in the `claude-remote` session of the `tmux -L claude-remote`
+  server, as the pinned pane does. It has the same claude.ai login check, it
+  uses a live session again, and it gets no `CLAUDE_CODE_OAUTH_TOKEN`. When
+  `CODER_WORKSPACE_NAME` is set, the start gives it as `--name` and
+  `--remote-control-session-name-prefix`.
+- A change of mode or spawn value does not change a live `claude-remote`
+  session. It applies at the next start.
 - The server refuses `--settings`, so it has no pin hook. The start always gives
   `--spawn`, because without it the server stops at a prompt. `worktree` is the
   default spawn mode, by decision of the maintainer.
@@ -41,9 +50,17 @@ with no message.
   session runs in the workspace folder. In `worktree` mode, each spawned
   conversation gets its own git worktree under `.claude/worktrees/`, which git
   ignores. Each conversation gets the environment of the start process and
-  starts in the `auto` permission mode.
+  starts in the `auto` permission mode. As a result, each conversation has the
+  Coder user secrets, the git credentials, and access to the credential store.
 - A server starts each earlier session again in its current spawn mode. After a
   change from `worktree` to `same-dir`, the earlier sessions work in the
   workspace folder, and their worktrees and branches stay on disk. The
   maintainer accepted this limit, because production does not change the spawn
   mode.
+- After a restart, a session that the server spawned comes back only when the
+  claude.ai service sends it to the server, which can take minutes.
+- The server stops after about ten minutes without a network connection, and
+  nothing starts it again before the next agent start. About four hours after
+  the server stops, the claude.ai service deletes its sessions. The transcripts
+  stay on the home volume, and `claude --resume <id> --remote-control` starts
+  each again as a new claude.ai session.

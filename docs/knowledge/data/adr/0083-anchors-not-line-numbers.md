@@ -24,6 +24,17 @@ code rename anywhere can break a live anchor.
 
 ## Consequences
 
+- An anchor is one code span: `<path>::<symbol>` in code,
+  `<path>#<heading-slug>` in Markdown, `<path>#<key.path>` in YAML, JSON, and
+  TOML, and `<path>#<target>` in a Makefile or a Dockerfile. A spot inside one
+  of these adds ` › "<verbatim quote>"`.
+- The line-number check examines `docs/knowledge/data/` and the skills and
+  agents of the agentdev catalog, and also their fenced blocks.
+- The resolver examines only live anchors. The tasks of a plan name code that
+  does not exist yet, and a closed document can name code that a later change
+  removed.
+- The resolver examines a real path in a live anchor as an anchor, so a
+  placeholder path goes in angle brackets.
 - The check does not find a bare `:N` after an earlier reference. A symbol that
   is not Python resolves when its parts occur as whole words in sequence.
 - Chat reports, code comments, and pull request bodies rely only on the catalog

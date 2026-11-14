@@ -30,11 +30,29 @@ the build when the home is not there.
 
 ## Consequences
 
-- The repository owner supports no root host.
+- The image defines `agent` as 1000:1000. Its metadata sets `remoteUser: agent`
+  and `updateRemoteUserUID: true`, and mounts the home volume
+  `agentdev-home-${devcontainerId}` at `/home/agent`
+  (`docker/devcontainer/agentdev-devcontainer.Dockerfile`). The user of the
+  container stays root, and PID 1 runs each user service as `agent`.
+- Docker gives the owner of the empty `/home/agent` to a new volume, so the
+  volume starts empty and the remapped account owns it.
+- The UID and GID of the remapped account must be able to write the host
+  checkout. The root bootstrap refuses a checkout that the account cannot write,
+  and names the UID that it needs.
+- The repository owner supports no root host. On a root host, the devcontainer
+  CLI does not remap `agent`, which stays 1000:1000, and the root bootstrap
+  refuses the checkout that root owns.
+- The base image writes its `PATH` and history configuration into
+  `/etc/bash.bashrc` and `/etc/fish/conf.d/`, so an empty home gets it.
+- A test that needs root has the `requires_root` marker, and pytest skips it in
+  a run as `agent`. The root-test launcher runs these tests as root through
+  `sudo`.
 - The uv cache, interpreters, and environments are on the home volume, with no
   separate `/uv` volume.
 - Editor servers such as `~/.vscode-server` stay on the home volume with no
   cleanup. The owner accepted unlimited growth, and a broken server installation
-  that stays after a rebuild.
+  that stays after a rebuild. The owner did not accept a location off the volume
+  for these servers, or a removal of old server versions in the create phase.
 - The fish configuration that the `fish_setup` role writes into the home of the
   build user does not go into the home of the `agent` account.

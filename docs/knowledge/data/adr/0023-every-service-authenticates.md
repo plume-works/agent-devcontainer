@@ -22,5 +22,7 @@ requires `OPENCODE_SERVER_PASSWORD`. Xpra requires `XPRA_PASSWORD` through its
 
 - `agentdev_runtime.supervisor::preflight` checks `XPRA_PASSWORD` before the
   bootstrap. When the operator sets no password, PID 1 latches a configuration
-  failure and uses none of the recovery budget of Xpra.
-- Dev Container and Coder starts bind Xpra to the loopback address.
+  failure and uses none of the recovery budget of Xpra. An operator who sets
+  `AGENTDEV_SKIP_XPRA` runs without Xpra and needs no Xpra password.
+- Dev Container and Coder starts bind Xpra to the loopback address, so they need
+  no Xpra password. The check applies only to the standalone runtime.

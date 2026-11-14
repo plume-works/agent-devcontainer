@@ -22,6 +22,11 @@ receivers.
 
 ## Consequences
 
-- An old installation stays in the home volume after an image change.
+- An old installation stays in the home volume after an image change. The image
+  change removes the binary, and with it the `uninstall` command of the tool.
   `py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py` removes it in the
   create phase, until no supported instance can have one.
+- `cbm_purge` removes only the entries that the tool wrote, by their exact
+  names. It does not change other content in the files of the user.
+- The `agentdev-cbm` volume is a disposable volume, so the `docker-gc` service
+  removes it.

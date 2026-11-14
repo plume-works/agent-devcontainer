@@ -18,3 +18,9 @@ a copy of this repository.
 - Scripts that find the repository from their own location. Rejected: in the
   plugin cache of a consumer, that location is the cache and not the repository
   of the consumer.
+
+## Consequences
+
+- The attach phase installs a complete catalog of the checkout over the staged
+  catalog. This repository develops the catalog, so it runs the catalog of its
+  checkout. A consumer without a complete catalog keeps the staged catalog.

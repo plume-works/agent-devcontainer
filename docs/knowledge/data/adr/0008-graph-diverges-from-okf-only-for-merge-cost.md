@@ -15,6 +15,8 @@ the lifecycle field.
 
 ## Considered Options
 
+- Set `status` next to `stage`. Rejected: each state change then edits two
+  fields, and OKF makes `status` optional.
 - Remove the declaration of the keys from `okf.yaml`, and add no check.
   Rejected: `okf.yaml` accepts fields that it does not declare, so only a check
   can stop a key.
@@ -26,3 +28,5 @@ the lifecycle field.
   a document that sets one of the three keys.
 - `sources` stays. It records what a document comes from, and it does not change
   at each edit.
+- `data/index.md` stays as OKF requires. It lists only hubs and changes only
+  when the graph gets a new hub, so it causes no merge work.

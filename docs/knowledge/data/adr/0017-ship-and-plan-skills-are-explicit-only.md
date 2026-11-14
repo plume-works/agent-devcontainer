@@ -24,3 +24,19 @@ start them without a stop for the user.
 - An explicit-only Implement skill. Rejected: Implement needs a named active
   plan whose dependencies are done or in review, so a wrong match has nothing to
   build. Plan and Explore never name the skill.
+- An explicit-only `/agentdev:iwe-verify`. Rejected: Verify changes nothing, and
+  the Implement loop must start it, so the explicit-only setting stops the
+  Implement loop and protects nothing.
+- An explicit-only `/agentdev:iwe-adversarial-review`. Rejected: the Implement
+  loop must start it for a plan task that names it.
+
+## Consequences
+
+- Claude Code also refuses an explicit-only skill to a dispatched subagent. As a
+  result, a subagent whose prompt names `/agentdev:iwe-ship` cannot start it.
+- On OpenCode, the OpenCode bridge sets the skill permission to `deny` for each
+  explicit-only skill
+  (`.agents/plugins/agentdev/.opencode-plugin/index.ts::applyCatalog`). The
+  skill tool then refuses the skill, but its namespaced command still runs.
+- The `description` of `iwe-shipper` names the callers that dispatch it, and
+  says that a description match does not start it.

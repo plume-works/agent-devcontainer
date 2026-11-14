@@ -23,3 +23,11 @@ the installed catalog.
 
 - `docs/knowledge/LICENSE.md` is also not a template path, because bootstrap
   installs it and the consumer owns it after that.
+- The scaffold is catalog content, and `iwe-bootstrap` uses it only one time. It
+  is never in `tracked_paths`, so a catalog change to the scaffold never gets to
+  a consumer that has a workspace.
+- `iwe-bootstrap` never deletes, overwrites, or merges an existing `.iwe/` or
+  `docs/knowledge/`. The update mode of `template-consume` never runs
+  `iwe-bootstrap` or `iwe-setup`.
+- `.iwe/` and the support documents and tests in `docs/knowledge/` are template
+  paths. A consumer that keeps the knowledge workspace tracks them.

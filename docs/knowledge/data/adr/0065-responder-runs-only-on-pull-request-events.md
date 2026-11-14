@@ -22,3 +22,16 @@ the default branch, and no job needs contents write.
 - A reply that refuses `@claude review` comments. Rejected: it keeps a
   privileged comment trigger only to send a request to the label, which already
   does the same work.
+- Keep the task responder, with reviews only as the default. Rejected: the task
+  path is the part that needs contents write, the dispatch, and the identity of
+  the requester between runs.
+
+## Consequences
+
+- Preflight checks the write access of `github.actor` of the event, which is the
+  person who pushed, opened the pull request, or changed a label. No run sends
+  an identity to a different run, so `claude-code-action` needs no
+  `allowed_bots`.
+- No responder job pushes, so no ruleset needs the responder as a bypass actor.
+- No run gets the privileges of the default branch, so the `dangerous-triggers`
+  audit of zizmor needs no exception.

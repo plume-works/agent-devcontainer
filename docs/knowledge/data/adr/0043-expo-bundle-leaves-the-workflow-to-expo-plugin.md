@@ -28,5 +28,17 @@ an empty token as no token.
 
 - The marker records `expo` in `optional_bundles`, so that update mode knows
   that the consumer is an Expo app.
+- The bundle adds no `tracked_paths`. It edits files that the consumer already
+  has, and `eas.json`. As a result, no diff shows its edits, and update mode
+  compares the Expo setup steps of the consumption guide with the files of the
+  consumer at each update.
+- When an update changes `devcontainer-compose-pins.yml`, update mode compares
+  the `bun` pin of each `eas.json` build profile with `bun --version` in the
+  rebuilt Dev Container.
+- The setup adds an `## Expo` section to the root `AGENTS.md`. The file is then
+  different from the template, and update mode merges it by hand.
+- The setup adds the `plume-works.vscode-expo-bridge` extension and port `8081`
+  for Metro to `.devcontainer/devcontainer.json`. It writes no trust or security
+  setting of the bridge, because only the Mac gives trust to a workspace.
 - A person does the setup of the Apple code signature one time, with
   `eas credentials`.

@@ -20,7 +20,12 @@ registers no IWE MCP server, and `dev_tools_pinned_tools` installs `iwe` and
   that nobody calls stay, and the filter is one more wrapper to maintain.
 - Each user disables the server with `disabledMcpjsonServers`. Rejected: each
   workspace and each consumer must disable it, and the default stays wrong.
+- Install `iwec` in the image. Rejected: no configuration registers it, so it is
+  a binary that nothing uses.
 
 ## Consequences
 
+- A skill that needs a graph operation uses the `iwe` CLI. A new skill must not
+  use `mcp__iwe__*` tools, because they are not there.
 - `iwes`, the language server of the IWE editor extension, stays installed.
+- A consumer gets no IWE MCP server by default.

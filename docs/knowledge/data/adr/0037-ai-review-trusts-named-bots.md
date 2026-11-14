@@ -21,4 +21,12 @@ pull request from a bot. The workflow has no comment, issue, or
 ## Consequences
 
 - Keep `claude-respond` and `ai-review-present` together, or remove both.
+- Preflight skips a pull request from a bot, and a pull request whose head is in
+  a different repository. The AI review gate still runs for it and finds no
+  review. As a result, such a pull request stays blocked, except when its author
+  is a trusted bot.
+- `ai-review-present` runs on each `pull_request` event, also on a change to a
+  label that is not a review label. A job that its own `if:` skips passes a
+  required check. If the AI review gate skips, a person who can only add labels
+  can make the check pass.
 - A consumer edits the list for its own bots and does not add a trigger.

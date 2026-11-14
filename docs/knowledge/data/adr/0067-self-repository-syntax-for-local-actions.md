@@ -21,6 +21,9 @@ starts with `$/`.
 
 ## Consequences
 
+- The zizmor `self-repository` audit enforces the rule in workflow steps, in
+  calls to reusable workflows, and in composite actions that call a local
+  action.
 - A step under `if: always()`, such as `log-debug-stats`, loads its action also
   after a checkout that failed or did not run.
 - A step cannot load an action that an earlier step wrote to disk.

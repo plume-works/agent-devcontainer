@@ -32,6 +32,17 @@ project.
 
 ## Consequences
 
+- The auth volume is at `/var/lib/agentdev/auth`, and the image sets
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR` to `/var/lib/agentdev/auth/claude`.
+- The volume has an explicit `name:`, because Compose otherwise adds the project
+  name, which isolates each instance. It is `external: true`, so it must exist
+  before Compose starts. `.devcontainer/devcontainer-init.sh` creates it on the
+  host and writes its name to `.devcontainer/.env` as `AGENTDEV_AUTH_VOLUME`.
+- The bootstrap refuses an auth volume that has an entry of a different UID.
+- `~/.claude.json` is a regular file on the home volume. The runtime replaces an
+  old link to `~/.claude/claude.json` with the file that it points to.
+- A new agent needs a decision about each part of its state: credentials can go
+  on the auth volume, and state that holds paths cannot.
 - The deploy bootstrap creates the runtime account at each start, because a new
   container has no account and its user and group IDs are deployment settings.
 - `~/.local/share/opencode` stays at its default path on the home volume, with

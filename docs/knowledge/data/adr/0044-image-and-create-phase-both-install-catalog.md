@@ -23,3 +23,6 @@ user scope.
 - `ansible/roles/agent_catalog/tasks/install_catalog.yml` does the same steps as
   `agentdev-runtime catalog install`. A change to one needs the same change to
   the other.
+- Each attach installs the catalog of the checkout at user scope when the
+  checkout holds a complete catalog, so this repository uses the catalog that it
+  changes. A checkout with no complete catalog keeps the staged catalog.

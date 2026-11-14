@@ -27,6 +27,14 @@ denied tool in `session.hook("context")` and denies its actions in
 - The hooks apply the limits only while the `system` prompt of the agent is the
   catalog body. v2 merges agents with the same ID and shows no user
   configuration to plugins.
+- As a result, an agent that the user defines with the ID of a catalog agent
+  replaces it, and only the permissions of the user apply. A field that the
+  agent of the user does not set, such as `description` or `mode`, keeps the
+  catalog value.
+- The bridge denies each action that the `tools:` list does not map to, and also
+  `question`, which no Claude tool maps to. `TodoWrite` maps to no v2 action.
+- The `evaluate` hook only sets `deny`. It does not change the approval of a
+  tool that the agent can use.
 - A `tools:` list limits the tools but does not approve them, so each mapped
   tool keeps the approval settings of the user.
 - `browser` stays at the v2 default deny. The bridge does not change `execute`,

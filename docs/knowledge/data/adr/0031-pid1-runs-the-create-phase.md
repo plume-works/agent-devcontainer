@@ -17,3 +17,16 @@ them, so each descriptor that selects the image gets them.
 
 - A descriptor that also declares the lifecycle commands runs each command two
   times.
+- The `created` program starts after the root bootstrap and the keyring, and
+  readiness waits for it.
+- `postCreateCommand` runs `agentdev-runtime lifecycle created --wait`, which
+  fails when the runtime fails. `postStartCommand` runs
+  `agentdev-runtime lifecycle ready` at each start, and it is the `waitFor`
+  target. `postAttachCommand` runs `agentdev-runtime lifecycle attached` at each
+  attach. As a result, the editor never attaches to a container whose core
+  services failed.
+- The label also sets `overrideCommand: false`, so the client keeps the
+  entrypoint. It sets `DEV_WORKSPACE_FOLDER`, so PID 1 and the create phase know
+  the workspace folder of the editor. It mounts a volume for each container at
+  `/var/lib/docker`, because the nested engine refuses the overlay file system
+  of the container.

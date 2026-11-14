@@ -9,8 +9,9 @@ description: The image build installs validate_agent_files from the build contex
 The image build installs `validate_agent_files` from the build context, as it
 stages the catalog. For this reason, the image and `validate_agent_files` come
 from the same commit, and the release of the package stays in this repository.
-The build compares the installed version with the pin
-`VALIDATE_AGENT_FILES_VERSION`, so the image label gives the installed version.
+The build reads the version of the installed package and fails when it is not
+the pin `VALIDATE_AGENT_FILES_VERSION`, so the image label gives the installed
+version.
 
 ## Considered Options
 
@@ -24,4 +25,12 @@ The build compares the installed version with the pin
 
 - The build context must contain `py_packages/validate_agent_files/`.
 - The `validate_agent_files` Ansible role has its own toggle,
-  `install_validate_agent_files`, and its own variables.
+  `install_validate_agent_files`, and its own variables. It runs after
+  `uv_setup`, which it needs.
+- The build context is a read-only bind mount, and setuptools writes
+  `*.egg-info` into the source tree. For this reason, the role copies the source
+  to a temporary directory and builds it there.
+- The tool environment is in `/opt/uv-tools`, outside the home, so a home volume
+  cannot hide it.
+- The image build installs the package. No lifecycle command installs it, so a
+  container does not need the checkout of the consumer for it.

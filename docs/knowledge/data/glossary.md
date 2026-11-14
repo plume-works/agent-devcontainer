@@ -122,6 +122,7 @@ term in the same change that first uses it.
   that a version update causes and that Renovate must commit with the update.
 - **Dev Container engine** (noun): The nested `dockerd` that the
   `agentdev-devcontainer` runtime supervises in the container.
+- **dispatch** (verb): To start a catalog agent as a dispatched subagent.
 - **dispatched subagent** (noun): A catalog agent that starts in a new context
   through the Agent tool and has only the tools that its `tools:` frontmatter
   lists.

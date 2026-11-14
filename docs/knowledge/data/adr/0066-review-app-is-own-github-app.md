@@ -30,6 +30,23 @@ Each job makes its own token, which has no contents write.
   approval from a reviewer with write access. No job requests that permission
   for its token.
 - The lifecycle commands run code of the pull request in the review job. The job
-  makes the token after them, so their environment never holds it.
+  makes the token after them, so their environment never holds it. A process
+  that they start and do not stop can still get it.
 - The workflows write `plume-works-quill[bot]` as a literal. No input or
   variable can change the reviewer login to a different account.
+- Preflight and `ai-review-present` accept a review only from
+  `plume-works-quill[bot]`. They ignore reviews from `github-actions[bot]` and
+  `claude[bot]`.
+- The organization setting "Allow GitHub Actions to create and approve pull
+  requests" stays off.
+- The `permissions:` block of a job limits only `GITHUB_TOKEN`. The
+  `permission-*` inputs of `actions/create-github-app-token` limit the App
+  token. The review token gets contents read, pull requests write, issues write,
+  and actions read. The approval token gets only pull requests write.
+- The jobs that use the App token run in the `plume-works-review` environment,
+  which holds the App secrets.
+- The App opens no pull request and pushes nothing. As a result, no event from
+  the App starts a review, and the App needs no ruleset bypass.
+- Only an approval from the same reviewer replaces its earlier change request.
+  Each review posts as the same App, so a clean review replaces the change
+  request of an earlier review.

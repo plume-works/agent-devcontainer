@@ -20,4 +20,14 @@ directories and the documented environment variables.
 
 ## Consequences
 
-- The check finds accidental and partial edits. It is not a security boundary.
+- The bootstrap does the check before all other work. Each file in `RECORD` must
+  have its recorded hash, and the installed directories of the package must hold
+  no other file. The check ignores Python bytecode.
+- The check ignores a source checkout, because its egg-info records no file.
+- The check finds accidental and partial edits. It is not a security boundary:
+  an image that deletes the metadata of the package or writes a new `RECORD`
+  passes it.
+- `/usr/local/bin/agentdev-runtime` is a symbolic link into the environment of
+  the tool, so a bind mount on it replaces a recorded file. A test that must
+  replace the program of one service sets `AGENTDEV_SUPERVISOR_CONFIG` to its
+  own configuration.

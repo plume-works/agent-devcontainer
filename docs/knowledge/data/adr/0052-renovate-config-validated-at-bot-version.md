@@ -21,8 +21,20 @@ release too.
 
 ## Consequences
 
+- A `custom.regex` manager in `.github/renovate.json` finds new releases for the
+  pin. A change to the pin merges only after the workflow passes at the new
+  release.
+- The workflow runs in `agentdev-devcontainer` at the digest that
+  `devcontainer-compose-pins.yml` pins. Renovate moves each copy of that digest
+  in one pull request, so the required check runs in a new image before that
+  image can merge.
+- `Renovate config validation finished` is the required check, and it reports on
+  each pull request. A paths filter skips the validation job when a pull request
+  does not change the config, the hook pins, or the image pin.
 - `--no-global` is necessary. Without it, the validator applies the global
   schema, which accepts a different set of options than the repository schema.
+  For example, a repository config with the global option `allowedCommands`
+  passes without the flag.
 - `--strict` also fails on warnings and on a config that needs migration.
 - The bot reads its global options only from `RENOVATE_*` variables, never from
   a config file in the repository.

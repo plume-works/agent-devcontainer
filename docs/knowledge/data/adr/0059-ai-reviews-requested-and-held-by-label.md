@@ -26,9 +26,33 @@ pull request while it is on.
   label. Rejected: a writer could then merge work without review, and branch
   protection records nothing. A ruleset bypass gives the same result through a
   permission that GitHub records.
+- A state label that stays on until the AI reviewer posts the review. Rejected:
+  a failed review leaves the label on, and a person must remove it before the
+  next request.
+- A label for the effort of the review. Rejected: each review sets its own
+  effort.
+- A pause of all reviews in the repository. Rejected: a `block-ai-reviews` label
+  on each pull request covers a time when Claude is not available.
 
 ## Consequences
 
-- The review that finishes removes `request-ai-review`.
+- The review job removes `request-ai-review` with the App token after the Claude
+  step, when the review passes and when it fails. The next push then does not
+  start the failed review again. A cancelled review does not remove the label,
+  so the run that replaced it reviews the request.
+- Only the addition of `request-ai-review` and the removal of `block-ai-reviews`
+  join the `pr-<n>` concurrency group. Each other label event has its own group,
+  so it never replaces a review that waits in `pr-<n>`.
+- Each run in `pr-<n>` takes a `request-ai-review` that it finds. A request on a
+  draft, or from a person without write access, stays until a later run reviews
+  it.
+- Preflight reads the labels from the API, not from the event, so a label added
+  just after the pull request opens still counts.
+- While `block-ai-reviews` is on, a `request-ai-review` stays on the pull
+  request. The run that the removal of `block-ai-reviews` starts reviews it.
+- GitHub sends no event when a person adds a label that is already on the pull
+  request. For this reason,
+  `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py`
+  removes and adds the label again when no unfinished run will take it.
 - `block-ai-reviews` never removes the requirement of `ai-review-present`. It
   only stops new reviews.

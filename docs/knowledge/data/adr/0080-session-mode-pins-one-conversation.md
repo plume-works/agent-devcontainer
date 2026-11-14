@@ -33,3 +33,14 @@ sufficient, because each instance has one workspace folder.
   crash of a resumed session also starts a new conversation.
 - The transcript records the claude.ai session of the conversation, so a resume
   uses the same session URL again while that session exists for the account.
+  When the recorded session does not exist, or the login is for a different
+  account, Claude Code starts a new claude.ai session for the same conversation.
+  For a different account, the new session does not show the earlier turns.
+- A resume of an ID with no transcript exits non-zero. As a result, the
+  transcript cleanup of Claude Code can make the pane start a new pinned
+  conversation.
+- A reconnect that fails for a temporary cause leaves Remote Control off in a
+  session that continues to run. Only `/remote-control` in that session tries
+  again.
+- A removal of the home volume removes the stored ID and the conversation, and
+  the next start makes a new conversation.

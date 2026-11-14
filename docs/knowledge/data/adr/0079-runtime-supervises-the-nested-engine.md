@@ -27,6 +27,11 @@ image has no Dev Containers client to run a feature.
   `/var/lib/docker`, and
   `py_packages/agentdev_runtime/agentdev_runtime/docker.py::require_storage`
   refuses a data directory on the overlay filesystem.
+- `agentdev-runtime docker run` starts one root `dockerd` on a private Unix
+  socket with `--group docker`, and the runtime user gets access through that
+  group. It refuses a `hosts` key in `daemon.json`, because a different listener
+  gives the engine a wider reach. It also refuses a container that is not
+  privileged, and a second `dockerd`.
 - The repository descriptor declares no Dev Container feature. A Docker upgrade
   is an image change.
 - The Dev Containers client attaches through Docker, and Coder reaches the Dev

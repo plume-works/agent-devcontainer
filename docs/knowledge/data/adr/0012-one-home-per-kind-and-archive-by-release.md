@@ -27,3 +27,6 @@ type, so that the schema of its type still applies.
 
 - The archive folder is the only record of the release of a document, so
   `.iwe/schemas/plan.yaml` refuses a `released` field.
+- Ship writes no release page. Only the release cut writes
+  `data/releases/<X.Y.Z>.md`, so no file collects the work that is not yet
+  released, and parallel ships do not edit the same file.

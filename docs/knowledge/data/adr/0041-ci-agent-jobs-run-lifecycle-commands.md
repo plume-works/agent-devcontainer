@@ -40,3 +40,12 @@ writes a review with no basis, and that review can pass a required check.
   the hook installation takes minutes.
 - The create phase always marks the checkout a git safe directory, because a CI
   checkout has a different owner UID.
+- The job needs all three phases. The attach phase installs the catalog of the
+  checkout, so without it the review uses the catalog of the image.
+- A container job applies neither the `containerEnv` nor the `mounts` of
+  `devcontainer.json`. For this reason, the job sets `DEV_WORKSPACE_FOLDER` and
+  `UV_PROJECT_ENVIRONMENT`, and makes `/root/.claude`, before the create phase.
+- Without `UV_PROJECT_ENVIRONMENT`, `uv sync` does not fail. It writes `.venv`
+  into the checkout under review, and the job still passes.
+- The lifecycle commands are also a CI contract. They must work without the
+  mounts of `devcontainer.json` and without a supervisor.

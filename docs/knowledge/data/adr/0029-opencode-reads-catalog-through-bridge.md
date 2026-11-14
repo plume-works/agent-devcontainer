@@ -25,3 +25,17 @@ skills, commands, and agents when OpenCode starts.
 
 - The `agent_catalog` Ansible role adds the absolute path of the staged bridge
   to the OpenCode configuration of the user. The bridge is not on npm.
+- The bridge has no runtime dependencies. It uses only type imports and the
+  built-in modules of Bun. Root owns the staged catalog and it is read-only, so
+  no `node_modules` directory can go next to it.
+- An explicit-only skill gets `permission.skill.<name> = "deny"` on v1 and
+  `autoinvoke: false` on v2. The model then cannot load it, but its
+  `agentdev:<name>` command still runs.
+- The bridge does not change a key that the configuration of the user already
+  sets. On v2, a skill or a command of the user with the same name has priority
+  through the order of the host.
+- A catalog agent becomes an OpenCode subagent. The bridge denies each OpenCode
+  tool that its `tools:` list does not map to, and the mapped tools stay unset,
+  so the approval settings of the user apply to them.
+- OpenCode reads the bridge only when it starts. After a change to the bridge or
+  to its configuration, the user stops OpenCode and starts it again.
