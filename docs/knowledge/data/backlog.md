@@ -55,6 +55,9 @@ job](backlog/parallel-ci-with-pre-commit.md)
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
+[Remove the D-Bus session bus and GNOME Keyring from the runtime
+images](backlog/remove-dbus-keyring.md)
+
 [Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
 
 [Shrink the knowledge base to an issue tracker and decision
