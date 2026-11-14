@@ -57,40 +57,73 @@ Each bug is filed with `/agentdev:iwe-capture bug`. Its evidence is the entry in
 `data/findings/spec-usefulness-audit#requirements-that-are-not-fully-true` and
 the row in `docs/spec-audit/requirements.jsonl`.
 
-- [ ] A bug records `agentdev-runtime-images` "the runtime is one CLI installed
+- [x] A bug records `agentdev-runtime-images` "the runtime is one CLI installed
   as a uv tool": two dependencies are ranges.
-- [ ] A bug records `firewall` "enabled firewall default-DROPs IPv4 and blocks
+  - **Evidence:** Filed `data/bugs/runtime-dependencies-not-pinned`; the ranges
+    are in `py_packages/agentdev_runtime/pyproject.toml#project.dependencies`.
+- [x] A bug records `firewall` "enabled firewall default-DROPs IPv4 and blocks
   IPv6 entirely": IPv6 stays open when `ip6tables` is missing.
-- [ ] A bug records `pre-commit-gate` "every commit path runs the hooks, merges
+  - **Evidence:** Filed `data/bugs/firewall-ipv6-open-without-ip6tables`; read
+    `firewall.py::block_ipv6`, which returns after the warning.
+- [x] A bug records `pre-commit-gate` "every commit path runs the hooks, merges
   included": two hooks omit the `pre-merge-commit` stage.
-- [ ] A bug records `image-pinning` "published tags name only tested images":
+  - **Evidence:** Filed `data/bugs/merge-commit-skips-two-hooks`; both hooks
+    still set `stages: [pre-commit, pre-push, manual]`.
+- [x] A bug records `image-pinning` "published tags name only tested images":
   the `ubuntu-ansible` image has no revision label.
-- [ ] A bug records `standalone-opencode-runtime` "startup prepares or reuses
+  - **Evidence:** Filed `data/bugs/ubuntu-ansible-tags-can-move-backwards`;
+    `stable-labels: 'true'` and `select-labels.sh` still remove the label.
+- [x] A bug records `standalone-opencode-runtime` "startup prepares or reuses
   one workspace": a reused checkout gets no credential helper.
-- [ ] A bug records `devcontainer-git-credentials` "HTTPS git uses the gh
+  - **Evidence:** Filed `data/bugs/reused-checkout-gets-no-credential-helper`;
+    only `Workspace.clone` calls `git.credential_helper` in the deploy profile.
+- [x] A bug records `devcontainer-git-credentials` "HTTPS git uses the gh
   login": the Coder start does not wait for the keyring session.
-- [ ] A bug records `devcontainer-state` "the home volume starts empty and the
+  - **Evidence:** Filed `data/bugs/coder-start-does-not-wait-for-keyring`;
+    `coder.py::start` runs its steps with no wait.
+- [x] A bug records `devcontainer-state` "the home volume starts empty and the
   bootstrap claims it": the `fish_setup` role writes into the build user's home.
-- [ ] A bug records `devcontainer-state` "root-only tests run through a
+  - **Evidence:** Filed `data/bugs/fish-path-setup-in-build-user-home`; the
+    role's `dev.fish` destination is still `{{ user_home }}`.
+- [x] A bug records `devcontainer-state` "root-only tests run through a
   launcher": the guard for unmarked tests cannot fire.
-- [ ] A bug records `dependency-updates` "derived files are regenerated with the
+  - **Evidence:** Filed `data/bugs/root-test-guard-cannot-fire`;
+    `scripts/run-root-tests` still passes `-m requires_root`.
+- [x] A bug records `dependency-updates` "derived files are regenerated with the
   bump": the file filters omit one lock file.
-- [ ] A bug records `catalog-scripts` "command lines handed to a shell are
+  - **Evidence:** Filed `data/bugs/renovate-file-filters-omit-runtime-lock`;
+    `fileFilters` still lists only the root `uv.lock`.
+- [x] A bug records `catalog-scripts` "command lines handed to a shell are
   quoted by bash_quote": one hint has an unquoted remote name.
-- [ ] A bug records `self-improve-learning-loop` "The mutator enforces a
+  - **Evidence:** Filed `data/bugs/git-new-branch-hint-unquoted-remote`; the
+    hint in `git-new-branch.py::resolve_base` has no `bash_quote`.
+- [x] A bug records `self-improve-learning-loop` "The mutator enforces a
   normative path allowlist": a rule is accepted at any depth.
-- [ ] A bug records `git-new-branch` "The git-commit skill never commits on the
+  - **Evidence:** Filed `data/bugs/self-improve-allowlist-accepts-nested-rules`;
+    `allowlist.py::_kind_of` checks `len(parts) >= 2` only.
+- [x] A bug records `git-new-branch` "The git-commit skill never commits on the
   default branch": the detached-`HEAD` refusal names no skill.
-- [ ] A bug records `template-consumption` "publisher-only source never survives
+  - **Evidence:** Filed `data/bugs/git-commit-detached-head-names-no-skill`; the
+    `PREFLIGHT_ERROR` row of the git-commit skill still names no skill.
+- [x] A bug records `template-consumption` "publisher-only source never survives
   adoption": the consumption guide is behind the template tree.
-- [ ] A bug records `template-consumption` "every template path has one class":
+  - **Evidence:** Filed
+    `data/bugs/consumption-guide-keeps-publisher-source-references`; the guide
+    still names no `agentdev_runtime` entry of `pyproject.toml`.
+- [x] A bug records `template-consumption` "every template path has one class":
   the consumption guide is behind the template tree.
-- [ ] A bug records `template-consumption` "a retained custom-image bundle
+  - **Evidence:** Filed `data/bugs/consumption-guide-classifies-no-path`; `grep`
+    finds none of the listed paths in the guide.
+- [x] A bug records `template-consumption` "a retained custom-image bundle
   builds from an explicit choice": the consumption guide is behind the template
   tree.
-- [ ] `line-free-anchors` "Live anchors resolve" gets no new bug: [Resolve
+  - **Evidence:** Filed `data/bugs/custom-image-bundle-misses-runtime-inputs`;
+    both runtime Dockerfiles still mount `py_packages/agentdev_runtime`.
+- [x] `line-free-anchors` "Live anchors resolve" gets no new bug: [Resolve
   bare-path anchors or narrow the live-anchor
   requirement](../backlog/bare-path-anchors.md) records it already.
+  - **Evidence:** `data/backlog/bare-path-anchors` is still pending; no bug was
+    filed for it.
 
 ### Task 2: Remove the redundant requirements
 
