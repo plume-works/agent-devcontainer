@@ -45,13 +45,26 @@ The move changes no behaviour. Two observation tasks confirm that on GitHub.
 Each test shows what the `fate_note` of its row in
 `docs/spec-audit/requirements.jsonl` says.
 
-- [ ] A test runs "PRs are blocked until an AI review exists".
-- [ ] A test runs "the responder only acts for authorized same-repository
+- [x] A test runs "PRs are blocked until an AI review exists".
+  - **Evidence:** `scripts/tests/test_ai_review_gate_decide.py` runs the
+    `review-accepted` and `gate` decisions of
+    `.github/actions/ai-review-gate/decide.py`; 48 tests pass.
+- [x] A test runs "the responder only acts for authorized same-repository
   requests".
-- [ ] A test runs "a review runs on first push and on explicit request".
-- [ ] A test runs "trusted-bot pull requests are approved without an AI review".
-- [ ] `.github/workflows/ai-responder.yml` calls the script for each of the four
-  decisions and holds no copy of them.
+  - **Evidence:** the same test file runs the `is-fork` and `authorize`
+    decisions for each permission level and head repository.
+- [x] A test runs "a review runs on first push and on explicit request".
+  - **Evidence:** the same test file runs the `wants-review` decision for each
+    pull request action, label event, draft, and label state.
+- [x] A test runs "trusted-bot pull requests are approved without an AI review".
+  - **Evidence:** the same test file runs the `trusted-bot` and `bot-approval`
+    decisions for foreign commits, foreign pushes, and a reused branch.
+- [x] `.github/workflows/ai-responder.yml` calls the script for each of the four
+  decisions and holds no copy of them in a step. The `concurrency:` group and
+  the `if:` of each job stay, because GitHub evaluates them before a step runs.
+  - **Evidence:** each step decision and the acceptance rule in
+    `.github/actions/ai-review-status/action.yml` call
+    `.github/actions/ai-review-gate`; zizmor and actionlint pass.
 
 ### Task 2: Move and test the decision of the image promotion
 
