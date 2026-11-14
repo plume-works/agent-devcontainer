@@ -50,15 +50,30 @@ decision got no ADR, the citation is removed.
 **Files:** Create: the documents under `docs/knowledge/data/adr/`; Modify:
 `docs/knowledge/data/adr.md`
 
-- [ ] Each `## Rationale` entry in `data/spec/` whose decision passes the three
+- [x] Each `## Rationale` entry in `data/spec/` whose decision passes the three
   conditions has its decision and its reason in an ADR.
-- [ ] Each requirement whose `fate` is `adr`, and whose decision passes the
+  - **Evidence:** All 186 entries were judged against the three conditions. 102
+    of them are in ADR-0003 to ADR-0091, and the other 84 fail a condition. A
+    script confirmed that each `###` entry under each `## Rationale` has a
+    judgement.
+- [x] Each requirement whose `fate` is `adr`, and whose decision passes the
   three conditions, has its decision and its reason in an ADR.
-- [ ] Each ADR lists a rejected option only when the rejection is not obvious.
-- [ ] Each ADR is at `stage: accepted`, passes the schema, and has a link in
+  - **Evidence:** 19 of the 21 requirements are in an ADR. One fails condition 2
+    and condition 3. The code contradicts the other, "The plugin is published
+    but not enabled by default", because the runtime enables the plugin.
+- [x] Each ADR lists a rejected option only when the rejection is not obvious.
+  - **Evidence:** Each draft dropped the spec's obvious rejections, and some
+    ADRs have no `## Considered Options`. A full reading of ADR-0041, 0047,
+    0055, 0059, 0066, 0070, and 0086 found no rejection that is obvious.
+- [x] Each ADR is at `stage: accepted`, passes the schema, and has a link in
   `data/adr.md`.
-- [ ] Each ADR agrees with the code. The entries whose `accurate` is not `true`
+  - **Evidence:** `iwe schema validate` passes, the hub links all 89 new ADRs,
+    and `uv run pytest docs/knowledge/tests` passes (102 tests).
+- [x] Each ADR agrees with the code. The entries whose `accurate` is not `true`
   in `docs/spec-audit/rationale.jsonl` were read against the code first.
+  - **Evidence:** Each ADR was written from the code in the current checkout.
+    Where an entry differs from the code, the ADR states what the code does or
+    the entry gets no ADR, as for the agent metadata and the session ID file.
 
 ### Task 2: Put the short invariants in code comments
 

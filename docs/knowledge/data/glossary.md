@@ -28,6 +28,8 @@ term in the same change that first uses it.
   GitHub credentials and limits access to the repositories of the session.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
+- **AI reviewer** (noun): The `plume-works-quill` GitHub App account that
+  submits the AI review of a pull request.
 - **allowlist** (noun): The file of domain names and the optional `github-meta`
   entry, whose IPv4 addresses the firewall permits for outgoing traffic.
 - **anchor** (noun): A name for a place in a file, such as `path::symbol` or
@@ -48,6 +50,8 @@ term in the same change that first uses it.
   to stay current, `origin/main` by default.
 - **base branch** (noun): The branch that the `paths-filter` action uses as the
   push target, `main` by default.
+- **blocking finding** (noun): A finding of the AI review from the correctness
+  pass or the durable-knowledge pass, which makes the verdict `REQUEST_CHANGES`.
 - **bootstrap transaction** (noun): The staging directory `.iwe-bootstrap.txn/`
   in the target root, which a later `iwe-bootstrap` run completes or discards.
 - **bottom** (noun): The pull request of a chain that has `main` as its base.
@@ -80,12 +84,16 @@ term in the same change that first uses it.
   which names who or what closes the task outside the session tests.
 - **cloud session** (noun): A Claude Code session that runs on a hosted machine
   and not on the computer of the user.
+- **codebase map** (noun): A retired set of `data/codebase/` documents that
+  described the code by path, each with a stamped source digest.
 - **Coder user secret** (noun): A value for one user, such as `GITHUB_TOKEN`,
   that Coder puts only in the environment of its agent.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
 - **consumer** (noun): A repository that adopted this template or that uses the
   agentdev images for its own project.
+- **controller** (noun): The `controller` event listener of the runtime
+  supervisord, which starts the services in order and recovers them.
 - **cooldown** (noun): The time that a push to `main` waits in a job that CI can
   cancel, so that many merges cause only one build.
 - **core path** (noun): The steps that run before OpenCode starts: the root
@@ -127,6 +135,8 @@ term in the same change that first uses it.
   before Ship.
 - **effort tier** (noun): The `light` or `full` setting of a pull request
   review, which controls how many passes run and which model each slot uses.
+- **entry skill** (noun): A skill that a user calls to start a workflow step,
+  such as `/agentdev:iwe-ship`, and that only starts its catalog agent.
 - **evidence line** (noun): The indented `- **Evidence:**` item under a ticked
   plan task, which says what was done and how it was checked.
 - **excluded-directory set** (noun): The directory names that agent file
@@ -171,6 +181,8 @@ term in the same change that first uses it.
   publishes a candidate under and never moves.
 - **Implement** (noun): The workflow phase that does the tasks of a plan,
   through `/agentdev:iwe-implement`.
+- **Implement loop** (noun): The part of an Implement session that runs Verify,
+  acts on its findings, and takes an evaluated plan revision.
 - **Implement session** (noun): The session that loaded
   `/agentdev:iwe-implement` and follows the `iwe-implementer` rulebook, which
   takes decisions only from its own user.
@@ -212,6 +224,8 @@ term in the same change that first uses it.
 - **material deviation** (noun): A change during Implement that affects the
   scope, the behaviour, the acceptance scenarios, the ADRs, or the boundaries of
   the plan.
+- **MCP server** (noun): A Model Context Protocol server, which gives tools and
+  prompts to an agent client that registers it.
 - **merge record** (noun): The line that replaces a `## Depends on` entry after
   its pull request merges.
 - **merge state** (noun): The `mergeable` and `mergeStateStatus` fields that
@@ -234,6 +248,8 @@ term in the same change that first uses it.
   workspace.
 - **newest verdict** (noun): The latest approved or changes-requested review of
   the AI reviewer, which a later commented review does not replace.
+- **OKF** (noun): The Open Knowledge Format v0.2, the document format that
+  `data/` agrees with and that the `okf` and `okf-index` schemas check.
 - **onboarding** (noun): The setup of a blank knowledge workspace through
   `/agentdev:iwe-setup`.
 - **one-shot phase** (noun): A supervised program that runs to completion one
@@ -288,6 +304,8 @@ term in the same change that first uses it.
   review runs.
 - **preimage** (noun): The content hash of the target file when self-improve
   staged a proposal, which the apply step compares before it writes.
+- **Primary checks** (noun): The `Primary checks` workflow, which runs the
+  cooldown, the pre-commit hooks, and CI on each push.
 - **progress document** (noun): The file `.agentdev-template-progress.md` in a
   consumer, which holds the task list and the choices of a template setup.
 - **promotion** (noun): The move of the moving tags to an accepted candidate
@@ -296,6 +314,8 @@ term in the same change that first uses it.
   permitted target file, with an ID and a hash prefix.
 - **prose** (noun): The text of a file, except text in code formatting, text in
   a fenced block, and quoted text.
+- **publisher** (noun): This repository, which publishes the template, the
+  catalog, and the agentdev images that a consumer takes.
 - **publisher-only source** (noun): The directories `.agents/`,
   `.claude-plugin/`, and `py_packages/`, which each consumer deletes.
 - **recommendation** (noun): A warning-level skill finding that shows only with
@@ -335,6 +355,8 @@ term in the same change that first uses it.
   tools that reads the evidence and returns a proposal or a discard.
 - **revise mode** (noun): The mode of the `iwe-planner` rulebook that changes an
   active plan.
+- **root bootstrap** (noun): The step that PID 1 of a runtime image runs as root
+  before supervisord, through `agentdev-runtime bootstrap`.
 - **root-test launcher** (noun): The script `scripts/run-root-tests`, which runs
   the `requires_root` tests as root.
 - **rulebook** (noun): The file of instructions that an agent or a skill
@@ -423,6 +445,8 @@ term in the same change that first uses it.
   code.
 - **Verify** (noun): The workflow phase that compares the code with a plan
   before Ship, through `/agentdev:iwe-verify`.
+- **Verify round** (noun): One run of Verify in the Implement loop, with the
+  actions on its findings.
 - **version owner** (noun): The one place that pins the version of a pre-commit
   hook tool.
 - **version-matched browser** (noun): The Chromium build that the pinned
