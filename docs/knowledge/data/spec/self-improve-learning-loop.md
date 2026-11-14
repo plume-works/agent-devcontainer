@@ -61,11 +61,11 @@ Container and standalone runtime enables `self-improve`. The committed
 The catalog is the set of behaviours agents have and the learning loop is how
 that set changes, so both share one checkout rather than a dependency edge, and
 the loop routes approved lessons into destinations this repository already
-types. Publishing the plugin and enabling it are separate decisions, and only
-publishing is made: its seven hook events, including `UserPromptSubmit`,
-`PostToolUse`, and an asynchronously rewaking `Stop`, change every session, so
-enabling it by default carries its own evidence bar. Enablement is judged on
-what the repository carries, not on one machine's local settings.
+types. The runtime installs every plugin that the catalog publishes, so the
+plugin is installed and enabled by default in every container the repository
+builds. Its seven hook events, including `UserPromptSubmit`, `PostToolUse`, and
+an asynchronously rewaking `Stop`, change every session there. The committed
+`.claude/settings.json` does not enable it.
 
 Rejected:
 

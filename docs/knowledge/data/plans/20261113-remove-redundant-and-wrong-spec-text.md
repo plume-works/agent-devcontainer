@@ -166,15 +166,23 @@ the row in `docs/spec-audit/requirements.jsonl`.
 `docs/knowledge/data/spec/iwe-workflow-skills.md`,
 `docs/knowledge/data/spec/self-improve-learning-loop.md`
 
-- [ ] `spec/agent-file-discovery` has no entry "Agent metadata is a colocated
+- [x] `spec/agent-file-discovery` has no entry "Agent metadata is a colocated
   file with one key per consumer".
-- [ ] The entry "Session mode resumes one pinned conversation per volume" in
+  - **Evidence:** Removed the entry; nothing outside the archive linked it.
+- [x] The entry "Session mode resumes one pinned conversation per volume" in
   `spec/claude-remote-control` names only a volume that a descriptor declares.
-- [ ] `spec/iwe-workflow-skills` has no entry "Revision and spec synchronization
+  - **Evidence:** It now names `agentdev-home-${devcontainerId}`, which
+    `docker/devcontainer/agentdev-devcontainer.Dockerfile` declares, and
+    `remote_control.py::config_dir` holds the ID file.
+- [x] `spec/iwe-workflow-skills` has no entry "Revision and spec synchronization
   belong to Plan and Ship".
-- [ ] The entry "The plugin lives in this repository as a second catalog plugin"
+  - **Evidence:** `grep` finds no such entry; commit `3fef60bc` removed it
+    before this plan started.
+- [x] The entry "The plugin lives in this repository as a second catalog plugin"
   in `spec/self-improve-learning-loop` says that the plugin is installed by
   default.
+  - **Evidence:** The entry now says that the runtime installs and enables it by
+    default in every container; `lifecycle.py::created` installs at user scope.
 
 ### Task 5: Delete the empty specs and repair the references
 

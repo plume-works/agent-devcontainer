@@ -99,35 +99,3 @@ In the Agent Skills layout, `assets/` beside a `SKILL.md` holds files the skill
 copies out as output, whose references resolve where they land. The
 `iwe-bootstrap` scaffold is the case in point: its Markdown uses IWE
 extension-less links that resolve only once installed in a workspace.
-
-### Agent metadata is a colocated file with one key per consumer
-
-Agent tooling keeps per-directory metadata in `.agent.metadata.json` files that
-sit in the directory they describe, one top-level key per consumer, so a file
-can carry metadata for tooling a given checkout does not have. A colocated file
-inherits the template-boundary class of its directory and travels with it when
-the directory is adopted. A consumer whose data is a repository-level singleton,
-such as `template-consume`, declares its key root-only and reads the root file
-without walking; that key in a nested file is broken metadata.
-
-A per-directory key resolves root-to-leaf from `git rev-parse --show-toplevel`,
-accumulates sections shallowest first, reads its globs relative to the directory
-of the file that declares them, and marks a file it cannot parse as breaking
-every scope whose walk reads it. A metadata file's own bytes are not tracked
-content: a consumer fingerprinting a directory excludes them.
-
-Rejected:
-
-- **A single repository-level map.** It is edited at a distance from the
-  directories it describes, does not travel when a directory is copied, needs
-  its own template-boundary entry, and leaves a stale entry behind when a
-  directory moves.
-- **Replace rather than accumulate, as `.gitignore` precedence does.** A subtree
-  adding one rule would silently drop every inherited one, so a tool quietly
-  does less than before.
-- **Repository-root-relative globs in every file.** A copied directory's globs
-  would point at its old location, removing the portability colocation exists
-  for.
-- **Skipping an unreadable metadata file.** The tool would silently compute the
-  wrong answer, such as reporting content unchanged because the rule that would
-  flag it never loaded.
