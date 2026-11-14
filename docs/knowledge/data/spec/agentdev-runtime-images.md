@@ -53,9 +53,11 @@ runtime](standalone-opencode-runtime.md).
 
 ### Requirement: the base image is lifecycle-neutral
 
-`agentdev-base` SHALL contain the shared development tools, agentdev catalog,
-and default policy without containing deploy or Dev Container lifecycle
-implementation; it SHALL NOT carry the `agentdev_runtime` package.
+`agentdev-base` SHALL contain the shared development tools and the agentdev
+catalog without containing deploy or Dev Container lifecycle implementation; it
+SHALL NOT carry the `agentdev_runtime` package. The firewall allowlist and the
+agent policy are not in the base: the deploy and Dev Container images copy the
+allowlist, and the runtime applies the agent policy at start.
 
 #### Scenario: a consumer runs the base image directly
 

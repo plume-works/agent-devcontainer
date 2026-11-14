@@ -40,9 +40,13 @@ it SHALL run `uv run --frozen pre-commit` on every changed file, skipping
 failing on a hook that still fails on the second. Any failure SHALL fail the
 branch. The task's `fileFilters` SHALL match every path a Renovate manager in
 this repository edits and every file the task derives, because Renovate keeps
-post-upgrade output only where it matches them. `uv.lock` SHALL be relocked by
-Renovate's own `pep621` manager, and `lockFileMaintenance` SHALL be enabled with
-automerge, so lock files are also refreshed when no manifest changed.
+post-upgrade output only where it matches them. They do not match
+`py_packages/agentdev_runtime/uv.lock`: [Bug: Renovate's post-upgrade file
+filters omit the runtime package's lock
+file](../bugs/renovate-file-filters-omit-runtime-lock.md). `uv.lock` SHALL be
+relocked by Renovate's own `pep621` manager, and `lockFileMaintenance` SHALL be
+enabled with automerge, so lock files are also refreshed when no manifest
+changed.
 
 #### Scenario: a bumped file needs formatting
 

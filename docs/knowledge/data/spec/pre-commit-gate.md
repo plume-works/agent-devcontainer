@@ -33,7 +33,10 @@ sources:
 `agentdev-runtime project hooks` SHALL install the `pre-commit`, `pre-push`, and
 `pre-merge-commit` hook types, and `.pre-commit-config.yaml`'s `default_stages`
 SHALL include `pre-merge-commit`, so a merge commit runs the same hooks as an
-ordinary commit.
+ordinary commit. `end-of-file-fixer` and `trailing-whitespace` set their own
+`stages` without `pre-merge-commit`, so a merge that commits on its own skips
+them: [Bug: a merge commit skips `end-of-file-fixer` and
+`trailing-whitespace`](../bugs/merge-commit-skips-two-hooks.md).
 
 #### Scenario: a merge commits on its own
 

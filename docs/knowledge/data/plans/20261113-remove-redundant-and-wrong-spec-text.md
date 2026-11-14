@@ -149,10 +149,15 @@ the row in `docs/spec-audit/requirements.jsonl`.
 
 **Files:** Modify: the documents under `docs/knowledge/data/spec/`
 
-- [ ] Each of the 11 requirements whose `truth` is not `true` and whose `fate`
+- [x] Each of the 11 requirements whose `truth` is not `true` and whose `fate`
   is `adr`, `needs-test`, or `no-home` agrees with the code that its
   `truth_note` names.
-- [ ] No correction removes a guarantee for which Task 1 filed no bug.
+  - **Evidence:** Ten were corrected after a read of the code their notes name;
+    six now name their filed bug. `stacked-prs` "Merges into dependent branches
+    are blocked" is unchanged: its one checkable clause holds.
+- [x] No correction removes a guarantee for which Task 1 filed no bug.
+  - **Evidence:** Each correction with a Task 1 bug keeps its `SHALL` and adds
+    the exception. The other four only state what the code was built to do.
 
 ### Task 4: Correct the `## Rationale` entries that the code contradicts
 

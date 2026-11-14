@@ -37,13 +37,15 @@ improves future behavior.
 
 ## Requirements
 
-### Requirement: The plugin is published but not enabled by default
+### Requirement: The plugin is published and the runtime enables it
 
 The catalog's Claude marketplace manifest SHALL publish `self-improve` beside
 `agentdev`, and `agentdev-runtime catalog install` SHALL install every plugin
-that manifest publishes. The image build SHALL stage and install only the plugin
-named by `agent_catalog_plugin_name` (`agentdev`), failing when the manifest
-publishes other than exactly one plugin of that name, and the committed
+that manifest publishes. The image build SHALL stage the whole catalog and
+install only the plugin named by `agent_catalog_plugin_name` (`agentdev`),
+failing when the manifest does not publish exactly one plugin of that name. The
+create and attach phases install the catalog at user scope, so every Dev
+Container and standalone runtime enables `self-improve`. The committed
 `.claude/settings.json` SHALL NOT enable `self-improve`.
 
 #### Scenario: A developer reinstalls the catalog

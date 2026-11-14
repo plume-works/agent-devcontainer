@@ -42,7 +42,9 @@ A consumer SHALL delete `.agents/`, `.claude-plugin/`, and `py_packages/`, and
 SHALL adapt every CI workflow, pre-commit hook, `pyproject.toml` entry, and path
 filter that referenced them. Agent-file validation, when retained, SHALL run the
 validator the digest-pinned image provides, never the deleted working-tree
-package.
+package. The consumption guide does not name each such reference: [Bug: the
+consumption guide leaves references to deleted publisher
+source](../bugs/consumption-guide-keeps-publisher-source-references.md).
 
 ## Requirement: the AI review gate's trust is explicit
 
@@ -65,7 +67,10 @@ paths, keep Customize paths and edit their project identity and owned paths,
 keep an Optional path only together with the rest of its bundle, delete every
 Publisher path, and never take a Generated path as template input. The root
 `AGENTS.md` and `CLAUDE.md` and the `.claude/` directory SHALL survive the
-deletion of publisher-only source.
+deletion of publisher-only source. The guide names the five classes but gives no
+path a class, and it does not name each tracked path: [Bug: the consumption
+guide does not give each template path a
+class](../bugs/consumption-guide-classifies-no-path.md).
 
 ### Scenario: a full copy deletes publisher-only source
 

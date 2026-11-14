@@ -100,7 +100,9 @@ login is matched, with no variable or input that repoints it.
 ## Requirement: the responder only acts for authorized same-repository requests
 
 The responder SHALL NOT check out or execute code for a pull request originating
-from a fork, and SHALL NOT act for an actor without write access. The PR review
+from a fork, and its review jobs SHALL NOT act for an actor without write
+access. The trusted-bot approval job checks no actor permission: it runs for a
+same-repository pull request whose author is a trusted bot. The PR review
 responder SHALL run with read-only repository contents access, and no responder
 job SHALL hold write repository contents access.
 
@@ -119,7 +121,7 @@ SHALL forward a requester identity to another, and the responder SHALL NOT pass
 
 - **WHEN** the actor of a `pull_request` event has a permission other than
   `admin`, `maintain`, or `write`
-- **THEN** preflight fails and no responder job runs.
+- **THEN** preflight fails and no review job runs.
 
 ## Requirement: the review job reviews with the pr-review skill as a submitted review
 

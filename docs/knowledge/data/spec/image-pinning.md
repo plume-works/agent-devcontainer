@@ -27,9 +27,11 @@ candidate pre-commit run pass for the same digests, without rebuilding. CI SHALL
 NOT move a tag to an image built from an ancestor of the commit it names, which
 it reads from the `org.opencontainers.image.revision` label of the image the tag
 names; a label naming a commit outside the checkout's history SHALL NOT block
-the move. No Primary checks run SHALL cancel a run on `main` whose `ci` job has
-started, while a newer run on any other ref SHALL cancel the older run for that
-ref.
+the move. The `ubuntu-ansible` image has no such label, so its tags always move:
+[Bug: the promote step can move the `ubuntu-ansible` tags to an older
+image](../bugs/ubuntu-ansible-tags-can-move-backwards.md). No Primary checks run
+SHALL cancel a run on `main` whose `ci` job has started, while a newer run on
+any other ref SHALL cancel the older run for that ref.
 
 ### Scenario: every acceptance check passes
 
