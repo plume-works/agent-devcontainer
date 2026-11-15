@@ -117,26 +117,21 @@ without telling the user.
 Offer once to record a settled topic. Do not file a document without a user request.
 When the user wants a record, select the applicable destination:
 
-- **An idea without a commitment:** Write `data/someday/<slug>.md`.
-  Link the document from `data/someday.md`.
+- **A someday idea, a finding, a guide, or a product-vision document:**
+  `docs/knowledge/SCHEMA.md#what-goes-where` gives which of these the topic is.
+  Write the document as its document in `docs/knowledge/schema/` defines it.
+  Link the document from its hub.
 - **A decision:** Give the decision and its rejected alternatives to Plan in
-  the plan handoff below. Plan proposes the ADR. Do not write an ADR or a
-  `## Rationale` from explore mode.
-- **A measurement that does not yet settle a question:** Write
-  `data/findings/<slug>.md`. Include `## Measurement`, eliminated hypotheses,
-  and `## Closing`. Link the document from `data/findings.md`.
-- **A procedure that a contributor will repeat:** Write `data/guides/<slug>.md`.
-  Link the document from `data/guides.md`.
-- **A principle that stays true:** Write `data/product-vision/<slug>.md`.
-  Link the document from `data/product-vision.md`.
-- **An established defect, proposed feature, or actionable task:** Hand the
-  settled content to `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.
-  A defect includes code that contradicts an accepted ADR or reproducible
-  incorrect behavior. `/agentdev:iwe-capture` controls the document format, hub
-  link, and duplicate check. If the investigation started from a GitHub issue,
-  include `ISSUE_URL`. The captured document links the issue and closes the issue.
-  If a finding belongs to an active plan, use `## During implementation` instead.
-  Return the finding to that plan. Do not create a separate document beside the plan.
+  the plan handoff below. Plan proposes the ADR. Do not write an ADR from
+  explore mode.
+- **A bug, a proposed feature, or a backlog task:** Give the settled content to
+  `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.
+  `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
+  check. If the investigation started from a GitHub issue, include `ISSUE_URL`.
+  The captured document links the issue and closes the issue.
+- **A finding that belongs to an active plan:** Use
+  `## During implementation` instead. Return the finding to that plan. Do not
+  create a separate document beside the plan.
 - **Work ready for implementation:** Write a handoff. Ask the user to run
   `/agentdev:iwe-plan` with the handoff. The investigation supplies the plan's
   `## Context` and `## Approach`. Only the user starts `/agentdev:iwe-plan`.

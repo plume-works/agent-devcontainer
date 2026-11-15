@@ -160,11 +160,8 @@ it):
   can show is an observation task in its plan.
 - Shell: `#!/usr/bin/env bash`, `set -euo pipefail`, shellcheck-clean, quote
   every expansion.
-- Investigation/spike work gets documented directly in IWE project memory: an
-  issue found during a spike → `data/bugs/<slug>.md`; a design decision the
-  spike settles → an ADR that a plan proposes in `data/adr/`; a measurement that
-  settles nothing yet → `data/findings/<slug>.md`; implementation guidance for
-  follow-up → a plan or `data/backlog/<slug>.md` task.
+- Record investigation and spike work in IWE project memory, in the document
+  type that `docs/knowledge/SCHEMA.md#what-goes-where` names.
 - This workspace uses IWE project memory under `docs/knowledge/data/` — query it
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/AGENTS.md` when editing it

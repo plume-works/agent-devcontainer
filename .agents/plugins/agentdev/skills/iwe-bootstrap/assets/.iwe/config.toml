@@ -112,7 +112,7 @@ match = [
 match = ["data/product", "data/milestone", "data/glossary"]
 
 # OKF v0.2 conformance (SPEC §11), except the `status` field: `stage` records the
-# lifecycle (docs/knowledge/SCHEMA.md). okf stacks on the per-type schemas; the
+# lifecycle (docs/knowledge/schema/fields-every-type-carries.md). okf stacks on the per-type schemas; the
 # reserved index file takes a body schema of its own. okf rejects the retired
 # architecture type, so the archived notes are checked by architecture.yaml alone.
 [schemas.okf]

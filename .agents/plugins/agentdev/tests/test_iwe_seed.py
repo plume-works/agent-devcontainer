@@ -32,6 +32,10 @@ SHARED_KNOWLEDGE_FILES = (
     'LICENSE.md',
     '.gitignore',
     '.markdownlint.yml',
+    *(
+        f'schema/{path.name}'
+        for path in sorted((SCAFFOLD / 'docs' / 'knowledge' / 'schema').iterdir())
+    ),
 )
 
 # A markdown link on its own line is an inclusion link; anywhere else it is a
