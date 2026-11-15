@@ -41,7 +41,8 @@ def installed_iwe_bootstrap(plugin_root: Path, plugin_tmp_path: Path) -> Path:
     installed = plugin_tmp_path / 'installed-plugin'
     skill = plugin_root / 'skills' / 'iwe-bootstrap'
     shutil.copytree(plugin_root / 'bin', installed / 'bin')
-    # The publisher's root `.iwe` links to `assets/.iwe`, so iwe's runtime files land there.
+    # In this repository, the root `.iwe` is a link to `assets/.iwe`,
+    # so iwe writes its runtime files there.
     gitignore = (skill / 'assets' / '.iwe' / '.gitignore').read_text(encoding='utf-8')
     runtime = [line.rstrip('/') for line in gitignore.splitlines() if line]
     shutil.copytree(

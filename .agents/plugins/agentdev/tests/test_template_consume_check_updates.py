@@ -124,7 +124,7 @@ def _commit_all(template_dir: Path, message: str) -> str:
 
 
 def build_linked_template_repository(root: Path) -> tuple[Path, list[str]]:
-    """Build a template whose tracked directory becomes a link to a same-content directory."""
+    """Build a template in which a link replaces a tracked directory that has the same content."""
     template_dir = root / 'linked-template'
     template_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], template_dir)
@@ -165,7 +165,7 @@ def test_check_updates_follows_a_tracked_path_that_is_a_link_upstream(
     plugin_root: Path,
     plugin_tmp_path: Path,
 ) -> None:
-    """A change behind an upstream link is reported under the tracked path."""
+    """The script reports a change behind an upstream link under the tracked path."""
     lines = _check_linked_updates(plugin_root, plugin_tmp_path, upstream_index=2)
 
     assert lines[-1] == 'RESULT=CHANGES_FOUND'
@@ -176,7 +176,7 @@ def test_check_updates_ignores_a_tracked_directory_replaced_by_a_same_content_li
     plugin_root: Path,
     plugin_tmp_path: Path,
 ) -> None:
-    """Replacing a directory with a link to identical bytes is not a consumer change."""
+    """When a link to identical bytes replaces a directory, the consumer has no change."""
     lines = _check_linked_updates(plugin_root, plugin_tmp_path, upstream_index=1)
 
     assert lines[-1] == 'RESULT=UP_TO_DATE'

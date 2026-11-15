@@ -41,19 +41,21 @@ that changes `assets/` never reaches an initialized workspace.
 
 Each checkout of agent-devcontainer is a checkout for plugin development. Only
 in agent-devcontainer, the root `.iwe` is a symbolic link to `assets/.iwe/`.
-Thus the `.iwe/` of agent-devcontainer and the `.iwe/` of the scaffold are
-always the same bytes.
+Therefore, the `.iwe/` of agent-devcontainer and the `.iwe/` of the scaffold
+always have the same bytes.
 
 The scaffold structure and the knowledge-base structure of agent-devcontainer
-are always the same. The scaffold's knowledge instructions are the same bytes
-that agent-devcontainer uses. Thus a schema change is a scaffold change: adjust
-the seed documents in the same commit, or the next bootstrap installs a
-workspace that fails `iwe schema validate`. Every file under `assets/` must
-equal its `iwe normalize` output.
+are always the same. The support files under `assets/docs/knowledge/` have the
+same bytes as the files that agent-devcontainer uses. A schema change is also a
+scaffold change. Adjust the starter documents of the scaffold in the same
+commit. If you do not, the next `/agentdev:iwe-bootstrap` installs a workspace
+that fails `iwe schema validate`. Every file under `assets/` must be the same
+as its `iwe normalize` output.
 
 Through the link, `iwe` writes its runtime files into `assets/.iwe/`. Their
-names are in `assets/.iwe/.gitignore`, and bootstrap does not copy them.
+names are in `assets/.iwe/.gitignore`, and `/agentdev:iwe-bootstrap` does not
+copy them.
 
-The scaffold graph is not a member of a live graph: no `.iwe/config.toml` sets
-`assets/docs/knowledge/` as a workspace, and `iwe normalize`, not Prettier,
-owns its Markdown.
+The scaffold graph is not part of a graph that `iwe` reads. No
+`.iwe/config.toml` sets `assets/docs/knowledge/` as a workspace.
+`iwe normalize`, not Prettier, formats its Markdown.

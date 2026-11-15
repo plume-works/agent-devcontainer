@@ -135,7 +135,7 @@ def read_marker(marker_path: Path) -> tuple[str, list[str]]:
 
 
 def upstream_link_target(clone_dir: str, upstream_ref: str, path: str) -> str | None:
-    """Return the repository path that a tracked path names when it is a link upstream."""
+    """Return the path that a tracked path points to, when it is a link in the upstream repository."""
     name = path.rstrip('/')
     entry = run_tool('git', '-C', clone_dir, 'ls-tree', upstream_ref, '--', name).stdout.split()
     if len(entry) < 3 or entry[0] != '120000':

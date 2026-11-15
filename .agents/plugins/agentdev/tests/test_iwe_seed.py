@@ -78,7 +78,7 @@ def test_scaffold_is_complete() -> None:
 
 
 def test_scaffold_support_files_match_the_publisher_workspace() -> None:
-    """Knowledge instructions stay the bytes the publisher uses; `.iwe` is a link to the scaffold."""
+    """The support files have the same bytes that this repository uses; `.iwe` is a link to them."""
     drifted = [
         f'docs/knowledge/{name}'
         for name in SHARED_KNOWLEDGE_FILES

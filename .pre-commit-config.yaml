@@ -194,9 +194,9 @@ repos:
         files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
         pass_filenames: false
 
-      # Mirrors the Knowledge base validation workflow. Hooks read the whole graph
-      # from the repo root, so they take no filenames and trigger on any
-      # graph-affecting change under docs/knowledge/ or the scaffold .iwe/ that .iwe links to.
+      # Mirrors the Knowledge base validation workflow. The hooks read the full graph
+      # from the repository root, so they take no filenames. They start on a change
+      # under docs/knowledge/ or under the scaffold .iwe/, which .iwe links to.
       - id: iwe-schema-validate
         name: iwe-schema-validate
         entry: iwe schema validate

@@ -78,7 +78,7 @@ Results (RESULT / exit code):
 
 
 def iwe_runtime_patterns() -> list[str]:
-    """Return the `.iwe/.gitignore` names: files iwe writes at run time, not scaffold files."""
+    """Return the names in `.iwe/.gitignore`: the files that iwe writes at run time."""
     lines = (ASSETS_DIR / '.iwe' / '.gitignore').read_text(encoding='utf-8').splitlines()
     return [line.rstrip('/') for line in lines if line and not line.startswith('#')]
 
