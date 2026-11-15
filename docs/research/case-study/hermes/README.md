@@ -4,7 +4,7 @@
 
 This document records a source-grounded case study of the self-improvement system in Hermes Agent. It describes how Hermes turns conversation outcomes into durable memory and reusable skills, how the relevant instructions are assembled, and which design lessons apply to Claude Self-Improvement.
 
-This is descriptive evidence, not a normative requirement.
+This text gives evidence. It does not give a requirement.
 
 ### Inspected implementation
 

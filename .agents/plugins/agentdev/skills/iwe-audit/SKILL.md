@@ -21,7 +21,7 @@ Test: would this still be true if the code were rewritten from scratch?
 
 ## Scope
 
-Audit any text that promises durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
+Audit all text that must contain durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
 code comments, and —
 outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
 docstrings.
@@ -29,8 +29,8 @@ docstrings.
 Do not audit: `data/bugs/`, `data/releases/`, `data/archive/`, or commit
 messages.
 Process detail is their job; commit messages are owned by
-`/agentdev:git-commit`. Residue in another document may belong in one of these — that is a
-move, not a deletion. A plan is audited only in plan mode below, and only its
+`/agentdev:git-commit`. Residue in a different document can go into one of these documents. Move the
+residue there. Do not delete it. A plan is audited only in plan mode below, and only its
 intent sections: a plan's `## Verification results` and `- **Evidence:**`
 children are narrative-sanctioned and stay out of scope.
 

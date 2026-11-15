@@ -69,7 +69,7 @@ def new_key(home: Path, name: str) -> str:
 
 
 def packages_index(arch: str, debs: dict[str, bytes]) -> bytes:
-    """Return a gzipped Packages index listing git and git-man for one architecture."""
+    """Return a gzipped Packages index that lists git and git-man for one architecture."""
     stanzas = []
     for name in ('git', 'git-man'):
         deb_arch = 'all' if name == 'git-man' else arch

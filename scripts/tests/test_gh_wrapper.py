@@ -1,4 +1,4 @@
-"""The image's gh wrapper hands the git credential helper's token to the real gh."""
+"""The gh wrapper of the image gives the token from the git credential helper to the real gh."""
 
 from collections.abc import Iterator
 import os
@@ -18,7 +18,7 @@ HELPER = '!f() { echo username=x-access-token; echo password=helper-token; }; f'
 
 @pytest.fixture
 def scratch() -> Iterator[Path]:
-    """Yield a scratch root whose ``tools`` dir holds only what the wrapper needs, no gh."""
+    """Yield a scratch root whose ``tools`` directory holds only what the wrapper needs."""
     root = TMP_ROOT / f'gh-wrapper-{uuid4().hex}'
     (root / 'tools').mkdir(parents=True)
     for tool in TOOLS:

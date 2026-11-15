@@ -124,8 +124,8 @@ software project's memory and system of record. The division of labor:
   `proposed|accepted|rejected|deprecated|superseded` (live only at `proposed` or
   `accepted`). A closed plan, bug, task, feature, or ADR lives under
   `data/archive/`, an open one outside it, and the `ship-records` check fails
-  either breach. Reference docs (finding/guide/concept/someday) carry a `type`
-  and no stage.
+  when a document is in the incorrect folder. A reference document (finding,
+  guide, concept, or someday) has a `type` and no stage.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
   Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)

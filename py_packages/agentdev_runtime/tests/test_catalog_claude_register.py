@@ -1,4 +1,4 @@
-"""Registering a catalog root with Claude replaces every earlier registration of that root."""
+"""A new Claude registration of a catalog root replaces each earlier one."""
 
 import json
 import os

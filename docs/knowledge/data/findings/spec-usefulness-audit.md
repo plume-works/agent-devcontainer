@@ -16,10 +16,10 @@ sources:
 
 [Shrink the knowledge base to an issue tracker and decision
 records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md)
-proposes deleting `data/spec/` and keeping source code with its tests as the
-only statement of behaviour, a registry of decision records for the reasons, and
-a glossary for project terms. What would that lose, and what has to exist before
-the specs go?
+proposes three changes. Delete `data/spec/`. Keep only source code and its tests
+as the statement of behaviour. Keep a registry of decision records for the
+reasons and a glossary for project terms. What would that lose, and what has to
+exist before the specs go?
 
 ## Measurement
 
@@ -37,8 +37,8 @@ go if the spec were deleted. The specs were consolidated one commit earlier
 (`05a5aa7d` added 5,854 lines to `data/spec/` and removed 1,010), so the
 accuracy figures are measured at the specs' best.
 
-The labelled row for each requirement, rationale entry, and spec was deleted
-with the specs, and the git history keeps it.
+The change that deleted the specs also deleted the labelled row for each
+requirement, rationale entry, and spec. The git history keeps these rows.
 
 ### Requirements
 
@@ -382,7 +382,7 @@ which is the repository owner's proposal, on four conditions it makes concrete:
   `iwe-bootstrap` assets stop assuming `data/spec/`.
 
 The 16 undelivered guarantees are defects or wording to settle whether or not
-the specs go. This finding closes when the plan for [Shrink the knowledge base
-to an issue tracker and decision
+the specs go. This finding closes when a plan for [Shrink the knowledge base to
+an issue tracker and decision
 records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md)
-is written, or when the repository owner decides to keep the specs.
+exists, or when the repository owner decides to keep the specs.

@@ -45,8 +45,8 @@ requests conflict on a hub only when their members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, backlog tasks,
 and ADRs are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Findings, guides, concept, and someday docs are
-*durable reference*: they carry a `type` and the shared OKF families, but no
+(`iwe schema validate`). Finding, guide, concept, and someday documents are
+*durable reference*: they have a `type` and the shared OKF families, but no
 `stage`, because nothing about them is a lifecycle. The split keeps the ceremony
 where it pays. Every document is validated — OKF conformance requires a `type`
 everywhere — but only work items are asked for more than that.
@@ -124,8 +124,8 @@ data, not in forked skill prompts.
 Adopted, in IWE-native form:
 
 - **Scenario format** — a plan's `### Scenario:` blocks with WHEN/THEN lines,
-  with OpenSpec's "progressive rigor" stance: scale ceremony with risk, as a
-  convention rather than a validation gate.
+  with the OpenSpec "progressive rigor" rule: the higher the risk, the more
+  scenarios a plan has. This is a recommendation and not a validation gate.
 - **Authoring rules** — modeled on OpenSpec's per-artifact `rules:` config,
   relocated into the product doc.
 - **Dependencies** — OpenSpec's `dependsOn` metadata becomes a `## Depends on`

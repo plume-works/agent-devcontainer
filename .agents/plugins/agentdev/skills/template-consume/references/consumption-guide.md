@@ -473,8 +473,7 @@ request merges into the default branch after its predecessor merges. A
 repository ruleset on `refs/heads/iwe/**` makes this rule. It requires the
 status check `base-is-main`, and no workflow reports that check. Thus GitHub
 does not merge a pull request into an `iwe/` branch. The Write, Maintain, and
-Admin roles can bypass the ruleset, so a push to an `iwe/` branch is not
-blocked. This setting is not in the repository, and a diff does not show it.
+Admin roles can bypass the ruleset, so the ruleset does not block a push to an `iwe/` branch. This setting is not in the repository, and a diff does not show it.
 Create it once:
 
 ```bash

@@ -15,9 +15,10 @@ rank: 1400
 
 A `Claude PR Review Responder` job can finish green without publishing a review,
 and `ai-review-present` passes it on an earlier review: the gate asserts that
-the pull request was reviewed, not that this run reviewed it. That property is
-deliberate, because a review per commit costs too much, so the run itself must
-fail when it published nothing, or a re-review that vanishes stays silent.
+the pull request was reviewed, not that this run reviewed it. This is
+intentional, because a review for each commit costs too much. Thus the run must
+fail when it published no review. If it does not fail, nobody sees a missing
+re-review.
 
 The known cause of such runs is closed in [The review orchestrator ends its turn
 while its passes are still
