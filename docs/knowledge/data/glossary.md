@@ -89,6 +89,9 @@ term in the same change that first uses it.
   that Coder puts only in the environment of its agent.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
+- **consumption guide** (noun): The file `references/consumption-guide.md` of
+  the `template-consume` skill, which tells a consumer how to adopt the
+  template.
 - **consumer** (noun): A repository that adopted this template or that uses the
   agentdev images for its own project.
 - **cooldown** (noun): The time that a push to `main` waits in a job that CI can
@@ -157,6 +160,8 @@ term in the same change that first uses it.
   completed turn gets one reviewer call.
 - **gate-only run** (noun): The workflow run that a push to a reviewed pull
   request starts, in which the responder check does not run.
+- **gh wrapper** (noun): The script `ansible/roles/github_cli/files/gh`, which
+  runs the real `gh` with a token from the git credential helper.
 - **global-only option** (noun): A Renovate option that only the global
   configuration of the self-hosted bot accepts.
 - **graph** (noun): The IWE knowledge graph of the documents under
@@ -313,6 +318,8 @@ term in the same change that first uses it.
   release page.
 - **remapped account** (noun): The `agent` account of the image after the
   devcontainer CLI changes its UID and GID to those of the host user.
+- **requirement** (noun): A SHALL statement in a document of the removed
+  `data/spec/` folder.
 - **residue** (noun): In a document, text that records the path to a decision
   and not the decision, such as a list of failed attempts.
 - **residue** (noun): In a pull request description, a verification that no
