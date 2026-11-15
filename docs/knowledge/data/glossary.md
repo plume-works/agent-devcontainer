@@ -407,6 +407,9 @@ term in the same change that first uses it.
   `agentdev-runtime lifecycle ready`, which runs at each container start.
 - **story** (noun): A planned unit of work with acceptance scenarios, as the
   backlog task on ephemeral plans proposes.
+- **stress test** (noun): A test with the pytest marker `stress` that repeats a
+  race many times, which the default pytest run excludes and a separate step of
+  the CI Devcontainer image job runs.
 - **supersede** (verb): To replace an earlier ADR with a new ADR that names it
   in its `supersedes` list.
 - **task section** (noun): The `## Implementation Steps` section of a plan, or

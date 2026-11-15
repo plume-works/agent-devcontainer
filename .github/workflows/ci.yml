@@ -57,6 +57,8 @@ jobs:
           extra-filter: |
             - .github/workflows/ci.yml
             - .github/actions/log-debug-stats/**
+            # scripts/tests loads the session startup code from here.
+            - .claude/**
             # The devcontainer suite is the only check of the deployment compose files. The
             # pins file stays out, so a pin bump never rebuilds the image it names.
             - compose.opencode*.yml
@@ -339,6 +341,18 @@ jobs:
             scripts/run-root-tests -n 8 scripts/tests
             left="$(find . /tmp/agentdev-tests -newer .tmp/root-tests.stamp -user root -print 2>/dev/null | head -n 5)"
             if [ -n "$left" ]; then echo "root-owned leftovers: $left" >&2; exit 1; fi
+
+      # The devcontainer step uses the .venv of the checkout, so the host steps use a different venv.
+      - uses: $/.github/actions/setup-python-venv
+        env:
+          UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/venv
+
+      # The stress tests have a separate step, so CI shows their duration and the duration of
+      # the unit tests as two items.
+      - name: Run the stress tests
+        env:
+          UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/venv
+        run: uv run pytest -m stress -n auto scripts/tests
 
       - name: Log debug stats
         if: ${{ always() }}
