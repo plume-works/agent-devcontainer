@@ -28,11 +28,11 @@ After it, the repository has no spec.
 Each `needs-test` requirement has a test that runs the behaviour, as the test
 rules in `AGENTS.md#tests` tell you to do. Five of the 18 are decisions in
 workflow files, and [Test the decisions that the workflows
-make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
-tests for 7 of the other 13. The 5 other requirements have no test, because each
-one is configuration, a rule, or a guard against a possible future edit, and not
-logic. The last one is [a deploy runtime that reuses a checkout does not
-configure the git credential
+make](../archive/next-release/plans/20261113-test-the-workflow-decisions.md)
+adds their tests. This plan adds tests for 7 of the other 13. The 5 other
+requirements have no test, because each one is configuration, a rule, or a guard
+against a possible future edit, and not logic. The last one is [a deploy runtime
+that reuses a checkout does not configure the git credential
 helper](../bugs/reused-checkout-gets-no-credential-helper.md).
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
@@ -267,7 +267,7 @@ ADRs](../archive/next-release/plans/20261113-move-decisions-into-adrs.md)
 prose](../archive/next-release/plans/20261113-ste100-prose-rule.md)
 
 [Test the decisions that the workflows
-make](20261113-test-the-workflow-decisions.md)
+make](../archive/next-release/plans/20261113-test-the-workflow-decisions.md)
 
 ## Verification
 
