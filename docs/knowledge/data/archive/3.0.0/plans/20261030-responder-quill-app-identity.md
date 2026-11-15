@@ -327,7 +327,7 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[AI review gate](../../../spec/ai-review-gate.md):
+AI review gate:
 
 ``` markdown
 ## MODIFIED Requirements

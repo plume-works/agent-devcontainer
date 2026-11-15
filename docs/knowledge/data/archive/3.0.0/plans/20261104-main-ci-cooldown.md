@@ -19,9 +19,9 @@ completed: 2026-11-12
 
 Every push to `main` starts a full Primary checks run: a clean, multi-arch image
 build and its acceptance jobs. Runs on `main` share one concurrency group that
-queues instead of cancelling ([Image pinning](../../../spec/image-pinning.md)),
-so pull requests merged back to back build one after another, each from scratch,
-and the last merge waits for every build before it.
+queues instead of cancelling (Image pinning), so pull requests merged back to
+back build one after another, each from scratch, and the last merge waits for
+every build before it.
 
 The maintainer chose a cooldown on `main` over a merge queue: a merge queue
 builds every queued pull request's `merge_group` ref and then the push to `main`
@@ -31,8 +31,7 @@ The cancelled-run case is already handled for the image path filter: the shared
 `paths-filter` action compares a push against the last commit Primary checks
 passed on ([Bug: Image rebuild lost when a later push to main cancels its
 run](../../2.0.0/bugs/main-image-rebuild-lost-on-cancel.md)). The pre-commit
-job's range still covers only the latest push ([pre-commit
-gate](../../../spec/pre-commit-gate.md)).
+job's range still covers only the latest push (pre-commit gate).
 
 ## Approach
 
@@ -185,7 +184,7 @@ GitHub does not document whether concurrency cancels a job waiting on one.
 
 ## Spec changes
 
-[Image pinning](../../../spec/image-pinning.md):
+Image pinning:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -256,7 +255,7 @@ holds a runner for the whole wait.
 - **THEN** a push to `main` starts building at once.
 ```
 
-[pre-commit gate](../../../spec/pre-commit-gate.md):
+pre-commit gate:
 
 ``` markdown
 ## MODIFIED Requirements

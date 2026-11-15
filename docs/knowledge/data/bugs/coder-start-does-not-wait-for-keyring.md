@@ -8,7 +8,6 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/git.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the Coder start configures the git credential helper without a wait for the keyring

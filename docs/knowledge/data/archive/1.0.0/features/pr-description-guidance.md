@@ -74,8 +74,6 @@ None — every design question this feature raised is settled.
 
 ## Specified by
 
-[Template consumption](../../../spec/template-consumption.md)
-
 ## References
 
 - Plan: [Consumer PR description

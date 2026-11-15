@@ -266,7 +266,7 @@ Modify: `docs/knowledge/data/architecture.md`
 
 ## Spec changes
 
-[Catalog lifecycle](../../../spec/catalog-lifecycle.md):
+Catalog lifecycle:
 
 ``` markdown
 ## MODIFIED Requirements

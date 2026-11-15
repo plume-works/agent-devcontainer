@@ -43,8 +43,7 @@ fails on every tool call, and the tool's own `uninstall` is gone with the
 binary. The create phase therefore runs
 [`cbm_purge`](../../../../../../py_packages/agentdev_runtime/agentdev_runtime/cbm_purge.py),
 which removes those entries by exact name and leaves everything else in the
-user's files alone. The behavior is specified in [Catalog
-lifecycle](../../../spec/catalog-lifecycle.md).
+user's files alone. The behavior is specified in Catalog lifecycle.
 
 `cbm_purge` can be deleted once no supported instance can still hold a CBM
 install. The `agentdev-cbm` volume is disposable, so the `docker-gc` service

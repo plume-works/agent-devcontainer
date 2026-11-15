@@ -8,7 +8,6 @@ sources:
 - resource: pyproject.toml
 - resource: .github/workflows/validate-agent-files.yml
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the consumption guide leaves references to deleted publisher source

@@ -13,9 +13,6 @@ sources:
 - resource: docker/deploy/supervisord.conf
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
-- resource: docs/knowledge/data/spec/agentdev-runtime-images.md
-- resource: docs/knowledge/data/spec/standalone-opencode-runtime.md
-- resource: docs/knowledge/data/spec/devcontainer-git-credentials.md
 ---
 
 # Remove the D-Bus session bus and GNOME Keyring from the runtime images
@@ -39,10 +36,10 @@ The keyring gives no security in a container:
 When `gh` finds no keyring, it keeps its token in `~/.config/gh/hosts.yml` with
 mode `0600`. That file gives the same protection as the keyring in the
 container. The bus and the keyring add two supervised services, the order in
-which the supervisor restarts them, health checks, an image `ENV`, three
-packages, and spec requirements. The image `ENV` prevents `gh` from starting a
-D-Bus bus that does not stop. This problem occurs only because the images
-install `dbus-x11` and `gnome-keyring`.
+which the supervisor restarts them, health checks, an image `ENV`, and three
+packages. Without the image `ENV`, `gh` starts a D-Bus bus that does not stop.
+The `ENV` prevents this. This problem occurs only because the images install
+`dbus-x11` and `gnome-keyring`.
 
 ## Work
 
@@ -60,9 +57,7 @@ install `dbus-x11` and `gnome-keyring`.
 - Move a `gh` token that is in an existing keyring into `hosts.yml`, or tell the
   user to do the `gh auth login` procedure again. Before you start this step,
   find which of the two actions is necessary.
-- Remove or change the D-Bus and keyring requirements in
-  `spec/agentdev-runtime-images`, `spec/standalone-opencode-runtime`, and
-  `spec/devcontainer-git-credentials`, and the keyring terms in the glossary.
+- Remove the keyring terms from the glossary.
 
 ## Dependencies
 

@@ -111,10 +111,9 @@ approval is only as strong as the trust in the repository's writers: the checks
 hold against a commit that leaves the workflow unchanged, not against a writer
 who edits the job.
 
-The gate's full contract lives in the [AI review
-gate](../../../spec/ai-review-gate.md) spec. The boundary between the lifecycle
-scripts and the workflow that supplies their devcontainer contract is recorded
-in [CI agent plugin
+The gate's full contract lives in the AI review gate spec. The boundary between
+the lifecycle scripts and the workflow that supplies their devcontainer contract
+is recorded in [CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md).
 
 **Pull requests can block every review, not the gate.** While the

@@ -20,8 +20,7 @@ Retire the free-form task path in `.github/workflows/ai-responder.yml`:
 - the `claude-task` responder job;
 - the `task` input of `workflow_dispatch`.
 
-Then update [spec/ai-review-gate](../../../spec/ai-review-gate.md) and the
-README to match.
+Then update spec/ai-review-gate and the README to match.
 
 Once `@claude review` is dropped in favour of the assignee trigger, the
 free-form task path is the only remaining reason for three pieces of the

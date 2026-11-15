@@ -250,7 +250,7 @@ metadata.
 
 ## Spec changes
 
-[AI review gate](../../../spec/ai-review-gate.md):
+AI review gate:
 
 ``` markdown
 ## ADDED Requirements

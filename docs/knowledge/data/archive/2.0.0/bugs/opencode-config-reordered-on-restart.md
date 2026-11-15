@@ -14,11 +14,11 @@ severity: low
 
 ## Symptom
 
-[Catalog lifecycle](../../../spec/catalog-lifecycle.md) promises that a
-container restart with an unchanged catalog leaves every client's configuration
-file byte-identical. In `agentdev-deploy`, `~/.config/opencode/opencode.json`
-changed between the first start and the first restart: the `plugin` and `mcp`
-keys moved ahead of `permission`. Later restarts kept the new order.
+Catalog lifecycle promises that a container restart with an unchanged catalog
+leaves every client's configuration file byte-identical. In `agentdev-deploy`,
+`~/.config/opencode/opencode.json` changed between the first start and the first
+restart: the `plugin` and `mcp` keys moved ahead of `permission`. Later restarts
+kept the new order.
 
 ## Reproduction
 

@@ -33,11 +33,11 @@ it.
 The evaluation reads the AI reviewer's newest verdict before it applies the
 scope test. When that verdict is `CHANGES_REQUESTED`, it requests a re-review
 whatever the diff holds, and reports the verdict as the reason. When it is
-`APPROVED`, the scope test decides. The AI reviewer is the author the [AI review
-gate](../../../spec/ai-review-gate.md) accepts — `claude[bot]` or
-`github-actions[bot]` — and its newest verdict is its latest review in state
-`APPROVED` or `CHANGES_REQUESTED`; a later `COMMENTED` review does not replace
-it, matching how GitHub keeps a reviewer's verdict.
+`APPROVED`, the scope test decides. The AI reviewer is the author the AI review
+gate accepts — `claude[bot]` or `github-actions[bot]` — and its newest verdict
+is its latest review in state `APPROVED` or `CHANGES_REQUESTED`; a later
+`COMMENTED` review does not replace it, matching how GitHub keeps a reviewer's
+verdict.
 
 Assumption: an AI reviewer with only `COMMENTED` reviews is left to the scope
 test. `COMMENT` is submitted only when GitHub refuses a verdict on the

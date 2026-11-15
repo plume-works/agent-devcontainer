@@ -430,21 +430,20 @@ requirement, whose delta is in its own entry below.
   - **THEN** each gets its own directory
   ```
 
-- [Update branch](../../../spec/update-branch.md) — `update-branch.sh`
+- Update branch — `update-branch.sh`
 
 - IWE bootstrap — `bootstrap-iwe.sh`
 
 - IWE workflow skills — `close-issue.sh`, `fetch-issue.sh`, `push-branch.sh`
 
-- [Stacked PRs](../../../spec/stacked-prs.md) and PR merge conflicts —
-  `stack-guard.sh`
+- Stacked PRs and PR merge conflicts — `stack-guard.sh`
 
 - AI review refresh — `request-review.sh`
 
 - iwe-branch-name — `git-default-branch.sh`
 
-- [Template consumption](../../../spec/template-consumption.md) —
-  `check-updates.sh`, `scripts/validate-super-linter-tool-versions.sh`
+- Template consumption — `check-updates.sh`,
+  `scripts/validate-super-linter-tool-versions.sh`
 
 ## Verification
 

@@ -220,7 +220,7 @@ Rejected:
 
 ## Spec changes
 
-[AI review gate](../../../spec/ai-review-gate.md):
+AI review gate:
 
 ``` markdown
 ## MODIFIED Requirements

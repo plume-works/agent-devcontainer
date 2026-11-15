@@ -20,11 +20,11 @@ completed: 2026-10-25
 ## Context
 
 [Consumer IWE seed](../../1.0.0/features/consumer-iwe-seed.md) currently
-initializes project memory only as an optional phase of full
-[`template-consume`](../../../spec/template-consumption.md) adoption. The seed
-lives under `templates/iwe/`, outside the installed agentdev catalog, so an
-agent working from a persistent agentdev runtime cannot initialize an unrelated
-mounted repository without also locating an agent-devcontainer source checkout.
+initializes project memory only as an optional phase of full `template-consume`
+adoption. The seed lives under `templates/iwe/`, outside the installed agentdev
+catalog, so an agent working from a persistent agentdev runtime cannot
+initialize an unrelated mounted repository without also locating an
+agent-devcontainer source checkout.
 
 The reusable operation must work directly from the installed catalog and must
 also remain the one initializer used by full adoption. `template-consume` stays
@@ -306,7 +306,7 @@ CI and pre-commit configuration.
   `iwe-map` as the subsequent codebase-mapping operation
 ```
 
-### [Template consumption](../../../spec/template-consumption.md)
+### Template consumption
 
 ``` markdown
 ## REMOVED Requirements

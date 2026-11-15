@@ -29,8 +29,7 @@ container persists on the shared `agentdev-agents-auth` volume.
 every container from `postCreateCommand`, unless
 `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is set.
 
-The contracts are Claude Remote Control and [Devcontainer Git
-credentials](../../../spec/devcontainer-git-credentials.md).
+The contracts are Claude Remote Control and Devcontainer Git credentials.
 
 ## Edge cases
 

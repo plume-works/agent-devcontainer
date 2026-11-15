@@ -418,7 +418,7 @@ pre-commit configuration.
 - **THEN** it reports `iwe-setup` as the next product-onboarding operation
 ```
 
-[Template consumption](../../../spec/template-consumption.md):
+Template consumption:
 
 ``` markdown
 ## MODIFIED Requirements

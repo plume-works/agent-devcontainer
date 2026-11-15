@@ -6,7 +6,6 @@ severity: high
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/firewall.py
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the enabled firewall leaves IPv6 open when `ip6tables` is missing

@@ -77,4 +77,4 @@ necessarily breaks; it cannot see preflight's verdict.
 - Adding a dispatch path for a new event means forwarding a `requester` for it
   too, or the write-access gate silently judges the wrong identity.
 
-See [AI review gate](../../../spec/ai-review-gate.md) for what the gate accepts.
+See AI review gate for what the gate accepts.

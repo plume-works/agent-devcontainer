@@ -15,9 +15,9 @@ sources:
 
 Work that depends on an open pull request is an ordinary pull request whose base
 is its predecessor's branch. No branch is ever rewritten: every update is a
-merge and every push is a plain push. Behavior is specified in [Stacked
-PRs](../../../spec/stacked-prs.md); the user-facing feature is [Manual stacked
-pull requests](../features/manual-stacked-prs.md).
+merge and every push is a plain push. Behavior is specified in Stacked PRs; the
+user-facing feature is [Manual stacked pull
+requests](../features/manual-stacked-prs.md).
 
 ## Recording a dependency
 

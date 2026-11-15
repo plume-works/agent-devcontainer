@@ -33,9 +33,8 @@ customized needs a manual merge rather than a blind overwrite, but nothing
 records *which* paths were customized or *why*, so every update re-derives
 consumer intent from the diff alone.
 
-This extends the [template consumption
-contract](../../../spec/template-consumption.md) and classifies new consumer
-state in [Template boundary](../architecture/template-boundary.md).
+This extends the template consumption contract and classifies new consumer state
+in [Template boundary](../architecture/template-boundary.md).
 
 ## Approach
 
@@ -294,9 +293,8 @@ this way; the root file stays the live record.
 
 ## Spec changes
 
-[Template consumption](../../../spec/template-consumption.md) — contract-heavy:
-the change alters what setup and update must persist, and a wrong `consumed_ref`
-fails silently.
+Template consumption — contract-heavy: the change alters what setup and update
+must persist, and a wrong `consumed_ref` fails silently.
 
 ``` markdown
 ## MODIFIED Requirements

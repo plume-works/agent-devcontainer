@@ -75,9 +75,6 @@ match = "data/releases/**"
 [schemas.task]
 match = ["data/backlog/**", "data/archive/*/backlog/**"]
 
-[schemas.spec]
-match = "data/spec/**"
-
 [schemas.adr]
 match = ["data/adr/**", "data/archive/*/adr/**"]
 
@@ -109,7 +106,6 @@ match = [
   "data/plans",
   "data/releases",
   "data/someday",
-  "data/spec",
 ]
 
 [schemas.tracker]

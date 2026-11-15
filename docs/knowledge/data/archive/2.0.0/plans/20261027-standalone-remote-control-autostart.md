@@ -32,9 +32,9 @@ login in its auth volume. The maintainer asked for standalone support, gated on
 `AGENTDEV_CLAUDE_RC_MODE`, and chose a supervised watcher as what starts Remote
 Control after a login that happens once the runtime is already up.
 
-The contracts are Claude Remote Control and [Standalone OpenCode
-runtime](../../../spec/standalone-opencode-runtime.md), which the [standalone
-OpenCode container plan](20261017-standalone-opencode-container.md) creates.
+The contracts are Claude Remote Control and Standalone OpenCode runtime, which
+the [standalone OpenCode container
+plan](20261017-standalone-opencode-container.md) creates.
 
 ## Approach
 
@@ -394,9 +394,8 @@ runtime's recovery budget for optional services.
   before the bootstrap.
 ```
 
-[Standalone OpenCode runtime](../../../spec/standalone-opencode-runtime.md): the
-image no longer promises never to autostart Claude Code, and Remote Control
-joins the optional services.
+Standalone OpenCode runtime: the image no longer promises never to autostart
+Claude Code, and Remote Control joins the optional services.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -469,9 +468,8 @@ default with an explicit disable option.
 ## Depends on
 
 [Ship a standalone OpenCode
-container](20261017-standalone-opencode-container.md) — it creates [Standalone
-OpenCode runtime](../../../spec/standalone-opencode-runtime.md), which this plan
-modifies.
+container](20261017-standalone-opencode-container.md) — it creates Standalone
+OpenCode runtime, which this plan modifies.
 
 ## Verification
 

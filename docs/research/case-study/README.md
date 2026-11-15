@@ -1,6 +1,6 @@
 # Case study index
 
-Case studies examine adjacent implementations and patterns against the architecture in [`docs/knowledge/data/spec/`](../../knowledge/data/spec.md). They distinguish upstream claims from repository reality and record concrete implications for Claude Self-Improvement.
+Case studies compare adjacent implementations and patterns with the architecture of this repository. They show which claims of the source projects are true in this repository, and they record the specific results for Claude Self-Improvement.
 
 | Case study                                                            | Upstream snapshot                                                                                                                         | Verdict                                                                                                                                                                                                          |
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -4,7 +4,7 @@
 
 This document evaluates the public Scrapeshq article and downloadable implementation plan [I Gave Claude Code Hermes's Best Feature (Steal This)](https://scrapeshq.notion.site/i-gave-claude-code-hermes-s-best-feature-steal-this). The rendered page, original Markdown attachment, and original PDF were captured on 2026-08-04 under [`source/`](source/README.md).
 
-This is descriptive evidence, not a normative requirement. Requirements for this repository remain under [`docs/knowledge/data/spec/`](../../../knowledge/data/spec.md).
+This text gives evidence. It does not give a rule for this repository.
 
 ## Executive summary
 

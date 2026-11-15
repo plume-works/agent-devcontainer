@@ -1,7 +1,7 @@
 ---
 type: bug
 description: Two local pre-commit hooks do not include the pre-merge-commit stage, so a merge that commits without a conflict does not run them.
-stage: pending
+stage: done
 severity: low
 sources:
 - resource: .pre-commit-config.yaml
@@ -32,3 +32,8 @@ file with trailing whitespace or no final newline on a branch.
 `.pre-commit-config.yaml#default_stages` includes `pre-merge-commit`, but the
 two hooks override it: `id: end-of-file-fixer` and `id: trailing-whitespace`
 each set `stages: [pre-commit, pre-push, manual]`.
+
+## Fix
+
+The two hooks do not set `stages`. They use
+`.pre-commit-config.yaml#default_stages`, which includes `pre-merge-commit`.

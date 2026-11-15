@@ -7,7 +7,6 @@ sources:
 - resource: ansible/roles/fish_setup/tasks/main.yml
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the base image writes the fish `PATH` setup into the build user's home

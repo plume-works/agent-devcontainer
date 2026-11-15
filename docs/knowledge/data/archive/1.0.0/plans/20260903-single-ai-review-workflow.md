@@ -35,9 +35,8 @@ by polling, and the coupling fails in both directions:
   the PR head, so a PR that changes the responder is reviewed by the old
   plumbing.
 
-The gate's acceptance policy is kept: any prior accepted review is enough ([AI
-review gate](../../../spec/ai-review-gate.md)), and Codex web reviews must keep
-satisfying it.
+The gate's acceptance policy is kept: any prior accepted review is enough (AI
+review gate), and Codex web reviews must keep satisfying it.
 
 ## Approach
 
@@ -333,8 +332,8 @@ is testable only after the workflow is on `main`, because GitHub resolves
 
 ## Spec changes
 
-[AI review gate](../../../spec/ai-review-gate.md) — contract-heavy: acceptance
-criteria and the security gate change shape.
+AI review gate — contract-heavy: acceptance criteria and the security gate
+change shape.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -445,11 +444,10 @@ and its checks attach to the head commit.
 - **THEN** the bridge fails naming the branch, and no review runs.
 ```
 
-[Template consumption](../../../spec/template-consumption.md) — simple: its "AI
-responder and the review gate" section SHALL describe one workflow file that
-both answers mentions and contributes `ai-review-present`, and the
-`workflow_dispatch` trigger SHALL be listed alongside the default-branch
-requirement for comment mentions.
+Template consumption — simple: its "AI responder and the review gate" section
+SHALL describe one workflow file that both answers mentions and contributes
+`ai-review-present`, and the `workflow_dispatch` trigger SHALL be listed
+alongside the default-branch requirement for comment mentions.
 
 ## Verification
 

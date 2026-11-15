@@ -22,14 +22,12 @@ repos:
         types: [text]
         # The devcontainer CLI writes its lock file without a final newline on every `up`.
         exclude: '^\.devcontainer/devcontainer-lock\.json$'
-        stages: [pre-commit, pre-push, manual]
 
       - id: trailing-whitespace
         name: trim trailing whitespace
         entry: uv run trailing-whitespace-fixer
         language: system
         types: [text]
-        stages: [pre-commit, pre-push, manual]
 
       - id: check-merge-conflict
         name: check for merge conflicts
