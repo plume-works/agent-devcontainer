@@ -60,11 +60,11 @@ software project's memory and system of record. The division of labor:
   inclusion-link their members. Inline links (inside sentences/list items) are
   soft references for cross-cutting relationships.
 - **`SCHEMA.md` is the only definition of the document types.** It gives what
-  each type holds, its path, frontmatter, body, and stages
-  (`SCHEMA.md#what-goes-where`), the hubs (`SCHEMA.md#hubs`), the index file
-  (`SCHEMA.md#index-file`), the build order (`SCHEMA.md#build-order`), and the
-  archive (`SCHEMA.md#archive`). Refer to a section of it. Do not give a
-  definition again in a different file.
+  goes where (`SCHEMA.md#what-goes-where`), the path, frontmatter, body, and
+  stages of each type in a section for that type, the hubs (`SCHEMA.md#hubs`),
+  the index file (`SCHEMA.md#index-file`), the build order
+  (`SCHEMA.md#build-order`), and the archive (`SCHEMA.md#archive`). Refer to a
+  section of it. Do not give a definition again in a different file.
 - **Never put a plan task on `data/index.md` for ordinary document work.**
 - **Queries select documents by `type` and frontmatter fields**, not by hub
   membership.

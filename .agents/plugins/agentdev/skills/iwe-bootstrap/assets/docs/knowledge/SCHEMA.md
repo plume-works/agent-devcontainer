@@ -156,7 +156,8 @@ exceptions: `## Acceptance` and `## Verification` are always there.
   - Wording that the user approved is in a fenced block, word for word.
   - A checkbox that is not ticked has no child. A ticked checkbox (`- [x]`) has
     one indented `- **Evidence:**` child: a short note, in free form, of what
-    was done and how it was checked. Nobody audits the form of the note.
+    was done and how it was checked. A plan does not prescribe the form of the
+    note, and nobody audits it.
 - `## Acceptance` — one `### Scenario:` block for each behaviour that the plan
   adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
   line. Then it has one of two lines: `- **Test:**` names the test that proves
@@ -168,10 +169,11 @@ exceptions: `## Acceptance` and `## Verification` are always there.
   that the section links is a prerequisite. The exception is a section whose
   text starts with `None`: that plan has no prerequisite, and a plan that it
   links is only related.
-- `## Verification` — the commands and tests that prove the work is done.
+- `## Verification` — the commands and tests that the verifier runs to prove
+  that the work is done.
 - `## Verification results` — the results of the `## Verification` checks, and
   findings that change what the plan claims. This is the only narrative section
-  of a plan.
+  of a plan. The writer adds to it while the work is done, not at the end.
 - `## Out of scope` — what the plan does not do.
 - `## Key references` — a list of code anchors, each with a short note. See Code
   anchors.
@@ -186,10 +188,10 @@ exceptions: `## Acceptance` and `## Verification` are always there.
 - **Test:** `scripts/tests/test_check_ship_records.py::test_done_bug_without_fix_fails`
 ```
 
-A milestone is a plan whose children are plans. This aggregator plan has
-inclusion links to its child plans as one flat list. The `rank` of each child
-sets the build order, and dependencies stay in prose. The milestone ships when
-its last child plan ships.
+A milestone is a plan whose children are plans: the work for one release. This
+aggregator plan has inclusion links to its child plans as one flat list. The
+`rank` of each child sets the build order, and dependencies stay in prose. The
+milestone ships when its last child plan ships.
 
 ## Features
 
@@ -238,7 +240,6 @@ severity: high # critical | high | medium | low — required
 
 - `severity` is the effect of the defect when it occurs, not its urgency. It
   does not set `rank`.
-- `priority` is required on a new task.
 - `rank` is optional. See Build order.
 
 | Stage       | Meaning                           | Set by                                             | Location     |
@@ -452,8 +453,9 @@ A tracker is a living document that is edited in place. There are three, each
 with `type: tracker` and `stage: living`.
 
 - `data/product.md` — what the product is, its users, platforms, and stack. Its
-  `## Constraints` and `## Authoring rules` sections bind each plan and each
-  document. Each session reads it first.
+  `## Constraints` section and its optional `## Authoring rules` section bind
+  each plan and each document. Plan and Ship read them before they write. Each
+  session reads it first.
 - `data/milestone.md` — the links to the aggregator plans. See Plans.
 - `data/glossary.md` — the project terms that the prose rule permits.
 
@@ -484,6 +486,7 @@ of its type and is validated in full.
 - The folder is the only record of the release of a document. No document has a
   `released` field. A document that no plan closed is part of the release that
   was open when the document closed.
-- `type: architecture` is valid only under `data/archive/`.
+- `type: architecture` is valid only under `data/archive/`. It is a retired
+  type: a system design note, with the alternatives that were rejected.
 - The `ship-records` check fails when a document is in the incorrect folder for
   its stage.
