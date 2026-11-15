@@ -107,7 +107,10 @@ default branch.
 
 **Closed by:** the first image build on the default branch after this change.
 
-- [ ] The promotion step publishes the tag of the tested image.
+- [x] The promotion step publishes the tag of the tested image.
+  - **Evidence:** in run 43654311837 on `main` at `19156ec6`, the job
+    `Promote development image` called `tag-decision.sh` for each tag, and moved
+    `edge` and `main` of the four images to the tested digests.
 
 ## Acceptance
 
