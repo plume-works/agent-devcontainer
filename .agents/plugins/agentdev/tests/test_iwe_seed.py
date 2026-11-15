@@ -29,7 +29,6 @@ SHARED_KNOWLEDGE_FILES = (
     'README.md',
     'SCHEMA.md',
     'STRUCTURE.md',
-    'CHANGELOG.md',
     'LICENSE.md',
     '.gitignore',
     '.markdownlint.yml',

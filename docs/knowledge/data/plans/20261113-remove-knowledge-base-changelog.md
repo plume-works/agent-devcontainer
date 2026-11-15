@@ -54,14 +54,22 @@ A consumer keeps its own copy of `CHANGELOG.md`. The consumer can delete it.
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CHANGELOG.md`;
 Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 
-- [ ] `docs/knowledge/CHANGELOG.md` does not exist.
-- [ ] The scaffold copy of `CHANGELOG.md` does not exist.
-- [ ] `SHARED_KNOWLEDGE_FILES` in
+- [x] `docs/knowledge/CHANGELOG.md` does not exist.
+  - **Evidence:** Deleted with `git rm`; `test ! -e docs/knowledge/CHANGELOG.md`
+    passes.
+- [x] The scaffold copy of `CHANGELOG.md` does not exist.
+  - **Evidence:** Deleted with `git rm`; `test ! -e` on the scaffold path
+    passes.
+- [x] `SHARED_KNOWLEDGE_FILES` in
   `.agents/plugins/agentdev/tests/test_iwe_seed.py` does not contain
   `'CHANGELOG.md'`.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_seed.py` passes.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
+  - **Evidence:** Removed the entry; `grep CHANGELOG` on the test file finds
+    nothing.
+- [x] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_seed.py` passes.
+  - **Evidence:** Passes, run together with `test_iwe_bootstrap.py`: 35 passed.
+- [x] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
   passes.
+  - **Evidence:** Passes, run together with `test_iwe_seed.py`: 35 passed.
 
 ### Task 2: Remove `CHANGELOG.md` from the `template-consume` lists
 
