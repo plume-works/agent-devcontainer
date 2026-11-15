@@ -219,18 +219,25 @@ Each test shows what the `fate_note` of its row says.
 **Files:** Modify: `.pre-commit-config.yaml`,
 `docs/knowledge/data/archive/next-release/bugs/merge-commit-skips-two-hooks.md`
 
-- [ ] The `end-of-file-fixer` and `trailing-whitespace` hooks in
+- [x] The `end-of-file-fixer` and `trailing-whitespace` hooks in
   `.pre-commit-config.yaml` set no `stages`.
-- [ ] `bugs/merge-commit-skips-two-hooks` is at `stage: done` with a `## Fix`,
+  - **Evidence:** Commit `6e89bf34` removed the `stages` line of each hook. The
+    hook entries in `.pre-commit-config.yaml` now have no `stages` key.
+- [x] `bugs/merge-commit-skips-two-hooks` is at `stage: done` with a `## Fix`,
   in `data/archive/next-release/bugs/`, and has no link in `data/bugs.md`.
+  - **Evidence:** The bug is at `stage: done` with a `## Fix` in
+    `data/archive/next-release/bugs/`, and `data/bugs.md` has no link to it.
 
 ### Task 8: Simplify the gh wrapper
 
 **Files:** Modify: `ansible/roles/github_cli/files/gh`
 
-- [ ] `ansible/roles/github_cli/files/gh` does not use `/usr/bin/gh` when `PATH`
+- [x] `ansible/roles/github_cli/files/gh` does not use `/usr/bin/gh` when `PATH`
   has no other `gh`. It has no `GH_WRAPPER_ACTIVE` guard and no code that
   ignores a second copy of the wrapper.
+  - **Evidence:** Commit `9410c8ed` removed the three parts. `grep` finds no
+    `/usr/bin/gh` and no `GH_WRAPPER_ACTIVE` in the wrapper, `shellcheck`
+    passes, and the 4 tests in `scripts/tests/test_gh_wrapper.py` pass.
 
 ## Acceptance
 
