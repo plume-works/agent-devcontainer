@@ -207,10 +207,9 @@ This repository uses IWE project memory under `docs/knowledge/data/`.
 
 **Never record durable knowledge in an agent's own memory store** — it is wiped
 when the devcontainer is recreated and is invisible to everyone else. Standing
-rules and conventions go in `AGENTS.md`; project state and plans go in
-`docs/knowledge/data/`, a decision in an ADR that a plan proposes under
-`docs/knowledge/data/adr/`, and a measurement in
-`docs/knowledge/data/findings/`. This
+rules and conventions go in `AGENTS.md`. All other durable knowledge goes in
+`docs/knowledge/data/`, in the document type that
+`docs/knowledge/SCHEMA.md#what-goes-where` names. This
 applies to explicit "remember this" requests and to any automatic save the
 harness prompts for. Auto-memory stays enabled for session-local scratch only.
 
@@ -225,16 +224,16 @@ For substantial feature, bug, architecture, or behavior work:
 
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
 
-**A finding gets its own document in `data/findings/`, and the document it
-came from is not edited.** A question that the original work did not scope goes
-in a new document; the original keeps no summary, no section, and no forward link, its
-status line being the only exception, and only when its own acceptance is
-affected. References point newer to older.
+**The documents in `docs/knowledge/schema/` are the only definition of the
+document types.** Each one gives what a type holds, its path, its frontmatter,
+its body, and its stages. `docs/knowledge/SCHEMA.md` gives what goes where. A
+knowledge base document, a skill, or a catalog agent that needs a definition
+names the document, for example `docs/knowledge/schema/bugs.md`. It
+does not give the definition again. A step of a procedure can name the path
+that it writes and the stage that it sets.
 
-A finding document is not a design. It states the measurement, each hypothesis
-already eliminated and what eliminated it, what would settle it, and what
-closing it looks like — including "not worth the cost", recorded as a decision
-rather than left to lapse.
+**A finding gets its own document, and nobody edits the document that it came
+from.** `docs/knowledge/schema/findings.md` defines a finding.
 
 **Do not build instrumentation for a question nobody has framed.** Work proposed
 to answer an open finding stays behind a named hypothesis its output could

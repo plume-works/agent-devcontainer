@@ -28,6 +28,8 @@ term in the same change that first uses it.
   GitHub credentials and limits access to the repositories of the session.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
+- **aggregator plan** (noun): The plan of a milestone, which links its child
+  plans, as `docs/knowledge/schema/plans.md` defines.
 - **AI review gate** (noun): The decisions in
   `.github/actions/ai-review-status/review-gate.js` that control the
   `ai-review-present` check and the trusted-bot approval.
@@ -49,6 +51,8 @@ term in the same change that first uses it.
 - **audit** (verb): To do an audit.
 - **auth volume** (noun): The Docker volume that holds only the Claude
   credentials, which all Dev Container instances of one host user share.
+- **backlog task** (noun): A work item that
+  `docs/knowledge/schema/backlog-tasks.md` defines.
 - **base** (noun): The remote branch that a work branch starts from and merges
   to stay current, `origin/main` by default.
 - **base branch** (noun): The branch that the `paths-filter` action uses as the
@@ -107,6 +111,7 @@ term in the same change that first uses it.
   `agentdev-runtime lifecycle created`, which the supervisor runs one time for
   each container while `postCreateCommand` waits.
 - **credential helper** (noun): The program that git asks for HTTPS credentials.
+- **cut** (verb): To do the release cut for a version.
 - **default branch** (noun): The main branch of a repository: `main`, `master`,
   the branch that `refs/remotes/<remote>/HEAD` names, or the branch that GitHub
   reports.
@@ -127,6 +132,10 @@ term in the same change that first uses it.
 - **disposable volume** (noun): A Docker volume whose name matches
   `docker.py::DISPOSABLE_VOLUME`, which is the only type of volume that a
   garbage collection pass can remove.
+- **document type** (noun): A category of document in `data/` that the documents
+  in `docs/knowledge/schema/` define, such as a plan or a bug.
+- **downstream effect** (noun): A change in a component, a process, or a
+  document that a decision causes after the point where the decision applies.
 - **Durable Knowledge Auditor** (noun): The catalog agent that runs
   `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
 - **durable-knowledge pass** (noun): The pass of a pull request review that runs
@@ -189,6 +198,8 @@ term in the same change that first uses it.
 - **Implement session** (noun): The session that loaded
   `/agentdev:iwe-implement` and follows the `iwe-implementer` rulebook, which
   takes decisions only from its own user.
+- **inclusion link** (noun): A Markdown link on its own line, which makes the
+  target a child of the document in the graph.
 - **instance** (noun): One Dev Container of one checkout or worktree.
 - **iteration** (noun): The number `N` in a plan work branch name, which counts
   the work branches of the plan in all phases.
@@ -230,6 +241,8 @@ term in the same change that first uses it.
 - **metadata gate** (noun): The check of the pull request title and description
   against the diff, which stops the review with a change request before the
   passes.
+- **milestone** (noun): A plan whose children are plans, as
+  `docs/knowledge/schema/plans.md` defines.
 - **model-invocable skill** (noun): A skill that a session can load without a
   command from the user.
 - **monitoring loop** (noun): The cycle of `pr-merge` that refreshes, waits, and
@@ -316,6 +329,8 @@ term in the same change that first uses it.
   a copy of its last head, then merge that copy into the dependent branch.
 - **recovery budget** (noun): The number of restarts that a service of the
   standalone runtime can do, with a delay that doubles after each restart.
+- **reference document** (noun): A finding, a guide, a product-vision document,
+  or a someday idea, as `docs/knowledge/SCHEMA.md#what-goes-where` gives.
 - **refresh** (verb): To restart a client outside its recovery budget, because a
   dependency that it reads at startup recovered.
 - **relay** (noun): The TCP forwarder `.claude/agent-proxy-relay.py` from the
@@ -323,8 +338,12 @@ term in the same change that first uses it.
 - **release cut** (noun): The release mode of `iwe-shipper`, which moves
   `data/archive/next-release/` to the folder of the version and writes the
   release page.
+- **release page** (noun): The document for one cut version that
+  `docs/knowledge/schema/releases.md` defines.
 - **remapped account** (noun): The `agent` account of the image after the
   devcontainer CLI changes its UID and GID to those of the host user.
+- **reorder pull request** (noun): A pull request whose only change is the
+  `rank` of more than one work item.
 - **requirement** (noun): A SHALL statement in a document of the removed
   `data/spec/` folder.
 - **residue** (noun): In a document, text that records the path to a decision
@@ -376,7 +395,10 @@ term in the same change that first uses it.
   review, such as an explicit correction.
 - **slot** (noun): A role in a pull request review, such as the metadata gate or
   the correctness pass, that the effort tier gives a model.
-- **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
+- **slug** (noun): The short name in kebab case in the file name of a document,
+  without a `YYYYMMDD-` prefix.
+- **someday idea** (noun): A reference document that
+  `docs/knowledge/schema/someday-ideas.md` defines.
 - **spawn mode** (noun): How the Remote Control server runs conversations: each
   in its own git worktree, all in the workspace directory, or one conversation
   only.
@@ -407,6 +429,8 @@ term in the same change that first uses it.
 - **tick** (noun): The change of one plan task line from `- [ ]` to `- [x]`.
 - **tick** (verb): To change a plan task line from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
+- **tracker** (noun): A living document that sessions edit in place, as
+  `docs/knowledge/schema/trackers.md` defines.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.
 - **trusted bot** (noun): A bot login in `TRUSTED_BOT_ACTORS`, whose pull

@@ -58,17 +58,20 @@ claims the user gave is not one.
    names its target in the current checkout before relying on it, and correct
    a renamed or removed one — that edit is part of this session's work. An
    anchor carries no date to refresh.
-6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
-   the code; run every test and check required for that task. Closing it is
-   then a single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's
-   indented `- **Evidence:**` child: one short line saying what you did and how
-   you know it works — a test, a command, a file, a manual or live check, a
-   PR, in whatever words fit. It exists only so a box is never ticked for work
-   that was not done; nobody audits its form or re-runs it. The code, the
-   tick, and its evidence line land together in one commit. Do it only when
-   the task's complete specified behavior is implemented and its checks pass,
-   then run `iwe normalize`. Partial work, deferred behavior, or a failing
-   required test or check stays unchecked, with no evidence line.
+6. **Execute the next unchecked task.**
+   - Obey its `**Files:**` list. Write the code. Do each test and each check
+     that the task requires.
+   - Then close the task with one edit. The edit ticks `- [ ]` → `- [x]` and
+     writes the indented `- **Evidence:**` child of the task, as
+     `docs/knowledge/schema/plans.md` defines it. The evidence is a test, a
+     command, a file, a manual check, a live check, or a PR, in free form. Its
+     only function is to make sure that nobody ticks a box for work that nobody
+     did. Nobody does the check again.
+   - The code, the tick, and its evidence line are in one commit.
+   - Close the task only when the code has all the specified behavior of the
+     task and its checks pass. Then run `iwe normalize`.
+   - Partial work, deferred behavior, or a required test or check that fails
+     stays unchecked, with no evidence line.
 
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
@@ -190,15 +193,16 @@ what fixed each finding and names each captured document's key.
 
 ## Capturing what implementation turns up
 
-Implementation findings do not belong in the plan. Route each finding by type:
+Implementation findings do not belong in the plan.
+`docs/knowledge/SCHEMA.md#what-goes-where` gives the document type for each one.
+Route each finding by type:
 
 - A durable design fact — a constraint, a boundary, why the obvious approach
   fails → a plan revision that proposes an ADR, through the revision route in
   `## Running the loop`.
-- A measurement that settles nothing yet → `data/findings/<slug>.md`, linked
-  from `data/findings.md`.
-- A procedure a contributor will repeat → `data/guides/<slug>.md`, linked from
-  `data/guides.md`.
+- A finding or a guide → write the document as
+  `docs/knowledge/schema/findings.md` or `docs/knowledge/schema/guides.md`
+  defines it, and link it from its hub.
 - A defect in shipped behavior, not caused by this work → hand it to the
   `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
   bug bar — no reproduction, no root cause — stays in the handoff report

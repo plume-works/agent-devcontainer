@@ -1,8 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Architecture decision records (data/adr/NNNN-<slug>.md): a short title, then 1
-  to 10 sentences that give the context, the decision, and the reason. An
-  accepted ADR is never edited; a new ADR supersedes it.
+  An ADR (data/adr/NNNN-<slug>.md). The definition is
+  docs/knowledge/schema/adrs.md.
 maxDepth: 2
 sections:
   - header: { pattern: '.+' }

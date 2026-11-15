@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Bug reports, investigations, and repro notes (data/bugs/<slug>.md). Every bug
-  carries a stage and a severity; no body section states lifecycle.
+  A bug (data/bugs/<slug>.md). The definition is
+  docs/knowledge/schema/bugs.md.
 maxDepth: 4
 sections:
   - header:

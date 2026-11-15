@@ -24,9 +24,9 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - Propose (don't yet write) a `data/guides/<slug>.md` for each procedure a contributor must
-     follow that the README does not already give — building, testing,
-     releasing.
+   - Propose a guide (`docs/knowledge/schema/guides.md`) for each applicable
+     procedure, such as the build, the tests, and the release. Do not write the
+     guide at this time.
 4. **Interview.** Ask in batches, conversationally:
    - _Product_: the one-liner; who uses it and for what; who it's not for.
    - _Reality_: current stage, what's shipped vs. aspirational, the next thing
@@ -36,20 +36,23 @@ what the code can't answer. Every future session reads what you write here.
    - _Rules_: recurring instructions they find themselves repeating to agents
      or contributors — these become the Authoring rules section.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
-   instruction lines as sections fill; add a dated entry to its Changelog.
-   Write the guides the developer approved, and link each from
-   `data/guides.md`. Write no spec. A
-   measurement the scan made that settles nothing yet goes to
-   `data/findings/<slug>.md`, linked from `data/findings.md`.
-6. **Close the loop.** Mark the finished onboarding task `fill-product-doc`:
+   instruction lines as sections fill; add a dated entry to its Changelog. Write
+   the guides the developer approved, and link each from `data/guides.md`. A
+   measurement that the scan made is a finding
+   (`docs/knowledge/schema/findings.md`): write it and link it from
+   `data/findings.md`.
+6. **Complete the onboarding.** Close the finished onboarding task
+   `fill-product-doc` as done and move it to the archive, as
+   `docs/knowledge/schema/backlog-tasks.md` and
+   `docs/knowledge/schema/archive.md` give:
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
-   remove any `rank` it carries, move it with
-   `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`,
-   and remove its link from `data/backlog.md`. Delete the example
-   docs — every `*.example.md` under `data/` (`iwe delete <key>` per doc).
-   `iwe delete` removes their inclusion links from hubs automatically but
-   _flattens_ inline links to plain text: sweep the hub files and remaining
-   docs for leftover de-linked example lines and remove them.
+   then
+   `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`.
+   Delete each example document, which is each `*.example.md` under `data/`,
+   with `iwe delete <key>`. `iwe delete` removes their inclusion links from the
+   hubs automatically. It changes each inline link to plain text. Find the lines
+   in the hubs and the other documents that have this plain text. Remove these
+   lines.
 7. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — both
    must pass clean. Commit with a message like
    `setup: product doc filled, first guides drafted, examples removed`.

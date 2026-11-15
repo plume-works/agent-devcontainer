@@ -7,13 +7,13 @@ installs, laid out exactly as it lands in a repository root:
   graph. `[workspace].path = "docs/knowledge"` makes every document key
   relative to `docs/knowledge/`, and `iwe` runs from the repository root.
 - `assets/docs/knowledge/` — the knowledge-base instructions (`AGENTS.md`,
-  `SCHEMA.md`, `STRUCTURE.md`, and their companions), the MIT `LICENSE.md`, and
-  the starting `data/` graph.
+  `SCHEMA.md`, `schema/`, `STRUCTURE.md`, and their companions), the MIT
+  `LICENSE.md`, and the starting `data/` graph.
 
 ## What the graph contains
 
-- **Hubs and trackers** — one per document type, each carrying the conventions
-  its documents follow.
+- **Hubs and trackers** — one hub for each document type. The documents in
+  `schema/` define the types.
 - **`data/product.md`** — the foundation document, left as ✏️ placeholder blocks
   for `/agentdev:iwe-setup` to fill.
 - **Onboarding tasks** under `data/backlog/` — `fill-product-doc` is the one
