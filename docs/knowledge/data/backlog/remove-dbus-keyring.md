@@ -37,9 +37,9 @@ When `gh` finds no keyring, it keeps its token in `~/.config/gh/hosts.yml` with
 mode `0600`. That file gives the same protection as the keyring in the
 container. The bus and the keyring add two supervised services, the order in
 which the supervisor restarts them, health checks, an image `ENV`, and three
-packages. The image `ENV` stops `gh` when it tries to start a D-Bus bus that
-does not stop. This problem occurs only because the images install `dbus-x11`
-and `gnome-keyring`.
+packages. Without the image `ENV`, `gh` starts a D-Bus bus that does not stop.
+The `ENV` prevents this. This problem occurs only because the images install
+`dbus-x11` and `gnome-keyring`.
 
 ## Work
 

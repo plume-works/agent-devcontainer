@@ -57,7 +57,7 @@ def run_gh(
 
 @pytest.fixture
 def wrapped(scratch: Path) -> list[Path]:
-    """Return a ``PATH`` with the wrapper ahead of a stand-in for the real gh."""
+    """Return a ``PATH`` that has the wrapper before a stub of the real gh."""
     install(scratch / 'wrapper', WRAPPER.read_text())
     install(scratch / 'real', REAL_GH)
     return [scratch / 'wrapper', scratch / 'real']

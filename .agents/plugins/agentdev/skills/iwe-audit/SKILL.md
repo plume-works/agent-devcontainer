@@ -21,7 +21,7 @@ Test: would this still be true if the code were rewritten from scratch?
 
 ## Scope
 
-Audit all text that must contain durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
+Check all text that must contain durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
 code comments, and —
 outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
 docstrings.
@@ -30,8 +30,8 @@ Do not audit: `data/bugs/`, `data/releases/`, `data/archive/`, or commit
 messages.
 Process detail is their job; commit messages are owned by
 `/agentdev:git-commit`. Residue in a different document can go into one of these documents. Move the
-residue there. Do not delete it. A plan is audited only in plan mode below, and only its
-intent sections: a plan's `## Verification results` and `- **Evidence:**`
+residue there. Do not delete it. The skill checks a plan only in plan mode below, and it checks only the intent
+sections of the plan: a plan's `## Verification results` and `- **Evidence:**`
 children are narrative-sanctioned and stay out of scope.
 
 **Diff scope.** When a caller runs this skill over a diff, the candidate set is

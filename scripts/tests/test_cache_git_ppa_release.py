@@ -1,4 +1,4 @@
-"""Tests for scripts/cache-git-ppa-release.py against a locally signed fake PPA."""
+"""Tests for scripts/cache-git-ppa-release.py with a test PPA that a local key signs."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ cache = _load_script()
 
 
 def gpg(home: Path, *args: str) -> str:
-    """Run gpg in a scratch home and return its stdout."""
+    """Return the stdout of gpg in a scratch home."""
     return subprocess.run(
         ['gpg', '--homedir', str(home), '--batch', '--pinentry-mode', 'loopback', *args],
         capture_output=True,
@@ -52,7 +52,7 @@ def gpg(home: Path, *args: str) -> str:
 
 
 def new_key(home: Path, name: str) -> str:
-    """Create a signing key in a scratch home and return its fingerprint."""
+    """Return the fingerprint of a new signing key in a scratch home."""
     home.mkdir(mode=0o700)
     gpg(
         home,
@@ -83,7 +83,7 @@ def packages_index(arch: str, debs: dict[str, bytes]) -> bytes:
 
 
 class FakePpa:
-    """The URLs the script downloads, served from memory, and the key that signs them."""
+    """The URLs that the script downloads, which the test serves from memory, and the key that signs them."""
 
     def __init__(self, scratch: Path) -> None:
         self.home = scratch / 'ppa-gnupg'
@@ -102,7 +102,7 @@ class FakePpa:
         self.sign(self.home)
 
     def sign(self, home: Path) -> None:
-        """Publish an InRelease that chains to the current indexes, signed in ``home``."""
+        """Sign an InRelease in ``home`` that has a hash chain to the current indexes, and publish it."""
         rows = ''.join(
             f' {hashlib.sha256(body).hexdigest()} {len(body)} main/binary-{arch}/Packages.gz\n'
             for arch, body in self.indexes.items()
@@ -129,7 +129,7 @@ def scratch() -> Iterator[Path]:
 
 @pytest.fixture
 def ppa(scratch: Path, monkeypatch: pytest.MonkeyPatch) -> FakePpa:
-    """Serve a signed fake PPA, pin its key in the script, and record ``gh`` calls."""
+    """Give a signed test PPA whose key the script pins, and record the ``gh`` calls."""
     fake = FakePpa(scratch)
     key_file = scratch / 'pinned.asc'
     key_file.write_text(gpg(fake.home, '--armor', '--export', fake.fingerprint))

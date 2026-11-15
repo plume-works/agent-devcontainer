@@ -1,6 +1,6 @@
 # Case study index
 
-Case studies examine adjacent implementations and patterns against the architecture of this repository. They show which upstream claims are true in this repository, and they record the specific results for Claude Self-Improvement.
+Case studies compare adjacent implementations and patterns with the architecture of this repository. They show which claims of the source projects are true in this repository, and they record the specific results for Claude Self-Improvement.
 
 | Case study                                                            | Upstream snapshot                                                                                                                         | Verdict                                                                                                                                                                                                          |
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

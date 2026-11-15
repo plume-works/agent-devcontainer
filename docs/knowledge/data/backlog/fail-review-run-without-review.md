@@ -15,8 +15,8 @@ rank: 1400
 
 A `Claude PR Review Responder` job can finish green without publishing a review,
 and `ai-review-present` passes it on an earlier review: the gate asserts that
-the pull request was reviewed, not that this run reviewed it. This is
-intentional, because a review for each commit costs too much. Thus the run must
+the pull request was reviewed, not that this run reviewed it. The gate does this
+on purpose, because a review for each commit costs too much. Thus the run must
 fail when it published no review. If it does not fail, nobody sees a missing
 re-review.
 

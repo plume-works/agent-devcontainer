@@ -182,7 +182,7 @@ def test_failing_check_ignore_keeps_every_candidate(
 def test_missing_git_falls_back_to_excluded_dirs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, matcher_case
 ) -> None:
-    """With no ``git`` on ``PATH``, discovery walks a repository with ``excluded_dirs`` and does not stop."""
+    """With no ``git`` on ``PATH``, discovery examines a repository with ``excluded_dirs`` and does not stop."""
     find_files, filename, body = matcher_case
     repo = tmp_path / 'workspace'
     repo.mkdir()

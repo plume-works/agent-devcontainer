@@ -15,9 +15,9 @@ The decisions for this procedure are in
 
 ### 1. Attach the Coder agent start, or opt in the standalone runtime
 
-On Coder, the workspace template's `coder_script` on the dev container's
-sub-agent runs the repository's agent-start command, by default
-`agentdev-runtime coder start`, on every agent start, and that command execs
+On Coder, the `coder_script` of the workspace template runs the agent-start
+command of the repository on each agent start. The default command is
+`agentdev-runtime coder start`. That command starts
 `agentdev-runtime remote-control start`. The `coder_script` runs nothing when
 the repository has no agent-start command.
 

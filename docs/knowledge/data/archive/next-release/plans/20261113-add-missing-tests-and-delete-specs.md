@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-13
 release: internal
-description: Add a test for each behaviour that only a spec states, move the last spec text to its home, and delete data/spec/ with its schema, its hub, and every reference to it.
+description: Add the missing tests. Move the last spec text to its home. Delete data/spec/, its schema, its hub, and each reference to it.
 sources:
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
 - resource: .iwe/config.toml
