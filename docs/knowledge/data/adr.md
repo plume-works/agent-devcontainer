@@ -276,3 +276,9 @@ library](adr/0090-self-improve-runtime-uses-only-the-standard-library.md)
 
 [Both harnesses permit a subagent depth of 5 in the
 containers](adr/0091-subagent-nesting-depth-five.md)
+
+[The commit that ticks a plan task carries its
+evidence](adr/0092-completion-evidence-in-the-commit-message.md)
+
+[Code first, git history second, documents
+last](adr/0093-code-then-git-history-then-documents.md)

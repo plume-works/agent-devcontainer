@@ -14,5 +14,10 @@ moves it to `archive/` and removes it from this list.*
 [Add the missing tests and delete the
 specs](plans/20261113-add-missing-tests-and-delete-specs.md)
 
+[Put task evidence in the commit
+message](plans/20261115-completion-evidence-in-commit-messages.md)
+
+[Put decisions in the git history](plans/20261115-decisions-in-git-history.md)
+
 [Test the decisions that the workflows
 make](plans/20261113-test-the-workflow-decisions.md)

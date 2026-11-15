@@ -89,6 +89,9 @@ term in the same change that first uses it.
   and not on the computer of the user.
 - **Coder user secret** (noun): A value for one user, such as `GITHUB_TOKEN`,
   that Coder puts only in the environment of its agent.
+- **completion evidence block** (noun): The lines from `---` and
+  `completion evidence:` to the next `---` in the message of the commit that
+  ticks a plan task, which say what was done and how it was checked.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
 - **consumer** (noun): A repository that adopted this template or that uses the
@@ -289,6 +292,8 @@ term in the same change that first uses it.
   workspace, without the extension.
 - **plan state** (noun): The state of a plan that `iwe-branch-name` reads from
   the working tree: `missing`, `cancelled`, `done`, `complete`, or `incomplete`.
+- **plan task** (noun): One checkbox item `- [ ]` or `- [x]` in the task section
+  of a plan.
 - **plugin cache** (noun): The directory in the home directory of the user where
   the agent client installs the plugin, and from which the scripts of the plugin
   run.
@@ -416,6 +421,8 @@ term in the same change that first uses it.
   the older `## Tasks` section, where a checkbox counts as a task.
 - **tense split** (noun): The rule that closed work goes under Verification and
   open work goes under Reviewer Handoff in a pull request description.
+- **tick** (noun): The change of one plan task line from `- [ ]` to `- [x]`.
+- **tick** (verb): To change a plan task line from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.
