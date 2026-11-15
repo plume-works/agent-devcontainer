@@ -1,6 +1,6 @@
 ---
 type: product-vision
-description: A report on the state of work keeps what is done apart from what is still to do, and states only what no check or other document states.
+description: A report on the state of work keeps what is done apart from what is still to do. It states only what no check or other document states.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
@@ -10,23 +10,23 @@ sources:
 
 # Evidence and outstanding work
 
-A document that reports on the state of work, such as a plan, a pull request
-body, or a release page, must let the reader know on each line one of two
-things. Either the line tells the reader a fact, or it gives the reader work to
-do.
+Some documents give the state of work, for example a plan, a pull request body,
+or a release page. Each line of such a document must do one of two things.
+Either the line tells the reader a fact, or it gives the reader work to do.
 
 ## Done and not done stay apart
 
-Evidence is a command that ran and a result that the writer read. Work that
-somebody must still do is never written as evidence. An item that only a party
-outside the session can close, such as a CI run, a review, or a person with
-special access, stays open and names that party.
+Evidence is a command that ran and a result that the writer read. A writer never
+records work that somebody must still do as evidence. Some items can close only
+from outside the session, for example by a CI run, a review, or a person with
+special access. Such an item stays open and names who closes it.
 
 ## A document states only what nothing else states
 
 A check that runs on each push is better evidence than a sentence that says the
-same thing. A fact that another document owns is linked, not copied. What
-remains after these two cuts is the part that a reader must read.
+same thing. When another document records a fact, the writer links to that
+document and does not copy the fact. After the writer removes these two types of
+text, the text that remains is the part that a reader must read.
 
 The `pr-gen-description` and `code-review-standards` skills apply these
 principles to pull request bodies. The `iwe-verifier` and `iwe-shipper`

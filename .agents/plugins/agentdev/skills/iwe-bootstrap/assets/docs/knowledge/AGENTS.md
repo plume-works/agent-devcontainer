@@ -72,7 +72,7 @@ software project's memory and system of record. The division of labor:
      from `data/findings.md`.
    - Procedure a contributor repeats → `data/guides/<slug>.md` + link from
      `data/guides.md`.
-   - Vision insight → `data/product-vision/<slug>.md`.
+   - Product vision → `data/product-vision/<slug>.md`.
    - Task finished → `stage: done` + `completed` on the task doc, `rank`
      removed, moved to `data/archive/next-release/backlog/` with its hub link
      removed.

@@ -127,7 +127,7 @@ When the user wants a record, select the applicable destination:
   and `## Closing`. Link the document from `data/findings.md`.
 - **A procedure that a contributor will repeat:** Write `data/guides/<slug>.md`.
   Link the document from `data/guides.md`.
-- **A lasting principle:** Write `data/product-vision/<slug>.md`.
+- **A principle that stays true:** Write `data/product-vision/<slug>.md`.
   Link the document from `data/product-vision.md`.
 - **An established defect, proposed feature, or actionable task:** Hand the
   settled content to `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.

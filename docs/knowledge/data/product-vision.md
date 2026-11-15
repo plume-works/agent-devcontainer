@@ -1,6 +1,6 @@
 ---
 type: hub
-description: Product vision and the principles that outlive any single release.
+description: Product vision and the principles that stay true in each release.
 stage: living
 ---
 
