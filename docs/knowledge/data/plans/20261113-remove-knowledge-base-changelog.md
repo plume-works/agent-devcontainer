@@ -39,17 +39,12 @@ Delete the two files. Remove `CHANGELOG.md` from the test list, from the two
 `template-consume` lists, and from the task
 `data/backlog/migrate-earlier-iwe-scaffold.md`.
 
-A change to the bootstrap script is not necessary. It reports a missing scaffold
-file as a conflict. It does not report a file that the scaffold does not
-contain, such as `CHANGELOG.md` in a `docs/knowledge/` tree that an earlier
-scaffold installed.
+A change to the bootstrap script is not necessary. The bootstrap script writes a
+`CONFLICT` line for a scaffold file that is not in the `docs/knowledge/` tree.
+It does not report a file that the scaffold does not contain, such as
+`CHANGELOG.md` in a `docs/knowledge/` tree that an earlier scaffold installed.
 
 A consumer keeps its own copy of `CHANGELOG.md`. The consumer can delete it.
-
-Rejected: **move the `### Migration` steps of `CHANGELOG.md` to a different
-document.** The [Migrate a repository that consumed the earlier IWE
-scaffold](../backlog/migrate-earlier-iwe-scaffold.md) task owns the migration of
-a consumer.
 
 ## Implementation Steps
 
@@ -92,12 +87,19 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
   to decide.
   ```
 
-## Spec changes
+## Acceptance
 
-`None — no behavioral change`. This plan does not change the behavior of the
-code. The [IWE bootstrap](../spec/iwe-bootstrap.md) and [Template
-consumption](../spec/template-consumption.md) specifications do not name
-`CHANGELOG.md`.
+### Scenario: A new scaffold has no `CHANGELOG.md`
+
+- **WHEN** `/agentdev:iwe-bootstrap` installs the scaffold in a repository that
+  has no scaffold
+- **THEN** the installed `docs/knowledge/` tree does not contain `CHANGELOG.md`
+- **Test:**
+  `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py::test_fresh_install_creates_the_packaged_scaffold`
+
+The test compares the installed tree with the scaffold. For this reason, the
+test shows that the scenario is true only after Task 1 deletes the scaffold
+copy.
 
 ## Verification
 
@@ -117,7 +119,10 @@ uv run scripts/check-anchors.py
   scaffold copy.
 - The copy of `CHANGELOG.md` in a consumer repository.
 - The documents under `docs/knowledge/data/archive/` that name `CHANGELOG.md`.
-- A new place for the `### Migration` steps of `CHANGELOG.md`.
+- A new place for the `### Migration` steps of `CHANGELOG.md`. The [Migrate a
+  repository that consumed the earlier IWE
+  scaffold](../backlog/migrate-earlier-iwe-scaffold.md) task gives the migration
+  steps for a consumer.
 
 ## Key references
 
@@ -125,7 +130,10 @@ uv run scripts/check-anchors.py
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CHANGELOG.md`
   — the scaffold copy that this plan deletes.
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py::Bootstrap.check_existing`
-  — reports a missing scaffold file as a conflict and ignores an extra file.
+  — writes a `CONFLICT` line for a scaffold file that is not in the tree, and
+  does not write one for a file that the scaffold does not contain.
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py::test_fresh_install_creates_the_packaged_scaffold`
+  — installs the scaffold and compares the installed tree with the scaffold.
 - `.agents/plugins/agentdev/tests/test_iwe_seed.py::SHARED_KNOWLEDGE_FILES` —
   the list of shared files.
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md#default-template-surface`
