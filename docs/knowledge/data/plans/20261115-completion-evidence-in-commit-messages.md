@@ -29,22 +29,26 @@ no reader.
 The Implement session ticks one plan task in a commit and writes a completion
 evidence block in the commit message. The diff shows which plan task the commit
 ticks, so the block names no task. One script, `scripts/completion-evidence.py`,
-has three subcommands:
+has two subcommands:
 
 - `check-message` runs as a `commit-msg` hook. It reads the staged diff of
   `docs/knowledge/data/plans/` and the message file.
-- `check-range` runs in the `pre-commit` job of `primary-checks.yml` for a pull
-  request. It checks each commit of the pull request that is not a merge commit.
 - `show` prints the ticked plan task and the block of each commit of a pull
   request from `refs/pull/<N>/head`. These commits stay there after the squash
   merge.
 
 A tick is the change of a line `- [ ] <text>` to `- [x] <text>` in a file under
-`docs/knowledge/data/plans/`. Both checks apply two rules to a commit that ticks
+`docs/knowledge/data/plans/`. The hook applies two rules to a commit that ticks
 a plan task. The commit ticks only one plan task. The message has one completion
-evidence block that contains text. The checks do not examine a merge commit,
-because it brings ticks from other commits. The `plan-checkboxes` check keeps
-only the rule that a plan at `stage: done` has no unticked task.
+evidence block that contains text. The hook does not examine a merge commit,
+because it brings ticks from other commits.
+
+No CI check examines the commits of a pull request. A failure of such a check is
+on a pushed commit, and only `git commit --amend` or `git rebase` can correct a
+pushed commit. The rules of this repository do not permit either. A commit that
+does not run the hook has no block, and `show` then prints no evidence for its
+tick. The `plan-checkboxes` check keeps only the rule that a plan at
+`stage: done` has no unticked task.
 
 ## Implementation Steps
 
@@ -75,17 +79,7 @@ bla bla bla
 - [ ] `check-message` exits 0 while a merge is in progress (`MERGE_HEAD` exists)
   in the fixture repository, and the test passes.
 
-### Task 2: Check each commit of a range
-
-**Files:** Modify: `scripts/completion-evidence.py`,
-`scripts/tests/test_completion_evidence.py`
-
-- [ ] `check-range <from> <to>` exits 1 and names the commit when one commit in
-  the range breaks a rule, and the test passes.
-- [ ] `check-range` ignores a merge commit in the range that adds ticks from a
-  different branch, and the test passes.
-
-### Task 3: Show the evidence of a pull request
+### Task 2: Show the evidence of a pull request
 
 **Files:** Modify: `scripts/completion-evidence.py`,
 `scripts/tests/test_completion_evidence.py`
@@ -94,10 +88,10 @@ bla bla bla
 ticked plan task and the block of each commit that is not a merge commit and
 that is not on `main`. The test uses a bare fixture repository as `origin`.
 
-- [ ] `show <N>` prints each ticked plan task with its block, oldest first, for
-  a pull request whose branch merged `main` one time, and the test passes.
+- [ ] For a pull request whose branch merged `main` one time, `show <N>` prints
+  each ticked plan task with its block, oldest first. The test passes.
 
-### Task 4: Run the check at commit time
+### Task 3: Run the check at commit time
 
 **Files:** Modify: `.pre-commit-config.yaml`,
 `py_packages/agentdev_runtime/agentdev_runtime/project.py`, `.claude/startup.py`
@@ -110,21 +104,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   `uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py`
   passes.
 
-### Task 5: Run the check in CI
-
-**Files:** Modify: `.github/workflows/primary-checks.yml`
-
-- [ ] The `pre-commit` job of `.github/workflows/primary-checks.yml` has a step
-  that runs `check-range` on the `from_ref` and `to_ref` of the `range` step,
-  only for a `pull_request` event. Actionlint and zizmor pass.
-
-### Task 6: Observe the CI check on a pull request
-
-**Closed by:** the `pre-commit` job of the pull request of this plan.
-
-- [ ] The `check-range` step runs on the pull request and passes.
-
-### Task 7: Remove the evidence-line rule from the plan-checkboxes check
+### Task 4: Remove the evidence-line rule from the plan-checkboxes check
 
 **Files:** Modify: `docs/knowledge/tests/test_plan_checkboxes.py`
 
@@ -132,7 +112,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   that rule. A new test shows that a ticked task with no evidence line passes.
   `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py` passes.
 
-### Task 8: Change the rules that name the evidence line
+### Task 5: Change the rules that name the evidence line
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
@@ -156,13 +136,21 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   `rg -n 'Evidence:\*\*|evidence line' .agents/plugins/agentdev/agents/iwe-implementer.agent.md .agents/plugins/agentdev/agents/iwe-planner.agent.md .agents/plugins/agentdev/agents/iwe-verifier.agent.md .agents/plugins/agentdev/agents/iwe-plan-reviewer.agent.md .agents/plugins/agentdev/skills/iwe-plan-review/references/plan-rules.md .agents/plugins/agentdev/skills/iwe-audit/SKILL.md`
   prints nothing.
 - [ ] `pr-gen-description/SKILL.md` Step 5 says that the commits of the pull
-  request hold the task evidence.
+  request contain the task evidence.
 - [ ] Both copies of `docs/knowledge/AGENTS.md` replace the evidence-line rule
   with the commit-message rule, and `diff` of the two copies prints nothing.
 - [ ] Both copies of `docs/knowledge/CHANGELOG.md` have an `[Unreleased]` entry
   for the change, and `diff` of the two copies prints nothing.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
+
+### Task 6: Examine the commits of the first plan after the change
+
+**Closed by:** the user, on the first pull request that an Implement session
+makes for a plan after this change is on `main`.
+
+- [ ] `scripts/completion-evidence.py show <N>` prints one ticked plan task and
+  one completion evidence block for each commit that ticks a plan task.
 
 ## Acceptance
 
@@ -188,7 +176,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 - **THEN** `check-message` exits 1
 - **Test:** `scripts/tests/test_completion_evidence.py::test_two_ticks_fail`
 
-### Scenario: A commit with no tick needs no block
+### Scenario: A block is not necessary for a commit with no tick
 
 - **WHEN** a commit ticks no plan task
 - **THEN** `check-message` exits 0 for any message
@@ -202,21 +190,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 - **Test:**
   `scripts/tests/test_completion_evidence.py::test_merge_in_progress_is_skipped`
 
-### Scenario: The range check finds a bad commit
-
-- **WHEN** one commit of a range ticks a plan task with no block
-- **THEN** `check-range` exits 1 and names that commit
-- **Test:**
-  `scripts/tests/test_completion_evidence.py::test_range_names_bad_commit`
-
-### Scenario: The range check ignores merge commits
-
-- **WHEN** a range holds a merge commit that adds ticks from a different branch
-- **THEN** `check-range` exits 0 when each other commit obeys the rules
-- **Test:**
-  `scripts/tests/test_completion_evidence.py::test_range_ignores_merges`
-
-### Scenario: Show prints the evidence of a pull request
+### Scenario: `show` prints the evidence of a pull request
 
 - **WHEN** `show <N>` runs for a pull request whose commits tick plan tasks with
   blocks
@@ -235,10 +209,11 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 
 ### Scenario: The Implement session writes evidence in the commit message
 
-- **WHEN** the Implement session completes a plan task
+- **WHEN** the Implement session finishes a plan task
 - **THEN** `iwe-implementer.agent.md` tells it to tick one plan task and to
-  write the completion evidence block in the message of that commit. It tells it
-  to write no evidence line in the plan
+  write the completion evidence block in the message of that commit.
+  `iwe-implementer.agent.md` tells the Implement session to write no evidence
+  line in the plan
 - **Checked at ship:**
   `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
@@ -254,8 +229,6 @@ uv run pytest scripts/tests/test_completion_evidence.py
 uv run pytest docs/knowledge/tests/test_plan_checkboxes.py
 uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py
 uv run validate_agent_files --recommend . --require-marketplace claude
-uv run pre-commit run --all-files actionlint
-uv run pre-commit run --all-files zizmor
 diff docs/knowledge/AGENTS.md .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md
 diff docs/knowledge/CHANGELOG.md .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CHANGELOG.md
 ```
@@ -265,8 +238,11 @@ diff docs/knowledge/CHANGELOG.md .agents/plugins/agentdev/skills/iwe-bootstrap/a
 - A change to the evidence lines of closed or archived plans. They stay as they
   are.
 - A check in a consumer repository. The catalog rules tell the Implement session
-  what to write. The hook and the CI check are in this repository only.
-- A check of the text in a block. The checks examine only its shape.
+  what to write. The hook is in this repository only.
+- A check of the text in a block. The hook examines only the format of the
+  block.
+- A CI check of the commits of a pull request. Only a change to pushed commits
+  can correct a failure of that check.
 - The `## Decisions` section of the pull request body, and the sequence of
   sources that an agent reads to find an answer. [Put decisions in the git
   history](20261115-decisions-in-git-history.md) changes them.
@@ -287,10 +263,6 @@ diff docs/knowledge/CHANGELOG.md .agents/plugins/agentdev/skills/iwe-bootstrap/a
   the hook types that the runtime installs.
 - `.claude/startup.py` › "HOOK_TYPES =" — the hook types that a cloud session
   installs.
-- `.github/workflows/primary-checks.yml#jobs.pre-commit` — the job that receives
-  the new CI step.
-- `scripts/pre-commit-ci-range.py::outputs` — the step that gives `from_ref` and
-  `to_ref` for a pull request.
 - `scripts/tests/test_gitleaks_hook.py` — a test that runs a hook in a temporary
   repository.
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps` › "Closing it

@@ -11,8 +11,8 @@ supersedes:
 The evidence for a ticked plan task is a completion evidence block in the
 message of the commit that ticks the box. The diff of that commit shows which
 box it ticks, so the block names no task. A commit ticks one box at most, and a
-`commit-msg` hook and a CI check on each pull request enforce the two rules. The
-plan carries no `- **Evidence:**` line.
+`commit-msg` hook enforces the two rules. The plan carries no `- **Evidence:**`
+line.
 
 ## Considered Options
 
@@ -23,11 +23,14 @@ plan carries no `- **Evidence:**` line.
   and a number can be incorrect.
 - Many ticks in one commit. Rejected: one block cannot tell which text belongs
   to which box, and a find-and-replace can tick each box in a file.
+- A CI check of each commit of a pull request. Rejected: the failure is on a
+  pushed commit, and only an amend or a rebase can correct it. This repository
+  does not permit a rewrite of pushed history.
 
 ## Consequences
 
 - After the squash merge, the commits of a pull request with their blocks are
   only at `refs/pull/<N>/head` on GitHub. `scripts/completion-evidence.py show`
   reads them from there.
-- A commit that skips the hooks with `--no-verify` still fails the CI check of
-  its pull request.
+- A commit that skips the hook with `--no-verify` gets through. `show` then
+  prints no evidence for its tick.
