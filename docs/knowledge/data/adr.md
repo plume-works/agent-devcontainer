@@ -7,7 +7,7 @@ stage: living
 # 🏛️ ADRs
 
 *One decision per document in `adr/NNNN-<slug>.md`, `type: adr`: a short title,
-then 1 to 3 sentences that give the context, the decision, and the reason. This
+then 1 to 10 sentences that give the context, the decision, and the reason. This
 hub lists each ADR at `stage: proposed` or `stage: accepted`. Nobody edits an
 accepted ADR; a new ADR supersedes it.*
 
@@ -270,3 +270,9 @@ containers](adr/0091-subagent-nesting-depth-five.md)
 
 [The Remote Control server runs by
 default](adr/0092-remote-control-server-on-by-default.md)
+
+[The commit that ticks a plan task contains its
+evidence](adr/0093-completion-evidence-in-the-commit-message.md)
+
+[Code first, git history second, documents
+last](adr/0094-code-then-git-history-then-documents.md)
