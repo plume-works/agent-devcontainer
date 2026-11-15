@@ -141,7 +141,7 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'docker': (_docker, 'the nested Docker engine and its garbage collection'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
-    'remote-control': (_remote_control, 'the Claude Remote Control watcher, start, pane, and pin'),
+    'remote-control': (_remote_control, 'the Claude Remote Control watcher and start'),
     'state': (_state, 'agent state: policy and pre-approval'),
     'xpra': (_xpra, 'the Xpra server with its HTML5 client'),
     'opencode': (_opencode, 'the OpenCode server, its probe, its link, and its Coder start'),

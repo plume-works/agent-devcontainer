@@ -64,7 +64,6 @@ class Watch:
             'AGENTDEV_HEALTH_INTERVAL': '0.1',
             'DEV_WORKSPACE_FOLDER': str(root),
             'CLAUDE_CODE_OAUTH_TOKEN': 'setup-token',
-            'AGENTDEV_CLAUDE_RC_MODE': 'server',
             **settings,
         }
         self.process: subprocess.Popen[str] | None = None
@@ -215,7 +214,7 @@ def test_a_failing_start_ends_the_watcher_with_its_status(make):
     assert 'Failed to start Claude Remote Control' in watch.process.stderr.read()
 
 
-def test_an_empty_spawn_mode_does_not_reach_the_start_script(make):
+def test_an_empty_spawn_mode_starts_the_worktree_server(make):
     watch = make(AGENTDEV_CLAUDE_RC_SPAWN='')
     watch.login()
     watch.start()
