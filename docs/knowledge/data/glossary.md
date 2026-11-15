@@ -263,6 +263,8 @@ term in the same change that first uses it.
   the diff with one focus list.
 - **pass** (noun): In Docker garbage collection, one run of
   `agentdev-runtime docker gc`.
+- **per-worktree catalog** (noun): The catalog that a worktree loads from the
+  marketplace in that worktree, as ADR-0057 records.
 - **phase** (noun): The part of the plan lifecycle that a plan work branch is
   for: `plan`, `impl`, or `ship`.
 - **pin file** (noun): A file in `scripts/refresh-pin-checksums.py::PIN_FILES`
@@ -277,8 +279,6 @@ term in the same change that first uses it.
   the working tree: `missing`, `cancelled`, `done`, `complete`, or `incomplete`.
 - **plan task** (noun): One checkbox item `- [ ]` or `- [x]` in the task section
   of a plan.
-- **per-worktree catalog** (noun): The catalog that a worktree loads from the
-  marketplace in that worktree, as ADR-0057 records.
 - **plugin cache** (noun): The directory in the home directory of the user where
   the agent client installs the plugin, and from which the scripts of the plugin
   run.
