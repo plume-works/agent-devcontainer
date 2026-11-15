@@ -45,8 +45,8 @@ the reason for each decision and names the document that defines it.
 conflict on a hub only when their members sort next to each other.
 
 **Work items and reference documents** (`SCHEMA.md#what-goes-where`). Only a
-work item has a lifecycle, so only a work item has a `stage`. Each document is
-validated, but only a work item must have more than a `type`.
+work item has a lifecycle, so only a work item has a `stage`. A schema validates
+each document, but only a work item must have more than a `type`.
 
 **Frontmatter is the only record of state**
 (`schema/fields-every-type-carries.md`). A stage change then edits one file, and
@@ -61,23 +61,23 @@ statement with two homes becomes incorrect in the home that nobody maintains.
 schema of its type continues to check it. The folder is the only record of the
 release, so no field repeats it.
 
-**Relationships are links, not fields.** A relation between documents (plan →
-ADR, plan → feature, plan → plan) is a Markdown link in the body. The reader
-sees it in the text, and `iwe find --references` follows it.
+**Relations are links, not fields.** A relation between documents (plan → ADR,
+plan → feature, plan → plan) is a Markdown link in the body. The reader sees it
+in the text, and `iwe find --references` follows it.
 
-**The funnel.** An idea becomes firm in steps: a someday idea, a backlog task, a
-plan, a shipped plan in the archive, a cut release. Each step is a new document,
-a frontmatter change, or a move to the archive.
+**An idea becomes firm in steps.** The steps are a someday idea, a backlog task,
+a plan, a shipped plan in the archive, a cut release. Each step is a new
+document, a frontmatter change, or a move to the archive.
 
 **Nobody edits an accepted ADR** (`schema/adrs.md`). A reader then sees each
-decision as it was made.
+decision in its initial form.
 
 **Acceptance is in the plan** (`schema/plans.md`). Verify checks the scenarios
 against the code before Ship. Ship copies nothing: the scenarios stay in the
 archived plan.
 
 **The release cut reads the archive** (`schema/releases.md`). The archived plans
-are what changed, so the page needs no link to a document that was written
+are what changed, so the page needs no link to a document that a session wrote
 before the work.
 
 **A milestone is a plan of plans** (`schema/plans.md`). The graph already gives

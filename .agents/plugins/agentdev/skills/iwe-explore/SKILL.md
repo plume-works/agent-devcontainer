@@ -128,9 +128,10 @@ When the user wants a record, select the applicable destination:
   `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.
   `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
   check. If the investigation started from a GitHub issue, include `ISSUE_URL`.
-  The captured document links the issue and closes the issue. If a finding
-  belongs to an active plan, use `## During implementation` instead. Return the
-  finding to that plan. Do not create a separate document beside the plan.
+  The captured document links the issue and closes the issue.
+- **A finding that belongs to an active plan:** Use
+  `## During implementation` instead. Return the finding to that plan. Do not
+  create a separate document beside the plan.
 - **Work ready for implementation:** Write a handoff. Ask the user to run
   `/agentdev:iwe-plan` with the handoff. The investigation supplies the plan's
   `## Context` and `## Approach`. Only the user starts `/agentdev:iwe-plan`.

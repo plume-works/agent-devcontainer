@@ -48,11 +48,11 @@ what the code can't answer. Every future session reads what you write here.
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
    then
    `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`.
-   Delete the example docs — every `*.example.md` under `data/`
-   (`iwe delete <key>` per doc). `iwe delete` removes their inclusion links from
-   hubs automatically but _flattens_ inline links to plain text: sweep the hub
-   files and remaining docs for leftover de-linked example lines and remove
-   them.
+   Delete each example document, which is each `*.example.md` under `data/`,
+   with `iwe delete <key>`. `iwe delete` removes their inclusion links from the
+   hubs automatically. It changes each inline link to plain text. Find the lines
+   in the hubs and the other documents that have this plain text. Remove these
+   lines.
 7. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — both
    must pass clean. Commit with a message like
    `setup: product doc filled, first guides drafted, examples removed`.

@@ -4,7 +4,7 @@ Finished work goes to the archive, and nobody deletes it. `data/archive/` has
 one folder for each cut version, and the folder `next-release`. Each folder has
 the subfolder that its documents were in: `plans/`, `bugs/`, `backlog/`,
 `features/`, `adr/`, or `architecture/`. Each archived document keeps the schema
-of its type and is validated in full.
+of its type, and the schema validates it in full.
 
 - The session that closes a plan, a bug, a task, a feature, or an ADR moves it
   to `data/archive/next-release/<folder>/` with `iwe rename`. The same change

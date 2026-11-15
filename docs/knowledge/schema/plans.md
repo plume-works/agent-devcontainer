@@ -56,7 +56,8 @@ exceptions: `## Acceptance` and `## Verification` are always there.
   line. Then it has one of two lines. `- **Test:**` names the test that proves
   the scenario, as `path::test_name`. `- **Checked at ship:**` is for behaviour
   that no test can reach. It names the rulebook or the file that the verifier
-  reads. A plan that changes no behaviour writes `None — no behavioral change`.
+  reads.
+  - A plan that changes no behaviour writes `None — no behavioral change`.
 - `## ADRs` — one link for each ADR that the plan proposes.
 - `## Depends on` — inline links to the plans that must ship first. Each plan
   that the section links is a prerequisite. The exception is a section whose

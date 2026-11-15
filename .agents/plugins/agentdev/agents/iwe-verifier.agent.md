@@ -125,9 +125,10 @@ then:
   with its ID: `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION.
   The numbers start at 1 for each severity, in report order. Then the finding
   gives its anchored evidence or the label "unverified", and its recommendation.
-  An anchor has a form that `docs/knowledge/schema/code-anchors.md` gives, never
-  a line number. Its `path` is never absolute, so the report reads the same from
-  any checkout. Audit mode gives its findings IDs in the same way.
+  Audit mode gives its findings IDs in the same way.
+  - An anchor has a form that `docs/knowledge/schema/code-anchors.md` gives,
+    never a line number. Its `path` is never absolute, so the report reads the
+    same from any checkout.
 - **Outstanding observations** — each unticked task carrying a
   `**Closed by:**` line, with who or what closes it.
 - **Verification commands** — each `## Verification` step: its actual result,

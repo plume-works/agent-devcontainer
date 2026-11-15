@@ -11,9 +11,9 @@ A decision gets an ADR only when all three of these are true:
 1. **It is difficult to reverse.** A later change of the decision has a real
    cost.
 2. **It is a surprise without context.** A later reader of the code will ask why
-   it is done this way.
+   the code does it this way.
 3. **It is the result of a real trade-off.** There were real alternatives, and
-   one was selected for specific reasons.
+   the decision selects one for specific reasons.
 
 These decisions qualify:
 

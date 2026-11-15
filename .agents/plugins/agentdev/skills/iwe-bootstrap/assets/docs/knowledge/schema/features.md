@@ -1,8 +1,8 @@
 # Features
 
-A feature is a proposal: what users must get, written before the work. After its
-plan ships, the code and its tests give the behaviour, and the feature goes to
-the archive.
+A feature gives what users must get, and a session writes it before the work.
+After its plan ships, the code and its tests give the behaviour, and the feature
+goes to the archive.
 
 - Path: `data/features/<slug>.md`.
 - Hub: `data/features.md`.

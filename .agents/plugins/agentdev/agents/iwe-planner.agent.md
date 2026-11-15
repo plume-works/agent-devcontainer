@@ -84,22 +84,26 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    by the revision and report them; do not rewrite that implementation from
    this skill.
 
-5. **File a created plan.** In create mode, add its link to `data/plans.md` as
-   `docs/knowledge/schema/hubs.md` defines. If the user gives the position of
-   the plan in the build order, set its `rank` as
-   `docs/knowledge/schema/build-order.md` gives. Do not edit the `rank` of a
-   different document. If the user gives no position, set no `rank`. Set each
-   proposed feature that the plan lists to `stage: accepted`. Set each pending
-   bug that the plan lists to `stage: planned`. If the plan started as a backlog
-   task, close the task as done. Then move the task to the archive.
-   `docs/knowledge/schema/backlog-tasks.md` and
-   `docs/knowledge/schema/archive.md` give the procedure. Step 8 closes the
-   issue that the plan started from, after validation. Do not close the issue
-   before validation shows that the plan is correct. In revise mode, keep the
-   graph membership and the lifecycle of the plan. Change them only when the
-   requested change makes a different valid planning state necessary. A revision
-   that adds a bug to `release` sets it to `stage: planned`; one that removes a
-   bug returns it to `stage: pending`.
+5. **File a created plan.** In create mode, do these steps:
+   - Add the link of the plan to `data/plans.md` as
+     `docs/knowledge/schema/hubs.md` defines.
+   - If the user gives the position of the plan in the build order, set its
+     `rank` as `docs/knowledge/schema/build-order.md` gives. Do not edit the
+     `rank` of a different document. If the user gives no position, set no
+     `rank`.
+   - Set each proposed feature that the plan lists to `stage: accepted`. Set
+     each pending bug that the plan lists to `stage: planned`.
+   - If the plan started as a backlog task, close the task as done. Then move
+     the task to the archive. `docs/knowledge/schema/backlog-tasks.md` and
+     `docs/knowledge/schema/archive.md` give the procedure.
+   - Step 8 closes the issue that the plan started from, after validation. Do
+     not close the issue before validation shows that the plan is correct.
+
+   In revise mode, keep the graph membership and the lifecycle of the plan.
+   Change them only when the requested change makes a different valid state of
+   the plan necessary. A revision that adds a bug to `release` sets it to
+   `stage: planned`; one that removes a bug returns it to `stage: pending`.
+
 6. **Check coherence.** Re-read the complete plan as a future implementer.
    Confirm its context, approach, tasks, acceptance scenarios, ADRs, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with

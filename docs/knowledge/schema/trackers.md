@@ -1,7 +1,7 @@
 # Trackers
 
-A tracker is a living document that is edited in place. There are three, each
-with `type: tracker` and `stage: living`.
+A tracker is a living document that sessions edit in place. There are three,
+each with `type: tracker` and `stage: living`.
 
 - `data/product.md` — what the product is, its users, platforms, and stack. Its
   `## Constraints` section and its optional `## Authoring rules` section bind

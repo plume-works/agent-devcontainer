@@ -111,6 +111,7 @@ term in the same change that first uses it.
   `agentdev-runtime lifecycle created`, which the supervisor runs one time for
   each container while `postCreateCommand` waits.
 - **credential helper** (noun): The program that git asks for HTTPS credentials.
+- **cut** (verb): To do the release cut for a version.
 - **default branch** (noun): The main branch of a repository: `main`, `master`,
   the branch that `refs/remotes/<remote>/HEAD` names, or the branch that GitHub
   reports.
@@ -388,7 +389,8 @@ term in the same change that first uses it.
   review, such as an explicit correction.
 - **slot** (noun): A role in a pull request review, such as the metadata gate or
   the correctness pass, that the effort tier gives a model.
-- **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
+- **slug** (noun): The short name in kebab case in the file name of a document,
+  without a `YYYYMMDD-` prefix.
 - **someday idea** (noun): A reference document that
   `docs/knowledge/schema/someday-ideas.md` defines.
 - **spawn mode** (noun): How the Remote Control server runs conversations: each
@@ -421,7 +423,7 @@ term in the same change that first uses it.
 - **tick** (noun): The change of one plan task line from `- [ ]` to `- [x]`.
 - **tick** (verb): To change a plan task line from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
-- **tracker** (noun): A living document that is edited in place, as
+- **tracker** (noun): A living document that sessions edit in place, as
   `docs/knowledge/schema/trackers.md` defines.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.

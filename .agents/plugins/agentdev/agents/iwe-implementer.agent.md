@@ -58,17 +58,20 @@ claims the user gave is not one.
    names its target in the current checkout before relying on it, and correct
    a renamed or removed one — that edit is part of this session's work. An
    anchor carries no date to refresh.
-6. **Execute the next unchecked task.** Follow its `**Files:**` list; write the
-   code; run every test and check required for that task. Closing it is then a
-   single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
-   `- **Evidence:**` child, as `docs/knowledge/schema/plans.md` defines it — a
-   test, a command, a file, a manual check or a live check, or a PR, in free
-   form. Its only function is to make sure that nobody ticks a box for work that
-   nobody did. Nobody does the check again. The code, the tick, and its evidence
-   line land together in one commit. Do it only when the task's complete
-   specified behavior is implemented and its checks pass, then run
-   `iwe normalize`. Partial work, deferred behavior, or a failing required test
-   or check stays unchecked, with no evidence line.
+6. **Execute the next unchecked task.**
+   - Obey its `**Files:**` list. Write the code. Do each test and each check
+     that the task requires.
+   - Then close the task with one edit. The edit ticks `- [ ]` → `- [x]` and
+     writes the indented `- **Evidence:**` child of the task, as
+     `docs/knowledge/schema/plans.md` defines it. The evidence is a test, a
+     command, a file, a manual check, a live check, or a PR, in free form. Its
+     only function is to make sure that nobody ticks a box for work that nobody
+     did. Nobody does the check again.
+   - The code, the tick, and its evidence line are in one commit.
+   - Close the task only when the code has all the specified behavior of the
+     task and its checks pass. Then run `iwe normalize`.
+   - Partial work, deferred behavior, or a required test or check that fails
+     stays unchecked, with no evidence line.
 
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
