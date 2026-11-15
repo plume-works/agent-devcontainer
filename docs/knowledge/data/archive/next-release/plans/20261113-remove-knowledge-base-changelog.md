@@ -57,21 +57,23 @@ A consumer keeps its own copy of `CHANGELOG.md`. The consumer can delete it.
 Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 
 - [x] `docs/knowledge/CHANGELOG.md` does not exist.
-  - **Evidence:** Deleted with `git rm`; `test ! -e docs/knowledge/CHANGELOG.md`
-    passes.
+  - **Evidence:** `git rm` deleted the file, and
+    `test ! -e docs/knowledge/CHANGELOG.md` passes.
 - [x] The scaffold copy of `CHANGELOG.md` does not exist.
-  - **Evidence:** Deleted with `git rm`; `test ! -e` on the scaffold path
-    passes.
+  - **Evidence:** `git rm` deleted the scaffold copy, and `test ! -e` on the
+    scaffold path passes.
 - [x] `SHARED_KNOWLEDGE_FILES` in
   `.agents/plugins/agentdev/tests/test_iwe_seed.py` does not contain
   `'CHANGELOG.md'`.
-  - **Evidence:** Removed the entry; `grep CHANGELOG` on the test file finds
-    nothing.
+  - **Evidence:** The change removed the entry, and `grep CHANGELOG` on the test
+    file finds nothing.
 - [x] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_seed.py` passes.
-  - **Evidence:** Passes, run together with `test_iwe_bootstrap.py`: 35 passed.
+  - **Evidence:** The test passes. It ran with `test_iwe_bootstrap.py`, and 35
+    tests passed.
 - [x] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`
   passes.
-  - **Evidence:** Passes, run together with `test_iwe_seed.py`: 35 passed.
+  - **Evidence:** The test passes. It ran with `test_iwe_seed.py`, and 35 tests
+    passed.
 
 ### Task 2: Remove `CHANGELOG.md` from the `template-consume` lists
 
@@ -81,12 +83,12 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 - [x] The list of `docs/knowledge/` paths in
   `template-consume/SKILL.md#default-template-surface` does not contain
   `docs/knowledge/CHANGELOG.md`.
-  - **Evidence:** Removed the line; `grep CHANGELOG` on `SKILL.md` finds
-    nothing; `validate_agent_files` reports 0 errors.
+  - **Evidence:** The change removed the line. `grep CHANGELOG` on `SKILL.md`
+    finds nothing, and `validate_agent_files` reports 0 errors.
 - [x] The list in `consumption-guide.md#reusable-scaffold` does not contain
   `docs/knowledge/CHANGELOG.md`.
-  - **Evidence:** Removed the line; `grep CHANGELOG` on `consumption-guide.md`
-    finds nothing.
+  - **Evidence:** The change removed the line, and `grep CHANGELOG` on
+    `consumption-guide.md` finds nothing.
 
 ### Task 3: Remove `CHANGELOG.md` from `migrate-earlier-iwe-scaffold`
 
@@ -94,8 +96,8 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 
 - [x] The `sources` of the task do not contain `docs/knowledge/CHANGELOG.md`.
 
-  - **Evidence:** Removed the `sources` entry; `grep CHANGELOG` on the task
-    finds nothing; `iwe schema validate` passes.
+  - **Evidence:** The change removed the `sources` entry. `grep CHANGELOG` on
+    the task finds nothing, and `iwe schema validate` passes.
 
 - [x] The last paragraph of the task contains this text:
 
@@ -104,8 +106,8 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
   decide.
   ```
 
-  - **Evidence:** Rewrote the paragraph; `tail -2` of the task shows this text
-    as `iwe normalize` wraps it.
+  - **Evidence:** The change wrote the paragraph again. `tail -2` of the task
+    shows this text in the line breaks that `iwe normalize` writes.
 
 ## Acceptance
 
