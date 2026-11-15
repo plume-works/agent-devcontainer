@@ -165,6 +165,9 @@ class Supervision:
             'DEV_WORKSPACE_FOLDER': str(root),
             'AGENTDEV_HOME': str(root / 'home'),
             'XPRA_PASSWORD': 'supervision-test',
+            # Remote Control is on by default. In this file, only the Remote Control tests
+            # set a spawn mode other than `off`.
+            'AGENTDEV_CLAUDE_RC_SPAWN': 'off',
             **settings,
         }
         self.process: subprocess.Popen[str] | None = None
@@ -919,8 +922,8 @@ def test_a_malformed_firewall_switch_latches_before_the_bootstrap(make):
 
 
 @pytest.mark.requires_root
-def test_remote_control_is_left_out_without_a_mode(make):
-    box = make(AGENTDEV_CLAUDE_RC_MODE='')
+def test_remote_control_is_left_out_when_off(make):
+    box = make(AGENTDEV_CLAUDE_RC_SPAWN='off')
     box.start()
     box.wait_for(box.ready)
     assert 'remote-control' not in started(box.events())
@@ -928,9 +931,9 @@ def test_remote_control_is_left_out_without_a_mode(make):
 
 
 @pytest.mark.requires_root
-@pytest.mark.parametrize('mode', ['session', 'server'])
-def test_a_remote_control_mode_starts_it_after_prepare(make, mode):
-    box = make(AGENTDEV_CLAUDE_RC_MODE=mode)
+@pytest.mark.parametrize('spawn', ['', 'worktree', 'same-dir', 'session'])
+def test_remote_control_starts_after_prepare_unless_off(make, spawn):
+    box = make(AGENTDEV_CLAUDE_RC_SPAWN=spawn)
     box.start()
     box.wait_for(box.ready)
     runs = started(box.events())
@@ -938,36 +941,17 @@ def test_a_remote_control_mode_starts_it_after_prepare(make, mode):
     assert box.status('remote-control') == 'ready'
 
 
-@pytest.mark.parametrize(
-    'settings, variable',
-    [
-        ({'AGENTDEV_CLAUDE_RC_MODE': 'sever'}, 'AGENTDEV_CLAUDE_RC_MODE'),
-        (
-            {'AGENTDEV_CLAUDE_RC_MODE': 'server', 'AGENTDEV_CLAUDE_RC_SPAWN': 'tree'},
-            'AGENTDEV_CLAUDE_RC_SPAWN',
-        ),
-    ],
-)
-def test_an_unrecognized_remote_control_setting_latches_before_the_bootstrap(
-    make, settings, variable
-):
-    box = make(**settings)
+def test_an_unrecognized_spawn_mode_latches_before_the_bootstrap(make):
+    box = make(AGENTDEV_CLAUDE_RC_SPAWN='tree')
     box.start()
     stays_latched(box, 'configuration')
     assert box.events() == []
-    assert variable in box.runtime()['components']['configuration']['reason']
-
-
-@pytest.mark.requires_root
-def test_a_session_mode_ignores_the_spawn_setting(make):
-    box = make(AGENTDEV_CLAUDE_RC_MODE='session', AGENTDEV_CLAUDE_RC_SPAWN='tree')
-    box.start()
-    box.wait_for(box.ready)
+    assert 'AGENTDEV_CLAUDE_RC_SPAWN' in box.runtime()['components']['configuration']['reason']
 
 
 @pytest.mark.requires_root
 def test_a_failing_remote_control_degrades_while_opencode_serves(make):
-    box = make(AGENTDEV_CLAUDE_RC_MODE='server', AGENTDEV_RECOVERY_ATTEMPTS='1')
+    box = make(AGENTDEV_CLAUDE_RC_SPAWN='', AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.set('remote-control', 'mode', 'never-ready')
     box.start()
     box.wait_for(box.degraded)
@@ -978,7 +962,7 @@ def test_a_failing_remote_control_degrades_while_opencode_serves(make):
 @pytest.mark.requires_root
 def test_strict_startup_latches_on_a_failing_remote_control(make):
     box = make(
-        AGENTDEV_CLAUDE_RC_MODE='server',
+        AGENTDEV_CLAUDE_RC_SPAWN='',
         AGENTDEV_RECOVERY_ATTEMPTS='1',
         AGENTDEV_STRICT_STARTUP='true',
     )
@@ -989,7 +973,7 @@ def test_strict_startup_latches_on_a_failing_remote_control(make):
 
 @pytest.mark.requires_root
 def test_status_shows_what_remote_control_is_doing(make, tmp_path):
-    box = make(AGENTDEV_CLAUDE_RC_MODE='server', XDG_RUNTIME_DIR=str(tmp_path))
+    box = make(AGENTDEV_CLAUDE_RC_SPAWN='', XDG_RUNTIME_DIR=str(tmp_path))
     box.start()
     box.wait_for(box.ready)
     assert 'remote-control: not started' in box.health('status').stdout
@@ -1000,7 +984,7 @@ def test_status_shows_what_remote_control_is_doing(make, tmp_path):
 
 
 @pytest.mark.requires_root
-def test_status_names_no_remote_control_without_a_mode(make, tmp_path):
+def test_status_names_no_remote_control_when_off(make, tmp_path):
     box = make(XDG_RUNTIME_DIR=str(tmp_path))
     box.start()
     box.wait_for(box.ready)

@@ -78,7 +78,7 @@ pull request body.
 
 - [ ] `## An artifact asserts only what nothing else already asserts` permits a
   pull request body to state a decision that an ADR also states, and links
-  [ADR-0093](../adr/0093-code-then-git-history-then-documents.md).
+  [ADR-0094](../adr/0094-code-then-git-history-then-documents.md).
 
 ### Task 4: Examine the body of a pull request that has decisions
 
@@ -107,7 +107,7 @@ pull request body.
 ## ADRs
 
 [Code first, git history second, documents
-last](../adr/0093-code-then-git-history-then-documents.md)
+last](../adr/0094-code-then-git-history-then-documents.md)
 
 ## Depends on
 

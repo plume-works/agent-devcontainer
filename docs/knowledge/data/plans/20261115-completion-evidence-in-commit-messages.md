@@ -223,7 +223,7 @@ makes for a plan after this change is on `main`.
 ## ADRs
 
 [The commit that ticks a plan task contains its
-evidence](../adr/0092-completion-evidence-in-the-commit-message.md)
+evidence](../adr/0093-completion-evidence-in-the-commit-message.md)
 
 ## Verification
 

@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 description: No Dev Container lifecycle command starts Remote Control; the agent start does, and a runtime supervisor does only when AGENTDEV_CLAUDE_RC_MODE is set.
 ---
 

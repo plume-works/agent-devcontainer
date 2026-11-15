@@ -207,9 +207,10 @@ VARIABLES: tuple[Variable, ...] = (
         profiles=(DEVCONTAINER,),
     ),
     Variable(
-        'AGENTDEV_CLAUDE_RC_MODE', 'Remote Control mode, `session` or `server`; empty is off.'
+        'AGENTDEV_CLAUDE_RC_SPAWN',
+        'The Remote Control spawn mode: `worktree`, `same-dir`, or `session`. `off` stops it.',
+        'worktree',
     ),
-    Variable('AGENTDEV_CLAUDE_RC_SPAWN', 'Server-mode spawn, `worktree` or `same-dir`.'),
     Variable('AGENTDEV_STARTUP_ID', 'Set by PID 1 for each start; read by its children.'),
     Variable('AGENTDEV_RETRY_ID', 'Set by PID 1 for each retry; read by its children.'),
     Variable('AGENTDEV_READY_TIMEOUT', 'Seconds `postStartCommand` waits for ready.', '900'),
@@ -364,7 +365,7 @@ class Settings:
         if raw and raw not in options:
             self.errors.append(f'{name} must be {", ".join(options)}, or empty; got {raw!r}')
             return ''
-        return raw
+        return self.get(name)
 
     def get_default(self, name: str) -> str:
         """Return the profile default, ignoring the environment."""
