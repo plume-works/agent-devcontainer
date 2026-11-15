@@ -1,4 +1,8 @@
-"""The create phase changes the owner of the sibling checkout volume only for a non-root account on a mount."""
+"""
+The create phase changes the owner of the sibling checkout volume.
+
+It does so only for a non-root account and only when the volume is a mount.
+"""
 
 from pathlib import Path
 import subprocess

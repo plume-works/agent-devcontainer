@@ -83,7 +83,11 @@ def packages_index(arch: str, debs: dict[str, bytes]) -> bytes:
 
 
 class FakePpa:
-    """The URLs that the script downloads, which the test serves from memory, and the key that signs them."""
+    """
+    Serve the URLs that the script downloads, from memory.
+
+    The object also holds the key that signs them.
+    """
 
     def __init__(self, scratch: Path) -> None:
         self.home = scratch / 'ppa-gnupg'
@@ -102,7 +106,11 @@ class FakePpa:
         self.sign(self.home)
 
     def sign(self, home: Path) -> None:
-        """Sign an InRelease in ``home`` that has a hash chain to the current indexes, and publish it."""
+        """
+        Sign an InRelease in ``home``, and publish it.
+
+        The InRelease has a hash chain to the current indexes.
+        """
         rows = ''.join(
             f' {hashlib.sha256(body).hexdigest()} {len(body)} main/binary-{arch}/Packages.gz\n'
             for arch, body in self.indexes.items()
