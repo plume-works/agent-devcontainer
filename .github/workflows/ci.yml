@@ -57,6 +57,8 @@ jobs:
           extra-filter: |
             - .github/workflows/ci.yml
             - .github/actions/log-debug-stats/**
+            # scripts/tests loads the session startup code from here.
+            - .claude/**
             # The devcontainer suite is the only check of the deployment compose files. The
             # pins file stays out, so a pin bump never rebuilds the image it names.
             - compose.opencode*.yml
