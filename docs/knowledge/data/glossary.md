@@ -88,8 +88,9 @@ term in the same change that first uses it.
 - **Coder user secret** (noun): A value for one user, such as `GITHUB_TOKEN`,
   that Coder puts only in the environment of its agent.
 - **completion evidence block** (noun): The footer of the message of the commit
-  that ticks a plan task, from the lines `---` and `completion evidence:` to the
-  end of the message, which says how the work was checked.
+  that ticks a plan task. It starts at the lines `---` and
+  `completion evidence:` and continues to the end of the message. It says how
+  the agent checked the work.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
 - **consumption guide** (noun): The file `references/consumption-guide.md` of
@@ -368,6 +369,7 @@ term in the same change that first uses it.
   Remote Control.
 - **Ship** (noun): The workflow phase that merges the spec changes of a plan and
   closes the plan, through `/agentdev:iwe-ship`.
+- **ship** (verb): To merge and archive a plan through the Ship phase.
 - **Ship blocker report** (noun): The `iwe-shipper` report that starts with
   `Blocked`, changes no state, and names the skill that answers each blocker.
 - **Ship records** (noun): The bug, plan, task, feature, and release documents

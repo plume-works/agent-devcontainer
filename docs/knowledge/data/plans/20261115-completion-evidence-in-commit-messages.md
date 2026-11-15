@@ -21,7 +21,7 @@ time. `git log` and `git blame` find the evidence from the code.
 Today each ticked task has a `- **Evidence:**` line in the plan
 ([ADR-0086](../adr/0086-plan-ticks-need-evidence-lines.md)). Only
 `docs/knowledge/tests/test_plan_checkboxes.py` parses the line. Verify and
-`/agentdev:iwe-plan-review` tell their reviewers to ignore it.
+`/agentdev:iwe-plan-review` tell their review agents to ignore it.
 `pr-gen-description/SKILL.md` Step 5 names the plan's per-task evidence as the
 record, and Task 5 changes that reference.
 
