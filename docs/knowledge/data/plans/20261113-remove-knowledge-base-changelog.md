@@ -76,11 +76,15 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] The list of `docs/knowledge/` paths in
+- [x] The list of `docs/knowledge/` paths in
   `template-consume/SKILL.md#default-template-surface` does not contain
   `docs/knowledge/CHANGELOG.md`.
-- [ ] The list in `consumption-guide.md#reusable-scaffold` does not contain
+  - **Evidence:** Removed the line; `grep CHANGELOG` on `SKILL.md` finds
+    nothing; `validate_agent_files` reports 0 errors.
+- [x] The list in `consumption-guide.md#reusable-scaffold` does not contain
   `docs/knowledge/CHANGELOG.md`.
+  - **Evidence:** Removed the line; `grep CHANGELOG` on `consumption-guide.md`
+    finds nothing.
 
 ### Task 3: Remove `CHANGELOG.md` from `migrate-earlier-iwe-scaffold`
 
