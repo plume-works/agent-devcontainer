@@ -8,6 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py
 - resource: .agents/plugins/agentdev/tests/test_iwe_seed.py
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
+stage: done
+completed: 2026-11-15
 ---
 
 # Remove `CHANGELOG.md` from `docs/knowledge/`
@@ -30,8 +32,8 @@ These files name `CHANGELOG.md` outside `data/archive/`:
   `references/consumption-guide.md`, in the list of paths that the update mode
   compares.
 - [Migrate a repository that consumed the earlier IWE
-  scaffold](../backlog/migrate-earlier-iwe-scaffold.md), as a source and as one
-  place for the migration steps.
+  scaffold](../../../backlog/migrate-earlier-iwe-scaffold.md), as a source and
+  as one place for the migration steps.
 
 ## Approach
 
@@ -139,8 +141,8 @@ uv run scripts/check-anchors.py
 - The documents under `docs/knowledge/data/archive/` that name `CHANGELOG.md`.
 - A new place for the `### Migration` steps of `CHANGELOG.md`. The [Migrate a
   repository that consumed the earlier IWE
-  scaffold](../backlog/migrate-earlier-iwe-scaffold.md) task gives the migration
-  steps for a consumer.
+  scaffold](../../../backlog/migrate-earlier-iwe-scaffold.md) task gives the
+  migration steps for a consumer.
 
 ## Key references
 
