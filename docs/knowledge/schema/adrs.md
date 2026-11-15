@@ -46,10 +46,16 @@ The frontmatter has no date field. Git records the date.
 | `deprecated` | The decision does not apply now                |        | Archive     |
 
 Body: an H1 that is the short title of the decision, then 1 to 10 sentences that
-give the context, the decision, and the reason. `## Considered Options` and
-`## Consequences` are optional, in this order, and the schema permits no other
-section. An ADR has an optional section only when the section adds value: the
-rejected options, for example, only when a later reader needs them.
+give the context, the decision, and the reason. The schema permits two optional
+sections, in this order, and no other section. Include an optional section only
+when it adds real value. Most ADRs do not need them.
+
+- `## Considered Options` — only when the rejected alternatives are worth
+  remembering.
+- `## Consequences` — only when downstream effects that are not obvious need to
+  be called out.
+
+These rules also apply:
 
 - Nobody edits an accepted ADR. A decision that changes gets a new ADR that
   names the earlier ADR in `supersedes`.
