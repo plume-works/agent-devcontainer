@@ -96,23 +96,23 @@ Each test shows what the `fate_note` of its row in
 default branch.
 
 - [x] The gate blocks the pull request before the AI review exists.
-  - **Evidence:** on pull request #890, the first one after this change that
-    needs an AI review, the required check `ai-review-present` of run
-    43663125415 stayed pending from 01:26 until the AI review job ended at 01:30
-    UTC.
+  - **Evidence:** Pull request #890 was the first pull request after this change
+    that needed an AI review. In run 43663125415, the required check
+    `ai-review-present` did not pass from 01:26 until the AI review job
+    completed at 01:30 UTC.
 - [x] The gate passes after the AI review is submitted.
   - **Evidence:** after the review of `plume-works-quill[bot]` at 01:30:05 UTC,
-    `reviewAcceptance` from the module logged "Found accepted AI review" and
-    `ai-review-present` passed in run 43663125415.
+    `reviewAcceptance` from the module wrote "Found accepted AI review" to the
+    log and `ai-review-present` passed in run 43663125415.
 
 ### Task 4: Observe an image promotion
 
 **Closed by:** the first image build on the default branch after this change.
 
 - [x] The promotion step publishes the tag of the tested image.
-  - **Evidence:** in run 43654311837 on `main` at `19156ec6`, the job
-    `Promote development image` called `tag-decision.sh` for each tag, and moved
-    `edge` and `main` of the four images to the tested digests.
+  - **Evidence:** Run 43654311837 ran on `main` at `19156ec6`. In this run, the
+    job `Promote development image` called `tag-decision.sh` for each tag. It
+    moved `edge` and `main` of the four images to the tested digests.
 
 ## Acceptance
 
@@ -152,8 +152,8 @@ uv run pre-commit run --all-files actionlint
 
 `iwe-ship-reviewer` did this review on 2026-11-15.
 
-- [x] Verify found no CRITICAL problem — correct: Ready to ship:
-  data/plans/20261113-test-the-workflow-decisions
+- [x] Verify found no CRITICAL problem — correct: "Ready to ship:
+  data/plans/20261113-test-the-workflow-decisions"
 - [x] Every ADR that the plan proposed is `stage: accepted` — not applicable:
   the plan proposed no ADR
 - [x] Every ADR that the plan superseded is `stage: superseded` and in the
