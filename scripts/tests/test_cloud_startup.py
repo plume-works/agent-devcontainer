@@ -237,6 +237,22 @@ def test_relay_liveness_follows_the_relay_process(
     assert not pidfile.exists()
 
 
+def test_a_started_relay_counts_as_running_at_once(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The relay counts as running as soon as start_relay returns, on each start."""
+    pidfile = scratch / 'relay.pid'
+    target = free_port()
+    for _ in range(500):
+        monkeypatch.setattr(startup, 'RELAY_PORT', free_port())
+        startup.start_relay('127.0.0.1', target, pidfile, scratch / 'relay.log')
+        running = startup.relay_running_for(target, pidfile)
+        pid, _ = startup.read_pidfile(pidfile)
+        os.kill(pid, 15)
+        os.waitpid(pid, 0)
+        assert running
+
+
 def test_proxy_access_points_docker_clients_at_the_relay(
     scratch: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

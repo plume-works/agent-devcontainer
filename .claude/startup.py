@@ -146,6 +146,14 @@ def start_relay(listen_host: str, target_port: int, pidfile: Path, log_path: Pat
             stderr=subprocess.STDOUT,
             start_new_session=True,
         )
+    # Popen returns before the kernel publishes the new command line, which relay_alive reads.
+    deadline = time.monotonic() + 5
+    while (
+        not relay_alive(relay.pid, target_port)
+        and relay.poll() is None
+        and time.monotonic() < deadline
+    ):
+        time.sleep(0.001)
     pidfile.write_text(f'{relay.pid} {target_port}\n')
 
 
