@@ -45,9 +45,8 @@ blocks with a dedicated image, not a new default for `agent-desktop`.
 [Nested Docker
 provisioning](../../1.0.0/architecture/nested-docker-provisioning.md) assigns
 DinD to the Dev Containers feature. The standalone image needs its own
-supervised daemon; the existing devcontainer remains feature-managed. [Image
-pinning](../../../spec/image-pinning.md) applies to the new consumer examples
-and publishing flow as well.
+supervised daemon; the existing devcontainer remains feature-managed. Image
+pinning applies to the new consumer examples and publishing flow as well.
 
 [Make OpenCode v2 the devcontainer default](20261018-opencode-v2-default.md)
 replaces the image's OpenCode with v2 (`@opencode/cli` 2.0.32), and
@@ -1495,12 +1494,9 @@ digest
 
 ## Spec changes
 
-Create [Standalone OpenCode
-runtime](../../../spec/standalone-opencode-runtime.md) with the following full
-contract. OpenCode web, as the [OpenCode v2
-plan](20261018-opencode-v2-default.md) amends it, [Devcontainer Git
-credentials](../../../spec/devcontainer-git-credentials.md), and [Devcontainer
-Docker storage](../../../spec/devcontainer-docker-storage.md) keep their
+Create Standalone OpenCode runtime with the following full contract. OpenCode
+web, as the [OpenCode v2 plan](20261018-opencode-v2-default.md) amends it,
+Devcontainer Git credentials, and Devcontainer Docker storage keep their
 integration-specific requirements; shared-helper extraction preserves them. The
 standalone requirements below define strict startup and injected-token behavior
 without changing Coder's tmux/failure semantics.
@@ -1733,8 +1729,7 @@ supporting explicitly trusted proxy ingress and nested Docker operation.
 - **THEN** required proxy access and nested builds work, forbidden egress remains blocked, and daemon network rules are not erased by startup ordering.
 ```
 
-Add to [Catalog lifecycle](../../../spec/catalog-lifecycle.md), preserving all
-current requirements and scenarios:
+Add to Catalog lifecycle, preserving all current requirements and scenarios:
 
 ``` markdown
 ## ADDED Requirements
@@ -1815,8 +1810,7 @@ naming the foreign table.
 
 Tasks 31 and 32 change development tooling only: no behavioral change.
 
-Add to [Image pinning](../../../spec/image-pinning.md), preserving all current
-requirements and scenarios:
+Add to Image pinning, preserving all current requirements and scenarios:
 
 ``` markdown
 ## ADDED Requirements

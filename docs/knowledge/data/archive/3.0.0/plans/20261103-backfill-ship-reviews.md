@@ -90,9 +90,9 @@ gaps name
 
 ## Spec changes
 
-[Pre-commit gate](../../../spec/pre-commit-gate.md) — the requirement that [Gate
-done bugs and Ship reviews in pre-commit](20261103-ship-records-gate.md) adds
-now requires the section and accepts the backfill reason.
+Pre-commit gate — the requirement that [Gate done bugs and Ship reviews in
+pre-commit](20261103-ship-records-gate.md) adds now requires the section and
+accepts the backfill reason.
 
 ``` markdown
 ## MODIFIED Requirements

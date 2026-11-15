@@ -228,11 +228,10 @@ to `coder-ide-baseline`'s `spec/workspace-template`:
 - an active template version comes from `main`
 ```
 
-Introductions only, no requirement changes: [Devcontainer Docker
-storage](../../../spec/devcontainer-docker-storage.md) links the workspace
-engine's bound, and OpenCode web links the dashboard app, to
-`coder-ide-baseline`'s `spec/workspace-template` URL.
-[Specifications](../../../spec.md) lists the retitled spec.
+Introductions only, no requirement changes: Devcontainer Docker storage links
+the workspace engine's bound, and OpenCode web links the dashboard app, to
+`coder-ide-baseline`'s `spec/workspace-template` URL. Specifications lists the
+retitled spec.
 
 ## Depends on
 

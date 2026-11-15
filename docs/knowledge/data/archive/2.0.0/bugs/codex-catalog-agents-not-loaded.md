@@ -59,9 +59,8 @@ Every Codex install of the catalog runs its `bin/install-codex-agents.py`, which
 writes one `~/.codex/agents/agentdev-<stem>.toml` per catalog agent, with the
 body as `developer_instructions` and a sandbox mode derived from the agent's
 tools, and removes the `agentdev-*.toml` files the catalog no longer produces.
-The contract is in [Catalog lifecycle](../../../spec/catalog-lifecycle.md); the
-change shipped through [Install the catalog agents into
-Codex](../plans/20261007-codex-catalog-agents.md).
+The contract is in Catalog lifecycle; the change shipped through [Install the
+catalog agents into Codex](../plans/20261007-codex-catalog-agents.md).
 
 ## Key references
 

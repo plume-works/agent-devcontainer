@@ -64,8 +64,7 @@ feature.
 
 ## References
 
-- Spec: OpenCode catalog bridge, [Catalog
-  lifecycle](../../../spec/catalog-lifecycle.md)
+- Spec: OpenCode catalog bridge, Catalog lifecycle
 - Architecture: [OpenCode catalog
   bridge](../architecture/opencode-catalog-bridge.md)
 - Plans: [Load the agentdev catalog into OpenCode through a bridge

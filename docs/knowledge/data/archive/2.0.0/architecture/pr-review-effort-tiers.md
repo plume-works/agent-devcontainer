@@ -72,8 +72,7 @@ A tier reaches preflight from an `@claude review <label>` comment or a
 the comment outranking the marker. That precedence and the own-line anchoring
 are the ones `[ci:skip-ai-review]` already established, so the effort label
 joins an existing vocabulary instead of starting a second one with its own
-rules. The requirements live in the [AI review
-gate](../../../spec/ai-review-gate.md) spec.
+rules. The requirements live in the AI review gate spec.
 
 ## Per-dispatch models are what put the matrix in force
 

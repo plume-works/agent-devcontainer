@@ -261,8 +261,7 @@ Modify: `.agents/plugins/agentdev/README.md`
 
 ## Spec changes
 
-New spec [Stacked PRs](../../../spec/stacked-prs.md), linked from
-`data/spec.md`:
+New spec Stacked PRs, linked from `data/spec.md`:
 
 ``` markdown
 ## ADDED Requirements

@@ -358,10 +358,10 @@ with its `## Fix` when the same change fixed it — and a task at
 - **THEN** it hands the item to Capture rather than writing the document itself
 ```
 
-[Template consumption](../../../spec/template-consumption.md) — normative
-outcome: when `optional_bundles` includes `"knowledge-base"`, adoption SHALL
-track `docs/knowledge/tests/test_banned_frontmatter_keys.py` and SHALL retain
-its `banned-frontmatter-keys` pre-commit hook, as it does for
+Template consumption — normative outcome: when `optional_bundles` includes
+`"knowledge-base"`, adoption SHALL track
+`docs/knowledge/tests/test_banned_frontmatter_keys.py` and SHALL retain its
+`banned-frontmatter-keys` pre-commit hook, as it does for
 `docs/knowledge/tests/test_plan_checkboxes.py`. A repository initialized by
 `iwe-bootstrap` alone gets no check: bootstrap adds no hooks.
 

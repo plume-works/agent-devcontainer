@@ -372,7 +372,7 @@ Assumptions:
 
 ## Spec changes
 
-[AI review gate](../../../spec/ai-review-gate.md):
+AI review gate:
 
 ``` markdown
 ## ADDED Requirements
@@ -442,7 +442,7 @@ request that already carries its approval, and SHALL skip a run triggered by
   the workflow approves the new pull request.
 ```
 
-[Template consumption](../../../spec/template-consumption.md):
+Template consumption:
 
 ``` markdown
 ## MODIFIED Requirements

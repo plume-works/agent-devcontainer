@@ -221,14 +221,11 @@ A done or cancelled task moves to the archive in the same change.
 
 ## Reference documents — type only
 
-`data/spec/`, `data/findings/`, `data/guides/`, `data/concept/`, and
-`data/someday/` docs carry a `type` (`spec`, `finding`, `guide`, `concept`,
-`someday`) and nothing else that is required: they are durable reference, not
-work items, so no `stage` applies, and the finding and guide schemas reject one.
+`data/findings/`, `data/guides/`, `data/concept/`, and `data/someday/` docs
+carry a `type` (`finding`, `guide`, `concept`, `someday`) and nothing else that
+is required: they are durable reference, not work items, so no `stage` applies,
+and the finding and guide schemas reject one.
 
-- **Spec** — `### Requirement:` + SHALL, `#### Scenario:` + WHEN/THEN, and a
-  `## Rationale` section. `data/spec/` gets no new text: code and tests state
-  behaviour, and an ADR records a decision.
 - **Finding** — a measurement: required `## Measurement` and `## Closing`, plus
   the hypotheses eliminated and what would settle the rest. It states no
   behaviour the code must meet.

@@ -38,8 +38,8 @@ forwarding so availability does not depend on process auto-detection.
 
 The startup script is copied into the image. Adoption must pair the new
 forwarding configuration with an image containing the updated script, following
-the existing [image pinning contract](../../../spec/image-pinning.md). Reopening
-a container on its old digest does not update `/start-xpra.sh`.
+the existing image pinning contract. Reopening a container on its old digest
+does not update `/start-xpra.sh`.
 
 ## Implementation Steps
 

@@ -397,7 +397,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 
 ## Spec changes
 
-### [agentdev runtime images](../../../spec/agentdev-runtime-images.md)
+### agentdev runtime images
 
 ``` markdown
 ## ADDED Requirements
@@ -506,7 +506,7 @@ not be a prerequisite for full adoption.
 runtime resolves through the published image contract
 ```
 
-### [Image pinning](../../../spec/image-pinning.md)
+### Image pinning
 
 ``` markdown
 ## MODIFIED Requirements
@@ -593,7 +593,7 @@ SHALL NOT rebuild or publish the image it names.
   publish/pin loop
 ```
 
-### [Catalog lifecycle](../../../spec/catalog-lifecycle.md)
+### Catalog lifecycle
 
 ``` markdown
 ## MODIFIED Requirements
@@ -691,7 +691,7 @@ NOT stop OpenCode from starting, unless strict startup is selected.
 - **THEN** every client's configuration file is byte-identical afterwards
 ```
 
-### [Devcontainer Docker storage](../../../spec/devcontainer-docker-storage.md)
+### Devcontainer Docker storage
 
 ``` markdown
 ## ADDED Requirements
@@ -726,7 +726,7 @@ a 10 GB build-cache limit, and the supervised daemon SHALL run with it.
 - **THEN** BuildKit garbage collection reduces it to at most 10 GB
 ```
 
-### [Standalone OpenCode runtime](../../../spec/standalone-opencode-runtime.md)
+### Standalone OpenCode runtime
 
 ``` markdown
 ## MODIFIED Requirements
@@ -756,7 +756,7 @@ Docker MCP gateway integration.
   starts
 ```
 
-### [Playwright browser](../../../spec/playwright-browser.md)
+### Playwright browser
 
 ``` markdown
 ## MODIFIED Requirements
@@ -782,7 +782,7 @@ and both runtime images SHALL inherit it.
   are present and a headless browser launch succeeds
 ```
 
-### [Template consumption](../../../spec/template-consumption.md)
+### Template consumption
 
 ``` markdown
 ## ADDED Requirements

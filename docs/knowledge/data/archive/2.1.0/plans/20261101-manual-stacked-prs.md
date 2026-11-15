@@ -507,8 +507,8 @@ NEVER rebase or reset a branch that has been pushed; bring in other history with
 
 ## Spec changes
 
-[Stacked PRs](../../../spec/stacked-prs.md) — its Purpose is rewritten for
-manual stacks, `pr-merge merges explicitly` is unchanged, and:
+Stacked PRs — its Purpose is rewritten for manual stacks,
+`pr-merge merges explicitly` is unchanged, and:
 
 ``` markdown
 ## REMOVED Requirements

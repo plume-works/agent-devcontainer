@@ -305,7 +305,7 @@ above requires.
 
 ## Spec changes
 
-Modifies [Template consumption](../../../spec/template-consumption.md):
+Modifies Template consumption:
 
 ``` markdown
 ## ADDED Requirements

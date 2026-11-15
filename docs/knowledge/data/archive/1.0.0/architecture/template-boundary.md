@@ -30,8 +30,7 @@ Every tracked path in this repository belongs to one of these classes:
 Copier template or generator — adoption is a copy or merge driven by the
 `/agentdev:template-consume` skill, whose update mode later diffs the adopted
 paths against this repository from a recorded commit SHA. The requirements it
-must satisfy are in [Template
-consumption](../../../spec/template-consumption.md).
+must satisfy are in Template consumption.
 
 ## Runtime flow
 

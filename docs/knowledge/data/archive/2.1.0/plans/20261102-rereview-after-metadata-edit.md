@@ -282,8 +282,8 @@ with `AI review requested for <sha>:` and carries no `@claude` mention.
 
 ## Out of scope
 
-- The `ai-review-present` gate and its acceptance rule ([AI review
-  gate](../../../spec/ai-review-gate.md)) — unchanged.
+- The `ai-review-present` gate and its acceptance rule (AI review gate) —
+  unchanged.
 - Starting a review automatically on a description edit (`pull_request: edited`
   in `ai-responder.yml`); requesting stays an explicit toggle.
 - Marking a review as a metadata-gate stop, or changing `pr-review`'s gate.

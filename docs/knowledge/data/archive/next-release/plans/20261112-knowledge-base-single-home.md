@@ -1128,7 +1128,7 @@ against Ship's obligations" adds the archive item, which is never `N/A`.
 `## Rationale` entries for this spec: the decisions and rejected alternatives in
 `## Approach`.
 
-[Pre-commit gate](../../../spec/pre-commit-gate.md):
+Pre-commit gate:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -1240,10 +1240,9 @@ SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 ```
 
 Specs that Tasks 7 to 9 and 11 create or extend record behaviour the code
-already has and change none:
-[catalog-scripts](../../../spec/catalog-scripts.md), cloud-session-host,
-[devcontainer-state](../../../spec/devcontainer-state.md), ci-workflows,
-pr-description, supported-harnesses, pr-review, ci-python-environment.
+already has and change none: catalog-scripts, cloud-session-host,
+devcontainer-state, ci-workflows, pr-description, supported-harnesses,
+pr-review, ci-python-environment.
 
 ## Depends on
 

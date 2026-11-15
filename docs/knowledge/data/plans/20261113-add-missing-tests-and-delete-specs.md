@@ -130,22 +130,39 @@ Each test shows what the `fate_note` of its row says.
 `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`, and the seed copies
 
-- [ ] `docs/knowledge/data/spec/` and `docs/knowledge/data/spec.md` do not
+- [x] `docs/knowledge/data/spec/` and `docs/knowledge/data/spec.md` do not
   exist.
-- [ ] `.iwe/config.toml` has no `[schemas.spec]`, and
+  - **Evidence:** `iwe delete` removed the 15 specs and the hub and cleaned 93
+    linking documents.
+- [x] `.iwe/config.toml` has no `[schemas.spec]`, and
   `.iwe/config.toml#schemas.hub` does not match `data/spec`.
-- [ ] `.iwe/schemas/spec.yaml` does not exist.
-- [ ] `docs/knowledge/data/index.md#reference` has no link to a spec hub.
+  - **Evidence:** Both entries are gone from `.iwe/config.toml`;
+    `iwe schema validate` passes.
+- [x] `.iwe/schemas/spec.yaml` does not exist.
+  - **Evidence:** `git rm` of the schema.
+- [x] `docs/knowledge/data/index.md#reference` has no link to a spec hub.
+  - **Evidence:** The Spec bullet is gone from `data/index.md`.
 - [ ] `docs/knowledge/SCHEMA.md`, `docs/knowledge/STRUCTURE.md`,
   `docs/knowledge/AGENTS.md`, and `docs/knowledge/README.md` describe no spec
   type and no spec folder.
-- [ ] `README.md` links no spec.
-- [ ] No skill and no agent rulebook under `.agents/plugins/agentdev/` names
+- [x] `README.md` links no spec.
+  - **Evidence:** Already true: `grep data/spec README.md` finds nothing.
+- [x] No skill and no agent rulebook under `.agents/plugins/agentdev/` names
   `data/spec/`.
-- [ ] No docstring and no comment outside `docs/` names a spec.
-- [ ] The seed under the `iwe-bootstrap` assets has no spec hub and no spec
+  - **Evidence:** `iwe-audit/SKILL.md` no longer names `data/spec/`;
+    `grep -rn data/spec .agents/` finds nothing.
+- [x] No docstring and no comment outside `docs/` names a spec.
+  - **Evidence:** The `test_check_anchors.py` spec fixture and its docstring are
+    gone; the remaining "spec" words name the self-improve research specs or the
+    archived Ship review items.
+- [x] The seed under the `iwe-bootstrap` assets has no spec hub and no spec
   schema, and its support files agree with the workspace.
-- [ ] No document outside `data/archive/` links a spec.
+  - **Evidence:** The seed lost `spec.md`, `spec.yaml`, its config entries, and
+    its index bullet; `test_iwe_seed.py` passes, 6 tests.
+- [x] No document outside `data/archive/` links a spec.
+  - **Evidence:** No live link or `sources` entry names a spec file;
+    `check-anchors` passes, and `docs/research` and `docs/user-stories` lost
+    their spec links.
 
 ### Task 4: Prune the glossary
 
