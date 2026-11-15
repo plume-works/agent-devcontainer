@@ -265,3 +265,9 @@ containers](adr/0091-subagent-nesting-depth-five.md)
 
 [The Remote Control server runs by
 default](adr/0092-remote-control-server-on-by-default.md)
+
+[The commit that ticks a plan task contains its
+evidence](adr/0093-completion-evidence-in-the-commit-message.md)
+
+[Code first, git history second, documents
+last](adr/0094-code-then-git-history-then-documents.md)

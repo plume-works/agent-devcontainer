@@ -93,6 +93,9 @@ term in the same change that first uses it.
   that Coder puts only in the environment of its agent.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
+- **completion evidence block** (noun): The footer of a commit message, from the
+  lines `---` and `completion evidence:` to the end, that says how the agent
+  checked the plan task that the commit ticks.
 - **consumption guide** (noun): The file `references/consumption-guide.md` of
   the `template-consume` skill, which tells a consumer how to adopt the
   template.
@@ -282,6 +285,8 @@ term in the same change that first uses it.
   workspace, without the extension.
 - **plan state** (noun): The state of a plan that `iwe-branch-name` reads from
   the working tree: `missing`, `cancelled`, `done`, `complete`, or `incomplete`.
+- **plan task** (noun): One checkbox item `- [ ]` or `- [x]` in the task section
+  of a plan.
 - **plugin cache** (noun): The directory in the home directory of the user where
   the agent client installs the plugin, and from which the scripts of the plugin
   run.
@@ -372,7 +377,7 @@ term in the same change that first uses it.
   Remote Control.
 - **Ship** (noun): The workflow phase that merges the spec changes of a plan and
   closes the plan, through `/agentdev:iwe-ship`.
-- **ship** (verb): To close a plan as done through `/agentdev:iwe-ship`.
+- **ship** (verb): To merge and archive a plan through the Ship phase.
 - **Ship blocker report** (noun): The `iwe-shipper` report that starts with
   `Blocked`, changes no state, and names the skill that answers each blocker.
 - **Ship records** (noun): The bug, plan, task, feature, and release documents
@@ -413,7 +418,8 @@ term in the same change that first uses it.
   the older `## Tasks` section, where a checkbox counts as a task.
 - **tense split** (noun): The rule that closed work goes under Verification and
   open work goes under Reviewer Handoff in a pull request description.
-- **tick** (verb): To change a checkbox of a plan task from `- [ ]` to `- [x]`.
+- **tick** (noun): The change of one plan task line from `- [ ]` to `- [x]`.
+- **tick** (verb): To change a plan task line from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
 - **tracker** (noun): A living document that is edited in place, as
   `docs/knowledge/SCHEMA.md#trackers` defines.
