@@ -45,8 +45,8 @@ requests conflict on a hub only when their members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, backlog tasks,
 and ADRs are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Finding, guide, concept, and someday documents are
-*permanent reference*. They have a `type` and the shared OKF fields, but no
+(`iwe schema validate`). Finding, guide, product-vision, and someday documents
+are *permanent reference*. They have a `type` and the shared OKF fields, but no
 `stage`, because they have no lifecycle. The split keeps the ceremony where it
 pays. Every document is validated — OKF conformance requires a `type` everywhere
 — but only work items are asked for more than that.

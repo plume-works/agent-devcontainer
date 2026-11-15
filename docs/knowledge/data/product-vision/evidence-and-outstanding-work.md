@@ -1,5 +1,5 @@
 ---
-type: concept
+type: product-vision
 description: A report on the state of work keeps what is done apart from what is still to do, and states only what no check or other document states.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md

@@ -1,6 +1,6 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and concept notes stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and product-vision notes stay with /agentdev:iwe-explore.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -131,7 +131,7 @@ leaves the issue open.
 
 ## Boundaries
 
-- Someday ideas, findings, guides, and concept documents are written by
+- Someday ideas, findings, guides, and product-vision documents are written by
   `/agentdev:iwe-explore`; plans by `/agentdev:iwe-plan`.
 - Capture is model-invocable so the `iwe-implementer` rulebook can file a
   defect or deferred task mid-run without stopping for the user. A refusal returns to

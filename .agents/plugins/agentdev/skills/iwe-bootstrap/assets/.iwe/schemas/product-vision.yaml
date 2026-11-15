@@ -7,7 +7,7 @@ frontmatter:
   type: object
   required: [type]
   properties:
-    type: { const: concept }
+    type: { const: product-vision }
     description:
       type: string
       description: one sentence summarizing this document
