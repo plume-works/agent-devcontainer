@@ -61,10 +61,10 @@ claims the user gave is not one.
 6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
    the code; run every test and check required for that task. Closing it is
    then a single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's
-   indented `- **Evidence:**` child: one short line saying what you did and how
-   you know it works — a test, a command, a file, a manual or live check, a
-   PR, in whatever words fit. It exists only so a box is never ticked for work
-   that was not done; nobody audits its form or re-runs it. The code, the
+   indented `- **Evidence:**` child, as `docs/knowledge/SCHEMA.md#plans`
+   defines it — a test, a command, a file, a manual or live check, a PR, in
+   whatever words fit. It exists only so a box is never ticked for work that
+   was not done; nobody re-runs it. The code, the
    tick, and its evidence line land together in one commit. Do it only when
    the task's complete specified behavior is implemented and its checks pass,
    then run `iwe normalize`. Partial work, deferred behavior, or a failing
@@ -190,15 +190,15 @@ what fixed each finding and names each captured document's key.
 
 ## Capturing what implementation turns up
 
-Implementation findings do not belong in the plan. Route each finding by type:
+Implementation findings do not belong in the plan.
+`docs/knowledge/SCHEMA.md#what-goes-where` gives the document type for each one.
+Route each finding by type:
 
 - A durable design fact — a constraint, a boundary, why the obvious approach
   fails → a plan revision that proposes an ADR, through the revision route in
   `## Running the loop`.
-- A measurement that settles nothing yet → `data/findings/<slug>.md`, linked
-  from `data/findings.md`.
-- A procedure a contributor will repeat → `data/guides/<slug>.md`, linked from
-  `data/guides.md`.
+- A finding or a guide → write the document as its section of `SCHEMA.md`
+  defines it, and link it from its hub.
 - A defect in shipped behavior, not caused by this work → hand it to the
   `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
   bug bar — no reproduction, no root cause — stays in the handoff report

@@ -19,12 +19,12 @@ Run every `iwe` command from the repository root; keys are relative to
 
 ## Steps
 
-1. **Read the contract.** Read `docs/knowledge/SCHEMA.md` — the section for
-   the type, `## Fields every type carries`, and the `stage` table —
-   and `data/product.md` `## Authoring rules`. SCHEMA.md is the authority for
-   what the document must contain; the bug and feature schemas in `.iwe/schemas/`
-   enforce the same body sections, so a document that skips this step fails
-   `iwe schema validate` anyway.
+1. **Read the contract.** Read `docs/knowledge/SCHEMA.md`: the section for the
+   type (`docs/knowledge/SCHEMA.md#bugs`, `docs/knowledge/SCHEMA.md#features`, or
+   `docs/knowledge/SCHEMA.md#backlog-tasks`) and
+   `docs/knowledge/SCHEMA.md#fields-every-type-carries`. Read `data/product.md`
+   `## Authoring rules`. `SCHEMA.md` is the only definition of what the document
+   must contain, and `iwe schema validate` enforces it.
 2. **Check for a duplicate.** Search with both
    `iwe find --fuzzy "<title words>" -f keys` and
    `iwe find --lexical "<one-line summary>" -f keys`, then read the top hits
@@ -32,55 +32,32 @@ Run every `iwe` command from the repository root; keys are relative to
    describes the same defect, feature, or work is a duplicate: **STOP**, write
    nothing, and show the matching key with the sentence that matches. Extending
    the existing document is the caller's decision, not this skill's.
-3. **Gate on completeness.** Check the supplied content against every required
-   frontmatter field and body section for the type:
-   - **bug** — an H1 starting `Bug: `, then `## Symptom`, `## Reproduction`,
-     and `## Root cause` in that order, and a `severity` of `critical`,
-     `high`, `medium`, or `low` — the defect's impact, not its urgency.
-     `## Potential solution`, the intended direction, and `## Fix`, the fix
-     that shipped, are optional and follow `## Root cause`. A Reproduction or
-     Root cause not yet known states what is known, the hypotheses eliminated
-     and what eliminated each, and links the `data/backlog/` task whose spike
-     settles it — never a bare "unknown". No section states lifecycle: not
-     "unfixed", not "planned in"; `stage` carries that.
-   - **feature** — `## Purpose`, `## Behaviour`, `## Edge cases`, and
-     `## Open questions` in that order; an Open questions section with nothing
-     open says so in one line.
-   - **task** — an H1, a body that states the work and why it matters, a
-     `priority` of `high`, `medium`, or `low`, and a one-sentence
-     `description`.
+3. **Gate on completeness.** Check the supplied content against each frontmatter
+   field and each body section that the section of `SCHEMA.md` requires for the
+   type, and against each rule that the section gives for their content. If
+   anything is missing, **STOP**, write nothing, and list every gap at once —
+   not the first one. Never invent content to close a gap; return it to the
+   caller.
 
-   Every type needs a one-sentence `description`. If anything is missing,
-   **STOP**, write nothing, and list every gap at once — not the first one.
-   Never invent content to close a gap; return it to the caller.
+4. **Write the document** at the path that the section gives, with a short kebab
+   slug that no existing key uses. Write the frontmatter and the body as the
+   section defines them, with `created: <today>` on a task. File the document at
+   the stage that the stage table gives for Capture. A bug that the same change
+   already fixed is closed work: file it at `stage: done` in the archive
+   (`docs/knowledge/SCHEMA.md#archive`), with its `## Fix`. Add `sources` that
+   name every code path, page, and GitHub issue URL the item was derived from.
+   Capture never files a feature past `proposed`; accepting one is
+   `/agentdev:iwe-plan`'s step.
 
-4. **Write the document** at `data/bugs/<slug>.md`, `data/features/<slug>.md`,
-   or `data/backlog/<slug>.md`, choosing a short kebab slug no existing key
-   uses. A bug filed at `stage: done` is closed work: write it at
-   `data/archive/next-release/bugs/<slug>.md` instead. Frontmatter:
-   - `type` — `bug`, `feature`, or `task`.
-   - `stage` from the SCHEMA.md table: a bug is `stage: pending` with its
-     `severity`, or `stage: done` when the same change already fixed it, with a
-     `## Fix` that describes that fix; a feature is `stage: proposed`; a task
-     is `stage: pending` with `priority` and `created: <today>`.
-   - `description` and `sources` naming every code path, page, and GitHub
-     issue URL the item was derived from.
+5. **Link it from its hub** at its sorted position, as
+   `docs/knowledge/SCHEMA.md#hubs` defines. A bug filed into the archive gets no
+   hub link.
 
-   Sections beyond the required set are allowed after them. Capture never
-   files a feature past `proposed`; accepting one is `/agentdev:iwe-plan`'s
-   step.
-
-5. **Link it from its hub** with an inclusion link — a markdown link on its own
-   line — at its sorted position: a task in `data/backlog.md`, a bug in
-   `data/bugs.md`, a feature in `data/features.md`. Hubs are one flat list
-   sorted by member key, with no sections; priority and stage live in the
-   document's frontmatter only. A bug filed into the archive gets no hub link.
-
-   When the caller says the captured item closes an existing task or bug — a
-   fix that settles a pending task, say — set that document to `stage: done`
-   with `completed: <today>` for a task or the caller's `## Fix` for a bug,
-   remove its `rank`, move it with `iwe rename` to
-   `data/archive/next-release/<backlog|bugs>/`, and remove its hub link.
+   When the caller says the captured item closes an existing task or bug — a fix
+   that settles a pending task, say — close that document as `done`: set the
+   fields that its section gives for that stage, with the caller's `## Fix` for
+   a bug, and move it to the archive as `docs/knowledge/SCHEMA.md#archive`
+   gives.
 
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.

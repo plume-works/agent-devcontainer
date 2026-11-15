@@ -60,62 +60,15 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    and they must come from the current checkout, not memory.
 4. **Write planning state.** In create mode, run
    `iwe new --key data/plans/<YYYYMMDD>-<slug>` (today's date,
-   kebab slug), then write:
+   kebab slug), then write the frontmatter and the body sections that
+   `docs/knowledge/SCHEMA.md#plans` defines, in its order.
 
-   ```yaml
-   ---
-   created: <today>
-   release: internal # or a list: - features/<slug>, - bugs/<slug>
-   ---
-   ```
+   Ship applies `release` as written. List in it each feature that the work
+   implements and each bug that the work fixes.
 
-   `release` lists the documents the plan closes, and Ship applies it as
-   written: each feature the work implements and each bug it fixes, each linked
-   from `## Context`. Declare `internal` when the plan closes no feature and no
-   bug. The field feeds no release page — the release cut writes the page from
-   the archive — so a plan whose work users see needs no feature.
-
-   Body sections, in order (omit a section only when it's genuinely empty):
-   - `## Context` — why now, linking the feature/bug/backlog doc that
-     motivates it. A plan that grew from a GitHub issue links the issue URL
-     here and lists it under `sources:` in the frontmatter
-   - `## Approach` — the shape of the solution, in a few sentences. The
-     rejected options go in the ADR, and only when a future reader needs them
-   - `## Implementation Steps` — `### Task N: <name>` blocks, each with
-     `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. A task may
-     describe an _action_; it may never paraphrase _approved content_. When a
-     decision was made as specific text — wording for a document, a snippet, a
-     message — reproduce that text verbatim in a fenced block under the task
-     that applies it, and check `.tmp/approved-wording-<slug>.md` for it before
-     writing the task from memory. A checkbox stays bare while it is unticked;
-     once ticked, it carries an indented `- **Evidence:**` child, a short
-     free-form note of what was done. A plan never prescribes the evidence's
-     form.
-   - `## Acceptance` — one scenario for each behaviour that the plan adds,
-     changes, or removes, in the form that `## Acceptance` below gives
-   - `## ADRs` — one link for each ADR that the plan proposes. A plan that
-     proposes no ADR omits the section
-   - `## Depends on` — inline links to plans that must ship first (omit if
-     none)
-   - `## Verification` — the commands and tests the `iwe-verifier` agent runs
-     to prove the work is done, under the plan rules' `## Verification`
-   - `## Verification results` — narrative evidence for the plan as a whole,
-     written as the work happens rather than reconstructed at the end (omit
-     until there is something to record). This is the plan's only narrative
-     section: results of the `## Verification` checks, and findings that
-     change what the plan claims. Not a running account of attempts — see
-     `AGENTS.md` Best Practice 8.
-   - `## Out of scope` — what this plan deliberately does not do
-   - `## Key references` — a list of anchors, each with a short note:
-     `path::symbol` in code, `path#heading-slug` in Markdown, `path#key.path`
-     in YAML, JSON, and TOML, `path#target` in a Makefile or Dockerfile, and
-     the anchor plus ` › "verbatim quote"` for a spot inside one. No date
-     stamp. A plan never records a line number anywhere in its body.
-
-   File each ADR that the plan proposes at `data/adr/<NNNN>-<slug>.md` with
-   `stage: proposed`. `<NNNN>` is the next free number in `data/adr/` and
-   `data/archive/*/adr/`. Add a link to the ADR in `data/adr.md`. `## ADRs`
-   below gives when to propose an ADR.
+   File each ADR that the plan proposes as `docs/knowledge/SCHEMA.md#adrs`
+   defines it, at `stage: proposed`, and add its link to `data/adr.md`.
+   `## ADRs` below gives when to propose an ADR.
 
    In revise mode, apply the requested decision and reconcile every affected
    section in either direction: Context, Approach, Implementation Steps,
@@ -131,22 +84,20 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    by the revision and report them; do not rewrite that implementation from
    this skill.
 
-5. **File a created plan.** In create mode, add an inclusion link at its
-   sorted position in `data/plans.md` — by slug without the date prefix; the
-   hub has no sections. When the user names where the plan belongs in the build
-   order, set `rank` to the midpoint of its neighbours' ranks in
-   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`, and
-   edit no other document's `rank`; otherwise leave it unsequenced. Set every
-   proposed feature the plan lists to `stage: accepted`, and every pending bug
-   it lists to `stage: planned`. If it grew from a backlog task, mark the task
-   done with `completed: <today>`, remove its `rank`, move it with
-   `iwe rename` to `data/archive/next-release/backlog/`, and remove its link
-   from `data/backlog.md`. An issue it grew from is closed in
-   step 8, after validation — never before the plan is known to be sound. In revise mode, preserve the plan's
-   existing graph membership and lifecycle unless the requested planning
-   change explicitly requires another valid planning-state update. A revision
-   that adds a bug to `release` sets it to `stage: planned`; one that removes a
-   bug returns it to `stage: pending`.
+5. **File a created plan.** In create mode, add its link to `data/plans.md` as
+   `docs/knowledge/SCHEMA.md#hubs` defines. When the user names where the plan
+   belongs in the build order, set its `rank` as
+   `docs/knowledge/SCHEMA.md#build-order` gives, and edit no other document's
+   `rank`; otherwise leave it unsequenced. Set every proposed feature the plan
+   lists to `stage: accepted`, and every pending bug it lists to
+   `stage: planned`. If it grew from a backlog task, close the task as done and move it
+   to the archive, as `docs/knowledge/SCHEMA.md#backlog-tasks` and
+   `docs/knowledge/SCHEMA.md#archive` give. An issue it grew from is closed in
+   step 8, after validation — never before the plan is known to be sound. In
+   revise mode, preserve the plan's existing graph membership and lifecycle
+   unless the requested planning change explicitly requires another valid
+   planning-state update. A revision that adds a bug to `release` sets it to
+   `stage: planned`; one that removes a bug returns it to `stage: pending`.
 6. **Check coherence.** Re-read the complete plan as a future implementer.
    Confirm its context, approach, tasks, acceptance scenarios, ADRs, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with
@@ -226,57 +177,16 @@ created plan only; revising a plan never touches the issue it came from.
 
 ## Acceptance
 
-`## Acceptance` holds one `### Scenario:` block for each behaviour that the plan
-adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
-line, and ends with one of two lines:
-
-- `- **Test:**` names the test that proves the scenario, as `path::test_name`.
-- `- **Checked at ship:**` names the rulebook or the file that the verifier
-  reads, for behaviour that no test can reach.
-
-```markdown
-### Scenario: A done bug without a fix fails the check
-
-- **WHEN** a bug at `stage: done` has no `## Fix` section
-- **THEN** the `ship-records` check reports the bug and exits 1
-- **Test:** `scripts/tests/test_check_ship_records.py::test_done_bug_without_fix_fails`
-```
-
-A plan with no change in behaviour writes `None — no behavioral change` under
-`## Acceptance`. Never invent a scenario to fill the section.
+`docs/knowledge/SCHEMA.md#plans` defines `## Acceptance` and the scenario block.
+Never invent a scenario to fill the section.
 
 ## ADRs
 
-`## ADRs` links each ADR that the plan proposes. A design decision and the
-options it rejected go in the ADR, and the rejected options only when a future
-reader needs them. `## Approach` gives the shape of the solution.
-
-Propose an ADR only when all three of these are true:
-
-1. **Hard to reverse.** The cost of a change of mind later is meaningful.
-2. **Surprising without context.** A future reader will look at the code and
-   ask why it is done this way.
-3. **The result of a real trade-off.** There were genuine alternatives, and
-   one was picked for specific reasons.
-
-A decision that is easy to reverse, that is not surprising, or that had no
-real alternative gets no ADR.
-
-What qualifies:
-
-- **Architectural shape.**
-- **Integration patterns between parts of the system.**
-- **Technology choices that carry lock-in.** Not every library: only the ones
-  that would be expensive to swap out.
-- **Boundary and scope decisions.** The explicit no-s are as valuable as the
-  yes-s.
-- **Deliberate deviations from the obvious path.** Anything where a
-  reasonable reader would assume the opposite.
-- **Constraints not visible in the code.**
-- **Rejected alternatives when the rejection is non-obvious.**
+`docs/knowledge/SCHEMA.md#adrs` gives which decisions get an ADR. Propose an ADR
+only for such a decision. `## Approach` gives the shape of the solution.
 
 Plan never edits an accepted ADR. A plan that changes a decision proposes a new
-ADR that names the earlier ADR in its `supersedes` list.
+ADR, as that section gives.
 
 ## Rules
 

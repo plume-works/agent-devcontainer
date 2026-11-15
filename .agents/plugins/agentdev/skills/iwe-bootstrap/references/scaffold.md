@@ -12,8 +12,8 @@ installs, laid out exactly as it lands in a repository root:
 
 ## What the graph contains
 
-- **Hubs and trackers** — one per document type, each carrying the conventions
-  its documents follow.
+- **Hubs and trackers** — one hub for each document type. `SCHEMA.md` defines
+  the types.
 - **`data/product.md`** — the foundation document, left as ✏️ placeholder blocks
   for `/agentdev:iwe-setup` to fill.
 - **Onboarding tasks** under `data/backlog/` — `fill-product-doc` is the one

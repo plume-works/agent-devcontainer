@@ -50,8 +50,7 @@ and its `- **Evidence:**` line are outside them.
 ## Acceptance
 
 - **Each scenario is complete.** Each `### Scenario:` block in `## Acceptance`
-  has a `**WHEN**` line, a `**THEN**` line, and a `**Test:**` line or a
-  `**Checked at ship:**` line.
+  has each line that `docs/knowledge/SCHEMA.md#plans` requires.
 
 ## ADRs
 

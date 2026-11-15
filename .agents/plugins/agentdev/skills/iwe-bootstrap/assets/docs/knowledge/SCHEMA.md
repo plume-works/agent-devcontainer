@@ -237,14 +237,15 @@ severity: high # critical | high | medium | low — required
 
 - `severity` is the effect of the defect when it occurs, not its urgency. It
   does not set `rank`.
+- `priority` is required on a new task.
 - `rank` is optional. See Build order.
 
-| Stage       | Meaning                           | Set by                                       | Location     |
-| ----------- | --------------------------------- | -------------------------------------------- | ------------ |
-| `pending`   | Open, with no plan                | Capture; Ship, when it cancels the plan      | `data/bugs/` |
-| `planned`   | A plan lists the bug in `release` | Plan                                         | `data/bugs/` |
-| `done`      | Fixed                             | Ship; Capture, when the same change fixed it | Archive      |
-| `cancelled` | The bug will not be fixed         |                                              | Archive      |
+| Stage       | Meaning                           | Set by                                             | Location     |
+| ----------- | --------------------------------- | -------------------------------------------------- | ------------ |
+| `pending`   | Open, with no plan                | Capture; Ship or Plan, when the plan drops the bug | `data/bugs/` |
+| `planned`   | A plan lists the bug in `release` | Plan                                               | `data/bugs/` |
+| `done`      | Fixed                             | Ship; Capture, when the same change fixed it       | Archive      |
+| `cancelled` | The bug will not be fixed         |                                                    | Archive      |
 
 Body: an H1 that starts with `Bug: `. Then `## Symptom`, `## Reproduction`, and
 `## Root cause`, all required, in this order. Then two optional sections, in
@@ -328,8 +329,8 @@ stage: released # required, always released
 ---
 ```
 
-Body: plain text with no Markdown link. A page leaves out a section that has no
-content.
+Body: plain text with no Markdown link, with these sections in this order. A
+page leaves out a section that has no content.
 
 - Sections with a theme as the heading — the changes that the `## Acceptance`
   scenarios of the plans in the archive folder of the release give, in plain
@@ -359,7 +360,8 @@ completed: 2026-08-14 # set when the task is done
 ---
 ```
 
-`rank` is optional. See Build order.
+- `priority` is required on a new task.
+- `rank` is optional. See Build order.
 
 | Stage       | Meaning                                 | Other fields               | Location        |
 | ----------- | --------------------------------------- | -------------------------- | --------------- |
@@ -391,8 +393,9 @@ sections can be there. A finding gives:
   finding records it as a decision.
 
 A finding has its own document. The document that the question came from keeps
-no summary of the finding, no section about it, and no link to it. A reference
-points from the newer document to the older document.
+no summary of the finding, no section about it, and no link to it. The one
+exception is its status line, and only when the finding changes its own
+acceptance. A reference points from the newer document to the older document.
 
 ## Guides
 
