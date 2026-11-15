@@ -253,6 +253,21 @@ def test_iwe_runtime_state_in_the_scaffold_is_not_installed(
 
 
 @requires_iwe
+def test_iwe_runtime_state_in_the_scaffold_is_not_required_in_a_workspace(
+    installed_iwe_bootstrap: Path, unrelated_repository: Path
+) -> None:
+    run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+    scaffold_iwe = installed_iwe_bootstrap / ASSETS / '.iwe'
+    (scaffold_iwe / 'iwe.log').write_text('log\n', encoding='utf-8')
+    (scaffold_iwe / 'snapshots').mkdir()
+    (scaffold_iwe / 'snapshots' / 'one').write_text('snapshot\n', encoding='utf-8')
+
+    completed = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+
+    assert outcome(completed) == (4, 'RESULT=ALREADY_INITIALIZED'), completed.stdout
+
+
+@requires_iwe
 def test_repeated_run_reports_already_initialized_without_changes(
     installed_iwe_bootstrap: Path, unrelated_repository: Path
 ) -> None:
