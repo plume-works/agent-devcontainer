@@ -237,8 +237,11 @@ def test_relay_liveness_follows_the_relay_process(
     assert not pidfile.exists()
 
 
+# Run with `pytest -m stress -n auto`: the copies load the CPU, which widens the race.
+@pytest.mark.stress
+@pytest.mark.parametrize('copy', range(8))
 def test_a_started_relay_counts_as_running_at_once(
-    scratch: Path, monkeypatch: pytest.MonkeyPatch
+    scratch: Path, monkeypatch: pytest.MonkeyPatch, copy: int
 ) -> None:
     """The relay counts as running as soon as start_relay returns, on each start."""
     pidfile = scratch / 'relay.pid'

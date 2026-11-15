@@ -38,7 +38,9 @@ testpaths = [
   "py_packages",
   "scripts/tests",
 ]
+addopts = "-m 'not stress'"
 markers = [
+  "stress: repeats a race many times; excluded by default and run by the CI stress-tests job with `-m stress -n auto`",
   "smoke: drives a real Claude Code session and spends model usage; skipped unless SELF_IMPROVE_RUN_LIVE is set, and run by `make smoke`",
   "interactive: needs a person at the terminal; skipped with SMOKE_SKIP_INTERACTIVE=1",
   "pty: drives a real session on a pseudo-terminal to observe the asynchronous wake; spends model usage and is skipped unless SELF_IMPROVE_RUN_LIVE is set (see `make wake`)",
