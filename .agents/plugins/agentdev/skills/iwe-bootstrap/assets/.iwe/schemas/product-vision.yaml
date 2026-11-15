@@ -1,13 +1,13 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Product vision and foundational ideas (data/concept/<slug>.md) — why the
+  Product vision and basic ideas (data/product-vision/<slug>.md) — why the
   product exists and the principles that outlive any single release.
 maxDepth: 4
 frontmatter:
   type: object
   required: [type]
   properties:
-    type: { const: concept }
+    type: { const: product-vision }
     description:
       type: string
       description: one sentence summarizing this document

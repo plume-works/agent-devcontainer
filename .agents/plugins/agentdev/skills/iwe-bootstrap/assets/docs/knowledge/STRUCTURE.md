@@ -28,7 +28,7 @@ STRUCTURE.md       # this file: design rationale
 data/              # the graph
   index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
-  <hub>.md + <hub>/  # plans, features, bugs, adr, findings, guides, concept,
+  <hub>.md + <hub>/  # plans, features, bugs, adr, findings, guides, product-vision,
                      # releases, backlog, someday (+ milestone.md)
   archive/<release>/<folder>/  # finished work, one folder per cut version
                      # plus next-release
@@ -45,11 +45,11 @@ requests conflict on a hub only when their members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, backlog tasks,
 and ADRs are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Finding, guide, concept, and someday documents are
-*permanent reference*. They have a `type` and the shared OKF fields, but no
-`stage`, because they have no lifecycle. The split keeps the ceremony where it
-pays. Every document is validated — OKF conformance requires a `type` everywhere
-— but only work items are asked for more than that.
+(`iwe schema validate`). Finding, guide, product-vision, and someday documents
+are *permanent reference documents*. They have a `type` and the shared OKF
+fields, but no `stage`, because they have no lifecycle. The split keeps the
+ceremony where it pays. Every document is validated — OKF conformance requires a
+`type` everywhere — but only work items are asked for more than that.
 
 **Frontmatter is the only record of state.** A work item's `stage`, `priority`,
 `completed`, and `rank` live in its own document, so a stage change edits one

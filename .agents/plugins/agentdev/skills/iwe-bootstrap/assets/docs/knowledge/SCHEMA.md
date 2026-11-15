@@ -221,11 +221,11 @@ A done or cancelled task moves to the archive in the same change.
 
 ## Reference documents — type only
 
-A document in `data/findings/`, `data/guides/`, `data/concept/`, or
-`data/someday/` must have a `type` (`finding`, `guide`, `concept`, `someday`).
-It needs no other field. These documents are permanent reference documents, not
-work items. Thus a `stage` is not applicable, and the finding and guide schemas
-refuse a `stage`.
+A document in `data/findings/`, `data/guides/`, `data/product-vision/`, or
+`data/someday/` must have a `type` (`finding`, `guide`, `product-vision`,
+`someday`). No other field is necessary. These documents are permanent reference
+documents, not work items. Because of this, a `stage` is not applicable, and the
+finding and guide schemas do not accept a `stage`.
 
 - **Finding** — a measurement: required `## Measurement` and `## Closing`, plus
   the hypotheses eliminated and what would settle the rest. It states no

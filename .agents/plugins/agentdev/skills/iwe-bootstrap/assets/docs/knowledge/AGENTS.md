@@ -72,7 +72,7 @@ software project's memory and system of record. The division of labor:
      from `data/findings.md`.
    - Procedure a contributor repeats → `data/guides/<slug>.md` + link from
      `data/guides.md`.
-   - Vision insight → `data/concept/<slug>.md`.
+   - Product vision → `data/product-vision/<slug>.md`.
    - Task finished → `stage: done` + `completed` on the task doc, `rank`
      removed, moved to `data/archive/next-release/backlog/` with its hub link
      removed.
@@ -125,7 +125,7 @@ software project's memory and system of record. The division of labor:
   `accepted`). A closed plan, bug, task, feature, or ADR lives under
   `data/archive/`, an open one outside it, and the `ship-records` check fails
   when a document is in the incorrect folder. A reference document (finding,
-  guide, concept, or someday) has a `type` and no stage.
+  guide, product-vision, or someday) has a `type` and no stage.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
   Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
