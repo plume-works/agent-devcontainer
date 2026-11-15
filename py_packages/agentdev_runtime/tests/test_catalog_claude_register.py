@@ -1,5 +1,6 @@
 """A new Claude registration of a catalog root replaces each earlier one."""
 
+from collections.abc import Callable
 import json
 import os
 from pathlib import Path
@@ -37,8 +38,12 @@ def sweep(marketplace: str) -> list[list[str]]:
 
 
 def test_a_marketplace_from_the_same_root_is_swept_before_the_new_one_is_added(
-    tmp_path: Path, claude_stub: Path
+    tmp_path: Path,
+    claude_stub: Path,
+    make_repository: Callable[..., Path],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.chdir(make_repository(tmp_path / 'repo', with_catalog=False))
     root = write_root(tmp_path / 'catalog')
     registered(
         {'name': 'renamed', 'path': root},
@@ -73,8 +78,12 @@ def test_a_removal_that_finds_nothing_does_not_stop_the_registration(
 
 
 def test_a_failed_add_fails_the_registration(
-    tmp_path: Path, claude_stub: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path,
+    claude_stub: Path,
+    make_repository: Callable[..., Path],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.chdir(make_repository(tmp_path / 'repo', with_catalog=False))
     root = write_root(tmp_path / 'catalog')
     monkeypatch.setenv('CLAUDE_STUB_FAIL', 'marketplace add')
 
