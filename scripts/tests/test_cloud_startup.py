@@ -237,6 +237,26 @@ def test_relay_liveness_follows_the_relay_process(
     assert not pidfile.exists()
 
 
+# Run with `pytest -m stress -n auto`: the copies add load to the CPU, and this load makes the
+# race occur more often.
+@pytest.mark.stress
+@pytest.mark.parametrize('copy', range(8))
+def test_a_started_relay_counts_as_running_at_once(
+    scratch: Path, monkeypatch: pytest.MonkeyPatch, copy: int
+) -> None:
+    """relay_running_for finds the relay immediately after start_relay returns, at each start."""
+    pidfile = scratch / 'relay.pid'
+    target = free_port()
+    for _ in range(500):
+        monkeypatch.setattr(startup, 'RELAY_PORT', free_port())
+        startup.start_relay('127.0.0.1', target, pidfile, scratch / 'relay.log')
+        running = startup.relay_running_for(target, pidfile)
+        pid, _ = startup.read_pidfile(pidfile)
+        os.kill(pid, 15)
+        os.waitpid(pid, 0)
+        assert running
+
+
 def test_proxy_access_points_docker_clients_at_the_relay(
     scratch: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
