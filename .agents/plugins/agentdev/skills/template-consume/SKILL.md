@@ -206,7 +206,10 @@ A marker section or legacy marker file exists.
    guess from the path name alone) and decide with the user whether to pull it
    in. The script reports concrete changed files inside tracked directories,
    so a marker that tracks `.github/` still exposes a changed
-   `.github/pull_request_template.md`. Consult the progress document before
+   `.github/pull_request_template.md`. When a tracked path is a link in the
+   upstream repository, the line ends with `(upstream: <path>)`. Read the
+   upstream diff at that path, not at the reported path, and write the result
+   to the reported path in the consumer. Consult the progress document before
    deciding. A path this consumer customized (renamed values, pruned an unwanted
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the

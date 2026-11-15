@@ -41,7 +41,7 @@ jobs:
             - .claude-plugin/**
             - .github/**
             - py_packages/**/*.py
-            - .iwe/**
+            - .iwe
             - docs/knowledge/*
             - docs/knowledge/.*
 
