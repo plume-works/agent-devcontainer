@@ -13,6 +13,3 @@ moves it to `archive/` and removes it from this list.*
 
 [Add the missing tests and delete the
 specs](plans/20261113-add-missing-tests-and-delete-specs.md)
-
-[Test the decisions that the workflows
-make](plans/20261113-test-the-workflow-decisions.md)
