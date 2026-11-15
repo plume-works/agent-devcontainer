@@ -61,6 +61,11 @@ the repository:
 - **A copy in the worktree has no effect.** With a different copy of the plugin
   in the worktree of the session, the session ran the skill of the folder,
   before and after `/reload-skills`.
+- **The plugin of the folder replaces an installed plugin of the same name.**
+  With the same plugin also installed at user scope from a marketplace and
+  enabled, `claude plugin list` shows the two, and the session has one skill,
+  the skill of the folder. Without the settings file, the session has the skill
+  of the installed plugin.
 
 ## Eliminated hypotheses
 
@@ -75,9 +80,6 @@ the repository:
 
 ## Not measured
 
-- A session that has the `agentdev` plugin installed and also gets an `agentdev`
-  plugin from the folder. The main checkout of this repository is in this
-  condition, because the shared catalog is installed at user scope.
 - A session that an edit to a `description` in the frontmatter of a skill
   changes.
 
@@ -93,5 +95,5 @@ the repository:
 
 Open. The maintainer decides between the per-worktree catalog of ADR-0057 and
 one folder for all sessions. A decision for one folder is a new ADR that
-supersedes ADR-0057, and it needs the first item under `## Not measured`. A
-decision to keep ADR-0057 closes this finding with no change.
+supersedes ADR-0057. A decision to keep ADR-0057 closes this finding with no
+change.
