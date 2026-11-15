@@ -418,6 +418,8 @@ term in the same change that first uses it.
   hook tool.
 - **version-matched browser** (noun): The Chromium build that the pinned
   Playwright CLI installs, so that the client and the browser have one version.
+- **watcher** (noun): A supervised program that the runtime supervisor runs,
+  which monitors one condition and starts a client when the condition occurs.
 - **work branch** (noun): A feature branch that tracks its own remote branch,
   which for a plan has the name `iwe/<slug>/iter-<N>-<phase>`.
 - **work item** (noun): A plan, feature, bug, release, backlog task, or ADR: a

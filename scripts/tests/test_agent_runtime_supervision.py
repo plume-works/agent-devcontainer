@@ -165,7 +165,8 @@ class Supervision:
             'DEV_WORKSPACE_FOLDER': str(root),
             'AGENTDEV_HOME': str(root / 'home'),
             'XPRA_PASSWORD': 'supervision-test',
-            # Remote Control is on by default; only its own tests turn it on here.
+            # Remote Control is on by default. In this file, only the Remote Control tests
+            # set a spawn mode other than `off`.
             'AGENTDEV_CLAUDE_RC_SPAWN': 'off',
             **settings,
         }

@@ -64,7 +64,7 @@ class Settings:
     skip_xpra: bool = False
     # Starts OpenCode Web in a Dev Container; deploy always serves it.
     opencode_web: bool = False
-    # Remote Control runs unless its spawn mode is off. See ADR-0092.
+    # Remote Control runs if its spawn mode is not off. See ADR-0092.
     remote_control: bool = False
     strict: bool = False
     firewall: bool = False

@@ -208,7 +208,7 @@ VARIABLES: tuple[Variable, ...] = (
     ),
     Variable(
         'AGENTDEV_CLAUDE_RC_SPAWN',
-        'Remote Control spawn, `worktree`, `same-dir`, or `session`; `off` disables it.',
+        'The Remote Control spawn mode: `worktree`, `same-dir`, or `session`. `off` stops it.',
         'worktree',
     ),
     Variable('AGENTDEV_STARTUP_ID', 'Set by PID 1 for each start; read by its children.'),

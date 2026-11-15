@@ -27,7 +27,7 @@ hosts, nothing starts Remote Control. You can start it manually with the same
 command.
 
 `AGENTDEV_CLAUDE_RC_SPAWN` selects the spawn mode of the server: `worktree` (the
-default), `same-dir`, or `session`. Set it to `off` to disable Remote Control.
+default), `same-dir`, or `session`. Set it to `off` to stop Remote Control.
 
 ### 2. Log in
 

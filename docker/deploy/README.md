@@ -70,7 +70,7 @@ Every project that should share Claude Code logins uses the same
 
 Claude Remote Control makes the project available from claude.ai/code and the
 Claude app. It is on by default. `AGENTDEV_CLAUDE_RC_SPAWN` selects its spawn mode
-(`runtime.env.example` lists the values); set it to `off` to disable Remote Control.
+(`runtime.env.example` lists the values); set it to `off` to stop Remote Control.
 
 ## 4. Start the project
 
@@ -163,10 +163,10 @@ the proxy a static `ipv4_address` keeps that address stable.
   claude        # follow its login prompt, then exit
   ```
 
-- **Claude Remote Control.** Unless `AGENTDEV_CLAUDE_RC_SPAWN` is `off`, Remote
-  Control starts by itself, in tmux session `claude-remote`, within seconds of the
-  claude.ai login above, in every running project container that shares the login;
-  no restart is needed. Until then, `agentdev-runtime health status`
+- **Claude Remote Control.** If `AGENTDEV_CLAUDE_RC_SPAWN` is not `off`, Remote
+  Control starts by itself in tmux session `claude-remote`. It starts within seconds
+  of the claude.ai login above, in each project container that operates and shares
+  the login. You do not restart the container. Until then, `agentdev-runtime health status`
   shows `remote-control: waiting for a claude.ai login`. If the session exits, the
   runtime starts it again. To look at it:
 
