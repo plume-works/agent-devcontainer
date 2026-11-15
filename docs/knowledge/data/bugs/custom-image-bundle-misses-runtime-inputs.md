@@ -9,7 +9,6 @@ sources:
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: .github/workflows/ci.yml
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the consumption guide's custom-image choices do not include the runtime package input

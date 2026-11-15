@@ -6,7 +6,6 @@ severity: low
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: a git-new-branch hint puts the remote name into a command line without quotes

@@ -7,7 +7,6 @@ sources:
 - resource: .github/renovate.json
 - resource: scripts/renovate-post-upgrade.py
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: Renovate's post-upgrade file filters do not include the runtime package's lock file

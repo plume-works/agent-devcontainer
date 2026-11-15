@@ -7,7 +7,6 @@ sources:
 - resource: .agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py
 - resource: .agents/plugins/agentdev/skills/git-commit/SKILL.md
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the git-commit skill's detached-`HEAD` refusal names no skill

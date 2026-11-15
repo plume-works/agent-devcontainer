@@ -6,7 +6,6 @@ severity: low
 sources:
 - resource: .agents/plugins/self-improve/selfimprove/allowlist.py
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the self-improve allowlist accepts a rule at any depth below `rules/`

@@ -180,8 +180,12 @@ Each test shows what the `fate_note` of its row says.
 **Files:** Delete: `docs/spec-audit/`; Modify:
 `docs/knowledge/data/findings/spec-usefulness-audit.md`
 
-- [ ] `docs/spec-audit/` does not exist.
-- [ ] `findings/spec-usefulness-audit` names no file under `docs/spec-audit/`.
+- [x] `docs/spec-audit/` does not exist.
+  - **Evidence:** `git rm -r docs/spec-audit`; the 14 bugs that named
+    `requirements.jsonl` in `sources` no longer do.
+- [x] `findings/spec-usefulness-audit` names no file under `docs/spec-audit/`.
+  - **Evidence:** The finding drops the two `sources` entries and says the git
+    history keeps the rows; `check-anchors` passes.
 
 ### Task 6: Close the backlog task
 

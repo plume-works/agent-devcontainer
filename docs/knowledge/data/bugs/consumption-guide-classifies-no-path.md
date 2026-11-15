@@ -6,7 +6,6 @@ severity: low
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the consumption guide does not give each template path a class
