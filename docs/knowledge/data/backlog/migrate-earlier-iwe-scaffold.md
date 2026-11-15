@@ -29,5 +29,4 @@ The work: give that consumer a migration path —
   that took it, and drop `released`;
 - replace each release-page link with its text, and delete `data/log.md`.
 
-Whether this is a script or a `template-consume` update step is for the plan to
-decide.
+The plan decides if this is a script or a `template-consume` update step.

@@ -102,8 +102,7 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 - [x] The last paragraph of the task contains this text:
 
   ``` markdown
-  Whether this is a script or a `template-consume` update step is for the plan to
-  decide.
+  The plan decides if this is a script or a `template-consume` update step.
   ```
 
   - **Evidence:** The change wrote the paragraph again. `tail -2` of the task
