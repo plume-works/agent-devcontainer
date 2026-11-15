@@ -115,6 +115,73 @@ def test_check_updates_reports_changes_found_for_a_changed_tracked_path(
     assert '  tracked-dir/file-b.txt' in lines
 
 
+def _commit_all(template_dir: Path, message: str) -> str:
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', message], template_dir)
+    return subprocess.run(
+        ['git', 'rev-parse', 'HEAD'], cwd=template_dir, check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+
+def build_linked_template_repository(root: Path) -> tuple[Path, list[str]]:
+    """Build a template whose tracked directory becomes a link to a same-content directory."""
+    template_dir = root / 'linked-template'
+    template_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], template_dir)
+    for directory in ('tracked-link', 'scaffold/real-dir'):
+        (template_dir / directory).mkdir(parents=True)
+        (template_dir / directory / 'file-c.txt').write_text('c\n')
+    refs = [_commit_all(template_dir, 'copies')]
+    for child in (template_dir / 'tracked-link').iterdir():
+        child.unlink()
+    (template_dir / 'tracked-link').rmdir()
+    (template_dir / 'tracked-link').symlink_to('scaffold/real-dir')
+    refs.append(_commit_all(template_dir, 'link'))
+    (template_dir / 'scaffold/real-dir/file-c.txt').write_text('c changed\n')
+    refs.append(_commit_all(template_dir, 'change'))
+    return template_dir, refs
+
+
+def _check_linked_updates(
+    plugin_root: Path, plugin_tmp_path: Path, upstream_index: int
+) -> list[str]:
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.py'
+    template_dir, refs = build_linked_template_repository(plugin_tmp_path)
+    _run_git(['checkout', '--quiet', refs[upstream_index]], template_dir)
+    _run_git(['switch', '--quiet', '-C', 'main'], template_dir)
+    consumer_dir = build_consumer_repository(plugin_tmp_path, refs[0], ['tracked-link/'])
+    (consumer_dir / 'tracked-link').mkdir()
+    (consumer_dir / 'tracked-link' / 'file-c.txt').write_text('c\n')
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.splitlines()
+
+
+def test_check_updates_follows_a_tracked_path_that_is_a_link_upstream(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A change behind an upstream link is reported under the tracked path."""
+    lines = _check_linked_updates(plugin_root, plugin_tmp_path, upstream_index=2)
+
+    assert lines[-1] == 'RESULT=CHANGES_FOUND'
+    assert [line for line in lines if line.startswith('  ')] == ['  tracked-link/file-c.txt']
+
+
+def test_check_updates_ignores_a_tracked_directory_replaced_by_a_same_content_link(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Replacing a directory with a link to identical bytes is not a consumer change."""
+    lines = _check_linked_updates(plugin_root, plugin_tmp_path, upstream_index=1)
+
+    assert lines[-1] == 'RESULT=UP_TO_DATE'
+
+
 def test_check_updates_reports_files_inside_a_tracked_github_directory(
     plugin_root: Path,
     plugin_tmp_path: Path,

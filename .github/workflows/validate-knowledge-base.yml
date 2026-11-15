@@ -38,6 +38,7 @@ jobs:
         with:
           extra-filter: |
             - docs/knowledge/**
+            - .iwe
             - .iwe/**
             - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
             - ansible/roles/dev_tools/defaults/main.yml

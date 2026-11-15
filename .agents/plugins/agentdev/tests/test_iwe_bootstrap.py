@@ -236,6 +236,23 @@ def test_installed_graph_has_the_single_home_layout(
 
 
 @requires_iwe
+def test_iwe_runtime_state_in_the_scaffold_is_not_installed(
+    installed_iwe_bootstrap: Path, unrelated_repository: Path
+) -> None:
+    scaffold_iwe = installed_iwe_bootstrap / ASSETS / '.iwe'
+    shipped = tree_files(scaffold_iwe)
+    (scaffold_iwe / 'iwe.log').write_text('log\n', encoding='utf-8')
+    (scaffold_iwe / 'graph.db').write_bytes(b'db')
+    (scaffold_iwe / 'snapshots').mkdir()
+    (scaffold_iwe / 'snapshots' / 'one').write_text('snapshot\n', encoding='utf-8')
+
+    completed = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS'), completed.stderr
+    assert tree_files(unrelated_repository / '.iwe') == shipped
+
+
+@requires_iwe
 def test_repeated_run_reports_already_initialized_without_changes(
     installed_iwe_bootstrap: Path, unrelated_repository: Path
 ) -> None:

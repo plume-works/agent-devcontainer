@@ -9,6 +9,7 @@
       "ansible/**",
       ".agents/plugins/agentdev/bin/macos-bootstrap.zsh",
       ".iwe/**",
+      ".agents/plugins/agentdev/skills/iwe-bootstrap/assets/.iwe/**",
       "docs/knowledge/**",
       ".devcontainer/**",
       "devcontainer-compose-pins.yml",

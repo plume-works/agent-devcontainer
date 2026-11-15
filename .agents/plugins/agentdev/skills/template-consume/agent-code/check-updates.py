@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import posixpath
 import shutil
 import sys
 import tempfile
@@ -133,19 +134,39 @@ def read_marker(marker_path: Path) -> tuple[str, list[str]]:
     return consumed_ref, [jq_text(path) for path in tracked_paths]
 
 
+def upstream_link_target(clone_dir: str, upstream_ref: str, path: str) -> str | None:
+    """Return the repository path that a tracked path names when it is a link upstream."""
+    name = path.rstrip('/')
+    entry = run_tool('git', '-C', clone_dir, 'ls-tree', upstream_ref, '--', name).stdout.split()
+    if len(entry) < 3 or entry[0] != '120000':
+        return None
+    target = run_tool('git', '-C', clone_dir, 'cat-file', 'blob', entry[2]).stdout.strip()
+    return posixpath.normpath(posixpath.join(posixpath.dirname(name), target))
+
+
 def changed_paths(
     clone_dir: str, consumer_root: Path, consumed_ref: str, upstream_ref: str, tracked: list[str]
 ) -> list[str]:
     """Return changed files under tracked paths, skipping ones the consumer deleted."""
     changed: list[str] = []
     for path in tracked:
+        target = upstream_link_target(clone_dir, upstream_ref, path)
         diff = run_tool(
-            'git', '-C', clone_dir, 'diff', '--name-only', consumed_ref, upstream_ref, '--', path
+            'git',
+            '-C',
+            clone_dir,
+            'diff',
+            '--name-only',
+            consumed_ref,
+            upstream_ref,
+            '--',
+            target or path,
         )
         for changed_path in diff.stdout.splitlines():
             if not changed_path:
                 continue
-            local = consumer_root / changed_path
+            reported = path.rstrip('/') + changed_path[len(target) :] if target else changed_path
+            local = consumer_root / reported
             existed = (
                 run_tool(
                     'git', '-C', clone_dir, 'cat-file', '-e', f'{consumed_ref}:{changed_path}'
@@ -154,8 +175,8 @@ def changed_paths(
             )
             if existed and not local.exists() and not local.is_symlink():
                 continue
-            if changed_path not in changed:
-                changed.append(changed_path)
+            if reported not in changed:
+                changed.append(reported)
     return changed
 
 

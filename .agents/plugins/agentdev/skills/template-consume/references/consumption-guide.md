@@ -868,6 +868,9 @@ already exists.
    - **Workflow A**: the copy carries the publisher's `.iwe/` and
      `docs/knowledge/`. Compare both trees against the same ref's, leaving out
      `docs/knowledge/tests/`, which holds template tests rather than memory.
+     In the template, `.iwe` is a symbolic link into `.agents/`. If the copied
+     `.iwe` is still that link, it is the publisher copy, and it is broken
+     after [Delete publisher-only source](#2-delete-publisher-only-source).
      Byte-identical means the untouched publisher copy: remove the copied
      `.iwe/` and `docs/knowledge/` and continue with step 3. Any difference — a changed,
      added, or missing file — means the user has already written into it: it is

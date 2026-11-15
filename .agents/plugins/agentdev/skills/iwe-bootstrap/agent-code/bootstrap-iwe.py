@@ -77,6 +77,12 @@ Results (RESULT / exit code):
 """
 
 
+def iwe_runtime_patterns() -> list[str]:
+    """Return the `.iwe/.gitignore` names: files iwe writes at run time, not scaffold files."""
+    lines = (ASSETS_DIR / '.iwe' / '.gitignore').read_text(encoding='utf-8').splitlines()
+    return [line.rstrip('/') for line in lines if line and not line.startswith('#')]
+
+
 def path_exists(path: Path) -> bool:
     """Return whether anything, a dangling symlink included, is at `path`."""
     return path.exists() or path.is_symlink()
@@ -293,7 +299,12 @@ class Bootstrap:
         self.write_phase('staging')
         stage = self.transaction / 'stage'
         (stage / 'docs').mkdir(parents=True)
-        shutil.copytree(ASSETS_DIR / '.iwe', stage / '.iwe', symlinks=True)
+        shutil.copytree(
+            ASSETS_DIR / '.iwe',
+            stage / '.iwe',
+            symlinks=True,
+            ignore=shutil.ignore_patterns(*iwe_runtime_patterns()),
+        )
         shutil.copytree(ASSETS_DIR / WORKSPACE_PATH, stage / WORKSPACE_PATH, symlinks=True)
         if not self.validate_stage():
             self.discard_transaction()
