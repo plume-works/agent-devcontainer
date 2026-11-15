@@ -28,8 +28,7 @@ services:
       AGENTDEV_PROBE_FAILURES: ${AGENTDEV_PROBE_FAILURES:-}
       AGENTDEV_STOP_TIMEOUT: ${AGENTDEV_STOP_TIMEOUT:-30}
       AGENTDEV_STRICT_STARTUP: ${AGENTDEV_STRICT_STARTUP:-false}
-      # Empty leaves Claude Remote Control off; see runtime.env.example.
-      AGENTDEV_CLAUDE_RC_MODE: ${AGENTDEV_CLAUDE_RC_MODE:-}
+      # Empty runs Claude Remote Control in worktree mode; see runtime.env.example.
       AGENTDEV_CLAUDE_RC_SPAWN: ${AGENTDEV_CLAUDE_RC_SPAWN:-}
       CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: ${CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH:-5}
       ENABLE_FIREWALL: ${ENABLE_FIREWALL:-false}

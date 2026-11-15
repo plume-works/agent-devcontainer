@@ -30,7 +30,7 @@ from typing import NoReturn
 from uuid import uuid4
 import xmlrpc.client
 
-from agentdev_runtime import settings as env, state as files
+from agentdev_runtime import remote_control, settings as env, state as files
 from agentdev_runtime.state import log, OUTPUT_TAIL, read_json, utc_now, write_json
 
 RUNNING_STATES = {'RUNNING'}
@@ -64,8 +64,8 @@ class Settings:
     skip_xpra: bool = False
     # Starts OpenCode Web in a Dev Container; deploy always serves it.
     opencode_web: bool = False
-    # An empty value disables Remote Control. See ADR-0078.
-    remote_control: str = ''
+    # Remote Control runs unless its spawn mode is off. See ADR-0092.
+    remote_control: bool = False
     strict: bool = False
     firewall: bool = False
     # Every malformed setting; PID 1 latches a configuration failure naming them.
@@ -90,15 +90,13 @@ class Settings:
             home=Path(parse.raw('AGENTDEV_HOME') or Path.home()),
             skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
             opencode_web=parse.boolean('AGENTDEV_OPENCODE_WEB'),
-            remote_control=parse.choice('AGENTDEV_CLAUDE_RC_MODE', ('session', 'server')),
+            remote_control=parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', remote_control.SPAWNS)
+            not in ('', 'off'),
             strict=parse.boolean('AGENTDEV_STRICT_STARTUP'),
             firewall=parse.boolean('ENABLE_FIREWALL'),
         )
         # supervisord reads this one itself, as each program's stopwaitsecs.
         parse.count('AGENTDEV_STOP_TIMEOUT')
-        # The Remote Control start reads the spawn mode; checked here to latch early.
-        if settings.remote_control == 'server':
-            parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'same-dir'))
         return replace(settings, errors=tuple(parse.errors))
 
     @property

@@ -29,7 +29,7 @@ its own commit, push, attribution, and pull-request rules on top of `AGENTS.md`.
 
 ## Reproduction
 
-1. Run with `AGENTDEV_CLAUDE_RC_MODE=server`, so the `claude-remote` tmux
+1. Run with the default `AGENTDEV_CLAUDE_RC_SPAWN`, so the `claude-remote` tmux
    session runs `claude remote-control --spawn worktree`.
 2. Start a session from claude.ai or the Claude app.
 3. On the workspace, read
@@ -77,10 +77,6 @@ facts that correct it, and the defect should be reported to Anthropic.
   launch.
 - **State the precedence in `AGENTS.md`.** One rule, for any harness instruction
   that describes the environment, covers text the hook cannot anticipate.
-- **Use pinned-pane mode.** `AGENTDEV_CLAUDE_RC_MODE=session` runs an
-  interactive `claude` instead of spawning through the server, so it may not
-  receive the text. It gives up concurrent sessions, and whether it avoids the
-  text is unconfirmed.
 
 Rewriting `append-system-prompt.txt` or wrapping the spawned binary is rejected.
 The server writes the file immediately before spawning an absolute path, and the

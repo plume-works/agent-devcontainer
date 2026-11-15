@@ -1,5 +1,5 @@
 """
-Claude Remote Control: the supervised watcher, its start, the pinned pane, and the pin hook.
+Claude Remote Control: the supervised watcher and the start of its server.
 
 The watcher waits for a claude.ai login, starts ``claude-remote``, and exits once a session it
 started stopped or did not start. The recovery budget of the ``controller`` event listener
@@ -15,19 +15,13 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tempfile
 import time
-import uuid
 
 from agentdev_runtime import settings as env
 
 PREFIX = 'agentdev-runtime remote-control'
 SESSION = 'claude-remote'
-MODES = ('server', 'session')
-SPAWNS = ('worktree', 'same-dir')
-PANE = 'agentdev-runtime remote-control session'
-PIN_HOOK = 'agentdev-runtime remote-control pin'
-ID_FILE = 'remote-control-session-id'
+SPAWNS = ('worktree', 'same-dir', 'session', 'off')
 SETUP_TOKEN = 'CLAUDE_CODE_OAUTH_TOKEN'
 WAITING = 'waiting for a claude.ai login'
 RUNNING = f'running in tmux session {SESSION}'
@@ -78,33 +72,27 @@ def config_dir() -> Path:
     return Path(os.environ.get('CLAUDE_CONFIG_DIR') or home / '.claude')
 
 
-def pane_command(mode: str, spawn: str, workspace_name: str) -> str:
-    """Return the pane's command; server mode refuses --settings and prompts without --spawn."""
-    if mode == 'server':
-        command = f'claude remote-control --spawn {spawn} --permission-mode auto'
-        if workspace_name:
-            name = shlex.quote(workspace_name)
-            command += f' --name {name} --remote-control-session-name-prefix {name}'
-        return command
-    return f'{PANE} {shlex.quote(workspace_name)}' if workspace_name else PANE
+def pane_command(spawn: str, workspace_name: str) -> str:
+    """Return the pane's command; the server prompts without --spawn."""
+    command = f'claude remote-control --spawn {spawn} --permission-mode auto'
+    if workspace_name:
+        name = shlex.quote(workspace_name)
+        command += f' --name {name} --remote-control-session-name-prefix {name}'
+    return command
 
 
 def start() -> int:
     """Start Remote Control in its own tmux server, or leave a live session alone."""
-    mode = os.environ.get('AGENTDEV_CLAUDE_RC_MODE', 'session')
-    if mode not in MODES:
+    spawn = env.Settings().get('AGENTDEV_CLAUDE_RC_SPAWN')
+    if spawn not in SPAWNS:
         print(
-            f"Unrecognized AGENTDEV_CLAUDE_RC_MODE '{mode}'; valid options: server, session.",
+            f"Unrecognized AGENTDEV_CLAUDE_RC_SPAWN '{spawn}'; valid options: {', '.join(SPAWNS)}.",
             file=sys.stderr,
         )
         return 1
-    spawn = os.environ.get('AGENTDEV_CLAUDE_RC_SPAWN', 'worktree')
-    if mode == 'server' and spawn not in SPAWNS:
-        print(
-            f"Unrecognized AGENTDEV_CLAUDE_RC_SPAWN '{spawn}'; valid options: worktree, same-dir.",
-            file=sys.stderr,
-        )
-        return 1
+    if spawn == 'off':
+        print('AGENTDEV_CLAUDE_RC_SPAWN is off; skipping Remote Control.')
+        return 0
     for command in ('claude', 'tmux'):
         if shutil.which(command) is None:
             print(
@@ -128,7 +116,7 @@ def start() -> int:
         print(f'No claude.ai login (auth method: {method}); skipping Remote Control.')
         return 0
     running = f"Claude Remote Control tmux session '{SESSION}' is already running."
-    pane = pane_command(mode, spawn, os.environ.get('CODER_WORKSPACE_NAME', ''))
+    pane = pane_command(spawn, os.environ.get('CODER_WORKSPACE_NAME', ''))
     if live():
         print(running)
         return 0
@@ -162,50 +150,6 @@ def start() -> int:
     return 0
 
 
-def session(name: str | None) -> int:
-    """Resume the pinned conversation, or pin a new one when there is none or it fails."""
-    id_file = config_dir() / ID_FILE
-    hook = {'hooks': {'SessionStart': [{'hooks': [{'type': 'command', 'command': PIN_HOOK}]}]}}
-    remote_control = ['--remote-control', *([name] if name else [])]
-    remote_control += ['--settings', json.dumps(hook, separators=(',', ':'))]
-    try:
-        stored = id_file.read_text().strip()
-    except OSError:
-        stored = ''
-    if stored:
-        sys.stdout.flush()
-        if (
-            subprocess.run(['claude', *remote_control, '--resume', stored], check=False).returncode
-            == 0
-        ):
-            return 0
-    new_id = str(uuid.uuid4())
-    id_file.parent.mkdir(parents=True, exist_ok=True)
-    id_file.write_text(f'{new_id}\n')
-    os.execvp('claude', ['claude', *remote_control, '--session-id', new_id])
-
-
-def pin() -> int:
-    """SessionStart hook keeping the pin on the pane's conversation; it never fails."""
-    try:
-        session_id = json.loads(sys.stdin.read()).get('session_id') or ''
-    except (ValueError, AttributeError):
-        print('SessionStart input is not JSON; Remote Control pin unchanged.', file=sys.stderr)
-        return 0
-    if not session_id:
-        print(
-            'SessionStart input has no session_id; Remote Control pin unchanged.', file=sys.stderr
-        )
-        return 0
-    id_file = config_dir() / ID_FILE
-    id_file.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temp = tempfile.mkstemp(dir=id_file.parent, prefix=f'{ID_FILE}.')
-    with os.fdopen(descriptor, 'w') as handle:
-        handle.write(f'{session_id}\n')
-    os.replace(temp, id_file)
-    return 0
-
-
 def signature(credentials: Path) -> str:
     """Fingerprint the credential file, which a login, refresh, or expiry rewrites."""
     try:
@@ -229,9 +173,6 @@ def run(status_file: Path) -> int:
     settings = env.Settings()
     credentials = Path(settings.get('CLAUDE_SECURESTORAGE_CONFIG_DIR')) / '.credentials.json'
     interval = float(settings.get('AGENTDEV_HEALTH_INTERVAL'))
-    # Compose passes a set-but-empty spawn mode through; the start would reject it.
-    if not os.environ.get('AGENTDEV_CLAUDE_RC_SPAWN'):
-        os.environ.pop('AGENTDEV_CLAUDE_RC_SPAWN', None)
     checked = ''
     login = False
     seen = False
@@ -266,10 +207,6 @@ def main(argv: list[str]) -> int:
     command = argv[0] if argv else ''
     if command == 'start' and len(argv) == 1:
         return start()
-    if command == 'session' and len(argv) <= 2:
-        return session(argv[1] if len(argv) == 2 else None)
-    if command == 'pin' and len(argv) == 1:
-        return pin()
     if command in ('run', 'check') and len(argv) == 1:
         runtime_dir = os.environ.get('XDG_RUNTIME_DIR')
         if not runtime_dir:
@@ -279,8 +216,5 @@ def main(argv: list[str]) -> int:
         if command == 'check':
             return 0 if status_file.is_file() and status_file.stat().st_size > 0 else 1
         return run(status_file)
-    print(
-        'usage: agentdev-runtime remote-control run|check|start|session [name]|pin',
-        file=sys.stderr,
-    )
+    print('usage: agentdev-runtime remote-control run|check|start', file=sys.stderr)
     return 2

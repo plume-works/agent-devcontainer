@@ -41,7 +41,7 @@ def supervisor() -> ModuleType:
 
 
 def settings(supervisor: ModuleType, monkeypatch: pytest.MonkeyPatch, **env: str):
-    for name in ('AGENTDEV_SKIP_XPRA', 'AGENTDEV_OPENCODE_WEB', 'AGENTDEV_CLAUDE_RC_MODE'):
+    for name in ('AGENTDEV_SKIP_XPRA', 'AGENTDEV_OPENCODE_WEB', 'AGENTDEV_CLAUDE_RC_SPAWN'):
         monkeypatch.delenv(name, raising=False)
     for name, value in env.items():
         monkeypatch.setenv(name, value)
@@ -90,7 +90,10 @@ def test_devcontainer_requires_its_persistent_services_and_the_create_phase(
     required = [service for service in selected if not service.client]
     assert names(required) == [*DEVCONTAINER_REQUIRED, 'created']
     assert all(service.core for service in required)
-    assert [service.name for service in selected if service.client] == ['docker-gc']
+    assert [service.name for service in selected if service.client] == [
+        'docker-gc',
+        'remote-control',
+    ]
     assert 'keyring' in requires(selected, 'created')
     assert supervisor.PROFILES['devcontainer'].exit_on_latch
 
@@ -102,7 +105,6 @@ def test_devcontainer_starts_opencode_only_as_an_opt_in_client(supervisor, monke
             monkeypatch,
             AGENTDEV_RUNTIME_MODE='devcontainer',
             AGENTDEV_OPENCODE_WEB='1',
-            AGENTDEV_CLAUDE_RC_MODE='session',
         )
     )
     by_name = {service.name: service for service in selected}
@@ -127,7 +129,11 @@ def test_disabled_optional_services_leave_both_profiles(supervisor, monkeypatch)
         selected = names(
             supervisor.enabled_services(
                 settings(
-                    supervisor, monkeypatch, AGENTDEV_RUNTIME_MODE=mode, AGENTDEV_SKIP_XPRA='1'
+                    supervisor,
+                    monkeypatch,
+                    AGENTDEV_RUNTIME_MODE=mode,
+                    AGENTDEV_SKIP_XPRA='1',
+                    AGENTDEV_CLAUDE_RC_SPAWN='off',
                 )
             )
         )

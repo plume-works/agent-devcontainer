@@ -232,17 +232,8 @@ instance](adr/0075-one-empty-home-volume.md)
 [OpenCode runs with full access, merged into its configuration at each
 start](adr/0076-opencode-full-access-merged-at-each-start.md)
 
-[Server mode is an option next to session
-mode](adr/0077-remote-control-server-mode-is-opt-in.md)
-
-[No Dev Container lifecycle command starts Remote
-Control](adr/0078-remote-control-starts-from-the-agent-start.md)
-
 [The runtime supervises the Dev Container engine, and the image has no SSH
 server](adr/0079-runtime-supervises-the-nested-engine.md)
-
-[Session mode resumes one pinned
-conversation](adr/0080-session-mode-pins-one-conversation.md)
 
 [Each checkout links .venv to its own environment on the home
 volume](adr/0081-venv-link-to-the-home-volume.md)
@@ -276,3 +267,6 @@ library](adr/0090-self-improve-runtime-uses-only-the-standard-library.md)
 
 [Both harnesses permit a subagent depth of 5 in the
 containers](adr/0091-subagent-nesting-depth-five.md)
+
+[The Remote Control server runs by
+default](adr/0092-remote-control-server-on-by-default.md)

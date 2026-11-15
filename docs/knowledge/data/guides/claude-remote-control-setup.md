@@ -8,12 +8,11 @@ sources:
 # Claude Remote Control setup
 
 The decisions for this procedure are in
-[ADR-0078](../adr/0078-remote-control-starts-from-the-agent-start.md) and
-[ADR-0077](../adr/0077-remote-control-server-mode-is-opt-in.md).
+[ADR-0092](../adr/0092-remote-control-server-on-by-default.md).
 
 ## Set it up
 
-### 1. Attach the Coder agent start, or opt in the standalone runtime
+### 1. Attach the Coder agent start, or choose the spawn mode
 
 On Coder, the `coder_script` of the workspace template runs the agent-start
 command of the repository on each agent start. The default command is
@@ -21,12 +20,14 @@ command of the repository on each agent start. The default command is
 `agentdev-runtime remote-control start`. The `coder_script` runs nothing when
 the repository has no agent-start command.
 
-In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
-`session` or `server` (and, in server mode, optionally
-`AGENTDEV_CLAUDE_RC_SPAWN`); its `remote-control` watcher then runs
-`agentdev-runtime remote-control start` once a claude.ai login exists, and
-`agentdev-runtime health status` reports what it is doing. On other hosts
-nothing starts Remote Control; the command can still be run by hand.
+In a runtime that a supervisor runs, the `remote-control` watcher runs
+`agentdev-runtime remote-control start` when a claude.ai login exists.
+`agentdev-runtime health status` shows the status of the watcher. On other
+hosts, nothing starts Remote Control. You can start it manually with the same
+command.
+
+`AGENTDEV_CLAUDE_RC_SPAWN` selects the spawn mode of the server: `worktree` (the
+default), `same-dir`, or `session`. Set it to `off` to disable Remote Control.
 
 ### 2. Log in
 

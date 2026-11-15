@@ -264,11 +264,6 @@ term in the same change that first uses it.
   for: `plan`, `impl`, or `ship`.
 - **pin file** (noun): A file in `scripts/refresh-pin-checksums.py::PIN_FILES`
   whose downloads have a SHA-256 checksum for each architecture.
-- **pin hook** (noun): The `SessionStart` hook
-  `agentdev-runtime remote-control pin`, which writes the stored conversation ID
-  again.
-- **pinned pane** (noun): The tmux pane of session mode, which is bound to the
-  stored conversation ID.
 - **pins file** (noun): A Compose override file at the repository root that
   holds image references by tag and digest.
 - **Plan** (noun): The workflow phase that writes a plan, through
@@ -353,12 +348,7 @@ term in the same change that first uses it.
   which loads an action from this repository at the current commit.
 - **self-verification** (noun): The test after the firewall applies its rules,
   which makes sure that `example.com` is blocked and `api.github.com` answers.
-- **server mode** (noun): The Remote Control mode in which
-  `claude remote-control` runs as a server that starts a conversation on
-  request.
 - **session host** (noun): The machine that a cloud session runs on.
-- **session mode** (noun): The default Remote Control mode, in which one tmux
-  pane continues one stored conversation.
 - **setup token** (noun): A `CLAUDE_CODE_OAUTH_TOKEN` login, which cannot run
   Remote Control.
 - **Ship** (noun): The workflow phase that merges the spec changes of a plan and
@@ -374,8 +364,9 @@ term in the same change that first uses it.
 - **slot** (noun): A role in a pull request review, such as the metadata gate or
   the correctness pass, that the effort tier gives a model.
 - **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
-- **spawn mode** (noun): The place where a server-mode conversation runs: its
-  own git worktree or the workspace directory.
+- **spawn mode** (noun): How the Remote Control server runs conversations: each
+  in its own git worktree, all in the workspace directory, or one conversation
+  only.
 - **spec** (noun): A document of the removed `data/spec/` folder that stated
   behaviour as SHALL requirements.
 - **spike** (noun): A short trial implementation that answers one design

@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 description: Session mode resumes the one conversation whose ID a pin hook keeps in the Claude configuration directory on the home volume.
 ---
 
