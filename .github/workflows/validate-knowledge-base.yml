@@ -39,7 +39,6 @@ jobs:
           extra-filter: |
             - docs/knowledge/**
             - .iwe
-            - .iwe/**
             - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
             - ansible/roles/dev_tools/defaults/main.yml
             - scripts/fetch-pinned-tool.py

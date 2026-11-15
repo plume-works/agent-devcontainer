@@ -196,12 +196,12 @@ repos:
 
       # Mirrors the Knowledge base validation workflow. Hooks read the whole graph
       # from the repo root, so they take no filenames and trigger on any
-      # graph-affecting change under docs/knowledge/ or .iwe, a link to the scaffold .iwe/.
+      # graph-affecting change under docs/knowledge/ or the scaffold .iwe/ that .iwe links to.
       - id: iwe-schema-validate
         name: iwe-schema-validate
         entry: iwe schema validate
         language: system
-        files: '^(docs/knowledge/.*\.md|\.iwe(/.*)?|\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/\.iwe/.*)$'
+        files: '^(docs/knowledge/.*\.md|\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/\.iwe/.*)$'
         pass_filenames: false
 
       # normalize rewrites files in place and returns 0 even after changing files;
@@ -211,5 +211,5 @@ repos:
         name: iwe-normalize
         entry: bash -c 'iwe normalize && git diff --exit-code'
         language: system
-        files: '^(docs/knowledge/.*\.md|\.iwe(/.*)?|\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/\.iwe/.*)$'
+        files: '^(docs/knowledge/.*\.md|\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/\.iwe/.*)$'
         pass_filenames: false
