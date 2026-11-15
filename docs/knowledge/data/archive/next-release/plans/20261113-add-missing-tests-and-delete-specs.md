@@ -6,6 +6,8 @@ description: Add a test for each behaviour that only a spec states, move the las
 sources:
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
 - resource: .iwe/config.toml
+stage: done
+completed: 2026-11-15
 ---
 
 # Add the missing tests and delete the specs
@@ -13,27 +15,26 @@ sources:
 ## Context
 
 The requirements that stay in `data/spec/` have one of three labels from [the
-spec usefulness audit](../findings/spec-usefulness-audit.md): `needs-test` (18),
-`user-doc` (2), or `no-home` (3). The labels were in
+spec usefulness audit](../../../findings/spec-usefulness-audit.md): `needs-test`
+(18), `user-doc` (2), or `no-home` (3). The labels were in
 `docs/spec-audit/requirements.jsonl`, which Task 5 deletes. Each `needs-test`
 row had a `fate_note` that said what the test must show.
 
 This plan is the last step of [Shrink the knowledge base to an issue tracker and
-decision
-records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md).
-After it, the repository has no spec.
+decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). After
+it, the repository has no spec.
 
 ## Approach
 
 Each `needs-test` requirement has a test that runs the behaviour, as the test
 rules in `AGENTS.md#tests` tell you to do. Five of the 18 are decisions in
 workflow files, and [Test the decisions that the workflows
-make](../archive/next-release/plans/20261113-test-the-workflow-decisions.md)
-adds their tests. This plan adds tests for 7 of the other 13. The 5 other
-requirements have no test, because each one is configuration, a rule, or a guard
-against a possible future edit, and not logic. The last one is [a deploy runtime
-that reuses a checkout does not configure the git credential
-helper](../bugs/reused-checkout-gets-no-credential-helper.md).
+make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
+tests for 7 of the other 13. The 5 other requirements have no test, because each
+one is configuration, a rule, or a guard against a possible future edit, and not
+logic. The last one is [a deploy runtime that reuses a checkout does not
+configure the git credential
+helper](../../../bugs/reused-checkout-gets-no-credential-helper.md).
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to the consumption guide of the `template-consume` skill.
@@ -48,12 +49,11 @@ series reads it.
 The plan also changes code in two places. The `end-of-file-fixer` and
 `trailing-whitespace` hooks use the default stages, so a merge commit runs them.
 This change is the fix for [a merge commit skips `end-of-file-fixer` and
-`trailing-whitespace`](../archive/next-release/bugs/merge-commit-skips-two-hooks.md).
-The `gh` wrapper loses three things. It does not use `/usr/bin/gh` when `PATH`
-has no other `gh`. It has no `GH_WRAPPER_ACTIVE` guard. It has no code that
-ignores a second copy of the wrapper. Only the image installs the wrapper, so
-`PATH` holds one copy, and the wrapper uses the first `gh` on `PATH` that is not
-itself.
+`trailing-whitespace`](../bugs/merge-commit-skips-two-hooks.md). The `gh`
+wrapper loses three things. It does not use `/usr/bin/gh` when `PATH` has no
+other `gh`. It has no `GH_WRAPPER_ACTIVE` guard. It has no code that ignores a
+second copy of the wrapper. Only the image installs the wrapper, so `PATH` holds
+one copy, and the wrapper uses the first `gh` on `PATH` that is not itself.
 
 ## Implementation Steps
 
@@ -261,13 +261,12 @@ Each test shows what the `fate_note` of its row says.
 ## Depends on
 
 [Move the decisions from the specs into
-ADRs](../archive/next-release/plans/20261113-move-decisions-into-adrs.md)
+ADRs](20261113-move-decisions-into-adrs.md)
 
-[Make ASD-STE100 the rule for all
-prose](../archive/next-release/plans/20261113-ste100-prose-rule.md)
+[Make ASD-STE100 the rule for all prose](20261113-ste100-prose-rule.md)
 
 [Test the decisions that the workflows
-make](../archive/next-release/plans/20261113-test-the-workflow-decisions.md)
+make](20261113-test-the-workflow-decisions.md)
 
 ## Verification
 
