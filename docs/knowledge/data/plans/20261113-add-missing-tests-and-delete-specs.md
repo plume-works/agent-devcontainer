@@ -28,8 +28,8 @@ it, the repository has no spec.
 Each `needs-test` requirement gets a test that runs the behaviour, as the test
 rules in `AGENTS.md#tests` require. Five of the 18 are decisions in workflow
 files, and [Test the decisions that the workflows
-make](20261113-test-the-workflow-decisions.md) adds their tests. This plan adds
-the other 13.
+make](../archive/next-release/plans/20261113-test-the-workflow-decisions.md)
+adds their tests. This plan adds the other 13.
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to a guide, because the ruleset is a repository setting and
@@ -153,7 +153,7 @@ ADRs](../archive/next-release/plans/20261113-move-decisions-into-adrs.md)
 prose](../archive/next-release/plans/20261113-ste100-prose-rule.md)
 
 [Test the decisions that the workflows
-make](20261113-test-the-workflow-decisions.md)
+make](../archive/next-release/plans/20261113-test-the-workflow-decisions.md)
 
 ## Verification
 

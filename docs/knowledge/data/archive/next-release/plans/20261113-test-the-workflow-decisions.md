@@ -2,6 +2,8 @@
 type: plan
 created: 2026-11-13
 release: internal
+stage: done
+completed: 2026-11-15
 description: Move the decision logic of the AI review gate and of the image promotion out of the workflow files into scripts, and add a test that runs each decision.
 sources:
 - resource: docs/spec-audit/requirements.jsonl
@@ -13,18 +15,18 @@ sources:
 
 ## Context
 
-[The spec usefulness audit](../findings/spec-usefulness-audit.md) found five
-behaviours that only a spec states and that are inline code in a workflow file.
-Four are in `spec/ai-review-gate` and one is in `spec/image-pinning`. Each one
-decides a merge or a publish, and nothing runs it before GitHub does.
+[The spec usefulness audit](../../../findings/spec-usefulness-audit.md) found
+five behaviours that only a spec states and that are inline code in a workflow
+file. Four are in `spec/ai-review-gate` and one is in `spec/image-pinning`. Each
+one decides a merge or a publish, and nothing runs it before GitHub does.
 
 The test rules in `AGENTS.md#tests` permit only a test that runs the behaviour.
 A test cannot run code that is a string in a YAML file.
 
 This plan is a part of [Shrink the knowledge base to an issue tracker and
-decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It is
-a separate plan because a mistake in it shows only on a real pull request or a
-real publish.
+decision records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+It is a separate plan because a mistake in it shows only on a real pull request
+or a real publish.
 
 ## Approach
 
@@ -119,7 +121,7 @@ None — no behavioral change
 ## Depends on
 
 [Add ADRs and take the workflow off
-specs](../archive/next-release/plans/20261113-adrs-and-workflow-off-specs.md)
+specs](20261113-adrs-and-workflow-off-specs.md)
 
 ## Verification
 
