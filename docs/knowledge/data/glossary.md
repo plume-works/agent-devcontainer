@@ -291,6 +291,9 @@ term in the same change that first uses it.
   review runs.
 - **preimage** (noun): The content hash of the target file when self-improve
   staged a proposal, which the apply step compares before it writes.
+- **product vision** (noun): A document of `type: product-vision` in
+  `data/product-vision/` that records why the product exists or a principle that
+  stays true in each release.
 - **progress document** (noun): The file `.agentdev-template-progress.md` in a
   consumer, which holds the task list and the choices of a template setup.
 - **promotion** (noun): The move of the moving tags to an accepted candidate

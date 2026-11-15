@@ -26,5 +26,5 @@ states the decisions of its change, with the reason and the rejected options.
 
 - A pull request body and an ADR state the same decision. This copy is not an
   error.
-- [Evidence and outstanding work](../concept/evidence-and-outstanding-work.md)
-  permits the copy of a decision in a pull request body.
+- Step 5 of `/agentdev:pr-gen-description` permits the copy of a decision in a
+  pull request body.

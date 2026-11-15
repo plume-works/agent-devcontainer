@@ -44,10 +44,9 @@ A document is the last source, and an agent must not accept it as always
 correct. This order replaces the line that names `docs/knowledge/data/` as the
 correct source.
 
-[Evidence and outstanding work](../concept/evidence-and-outstanding-work.md)
-says that a document refers to the data that a different document holds, and
-does not repeat it. This plan adds to that rule an exception for a decision in a
-pull request body.
+Step 5 of `/agentdev:pr-gen-description` says that a pull request body refers to
+the data that a different document holds, and does not repeat it. This plan adds
+to that rule an exception for a decision that an ADR also states.
 
 ## Implementation Steps
 
@@ -73,12 +72,11 @@ pull request body.
 
 ### Task 3: Permit a decision in the pull request body
 
-**Files:** Modify:
-`docs/knowledge/data/concept/evidence-and-outstanding-work.md`
+**Files:** Modify: `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`
 
-- [ ] `## An artifact asserts only what nothing else already asserts` permits a
-  pull request body to state a decision that an ADR also states, and links
-  [ADR-0094](../adr/0094-code-then-git-history-then-documents.md).
+- [ ] Step 5 item 2, "Reference, never restate, what another document owns",
+  permits a pull request body to state a decision that an ADR also states, and
+  names ADR-0094.
 
 ### Task 4: Examine the body of a pull request that has decisions
 
@@ -137,5 +135,6 @@ The `rg` command prints nothing.
   — the list of body sections.
 - `AGENTS.md#project-memory` › "treat `docs/knowledge/data/` as the source of
   truth" — the line that the order replaces.
-- `docs/knowledge/data/concept/evidence-and-outstanding-work.md#an-artifact-asserts-only-what-nothing-else-already-asserts`
-  — the rule that this plan adds the exception to.
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md#step-5-select-what-needs-stating`
+  › "Reference, never restate, what another document owns" — the rule that this
+  plan adds the exception to.
