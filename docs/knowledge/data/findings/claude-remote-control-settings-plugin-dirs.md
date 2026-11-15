@@ -66,6 +66,11 @@ the repository:
   enabled, `claude plugin list` shows the two, and the session has one skill,
   the skill of the folder. Without the settings file, the session has the skill
   of the installed plugin.
+- **A changed description needs `/reload-skills`.** In a `claude -p` session
+  with more than one turn and the plugin of the folder, a change to the
+  `description` in the frontmatter of a skill does not show in the skill list of
+  the session. After `/reload-skills`, the session has the changed description,
+  and the reload reports no added or removed skill.
 
 ## Eliminated hypotheses
 
@@ -77,11 +82,6 @@ the repository:
 - **"No setting can give the variable to the sessions of a Remote Control
   server."** Eliminated: the `--settings` flag of `claude remote-control` does.
   The limit that ADR-0057 records applies to the settings files of a worktree.
-
-## Not measured
-
-- A session that an edit to a `description` in the frontmatter of a skill
-  changes.
 
 ## Consequences
 
