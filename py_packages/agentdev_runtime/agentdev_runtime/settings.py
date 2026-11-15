@@ -202,11 +202,6 @@ VARIABLES: tuple[Variable, ...] = (
     Variable('AGENTDEV_STRICT_STARTUP', 'True makes an optional-service failure fatal.'),
     Variable('AGENTDEV_SKIP_XPRA', 'True leaves Xpra out.'),
     Variable(
-        'AGENTDEV_OPENCODE_WEB',
-        'True serves OpenCode Web in a Dev Container.',
-        profiles=(DEVCONTAINER,),
-    ),
-    Variable(
         'AGENTDEV_CLAUDE_RC_SPAWN',
         'The Remote Control spawn mode: `worktree`, `same-dir`, or `session`. `off` stops it.',
         'worktree',
