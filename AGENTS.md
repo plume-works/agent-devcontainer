@@ -224,15 +224,16 @@ For substantial feature, bug, architecture, or behavior work:
 
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
 
-**`docs/knowledge/SCHEMA.md` is the only definition of the document types.** It
-gives what each type holds, its path, its frontmatter, its body, and its
-stages. A knowledge base document, a skill, or a catalog agent that needs a
-definition names the section, for example `docs/knowledge/SCHEMA.md#bugs`. It
+**The documents in `docs/knowledge/schema/` are the only definition of the
+document types.** Each one gives what a type holds, its path, its frontmatter,
+its body, and its stages. `docs/knowledge/SCHEMA.md` gives what goes where. A
+knowledge base document, a skill, or a catalog agent that needs a definition
+names the document, for example `docs/knowledge/schema/bugs.md`. It
 does not give the definition again. A step of a procedure can name the path
 that it writes and the stage that it sets.
 
 **A finding gets its own document, and nobody edits the document that it came
-from.** `docs/knowledge/SCHEMA.md#findings` defines a finding.
+from.** `docs/knowledge/schema/findings.md` defines a finding.
 
 **Do not build instrumentation for a question nobody has framed.** Work proposed
 to answer an open finding stays behind a named hypothesis its output could

@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The someday ideas, which `docs/knowledge/SCHEMA.md#someday-ideas` defines.
+description: The someday ideas, which `docs/knowledge/schema/someday-ideas.md` defines.
 stage: living
 ---
 

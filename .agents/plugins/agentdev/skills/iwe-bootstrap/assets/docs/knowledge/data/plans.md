@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The active plans, which `docs/knowledge/SCHEMA.md#plans` defines.
+description: The active plans, which `docs/knowledge/schema/plans.md` defines.
 stage: living
 ---
 

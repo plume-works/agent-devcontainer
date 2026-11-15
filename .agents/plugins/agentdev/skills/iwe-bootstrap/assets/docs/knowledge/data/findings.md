@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The findings, which `docs/knowledge/SCHEMA.md#findings` defines.
+description: The findings, which `docs/knowledge/schema/findings.md` defines.
 stage: living
 ---
 

@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The release pages, which `docs/knowledge/SCHEMA.md#releases` defines.
+description: The release pages, which `docs/knowledge/schema/releases.md` defines.
 stage: living
 ---
 

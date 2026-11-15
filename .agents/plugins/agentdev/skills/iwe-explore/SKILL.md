@@ -119,8 +119,8 @@ When the user wants a record, select the applicable destination:
 
 - **A someday idea, a finding, a guide, or a product-vision document:**
   `docs/knowledge/SCHEMA.md#what-goes-where` gives which of these the topic is.
-  Write the document as its section of `SCHEMA.md` defines it. Link the document
-  from its hub.
+  Write the document as its document in `docs/knowledge/schema/` defines it.
+  Link the document from its hub.
 - **A decision:** Give the decision and its rejected alternatives to Plan in
   the plan handoff below. Plan proposes the ADR. Do not write an ADR from
   explore mode.

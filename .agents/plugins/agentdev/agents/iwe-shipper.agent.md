@@ -127,7 +127,7 @@ needed. In particular:
    - Set each feature `release` lists to `stage: implemented`, and each listed
      bug to `stage: done` with its `rank` removed. Never create a feature or
      bug.
-   - Write each listed bug's `## Fix` as `docs/knowledge/SCHEMA.md#bugs` defines
+   - Write each listed bug's `## Fix` as `docs/knowledge/schema/bugs.md` defines
      it, from Verify's evidence. Leave `## Potential solution` as it is. Do not
      change a `## Fix` that already gives this fix. Replace a `## Fix` that does
      not.
@@ -166,12 +166,12 @@ needed. In particular:
      each stage with the stage at the base commit (`git show <base>:<path>`, or
      no file at the base).
    - Create `data/releases/<X.Y.Z>.md` with the frontmatter and the body that
-     `docs/knowledge/SCHEMA.md#releases` defines, with `date: <today>`. Its
+     `docs/knowledge/schema/releases.md` defines, with `date: <today>`. Its
      `## Decisions` lists the ADRs from the step above. A page that already exists
      stays as it is.
    - Move every document under `data/archive/next-release/` to
      `data/archive/<X.Y.Z>/` with `iwe rename`, as
-     `docs/knowledge/SCHEMA.md#archive` gives.
+     `docs/knowledge/schema/archive.md` gives.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
 

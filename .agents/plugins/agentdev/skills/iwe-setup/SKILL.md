@@ -24,7 +24,7 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - Propose a guide (`docs/knowledge/SCHEMA.md#guides`) for each applicable
+   - Propose a guide (`docs/knowledge/schema/guides.md`) for each applicable
      procedure, such as the build, the tests, and the release. Do not write the
      guide at this time.
 4. **Interview.** Ask in batches, conversationally:
@@ -39,12 +39,12 @@ what the code can't answer. Every future session reads what you write here.
    instruction lines as sections fill; add a dated entry to its Changelog. Write
    the guides the developer approved, and link each from `data/guides.md`. A
    measurement that the scan made is a finding
-   (`docs/knowledge/SCHEMA.md#findings`): write it and link it from
+   (`docs/knowledge/schema/findings.md`): write it and link it from
    `data/findings.md`.
 6. **Complete the onboarding.** Close the finished onboarding task
    `fill-product-doc` as done and move it to the archive, as
-   `docs/knowledge/SCHEMA.md#backlog-tasks` and
-   `docs/knowledge/SCHEMA.md#archive` give:
+   `docs/knowledge/schema/backlog-tasks.md` and
+   `docs/knowledge/schema/archive.md` give:
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
    then
    `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`.

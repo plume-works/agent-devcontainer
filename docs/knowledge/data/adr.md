@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The live ADRs, which `docs/knowledge/SCHEMA.md#adrs` defines.
+description: The live ADRs, which `docs/knowledge/schema/adrs.md` defines.
 stage: living
 ---
 

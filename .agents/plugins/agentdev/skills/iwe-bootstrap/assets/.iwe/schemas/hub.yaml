@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
   A hub (data/plans.md, data/features.md, …). The definition is
-  docs/knowledge/SCHEMA.md#hubs.
+  docs/knowledge/schema/hubs.md.
 maxDepth: 1
 frontmatter:
   type: object

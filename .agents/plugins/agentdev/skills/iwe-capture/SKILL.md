@@ -1,6 +1,6 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph. The item is a bug, a proposed feature, or a backlog task. First, look for a duplicate. Do not accept a document that does not have a section or field that SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and product-vision documents stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph. The item is a bug, a proposed feature, or a backlog task. First, look for a duplicate. Do not accept a document that does not have a section or field that its document in docs/knowledge/schema/ requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and product-vision documents stay with /agentdev:iwe-explore.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -19,12 +19,12 @@ Run every `iwe` command from the repository root; keys are relative to
 
 ## Steps
 
-1. **Read the contract.** Read `docs/knowledge/SCHEMA.md`: the section for the
-   type (`docs/knowledge/SCHEMA.md#bugs`, `docs/knowledge/SCHEMA.md#features`, or
-   `docs/knowledge/SCHEMA.md#backlog-tasks`) and
-   `docs/knowledge/SCHEMA.md#fields-every-type-carries`. Read `data/product.md`
-   `## Authoring rules`. `SCHEMA.md` is the only definition of what the document
-   must contain, and `iwe schema validate` enforces it.
+1. **Read the contract.** Read the schema document for the
+   type (`docs/knowledge/schema/bugs.md`, `docs/knowledge/schema/features.md`, or
+   `docs/knowledge/schema/backlog-tasks.md`) and
+   `docs/knowledge/schema/fields-every-type-carries.md`. Read `data/product.md`
+   `## Authoring rules`. The schema document is the only definition of what the
+   document must contain, and `iwe schema validate` enforces it.
 2. **Check for a duplicate.** Search with both
    `iwe find --fuzzy "<title words>" -f keys` and
    `iwe find --lexical "<one-line summary>" -f keys`, then read the top hits
@@ -32,10 +32,11 @@ Run every `iwe` command from the repository root; keys are relative to
    describes the same defect, feature, or work is a duplicate: **STOP**, write
    nothing, and show the matching key with the sentence that matches. Extending
    the existing document is the caller's decision, not this skill's.
-3. **Check for completeness.** Find the section of `SCHEMA.md` for the type.
+3. **Check for completeness.** Use the schema document for the type.
    Compare the supplied content with each frontmatter field and each body
-   section that the section requires. Then compare it with each content rule
-   that the section gives. If something is missing, **STOP** and write nothing.
+   section that the schema document requires. Then compare it with each
+   content rule that the schema document gives. If something is missing,
+   **STOP** and write nothing.
    List all the gaps, not only the first gap. Never invent content to close a
    gap; return it to the caller.
 
@@ -44,19 +45,19 @@ Run every `iwe` command from the repository root; keys are relative to
    section defines them, with `created: <today>` on a task. File the document at
    the stage that the section gives for Capture. A bug that the same change
    already fixed is closed work: file it at `stage: done` in the archive
-   (`docs/knowledge/SCHEMA.md#archive`), with its `## Fix`. Add `sources` that
+   (`docs/knowledge/schema/archive.md`), with its `## Fix`. Add `sources` that
    name each code path, each page, and each GitHub issue URL that the item came
    from. Capture files a feature only at `proposed`. `/agentdev:iwe-plan`
    accepts a feature.
 
 5. **Link it from its hub** at its sorted position, as
-   `docs/knowledge/SCHEMA.md#hubs` defines. A bug filed into the archive gets no
+   `docs/knowledge/schema/hubs.md` defines. A bug filed into the archive gets no
    hub link.
 
    The caller can say that the captured item closes an existing task or bug.
    Then close that document as `done`. Set the fields that its section gives for
    that stage. For a bug, write the `## Fix` that the caller gives. Move the
-   document to the archive as `docs/knowledge/SCHEMA.md#archive` gives.
+   document to the archive as `docs/knowledge/schema/archive.md` gives.
 
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.

@@ -35,7 +35,7 @@ Report only: edit nothing, commit nothing. Read the plan in full and check:
 3. Every feature `release` lists is at `stage: accepted`.
 4. `## Acceptance` is `None — no behavioral change`, or holds only complete
    scenarios: each `### Scenario:` block has each line that
-   `docs/knowledge/SCHEMA.md#plans` requires.
+   `docs/knowledge/schema/plans.md` requires.
 5. Each ADR that `## ADRs` links exists and is at `stage: proposed`.
 
 Lead with `Ready for Ship` when all five hold, otherwise `Gaps`, then one line

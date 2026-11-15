@@ -29,7 +29,7 @@ term in the same change that first uses it.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
 - **aggregator plan** (noun): The plan of a milestone, which links its child
-  plans, as `docs/knowledge/SCHEMA.md#plans` defines.
+  plans, as `docs/knowledge/schema/plans.md` defines.
 - **AI review gate** (noun): The decisions in
   `.github/actions/ai-review-status/review-gate.js` that control the
   `ai-review-present` check and the trusted-bot approval.
@@ -52,7 +52,7 @@ term in the same change that first uses it.
 - **auth volume** (noun): The Docker volume that holds only the Claude
   credentials, which all Dev Container instances of one host user share.
 - **backlog task** (noun): A work item that
-  `docs/knowledge/SCHEMA.md#backlog-tasks` defines.
+  `docs/knowledge/schema/backlog-tasks.md` defines.
 - **base** (noun): The remote branch that a work branch starts from and merges
   to stay current, `origin/main` by default.
 - **base branch** (noun): The branch that the `paths-filter` action uses as the
@@ -131,8 +131,8 @@ term in the same change that first uses it.
 - **disposable volume** (noun): A Docker volume whose name matches
   `docker.py::DISPOSABLE_VOLUME`, which is the only type of volume that a
   garbage collection pass can remove.
-- **document type** (noun): A category of document in `data/` that
-  `docs/knowledge/SCHEMA.md` defines, such as a plan or a bug.
+- **document type** (noun): A category of document in `data/` that the documents
+  in `docs/knowledge/schema/` define, such as a plan or a bug.
 - **Durable Knowledge Auditor** (noun): The catalog agent that runs
   `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
 - **durable-knowledge pass** (noun): The pass of a pull request review that runs
@@ -239,7 +239,7 @@ term in the same change that first uses it.
   against the diff, which stops the review with a change request before the
   passes.
 - **milestone** (noun): A plan whose children are plans, as
-  `docs/knowledge/SCHEMA.md#plans` defines.
+  `docs/knowledge/schema/plans.md` defines.
 - **model-invocable skill** (noun): A skill that a session can load without a
   command from the user.
 - **monitoring loop** (noun): The cycle of `pr-merge` that refreshes, waits, and
@@ -332,7 +332,7 @@ term in the same change that first uses it.
   `data/archive/next-release/` to the folder of the version and writes the
   release page.
 - **release page** (noun): The document for one cut version that
-  `docs/knowledge/SCHEMA.md#releases` defines.
+  `docs/knowledge/schema/releases.md` defines.
 - **remapped account** (noun): The `agent` account of the image after the
   devcontainer CLI changes its UID and GID to those of the host user.
 - **reorder pull request** (noun): A pull request whose only change is the
@@ -390,7 +390,7 @@ term in the same change that first uses it.
   the correctness pass, that the effort tier gives a model.
 - **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
 - **someday idea** (noun): A reference document that
-  `docs/knowledge/SCHEMA.md#someday-ideas` defines.
+  `docs/knowledge/schema/someday-ideas.md` defines.
 - **spawn mode** (noun): How the Remote Control server runs conversations: each
   in its own git worktree, all in the workspace directory, or one conversation
   only.
@@ -422,7 +422,7 @@ term in the same change that first uses it.
 - **tick** (verb): To change a plan task line from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
 - **tracker** (noun): A living document that is edited in place, as
-  `docs/knowledge/SCHEMA.md#trackers` defines.
+  `docs/knowledge/schema/trackers.md` defines.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.
 - **trusted bot** (noun): A bot login in `TRUSTED_BOT_ACTORS`, whose pull

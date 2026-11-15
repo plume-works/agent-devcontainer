@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The guides, which `docs/knowledge/SCHEMA.md#guides` defines.
+description: The guides, which `docs/knowledge/schema/guides.md` defines.
 stage: living
 ---
 

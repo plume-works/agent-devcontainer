@@ -89,17 +89,17 @@ data/
 └── archive/
 ```
 
-`SCHEMA.md` defines each of these: what the document type holds, its
-frontmatter, its body, and its stages.
+The documents in `schema/` define each of these: what the document type holds,
+its frontmatter, its body, and its stages.
 
 Every document carries typed, schema-validated frontmatter —
 `iwe schema validate` is the commit gate. Relationships are links, not fields;
 the `*.example.md` docs show every convention on a small fictional app and are
 deleted by setup.
 
-`AGENTS.md` is the agent's operating manual. `SCHEMA.md` is the only definition
-of the document types. `STRUCTURE.md` gives the reasons for the design
-decisions.
+`AGENTS.md` is the agent's operating manual. `SCHEMA.md` and the documents in
+`schema/` are the only definition of the document types. `STRUCTURE.md` gives
+the reasons for the design decisions.
 
 ## Built on IWE
 

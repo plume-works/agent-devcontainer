@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
   A backlog task (data/backlog/<slug>.md). The definition is
-  docs/knowledge/SCHEMA.md#backlog-tasks.
+  docs/knowledge/schema/backlog-tasks.md.
 maxDepth: 3
 frontmatter:
   type: object

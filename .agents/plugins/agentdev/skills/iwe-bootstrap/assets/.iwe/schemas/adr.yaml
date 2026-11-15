@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
   An ADR (data/adr/NNNN-<slug>.md). The definition is
-  docs/knowledge/SCHEMA.md#adrs.
+  docs/knowledge/schema/adrs.md.
 maxDepth: 2
 sections:
   - header: { pattern: '.+' }

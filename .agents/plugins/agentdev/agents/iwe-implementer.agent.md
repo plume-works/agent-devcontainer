@@ -61,7 +61,7 @@ claims the user gave is not one.
 6. **Execute the next unchecked task.** Follow its `**Files:**` list; write the
    code; run every test and check required for that task. Closing it is then a
    single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
-   `- **Evidence:**` child, as `docs/knowledge/SCHEMA.md#plans` defines it — a
+   `- **Evidence:**` child, as `docs/knowledge/schema/plans.md` defines it — a
    test, a command, a file, a manual check or a live check, or a PR, in free
    form. Its only function is to make sure that nobody ticks a box for work that
    nobody did. Nobody does the check again. The code, the tick, and its evidence
@@ -197,7 +197,8 @@ Route each finding by type:
 - A durable design fact — a constraint, a boundary, why the obvious approach
   fails → a plan revision that proposes an ADR, through the revision route in
   `## Running the loop`.
-- A finding or a guide → write the document as its section of `SCHEMA.md`
+- A finding or a guide → write the document as
+  `docs/knowledge/schema/findings.md` or `docs/knowledge/schema/guides.md`
   defines it, and link it from its hub.
 - A defect in shipped behavior, not caused by this work → hand it to the
   `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the

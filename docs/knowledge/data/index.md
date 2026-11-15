@@ -9,32 +9,32 @@ okf_version: '0.2'
 
 # Work
 
-- [Plans](plans.md) - The active plans, which `docs/knowledge/SCHEMA.md#plans`
+- [Plans](plans.md) - The active plans, which `docs/knowledge/schema/plans.md`
   defines.
 - [Backlog](backlog.md) - The open backlog tasks, which
-  `docs/knowledge/SCHEMA.md#backlog-tasks` defines.
+  `docs/knowledge/schema/backlog-tasks.md` defines.
 - [Milestones](milestone.md) - The milestones, which
-  `docs/knowledge/SCHEMA.md#plans` defines.
+  `docs/knowledge/schema/plans.md` defines.
 - [Someday](someday.md) - The someday ideas, which
-  `docs/knowledge/SCHEMA.md#someday-ideas` defines.
+  `docs/knowledge/schema/someday-ideas.md` defines.
 
 # Delivery
 
 - [Features](features.md) - The live features, which
-  `docs/knowledge/SCHEMA.md#features` defines.
-- [Bugs](bugs.md) - The open bugs, which `docs/knowledge/SCHEMA.md#bugs`
+  `docs/knowledge/schema/features.md` defines.
+- [Bugs](bugs.md) - The open bugs, which `docs/knowledge/schema/bugs.md`
   defines.
 - [Releases](releases.md) - The release pages, which
-  `docs/knowledge/SCHEMA.md#releases` defines.
+  `docs/knowledge/schema/releases.md` defines.
 
 # Reference
 
-- [ADRs](adr.md) - The live ADRs, which `docs/knowledge/SCHEMA.md#adrs` defines.
+- [ADRs](adr.md) - The live ADRs, which `docs/knowledge/schema/adrs.md` defines.
 - [Findings](findings.md) - The findings, which
-  `docs/knowledge/SCHEMA.md#findings` defines.
-- [Guides](guides.md) - The guides, which `docs/knowledge/SCHEMA.md#guides`
+  `docs/knowledge/schema/findings.md` defines.
+- [Guides](guides.md) - The guides, which `docs/knowledge/schema/guides.md`
   defines.
 - [Product vision](product-vision.md) - The product-vision documents, which
-  `docs/knowledge/SCHEMA.md#product-vision` defines.
+  `docs/knowledge/schema/product-vision.md` defines.
 - [Glossary](glossary.md) - The project terms that the prose rule permits, each
   with its meaning.

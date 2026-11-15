@@ -18,7 +18,8 @@ below).
 ```
 README.md          # the pitch and quickstart (humans)
 AGENTS.md          # the operating manual (agents) — CLAUDE.md points here
-SCHEMA.md          # the definition of each document type
+SCHEMA.md          # what goes where: the document type for each type of knowledge
+schema/            # the definition of each document type, one document per type
 STRUCTURE.md       # this file: design rationale
 .iwe/
   config.toml      # markdown conventions + schema→glob bindings
@@ -36,11 +37,11 @@ data/              # the graph
 
 ## Design decisions
 
-`SCHEMA.md` is the only definition of the document types, the hubs, the build
-order, and the archive. This section gives the reason for each decision and
-names the section of `SCHEMA.md` that defines it.
+`SCHEMA.md` and the documents in `schema/` are the only definition of the
+document types, the hubs, the build order, and the archive. This section gives
+the reason for each decision and names the document that defines it.
 
-**A hub is one flat sorted list** (`SCHEMA.md#hubs`). Two pull requests then
+**A hub is one flat sorted list** (`schema/hubs.md`). Two pull requests then
 conflict on a hub only when their members sort next to each other.
 
 **Work items and reference documents** (`SCHEMA.md#what-goes-where`). Only a
@@ -48,15 +49,15 @@ work item has a lifecycle, so only a work item has a `stage`. Each document is
 validated, but only a work item must have more than a `type`.
 
 **Frontmatter is the only record of state**
-(`SCHEMA.md#fields-every-type-carries`). A stage change then edits one file, and
+(`schema/fields-every-type-carries.md`). A stage change then edits one file, and
 only the pull request of that work item changes the file. The build order
-(`SCHEMA.md#build-order`) is a query, not a file, for the same reason.
+(`schema/build-order.md`) is a query, not a file, for the same reason.
 
 **Each type of knowledge has one home** (`SCHEMA.md#what-goes-where`). A
 statement with two homes becomes incorrect in the home that nobody maintains.
 
 **Finished work goes to the archive, and nobody deletes it**
-(`SCHEMA.md#archive`). The archive keeps the subfolder of each document, so the
+(`schema/archive.md`). The archive keeps the subfolder of each document, so the
 schema of its type continues to check it. The folder is the only record of the
 release, so no field repeats it.
 
@@ -68,26 +69,26 @@ sees it in the text, and `iwe find --references` follows it.
 plan, a shipped plan in the archive, a cut release. Each step is a new document,
 a frontmatter change, or a move to the archive.
 
-**Nobody edits an accepted ADR** (`SCHEMA.md#adrs`). A reader then sees each
+**Nobody edits an accepted ADR** (`schema/adrs.md`). A reader then sees each
 decision as it was made.
 
-**Acceptance is in the plan** (`SCHEMA.md#plans`). Verify checks the scenarios
+**Acceptance is in the plan** (`schema/plans.md`). Verify checks the scenarios
 against the code before Ship. Ship copies nothing: the scenarios stay in the
 archived plan.
 
-**The release cut reads the archive** (`SCHEMA.md#releases`). The archived plans
+**The release cut reads the archive** (`schema/releases.md`). The archived plans
 are what changed, so the page needs no link to a document that was written
 before the work.
 
-**A milestone is a plan of plans** (`SCHEMA.md#plans`). The graph already gives
+**A milestone is a plan of plans** (`schema/plans.md`). The graph already gives
 this structure, so a milestone needs no mechanism of its own.
 
 **A code anchor names a place and never counts lines**
-(`SCHEMA.md#code-anchors`). An anchor stays correct until its target gets a new
+(`schema/code-anchors.md`). An anchor stays correct until its target gets a new
 name or is removed, and then it does not resolve. A line number gives no such
 signal.
 
-**Authoring rules are in the product document** (`SCHEMA.md#trackers`). The
+**Authoring rules are in the product document** (`schema/trackers.md`). The
 rules of one project are then data, not a changed copy of a skill.
 
 ## Influences: OpenSpec

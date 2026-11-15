@@ -61,12 +61,12 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 4. **Write planning state.** In create mode, run
    `iwe new --key data/plans/<YYYYMMDD>-<slug>` (today's date,
    kebab slug), then write the frontmatter and the body sections that
-   `docs/knowledge/SCHEMA.md#plans` defines, in its order.
+   `docs/knowledge/schema/plans.md` defines, in its order.
 
    Ship applies `release` as written. List in it each feature that the work
    implements and each bug that the work fixes.
 
-   File each ADR that the plan proposes as `docs/knowledge/SCHEMA.md#adrs`
+   File each ADR that the plan proposes as `docs/knowledge/schema/adrs.md`
    defines it, at `stage: proposed`, and add its link to `data/adr.md`.
    `## ADRs` below gives when to propose an ADR.
 
@@ -85,15 +85,15 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    this skill.
 
 5. **File a created plan.** In create mode, add its link to `data/plans.md` as
-   `docs/knowledge/SCHEMA.md#hubs` defines. If the user gives the position of
+   `docs/knowledge/schema/hubs.md` defines. If the user gives the position of
    the plan in the build order, set its `rank` as
-   `docs/knowledge/SCHEMA.md#build-order` gives. Do not edit the `rank` of a
+   `docs/knowledge/schema/build-order.md` gives. Do not edit the `rank` of a
    different document. If the user gives no position, set no `rank`. Set each
    proposed feature that the plan lists to `stage: accepted`. Set each pending
    bug that the plan lists to `stage: planned`. If the plan started as a backlog
    task, close the task as done. Then move the task to the archive.
-   `docs/knowledge/SCHEMA.md#backlog-tasks` and
-   `docs/knowledge/SCHEMA.md#archive` give the procedure. Step 8 closes the
+   `docs/knowledge/schema/backlog-tasks.md` and
+   `docs/knowledge/schema/archive.md` give the procedure. Step 8 closes the
    issue that the plan started from, after validation. Do not close the issue
    before validation shows that the plan is correct. In revise mode, keep the
    graph membership and the lifecycle of the plan. Change them only when the
@@ -179,12 +179,12 @@ created plan only; revising a plan never touches the issue it came from.
 
 ## Acceptance
 
-`docs/knowledge/SCHEMA.md#plans` defines `## Acceptance` and the scenario block.
+`docs/knowledge/schema/plans.md` defines `## Acceptance` and the scenario block.
 Never invent a scenario to fill the section.
 
 ## ADRs
 
-`docs/knowledge/SCHEMA.md#adrs` gives which decisions get an ADR. Propose an ADR
+`docs/knowledge/schema/adrs.md` gives which decisions get an ADR. Propose an ADR
 only for such a decision. `## Approach` gives the shape of the solution.
 
 Plan never edits an accepted ADR. A plan that changes a decision proposes a new

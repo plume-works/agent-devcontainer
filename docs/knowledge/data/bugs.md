@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The open bugs, which `docs/knowledge/SCHEMA.md#bugs` defines.
+description: The open bugs, which `docs/knowledge/schema/bugs.md` defines.
 stage: living
 ---
 

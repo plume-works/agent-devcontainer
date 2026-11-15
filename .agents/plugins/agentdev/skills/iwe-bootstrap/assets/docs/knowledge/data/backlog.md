@@ -1,6 +1,6 @@
 ---
 type: hub
-description: The open backlog tasks, which `docs/knowledge/SCHEMA.md#backlog-tasks` defines.
+description: The open backlog tasks, which `docs/knowledge/schema/backlog-tasks.md` defines.
 stage: living
 ---
 
