@@ -170,7 +170,10 @@ Each test shows what the `fate_note` of its row says.
 
 **Files:** Modify: `docs/knowledge/data/glossary.md`
 
-- [ ] Each term in the glossary is used in prose outside `data/archive/`.
+- [x] Each term in the glossary is used in prose outside `data/archive/`.
+  - **Evidence:** A `git grep` of each term and its inflections outside
+    `data/archive/` found 12 terms with no use; they are removed, and the `spec`
+    entry names the removed folder.
 
 ### Task 5: Delete the audit data
 
