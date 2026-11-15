@@ -50,10 +50,10 @@ give the context, the decision, and the reason. The schema permits two optional
 sections, in this order, and no other section. Include an optional section only
 when it adds real value. Most ADRs do not need them.
 
-- `## Considered Options` — only when the rejected alternatives are worth
-  remembering.
-- `## Consequences` — only when downstream effects that are not obvious need to
-  be called out.
+- `## Considered Options` — include this section only when a reader must know
+  the alternatives that the decision rejected.
+- `## Consequences` — include this section only when the decision has downstream
+  effects that are not obvious.
 
 These rules also apply:
 

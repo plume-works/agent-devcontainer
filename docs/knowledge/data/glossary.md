@@ -134,6 +134,8 @@ term in the same change that first uses it.
   garbage collection pass can remove.
 - **document type** (noun): A category of document in `data/` that the documents
   in `docs/knowledge/schema/` define, such as a plan or a bug.
+- **downstream effect** (noun): A change in a component, a process, or a
+  document that a decision causes after the point where the decision applies.
 - **Durable Knowledge Auditor** (noun): The catalog agent that runs
   `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
 - **durable-knowledge pass** (noun): The pass of a pull request review that runs
