@@ -49,7 +49,6 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 - **An ADR body can have 1 to 10 sentences.** The limit was 3. Nothing needs
   migrating.
-
 - **Release pages are plain text written from the spec diff.** The release cut
   says what changed in the requirements and scenarios since the previous cut and
   lists the titles of the release's bugs; a page holds no link.
