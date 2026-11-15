@@ -81,8 +81,7 @@ Each test shows what the `fate_note` of its row says.
   credential helper".
   - **Evidence:** `scripts/tests/test_gh_wrapper.py` runs the wrapper with a
     stand-in real gh and a real git credential helper: the helper token, no
-    helper, a set token, the `GH_WRAPPER_ACTIVE` guard, a second wrapper copy,
-    and no real gh on `PATH`; 6 passed.
+    helper, a set token, and exit 127 with no real gh on `PATH`; 4 passed.
 - [x] A test runs `devcontainer-state` "the create phase re-owns the sibling
   checkout volume".
   - **Evidence:** The Docker tests in

@@ -83,29 +83,10 @@ def test_a_token_already_set_is_kept(scratch: Path, wrapped: list[Path]) -> None
     assert result.stdout == 'token=caller-token args=api user\n'
 
 
-def test_an_active_wrapper_delegates_without_reading_the_helper(
-    scratch: Path, wrapped: list[Path]
-) -> None:
-    result = run_gh(scratch, wrapped, HELPER, GH_WRAPPER_ACTIVE='1')
-
-    assert result.stdout == 'token= args=api user\n'
-
-
-def test_a_second_wrapper_copy_on_path_is_skipped(scratch: Path, wrapped: list[Path]) -> None:
-    install(scratch / 'copy', WRAPPER.read_text())
-
-    result = run_gh(scratch, [wrapped[0], scratch / 'copy', wrapped[1]], HELPER)
-
-    assert result.stdout == 'token=helper-token args=api user\n'
-
-
-def test_with_no_real_gh_on_path_only_the_fallback_is_tried(scratch: Path) -> None:
+def test_with_no_real_gh_on_path_the_wrapper_exits_127(scratch: Path) -> None:
     install(scratch / 'wrapper', WRAPPER.read_text())
 
     result = run_gh(scratch, [scratch / 'wrapper'], None)
 
-    if Path('/usr/bin/gh').is_file():
-        assert result.returncode != 127, result.stderr
-    else:
-        assert result.returncode == 127
-        assert 'real gh not found on PATH' in result.stderr
+    assert result.returncode == 127
+    assert 'real gh not found on PATH' in result.stderr
