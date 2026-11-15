@@ -342,12 +342,13 @@ jobs:
             left="$(find . /tmp/agentdev-tests -newer .tmp/root-tests.stamp -user root -print 2>/dev/null | head -n 5)"
             if [ -n "$left" ]; then echo "root-owned leftovers: $left" >&2; exit 1; fi
 
-      # The devcontainer step owns the checkout's .venv, so the host steps use their own.
+      # The devcontainer step uses the .venv of the checkout, so the host steps use a different venv.
       - uses: $/.github/actions/setup-python-venv
         env:
           UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/venv
 
-      # Its own step, so the duration of the stress tests shows apart from the unit tests.
+      # The stress tests have a separate step, so CI shows their duration and the duration of
+      # the unit tests as two items.
       - name: Run the stress tests
         env:
           UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/venv
