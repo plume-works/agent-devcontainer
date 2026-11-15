@@ -21,7 +21,7 @@ a shape of its own.
 
 ## What goes where
 
-Each kind of knowledge has one home, and no type repeats the content of a
+Each type of knowledge has one home, and no type repeats the content of a
 different type.
 
 | Knowledge                                             | Home                          | Writer                                  |
@@ -31,7 +31,7 @@ different type.
 | A project term                                        | `data/glossary.md` (Trackers) | The change that first uses the term     |
 | A principle that stays true in each release           | Product vision                | `/agentdev:iwe-explore`                 |
 | An idea that is not a commitment                      | Someday ideas                 | `/agentdev:iwe-explore`                 |
-| Work to do that fits in one sitting                   | Backlog tasks                 | `/agentdev:iwe-capture`                 |
+| Work that one session can complete                    | Backlog tasks                 | `/agentdev:iwe-capture`                 |
 | A defect in shipped behaviour                         | Bugs                          | `/agentdev:iwe-capture`                 |
 | What users must get, written before the work          | Features                      | `/agentdev:iwe-capture`                 |
 | Committed work: its tasks, acceptance, and checks     | Plans                         | `/agentdev:iwe-plan`                    |
@@ -56,7 +56,7 @@ The optional families of OKF (SPEC §4.1, §5) are on each schema.
 
 - `type` — required on each document under `data/`, with one exception:
   `data/index.md`.
-- `description` — one sentence. Each document has one. An OKF consumer and
+- `description` — one sentence. Each document has one. An OKF tool and
   `data/index.md` show it before a reader opens the file.
 - `sources` — the materials that a document derives from. Each entry is
   `{ id, resource, title, author, usage_count, last_modified }`, and `resource`
@@ -84,9 +84,9 @@ rank: 300 # optional; positive integer
   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`. An item
   without `rank` is not in the sequence. The query `rank: {$exists: false}`
   finds these items.
-- Ranks step by 100. An item that goes between two others takes the midpoint of
-  their ranks. Only a reorder pull request changes the `rank` of more than one
-  item.
+- Ranks increase in steps of 100. An item that goes between two others takes the
+  midpoint of their ranks. Only a reorder pull request changes the `rank` of
+  more than one item.
 - A done or cancelled item has no `rank`. The session that closes the item
   removes it.
 - Equal ranks are valid. The key decides their order, and CI gives a warning.
@@ -97,8 +97,8 @@ An anchor names a place in a file. A document never records a line number.
 
 - Code: `path::Class.method` or `path::function`.
 - Markdown: `path#heading-slug`.
-- YAML, JSON, and TOML: `path#key.path`. A list element is named by its `id` or
-  its `name`.
+- YAML, JSON, and TOML: `path#key.path`. The `id` or the `name` of a list
+  element identifies it.
 - A Makefile or a Dockerfile: `path#target` or `path#stage`.
 - A place inside one of these: the anchor, then ` › "verbatim quote"`.
 
@@ -109,8 +109,8 @@ the current checkout, never from memory. An anchor has no date.
 
 A plan is committed work that a later session can do with no other context. A
 plan is an implementation plan, a migration, or a design proposal. One plan has
-one topic: work that needs two verification stories that are not related is two
-plans.
+one topic: work that needs two sets of verification checks that are not related
+is two plans.
 
 - Path: `data/plans/YYYYMMDD-<slug>.md`. The date is the day of creation.
 - Hub: `data/plans.md`.
@@ -156,14 +156,14 @@ exceptions: `## Acceptance` and `## Verification` are always there.
   - Wording that the user approved is in a fenced block, word for word.
   - A checkbox that is not ticked has no child. A ticked checkbox (`- [x]`) has
     one indented `- **Evidence:**` child: a short note, in free form, of what
-    was done and how it was checked. A plan does not prescribe the form of the
-    note, and nobody audits it.
+    was done and how it was checked. A plan does not specify the form of the
+    note, and nobody examines it.
 - `## Acceptance` — one `### Scenario:` block for each behaviour that the plan
   adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
-  line. Then it has one of two lines: `- **Test:**` names the test that proves
-  the scenario, as `path::test_name`; `- **Checked at ship:**` names the
-  rulebook or the file that the verifier reads, for behaviour that no test can
-  reach. A plan that changes no behaviour writes `None — no behavioral change`.
+  line. Then it has one of two lines. `- **Test:**` names the test that proves
+  the scenario, as `path::test_name`. `- **Checked at ship:**` is for behaviour
+  that no test can reach. It names the rulebook or the file that the verifier
+  reads. A plan that changes no behaviour writes `None — no behavioral change`.
 - `## ADRs` — one link for each ADR that the plan proposes.
 - `## Depends on` — inline links to the plans that must ship first. Each plan
   that the section links is a prerequisite. The exception is a section whose
@@ -223,7 +223,7 @@ question says so in one line. Other sections can come after these.
 
 ## Bugs
 
-A bug is a defect in shipped behaviour: behaviour that is incorrect and that a
+A bug is a defect in shipped behaviour. The defect is incorrect behaviour that a
 reader can reproduce, or code that does not agree with an accepted ADR. A bug
 holds the report and the investigation.
 
@@ -255,8 +255,8 @@ this order. Other sections can come after these.
 
 - `## Potential solution` — the direction that is intended, at any stage.
 - `## Fix` — the fix that shipped, in a few sentences. A bug at `done` has it.
-  The writer is the session that fixed the bug directly, or Ship, which writes
-  it from the plan that fixed the bug and links that plan.
+  The session that fixed the bug directly writes it. If a plan fixed the bug,
+  Ship writes it from that plan and links that plan.
 
 A `## Reproduction` or a `## Root cause` that is not yet known is never only
 "unknown". It gives what is known, each hypothesis that was eliminated and what
@@ -268,18 +268,22 @@ gives the lifecycle of the bug: `stage` does.
 An ADR records one design decision and its reason. A decision gets an ADR only
 when all three of these are true:
 
-1. **It is hard to reverse.** A later change of the decision has a real cost.
+1. **It is difficult to reverse.** A later change of the decision has a real
+   cost.
 2. **It is a surprise without context.** A later reader of the code will ask why
    it is done this way.
 3. **It is the result of a real trade-off.** There were real alternatives, and
    one was selected for specific reasons.
 
-These decisions qualify: the shape of the architecture; an integration pattern
-between parts of the system; a technology that is expensive to replace; a
-boundary or a scope decision, a refusal included; a deliberate deviation from
-the obvious path; a constraint that the code does not show; and an alternative
-that was rejected for a reason that is not obvious.
+These decisions qualify:
 
+- the shape of the architecture;
+- an integration pattern between parts of the system;
+- a technology that is expensive to replace;
+- a boundary or a scope decision, a refusal included;
+- a deliberate deviation from the obvious path;
+- a constraint that the code does not show;
+- an alternative that was rejected for a reason that is not obvious.
 - Path: `data/adr/NNNN-<slug>.md`. `NNNN` is the next free four-digit number in
   `data/adr/` and `data/archive/*/adr/`.
 - Hub: `data/adr.md`.
@@ -334,11 +338,11 @@ stage: released # required, always released
 Body: plain text with no Markdown link, with these sections in this order. A
 page leaves out a section that has no content.
 
-- Sections with a theme as the heading — the changes that the `## Acceptance`
-  scenarios of the plans in the archive folder of the release give, in plain
-  language. For an archived plan with no `## Acceptance`, the page uses its
-  `## Spec changes`.
-- `## Removed` — behaviour that went away.
+- Sections with a theme as the heading — the changes, in plain language. The
+  `## Acceptance` scenarios of the plans in the archive folder of the release
+  give the changes. For an archived plan with no `## Acceptance`, the page uses
+  its `## Spec changes`.
+- `## Removed` — behaviour that the release removed.
 - `## Upgrade notes` — a change that needs action from a consumer.
 - `## Decisions` — the title of each ADR that became accepted or superseded
   after the commit that added the previous release page.
@@ -347,7 +351,7 @@ page leaves out a section that has no content.
 ## Backlog tasks
 
 A backlog task is one small work item with a priority, which waits to become a
-plan or a quick fix. A task that does not fit in one sitting becomes a plan.
+plan or a quick fix. A task that one session cannot complete becomes a plan.
 
 - Path: `data/backlog/<slug>.md`.
 - Hub: `data/backlog.md`.
@@ -408,8 +412,8 @@ repository, and that the README does not give.
 - Hub: `data/guides.md`.
 - Frontmatter: `type: guide`. The schema does not accept a `stage`.
 
-Body: one H1 and the steps. Each code anchor in a guide is resolved on each
-commit.
+Body: one H1 and the steps. The anchor check resolves each code anchor in a
+guide on each commit.
 
 ## Product vision
 
@@ -471,16 +475,16 @@ makes optional.
 
 ## Archive
 
-Finished work goes to the archive and is never deleted. `data/archive/` has one
-folder for each cut version, and the folder `next-release`. Each folder has the
-subfolder that its documents were in: `plans/`, `bugs/`, `backlog/`,
+Finished work goes to the archive, and nobody deletes it. `data/archive/` has
+one folder for each cut version, and the folder `next-release`. Each folder has
+the subfolder that its documents were in: `plans/`, `bugs/`, `backlog/`,
 `features/`, `adr/`, or `architecture/`. Each archived document keeps the schema
 of its type and is validated in full.
 
 - The session that closes a plan, a bug, a task, a feature, or an ADR moves it
-  with `iwe rename` to `data/archive/next-release/<folder>/` in the same change,
-  and removes its link from its hub. The stage tables above show which stages
-  are in the archive.
+  to `data/archive/next-release/<folder>/` with `iwe rename`. The same change
+  removes its link from its hub. The stage tables above show which stages are in
+  the archive.
 - The release cut moves all documents under `next-release` to the folder of the
   version, and keeps the subfolders.
 - The folder is the only record of the release of a document. No document has a

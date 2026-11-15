@@ -74,7 +74,7 @@ iwe tree -k data/features                                            # the open 
 ```
 data/
 ├── index.md                            # the graph root
-├── product.md                          # the document every session reads first
+├── product.md                          # the document that each session reads first
 ├── plans.md           plans/
 ├── features.md        features/
 ├── bugs.md            bugs/

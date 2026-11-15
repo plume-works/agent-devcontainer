@@ -231,8 +231,8 @@ definition names the section, for example `docs/knowledge/SCHEMA.md#bugs`. It
 does not give the definition again. A step of a procedure can name the path
 that it writes and the stage that it sets.
 
-**A finding gets its own document, and the document it came from is not
-edited.** `docs/knowledge/SCHEMA.md#findings` defines a finding.
+**A finding gets its own document, and nobody edits the document that it came
+from.** `docs/knowledge/SCHEMA.md#findings` defines a finding.
 
 **Do not build instrumentation for a question nobody has framed.** Work proposed
 to answer an open finding stays behind a named hypothesis its output could

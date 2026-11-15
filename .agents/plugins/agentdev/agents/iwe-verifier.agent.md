@@ -121,13 +121,13 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 — `Ready to ship`, `Blocked`, `Audit`, or `Needs decision` — and the plan key,
 then:
 
-- **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding opens
-  with its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION,
-  numbered from 1 per severity in report order — then its anchored evidence or
-  the label "unverified", and its recommendation. An anchor has a form that
-  `docs/knowledge/SCHEMA.md#code-anchors` gives, never a line number. Its `path`
-  is never absolute, so the report reads the same from any checkout. Audit mode
-  numbers its findings the same way.
+- **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding starts
+  with its ID: `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION.
+  The numbers start at 1 for each severity, in report order. Then the finding
+  gives its anchored evidence or the label "unverified", and its recommendation.
+  An anchor has a form that `docs/knowledge/SCHEMA.md#code-anchors` gives, never
+  a line number. Its `path` is never absolute, so the report reads the same from
+  any checkout. Audit mode gives its findings IDs in the same way.
 - **Outstanding observations** — each unticked task carrying a
   `**Closed by:**` line, with who or what closes it.
 - **Verification commands** — each `## Verification` step: its actual result,

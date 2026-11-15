@@ -85,19 +85,21 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    this skill.
 
 5. **File a created plan.** In create mode, add its link to `data/plans.md` as
-   `docs/knowledge/SCHEMA.md#hubs` defines. When the user names where the plan
-   belongs in the build order, set its `rank` as
-   `docs/knowledge/SCHEMA.md#build-order` gives, and edit no other document's
-   `rank`; otherwise leave it unsequenced. Set every proposed feature the plan
-   lists to `stage: accepted`, and every pending bug it lists to
-   `stage: planned`. If it grew from a backlog task, close the task as done and move it
-   to the archive, as `docs/knowledge/SCHEMA.md#backlog-tasks` and
-   `docs/knowledge/SCHEMA.md#archive` give. An issue it grew from is closed in
-   step 8, after validation — never before the plan is known to be sound. In
-   revise mode, preserve the plan's existing graph membership and lifecycle
-   unless the requested planning change explicitly requires another valid
-   planning-state update. A revision that adds a bug to `release` sets it to
-   `stage: planned`; one that removes a bug returns it to `stage: pending`.
+   `docs/knowledge/SCHEMA.md#hubs` defines. If the user gives the position of
+   the plan in the build order, set its `rank` as
+   `docs/knowledge/SCHEMA.md#build-order` gives. Do not edit the `rank` of a
+   different document. If the user gives no position, set no `rank`. Set each
+   proposed feature that the plan lists to `stage: accepted`. Set each pending
+   bug that the plan lists to `stage: planned`. If the plan started as a backlog
+   task, close the task as done. Then move the task to the archive.
+   `docs/knowledge/SCHEMA.md#backlog-tasks` and
+   `docs/knowledge/SCHEMA.md#archive` give the procedure. Step 8 closes the
+   issue that the plan started from, after validation. Do not close the issue
+   before validation shows that the plan is correct. In revise mode, keep the
+   graph membership and the lifecycle of the plan. Change them only when the
+   requested change makes a different valid planning state necessary. A revision
+   that adds a bug to `release` sets it to `stage: planned`; one that removes a
+   bug returns it to `stage: pending`.
 6. **Check coherence.** Re-read the complete plan as a future implementer.
    Confirm its context, approach, tasks, acceptance scenarios, ADRs, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with

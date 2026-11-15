@@ -35,17 +35,18 @@ software project's memory and system of record. The division of labor:
 3. **Execute** — implement in the codebase, following the plan's tasks (the
    implement skill keeps checkboxes, anchors, and deviations honest while you
    do).
-4. **Record** — write the state back. `SCHEMA.md#what-goes-where` names the
-   document type for each kind of knowledge and its writer. The section of
+4. **Record** — write the state in the graph. `SCHEMA.md#what-goes-where` names
+   the document type for each type of knowledge and its writer. The section of
    `SCHEMA.md` for that type gives its path, frontmatter, body, and stages.
    - Work starts → `/agentdev:iwe-plan`.
-   - A bug, a proposed feature, or an actionable task → `/agentdev:iwe-capture`.
+   - A bug, a proposed feature, or a task that is ready to do →
+     `/agentdev:iwe-capture`.
    - An idea, a finding, a guide, or a product-vision document → write the
      document and add its link to its hub.
    - Work ships, or a plan is abandoned → `/agentdev:iwe-ship`. It runs
      `/agentdev:iwe-verify` first.
    - A release cut → the release mode of `/agentdev:iwe-ship`.
-   - A task is finished or dropped → close it as `SCHEMA.md#backlog-tasks` and
+   - A task is complete or cancelled → close it as `SCHEMA.md#backlog-tasks` and
      `SCHEMA.md#archive` give.
 5. **Stamp** — every document you create or meaningfully change gets a
    one-sentence `description` if it has none, and — when you derived it from
@@ -60,25 +61,25 @@ software project's memory and system of record. The division of labor:
   inclusion-link their members. Inline links (inside sentences/list items) are
   soft references for cross-cutting relationships.
 - **`SCHEMA.md` is the only definition of the document types.** It gives what
-  goes where (`SCHEMA.md#what-goes-where`), the path, frontmatter, body, and
-  stages of each type in a section for that type, the hubs (`SCHEMA.md#hubs`),
-  the index file (`SCHEMA.md#index-file`), the build order
-  (`SCHEMA.md#build-order`), and the archive (`SCHEMA.md#archive`). Refer to a
-  section of it. Do not give a definition again in a different file.
+  goes where (`SCHEMA.md#what-goes-where`). A section for each type gives the
+  path, the frontmatter, the body, and the stages of that type. It also gives
+  the hubs (`SCHEMA.md#hubs`), the index file (`SCHEMA.md#index-file`), the
+  build order (`SCHEMA.md#build-order`), and the archive (`SCHEMA.md#archive`).
+  Refer to a section of it. Do not give a definition again in a different file.
 - **Never put a plan task on `data/index.md` for ordinary document work.**
 - **Queries select documents by `type` and frontmatter fields**, not by hub
   membership.
 - **`data/` is an OKF v0.2 bundle**, and CI checks conformance on each commit.
-  Never unbind a schema to get around `okf.yaml` or `okf-index.yaml`.
+  Never unbind a schema to prevent a check by `okf.yaml` or `okf-index.yaml`.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.
 - **Code anchors**: `SCHEMA.md#code-anchors` gives the forms. Never record a
   line number, anywhere.
 - **A tick, its evidence line, and the code are in one commit.**
-  `SCHEMA.md#plans` defines the evidence line. One edit ticks one box: a sweep
-  across the file is the defect, not a shortcut. Verify never runs again what an
-  evidence line records.
+  `SCHEMA.md#plans` defines the evidence line. One edit ticks one box. An edit
+  that ticks many boxes in the file is the defect. Verify never runs again what
+  an evidence line records.
 - **Markdown links only, never wiki links.** References are extension-less
   (`[Timer](adr/0001-timer-counts-wall-clock-time)`), relative to the containing
   file.

@@ -24,8 +24,9 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - Propose (don't yet write) a guide (`docs/knowledge/SCHEMA.md#guides`) for
-     each procedure that qualifies — building, testing, releasing.
+   - Propose a guide (`docs/knowledge/SCHEMA.md#guides`) for each applicable
+     procedure, such as the build, the tests, and the release. Do not write the
+     guide at this time.
 4. **Interview.** Ask in batches, conversationally:
    - _Product_: the one-liner; who uses it and for what; who it's not for.
    - _Reality_: current stage, what's shipped vs. aspirational, the next thing
@@ -40,18 +41,18 @@ what the code can't answer. Every future session reads what you write here.
    measurement that the scan made is a finding
    (`docs/knowledge/SCHEMA.md#findings`): write it and link it from
    `data/findings.md`.
-6. **Close the loop.** Close the finished onboarding task `fill-product-doc`
-   as done and move it to the archive, as
-   `docs/knowledge/SCHEMA.md#backlog-tasks` and `docs/knowledge/SCHEMA.md#archive`
-   give:
+6. **Complete the onboarding.** Close the finished onboarding task
+   `fill-product-doc` as done and move it to the archive, as
+   `docs/knowledge/SCHEMA.md#backlog-tasks` and
+   `docs/knowledge/SCHEMA.md#archive` give:
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
    then
    `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`.
-   Delete the example
-   docs — every `*.example.md` under `data/` (`iwe delete <key>` per doc).
-   `iwe delete` removes their inclusion links from hubs automatically but
-   _flattens_ inline links to plain text: sweep the hub files and remaining
-   docs for leftover de-linked example lines and remove them.
+   Delete the example docs — every `*.example.md` under `data/`
+   (`iwe delete <key>` per doc). `iwe delete` removes their inclusion links from
+   hubs automatically but _flattens_ inline links to plain text: sweep the hub
+   files and remaining docs for leftover de-linked example lines and remove
+   them.
 7. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — both
    must pass clean. Commit with a message like
    `setup: product doc filled, first guides drafted, examples removed`.

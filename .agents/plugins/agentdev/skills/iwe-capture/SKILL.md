@@ -32,12 +32,12 @@ Run every `iwe` command from the repository root; keys are relative to
    describes the same defect, feature, or work is a duplicate: **STOP**, write
    nothing, and show the matching key with the sentence that matches. Extending
    the existing document is the caller's decision, not this skill's.
-3. **Gate on completeness.** Check the supplied content against each frontmatter
-   field and each body section that the section of `SCHEMA.md` requires for the
-   type, and against each rule that the section gives for their content. If
-   anything is missing, **STOP**, write nothing, and list every gap at once —
-   not the first one. Never invent content to close a gap; return it to the
-   caller.
+3. **Check for completeness.** Find the section of `SCHEMA.md` for the type.
+   Compare the supplied content with each frontmatter field and each body
+   section that the section requires. Then compare it with each content rule
+   that the section gives. If something is missing, **STOP** and write nothing.
+   List all the gaps, not only the first gap. Never invent content to close a
+   gap; return it to the caller.
 
 4. **Write the document** at the path that the section gives, with a short kebab
    slug that no existing key uses. Write the frontmatter and the body as the
@@ -45,19 +45,18 @@ Run every `iwe` command from the repository root; keys are relative to
    the stage that the section gives for Capture. A bug that the same change
    already fixed is closed work: file it at `stage: done` in the archive
    (`docs/knowledge/SCHEMA.md#archive`), with its `## Fix`. Add `sources` that
-   name every code path, page, and GitHub issue URL the item was derived from.
-   Capture never files a feature past `proposed`; accepting one is
-   `/agentdev:iwe-plan`'s step.
+   name each code path, each page, and each GitHub issue URL that the item came
+   from. Capture files a feature only at `proposed`. `/agentdev:iwe-plan`
+   accepts a feature.
 
 5. **Link it from its hub** at its sorted position, as
    `docs/knowledge/SCHEMA.md#hubs` defines. A bug filed into the archive gets no
    hub link.
 
-   When the caller says the captured item closes an existing task or bug — a fix
-   that settles a pending task, say — close that document as `done`: set the
-   fields that its section gives for that stage, with the caller's `## Fix` for
-   a bug, and move it to the archive as `docs/knowledge/SCHEMA.md#archive`
-   gives.
+   The caller can say that the captured item closes an existing task or bug.
+   Then close that document as `done`. Set the fields that its section gives for
+   that stage. For a bug, write the `## Fix` that the caller gives. Move the
+   document to the archive as `docs/knowledge/SCHEMA.md#archive` gives.
 
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.

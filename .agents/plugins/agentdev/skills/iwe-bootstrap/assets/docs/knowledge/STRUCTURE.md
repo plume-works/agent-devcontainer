@@ -49,15 +49,16 @@ validated, but only a work item must have more than a `type`.
 
 **Frontmatter is the only record of state**
 (`SCHEMA.md#fields-every-type-carries`). A stage change then edits one file, and
-only the pull request of that work item touches the file. The build order
+only the pull request of that work item changes the file. The build order
 (`SCHEMA.md#build-order`) is a query, not a file, for the same reason.
 
-**Each kind of knowledge has one home** (`SCHEMA.md#what-goes-where`). A
+**Each type of knowledge has one home** (`SCHEMA.md#what-goes-where`). A
 statement with two homes becomes incorrect in the home that nobody maintains.
 
-**Finished work is archived, not deleted** (`SCHEMA.md#archive`). The archive
-keeps the subfolder of each document, so the schema of its type continues to
-check it. The folder is the only record of the release, so no field repeats it.
+**Finished work goes to the archive, and nobody deletes it**
+(`SCHEMA.md#archive`). The archive keeps the subfolder of each document, so the
+schema of its type continues to check it. The folder is the only record of the
+release, so no field repeats it.
 
 **Relationships are links, not fields.** A relation between documents (plan →
 ADR, plan → feature, plan → plan) is a Markdown link in the body. The reader
@@ -83,7 +84,7 @@ this structure, so a milestone needs no mechanism of its own.
 
 **A code anchor names a place and never counts lines**
 (`SCHEMA.md#code-anchors`). An anchor stays correct until its target gets a new
-name or goes away, and then it does not resolve. A line number gives no such
+name or is removed, and then it does not resolve. A line number gives no such
 signal.
 
 **Authoring rules are in the product document** (`SCHEMA.md#trackers`). The

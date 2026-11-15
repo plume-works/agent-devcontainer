@@ -58,17 +58,17 @@ claims the user gave is not one.
    names its target in the current checkout before relying on it, and correct
    a renamed or removed one — that edit is part of this session's work. An
    anchor carries no date to refresh.
-6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
-   the code; run every test and check required for that task. Closing it is
-   then a single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's
-   indented `- **Evidence:**` child, as `docs/knowledge/SCHEMA.md#plans`
-   defines it — a test, a command, a file, a manual or live check, a PR, in
-   whatever words fit. It exists only so a box is never ticked for work that
-   was not done; nobody re-runs it. The code, the
-   tick, and its evidence line land together in one commit. Do it only when
-   the task's complete specified behavior is implemented and its checks pass,
-   then run `iwe normalize`. Partial work, deferred behavior, or a failing
-   required test or check stays unchecked, with no evidence line.
+6. **Execute the next unchecked task.** Follow its `**Files:**` list; write the
+   code; run every test and check required for that task. Closing it is then a
+   single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
+   `- **Evidence:**` child, as `docs/knowledge/SCHEMA.md#plans` defines it — a
+   test, a command, a file, a manual check or a live check, or a PR, in free
+   form. Its only function is to make sure that nobody ticks a box for work that
+   nobody did. Nobody does the check again. The code, the tick, and its evidence
+   line land together in one commit. Do it only when the task's complete
+   specified behavior is implemented and its checks pass, then run
+   `iwe normalize`. Partial work, deferred behavior, or a failing required test
+   or check stays unchecked, with no evidence line.
 
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance

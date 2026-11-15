@@ -28,6 +28,8 @@ term in the same change that first uses it.
   GitHub credentials and limits access to the repositories of the session.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
+- **aggregator plan** (noun): The plan of a milestone, which links its child
+  plans, as `docs/knowledge/SCHEMA.md#plans` defines.
 - **AI review gate** (noun): The decisions in
   `.github/actions/ai-review-status/review-gate.js` that control the
   `ai-review-present` check and the trusted-bot approval.
@@ -49,6 +51,8 @@ term in the same change that first uses it.
 - **audit** (verb): To do an audit.
 - **auth volume** (noun): The Docker volume that holds only the Claude
   credentials, which all Dev Container instances of one host user share.
+- **backlog task** (noun): A work item that
+  `docs/knowledge/SCHEMA.md#backlog-tasks` defines.
 - **base** (noun): The remote branch that a work branch starts from and merges
   to stay current, `origin/main` by default.
 - **base branch** (noun): The branch that the `paths-filter` action uses as the
@@ -124,7 +128,7 @@ term in the same change that first uses it.
 - **disposable volume** (noun): A Docker volume whose name matches
   `docker.py::DISPOSABLE_VOLUME`, which is the only type of volume that a
   garbage collection pass can remove.
-- **document type** (noun): A kind of document in `data/` that
+- **document type** (noun): A category of document in `data/` that
   `docs/knowledge/SCHEMA.md` defines, such as a plan or a bug.
 - **Durable Knowledge Auditor** (noun): The catalog agent that runs
   `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
@@ -188,6 +192,8 @@ term in the same change that first uses it.
 - **Implement session** (noun): The session that loaded
   `/agentdev:iwe-implement` and follows the `iwe-implementer` rulebook, which
   takes decisions only from its own user.
+- **inclusion link** (noun): A Markdown link on its own line, which makes the
+  target a child of the document in the graph.
 - **instance** (noun): One Dev Container of one checkout or worktree.
 - **iteration** (noun): The number `N` in a plan work branch name, which counts
   the work branches of the plan in all phases.
@@ -229,6 +235,8 @@ term in the same change that first uses it.
 - **metadata gate** (noun): The check of the pull request title and description
   against the diff, which stops the review with a change request before the
   passes.
+- **milestone** (noun): A plan whose children are plans, as
+  `docs/knowledge/SCHEMA.md#plans` defines.
 - **model-invocable skill** (noun): A skill that a session can load without a
   command from the user.
 - **monitoring loop** (noun): The cycle of `pr-merge` that refreshes, waits, and
@@ -318,8 +326,12 @@ term in the same change that first uses it.
 - **release cut** (noun): The release mode of `iwe-shipper`, which moves
   `data/archive/next-release/` to the folder of the version and writes the
   release page.
+- **release page** (noun): The document for one cut version that
+  `docs/knowledge/SCHEMA.md#releases` defines.
 - **remapped account** (noun): The `agent` account of the image after the
   devcontainer CLI changes its UID and GID to those of the host user.
+- **reorder pull request** (noun): A pull request whose only change is the
+  `rank` of more than one work item.
 - **requirement** (noun): A SHALL statement in a document of the removed
   `data/spec/` folder.
 - **residue** (noun): In a document, text that records the path to a decision
@@ -360,6 +372,7 @@ term in the same change that first uses it.
   Remote Control.
 - **Ship** (noun): The workflow phase that merges the spec changes of a plan and
   closes the plan, through `/agentdev:iwe-ship`.
+- **ship** (verb): To close a plan as done through `/agentdev:iwe-ship`.
 - **Ship blocker report** (noun): The `iwe-shipper` report that starts with
   `Blocked`, changes no state, and names the skill that answers each blocker.
 - **Ship records** (noun): The bug, plan, task, feature, and release documents
@@ -371,6 +384,8 @@ term in the same change that first uses it.
 - **slot** (noun): A role in a pull request review, such as the metadata gate or
   the correctness pass, that the effort tier gives a model.
 - **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
+- **someday idea** (noun): A reference document that
+  `docs/knowledge/SCHEMA.md#someday-ideas` defines.
 - **spawn mode** (noun): How the Remote Control server runs conversations: each
   in its own git worktree, all in the workspace directory, or one conversation
   only.
@@ -398,6 +413,7 @@ term in the same change that first uses it.
   the older `## Tasks` section, where a checkbox counts as a task.
 - **tense split** (noun): The rule that closed work goes under Verification and
   open work goes under Reviewer Handoff in a pull request description.
+- **tick** (verb): To change a checkbox of a plan task from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
 - **tracker** (noun): A living document that is edited in place, as
   `docs/knowledge/SCHEMA.md#trackers` defines.
