@@ -33,7 +33,7 @@ okf_version: '0.2'
   hypotheses they eliminated and what would close them.
 - [Guides](guides.md) - Procedures a contributor follows, with code anchors
   checked on every commit.
-- [Product vision](product-vision.md) - Product vision and the principles that stay
-  true in each release.
+- [Product vision](product-vision.md) - Product vision and the principles that
+  stay true in each release.
 - [Glossary](glossary.md) - The project terms that the prose rule permits, each
   with its meaning.

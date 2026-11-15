@@ -5,9 +5,9 @@ description: 'Example product-vision document: why the product exists and the pr
 
 # Why Pomodux
 
-*Example document — this shows the shape of a product-vision document: the vision that
-outlives any single release. The setup skill deletes `*.example.md` files after
-onboarding.*
+*Example document — this shows the shape of a product-vision document: the
+vision that outlives any single release. The setup skill deletes `*.example.md`
+files after onboarding.*
 
 Every timer app eventually becomes a productivity guilt machine — charts of
 failure, streaks that shame, notifications that interrupt the very focus they

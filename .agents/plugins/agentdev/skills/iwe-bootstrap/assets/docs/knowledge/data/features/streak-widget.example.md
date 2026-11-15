@@ -17,9 +17,9 @@ from the session log.
 ## Behaviour
 
 Displays consecutive days with at least one completed session. Clicking opens
-the history view. Per [Why Pomodux](../product-vision/why-pomodux.example), the streak
-never shames: a broken streak simply restarts at zero with no red badges or
-"streak lost" notifications.
+the history view. Per [Why Pomodux](../product-vision/why-pomodux.example), the
+streak never shames: a broken streak simply restarts at zero with no red badges
+or "streak lost" notifications.
 
 ## Edge cases
 
