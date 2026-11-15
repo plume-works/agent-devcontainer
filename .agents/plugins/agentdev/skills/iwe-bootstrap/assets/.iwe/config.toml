@@ -88,7 +88,7 @@ match = "data/findings/**"
 match = "data/guides/**"
 
 [schemas.concept]
-match = "data/concept/**"
+match = "data/product-vision/**"
 
 [schemas.someday]
 match = "data/someday/**"
@@ -99,11 +99,11 @@ match = [
   "data/adr",
   "data/backlog",
   "data/bugs",
-  "data/concept",
   "data/features",
   "data/findings",
   "data/guides",
   "data/plans",
+  "data/product-vision",
   "data/releases",
   "data/someday",
 ]

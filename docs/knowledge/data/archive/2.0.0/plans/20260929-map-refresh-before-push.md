@@ -29,8 +29,8 @@ second push after an `/agentdev:iwe-map` refresh.
 `pr-review` has no exclusion for map staleness, so the AI review can report it
 as a finding, restating what the CI step already asserts. That breaks the rule
 in [Evidence and outstanding
-work](../../../concept/evidence-and-outstanding-work.md): an artifact asserts
-only what nothing else already asserts.
+work](../../../product-vision/evidence-and-outstanding-work.md): an artifact
+asserts only what nothing else already asserts.
 
 ## Approach
 

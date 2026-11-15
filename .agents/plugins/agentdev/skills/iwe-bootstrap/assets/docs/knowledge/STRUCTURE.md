@@ -28,7 +28,7 @@ STRUCTURE.md       # this file: design rationale
 data/              # the graph
   index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
-  <hub>.md + <hub>/  # plans, features, bugs, adr, findings, guides, concept,
+  <hub>.md + <hub>/  # plans, features, bugs, adr, findings, guides, product-vision,
                      # releases, backlog, someday (+ milestone.md)
   archive/<release>/<folder>/  # finished work, one folder per cut version
                      # plus next-release

@@ -67,7 +67,7 @@ The user decides in the conversation whether to close such an issue.
   `iwe find --lexical "<phrase>" -f keys`. Read the related ADRs in
   `data/adr/`. Read related `data/findings/` documents and plans.
   Cite existing decisions. Do not derive those decisions again.
-- **Check principles.** Read `data/concept/` early. If an approach contradicts
+- **Check principles.** Read `data/product-vision/` early. If an approach contradicts
   a stated principle, identify the contradiction explicitly. The principle can
   be wrong. Do not leave the contradiction unstated.
 - **Investigate with the user.** Ask questions as necessary. Check assumptions.
@@ -127,8 +127,8 @@ When the user wants a record, select the applicable destination:
   and `## Closing`. Link the document from `data/findings.md`.
 - **A procedure that a contributor will repeat:** Write `data/guides/<slug>.md`.
   Link the document from `data/guides.md`.
-- **A lasting principle:** Write `data/concept/<slug>.md`.
-  Link the document from `data/concept.md`.
+- **A lasting principle:** Write `data/product-vision/<slug>.md`.
+  Link the document from `data/product-vision.md`.
 - **An established defect, proposed feature, or actionable task:** Hand the
   settled content to `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.
   A defect includes code that contradicts an accepted ADR or reproducible

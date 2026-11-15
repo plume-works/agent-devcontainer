@@ -13,7 +13,7 @@ sources:
 
 Replace the pull request template's single `## How to Test` with two sections
 distinguished by tense, applying [evidence and outstanding
-work](../../../concept/evidence-and-outstanding-work.md):
+work](../../../product-vision/evidence-and-outstanding-work.md):
 
 ``` markdown
 ## Verification

@@ -1,6 +1,6 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Product vision and foundational ideas (data/concept/<slug>.md) — why the
+  Product vision and foundational ideas (data/product-vision/<slug>.md) — why the
   product exists and the principles that outlive any single release.
 maxDepth: 4
 frontmatter:

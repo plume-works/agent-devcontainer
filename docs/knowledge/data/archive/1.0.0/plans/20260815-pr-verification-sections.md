@@ -41,8 +41,8 @@ restating work CI already performs. Applying the two filters collapses that
 section to two items, both manual-only.
 
 The underlying principle is [evidence and outstanding
-work](../../../concept/evidence-and-outstanding-work.md). The plan-document
-instance of the same defect is [plan checkbox
+work](../../../product-vision/evidence-and-outstanding-work.md). The
+plan-document instance of the same defect is [plan checkbox
 over-claiming](../bugs/plan-checkbox-over-claiming.md), whose plan — [Make plan
 checkboxes carry their evidence](20260815-honest-plan-checkboxes.md) —
 establishes the `**Evidence:**` child-line vocabulary this reuses deliberately.

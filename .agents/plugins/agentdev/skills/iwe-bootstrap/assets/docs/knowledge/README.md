@@ -81,7 +81,7 @@ data/
 ├── adr.md      adr/           # decisions: proposed by a plan, accepted at ship
 ├── findings.md findings/      # measurements and what would close them
 ├── guides.md   guides/        # procedures, anchors checked on every commit
-├── concept.md  concept/       # product vision — the tiebreaker for feature debates
+├── product-vision.md  product-vision/  # product vision — the tiebreaker for feature debates
 ├── releases.md releases/      # one plain-text page per cut version
 ├── backlog.md  backlog/       # prioritized next work
 ├── someday.md  someday/       # ideas that aren't commitments

@@ -246,8 +246,8 @@ Modify: `docs/knowledge/data/plans.md`, `docs/knowledge/data/spec.md`,
   specification, whose acceptance criterion 6.1 is **outstanding**: nine of ten
   runs reached the assertion, and five of twenty checks skipped for want of a
   staged candidate. Per [Evidence and outstanding
-  work](../../../concept/evidence-and-outstanding-work.md), that belongs under
-  its own heading and never beside the evidence.
+  work](../../../product-vision/evidence-and-outstanding-work.md), that belongs
+  under its own heading and never beside the evidence.
   - **Evidence:** commit `5a48d8c`; `data/plans/20260909-self-improve-mvp` is
     filed `stage: done` with `completed: 2026-08-02` and listed under `## Done`.
     Criterion 6.1 sits under its own `## Outstanding work` heading, naming what
