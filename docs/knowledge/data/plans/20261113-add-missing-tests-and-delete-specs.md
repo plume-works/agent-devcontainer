@@ -142,9 +142,11 @@ Each test shows what the `fate_note` of its row says.
   - **Evidence:** `git rm` of the schema.
 - [x] `docs/knowledge/data/index.md#reference` has no link to a spec hub.
   - **Evidence:** The Spec bullet is gone from `data/index.md`.
-- [ ] `docs/knowledge/SCHEMA.md`, `docs/knowledge/STRUCTURE.md`,
+- [x] `docs/knowledge/SCHEMA.md`, `docs/knowledge/STRUCTURE.md`,
   `docs/knowledge/AGENTS.md`, and `docs/knowledge/README.md` describe no spec
   type and no spec folder.
+  - **Evidence:** The spec type, folder, and rule are gone from `SCHEMA.md`,
+    `STRUCTURE.md`, and `AGENTS.md`; `README.md` names only OpenSpec.
 - [x] `README.md` links no spec.
   - **Evidence:** Already true: `grep data/spec README.md` finds nothing.
 - [x] No skill and no agent rulebook under `.agents/plugins/agentdev/` names
