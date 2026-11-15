@@ -332,7 +332,6 @@ docs/knowledge/CLAUDE.md
 docs/knowledge/README.md
 docs/knowledge/SCHEMA.md
 docs/knowledge/schema/
-docs/knowledge/STRUCTURE.md
 docs/knowledge/tests/test_plan_checkboxes.py
 docs/knowledge/tests/test_banned_frontmatter_keys.py
 ```

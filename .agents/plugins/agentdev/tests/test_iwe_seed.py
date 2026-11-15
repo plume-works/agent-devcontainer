@@ -28,7 +28,6 @@ SHARED_KNOWLEDGE_FILES = (
     'CLAUDE.md',
     'README.md',
     'SCHEMA.md',
-    'STRUCTURE.md',
     'LICENSE.md',
     '.gitignore',
     '.markdownlint.yml',

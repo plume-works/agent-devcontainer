@@ -22,9 +22,8 @@ hold both styles. This task converts the earlier text.
 The rule, and this task, cover:
 
 - every document under `docs/knowledge/data/`;
-- `docs/knowledge/AGENTS.md`, `docs/knowledge/SCHEMA.md`,
-  `docs/knowledge/STRUCTURE.md`, and the copies that the `iwe-bootstrap` skill
-  installs;
+- `docs/knowledge/AGENTS.md`, `docs/knowledge/SCHEMA.md`, and the copies that
+  the `iwe-bootstrap` skill installs;
 - the skill and agent rulebooks under `.agents/plugins/`;
 - the root `AGENTS.md` and the READMEs;
 - code comments.
