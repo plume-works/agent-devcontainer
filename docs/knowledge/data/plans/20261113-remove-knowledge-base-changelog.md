@@ -90,14 +90,20 @@ Modify: `.agents/plugins/agentdev/tests/test_iwe_seed.py`
 
 **Files:** Modify: `docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md`
 
-- [ ] The `sources` of the task do not contain `docs/knowledge/CHANGELOG.md`.
+- [x] The `sources` of the task do not contain `docs/knowledge/CHANGELOG.md`.
 
-- [ ] The last paragraph of the task contains this text:
+  - **Evidence:** Removed the `sources` entry; `grep CHANGELOG` on the task
+    finds nothing; `iwe schema validate` passes.
+
+- [x] The last paragraph of the task contains this text:
 
   ``` markdown
-  Whether this is a script or a `template-consume` update step is for the plan
-  to decide.
+  Whether this is a script or a `template-consume` update step is for the plan to
+  decide.
   ```
+
+  - **Evidence:** Rewrote the paragraph; `tail -2` of the task shows this text
+    as `iwe normalize` wraps it.
 
 ## Acceptance
 
