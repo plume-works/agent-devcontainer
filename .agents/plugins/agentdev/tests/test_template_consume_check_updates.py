@@ -169,7 +169,9 @@ def test_check_updates_follows_a_tracked_path_that_is_a_link_upstream(
     lines = _check_linked_updates(plugin_root, plugin_tmp_path, upstream_index=2)
 
     assert lines[-1] == 'RESULT=CHANGES_FOUND'
-    assert [line for line in lines if line.startswith('  ')] == ['  tracked-link/file-c.txt']
+    assert [line for line in lines if line.startswith('  ')] == [
+        '  tracked-link/file-c.txt (upstream: scaffold/real-dir/file-c.txt)'
+    ]
 
 
 def test_check_updates_ignores_a_tracked_directory_replaced_by_a_same_content_link(

@@ -56,7 +56,8 @@ and the upstream HEAD. Prints nothing about paths this consumer already deleted.
 
 Output (key=value lines):
   RESULT, CONSUMED_REF, UPSTREAM_REF
-  On CHANGES_FOUND also: CHANGED_PATHS (newline-indented list)
+  On CHANGES_FOUND also: CHANGED_PATHS (newline-indented list); a path under a tracked
+    path that is a link upstream ends with (upstream: <path in the upstream tree>)
 
 Results (RESULT / exit code):
   UP_TO_DATE      4  consumed_ref already matches the upstream default branch
@@ -175,8 +176,9 @@ def changed_paths(
             )
             if existed and not local.exists() and not local.is_symlink():
                 continue
-            if reported not in changed:
-                changed.append(reported)
+            line = f'{reported} (upstream: {changed_path})' if target else reported
+            if line not in changed:
+                changed.append(line)
     return changed
 
 
