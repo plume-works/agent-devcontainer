@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import posixpath
 import shutil
 import sys
 import tempfile
@@ -55,7 +56,8 @@ and the upstream HEAD. Prints nothing about paths this consumer already deleted.
 
 Output (key=value lines):
   RESULT, CONSUMED_REF, UPSTREAM_REF
-  On CHANGES_FOUND also: CHANGED_PATHS (newline-indented list)
+  On CHANGES_FOUND also: CHANGED_PATHS (newline-indented list); a path under a tracked
+    path that is a link upstream ends with (upstream: <path in the upstream tree>)
 
 Results (RESULT / exit code):
   UP_TO_DATE      4  consumed_ref already matches the upstream default branch
@@ -133,19 +135,39 @@ def read_marker(marker_path: Path) -> tuple[str, list[str]]:
     return consumed_ref, [jq_text(path) for path in tracked_paths]
 
 
+def upstream_link_target(clone_dir: str, upstream_ref: str, path: str) -> str | None:
+    """Return the target of a tracked path that is a link in the upstream repository."""
+    name = path.rstrip('/')
+    entry = run_tool('git', '-C', clone_dir, 'ls-tree', upstream_ref, '--', name).stdout.split()
+    if len(entry) < 3 or entry[0] != '120000':
+        return None
+    target = run_tool('git', '-C', clone_dir, 'cat-file', 'blob', entry[2]).stdout.strip()
+    return posixpath.normpath(posixpath.join(posixpath.dirname(name), target))
+
+
 def changed_paths(
     clone_dir: str, consumer_root: Path, consumed_ref: str, upstream_ref: str, tracked: list[str]
 ) -> list[str]:
     """Return changed files under tracked paths, skipping ones the consumer deleted."""
     changed: list[str] = []
     for path in tracked:
+        target = upstream_link_target(clone_dir, upstream_ref, path)
         diff = run_tool(
-            'git', '-C', clone_dir, 'diff', '--name-only', consumed_ref, upstream_ref, '--', path
+            'git',
+            '-C',
+            clone_dir,
+            'diff',
+            '--name-only',
+            consumed_ref,
+            upstream_ref,
+            '--',
+            target or path,
         )
         for changed_path in diff.stdout.splitlines():
             if not changed_path:
                 continue
-            local = consumer_root / changed_path
+            reported = path.rstrip('/') + changed_path[len(target) :] if target else changed_path
+            local = consumer_root / reported
             existed = (
                 run_tool(
                     'git', '-C', clone_dir, 'cat-file', '-e', f'{consumed_ref}:{changed_path}'
@@ -154,8 +176,9 @@ def changed_paths(
             )
             if existed and not local.exists() and not local.is_symlink():
                 continue
-            if changed_path not in changed:
-                changed.append(changed_path)
+            line = f'{reported} (upstream: {changed_path})' if target else reported
+            if line not in changed:
+                changed.append(line)
     return changed
 
 
