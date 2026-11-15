@@ -147,3 +147,25 @@ uv run pre-commit run --all-files actionlint
 - `docs/spec-audit/requirements.jsonl` — the rows for `ai-review-gate` and
   `image-pinning` whose `fate` is `needs-test`.
 - `AGENTS.md#tests` — the rules that each new test follows.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-15.
+
+- [x] Verify found no CRITICAL problem — correct: Ready to ship:
+  data/plans/20261113-test-the-workflow-decisions
+- [x] Every ADR that the plan proposed is `stage: accepted` — not applicable:
+  the plan proposed no ADR
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — not applicable: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-15
+- [x] Every feature in `release` is `stage: implemented` — not applicable:
+  `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every feature and bug that it completed are in the archive,
+  and no hub links them — correct:
+  data/archive/next-release/plans/20261113-test-the-workflow-decisions
