@@ -42,7 +42,7 @@ Run every `iwe` command from the repository root; keys are relative to
 4. **Write the document** at the path that the section gives, with a short kebab
    slug that no existing key uses. Write the frontmatter and the body as the
    section defines them, with `created: <today>` on a task. File the document at
-   the stage that the stage table gives for Capture. A bug that the same change
+   the stage that the section gives for Capture. A bug that the same change
    already fixed is closed work: file it at `stage: done` in the archive
    (`docs/knowledge/SCHEMA.md#archive`), with its `## Fix`. Add `sources` that
    name every code path, page, and GitHub issue URL the item was derived from.
