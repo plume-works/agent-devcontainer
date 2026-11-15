@@ -167,7 +167,7 @@ supersedes: # optional: the earlier ADRs that this ADR replaces
 
 The frontmatter has no date field. Git records the date.
 
-Body: an H1 that is the short title of the decision, then 1 to 3 sentences that
+Body: an H1 that is the short title of the decision, then 1 to 10 sentences that
 give the context, the decision, and the reason. `## Considered Options` and
 `## Consequences` are optional, and the schema permits no other section. The
 value of an ADR is the record of a decision and its reason. Write an optional
