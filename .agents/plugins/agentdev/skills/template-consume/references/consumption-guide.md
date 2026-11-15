@@ -465,6 +465,42 @@ Two trigger behaviors are part of the workflow contract:
 A project that wants neither the responder nor the gate should delete the
 workflow, and must not add `ai-review-present` to its branch protection.
 
+#### The ruleset on dependent branches
+
+A pull request that depends on an open pull request has the branch of its
+predecessor as its base. A merge into that branch must not occur: the pull
+request merges into the default branch after its predecessor merges. A
+repository ruleset on `refs/heads/iwe/**` makes this rule. It requires the
+status check `base-is-main`, and no workflow reports that check. Thus GitHub
+does not merge a pull request into an `iwe/` branch. The Write, Maintain, and
+Admin roles can bypass the ruleset, so a push to an `iwe/` branch is not
+blocked. This setting is not in the repository, and a diff does not show it.
+Create it once:
+
+```bash
+gh api --method POST repos/OWNER/REPO/rulesets --input - <<'JSON'
+{
+  "name": "iwe-branches-merge-only-into-main",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {"ref_name": {"include": ["refs/heads/iwe/**"], "exclude": []}},
+  "rules": [{
+    "type": "required_status_checks",
+    "parameters": {
+      "required_status_checks": [{"context": "base-is-main"}],
+      "strict_required_status_checks_policy": false,
+      "do_not_enforce_on_create": false
+    }
+  }],
+  "bypass_actors": [
+    {"actor_id": 2, "actor_type": "RepositoryRole", "bypass_mode": "always"},
+    {"actor_id": 4, "actor_type": "RepositoryRole", "bypass_mode": "always"},
+    {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}
+  ]
+}
+JSON
+```
+
 #### Renovate
 
 Retain `.github/renovate.json`, but review every rule:
@@ -721,6 +757,9 @@ prerequisites apply here too — the GitHub App, the `plume-works-review`
 environment with its three secrets, and the `request-ai-review` and
 `block-ai-reviews` labels. Copying the files alone is not enough, and none of them
 is visible in a diff.
+
+Create [the ruleset on dependent branches](#the-ruleset-on-dependent-branches)
+too. It is also not visible in a diff.
 
 ### 5. Set up project memory
 

@@ -36,9 +36,10 @@ configure the git credential
 helper](../bugs/reused-checkout-gets-no-credential-helper.md).
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
-GitHub ruleset goes to a guide, because the ruleset is a repository setting and
-not code. The 2 other `no-home` requirements are the bugs about the consumption
-guide that an earlier plan filed.
+GitHub ruleset goes to the consumption guide of the `template-consume` skill,
+because the ruleset is a repository setting that each adopter sets. The 2 other
+`no-home` requirements are the bugs about the consumption guide that an earlier
+plan filed.
 
 Then `data/spec/` and each thing that exists only for it are deleted. The
 glossary loses each term that no prose uses after the specs are gone. The audit
@@ -97,16 +98,26 @@ Each test shows what the `fate_note` of its row says.
 
 ### Task 2: Move the last spec text to its home
 
-**Files:** Create: `docs/knowledge/data/guides/repository-settings.md`; Modify:
-`docs/knowledge/data/guides.md`, `AGENTS.md`
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+`AGENTS.md`
 
-- [ ] `ansible/roles/playwright_browser/README.md` says that the Playwright
+- [x] `ansible/roles/playwright_browser/README.md` says that the Playwright
   dependencies of a project stay with the project.
-- [ ] `README.md` gives the scope of the standalone OpenCode image.
-- [ ] `data/guides/repository-settings` gives the GitHub ruleset that blocks a
-  merge into a dependent branch, and how to set it.
-- [ ] `data/guides.md` links the guide.
-- [ ] The rule about stacked pull requests in `AGENTS.md` links no spec.
+  - **Evidence:** Already true: `ansible/roles/playwright_browser/README.md`
+    says the browser path stays writable for "a project-owned Playwright"; no
+    edit.
+- [x] `README.md` gives the scope of the standalone OpenCode image.
+  - **Evidence:** Already true: `README.md#standalone-opencode-runtime` states
+    the image scope; no edit.
+- [x] The consumption guide of the `template-consume` skill gives the GitHub
+  ruleset that blocks a merge into a dependent branch, and how to set it.
+  - **Evidence:** `consumption-guide.md#the-ruleset-on-dependent-branches` gives
+    the rule and the `gh api` call, copied from the live ruleset; Workflow B
+    links it.
+- [x] The rule about stacked pull requests in `AGENTS.md` links no spec.
+  - **Evidence:** Already true: the rule links
+    `adr/0068-stack-dependent-work-with-merges-only.md`; no edit.
 
 ### Task 3: Delete `data/spec/` and what exists only for it
 
