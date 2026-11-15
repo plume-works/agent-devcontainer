@@ -1,8 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  System design notes (data/architecture/<slug>.md) — data structures, module
-  boundaries, pipelines, and the reasoning behind them, including the
-  alternatives that were rejected.
+  An archived system design note (data/archive/*/architecture/<slug>.md). The definition is
+  docs/knowledge/SCHEMA.md#archive.
 maxDepth: 4
 frontmatter:
   type: object

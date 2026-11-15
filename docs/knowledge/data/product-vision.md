@@ -1,11 +1,7 @@
 ---
 type: hub
-description: Product vision and the principles that stay true in each release.
+description: The product-vision documents, which `docs/knowledge/SCHEMA.md#product-vision` defines.
 stage: living
 ---
 
 # 💡 Product vision
-
-*Why the product exists and the principles that stay true in each release. Each
-principle has one document, `product-vision/<slug>.md`, with
-`type: product-vision`. When a feature discussion stops, look here first.*

@@ -1,8 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Findings (data/findings/<slug>.md) — a measurement, the hypotheses it
-  eliminated, and what closing the question looks like. A finding states no
-  lifecycle stage.
+  A finding (data/findings/<slug>.md). The definition is
+  docs/knowledge/SCHEMA.md#findings.
 maxDepth: 4
 sections:
   - header: { pattern: '.+' }

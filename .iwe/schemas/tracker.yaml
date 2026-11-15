@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  A living reference document that is edited in place rather than superseded
-  (data/product.md, data/milestone.md).
+  A tracker (data/product.md, data/milestone.md, data/glossary.md). The definition is
+  docs/knowledge/SCHEMA.md#trackers.
 maxDepth: 4
 frontmatter:
   type: object

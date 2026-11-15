@@ -1,16 +1,10 @@
 ---
 type: hub
-description: Prioritized single-topic work items waiting to become a plan or a quick fix.
+description: The open backlog tasks, which `docs/knowledge/SCHEMA.md#backlog-tasks` defines.
 stage: living
 ---
 
 # 📋 Backlog
-
-*Prioritized work waiting to become plans, one task per document in
-`backlog/<slug>.md`, listed in one list sorted by slug. A task's `stage`,
-`priority`, and `rank` live only in its frontmatter; a done or cancelled task
-moves to `archive/` and leaves this list. When a task grows past a single
-sitting, promote it: write a plan and link the plan instead.*
 
 [Resolve bare-path anchors or narrow the anchor
 rule](backlog/bare-path-anchors.md)

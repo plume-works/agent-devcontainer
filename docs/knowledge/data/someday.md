@@ -1,16 +1,10 @@
 ---
 type: hub
-description: Ideas and POCs that are not commitments yet.
+description: The someday ideas, which `docs/knowledge/SCHEMA.md#someday-ideas` defines.
 stage: living
 ---
 
 # 💭 Someday
-
-*Ideas, POCs, and brainstorming that aren't commitments yet, one document per
-idea in `someday/<slug>.md`. Frontmatter is `type: someday`, no pressure. When
-an idea gets real, promote it to a backlog task with
-`/agentdev:iwe-capture task --from someday/<slug>`, which removes its link here,
-or straight to a plan.*
 
 [Consolidate agentdev code into one module
 tree](someday/agentdev-single-module-tree.md)

@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Product vision and basic ideas (data/product-vision/<slug>.md) — why the
-  product exists and the principles that outlive any single release.
+  A product-vision document (data/product-vision/<slug>.md). The definition is
+  docs/knowledge/SCHEMA.md#product-vision.
 maxDepth: 4
 frontmatter:
   type: object

@@ -18,7 +18,7 @@ below).
 ```
 README.md          # the pitch and quickstart (humans)
 AGENTS.md          # the operating manual (agents) — CLAUDE.md points here
-SCHEMA.md          # frontmatter reference (humans)
+SCHEMA.md          # the definition of each document type
 STRUCTURE.md       # this file: design rationale
 .iwe/
   config.toml      # markdown conventions + schema→glob bindings
@@ -36,88 +36,58 @@ data/              # the graph
 
 ## Design decisions
 
-**Hub + directory; membership is a link.** Each entity type pairs a hub file
-(`data/plans.md`) with a directory (`data/plans/`). What makes a document a plan
-is the inclusion link from the hub, not its path — the directory is storage, the
-graph is truth. A hub is one flat list sorted by member key, with no sections,
-so it changes only when a member is created, archived, or renamed — two pull
-requests conflict on a hub only when their members sort next to each other.
+`SCHEMA.md` is the only definition of the document types, the hubs, the build
+order, and the archive. This section gives the reason for each decision and
+names the section of `SCHEMA.md` that defines it.
 
-**Work items vs. reference.** Plans, features, bugs, releases, backlog tasks,
-and ADRs are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Finding, guide, product-vision, and someday documents
-are *permanent reference documents*. They have a `type` and the shared OKF
-fields, but no `stage`, because they have no lifecycle. The split keeps the
-ceremony where it pays. Every document is validated — OKF conformance requires a
-`type` everywhere — but only work items are asked for more than that.
+**A hub is one flat sorted list** (`SCHEMA.md#hubs`). Two pull requests then
+conflict on a hub only when their members sort next to each other.
 
-**Frontmatter is the only record of state.** A work item's `stage`, `priority`,
-`completed`, and `rank` live in its own document, so a stage change edits one
-file that only its own pull request touches. The build order is a query over
-`rank`, not a file.
+**Work items and reference documents** (`SCHEMA.md#what-goes-where`). Only a
+work item has a lifecycle, so only a work item has a `stage`. Each document is
+validated, but only a work item must have more than a `type`.
 
-**One home for each kind of knowledge.** Behaviour lives in the code and its
-tests. A decision, with the alternatives it rejected, lives in an ADR — the
-document the Consult step reads. A finding is a measurement and lives in
-`findings/`; a procedure lives in `guides/`, whose anchors are checked on every
-commit. A feature is a proposal, live only until its plan ships. A statement
-with two homes drifts in the one nobody maintains, so no type restates another's
-content.
+**Frontmatter is the only record of state**
+(`SCHEMA.md#fields-every-type-carries`). A stage change then edits one file, and
+only the pull request of that work item touches the file. The build order
+(`SCHEMA.md#build-order`) is a query, not a file, for the same reason.
 
-**Finished work is archived, not deleted.** Whoever closes a plan, bug, task,
-feature, or ADR moves it with `iwe rename` to `archive/next-release/<folder>/`
-and removes its hub link; the release cut moves `next-release` to the version's
-folder. Keeping the original subfolder keeps every archived document under its
-type's schema, and the folder is the only record of which release took it, so no
-field repeats it. Hubs list live work only.
+**Each kind of knowledge has one home** (`SCHEMA.md#what-goes-where`). A
+statement with two homes becomes incorrect in the home that nobody maintains.
 
-**Minimal frontmatter; relationships are links.** Six stage vocabularies, three
-date fields, one `rank`, and the `supersedes` list of an ADR — that's the entire
-frontmatter surface. Everything relational (plan → ADR, plan → feature, plan →
-plan dependency) is a markdown link in the body, which keeps relationships
-visible while reading and traversable via `iwe find --references`.
+**Finished work is archived, not deleted** (`SCHEMA.md#archive`). The archive
+keeps the subfolder of each document, so the schema of its type continues to
+check it. The folder is the only record of the release, so no field repeats it.
 
-**The funnel.** Ideas harden stepwise: `someday/` (no commitment) → `backlog/`
-(prioritized) → `plans/YYYYMMDD-<slug>` (committed, dated) → ADRs accepted and
-the plan archived → a cut release. Each promotion is a new doc, a frontmatter
-change, or an archive move.
+**Relationships are links, not fields.** A relation between documents (plan →
+ADR, plan → feature, plan → plan) is a Markdown link in the body. The reader
+sees it in the text, and `iwe find --references` follows it.
 
-**ADRs are short, and nobody edits an accepted ADR.** An ADR is a short title
-and 1 to 3 sentences that give the context, the decision, and the reason. Plan
-files it at `stage: proposed`, Ship sets it to `accepted`, and a cancelled
-plan's ADR becomes `rejected`. A changed decision is a new ADR that supersedes
-the earlier one, so a reader sees each decision as it was made. Code comments
-cite an ADR as `ADR-NNNN`.
+**The funnel.** An idea becomes firm in steps: a someday idea, a backlog task, a
+plan, a shipped plan in the archive, a cut release. Each step is a new document,
+a frontmatter change, or a move to the archive.
 
-**Acceptance lives in the plan.** A plan states each behaviour it adds, changes,
-or removes as an `## Acceptance` scenario that names the test that proves it,
-or, for behaviour no test can reach, the file that the verifier reads. Verify
-checks the scenarios against the code before Ship. Ship copies nothing: the
-scenarios stay in the archived plan.
+**Nobody edits an accepted ADR** (`SCHEMA.md#adrs`). A reader then sees each
+decision as it was made.
 
-**The release cut reads the archive.** The cut writes the release page in plain
-text from the `## Acceptance` scenarios of the plans in
-`archive/next-release/plans/`, the titles of the ADRs accepted or superseded
-since the previous cut, and the titles of the archived bugs. The archived plans
-are what changed, so the page needs no link to a document written before the
-work.
+**Acceptance is in the plan** (`SCHEMA.md#plans`). Verify checks the scenarios
+against the code before Ship. Ship copies nothing: the scenarios stay in the
+archived plan.
 
-**Milestones are plans of plans.** An aggregator plan inclusion-links its child
-plans as one flat list; their `rank` sets the build order, and dependencies stay
-in prose. `milestone.md` links the aggregators. No special milestone machinery —
-the graph already does it.
+**The release cut reads the archive** (`SCHEMA.md#releases`). The archived plans
+are what changed, so the page needs no link to a document that was written
+before the work.
 
-**Code anchors name, never count.** `## Key references` lists anchors —
-`path::symbol` in code, `path#heading-slug` in Markdown, `path#key.path` in
-YAML, JSON, and TOML, plus a short verbatim quote for a spot inside one — taken
-from the current checkout, never from memory. An anchor stays true until its
-target is renamed or removed, and then it stops resolving, so it carries no
-date. A line number gives no such signal and is never recorded.
+**A milestone is a plan of plans** (`SCHEMA.md#plans`). The graph already gives
+this structure, so a milestone needs no mechanism of its own.
 
-**Authoring rules travel with the product doc.** `data/product.md` carries an
-optional `## Authoring rules` section — per-document-type constraints the plan
-and ship skills consult before writing. Project-specific discipline lives in
-data, not in forked skill prompts.
+**A code anchor names a place and never counts lines**
+(`SCHEMA.md#code-anchors`). An anchor stays correct until its target gets a new
+name or goes away, and then it does not resolve. A line number gives no such
+signal.
+
+**Authoring rules are in the product document** (`SCHEMA.md#trackers`). The
+rules of one project are then data, not a changed copy of a skill.
 
 ## Influences: OpenSpec
 

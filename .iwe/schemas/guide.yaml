@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Guides (data/guides/<slug>.md) — a procedure a contributor follows, with its
-  code anchors resolved on every commit. A guide states no lifecycle stage.
+  A guide (data/guides/<slug>.md). The definition is
+  docs/knowledge/SCHEMA.md#guides.
 maxDepth: 4
 sections:
   - header: { pattern: '.+' }

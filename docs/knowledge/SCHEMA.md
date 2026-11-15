@@ -1,43 +1,79 @@
-# Frontmatter reference
+# Document types
 
-The human-readable companion to the machine schemas. Validation lives in
-`.iwe/schemas/*.yaml`, bound to key globs in `.iwe/config.toml` (`[schemas]`
-section) — bindings are by path, and **every** document under `data/` is bound,
-hubs included. Run `iwe schema validate` before committing — exit 0 is the gate.
+This file is the only definition of the document types in `data/`. For each
+type, it gives what the type holds, the path, the frontmatter, the body, and the
+stages. No other file gives these again. A document, a skill, or an agent
+rulebook that needs a definition names a section of this file, for example
+`docs/knowledge/SCHEMA.md#bugs`.
 
-The examples below describe one fictional product (Pomodux, a focus-timer app);
-the `*.example.md` docs demonstrate each shape in place.
+The schemas in `.iwe/schemas/*.yaml` enforce the shapes. The `[schemas]` section
+of `.iwe/config.toml` binds each schema to a path, and each document under
+`data/` has a binding, hubs included. `iwe schema validate` must exit 0 before a
+commit.
+
+The examples in this file describe one fictional product (Pomodux, a focus-timer
+app). The `*.example.md` documents show each shape in place.
 
 `data/` is a conformant [Open Knowledge
 Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-v0.2 bundle. That is why every document carries a `type` and why the reserved
-`data/index.md` has a shape of its own. The per-type blocks below show only the
-fields specific to that type; the shared families come next.
+v0.2 bundle. That is why each document has a `type`, and why `data/index.md` has
+a shape of its own.
+
+## What goes where
+
+Each kind of knowledge has one home, and no type repeats the content of a
+different type.
+
+| Knowledge                                             | Home                          | Writer                                  |
+| ----------------------------------------------------- | ----------------------------- | --------------------------------------- |
+| How the product behaves                               | The code and its tests        | The change that builds the behaviour    |
+| What the product is, its constraints, authoring rules | `data/product.md` (Trackers)  | `/agentdev:iwe-setup`                   |
+| A project term                                        | `data/glossary.md` (Trackers) | The change that first uses the term     |
+| A principle that stays true in each release           | Product vision                | `/agentdev:iwe-explore`                 |
+| An idea that is not a commitment                      | Someday ideas                 | `/agentdev:iwe-explore`                 |
+| Work to do that fits in one sitting                   | Backlog tasks                 | `/agentdev:iwe-capture`                 |
+| A defect in shipped behaviour                         | Bugs                          | `/agentdev:iwe-capture`                 |
+| What users must get, written before the work          | Features                      | `/agentdev:iwe-capture`                 |
+| Committed work: its tasks, acceptance, and checks     | Plans                         | `/agentdev:iwe-plan`                    |
+| A design decision and its reason                      | ADRs                          | `/agentdev:iwe-plan`                    |
+| A measurement that does not yet settle a question     | Findings                      | The session that made the measurement   |
+| A procedure that a contributor repeats                | Guides                        | The session that found the procedure    |
+| What one release changed                              | Releases                      | The release cut of `/agentdev:iwe-ship` |
+| Finished work                                         | Archive                       | The session that closes the work        |
+
+The Home column names a section of this file, or a file.
+
+Plans, features, bugs, ADRs, releases, and backlog tasks are work items. A work
+item has a `stage`. Findings, guides, product-vision documents, and someday
+ideas are permanent reference documents. A reference document has a `type` and
+no `stage`.
 
 ## Fields every type carries
 
-OKF's optional families (SPEC §4.1, §5), declared on every schema and checked by
-`.iwe/schemas/okf.yaml`:
+The optional families of OKF (SPEC §4.1, §5) are on each schema.
+`.iwe/schemas/okf.yaml` checks them.
 
-- `description` — one sentence. Every document has one; it is what an OKF
-  consumer and `data/index.md` show before opening the file.
-- `sources` — the materials a document derives from, each
-  `{ id, resource, title, author, usage_count, last_modified }` with `resource`
-  required. A `resource` may be a URL or a repo path. Attribute individual
-  claims with a markdown footnote keyed to an entry's `id`.
+- `type` — required on each document under `data/`, with one exception:
+  `data/index.md`.
+- `description` — one sentence. Each document has one. An OKF consumer and
+  `data/index.md` show it before a reader opens the file.
+- `sources` — the materials that a document derives from. Each entry is
+  `{ id, resource, title, author, usage_count, last_modified }`, and `resource`
+  is required. A `resource` is a URL or a repository path. To attribute one
+  claim, use a Markdown footnote with the `id` of the entry as its label.
 - `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
-`stage` is the only lifecycle field: the per-type enums below. A work item's
-state lives only in its own frontmatter; no hub section repeats it. OKF's
-optional `status` is never set, so a state change edits one field. Nor are OKF's
-`generated` and `verified`: source control records when and by whom a document
-changed.
+`stage` is the only lifecycle field. The state of a work item is only in its own
+frontmatter, and no hub repeats it. No document sets the optional `status` of
+OKF, so a state change edits one field. No document sets `generated` or
+`verified` of OKF: source control records when a document changed and who
+changed it.
 
-## The build order — `rank`
+## Build order
 
-Active plans, pending and planned bugs, and pending backlog tasks may carry
-`rank`, a positive integer: their place in one build order shared across the
-three types, lower first.
+An active plan, a pending or planned bug, and a pending backlog task can have a
+`rank`. The `rank` is a positive integer. It gives the place of the item in one
+build order that the three types share. A lower `rank` comes first.
 
 ``` yaml
 rank: 300 # optional; positive integer
@@ -45,120 +81,210 @@ rank: 300 # optional; positive integer
 
 - The sequence is
   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`. An item
-  without `rank` is not yet sequenced; that is the separate
-  `rank: {$exists: false}` query, never part of the sequence.
-- Ranks step by 100; an insertion takes the midpoint of its neighbours. Only a
-  reorder pull request renumbers.
-- Ship removes `rank` from a plan, bug, or task it marks done or cancelled.
-- Equal ranks are valid and break by key; CI warns about them.
+  without `rank` is not in the sequence. The query `rank: {$exists: false}`
+  finds these items.
+- Ranks step by 100. An item that goes between two others takes the midpoint of
+  their ranks. Only a reorder pull request changes the `rank` of more than one
+  item.
+- A done or cancelled item has no `rank`. The session that closes the item
+  removes it.
+- Equal ranks are valid. The key decides their order, and CI gives a warning.
 
-## The reserved file — `data/index.md`
+## Code anchors
 
-An OKF reserved filename, not a concept document: it carries no `type` and is
-checked by `okf-index.yaml` instead. Its only frontmatter is
-`okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
-markdown link to a hub followed by `-` and that hub's `description`. The graph
-holds no `data/log.md`, which OKF makes optional.
+An anchor names a place in a file. A document never records a line number.
 
-## The archive — `data/archive/<release>/<folder>/`
+- Code: `path::Class.method` or `path::function`.
+- Markdown: `path#heading-slug`.
+- YAML, JSON, and TOML: `path#key.path`. A list element is named by its `id` or
+  its `name`.
+- A Makefile or a Dockerfile: `path#target` or `path#stage`.
+- A place inside one of these: the anchor, then ` › "verbatim quote"`.
 
-Finished work is archived, never deleted. `data/archive/` holds one folder per
-cut version plus `next-release`, and each holds the subfolder its documents
-lived in — `plans/`, `bugs/`, `backlog/`, `features/`, `adr/`, or
-`architecture/` — so every archived document stays bound to its type's schema
-and is validated in full.
+The `path` is relative to the repository root. The writer takes each anchor from
+the current checkout, never from memory. An anchor has no date.
 
-- Whoever closes a plan, bug, task, or feature moves it with `iwe rename` to
-  `data/archive/next-release/<folder>/` in the same change and removes its hub
-  link.
-- The release cut moves everything under `next-release` to the version's folder,
-  keeping the subfolders.
-- The folder is the only record of a document's release; no document carries
-  `released`. A document no plan closed belongs to the release that was open
-  when it closed.
-- `type: architecture` is valid only under `data/archive/`.
+## Plans
 
-## Plans — `data/plans/YYYYMMDD-<slug>.md`
+A plan is committed work that a later session can do with no other context. A
+plan is an implementation plan, a migration, or a design proposal. One plan has
+one topic: work that needs two verification stories that are not related is two
+plans.
 
-Implementation plans, migrations, and design proposals.
+- Path: `data/plans/YYYYMMDD-<slug>.md`. The date is the day of creation.
+- Hub: `data/plans.md`.
 
 ``` yaml
 ---
 type: plan # required
-stage: done # done | cancelled — omit while active/pending
+stage: done # done | cancelled — absent while the plan is active
 created: 2026-07-01 # required, YYYY-MM-DD
 completed: 2026-07-18 # required when stage: done
-release: # required while active: internal, or the keys below
+release: # required while the plan is active: internal, or the keys below
 - features/focus-sessions
 ---
 ```
 
-`release` lists the documents the plan closes: the `features/` and `bugs/` keys
-Ship marks implemented or done when the plan ships, or `internal` when it closes
-none. It feeds no release page. A plan needs no feature to change what users
-see: the release cut writes the page from the archived plans.
+- `release` lists the documents that the plan closes: the `features/` keys and
+  the `bugs/` keys that Ship marks implemented or done when the plan ships. The
+  value is `internal` when the plan closes no document. The field supplies no
+  release page, so a plan needs no feature to change what users see.
+- `sources` lists the GitHub issue that the plan grew from, if there is one.
+- `rank` is optional. See Build order.
 
-Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
-`**Files:**`, checkboxes), `## Acceptance`, `## ADRs` (optional),
-`## Depends on` (optional), `## Verification`, `## Out of scope`,
-`## Key references` (anchors, never line numbers). Ship moves a done or
-cancelled plan to the archive and removes its link from `data/plans.md`. Every
-plan `## Depends on` links is a prerequisite, unless the section's text starts
-with `None`: then it has none, and any plan it links is only related.
+| Stage        | Meaning                | Set by | Other fields               |
+| ------------ | ---------------------- | ------ | -------------------------- |
+| (no `stage`) | Active                 | Plan   | `release` is required      |
+| `done`       | The work shipped       | Ship   | `completed` set, no `rank` |
+| `cancelled`  | The work was abandoned | Ship   | No `rank`                  |
 
-## Features — `data/features/<slug>.md`
+A done or cancelled plan is in the archive. See Archive.
 
-A feature is a proposal: what users should get, written before the work. It is
-live at `proposed` or `accepted`; once its plan ships, the code and tests state
-the behaviour and the feature moves to the archive.
+Body, in this order. A plan leaves out a section that has no content, with two
+exceptions: `## Acceptance` and `## Verification` are always there.
+
+- `## Context` — why the work is done now. It links the feature, bug, or backlog
+  task that started the work, each document in `release`, and the GitHub issue
+  that the plan grew from.
+- `## Approach` — the shape of the solution, in a few sentences. A rejected
+  option goes in an ADR.
+- `## Implementation Steps` — `### Task N: <name>` blocks. Each block has a
+  `**Files:**` line (`Create:` and `Modify:`) and `- [ ]` checkboxes.
+  - A task that only a later event can close has a
+    `**Closed by:** <who or what event>` line.
+  - Wording that the user approved is in a fenced block, word for word.
+  - A checkbox that is not ticked has no child. A ticked checkbox (`- [x]`) has
+    one indented `- **Evidence:**` child: a short note, in free form, of what
+    was done and how it was checked. Nobody audits the form of the note.
+- `## Acceptance` — one `### Scenario:` block for each behaviour that the plan
+  adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
+  line. Then it has one of two lines: `- **Test:**` names the test that proves
+  the scenario, as `path::test_name`; `- **Checked at ship:**` names the
+  rulebook or the file that the verifier reads, for behaviour that no test can
+  reach. A plan that changes no behaviour writes `None — no behavioral change`.
+- `## ADRs` — one link for each ADR that the plan proposes.
+- `## Depends on` — inline links to the plans that must ship first. Each plan
+  that the section links is a prerequisite. The exception is a section whose
+  text starts with `None`: that plan has no prerequisite, and a plan that it
+  links is only related.
+- `## Verification` — the commands and tests that prove the work is done.
+- `## Verification results` — the results of the `## Verification` checks, and
+  findings that change what the plan claims. This is the only narrative section
+  of a plan.
+- `## Out of scope` — what the plan does not do.
+- `## Key references` — a list of code anchors, each with a short note. See Code
+  anchors.
+- `## Ship review` — the checklist that `iwe-ship-reviewer` appends after the
+  plan ships.
+
+``` markdown
+### Scenario: A done bug without a fix fails the check
+
+- **WHEN** a bug at `stage: done` has no `## Fix` section
+- **THEN** the `ship-records` check reports the bug and exits 1
+- **Test:** `scripts/tests/test_check_ship_records.py::test_done_bug_without_fix_fails`
+```
+
+A milestone is a plan whose children are plans. This aggregator plan has
+inclusion links to its child plans as one flat list. The `rank` of each child
+sets the build order, and dependencies stay in prose. The milestone ships when
+its last child plan ships.
+
+## Features
+
+A feature is a proposal: what users must get, written before the work. After its
+plan ships, the code and its tests give the behaviour, and the feature goes to
+the archive.
+
+- Path: `data/features/<slug>.md`.
+- Hub: `data/features.md`.
 
 ``` yaml
 ---
 type: feature # required
-stage: accepted # proposed | accepted live; implemented | deprecated | cancelled archived — required
+stage: accepted # required: see the table
 ---
 ```
 
-Body: `## Purpose`, `## Behaviour`, `## Edge cases`, `## Open questions`. Plan
-sets a feature its plan lists in `release` to `accepted`; Ship sets it to
-`implemented` and archives it with the plan.
+| Stage         | Meaning                               | Set by  | Location         |
+| ------------- | ------------------------------------- | ------- | ---------------- |
+| `proposed`    | Filed, with no plan                   | Capture | `data/features/` |
+| `accepted`    | A plan lists the feature in `release` | Plan    | `data/features/` |
+| `implemented` | The plan shipped                      | Ship    | Archive          |
+| `deprecated`  | The behaviour is no longer wanted     |         | Archive          |
+| `cancelled`   | The proposal was abandoned            |         | Archive          |
 
-## Bugs — `data/bugs/<slug>.md`
+Body: `## Purpose`, `## Behaviour`, `## Edge cases`, and `## Open questions`,
+all required, in this order. An `## Open questions` section with no open
+question says so in one line. Other sections can come after these.
 
-Bug reports and investigations. H1 starts with `Bug:`.
+## Bugs
+
+A bug is a defect in shipped behaviour: behaviour that is incorrect and that a
+reader can reproduce, or code that does not agree with an accepted ADR. A bug
+holds the report and the investigation.
+
+- Path: `data/bugs/<slug>.md`.
+- Hub: `data/bugs.md`.
 
 ``` yaml
 ---
 type: bug # required
-stage: pending # pending | planned | done | cancelled — required
+stage: pending # required: see the table
 severity: high # critical | high | medium | low — required
 ---
 ```
 
-- `stage`: Capture files a bug at `pending`, or at `done` when the same change
-  fixed it. Plan moves a bug its plan lists in `release` to `planned`; Ship
-  moves it to `done`, and returns it to `pending` when it cancels the plan.
-- `severity`: the impact of the defect — how bad it is when it happens — not its
-  urgency. Descriptive only; it does not set `rank`.
+- `severity` is the effect of the defect when it occurs, not its urgency. It
+  does not set `rank`.
+- `rank` is optional. See Build order.
 
-Body: `## Symptom`, `## Reproduction`, `## Root cause`, all required, then the
-optional `## Potential solution` — the intended direction, at any stage — and
-`## Fix` — the fix that shipped, written when the bug becomes `done`: by the
-fixer when a change fixes it directly, by Ship from the plan that fixed it. A
-done or cancelled bug moves to the archive in the same change. A Reproduction or
-Root cause not yet known records what is known, the hypotheses eliminated and
-what eliminated them, and links the backlog task whose spike settles it. No
-section states lifecycle; `stage` does.
+| Stage       | Meaning                           | Set by                                       | Location     |
+| ----------- | --------------------------------- | -------------------------------------------- | ------------ |
+| `pending`   | Open, with no plan                | Capture; Ship, when it cancels the plan      | `data/bugs/` |
+| `planned`   | A plan lists the bug in `release` | Plan                                         | `data/bugs/` |
+| `done`      | Fixed                             | Ship; Capture, when the same change fixed it | Archive      |
+| `cancelled` | The bug will not be fixed         |                                              | Archive      |
 
-## ADRs — `data/adr/NNNN-<slug>.md`
+Body: an H1 that starts with `Bug: `. Then `## Symptom`, `## Reproduction`, and
+`## Root cause`, all required, in this order. Then two optional sections, in
+this order. Other sections can come after these.
 
-An ADR records one decision. `NNNN` is the next free four-digit number in
-`data/adr/` and `data/archive/*/adr/`.
+- `## Potential solution` — the direction that is intended, at any stage.
+- `## Fix` — the fix that shipped, in a few sentences. A bug at `done` has it.
+  The writer is the session that fixed the bug directly, or Ship, which writes
+  it from the plan that fixed the bug and links that plan.
+
+A `## Reproduction` or a `## Root cause` that is not yet known is never only
+"unknown". It gives what is known, each hypothesis that was eliminated and what
+eliminated it, and a link to the backlog task whose spike settles it. No section
+gives the lifecycle of the bug: `stage` does.
+
+## ADRs
+
+An ADR records one design decision and its reason. A decision gets an ADR only
+when all three of these are true:
+
+1. **It is hard to reverse.** A later change of the decision has a real cost.
+2. **It is a surprise without context.** A later reader of the code will ask why
+   it is done this way.
+3. **It is the result of a real trade-off.** There were real alternatives, and
+   one was selected for specific reasons.
+
+These decisions qualify: the shape of the architecture; an integration pattern
+between parts of the system; a technology that is expensive to replace; a
+boundary or a scope decision, a refusal included; a deliberate deviation from
+the obvious path; a constraint that the code does not show; and an alternative
+that was rejected for a reason that is not obvious.
+
+- Path: `data/adr/NNNN-<slug>.md`. `NNNN` is the next free four-digit number in
+  `data/adr/` and `data/archive/*/adr/`.
+- Hub: `data/adr.md`.
 
 ``` yaml
 ---
 type: adr # required
-stage: proposed # proposed | accepted | rejected | deprecated | superseded — required
+stage: proposed # required: see the table
 description: One sentence that gives the decision. # required
 supersedes: # optional: the earlier ADRs that this ADR replaces
 - adr/0001-code-and-tests-state-behaviour
@@ -167,78 +293,193 @@ supersedes: # optional: the earlier ADRs that this ADR replaces
 
 The frontmatter has no date field. Git records the date.
 
+| Stage        | Meaning                                        | Set by | Location    |
+| ------------ | ---------------------------------------------- | ------ | ----------- |
+| `proposed`   | A plan proposes the decision                   | Plan   | `data/adr/` |
+| `accepted`   | The plan shipped                               | Ship   | `data/adr/` |
+| `rejected`   | The plan was cancelled                         | Ship   | Archive     |
+| `superseded` | An accepted ADR names this ADR in `supersedes` | Ship   | Archive     |
+| `deprecated` | The decision does not apply now                |        | Archive     |
+
 Body: an H1 that is the short title of the decision, then 1 to 3 sentences that
 give the context, the decision, and the reason. `## Considered Options` and
-`## Consequences` are optional, and the schema permits no other section. The
-value of an ADR is the record of a decision and its reason. Write an optional
-section only when it adds value.
+`## Consequences` are optional, in this order, and the schema permits no other
+section. An ADR has an optional section only when the section adds value: the
+rejected options, for example, only when a later reader needs them.
 
-- `stage`: Plan files an ADR at `proposed`. Ship sets it to `accepted`, or to
-  `rejected` when it cancels the plan. An ADR at `proposed` or `accepted` is in
-  `data/adr/`, with a link in `data/adr.md`. An ADR at `rejected`, `deprecated`,
-  or `superseded` is in `data/archive/`.
-- Nobody edits an accepted ADR. A new ADR that names it in `supersedes` replaces
-  it.
+- Nobody edits an accepted ADR. A decision that changes gets a new ADR that
+  names the earlier ADR in `supersedes`.
 - A code comment refers to an ADR as `ADR-NNNN`.
 
-## Releases — `data/releases/<version>.md`
+## Releases
 
-One page per cut version, written only by the release cut, in plain text with no
-Markdown link.
+A release page says what one cut version changed. Only the release cut writes
+it, and nothing edits it after the cut.
+
+- Path: `data/releases/<version>.md`. The version is a semantic version.
+- Hub: `data/releases.md`.
 
 ``` yaml
 ---
 type: release # required
 version: 0.1.0 # required
-date: 2026-07-18 # the day the release was cut
+date: 2026-07-18 # required: the day of the release cut
 stage: released # required, always released
 ---
 ```
 
-Body: the changes that the `## Acceptance` scenarios of the plans in the
-release's archive folder state, in plain language, grouped by theme — for an
-archived plan with no `## Acceptance`, its `## Spec changes`; `## Removed` for
-behaviour that went away; `## Upgrade notes` when a change needs action;
-`## Decisions`, the titles of the ADRs accepted or superseded since the commit
-that added the previous release page; and `## Fixed`, the titles of the bugs in
-the release's archive folder. Nothing edits a page after its cut.
+Body: plain text with no Markdown link. A page leaves out a section that has no
+content.
 
-## Backlog tasks — `data/backlog/<slug>.md`
+- Sections with a theme as the heading — the changes that the `## Acceptance`
+  scenarios of the plans in the archive folder of the release give, in plain
+  language. For an archived plan with no `## Acceptance`, the page uses its
+  `## Spec changes`.
+- `## Removed` — behaviour that went away.
+- `## Upgrade notes` — a change that needs action from a consumer.
+- `## Decisions` — the title of each ADR that became accepted or superseded
+  after the commit that added the previous release page.
+- `## Fixed` — the title of each bug in the archive folder of the release.
 
-Atomic prioritized work items waiting to become plans.
+## Backlog tasks
+
+A backlog task is one small work item with a priority, which waits to become a
+plan or a quick fix. A task that does not fit in one sitting becomes a plan.
+
+- Path: `data/backlog/<slug>.md`.
+- Hub: `data/backlog.md`.
 
 ``` yaml
 ---
 type: task # required
-stage: pending # pending | done | cancelled — required
+stage: pending # required: see the table
 priority: high # high | medium | low
 created: 2026-08-01 # required, YYYY-MM-DD
-completed: 2026-08-14 # set when done
+completed: 2026-08-14 # set when the task is done
 ---
 ```
 
-A done or cancelled task moves to the archive in the same change.
+`rank` is optional. See Build order.
 
-## Reference documents — type only
+| Stage       | Meaning                                 | Other fields               | Location        |
+| ----------- | --------------------------------------- | -------------------------- | --------------- |
+| `pending`   | Open                                    |                            | `data/backlog/` |
+| `done`      | The work is complete, or a plan took it | `completed` set, no `rank` | Archive         |
+| `cancelled` | The task was abandoned                  | No `rank`                  | Archive         |
 
-A document in `data/findings/`, `data/guides/`, `data/product-vision/`, or
-`data/someday/` must have a `type` (`finding`, `guide`, `product-vision`,
-`someday`). No other field is necessary. These documents are permanent reference
-documents, not work items. Because of this, a `stage` is not applicable, and the
-finding and guide schemas do not accept a `stage`.
+Capture files a task at `pending`. The session that completes or abandons the
+task closes it. Plan closes a task as `done` when a plan grows from it.
 
-- **Finding** — a measurement: required `## Measurement` and `## Closing`, plus
-  the hypotheses eliminated and what would settle the rest. It states no
-  behaviour the code must meet.
-- **Guide** — a procedure a contributor follows. Every code anchor in it is
-  resolved on every commit.
+Body: an H1, then text that gives the work and why it is important.
 
-## Hubs and the trackers
+## Findings
 
-Hub files (`data/plans.md`, `data/features.md`, …) carry `type: hub`;
-`data/product.md`, `data/milestone.md`, and `data/glossary.md` carry
-`type: tracker`. Hubs and trackers take `stage: living`. A hub's body is one
-flat list of inclusion links, one per member, sorted by the member's key with
-any `YYYYMMDD-` prefix removed, with no `##` sections — `.iwe/schemas/hub.yaml`
-rejects a section, and a test checks the order. A hub changes only when a member
-is created, removed, or renamed.
+A finding is a measurement that does not yet settle a question. A finding is not
+a design, and it gives no behaviour that the code must have.
+
+- Path: `data/findings/<slug>.md`.
+- Hub: `data/findings.md`.
+- Frontmatter: `type: finding`. The schema does not accept a `stage`.
+
+Body: `## Measurement` and `## Closing` are required, in this order. Other
+sections can be there. A finding gives:
+
+- the measurement;
+- each hypothesis that was eliminated, and what eliminated it;
+- what can settle the question;
+- what closes the finding. "Not worth the cost" is a valid closing, and the
+  finding records it as a decision.
+
+A finding has its own document. The document that the question came from keeps
+no summary of the finding, no section about it, and no link to it. A reference
+points from the newer document to the older document.
+
+## Guides
+
+A guide is a procedure that a contributor follows to do one job in the
+repository, and that the README does not give.
+
+- Path: `data/guides/<slug>.md`.
+- Hub: `data/guides.md`.
+- Frontmatter: `type: guide`. The schema does not accept a `stage`.
+
+Body: one H1 and the steps. Each code anchor in a guide is resolved on each
+commit.
+
+## Product vision
+
+A product-vision document gives one principle that stays true in each release:
+why the product exists, and what decides a feature discussion.
+
+- Path: `data/product-vision/<slug>.md`.
+- Hub: `data/product-vision.md`.
+- Frontmatter: `type: product-vision`. No other field is necessary.
+
+## Someday ideas
+
+A someday idea is an idea, a proof of concept, or a brainstorm that is not a
+commitment.
+
+- Path: `data/someday/<slug>.md`.
+- Hub: `data/someday.md`.
+- Frontmatter: `type: someday`. No other field is necessary.
+
+An idea that becomes real moves to the backlog with
+`/agentdev:iwe-capture task --from someday/<slug>`, or becomes a plan.
+
+## Hubs
+
+A hub is the list of the live documents of one type. Each type above has one
+hub, and the hub set is closed: `[schemas.hub]` in `.iwe/config.toml` lists it.
+
+- Frontmatter: `type: hub` and `stage: living`.
+- Body: an H1, then one flat list of inclusion links, one for each member. The
+  list is sorted by the key of the member, with a `YYYYMMDD-` prefix removed. A
+  hub has no `##` section: `.iwe/schemas/hub.yaml` rejects one, and a test
+  checks the order.
+- The `description` of a hub names the section of this file that defines its
+  members. A hub gives no rule.
+- A hub lists live documents only. It changes only when a member is created,
+  archived, or renamed, never for a change of stage or priority.
+
+## Trackers
+
+A tracker is a living document that is edited in place. There are three, each
+with `type: tracker` and `stage: living`.
+
+- `data/product.md` — what the product is, its users, platforms, and stack. Its
+  `## Constraints` and `## Authoring rules` sections bind each plan and each
+  document. Each session reads it first.
+- `data/milestone.md` — the links to the aggregator plans. See Plans.
+- `data/glossary.md` — the project terms that the prose rule permits.
+
+## Index file
+
+`data/index.md` is a reserved filename of OKF, not a concept document. It has no
+`type`, and `okf-index.yaml` checks it. Its only frontmatter is
+`okf_version: "0.2"`. The body is `#` sections of link bullets. Each bullet is a
+Markdown link to a hub or a tracker, then `-`, then the `description` of that
+document. The index lists hubs and trackers, never their members, so it changes
+only when a hub is added or removed. The graph has no `data/log.md`, which OKF
+makes optional.
+
+## Archive
+
+Finished work goes to the archive and is never deleted. `data/archive/` has one
+folder for each cut version, and the folder `next-release`. Each folder has the
+subfolder that its documents were in: `plans/`, `bugs/`, `backlog/`,
+`features/`, `adr/`, or `architecture/`. Each archived document keeps the schema
+of its type and is validated in full.
+
+- The session that closes a plan, a bug, a task, a feature, or an ADR moves it
+  with `iwe rename` to `data/archive/next-release/<folder>/` in the same change,
+  and removes its link from its hub. The stage tables above show which stages
+  are in the archive.
+- The release cut moves all documents under `next-release` to the folder of the
+  version, and keeps the subfolders.
+- The folder is the only record of the release of a document. No document has a
+  `released` field. A document that no plan closed is part of the release that
+  was open when the document closed.
+- `type: architecture` is valid only under `data/archive/`.
+- The `ship-records` check fails when a document is in the incorrect folder for
+  its stage.

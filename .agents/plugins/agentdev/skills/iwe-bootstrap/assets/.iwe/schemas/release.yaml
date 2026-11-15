@@ -1,8 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Releases (data/releases/<version>.md); each page says in plain text, with no
-  link, what one version changed in the specs and which bugs it fixed. A
-  released version carries its ship date.
+  A release page (data/releases/<version>.md). The definition is
+  docs/knowledge/SCHEMA.md#releases.
 maxDepth: 4
 frontmatter:
   type: object

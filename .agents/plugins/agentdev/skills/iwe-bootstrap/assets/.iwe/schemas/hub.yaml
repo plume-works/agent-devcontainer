@@ -1,9 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  A landing page that inclusion-links the documents in one directory
-  (data/features.md, data/plans.md, …) as one flat list sorted by member key
-  without a YYYYMMDD- prefix — no ## sections; a member's stage lives in its own
-  frontmatter.
+  A hub (data/plans.md, data/features.md, …). The definition is
+  docs/knowledge/SCHEMA.md#hubs.
 maxDepth: 1
 frontmatter:
   type: object

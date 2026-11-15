@@ -1,7 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Feature design documents (data/features/<slug>.md). Every feature carries a
-  lifecycle stage.
+  A feature (data/features/<slug>.md). The definition is
+  docs/knowledge/SCHEMA.md#features.
 maxDepth: 4
 sections:
   - header: { pattern: '.+' }

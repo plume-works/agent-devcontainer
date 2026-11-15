@@ -1,14 +1,9 @@
 ---
 type: hub
-description: Measurements of how the system behaves, each with the hypotheses it eliminated and what would close it.
+description: The findings, which `docs/knowledge/SCHEMA.md#findings` defines.
 stage: living
 ---
 
 # 🔬 Findings
-
-*One finding per document in `findings/<slug>.md`, `type: finding`: a
-measurement, each hypothesis it eliminated and what eliminated it, what would
-settle the rest, and what closing it looks like. A finding states no behaviour
-the code must meet; a settled decision goes to an ADR that a plan proposes.*
 
 [Notification latency on Linux](findings/notification-latency.example)

@@ -1,14 +1,10 @@
 ---
 type: hub
-description: Procedures a contributor follows, with code anchors checked on every commit.
+description: The guides, which `docs/knowledge/SCHEMA.md#guides` defines.
 stage: living
 ---
 
 # 🧭 Guides
-
-*One procedure per document in `guides/<slug>.md`, `type: guide`: the steps a
-contributor follows to do one job in this repository. Every code anchor in a
-guide is resolved against the checkout on every commit.*
 
 [Claude Remote Control setup](guides/claude-remote-control-setup.md)
 
