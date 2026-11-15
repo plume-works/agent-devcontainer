@@ -83,7 +83,7 @@ the plan archived → a cut release. Each promotion is a new doc, a frontmatter
 change, or an archive move.
 
 **ADRs are short, and nobody edits an accepted ADR.** An ADR is a short title
-and 1 to 3 sentences that give the context, the decision, and the reason. Plan
+and 1 to 10 sentences that give the context, the decision, and the reason. Plan
 files it at `stage: proposed`, Ship sets it to `accepted`, and a cancelled
 plan's ADR becomes `rejected`. A changed decision is a new ADR that supersedes
 the earlier one, so a reader sees each decision as it was made. Code comments

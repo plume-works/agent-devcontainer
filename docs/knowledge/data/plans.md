@@ -10,3 +10,8 @@ stage: living
 one list sorted by slug without the date prefix. A plan's place in the build
 order (`rank`) lives only in its frontmatter. Shipping or cancelling a plan
 moves it to `archive/` and removes it from this list.*
+
+[Put task evidence in the commit
+message](plans/20261115-completion-evidence-in-commit-messages.md)
+
+[Put decisions in the git history](plans/20261115-decisions-in-git-history.md)

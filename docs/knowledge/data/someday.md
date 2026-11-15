@@ -15,6 +15,9 @@ or straight to a plan.*
 [Consolidate agentdev code into one module
 tree](someday/agentdev-single-module-tree.md)
 
+[Archive ADRs when their plans
+ship](someday/archive-adrs-when-their-plans-ship.md)
+
 [Dependency-ordered service recovery](someday/dependency-ordered-recovery.md)
 
 [Narrow the devcontainer's forwarded agent
