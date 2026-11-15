@@ -6,7 +6,7 @@ supersedes:
 - adr/0086-plan-ticks-need-evidence-lines
 ---
 
-# The commit that ticks a plan task carries its evidence
+# The commit that ticks a plan task contains its evidence
 
 The evidence for a ticked plan task is a completion evidence block in the
 message of the commit that ticks the box. The diff of that commit shows which

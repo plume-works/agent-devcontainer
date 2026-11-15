@@ -20,9 +20,10 @@ time. `git log` and `git blame` find the evidence from the code.
 
 Today each ticked task has a `- **Evidence:**` line in the plan
 ([ADR-0086](../adr/0086-plan-ticks-need-evidence-lines.md)). Only
-`docs/knowledge/tests/test_plan_checkboxes.py` reads the line. Verify and
-`/agentdev:iwe-plan-review` do not read it. Thus a move of the evidence removes
-no reader.
+`docs/knowledge/tests/test_plan_checkboxes.py` parses the line. Verify and
+`/agentdev:iwe-plan-review` tell their reviewers to ignore it.
+`pr-gen-description/SKILL.md` Step 5 names the plan's per-task evidence as the
+record, and Task 5 changes that reference.
 
 ## Approach
 
@@ -40,15 +41,16 @@ has two subcommands:
 A tick is the change of a line `- [ ] <text>` to `- [x] <text>` in a file under
 `docs/knowledge/data/plans/`. The hook applies two rules to a commit that ticks
 a plan task. The commit ticks only one plan task. The message has one completion
-evidence block that contains text. The hook does not examine a merge commit,
-because it brings ticks from other commits.
+evidence block that contains text.
 
-No CI check examines the commits of a pull request. A failure of such a check is
-on a pushed commit, and only `git commit --amend` or `git rebase` can correct a
-pushed commit. The rules of this repository do not permit either. A commit that
-does not run the hook has no block, and `show` then prints no evidence for its
-tick. The `plan-checkboxes` check keeps only the rule that a plan at
-`stage: done` has no unticked task.
+The block starts at a line `---` that a line `completion evidence:` follows, and
+it continues to the end of the message. Git trailer lines at the end of the
+message, such as `Co-Authored-By:`, are not text of the block. The hook does not
+examine a merge commit, because a merge commit moves ticks from other commits.
+
+A commit that does not run the hook has no block, and `show` then prints no
+evidence for its tick. The `plan-checkboxes` check keeps only the rule that a
+plan at `stage: done` has no unticked task.
 
 ## Implementation Steps
 
@@ -57,13 +59,14 @@ tick. The `plan-checkboxes` check keeps only the rule that a plan at
 **Files:** Create: `scripts/completion-evidence.py`,
 `scripts/tests/test_completion_evidence.py`
 
-The completion evidence block has this format:
+The commit message has this format. The completion evidence block is its footer:
 
 ```
+<what was done belongs to normal commit message part>
+
 ---
 completion evidence:
-bla bla bla
----
+<how it was checked>
 ```
 
 - [ ] `check-message <message-file>` exits 0 for a staged tick of one plan task
@@ -219,7 +222,7 @@ makes for a plan after this change is on `main`.
 
 ## ADRs
 
-[The commit that ticks a plan task carries its
+[The commit that ticks a plan task contains its
 evidence](../adr/0092-completion-evidence-in-the-commit-message.md)
 
 ## Verification
@@ -237,8 +240,8 @@ diff docs/knowledge/CHANGELOG.md .agents/plugins/agentdev/skills/iwe-bootstrap/a
 
 - A change to the evidence lines of closed or archived plans. They stay as they
   are.
-- A check in a consumer repository. The catalog rules tell the Implement session
-  what to write. The hook is in this repository only.
+- A check in a consumer. The catalog rules tell the Implement session what to
+  write. The hook is in this repository only.
 - A check of the text in a block. The hook examines only the format of the
   block.
 - A CI check of the commits of a pull request. Only a change to pushed commits
