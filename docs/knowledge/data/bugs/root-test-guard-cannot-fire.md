@@ -8,7 +8,6 @@ sources:
 - resource: scripts/tests/conftest.py
 - resource: .github/workflows/ci.yml
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the root-test launcher guard against unmarked tests cannot operate

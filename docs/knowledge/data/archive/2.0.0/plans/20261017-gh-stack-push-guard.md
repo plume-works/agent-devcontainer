@@ -309,8 +309,8 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 ## Spec changes
 
-[Stacked PRs](../../../spec/stacked-prs.md). This is contract-heavy because it
-governs data loss on shared branches.
+Stacked PRs. This is contract-heavy because it governs data loss on shared
+branches.
 
 ``` markdown
 ## MODIFIED Requirements

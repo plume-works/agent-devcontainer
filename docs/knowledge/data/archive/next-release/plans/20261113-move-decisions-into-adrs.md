@@ -24,8 +24,8 @@ as `spec/<key>`, as rule 3 in `AGENTS.md#comments` tells them to.
 
 This plan is the second removal step of [Shrink the knowledge base to an issue
 tracker and decision
-records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). After
-it, no reason is only in a spec.
+records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). After it, no
+reason is only in a spec.
 
 ## Approach
 

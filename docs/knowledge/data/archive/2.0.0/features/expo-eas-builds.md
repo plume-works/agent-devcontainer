@@ -55,9 +55,8 @@ no trust: a workspace is trusted only on the Mac.
 `bun --version` in the rebuilt container with each `eas.json` build profile and
 updates the pin.
 
-The contract is [Template consumption](../../../spec/template-consumption.md);
-the Template-class and consumer-owned split is [Template
-boundary](../../1.0.0/architecture/template-boundary.md).
+The contract is Template consumption; the Template-class and consumer-owned
+split is [Template boundary](../../1.0.0/architecture/template-boundary.md).
 
 ## Edge cases
 

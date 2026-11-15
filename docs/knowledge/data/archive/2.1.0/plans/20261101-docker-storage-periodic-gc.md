@@ -32,10 +32,9 @@ limits](../../2.0.0/features/docker-storage-limits.md):
 - The 10 GB BuildKit cap does not free cache that kept images share.
 - Nothing removes volumes.
 
-The Dev Container engine's limits are specified in [Devcontainer Docker
-storage](../../../spec/devcontainer-docker-storage.md), the workspace engine's
-in Coder IDE baseline, and the deploy image's in [Standalone OpenCode
-runtime](../../../spec/standalone-opencode-runtime.md).
+The Dev Container engine's limits are specified in Devcontainer Docker storage,
+the workspace engine's in Coder IDE baseline, and the deploy image's in
+Standalone OpenCode runtime.
 
 ## Approach
 
@@ -244,7 +243,7 @@ pass always exits 0.
 
 ## Spec changes
 
-[Devcontainer Docker storage](../../../spec/devcontainer-docker-storage.md):
+Devcontainer Docker storage:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -363,7 +362,7 @@ failed step SHALL only warn. The template's startup script SHALL NOT prune.
   volumes are removed within an hour of qualifying, without a restart.
 ```
 
-[Standalone OpenCode runtime](../../../spec/standalone-opencode-runtime.md):
+Standalone OpenCode runtime:
 
 ``` markdown
 ## MODIFIED Requirements

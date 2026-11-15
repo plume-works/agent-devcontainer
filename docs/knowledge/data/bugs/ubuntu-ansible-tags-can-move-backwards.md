@@ -8,7 +8,6 @@ sources:
 - resource: .github/actions/docker/build-push-action/select-labels.sh
 - resource: .github/actions/docker/promote/action.yml
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the promote step can move the `ubuntu-ansible` tags to an older image

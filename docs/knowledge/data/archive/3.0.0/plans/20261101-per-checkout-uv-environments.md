@@ -465,7 +465,7 @@ Create: `py_packages/agentdev_runtime/tests/test_worktree_register.py`
 
 ## Spec changes
 
-[agentdev runtime images](../../../spec/agentdev-runtime-images.md):
+agentdev runtime images:
 
 ``` markdown
 ## ADDED Requirements

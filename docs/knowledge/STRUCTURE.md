@@ -28,7 +28,7 @@ STRUCTURE.md       # this file: design rationale
 data/              # the graph
   index.md         # the root hub — every hub is its child
   product.md       # ✏️ fill-in tracker: the doc every session reads first
-  <hub>.md + <hub>/  # plans, features, bugs, adr, spec, findings, guides, concept,
+  <hub>.md + <hub>/  # plans, features, bugs, adr, findings, guides, concept,
                      # releases, backlog, someday (+ milestone.md)
   archive/<release>/<folder>/  # finished work, one folder per cut version
                      # plus next-release
@@ -45,11 +45,11 @@ requests conflict on a hub only when their members sort next to each other.
 
 **Work items vs. reference.** Plans, features, bugs, releases, backlog tasks,
 and ADRs are *work items*: a lifecycle `stage`, dates, a commit gate
-(`iwe schema validate`). Specs, findings, guides, concept, and someday docs are
-*durable reference*: they carry a `type` and the shared OKF families, but no
-`stage`, because nothing about them is a lifecycle. The split keeps the ceremony
-where it pays. Every document is validated — OKF conformance requires a `type`
-everywhere — but only work items are asked for more than that.
+(`iwe schema validate`). Finding, guide, concept, and someday documents are
+*permanent reference*. They have a `type` and the shared OKF fields, but no
+`stage`, because they have no lifecycle. The split keeps the ceremony where it
+pays. Every document is validated — OKF conformance requires a `type` everywhere
+— but only work items are asked for more than that.
 
 **Frontmatter is the only record of state.** A work item's `stage`, `priority`,
 `completed`, and `rank` live in its own document, so a stage change edits one
@@ -62,7 +62,7 @@ document the Consult step reads. A finding is a measurement and lives in
 `findings/`; a procedure lives in `guides/`, whose anchors are checked on every
 commit. A feature is a proposal, live only until its plan ships. A statement
 with two homes drifts in the one nobody maintains, so no type restates another's
-content. `data/spec/` gets no new text.
+content.
 
 **Finished work is archived, not deleted.** Whoever closes a plan, bug, task,
 feature, or ADR moves it with `iwe rename` to `archive/next-release/<folder>/`
@@ -123,9 +123,9 @@ data, not in forked skill prompts.
 
 Adopted, in IWE-native form:
 
-- **Requirement/Scenario format** — `### Requirement:` + SHALL +
-  `#### Scenario:` WHEN/THEN, with OpenSpec's "progressive rigor" stance: scale
-  ceremony with risk, as a convention rather than a validation gate.
+- **Scenario format** — a plan's `### Scenario:` blocks with WHEN/THEN lines,
+  with the OpenSpec "progressive rigor" rule: the higher the risk, the more
+  scenarios a plan has. This is advice, not a validation check.
 - **Authoring rules** — modeled on OpenSpec's per-artifact `rules:` config,
   relocated into the product doc.
 - **Dependencies** — OpenSpec's `dependsOn` metadata becomes a `## Depends on`

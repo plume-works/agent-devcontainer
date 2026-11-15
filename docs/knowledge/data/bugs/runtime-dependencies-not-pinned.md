@@ -6,7 +6,6 @@ severity: low
 sources:
 - resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
-- resource: docs/spec-audit/requirements.jsonl
 ---
 
 # Bug: the runtime package installs two dependencies from a version range

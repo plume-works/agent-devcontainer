@@ -171,7 +171,7 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 ## Spec changes
 
-[AI review gate](../../../spec/ai-review-gate.md):
+AI review gate:
 
 ``` markdown
 ## MODIFIED Requirements
@@ -283,9 +283,9 @@ is bridged to the head branch.
 AI review refresh — a rationale comment starts no workflow run, and the bridge
 does not dispatch work for it.
 
-[Template consumption](../../../spec/template-consumption.md) — the AI review
-gate's trust requirement forbids comment, issue, and `workflow_dispatch`
-triggers in place of retaining the `workflow_dispatch` bridge.
+Template consumption — the AI review gate's trust requirement forbids comment,
+issue, and `workflow_dispatch` triggers in place of retaining the
+`workflow_dispatch` bridge.
 
 ## Verification
 

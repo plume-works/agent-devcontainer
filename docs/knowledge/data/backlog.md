@@ -60,9 +60,6 @@ images](backlog/remove-dbus-keyring.md)
 
 [Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
 
-[Shrink the knowledge base to an issue tracker and decision
-records](backlog/shrink-knowledge-base-to-issues-and-adrs.md)
-
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 

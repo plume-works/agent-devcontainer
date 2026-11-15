@@ -250,7 +250,6 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
         (ACTIVE_PLAN, plan('- `src/gone.py::main`', stage='stage: cancelled\n')),
         (ACTIVE_PLAN, plan('- `src/tool.py::main`', steps='- [ ] Create `src/new.py::main`')),
         ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py::b`\n'),
-        ('docs/knowledge/data/spec/thing.md', '---\ntype: spec\n---\n`a.py::b`\n'),
         ('docs/knowledge/data/findings/measured.md', '---\ntype: finding\n---\n`a.py::b`\n'),
         (
             'docs/knowledge/data/archive/2.1.0/plans/20260101-old.md',
@@ -265,7 +264,7 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
 def test_out_of_scope_anchors_are_not_resolved(
     write: Write, run: Run, relative: str, text: str
 ) -> None:
-    """Closed plans, plan tasks, done bugs, specs, findings, and archived documents are unresolved."""
+    """Closed plans, plan tasks, done bugs, findings, and archived documents are unresolved."""
     write(relative, text)
     assert run().returncode == 0, run().stdout
 

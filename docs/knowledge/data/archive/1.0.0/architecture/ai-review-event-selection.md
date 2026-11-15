@@ -49,7 +49,7 @@ holds the merge until each is resolved, so approving with non-blocking findings
 loses no enforcement. Blocking findings always block: an approval shown beside
 an unaddressed blocking finding would read as sign-off on it.
 
-See [AI review gate](../../../spec/ai-review-gate.md) for what the gate accepts.
+See AI review gate for what the gate accepts.
 
 ## The self-review API rule
 

@@ -22,8 +22,8 @@ not agree with 4 `## Rationale` entries. The labels are in `docs/spec-audit/`.
 
 This plan is the first removal step of [Shrink the knowledge base to an issue
 tracker and decision
-records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It
-removes only the text that the audit already shows is not necessary or is wrong.
+records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It removes
+only the text that the audit already shows is not necessary or is wrong.
 
 The repository owner's decisions:
 

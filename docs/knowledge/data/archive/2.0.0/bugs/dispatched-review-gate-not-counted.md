@@ -63,14 +63,13 @@ GitHub's pull request rollup, and the required-status-check evaluation that
 follows it, include check suites from the pull request's own events and leave
 out the suite a `workflow_dispatch` run creates on the head branch. That holds
 even though the suite reports the pull request in `pull_requests` and its check
-runs share the required check's name and app.
-[spec/ai-review-gate](../../../spec/ai-review-gate.md) couples the gate to the
-review job with `needs:`, and that coupling holds only inside one run. The
-bridge moves comment-requested reviews into a separate, dispatched run, so the
-coupled gate it produces is one the ruleset never reads. The posted review
-creates no `pull_request_review` event either, because the review job posts with
-`GITHUB_TOKEN`. So nothing re-runs the `pull_request` gate once the review
-lands.
+runs share the required check's name and app. spec/ai-review-gate couples the
+gate to the review job with `needs:`, and that coupling holds only inside one
+run. The bridge moves comment-requested reviews into a separate, dispatched run,
+so the coupled gate it produces is one the ruleset never reads. The posted
+review creates no `pull_request_review` event either, because the review job
+posts with `GITHUB_TOKEN`. So nothing re-runs the `pull_request` gate once the
+review lands.
 
 ## Fix
 

@@ -309,8 +309,8 @@ reports
 
 ## Spec changes
 
-[Catalog lifecycle](../../../spec/catalog-lifecycle.md) — OpenCode joins both
-install requirements; the credentials requirement is unchanged:
+Catalog lifecycle — OpenCode joins both install requirements; the credentials
+requirement is unchanged:
 
 ``` markdown
 ## MODIFIED Requirements

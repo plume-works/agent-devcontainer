@@ -48,7 +48,7 @@ ansible/ + docker/ + py_packages/agentdev_runtime/ + catalog publisher source
 The image stages the catalog read-only at `/opt/agentdev`
 (`AGENTDEV_CATALOG_DIR`); it does not stage the devcontainer scaffolding itself
 — that's copied by the `/agentdev:template-consume` skill under the requirements
-in [Template consumption](../../../spec/template-consumption.md).
+in Template consumption.
 
 ## Key design decisions
 

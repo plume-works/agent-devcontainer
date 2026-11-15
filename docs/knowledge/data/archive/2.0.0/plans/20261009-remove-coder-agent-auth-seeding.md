@@ -59,10 +59,9 @@ that `enableAllProjectMcpServers` does not reach the headless responder, whose
 `.mcp.json` names an `mcp-gateway` server that CI does not run.
 
 The spec is retired and split: Claude Remote Control (autostart and
-pre-approval) and [Devcontainer Git
-credentials](../../../spec/devcontainer-git-credentials.md) (Git identity
-passthrough and the `gh` credential helper), since neither half is about agent
-auth once seeding is gone.
+pre-approval) and Devcontainer Git credentials (Git identity passthrough and the
+`gh` credential helper), since neither half is about agent auth once seeding is
+gone.
 
 Rejected:
 
@@ -310,11 +309,10 @@ both files SHALL be preserved. The CI responder SHALL set the opt-out.
   modified.
 ```
 
-New [Devcontainer Git
-credentials](../../../spec/devcontainer-git-credentials.md): the two
-requirements `Git identity reaches the nested container` and
-`HTTPS git uses the gh login` carried over verbatim from the retired spec, plus
-its step-2 paragraph on supplying the `GIT_*` values through Coder.
+New Devcontainer Git credentials: the two requirements
+`Git identity reaches the nested container` and `HTTPS git uses the gh login`
+carried over verbatim from the retired spec, plus its step-2 paragraph on
+supplying the `GIT_*` values through Coder.
 
 ## Verification
 

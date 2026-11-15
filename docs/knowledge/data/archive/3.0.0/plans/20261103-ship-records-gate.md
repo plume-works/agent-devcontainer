@@ -136,8 +136,7 @@ Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>.
 
 ## Spec changes
 
-[Pre-commit gate](../../../spec/pre-commit-gate.md) — a new requirement for the
-hook.
+Pre-commit gate — a new requirement for the hook.
 
 ``` markdown
 ## ADDED Requirements

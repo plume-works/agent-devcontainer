@@ -44,9 +44,6 @@ quotes](bugs/git-new-branch-hint-unquoted-remote.md)
 [Bug: Nothing runs `zsh -n` on the macOS bootstrap that shellcheck
 skips](bugs/macos-bootstrap-not-syntax-checked.md)
 
-[Bug: a merge commit skips `end-of-file-fixer` and
-`trailing-whitespace`](bugs/merge-commit-skips-two-hooks.md)
-
 [Bug: The README says that the containers do not enable
 self-improve](bugs/readme-says-self-improve-not-enabled.md)
 

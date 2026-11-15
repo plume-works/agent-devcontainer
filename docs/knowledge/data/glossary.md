@@ -53,8 +53,6 @@ term in the same change that first uses it.
   to stay current, `origin/main` by default.
 - **base branch** (noun): The branch that the `paths-filter` action uses as the
   push target, `main` by default.
-- **bootstrap transaction** (noun): The staging directory `.iwe-bootstrap.txn/`
-  in the target root, which a later `iwe-bootstrap` run completes or discards.
 - **bottom** (noun): The pull request of a chain that has `main` as its base.
 - **bounded wait** (noun): A poll of fixed length that repeats until the GitHub
   state changes.
@@ -94,6 +92,9 @@ term in the same change that first uses it.
   end of the message, which says how the work was checked.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
+- **consumption guide** (noun): The file `references/consumption-guide.md` of
+  the `template-consume` skill, which tells a consumer how to adopt the
+  template.
 - **consumer** (noun): A repository that adopted this template or that uses the
   agentdev images for its own project.
 - **cooldown** (noun): The time that a push to `main` waits in a job that CI can
@@ -162,6 +163,8 @@ term in the same change that first uses it.
   completed turn gets one reviewer call.
 - **gate-only run** (noun): The workflow run that a push to a reviewed pull
   request starts, in which the responder check does not run.
+- **gh wrapper** (noun): The script `ansible/roles/github_cli/files/gh`, which
+  runs the real `gh` with a token from the git credential helper.
 - **global-only option** (noun): A Renovate option that only the global
   configuration of the self-hosted bot accepts.
 - **graph** (noun): The IWE knowledge graph of the documents under
@@ -181,8 +184,6 @@ term in the same change that first uses it.
   `agentdev-devcontainer`.
 - **image-owned path** (noun): The directory `/opt/playwright`, outside all home
   volumes, that holds the Chromium of the image.
-- **immutable commit tag** (noun): The `sha-<commit>` image tag that CI
-  publishes a candidate under and never moves.
 - **Implement** (noun): The workflow phase that does the tasks of a plan,
   through `/agentdev:iwe-implement`.
 - **Implement session** (noun): The session that loaded
@@ -202,23 +203,14 @@ term in the same change that first uses it.
   `agentdev-runtime supervisor retry`.
 - **latched failure** (noun): A failure that the runtime controller cannot
   recover from.
-- **lifecycle-neutral image** (noun): The `agentdev-base` image, which has the
-  tools and the staged catalog but no runtime package, supervisor, or lifecycle
-  commands.
 - **live anchor** (noun): An anchor that the anchor check resolves: in the
   `## Key references` of an active plan, an open bug or task, or a guide.
-- **local remapping** (noun): The selection of a different local port by VS Code
-  for a forwarded container port when the preferred port is in use.
 - **login volume** (noun): A Docker volume that holds agent credentials and that
   Docker garbage collection never removes.
 - **machine position** (noun): A line number that a tool needs, such as the
   `line` field of a GitHub inline review comment.
-- **managed destinations** (noun): The two trees that `iwe-bootstrap` owns in a
-  target root: `.iwe` and `docs/knowledge`.
 - **managed keys** (noun): The OpenCode configuration keys whose values the
   runtime writes again at each start.
-- **mapped tool** (noun): The OpenCode permission or action that the bridge
-  plugin uses for a Claude tool name in the `tools:` list of an agent.
 - **marker** (noun): The `template-consume` section of the root
   `.agent.metadata.json` of a consumer, which records the template state.
 - **marker block** (noun): The block of `PATH` lines that the macOS bootstrap
@@ -254,8 +246,6 @@ term in the same change that first uses it.
   `data/` agrees with and that the `okf` and `okf-index` schemas check.
 - **onboarding** (noun): The setup of a blank knowledge workspace through
   `/agentdev:iwe-setup`.
-- **one-shot phase** (noun): A supervised program that runs to completion one
-  time at each start: `prepare`, `config`, or `project`.
 - **OpenCode bridge** (noun): The plugin at
   `.agents/plugins/agentdev/.opencode-plugin/` that makes the skills, commands,
   and agents of the catalog available in OpenCode.
@@ -265,8 +255,6 @@ term in the same change that first uses it.
   records: `custom-image`, `knowledge-base`, or `expo`.
 - **optional service** (noun): A service of the standalone runtime whose failure
   only degrades the runtime, such as `config`, `xpra`, or `dockerd`.
-- **outer workspace** (noun): The Coder workspace or the host that starts the
-  Dev Container.
 - **outstanding observation** (noun): An unticked plan task that has a Closed by
   line, which Verify lists without a failure and Ship waits for.
 - **owner** (noun): In self-improve, the existing `CLAUDE.md` file, rule, or
@@ -324,8 +312,6 @@ term in the same change that first uses it.
   `iwe-bootstrap` does not change.
 - **reconnect** (verb): To merge the squash commit of a merged predecessor into
   a copy of its last head, then merge that copy into the dependent branch.
-- **recorded version** (noun): The `PYTHON_VERSION` constant in the macOS
-  bootstrap script.
 - **recovery budget** (noun): The number of restarts that a service of the
   standalone runtime can do, with a delay that doubles after each restart.
 - **refresh** (verb): To restart a client outside its recovery budget, because a
@@ -335,10 +321,10 @@ term in the same change that first uses it.
 - **release cut** (noun): The release mode of `iwe-shipper`, which moves
   `data/archive/next-release/` to the folder of the version and writes the
   release page.
-- **release-only tools** (noun): The tools `iwe` and `iwes`, which the macOS
-  bootstrap script installs from a GitHub release archive.
 - **remapped account** (noun): The `agent` account of the image after the
   devcontainer CLI changes its UID and GID to those of the host user.
+- **requirement** (noun): A SHALL statement in a document of the removed
+  `data/spec/` folder.
 - **residue** (noun): In a document, text that records the path to a decision
   and not the decision, such as a list of failed attempts.
 - **residue** (noun): In a pull request description, a verification that no
@@ -361,8 +347,6 @@ term in the same change that first uses it.
   follows, such as `iwe-planner.agent.md`.
 - **rulebook followed in place** (noun): An agent definition that the session of
   a skill reads and follows itself, and does not dispatch.
-- **runner job** (noun): A workflow job on a GitHub runner and not in the
-  `agentdev-devcontainer` image.
 - **runtime profile** (noun): The service graph that PID 1 selects through
   `AGENTDEV_RUNTIME_MODE`: `deploy` or `devcontainer`.
 - **saved Verify report** (noun): The one Verify report for each plan under
@@ -397,8 +381,8 @@ term in the same change that first uses it.
 - **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
 - **spawn mode** (noun): The place where a server-mode conversation runs: its
   own git worktree or the workspace directory.
-- **spec** (noun): A document in `data/spec/` that states behaviour as SHALL
-  requirements, and that gets no new text.
+- **spec** (noun): A document of the removed `data/spec/` folder that stated
+  behaviour as SHALL requirements.
 - **spike** (noun): A short trial implementation that answers one design
   question.
 - **staged catalog** (noun): The read-only copy of the catalog in the image at
@@ -426,8 +410,6 @@ term in the same change that first uses it.
 - **top** (noun): The last pull request of a chain.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.
-- **trust-on-first-use** (noun): The rule that the checksum of a new version is
-  the hash of its first download, which nothing else verifies.
 - **trusted bot** (noun): A bot login in `TRUSTED_BOT_ACTORS`, whose pull
   requests the review app approves without a review.
 - **UID/GID cohort** (noun): The project containers that run with the same

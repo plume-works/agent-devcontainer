@@ -74,8 +74,8 @@ directory first.
    same way the catalog version is pinned by `AGENTDEV_PLUGIN_VERSION`.
 4. A CI job running in the digest-pinned image can validate a consuming
    repository's agent files — the "Agent-file validation" section of the
-   `/agentdev:template-consume` guide shows the job; [Template
-   consumption](../../../spec/template-consumption.md) requires it.
+   `/agentdev:template-consume` guide shows the job; Template consumption
+   requires it.
 5. The image build does not depend on the consuming repository's checkout — the
    package is installed at build time, not staged for a lifecycle hook to
    install.
@@ -84,8 +84,7 @@ directory first.
 
 End-to-end testing of both consumption workflows (full copy and existing
 repository) surfaced issues unrelated to the validator install itself, all
-resolved by folding them into [Template
-consumption](../../../spec/template-consumption.md):
+resolved by folding them into Template consumption:
 
 - `.ruff.toml` silently disabling a project's `[tool.ruff]` block — now a named
   requirement there.

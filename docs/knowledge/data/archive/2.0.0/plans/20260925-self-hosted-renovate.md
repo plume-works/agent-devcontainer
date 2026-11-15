@@ -484,8 +484,7 @@ Create: `scripts/tests/test_reformat_renovate_skip.py`
 
 ## Spec changes
 
-[Image pinning](../../../spec/image-pinning.md) gains a requirement for workflow
-container images:
+Image pinning gains a requirement for workflow container images:
 
 ``` markdown
 ## ADDED Requirements

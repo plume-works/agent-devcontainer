@@ -2,6 +2,8 @@
 type: plan
 created: 2026-11-13
 release: internal
+stage: done
+completed: 2026-11-15
 description: Move the decision logic of the AI review gate and of the image promotion out of the workflow files into scripts, and add a test that runs each decision.
 sources:
 - resource: docs/spec-audit/requirements.jsonl
@@ -13,18 +15,18 @@ sources:
 
 ## Context
 
-[The spec usefulness audit](../findings/spec-usefulness-audit.md) found five
-behaviours that only a spec states and that are inline code in a workflow file.
-Four are in `spec/ai-review-gate` and one is in `spec/image-pinning`. Each one
-decides a merge or a publish, and nothing runs it before GitHub does.
+[The spec usefulness audit](../../../findings/spec-usefulness-audit.md) found
+five behaviours that only a spec states and that are inline code in a workflow
+file. Four are in `spec/ai-review-gate` and one is in `spec/image-pinning`. Each
+one decides a merge or a publish, and nothing runs it before GitHub does.
 
 The test rules in `AGENTS.md#tests` permit only a test that runs the behaviour.
 A test cannot run code that is a string in a YAML file.
 
 This plan is a part of [Shrink the knowledge base to an issue tracker and
 decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It is
-a separate plan because a mistake in it shows only on a real pull request or a
-real publish.
+a separate plan because a mistake in it shows only when a real pull request runs
+or when the workflow publishes a real image.
 
 ## Approach
 
@@ -93,14 +95,24 @@ Each test shows what the `fate_note` of its row in
 **Closed by:** the first pull request that is opened after this change is on the
 default branch.
 
-- [ ] The gate blocks the pull request before the AI review exists.
-- [ ] The gate passes after the AI review is submitted.
+- [x] The gate blocks the pull request before the AI review exists.
+  - **Evidence:** Pull request #890 was the first pull request after this change
+    that needed an AI review. In run 43663125415, the required check
+    `ai-review-present` did not pass from 01:26 until the AI review job
+    completed at 01:30 UTC.
+- [x] The gate passes after the AI review is submitted.
+  - **Evidence:** after the review of `plume-works-quill[bot]` at 01:30:05 UTC,
+    `reviewAcceptance` from the module wrote "Found accepted AI review" to the
+    log and `ai-review-present` passed in run 43663125415.
 
 ### Task 4: Observe an image promotion
 
 **Closed by:** the first image build on the default branch after this change.
 
-- [ ] The promotion step publishes the tag of the tested image.
+- [x] The promotion step publishes the tag of the tested image.
+  - **Evidence:** Run 43654311837 ran on `main` at `19156ec6`. In this run, the
+    job `Promote development image` called `tag-decision.sh` for each tag. It
+    moved `edge` and `main` of the four images to the tested digests.
 
 ## Acceptance
 
@@ -109,7 +121,7 @@ None — no behavioral change
 ## Depends on
 
 [Add ADRs and take the workflow off
-specs](../archive/next-release/plans/20261113-adrs-and-workflow-off-specs.md)
+specs](20261113-adrs-and-workflow-off-specs.md)
 
 ## Verification
 
@@ -135,3 +147,25 @@ uv run pre-commit run --all-files actionlint
 - `docs/spec-audit/requirements.jsonl` — the rows for `ai-review-gate` and
   `image-pinning` whose `fate` is `needs-test`.
 - `AGENTS.md#tests` — the rules that each new test follows.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-15.
+
+- [x] Verify found no CRITICAL problem — correct: "Ready to ship:
+  data/plans/20261113-test-the-workflow-decisions"
+- [x] Every ADR that the plan proposed is `stage: accepted` — not applicable:
+  the plan proposed no ADR
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — not applicable: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-15
+- [x] Every feature in `release` is `stage: implemented` — not applicable:
+  `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every feature and bug that it completed are in the archive,
+  and no hub links them — correct:
+  data/archive/next-release/plans/20261113-test-the-workflow-decisions

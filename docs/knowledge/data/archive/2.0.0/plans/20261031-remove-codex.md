@@ -398,7 +398,7 @@ Removed: the runtime no longer installs CBM for Codex, so it neither creates
 `hooks.json` nor repairs Codex's `config.toml`.
 ```
 
-### [Catalog lifecycle](../../../spec/catalog-lifecycle.md)
+### Catalog lifecycle
 
 ``` markdown
 ## REMOVED Requirements
@@ -522,7 +522,7 @@ startup is selected.
 - **THEN** every client's configuration file is byte-identical afterwards.
 ```
 
-### [agentdev runtime images](../../../spec/agentdev-runtime-images.md)
+### agentdev runtime images
 
 ``` markdown
 ## MODIFIED Requirements
@@ -541,7 +541,7 @@ SHALL continue using the staged version.
   image
 ```
 
-### [Standalone OpenCode runtime](../../../spec/standalone-opencode-runtime.md)
+### Standalone OpenCode runtime
 
 ``` markdown
 ## MODIFIED Requirements

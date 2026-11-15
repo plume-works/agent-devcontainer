@@ -48,8 +48,7 @@ refuses them. `AGENTS.md` allows a force-push only as `gh stack rebase` or the
 guarded `publish` of a stack branch; a bare `gh stack push`, `submit`, or `sync`
 is never run.
 
-The contracts are [Stacked PRs](../../../spec/stacked-prs.md) and PR merge
-conflicts.
+The contracts are Stacked PRs and PR merge conflicts.
 
 ## Edge cases
 
