@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: proposed
-description: An agent looks for an answer in the code first, in the git history second, and in a document last. The pull request body states each decision, so the squash commit holds it.
+description: An agent looks for an answer in the code first, in the git history second, and in a document last, and each pull request body states its decisions so that the squash commit holds them.
 ---
 
 # Code first, git history second, documents last

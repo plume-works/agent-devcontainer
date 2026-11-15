@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-15
 release: internal
-description: Put the decisions of each pull request in its body. Tell agents where to find an answer, in this order — the code, the git history, and then a document.
+description: Put the decisions of each pull request in its body, and tell agents to look for an answer in the code, then the git history, then a document.
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md

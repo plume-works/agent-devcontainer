@@ -1,6 +1,6 @@
 ---
 type: someday
-description: Ship archives an ADR when each plan that links it is shipped. Then the squash commit of each pull request is the permanent record of the decision.
+description: Ship archives an ADR when each plan that links it has shipped, so that the squash commit of each pull request is the permanent record of the decision.
 sources:
 - resource: docs/knowledge/data/adr/0002-decisions-are-adrs-in-the-graph.md
 - resource: docs/knowledge/SCHEMA.md

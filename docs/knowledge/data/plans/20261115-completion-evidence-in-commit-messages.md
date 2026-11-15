@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-15
 release: internal
-description: Move the evidence of a ticked plan task into the message of the commit that ticks it. Make sure that each commit has one tick and one completion evidence block.
+description: Move the evidence of a ticked plan task into the message of the commit that ticks it, with one tick and one completion evidence block in each commit.
 sources:
 - resource: docs/knowledge/data/adr/0086-plan-ticks-need-evidence-lines.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py

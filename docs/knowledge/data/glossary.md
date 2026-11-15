@@ -87,12 +87,11 @@ term in the same change that first uses it.
   and not on the computer of the user.
 - **Coder user secret** (noun): A value for one user, such as `GITHUB_TOKEN`,
   that Coder puts only in the environment of its agent.
-- **completion evidence block** (noun): The footer of the message of the commit
-  that ticks a plan task. It starts at the lines `---` and
-  `completion evidence:` and continues to the end of the message. It says how
-  the agent checked the work.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
+- **completion evidence block** (noun): The footer of a commit message, from the
+  lines `---` and `completion evidence:` to the end, that says how the agent
+  checked the plan task that the commit ticks.
 - **consumption guide** (noun): The file `references/consumption-guide.md` of
   the `template-consume` skill, which tells a consumer how to adopt the
   template.

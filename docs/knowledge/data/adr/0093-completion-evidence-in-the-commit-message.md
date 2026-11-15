@@ -1,7 +1,7 @@
 ---
 type: adr
 stage: proposed
-description: The message of the commit that ticks a plan task contains a completion evidence block. The plan has no evidence line.
+description: The message of the commit that ticks a plan task contains its completion evidence block, and the plan has no evidence line.
 supersedes:
 - adr/0086-plan-ticks-need-evidence-lines
 ---
