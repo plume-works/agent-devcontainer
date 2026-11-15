@@ -93,8 +93,15 @@ Each test shows what the `fate_note` of its row in
 **Closed by:** the first pull request that is opened after this change is on the
 default branch.
 
-- [ ] The gate blocks the pull request before the AI review exists.
-- [ ] The gate passes after the AI review is submitted.
+- [x] The gate blocks the pull request before the AI review exists.
+  - **Evidence:** on pull request #890, the first one after this change that
+    needs an AI review, the required check `ai-review-present` of run
+    43663125415 stayed pending from 01:26 until the AI review job ended at 01:30
+    UTC.
+- [x] The gate passes after the AI review is submitted.
+  - **Evidence:** after the review of `plume-works-quill[bot]` at 01:30:05 UTC,
+    `reviewAcceptance` from the module logged "Found accepted AI review" and
+    `ai-review-present` passed in run 43663125415.
 
 ### Task 4: Observe an image promotion
 
