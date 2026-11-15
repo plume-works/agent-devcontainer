@@ -38,3 +38,9 @@ the user, so the hook names it `wt-<worktree name>` and checks its owner.
   the main checkout.
 - Each shared installation runs at user scope, and the settings of a worktree
   have priority over user scope.
+- A worktree session reads the catalog from the files in its worktree, not from
+  the plugin cache. `/reload-skills` adds a skill that is new in the worktree,
+  committed or not, and the session does not restart.
+- A worktree session reads the body of a skill when the skill starts. As a
+  result, a checkout of a different branch in the worktree changes the skill
+  bodies that the session loads, and no reload is necessary.
