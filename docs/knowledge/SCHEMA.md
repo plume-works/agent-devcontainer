@@ -41,7 +41,8 @@ different type.
 | What one release changed                              | Releases                      | The release cut of `/agentdev:iwe-ship` |
 | Finished work                                         | Archive                       | The session that closes the work        |
 
-The Home column names a section of this file, or a file.
+The Home column names a section of this file, or a file. In each path below, a
+`<slug>` is a short name in kebab case, and one document has one topic.
 
 Plans, features, bugs, ADRs, releases, and backlog tasks are work items. A work
 item has a `stage`. Findings, guides, product-vision documents, and someday

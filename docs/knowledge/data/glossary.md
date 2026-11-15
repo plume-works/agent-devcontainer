@@ -124,6 +124,8 @@ term in the same change that first uses it.
 - **disposable volume** (noun): A Docker volume whose name matches
   `docker.py::DISPOSABLE_VOLUME`, which is the only type of volume that a
   garbage collection pass can remove.
+- **document type** (noun): A kind of document in `data/` that
+  `docs/knowledge/SCHEMA.md` defines, such as a plan or a bug.
 - **Durable Knowledge Auditor** (noun): The catalog agent that runs
   `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
 - **durable-knowledge pass** (noun): The pass of a pull request review that runs
@@ -307,6 +309,8 @@ term in the same change that first uses it.
   a copy of its last head, then merge that copy into the dependent branch.
 - **recovery budget** (noun): The number of restarts that a service of the
   standalone runtime can do, with a delay that doubles after each restart.
+- **reference document** (noun): A finding, a guide, a product-vision document,
+  or a someday idea, as `docs/knowledge/SCHEMA.md#what-goes-where` gives.
 - **refresh** (verb): To restart a client outside its recovery budget, because a
   dependency that it reads at startup recovered.
 - **relay** (noun): The TCP forwarder `.claude/agent-proxy-relay.py` from the
@@ -395,6 +399,8 @@ term in the same change that first uses it.
 - **tense split** (noun): The rule that closed work goes under Verification and
   open work goes under Reviewer Handoff in a pull request description.
 - **top** (noun): The last pull request of a chain.
+- **tracker** (noun): A living document that is edited in place, as
+  `docs/knowledge/SCHEMA.md#trackers` defines.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.
 - **trusted bot** (noun): A bot login in `TRUSTED_BOT_ACTORS`, whose pull
