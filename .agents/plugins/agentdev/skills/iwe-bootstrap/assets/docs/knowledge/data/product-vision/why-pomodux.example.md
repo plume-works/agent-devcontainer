@@ -1,13 +1,13 @@
 ---
-type: concept
-description: 'Example concept document: why the product exists and the principles that outlive any release.'
+type: product-vision
+description: 'Example product-vision document: why the product exists and the principles that stay true in each release.'
 ---
 
 # Why Pomodux
 
-*Example document — this shows the shape of a concept note: the vision that
-outlives any single release. The setup skill deletes `*.example.md` files after
-onboarding.*
+*Example document — this shows the shape of a product-vision document: the
+vision that outlives any single release. The setup skill deletes `*.example.md`
+files after onboarding.*
 
 Every timer app eventually becomes a productivity guilt machine — charts of
 failure, streaks that shame, notifications that interrupt the very focus they
@@ -22,7 +22,8 @@ Principles:
 - **Local first.** Sessions are the user's data, on the user's disk, in a format
   they can read without us.
 
-*Convention notes: when a feature debate stalls, the concept doc is the
-tiebreaker — the [streak widget](../features/streak-widget.example) proposal had
-to argue its case against "data serves reflection, not judgment" before it was
-accepted for planning.*
+*Convention notes: when the team cannot agree about a feature, the
+product-vision document gives the decision. For example, the [streak
+widget](../features/streak-widget.example) proposal had to argue its case
+against "data serves reflection, not judgment" before it was accepted for
+planning.*
