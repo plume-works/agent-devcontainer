@@ -125,9 +125,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`,
 `docs/knowledge/AGENTS.md`,
-`.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`,
-`docs/knowledge/CHANGELOG.md`,
-`.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CHANGELOG.md`
+`.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`
 
 - [ ] Step 6, step 8, and the rules of `iwe-implementer.agent.md` tell the
   Implement session to tick one plan task in a commit. They also tell it to
@@ -142,8 +140,6 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   request contain the task evidence.
 - [ ] Both copies of `docs/knowledge/AGENTS.md` replace the evidence-line rule
   with the commit-message rule, and `diff` of the two copies prints nothing.
-- [ ] Both copies of `docs/knowledge/CHANGELOG.md` have an `[Unreleased]` entry
-  for the change, and `diff` of the two copies prints nothing.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
@@ -233,7 +229,6 @@ uv run pytest docs/knowledge/tests/test_plan_checkboxes.py
 uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py
 uv run validate_agent_files --recommend . --require-marketplace claude
 diff docs/knowledge/AGENTS.md .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md
-diff docs/knowledge/CHANGELOG.md .agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CHANGELOG.md
 ```
 
 ## Out of scope

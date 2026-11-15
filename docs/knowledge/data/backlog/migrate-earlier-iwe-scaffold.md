@@ -6,7 +6,6 @@ priority: medium
 created: 2026-11-12
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/assets/
-- resource: docs/knowledge/CHANGELOG.md
 - resource: docs/knowledge/data/plans/20261112-knowledge-base-single-home.md
 ---
 
@@ -30,6 +29,4 @@ The work: give that consumer a migration path —
   that took it, and drop `released`;
 - replace each release-page link with its text, and delete `data/log.md`.
 
-Whether this is a script, a `template-consume` update step, or written steps in
-the Migration section of `docs/knowledge/CHANGELOG.md` is for the plan to
-decide.
+The plan decides if this is a script or a `template-consume` update step.
