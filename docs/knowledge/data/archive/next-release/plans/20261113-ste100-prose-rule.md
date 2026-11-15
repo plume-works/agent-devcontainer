@@ -24,7 +24,7 @@ The repository has no rule for how prose is written. The repository owner
 decided that ASD-STE100 Issue 9 (Simplified Technical English, released
 2025-01-15) is a hard rule for all prose that agents write, and that this rule
 comes before the work in [Shrink the knowledge base to an issue tracker and
-decision records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md).
 
 The repository owner's decisions:
 

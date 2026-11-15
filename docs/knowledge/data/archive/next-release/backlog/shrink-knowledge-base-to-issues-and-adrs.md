@@ -1,11 +1,12 @@
 ---
 type: task
 created: 2026-11-12
-stage: pending
+stage: done
 priority: medium
 description: After the single-home plan ships, reduce the knowledge base to an issue tracker and architecture decision records, with code and executable tests as the only statement of behaviour.
 sources:
 - resource: docs/knowledge/data/plans/20261112-knowledge-base-single-home.md
+completed: 2026-11-15
 ---
 
 # Shrink the knowledge base to an issue tracker and decision records
@@ -45,10 +46,9 @@ that test is removed instead of maintained.
 ## Order
 
 This work starts after [One home for each kind of
-knowledge](../archive/next-release/plans/20261112-knowledge-base-single-home.md)
-ships. The repository owner wants that plan executed in full first, so the graph
-holds a complete record of how the knowledge base deteriorated before it is
-reduced.
+knowledge](../plans/20261112-knowledge-base-single-home.md) ships. The
+repository owner wants that plan executed in full first, so the graph holds a
+complete record of how the knowledge base deteriorated before it is reduced.
 
 ## What to do
 

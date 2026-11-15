@@ -22,9 +22,10 @@ The test rules in `AGENTS.md#tests` permit only a test that runs the behaviour.
 A test cannot run code that is a string in a YAML file.
 
 This plan is a part of [Shrink the knowledge base to an issue tracker and
-decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). It is
-a separate plan because a mistake in it shows only on a real pull request or a
-real publish.
+decision
+records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+It is a separate plan because a mistake in it shows only on a real pull request
+or a real publish.
 
 ## Approach
 

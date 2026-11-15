@@ -20,8 +20,9 @@ spec usefulness audit](../findings/spec-usefulness-audit.md) labelled
 that says what the test must show.
 
 This plan is the last step of [Shrink the knowledge base to an issue tracker and
-decision records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). After
-it, the repository has no spec.
+decision
+records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md).
+After it, the repository has no spec.
 
 ## Approach
 
@@ -193,9 +194,13 @@ Each test shows what the `fate_note` of its row says.
 `docs/knowledge/data/backlog/shrink-knowledge-base-to-issues-and-adrs.md`,
 `docs/knowledge/data/backlog.md`
 
-- [ ] `backlog/shrink-knowledge-base-to-issues-and-adrs` is at `stage: done`
+- [x] `backlog/shrink-knowledge-base-to-issues-and-adrs` is at `stage: done`
   with `completed`, is in `data/archive/next-release/backlog/`, and has no link
   in `data/backlog.md`.
+  - **Evidence:** Set `stage: done` and `completed: 2026-11-15` with
+    `iwe update`, moved with `iwe rename` to
+    `data/archive/next-release/backlog/`, and removed from `data/backlog.md`;
+    `check-ship-records` passes.
 
 ## Acceptance
 

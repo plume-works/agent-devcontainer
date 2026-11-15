@@ -22,9 +22,8 @@ completed: 2026-11-13
 The repository owner decided that code and tests are the only statement of
 behaviour, that an ADR registry holds the reasons, and that a glossary holds the
 project terms: [Shrink the knowledge base to an issue tracker and decision
-records](../../../backlog/shrink-knowledge-base-to-issues-and-adrs.md). [The
-spec usefulness audit](../../../findings/spec-usefulness-audit.md) is the
-evidence.
+records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md). [The spec
+usefulness audit](../../../findings/spec-usefulness-audit.md) is the evidence.
 
 The workflow skills write specs today. Plan writes `## Spec changes`, Ship
 merges it into `data/spec/`, and the release cut reads the spec diff. This plan

@@ -15,10 +15,10 @@ sources:
 ## Question
 
 [Shrink the knowledge base to an issue tracker and decision
-records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md) proposes
-deleting `data/spec/` and keeping source code with its tests as the only
-statement of behaviour, a registry of decision records for the reasons, and a
-glossary for project terms. What would that lose, and what has to exist before
+records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md)
+proposes deleting `data/spec/` and keeping source code with its tests as the
+only statement of behaviour, a registry of decision records for the reasons, and
+a glossary for project terms. What would that lose, and what has to exist before
 the specs go?
 
 ## Measurement
@@ -384,5 +384,5 @@ which is the repository owner's proposal, on four conditions it makes concrete:
 The 16 undelivered guarantees are defects or wording to settle whether or not
 the specs go. This finding closes when the plan for [Shrink the knowledge base
 to an issue tracker and decision
-records](../backlog/shrink-knowledge-base-to-issues-and-adrs.md) is written, or
-when the repository owner decides to keep the specs.
+records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md)
+is written, or when the repository owner decides to keep the specs.
