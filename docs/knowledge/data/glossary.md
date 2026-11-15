@@ -274,6 +274,8 @@ term in the same change that first uses it.
   the diff with one focus list.
 - **pass** (noun): In Docker garbage collection, one run of
   `agentdev-runtime docker gc`.
+- **per-worktree catalog** (noun): The catalog that a worktree loads from the
+  marketplace in that worktree, as ADR-0057 records.
 - **phase** (noun): The part of the plan lifecycle that a plan work branch is
   for: `plan`, `impl`, or `ship`.
 - **pin file** (noun): A file in `scripts/refresh-pin-checksums.py::PIN_FILES`
@@ -297,6 +299,8 @@ term in the same change that first uses it.
 - **pre-approval** (noun): The create-phase edit of the Claude state files that
   answers the onboarding, trust, Remote Control, and project MCP prompts before
   they show.
+- **pre-created session** (noun): The session that a Remote Control server
+  creates in its own folder when it starts.
 - **predecessor** (noun): The pull request that a dependent branch is based on.
 - **preflight** (noun): The job of the AI review workflow that decides if a
   review runs.
@@ -467,3 +471,5 @@ term in the same change that first uses it.
   which runs the Dev Container.
 - **worktree mode** (noun): The `git-new-branch` mode that creates the branch in
   a separate git worktree.
+- **worktree session** (noun): A Claude Code session that runs in a git worktree
+  of the repository.

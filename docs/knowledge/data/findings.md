@@ -21,6 +21,9 @@ start](findings/claude-remote-control-pointerless-server-start.md)
 [Claude Remote Control server restart
 resume](findings/claude-remote-control-server-restart-resume.md)
 
+[Claude Remote Control settings file and plugin
+folders](findings/claude-remote-control-settings-plugin-dirs.md)
+
 [Claude Remote Control spawn mode
 switch](findings/claude-remote-control-spawn-mode-switch.md)
 
