@@ -1,12 +1,13 @@
 ---
 type: task
-stage: pending
+stage: done
 priority: medium
 created: 2026-11-15
 description: Remove the self-improve plugin, because it got no development and the knowledge base and its process do its function.
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/134
   title: Consolidate self-improve and plan resumable Claude reviews
+completed: 2026-11-15
 ---
 
 # Remove the self-improve plugin
