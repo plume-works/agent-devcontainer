@@ -18,12 +18,10 @@ asks for the evidence of a plan task in the commit that ticks it. The commit
 then connects the tick, the code change, and the reason of the agent at that
 time. `git log` and `git blame` find the evidence from the code.
 
-Today each ticked task has a `- **Evidence:**` line in the plan
-([ADR-0086](../adr/0086-plan-ticks-need-evidence-lines.md)). Only
-`docs/knowledge/tests/test_plan_checkboxes.py` parses the line. Verify and
-`/agentdev:iwe-plan-review` tell their review agents to ignore it.
-`pr-gen-description/SKILL.md` Step 5 names the plan's per-task evidence as the
-record, and Task 5 changes that reference.
+[ADR-0086](../adr/0086-plan-ticks-need-evidence-lines.md) puts the evidence of
+each ticked task in a `- **Evidence:**` line in the plan. Only the
+`plan-checkboxes` check parses that line, and the review agents do not examine
+it.
 
 ## Approach
 
@@ -112,7 +110,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   each ticked plan task with its block, oldest first. The test passes.
   - **Evidence:**
     `scripts/tests/test_completion_evidence.py::test_show_prints_each_tick`
-    passed; `show 915` against this repository printed the ticks of that pull
+    passed; `show 915` in this repository printed the ticks of that pull
     request.
 
 ### Task 3: Run the check at commit time
@@ -132,9 +130,9 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   passes.
   - **Evidence:**
     `uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py`:
-    46 passed, 2 skipped.
+    `46 passed, 2 skipped`.
 
-### Task 4: Remove the evidence-line rule from the plan-checkboxes check
+### Task 4: Remove the evidence-line rule from the `plan-checkboxes` check
 
 **Files:** Modify: `docs/knowledge/tests/test_plan_checkboxes.py`
 
@@ -142,7 +140,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   that rule. A new test shows that a ticked task with no evidence line passes.
   `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py` passes.
   - **Evidence:** `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py`:
-    9 passed, including `test_ticked_task_needs_no_evidence_line`.
+    9 tests passed. `test_ticked_task_needs_no_evidence_line` is one of them.
 
 ### Task 5: Change the rules that name the evidence line
 
@@ -170,23 +168,24 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 - [x] `pr-gen-description/SKILL.md` Step 5 says that the commits of the pull
   request contain the task evidence.
 - [x] Both copies of `docs/knowledge/schema/plans.md` define the completion
-  evidence block in place of the `- **Evidence:**` child. Both copies of
+  evidence block in place of the indented `- **Evidence:**` item. Both copies of
   `docs/knowledge/AGENTS.md` replace the evidence-line rule with the
   commit-message rule. `diff` of the two copies of each file prints nothing.
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
-### Task 6: Examine the commits of the first plan after the change
+### Task 6: Examine the commits of the pull request of this plan
 
-**Closed by:** the user, on the first pull request that an Implement session
-makes for a plan after this change is on `main`.
+**Closed by:** the Implement session of this plan, after it opens the pull
+request of this plan.
 
-- [ ] `scripts/completion-evidence.py show <N>` prints one ticked plan task and
-  one completion evidence block for each commit that ticks a plan task.
+- [ ] Run `scripts/completion-evidence.py show <N>` for the pull request of this
+  plan. For each commit that ticks a plan task of Tasks 1 to 5, it prints one
+  ticked plan task and one completion evidence block.
 
 ## Acceptance
 
-### Scenario: A tick with a block passes the commit-msg hook
+### Scenario: A tick with a block passes the `commit-msg` hook
 
 - **WHEN** a commit ticks one plan task and its message has a completion
   evidence block with text
@@ -194,7 +193,7 @@ makes for a plan after this change is on `main`.
 - **Test:**
   `scripts/tests/test_completion_evidence.py::test_one_tick_with_block_passes`
 
-### Scenario: A tick with no block fails the commit-msg hook
+### Scenario: A tick with no block fails the `commit-msg` hook
 
 - **WHEN** a commit ticks one plan task and its message has no block, or a block
   with no text
@@ -215,7 +214,7 @@ makes for a plan after this change is on `main`.
 - **Test:**
   `scripts/tests/test_completion_evidence.py::test_no_tick_needs_no_block`
 
-### Scenario: check-message does not examine a merge commit
+### Scenario: `check-message` does not examine a merge commit
 
 - **WHEN** a merge adds ticks from a different branch and `MERGE_HEAD` exists
 - **THEN** `check-message` exits 0
@@ -242,8 +241,8 @@ makes for a plan after this change is on `main`.
 ### Scenario: The Implement session writes evidence in the commit message
 
 - **WHEN** the Implement session finishes a plan task
-- **THEN** `iwe-implementer.agent.md` tells it to tick one plan task and to
-  write the completion evidence block in the message of that commit.
+- **THEN** `iwe-implementer.agent.md` tells it to tick one plan task in a commit
+  and to write the completion evidence block in the message of that commit.
   `iwe-implementer.agent.md` tells the Implement session to write no evidence
   line in the plan
 - **Checked at ship:**
@@ -273,6 +272,7 @@ diff docs/knowledge/schema/plans.md .agents/plugins/agentdev/skills/iwe-bootstra
   write. The hook is in this repository only.
 - A check of the text in a block. The hook examines only the format of the
   block.
+- A check that the installed plugin cache of a consumer has the new rules.
 - A CI check of the commits of a pull request. Only a change to pushed commits
   can correct a failure of that check.
 - The `## Decisions` section of the pull request body, and the sequence of
@@ -296,8 +296,9 @@ diff docs/knowledge/schema/plans.md .agents/plugins/agentdev/skills/iwe-bootstra
 - `scripts/tests/test_gitleaks_hook.py` — a test that runs a hook in a temporary
   repository.
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md#steps` › "Then close
-  the task with one edit" — the step that writes the evidence line today.
-- `docs/knowledge/schema/plans.md` › "has one indented `- **Evidence:**` child"
-  — the definition of the evidence line that the change replaces.
-- `docs/knowledge/AGENTS.md` › "A tick, its evidence line, and the code are in
-  one commit" — the rule that the change replaces.
+  the task with one edit" — the step that ticks one plan task and writes the
+  completion evidence block in the commit message.
+- `docs/knowledge/schema/plans.md` › "Its message ends with the completion
+  evidence block" — the definition of the completion evidence block.
+- `docs/knowledge/AGENTS.md#conventions` › "A tick and the code are in one
+  commit" — the commit-message rule.
