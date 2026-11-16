@@ -5,6 +5,8 @@ release: internal
 description: Make each support file in docs/knowledge/ a symbolic link to its scaffold copy. Add a pre-commit hook that makes and checks the links.
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md
+stage: done
+completed: 2026-11-16
 ---
 
 # Link the support files of the knowledge base to the scaffold
