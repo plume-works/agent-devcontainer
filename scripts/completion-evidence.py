@@ -185,9 +185,11 @@ def check_push() -> int:
         print('check-push runs as a pre-push hook: PRE_COMMIT_TO_REF is not set.', file=sys.stderr)
         return 2
     from_ref = os.environ.get('PRE_COMMIT_FROM_REF')
-    span = [f'{from_ref}..{to_ref}'] if from_ref else [to_ref, '--not', '--remotes']
+    span = [f'{from_ref}..{to_ref}'] if from_ref else [to_ref]
+    # A commit that a remote has is not new, also when a merge brings it in.
+    commits = git('rev-list', '--reverse', '--no-merges', *span, '--not', '--remotes').split()
     problems = []
-    for commit in git('rev-list', '--reverse', '--no-merges', *span).split():
+    for commit in commits:
         found = commit_ticks(commit)
         if not found:
             continue

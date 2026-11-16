@@ -322,3 +322,22 @@ def test_push_valid_range_passes(repo: Repository) -> None:
     result = repo.check_push(base)
 
     assert result.returncode == 0, result.stderr
+
+
+def test_push_merged_main_ticks_pass(repo: Repository, scratch: Path) -> None:
+    """A merge of a remote main that ticks two plan tasks in one commit passes the push."""
+    repo.git('init', '--quiet', '--bare', str(scratch / 'origin.git'))
+    repo.git('remote', 'add', 'origin', str(scratch / 'origin.git'))
+    repo.git('switch', '--quiet', '-c', 'topic')
+    repo.git('push', '--quiet', 'origin', 'main', 'topic')
+    pushed = repo.git('rev-parse', 'HEAD')
+    repo.git('switch', '--quiet', 'main')
+    repo.tick('First task.', 'Second task.')
+    repo.commit('Squash a pull request\n')
+    repo.git('push', '--quiet', 'origin', 'main')
+    repo.git('switch', '--quiet', 'topic')
+    repo.git('merge', '--quiet', '--no-ff', '--no-edit', 'origin/main')
+
+    result = repo.check_push(pushed)
+
+    assert result.returncode == 0, result.stderr
