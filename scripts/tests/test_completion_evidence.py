@@ -308,3 +308,18 @@ def test_push_tick_without_block_fails(repo: Repository) -> None:
     assert result.returncode == 1
     assert commit in result.stderr
     assert f'{PLAN}: First task.' in result.stderr
+
+
+def test_push_amended_two_ticks_fail(repo: Repository) -> None:
+    """A pushed commit that an amend made with a second tick stops the push."""
+    base = repo.git('rev-parse', 'HEAD')
+    repo.tick('First task.')
+    repo.commit(f'Do the first task\n\n{BLOCK}')
+    repo.tick('Second task.')
+    repo.git('commit', '--quiet', '--amend', '--no-edit')
+
+    result = repo.check_push(base)
+
+    assert result.returncode == 1
+    assert f'{PLAN}: First task.' in result.stderr
+    assert f'{PLAN}: Second task.' in result.stderr

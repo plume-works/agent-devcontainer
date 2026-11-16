@@ -169,7 +169,7 @@ request of this plan.
 
 - [x] `check-push` exits 1 for a pushed commit that ticks a plan task with no
   block. It names the commit and the plan task, and the test passes.
-- [ ] `check-push` exits 1 for a pushed commit that an amend made and that ticks
+- [x] `check-push` exits 1 for a pushed commit that an amend made and that ticks
   two plan tasks, and the test passes.
 - [ ] `check-push` exits 0 for a pushed range whose commits tick one plan task
   at most, each with a block, and that has a merge commit. The test passes.
