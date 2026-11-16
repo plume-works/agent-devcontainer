@@ -257,7 +257,7 @@ docker run --rm -v "${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}":/auth busyb
 ## The plugin catalog
 
 The repository is its own plugin marketplace. Claude Code installs one plugin,
-`agentdev`; OpenCode loads `agentdev` through the bridge plugin it ships.
+`agentdev`; OpenCode loads `agentdev` through the bridge plugin that it contains.
 
 ### `agentdev`
 
@@ -402,7 +402,7 @@ cd py_packages/validate_agent_files
 uv run --isolated --extra dev pytest
 ```
 
-The canonical plugin source is
+The main plugin source is
 [`.agents/plugins/agentdev/`](.agents/plugins/agentdev/). Repository
 conventions live in [AGENTS.md](AGENTS.md), while the
 [consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md) classifies

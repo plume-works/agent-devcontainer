@@ -3,7 +3,7 @@ type: task
 stage: done
 priority: medium
 created: 2026-11-15
-description: Remove the self-improve plugin, because it got no development and the knowledge base and its process do its function.
+description: Remove the self-improve plugin, because no person changed it after it came into the repository, and the graph and its process do its function.
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/134
   title: Consolidate self-improve and plan resumable Claude reviews
@@ -15,12 +15,12 @@ completed: 2026-11-15
 Remove the `self-improve` plugin from this repository, with all that pull
 request #134 added for it.
 
-The plugin got no development after pull request #134 put it in this repository.
-Its function is to keep a lesson from a session in a permanent file. The
-knowledge base and its process now do that function: `AGENTS.md#project-memory`
-sends each lesson to `AGENTS.md` or to a document under `docs/knowledge/data/`.
-The plugin is thus a second product that the repository maintains and does tests
-on for no use.
+No person changed the plugin after pull request #134 put it in this repository.
+Its function is to keep a lesson from a session in a permanent file. The graph
+and its process now do that function: `AGENTS.md#project-memory` sends each
+lesson to `AGENTS.md` or to a document under `docs/knowledge/data/`. For this
+reason, the plugin is a second product that the repository keeps and tests, but
+that nothing uses.
 
 The work removes these:
 
@@ -42,9 +42,10 @@ The work closes these documents in the graph:
 
 The work makes these decisions:
 
-- If the research under `docs/research/` that pull request #134 added stays.
-- If the reinstallation of plugins in the Claude catalog keeps its loop through
-  all published plugins when only `agentdev` stays.
+- Keep or delete the research under `docs/research/` that pull request #134
+  added.
+- Keep or change the loop that installs all published plugins in the Claude
+  catalog again, when only `agentdev` stays.
 
 The changes to the review responder and the review-resume plan of pull request
 #134 are not part of this task.

@@ -1,6 +1,6 @@
 ---
 type: bug
-description: After a full-copy adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still refer to the removed trees agentdev_runtime and scripts/tests.
+description: After a full adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still refer to the removed trees agentdev_runtime and scripts/tests.
 stage: pending
 severity: medium
 sources:
