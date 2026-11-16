@@ -98,8 +98,7 @@ the `*.example.md` docs show every convention on a small fictional app and are
 deleted by setup.
 
 `AGENTS.md` is the agent's operating manual. `SCHEMA.md` and the documents in
-`schema/` are the only definition of the document types. `STRUCTURE.md` gives
-the reasons for the design decisions.
+`schema/` are the only definition of the document types.
 
 ## Built on IWE
 
