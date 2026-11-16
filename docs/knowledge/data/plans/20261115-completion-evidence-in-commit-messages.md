@@ -173,7 +173,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   evidence block in place of the `- **Evidence:**` child. Both copies of
   `docs/knowledge/AGENTS.md` replace the evidence-line rule with the
   commit-message rule. `diff` of the two copies of each file prints nothing.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
 ### Task 6: Examine the commits of the first plan after the change
