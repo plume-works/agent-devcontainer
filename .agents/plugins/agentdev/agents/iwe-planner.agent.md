@@ -80,8 +80,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    are reconciled together. This pass prevents a split: do not edit a scenario
    alone, and do not keep the old intent in a scenario when its tasks change. When the decision changes a proposed ADR, edit that ADR in the same
    pass. A change of intent moves `release` with it. Re-locate every affected code
-   anchor in the current checkout. Identify checked tasks or existing implementation evidence made stale
-   by the revision and report them; do not rewrite that implementation from
+   anchor in the current checkout. Identify checked tasks or existing implementation made stale by the
+   revision, with the completion evidence blocks of the commits that ticked
+   those tasks, and report them; do not rewrite that implementation from
    this skill.
 
 5. **File a created plan.** In create mode, do these steps:

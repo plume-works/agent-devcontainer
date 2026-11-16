@@ -61,10 +61,11 @@ decision your prompt does not carry, stop and report it under
      doing it. The third route exists because Ship refuses any CRITICAL and has
      no override: a task the user has decided against can't be ticked while
      undone, so without it the plan is unshippable. Naming a route is not
-     taking it. A ticked `- [x]` task and its `- **Evidence:**` line are never
-     checked: the `plan-checkboxes` gate is the only check on them. Never
-     report on a ticked task, its evidence's form or wording, and never re-run,
-     re-observe, or seek approval to repeat what the evidence records.
+     taking it. A ticked `- [x]` task and the completion evidence block of the
+     commit that ticked it are never checked: the `completion-evidence` hook
+     is the only check on them. Never report on a ticked task, the form or
+     wording of its completion evidence block, and never re-run, re-observe,
+     or seek approval to repeat what the block records.
 
      Judge each `### Scenario:` in `## Acceptance`. A scenario with a
      `**Test:**` line whose test does not exist, does not run the behaviour,
@@ -147,7 +148,7 @@ then:
   "unverified" — a scenario that you cannot trace is unverified, not failed,
   and says so.
 - Run only the verification commands the plan's `## Verification` names (tests,
-  builds); a task's `- **Evidence:**` line is a record, never a command to run. A
+  builds); a task's completion evidence block is a record, never a command to run. A
   command whose effects reach beyond the working tree — a deploy, a push, a
   published artifact, a CI trigger, anything remote — runs only under a quoted
   approval that names it; otherwise do not run it, list it as `not run` under

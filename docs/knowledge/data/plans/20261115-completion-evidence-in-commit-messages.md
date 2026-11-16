@@ -162,7 +162,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   Implement session to tick one plan task in a commit. They also tell it to
   write the block in the commit message. They show the block format of Task 1 as
   a fenced block.
-- [ ] `iwe-planner.agent.md` step 4, `plan-rules.md`, `iwe-verifier.agent.md`,
+- [x] `iwe-planner.agent.md` step 4, `plan-rules.md`, `iwe-verifier.agent.md`,
   `iwe-plan-reviewer.agent.md`, and `iwe-audit/SKILL.md` name the completion
   evidence block, and
   `rg -n 'Evidence:\*\*|evidence line' .agents/plugins/agentdev/agents/iwe-implementer.agent.md .agents/plugins/agentdev/agents/iwe-planner.agent.md .agents/plugins/agentdev/agents/iwe-verifier.agent.md .agents/plugins/agentdev/agents/iwe-plan-reviewer.agent.md .agents/plugins/agentdev/skills/iwe-plan-review/references/plan-rules.md .agents/plugins/agentdev/skills/iwe-audit/SKILL.md`

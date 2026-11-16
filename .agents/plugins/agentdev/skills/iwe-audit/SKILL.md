@@ -31,8 +31,10 @@ messages.
 Process detail is their job; commit messages are owned by
 `/agentdev:git-commit`. Residue in a different document can go into one of these documents. Move the
 residue there. Do not delete it. The skill checks a plan only in plan mode below, and it checks only the intent
-sections of the plan: a plan's `## Verification results` and `- **Evidence:**`
-children are narrative-sanctioned and stay out of scope.
+sections of the plan: a plan's `## Verification results` is
+narrative-sanctioned and stays out of scope. The completion evidence block of a
+ticked task is in a commit message, and the evidence that an older plan keeps
+under its ticked tasks also stays out of scope.
 
 **Diff scope.** When a caller runs this skill over a diff, the candidate set is
 the diff's added lines, not a grep over `<TARGET>`. §1's patterns are the smell
@@ -40,9 +42,9 @@ list applied to those added lines. Everything downstream — §"Durable vs not",
 §2 verdicts, §3 verify — is unchanged and shared with the local-tree scope.
 
 **Plan scope.** When the `<TARGET>` is a plan, the candidate set is every plan
-section except the two narrative-sanctioned homes — `## Verification results`
-and the `- **Evidence:**` children under `## Implementation Steps` — which stay
-out of scope. `## Context`, `## Approach`, task descriptions, and the rest are
+section except `## Verification results`, the narrative-sanctioned home, and the
+evidence that an older plan keeps under its ticked tasks, which stay out of
+scope. `## Context`, `## Approach`, task descriptions, and the rest are
 in scope: they state intent and must record what is settled, not the path taken
 to settle it. Like Diff scope, this scope is report-only (see §4). Everything
 downstream is unchanged and shared with the other scopes.
