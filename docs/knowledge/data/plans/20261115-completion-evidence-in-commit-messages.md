@@ -173,7 +173,7 @@ request of this plan.
   two plan tasks, and the test passes.
 - [x] `check-push` exits 0 for a pushed range whose commits tick one plan task
   at most, each with a block, and that has a merge commit. The test passes.
-- [ ] `.pre-commit-config.yaml` has a local hook `completion-evidence-push` at
+- [x] `.pre-commit-config.yaml` has a local hook `completion-evidence-push` at
   `stages: [pre-push]` that runs `check-push`. In this checkout, the hook stops
   `git push` of a local commit that has a tick and no block.
 - [ ] `check-message` compares the index with `HEAD`. The change removes
