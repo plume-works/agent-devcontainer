@@ -122,3 +122,14 @@ def test_tick_without_block_fails(repo: Repository, message: str) -> None:
 
     assert result.returncode == 1
     assert f'{PLAN}: First task.' in result.stderr
+
+
+@pytest.mark.parametrize('footer', ['', '\n\n', '\nCo-Authored-By: A <a@example.invalid>\n'])
+def test_tick_with_empty_block_fails(repo: Repository, footer: str) -> None:
+    """A block with no text, or with only trailers, fails and names the plan task."""
+    repo.tick('First task.')
+
+    result = repo.check(f'Do the first task\n\n---\ncompletion evidence:\n{footer}')
+
+    assert result.returncode == 1
+    assert f'{PLAN}: First task.' in result.stderr
