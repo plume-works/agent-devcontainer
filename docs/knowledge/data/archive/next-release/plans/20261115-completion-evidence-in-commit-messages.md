@@ -4,8 +4,10 @@ created: 2026-11-15
 release: internal
 description: Move the evidence of a ticked plan task into the message of the commit that ticks it. Each commit has one tick and one completion evidence block.
 sources:
-- resource: docs/knowledge/data/adr/0086-plan-ticks-need-evidence-lines.md
+- resource: docs/knowledge/data/archive/next-release/adr/0086-plan-ticks-need-evidence-lines.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
+stage: done
+completed: 2026-11-16
 ---
 
 # Put task evidence in the commit message
@@ -13,10 +15,10 @@ sources:
 ## Context
 
 [Plan tasks evidence and ADRs as git
-history](../archive/next-release/backlog/plan-evidence-and-decisions-in-git-history.md)
-asks for the evidence of a plan task in the commit that ticks it. The commit
-then connects the tick, the code change, and the reason of the agent at that
-time. `git log` and `git blame` find the evidence from the code.
+history](../backlog/plan-evidence-and-decisions-in-git-history.md) asks for the
+evidence of a plan task in the commit that ticks it. The commit then connects
+the tick, the code change, and the reason of the agent at that time. `git log`
+and `git blame` find the evidence from the code.
 
 [ADR-0086](../adr/0086-plan-ticks-need-evidence-lines.md) puts the evidence of
 each ticked task in a `- **Evidence:**` line in the plan. Only the
@@ -273,7 +275,7 @@ request of this plan.
 ## ADRs
 
 [The commit that ticks a plan task contains its
-evidence](../adr/0093-completion-evidence-in-the-commit-message.md)
+evidence](../../../adr/0093-completion-evidence-in-the-commit-message.md)
 
 ## Verification
 
@@ -299,7 +301,7 @@ diff docs/knowledge/schema/plans.md .agents/plugins/agentdev/skills/iwe-bootstra
   can correct a failure of that check.
 - The `## Decisions` section of the pull request body, and the sequence of
   sources that an agent reads to find an answer. [Put decisions in the git
-  history](20261115-decisions-in-git-history.md) changes them.
+  history](../../../plans/20261115-decisions-in-git-history.md) changes them.
 - The `**Evidence:**` items of the `## Verification` section of a pull request
   body in `/agentdev:code-review-standards`. That section is not a plan.
 - The `- **Evidence:**` lines of the progress document of
