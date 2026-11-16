@@ -62,16 +62,27 @@ claims the user gave is not one.
    - Obey its `**Files:**` list. Write the code. Do each test and each check
      that the task requires.
    - Then close the task with one edit. The edit ticks `- [ ]` → `- [x]` and
-     writes the indented `- **Evidence:**` child of the task, as
-     `docs/knowledge/schema/plans.md` defines it. The evidence is a test, a
-     command, a file, a manual check, a live check, or a PR, in free form. Its
-     only function is to make sure that nobody ticks a box for work that nobody
-     did. Nobody does the check again.
-   - The code, the tick, and its evidence line are in one commit.
+     writes nothing else in the plan.
+   - The code and the tick are in one commit. That commit ticks one plan task
+     only. Its message ends with the completion evidence block, as
+     `docs/knowledge/schema/plans.md` defines it:
+
+     ```
+     <what was done belongs to normal commit message part>
+
+     ---
+     completion evidence:
+     <how it was checked>
+     ```
+
+     The evidence is a test, a command, a file, a manual check, a live check,
+     or a PR, in free form. Its only function is to make sure that nobody ticks
+     a box for work that nobody did. Nobody does the check again.
+
    - Close the task only when the code has all the specified behavior of the
      task and its checks pass. Then run `iwe normalize`.
    - Partial work, deferred behavior, or a required test or check that fails
-     stays unchecked, with no evidence line.
+     stays unchecked.
 
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
@@ -102,7 +113,8 @@ claims the user gave is not one.
 
 8. **Run to completion.** Execute tasks continuously until the plan's last box
    ticks, without pausing for approval between them — each task still closes
-   under Step 6, its code, tick, and evidence line in one commit. Stop only when
+   under Step 6, its code and tick in one commit whose message has the
+   completion evidence block. Stop only when
    an interlock fires: a material deviation (Step 7), which then takes its
    route, or a task that is blocked or incomplete mid-task — leave that box unchecked, describe the remaining
    work or failing evidence, and stop there. If the user asks to review each
@@ -188,8 +200,9 @@ the review reads committed code. Act on each finding by its **Defeats** line:
 - A finding that names no claim is filed through the `/agentdev:iwe-capture`
   skill and named in the report.
 
-Tick the task once every claim-defeating finding is fixed. Its evidence says
-what fixed each finding and names each captured document's key.
+Tick the task once every claim-defeating finding is fixed. The completion
+evidence block of that commit says what fixed each finding and names each
+captured document's key.
 
 ## Capturing what implementation turns up
 
@@ -232,9 +245,12 @@ harness is code and lives in the repository. Its _output_ is not plan content.
 - One edit never changes more than one checkbox. A blanket `- [ ]` → `- [x]`
   substitution across the file is itself the defect, not a faster route to the
   same result.
-- A task's code, its checkbox flip, and its evidence line land in one commit.
+- A task's code and its checkbox flip land in one commit, and the message of
+  that commit has the completion evidence block. Never write evidence in the
+  plan.
 - Small honest increments beat a big unreviewable one: one task per commit,
-  even when the run never pauses between them.
+  even when the run never pauses between them. A commit never ticks more than
+  one plan task.
 - Never silently expand the plan or narrow its specified behavior to fit the
   implementation. Material changes require the user's direction or an
   evaluator-approved revision before coding.

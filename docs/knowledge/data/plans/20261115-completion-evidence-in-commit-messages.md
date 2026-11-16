@@ -158,7 +158,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 `docs/knowledge/schema/plans.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/schema/plans.md`
 
-- [ ] Step 6, step 8, and the rules of `iwe-implementer.agent.md` tell the
+- [x] Step 6, step 8, and the rules of `iwe-implementer.agent.md` tell the
   Implement session to tick one plan task in a commit. They also tell it to
   write the block in the commit message. They show the block format of Task 1 as
   a fenced block.
