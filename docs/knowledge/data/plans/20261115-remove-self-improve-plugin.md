@@ -135,13 +135,21 @@ documents with their normal meaning, which these entries do not define.
 
 **Files:** Modify: `README.md`
 
-- [ ] The feature list at the start of `README.md` does not have the item about
+- [x] The feature list at the start of `README.md` does not have the item about
   the `self-improve` plugin.
-- [ ] `README.md#the-plugin-catalog` says that Claude Code installs one plugin,
+  - **Evidence:** Removed the item; the list goes from the catalog line to the
+    Xpra desktop line.
+- [x] `README.md#the-plugin-catalog` says that Claude Code installs one plugin,
   `agentdev`.
-- [ ] `README.md` does not have the `### self-improve` section.
-- [ ] The paragraph about the plugin sources in `README.md` names only
+  - **Evidence:** The section says "Claude Code installs one plugin,
+    `agentdev`".
+- [x] `README.md` does not have the `### self-improve` section.
+  - **Evidence:** Removed the section; `grep -n -i self-improve README.md`
+    prints nothing.
+- [x] The paragraph about the plugin sources in `README.md` names only
   `.agents/plugins/agentdev/`.
+  - **Evidence:** The paragraph says "The canonical plugin source is
+    `.agents/plugins/agentdev/`".
 
 ### Task 5: Remove the glossary terms of the plugin
 
