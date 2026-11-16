@@ -167,7 +167,7 @@ request of this plan.
 **Files:** Modify: `scripts/completion-evidence.py`,
 `scripts/tests/test_completion_evidence.py`, `.pre-commit-config.yaml`
 
-- [ ] `check-push` exits 1 for a pushed commit that ticks a plan task with no
+- [x] `check-push` exits 1 for a pushed commit that ticks a plan task with no
   block. It names the commit and the plan task, and the test passes.
 - [ ] `check-push` exits 1 for a pushed commit that an amend made and that ticks
   two plan tasks, and the test passes.

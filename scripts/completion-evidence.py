@@ -4,6 +4,7 @@ Keep the evidence of a ticked plan task in the message of the commit that ticks 
 
 ``check-message <message-file>`` runs as a ``commit-msg`` hook. A commit that ticks a plan task
 ticks one task only, and its message has one completion evidence block with text.
+``check-push`` runs as a ``pre-push`` hook and applies the same rules to each pushed commit.
 ``show <N>`` prints the ticked plan task and the block of each commit of pull request ``N``.
 See ADR-0093.
 """
@@ -198,14 +199,44 @@ def fetch(ref: str) -> str:
     return git('rev-parse', 'FETCH_HEAD').strip()
 
 
+def commit_ticks(commit: str) -> list[Tick]:
+    """Return the plan tasks that a commit ticks, compared with its parent."""
+    return ticks(git('diff-tree', '--root', '--no-color', '-U0', commit, '--', PLANS_PATHSPEC))
+
+
+def check_push() -> int:
+    """Check each pushed commit that is not a merge commit; return the exit code."""
+    to_ref = os.environ.get('PRE_COMMIT_TO_REF')
+    if not to_ref:
+        print('check-push runs as a pre-push hook: PRE_COMMIT_TO_REF is not set.', file=sys.stderr)
+        return 2
+    from_ref = os.environ.get('PRE_COMMIT_FROM_REF')
+    span = [f'{from_ref}..{to_ref}'] if from_ref else [to_ref, '--not', '--remotes']
+    problems = []
+    for commit in git('rev-list', '--reverse', '--no-merges', *span).split():
+        found = commit_ticks(commit)
+        if not found:
+            continue
+        name = f'{commit[:12]} {git("log", "-1", "--format=%s", commit).strip()}'
+        blocks = evidence_blocks(git('log', '-1', '--format=%B', commit))
+        if len(found) > 1:
+            problems.append(f'{name}\n  ticks more than one plan task:')
+            problems.extend(f'    {tick}' for tick in found)
+        elif len(blocks) != 1 or not blocks[0]:
+            problems.append(f'{name}\n  ticks {found[0]}\n  with no completion evidence block.')
+    if problems:
+        print('A pushed commit breaks the completion evidence rules:', file=sys.stderr)
+        print('\n'.join(problems), file=sys.stderr)
+    return 1 if problems else 0
+
+
 def show(number: int) -> int:
     """Print the ticked plan task and the block of each commit of a pull request."""
     head = fetch(f'refs/pull/{number}/head')
     main = fetch('refs/heads/main')
     commits = git('rev-list', '--reverse', '--no-merges', head, f'^{main}').split()
     for commit in commits:
-        diff = git('diff-tree', '--root', '--no-color', '-U0', commit, '--', PLANS_PATHSPEC)
-        found = ticks(diff)
+        found = commit_ticks(commit)
         if not found:
             continue
         blocks = evidence_blocks(git('log', '-1', '--format=%B', commit))
@@ -222,10 +253,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     commands = parser.add_subparsers(dest='command', required=True)
     commands.add_parser('check-message').add_argument('message_file')
+    commands.add_parser('check-push')
     commands.add_parser('show').add_argument('number', type=int)
     arguments = parser.parse_args(argv)
     if arguments.command == 'check-message':
         return check_message(arguments.message_file)
+    if arguments.command == 'check-push':
+        return check_push()
     return show(arguments.number)
 
 

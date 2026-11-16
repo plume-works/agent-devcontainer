@@ -88,6 +88,18 @@ class Repository:
             check=False,
         )
 
+    def check_push(self, from_ref: str) -> subprocess.CompletedProcess[str]:
+        """Run `check-push` on the range from `from_ref` to `HEAD`, as pre-commit gives it."""
+        env = {**self.env(), 'PRE_COMMIT_FROM_REF': from_ref, 'PRE_COMMIT_TO_REF': 'HEAD'}
+        return subprocess.run(
+            [sys.executable, str(SCRIPT), 'check-push'],
+            cwd=self.root,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
     def check(self, message: str) -> subprocess.CompletedProcess[str]:
         """Run `check-message` on a message file."""
         message_file = self.root / '.git' / 'COMMIT_EDITMSG'
@@ -282,3 +294,17 @@ def test_show_prints_each_tick(repo: Repository, scratch: Path) -> None:
     first = output.index(f'ticks {PLAN}: First task.')
     second = output.index(f'ticks {PLAN}: Second task.')
     assert first < output.index('First evidence.') < second < output.index('Second evidence.')
+
+
+def test_push_tick_without_block_fails(repo: Repository) -> None:
+    """A pushed commit that ticks a plan task with no block stops the push."""
+    base = repo.git('rev-parse', 'HEAD')
+    repo.tick('First task.')
+    repo.commit('Do the first task\n')
+    commit = repo.git('rev-parse', '--short=12', 'HEAD')
+
+    result = repo.check_push(base)
+
+    assert result.returncode == 1
+    assert commit in result.stderr
+    assert f'{PLAN}: First task.' in result.stderr
