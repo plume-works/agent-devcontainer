@@ -108,8 +108,12 @@ completion evidence:
 ticked plan task and the block of each commit that is not a merge commit and
 that is not on `main`. The test uses a bare fixture repository as `origin`.
 
-- [ ] For a pull request whose branch merged `main` one time, `show <N>` prints
+- [x] For a pull request whose branch merged `main` one time, `show <N>` prints
   each ticked plan task with its block, oldest first. The test passes.
+  - **Evidence:**
+    `scripts/tests/test_completion_evidence.py::test_show_prints_each_tick`
+    passed; `show 915` against this repository printed the ticks of that pull
+    request.
 
 ### Task 3: Run the check at commit time
 

@@ -165,3 +165,31 @@ def test_merge_in_progress_is_skipped(repo: Repository) -> None:
 
     assert (repo.root / '.git' / 'MERGE_HEAD').exists()
     assert repo.check('Merge topic\n').returncode == 0
+
+
+def test_show_prints_each_tick(repo: Repository, scratch: Path) -> None:
+    """`show` prints each tick of a pull request with its block, oldest first, and none of main."""
+    origin = scratch / 'origin.git'
+    subprocess.run(['git', 'init', '--quiet', '--bare', str(origin)], check=True)
+    repo.git('remote', 'add', 'origin', str(origin))
+    repo.git('switch', '--quiet', '-c', 'topic')
+    repo.tick('First task.')
+    repo.commit('Do the first task\n\n---\ncompletion evidence:\nFirst evidence.\n')
+    repo.git('switch', '--quiet', 'main')
+    repo.tick('Third task.')
+    repo.commit('Do the third task\n\n---\ncompletion evidence:\nMain evidence.\n')
+    repo.git('switch', '--quiet', 'topic')
+    repo.git('merge', '--quiet', '--no-edit', 'main')
+    repo.tick('Second task.')
+    repo.commit('Do the second task\n\n---\ncompletion evidence:\nSecond evidence.\n')
+    repo.git('push', '--quiet', 'origin', 'main', 'topic:refs/pull/7/head')
+
+    result = repo.run('show', '7')
+
+    assert result.returncode == 0, result.stderr
+    output = result.stdout
+    assert 'Main evidence.' not in output
+    assert 'Third task.' not in output
+    first = output.index(f'ticks {PLAN}: First task.')
+    second = output.index(f'ticks {PLAN}: Second task.')
+    assert first < output.index('First evidence.') < second < output.index('Second evidence.')
