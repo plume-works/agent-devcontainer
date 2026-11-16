@@ -171,13 +171,19 @@ instead.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] In `consumption-guide.md#initialize-the-consumers-knowledge`, the Workflow
+- [x] In `consumption-guide.md#initialize-the-consumers-knowledge`, the Workflow
   A text about the `.iwe` link also names the support-file links in
   `docs/knowledge/`. These links do not resolve after the consumer deletes
   `.agents/`.
-- [ ] In `consumption-guide.md#5-adapt-pre-commit-and-lint-configuration`, the
+  - **Evidence:** Step 1, Workflow A, now names the 5 top-level support files
+    and each `schema/` document as links into `.agents/`, after the `.iwe` link
+    text.
+- [x] In `consumption-guide.md#5-adapt-pre-commit-and-lint-configuration`, the
   list tells the consumer to remove the `link-knowledge-support` hook, because
   the consumer has no scaffold.
+  - **Evidence:** New item 7 tells the consumer to remove the hook and
+    `scripts/link-knowledge-support.py`, because the consumer has no scaffold;
+    the old item 7 is now item 8. `validate_agent_files` reports 0 errors.
 
 ## Acceptance
 
