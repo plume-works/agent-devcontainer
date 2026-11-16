@@ -34,8 +34,7 @@ at commit `249943bcc30ac1016469d5ee89a16ce454cc882f`, under that project's MIT
 license, and is maintained here against the catalog's IWE skills without
 tracking that repository.
 
-Once installed, every file belongs to the consuming repository. A catalog update
-that changes `assets/` never reaches an initialized workspace.
+Once installed, every file belongs to the consuming repository. `/agentdev:template-consume` update mode reports each tracked file that is missing or different from the scaffold in the installed catalog. The consumer decides what to apply.
 
 ## Maintenance
 
