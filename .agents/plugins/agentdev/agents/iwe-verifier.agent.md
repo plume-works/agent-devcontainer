@@ -55,17 +55,18 @@ decision your prompt does not carry, stop and report it under
      line is a post-merge observation: list it under **Outstanding
      observations**, not as a finding; Ship waits for it. Every other unchecked
      `- [ ]` task is a CRITICAL, with three routes out: complete it, tick it if
-     already done, or revise the plan to drop it via the `/agentdev:iwe-plan`
-     skill's revise mode, which treats dropping a task as a material scope
-     change and so asks the user before doing it. The third route exists because
-     Ship refuses any CRITICAL and has no override: a task the user has decided
-     against can't be ticked while undone, so without it the plan is
-     unshippable. Naming a route is not taking it. Do not check a ticked `- [x]`
-     task or the completion evidence block of the commit that ticked it: the
-     `completion-evidence` hook is the only check on them. Do not report on a
-     ticked task. Do not report on the form or the words of its completion
-     evidence block. Do not do again what the block records, and do not ask for
-     approval to do it again.
+     already done, or remove it from the plan with the revise mode of the
+     `/agentdev:iwe-plan` skill. The revise mode sees the removal of a task as a
+     material scope change, so it asks the user first. Ship stops on each
+     CRITICAL, and nobody can bypass that stop. You must not tick a task that is
+     not done. Thus, if the user does not want a task, the third route is the
+     only way to ship the plan. When you name a route, you do not use it.
+
+     Do not check a ticked `- [x]` task or the completion evidence block of the
+     commit that ticked it. Only the `completion-evidence` hook checks them. Do
+     not report on a ticked task. Do not report on the form or the words of its
+     completion evidence block. Do not do again what the block records, and do
+     not ask for approval to do it again.
 
      Judge each `### Scenario:` in `## Acceptance`. A scenario with a
      `**Test:**` line whose test does not exist, does not run the behaviour,

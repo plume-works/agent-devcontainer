@@ -82,7 +82,7 @@ claims the user gave is not one.
    - Close the task only when the code has all the specified behavior of the
      task and its checks pass. Then run `iwe normalize`.
    - Partial work, deferred behavior, or a required test or check that fails
-     stays unchecked.
+     stays unticked.
 
 7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
@@ -111,15 +111,14 @@ claims the user gave is not one.
        keeping every specified behavior. It takes the revision route in
        `## Running the loop` before coding past it.
 
-8. **Run to completion.** Execute tasks continuously until the plan's last box
-   ticks, without pausing for approval between them — each task still closes
-   under Step 6, its code and tick in one commit whose message has the
-   completion evidence block. Stop only when
-   an interlock fires: a material deviation (Step 7), which then takes its
-   route, or a task that is blocked or incomplete mid-task — leave that box unchecked, describe the remaining
-   work or failing evidence, and stop there. If the user asks to review each
-   task, stop after each instead and report progress: "3/5 tasks, next: <task
-   name>".
+8. **Run to completion.** Do the tasks one after the other until you tick the
+   last plan task. Do not stop for approval between tasks. Close each task under
+   Step 6. Put its code and its tick in one commit whose message has the
+   completion evidence block. Stop only when an interlock fires: a material
+   deviation (Step 7), which then takes its route, or a task that is blocked or
+   incomplete mid-task — leave that box unchecked, describe the remaining work
+   or failing evidence, and stop there. If the user asks to review each task,
+   stop after each instead and report progress: "3/5 tasks, next: <task name>".
 9. **Finish.** Run the plan's `## Verification` commands, then report a
    rollup of the tasks executed this session — the first and only report of a
    continuous run — with the verification results. With every task closed,

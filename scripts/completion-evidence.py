@@ -27,7 +27,7 @@ OPEN_LINE = re.compile(r'^-- \[ \] (?P<text>.*)$')
 TICKED_LINE = re.compile(r'^\+- \[[xX]\] (?P<text>.*)$')
 TRAILER = re.compile(r'^[A-Za-z][A-Za-z0-9-]*: \S')
 SCISSORS = ' ------------------------ >8 ------------------------'
-# The characters that `core.commentChar=auto` picks from, in the order Git tries them.
+# The characters from which `core.commentChar=auto` selects, in the sequence that Git uses.
 AUTO_COMMENTS = '#;@!$%^&|:'
 
 
@@ -97,8 +97,8 @@ def evidence_blocks(message: str, comment: str = '#') -> list[str]:
     Find the completion evidence blocks of a commit message.
 
     Args:
-        message: The commit message; Git drops the scissors line and all after it.
-        comment: The start of a comment line, which Git drops.
+        message: The commit message. Git removes the scissors line and all the text after it.
+        comment: The start of a comment line, which Git removes.
 
     Returns:
         The text of each block, without the trailer paragraph at the end of the message.
@@ -143,7 +143,7 @@ def amending() -> bool:
             options = arguments[arguments.index('commit') :] if 'commit' in arguments else []
             amend = False
             for option in options[: options.index('--')] if '--' in options else options:
-                # Git accepts `--am`, the shortest unique prefix, and the last option wins.
+                # Git accepts `--am`, the shortest unique prefix, and Git uses the last option.
                 if option == '--no-amend' or len(option) > 3 and '--amend'.startswith(option):
                     amend = option != '--no-amend'
             return amend
@@ -152,7 +152,7 @@ def amending() -> bool:
 
 
 def base() -> str:
-    """Return the tree that the new commit is compared with."""
+    """Return the tree that the hook compares with the new commit."""
     parent = 'HEAD^' if amending() else 'HEAD'
     tree = subprocess.run(
         ['git', 'rev-parse', '--verify', '--quiet', f'{parent}^{{tree}}'],

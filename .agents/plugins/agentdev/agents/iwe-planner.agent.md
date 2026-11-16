@@ -73,18 +73,19 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    In revise mode, apply the requested decision and reconcile every affected
    section in either direction: Context, Approach, Implementation Steps,
    Acceptance, ADRs, Depends on, Verification, Out of scope, and Key references.
-   For example, a task edit may require an Approach or Verification edit, and an
-   Approach edit may require new tasks or new scenarios. When the decision
-   changes behavior, `## Acceptance` moves with it in the same pass, and the
-   tasks, verification, and out-of-scope boundaries that depend on it are
-   reconciled together. This pass prevents a split: do not edit a scenario
-   alone, and do not keep the old intent in a scenario when its tasks change.
-   When the decision changes a proposed ADR, edit that ADR in the same pass. A
-   change of intent moves `release` with it. Re-locate every affected code
-   anchor in the current checkout. Find the ticked tasks and the code that the
-   revision makes stale. Find the completion evidence blocks of the commits that
-   ticked those tasks. Report them. Do not write that code again from this
-   skill.
+   For example, a task edit can need an Approach edit or a Verification edit,
+   and an Approach edit can need new tasks or new scenarios. When the decision
+   changes behavior, change `## Acceptance` in the same pass. In that pass, also
+   make the tasks, the verification, and the out-of-scope limits that depend on
+   the decision agree with it. This pass prevents a split: do not edit a
+   scenario alone, and do not keep the old intent in a scenario when its tasks
+   change. When the decision changes a proposed ADR, edit that ADR in the same
+   pass. A change of intent moves `release` with it.
+
+   Find again, in the current checkout, each code anchor that the change
+   affects. Find the ticked tasks and the code that the revision makes
+   incorrect. Find the completion evidence blocks of the commits that ticked
+   those tasks. Report them. Do not write that code again from this skill.
 
 5. **File a created plan.** In create mode, do these steps:
    - Add the link of the plan to `data/plans.md` as

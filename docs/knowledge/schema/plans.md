@@ -47,8 +47,8 @@ exceptions: `## Acceptance` and `## Verification` are always there.
   - A task that only a later event can close has a
     `**Closed by:** <who or what event>` line.
   - Wording that the user approved is in a fenced block, word for word.
-  - A checkbox has no evidence child. The commit that ticks a checkbox ticks
-    only that checkbox. Its message ends with the completion evidence block. The
+  - A checkbox has no evidence line. The commit that ticks a checkbox ticks only
+    that checkbox. Its message ends with the completion evidence block. The
     block has a line `---`, a line `completion evidence:`, and a short note in
     free form that tells how the agent checked the work. Git trailer lines at
     the end of the message are not part of the note. A plan does not specify the

@@ -1,7 +1,7 @@
 """
 Shape gate for plan checkboxes in `docs/knowledge/data/plans/`.
 
-A plan with `stage: done` has no unchecked `- [ ]` task under its task section.
+A plan with `stage: done` has no unticked `- [ ]` task in its task section.
 The evidence of a ticked task is in the commit that ticks it: see ADR-0093.
 """
 

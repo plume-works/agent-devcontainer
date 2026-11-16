@@ -21,7 +21,7 @@ PLAN_TEXT = (
     '- [ ] First task.\n- [ ] Second task.\n- [ ] Third task.\n'
 )
 BLOCK = '---\ncompletion evidence:\n`pytest` passed.\n'
-# A hook exports these, and an inherited one points the fixture's Git at the outer repository.
+# A hook exports these variables. If the fixture gets one of them from its parent, Git in the fixture uses the outer repository.
 GIT_VARIABLES = ('GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE')
 IDENTITY = (
     '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
@@ -130,7 +130,7 @@ def repo(scratch: Path) -> Repository:
 
 
 def test_one_tick_with_block_passes(repo: Repository) -> None:
-    """One ticked task and a block with text is a valid commit."""
+    """A commit with one ticked task and a block with text is valid."""
     repo.tick('First task.')
 
     result = repo.check(f'Do the first task\n\n{BLOCK}\nCo-Authored-By: A <a@example.invalid>\n')
@@ -173,7 +173,7 @@ def test_evidence_like_a_trailer_passes(repo: Repository) -> None:
     'setting', ['diff.mnemonicPrefix=true', 'diff.noprefix=true', 'diff.dstPrefix=new/']
 )
 def test_diff_prefix_config_does_not_hide_a_tick(repo: Repository, setting: str) -> None:
-    """The diff configuration of the user does not stop the hook from finding a tick."""
+    """The hook finds a tick with each diff configuration of the user."""
     repo.git('config', *setting.split('='))
     repo.tick('First task.')
 
@@ -194,7 +194,7 @@ def test_diff_prefix_config_does_not_hide_a_tick(repo: Repository, setting: str)
 def test_amend_checks_the_ticks_of_the_amended_commit(
     repo: Repository, hooks: Path, tasks: tuple[str, ...], arguments: tuple[str, ...], passes: bool
 ) -> None:
-    """An amend is checked against the parent of the commit that it replaces."""
+    """The hook checks an amend against the parent of the commit that the amend replaces."""
     repo.tick('First task.')
     repo.commit(f'Do the first task\n\n{BLOCK}')
     repo.tick(*tasks)
