@@ -169,7 +169,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   prints nothing.
 - [x] `pr-gen-description/SKILL.md` Step 5 says that the commits of the pull
   request contain the task evidence.
-- [ ] Both copies of `docs/knowledge/schema/plans.md` define the completion
+- [x] Both copies of `docs/knowledge/schema/plans.md` define the completion
   evidence block in place of the `- **Evidence:**` child. Both copies of
   `docs/knowledge/AGENTS.md` replace the evidence-line rule with the
   commit-message rule. `diff` of the two copies of each file prints nothing.
