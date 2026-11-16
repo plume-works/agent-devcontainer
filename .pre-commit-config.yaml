@@ -169,6 +169,14 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
+      # See ADR-0093. A commit that ticks a plan task has a completion evidence block.
+      - id: completion-evidence
+        name: completion-evidence
+        entry: uv run scripts/completion-evidence.py check-message
+        language: system
+        always_run: true
+        stages: [commit-msg]
+
       # Ship records, archive placement, and link-free release pages.
       - id: ship-records
         name: ship-records
