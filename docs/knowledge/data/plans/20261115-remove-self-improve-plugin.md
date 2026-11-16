@@ -155,12 +155,18 @@ documents with their normal meaning, which these entries do not define.
 
 **Files:** Modify: `docs/knowledge/data/glossary.md`
 
-- [ ] `docs/knowledge/data/glossary.md` does not have the entries `fingerprint`,
+- [x] `docs/knowledge/data/glossary.md` does not have the entries `fingerprint`,
   `preimage`, and `umbrella`.
-- [ ] `docs/knowledge/data/glossary.md` does not have the entries of
+  - **Evidence:** Removed the three entries (19 lines removed for the whole
+    task).
+- [x] `docs/knowledge/data/glossary.md` does not have the entries of
   `candidate`, `gate`, `owner`, `reviewer`, and `signal` that start with "In
   self-improve". The other entry for `candidate` stays.
-- [ ] `docs/knowledge/data/glossary.md` does not have the entry `proposal`.
+  - **Evidence:** Removed the five "In self-improve" entries; `candidate` keeps
+    its image-publishing entry.
+- [x] `docs/knowledge/data/glossary.md` does not have the entry `proposal`.
+  - **Evidence:** Removed the entry;
+    `grep -n -i self-improve docs/knowledge/data/glossary.md` prints nothing.
 
 ### Task 6: Close the graph documents about the plugin
 
