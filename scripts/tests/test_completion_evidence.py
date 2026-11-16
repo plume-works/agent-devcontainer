@@ -83,7 +83,7 @@ class Repository:
 
 @pytest.fixture
 def scratch() -> Iterator[Path]:
-    """Yield an empty directory under the tests' scratch root."""
+    """Give an empty directory under the scratch root of the tests."""
     TMP_ROOT.mkdir(exist_ok=True)
     root = TMP_ROOT / f'completion-evidence-{uuid4().hex}'
     root.mkdir()

@@ -200,7 +200,7 @@ the review reads committed code. Act on each finding by its **Defeats** line:
 - A finding that names no claim is filed through the `/agentdev:iwe-capture`
   skill and named in the report.
 
-Tick the task once every claim-defeating finding is fixed. The completion
+Tick the task after you fix each finding that defeats a claim. The completion
 evidence block of that commit says what fixed each finding and names each
 captured document's key.
 
@@ -245,9 +245,8 @@ harness is code and lives in the repository. Its _output_ is not plan content.
 - One edit never changes more than one checkbox. A blanket `- [ ]` → `- [x]`
   substitution across the file is itself the defect, not a faster route to the
   same result.
-- A task's code and its checkbox flip land in one commit, and the message of
-  that commit has the completion evidence block. Never write evidence in the
-  plan.
+- A task's code and its tick are in one commit, and the message of that commit
+  has the completion evidence block. Never write evidence in the plan.
 - Small honest increments beat a big unreviewable one: one task per commit,
   even when the run never pauses between them. A commit never ticks more than
   one plan task.

@@ -98,11 +98,11 @@ already runs on the branch, then keep only what survives both filters:
    or test suite CI executes, and no "CI is green" line — the checks report that
    themselves, continuously, and a sentence claiming it goes stale on the next
    push.
-2. **Reference, never restate, what another document owns.** The commits of
-   the pull request contain the task evidence: each commit that ticks a plan
-   task has a completion evidence block in its message. The plan and those
-   commits are the record; link the plan under `## Related` instead of copying
-   its verification list.
+2. **Refer to the text that another document owns. Do not write it again.** The
+   commits of the pull request contain the task evidence: each commit that ticks
+   a plan task has a completion evidence block in its message. The plan and
+   those commits are the record. Put a link to the plan under `## Related`. Do
+   not copy its verification list.
 
 What remains is the residue: manual checks no test covers, and
 environment-dependent behavior CI cannot reach. Sort it by tense for Step 7 —

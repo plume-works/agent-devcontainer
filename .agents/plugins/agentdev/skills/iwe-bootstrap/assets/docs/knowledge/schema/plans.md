@@ -48,11 +48,11 @@ exceptions: `## Acceptance` and `## Verification` are always there.
     `**Closed by:** <who or what event>` line.
   - Wording that the user approved is in a fenced block, word for word.
   - A checkbox has no evidence child. The commit that ticks a checkbox ticks
-    only that one, and its message ends with the completion evidence block: a
-    line `---`, a line `completion evidence:`, and a short note, in free form,
-    of how the work was checked. Git trailer lines at the end of the message are
-    not part of the note. A plan does not specify the form of the note, and
-    nobody examines it.
+    only that checkbox. Its message ends with the completion evidence block. The
+    block has a line `---`, a line `completion evidence:`, and a short note in
+    free form that tells how the agent checked the work. Git trailer lines at
+    the end of the message are not part of the note. A plan does not specify the
+    form of the note, and nobody examines it.
 - `## Acceptance` — one `### Scenario:` block for each behaviour that the plan
   adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
   line. Then it has one of two lines. `- **Test:**` names the test that proves

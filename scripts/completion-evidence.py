@@ -35,7 +35,7 @@ class Tick:
     text: str
 
     def __str__(self) -> str:
-        """Render the tick as `path: task text`."""
+        """Give the tick as `path: task text`."""
         return f'{self.path}: {self.text}'
 
 
