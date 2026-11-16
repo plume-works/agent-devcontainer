@@ -133,3 +133,14 @@ def test_tick_with_empty_block_fails(repo: Repository, footer: str) -> None:
 
     assert result.returncode == 1
     assert f'{PLAN}: First task.' in result.stderr
+
+
+def test_two_ticks_fail(repo: Repository) -> None:
+    """One block cannot show which text is for which plan task."""
+    repo.tick('First task.', 'Second task.')
+
+    result = repo.check(f'Do two tasks\n\n{BLOCK}')
+
+    assert result.returncode == 1
+    assert 'First task.' in result.stderr
+    assert 'Second task.' in result.stderr

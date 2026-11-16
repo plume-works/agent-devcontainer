@@ -84,8 +84,10 @@ completion evidence:
   - **Evidence:**
     `scripts/tests/test_completion_evidence.py::test_tick_with_empty_block_fails`
     passed.
-- [ ] `check-message` exits 1 for a staged tick of two plan tasks, and the test
+- [x] `check-message` exits 1 for a staged tick of two plan tasks, and the test
   passes.
+  - **Evidence:**
+    `scripts/tests/test_completion_evidence.py::test_two_ticks_fail` passed.
 - [ ] `check-message` exits 0 for a commit that ticks no plan task, and the test
   passes.
 - [ ] `check-message` exits 0 while a merge is in progress (`MERGE_HEAD` exists)
