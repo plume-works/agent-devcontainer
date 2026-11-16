@@ -69,8 +69,11 @@ completion evidence:
 <how it was checked>
 ```
 
-- [ ] `check-message <message-file>` exits 0 for a staged tick of one plan task
+- [x] `check-message <message-file>` exits 0 for a staged tick of one plan task
   with a block, and the test passes.
+  - **Evidence:**
+    `scripts/tests/test_completion_evidence.py::test_one_tick_with_block_passes`
+    passed.
 - [ ] `check-message` exits 1 and names the plan task for a staged tick with no
   block, and the test passes.
 - [ ] `check-message` exits 1 and names the plan task for a staged tick with an
