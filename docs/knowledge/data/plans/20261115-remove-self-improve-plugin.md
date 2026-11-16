@@ -235,11 +235,15 @@ documents with their normal meaning, which these entries do not define.
 `docs/knowledge/data/bugs/consumption-guide-keeps-publisher-source-references.md`,
 `docs/knowledge/data/bugs/custom-image-bundle-misses-runtime-inputs.md`
 
-- [ ] The `## Reproduction` of
+- [x] The `## Reproduction` of
   `bugs/consumption-guide-keeps-publisher-source-references` does not name
   `.agents/plugins/self-improve/tests` or a `self-improve` step.
-- [ ] The `## Root cause` of `bugs/custom-image-bundle-misses-runtime-inputs`
+  - **Evidence:** Steps 3 and 4 now name only `scripts/tests` and the `bun`
+    steps; the `description` no longer names the self-improve tests.
+- [x] The `## Root cause` of `bugs/custom-image-bundle-misses-runtime-inputs`
   does not name `.agents/plugins/self-improve/tests`.
+  - **Evidence:** The `ci.yml` sentence names `py_packages`,
+    `.agents/plugins/agentdev/tests`, and `scripts/tests`.
 
 ### Task 8: Remove the instrumentation rule from `AGENTS.md`
 
