@@ -1,8 +1,9 @@
-"""Tests for scripts/link-knowledge-support.py run in test repository trees that each test makes."""
+"""Tests for scripts/link-knowledge-support.py, run in repository trees that each test makes."""
 
 from __future__ import annotations
 
 from collections.abc import Iterator
+import importlib.util
 import os
 from pathlib import Path
 import shutil
@@ -14,8 +15,12 @@ import pytest
 from scratch import TMP_ROOT
 
 SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/link-knowledge-support.py'
-SCAFFOLD = Path('.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge')
-KNOWLEDGE = Path('docs/knowledge')
+_SPEC = importlib.util.spec_from_file_location('link_knowledge_support', SCRIPT)
+assert _SPEC is not None and _SPEC.loader is not None
+_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+SCAFFOLD: Path = _MODULE.SCAFFOLD
+KNOWLEDGE: Path = _MODULE.KNOWLEDGE
 SUPPORT = {
     'AGENTS.md': '# Agents\n',
     '.markdownlint.yml': 'default: false\n',

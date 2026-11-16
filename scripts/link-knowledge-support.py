@@ -60,7 +60,11 @@ def place(relative: Path) -> str | None:
 
 
 def stray(relative: Path, support: set[Path]) -> str | None:
-    """Report a file in docs/knowledge/ that has no scaffold copy and that the repository does not own."""
+    """
+    Report a file in docs/knowledge/ that has no scaffold copy.
+
+    The caller never gives this function a file that the repository owns.
+    """
     path = KNOWLEDGE / relative
     if relative in support:
         return None
@@ -72,7 +76,11 @@ def stray(relative: Path, support: set[Path]) -> str | None:
 
 
 def main() -> int:
-    """Place every support file, report every file that has no scaffold copy, and exit 1 when the script changes or reports a file."""
+    """
+    Place each support file and report each file that has no scaffold copy.
+
+    Exit 1 when the script changes or reports a file.
+    """
     support = set(entries(SCAFFOLD))
     lines = [line for relative in sorted(support) if (line := place(relative))]
     lines += [line for relative in entries(KNOWLEDGE) if (line := stray(relative, support))]
