@@ -39,8 +39,9 @@ plugin calls `make`. For this reason, the work deletes the `Makefile`. The work
 deletes the research that pull request #134 added under `docs/research/`.
 `docs/research/vscode-vulnerability/` is not about the plugin and stays.
 
-The three rules that pull request #134 added to `AGENTS.md#project-memory` are
-general rules, and they stay.
+Pull request #134 added three rules to `AGENTS.md#project-memory`. The work
+deletes the rule about instrumentation. The two rules about the documents in
+`data/findings/` are general rules, and they stay.
 
 Each open graph document about the plugin closes:
 
@@ -56,7 +57,7 @@ documents with their normal meaning, which these entries do not define.
 
 ## Implementation Steps
 
-### Task 1: Remove the plugin and its marketplace entry
+### Task 1: Remove the plugin and its entry in `.claude-plugin/marketplace.json`
 
 **Files:** Modify: `.agents/plugins/self-improve/`,
 `.claude-plugin/marketplace.json`
@@ -75,8 +76,8 @@ documents with their normal meaning, which these entries do not define.
 - [ ] The root `Makefile` does not exist.
 - [ ] `pyproject.toml#tool.pytest.ini_options.testpaths` does not hold
   `.agents/plugins/self-improve/tests`.
-- [ ] `pyproject.toml#tool.pytest.ini_options.markers` does not hold the markers
-  `smoke`, `interactive`, `pty`, `harness`, and `auto_memory`.
+- [ ] `pyproject.toml#tool.pytest.ini_options.markers` does not hold the pytest
+  markers `smoke`, `interactive`, `pty`, `harness`, and `auto_memory`.
 - [ ] The pytest command in `.github/workflows/ci.yml` does not name
   `.agents/plugins/self-improve/tests`.
 - [ ] `.github/workflows/validate-agent-files.yml` does not have the step
@@ -105,7 +106,7 @@ documents with their normal meaning, which these entries do not define.
 
 - [ ] The feature list at the start of `README.md` does not have the item about
   the `self-improve` plugin.
-- [ ] `README.md#the-plugin-catalog` says that Claude Code sees one plugin,
+- [ ] `README.md#the-plugin-catalog` says that Claude Code installs one plugin,
   `agentdev`.
 - [ ] `README.md` does not have the `### self-improve` section.
 - [ ] The paragraph about the plugin sources in `README.md` names only
@@ -164,9 +165,22 @@ documents with their normal meaning, which these entries do not define.
 - [ ] The `## Root cause` of `bugs/custom-image-bundle-misses-runtime-inputs`
   does not name `.agents/plugins/self-improve/tests`.
 
+### Task 8: Remove the instrumentation rule from `AGENTS.md`
+
+**Files:** Modify: `AGENTS.md`
+
+- [ ] `AGENTS.md#project-memory` does not have this paragraph:
+
+  ```
+  **Do not build instrumentation for a question nobody has framed.** Work proposed
+  to answer an open finding stays behind a named hypothesis its output could
+  confirm or kill. A facility built because its design is finished, rather than
+  because a question needs it, becomes a second product.
+  ```
+
 ## Acceptance
 
-### Scenario: The marketplace does not list the plugin
+### Scenario: `.claude-plugin/marketplace.json` does not list the plugin
 
 - **WHEN** Claude Code installs the plugins that
   `.claude-plugin/marketplace.json` lists
@@ -198,12 +212,13 @@ documents with their normal meaning, which these entries do not define.
 5. `uv run ruff check .` exits 0.
 6. `grep -n -i -e self-improve -e SELF_IMPROVE -e test-runs -e hypothetical-extensions -e case-study README.md .claude-plugin/marketplace.json pyproject.toml .github/workflows/ci.yml .github/workflows/validate-agent-files.yml .gitignore .ruff.toml .agents/plugins/agentdev/tests/test_macos_bootstrap.py docs/knowledge/data/glossary.md docs/knowledge/data/bugs.md docs/knowledge/data/backlog.md docs/knowledge/data/someday.md docs/knowledge/data/adr.md docs/knowledge/data/bugs/consumption-guide-keeps-publisher-source-references.md docs/knowledge/data/bugs/custom-image-bundle-misses-runtime-inputs.md`
    prints nothing.
-7. Run `iwe normalize`. Then `iwe schema validate` exits 0.
+7. `grep -n -F 'Do not build instrumentation' AGENTS.md` prints nothing.
+8. Run `iwe normalize`. Then `iwe schema validate` exits 0.
 
 ## Out of scope
 
 - The changes of pull request #134 to the review responder and the plan for
-  resumed reviews.
+  reviews that continue after a stop.
 - The documents in `docs/knowledge/data/archive/`. They record completed work
   and do not change.
 - `docs/research/vscode-vulnerability/`.
@@ -212,6 +227,7 @@ documents with their normal meaning, which these entries do not define.
 
 ## Key references
 
+- `AGENTS.md#project-memory` — the section that has the instrumentation rule.
 - `.claude-plugin/marketplace.json#plugins` — the list of plugins that Claude
   Code installs from this repository.
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — installs
