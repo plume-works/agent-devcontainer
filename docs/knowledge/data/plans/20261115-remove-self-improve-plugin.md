@@ -249,7 +249,10 @@ documents with their normal meaning, which these entries do not define.
 
 **Files:** Modify: `AGENTS.md`
 
-- [ ] `AGENTS.md#project-memory` does not have this paragraph:
+- [x] `AGENTS.md#project-memory` does not have this paragraph:
+
+  - **Evidence:** Removed the paragraph and its blank line;
+    `grep -n -F 'Do not build instrumentation' AGENTS.md` prints nothing.
 
   ```
   **Do not build instrumentation for a question nobody has framed.** Work proposed
