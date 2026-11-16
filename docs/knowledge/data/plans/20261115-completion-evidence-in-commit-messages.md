@@ -171,7 +171,7 @@ request of this plan.
   block. It names the commit and the plan task, and the test passes.
 - [x] `check-push` exits 1 for a pushed commit that an amend made and that ticks
   two plan tasks, and the test passes.
-- [ ] `check-push` exits 0 for a pushed range whose commits tick one plan task
+- [x] `check-push` exits 0 for a pushed range whose commits tick one plan task
   at most, each with a block, and that has a merge commit. The test passes.
 - [ ] `.pre-commit-config.yaml` has a local hook `completion-evidence-push` at
   `stages: [pre-push]` that runs `check-push`. In this checkout, the hook stops

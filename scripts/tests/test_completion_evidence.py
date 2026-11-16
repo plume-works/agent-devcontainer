@@ -323,3 +323,22 @@ def test_push_amended_two_ticks_fail(repo: Repository) -> None:
     assert result.returncode == 1
     assert f'{PLAN}: First task.' in result.stderr
     assert f'{PLAN}: Second task.' in result.stderr
+
+
+def test_push_valid_range_passes(repo: Repository) -> None:
+    """Commits with one tick and a block each, and a merge commit, pass the push."""
+    base = repo.git('rev-parse', 'HEAD')
+    repo.git('switch', '--quiet', '-c', 'topic')
+    repo.tick('First task.')
+    repo.commit(f'Do the first task\n\n{BLOCK}')
+    repo.git('switch', '--quiet', 'main')
+    repo.tick('Third task.')
+    repo.commit(f'Do the third task\n\n{BLOCK}')
+    repo.git('switch', '--quiet', 'topic')
+    repo.git('merge', '--quiet', '--no-edit', 'main')
+    repo.tick('Second task.')
+    repo.commit(f'Do the second task\n\n{BLOCK}')
+
+    result = repo.check_push(base)
+
+    assert result.returncode == 0, result.stderr
