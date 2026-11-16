@@ -141,7 +141,8 @@ def check_message(message_file: str) -> int:
     """Check the staged ticks against the commit message; return the exit code."""
     if Path(git('rev-parse', '--git-path', 'MERGE_HEAD').strip()).exists():
         return 0
-    # `diff-index` is plumbing, so diff settings of the user do not change its file lines.
+    # `diff-index` is a low-level Git command,
+    # so diff settings of the user do not change its file lines.
     diff = git('diff-index', '--cached', '-p', '--no-color', '-U0', base(), '--', PLANS_PATHSPEC)
     staged = ticks(diff)
     if not staged:

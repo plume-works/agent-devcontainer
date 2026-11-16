@@ -114,11 +114,12 @@ claims the user gave is not one.
 8. **Run to completion.** Do the tasks one after the other until you tick the
    last plan task. Do not stop for approval between tasks. Close each task under
    Step 6. Put its code and its tick in one commit whose message has the
-   completion evidence block. Stop only when an interlock fires: a material
-   deviation (Step 7), which then takes its route, or a task that is blocked or
-   incomplete mid-task — leave that box unchecked, describe the remaining work
-   or failing evidence, and stop there. If the user asks to review each task,
-   stop after each instead and report progress: "3/5 tasks, next: <task name>".
+   completion evidence block. Stop only in two conditions. The first condition
+   is a material deviation (Step 7). Then use the route of that deviation. The
+   second condition is a task that is blocked or not complete. Then do not tick
+   that task. Write the work that remains or the evidence that fails. Then stop.
+   If the user asks to review each task, stop after each task. Then report the
+   progress: "3/5 tasks, next: <task name>".
 9. **Finish.** Run the plan's `## Verification` commands, then report a
    rollup of the tasks executed this session — the first and only report of a
    continuous run — with the verification results. With every task closed,

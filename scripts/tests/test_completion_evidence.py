@@ -21,7 +21,8 @@ PLAN_TEXT = (
     '- [ ] First task.\n- [ ] Second task.\n- [ ] Third task.\n'
 )
 BLOCK = '---\ncompletion evidence:\n`pytest` passed.\n'
-# A hook exports these variables. If the fixture gets one of them from its parent, Git in the fixture uses the outer repository.
+# A hook exports these variables. If the fixture receives one of them from its parent process,
+# Git in the fixture uses the outer repository.
 GIT_VARIABLES = ('GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE')
 IDENTITY = (
     '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
@@ -173,7 +174,7 @@ def test_tick_with_empty_block_fails(repo: Repository, footer: str) -> None:
 
 
 def test_evidence_like_a_trailer_passes(repo: Repository) -> None:
-    """A block whose one line looks like `Key: value` is evidence, not a trailer paragraph."""
+    """A block whose one line has the form `Key: value` is evidence, not a trailer."""
     repo.tick('First task.')
 
     result = repo.check('Do the first task\n\n---\ncompletion evidence:\npytest: 14 passed\n')

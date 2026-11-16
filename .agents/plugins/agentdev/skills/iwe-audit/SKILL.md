@@ -32,10 +32,10 @@ controls commit messages. Residue in a different document can go into one of
 these documents. Move the residue there. Do not delete it.
 
 The skill checks a plan only in plan mode below. It checks only the intent
-sections of the plan. A plan can have narrative in its `## Verification results`
-section, and that section stays out of scope. The completion evidence block of a
-ticked task is in a commit message. The evidence that an older plan keeps under
-its ticked tasks also stays out of scope.
+sections of the plan. A plan can tell the sequence of the work in its
+`## Verification results` section, and that section stays out of scope. The
+completion evidence block of a ticked task is in a commit message. The evidence
+that an older plan keeps under its ticked tasks also stays out of scope.
 
 **Diff scope.** When a caller runs this skill over a diff, the candidate set is
 the diff's added lines, not a grep over `<TARGET>`. §1's patterns are the smell
@@ -44,12 +44,12 @@ list applied to those added lines. Everything downstream — §"Durable vs not",
 
 **Plan scope.** When the `<TARGET>` is a plan, the candidate set is every plan
 section with two exceptions. The `## Verification results` section, where a plan
-can have narrative, stays out of scope. The evidence that an older plan keeps
-under its ticked tasks also stays out of scope. `## Context`, `## Approach`, the
-task descriptions, and the other sections are in scope. They state intent. They
-must record the decision, not the steps that got to the decision. Like Diff
-scope, this scope is report-only (see §4). The sections after this one do not
-change, and the other scopes also use them.
+can tell the sequence of the work, stays out of scope. The evidence that an
+older plan keeps under its ticked tasks also stays out of scope. `## Context`,
+`## Approach`, the task descriptions, and the other sections are in scope. They
+state intent. They must record the decision, not the steps that occurred before
+the decision. Like Diff scope, this scope is report-only (see §4). The sections
+after this one do not change, and the other scopes also use them.
 
 ## 1. Collect candidates
 

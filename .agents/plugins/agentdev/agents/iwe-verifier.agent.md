@@ -56,11 +56,11 @@ decision your prompt does not carry, stop and report it under
      observations**, not as a finding; Ship waits for it. Every other unchecked
      `- [ ]` task is a CRITICAL, with three routes out: complete it, tick it if
      already done, or remove it from the plan with the revise mode of the
-     `/agentdev:iwe-plan` skill. The revise mode sees the removal of a task as a
-     material scope change, so it asks the user first. Ship stops on each
-     CRITICAL, and nobody can bypass that stop. You must not tick a task that is
-     not done. Thus, if the user does not want a task, the third route is the
-     only way to ship the plan. When you name a route, you do not use it.
+     `/agentdev:iwe-plan` skill. The revise mode identifies a task that you
+     remove as a material scope change, so it asks the user first. Ship stops on
+     each CRITICAL, and nobody can bypass that stop. You must not tick a task
+     that is not done. Thus, if the user does not want a task, the third route
+     is the only way to ship the plan. When you name a route, you do not use it.
 
      Do not check a ticked `- [x]` task or the completion evidence block of the
      commit that ticked it. Only the `completion-evidence` hook checks them. Do
