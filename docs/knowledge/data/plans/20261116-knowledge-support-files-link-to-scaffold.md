@@ -117,11 +117,20 @@ instead.
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] A local hook `link-knowledge-support` runs
+- [x] A local hook `link-knowledge-support` runs
   `uv run scripts/link-knowledge-support.py` with `pass_filenames: false`, on a
   change under `docs/knowledge/` or under the scaffold `docs/knowledge/`.
-- [ ] The `files:` patterns of the `iwe-schema-validate` and `iwe-normalize`
+  - **Evidence:** Hook added with `types: []` and `types_or: [file, symlink]`,
+    because the default `types: [file]` skips a link. In a scratch git copy,
+    `pre-commit run link-knowledge-support --files <path>` ran for a link in
+    `docs/knowledge/`, a link in `schema/`, and a scaffold file, and skipped
+    `README.md` at the root.
+- [x] The `files:` patterns of the `iwe-schema-validate` and `iwe-normalize`
   hooks also match each Markdown file under the scaffold `docs/knowledge/`.
+  - **Evidence:** Both patterns are now
+    `^(<scaffold assets>/)?(docs/knowledge/.*\.md|\.iwe/.*)$`. In the scratch
+    copy, `pre-commit run iwe-normalize --files` on the scaffold
+    `schema/adrs.md` ran and passed.
 
 ### Task 3: Replace the copies with links
 

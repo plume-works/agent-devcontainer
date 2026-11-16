@@ -194,14 +194,24 @@ repos:
         files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
         pass_filenames: false
 
+      # Support files in docs/knowledge/ are links to the iwe-bootstrap scaffold copy.
+      - id: link-knowledge-support
+        name: link-knowledge-support
+        entry: uv run scripts/link-knowledge-support.py
+        language: system
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/'
+        types: []
+        types_or: [file, symlink]
+        pass_filenames: false
+
       # Mirrors the Knowledge base validation workflow. The hooks read the full graph
       # from the repository root, so they take no filenames. They start on a change
-      # under docs/knowledge/ or under the scaffold .iwe/, which .iwe links to.
+      # in docs/knowledge/ or .iwe, or in the scaffold copy that a link points to.
       - id: iwe-schema-validate
         name: iwe-schema-validate
         entry: iwe schema validate
         language: system
-        files: '^(docs/knowledge/.*\.md|\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/\.iwe/.*)$'
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false
 
       # normalize rewrites files in place and returns 0 even after changing files;
@@ -211,5 +221,5 @@ repos:
         name: iwe-normalize
         entry: bash -c 'iwe normalize && git diff --exit-code'
         language: system
-        files: '^(docs/knowledge/.*\.md|\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/\.iwe/.*)$'
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false
