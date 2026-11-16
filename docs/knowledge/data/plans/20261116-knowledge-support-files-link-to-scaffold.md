@@ -101,10 +101,17 @@ instead.
 **Files:** Create: `scripts/link-knowledge-support.py`,
 `scripts/tests/test_link_knowledge_support.py`
 
-- [ ] `scripts/link-knowledge-support.py` exists, runs from the repository root,
+- [x] `scripts/link-knowledge-support.py` exists, runs from the repository root,
   and does the actions of the two tables in `## Approach`.
-- [ ] `uv run pytest scripts/tests/test_link_knowledge_support.py` passes, with
+  - **Evidence:** Script added. A dry run on a scratch copy of HEAD made 22
+    links; a second run exited 0 with no output. It also reports a support file
+    reached through a linked directory instead of writing a link over the
+    scaffold copy, which keeps "never deletes a file" true.
+- [x] `uv run pytest scripts/tests/test_link_knowledge_support.py` passes, with
   one test for each scenario in `## Acceptance`.
+  - **Evidence:** 11 passed: the 8 scenario tests (the missing-link test runs
+    for a top-level and a `schema/` file), plus a missing `schema/` directory
+    and a support file under a linked directory.
 
 ### Task 2: Run the script from pre-commit
 
