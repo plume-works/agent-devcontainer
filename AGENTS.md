@@ -235,11 +235,6 @@ that it writes and the stage that it sets.
 **A finding gets its own document, and nobody edits the document that it came
 from.** `docs/knowledge/schema/findings.md` defines a finding.
 
-**Do not build instrumentation for a question nobody has framed.** Work proposed
-to answer an open finding stays behind a named hypothesis its output could
-confirm or kill. A facility built because its design is finished, rather than
-because a question needs it, becomes a second product.
-
 **Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
 the whole repo is opened as the workspace. `iwe` does not search upward for `.iwe/` and has no

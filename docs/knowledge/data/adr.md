@@ -248,18 +248,6 @@ ignores](adr/0085-git-is-the-ignore-authority.md)
 [A ticked plan task needs an evidence line that only a shape test
 checks](adr/0086-plan-ticks-need-evidence-lines.md)
 
-[Only a command that the user types authorizes a self-improve
-change](adr/0087-self-improve-authorization-from-typed-commands.md)
-
-[The self-improve plugin is in this
-repository](adr/0088-self-improve-lives-in-this-repository.md)
-
-[The self-improve reviewer holds no
-tools](adr/0089-self-improve-reviewer-holds-no-tools.md)
-
-[The self-improve runtime uses only the standard
-library](adr/0090-self-improve-runtime-uses-only-the-standard-library.md)
-
 [Both harnesses permit a subagent depth of 5 in the
 containers](adr/0091-subagent-nesting-depth-five.md)
 

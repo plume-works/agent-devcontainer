@@ -62,9 +62,9 @@ The plugin's behavior is unchanged by the move; it ships exactly as it arrived,
 and its durable behavior is specified in Self-improve learning loop. Enabling
 the plugin and staging it into `agent-desktop` are separate decisions. Two
 measured defects ship with it, recorded rather than fixed: [Reviewer decline
-asymmetry](../../../bugs/self-improve-reviewer-decline-asymmetry.md) and
-[Unstageable routing option in the improve
-skill](../../../bugs/self-improve-unstageable-routing-option.md).
+asymmetry](../../next-release/bugs/self-improve-reviewer-decline-asymmetry.md)
+and [Unstageable routing option in the improve
+skill](../../next-release/bugs/self-improve-unstageable-routing-option.md).
 
 ## Edge cases
 

@@ -65,8 +65,6 @@ term in the same change that first uses it.
   tasks, from the lowest `rank` to the highest.
 - **candidate** (noun): In image publishing, an image that a CI run built and
   published by digest before acceptance.
-- **candidate** (noun): In self-improve, a validated reviewer result that the
-  foreground session routes and that changes nothing by itself.
 - **Capture** (noun): The workflow step that files a bug, a feature, or a task
   through `/agentdev:iwe-capture`.
 - **carry** (verb): To keep uncommitted and untracked changes in the working
@@ -161,15 +159,10 @@ term in the same change that first uses it.
   the diff changes only versions or generated files.
 - **file** (verb): To write a new document in the graph and link it from its
   hub.
-- **fingerprint** (noun): A normalized hash of a lesson and its destination,
-  which self-improve keeps to stop a lesson that was accepted or rejected
-  before.
 - **full access** (noun): The user-level OpenCode permission `"*": "allow"`,
   which the devcontainer sets by policy.
 - **full adoption** (noun): The use of the whole template through
   `/agentdev:template-consume`, and not only of the published image.
-- **gate** (noun): In self-improve, the check without a model that decides if a
-  completed turn gets one reviewer call.
 - **gate-only run** (noun): The workflow run that a push to a reviewed pull
   request starts, in which the responder check does not run.
 - **gh wrapper** (noun): The script `ansible/roles/github_cli/files/gh`, which
@@ -270,8 +263,6 @@ term in the same change that first uses it.
   only degrades the runtime, such as `config`, `xpra`, or `dockerd`.
 - **outstanding observation** (noun): An unticked plan task that has a Closed by
   line, which Verify lists without a failure and Ship waits for.
-- **owner** (noun): In self-improve, the existing `CLAUDE.md` file, rule, or
-  skill that must hold a lesson.
 - **pass** (noun): In a pull request review, one independent subagent review of
   the diff with one focus list.
 - **pass** (noun): In Docker garbage collection, one run of
@@ -306,8 +297,6 @@ term in the same change that first uses it.
 - **predecessor** (noun): The pull request that a dependent branch is based on.
 - **preflight** (noun): The job of the AI review workflow that decides if a
   review runs.
-- **preimage** (noun): The content hash of the target file when self-improve
-  staged a proposal, which the apply step compares before it writes.
 - **product vision** (noun): A document of `type: product-vision` in
   `data/product-vision/` that records why the product exists or a principle that
   stays true in each release.
@@ -315,8 +304,6 @@ term in the same change that first uses it.
   consumer, which holds the task list and the choices of a template setup.
 - **promotion** (noun): The move of the moving tags to an accepted candidate
   digest, without a new build.
-- **proposal** (noun): The new content that self-improve stages for one
-  permitted target file, with an ID and a hash prefix.
 - **prose** (noun): The text of a file, except text in code formatting, text in
   a fenced block, and quoted text.
 - **publisher-only source** (noun): The directories `.agents/`,
@@ -358,8 +345,6 @@ term in the same change that first uses it.
   the `pr-review` skill.
 - **reviewed input** (noun): The head commit, the title, and the description
   that a review run read when it started.
-- **reviewer** (noun): In self-improve, a separate `claude -p` call without
-  tools that reads the evidence and returns a proposal or a discard.
 - **revise mode** (noun): The mode of the `iwe-planner` rulebook that changes an
   active plan.
 - **root-test launcher** (noun): The script `scripts/run-root-tests`, which runs
@@ -391,8 +376,6 @@ term in the same change that first uses it.
   that Ship leaves in the knowledge graph.
 - **Ship review** (noun): The checklist section that `iwe-ship-reviewer` adds to
   a shipped plan.
-- **signal** (noun): In self-improve, one of the fixed reasons that permit a
-  review, such as an explicit correction.
 - **slot** (noun): A role in a pull request review, such as the metadata gate or
   the correctness pass, that the effort tier gives a model.
 - **slug** (noun): The short name in kebab case in the file name of a document,
@@ -437,8 +420,6 @@ term in the same change that first uses it.
   requests the review app approves without a review.
 - **UID/GID cohort** (noun): The project containers that run with the same
   numeric user and group IDs and that can share one auth volume.
-- **umbrella** (noun): In self-improve, an owner that covers all of the class
-  that a lesson belongs to.
 - **update mode** (noun): In `pr-open`, a run on a branch that already has an
   open pull request.
 - **update mode** (noun): In `template-consume`, the run that compares the
