@@ -62,17 +62,14 @@ documents with their normal meaning, which these entries do not define.
 **Files:** Modify: `.agents/plugins/self-improve/`,
 `.claude-plugin/marketplace.json`
 
-- [x] `.agents/plugins/self-improve/` does not exist.
-  - **Evidence:** `git rm -r .agents/plugins/self-improve`;
-    `test ! -e .agents/plugins/self-improve` succeeds.
-- [x] `.claude-plugin/marketplace.json#plugins` lists only `agentdev`.
-  - **Evidence:** Removed the `self-improve` element; `plugins` now holds only
-    `agentdev`.
-- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [ ] `.agents/plugins/self-improve/` does not exist.
+  `test ! -e .agents/plugins/self-improve` succeeds.
+- [ ] `.claude-plugin/marketplace.json#plugins` lists only `agentdev`.
+  `agentdev`.
+- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   exits 0.
-  - **Evidence:**
-    `uv run validate_agent_files --recommend . --require-marketplace claude`
-    exits 0: "Errors: 0, Warnings: 0".
+  `uv run validate_agent_files --recommend . --require-marketplace claude` exits
+  0: "Errors: 0, Warnings: 0".
 
 ### Task 2: Remove the connections to the plugin
 
