@@ -52,8 +52,6 @@ pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 [Remove the D-Bus session bus and GNOME Keyring from the runtime
 images](backlog/remove-dbus-keyring.md)
 
-[Self-improve execution tracing](backlog/self-improve-execution-tracing.md)
-
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 

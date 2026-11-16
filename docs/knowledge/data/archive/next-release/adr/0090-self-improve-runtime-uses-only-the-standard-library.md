@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 description: The self-improve runtime imports only the Python standard library, and one executable file is the entry point for each hook and skill.
 ---
 

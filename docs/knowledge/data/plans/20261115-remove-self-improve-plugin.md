@@ -62,10 +62,17 @@ documents with their normal meaning, which these entries do not define.
 **Files:** Modify: `.agents/plugins/self-improve/`,
 `.claude-plugin/marketplace.json`
 
-- [ ] `.agents/plugins/self-improve/` does not exist.
-- [ ] `.claude-plugin/marketplace.json#plugins` lists only `agentdev`.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `.agents/plugins/self-improve/` does not exist.
+  - **Evidence:** `git rm -r .agents/plugins/self-improve`;
+    `test ! -e .agents/plugins/self-improve` succeeds.
+- [x] `.claude-plugin/marketplace.json#plugins` lists only `agentdev`.
+  - **Evidence:** Removed the `self-improve` element; `plugins` now holds only
+    `agentdev`.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   exits 0.
+  - **Evidence:**
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    exits 0: "Errors: 0, Warnings: 0".
 
 ### Task 2: Remove the connections to the plugin
 
@@ -132,26 +139,57 @@ documents with their normal meaning, which these entries do not define.
 `docs/knowledge/data/backlog.md`, `docs/knowledge/data/someday.md`,
 `docs/knowledge/data/adr.md`, `docs/knowledge/data/archive/next-release/`
 
-- [ ] `bugs/readme-says-self-improve-not-enabled` is at `stage: cancelled` in
+- [x] `bugs/readme-says-self-improve-not-enabled` is at `stage: cancelled` in
   `data/archive/next-release/bugs/`.
-- [ ] `bugs/self-improve-allowlist-accepts-nested-rules` is at
+  - **Evidence:** `iwe update --set stage=cancelled`, then `iwe rename` to
+    `data/archive/next-release/bugs/readme-says-self-improve-not-enabled`; hub
+    link removed from `data/bugs.md`.
+- [x] `bugs/self-improve-allowlist-accepts-nested-rules` is at
   `stage: cancelled` in `data/archive/next-release/bugs/`.
-- [ ] `bugs/self-improve-reviewer-decline-asymmetry` is at `stage: cancelled` in
+  - **Evidence:** `iwe update --set stage=cancelled`, then `iwe rename` to
+    `data/archive/next-release/bugs/self-improve-allowlist-accepts-nested-rules`;
+    hub link removed from `data/bugs.md`.
+- [x] `bugs/self-improve-reviewer-decline-asymmetry` is at `stage: cancelled` in
   `data/archive/next-release/bugs/`.
-- [ ] `bugs/self-improve-unstageable-routing-option` is at `stage: cancelled` in
+  - **Evidence:** `iwe update --set stage=cancelled`, then `iwe rename` to
+    `data/archive/next-release/bugs/self-improve-reviewer-decline-asymmetry`;
+    hub link removed from `data/bugs.md`.
+- [x] `bugs/self-improve-unstageable-routing-option` is at `stage: cancelled` in
   `data/archive/next-release/bugs/`.
-- [ ] `backlog/self-improve-execution-tracing` is at `stage: cancelled` in
+  - **Evidence:** `iwe update --set stage=cancelled`, then `iwe rename` to
+    `data/archive/next-release/bugs/self-improve-unstageable-routing-option`;
+    hub link removed from `data/bugs.md`.
+- [x] `backlog/self-improve-execution-tracing` is at `stage: cancelled` in
   `data/archive/next-release/backlog/`.
-- [ ] `iwe delete` removed `someday/self-improve-hermes-prompt-stack`.
-- [ ] `adr/0087-self-improve-authorization-from-typed-commands` is at
+  - **Evidence:** `iwe update --set stage=cancelled`, then `iwe rename` to
+    `data/archive/next-release/backlog/`; hub link removed from
+    `data/backlog.md`.
+- [x] `iwe delete` removed `someday/self-improve-hermes-prompt-stack`.
+  - **Evidence:** `iwe delete data/someday/self-improve-hermes-prompt-stack`
+    removed the file and its link in `data/someday.md`.
+- [x] `adr/0087-self-improve-authorization-from-typed-commands` is at
   `stage: deprecated` in `data/archive/next-release/adr/`.
-- [ ] `adr/0088-self-improve-lives-in-this-repository` is at `stage: deprecated`
+  - **Evidence:** `iwe update --set stage=deprecated`, then `iwe rename` to
+    `data/archive/next-release/adr/0087-self-improve-authorization-from-typed-commands`;
+    hub link removed from `data/adr.md`.
+- [x] `adr/0088-self-improve-lives-in-this-repository` is at `stage: deprecated`
   in `data/archive/next-release/adr/`.
-- [ ] `adr/0089-self-improve-reviewer-holds-no-tools` is at `stage: deprecated`
+  - **Evidence:** `iwe update --set stage=deprecated`, then `iwe rename` to
+    `data/archive/next-release/adr/0088-self-improve-lives-in-this-repository`;
+    hub link removed from `data/adr.md`.
+- [x] `adr/0089-self-improve-reviewer-holds-no-tools` is at `stage: deprecated`
   in `data/archive/next-release/adr/`.
-- [ ] `adr/0090-self-improve-runtime-uses-only-the-standard-library` is at
+  - **Evidence:** `iwe update --set stage=deprecated`, then `iwe rename` to
+    `data/archive/next-release/adr/0089-self-improve-reviewer-holds-no-tools`;
+    hub link removed from `data/adr.md`.
+- [x] `adr/0090-self-improve-runtime-uses-only-the-standard-library` is at
   `stage: deprecated` in `data/archive/next-release/adr/`.
-- [ ] `iwe schema validate` exits 0.
+  - **Evidence:** `iwe update --set stage=deprecated`, then `iwe rename` to
+    `data/archive/next-release/adr/0090-self-improve-runtime-uses-only-the-standard-library`;
+    hub link removed from `data/adr.md`.
+- [x] `iwe schema validate` exits 0.
+  - **Evidence:** `iwe normalize`, then `iwe schema validate` exits 0;
+    `uv run scripts/check-anchors.py` exits 0.
 
 ### Task 7: Remove the plugin path from the open bugs
 

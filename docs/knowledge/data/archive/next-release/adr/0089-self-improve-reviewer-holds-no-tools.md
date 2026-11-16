@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 description: The self-improve reviewer runs with no tools and no hooks, and gets its effort level from an environment variable, not from a flag.
 ---
 

@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 description: The self-improve plugin is in this repository next to agentdev, and the runtime installs and enables it with each other plugin that the marketplace publishes.
 ---
 

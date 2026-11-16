@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 description: Self-improve takes the authorization of the user only from the `UserPromptExpansion` hook, which has a wildcard matcher.
 ---
 

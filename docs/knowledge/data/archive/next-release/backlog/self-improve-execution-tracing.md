@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: cancelled
 priority: medium
 created: 2026-11-02
 description: An opt-in trace inside the plugin recording what each hook decided and why, keeping the evidence bundle as a keyed shape rather than its content.
