@@ -326,3 +326,26 @@ diff docs/knowledge/schema/plans.md .agents/plugins/agentdev/skills/iwe-bootstra
   evidence block" — the definition of the completion evidence block.
 - `docs/knowledge/AGENTS.md#conventions` › "A tick and the code are in one
   commit" — the commit-message rule.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-16.
+
+- [x] Verify found no CRITICAL problem — correct: Ready to ship:
+  data/plans/20261115-completion-evidence-in-commit-messages
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct:
+  data/adr/0093-completion-evidence-in-the-commit-message
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — correct:
+  data/archive/next-release/adr/0086-plan-ticks-need-evidence-lines
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-16
+- [x] Every feature in `release` is `stage: implemented` — not applicable:
+  `release` lists no feature
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every feature and bug that it completed are in the archive,
+  and no hub links them — correct:
+  data/archive/next-release/plans/20261115-completion-evidence-in-commit-messages
