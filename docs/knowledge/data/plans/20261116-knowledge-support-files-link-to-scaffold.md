@@ -155,13 +155,16 @@ instead.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md`
 
-- [ ] `scaffold.md#maintenance` gives the rule that each support file in
+- [x] `scaffold.md#maintenance` gives the rule that each support file in
   `docs/knowledge/` of agent-devcontainer, except `LICENSE.md` and `.gitignore`,
   is a link to its scaffold copy. It names `scripts/link-knowledge-support.py`
   as the script that makes and checks the links. It says that `schema/` is a
   real directory with one link for each document, because `iwe` does not follow
   a link to a directory. It replaces the sentence that gives the rule that the
   support files have the same bytes.
+  - **Evidence:** `scaffold.md#maintenance` edited as stated; the "same bytes"
+    sentence for the support files is gone. `validate_agent_files` reports 0
+    errors and `check-anchors.py` exits 0.
 
 ### Task 5: Tell consumers about the links
 
