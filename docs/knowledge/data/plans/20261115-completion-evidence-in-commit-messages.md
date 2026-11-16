@@ -69,33 +69,16 @@ completion evidence:
 
 - [x] `check-message <message-file>` exits 0 for a staged tick of one plan task
   with a block, and the test passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_one_tick_with_block_passes`
-    passed.
 - [x] `check-message` exits 1 and names the plan task for a staged tick with no
   block, and the test passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_tick_without_block_fails`
-    passed.
 - [x] `check-message` exits 1 and names the plan task for a staged tick with an
   empty block, and the test passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_tick_with_empty_block_fails`
-    passed.
 - [x] `check-message` exits 1 for a staged tick of two plan tasks, and the test
   passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_two_ticks_fail` passed.
 - [x] `check-message` exits 0 for a commit that ticks no plan task, and the test
   passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_no_tick_needs_no_block`
-    passed.
 - [x] `check-message` exits 0 while a merge is in progress (`MERGE_HEAD` exists)
   in the fixture repository, and the test passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_merge_in_progress_is_skipped`
-    passed.
 
 ### Task 2: Show the evidence of a pull request
 
@@ -108,10 +91,6 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 
 - [x] For a pull request whose branch merged `main` one time, `show <N>` prints
   each ticked plan task with its block, oldest first. The test passes.
-  - **Evidence:**
-    `scripts/tests/test_completion_evidence.py::test_show_prints_each_tick`
-    passed; `show 915` in this repository printed the ticks of that pull
-    request.
 
 ### Task 3: Run the check at commit time
 
@@ -121,16 +100,10 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 - [x] `.pre-commit-config.yaml` has a local hook `completion-evidence` at
   `stages: [commit-msg]` that runs `check-message`. In this checkout, the hook
   stops a commit that has a tick and no block.
-  - **Evidence:** `git commit -m 'no block'` with this tick staged stopped with
-    "The commit ticks … and its message has no completion evidence block"; this
-    commit, which has a block, passed the hook.
 - [x] `HOOK_TYPES` in `py_packages/agentdev_runtime/agentdev_runtime/project.py`
   and in `.claude/startup.py` has `commit-msg`, and
   `uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py`
   passes.
-  - **Evidence:**
-    `uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py`:
-    `46 passed, 2 skipped`.
 
 ### Task 4: Remove the evidence-line rule from the `plan-checkboxes` check
 
@@ -139,8 +112,6 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 - [x] The check has no evidence-line rule, and the change removes the tests of
   that rule. A new test shows that a ticked task with no evidence line passes.
   `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py` passes.
-  - **Evidence:** `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py`:
-    9 tests passed. `test_ticked_task_needs_no_evidence_line` is one of them.
 
 ### Task 5: Change the rules that name the evidence line
 
