@@ -121,10 +121,15 @@ documents with their normal meaning, which these entries do not define.
 **Files:** Modify: `docs/research/case-study/`,
 `docs/research/hypothetical-extensions/`, `.ruff.toml`
 
-- [ ] `docs/research/case-study/` does not exist.
-- [ ] `docs/research/hypothetical-extensions/` does not exist.
-- [ ] `.ruff.toml` does not have the `extend-exclude` entry, the `force-exclude`
+- [x] `docs/research/case-study/` does not exist.
+  - **Evidence:** `git rm -r docs/research/case-study`; `docs/research/` holds
+    only `vscode-vulnerability`.
+- [x] `docs/research/hypothetical-extensions/` does not exist.
+  - **Evidence:** `git rm -r docs/research/hypothetical-extensions`.
+- [x] `.ruff.toml` does not have the `extend-exclude` entry, the `force-exclude`
   entry, and the comment above them.
+  - **Evidence:** Removed the three lines and the comment; `uv run ruff check .`
+    passes.
 
 ### Task 4: Remove the plugin from the README
 
@@ -294,6 +299,5 @@ documents with their normal meaning, which these entries do not define.
   command that names the plugin tests.
 - `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_installs_only_agentdev`
   — the test of the plugin step of the macOS bootstrap.
-- `.ruff.toml#extend-exclude` — the exclusion for the research prompts.
 - `README.md#the-plugin-catalog` — the catalog section that names the plugin.
 - `docs/knowledge/data/glossary.md` — the terms of the plugin.
