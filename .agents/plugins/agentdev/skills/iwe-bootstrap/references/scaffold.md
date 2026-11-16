@@ -7,7 +7,7 @@ installs, laid out exactly as it lands in a repository root:
   graph. `[workspace].path = "docs/knowledge"` makes every document key
   relative to `docs/knowledge/`, and `iwe` runs from the repository root.
 - `assets/docs/knowledge/` — the knowledge-base instructions (`AGENTS.md`,
-  `SCHEMA.md`, `schema/`, `STRUCTURE.md`, and their companions), the MIT
+  `SCHEMA.md`, `schema/`, and the related files), the MIT
   `LICENSE.md`, and the starting `data/` graph.
 
 ## What the graph contains

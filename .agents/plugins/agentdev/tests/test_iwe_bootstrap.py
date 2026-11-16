@@ -19,7 +19,7 @@ ASSETS = Path('assets')
 # The transaction directory name is part of the skill's documented contract.
 TRANSACTION = '.iwe-bootstrap.txn'
 ONBOARDING_KEYS = ('fill-product-doc',)
-KNOWLEDGE_INSTRUCTIONS = ('AGENTS.md', 'CLAUDE.md', 'SCHEMA.md', 'STRUCTURE.md')
+KNOWLEDGE_INSTRUCTIONS = ('AGENTS.md', 'CLAUDE.md', 'SCHEMA.md')
 # Commands the helper may run; everything else is absent from a restricted PATH.
 HELPER_TOOLS = (
     'bash',

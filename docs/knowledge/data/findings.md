@@ -9,6 +9,9 @@ stage: living
 [Claude Remote Control archived pre-created
 session](findings/claude-remote-control-archived-pre-created-session.md)
 
+[Claude Remote Control environment
+grouping](findings/claude-remote-control-environment-grouping.md)
+
 [Claude Remote Control expired session
 recovery](findings/claude-remote-control-expired-session-recovery.md)
 
