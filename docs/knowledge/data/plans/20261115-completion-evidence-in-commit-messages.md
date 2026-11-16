@@ -167,7 +167,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   evidence block, and
   `rg -n 'Evidence:\*\*|evidence line' .agents/plugins/agentdev/agents/iwe-implementer.agent.md .agents/plugins/agentdev/agents/iwe-planner.agent.md .agents/plugins/agentdev/agents/iwe-verifier.agent.md .agents/plugins/agentdev/agents/iwe-plan-reviewer.agent.md .agents/plugins/agentdev/skills/iwe-plan-review/references/plan-rules.md .agents/plugins/agentdev/skills/iwe-audit/SKILL.md`
   prints nothing.
-- [ ] `pr-gen-description/SKILL.md` Step 5 says that the commits of the pull
+- [x] `pr-gen-description/SKILL.md` Step 5 says that the commits of the pull
   request contain the task evidence.
 - [ ] Both copies of `docs/knowledge/schema/plans.md` define the completion
   evidence block in place of the `- **Evidence:**` child. Both copies of
