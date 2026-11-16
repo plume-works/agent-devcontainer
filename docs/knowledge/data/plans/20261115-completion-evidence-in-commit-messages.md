@@ -88,8 +88,11 @@ completion evidence:
   passes.
   - **Evidence:**
     `scripts/tests/test_completion_evidence.py::test_two_ticks_fail` passed.
-- [ ] `check-message` exits 0 for a commit that ticks no plan task, and the test
+- [x] `check-message` exits 0 for a commit that ticks no plan task, and the test
   passes.
+  - **Evidence:**
+    `scripts/tests/test_completion_evidence.py::test_no_tick_needs_no_block`
+    passed.
 - [ ] `check-message` exits 0 while a merge is in progress (`MERGE_HEAD` exists)
   in the fixture repository, and the test passes.
 

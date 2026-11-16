@@ -144,3 +144,12 @@ def test_two_ticks_fail(repo: Repository) -> None:
     assert result.returncode == 1
     assert 'First task.' in result.stderr
     assert 'Second task.' in result.stderr
+
+
+def test_no_tick_needs_no_block(repo: Repository) -> None:
+    """A commit that changes a plan but ticks no task needs no block."""
+    path = repo.root / PLAN
+    path.write_text(path.read_text() + '- [ ] Fourth task.\n')
+    repo.git('add', PLAN)
+
+    assert repo.check('Add a task\n').returncode == 0
