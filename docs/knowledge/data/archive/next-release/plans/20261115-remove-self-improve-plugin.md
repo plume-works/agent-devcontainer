@@ -6,6 +6,8 @@ release: internal
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/134
   title: Consolidate self-improve and plan resumable Claude reviews
+stage: done
+completed: 2026-11-16
 ---
 
 # Remove the self-improve plugin
@@ -13,11 +15,11 @@ sources:
 ## Context
 
 The backlog task [Remove the self-improve
-plugin](../archive/next-release/backlog/revert-self-improve-consolidation.md)
-started this work. Pull request #134 put the `self-improve` plugin in this
-repository. Its function is to keep a rule from a session in a permanent file.
-`AGENTS.md#project-memory` now sends each rule of this type to `AGENTS.md` or to
-a document under `docs/knowledge/data/`.
+plugin](../backlog/revert-self-improve-consolidation.md) started this work. Pull
+request #134 put the `self-improve` plugin in this repository. Its function is
+to keep a rule from a session in a permanent file. `AGENTS.md#project-memory`
+now sends each rule of this type to `AGENTS.md` or to a document under
+`docs/knowledge/data/`.
 
 The project does not use the idea of the plugin now. The work deletes the
 plugin. The work does not move the plugin to a different repository, and it does
