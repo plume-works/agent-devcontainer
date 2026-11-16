@@ -126,10 +126,13 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
   - **Evidence:** `git commit -m 'no block'` with this tick staged stopped with
     "The commit ticks … and its message has no completion evidence block"; this
     commit, which has a block, passed the hook.
-- [ ] `HOOK_TYPES` in `py_packages/agentdev_runtime/agentdev_runtime/project.py`
+- [x] `HOOK_TYPES` in `py_packages/agentdev_runtime/agentdev_runtime/project.py`
   and in `.claude/startup.py` has `commit-msg`, and
   `uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py`
   passes.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_cloud_startup.py`:
+    46 passed, 2 skipped.
 
 ### Task 4: Remove the evidence-line rule from the plan-checkboxes check
 
