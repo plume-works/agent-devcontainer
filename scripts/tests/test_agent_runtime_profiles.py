@@ -29,8 +29,6 @@ SHARED = {
     'dockerd',
     'docker-gc',
     'xpra',
-    'opencode',
-    'remote-control',
 }
 DEVCONTAINER_REQUIRED = ['dbus', 'keyring', 'dockerd', 'xpra']
 
@@ -41,7 +39,7 @@ def supervisor() -> ModuleType:
 
 
 def settings(supervisor: ModuleType, monkeypatch: pytest.MonkeyPatch, **env: str):
-    for name in ('AGENTDEV_SKIP_XPRA', 'AGENTDEV_OPENCODE_WEB', 'AGENTDEV_CLAUDE_RC_SPAWN'):
+    for name in ('AGENTDEV_SKIP_XPRA', 'AGENTDEV_CLAUDE_RC_SPAWN'):
         monkeypatch.delenv(name, raising=False)
     for name, value in env.items():
         monkeypatch.setenv(name, value)
@@ -69,7 +67,7 @@ def test_both_profiles_share_one_service_vocabulary(supervisor):
     deploy = set(names(supervisor.PROFILES['deploy'].services))
     devcontainer = set(names(supervisor.PROFILES['devcontainer'].services))
     assert deploy & devcontainer == SHARED
-    assert deploy - SHARED == {'prepare', 'config', 'project'}
+    assert deploy - SHARED == {'prepare', 'config', 'project', 'opencode', 'remote-control'}
     assert devcontainer - SHARED == {'created'}
 
 
@@ -90,38 +88,25 @@ def test_devcontainer_requires_its_persistent_services_and_the_create_phase(
     required = [service for service in selected if not service.client]
     assert names(required) == [*DEVCONTAINER_REQUIRED, 'created']
     assert all(service.core for service in required)
-    assert [service.name for service in selected if service.client] == [
-        'docker-gc',
-        'remote-control',
-    ]
+    assert [service.name for service in selected if service.client] == ['docker-gc']
     assert 'keyring' in requires(selected, 'created')
     assert supervisor.PROFILES['devcontainer'].exit_on_latch
 
 
-def test_devcontainer_starts_opencode_only_as_an_opt_in_client(supervisor, monkeypatch):
-    selected = supervisor.enabled_services(
-        settings(
-            supervisor,
-            monkeypatch,
-            AGENTDEV_RUNTIME_MODE='devcontainer',
-            AGENTDEV_OPENCODE_WEB='1',
+def test_devcontainer_leaves_opencode_and_remote_control_to_the_coder_agent_start(
+    supervisor, monkeypatch
+):
+    selected = names(
+        supervisor.enabled_services(
+            settings(
+                supervisor,
+                monkeypatch,
+                AGENTDEV_RUNTIME_MODE='devcontainer',
+                AGENTDEV_CLAUDE_RC_SPAWN='worktree',
+            )
         )
     )
-    by_name = {service.name: service for service in selected}
-    assert names(selected) == [
-        'dbus',
-        'keyring',
-        'dockerd',
-        'xpra',
-        'docker-gc',
-        'created',
-        'opencode',
-        'remote-control',
-    ]
-    for client in ('opencode', 'remote-control'):
-        assert by_name[client].client and not by_name[client].core
-    assert 'created' in requires(selected, 'opencode')
-    assert 'created' in requires(selected, 'remote-control')
+    assert 'opencode' not in selected and 'remote-control' not in selected
 
 
 def test_disabled_optional_services_leave_both_profiles(supervisor, monkeypatch):
@@ -137,13 +122,25 @@ def test_disabled_optional_services_leave_both_profiles(supervisor, monkeypatch)
                 )
             )
         )
-        assert 'xpra' not in selected and 'remote-control' not in selected
+        assert 'xpra' not in selected
     deploy = names(
         supervisor.enabled_services(
             settings(supervisor, monkeypatch, AGENTDEV_RUNTIME_MODE='deploy')
         )
     )
     assert 'opencode' in deploy, 'deploy always serves OpenCode'
+    assert 'remote-control' in deploy
+    without_rc = names(
+        supervisor.enabled_services(
+            settings(
+                supervisor,
+                monkeypatch,
+                AGENTDEV_RUNTIME_MODE='deploy',
+                AGENTDEV_CLAUDE_RC_SPAWN='off',
+            )
+        )
+    )
+    assert 'remote-control' not in without_rc
 
 
 @pytest.mark.parametrize('mode', ['', 'standalone', 'Deploy', 'deploy,devcontainer'])
@@ -299,22 +296,21 @@ def test_an_invalid_profile_ends_the_runtime_before_the_bootstrap(devcontainer):
 
 @pytest.mark.requires_root
 def test_the_create_phase_gates_readiness_and_its_clients(devcontainer):
-    box = devcontainer(AGENTDEV_OPENCODE_WEB='1', AGENTDEV_PREPARE_TIMEOUT='30')
+    box = devcontainer(AGENTDEV_PREPARE_TIMEOUT='30')
     box.set('created', 'sleep', '2')
     box.start()
     box.wait_for(lambda: box.runtime().get('ready') is True)
     assert box.status('created') == 'done'
     assert box.health('ready').returncode == 0
-    box.wait_for(lambda: box.status('opencode') == 'ready')
-    assert started(box.events())[-2:] == ['created', 'opencode']
+    box.wait_for(lambda: box.status('docker-gc') == 'ready')
 
 
 @pytest.mark.requires_root
 def test_a_failing_client_degrades_without_withdrawing_readiness(devcontainer):
-    box = devcontainer(AGENTDEV_OPENCODE_WEB='1', AGENTDEV_STRICT_STARTUP='1')
-    box.set('opencode', 'mode', 'crash-always')
+    box = devcontainer(AGENTDEV_STRICT_STARTUP='1')
+    box.set('docker-gc', 'mode', 'crash-always')
     box.start()
-    box.wait_for(lambda: box.status('opencode') == 'failed', timeout=40)
+    box.wait_for(lambda: box.status('docker-gc') == 'failed', timeout=40)
     state = box.runtime()
     assert state['state'] == 'degraded' and state['ready'] is True and state['latched'] is None
     assert box.alive() and box.health('ready').returncode == 0

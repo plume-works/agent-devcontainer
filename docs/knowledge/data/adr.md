@@ -271,3 +271,6 @@ evidence](adr/0093-completion-evidence-in-the-commit-message.md)
 
 [Code first, git history second, documents
 last](adr/0094-code-then-git-history-then-documents.md)
+
+[The Coder agent start runs OpenCode and Remote Control in a Dev
+Container](adr/0095-coder-agent-start-runs-opencode-and-remote-control.md)
