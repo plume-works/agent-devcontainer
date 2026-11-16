@@ -51,7 +51,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml; Renovate's agentdev-devcontainer
     # group moves every copy together.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:cb91ffac4397a66082c5e7328c07a452765b291b52b29244671ddaf5082c7129
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:596c54f8b749bf9a62490bc33c9778c77ddd0c855e5540cbc1549fb6c53a1fe7
     timeout-minutes: 60
     steps:
       - name: Checkout repository
