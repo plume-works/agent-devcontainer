@@ -138,9 +138,11 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 
 **Files:** Modify: `docs/knowledge/tests/test_plan_checkboxes.py`
 
-- [ ] The check has no evidence-line rule, and the change removes the tests of
+- [x] The check has no evidence-line rule, and the change removes the tests of
   that rule. A new test shows that a ticked task with no evidence line passes.
   `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py` passes.
+  - **Evidence:** `uv run pytest docs/knowledge/tests/test_plan_checkboxes.py`:
+    9 passed, including `test_ticked_task_needs_no_evidence_line`.
 
 ### Task 5: Change the rules that name the evidence line
 
@@ -283,10 +285,8 @@ diff docs/knowledge/schema/plans.md .agents/plugins/agentdev/skills/iwe-bootstra
 
 ## Key references
 
-- `docs/knowledge/tests/test_plan_checkboxes.py::check_plan` — the check of the
-  evidence-line rule today.
-- `docs/knowledge/tests/test_plan_checkboxes.py::evidence_text` — the evidence
-  parser that the change removes.
+- `docs/knowledge/tests/test_plan_checkboxes.py::check_plan` — the
+  `plan-checkboxes` check.
 - `.pre-commit-config.yaml#repos` › "id: plan-checkboxes" — the hook of the
   `plan-checkboxes` check, and the place of the new hook.
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py` › "HOOK_TYPES =" —
