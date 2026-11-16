@@ -126,37 +126,10 @@ def evidence_blocks(message: str, comment: str = '#') -> list[str]:
     return blocks
 
 
-def amending() -> bool:
-    """
-    Tell whether the `git commit` that runs this hook has the `--amend` option.
-
-    Git gives a hook no sign of an amend, so read the arguments of the nearest `git` parent.
-    Where `/proc` is not available, give `False`.
-    """
-    pid = os.getppid()
-    while pid > 1:
-        try:
-            arguments = Path(f'/proc/{pid}/cmdline').read_bytes().decode().split('\0')[:-1]
-            stat = Path(f'/proc/{pid}/stat').read_text()
-        except (OSError, UnicodeDecodeError):
-            return False
-        if arguments and Path(arguments[0]).name == 'git':
-            options = arguments[arguments.index('commit') :] if 'commit' in arguments else []
-            amend = False
-            for option in options[: options.index('--')] if '--' in options else options:
-                # Git accepts `--am`, the shortest unique prefix, and Git uses the last option.
-                if option == '--no-amend' or len(option) > 3 and '--amend'.startswith(option):
-                    amend = option != '--no-amend'
-            return amend
-        pid = int(stat.rpartition(')')[2].split()[1])
-    return False
-
-
 def base() -> str:
-    """Return the tree that the hook compares with the new commit."""
-    parent = 'HEAD^' if amending() else 'HEAD'
+    """Return the tree of `HEAD`, or the empty tree before the first commit."""
     tree = subprocess.run(
-        ['git', 'rev-parse', '--verify', '--quiet', f'{parent}^{{tree}}'],
+        ['git', 'rev-parse', '--verify', '--quiet', 'HEAD^{tree}'],
         capture_output=True,
         text=True,
         check=False,

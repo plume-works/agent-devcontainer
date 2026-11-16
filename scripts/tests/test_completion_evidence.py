@@ -196,27 +196,6 @@ def test_diff_prefix_config_does_not_hide_a_tick(repo: Repository, setting: str)
 
 
 @pytest.mark.parametrize(
-    ('tasks', 'arguments', 'passes'),
-    [
-        ((), ('-m', 'Shorten the message'), False),
-        (('Second task.',), ('--no-edit',), False),
-        ((), ('--no-edit',), True),
-    ],
-)
-def test_amend_checks_the_ticks_of_the_amended_commit(
-    repo: Repository, hooks: Path, tasks: tuple[str, ...], arguments: tuple[str, ...], passes: bool
-) -> None:
-    """The hook checks an amend against the parent of the commit that the amend replaces."""
-    repo.tick('First task.')
-    repo.commit(f'Do the first task\n\n{BLOCK}')
-    repo.tick(*tasks)
-
-    result = repo.hooked_commit(hooks, '--amend', *arguments)
-
-    assert (result.returncode == 0) is passes, result.stderr
-
-
-@pytest.mark.parametrize(
     ('settings', 'arguments'),
     [((), ('-v',)), (('-c', 'core.commentChar=;'), ('-v',)), (('-c', 'core.commentChar=;'), ())],
 )

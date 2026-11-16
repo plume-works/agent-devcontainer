@@ -176,7 +176,7 @@ request of this plan.
 - [x] `.pre-commit-config.yaml` has a local hook `completion-evidence-push` at
   `stages: [pre-push]` that runs `check-push`. In this checkout, the hook stops
   `git push` of a local commit that has a tick and no block.
-- [ ] `check-message` compares the index with `HEAD`. The change removes
+- [x] `check-message` compares the index with `HEAD`. The change removes
   `amending()` from `scripts/completion-evidence.py`, and
   `rg -n '/proc' scripts/completion-evidence.py` prints nothing.
 
