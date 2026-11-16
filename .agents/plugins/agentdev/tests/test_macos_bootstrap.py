@@ -368,7 +368,6 @@ def test_plugin_step_installs_only_agentdev(host: Host) -> None:
     )
     installs = [call for call in claude if call.startswith('claude plugin install')]
     assert installs and all(' agentdev@' in call and '--scope user' in call for call in installs)
-    assert not any('self-improve' in call for call in claude)
     assert host.calls('codex') == []
 
 

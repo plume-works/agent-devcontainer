@@ -84,22 +84,37 @@ documents with their normal meaning, which these entries do not define.
 `.github/workflows/validate-agent-files.yml`, `.gitignore`,
 `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`
 
-- [ ] The root `Makefile` does not exist.
-- [ ] `pyproject.toml#tool.pytest.ini_options.testpaths` does not hold
+- [x] The root `Makefile` does not exist.
+  - **Evidence:** `git rm Makefile`; `test ! -e Makefile` succeeds.
+- [x] `pyproject.toml#tool.pytest.ini_options.testpaths` does not hold
   `.agents/plugins/self-improve/tests`.
-- [ ] `pyproject.toml#tool.pytest.ini_options.markers` does not hold the pytest
+  - **Evidence:** Removed the entry; `testpaths` holds the agentdev tests,
+    `docs/knowledge/tests`, `py_packages`, and `scripts/tests`.
+- [x] `pyproject.toml#tool.pytest.ini_options.markers` does not hold the pytest
   markers `smoke`, `interactive`, `pty`, `harness`, and `auto_memory`.
-- [ ] The pytest command in `.github/workflows/ci.yml` does not name
+  - **Evidence:** Removed the five entries; `markers` holds `stress` and
+    `requires_root`. `uv run pytest --collect-only -q` collects 1551 tests.
+- [x] The pytest command in `.github/workflows/ci.yml` does not name
   `.agents/plugins/self-improve/tests`.
-- [ ] `.github/workflows/validate-agent-files.yml` does not have the step
+  - **Evidence:** The command is
+    `uv run pytest -n 8 py_packages .agents/plugins/agentdev/tests scripts/tests`.
+- [x] `.github/workflows/validate-agent-files.yml` does not have the step
   `Test self-improve plugin` and its comment.
-- [ ] `.gitignore` does not have the block that starts with
+  - **Evidence:** Removed the step and its two comment lines.
+- [x] `.gitignore` does not have the block that starts with
   `# self-improve runtime state`, and does not have the `/test-runs/` entry and
   its comment.
-- [ ] `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_installs_only_agentdev`
+  - **Evidence:** Removed the block and the `/test-runs/` entry with its
+    comment.
+- [x] `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_installs_only_agentdev`
   does not have the assertion that names `self-improve`.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_installs_only_agentdev`
+  - **Evidence:** Removed the line
+    `assert not any('self-improve' in call for call in claude)`.
+- [x] `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_installs_only_agentdev`
   passes.
+  - **Evidence:** The test skips without `zsh` here; in a
+    `ghcr.io/astral-sh/uv:python3.12-bookworm` container with `zsh` it reports
+    "1 passed".
 
 ### Task 3: Remove the research of the plugin
 
@@ -277,10 +292,8 @@ documents with their normal meaning, which these entries do not define.
 - `pyproject.toml#tool.pytest.ini_options` — the test paths and the markers.
 - `.github/workflows/ci.yml › "uv run pytest -n 8 py_packages"` — the pytest
   command that names the plugin tests.
-- `.github/workflows/validate-agent-files.yml › "Test self-improve plugin"` —
-  the step that tests the plugin.
 - `.agents/plugins/agentdev/tests/test_macos_bootstrap.py::test_plugin_step_installs_only_agentdev`
-  — the assertion that names `self-improve`.
+  — the test of the plugin step of the macOS bootstrap.
 - `.ruff.toml#extend-exclude` — the exclusion for the research prompts.
 - `README.md#the-plugin-catalog` — the catalog section that names the plugin.
 - `docs/knowledge/data/glossary.md` — the terms of the plugin.
