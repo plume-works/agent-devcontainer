@@ -200,6 +200,7 @@ term in the same change that first uses it.
   remove.
 - **keyring session** (noun): The environment in `AGENTDEV_KEYRING_ENV_FILE`
   that lets a process use the supervised GNOME Keyring.
+- **knowledge base** (noun): The IWE project memory in `docs/knowledge/`.
 - **last passing run** (noun): The head commit of the last successful push run
   of a workflow on the base branch.
 - **latch** (verb): To put the standalone runtime in its `failed` state, in
@@ -405,6 +406,11 @@ term in the same change that first uses it.
   the CI Devcontainer image job runs.
 - **supersede** (verb): To replace an earlier ADR with a new ADR that names it
   in its `supersedes` list.
+- **support file** (noun): A file in `docs/knowledge/` outside `data/` and
+  `tests/`, such as `AGENTS.md`, `SCHEMA.md`, or a document in `schema/`, that
+  the scaffold also holds.
+- **symbolic link** (noun): A file system entry that points to a different file,
+  which git stores as the path of that file.
 - **task section** (noun): The `## Implementation Steps` section of a plan, or
   the older `## Tasks` section, where a checkbox counts as a task.
 - **tense split** (noun): The rule that closed work goes under Verification and
