@@ -153,3 +153,15 @@ def test_no_tick_needs_no_block(repo: Repository) -> None:
     repo.git('add', PLAN)
 
     assert repo.check('Add a task\n').returncode == 0
+
+
+def test_merge_in_progress_is_skipped(repo: Repository) -> None:
+    """A merge moves ticks from other commits, so its message needs no block."""
+    repo.git('switch', '--quiet', '-c', 'topic')
+    repo.tick('First task.', 'Second task.')
+    repo.commit(f'Tick two tasks\n\n{BLOCK}')
+    repo.git('switch', '--quiet', 'main')
+    repo.git('merge', '--quiet', '--no-ff', '--no-commit', 'topic')
+
+    assert (repo.root / '.git' / 'MERGE_HEAD').exists()
+    assert repo.check('Merge topic\n').returncode == 0
