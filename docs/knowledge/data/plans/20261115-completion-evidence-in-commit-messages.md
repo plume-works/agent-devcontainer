@@ -2,7 +2,7 @@
 type: plan
 created: 2026-11-15
 release: internal
-description: Move the evidence of a ticked plan task into the message of the commit that ticks it, with one tick and one completion evidence block in each commit.
+description: Move the evidence of a ticked plan task into the message of the commit that ticks it. Each commit has one tick and one completion evidence block.
 sources:
 - resource: docs/knowledge/data/adr/0086-plan-ticks-need-evidence-lines.md
 - resource: docs/knowledge/tests/test_plan_checkboxes.py
@@ -20,35 +20,43 @@ time. `git log` and `git blame` find the evidence from the code.
 
 [ADR-0086](../adr/0086-plan-ticks-need-evidence-lines.md) puts the evidence of
 each ticked task in a `- **Evidence:**` line in the plan. Only the
-`plan-checkboxes` check parses that line, and the review agents do not examine
-it.
+`plan-checkboxes` check reads that line, and the catalog agents that review a
+plan do not examine it.
 
 ## Approach
 
 The Implement session ticks one plan task in a commit and writes a completion
 evidence block in the commit message. The diff shows which plan task the commit
 ticks, so the block names no task. One script, `scripts/completion-evidence.py`,
-has two subcommands:
+has three subcommands:
 
 - `check-message` runs as a `commit-msg` hook. It reads the staged diff of
   `docs/knowledge/data/plans/` and the message file.
+- `check-push` runs as a `pre-push` hook. It reads the commits that the push
+  sends, from `PRE_COMMIT_FROM_REF` to `PRE_COMMIT_TO_REF`.
 - `show` prints the ticked plan task and the block of each commit of a pull
   request from `refs/pull/<N>/head`. These commits stay there after the squash
   merge.
 
 A tick is the change of a line `- [ ] <text>` to `- [x] <text>` in a file under
-`docs/knowledge/data/plans/`. The hook applies two rules to a commit that ticks
-a plan task. The commit ticks only one plan task. The message has one completion
-evidence block that contains text.
+`docs/knowledge/data/plans/`. The two hooks apply two rules to a commit that
+ticks a plan task. The commit ticks only one plan task. The message has one
+completion evidence block that contains text.
 
 The block starts at a line `---` that a line `completion evidence:` follows, and
 it continues to the end of the message. Git trailer lines at the end of the
-message, such as `Co-Authored-By:`, are not text of the block. The hook does not
+message, such as `Co-Authored-By:`, are not text of the block. The hooks do not
 examine a merge commit, because a merge commit moves ticks from other commits.
 
-A commit that does not run the hook has no block, and `show` then prints no
-evidence for its tick. The `plan-checkboxes` check keeps only the rule that a
-plan at `stage: done` has no unticked task.
+`check-message` compares the index with `HEAD`. During an amend, `HEAD` is the
+commit that the amend replaces, so `check-message` sees only the change that the
+amend adds. `check-push` compares each pushed commit with its parent through
+`git diff-tree`, so it also examines an amended commit. A hook never reads the
+command line of a Git command.
+
+A push with `--no-verify` does not run `check-push`, and `show` then prints no
+evidence for a tick that has no block. The `plan-checkboxes` check keeps only
+the rule that a plan at `stage: done` has no unticked task.
 
 ## Implementation Steps
 
@@ -154,6 +162,24 @@ request of this plan.
   plan. For each commit that ticks a plan task of Tasks 1 to 5, it prints one
   ticked plan task and one completion evidence block.
 
+### Task 7: Check the commits of a push
+
+**Files:** Modify: `scripts/completion-evidence.py`,
+`scripts/tests/test_completion_evidence.py`, `.pre-commit-config.yaml`
+
+- [ ] `check-push` exits 1 for a pushed commit that ticks a plan task with no
+  block. It names the commit and the plan task, and the test passes.
+- [ ] `check-push` exits 1 for a pushed commit that an amend made and that ticks
+  two plan tasks, and the test passes.
+- [ ] `check-push` exits 0 for a pushed range whose commits tick one plan task
+  at most, each with a block, and that has a merge commit. The test passes.
+- [ ] `.pre-commit-config.yaml` has a local hook `completion-evidence-push` at
+  `stages: [pre-push]` that runs `check-push`. In this checkout, the hook stops
+  `git push` of a local commit that has a tick and no block.
+- [ ] `check-message` compares the index with `HEAD`. The change removes
+  `amending()` from `scripts/completion-evidence.py`, and
+  `rg -n '/proc' scripts/completion-evidence.py` prints nothing.
+
 ## Acceptance
 
 ### Scenario: A tick with a block passes the `commit-msg` hook
@@ -174,8 +200,9 @@ request of this plan.
 
 ### Scenario: Two ticks in one commit fail
 
-- **WHEN** a commit ticks two plan tasks
-- **THEN** `check-message` exits 1
+- **WHEN** the staged change of a commit ticks two plan tasks
+- **THEN** `check-message` exits 1. During an amend, `check-message` examines
+  only the change that the amend adds
 - **Test:** `scripts/tests/test_completion_evidence.py::test_two_ticks_fail`
 
 ### Scenario: A block is not necessary for a commit with no tick
@@ -209,9 +236,33 @@ request of this plan.
 - **Test:**
   `docs/knowledge/tests/test_plan_checkboxes.py::test_ticked_task_needs_no_evidence_line`
 
+### Scenario: The `pre-push` hook stops a pushed tick with no block
+
+- **WHEN** a push sends a commit that ticks one plan task and its message has no
+  completion evidence block
+- **THEN** `check-push` exits 1 and names the commit and the plan task
+- **Test:**
+  `scripts/tests/test_completion_evidence.py::test_push_tick_without_block_fails`
+
+### Scenario: The `pre-push` hook stops an amended commit with two ticks
+
+- **WHEN** an amend makes a commit that ticks two plan tasks, and a push sends
+  it
+- **THEN** `check-push` exits 1
+- **Test:**
+  `scripts/tests/test_completion_evidence.py::test_push_amended_two_ticks_fail`
+
+### Scenario: The `pre-push` hook passes correct commits and merge commits
+
+- **WHEN** a push sends commits that each tick one plan task at most with a
+  block, and a merge commit
+- **THEN** `check-push` exits 0
+- **Test:**
+  `scripts/tests/test_completion_evidence.py::test_push_valid_range_passes`
+
 ### Scenario: The Implement session writes evidence in the commit message
 
-- **WHEN** the Implement session finishes a plan task
+- **WHEN** the Implement session completes a plan task
 - **THEN** `iwe-implementer.agent.md` tells it to tick one plan task in a commit
   and to write the completion evidence block in the message of that commit.
   `iwe-implementer.agent.md` tells the Implement session to write no evidence
