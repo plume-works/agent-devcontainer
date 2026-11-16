@@ -37,6 +37,9 @@ term in the same change that first uses it.
   submits the AI review of a pull request.
 - **allowlist** (noun): The file of domain names and the optional `github-meta`
   entry, whose IPv4 addresses the firewall permits for outgoing traffic.
+- **amend** (noun): A run of `git commit --amend`, which replaces the last
+  commit with a new commit.
+- **amend** (verb): To replace the last commit with `git commit --amend`.
 - **anchor** (noun): A name for a place in a file, such as `path::symbol` or
   `path#heading-slug`, that does not use a line number.
 - **archive** (noun): The `data/archive/` tree, which holds the closed documents

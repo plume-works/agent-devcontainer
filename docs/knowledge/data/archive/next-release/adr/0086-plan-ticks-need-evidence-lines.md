@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 description: Each ticked task of an active plan needs an evidence line in any form, which a knowledge-base test checks for shape and Verify never reads.
 ---
 

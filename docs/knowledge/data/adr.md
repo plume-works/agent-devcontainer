@@ -245,9 +245,6 @@ harnesses](adr/0084-claude-code-and-opencode-only.md)
 [Git decides which paths agent file discovery
 ignores](adr/0085-git-is-the-ignore-authority.md)
 
-[A ticked plan task needs an evidence line that only a shape test
-checks](adr/0086-plan-ticks-need-evidence-lines.md)
-
 [Both harnesses permit a subagent depth of 5 in the
 containers](adr/0091-subagent-nesting-depth-five.md)
 
