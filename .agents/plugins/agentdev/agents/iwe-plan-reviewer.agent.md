@@ -48,6 +48,7 @@ change that would satisfy the rule.
   reported, in any form.
 - Report a gap only when you can quote the plan text that breaks the rule; a
   rule you cannot decide from the plan and the checkout `holds`.
-- Never report on a ticked task or its `- **Evidence:**` line.
+- Never report on a ticked task or the completion evidence block of the commit
+  that ticked it.
 - Report, never fix: applying a gap's change belongs to your dispatcher.
 - Never wait for a reply: a missing input ends the run with a report.
