@@ -1,4 +1,4 @@
-"""Tests for scripts/link-knowledge-support.py run in made-up repository trees."""
+"""Tests for scripts/link-knowledge-support.py run in test repository trees that each test makes."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ def tree() -> Iterator[Path]:
 
 
 def write(path: Path, text: str) -> None:
-    """Write text at path, making its parent directories."""
+    """Make the parent directories of path, then write text at path."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text)
 

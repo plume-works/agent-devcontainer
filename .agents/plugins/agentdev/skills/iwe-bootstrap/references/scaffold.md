@@ -52,9 +52,9 @@ and git does not read a `.gitignore` that is a link. `schema/` is a real
 directory with one link for each document, because `iwe` does not follow a link
 to a directory. The `link-knowledge-support` pre-commit hook runs
 `scripts/link-knowledge-support.py`, which makes and checks the links. A schema
-change is also a scaffold change. Adjust the starter documents of the scaffold
-in the same commit. If you do not, the next `/agentdev:iwe-bootstrap` installs a workspace
-that fails `iwe schema validate`. Every file under `assets/` must be the same
+change is also a scaffold change. Adjust the documents that the scaffold
+installs in the same commit. If you do not, the next `/agentdev:iwe-bootstrap`
+installs a workspace that fails `iwe schema validate`. Every file under `assets/` must be the same
 as its `iwe normalize` output.
 
 Through the link, `iwe` writes its runtime files into `assets/.iwe/`. Their

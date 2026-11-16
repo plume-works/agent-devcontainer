@@ -183,12 +183,12 @@ Review `.pre-commit-config.yaml` hook by hook:
    local hooks unless the project keeps IWE-based project memory under
    `docs/knowledge/` (see [Knowledge-base
    validation](#knowledge-base-validation)); they require the `iwe` binary on
-   `PATH`, which the development image also provides;
+   `PATH`, which the development image also supplies;
 7. remove the `link-knowledge-support` local hook and
    `scripts/link-knowledge-support.py`. They keep each support file in
    `docs/knowledge/` a link to the `iwe-bootstrap` scaffold under `.agents/`,
    and the consumer has no scaffold; and
-8. update file selectors for the consuming project's source layout.
+8. update file selectors for the source layout of the consumer.
 
 In `.ruff.toml`, remove `validate_agent_files` and `mock_catalog` from
 `known-first-party`, then add the consuming project's own first-party

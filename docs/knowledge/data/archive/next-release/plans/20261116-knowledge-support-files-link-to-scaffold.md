@@ -105,10 +105,10 @@ instead.
 
 - [x] `scripts/link-knowledge-support.py` exists, runs from the repository root,
   and does the actions of the two tables in `## Approach`.
-  - **Evidence:** Script added. A dry run on a scratch copy of HEAD made 22
-    links; a second run exited 0 with no output. It also reports a support file
-    reached through a linked directory instead of writing a link over the
-    scaffold copy, which keeps "never deletes a file" true.
+  - **Evidence:** The change adds the script. A dry run on a temporary copy of
+    HEAD made 22 links; a second run exited 0 with no output. It also reports a
+    support file that it gets to through a linked directory. It does not write a
+    link over the scaffold copy. Thus, the script never deletes a file.
 - [x] `uv run pytest scripts/tests/test_link_knowledge_support.py` passes, with
   one test for each scenario in `## Acceptance`.
   - **Evidence:** 11 passed: the 8 scenario tests (the missing-link test runs
@@ -122,8 +122,9 @@ instead.
 - [x] A local hook `link-knowledge-support` runs
   `uv run scripts/link-knowledge-support.py` with `pass_filenames: false`, on a
   change under `docs/knowledge/` or under the scaffold `docs/knowledge/`.
-  - **Evidence:** Hook added with `types: []` and `types_or: [file, symlink]`,
-    because the default `types: [file]` skips a link. In a scratch git copy,
+  - **Evidence:** The change adds the hook with `types: []` and
+    `types_or: [file, symlink]`, because the default `types: [file]` skips a
+    link. In a temporary git copy,
     `pre-commit run link-knowledge-support --files <path>` ran for a link in
     `docs/knowledge/`, a link in `schema/`, and a scaffold file, and skipped
     `README.md` at the root.
@@ -146,7 +147,7 @@ instead.
     no "different:" line; `find docs/knowledge -maxdepth 2 -type l` lists 22.
 - [x] A second run of `uv run scripts/link-knowledge-support.py` exits 0 and
   writes no output.
-  - **Evidence:** Second run: exit 0, no output.
+  - **Evidence:** The second run exits 0 and writes no output.
 - [x] `iwe find -f keys | grep -vc '^data/'` gives 22, the same number as before
   the change.
   - **Evidence:** 22 before the run and 22 after it; `iwe normalize` changed no
@@ -164,9 +165,9 @@ instead.
   real directory with one link for each document, because `iwe` does not follow
   a link to a directory. It replaces the sentence that gives the rule that the
   support files have the same bytes.
-  - **Evidence:** `scaffold.md#maintenance` edited as stated; the "same bytes"
-    sentence for the support files is gone. `validate_agent_files` reports 0
-    errors and `check-anchors.py` exits 0.
+  - **Evidence:** The change edits `scaffold.md#maintenance` as the task states;
+    the "same bytes" sentence for the support files is gone.
+    `validate_agent_files` reports 0 errors and `check-anchors.py` exits 0.
 
 ### Task 5: Tell consumers about the links
 
