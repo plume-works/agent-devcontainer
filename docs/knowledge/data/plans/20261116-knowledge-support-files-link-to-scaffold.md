@@ -138,12 +138,17 @@ instead.
 `docs/knowledge/SCHEMA.md`, `docs/knowledge/README.md`,
 `docs/knowledge/.markdownlint.yml`, each file in `docs/knowledge/schema/`
 
-- [ ] `uv run scripts/link-knowledge-support.py` replaces the 22 copies with
+- [x] `uv run scripts/link-knowledge-support.py` replaces the 22 copies with
   links and reports no file that is different from its scaffold copy.
-- [ ] A second run of `uv run scripts/link-knowledge-support.py` exits 0 and
+  - **Evidence:** The run printed 22 "replaced the copy with a link" lines and
+    no "different:" line; `find docs/knowledge -maxdepth 2 -type l` lists 22.
+- [x] A second run of `uv run scripts/link-knowledge-support.py` exits 0 and
   writes no output.
-- [ ] `iwe find -f keys | grep -vc '^data/'` gives 22, the same number as before
+  - **Evidence:** Second run: exit 0, no output.
+- [x] `iwe find -f keys | grep -vc '^data/'` gives 22, the same number as before
   the change.
+  - **Evidence:** 22 before the run and 22 after it; `iwe normalize` changed no
+    file and `iwe schema validate` passed.
 
 ### Task 4: Record the link rule in the scaffold reference
 
