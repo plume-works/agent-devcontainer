@@ -111,3 +111,14 @@ def test_one_tick_with_block_passes(repo: Repository) -> None:
     result = repo.check(f'Do the first task\n\n{BLOCK}\nCo-Authored-By: A <a@example.invalid>\n')
 
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize('message', ['Do the first task\n', 'Do the first task\n\n# ---\n'])
+def test_tick_without_block_fails(repo: Repository, message: str) -> None:
+    """A tick with no block fails and names the plan task."""
+    repo.tick('First task.')
+
+    result = repo.check(message)
+
+    assert result.returncode == 1
+    assert f'{PLAN}: First task.' in result.stderr

@@ -74,8 +74,11 @@ completion evidence:
   - **Evidence:**
     `scripts/tests/test_completion_evidence.py::test_one_tick_with_block_passes`
     passed.
-- [ ] `check-message` exits 1 and names the plan task for a staged tick with no
+- [x] `check-message` exits 1 and names the plan task for a staged tick with no
   block, and the test passes.
+  - **Evidence:**
+    `scripts/tests/test_completion_evidence.py::test_tick_without_block_fails`
+    passed.
 - [ ] `check-message` exits 1 and names the plan task for a staged tick with an
   empty block, and the test passes.
 - [ ] `check-message` exits 1 for a staged tick of two plan tasks, and the test
