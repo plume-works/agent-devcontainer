@@ -179,7 +179,7 @@ that is not on `main`. The test uses a bare fixture repository as `origin`.
 **Closed by:** the Implement session of this plan, after it opens the pull
 request of this plan.
 
-- [ ] Run `scripts/completion-evidence.py show <N>` for the pull request of this
+- [x] Run `scripts/completion-evidence.py show <N>` for the pull request of this
   plan. For each commit that ticks a plan task of Tasks 1 to 5, it prints one
   ticked plan task and one completion evidence block.
 
