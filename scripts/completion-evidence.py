@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -25,6 +26,9 @@ FILE_LINE = re.compile(r'^\+\+\+ b/(?P<path>.+)$')
 OPEN_LINE = re.compile(r'^-- \[ \] (?P<text>.*)$')
 TICKED_LINE = re.compile(r'^\+- \[[xX]\] (?P<text>.*)$')
 TRAILER = re.compile(r'^[A-Za-z][A-Za-z0-9-]*: \S')
+SCISSORS = ' ------------------------ >8 ------------------------'
+# The characters that `core.commentChar=auto` picks from, in the order Git tries them.
+AUTO_COMMENTS = '#;@!$%^&|:'
 
 
 @dataclass(frozen=True)
@@ -73,18 +77,37 @@ def ticks(diff: str) -> list[Tick]:
     return found
 
 
-def evidence_blocks(message: str) -> list[str]:
+def comment_string(message: str) -> str:
+    """Return the comment string that Git uses for a message it gives to the editor."""
+    found = subprocess.run(
+        ['git', 'config', '--get-regexp', r'^core\.comment(char|string)$'],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.splitlines()
+    comment = found[-1].partition(' ')[2] if found else '#'
+    if comment != 'auto':
+        return comment
+    lines = message.splitlines()
+    return next((char for char in AUTO_COMMENTS if char + SCISSORS in lines), '#')
+
+
+def evidence_blocks(message: str, comment: str = '#') -> list[str]:
     """
     Find the completion evidence blocks of a commit message.
 
     Args:
-        message: The commit message; lines that start with `#` are comments.
+        message: The commit message; Git drops the scissors line and all after it.
+        comment: The start of a comment line, which Git drops.
 
     Returns:
         The text of each block, without the trailer paragraph at the end of the message.
 
     """
-    lines = [line.rstrip() for line in message.splitlines() if not line.startswith('#')]
+    lines = message.splitlines()
+    if comment + SCISSORS in lines:
+        lines = lines[: lines.index(comment + SCISSORS)]
+    lines = [line.rstrip() for line in lines if not line.startswith(comment)]
     starts = [
         index + 2
         for index in range(len(lines) - 1)
@@ -93,20 +116,60 @@ def evidence_blocks(message: str) -> list[str]:
     blocks: list[str] = []
     for number, start in enumerate(starts):
         end = starts[number + 1] - 2 if number + 1 < len(starts) else len(lines)
-        body = '\n'.join(lines[start:end]).strip()
-        if number + 1 == len(starts):
-            paragraphs = body.split('\n\n')
-            if all(TRAILER.match(line) for line in paragraphs[-1].splitlines()):
-                body = '\n\n'.join(paragraphs[:-1]).strip()
-        blocks.append(body)
+        # A trailer paragraph follows a blank line, so the header line stays in the text here.
+        body = '\n'.join(lines[start - 1 : end]).rstrip()
+        rest, blank, last = body.rpartition('\n\n')
+        if number + 1 == len(starts) and blank and all(map(TRAILER.match, last.splitlines())):
+            body = rest
+        blocks.append(body.partition('\n')[2].strip())
     return blocks
+
+
+def amending() -> bool:
+    """
+    Tell whether the `git commit` that runs this hook has the `--amend` option.
+
+    Git gives a hook no sign of an amend, so read the arguments of the nearest `git` parent.
+    Where `/proc` is not available, give `False`.
+    """
+    pid = os.getppid()
+    while pid > 1:
+        try:
+            arguments = Path(f'/proc/{pid}/cmdline').read_bytes().decode().split('\0')[:-1]
+            stat = Path(f'/proc/{pid}/stat').read_text()
+        except (OSError, UnicodeDecodeError):
+            return False
+        if arguments and Path(arguments[0]).name == 'git':
+            options = arguments[arguments.index('commit') :] if 'commit' in arguments else []
+            amend = False
+            for option in options[: options.index('--')] if '--' in options else options:
+                # Git accepts `--am`, the shortest unique prefix, and the last option wins.
+                if option == '--no-amend' or len(option) > 3 and '--amend'.startswith(option):
+                    amend = option != '--no-amend'
+            return amend
+        pid = int(stat.rpartition(')')[2].split()[1])
+    return False
+
+
+def base() -> str:
+    """Return the tree that the new commit is compared with."""
+    parent = 'HEAD^' if amending() else 'HEAD'
+    tree = subprocess.run(
+        ['git', 'rev-parse', '--verify', '--quiet', f'{parent}^{{tree}}'],
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    return tree or git('hash-object', '-t', 'tree', '/dev/null').strip()
 
 
 def check_message(message_file: str) -> int:
     """Check the staged ticks against the commit message; return the exit code."""
     if Path(git('rev-parse', '--git-path', 'MERGE_HEAD').strip()).exists():
         return 0
-    staged = ticks(git('diff', '--cached', '--no-color', '-U0', '--', PLANS_PATHSPEC))
+    # `diff-index` is plumbing, so diff settings of the user do not change its file lines.
+    diff = git('diff-index', '--cached', '-p', '--no-color', '-U0', base(), '--', PLANS_PATHSPEC)
+    staged = ticks(diff)
     if not staged:
         return 0
     if len(staged) > 1:
@@ -115,7 +178,8 @@ def check_message(message_file: str) -> int:
             print(f'  {tick}', file=sys.stderr)
         return 1
     with open(message_file, encoding='utf-8') as handle:
-        blocks = evidence_blocks(handle.read())
+        message = handle.read()
+    blocks = evidence_blocks(message, comment_string(message))
     if len(blocks) == 1 and blocks[0]:
         return 0
     problem = 'more than one' if len(blocks) > 1 else 'no' if not blocks else 'an empty'

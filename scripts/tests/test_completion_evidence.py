@@ -23,6 +23,10 @@ PLAN_TEXT = (
 BLOCK = '---\ncompletion evidence:\n`pytest` passed.\n'
 # A hook exports these, and an inherited one points the fixture's Git at the outer repository.
 GIT_VARIABLES = ('GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE')
+IDENTITY = (
+    '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+    '-c', 'commit.gpgsign=false',
+)  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -37,12 +41,8 @@ class Repository:
 
     def git(self, *arguments: str) -> str:
         """Run Git in the repository with a fixed identity and no hooks."""
-        options = [
-            '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
-            '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null',
-        ]  # fmt: skip
         return subprocess.run(
-            ['git', *options, *arguments],
+            ['git', *IDENTITY, '-c', 'core.hooksPath=/dev/null', *arguments],
             cwd=self.root,
             env=self.env(),
             check=True,
@@ -62,6 +62,20 @@ class Repository:
     def commit(self, message: str) -> None:
         """Commit the staged changes with a message."""
         self.git('commit', '--quiet', '-m', message)
+
+    def hooked_commit(
+        self, hooks: Path, *arguments: str, editor: str = ':', settings: tuple[str, ...] = ()
+    ) -> subprocess.CompletedProcess[str]:
+        """Run `git commit` with the script as its `commit-msg` hook."""
+        options = [*IDENTITY, *settings, '-c', f'core.hooksPath={hooks}']
+        return subprocess.run(
+            ['git', *options, 'commit', '--quiet', *arguments],
+            cwd=self.root,
+            env={**self.env(), 'GIT_EDITOR': editor},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
     def run(self, *arguments: str) -> subprocess.CompletedProcess[str]:
         """Run the script in the repository."""
@@ -89,6 +103,17 @@ def scratch() -> Iterator[Path]:
     root.mkdir()
     yield root
     shutil.rmtree(root)
+
+
+@pytest.fixture
+def hooks(scratch: Path) -> Path:
+    """Give a hooks directory whose `commit-msg` hook runs `check-message`."""
+    directory = scratch / 'hooks'
+    directory.mkdir()
+    hook = directory / 'commit-msg'
+    hook.write_text(f'#!/bin/sh\nexec "{sys.executable}" "{SCRIPT}" check-message "$1"\n')
+    hook.chmod(0o755)
+    return directory
 
 
 @pytest.fixture
@@ -132,6 +157,70 @@ def test_tick_with_empty_block_fails(repo: Repository, footer: str) -> None:
     result = repo.check(f'Do the first task\n\n---\ncompletion evidence:\n{footer}')
 
     assert result.returncode == 1
+    assert f'{PLAN}: First task.' in result.stderr
+
+
+def test_evidence_like_a_trailer_passes(repo: Repository) -> None:
+    """A block whose one line looks like `Key: value` is evidence, not a trailer paragraph."""
+    repo.tick('First task.')
+
+    result = repo.check('Do the first task\n\n---\ncompletion evidence:\npytest: 14 passed\n')
+
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    'setting', ['diff.mnemonicPrefix=true', 'diff.noprefix=true', 'diff.dstPrefix=new/']
+)
+def test_diff_prefix_config_does_not_hide_a_tick(repo: Repository, setting: str) -> None:
+    """The diff configuration of the user does not stop the hook from finding a tick."""
+    repo.git('config', *setting.split('='))
+    repo.tick('First task.')
+
+    result = repo.check('Do the first task\n')
+
+    assert result.returncode == 1
+    assert f'{PLAN}: First task.' in result.stderr
+
+
+@pytest.mark.parametrize(
+    ('tasks', 'arguments', 'passes'),
+    [
+        ((), ('-m', 'Shorten the message'), False),
+        (('Second task.',), ('--no-edit',), False),
+        ((), ('--no-edit',), True),
+    ],
+)
+def test_amend_checks_the_ticks_of_the_amended_commit(
+    repo: Repository, hooks: Path, tasks: tuple[str, ...], arguments: tuple[str, ...], passes: bool
+) -> None:
+    """An amend is checked against the parent of the commit that it replaces."""
+    repo.tick('First task.')
+    repo.commit(f'Do the first task\n\n{BLOCK}')
+    repo.tick(*tasks)
+
+    result = repo.hooked_commit(hooks, '--amend', *arguments)
+
+    assert (result.returncode == 0) is passes, result.stderr
+
+
+@pytest.mark.parametrize(
+    ('settings', 'arguments'),
+    [((), ('-v',)), (('-c', 'core.commentChar=;'), ('-v',)), (('-c', 'core.commentChar=;'), ())],
+)
+def test_editor_text_after_the_block_is_not_evidence(
+    repo: Repository, hooks: Path, settings: tuple[str, ...], arguments: tuple[str, ...]
+) -> None:
+    """Comment lines and the diff below the scissors line are not the text of a block."""
+    repo.tick('First task.')
+    editor = (
+        'sh -c \'{ printf "Do the first task\\n\\n---\\ncompletion evidence:\\n"; cat "$1"; }'
+        ' > "$1.new" && mv "$1.new" "$1"\' editor'
+    )
+
+    result = repo.hooked_commit(hooks, *arguments, editor=editor, settings=settings)
+
+    assert result.returncode == 1, result.stderr
     assert f'{PLAN}: First task.' in result.stderr
 
 
