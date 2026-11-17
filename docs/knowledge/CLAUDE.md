@@ -1,1 +1,1 @@
-@AGENTS.md
+../../.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/CLAUDE.md

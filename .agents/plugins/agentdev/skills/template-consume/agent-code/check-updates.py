@@ -9,9 +9,9 @@ nothing beyond the standard library.
 
 from __future__ import annotations
 
+from fnmatch import fnmatch
 import json
 from pathlib import Path
-import posixpath
 import shutil
 import sys
 import tempfile
@@ -31,6 +31,8 @@ PREFLIGHT_ERROR = 2
 
 MARKER_NAME = '.agent.metadata.json'
 SECTION = 'template-consume'
+# The installed iwe-bootstrap scaffold: the source of the consumer's knowledge files.
+SCAFFOLD = Path(__file__).resolve().parents[2] / 'iwe-bootstrap' / 'assets'
 
 DESCRIPTION = (
     "Diff this repository's copy of the agent-devcontainer template against the upstream "
@@ -53,11 +55,13 @@ Reads the template-consume section of .agent.metadata.json at the consumer repos
 shallow-clones the template repository's default branch into ./.tmp/, and lists
 which files under template-owned paths changed between the marker's consumed_ref
 and the upstream HEAD. Prints nothing about paths this consumer already deleted.
+A tracked path that the installed iwe-bootstrap scaffold holds is compared with
+that scaffold instead, never with the template clone.
 
 Output (key=value lines):
   RESULT, CONSUMED_REF, UPSTREAM_REF
-  On CHANGES_FOUND also: CHANGED_PATHS (newline-indented list); a path under a tracked
-    path that is a link upstream ends with (upstream: <path in the upstream tree>)
+  On CHANGES_FOUND also: CHANGED_PATHS (newline-indented list); a file that is missing
+    or different from the installed scaffold ends with (scaffold)
 
 Results (RESULT / exit code):
   UP_TO_DATE      4  consumed_ref already matches the upstream default branch
@@ -135,14 +139,38 @@ def read_marker(marker_path: Path) -> tuple[str, list[str]]:
     return consumed_ref, [jq_text(path) for path in tracked_paths]
 
 
-def upstream_link_target(clone_dir: str, upstream_ref: str, path: str) -> str | None:
-    """Return the target of a tracked path that is a link in the upstream repository."""
+def scaffold_files(path: str) -> list[str] | None:
+    """Return the scaffold files under a tracked path, or None when the scaffold lacks it."""
     name = path.rstrip('/')
-    entry = run_tool('git', '-C', clone_dir, 'ls-tree', upstream_ref, '--', name).stdout.split()
-    if len(entry) < 3 or entry[0] != '120000':
+    source = SCAFFOLD / name
+    if source.is_file():
+        return [name]
+    if not source.is_dir():
         return None
-    target = run_tool('git', '-C', clone_dir, 'cat-file', 'blob', entry[2]).stdout.strip()
-    return posixpath.normpath(posixpath.join(posixpath.dirname(name), target))
+    lines = (SCAFFOLD / '.iwe' / '.gitignore').read_text(encoding='utf-8').splitlines()
+    runtime = [line.rstrip('/') for line in lines if line and not line.startswith('#')]
+    return sorted(
+        f'{name}/{file.relative_to(source).as_posix()}'
+        for file in source.rglob('*')
+        if file.is_file()
+        and not any(fnmatch(part, pattern) for part in file.parts for pattern in runtime)
+    )
+
+
+def scaffold_changes(consumer_root: Path, tracked: list[str]) -> tuple[list[str], list[str]]:
+    """Split off the tracked paths the scaffold holds; return the rest and the changed files."""
+    remaining: list[str] = []
+    changed: list[str] = []
+    for path in tracked:
+        files = scaffold_files(path)
+        if files is None:
+            remaining.append(path)
+            continue
+        for name in files:
+            local = consumer_root / name
+            if not local.is_file() or local.read_bytes() != (SCAFFOLD / name).read_bytes():
+                changed.append(f'{name} (scaffold)')
+    return remaining, changed
 
 
 def changed_paths(
@@ -151,23 +179,13 @@ def changed_paths(
     """Return changed files under tracked paths, skipping ones the consumer deleted."""
     changed: list[str] = []
     for path in tracked:
-        target = upstream_link_target(clone_dir, upstream_ref, path)
         diff = run_tool(
-            'git',
-            '-C',
-            clone_dir,
-            'diff',
-            '--name-only',
-            consumed_ref,
-            upstream_ref,
-            '--',
-            target or path,
+            'git', '-C', clone_dir, 'diff', '--name-only', consumed_ref, upstream_ref, '--', path
         )
         for changed_path in diff.stdout.splitlines():
             if not changed_path:
                 continue
-            reported = path.rstrip('/') + changed_path[len(target) :] if target else changed_path
-            local = consumer_root / reported
+            local = consumer_root / changed_path
             existed = (
                 run_tool(
                     'git', '-C', clone_dir, 'cat-file', '-e', f'{consumed_ref}:{changed_path}'
@@ -176,9 +194,8 @@ def changed_paths(
             )
             if existed and not local.exists() and not local.is_symlink():
                 continue
-            line = f'{reported} (upstream: {changed_path})' if target else reported
-            if line not in changed:
-                changed.append(line)
+            if changed_path not in changed:
+                changed.append(changed_path)
     return changed
 
 
@@ -187,6 +204,7 @@ def compare(
 ) -> int:
     """Clone the template and report what changed since the consumed commit."""
     consumed_ref, tracked = marker
+    tracked, scaffold_changed = scaffold_changes(consumer_root, tracked)
     repo_url = values['--repo-url'] or f'https://github.com/{values["--repo"]}.git'
     clone = run_tool('git', 'clone', '--quiet', '--filter=blob:none', repo_url, clone_dir)
     if clone.returncode != 0:
@@ -196,16 +214,16 @@ def compare(
     upstream_ref = run_tool('git', '-C', clone_dir, 'rev-parse', 'HEAD').stdout.strip()
     print(f'CONSUMED_REF={consumed_ref}')
     print(f'UPSTREAM_REF={upstream_ref}')
-    if consumed_ref == upstream_ref:
-        return UP_TO_DATE
-    if run_tool('git', '-C', clone_dir, 'cat-file', '-e', consumed_ref).returncode != 0:
-        print_error(
-            f'consumed_ref {consumed_ref} is not reachable in {values["--repo"]}; '
-            "it may predate this clone's history."
-        )
-        return INVALID_MARKER
-
-    changed = changed_paths(clone_dir, consumer_root, consumed_ref, upstream_ref, tracked)
+    changed: list[str] = []
+    if consumed_ref != upstream_ref:
+        if run_tool('git', '-C', clone_dir, 'cat-file', '-e', consumed_ref).returncode != 0:
+            print_error(
+                f'consumed_ref {consumed_ref} is not reachable in {values["--repo"]}; '
+                "it may predate this clone's history."
+            )
+            return INVALID_MARKER
+        changed = changed_paths(clone_dir, consumer_root, consumed_ref, upstream_ref, tracked)
+    changed += scaffold_changed
     if not changed:
         return UP_TO_DATE
     print(f'CHANGED_PATHS={len(changed)}')

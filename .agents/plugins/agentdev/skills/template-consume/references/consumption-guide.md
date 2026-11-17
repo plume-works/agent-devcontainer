@@ -183,8 +183,12 @@ Review `.pre-commit-config.yaml` hook by hook:
    local hooks unless the project keeps IWE-based project memory under
    `docs/knowledge/` (see [Knowledge-base
    validation](#knowledge-base-validation)); they require the `iwe` binary on
-   `PATH`, which the development image also provides; and
-7. update file selectors for the consuming project's source layout.
+   `PATH`, which the development image also supplies;
+7. remove the `link-knowledge-support` local hook and
+   `scripts/link-knowledge-support.py`. They keep each support file in
+   `docs/knowledge/` a link to the `iwe-bootstrap` scaffold under `.agents/`,
+   and the consumer has no scaffold; and
+8. update file selectors for the source layout of the consumer.
 
 In `.ruff.toml`, remove `validate_agent_files` and `mock_catalog` from
 `known-first-party`, then add the consuming project's own first-party
@@ -871,7 +875,10 @@ already exists.
      In the template, `.iwe` is a symbolic link into `.agents/`. If the copied
      `.iwe` is still that link, it is the link of the template. After
      [Delete publisher-only source](#2-delete-publisher-only-source), this link
-     points to a directory that does not exist.
+     points to a directory that does not exist. The same is true for the
+     support files in `docs/knowledge/`: `AGENTS.md`, `CLAUDE.md`, `SCHEMA.md`,
+     `README.md`, `.markdownlint.yml`, and each document in `schema/` are links
+     into `.agents/` in the template.
      Byte-identical means the untouched publisher copy: remove the copied
      `.iwe/` and `docs/knowledge/` and continue with step 3. Any difference — a changed,
      added, or missing file — means the user has already written into it: it is
