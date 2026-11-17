@@ -37,3 +37,6 @@ review](someday/revision-evaluator-calibration.md)
 workspaces](someday/shared-buildkit-builder.md)
 
 [Full ASD-STE100 compliance](someday/ste100-full-compliance.md)
+
+[Examine the superpowers plugin with the iwe and tdd
+skills](someday/superpowers-plugin-evaluation.md)
