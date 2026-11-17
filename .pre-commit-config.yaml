@@ -137,7 +137,7 @@ repos:
       # Renovate version: see ADR-0052.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.243.1 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.247.1 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
