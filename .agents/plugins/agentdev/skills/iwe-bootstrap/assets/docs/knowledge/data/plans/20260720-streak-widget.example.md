@@ -39,7 +39,7 @@ completion time so timezone changes never double-count.
 **Files:** Create: `src/ui/widgets/streak.tsx`; Modify: `src/main.ts`
 
 - [ ] Frameless always-on-top window, click opens history
-- [ ] No notifications, no negative framing (concept constraint)
+- [ ] No notifications, no negative framing (product-vision constraint)
 
 ## Acceptance
 

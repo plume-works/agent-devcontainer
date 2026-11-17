@@ -1,6 +1,6 @@
 ---
 type: bug
-description: After a full-copy adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still refer to the removed trees agentdev_runtime, the self-improve tests, and scripts/tests.
+description: After a full adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still refer to the removed trees agentdev_runtime and scripts/tests.
 stage: pending
 severity: medium
 sources:
@@ -29,9 +29,9 @@ to remove, and `uv sync` or CI fails.
    `agentdev_runtime`, and `pyproject.toml#tool.uv.sources.agentdev_runtime`
    still exists.
 3. `pyproject.toml#tool.pytest.ini_options.testpaths` still holds
-   `.agents/plugins/self-improve/tests` and `scripts/tests`.
+   `scripts/tests`.
 4. `.github/workflows/validate-agent-files.yml#jobs.macos-bootstrap` and its
-   self-improve and `bun` steps stay.
+   `bun` steps stay.
 
 ## Root cause
 

@@ -1,8 +1,7 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  Ideas, POCs, and brainstorming that are not commitments yet
-  (data/someday/<slug>.md). Promote to a backlog task or a plan when one gets
-  real.
+  A someday idea (data/someday/<slug>.md). The definition is
+  docs/knowledge/schema/someday-ideas.md.
 maxDepth: 4
 frontmatter:
   type: object

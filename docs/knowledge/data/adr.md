@@ -1,15 +1,10 @@
 ---
 type: hub
-description: Architecture decision records — each one decision, its context, and the reason for it.
+description: The live ADRs, which `docs/knowledge/schema/adrs.md` defines.
 stage: living
 ---
 
 # 🏛️ ADRs
-
-*One decision per document in `adr/NNNN-<slug>.md`, `type: adr`: a short title,
-then 1 to 3 sentences that give the context, the decision, and the reason. This
-hub lists each ADR at `stage: proposed` or `stage: accepted`. Nobody edits an
-accepted ADR; a new ADR supersedes it.*
 
 [Code and tests are the only statement of
 behaviour](adr/0001-code-and-tests-state-behaviour.md)
@@ -232,17 +227,8 @@ instance](adr/0075-one-empty-home-volume.md)
 [OpenCode runs with full access, merged into its configuration at each
 start](adr/0076-opencode-full-access-merged-at-each-start.md)
 
-[Server mode is an option next to session
-mode](adr/0077-remote-control-server-mode-is-opt-in.md)
-
-[No Dev Container lifecycle command starts Remote
-Control](adr/0078-remote-control-starts-from-the-agent-start.md)
-
 [The runtime supervises the Dev Container engine, and the image has no SSH
 server](adr/0079-runtime-supervises-the-nested-engine.md)
-
-[Session mode resumes one pinned
-conversation](adr/0080-session-mode-pins-one-conversation.md)
 
 [Each checkout links .venv to its own environment on the home
 volume](adr/0081-venv-link-to-the-home-volume.md)
@@ -259,20 +245,17 @@ harnesses](adr/0084-claude-code-and-opencode-only.md)
 [Git decides which paths agent file discovery
 ignores](adr/0085-git-is-the-ignore-authority.md)
 
-[A ticked plan task needs an evidence line that only a shape test
-checks](adr/0086-plan-ticks-need-evidence-lines.md)
-
-[Only a command that the user types authorizes a self-improve
-change](adr/0087-self-improve-authorization-from-typed-commands.md)
-
-[The self-improve plugin is in this
-repository](adr/0088-self-improve-lives-in-this-repository.md)
-
-[The self-improve reviewer holds no
-tools](adr/0089-self-improve-reviewer-holds-no-tools.md)
-
-[The self-improve runtime uses only the standard
-library](adr/0090-self-improve-runtime-uses-only-the-standard-library.md)
-
 [Both harnesses permit a subagent depth of 5 in the
 containers](adr/0091-subagent-nesting-depth-five.md)
+
+[The Remote Control server runs by
+default](adr/0092-remote-control-server-on-by-default.md)
+
+[The commit that ticks a plan task contains its
+evidence](adr/0093-completion-evidence-in-the-commit-message.md)
+
+[Code first, git history second, documents
+last](adr/0094-code-then-git-history-then-documents.md)
+
+[The Coder agent start runs OpenCode and Remote Control in a Dev
+Container](adr/0095-coder-agent-start-runs-opencode-and-remote-control.md)

@@ -881,8 +881,12 @@ def wait_until(check: Callable[[], bool], timeout: float = 60) -> None:
         time.sleep(0.5)
 
 
-def test_remote_control_is_off_without_a_mode(make_runtime, scratch: Path):
-    runtime = make_runtime(workspace=bind(make_checkout(scratch)), options=fake_claude(scratch))
+def test_remote_control_is_off_when_its_spawn_mode_is_off(make_runtime, scratch: Path):
+    runtime = make_runtime(
+        workspace=bind(make_checkout(scratch)),
+        options=fake_claude(scratch),
+        AGENTDEV_CLAUDE_RC_SPAWN='off',
+    )
     runtime.run()
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
     runtime.sh('echo fake-claude-ai > "$CLAUDE_SECURESTORAGE_CONFIG_DIR/.credentials.json"')
@@ -894,11 +898,7 @@ def test_remote_control_is_off_without_a_mode(make_runtime, scratch: Path):
 
 
 def test_remote_control_waits_for_a_login_then_starts_and_comes_back(make_runtime, scratch: Path):
-    runtime = make_runtime(
-        workspace=bind(make_checkout(scratch)),
-        options=fake_claude(scratch),
-        AGENTDEV_CLAUDE_RC_MODE='server',
-    )
+    runtime = make_runtime(workspace=bind(make_checkout(scratch)), options=fake_claude(scratch))
     runtime.run()
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
 

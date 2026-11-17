@@ -115,6 +115,77 @@ def test_check_updates_reports_changes_found_for_a_changed_tracked_path(
     assert '  tracked-dir/file-b.txt' in lines
 
 
+SCHEMA_DOCUMENT = 'docs/knowledge/schema/plans.md'
+
+
+def _check_knowledge_updates(
+    plugin_root: Path, plugin_tmp_path: Path, consumer_files: dict[str, bytes]
+) -> list[str]:
+    """Run the script for a consumer that tracks knowledge paths, with up-to-date git paths."""
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.py'
+    template_dir, _first_sha, second_sha = build_template_repository(plugin_tmp_path)
+    consumer_dir = build_consumer_repository(
+        plugin_tmp_path, second_sha, ['tracked-dir', 'docs/knowledge/schema/']
+    )
+    for name, content in consumer_files.items():
+        (consumer_dir / name).parent.mkdir(parents=True, exist_ok=True)
+        (consumer_dir / name).write_bytes(content)
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout.splitlines()
+
+
+def _scaffold_schema(plugin_root: Path) -> dict[str, bytes]:
+    """Return each schema document of the installed scaffold, keyed by its consumer path."""
+    knowledge = plugin_root / 'skills/iwe-bootstrap/assets/docs/knowledge'
+    return {
+        f'docs/knowledge/schema/{path.name}': path.read_bytes()
+        for path in (knowledge / 'schema').glob('*.md')
+    }
+
+
+def test_check_updates_compares_knowledge_paths_with_the_installed_scaffold(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A tracked knowledge file that differs from the scaffold is reported; the template has none."""
+    files = _scaffold_schema(plugin_root)
+    files[SCHEMA_DOCUMENT] = b'# Plans, edited by the consumer\n'
+
+    lines = _check_knowledge_updates(plugin_root, plugin_tmp_path, files)
+
+    assert lines[-1] == 'RESULT=CHANGES_FOUND'
+    assert [line for line in lines if line.startswith('  ')] == [f'  {SCHEMA_DOCUMENT} (scaffold)']
+
+
+def test_check_updates_reports_a_scaffold_file_the_consumer_lacks(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A scaffold file with no consumer copy is reported."""
+    files = _scaffold_schema(plugin_root)
+    del files[SCHEMA_DOCUMENT]
+
+    lines = _check_knowledge_updates(plugin_root, plugin_tmp_path, files)
+
+    assert lines[-1] == 'RESULT=CHANGES_FOUND'
+    assert f'  {SCHEMA_DOCUMENT} (scaffold)' in lines
+
+
+def test_check_updates_reports_up_to_date_when_knowledge_matches_the_scaffold(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Knowledge files with the scaffold bytes are not a change."""
+    lines = _check_knowledge_updates(plugin_root, plugin_tmp_path, _scaffold_schema(plugin_root))
+
+    assert lines[-1] == 'RESULT=UP_TO_DATE'
+
+
 def test_check_updates_reports_files_inside_a_tracked_github_directory(
     plugin_root: Path,
     plugin_tmp_path: Path,

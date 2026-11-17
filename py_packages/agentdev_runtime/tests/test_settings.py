@@ -89,10 +89,16 @@ def test_count_parses_and_rejects() -> None:
 
 
 def test_required_and_choice() -> None:
-    settings = Settings({'AGENTDEV_CLAUDE_RC_MODE': 'bad'})
+    settings = Settings({'AGENTDEV_CLAUDE_RC_SPAWN': 'bad'})
     assert settings.required('AGENTDEV_RUNTIME_MODE', (DEVCONTAINER, DEPLOY)) == ''
-    assert settings.choice('AGENTDEV_CLAUDE_RC_MODE', ('session', 'server')) == ''
+    assert settings.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'off')) == ''
     assert len(settings.errors) == 2
+
+
+def test_choice_reads_empty_as_the_default() -> None:
+    settings = Settings({'AGENTDEV_CLAUDE_RC_SPAWN': ''})
+    assert settings.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'off')) == 'worktree'
+    assert not settings.errors
 
 
 def test_numeric_defaults_parse() -> None:

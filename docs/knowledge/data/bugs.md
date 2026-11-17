@@ -1,15 +1,10 @@
 ---
 type: hub
-description: Bug reports, investigations, and repro notes.
+description: The open bugs, which `docs/knowledge/schema/bugs.md` defines.
 stage: living
 ---
 
 # 🐛 Bugs
-
-*One document per open bug in `bugs/<slug>.md`, listed here; a done or cancelled
-bug moves to `archive/` and leaves this list. Its title, body sections, and
-stages are defined under Bugs in `SCHEMA.md` and enforced by
-`.iwe/schemas/bug.yaml`.*
 
 [Bug: The agentdev-base label says that the image holds a default
 policy](bugs/base-image-label-names-a-policy.md)
@@ -44,9 +39,6 @@ quotes](bugs/git-new-branch-hint-unquoted-remote.md)
 [Bug: Nothing runs `zsh -n` on the macOS bootstrap that shellcheck
 skips](bugs/macos-bootstrap-not-syntax-checked.md)
 
-[Bug: The README says that the containers do not enable
-self-improve](bugs/readme-says-self-improve-not-enabled.md)
-
 [Bug: Remote Control sessions on a workspace receive cloud-session
 instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 
@@ -61,14 +53,6 @@ operate](bugs/root-test-guard-cannot-fire.md)
 
 [Bug: the runtime package installs two dependencies from a version
 range](bugs/runtime-dependencies-not-pinned.md)
-
-[Bug: the self-improve allowlist accepts a rule at any depth below
-`rules/`](bugs/self-improve-allowlist-accepts-nested-rules.md)
-
-[Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
-
-[Unstageable routing option in the improve
-skill](bugs/self-improve-unstageable-routing-option.md)
 
 [Bug: the ASD-STE100 audit gives different findings for the same
 text](bugs/ste100-audit-not-deterministic.md)

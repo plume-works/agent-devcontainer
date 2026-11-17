@@ -35,56 +35,19 @@ software project's memory and system of record. The division of labor:
 3. **Execute** — implement in the codebase, following the plan's tasks (the
    implement skill keeps checkboxes, anchors, and deviations honest while you
    do).
-4. **Record** — write the state back:
-   - Idea (not a commitment) → `data/someday/<slug>.md` + link from
-     `data/someday.md`. An idea that gets real is promoted with
-     `/agentdev:iwe-capture task --from someday/<slug>`.
-   - Actionable item → `/agentdev:iwe-capture task`: `data/backlog/<slug>.md`
-     (`stage: pending`, priority), linked from `data/backlog.md`.
-   - Proposed feature → `/agentdev:iwe-capture feature`:
-     `data/features/<slug>.md` at `stage: proposed`, linked from
-     `data/features.md`.
-   - Work starts → plan skill: `data/plans/YYYYMMDD-<slug>.md` (`created`,
-     verified code anchors, `## Acceptance` scenarios, and `## ADRs`), each
-     proposed ADR at `data/adr/NNNN-<slug>.md` with `stage: proposed`, plus a
-     link in `data/plans.md`, and a `rank` when its place in the build order is
-     known. Each bug the plan lists in `release` moves to `stage: planned`.
-   - Work ships → verify skill green (tasks and `## Acceptance` scenarios
-     checked against the code), then ship skill: the plan's ADRs set to
-     `stage: accepted` and each ADR they supersede archived, then `stage: done`
-     with `completed` and `rank` removed, feature doc `implemented`, bug
-     `stage: done` with a `## Fix` describing the shipped fix — and the plan and
-     each feature and bug it closed moved with `iwe rename` to
-     `data/archive/next-release/<folder>/`, their hub links removed.
-   - Plan abandoned → `stage: cancelled` and `rank` removed, moved to
-     `data/archive/next-release/plans/` with its hub link removed (the archive
-     keeps the record of why); each bug it lists returns to `stage: pending`,
-     and each ADR it proposed becomes `stage: rejected` and moves to
-     `data/archive/next-release/adr/`.
-   - Bug found → `/agentdev:iwe-capture bug`: `data/bugs/<slug>.md` (Symptom /
-     Reproduction / Root cause, optional Potential solution, a `severity`) at
-     `stage: pending` + link from `data/bugs.md`. Fixed in the same change →
-     filed at `stage: done` with a `## Fix` describing the fix, straight into
-     `data/archive/next-release/bugs/`.
-   - A design decision → an ADR that a plan proposes. Nobody edits an accepted
-     ADR; a new ADR supersedes it.
-   - Measurement that settles nothing yet → `data/findings/<slug>.md` + link
-     from `data/findings.md`.
-   - Procedure a contributor repeats → `data/guides/<slug>.md` + link from
-     `data/guides.md`.
-   - Vision insight → `data/concept/<slug>.md`.
-   - Task finished → `stage: done` + `completed` on the task doc, `rank`
-     removed, moved to `data/archive/next-release/backlog/` with its hub link
-     removed.
-   - Task dropped → `stage: cancelled` on the task doc, `rank` removed, archived
-     the same way.
-   - Release cut → ship skill's release mode: it moves everything under
-     `data/archive/next-release/` to `data/archive/<X.Y.Z>/`, writes
-     `data/releases/<X.Y.Z>.md` in plain text from the `## Acceptance` scenarios
-     of the archived plans, with the titles of the ADRs accepted or superseded
-     since the previous release page was added and the titles of the release's
-     bugs, and links it from `data/releases.md`. Nothing edits the page
-     afterwards.
+4. **Record** — write the state in the graph. `SCHEMA.md#what-goes-where` names
+   the document type for each type of knowledge and its writer. The document in
+   `schema/` for that type gives its path, frontmatter, body, and stages.
+   - Work starts → `/agentdev:iwe-plan`.
+   - A bug, a proposed feature, or a task that is ready to do →
+     `/agentdev:iwe-capture`.
+   - An idea, a finding, a guide, or a product-vision document → write the
+     document and add its link to its hub.
+   - Work ships, or a plan is abandoned → `/agentdev:iwe-ship`. It runs
+     `/agentdev:iwe-verify` first.
+   - A release cut → the release mode of `/agentdev:iwe-ship`.
+   - A task is complete or cancelled → close it as `schema/backlog-tasks.md` and
+     `schema/archive.md` give.
 5. **Stamp** — every document you create or meaningfully change gets a
    one-sentence `description` if it has none, and — when you derived it from
    code or an external page — a `sources` entry naming that path or URL.
@@ -97,77 +60,28 @@ software project's memory and system of record. The division of labor:
   child in the graph. Hubs (`data/plans.md`, `data/features.md`, …)
   inclusion-link their members. Inline links (inside sentences/list items) are
   soft references for cross-cutting relationships.
-- **`data/index.md` lists hubs, not documents.** Adding a document to an
-  existing hub never touches it — the hub's own inclusion links are what change.
-  Update `data/index.md` only when you add or remove a *hub* itself. Never put a
-  plan task on `data/index.md` for ordinary document work.
-- **Hubs are flat sorted membership lists**: one inclusion link per member, no
-  `##` sections, sorted by the member's key with any `YYYYMMDD-` prefix removed.
-  Edit a hub only when a member is created, archived, or renamed — never to
-  record a stage or priority change. A hub lists live documents only; archived
-  ones are reached through links and queries. The hub set is closed: adding a
-  hub means adding it to `[schemas.hub]` in `.iwe/config.toml`.
-- **Frontmatter is the only record of state.** `stage`, `priority`, `completed`,
-  and `rank` live in the item's own document; queries select documents by `type`
-  and these fields, not by hub membership.
-- **One build order, `rank`**: active plans, open bugs, and pending tasks share
-  an optional positive integer `rank`, lower first. Ranks step by 100 and an
-  insertion takes the midpoint of its neighbours; renumber only in a reorder
-  pull request. An item without `rank` is not yet sequenced. Ship removes it.
-  Equal ranks are valid, break by key, and CI warns about them.
-- **Stage vocabularies** (schema-enforced, human reference in `SCHEMA.md`):
-  plans `done|cancelled` (absent = active, `done` requires `completed`);
-  features `proposed|accepted|implemented|deprecated|cancelled` (live only at
-  `proposed` or `accepted`); bugs `pending|planned|done|cancelled` (open =
-  `pending` or `planned`); releases `released`; backlog
-  `pending|done|cancelled`; ADRs
-  `proposed|accepted|rejected|deprecated|superseded` (live only at `proposed` or
-  `accepted`). A closed plan, bug, task, feature, or ADR lives under
-  `data/archive/`, an open one outside it, and the `ship-records` check fails
-  when a document is in the incorrect folder. A reference document (finding,
-  guide, concept, or someday) has a `type` and no stage.
-- **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
-  Knowledge
-  Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-  consumer can read, and CI checks conformance on every commit. Two rules keep
-  it true: every document under `data/` has frontmatter with a non-empty `type`,
-  and `data/index.md` carries no frontmatter beyond `okf_version` and stays
-  sections of link bullets. `okf.yaml` and `okf-index.yaml` enforce both — never
-  work around them by unbinding a schema.
-- **The workspace diverges from OKF only to cut merge and upkeep cost.** It
-  never sets OKF's optional `status`: `stage` is the one lifecycle field, so a
-  state change edits one field in one file. It never sets OKF's `generated` or
-  `verified`: source control records when and by whom a document changed.
+- **`SCHEMA.md` and the documents in `schema/` are the only definition of the
+  document types.** `SCHEMA.md#what-goes-where` gives what goes where. One
+  document in `schema/` for each type gives the path, the frontmatter, the body,
+  and the stages of that type. Other documents there give the hubs
+  (`schema/hubs.md`), the index file (`schema/index-file.md`), the build order
+  (`schema/build-order.md`), and the archive (`schema/archive.md`). Refer to the
+  document. Do not give a definition again in a different file.
+- **Never put a plan task on `data/index.md` for ordinary document work.**
+- **Queries select documents by `type` and frontmatter fields**, not by hub
+  membership.
+- **`data/` is an OKF v0.2 bundle**, and CI checks conformance on each commit.
+  Never unbind a schema to prevent a check by `okf.yaml` or `okf-index.yaml`.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.
-- **Each kind of knowledge has one home.** Behaviour lives in the code and its
-  tests; a decision and the alternatives it rejected in an ADR under
-  `data/adr/`; a project term in `data/glossary.md`; a finding only in
-  `data/findings/`; a procedure only in `data/guides/`; a proposal in
-  `data/features/`; work in flight in plans, bugs, and tasks; what a release
-  changed on its release page; finished work in `data/archive/`.
-  `type: architecture` is valid only in the archive.
-- **Nobody edits an accepted ADR.** Plan files an ADR at `stage: proposed` and
-  Ship sets it to `accepted`. A changed decision is a new ADR that names the
-  earlier one in `supersedes`; Ship then archives the earlier one at
-  `stage: superseded`.
-- **Code anchors**: `## Key references` lists the code a plan touches as anchors
-  taken from the current checkout, never from memory — `path::symbol` in code,
-  `path#heading-slug` in Markdown, `path#key.path` in YAML, JSON, and TOML,
-  `path#target` in a Makefile or Dockerfile, and the anchor plus
-  ` › "verbatim quote"` for a spot inside one. Never record a line number,
-  anywhere: it is wrong the next time the file changes.
-- **A ticked task carries the evidence that closed it**: every `- [x]` under a
-  plan's `## Implementation Steps` has an indented `- **Evidence:**` child,
-  written in the same edit as the tick — a short free-form note of what was done
-  and how it was checked. The tick and its evidence line land in the same commit
-  as the code they describe. One edit ticks one box — a sweep across the file is
-  the defect, not a shortcut. Unticked boxes stay bare. The line exists only so
-  a box is never ticked for work that was not done: its form is never audited,
-  and Verify never re-runs what it records.
-- **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
-  kebab slug; releases are `<semver>`. One topic per file.
+- **Code anchors**: `schema/code-anchors.md` gives the forms. Never record a
+  line number, anywhere.
+- **A tick and the code are in one commit, and its message has the completion
+  evidence block.** `schema/plans.md` defines the block. One commit ticks one
+  plan task, and the plan has no evidence for it. An edit that ticks many boxes
+  in the file is the defect. Verify never runs again what a completion evidence
+  block records.
 - **Markdown links only, never wiki links.** References are extension-less
   (`[Timer](adr/0001-timer-counts-wall-clock-time)`), relative to the containing
   file.
@@ -175,8 +89,6 @@ software project's memory and system of record. The division of labor:
   document shape (a fictional product; schema-validated so they can't rot).
   Ignore them when reporting real project state; the setup skill deletes them at
   the end of onboarding.
-- **Frontmatter shapes are enforced** — `.iwe/schemas/*.yaml` is the validation
-  gate, bound to key globs in `.iwe/config.toml`.
 - **Prose follows ASD-STE100 Issue 9.** Best Practice 15 in the repository
   `AGENTS.md` is the rule. `data/glossary.md` is the list of technical nouns and
   technical verbs that the rule permits.

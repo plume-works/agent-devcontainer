@@ -77,6 +77,12 @@ Results (RESULT / exit code):
 """
 
 
+def iwe_runtime_patterns() -> list[str]:
+    """Return the names in `.iwe/.gitignore`: the files that iwe writes at run time."""
+    lines = (ASSETS_DIR / '.iwe' / '.gitignore').read_text(encoding='utf-8').splitlines()
+    return [line.rstrip('/') for line in lines if line and not line.startswith('#')]
+
+
 def path_exists(path: Path) -> bool:
     """Return whether anything, a dangling symlink included, is at `path`."""
     return path.exists() or path.is_symlink()
@@ -121,7 +127,12 @@ def required_files() -> list[str]:
     Documents under data/ subdirectories are project content onboarding deletes or rewrites.
     """
     files = []
-    for directory, _, names in os.walk(ASSETS_DIR):
+    runtime = shutil.ignore_patterns(*iwe_runtime_patterns())
+    for directory, subdirectories, names in os.walk(ASSETS_DIR):
+        if Path(directory).is_relative_to(ASSETS_DIR / '.iwe'):
+            skipped = runtime(directory, subdirectories + names)
+            subdirectories[:] = [name for name in subdirectories if name not in skipped]
+            names = [name for name in names if name not in skipped]
         for name in names:
             path = Path(directory) / name
             if path.is_file() and not path.is_symlink():
@@ -293,7 +304,12 @@ class Bootstrap:
         self.write_phase('staging')
         stage = self.transaction / 'stage'
         (stage / 'docs').mkdir(parents=True)
-        shutil.copytree(ASSETS_DIR / '.iwe', stage / '.iwe', symlinks=True)
+        shutil.copytree(
+            ASSETS_DIR / '.iwe',
+            stage / '.iwe',
+            symlinks=True,
+            ignore=shutil.ignore_patterns(*iwe_runtime_patterns()),
+        )
         shutil.copytree(ASSETS_DIR / WORKSPACE_PATH, stage / WORKSPACE_PATH, symlinks=True)
         if not self.validate_stage():
             self.discard_transaction()

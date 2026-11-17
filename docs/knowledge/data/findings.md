@@ -1,19 +1,16 @@
 ---
 type: hub
-description: Measurements of how the system behaves, each with the hypotheses it eliminated and what would close it.
+description: The findings, which `docs/knowledge/schema/findings.md` defines.
 stage: living
 ---
 
 # 🔬 Findings
 
-*One finding per document in `findings/<slug>.md`, `type: finding`: a
-measurement, each hypothesis it eliminated and what eliminated it, what would
-settle the rest, and what closing it looks like. A finding states no behaviour
-the code must meet; a settled decision goes to the owning spec's
-`## Rationale`.*
-
 [Claude Remote Control archived pre-created
 session](findings/claude-remote-control-archived-pre-created-session.md)
+
+[Claude Remote Control environment
+grouping](findings/claude-remote-control-environment-grouping.md)
 
 [Claude Remote Control expired session
 recovery](findings/claude-remote-control-expired-session-recovery.md)
@@ -26,6 +23,9 @@ start](findings/claude-remote-control-pointerless-server-start.md)
 
 [Claude Remote Control server restart
 resume](findings/claude-remote-control-server-restart-resume.md)
+
+[Claude Remote Control settings file and plugin
+folders](findings/claude-remote-control-settings-plugin-dirs.md)
 
 [Claude Remote Control spawn mode
 switch](findings/claude-remote-control-spawn-mode-switch.md)

@@ -28,6 +28,8 @@ term in the same change that first uses it.
   GitHub credentials and limits access to the repositories of the session.
 - **agent start** (noun): The command `agentdev-runtime coder start`, which the
   Coder template runs each time the Coder agent starts.
+- **aggregator plan** (noun): The plan of a milestone, which links its child
+  plans, as `docs/knowledge/schema/plans.md` defines.
 - **AI review gate** (noun): The decisions in
   `.github/actions/ai-review-status/review-gate.js` that control the
   `ai-review-present` check and the trusted-bot approval.
@@ -35,6 +37,9 @@ term in the same change that first uses it.
   submits the AI review of a pull request.
 - **allowlist** (noun): The file of domain names and the optional `github-meta`
   entry, whose IPv4 addresses the firewall permits for outgoing traffic.
+- **amend** (noun): A run of `git commit --amend`, which replaces the last
+  commit with a new commit.
+- **amend** (verb): To replace the last commit with `git commit --amend`.
 - **anchor** (noun): A name for a place in a file, such as `path::symbol` or
   `path#heading-slug`, that does not use a line number.
 - **archive** (noun): The `data/archive/` tree, which holds the closed documents
@@ -49,6 +54,8 @@ term in the same change that first uses it.
 - **audit** (verb): To do an audit.
 - **auth volume** (noun): The Docker volume that holds only the Claude
   credentials, which all Dev Container instances of one host user share.
+- **backlog task** (noun): A work item that
+  `docs/knowledge/schema/backlog-tasks.md` defines.
 - **base** (noun): The remote branch that a work branch starts from and merges
   to stay current, `origin/main` by default.
 - **base branch** (noun): The branch that the `paths-filter` action uses as the
@@ -61,8 +68,6 @@ term in the same change that first uses it.
   tasks, from the lowest `rank` to the highest.
 - **candidate** (noun): In image publishing, an image that a CI run built and
   published by digest before acceptance.
-- **candidate** (noun): In self-improve, a validated reviewer result that the
-  foreground session routes and that changes nothing by itself.
 - **Capture** (noun): The workflow step that files a bug, a feature, or a task
   through `/agentdev:iwe-capture`.
 - **carry** (verb): To keep uncommitted and untracked changes in the working
@@ -89,6 +94,9 @@ term in the same change that first uses it.
   that Coder puts only in the environment of its agent.
 - **complete catalog** (noun): A catalog root that holds the manifests of both
   clients, so that it can replace the staged catalog.
+- **completion evidence block** (noun): The footer of a commit message, from the
+  lines `---` and `completion evidence:` to the end, that says how the agent
+  checked the plan task that the commit ticks.
 - **consumption guide** (noun): The file `references/consumption-guide.md` of
   the `template-consume` skill, which tells a consumer how to adopt the
   template.
@@ -104,6 +112,7 @@ term in the same change that first uses it.
   `agentdev-runtime lifecycle created`, which the supervisor runs one time for
   each container while `postCreateCommand` waits.
 - **credential helper** (noun): The program that git asks for HTTPS credentials.
+- **cut** (verb): To do the release cut for a version.
 - **default branch** (noun): The main branch of a repository: `main`, `master`,
   the branch that `refs/remotes/<remote>/HEAD` names, or the branch that GitHub
   reports.
@@ -124,6 +133,10 @@ term in the same change that first uses it.
 - **disposable volume** (noun): A Docker volume whose name matches
   `docker.py::DISPOSABLE_VOLUME`, which is the only type of volume that a
   garbage collection pass can remove.
+- **document type** (noun): A category of document in `data/` that the documents
+  in `docs/knowledge/schema/` define, such as a plan or a bug.
+- **downstream effect** (noun): A change in a component, a process, or a
+  document that a decision causes after the point where the decision applies.
 - **Durable Knowledge Auditor** (noun): The catalog agent that runs
   `/agentdev:iwe-audit` on a draft from a fresh context and edits no file.
 - **durable-knowledge pass** (noun): The pass of a pull request review that runs
@@ -149,15 +162,10 @@ term in the same change that first uses it.
   the diff changes only versions or generated files.
 - **file** (verb): To write a new document in the graph and link it from its
   hub.
-- **fingerprint** (noun): A normalized hash of a lesson and its destination,
-  which self-improve keeps to stop a lesson that was accepted or rejected
-  before.
 - **full access** (noun): The user-level OpenCode permission `"*": "allow"`,
   which the devcontainer sets by policy.
 - **full adoption** (noun): The use of the whole template through
   `/agentdev:template-consume`, and not only of the published image.
-- **gate** (noun): In self-improve, the check without a model that decides if a
-  completed turn gets one reviewer call.
 - **gate-only run** (noun): The workflow run that a push to a reviewed pull
   request starts, in which the responder check does not run.
 - **gh wrapper** (noun): The script `ansible/roles/github_cli/files/gh`, which
@@ -186,6 +194,8 @@ term in the same change that first uses it.
 - **Implement session** (noun): The session that loaded
   `/agentdev:iwe-implement` and follows the `iwe-implementer` rulebook, which
   takes decisions only from its own user.
+- **inclusion link** (noun): A Markdown link on its own line, which makes the
+  target a child of the document in the graph.
 - **instance** (noun): One Dev Container of one checkout or worktree.
 - **iteration** (noun): The number `N` in a plan work branch name, which counts
   the work branches of the plan in all phases.
@@ -193,6 +203,7 @@ term in the same change that first uses it.
   remove.
 - **keyring session** (noun): The environment in `AGENTDEV_KEYRING_ENV_FILE`
   that lets a process use the supervised GNOME Keyring.
+- **knowledge base** (noun): The IWE project memory in `docs/knowledge/`.
 - **last passing run** (noun): The head commit of the last successful push run
   of a workflow on the base branch.
 - **latch** (verb): To put the standalone runtime in its `failed` state, in
@@ -227,6 +238,8 @@ term in the same change that first uses it.
 - **metadata gate** (noun): The check of the pull request title and description
   against the diff, which stops the review with a change request before the
   passes.
+- **milestone** (noun): A plan whose children are plans, as
+  `docs/knowledge/schema/plans.md` defines.
 - **model-invocable skill** (noun): A skill that a session can load without a
   command from the user.
 - **monitoring loop** (noun): The cycle of `pr-merge` that refreshes, waits, and
@@ -254,21 +267,16 @@ term in the same change that first uses it.
   only degrades the runtime, such as `config`, `xpra`, or `dockerd`.
 - **outstanding observation** (noun): An unticked plan task that has a Closed by
   line, which Verify lists without a failure and Ship waits for.
-- **owner** (noun): In self-improve, the existing `CLAUDE.md` file, rule, or
-  skill that must hold a lesson.
 - **pass** (noun): In a pull request review, one independent subagent review of
   the diff with one focus list.
 - **pass** (noun): In Docker garbage collection, one run of
   `agentdev-runtime docker gc`.
+- **per-worktree catalog** (noun): The catalog that a worktree loads from the
+  marketplace in that worktree, as ADR-0057 records.
 - **phase** (noun): The part of the plan lifecycle that a plan work branch is
   for: `plan`, `impl`, or `ship`.
 - **pin file** (noun): A file in `scripts/refresh-pin-checksums.py::PIN_FILES`
   whose downloads have a SHA-256 checksum for each architecture.
-- **pin hook** (noun): The `SessionStart` hook
-  `agentdev-runtime remote-control pin`, which writes the stored conversation ID
-  again.
-- **pinned pane** (noun): The tmux pane of session mode, which is bound to the
-  stored conversation ID.
 - **pins file** (noun): A Compose override file at the repository root that
   holds image references by tag and digest.
 - **Plan** (noun): The workflow phase that writes a plan, through
@@ -277,6 +285,8 @@ term in the same change that first uses it.
   workspace, without the extension.
 - **plan state** (noun): The state of a plan that `iwe-branch-name` reads from
   the working tree: `missing`, `cancelled`, `done`, `complete`, or `incomplete`.
+- **plan task** (noun): One checkbox item `- [ ]` or `- [x]` in the task section
+  of a plan.
 - **plugin cache** (noun): The directory in the home directory of the user where
   the agent client installs the plugin, and from which the scripts of the plugin
   run.
@@ -286,17 +296,18 @@ term in the same change that first uses it.
 - **pre-approval** (noun): The create-phase edit of the Claude state files that
   answers the onboarding, trust, Remote Control, and project MCP prompts before
   they show.
+- **pre-created session** (noun): The session that a Remote Control server
+  creates in its own folder when it starts.
 - **predecessor** (noun): The pull request that a dependent branch is based on.
 - **preflight** (noun): The job of the AI review workflow that decides if a
   review runs.
-- **preimage** (noun): The content hash of the target file when self-improve
-  staged a proposal, which the apply step compares before it writes.
+- **product vision** (noun): A document of `type: product-vision` in
+  `data/product-vision/` that records why the product exists or a principle that
+  stays true in each release.
 - **progress document** (noun): The file `.agentdev-template-progress.md` in a
   consumer, which holds the task list and the choices of a template setup.
 - **promotion** (noun): The move of the moving tags to an accepted candidate
   digest, without a new build.
-- **proposal** (noun): The new content that self-improve stages for one
-  permitted target file, with an ID and a hash prefix.
 - **prose** (noun): The text of a file, except text in code formatting, text in
   a fenced block, and quoted text.
 - **publisher-only source** (noun): The directories `.agents/`,
@@ -309,6 +320,8 @@ term in the same change that first uses it.
   a copy of its last head, then merge that copy into the dependent branch.
 - **recovery budget** (noun): The number of restarts that a service of the
   standalone runtime can do, with a delay that doubles after each restart.
+- **reference document** (noun): A finding, a guide, a product-vision document,
+  or a someday idea, as `docs/knowledge/SCHEMA.md#what-goes-where` gives.
 - **refresh** (verb): To restart a client outside its recovery budget, because a
   dependency that it reads at startup recovered.
 - **relay** (noun): The TCP forwarder `.claude/agent-proxy-relay.py` from the
@@ -316,8 +329,12 @@ term in the same change that first uses it.
 - **release cut** (noun): The release mode of `iwe-shipper`, which moves
   `data/archive/next-release/` to the folder of the version and writes the
   release page.
+- **release page** (noun): The document for one cut version that
+  `docs/knowledge/schema/releases.md` defines.
 - **remapped account** (noun): The `agent` account of the image after the
   devcontainer CLI changes its UID and GID to those of the host user.
+- **reorder pull request** (noun): A pull request whose only change is the
+  `rank` of more than one work item.
 - **requirement** (noun): A SHALL statement in a document of the removed
   `data/spec/` folder.
 - **residue** (noun): In a document, text that records the path to a decision
@@ -332,8 +349,6 @@ term in the same change that first uses it.
   the `pr-review` skill.
 - **reviewed input** (noun): The head commit, the title, and the description
   that a review run read when it started.
-- **reviewer** (noun): In self-improve, a separate `claude -p` call without
-  tools that reads the evidence and returns a proposal or a discard.
 - **revise mode** (noun): The mode of the `iwe-planner` rulebook that changes an
   active plan.
 - **root-test launcher** (noun): The script `scripts/run-root-tests`, which runs
@@ -353,29 +368,27 @@ term in the same change that first uses it.
   which loads an action from this repository at the current commit.
 - **self-verification** (noun): The test after the firewall applies its rules,
   which makes sure that `example.com` is blocked and `api.github.com` answers.
-- **server mode** (noun): The Remote Control mode in which
-  `claude remote-control` runs as a server that starts a conversation on
-  request.
 - **session host** (noun): The machine that a cloud session runs on.
-- **session mode** (noun): The default Remote Control mode, in which one tmux
-  pane continues one stored conversation.
 - **setup token** (noun): A `CLAUDE_CODE_OAUTH_TOKEN` login, which cannot run
   Remote Control.
 - **Ship** (noun): The workflow phase that merges the spec changes of a plan and
   closes the plan, through `/agentdev:iwe-ship`.
+- **ship** (verb): To merge and archive a plan through the Ship phase.
 - **Ship blocker report** (noun): The `iwe-shipper` report that starts with
   `Blocked`, changes no state, and names the skill that answers each blocker.
 - **Ship records** (noun): The bug, plan, task, feature, and release documents
   that Ship leaves in the knowledge graph.
 - **Ship review** (noun): The checklist section that `iwe-ship-reviewer` adds to
   a shipped plan.
-- **signal** (noun): In self-improve, one of the fixed reasons that permit a
-  review, such as an explicit correction.
 - **slot** (noun): A role in a pull request review, such as the metadata gate or
   the correctness pass, that the effort tier gives a model.
-- **slug** (noun): The file name of a plan key without its `YYYYMMDD-` prefix.
-- **spawn mode** (noun): The place where a server-mode conversation runs: its
-  own git worktree or the workspace directory.
+- **slug** (noun): The short name in kebab case in the file name of a document,
+  without a `YYYYMMDD-` prefix.
+- **someday idea** (noun): A reference document that
+  `docs/knowledge/schema/someday-ideas.md` defines.
+- **spawn mode** (noun): How the Remote Control server runs conversations: each
+  in its own git worktree, all in the workspace directory, or one conversation
+  only.
 - **spec** (noun): A document of the removed `data/spec/` folder that stated
   behaviour as SHALL requirements.
 - **spike** (noun): A short trial implementation that answers one design
@@ -396,19 +409,26 @@ term in the same change that first uses it.
   the CI Devcontainer image job runs.
 - **supersede** (verb): To replace an earlier ADR with a new ADR that names it
   in its `supersedes` list.
+- **support file** (noun): A file in `docs/knowledge/` outside `data/` and
+  `tests/`, such as `AGENTS.md`, `SCHEMA.md`, or a document in `schema/`, that
+  the scaffold also holds.
+- **symbolic link** (noun): A file system entry that points to a different file,
+  which git stores as the path of that file.
 - **task section** (noun): The `## Implementation Steps` section of a plan, or
   the older `## Tasks` section, where a checkbox counts as a task.
 - **tense split** (noun): The rule that closed work goes under Verification and
   open work goes under Reviewer Handoff in a pull request description.
+- **tick** (noun): The change of one plan task line from `- [ ]` to `- [x]`.
+- **tick** (verb): To change a plan task line from `- [ ]` to `- [x]`.
 - **top** (noun): The last pull request of a chain.
+- **tracker** (noun): A living document that sessions edit in place, as
+  `docs/knowledge/schema/trackers.md` defines.
 - **Trigger / Path / Outcome** (noun): The three parts that each correctness
   finding of a pull request review must state, in this order.
 - **trusted bot** (noun): A bot login in `TRUSTED_BOT_ACTORS`, whose pull
   requests the review app approves without a review.
 - **UID/GID cohort** (noun): The project containers that run with the same
   numeric user and group IDs and that can share one auth volume.
-- **umbrella** (noun): In self-improve, an owner that covers all of the class
-  that a lesson belongs to.
 - **update mode** (noun): In `pr-open`, a run on a branch that already has an
   open pull request.
 - **update mode** (noun): In `template-consume`, the run that compares the
@@ -427,6 +447,8 @@ term in the same change that first uses it.
   hook tool.
 - **version-matched browser** (noun): The Chromium build that the pinned
   Playwright CLI installs, so that the client and the browser have one version.
+- **watcher** (noun): A supervised program that the runtime supervisor runs,
+  which monitors one condition and starts a client when the condition occurs.
 - **work branch** (noun): A feature branch that tracks its own remote branch,
   which for a plan has the name `iwe/<slug>/iter-<N>-<phase>`.
 - **work item** (noun): A plan, feature, bug, release, backlog task, or ADR: a
@@ -441,3 +463,5 @@ term in the same change that first uses it.
   which runs the Dev Container.
 - **worktree mode** (noun): The `git-new-branch` mode that creates the branch in
   a separate git worktree.
+- **worktree session** (noun): A Claude Code session that runs in a git worktree
+  of the repository.

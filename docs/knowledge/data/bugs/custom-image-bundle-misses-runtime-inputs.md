@@ -38,6 +38,5 @@ names only the mounts of `docker/base/agentdev-base.Dockerfile`.
 `docker/devcontainer/agentdev-devcontainer.Dockerfile` and
 `docker/deploy/agentdev-deploy.Dockerfile` bind-mount
 `py_packages/agentdev_runtime`. `.github/workflows/ci.yml` runs pytest on
-`py_packages`, `.agents/plugins/agentdev/tests`,
-`.agents/plugins/self-improve/tests`, and `scripts/tests`, and filters on
-`compose.opencode*.yml`.
+`py_packages`, `.agents/plugins/agentdev/tests`, and `scripts/tests`, and
+filters on `compose.opencode*.yml`.

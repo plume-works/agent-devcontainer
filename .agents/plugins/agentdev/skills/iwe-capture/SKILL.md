@@ -1,6 +1,6 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and concept notes stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph. The item is a bug, a proposed feature, or a backlog task. First, look for a duplicate. Do not accept a document that does not have a section or field that its document in docs/knowledge/schema/ requires. Use when Explore settles a defect, a feature, or a task. Use when Implement finds a defect, or work that its plan must not include. Use to move a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and product-vision documents stay with /agentdev:iwe-explore.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -19,12 +19,12 @@ Run every `iwe` command from the repository root; keys are relative to
 
 ## Steps
 
-1. **Read the contract.** Read `docs/knowledge/SCHEMA.md` — the section for
-   the type, `## Fields every type carries`, and the `stage` table —
-   and `data/product.md` `## Authoring rules`. SCHEMA.md is the authority for
-   what the document must contain; the bug and feature schemas in `.iwe/schemas/`
-   enforce the same body sections, so a document that skips this step fails
-   `iwe schema validate` anyway.
+1. **Read the contract.** Read the schema document for the
+   type (`docs/knowledge/schema/bugs.md`, `docs/knowledge/schema/features.md`, or
+   `docs/knowledge/schema/backlog-tasks.md`) and
+   `docs/knowledge/schema/fields-every-type-carries.md`. Read `data/product.md`
+   `## Authoring rules`. The schema document is the only definition of what the
+   document must contain, and `iwe schema validate` enforces it.
 2. **Check for a duplicate.** Search with both
    `iwe find --fuzzy "<title words>" -f keys` and
    `iwe find --lexical "<one-line summary>" -f keys`, then read the top hits
@@ -32,55 +32,33 @@ Run every `iwe` command from the repository root; keys are relative to
    describes the same defect, feature, or work is a duplicate: **STOP**, write
    nothing, and show the matching key with the sentence that matches. Extending
    the existing document is the caller's decision, not this skill's.
-3. **Gate on completeness.** Check the supplied content against every required
-   frontmatter field and body section for the type:
-   - **bug** — an H1 starting `Bug: `, then `## Symptom`, `## Reproduction`,
-     and `## Root cause` in that order, and a `severity` of `critical`,
-     `high`, `medium`, or `low` — the defect's impact, not its urgency.
-     `## Potential solution`, the intended direction, and `## Fix`, the fix
-     that shipped, are optional and follow `## Root cause`. A Reproduction or
-     Root cause not yet known states what is known, the hypotheses eliminated
-     and what eliminated each, and links the `data/backlog/` task whose spike
-     settles it — never a bare "unknown". No section states lifecycle: not
-     "unfixed", not "planned in"; `stage` carries that.
-   - **feature** — `## Purpose`, `## Behaviour`, `## Edge cases`, and
-     `## Open questions` in that order; an Open questions section with nothing
-     open says so in one line.
-   - **task** — an H1, a body that states the work and why it matters, a
-     `priority` of `high`, `medium`, or `low`, and a one-sentence
-     `description`.
+3. **Check for completeness.** Compare the supplied content with each
+   frontmatter field and each body section that the schema document for the
+   type requires. Then compare it with each content rule that the schema
+   document gives. If something is missing, **STOP** and write nothing. List
+   all the gaps, not only the first gap. Never invent content to close a gap;
+   return it to the caller.
 
-   Every type needs a one-sentence `description`. If anything is missing,
-   **STOP**, write nothing, and list every gap at once — not the first one.
-   Never invent content to close a gap; return it to the caller.
+4. **Write the document** at the path that the schema document gives, with a
+   short kebab slug that no existing key uses. Write the frontmatter and the
+   body as the schema document defines them, with `created: <today>` on a task.
+   File the document at the stage that the schema document gives for Capture. A
+   bug that the same change already fixed is closed work. File it at
+   `stage: done` in the archive (`docs/knowledge/schema/archive.md`), with its
+   `## Fix`. Add `sources` that name each code path, each page, and each GitHub
+   issue URL that the item came from.
 
-4. **Write the document** at `data/bugs/<slug>.md`, `data/features/<slug>.md`,
-   or `data/backlog/<slug>.md`, choosing a short kebab slug no existing key
-   uses. A bug filed at `stage: done` is closed work: write it at
-   `data/archive/next-release/bugs/<slug>.md` instead. Frontmatter:
-   - `type` — `bug`, `feature`, or `task`.
-   - `stage` from the SCHEMA.md table: a bug is `stage: pending` with its
-     `severity`, or `stage: done` when the same change already fixed it, with a
-     `## Fix` that describes that fix; a feature is `stage: proposed`; a task
-     is `stage: pending` with `priority` and `created: <today>`.
-   - `description` and `sources` naming every code path, page, and GitHub
-     issue URL the item was derived from.
+   Capture files a feature only at `proposed`. `/agentdev:iwe-plan` accepts a
+   feature.
 
-   Sections beyond the required set are allowed after them. Capture never
-   files a feature past `proposed`; accepting one is `/agentdev:iwe-plan`'s
-   step.
+5. **Link it from its hub** at its sorted position, as
+   `docs/knowledge/schema/hubs.md` defines. A bug filed into the archive gets no
+   hub link.
 
-5. **Link it from its hub** with an inclusion link — a markdown link on its own
-   line — at its sorted position: a task in `data/backlog.md`, a bug in
-   `data/bugs.md`, a feature in `data/features.md`. Hubs are one flat list
-   sorted by member key, with no sections; priority and stage live in the
-   document's frontmatter only. A bug filed into the archive gets no hub link.
-
-   When the caller says the captured item closes an existing task or bug — a
-   fix that settles a pending task, say — set that document to `stage: done`
-   with `completed: <today>` for a task or the caller's `## Fix` for a bug,
-   remove its `rank`, move it with `iwe rename` to
-   `data/archive/next-release/<backlog|bugs>/`, and remove its hub link.
+   The caller can say that the captured item closes an existing task or bug.
+   Then close that document as `done`. Set the fields that its schema document
+   gives for that stage. For a bug, write the `## Fix` that the caller gives.
+   Move the document to the archive as `docs/knowledge/schema/archive.md` gives.
 
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.
@@ -131,8 +109,8 @@ leaves the issue open.
 
 ## Boundaries
 
-- Someday ideas, findings, guides, and concept documents are written by
-  `/agentdev:iwe-explore`; plans by `/agentdev:iwe-plan`.
+- `/agentdev:iwe-explore` writes someday ideas, findings, guides, and
+  product-vision documents. `/agentdev:iwe-plan` writes plans.
 - Capture is model-invocable so the `iwe-implementer` rulebook can file a
   defect or deferred task mid-run without stopping for the user. A refusal returns to
   that caller, which keeps the item in its handoff report.

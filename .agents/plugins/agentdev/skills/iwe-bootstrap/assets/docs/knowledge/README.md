@@ -73,30 +73,32 @@ iwe tree -k data/features                                            # the open 
 
 ```
 data/
-├── index.md          # the graph root — every hub is a child
-├── product.md        # what you're building — the doc every session reads first
-├── plans.md    plans/         # implementation plans, stage in frontmatter
-├── features.md features/      # proposals, live until their plan ships
-├── bugs.md     bugs/          # symptom / repro / root cause / fix
-├── adr.md      adr/           # decisions: proposed by a plan, accepted at ship
-├── findings.md findings/      # measurements and what would close them
-├── guides.md   guides/        # procedures, anchors checked on every commit
-├── concept.md  concept/       # product vision — the tiebreaker for feature debates
-├── releases.md releases/      # one plain-text page per cut version
-├── backlog.md  backlog/       # prioritized next work
-├── someday.md  someday/       # ideas that aren't commitments
-├── milestone.md               # milestones: plans whose children are plans
-└── archive/                   # finished work, one folder per release
+├── index.md                            # the graph root
+├── product.md                          # the document that each session reads first
+├── plans.md           plans/
+├── features.md        features/
+├── bugs.md            bugs/
+├── adr.md             adr/
+├── findings.md        findings/
+├── guides.md          guides/
+├── product-vision.md  product-vision/
+├── releases.md        releases/
+├── backlog.md         backlog/
+├── someday.md         someday/
+├── milestone.md
+└── archive/
 ```
+
+The documents in `schema/` define each of these: what the document type holds,
+its frontmatter, its body, and its stages.
 
 Every document carries typed, schema-validated frontmatter —
 `iwe schema validate` is the commit gate. Relationships are links, not fields;
 the `*.example.md` docs show every convention on a small fictional app and are
 deleted by setup.
 
-`AGENTS.md` is the agent's operating manual. `SCHEMA.md` documents the
-frontmatter shapes. `STRUCTURE.md` explains the design decisions behind the
-layout.
+`AGENTS.md` is the agent's operating manual. `SCHEMA.md` and the documents in
+`schema/` are the only definition of the document types.
 
 ## Built on IWE
 

@@ -55,16 +55,18 @@ decision your prompt does not carry, stop and report it under
      line is a post-merge observation: list it under **Outstanding
      observations**, not as a finding; Ship waits for it. Every other unchecked
      `- [ ]` task is a CRITICAL, with three routes out: complete it, tick it if
-     already done, or revise the plan to
-     drop it via the `/agentdev:iwe-plan` skill's revise mode, which treats
-     dropping a task as a material scope change and so asks the user before
-     doing it. The third route exists because Ship refuses any CRITICAL and has
-     no override: a task the user has decided against can't be ticked while
-     undone, so without it the plan is unshippable. Naming a route is not
-     taking it. A ticked `- [x]` task and its `- **Evidence:**` line are never
-     checked: the `plan-checkboxes` gate is the only check on them. Never
-     report on a ticked task, its evidence's form or wording, and never re-run,
-     re-observe, or seek approval to repeat what the evidence records.
+     already done, or remove it from the plan with the revise mode of the
+     `/agentdev:iwe-plan` skill. The revise mode identifies a task that you
+     remove as a material scope change, so it asks the user first. Ship stops on
+     each CRITICAL, and nobody can bypass that stop. You must not tick a task
+     that is not done. Thus, if the user does not want a task, the third route
+     is the only way to ship the plan. When you name a route, you do not use it.
+
+     Do not check a ticked `- [x]` task or the completion evidence block of the
+     commit that ticked it. Only the `completion-evidence` hook checks them. Do
+     not report on a ticked task. Do not report on the form or the words of its
+     completion evidence block. Do not do again what the block records, and do
+     not ask for approval to do it again.
 
      Judge each `### Scenario:` in `## Acceptance`. A scenario with a
      `**Test:**` line whose test does not exist, does not run the behaviour,
@@ -121,13 +123,14 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 — `Ready to ship`, `Blocked`, `Audit`, or `Needs decision` — and the plan key,
 then:
 
-- **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding opens
-  with its ID — `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for
-  SUGGESTION, numbered from 1 per severity in report order — then its
-  anchored evidence or the label "unverified", and its recommendation. An
-  anchor is `path::symbol`, `path#heading-slug`, `path#key.path`, or one of them plus ` › "verbatim quote"`, never a line number. Its `path` is relative to the repository root, never absolute, so the report
-  reads the same from any checkout. Audit mode numbers its findings the same
-  way.
+- **Findings** — CRITICAL, then WARNING, then SUGGESTION. Each finding starts
+  with its ID: `C<n>` for CRITICAL, `W<n>` for WARNING, `S<n>` for SUGGESTION.
+  The numbers start at 1 for each severity, in report order. Then the finding
+  gives its anchored evidence or the label "unverified", and its recommendation.
+  Audit mode gives its findings IDs in the same way.
+  - An anchor has a form that `docs/knowledge/schema/code-anchors.md` gives,
+    never a line number. Its `path` is never absolute, so the report reads the
+    same from any checkout.
 - **Outstanding observations** — each unticked task carrying a
   `**Closed by:**` line, with who or what closes it.
 - **Verification commands** — each `## Verification` step: its actual result,
@@ -146,7 +149,7 @@ then:
   "unverified" — a scenario that you cannot trace is unverified, not failed,
   and says so.
 - Run only the verification commands the plan's `## Verification` names (tests,
-  builds); a task's `- **Evidence:**` line is a record, never a command to run. A
+  builds); a task's completion evidence block is a record, never a command to run. A
   command whose effects reach beyond the working tree — a deploy, a push, a
   published artifact, a CI trigger, anything remote — runs only under a quoted
   approval that names it; otherwise do not run it, list it as `not run` under

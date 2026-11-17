@@ -45,7 +45,7 @@ LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
 ANSIBLE_PYTHON = '/usr/bin/python3.12'
 # The ansible playbook's roles that put every pre-commit hook's binary on PATH.
 TOOLCHAIN_TAGS = 'dev_tools,bun_setup,uv_setup'
-HOOK_TYPES = ('pre-commit', 'pre-push', 'pre-merge-commit', 'post-checkout')
+HOOK_TYPES = ('pre-commit', 'commit-msg', 'pre-push', 'pre-merge-commit', 'post-checkout')
 # The session's placeholder GH_TOKEN fails zizmor's online audits:
 # see bugs/zizmor-online-audits-fail-in-cloud-devcontainer.
 SESSION_ENV = {'ZIZMOR_OFFLINE': 'true'}

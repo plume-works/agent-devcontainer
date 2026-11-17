@@ -1,0 +1,1 @@
+../../../.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/schema/fields-every-type-carries.md

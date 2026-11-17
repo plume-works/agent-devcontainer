@@ -127,11 +127,10 @@ needed. In particular:
    - Set each feature `release` lists to `stage: implemented`, and each listed
      bug to `stage: done` with its `rank` removed. Never create a feature or
      bug.
-   - Write each listed bug's `## Fix`: the shipped fix in a few sentences,
-     taken from Verify's evidence, linking the plan. Place it after any
-     `## Potential solution` and leave that section as it is. A `## Fix` that
-     already describes this fix stays as it is; one that does not is
-     replaced.
+   - Write each listed bug's `## Fix` as `docs/knowledge/schema/bugs.md` defines
+     it, from Verify's evidence. Leave `## Potential solution` as it is. Do not
+     change a `## Fix` that already gives this fix. Replace a `## Fix` that does
+     not.
    - Archive what closed, last: move the plan and each feature and bug it
      closed with `iwe rename <key> data/archive/next-release/<folder>/<name>`,
      `<folder>` being the folder it lived in (`plans`, `features`, `bugs`),
@@ -166,17 +165,13 @@ needed. In particular:
      base. Look in `data/adr/` and `data/archive/next-release/adr/`. Compare
      each stage with the stage at the base commit (`git show <base>:<path>`, or
      no file at the base).
-   - Create `data/releases/<X.Y.Z>.md` with `type: release`,
-     `version: <X.Y.Z>`, `stage: released`, and `date: <today>`. The body groups
-     the changes by theme under `##` headings, then `## Removed` for behaviour
-     that went away, `## Upgrade notes` when a change needs action from a
-     consumer, `## Decisions` with the H1 title of each ADR from the step
-     above, and `## Fixed` with the H1 title of each bug in the release's
-     archive folder. Omit an empty section. The page holds no Markdown link. A
-     page that already exists stays as it is.
+   - Create `data/releases/<X.Y.Z>.md` with the frontmatter and the body that
+     `docs/knowledge/schema/releases.md` defines, with `date: <today>`. Its
+     `## Decisions` lists the ADRs from the step above. A page that already exists
+     stays as it is.
    - Move every document under `data/archive/next-release/` to
-     `data/archive/<X.Y.Z>/` with `iwe rename`, and keep its subfolder:
-     `plans/`, `features/`, `bugs/`, `backlog/`, and `adr/`.
+     `data/archive/<X.Y.Z>/` with `iwe rename`, as
+     `docs/knowledge/schema/archive.md` gives.
    - Ensure `data/releases.md` holds exactly one link to the page, at its
      sorted position by version key.
 

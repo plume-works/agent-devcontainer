@@ -9,7 +9,8 @@ rule that needs a judgment of taste or scale stays in the `iwe-planner`
 rulebook and is not reviewed.
 
 The rules bind a plan's unticked tasks and its other sections. A ticked task
-and its `- **Evidence:**` line are outside them.
+and the completion evidence block of the commit that ticked it are outside
+them.
 
 ## Tasks
 
@@ -50,8 +51,7 @@ and its `- **Evidence:**` line are outside them.
 ## Acceptance
 
 - **Each scenario is complete.** Each `### Scenario:` block in `## Acceptance`
-  has a `**WHEN**` line, a `**THEN**` line, and a `**Test:**` line or a
-  `**Checked at ship:**` line.
+  has each line that `docs/knowledge/schema/plans.md` requires.
 
 ## ADRs
 

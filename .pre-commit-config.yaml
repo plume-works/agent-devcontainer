@@ -137,7 +137,7 @@ repos:
       # Renovate version: see ADR-0052.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.239.1 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.247.1 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
@@ -169,6 +169,22 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
+      # See ADR-0093. A commit that ticks a plan task has a completion evidence block.
+      - id: completion-evidence
+        name: completion-evidence
+        entry: uv run scripts/completion-evidence.py check-message
+        language: system
+        always_run: true
+        stages: [commit-msg]
+
+      - id: completion-evidence-push
+        name: completion-evidence-push
+        entry: uv run scripts/completion-evidence.py check-push
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [pre-push]
+
       # Ship records, archive placement, and link-free release pages.
       - id: ship-records
         name: ship-records
@@ -194,14 +210,24 @@ repos:
         files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
         pass_filenames: false
 
-      # Mirrors the Knowledge base validation workflow. Hooks read the whole graph
-      # from the repo root, so they take no filenames and trigger on any
-      # graph-affecting change under docs/knowledge/ or .iwe/.
+      # Support files in docs/knowledge/ are links to the iwe-bootstrap scaffold copy.
+      - id: link-knowledge-support
+        name: link-knowledge-support
+        entry: uv run scripts/link-knowledge-support.py
+        language: system
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/'
+        types: []
+        types_or: [file, symlink]
+        pass_filenames: false
+
+      # Mirrors the Knowledge base validation workflow. The hooks read the full graph
+      # from the repository root, so they take no filenames. They start on a change
+      # in docs/knowledge/ or .iwe, or in the scaffold copy that a link points to.
       - id: iwe-schema-validate
         name: iwe-schema-validate
         entry: iwe schema validate
         language: system
-        files: '^(docs/knowledge/.*\.md|\.iwe/.*)$'
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false
 
       # normalize rewrites files in place and returns 0 even after changing files;
@@ -211,5 +237,5 @@ repos:
         name: iwe-normalize
         entry: bash -c 'iwe normalize && git diff --exit-code'
         language: system
-        files: '^(docs/knowledge/.*\.md|\.iwe/.*)$'
+        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false

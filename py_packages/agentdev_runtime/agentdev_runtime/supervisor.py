@@ -30,7 +30,7 @@ from typing import NoReturn
 from uuid import uuid4
 import xmlrpc.client
 
-from agentdev_runtime import settings as env, state as files
+from agentdev_runtime import remote_control, settings as env, state as files
 from agentdev_runtime.state import log, OUTPUT_TAIL, read_json, utc_now, write_json
 
 RUNNING_STATES = {'RUNNING'}
@@ -62,10 +62,8 @@ class Settings:
     bootstrap_command: str = 'agentdev-runtime bootstrap'
     home: Path = Path('/root')
     skip_xpra: bool = False
-    # Starts OpenCode Web in a Dev Container; deploy always serves it.
-    opencode_web: bool = False
-    # An empty value disables Remote Control. See ADR-0078.
-    remote_control: str = ''
+    # Remote Control runs if its spawn mode is not off. See ADR-0092.
+    remote_control: bool = False
     strict: bool = False
     firewall: bool = False
     # Every malformed setting; PID 1 latches a configuration failure naming them.
@@ -89,16 +87,13 @@ class Settings:
             bootstrap_command=parse.get('AGENTDEV_BOOTSTRAP_COMMAND'),
             home=Path(parse.raw('AGENTDEV_HOME') or Path.home()),
             skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
-            opencode_web=parse.boolean('AGENTDEV_OPENCODE_WEB'),
-            remote_control=parse.choice('AGENTDEV_CLAUDE_RC_MODE', ('session', 'server')),
+            remote_control=parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', remote_control.SPAWNS)
+            not in ('', 'off'),
             strict=parse.boolean('AGENTDEV_STRICT_STARTUP'),
             firewall=parse.boolean('ENABLE_FIREWALL'),
         )
         # supervisord reads this one itself, as each program's stopwaitsecs.
         parse.count('AGENTDEV_STOP_TIMEOUT')
-        # The Remote Control start reads the spawn mode; checked here to latch early.
-        if settings.remote_control == 'server':
-            parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'same-dir'))
         return replace(settings, errors=tuple(parse.errors))
 
     @property
@@ -223,7 +218,7 @@ DEPLOY_SERVICES = (
 
 # Every service the editor relies on is core. The create phase runs here, after the root
 # bootstrap, as deploy's prepare does; postCreateCommand only waits for it.
-# See ADR-0031.
+# See ADR-0031. The Coder agent start runs OpenCode and Remote Control: see ADR-0095.
 DEVCONTAINER_SERVICES = (
     Service('dbus', refresh=('keyring', 'xpra'), core=True),
     Service('keyring', after=('dbus',), core=True),
@@ -231,8 +226,6 @@ DEVCONTAINER_SERVICES = (
     Service('xpra', after=('keyring',), core=True),
     Service('docker-gc', after=('dockerd',), client=True),
     Service('created', after=('keyring',), oneshot=True, core=True),
-    Service('opencode', after=('keyring', 'created'), client=True),
-    Service('remote-control', after=('created',), client=True),
 )
 
 PROFILES = {
@@ -246,11 +239,9 @@ def enabled_services(settings: Settings) -> tuple[Service, ...]:
     profile = settings.profile
     if profile is None:
         raise ValueError(f'no runtime profile named {settings.mode!r}')
-    opencode = profile.name == 'deploy' or settings.opencode_web
     skipped = {
         'xpra': settings.skip_xpra,
         'remote-control': not settings.remote_control,
-        'opencode': not opencode,
     }
     return tuple(s for s in profile.services if not skipped.get(s.name))
 

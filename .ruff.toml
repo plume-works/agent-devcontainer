@@ -1,12 +1,6 @@
 line-length = 99
 indent-width = 4
 
-# A pinned third-party prompt corpus kept source-faithful: reformatting destroys
-# the fidelity that makes it evidence. `force-exclude` holds the exclusion when
-# callers pass explicit paths, as the pre-commit hooks do.
-extend-exclude = ["docs/research/case-study/hermes/prompts/python/**"]
-force-exclude = true
-
 # Assume Python 3.12
 target-version = "py312"
 

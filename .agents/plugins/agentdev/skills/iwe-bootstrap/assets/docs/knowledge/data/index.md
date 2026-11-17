@@ -9,31 +9,32 @@ okf_version: '0.2'
 
 # Work
 
-- [Plans](plans.md) - Implementation plans, migrations, and design proposals,
-  one document per unit of work.
-- [Backlog](backlog.md) - Prioritized single-topic work items waiting to become
-  a plan or a quick fix.
-- [Milestones](milestone.md) - Aggregator plans that sequence the work for one
-  release.
-- [Someday](someday.md) - Ideas and POCs that are not commitments yet.
+- [Plans](plans.md) - The active plans, which `docs/knowledge/schema/plans.md`
+  defines.
+- [Backlog](backlog.md) - The open backlog tasks, which
+  `docs/knowledge/schema/backlog-tasks.md` defines.
+- [Milestones](milestone.md) - The milestones, which
+  `docs/knowledge/schema/plans.md` defines.
+- [Someday](someday.md) - The someday ideas, which
+  `docs/knowledge/schema/someday-ideas.md` defines.
 
 # Delivery
 
-- [Features](features.md) - Feature proposals, each live until the plan that
-  implements it ships.
-- [Bugs](bugs.md) - Bug reports, investigations, and repro notes.
-- [Releases](releases.md) - One page per version, saying in plain text what
-  changed and which bugs it fixed.
+- [Features](features.md) - The live features, which
+  `docs/knowledge/schema/features.md` defines.
+- [Bugs](bugs.md) - The open bugs, which `docs/knowledge/schema/bugs.md`
+  defines.
+- [Releases](releases.md) - The release pages, which
+  `docs/knowledge/schema/releases.md` defines.
 
 # Reference
 
-- [ADRs](adr.md) - Architecture decision records — each one decision, its
-  context, and the reason for it.
-- [Findings](findings.md) - Measurements of how the system behaves, with the
-  hypotheses they eliminated and what would close them.
-- [Guides](guides.md) - Procedures a contributor follows, with code anchors
-  checked on every commit.
-- [Concept](concept.md) - Product vision and the principles that outlive any
-  single release.
+- [ADRs](adr.md) - The live ADRs, which `docs/knowledge/schema/adrs.md` defines.
+- [Findings](findings.md) - The findings, which
+  `docs/knowledge/schema/findings.md` defines.
+- [Guides](guides.md) - The guides, which `docs/knowledge/schema/guides.md`
+  defines.
+- [Product vision](product-vision.md) - The product-vision documents, which
+  `docs/knowledge/schema/product-vision.md` defines.
 - [Glossary](glossary.md) - The project terms that the prose rule permits, each
   with its meaning.

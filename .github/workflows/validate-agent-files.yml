@@ -41,7 +41,7 @@ jobs:
             - .claude-plugin/**
             - .github/**
             - py_packages/**/*.py
-            - .iwe/**
+            - .iwe
             - docs/knowledge/*
             - docs/knowledge/.*
 
@@ -85,11 +85,6 @@ jobs:
 
       - name: Test agentdev OpenCode bridge
         run: bun test ./.agents/plugins/agentdev/tests/opencode
-
-      # The live tests skip at collection unless SELF_IMPROVE_RUN_LIVE is set,
-      # so this spends no model usage.
-      - name: Test self-improve plugin
-        run: uv run pytest .agents/plugins/self-improve/tests
 
       - name: Validate Agent Files
         run: uv run validate_agent_files --recommend . --require-marketplace claude

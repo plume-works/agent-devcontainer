@@ -28,11 +28,13 @@ SHARED_KNOWLEDGE_FILES = (
     'CLAUDE.md',
     'README.md',
     'SCHEMA.md',
-    'STRUCTURE.md',
-    'CHANGELOG.md',
     'LICENSE.md',
     '.gitignore',
     '.markdownlint.yml',
+    *(
+        f'schema/{path.name}'
+        for path in sorted((SCAFFOLD / 'docs' / 'knowledge' / 'schema').iterdir())
+    ),
 )
 
 # A markdown link on its own line is an inclusion link; anywhere else it is a
@@ -79,26 +81,8 @@ def test_scaffold_is_complete() -> None:
 
 
 def test_scaffold_support_files_match_the_publisher_workspace() -> None:
-    """Schemas, config, and instructions stay the bytes the publisher uses."""
-    tracked = subprocess.run(
-        ['git', 'ls-files', '.iwe'],
-        cwd=PUBLISHER_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.split()
-    packaged = sorted(
-        path.relative_to(SCAFFOLD).as_posix()
-        for path in (SCAFFOLD / '.iwe').rglob('*')
-        if path.is_file()
-    )
-    assert packaged == sorted(tracked)
+    """The support files have the same bytes as this repository; `.iwe` is a link to them."""
     drifted = [
-        name
-        for name in tracked
-        if (PUBLISHER_ROOT / name).read_bytes() != (SCAFFOLD / name).read_bytes()
-    ]
-    drifted += [
         f'docs/knowledge/{name}'
         for name in SHARED_KNOWLEDGE_FILES
         if (PUBLISHER_ROOT / 'docs' / 'knowledge' / name).read_bytes()

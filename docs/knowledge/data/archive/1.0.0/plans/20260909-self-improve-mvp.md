@@ -112,7 +112,7 @@ with no failure, but nine of the ten reached the assertion: one wake check
 skipped on a review that stored no candidate to watch for. Five of the twenty
 checks across those runs skipped for that reason; the other four were the
 negative control, carried as [Reviewer decline
-asymmetry](../../../bugs/self-improve-reviewer-decline-asymmetry.md).
+asymmetry](../../next-release/bugs/self-improve-reviewer-decline-asymmetry.md).
 
 Closing it requires ten runs in which every wake check reaches its assertion,
 which costs real model usage. Only someone willing to spend that can close it.

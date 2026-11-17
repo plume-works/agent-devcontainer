@@ -39,11 +39,17 @@ def plugin_tmp_path(plugin_root: Path):
 def installed_iwe_bootstrap(plugin_root: Path, plugin_tmp_path: Path) -> Path:
     """Copy the bootstrap skill and shared `bin/` into an isolated plugin layout."""
     installed = plugin_tmp_path / 'installed-plugin'
+    skill = plugin_root / 'skills' / 'iwe-bootstrap'
     shutil.copytree(plugin_root / 'bin', installed / 'bin')
+    # In this repository, the root `.iwe` is a link to `assets/.iwe`,
+    # so iwe writes its runtime files there.
+    gitignore = (skill / 'assets' / '.iwe' / '.gitignore').read_text(encoding='utf-8')
+    runtime = [line.rstrip('/') for line in gitignore.splitlines() if line]
     shutil.copytree(
-        plugin_root / 'skills' / 'iwe-bootstrap',
+        skill,
         installed / 'skills' / 'iwe-bootstrap',
         symlinks=True,
+        ignore=shutil.ignore_patterns(*runtime),
     )
     return installed / 'skills' / 'iwe-bootstrap'
 

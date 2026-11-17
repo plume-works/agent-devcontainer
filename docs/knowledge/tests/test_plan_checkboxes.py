@@ -1,17 +1,8 @@
 """
 Shape gate for plan checkboxes in `docs/knowledge/data/plans/`.
 
-Two rules, both about shape only — this gate can never tell whether an evidence
-claim is *true*, which is the verify skill's job and a human's:
-
-- **Evidence**: in an active plan (no `stage` in frontmatter), every ticked
-  `- [x]` task under `## Implementation Steps` carries an indented
-  `- **Evidence:**` child with non-empty content.
-- **Completeness**: a plan with `stage: done` has no unchecked `- [ ]` task.
-
-Closed plans are exempt from the evidence rule. They are historical records, and
-backfilling evidence into them would be inventing it — the exact failure this
-gate exists to prevent.
+A plan with `stage: done` has no unticked `- [ ]` task in its task section.
+The evidence of a ticked task is in the commit that ticks it: see ADR-0093.
 """
 
 from __future__ import annotations
@@ -31,12 +22,9 @@ PLANS_DIR = Path(__file__).resolve().parents[1] / 'data' / 'plans'
 TASK_SECTIONS = frozenset({'Implementation Steps', 'Tasks'})
 
 TASK_LINE = re.compile(r'^- \[(?P<mark>[ xX])\]\s+(?P<text>.*)$')
-EVIDENCE_LINE = re.compile(r'^(?P<indent>[ \t]+)- \*\*Evidence:\*\*(?P<body>.*)$')
-LIST_ITEM = re.compile(r'^(?P<indent>[ \t]+)(?:[-+*]|\d+[.)])\s+')
 FENCE = re.compile(r'^[ \t]*(?:```|~~~)')
 HEADING = re.compile(r'^(?P<hashes>#{1,6})\s+(?P<title>.*)$')
 
-RULE_EVIDENCE = 'evidence'
 RULE_COMPLETENESS = 'completeness'
 
 
@@ -127,41 +115,9 @@ def task_blocks(text: str) -> list[TaskBlock]:
     return blocks
 
 
-def evidence_text(block: TaskBlock) -> str | None:
-    """
-    Extract a task's evidence claim.
-
-    Args:
-        block: The task block to inspect.
-
-    Returns:
-        The claim with its wrapped continuation lines joined, an empty string
-        when the marker is present but carries no content, or `None` when there
-        is no `- **Evidence:**` line at all.
-
-    """
-    for index, line in enumerate(block.body):
-        marker = EVIDENCE_LINE.match(line)
-        if marker is None:
-            continue
-        marker_indent = len(marker.group('indent').expandtabs())
-        parts = [marker.group('body').strip()]
-        for continuation in block.body[index + 1 :]:
-            if not continuation.strip() or not continuation.startswith((' ', '\t')):
-                break
-            list_item = LIST_ITEM.match(continuation)
-            if list_item and len(list_item.group('indent').expandtabs()) <= marker_indent:
-                break
-            if EVIDENCE_LINE.match(continuation):
-                break
-            parts.append(continuation.strip())
-        return ' '.join(part for part in parts if part).strip()
-    return None
-
-
 def check_plan(path: Path, text: str) -> list[Violation]:
     """
-    Apply both checkbox rules to one plan document.
+    Apply the checkbox rule to one plan document.
 
     Args:
         path: The path reported in violations.
@@ -175,27 +131,7 @@ def check_plan(path: Path, text: str) -> list[Violation]:
     violations: list[Violation] = []
 
     for block in task_blocks(text):
-        if stage is None and block.ticked:
-            claim = evidence_text(block)
-            if claim is None:
-                violations.append(
-                    Violation(
-                        path,
-                        block.line,
-                        RULE_EVIDENCE,
-                        'ticked task has no indented `- **Evidence:**` line',
-                    )
-                )
-            elif not claim:
-                violations.append(
-                    Violation(
-                        path,
-                        block.line,
-                        RULE_EVIDENCE,
-                        'ticked task has an empty `- **Evidence:**` line',
-                    )
-                )
-        elif stage == 'done' and not block.ticked:
+        if stage == 'done' and not block.ticked:
             violations.append(
                 Violation(
                     path,
@@ -210,7 +146,7 @@ def check_plan(path: Path, text: str) -> list[Violation]:
 
 def check_directory(plans_dir: Path) -> list[Violation]:
     """
-    Apply both checkbox rules to every plan in a directory.
+    Apply the checkbox rule to every plan in a directory.
 
     Args:
         plans_dir: Directory holding `*.md` plan documents.
@@ -276,92 +212,6 @@ def plans_dir(tmp_path: Path) -> Path:
     return tmp_path / 'plans'
 
 
-def test_ticked_task_without_evidence_is_a_violation(plans_dir: Path) -> None:
-    """A tick with nothing behind it is what this gate exists to catch."""
-    path = write_plan(
-        plans_dir,
-        '20260101-no-evidence',
-        ACTIVE_FRONTMATTER,
-        '# No evidence\n\n## Implementation Steps\n\n- [x] **1. Push the branch.**\n',
-    )
-
-    violations = check_plan(path, path.read_text(encoding='utf-8'))
-
-    assert [(v.line, v.rule) for v in violations] == [
-        (line_of(path, '1. Push the branch.'), RULE_EVIDENCE)
-    ]
-
-
-def test_ticked_task_with_evidence_passes(plans_dir: Path) -> None:
-    """A tick whose child names a test run satisfies the evidence rule."""
-    path = write_plan(
-        plans_dir,
-        '20260101-with-evidence',
-        ACTIVE_FRONTMATTER,
-        '# With evidence\n'
-        '\n'
-        '## Implementation Steps\n'
-        '\n'
-        '- [x] **1. Push the branch.** Wrapped task prose continues\n'
-        '  onto a second line before the child bullet.\n'
-        '  - **Evidence:** `git push` succeeded; CI green at `abc1234`.\n',
-    )
-
-    assert check_plan(path, path.read_text(encoding='utf-8')) == []
-
-
-def test_empty_evidence_marker_is_a_violation(plans_dir: Path) -> None:
-    """The marker alone is not a claim, so shape compliance does not pass."""
-    path = write_plan(
-        plans_dir,
-        '20260101-empty-evidence',
-        ACTIVE_FRONTMATTER,
-        '# Empty evidence\n'
-        '\n'
-        '## Implementation Steps\n'
-        '\n'
-        '- [x] **1. Push the branch.**\n'
-        '  - **Evidence:**\n'
-        '  - **Notes:** no test was run.\n',
-    )
-
-    violations = check_plan(path, path.read_text(encoding='utf-8'))
-
-    assert [(v.line, v.rule) for v in violations] == [
-        (line_of(path, '1. Push the branch.'), RULE_EVIDENCE)
-    ]
-
-
-def test_evidence_may_wrap_onto_continuation_lines(plans_dir: Path) -> None:
-    """Normalization wraps long claims, and a wrapped claim is still a claim."""
-    path = write_plan(
-        plans_dir,
-        '20260101-wrapped-evidence',
-        ACTIVE_FRONTMATTER,
-        '# Wrapped evidence\n'
-        '\n'
-        '## Implementation Steps\n'
-        '\n'
-        '- [x] **1. Push the branch.**\n'
-        '  - **Evidence:**\n'
-        '    `git push` succeeded; CI green at `abc1234`.\n',
-    )
-
-    assert check_plan(path, path.read_text(encoding='utf-8')) == []
-
-
-def test_unchecked_task_needs_no_evidence(plans_dir: Path) -> None:
-    """An open task is honest by construction; only ticks make claims."""
-    path = write_plan(
-        plans_dir,
-        '20260101-open-task',
-        ACTIVE_FRONTMATTER,
-        '# Open task\n\n## Implementation Steps\n\n- [ ] **1. Push the branch.**\n',
-    )
-
-    assert check_plan(path, path.read_text(encoding='utf-8')) == []
-
-
 def test_done_plan_with_unchecked_task_is_a_violation(plans_dir: Path) -> None:
     """A shipped plan cannot still be carrying open work."""
     path = write_plan(
@@ -383,13 +233,13 @@ def test_done_plan_with_unchecked_task_is_a_violation(plans_dir: Path) -> None:
     ]
 
 
-def test_done_plan_is_exempt_from_the_evidence_rule(plans_dir: Path) -> None:
-    """Backfilling evidence into a closed plan would be inventing it."""
+def test_ticked_task_needs_no_evidence_line(plans_dir: Path) -> None:
+    """The evidence of a tick is in the commit that ticks it, not in the plan."""
     path = write_plan(
         plans_dir,
-        '20260101-done-no-evidence',
-        DONE_FRONTMATTER,
-        '# Closed record\n\n## Implementation Steps\n\n- [x] **1. Land the code.**\n',
+        '20260101-no-evidence',
+        ACTIVE_FRONTMATTER,
+        '# No evidence\n\n## Implementation Steps\n\n- [x] **1. Push the branch.**\n',
     )
 
     assert check_plan(path, path.read_text(encoding='utf-8')) == []
@@ -400,35 +250,35 @@ def test_checkboxes_outside_implementation_steps_are_not_tasks(plans_dir: Path) 
     path = write_plan(
         plans_dir,
         '20260101-approach-example',
-        ACTIVE_FRONTMATTER,
+        DONE_FRONTMATTER,
         '# Approach example\n'
         '\n'
         '## Approach\n'
         '\n'
-        '- [x] **3. Sync with `--locked`.** Illustrative, not a task.\n'
+        '- [ ] **3. Sync with `--locked`.** Illustrative, not a task.\n'
         '\n'
         '## Implementation Steps\n'
         '\n'
-        '- [ ] **1. Push the branch.**\n',
+        '- [x] **1. Push the branch.**\n',
     )
 
     assert check_plan(path, path.read_text(encoding='utf-8')) == []
 
 
 def test_fenced_checkbox_inside_implementation_steps_is_ignored(plans_dir: Path) -> None:
-    """A checkbox quoted in a code fence is documentation, not a claim."""
+    """A checkbox quoted in a code fence is documentation, not a task."""
     path = write_plan(
         plans_dir,
         '20260101-fenced-example',
-        ACTIVE_FRONTMATTER,
+        DONE_FRONTMATTER,
         '# Fenced example\n'
         '\n'
         '## Implementation Steps\n'
         '\n'
-        '- [ ] **1. Document the format.** It looks like this:\n'
+        '- [x] **1. Document the format.** It looks like this:\n'
         '\n'
         '``` markdown\n'
-        '- [x] **9. A ticked box with no evidence child.**\n'
+        '- [ ] **9. An open box in an example.**\n'
         '```\n',
     )
 
@@ -441,14 +291,14 @@ def test_both_task_section_headings_are_audited(plans_dir: Path, heading: str) -
     path = write_plan(
         plans_dir,
         '20260101-heading',
-        ACTIVE_FRONTMATTER,
-        f'# Heading variant\n\n## {heading}\n\n- [x] **1. Push the branch.**\n',
+        DONE_FRONTMATTER,
+        f'# Heading variant\n\n## {heading}\n\n- [ ] **1. Push the branch.**\n',
     )
 
     violations = check_plan(path, path.read_text(encoding='utf-8'))
 
     assert [(v.line, v.rule) for v in violations] == [
-        (line_of(path, '1. Push the branch.'), RULE_EVIDENCE)
+        (line_of(path, '1. Push the branch.'), RULE_COMPLETENESS)
     ]
 
 
@@ -457,15 +307,14 @@ def test_every_violation_is_reported_not_just_the_first(plans_dir: Path) -> None
     path = write_plan(
         plans_dir,
         '20260101-many',
-        ACTIVE_FRONTMATTER,
+        DONE_FRONTMATTER,
         '# Many breaches\n'
         '\n'
         '## Implementation Steps\n'
         '\n'
-        '- [x] **1. First.**\n'
+        '- [ ] **1. First.**\n'
         '- [x] **2. Second.**\n'
-        '  - **Evidence:** `pytest` passed.\n'
-        '- [x] **3. Third.**\n',
+        '- [ ] **3. Third.**\n',
     )
 
     violations = check_plan(path, path.read_text(encoding='utf-8'))
@@ -482,28 +331,25 @@ def test_check_directory_spans_every_plan(plans_dir: Path) -> None:
     write_plan(
         plans_dir,
         '20260101-clean',
-        ACTIVE_FRONTMATTER,
-        '# Clean\n'
-        '\n'
-        '## Implementation Steps\n'
-        '\n'
-        '- [x] **1. Land it.**\n'
-        '  - **Evidence:** `pytest` passed.\n',
+        DONE_FRONTMATTER,
+        '# Clean\n\n## Implementation Steps\n\n- [x] **1. Land it.**\n',
     )
     write_plan(
         plans_dir,
         '20260102-dirty',
-        ACTIVE_FRONTMATTER,
-        '# Dirty\n\n## Implementation Steps\n\n- [x] **1. Land it.**\n',
+        DONE_FRONTMATTER,
+        '# Dirty\n\n## Implementation Steps\n\n- [ ] **1. Land it.**\n',
     )
 
     violations = check_directory(plans_dir)
 
-    assert [(v.path.name, v.rule) for v in violations] == [('20260102-dirty.md', RULE_EVIDENCE)]
+    assert [(v.path.name, v.rule) for v in violations] == [
+        ('20260102-dirty.md', RULE_COMPLETENESS)
+    ]
 
 
 def test_repository_plans_satisfy_the_checkbox_rules() -> None:
-    """Every plan in this workspace obeys the rules it defines."""
+    """Every plan in this workspace obeys the rule it defines."""
     violations = check_directory(PLANS_DIR)
 
     assert not violations, 'plan checkbox violations:\n' + '\n'.join(

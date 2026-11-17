@@ -1,244 +1,63 @@
-# Frontmatter reference
+# Document types
 
-The human-readable companion to the machine schemas. Validation lives in
-`.iwe/schemas/*.yaml`, bound to key globs in `.iwe/config.toml` (`[schemas]`
-section) — bindings are by path, and **every** document under `data/` is bound,
-hubs included. Run `iwe schema validate` before committing — exit 0 is the gate.
+This file and the documents in `schema/` are the only definition of the document
+types in `data/`. This file gives what goes where. Each document in `schema/`
+defines one type or one shared rule: what the type holds, the path, the
+frontmatter, the body, and the stages. No other file gives these again. A
+document, a skill, or an agent rulebook that needs a definition names the
+document, for example `docs/knowledge/schema/bugs.md`.
 
-The examples below describe one fictional product (Pomodux, a focus-timer app);
-the `*.example.md` docs demonstrate each shape in place.
+The schemas in `.iwe/schemas/*.yaml` enforce the shapes. The `[schemas]` section
+of `.iwe/config.toml` binds each schema to a path, and each document under
+`data/` has a binding, hubs included. `iwe schema validate` must exit 0 before a
+commit.
+
+The examples in these documents describe one fictional product (Pomodux, a
+focus-timer app). The `*.example.md` documents show each shape in place.
 
 `data/` is a conformant [Open Knowledge
 Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-v0.2 bundle. That is why every document carries a `type` and why the reserved
-`data/index.md` has a shape of its own. The per-type blocks below show only the
-fields specific to that type; the shared families come next.
+v0.2 bundle. That is why each document has a `type`, and why `data/index.md` has
+a shape of its own.
 
-## Fields every type carries
+## What goes where
 
-OKF's optional families (SPEC §4.1, §5), declared on every schema and checked by
-`.iwe/schemas/okf.yaml`:
+Each type of knowledge has one home, and no type repeats the content of a
+different type.
 
-- `description` — one sentence. Every document has one; it is what an OKF
-  consumer and `data/index.md` show before opening the file.
-- `sources` — the materials a document derives from, each
-  `{ id, resource, title, author, usage_count, last_modified }` with `resource`
-  required. A `resource` may be a URL or a repo path. Attribute individual
-  claims with a markdown footnote keyed to an entry's `id`.
-- `resource`, `tags`, `stale_after`, `usage_window` — optional.
+| Knowledge                                             | Home                                      | Writer                                  |
+| ----------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
+| How the product behaves                               | The code and its tests                    | The change that builds the behaviour    |
+| What the product is, its constraints, authoring rules | `data/product.md` (`schema/trackers.md`)  | `/agentdev:iwe-setup`                   |
+| A project term                                        | `data/glossary.md` (`schema/trackers.md`) | The change that first uses the term     |
+| A principle that stays true in each release           | `schema/product-vision.md`                | `/agentdev:iwe-explore`                 |
+| An idea that is not a commitment                      | `schema/someday-ideas.md`                 | `/agentdev:iwe-explore`                 |
+| Work that one session can complete                    | `schema/backlog-tasks.md`                 | `/agentdev:iwe-capture`                 |
+| A defect in shipped behaviour                         | `schema/bugs.md`                          | `/agentdev:iwe-capture`                 |
+| What users must get, written before the work          | `schema/features.md`                      | `/agentdev:iwe-capture`                 |
+| Committed work: its tasks, acceptance, and checks     | `schema/plans.md`                         | `/agentdev:iwe-plan`                    |
+| A design decision and its reason                      | `schema/adrs.md`                          | `/agentdev:iwe-plan`                    |
+| A measurement that does not yet settle a question     | `schema/findings.md`                      | The session that made the measurement   |
+| A procedure that a contributor repeats                | `schema/guides.md`                        | The session that found the procedure    |
+| What one release changed                              | `schema/releases.md`                      | The release cut of `/agentdev:iwe-ship` |
+| Finished work                                         | `schema/archive.md`                       | The session that closes the work        |
 
-`stage` is the only lifecycle field: the per-type enums below. A work item's
-state lives only in its own frontmatter; no hub section repeats it. OKF's
-optional `status` is never set, so a state change edits one field. Nor are OKF's
-`generated` and `verified`: source control records when and by whom a document
-changed.
+The Home column names a document in `schema/`, or a file. In each path that
+these documents give, a `<slug>` is a short name in kebab case, and one document
+has one topic.
 
-## The build order — `rank`
+Plans, features, bugs, ADRs, releases, and backlog tasks are work items. A work
+item has a `stage`. Findings, guides, product-vision documents, and someday
+ideas are permanent reference documents. A reference document has a `type` and
+no `stage`.
 
-Active plans, pending and planned bugs, and pending backlog tasks may carry
-`rank`, a positive integer: their place in one build order shared across the
-three types, lower first.
+## Rules that all types share
 
-``` yaml
-rank: 300 # optional; positive integer
-```
-
-- The sequence is
-  `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`. An item
-  without `rank` is not yet sequenced; that is the separate
-  `rank: {$exists: false}` query, never part of the sequence.
-- Ranks step by 100; an insertion takes the midpoint of its neighbours. Only a
-  reorder pull request renumbers.
-- Ship removes `rank` from a plan, bug, or task it marks done or cancelled.
-- Equal ranks are valid and break by key; CI warns about them.
-
-## The reserved file — `data/index.md`
-
-An OKF reserved filename, not a concept document: it carries no `type` and is
-checked by `okf-index.yaml` instead. Its only frontmatter is
-`okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
-markdown link to a hub followed by `-` and that hub's `description`. The graph
-holds no `data/log.md`, which OKF makes optional.
-
-## The archive — `data/archive/<release>/<folder>/`
-
-Finished work is archived, never deleted. `data/archive/` holds one folder per
-cut version plus `next-release`, and each holds the subfolder its documents
-lived in — `plans/`, `bugs/`, `backlog/`, `features/`, `adr/`, or
-`architecture/` — so every archived document stays bound to its type's schema
-and is validated in full.
-
-- Whoever closes a plan, bug, task, or feature moves it with `iwe rename` to
-  `data/archive/next-release/<folder>/` in the same change and removes its hub
-  link.
-- The release cut moves everything under `next-release` to the version's folder,
-  keeping the subfolders.
-- The folder is the only record of a document's release; no document carries
-  `released`. A document no plan closed belongs to the release that was open
-  when it closed.
-- `type: architecture` is valid only under `data/archive/`.
-
-## Plans — `data/plans/YYYYMMDD-<slug>.md`
-
-Implementation plans, migrations, and design proposals.
-
-``` yaml
----
-type: plan # required
-stage: done # done | cancelled — omit while active/pending
-created: 2026-07-01 # required, YYYY-MM-DD
-completed: 2026-07-18 # required when stage: done
-release: # required while active: internal, or the keys below
-- features/focus-sessions
----
-```
-
-`release` lists the documents the plan closes: the `features/` and `bugs/` keys
-Ship marks implemented or done when the plan ships, or `internal` when it closes
-none. It feeds no release page. A plan needs no feature to change what users
-see: the release cut writes the page from the archived plans.
-
-Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
-`**Files:**`, checkboxes), `## Acceptance`, `## ADRs` (optional),
-`## Depends on` (optional), `## Verification`, `## Out of scope`,
-`## Key references` (anchors, never line numbers). Ship moves a done or
-cancelled plan to the archive and removes its link from `data/plans.md`. Every
-plan `## Depends on` links is a prerequisite, unless the section's text starts
-with `None`: then it has none, and any plan it links is only related.
-
-## Features — `data/features/<slug>.md`
-
-A feature is a proposal: what users should get, written before the work. It is
-live at `proposed` or `accepted`; once its plan ships, the code and tests state
-the behaviour and the feature moves to the archive.
-
-``` yaml
----
-type: feature # required
-stage: accepted # proposed | accepted live; implemented | deprecated | cancelled archived — required
----
-```
-
-Body: `## Purpose`, `## Behaviour`, `## Edge cases`, `## Open questions`. Plan
-sets a feature its plan lists in `release` to `accepted`; Ship sets it to
-`implemented` and archives it with the plan.
-
-## Bugs — `data/bugs/<slug>.md`
-
-Bug reports and investigations. H1 starts with `Bug:`.
-
-``` yaml
----
-type: bug # required
-stage: pending # pending | planned | done | cancelled — required
-severity: high # critical | high | medium | low — required
----
-```
-
-- `stage`: Capture files a bug at `pending`, or at `done` when the same change
-  fixed it. Plan moves a bug its plan lists in `release` to `planned`; Ship
-  moves it to `done`, and returns it to `pending` when it cancels the plan.
-- `severity`: the impact of the defect — how bad it is when it happens — not its
-  urgency. Descriptive only; it does not set `rank`.
-
-Body: `## Symptom`, `## Reproduction`, `## Root cause`, all required, then the
-optional `## Potential solution` — the intended direction, at any stage — and
-`## Fix` — the fix that shipped, written when the bug becomes `done`: by the
-fixer when a change fixes it directly, by Ship from the plan that fixed it. A
-done or cancelled bug moves to the archive in the same change. A Reproduction or
-Root cause not yet known records what is known, the hypotheses eliminated and
-what eliminated them, and links the backlog task whose spike settles it. No
-section states lifecycle; `stage` does.
-
-## ADRs — `data/adr/NNNN-<slug>.md`
-
-An ADR records one decision. `NNNN` is the next free four-digit number in
-`data/adr/` and `data/archive/*/adr/`.
-
-``` yaml
----
-type: adr # required
-stage: proposed # proposed | accepted | rejected | deprecated | superseded — required
-description: One sentence that gives the decision. # required
-supersedes: # optional: the earlier ADRs that this ADR replaces
-- adr/0001-code-and-tests-state-behaviour
----
-```
-
-The frontmatter has no date field. Git records the date.
-
-Body: an H1 that is the short title of the decision, then 1 to 3 sentences that
-give the context, the decision, and the reason. `## Considered Options` and
-`## Consequences` are optional, and the schema permits no other section. The
-value of an ADR is the record of a decision and its reason. Write an optional
-section only when it adds value.
-
-- `stage`: Plan files an ADR at `proposed`. Ship sets it to `accepted`, or to
-  `rejected` when it cancels the plan. An ADR at `proposed` or `accepted` is in
-  `data/adr/`, with a link in `data/adr.md`. An ADR at `rejected`, `deprecated`,
-  or `superseded` is in `data/archive/`.
-- Nobody edits an accepted ADR. A new ADR that names it in `supersedes` replaces
-  it.
-- A code comment refers to an ADR as `ADR-NNNN`.
-
-## Releases — `data/releases/<version>.md`
-
-One page per cut version, written only by the release cut, in plain text with no
-Markdown link.
-
-``` yaml
----
-type: release # required
-version: 0.1.0 # required
-date: 2026-07-18 # the day the release was cut
-stage: released # required, always released
----
-```
-
-Body: the changes that the `## Acceptance` scenarios of the plans in the
-release's archive folder state, in plain language, grouped by theme — for an
-archived plan with no `## Acceptance`, its `## Spec changes`; `## Removed` for
-behaviour that went away; `## Upgrade notes` when a change needs action;
-`## Decisions`, the titles of the ADRs accepted or superseded since the commit
-that added the previous release page; and `## Fixed`, the titles of the bugs in
-the release's archive folder. Nothing edits a page after its cut.
-
-## Backlog tasks — `data/backlog/<slug>.md`
-
-Atomic prioritized work items waiting to become plans.
-
-``` yaml
----
-type: task # required
-stage: pending # pending | done | cancelled — required
-priority: high # high | medium | low
-created: 2026-08-01 # required, YYYY-MM-DD
-completed: 2026-08-14 # set when done
----
-```
-
-A done or cancelled task moves to the archive in the same change.
-
-## Reference documents — type only
-
-A document in `data/findings/`, `data/guides/`, `data/concept/`, or
-`data/someday/` must have a `type` (`finding`, `guide`, `concept`, `someday`).
-It needs no other field. These documents are permanent reference documents, not
-work items. Thus a `stage` is not applicable, and the finding and guide schemas
-refuse a `stage`.
-
-- **Finding** — a measurement: required `## Measurement` and `## Closing`, plus
-  the hypotheses eliminated and what would settle the rest. It states no
-  behaviour the code must meet.
-- **Guide** — a procedure a contributor follows. Every code anchor in it is
-  resolved on every commit.
-
-## Hubs and the trackers
-
-Hub files (`data/plans.md`, `data/features.md`, …) carry `type: hub`;
-`data/product.md`, `data/milestone.md`, and `data/glossary.md` carry
-`type: tracker`. Hubs and trackers take `stage: living`. A hub's body is one
-flat list of inclusion links, one per member, sorted by the member's key with
-any `YYYYMMDD-` prefix removed, with no `##` sections — `.iwe/schemas/hub.yaml`
-rejects a section, and a test checks the order. A hub changes only when a member
-is created, removed, or renamed.
+- `schema/fields-every-type-carries.md` — the frontmatter fields of each
+  document.
+- `schema/build-order.md` — the `rank` field and the build order.
+- `schema/code-anchors.md` — the forms of a code anchor.
+- `schema/hubs.md` — the hub of each type.
+- `schema/trackers.md` — the three trackers.
+- `schema/index-file.md` — `data/index.md`.
+- `schema/archive.md` — where finished work goes.

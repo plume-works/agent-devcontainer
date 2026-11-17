@@ -19,7 +19,7 @@ ASSETS = Path('assets')
 # The transaction directory name is part of the skill's documented contract.
 TRANSACTION = '.iwe-bootstrap.txn'
 ONBOARDING_KEYS = ('fill-product-doc',)
-KNOWLEDGE_INSTRUCTIONS = ('AGENTS.md', 'CLAUDE.md', 'SCHEMA.md', 'STRUCTURE.md')
+KNOWLEDGE_INSTRUCTIONS = ('AGENTS.md', 'CLAUDE.md', 'SCHEMA.md')
 # Commands the helper may run; everything else is absent from a restricted PATH.
 HELPER_TOOLS = (
     'bash',
@@ -233,6 +233,38 @@ def test_installed_graph_has_the_single_home_layout(
     assert not (data / 'architecture').exists()
     assert not (data / 'log.md').exists()
     assert list((data / 'archive').rglob('*.example.md'))
+
+
+@requires_iwe
+def test_iwe_runtime_state_in_the_scaffold_is_not_installed(
+    installed_iwe_bootstrap: Path, unrelated_repository: Path
+) -> None:
+    scaffold_iwe = installed_iwe_bootstrap / ASSETS / '.iwe'
+    shipped = tree_files(scaffold_iwe)
+    (scaffold_iwe / 'iwe.log').write_text('log\n', encoding='utf-8')
+    (scaffold_iwe / 'graph.db').write_bytes(b'db')
+    (scaffold_iwe / 'snapshots').mkdir()
+    (scaffold_iwe / 'snapshots' / 'one').write_text('snapshot\n', encoding='utf-8')
+
+    completed = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS'), completed.stderr
+    assert tree_files(unrelated_repository / '.iwe') == shipped
+
+
+@requires_iwe
+def test_iwe_runtime_state_in_the_scaffold_is_not_required_in_a_workspace(
+    installed_iwe_bootstrap: Path, unrelated_repository: Path
+) -> None:
+    run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+    scaffold_iwe = installed_iwe_bootstrap / ASSETS / '.iwe'
+    (scaffold_iwe / 'iwe.log').write_text('log\n', encoding='utf-8')
+    (scaffold_iwe / 'snapshots').mkdir()
+    (scaffold_iwe / 'snapshots' / 'one').write_text('snapshot\n', encoding='utf-8')
+
+    completed = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+
+    assert outcome(completed) == (4, 'RESULT=ALREADY_INITIALIZED'), completed.stdout
 
 
 @requires_iwe
