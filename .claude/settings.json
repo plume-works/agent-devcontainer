@@ -3,6 +3,9 @@
   "cleanupPeriodDays": 14,
   "permissions": {
     "defaultMode": "auto",
+    "deny": [
+      "AskUserQuestion"
+    ],
     "allow": [
       "Agent",
       "ToolSearch",
