@@ -132,6 +132,22 @@ def opencode(settings: env.Settings, root: str) -> None:
     print(f'Registered the OpenCode bridge {bridge} in {config}.')
 
 
+def install_enabled(project: str) -> None:
+    """Install at user scope each plugin that the project enables from another marketplace."""
+    path = Path(project) / '.claude' / 'settings.json'
+    if not path.is_file():
+        return
+    manifest = Path(project) / CLAUDE_MANIFEST
+    own = read_manifest(manifest)['name'] if manifest.is_file() else None
+    # enabledPlugins does not install a plugin, and no session here answers the trust prompt.
+    for spec, enabled in (json.loads(path.read_text()).get('enabledPlugins') or {}).items():
+        if enabled is not True or spec.rpartition('@')[2] == own:
+            continue
+        result = subprocess.run(['claude', 'plugin', 'install', spec, '--scope', 'user'])
+        if result.returncode != 0:
+            print(f'warning: could not install the enabled plugin {spec}', file=sys.stderr)
+
+
 def install(settings: env.Settings, root: str, claude_scope: str | None = None) -> None:
     claude(root, claude_scope or 'local')
     opencode(settings, root)

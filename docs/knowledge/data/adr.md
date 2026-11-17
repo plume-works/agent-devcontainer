@@ -262,3 +262,6 @@ last](adr/0094-code-then-git-history-then-documents.md)
 
 [The Coder agent start runs OpenCode and Remote Control in a Dev
 Container](adr/0095-coder-agent-start-runs-opencode-and-remote-control.md)
+
+[The create phase installs the plugins that the project settings
+enable](adr/0096-create-phase-installs-enabled-plugins.md)
