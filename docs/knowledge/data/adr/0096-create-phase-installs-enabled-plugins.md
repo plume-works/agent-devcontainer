@@ -16,4 +16,5 @@ enabled plugin from another marketplace. This is the decision of the maintainer.
 ## Consequences
 
 - A failed installation gives a warning and does not stop the create phase.
-- Each worktree session gets the plugins, because they install at user scope.
+- Each worktree session has the plugins, because the create phase installs them
+  at user scope.

@@ -1,4 +1,4 @@
-"""The project's enabled plugins from other marketplaces are installed at user scope."""
+"""`install_enabled` installs each enabled plugin from another marketplace at user scope."""
 
 import json
 from pathlib import Path
