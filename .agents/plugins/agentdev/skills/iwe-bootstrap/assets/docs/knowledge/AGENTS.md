@@ -77,10 +77,11 @@ software project's memory and system of record. The division of labor:
   hand-writing link targets.
 - **Code anchors**: `schema/code-anchors.md` gives the forms. Never record a
   line number, anywhere.
-- **A tick, its evidence line, and the code are in one commit.**
-  `schema/plans.md` defines the evidence line. One edit ticks one box. An edit
-  that ticks many boxes in the file is the defect. Verify never runs again what
-  an evidence line records.
+- **A tick and the code are in one commit, and its message has the completion
+  evidence block.** `schema/plans.md` defines the block. One commit ticks one
+  plan task, and the plan has no evidence for it. An edit that ticks many boxes
+  in the file is the defect. Verify never runs again what a completion evidence
+  block records.
 - **Markdown links only, never wiki links.** References are extension-less
   (`[Timer](adr/0001-timer-counts-wall-clock-time)`), relative to the containing
   file.

@@ -162,8 +162,7 @@ A marker section or legacy marker file exists.
 4. Run [check-updates.py](agent-code/check-updates.py) from the consumer
    repository. It clones the template repository into a scratch directory
    under `./.tmp/`, diffs every path in `tracked_paths` between `consumed_ref`
-   and the clone's current default-branch HEAD, and cleans up the clone on
-   exit regardless of outcome.
+   and the clone's current default-branch HEAD, and cleans up the clone on exit regardless of outcome. A tracked path that the installed `iwe-bootstrap` scaffold holds (`.iwe/` and the knowledge support files) is compared with that scaffold, never with the clone.
 
    | RESULT            | Exit | Action                                                                                      |
    | ----------------- | ---- | ------------------------------------------------------------------------------------------- |
@@ -205,10 +204,7 @@ A marker section or legacy marker file exists.
    guess from the path name alone) and decide with the user whether to pull it
    in. The script reports concrete changed files inside tracked directories,
    so a marker that tracks `.github/` still exposes a changed
-   `.github/pull_request_template.md`. When a tracked path is a link in the
-   upstream repository, the line ends with `(upstream: <path>)`. Read the
-   upstream diff at that path, not at the reported path, and write the result
-   to the reported path in the consumer. Consult the progress document before
+   `.github/pull_request_template.md`. A line that ends with `(scaffold)` names a file that is missing or different from the `iwe-bootstrap` scaffold in the installed catalog. Compare it with that scaffold copy, not with the template repository. Consult the progress document before
    deciding. A path this consumer customized (renamed values, pruned an unwanted
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the
@@ -230,11 +226,7 @@ A marker section or legacy marker file exists.
    an upstream template change does not silently discard captured guidance or a
    consumer heading.
 8. **Never re-initialize or re-onboard.** Update mode has no
-   `/agentdev:iwe-bootstrap` or `/agentdev:iwe-setup` invocation. A change to the publisher's `docs/knowledge/data/` or to the
-   catalog's bootstrap scaffold is not a consumer change and produces no
-   consumer edit — neither is tracked, so neither should appear in
-   `CHANGED_PATHS` at all; one that does means the marker was not narrowed in
-   step 3.
+   `/agentdev:iwe-bootstrap` or `/agentdev:iwe-setup` invocation. A change to the publisher's `docs/knowledge/data/` is not a consumer change and produces no consumer edit — it is not tracked, so it should not appear in `CHANGED_PATHS` at all; one that does means the marker was not narrowed in step 3.
 
    A change to `.iwe/schemas/` or `.iwe/config.toml` _is_ tracked, and applying
    it can invalidate documents the consumer already wrote. Before applying one,
@@ -339,9 +331,7 @@ docs/knowledge/tests/test_banned_frontmatter_keys.py
 memory upstream and the consumer's project memory here — the same path, two
 owners — so every diff of it is noise at best and a proposal to overwrite the
 consumer's memory at worst. `docs/knowledge/LICENSE.md` is absent for the same
-reason: bootstrap installs it and it is consumer-owned afterward. The
-bootstrap scaffold lives in the installed catalog, not in the template
-checkout, so it is never a `tracked_paths` entry either.
+reason: bootstrap installs it and it is consumer-owned afterward. `check-updates.py` compares the tracked knowledge paths with the bootstrap scaffold in the installed catalog, never with the template checkout.
 
 Never add `.agents/`, `.claude-plugin/`, or `py_packages/` — those are
 publisher-only source this guide has the consumer delete during setup, so they

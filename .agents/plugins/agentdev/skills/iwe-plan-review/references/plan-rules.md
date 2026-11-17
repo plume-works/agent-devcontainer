@@ -9,7 +9,8 @@ rule that needs a judgment of taste or scale stays in the `iwe-planner`
 rulebook and is not reviewed.
 
 The rules bind a plan's unticked tasks and its other sections. A ticked task
-and its `- **Evidence:**` line are outside them.
+and the completion evidence block of the commit that ticked it are outside
+them.
 
 ## Tasks
 

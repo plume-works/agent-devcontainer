@@ -110,7 +110,7 @@ last](../adr/0094-code-then-git-history-then-documents.md)
 ## Depends on
 
 [Put task evidence in the commit
-message](20261115-completion-evidence-in-commit-messages.md)
+message](../archive/next-release/plans/20261115-completion-evidence-in-commit-messages.md)
 
 ## Verification
 

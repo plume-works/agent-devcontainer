@@ -34,8 +34,7 @@ at commit `249943bcc30ac1016469d5ee89a16ce454cc882f`, under that project's MIT
 license, and is maintained here against the catalog's IWE skills without
 tracking that repository.
 
-Once installed, every file belongs to the consuming repository. A catalog update
-that changes `assets/` never reaches an initialized workspace.
+Once installed, every file belongs to the consuming repository. `/agentdev:template-consume` update mode reports each tracked file that is missing or different from the scaffold in the installed catalog. The consumer decides what to apply.
 
 ## Maintenance
 
@@ -45,11 +44,16 @@ Therefore, the `.iwe/` of agent-devcontainer and the `.iwe/` of the scaffold
 always have the same bytes.
 
 The scaffold structure and the knowledge-base structure of agent-devcontainer
-are always the same. The support files under `assets/docs/knowledge/` have the
-same bytes as the files that agent-devcontainer uses. A schema change is also a
-scaffold change. Adjust the starter documents of the scaffold in the same
-commit. If you do not, the next `/agentdev:iwe-bootstrap` installs a workspace
-that fails `iwe schema validate`. Every file under `assets/` must be the same
+are always the same. Only in agent-devcontainer, each support file in
+`docs/knowledge/` is a symbolic link to its copy under `assets/docs/knowledge/`.
+`LICENSE.md` and `.gitignore` are real files: the consumer owns `LICENSE.md`,
+and git does not read a `.gitignore` that is a link. `schema/` is a real
+directory with one link for each document, because `iwe` does not follow a link
+to a directory. The `link-knowledge-support` pre-commit hook runs
+`scripts/link-knowledge-support.py`, which makes and checks the links. A schema
+change is also a scaffold change. Adjust the documents that the scaffold
+installs in the same commit. If you do not, the next `/agentdev:iwe-bootstrap`
+installs a workspace that fails `iwe schema validate`. Every file under `assets/` must be the same
 as its `iwe normalize` output.
 
 Through the link, `iwe` writes its runtime files into `assets/.iwe/`. Their
