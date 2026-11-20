@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The consumption guide names its five path classes one time but gives no path a class. Many tracked template paths are not in the guide.
+description: The consumption guide names its five path classes once but labels no path with a class. Many tracked template paths are not in the guide.
 stage: pending
 severity: low
 sources:

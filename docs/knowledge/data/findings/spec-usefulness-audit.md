@@ -16,10 +16,10 @@ sources:
 
 [Shrink the knowledge base to an issue tracker and decision
 records](../archive/next-release/backlog/shrink-knowledge-base-to-issues-and-adrs.md)
-proposes three changes. Delete `data/spec/`. Keep only source code and its tests
-as the statement of behaviour. Keep a registry of decision records for the
-reasons and a glossary for project terms. What information does that change
-remove, and what must exist before you delete the specs?
+proposes deleting `data/spec/` and keeping source code with its tests as the
+only statement of behaviour, a registry of decision records for the reasons, and
+a glossary for project terms. What would that lose, and what has to exist before
+the specs go?
 
 ## Measurement
 

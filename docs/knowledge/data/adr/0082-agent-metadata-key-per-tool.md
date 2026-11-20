@@ -13,9 +13,9 @@ metadata for tools that a checkout does not have.
 
 ## Considered Options
 
-- Do not use a file that the tool cannot parse. Rejected: the tool then gives an
-  incorrect result and shows no error, because it did not read a rule in that
-  file.
+- Skip a file that the tool cannot parse. Rejected: the tool would silently
+  compute the wrong answer, for example report content as unchanged because the
+  rule that would flag it never loaded.
 
 ## Consequences
 

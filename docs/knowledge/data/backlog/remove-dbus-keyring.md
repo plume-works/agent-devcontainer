@@ -3,7 +3,7 @@ type: task
 created: 2026-11-14
 stage: pending
 priority: medium
-description: Remove the supervised D-Bus session bus and GNOME Keyring from the agentdev runtime images. They give no security, and `gh` can keep its token in its own file.
+description: Remove the supervised D-Bus session bus and GNOME Keyring from the agentdev runtime images, because they give no security and their only consumer, `gh`, can keep its token in its own file.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/keyring.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
@@ -37,26 +37,25 @@ When `gh` finds no keyring, it keeps its token in `~/.config/gh/hosts.yml` with
 mode `0600`. That file gives the same protection as the keyring in the
 container. The bus and the keyring add two supervised services, the order in
 which the supervisor restarts them, health checks, an image `ENV`, and three
-packages. Without the image `ENV`, `gh` starts a D-Bus bus that does not stop.
-The `ENV` prevents this. This problem occurs only because the images install
-`dbus-x11` and `gnome-keyring`.
+packages. The `gh` bus-autolaunch leak that the image `ENV` prevents occurs only
+because the images install `dbus-x11` and `gnome-keyring`.
 
 ## Work
 
 - Remove the `dbus` and `keyring` programs from the two `supervisord.conf`
-  files. Then remove their services, dependencies, and refresh rules from the
+  files, and remove their services, dependencies, and refresh rules from the
   service tables in `agentdev_runtime/supervisor.py`.
 - Remove `agentdev-runtime keyring`, its checks in `agentdev-runtime health` and
   `agentdev-runtime doctor`, the keyring-session file
   (`AGENTDEV_KEYRING_ENV_FILE`), and the step that waits for the keyring before
   the git credential configuration.
-- Remove `dbus-x11`, `gnome-keyring`, and `libsecret-1-0` from `basic_prereqs`.
-  Then remove `DBUS_SESSION_BUS_ADDRESS` from the two Dockerfiles.
+- Remove `dbus-x11`, `gnome-keyring`, and `libsecret-1-0` from `basic_prereqs`,
+  and remove `DBUS_SESSION_BUS_ADDRESS` from both Dockerfiles.
 - Make sure that Xpra starts with no session bus, or that Xpra starts its own
   bus.
 - Move a `gh` token that is in an existing keyring into `hosts.yml`, or tell the
-  user to do the `gh auth login` procedure again. Before you start this step,
-  find which of the two actions is necessary.
+  user to run `gh auth login` again. Find out first which of the two is
+  necessary.
 
 ## Dependencies
 

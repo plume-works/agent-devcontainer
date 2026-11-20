@@ -20,17 +20,17 @@ server](adr/0004-agents-use-the-iwe-cli.md)
 
 [A bug records its own correction](adr/0005-bug-records-its-own-fix.md)
 
-[A CRITICAL result always stops
-Ship](adr/0006-critical-blocks-ship-with-no-override.md)
+[A CRITICAL result stops Ship with no
+override](adr/0006-critical-blocks-ship-with-no-override.md)
 
-[The durable-knowledge check runs in an isolated
+[The durable-knowledge audit runs in an isolated
 agent](adr/0007-durable-knowledge-audit-is-an-isolated-agent.md)
 
 [The graph is different from OKF only where OKF causes merge
 work](adr/0008-graph-diverges-from-okf-only-for-merge-cost.md)
 
-[The graph layout prevents merge conflicts between parallel pull
-requests](adr/0009-graph-layout-avoids-merge-conflicts.md)
+[The graph layout keeps parallel pull requests free of merge
+conflicts](adr/0009-graph-layout-avoids-merge-conflicts.md)
 
 [The IWE workflow skills are in agentdev, with an iwe-
 prefix](adr/0011-iwe-skills-in-agentdev-with-iwe-prefix.md)
@@ -47,7 +47,7 @@ commits it](adr/0014-revision-is-evaluated-after-its-audit.md)
 [The workflow rulebooks are catalog
 agents](adr/0015-rulebooks-live-in-catalog-agents.md)
 
-[The key of the saved Verify report is the commit and the catalog
+[The saved Verify report is keyed by commit and catalog
 hash](adr/0016-saved-verify-report-keyed-by-commit-and-catalog.md)
 
 [Only the Ship and Plan skills are
@@ -59,7 +59,7 @@ place](adr/0018-ship-and-verify-run-from-a-conversation-free-prompt.md)
 [Verify checks only what the plan
 promised](adr/0019-verify-checks-only-the-plan-contract.md)
 
-[Skills keep their names without a namespace, and commands have a
+[Skills keep their bare names, and commands have a
 namespace](adr/0020-bare-skill-names-namespaced-commands.md)
 
 [Configuration is documented variables, never shell
@@ -70,13 +70,13 @@ commands](adr/0022-deploy-image-reuses-runtime-helpers.md)
 
 [Each service authenticates on its own](adr/0023-every-service-authenticates.md)
 
-[Additional CA trust goes through the system
+[Extra CA trust goes through the system
 store](adr/0024-extra-ca-through-system-store.md)
 
 [The session bus address is an image
 ENV](adr/0025-fixed-session-bus-address-in-image-env.md)
 
-[A latch waits for a new attempt in the standalone runtime and ends a Dev
+[A latch waits for a retry in the standalone runtime and ends a Dev
 Container](adr/0026-latch-waits-for-retry-or-ends-devcontainer.md)
 
 [One bridge module serves OpenCode v1 and
@@ -112,7 +112,7 @@ context](adr/0036-validator-built-from-build-context.md)
 [The `ai-review-present` check trusts only named
 bots](adr/0037-ai-review-trusts-named-bots.md)
 
-[apt packages have no fixed version within a fixed Ubuntu
+[apt packages float within a fixed Ubuntu
 release](adr/0038-apt-packages-float-within-base-release.md)
 
 [Bundled code is relative to the skill, under
@@ -139,9 +139,9 @@ path](adr/0045-knowledge-data-is-never-a-template-path.md)
 [Pushes to main build after a cooldown that a newer push
 cancels](adr/0046-main-builds-after-cancellable-cooldown.md)
 
-[The runtime contains no code-graph index](adr/0047-no-code-graph-index.md)
+[The runtime ships no code-graph index](adr/0047-no-code-graph-index.md)
 
-[The graph keeps no map of the code](adr/0048-no-codebase-map.md)
+[The graph keeps no codebase map](adr/0048-no-codebase-map.md)
 
 [One catalog tree, installed and not
 copied](adr/0049-one-catalog-tree-installed-not-copied.md)
@@ -158,14 +158,14 @@ it](adr/0052-renovate-config-validated-at-bot-version.md)
 [Renovate runs self-hosted as a GitHub
 App](adr/0053-renovate-self-hosted-as-github-app.md)
 
-[Setup progress is a root file and the Git reference of the consumed commit
-stays in JSON](adr/0054-setup-progress-in-root-file.md)
+[Setup progress is a root file and the consumed ref stays in
+JSON](adr/0054-setup-progress-in-root-file.md)
 
 [A run promotes only the images it built and
 accepted](adr/0055-tags-move-only-to-accepted-images-of-the-run.md)
 
-[validate_agent_files is a separate
-package](adr/0056-validate-agent-files-ships-on-its-own.md)
+[validate_agent_files ships on its
+own](adr/0056-validate-agent-files-ships-on-its-own.md)
 
 [Each worktree loads its catalog from a marketplace in the
 worktree](adr/0057-worktree-catalog-from-in-worktree-marketplace.md)
@@ -179,7 +179,7 @@ it](adr/0059-ai-reviews-requested-and-held-by-label.md)
 [Push checks on main start at the last passing
 run](adr/0060-checks-start-at-last-passing-run.md)
 
-[CI makes the Python environment and never activates
+[CI provisions the Python environment and never activates
 it](adr/0061-ci-python-through-uv-run.md)
 
 [The CI image build always publishes](adr/0062-image-build-always-publishes.md)
@@ -214,9 +214,8 @@ Container](adr/0071-cloud-sessions-work-on-the-host.md)
 [Setup that needs Coder user secrets runs from the Coder agent
 start](adr/0072-coder-secrets-only-in-the-agent-start.md)
 
-[Docker garbage collection is a supervised hourly service with a list of the
-volumes that it can
-remove](adr/0073-docker-gc-removes-only-disposable-volumes.md)
+[Docker garbage collection is a supervised hourly service with an allow-list for
+volumes](adr/0073-docker-gc-removes-only-disposable-volumes.md)
 
 [Only the gh wrapper of the image authenticates
 gh](adr/0074-image-gh-wrapper-is-the-only-gh-shim.md)

@@ -6,27 +6,27 @@ description: The AI review gives APPROVE when it has no finding that blocks the 
 
 # The AI review verdict follows severity alone
 
-The `main` ruleset requires one approval and keeps a review after a later push.
-Only an `APPROVE` from the AI reviewer gives that approval and cancels its
-earlier change request. For this reason, the verdict is `APPROVE` when the
-review has no finding that blocks the merge, and `REQUEST_CHANGES` when it has
-one.
+The `main` ruleset requires one approving review, keeps stale reviews on push,
+and requires every review thread to be resolved. Only an `APPROVE` from the AI
+reviewer satisfies that approval and lifts its earlier change request. For this
+reason, the verdict is `APPROVE` when the review has no findings or only
+non-blocking ones, and `REQUEST_CHANGES` when it has any blocking finding.
 
 ## Considered Options
 
-- `COMMENT` when each finding that blocks the merge has an inline thread.
-  Rejected: a `COMMENT` does not give the approval and does not cancel an
-  earlier change request.
-- `APPROVE` with inline findings that block the merge, and thread resolution to
-  stop the merge. Rejected: an approval next to an open finding that blocks the
-  merge looks like agreement with it.
-- `COMMENT` for each finding, and never `REQUEST_CHANGES`. Rejected: a finding
-  that must block the merge then never stops it through the verdict, and no
-  review gives the approval.
+- `COMMENT` when every blocking finding is anchored in an inline thread.
+  Rejected: a `COMMENT` neither satisfies the required approval nor lifts the
+  earlier change request of the AI reviewer.
+- `APPROVE` beside inline blocking findings, relying on thread resolution to
+  hold the merge. Rejected: an approval next to an unaddressed blocking finding
+  reads as sign-off on it.
+- `COMMENT` for every finding, and never `REQUEST_CHANGES`. Rejected: a blocking
+  finding then never blocks through the verdict, and no review satisfies the
+  required approval.
 
 ## Consequences
 
-- The inline threads of a review with the `APPROVE` verdict stop the merge until
-  a person resolves them.
+- The inline threads of a review with the `APPROVE` verdict still hold the merge
+  until they are resolved.
 - The review uses `COMMENT` only when GitHub refuses a verdict on a pull request
   that the review account owns.

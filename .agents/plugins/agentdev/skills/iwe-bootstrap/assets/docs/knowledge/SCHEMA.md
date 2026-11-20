@@ -22,8 +22,9 @@ a shape of its own.
 
 ## What goes where
 
-Each type of knowledge has one home, and no type repeats the content of a
-different type.
+Each kind of knowledge has one home, and no type repeats the content of a
+different type: a statement with two homes drifts in the one that nobody
+maintains.
 
 | Knowledge                                             | Home                                      | Writer                                  |
 | ----------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
@@ -48,8 +49,8 @@ has one topic.
 
 Plans, features, bugs, ADRs, releases, and backlog tasks are work items. A work
 item has a `stage`. Findings, guides, product-vision documents, and someday
-ideas are permanent reference documents. A reference document has a `type` and
-no `stage`.
+ideas are durable reference documents. A reference document has a `type` and no
+`stage`, because nothing about it is a lifecycle.
 
 ## Rules that all types share
 

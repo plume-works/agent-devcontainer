@@ -15,8 +15,8 @@ the keys that the policy sets.
 
 - Replace the whole configuration with the policy. Rejected: it removes the
   OpenCode bridge and the settings of the user.
-- Change only `opencode.json`. Rejected: an `opencode.jsonc` has priority over
-  the policy.
+- Change only `opencode.json`. Rejected: an existing `opencode.jsonc` takes
+  precedence and can override the policy.
 - Parse or edit the JSONC text locally. Rejected: comments, trailing commas,
   strings, and duplicate keys need a maintained parser.
 - Apply the policy when the catalog installs. Rejected: catalog registration

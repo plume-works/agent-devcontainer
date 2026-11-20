@@ -23,6 +23,7 @@ skills, commands, and agents when OpenCode starts.
 
 ## Consequences
 
-- The bridge has no runtime dependencies. It uses only type imports and the
-  built-in modules of Bun. Root owns the staged catalog and it is read-only, so
-  no `node_modules` directory can go next to it.
+- The bridge has no runtime dependencies. It uses only type imports and Bun or
+  Node built-in modules, because it loads from the root-owned, read-only catalog
+  staged in the image, where no `node_modules` directory can be installed beside
+  it.

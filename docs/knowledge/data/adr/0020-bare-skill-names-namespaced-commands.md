@@ -1,28 +1,28 @@
 ---
 type: adr
 stage: accepted
-description: 'The OpenCode bridge registers skills under their names without a namespace and commands as agentdev:<name>, and the skill tool removes an agentdev: prefix.'
+description: 'The OpenCode bridge registers skills under their bare names and commands as agentdev:<name>, and the skill tool strips an agentdev: prefix.'
 ---
 
-# Skills keep their names without a namespace, and commands have a namespace
+# Skills keep their bare names, and commands have a namespace
 
-The OpenCode bridge registers each skill under the `name` of its frontmatter,
-with no namespace, and each command as the namespaced command `agentdev:<name>`.
-The catalog text names the other skills of the catalog as `/agentdev:<name>`, so
-the skill tool removes an `agentdev:` prefix. The bridge registers its own
-commands, because OpenCode does not show its skill-derived commands in
-autocomplete.
+The OpenCode bridge registers each skill under the bare `name` of its
+frontmatter, and each command as `agentdev:<name>`. The skill tool strips an
+`agentdev:` prefix, because the catalog text names sibling skills as
+`/agentdev:<name>`. The bridge registers its own commands because OpenCode
+excludes its own skill-derived commands from autocomplete.
 
 ## Considered Options
 
-- Register v2 skills under `agentdev:<name>` IDs. Rejected: the model then
-  cannot load a skill under its name without a namespace, which the catalog also
+- Register v2 skills under `agentdev:<name>` IDs. Rejected: the model would then
+  fail to load a skill under its bare frontmatter name, which the catalog also
   uses.
-- Commands named `<name>`, with no namespace. Rejected: they are different from
-  the names in Claude Code, and they can have the same name as a skill of a
-  different plugin.
-- Change the catalog text to "the `<name>` skill". Rejected: it changes more
-  than 100 references, and it makes the invocation in Claude Code less accurate.
+- Bare `<name>` commands. Rejected: they would rank higher on `/pr`, but they
+  would differ from the names in Claude Code and could collide with the bare
+  skills of other plugins; the namespaced ranking is usable.
+- Rewrite the catalog text to "the `<name>` skill". Rejected: it rewrites more
+  than 100 `/agentdev:<name>` references and makes invocation in Claude Code
+  less precise, for a gap that the prefix rewrite closes.
 
 ## Consequences
 

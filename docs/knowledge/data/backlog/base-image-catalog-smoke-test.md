@@ -13,10 +13,10 @@ rank: 2100
 
 # Smoke-test the agentdev-base catalog without lifecycle commands
 
-No automated check runs the image with no volumes and no lifecycle hooks. No
-test in `scripts/tests/` or `.github/workflows/ci.yml` starts `agentdev-base`
-without harness-state volumes. Thus no test makes sure that an `agentdev:*`
-skill resolves in Claude Code and that OpenCode lists the catalog skills.
+No automated check runs the image with no volumes and no lifecycle hooks.
+Nothing in `scripts/tests/` or `.github/workflows/ci.yml` starts `agentdev-base`
+without harness-state volumes and asserts that an `agentdev:*` skill resolves in
+Claude Code and that OpenCode lists the catalog's skills.
 
 A consumer that derives from `agentdev-base` without the Dev Container lifecycle
 relies on that build-time install. The only catalog check today goes through the

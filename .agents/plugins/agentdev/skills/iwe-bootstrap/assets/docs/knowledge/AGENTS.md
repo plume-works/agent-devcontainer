@@ -36,11 +36,10 @@ software project's memory and system of record. The division of labor:
    implement skill keeps checkboxes, anchors, and deviations honest while you
    do).
 4. **Record** — write the state in the graph. `SCHEMA.md#what-goes-where` names
-   the document type for each type of knowledge and its writer. The document in
+   the document type for each kind of knowledge and its writer. The document in
    `schema/` for that type gives its path, frontmatter, body, and stages.
    - Work starts → `/agentdev:iwe-plan`.
-   - A bug, a proposed feature, or a task that is ready to do →
-     `/agentdev:iwe-capture`.
+   - A bug, a proposed feature, or an actionable task → `/agentdev:iwe-capture`.
    - An idea, a finding, a guide, or a product-vision document → write the
      document and add its link to its hub.
    - Work ships, or a plan is abandoned → `/agentdev:iwe-ship`. It runs
@@ -71,18 +70,18 @@ software project's memory and system of record. The division of labor:
 - **Queries select documents by `type` and frontmatter fields**, not by hub
   membership.
 - **`data/` is an OKF (Open Knowledge Format) v0.2 bundle**, and CI checks
-  conformance on each commit. Never unbind a schema to prevent a check by
-  `okf.yaml` or `okf-index.yaml`.
+  conformance on each commit. Never unbind a schema to get around `okf.yaml` or
+  `okf-index.yaml`.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.
 - **Code anchors**: `schema/code-anchors.md` gives the forms. Never record a
   line number, anywhere.
 - **A tick and the code are in one commit, and its message has the completion
-  evidence block.** `schema/plans.md` defines the block. One commit ticks one
-  plan task, and the plan has no evidence for it. An edit that ticks many boxes
-  in the file is the defect. Verify never runs again what a completion evidence
-  block records.
+  evidence block.** `schema/plans.md` defines the block. One commit ticks at
+  most one plan task, and the plan itself carries no evidence line for it. An
+  edit that ticks many boxes across the file is the defect, not a shortcut.
+  Verify never re-runs what a completion evidence block records.
 - **Markdown links only, never wiki links.** References are extension-less
   (`[Timer](adr/0001-timer-counts-wall-clock-time)`), relative to the containing
   file.

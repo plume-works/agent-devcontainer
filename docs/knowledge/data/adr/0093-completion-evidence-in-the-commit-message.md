@@ -11,10 +11,9 @@ supersedes:
 The evidence for a ticked plan task is a completion evidence block in the
 message of the commit that ticks the plan task. The diff of that commit shows
 which plan task it ticks, so the block names no task. A commit ticks one plan
-task at most. A `commit-msg` hook makes sure that a new commit obeys the two
-rules, and a `pre-push` hook makes sure that each pushed commit obeys them. A
-hook never reads the command line of a Git command. The plan carries no
-`- **Evidence:**` line.
+task at most. A `commit-msg` hook enforces the two rules on a new commit, and a
+`pre-push` hook enforces them on each pushed commit. A hook never reads the
+command line of a Git command. The plan carries no `- **Evidence:**` line.
 
 ## Considered Options
 
@@ -23,8 +22,8 @@ hook never reads the command line of a Git command. The plan carries no
   connects to that change, and `git log` and `git blame` find it.
 - One block that names a task number. Rejected: the diff already shows the plan
   task, and a number can be incorrect.
-- Many ticks in one commit. Rejected: one block cannot show which text is for
-  which plan task, and a find-and-replace can tick each plan task in a file.
+- Many ticks in one commit. Rejected: one block cannot tell which text belongs
+  to which plan task, and a find-and-replace can tick each plan task in a file.
 - An amend check in the `commit-msg` hook from the command line of the `git`
   process. Rejected: Git gives a `commit-msg` hook no sign of an amend, and the
   command line has aliases, abbreviations, and a different form on each

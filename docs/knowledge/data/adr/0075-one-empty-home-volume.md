@@ -9,25 +9,25 @@ description: The Dev Container runs as a non-root agent account remapped to the 
 The Dev Container uses the account model of the standalone runtime. A non-root
 `agent` account is the account of the host user: the devcontainer CLI changes
 its UID and GID to those of the host user. Its whole home is on one home volume
-that starts empty. The volume gets a copy of the content of an image home one
-time, and an image upgrade never updates it. As a result, the image has an empty
-`/home/agent`. The UID update of the devcontainer CLI fails the build when the
-home is not there.
+that starts empty. Anything built into an image home would be copied into the
+volume once and never updated by an image upgrade. As a result, the image ships
+`/home/agent` empty. The UID update of the devcontainer CLI re-owns the home of
+the account and fails the build when the home is missing.
 
 ## Considered Options
 
 - A volume on `/root`, with root as the user. Rejected: the base image builds
   shell configuration, `gh` extensions, and tool state into `/root`. A volume
-  there keeps all of it at the image of the first create phase.
-- A volume on `/root` that the image updates at each start. Rejected: it
-  overwrites the edits of the user and needs an ownership decision for each
+  there freezes all of it at the image of the first create phase.
+- A volume on `/root` that is refreshed from the image at each start. Rejected:
+  it overwrites the edits of the user and needs an ownership decision for each
   file.
 - An account that the container start creates, as the standalone runtime does.
   Rejected: the UID update of the devcontainer CLI needs an account that the
   image defines.
 - One volume for each state directory. Rejected: each new piece of state needs
   its own volume decision, and single files such as `~/.claude.json` need
-  symlinks.
+  symlink workarounds.
 
 ## Consequences
 
@@ -37,6 +37,7 @@ home is not there.
   CLI does not remap `agent`, which stays 1000:1000, and
   `agentdev-runtime bootstrap` refuses the checkout that root owns.
 - Editor servers such as `~/.vscode-server` stay on the home volume with no
-  cleanup. The owner accepted unlimited growth, and a broken server installation
-  that stays after a rebuild. The owner did not accept a location off the volume
-  for these servers, or a removal of old server versions in the create phase.
+  cleanup. The owner accepted the risk of unbounded growth, and of a broken
+  server installation that survives a rebuild. The owner declined a location off
+  the volume for these servers, and a removal of old server versions in the
+  create phase.

@@ -13,8 +13,8 @@ supersedes:
 The `claude remote-control` server is the only Remote Control mode, and it runs
 by default. `AGENTDEV_CLAUDE_RC_SPAWN` selects the spawn mode: `worktree` (the
 default, by decision of the maintainer), `same-dir`, or `session`. The value
-`off` stops Remote Control. A value that is not in this list stops the start, so
-that an incorrect value does not run a different mode with no message.
+`off` disables Remote Control. An unrecognized value stops the start, so that an
+incorrect value does not silently run a different mode.
 
 ## Considered Options
 

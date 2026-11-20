@@ -175,7 +175,7 @@ documents. They are the project's memory across sessions.
 | `/agentdev:iwe-capture`            | Files a complete bug, proposed feature, or task, deduplicated.      |
 | `/agentdev:iwe-implement`          | Executes a plan task-by-task, ticking boxes with evidence.          |
 | `/agentdev:iwe-branch-name`        | Names a plan's next `iwe/` iteration branch.                        |
-| `/agentdev:iwe-verify`             | Compares the acceptance scenarios with the code before Ship.        |
+| `/agentdev:iwe-verify`             | Pre-ship gate and drift audit: graph claims checked against code.   |
 | `/agentdev:iwe-adversarial-review` | Tries to defeat a plan's design or its code; runs only when asked.  |
 | `/agentdev:iwe-ship`               | Accepts the ADRs, changes the stages, and records the release.      |
 | `/agentdev:iwe-weekly`             | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |

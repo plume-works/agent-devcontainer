@@ -7,16 +7,16 @@ description: The image build installs the catalog for a consumer that runs only 
 # The image installs the catalog, and the create phase installs it again
 
 The image build installs the catalog. As a result, a consumer that runs the
-image with no volumes and no lifecycle commands has the `agentdev:*` skills. The
-home volume of a Dev Container hides all that the build wrote into a home
-directory. As a result, the create phase installs the staged catalog again at
-user scope.
+image with no volumes and no lifecycle commands resolves the `agentdev:*`
+skills. The home volume of a Dev Container shadows everything that the build
+wrote into a home directory, so the create phase installs the staged catalog
+again at user scope.
 
 ## Considered Options
 
 - Each consumer that runs only the image installs the catalog. Rejected: it
-  duplicates the logic of the lifecycle commands. Also, the image holds a staged
-  catalog, but no harness reads it.
+  duplicates the logic of the lifecycle commands, and it leaves the image
+  carrying a staged catalog that looks installed but is not.
 
 ## Consequences
 

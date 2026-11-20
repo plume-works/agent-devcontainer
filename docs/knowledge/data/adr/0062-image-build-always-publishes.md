@@ -8,8 +8,9 @@ description: The CI image build always pushes its images, so a pull request from
 
 The image build is the first stage of CI. The Dev Container acceptance jobs, and
 the suites of each consumer, run in the images that it pushed. For this reason,
-the build pushes each image with no condition on the head repository. A pull
-request from a fork fails at the push.
+the build pushes each image with no condition on the head repository. A fork run
+that published nothing would pass having proved only that the Dockerfiles
+compile, so a pull request from a fork fails at the push instead.
 
 ## Considered Options
 
@@ -21,7 +22,8 @@ request from a fork fails at the push.
   go into the images above it. The acceptance jobs pull the candidate image from
   the registry, so with no push they have no image to test.
 - A personal access token or `pull_request_target` for fork builds. Rejected:
-  code that nobody reviewed can then write to the registry.
+  unreviewed code would then reach the registry. The read-only token of a fork
+  stays the boundary.
 
 ## Consequences
 

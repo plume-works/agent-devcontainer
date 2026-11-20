@@ -14,8 +14,8 @@ macOS keeps the default limit of Claude Code.
 ## Considered Options
 
 - The default limits of the harnesses. Rejected: at its default depth of 1,
-  OpenCode refuses each nested `task` call. Without the variable, a server-side
-  flag sets the limit of Claude Code, and the container does not.
+  OpenCode refuses each nested `task` call. With no variable set, the limit of
+  Claude Code comes from a server-side flag rather than from the container.
 - `env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` in the `settings.json` of Claude
   Code, from `agentdev-runtime state agent-policy`. Rejected: the maintainer
   wants the value in the container definition.
@@ -25,8 +25,8 @@ macOS keeps the default limit of Claude Code.
 
 ## Consequences
 
-- A Claude Code agent can start a subagent only when its `tools:` list includes
-  `Agent`, or when it has no `tools:` list.
+- A Claude Code agent can dispatch a subagent only when its `tools:` list
+  includes `Agent`, or when it has no `tools:` list.
 - `py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py` writes
   `experimental.subagent_depth`. OpenCode can rename or remove an `experimental`
   key, and the maintainer accepts this risk.

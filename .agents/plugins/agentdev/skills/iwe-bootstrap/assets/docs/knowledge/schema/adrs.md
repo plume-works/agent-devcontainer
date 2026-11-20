@@ -11,17 +11,23 @@ A decision gets an ADR only when all three of these are true:
 1. **It is difficult to reverse.** A later change of the decision has a real
    cost.
 2. **It is a surprise without context.** A later reader of the code will ask why
-   the code does it this way.
-3. **It is the result of a real trade-off.** There were real alternatives, and
-   the decision selects one for specific reasons.
+   it is done this way.
+3. **It is the result of a real trade-off.** There were genuine alternatives,
+   and one was picked for specific reasons.
+
+A decision that is easy to reverse, that is not surprising, or that had no real
+alternative gets no ADR.
 
 These decisions qualify:
 
 - the shape of the architecture;
 - an integration pattern between parts of the system;
-- a technology that is expensive to replace;
-- a boundary or a scope decision, a refusal included;
-- a deliberate deviation from the obvious path;
+- a technology choice that carries lock-in: not every library, only one that
+  would be expensive to swap out;
+- a boundary or a scope decision: the explicit refusals are as valuable as the
+  acceptances;
+- a deliberate deviation from the obvious path, where a reasonable reader would
+  assume the opposite;
 - a constraint that the code does not show;
 - an alternative that was rejected for a reason that is not obvious.
 
@@ -46,14 +52,15 @@ The frontmatter has no date field. Git records the date.
 | `deprecated` | The decision does not apply now                |        | Archive     |
 
 Body: an H1 that is the short title of the decision, then 1 to 10 sentences that
-give the context, the decision, and the reason. The schema permits two optional
+give the context, the decision, and the reason. The value of an ADR is the
+record that a decision was made and why. The schema permits two optional
 sections, in this order, and no other section. Include an optional section only
 when it adds real value. Most ADRs do not need them.
 
-- `## Considered Options` — include this section only when a reader must know
-  the alternatives that the decision rejected.
-- `## Consequences` — include this section only when the decision has downstream
-  effects that are not obvious.
+- `## Considered Options` — only when the rejected alternatives are worth
+  remembering.
+- `## Consequences` — only when downstream effects that are not obvious need to
+  be called out.
 
 These rules also apply:
 

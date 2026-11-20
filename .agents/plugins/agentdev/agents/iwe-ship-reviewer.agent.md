@@ -58,7 +58,7 @@ per check: the check, `holds` or the gap, and the documents it read.
 3. **Check every item** of the structure below, in order. Each item is
    `correct`, with the evidence its placeholder names, or `not applicable` when
    its condition is absent from the plan. The Verify, plan-stage, and archive
-   items can never be `not applicable`.
+   items never take `not applicable`.
    - **Verify** — the saved Verify report `.tmp/verify/<plan file name>.md`
      exists, its frontmatter `commit` is an ancestor of the ship commit
      (`git merge-base --is-ancestor`), and its lead line is `Ready to ship`
@@ -101,9 +101,8 @@ The structure, fixed — no item is added, dropped, reordered, or reworded:
 - [x] The plan and every feature and bug that it completed are in the archive, and no hub links them — correct: <archive keys>
 ```
 
-A `## Ship review` that a reviewer wrote before this structure has one of three
-earlier structures. That review stays valid. Nobody writes it again. All three
-start with
+A `## Ship review` recorded before this structure follows one of three earlier
+structures; it stays valid and is never rewritten. All three start with
 "Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>." and end each item with
 `confirmed` or `N/A` in place of `correct` or `not applicable`. The newest of
 them has the same eight items in different words. The next structure
@@ -132,7 +131,6 @@ with one line — `Reviewed`, `Gaps`, or `Needs decision` — and the plan key, 
 - Plan mode never writes. Ship mode writes only `## Ship review`, only when
   every item holds, and commits only the plan file.
 - Never repair a gap yourself: the `fix` operation of `iwe-shipper` does.
-- Read the record that shows that an item is correct before you mark the item
-  `correct`.
+- Never mark an item `correct` without reading the record that confirms it.
 - Never wait for a reply: a decision you were not given ends the run with a
   report.

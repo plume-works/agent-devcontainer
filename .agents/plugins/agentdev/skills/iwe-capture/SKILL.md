@@ -1,6 +1,6 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph. The item is a bug, a proposed feature, or a backlog task. First, look for a duplicate. Do not accept a document that does not have a section or field that its document in docs/knowledge/schema/ requires. Use when Explore settles a defect, a feature, or a task. Use when Implement finds a defect, or work that its plan must not include. Use to move a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and product-vision documents stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field its document in docs/knowledge/schema/ requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, guides, and product-vision documents stay with /agentdev:iwe-explore.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -32,12 +32,11 @@ Run every `iwe` command from the repository root; keys are relative to
    describes the same defect, feature, or work is a duplicate: **STOP**, write
    nothing, and show the matching key with the sentence that matches. Extending
    the existing document is the caller's decision, not this skill's.
-3. **Check for completeness.** Compare the supplied content with each
-   frontmatter field and each body section that the schema document for the
-   type requires. Then compare it with each content rule that the schema
-   document gives. If something is missing, **STOP** and write nothing. List
-   all the gaps, not only the first gap. Never invent content to close a gap;
-   return it to the caller.
+3. **Gate on completeness.** Check the supplied content against every
+   frontmatter field and body section that the schema document for the type
+   requires, and against each content rule it gives. If anything is missing,
+   **STOP**, write nothing, and list every gap at once — not the first one.
+   Never invent content to close a gap; return it to the caller.
 
 4. **Write the document** at the path that the schema document gives, with a
    short kebab slug that no existing key uses. Write the frontmatter and the
@@ -48,17 +47,18 @@ Run every `iwe` command from the repository root; keys are relative to
    `## Fix`. Add `sources` that name each code path, each page, and each GitHub
    issue URL that the item came from.
 
-   Capture files a feature only at `proposed`. `/agentdev:iwe-plan` accepts a
-   feature.
+   Capture never files a feature past `proposed`; accepting one is
+   `/agentdev:iwe-plan`'s step.
 
 5. **Link it from its hub** at its sorted position, as
    `docs/knowledge/schema/hubs.md` defines. A bug filed into the archive gets no
    hub link.
 
-   The caller can say that the captured item closes an existing task or bug.
-   Then close that document as `done`. Set the fields that its schema document
-   gives for that stage. For a bug, write the `## Fix` that the caller gives.
-   Move the document to the archive as `docs/knowledge/schema/archive.md` gives.
+   When the caller says the captured item closes an existing task or bug — a
+   fix that settles a pending task, say — set that document to `stage: done`
+   with the fields its schema document gives for that stage (for a bug, the
+   caller's `## Fix`), and move it to the archive as
+   `docs/knowledge/schema/archive.md` gives.
 
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.

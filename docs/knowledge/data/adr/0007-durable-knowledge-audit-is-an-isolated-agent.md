@@ -4,21 +4,21 @@ stage: accepted
 description: The durable-knowledge check runs in an agent that did not see the work and cannot edit the file, with its rule in the one rulebook iwe-audit.
 ---
 
-# The durable-knowledge check runs in an isolated agent
+# The durable-knowledge audit runs in an isolated agent
 
-A writer reads a draft through the session that wrote it, so residue from that
-session stays in the draft. For this reason, the check runs in the Durable
-Knowledge Auditor, which did not see the work and cannot edit what it reads. The
-rule is in one rulebook, `iwe-audit`. Each change to the intent of a plan goes
-through Plan, so one gate in `/agentdev:iwe-plan-review` covers each mode of
-Plan.
+Session residue survives because the writer reads its draft through the session
+that produced it. So the audit runs in the Durable Knowledge Auditor, an agent
+that never saw the work and cannot edit what it reads, and the rule lives in one
+rulebook, `iwe-audit`. Every edit to a plan's intent funnels through Plan, so
+one gate in `/agentdev:iwe-plan-review` covers create, revise, and every route
+back to revise.
 
 ## Considered Options
 
-- A check step in the context of Plan. Rejected: it reads the draft through the
-  same context that wrote it.
-- Each caller copies the rule into the prompt of a subagent. Rejected: each copy
-  becomes different.
-- A script in the check of the plan shape that finds a step-by-step record of
-  the work. Rejected: such a record has no shape. A rule on length or on prose
-  ratio fails on long plans and misses a short record.
+- A self-audit step inside Plan's own context. Rejected: it re-reads the
+  polluted context that wrote the draft.
+- Each caller inlines the rule into a subagent it spawns. Rejected: the rule
+  drifts at every call site.
+- Detect narration mechanically in the plan-shape check. Rejected: narration has
+  no shape. A length or prose-ratio heuristic fires on long plans and misses a
+  short, dense logbook.

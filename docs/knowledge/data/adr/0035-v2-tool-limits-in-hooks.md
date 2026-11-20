@@ -16,9 +16,10 @@ and denies its actions in `permission.hook("evaluate")`.
 ## Considered Options
 
 - Deny rules on the v2 agent. Rejected: v2 adds the global rules after them, so
-  full access removes the limits.
+  full access cancels the tool limits of every catalog agent.
 - Read the configuration files of the user to find a replaced agent. Rejected:
-  plugins cannot query the v2 configuration search, so the bridge must copy it.
+  it would duplicate the configuration discovery of v2, which plugins cannot
+  query.
 
 ## Consequences
 

@@ -14,14 +14,16 @@ pull request while it is on.
 ## Considered Options
 
 - Request a reviewer again. Rejected: an author cannot request their own review,
-  so it needs a second collaborator.
+  so it needs a second collaborator, and it leaves reviewer churn on the pull
+  request.
 - A comment trigger. Rejected: a run that a comment starts is not a
   `pull_request` run, so its `ai-review-present` check does not count toward the
-  merge.
+  merge, and it needs free-form comment parsing.
 - A waiver of `ai-review-present` for a person with write access who adds the
-  label. Rejected: a writer can then merge work without review, and branch
-  protection records nothing. A ruleset bypass gives the same result through a
-  permission that GitHub records.
+  label. Rejected: it keeps the waiver and only narrows who holds it, so a
+  writer can merge unreviewed work with no trace in the branch-protection
+  record. A ruleset bypass gives the same result through a permission that
+  GitHub records.
 
 ## Consequences
 

@@ -7,8 +7,8 @@ description: Committed text names a place in a file by an anchor and never by a 
 # Committed text names places by anchors, not by line numbers
 
 The maintainer does not permit a line number in committed text. An anchor stays
-correct until its target gets a new name or its file loses it. Then the check
-cannot resolve it, and it does not point to a different place.
+correct until its target is renamed or removed, and then it stops resolving
+rather than silently pointing elsewhere, so it carries no date stamp.
 `scripts/check-anchors.py` runs on each commit with no path filter, because a
 code rename anywhere can break a live anchor. A live anchor is an anchor that
 the check resolves: in the `## Key references` of an active plan, in an open bug
@@ -18,11 +18,11 @@ or task, or in a guide.
 
 - Line numbers with a date. Rejected: the date tells the reader how much to
   trust the number, but it does not keep the number correct.
-- Anchors that a writer puts into the target files, such as `<a id>` or
-  `anchor:` comments. Rejected: each reference then changes the file that it
-  points to, but a symbol or a heading already identifies the place.
-- No line-number check for closed documents. Rejected: agents copy the form of
-  what they read, and the exception needs its own rule.
+- Anchors planted in the target files, such as `<a id>` or `anchor:` comments.
+  Rejected: each reference would edit the file that it points at, while a symbol
+  or a heading already identifies the place.
+- Exempting closed documents from the line-number check. Rejected: agents copy
+  the shape of what they read, and the exemption would need its own rule.
 
 ## Consequences
 

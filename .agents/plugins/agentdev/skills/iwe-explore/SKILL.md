@@ -125,8 +125,8 @@ When the user wants a record, select the applicable destination:
   the plan handoff below. Plan proposes the ADR. Do not write an ADR from
   explore mode.
 - **A bug, a proposed feature, or a backlog task:** Give the settled content to
-  `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`.
-  `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
+  `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`. A defect
+  includes reproducible incorrect behavior. `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
   check. If the investigation started from a GitHub issue, include `ISSUE_URL`.
   The captured document links the issue and closes the issue.
 - **A finding that belongs to an active plan:** Use

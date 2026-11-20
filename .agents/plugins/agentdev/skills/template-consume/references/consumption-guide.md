@@ -184,13 +184,13 @@ Review `.pre-commit-config.yaml` hook by hook:
    local hooks unless the project keeps IWE-based project memory under
    `docs/knowledge/` (see [Knowledge-base
    validation](#knowledge-base-validation)); they require the `iwe` binary on
-   `PATH`, which the development image also supplies;
+   `PATH`, which the development image also provides;
 7. remove the `link-knowledge-support` local hook and
    `scripts/link-knowledge-support.py`. They keep each file in
    `docs/knowledge/` outside `data/` a link to the `iwe-bootstrap` scaffold
    under `.agents/`,
    and the consumer has no scaffold; and
-8. update file selectors for the source layout of the consumer.
+8. update file selectors for the consuming project's source layout.
 
 In `.ruff.toml`, remove `validate_agent_files` and `mock_catalog` from
 `known-first-party`, then add the consuming project's own first-party
@@ -476,9 +476,11 @@ workflow, and must not add `ai-review-present` to its branch protection.
 A pull request that depends on an open pull request has the branch of its
 predecessor as its base. A merge into that branch must not occur: the pull
 request merges into the default branch after its predecessor merges. A
-repository ruleset on `refs/heads/iwe/**` makes this rule. For this ruleset, the status check `base-is-main` is necessary, and no workflow reports that check. Thus GitHub
+repository ruleset on `refs/heads/iwe/**` makes this rule. It requires the
+status check `base-is-main`, and no workflow reports that check. Thus GitHub
 does not merge a pull request into an `iwe/` branch. The Write, Maintain, and
-Admin roles can bypass the ruleset, so the ruleset does not block a push to an `iwe/` branch. This setting is not in the repository, and a diff does not show it.
+Admin roles can bypass the ruleset, so a push to an `iwe/` branch is not
+blocked. This setting is not in the repository, and a diff does not show it.
 Create it once:
 
 ```bash
@@ -875,9 +877,8 @@ already exists.
      `docs/knowledge/`. Compare both trees against the same ref's, leaving out
      `docs/knowledge/tests/`, which holds template tests rather than memory.
      In the template, `.iwe` is a symbolic link into `.agents/`. If the copied
-     `.iwe` is still that link, it is the link of the template. After
-     [Delete publisher-only source](#2-delete-publisher-only-source), this link
-     points to a directory that does not exist. The same is true for the
+     `.iwe` is still that link, it is the publisher copy, and it is broken
+     after [Delete publisher-only source](#2-delete-publisher-only-source). The same is true for the
      support files in `docs/knowledge/`: `AGENTS.md`, `CLAUDE.md`, `SCHEMA.md`,
      `README.md`, `.markdownlint.yml`, and each document in `schema/` are links
      into `.agents/` in the template.

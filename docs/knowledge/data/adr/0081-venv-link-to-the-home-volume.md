@@ -8,22 +8,23 @@ description: Each checkout links its .venv to its own uv environment in the venv
 
 The uv environments are in the venv root, a directory on the home volume next to
 the uv cache. As a result, uv can hardlink packages from the cache. Each
-checkout gets its own environment, because `uv run` points editable
-installations at the checkout that calls it. A `.venv` link in the checkout
-selects the environment, so each `uv run` finds it with no wrapper.
+checkout gets its own environment, because `uv run` repoints editable installs
+at the checkout that calls it. A `.venv` link in the checkout selects the
+environment, so each `uv run` finds it with no wrapper.
 
 ## Considered Options
 
 - A `.venv` directory in the checkout. Rejected: it is on the workspace bind
-  mount, where uv copies files with no message and does not hardlink them. On a
-  macOS host, each uv file operation then goes through VirtioFS.
+  mount, where uv silently falls back to copying instead of hardlinking. On a
+  macOS host, each uv file operation then crosses VirtioFS. With the uv cache
+  also inside the checkout, hard links return, but all uv I/O still runs on
+  VirtioFS on macOS, and the in-tree `.venv` clashes with a host `.venv`.
 - `UV_PROJECT_ENVIRONMENT`. Rejected: it has one value for the whole container,
   and uv ignores `.venv` while it is set. A value for each checkout from a `uv`
   wrapper or `CLAUDE_ENV_FILE` applies to one session only.
-- One shared environment without editable installations. Rejected: the
-  dependencies of branches are still different.
-- `UV_LINK_MODE=symlink`. Rejected: when uv cleans its cache, each environment
-  breaks.
+- One shared environment without editable installs. Rejected: dependencies still
+  diverge between branches.
+- `UV_LINK_MODE=symlink`. Rejected: a cache clean breaks every environment.
 - A `PreToolUse`, `SessionStart`, or `SubagentStart` hook. Rejected:
   `PreToolUse` runs at each tool call, `SessionStart` at each session, and
   `SubagentStart` when a session starts a subagent, not when Claude Code makes a

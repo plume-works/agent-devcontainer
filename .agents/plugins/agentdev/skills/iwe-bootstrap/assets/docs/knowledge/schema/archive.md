@@ -1,15 +1,15 @@
 # Archive
 
-Finished work goes to the archive, and nobody deletes it. `data/archive/` has
-one folder for each cut version, and the folder `next-release`. Each folder has
-the subfolder that its documents were in: `plans/`, `bugs/`, `backlog/`,
-`features/`, `adr/`, or `architecture/`. Each archived document keeps the schema
-of its type, and the schema validates it in full.
+Finished work is archived, never deleted. `data/archive/` has one folder for
+each cut version, and the folder `next-release`. Each folder has the subfolder
+that its documents were in: `plans/`, `bugs/`, `backlog/`, `features/`, `adr/`,
+or `architecture/`. Each archived document stays bound to the schema of its type
+and is validated in full.
 
 - The session that closes a plan, a bug, a task, a feature, or an ADR moves it
-  to `data/archive/next-release/<folder>/` with `iwe rename`. The same change
-  removes its link from its hub. The stage table of each type shows which stages
-  are in the archive.
+  with `iwe rename` to `data/archive/next-release/<folder>/` in the same change
+  that closes it, and removes its link from its hub. The stage table of each
+  type shows which stages are in the archive.
 - The release cut moves all documents under `next-release` to the folder of the
   version, and keeps the subfolders.
 - The folder is the only record of the release of a document. No document has a

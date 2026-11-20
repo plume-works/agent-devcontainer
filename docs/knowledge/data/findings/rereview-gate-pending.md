@@ -92,8 +92,8 @@ only how the gate's result is published.
   to keep the jobs as they are. Merged, every run that only checks the gate
   would also pull the review container, take the `claude-review` environment,
   and hold the review's write permissions, and `request-review.py` could no
-  longer tell a reviewing run from a run that only checks the gate by check
-  name.
+  longer tell, by check name, a reviewing run from a run that only checks the
+  gate.
 
 - **Deleting or rewriting the earlier passing check.** GitHub has no API to
   delete a check run, and newer results with the same name already take
