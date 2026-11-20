@@ -139,9 +139,9 @@ it):
 - If the local toolchain is missing, escalate — don't give up: Docker available
   → `/agentdev:devcontainer-sandbox`. Only report a blocker when no Docker
   daemon is available.
-- Prefer the structured-question tool (`AskUserQuestion` /
-  `vscode/askQuestions`) for yes/no and multiple-choice questions over free
-  text.
+- Ask questions in prose, and then stop. Do not use a structured-question tool
+  (`AskUserQuestion` / `vscode/askQuestions`): it does not show the text that
+  comes before the question.
 - Keep devcontainer runtime code in the `agentdev_runtime` package
   (`py_packages/agentdev_runtime/`).
 - OpenCode tests default to `openai/gpt-6.1-sol` (big model) and
