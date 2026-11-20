@@ -16,5 +16,6 @@ a copy of this repository.
 - A copy of the catalog for each harness. Rejected: two trees must then stay the
   same, and nothing keeps them the same.
 - Scripts that find the repository from their own location. Rejected: in the
-  plugin cache of a consumer, that location is the cache and not the repository
-  of the consumer.
+  plugin cache of a consumer (the copy of the plugin that the harness installs
+  in the home directory), that location is the cache and not the repository of
+  the consumer.

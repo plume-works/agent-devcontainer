@@ -107,8 +107,8 @@ start with
 "Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>." and end each item with
 `confirmed` or `N/A` in place of `correct` or `not applicable`. The newest of
 them has the same eight items in different words. The next structure
-has three items about `## Spec changes` and about created and retired specs, in
-place of the two ADR items. It also has an item about `## Rationale` entries
+has three items about `## Spec changes` and about created and retired
+documents of the removed `data/spec/` folder, in place of the two ADR items. It also has an item about `## Rationale` entries
 before the archive item. The oldest structure is the same without the `## Rationale` and
 archive items, and ends with one item stating that Ship edited no hub or
 release page.

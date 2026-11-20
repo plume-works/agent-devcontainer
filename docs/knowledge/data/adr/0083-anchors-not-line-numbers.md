@@ -10,7 +10,9 @@ The maintainer does not permit a line number in committed text. An anchor stays
 correct until its target gets a new name or its file loses it. Then the check
 cannot resolve it, and it does not point to a different place.
 `scripts/check-anchors.py` runs on each commit with no path filter, because a
-code rename anywhere can break a live anchor.
+code rename anywhere can break a live anchor. A live anchor is an anchor that
+the check resolves: in the `## Key references` of an active plan, in an open bug
+or task, or in a guide.
 
 ## Considered Options
 
@@ -24,8 +26,8 @@ code rename anywhere can break a live anchor.
 
 ## Consequences
 
-- The resolver examines only live anchors. The tasks of a plan name code that
-  does not exist yet, and a closed document can name code that a later change
+- The check resolves only live anchors. The tasks of a plan name code that does
+  not exist yet, and a closed document can name code that a later change
   removed.
 - Only the catalog instructions control the anchors in chat reports, code
   comments, and pull request bodies.

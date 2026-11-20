@@ -19,4 +19,4 @@ gets them.
 - A descriptor that also declares the lifecycle commands runs each command two
   times.
 - The label mounts a volume for each container at `/var/lib/docker`, because the
-  nested engine refuses the overlay file system of the container.
+  Dev Container engine refuses the overlay file system of the container.

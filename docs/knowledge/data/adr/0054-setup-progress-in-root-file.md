@@ -9,7 +9,8 @@ description: The template setup progress is in the root file .agentdev-template-
 The progress document is `.agentdev-template-progress.md` at the root of the
 consumer. The IWE graph of the consumer does not exist before the bootstrap
 task, and a consumer without IWE never has one. `consumed_ref` stays in the
-marker, because JSON has one parse with one failure result, `INVALID_MARKER`.
+marker, the `template-consume` key of `.agent.metadata.json`, because JSON has
+one parse with one failure result, `INVALID_MARKER`.
 
 ## Considered Options
 

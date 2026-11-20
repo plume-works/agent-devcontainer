@@ -12,8 +12,8 @@ sources:
 
 ## Symptom
 
-Each command line that a catalog script gives to a shell must quote its values
-with `bash_quote`. `git-new-branch.py` prints
+Each command line that a script in the catalog gives to a shell must quote its
+values with `bash_quote`. `git-new-branch.py` prints
 `run: git remote set-head <remote> --auto` with the remote name as it is. A
 remote name can have a space or a shell metacharacter. Then the copied command
 does not operate, or it does a different thing.

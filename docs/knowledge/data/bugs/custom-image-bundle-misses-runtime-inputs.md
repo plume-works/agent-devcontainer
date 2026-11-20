@@ -15,9 +15,10 @@ sources:
 
 ## Symptom
 
-A kept custom-image bundle must build from an explicit choice. The guide tells
-the consumer that the base Dockerfile reads the validator and catalog source,
-and that the second choice removes those steps. The other Dockerfiles also read
+A kept custom-image bundle must build from an explicit choice. The consumption
+guide of the `template-consume` skill tells the consumer that the base
+Dockerfile reads the validator and catalog source, and that the second choice
+removes those steps. The other Dockerfiles also read
 `py_packages/agentdev_runtime`, and CI runs tests and path filters on more
 publisher trees. If a consumer makes the second choice, the build cannot find
 its inputs.

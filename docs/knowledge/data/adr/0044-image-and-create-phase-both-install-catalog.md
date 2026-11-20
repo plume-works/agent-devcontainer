@@ -16,7 +16,7 @@ user scope.
 
 - Each consumer that runs only the image installs the catalog. Rejected: it
   duplicates the logic of the lifecycle commands. Also, the image holds a staged
-  catalog, but no client reads it.
+  catalog, but no harness reads it.
 
 ## Consequences
 

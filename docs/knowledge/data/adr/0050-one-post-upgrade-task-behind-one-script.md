@@ -7,8 +7,9 @@ description: Renovate runs one top-level post-upgrade task, scripts/renovate-pos
 # One post-upgrade task behind one script
 
 Renovate stops its updates to a branch that has a commit from a different
-author. As a result, the derived files of a version update must be in the commit
-of Renovate. `.github/renovate.json#postUpgradeTasks` names one script,
+author. As a result, the files that a version update changes in turn (checksums,
+lock files, and pre-commit fixes) must be in the commit of Renovate.
+`.github/renovate.json#postUpgradeTasks` names one script,
 `scripts/renovate-post-upgrade.py`, in `branch` mode. A `packageRule` that sets
 `postUpgradeTasks` replaces the top-level object and does not add to it.
 

@@ -156,7 +156,7 @@ the proxy a static `ipv4_address` keeps that address stable.
 - **Desktop.** Open `https://desktop.example.com`; the Xpra HTML5 client asks for
   `XPRA_PASSWORD` when it connects.
 - **Claude Code.** Log in once from a shell in the container; every project container
-  in the same identity cohort then shares the login:
+  in the same UID/GID cohort then shares the login:
 
   ```bash
   docker exec -u agent -it myproject-opencode-1 bash

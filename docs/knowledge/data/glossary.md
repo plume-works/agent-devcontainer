@@ -23,6 +23,12 @@ image.
 **Optional bundle**: An opt-in group of template files that a consumer can take
 or leave.
 
+**Progress document**: The document in a consumer that holds the task list and
+the choices of a template setup or update.
+
+**Marker**: The record in a consumer of the template commit and the optional
+bundles that it took.
+
 **Publisher-only source**: The part of this repository that exists only to
 publish the catalog and the images, which each consumer deletes.
 
@@ -43,10 +49,10 @@ promotion. *Avoid*: Floating tag, mutable tag
 ### Catalog
 
 **Catalog**: The single collection of skills, agents, and scripts that every
-harness loads. *Avoid*: Plugin, agent library, toolkit
+harness loads. *Avoid*: Agent library, toolkit
 
 **Harness**: An agent client that the images install and that the catalog
-serves. *Avoid*: Client, agent CLI, ecosystem
+serves. *Avoid*: Agent CLI, ecosystem
 
 **OpenCode bridge**: The adapter that makes the catalog available in OpenCode.
 *Avoid*: Bridge plugin
@@ -78,8 +84,8 @@ each way to run the image.
 **Standalone runtime**: A container that prepares its own workspace and serves
 an agent without an editor. *Avoid*: Deploy runtime
 
-**Instance**: One Dev Container of one checkout or worktree. *Avoid*: Workspace,
-environment
+**Instance**: One Dev Container of one checkout or worktree. *Avoid*:
+Environment
 
 **Create phase**: The lifecycle phase that runs one time for each container.
 
@@ -88,6 +94,9 @@ Post-start
 
 **Attach phase**: The lifecycle phase that runs each time an editor attaches to
 the container.
+
+**Agent start**: The runtime step that a Coder workspace runs each time its
+Coder agent starts, outside the lifecycle phases.
 
 **Core service**: A service whose failure stops the standalone runtime.
 
@@ -122,13 +131,13 @@ removes.
 **Disposable volume**: A volume that cleanup can remove.
 
 **UID/GID cohort**: The containers that run with the same user and group IDs and
-that can share one auth volume.
+that can share one auth volume. *Avoid*: Identity cohort
 
 **Workspace engine**: The outer container engine, which runs the Dev Container.
 *Avoid*: Host Docker
 
 **Dev Container engine**: The container engine that runs in the Dev Container.
-*Avoid*: Inner Docker, Docker-in-Docker
+*Avoid*: Nested engine, inner Docker, Docker-in-Docker
 
 **Allowlist**: The set of destinations that the firewall of a container permits
 for outgoing traffic. *Avoid*: Whitelist
@@ -141,6 +150,8 @@ a harness before they show.
 
 **Cloud session**: An agent session that runs on a hosted machine and not on the
 computer of the user. *Avoid*: Remote session
+
+**Session host**: The machine that a cloud session runs on.
 
 **Agent proxy**: The proxy of a cloud session that adds credentials and limits
 access to the repositories of the session.
@@ -179,7 +190,7 @@ the document.
 *Avoid*: Line reference
 
 **Residue**: Text that records the path to a decision and not the decision.
-*Avoid*: Logbook, session notes
+*Avoid*: Session notes
 
 **Build order**: The one sequence of open work, across plans, bugs, and backlog
 tasks. *Avoid*: Priority list, queue
@@ -190,12 +201,15 @@ tasks. *Avoid*: Priority list, queue
 
 **Active plan**: A plan that is not yet closed.
 
+**Plan key**: The name of a plan in the graph: its path in the knowledge base,
+without the extension.
+
 **Plan task**: One checkbox item of a plan. *Avoid*: Step, to-do
 
 **Tick**: The change of a plan task from open to done.
 
 **Completion evidence block**: The part of a commit message that says how the
-agent checked the plan task that the commit ticks. *Avoid*: Evidence line
+agent checked the plan task that the commit ticks.
 
 **Acceptance scenario**: A statement in a plan of one observable behaviour and
 the check that proves it.
@@ -233,8 +247,10 @@ which changes no state.
 
 **Release cut**: The step that assigns the closed documents to a version.
 
-**Work branch**: A branch that carries the work of one iteration of a plan.
-*Avoid*: Feature branch
+**Release page**: The document that says what one cut version changed.
+
+**Work branch**: A branch that carries one piece of work and tracks its own
+remote branch. *Avoid*: Feature branch, topic branch
 
 **Iteration**: The counter of the work branches of a plan, across all phases.
 

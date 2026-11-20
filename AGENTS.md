@@ -25,7 +25,7 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
    and never escalate to "the directory is gone" on that basis.
 
 8. **Never write a working logbook — in any text you produce.** Documents,
-   READMEs, code comments, skills, agent definitions, docstrings, issue and PR
+   READMEs, code comments, skills, agent rulebooks, docstrings, issue and PR
    bodies: record what is **settled**, not the path taken to settle it. A
    blow-by-blow account of an in-flight investigation — attempt one failed,
    attempt two failed differently, CI run IDs, per-attempt tables, "died one
@@ -56,7 +56,7 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
     report, name each actor — the user, the session running a named skill
     (`/agentdev:iwe-implement`), a catalog agent (`iwe-verifier`,
     `iwe-revision-evaluator`) — and each artifact — a file path, a plan section
-    (`## Approach`), a requirement's title — by its real name. Never let a
+    (`## Approach`), an ADR's title — by its real name. Never let a
     pronoun or a nickname stand in for either ("the loop", "the evaluator",
     "the weaker side"). Never use a label coined during the session (a rule
     number, an option letter, "plan A") alone; if one is needed, define it in the
@@ -83,7 +83,7 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
 
 13. **NEVER RECORD LINE NUMBERS.** A line number is wrong the next time its
     file changes. Everything committed or published — graph documents,
-    skills, agent definitions, code comments, PR and issue bodies — and every
+    skills, agent rulebooks, code comments, PR and issue bodies — and every
     skill's chat report names a place by an anchor:
     - code: `path::Class.method` or `path::function`
     - Markdown: `path#heading-slug`

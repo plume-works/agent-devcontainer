@@ -44,8 +44,9 @@ Therefore, the `.iwe/` of agent-devcontainer and the `.iwe/` of the scaffold
 always have the same bytes.
 
 The scaffold structure and the knowledge-base structure of agent-devcontainer
-are always the same. Only in agent-devcontainer, each support file in
-`docs/knowledge/` is a symbolic link to its copy under `assets/docs/knowledge/`.
+are always the same. Only in agent-devcontainer, each file in
+`docs/knowledge/` outside `data/`, such as `AGENTS.md`, `SCHEMA.md`, or a
+document in `schema/`, is a symbolic link to its copy under `assets/docs/knowledge/`.
 `LICENSE.md` and `.gitignore` are real files: the consumer owns `LICENSE.md`,
 and git does not read a `.gitignore` that is a link. `schema/` is a real
 directory with one link for each document, because `iwe` does not follow a link

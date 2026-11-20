@@ -234,8 +234,8 @@ guide that `AGENTS.md#tests` allows no test to check.
 
 - Code points at specs for its reasons. About 60 comments and docstrings outside
   tests cite a spec by key, as `AGENTS.md#comments` rule 3 requires, and most
-  give no reason of their own. No skill or agent definition depends on reading
-  any one spec; the readers are `iwe-verifier`, `iwe-shipper`, and
+  give no reason of their own. No skill or agent rulebook depends on reading any
+  one spec; the readers are `iwe-verifier`, `iwe-shipper`, and
   `iwe-ship-reviewer`, which read the specs a plan names.
 - Specs follow the code about one time in five. Of 736 commits that changed a
   file a spec lists under `sources`, dependency bumps excluded, 134 also changed
@@ -324,12 +324,13 @@ guide that `AGENTS.md#tests` allows no test to check.
   - acceptance criteria for a prose procedure.
 - **Other parts of the repository assume specs exist:** `AGENTS.md#comments`
   rule 3 and the comments written under it; a plan's `## Spec changes`;
-  `iwe-verifier`'s effective contract; `iwe-shipper` steps for spec merge,
-  rationale distillation, and the release page written from the spec diff; three
-  of the items in `scripts/check-ship-records.py::SHIP_REVIEW_ITEMS`;
-  `.iwe/schemas/spec.yaml`; the `iwe-setup` skill; and the `iwe-bootstrap`
-  assets every template consumer receives. Seven requirements of
-  `iwe-workflow-skills` have no subject once `data/spec/` is gone.
+  `iwe-verifier`'s effective contract, the spec plus the intent in a plan's
+  `## Spec changes`; `iwe-shipper` steps for spec merge, rationale distillation,
+  and the release page written from the spec diff; three of the items in
+  `scripts/check-ship-records.py::SHIP_REVIEW_ITEMS`; `.iwe/schemas/spec.yaml`;
+  the `iwe-setup` skill; and the `iwe-bootstrap` assets every template consumer
+  receives. Seven requirements of `iwe-workflow-skills` have no subject once
+  `data/spec/` is gone.
 - **A decision registry was retired one commit earlier.** `05a5aa7d` folded
   `data/architecture/` into `## Rationale`, and the `iwe-workflow-skills` entry
   "Each kind of knowledge has one home, and finished work is archived by

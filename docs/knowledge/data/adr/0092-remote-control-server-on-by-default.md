@@ -29,9 +29,9 @@ that an incorrect value does not run a different mode with no message.
 ## Consequences
 
 - No Dev Container lifecycle command starts Remote Control. In a Coder
-  workspace, the agent start `agentdev-runtime coder start` starts it. A runtime
-  supervisor starts it with its `remote-control` watcher. Both skip the start
-  when the spawn mode is `off`.
+  workspace, the Coder agent start `agentdev-runtime coder start` starts it. A
+  runtime supervisor starts it with its `remote-control` watcher. Both skip the
+  start when the spawn mode is `off`.
 - `AGENTDEV_CLAUDE_RC_MODE` has no effect. A runtime that set
   `AGENTDEV_CLAUDE_RC_MODE=session` now runs the server in `worktree` mode.
 - Each conversation that the server starts receives the environment of the start

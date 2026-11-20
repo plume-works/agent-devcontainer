@@ -37,7 +37,7 @@ Restart Claude Code (or run `/plugin`) and the catalog is available.
 
 ## Installing in OpenCode
 
-OpenCode reads the same directory through the bridge plugin in
+OpenCode reads the same directory through the OpenCode bridge in
 `.opencode-plugin/`. The agentdev images register the staged bridge in
 `~/.config/opencode/opencode.json`, and this repository's devcontainer points it
 at the workspace copy on every editor attachment.
@@ -126,7 +126,7 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:git-commit`             | Conventional commit messages from the staged changes.                   |
 | `/agentdev:git-new-branch`         | Start a work branch at the fetched remote base, with its own upstream.  |
 | `/agentdev:git-merge-resolve`      | Merge a ref and resolve conflicts, escalating when unsure.              |
-| `/agentdev:update-branch`          | Update the current feature branch from its remote base.                 |
+| `/agentdev:update-branch`          | Update the current work branch from its remote base.                    |
 | `/agentdev:pr-open`                | Open a PR from conversation context, or refresh the branch existing PR. |
 | `/agentdev:pr-sync`                | Resync the branch PR title and body, delegating to `pr-open`.           |
 | `/agentdev:pr-gen-description`     | Write a PR description from the change analysis.                        |

@@ -1,7 +1,7 @@
 # Fields every type carries
 
-The optional families of OKF (SPEC §4.1, §5) are on each schema.
-`.iwe/schemas/okf.yaml` checks them.
+The optional families of OKF, the Open Knowledge Format (SPEC §4.1, §5), are on
+each schema. `.iwe/schemas/okf.yaml` checks them.
 
 - `type` — required on each document under `data/`, with one exception:
   `data/index.md`.

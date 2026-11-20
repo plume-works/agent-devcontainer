@@ -70,8 +70,9 @@ software project's memory and system of record. The division of labor:
 - **Never put a plan task on `data/index.md` for ordinary document work.**
 - **Queries select documents by `type` and frontmatter fields**, not by hub
   membership.
-- **`data/` is an OKF v0.2 bundle**, and CI checks conformance on each commit.
-  Never unbind a schema to prevent a check by `okf.yaml` or `okf-index.yaml`.
+- **`data/` is an OKF (Open Knowledge Format) v0.2 bundle**, and CI checks
+  conformance on each commit. Never unbind a schema to prevent a check by
+  `okf.yaml` or `okf-index.yaml`.
 - **Links carry `.md`** — `refs_extension = ".md"`, so a link resolves for
   readers outside iwe. Run `iwe normalize` after bulk edits rather than
   hand-writing link targets.

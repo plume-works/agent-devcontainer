@@ -52,9 +52,9 @@ block of the file sets `CLAUDE_CODE_PLUGIN_DIRS` to an absolute folder outside
 the repository:
 
 - **Each spawned session gets the settings file.** The process of the
-  pre-created session has `--settings=<file>` on the command line and the
-  variable in the environment. The process of a worktree session has the same
-  two items.
+  pre-created session, which the server creates in its own folder when it
+  starts, has `--settings=<file>` on the command line and the variable in the
+  environment. The process of a worktree session has the same two items.
 - **Each spawned session has the plugin.** A user ran the skill of the plugin in
   the pre-created session and in a worktree session.
 - **A change in the folder goes to the sessions that are in operation.** After a

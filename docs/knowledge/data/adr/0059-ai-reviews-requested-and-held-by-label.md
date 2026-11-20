@@ -32,13 +32,15 @@ pull request while it is on.
 - Only the addition of `request-ai-review` and the removal of `block-ai-reviews`
   join the `pr-<n>` concurrency group. Each other label event has its own group,
   so it never replaces a review that waits in `pr-<n>`.
-- Preflight reads the labels from the API, not from the event, so a label that a
-  person adds immediately after the pull request opens still counts.
+- The preflight job of the AI review workflow reads the labels from the API, not
+  from the event, so a label that a person adds immediately after the pull
+  request opens still counts.
 - GitHub sends no event when a person adds a label that is already on the pull
   request. For this reason, `pr-request-ai-review` removes and adds the label
   again when no unfinished run will take it.
 - `block-ai-reviews` never removes the requirement of `ai-review-present`. It
   only stops new reviews.
-- A push starts a review only when the pull request has no accepted AI review.
-  After an accepted review, a push does not start a review, and a person adds
-  `request-ai-review` to get a new review.
+- A push starts a review only when the pull request has no accepted AI review:
+  an approval, a change request, or a comment of the AI reviewer on a commit of
+  the pull request. After an accepted review, a push does not start a review,
+  and a person adds `request-ai-review` to get a new review.

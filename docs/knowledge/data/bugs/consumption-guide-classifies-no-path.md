@@ -12,10 +12,11 @@ sources:
 
 ## Symptom
 
-The guide must put each tracked template path in one of its five classes. Then a
-consumer knows what to keep, merge, or remove. The guide names the classes in
-its opening only. It gives no path a class, and it does not name many tracked
-paths. A consumer must guess what to do with them.
+The consumption guide of the `template-consume` skill must put each tracked
+template path in one of its five classes. Then a consumer knows what to keep,
+merge, or remove. The guide names the classes in its opening only. It gives no
+path a class, and it does not name many tracked paths. A consumer must guess
+what to do with them.
 
 ## Reproduction
 

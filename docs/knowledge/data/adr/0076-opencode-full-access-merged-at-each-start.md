@@ -9,7 +9,7 @@ description: OpenCode runs with full access, and the runtime merges the agent po
 The Dev Container is the isolation boundary, so OpenCode runs in it with no
 prompts for actions or external directories. At each start, the runtime merges
 the agent policy into the OpenCode configuration of the user and replaces only
-the managed keys.
+the keys that the policy sets.
 
 ## Considered Options
 
@@ -20,8 +20,8 @@ the managed keys.
 - Parse or edit the JSONC text locally. Rejected: comments, trailing commas,
   strings, and duplicate keys need a maintained parser.
 - Apply the policy when the catalog installs. Rejected: catalog registration
-  runs only in the create phase and the attach phase, and only when a bridge
-  plugin exists, but each start must restore the policy.
+  runs only in the create phase and the attach phase, and only when an OpenCode
+  bridge exists, but each start must restore the policy.
 
 ## Consequences
 

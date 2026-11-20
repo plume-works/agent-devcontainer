@@ -9,8 +9,9 @@ description: Inside a git work tree, agent file discovery asks git which paths t
 `validate_agent_files` examines directories to find skill, agent, and prompt
 files. Inside a git work tree, it sends the paths of each directory to one
 `git check-ignore --stdin -z` call. It does not use a path that git ignores. The
-excluded-directory set applies only outside a work tree, so the `.gitignore`
-files of a repository are the one source of ignore rules.
+excluded-directory set, a list of directory names that discovery skips, applies
+only outside a work tree, so the `.gitignore` files of a repository are the one
+source of ignore rules.
 
 ## Considered Options
 

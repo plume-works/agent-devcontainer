@@ -28,5 +28,5 @@ listener owns the start order and the recovery.
 - In the standalone runtime, `opencode serve` runs in the foreground as a
   supervisord program, not in tmux, because tmux hides a crash from the
   `controller` event listener and continues after a stop. The Coder agent start
-  keeps its tmux session, so that OpenCode continues when the Coder agent starts
-  again.
+  command, `agentdev-runtime coder start`, keeps its tmux session, so that
+  OpenCode continues when the Coder agent starts again.

@@ -1,6 +1,6 @@
 ---
 type: task
-description: Add a CI check that runs agentdev-base with no client-state volumes and no lifecycle commands and asserts that Claude Code and OpenCode resolve the staged catalog.
+description: Add a CI check that runs agentdev-base with no harness-state volumes and no lifecycle commands and asserts that Claude Code and OpenCode resolve the staged catalog.
 stage: pending
 priority: low
 created: 2026-10-29
@@ -15,8 +15,8 @@ rank: 2100
 
 No automated check runs the image with no volumes and no lifecycle hooks. No
 test in `scripts/tests/` or `.github/workflows/ci.yml` starts `agentdev-base`
-without client-state volumes. Thus no test makes sure that an `agentdev:*` skill
-resolves in Claude Code and that OpenCode lists the catalog skills.
+without harness-state volumes. Thus no test makes sure that an `agentdev:*`
+skill resolves in Claude Code and that OpenCode lists the catalog skills.
 
 A consumer that derives from `agentdev-base` without the Dev Container lifecycle
 relies on that build-time install. The only catalog check today goes through the
@@ -24,7 +24,7 @@ lifecycle of `agentdev-devcontainer`, whose create phase reinstalls the catalog
 and so hides a broken build-time install that a base-image consumer would hit.
 
 **Work:** add a check to CI's acceptance that runs the merged `agentdev-base`
-candidate with no volumes and no lifecycle command, then checks both clients.
+candidate with no volumes and no lifecycle command, then checks both harnesses.
 
 - `docker/base/agentdev-base.Dockerfile` — `agentic_tools_install_catalog=true`
 - `ansible/roles/agent_catalog/tasks/install_catalog.yml › "Register the staged catalog as a Claude marketplace at user scope"`

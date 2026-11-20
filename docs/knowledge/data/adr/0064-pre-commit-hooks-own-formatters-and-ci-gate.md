@@ -10,7 +10,8 @@ Two tools that both format a file change the output of each other. For this
 reason, each formatter and linter has one owner, a pre-commit hook. The CI
 `pre-commit` job runs the same hooks in the pinned `agentdev-devcontainer`
 image. CI and a commit then use tools from the same version owners, so no second
-version can be different.
+version can be different. A version owner is the one place that pins the version
+of a hook tool, such as `uv.lock` or the image.
 
 ## Considered Options
 

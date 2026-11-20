@@ -76,7 +76,7 @@ store](adr/0024-extra-ca-through-system-store.md)
 [The session bus address is an image
 ENV](adr/0025-fixed-session-bus-address-in-image-env.md)
 
-[A latch waits for a new attempt in deploy and ends a Dev
+[A latch waits for a new attempt in the standalone runtime and ends a Dev
 Container](adr/0026-latch-waits-for-retry-or-ends-devcontainer.md)
 
 [One bridge module serves OpenCode v1 and
@@ -85,8 +85,8 @@ v2](adr/0027-one-bridge-module-for-opencode-v1-and-v2.md)
 [OpenCode starts first, and optional work does not stop
 it](adr/0028-opencode-first-optional-work-after.md)
 
-[OpenCode reads the catalog through a bridge
-plugin](adr/0029-opencode-reads-catalog-through-bridge.md)
+[OpenCode reads the catalog through the OpenCode
+bridge](adr/0029-opencode-reads-catalog-through-bridge.md)
 
 [Image builds get no package from
 Launchpad](adr/0030-packages-avoid-launchpad.md)
@@ -211,7 +211,7 @@ UID/GID pair](adr/0070-claude-credentials-shared-other-state-per-instance.md)
 [A cloud session works on its host, not in a Dev
 Container](adr/0071-cloud-sessions-work-on-the-host.md)
 
-[Setup that needs Coder user secrets runs from the agent
+[Setup that needs Coder user secrets runs from the Coder agent
 start](adr/0072-coder-secrets-only-in-the-agent-start.md)
 
 [Docker garbage collection is a supervised hourly service with a list of the

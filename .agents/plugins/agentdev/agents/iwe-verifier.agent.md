@@ -45,7 +45,7 @@ decision your prompt does not carry, stop and report it under
    (a just-finished plan may carry `stage: done`), report them under
    `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan
    (`iwe retrieve -k <plan key>`), each ADR that its `## ADRs` links, and its
-   linked feature and bug documents. Read no spec.
+   linked feature and bug documents. Read no specification document.
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation. Every CRITICAL and WARNING
    cites the scenario, task, or verification step of the plan that it

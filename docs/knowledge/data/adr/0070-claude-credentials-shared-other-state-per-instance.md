@@ -22,9 +22,9 @@ project.
   owners of a different container that runs.
 - A credential volume with the Compose prefix. Rejected: each new worktree then
   needs a new login for each agent.
-- Copy, renew, or send credentials to other workspaces. Rejected: claude.ai
+- Copy, renew, or send credentials to other instances. Rejected: claude.ai
   changes the refresh token at each renewal, so a copy stays valid only in the
-  first workspace that renews it.
+  first instance that renews it.
 - Share the OpenCode data directory or its `auth.json`. Rejected: the directory
   holds a WAL-mode SQLite database with the sessions, and concurrent containers
   that write one copy damage it. OpenCode v2 keeps logins in its database and

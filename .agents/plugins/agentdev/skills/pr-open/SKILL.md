@@ -102,7 +102,7 @@ The last stdout line is `RESULT=<NAME>`; it decides the rest of the run:
 | `SUCCESS`          | `0`  | Exactly one open PR has this head branch                 | **Update mode.** Keep `PR_NUMBER`, `PR_BASE`, and `PR_TITLE`; the PR will be edited in place, never recreated.                                                                                                                        |
 | `NO_PR_FOUND`      | `3`  | No open PR for this branch                               | **Create mode.** Continue and create the PR at the end. The base is `main` unless step 4 finds a dependent branch or the user says otherwise.                                                                                         |
 | `MULTIPLE_PRS`     | `4`  | Several PRs share this head branch                       | **STOP.** Show the candidates and ask which PR to update.                                                                                                                                                                             |
-| `PROTECTED_BRANCH` | `5`  | Branch, or the upstream it tracks, is `main` or `master` | **STOP.** A PR head must be a feature branch. With user authorization, create one through `/agentdev:git-new-branch`, then rerun — see the error handling section below.                                                              |
+| `PROTECTED_BRANCH` | `5`  | Branch, or the upstream it tracks, is `main` or `master` | **STOP.** A PR head must be a work branch. With user authorization, create one through `/agentdev:git-new-branch`, then rerun — see the error handling section below.                                                                 |
 | `GH_UNAVAILABLE`   | `6`  | `gh` is missing, unauthenticated, or its API call failed | **Fallback.** Detect the PR through the GitHub MCP server as described under GitHub Access, using the printed `HEAD_BRANCH`; the result selects update or create mode exactly as above. **STOP** only if no such server is connected. |
 | `PREFLIGHT_ERROR`  | `2`  | Not a repo, detached HEAD, or a bad argument             | **STOP.** Report the blocker verbatim.                                                                                                                                                                                                |
 | `SCRIPT_FAILURE`   | `1`  | The script broke                                         | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                                                                |
@@ -303,7 +303,7 @@ gh pr create --title "<title>" --body-file ./.tmp/pr-body.md \
 - `--title` (required): full PR title
 - `--body-file` (required): the generated markdown from the
   [pr-gen-description](../pr-gen-description/) skill
-- `--base` (required): target branch. The base step 4 chose for a dependent
+- `--base` (required): base branch. The base step 4 chose for a dependent
   branch; otherwise, if not explicitly provided by user or repo policy, `main`
 - `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr.py`,
   which is the configured upstream branch name rather than the local branch
@@ -356,7 +356,7 @@ If you are falling back to a GitHub MCP server, verify its authentication and
 token scopes instead.
 ```
 
-**Not on a feature branch** (`find-branch-pr.py` or `push-branch.py` reports `PROTECTED_BRANCH`):
+**Not on a work branch** (`find-branch-pr.py` or `push-branch.py` reports `PROTECTED_BRANCH`):
 
 ```
 Cannot continue: you're on the main/master branch.

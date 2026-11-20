@@ -45,7 +45,7 @@ instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 [Bug: Renovate's post-upgrade file filters do not include the runtime package's
 lock file](bugs/renovate-file-filters-omit-runtime-lock.md)
 
-[Bug: a deploy runtime that reuses a checkout does not configure the git
+[Bug: a standalone runtime that reuses a checkout does not configure the git
 credential helper](bugs/reused-checkout-gets-no-credential-helper.md)
 
 [Bug: the root-test launcher guard against unmarked tests cannot

@@ -7,11 +7,12 @@ description: The Dev Container runs as a non-root agent account remapped to the 
 # The agent account has one empty home volume for each instance
 
 The Dev Container uses the account model of the standalone runtime. A non-root
-`agent` account is the remapped account of the host user. Its whole home is on
-one home volume that starts empty. The volume gets a copy of the content of an
-image home one time, and an image upgrade never updates it. As a result, the
-image has an empty `/home/agent`. The UID update of the devcontainer CLI fails
-the build when the home is not there.
+`agent` account is the account of the host user: the devcontainer CLI changes
+its UID and GID to those of the host user. Its whole home is on one home volume
+that starts empty. The volume gets a copy of the content of an image home one
+time, and an image upgrade never updates it. As a result, the image has an empty
+`/home/agent`. The UID update of the devcontainer CLI fails the build when the
+home is not there.
 
 ## Considered Options
 

@@ -89,10 +89,11 @@ only how the gate's result is published.
 
 - **Merging the review and the gate into one job.** The required check would go
   pending as soon as a review run starts. The maintainer decided on 2026-10-27
-  to keep the jobs as they are. Merged, every gate-only run would also pull the
-  review container, take the `claude-review` environment, and hold the review's
-  write permissions, and `request-review.py` could no longer tell a reviewing
-  run from a gate-only one by check name.
+  to keep the jobs as they are. Merged, every run that only checks the gate
+  would also pull the review container, take the `claude-review` environment,
+  and hold the review's write permissions, and `request-review.py` could no
+  longer tell a reviewing run from a run that only checks the gate by check
+  name.
 
 - **Deleting or rewriting the earlier passing check.** GitHub has no API to
   delete a check run, and newer results with the same name already take
@@ -118,9 +119,10 @@ only how the gate's result is published.
   `pull-requests: write`, can produce one. Should acceptance be restricted to
   reviews the review job produced?
 - All `pull_request` events share one concurrency group, and a newer queued run
-  replaces an older one. Should preflight decide to review from the pull
-  request's state on any event, rather than from the triggering action, so a
-  dropped run cannot leave the gate red with nothing reviewing?
+  replaces an older one. Should the `preflight` job of
+  `.github/workflows/ai-responder.yml` decide to review from the pull request's
+  state on any event, rather than from the triggering action, so a dropped run
+  cannot leave the gate red with nothing reviewing?
 
 ## Closing
 

@@ -6,11 +6,11 @@ description: Each checkout links its .venv to its own uv environment in the venv
 
 # Each checkout links .venv to its own environment on the home volume
 
-The uv environments are in the venv root on the home volume, next to the uv
-cache. As a result, uv can hardlink packages from the cache. Each checkout gets
-its own environment, because `uv run` points editable installations at the
-checkout that calls it. A `.venv` link in the checkout selects the environment,
-so each `uv run` finds it with no wrapper.
+The uv environments are in the venv root, a directory on the home volume next to
+the uv cache. As a result, uv can hardlink packages from the cache. Each
+checkout gets its own environment, because `uv run` points editable
+installations at the checkout that calls it. A `.venv` link in the checkout
+selects the environment, so each `uv run` finds it with no wrapper.
 
 ## Considered Options
 

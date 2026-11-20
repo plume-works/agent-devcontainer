@@ -68,12 +68,12 @@ the driver of design decisions — internal needs come first.
   - `pyproject.toml` — root Python project (`agent-devcontainer`), dev
     dependency group only, `package = false`.
   - `py_packages/validate_agent_files/` — an independently-released Python
-    package (its own `pyproject.toml`, isolated test suite) that validates
-    agent/skill definitions.
-  - `.agents/plugins/agentdev/` — the canonical source for the `agentdev` Claude
-    Code / OpenCode plugin (agents, skills, `bin/` scripts); this directory is
-    the source of truth, everything else under `.claude-plugin/` and the
-    reinstall scripts is derived.
+    package (its own `pyproject.toml`, isolated test suite) that validates agent
+    and skill rulebooks.
+  - `.agents/plugins/agentdev/` — the canonical source for the `agentdev`
+    catalog for Claude Code and OpenCode (agents, skills, `bin/` scripts); this
+    directory is the source of truth, everything else under `.claude-plugin/`
+    and the reinstall scripts is derived.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
   - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
     — image build.
@@ -82,8 +82,8 @@ the driver of design decisions — internal needs come first.
     images install as a uv tool: PID 1 and its supervisor, the health probes,
     every supervised service, the lifecycle commands, the firewall, and Xpra.
 - **Tests**: two independent pytest suites declared in `pyproject.toml`'s
-  `testpaths` — `.agents/plugins/agentdev/tests/` (plugin script behavior, via a
-  `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
+  `testpaths` — `.agents/plugins/agentdev/tests/` (catalog script behavior, via
+  a `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
   `validate_agent_files` package, must pass with no knowledge of this
   repository:
   `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`).

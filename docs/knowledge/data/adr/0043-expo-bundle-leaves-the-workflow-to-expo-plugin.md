@@ -25,8 +25,9 @@ an empty token as no token.
 ## Consequences
 
 - The bundle adds no `tracked_paths`. It edits files that the consumer already
-  has, and `eas.json`. As a result, no diff shows its edits. At each update,
-  update mode compares the Expo setup steps of the consumption guide with the
-  files of the consumer.
-- The setup writes no trust or security setting of the bridge, because only the
-  Mac gives trust to a workspace.
+  has, and `eas.json`. As a result, no diff shows its edits. At each update, the
+  update mode of `template-consume` compares the Expo setup steps of its
+  consumption guide, `references/consumption-guide.md`, with the files of the
+  consumer.
+- The setup writes no trust or security setting of the Expo bridge, because only
+  the Mac gives trust to a workspace.

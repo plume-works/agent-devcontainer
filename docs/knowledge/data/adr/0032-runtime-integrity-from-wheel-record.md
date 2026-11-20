@@ -10,7 +10,8 @@ A derived image that replaces, adds, or removes a runtime file runs lifecycle
 code that nobody tested. For this reason, `agentdev_runtime.integrity::verify`
 compares the installed files with the `RECORD` file of the installed wheel, and
 the runtime refuses a difference. The refusal tells the user to use the hook
-directories and the documented environment variables.
+directories under `/etc/agentdev/hooks/` and the documented environment
+variables.
 
 ## Considered Options
 

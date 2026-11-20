@@ -15,8 +15,9 @@ sources:
 ## Symptom
 
 HTTPS git must use the gh login, and the check of that login must occur only
-after the keyring session is available. The Dev Container start phase waits for
-the runtime. `agentdev-runtime coder start` does not wait. If it runs before the
+after the keyring session is available: the environment file that lets a process
+use the supervised GNOME Keyring. The Dev Container start phase waits for the
+runtime. `agentdev-runtime coder start` does not wait. If it runs before the
 keyring session file exists, the helper setup cannot read the login and writes a
 warning. Then Remote Control starts, and the helper does not operate.
 

@@ -4,14 +4,15 @@ stage: accepted
 description: Setup that needs Coder user secrets or the Coder agent environment runs from the agent start, never from a Dev Container lifecycle command.
 ---
 
-# Setup that needs Coder user secrets runs from the agent start
+# Setup that needs Coder user secrets runs from the Coder agent start
 
 Coder adds its agent after `devcontainer up`. As a result, the Dev Container
 lifecycle commands do not get Coder user secrets or the agent environment
 (`GITHUB_TOKEN`, `CODER_*`, `GIT_ASKPASS`). Setup that needs them runs from the
-agent start. The git credential helper is one example: with no helper for
-github.com, git uses `GIT_ASKPASS=/.coder-agent/coder`, which never returns, and
-`git push` does not complete.
+agent start: `agentdev-runtime coder start`, which the Coder template runs each
+time the Coder agent starts. The git credential helper is one example: with no
+helper for github.com, git uses `GIT_ASKPASS=/.coder-agent/coder`, which never
+returns, and `git push` does not complete.
 
 ## Considered Options
 

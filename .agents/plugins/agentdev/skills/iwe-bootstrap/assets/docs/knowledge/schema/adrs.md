@@ -58,5 +58,6 @@ when it adds real value. Most ADRs do not need them.
 These rules also apply:
 
 - Nobody edits an accepted ADR. A decision that changes gets a new ADR that
-  names the earlier ADR in `supersedes`.
+  names the earlier ADR in `supersedes`. The one exception is a change of
+  terminology that follows the glossary and leaves the decision as it is.
 - A code comment refers to an ADR as `ADR-NNNN`.

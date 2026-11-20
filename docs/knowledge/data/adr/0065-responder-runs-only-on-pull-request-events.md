@@ -23,9 +23,9 @@ default branch, and no job needs contents write.
 
 ## Consequences
 
-- Preflight checks the write access of `github.actor` of the event, which is the
-  person who pushed, opened the pull request, or changed a label. No run sends
-  an identity to a different run, so `claude-code-action` needs no
+- The preflight job checks the write access of `github.actor` of the event,
+  which is the person who pushed, opened the pull request, or changed a label.
+  No run sends an identity to a different run, so `claude-code-action` needs no
   `allowed_bots`.
 - No responder job pushes, so no ruleset needs the responder as a bypass actor.
 - No run gets the privileges of the default branch, so the `dangerous-triggers`

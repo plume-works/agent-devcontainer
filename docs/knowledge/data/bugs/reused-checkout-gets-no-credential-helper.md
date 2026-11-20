@@ -10,7 +10,7 @@ sources:
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
 ---
 
-# Bug: a deploy runtime that reuses a checkout does not configure the git credential helper
+# Bug: a standalone runtime that reuses a checkout does not configure the git credential helper
 
 ## Symptom
 

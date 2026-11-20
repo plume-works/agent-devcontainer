@@ -6,11 +6,12 @@ description: The gh wrapper that the image installs at /usr/local/bin/gh authent
 
 # Only the gh wrapper of the image authenticates gh
 
-The first `gh` on `PATH` gets the authority of the token that the wrapper adds.
-A checkout that is open in the container is not always trusted. As a result, the
-`github_cli` role installs the wrapper at `/usr/local/bin/gh`, and no shell
-configuration of the images puts a checkout path before it. The wrapper
-authenticates each caller with no agent action.
+The gh wrapper is a script that runs the real `gh` with a token from the git
+credential helper. The first `gh` on `PATH` gets the authority of the token that
+the wrapper adds. A checkout that is open in the container is not always
+trusted. As a result, the `github_cli` role installs the wrapper at
+`/usr/local/bin/gh`, and no shell configuration of the images puts a checkout
+path before it. The wrapper authenticates each caller with no agent action.
 
 ## Considered Options
 

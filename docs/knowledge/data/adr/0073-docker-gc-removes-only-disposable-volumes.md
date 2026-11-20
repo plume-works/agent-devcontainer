@@ -7,10 +7,10 @@ description: A supervised service collects Docker garbage when it starts and the
 # Docker garbage collection is a supervised hourly service with a list of the volumes that it can remove
 
 All Coder workspaces share one host disk. When the disk is full, a workspace
-cannot extract its Dev Container image, and nothing that the agent start runs
-can start. Workspaces have no autostop, so a prune at agent start almost never
-runs. As a result, the supervised `docker-gc` service runs a pass when it starts
-and then each hour.
+cannot extract its Dev Container image, and nothing that the Coder agent start
+runs can start. Workspaces have no autostop, so a prune at agent start almost
+never runs. As a result, the supervised `docker-gc` service runs a garbage
+collection pass when it starts and then each hour.
 
 ## Considered Options
 
@@ -25,8 +25,9 @@ and then each hour.
 
 - Each pass runs `docker builder prune` itself, because BuildKit can run its own
   collection only after a build.
-- The cache limit counts only cache that no kept image shares. Shared cache is
-  the layers of a kept image, so its removal gives no free disk space.
+- The cache limit counts only cache that no image that a pass keeps shares.
+  Shared cache is the layers of such an image, so its removal gives no free disk
+  space.
 - A pass never removes a volume whose name does not match
   `py_packages/agentdev_runtime/agentdev_runtime/docker.py::DISPOSABLE_VOLUME`.
   Test volumes stay until the age limit of a pass removes them.

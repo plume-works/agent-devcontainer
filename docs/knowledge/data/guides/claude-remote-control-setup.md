@@ -32,10 +32,10 @@ default), `same-dir`, or `session`. Set it to `off` to stop Remote Control.
 ### 2. Log in
 
 Run `claude` inside the container and complete `/login` with a claude.ai
-account. The login persists in the shared volume, so later workspaces on the
-same host start Remote Control on their next agent start. In the workspace where
-the login happened, start it by hand from a Coder terminal, which carries the
-same environment as the `coder_script`:
+account. The login persists in the auth volume, so later workspaces on the same
+host start Remote Control on their next agent start. In the workspace where the
+login happened, start it by hand from a Coder terminal, which carries the same
+environment as the `coder_script`:
 
 ``` bash
 agentdev-runtime remote-control start
@@ -45,9 +45,9 @@ A workspace restart also starts it.
 
 ### 3. Approve first-run Claude state
 
-Post-create has already answered these prompts. Attach to the named tmux session
-only if Claude still shows one, for example after a Claude Code release adds a
-new first-run prompt:
+The pre-approval of the create phase has already answered these prompts. Attach
+to the named tmux session only if Claude still shows one, for example after a
+Claude Code release adds a new first-run prompt:
 
 ``` bash
 tmux -L claude-remote attach -t claude-remote
@@ -68,8 +68,8 @@ mobile app.
 
 ### 4. Verify without exposing credentials
 
-Run the following checks inside the nested container. They inspect metadata and
-boolean authentication state, not credential values:
+Run the following checks inside the container. They inspect metadata and boolean
+authentication state, not credential values:
 
 ``` bash
 stat -c '%U %a %n' \
@@ -117,10 +117,11 @@ Inspect only field presence, emptiness, expiry metadata, file timestamps, and
 `refreshTokenExpiresAt` does not make an empty or rejected refresh token usable.
 
 Correlate the credential file modification time with other refresh owners. A
-credential rotating in one client immediately before another copy is cleared is
-evidence of refresh-token divergence. The same signature is reported upstream
-when concurrent Claude clients race a single-use refresh token: the losing
-client persists empty token fields and `expiresAt: 0`.
+credential rotating in one Claude Code process immediately before another copy
+is cleared is evidence of refresh-token divergence. The same signature is
+reported upstream when concurrent Claude Code processes race a single-use
+refresh token: the losing process persists empty token fields and
+`expiresAt: 0`.
 
 The cleared credential document is still a non-empty file, so a healthy JSON
 parse and mode `0600` prove storage integrity, not authentication health. Run

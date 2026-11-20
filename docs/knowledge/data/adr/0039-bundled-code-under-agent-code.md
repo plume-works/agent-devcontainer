@@ -24,4 +24,5 @@ do not execute them.
 ## Consequences
 
 - A path in a script starts at the file of the script, never at the repository,
-  because a repository path does not exist in the plugin cache.
+  because a repository path does not exist in the plugin cache, the copy of the
+  plugin that the harness installs in the home directory.

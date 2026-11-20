@@ -14,11 +14,11 @@ both. Both entries read the catalog through one parser.
 
 - A bridge for v2 only. Rejected: a v1 installation, such as a consumer image or
   a Mac that still uses v1, then loses the catalog.
-- One plugin directory for each major version. Rejected: the configuration must
+- One bridge directory for each major version. Rejected: the configuration must
   then know the installed major version, and two copies of the catalog parser
   are necessary.
 - Run the v2 setup through `console` reports or through `Effect.runPromise` of
-  the plugin. Rejected: neither sends failures to `opencode.log`.
+  the bridge. Rejected: neither sends failures to `opencode.log`.
 
 ## Consequences
 

@@ -19,9 +19,10 @@ metadata for tools that a checkout does not have.
 
 ## Consequences
 
-- The `template-consume` key is the marker, and it is correct only in the root
-  file, because a repository uses the template at one commit. The same key in a
-  file in a subdirectory is broken metadata.
+- The `template-consume` key is the marker, which records the template state of
+  a consumer. It is correct only in the root file, because a repository uses the
+  template at one commit. The same key in a file in a subdirectory is broken
+  metadata.
 - The setup mode of `template-consume` writes the marker in the consumer. The
   template never copies it from this repository. As a result, the template
   classifies the root file by its top-level keys, not as one file.

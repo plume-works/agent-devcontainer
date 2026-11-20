@@ -23,7 +23,7 @@ Test: would this still be true if the code were rewritten from scratch?
 
 Check all text that must contain durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
 code comments, and —
-outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
+outside the graph — `README.md`, `AGENTS.md`, skill and agent rulebooks, and
 docstrings.
 
 Do not audit: `data/bugs/`, `data/releases/`, `data/archive/`, or commit

@@ -133,7 +133,7 @@ the path its `.git` file names.
   it and asks for it on connect.
 - `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
 - Claude Code logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
-  every project container in the same identity cohort. Each project container logs in
+  every project container in the same UID/GID cohort. Each project container logs in
   to OpenCode once: its logins share a database with its sessions in the instance
   `home` volume, and survive replacement and upgrade there. Sessions, configuration,
   keyrings, caches, and Docker engines stay per instance.
@@ -257,12 +257,12 @@ docker run --rm -v "${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}":/auth busyb
 ## The plugin catalog
 
 The repository is its own plugin marketplace. Claude Code installs one plugin,
-`agentdev`; OpenCode loads `agentdev` through the bridge plugin that it contains.
+`agentdev`; OpenCode loads `agentdev` through the OpenCode bridge that it contains.
 
 ### `agentdev`
 
 The image carries `agentdev` 5.0.0, a cross-agent plugin with 37 skills and five
-agent definitions for Claude Code and OpenCode. It covers:
+agents for Claude Code and OpenCode. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
 - Pull-request creation, synchronization, review, feedback resolution, and merging.
@@ -322,7 +322,7 @@ workflow removes it when the review finishes. While the `block-ai-reviews` label
 review runs, requested ones included; removing it runs a waiting request.
 
 Reviews and trusted-bot approvals post as the `plume-works-quill` GitHub App, the only
-reviewer the merge gate accepts. Adopters must register and install a GitHub App and
+reviewer the merge gate accepts. Consumers must register and install a GitHub App and
 create the `plume-works-review` environment holding the `CLAUDE_CODE_OAUTH_TOKEN`,
 `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` secrets, and create the
 `request-ai-review` and `block-ai-reviews` labels before enabling the workflow.

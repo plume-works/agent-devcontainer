@@ -15,8 +15,9 @@ sources:
 With `ENABLE_FIREWALL=true`, the firewall must block IPv6 fully. When the
 container has no `ip6tables`, `agentdev-runtime firewall apply` writes "WARNING:
 ip6tables not available; IPv6 traffic is not restricted" and continues. The
-self-verification passes, because it does only IPv4 probes. A process can then
-send IPv6 traffic to a host that is not on the allowlist.
+check that the firewall runs after it applies its rules passes, because it does
+only IPv4 probes. A process can then send IPv6 traffic to a host that is not on
+the allowlist.
 
 ## Reproduction
 

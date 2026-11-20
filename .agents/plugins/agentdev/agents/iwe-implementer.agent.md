@@ -35,8 +35,8 @@ claims the user gave is not one.
 2. **Load the context.** Read the full plan, its `## Acceptance` scenarios,
    each ADR its `## ADRs` links, and `data/product.md` `## Constraints` and
    `## Authoring rules` — they are rules for the code that you will write. Read no
-   spec. The scenarios are the behavior this work is meant to produce, and
-   each one names the test that proves it.
+   specification document. The scenarios are the behavior this work is meant
+   to produce, and each one names the test that proves it.
 3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
    ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
    prerequisite plan that is not `stage: done` in the checkout
