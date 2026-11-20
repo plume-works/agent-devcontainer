@@ -9,7 +9,8 @@ description: The request-ai-review label is the one way to request an AI review,
 A label change is a `pull_request` event, so the checks of its run attach to the
 head commit and count toward the merge. For this reason, `request-ai-review` is
 the one way to request an AI review. `block-ai-reviews` stops each review of the
-pull request while it is on.
+pull request while it is on, which saves the review runs that would fail while
+Claude is unavailable.
 
 ## Considered Options
 

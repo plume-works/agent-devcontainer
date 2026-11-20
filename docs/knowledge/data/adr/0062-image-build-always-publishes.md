@@ -28,3 +28,8 @@ compile, so a pull request from a fork fails at the push instead.
 ## Consequences
 
 - A maintainer runs an external contribution from a branch of this repository.
+- Fork builds become worth supporting when a later stage can consume an image
+  that the run itself produced without a registry write, for example a
+  runner-local registry service or a shared image store that the whole pipeline
+  resolves through. The condition has to hold for consumers too, since they
+  inherit the workflow along with the constraint.
