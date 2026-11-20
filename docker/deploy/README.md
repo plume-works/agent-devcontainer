@@ -156,17 +156,17 @@ the proxy a static `ipv4_address` keeps that address stable.
 - **Desktop.** Open `https://desktop.example.com`; the Xpra HTML5 client asks for
   `XPRA_PASSWORD` when it connects.
 - **Claude Code.** Log in once from a shell in the container; every project container
-  in the same identity cohort then shares the login:
+  in the same UID/GID cohort then shares the login:
 
   ```bash
   docker exec -u agent -it myproject-opencode-1 bash
   claude        # follow its login prompt, then exit
   ```
 
-- **Claude Remote Control.** If `AGENTDEV_CLAUDE_RC_SPAWN` is not `off`, Remote
-  Control starts by itself in tmux session `claude-remote`. It starts within seconds
-  of the claude.ai login above, in each project container that operates and shares
-  the login. You do not restart the container. Until then, `agentdev-runtime health status`
+- **Claude Remote Control.** Unless `AGENTDEV_CLAUDE_RC_SPAWN` is `off`, Remote
+  Control starts by itself, in tmux session `claude-remote`, within seconds of the
+  claude.ai login above, in every running project container that shares the login;
+  no restart is needed. Until then, `agentdev-runtime health status`
   shows `remote-control: waiting for a claude.ai login`. If the session exits, the
   runtime starts it again. To look at it:
 

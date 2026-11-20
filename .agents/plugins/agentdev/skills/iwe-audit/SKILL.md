@@ -21,21 +21,20 @@ Test: would this still be true if the code were rewritten from scratch?
 
 ## Scope
 
-Check all text that must contain durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
+Audit any text that promises durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
 code comments, and —
-outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
+outside the graph — `README.md`, `AGENTS.md`, skill and agent rulebooks, and
 docstrings.
 
 Do not audit: `data/bugs/`, `data/releases/`, `data/archive/`, or commit
-messages. These documents record process detail, and `/agentdev:git-commit`
-controls commit messages. Residue in a different document can go into one of
-these documents. Move the residue there. Do not delete it.
+messages. Process detail is their job; commit messages are owned by
+`/agentdev:git-commit`. Residue in another document may belong in one of these —
+that is a move, not a deletion.
 
-The skill checks a plan only in plan mode below. It checks only the intent
-sections of the plan. A plan can tell the sequence of the work in its
-`## Verification results` section, and that section stays out of scope. The
-completion evidence block of a ticked task is in a commit message. The evidence
-that an older plan keeps under its ticked tasks also stays out of scope.
+A plan is audited only in plan mode below, and only its intent sections: a
+plan's `## Verification results` is narrative-sanctioned and stays out of scope,
+and so does the evidence an older plan keeps under its ticked tasks. The
+completion evidence block of a ticked task lives in a commit message.
 
 **Diff scope.** When a caller runs this skill over a diff, the candidate set is
 the diff's added lines, not a grep over `<TARGET>`. §1's patterns are the smell
@@ -43,13 +42,12 @@ list applied to those added lines. Everything downstream — §"Durable vs not",
 §2 verdicts, §3 verify — is unchanged and shared with the local-tree scope.
 
 **Plan scope.** When the `<TARGET>` is a plan, the candidate set is every plan
-section with two exceptions. The `## Verification results` section, where a plan
-can tell the sequence of the work, stays out of scope. The evidence that an
-older plan keeps under its ticked tasks also stays out of scope. `## Context`,
-`## Approach`, the task descriptions, and the other sections are in scope. They
-state intent. They must record the decision, not the steps that occurred before
-the decision. Like Diff scope, this scope is report-only (see §4). The sections
-after this one do not change, and the other scopes also use them.
+section except the two narrative-sanctioned homes — `## Verification results`
+and the evidence an older plan keeps under its ticked tasks — which stay out of
+scope. `## Context`, `## Approach`, task descriptions, and the rest are in
+scope: they state intent and must record what is settled, not the path taken to
+settle it. Like Diff scope, this scope is report-only (see §4). Everything
+downstream is unchanged and shared with the other scopes.
 
 ## 1. Collect candidates
 

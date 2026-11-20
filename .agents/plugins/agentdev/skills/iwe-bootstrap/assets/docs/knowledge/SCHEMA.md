@@ -22,14 +22,15 @@ a shape of its own.
 
 ## What goes where
 
-Each type of knowledge has one home, and no type repeats the content of a
-different type.
+Each kind of knowledge has one home, and no type repeats the content of a
+different type: a statement with two homes drifts in the one that nobody
+maintains.
 
 | Knowledge                                             | Home                                      | Writer                                  |
 | ----------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
 | How the product behaves                               | The code and its tests                    | The change that builds the behaviour    |
 | What the product is, its constraints, authoring rules | `data/product.md` (`schema/trackers.md`)  | `/agentdev:iwe-setup`                   |
-| A project term                                        | `data/glossary.md` (`schema/trackers.md`) | The change that first uses the term     |
+| A project term                                        | `data/glossary.md` (`schema/glossary.md`) | The change that settles the term        |
 | A principle that stays true in each release           | `schema/product-vision.md`                | `/agentdev:iwe-explore`                 |
 | An idea that is not a commitment                      | `schema/someday-ideas.md`                 | `/agentdev:iwe-explore`                 |
 | Work that one session can complete                    | `schema/backlog-tasks.md`                 | `/agentdev:iwe-capture`                 |
@@ -48,8 +49,8 @@ has one topic.
 
 Plans, features, bugs, ADRs, releases, and backlog tasks are work items. A work
 item has a `stage`. Findings, guides, product-vision documents, and someday
-ideas are permanent reference documents. A reference document has a `type` and
-no `stage`.
+ideas are durable reference documents. A reference document has a `type` and no
+`stage`, because nothing about it is a lifecycle.
 
 ## Rules that all types share
 
@@ -59,5 +60,6 @@ no `stage`.
 - `schema/code-anchors.md` — the forms of a code anchor.
 - `schema/hubs.md` — the hub of each type.
 - `schema/trackers.md` — the three trackers.
+- `schema/glossary.md` — the format and the rules of the glossary.
 - `schema/index-file.md` — `data/index.md`.
 - `schema/archive.md` — where finished work goes.

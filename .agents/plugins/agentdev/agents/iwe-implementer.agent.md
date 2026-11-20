@@ -34,9 +34,9 @@ claims the user gave is not one.
    built? Stop and point at the `/agentdev:iwe-plan` skill.
 2. **Load the context.** Read the full plan, its `## Acceptance` scenarios,
    each ADR its `## ADRs` links, and `data/product.md` `## Constraints` and
-   `## Authoring rules` — they are rules for the code that you will write. Read no
-   spec. The scenarios are the behavior this work is meant to produce, and
-   each one names the test that proves it.
+   `## Authoring rules` — they bind the code you are about to write. Read no
+   specification document. The scenarios are the behavior this work is meant
+   to produce, and each one names the test that proves it.
 3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
    ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
    prerequisite plan that is not `stage: done` in the checkout
@@ -59,8 +59,8 @@ claims the user gave is not one.
    a renamed or removed one — that edit is part of this session's work. An
    anchor carries no date to refresh.
 6. **Execute the next unchecked task.**
-   - Obey its `**Files:**` list. Write the code. Do each test and each check
-     that the task requires.
+   - Follow its `**Files:**` list, write the code, and run every test and
+     check that the task requires.
    - Then close the task with one edit. The edit ticks `- [ ]` → `- [x]` and
      writes nothing else in the plan.
    - The code and the tick are in one commit. That commit ticks one plan task
@@ -76,11 +76,11 @@ claims the user gave is not one.
      ```
 
      The evidence is a test, a command, a file, a manual check, a live check,
-     or a PR, in free form. Its only function is to make sure that nobody ticks
-     a box for work that nobody did. Nobody does the check again.
+     or a PR, in whatever words fit. It exists only so that a box is never
+     ticked for work that was not done; nobody audits its form or re-runs it.
 
-   - Close the task only when the code has all the specified behavior of the
-     task and its checks pass. Then run `iwe normalize`.
+   - Close the task only when the task's complete specified behavior is
+     implemented and its checks pass. Then run `iwe normalize`.
    - Partial work, deferred behavior, or a required test or check that fails
      stays unticked.
 
@@ -92,9 +92,9 @@ claims the user gave is not one.
      boundary, update the plan first, report the correction and why it
      preserves intent, then continue within the user's requested task boundary.
      Adding a task is never a tactical correction.
-     The plan's `## Acceptance` scenarios are one of those boundaries: you
-     can continue with a correction only while each scenario stays true as the
-     plan states it.
+     The plan's `## Acceptance` scenarios are one of those boundaries: a
+     correction may proceed only while each scenario still holds exactly as
+     written.
    - **Material deviation:** if completing the task would add scope or drop,
      narrow, defer, or accept an exception to specified behavior, leave the
      task unchecked. Any change to a scenario in `## Acceptance` or to an ADR
@@ -111,15 +111,15 @@ claims the user gave is not one.
        keeping every specified behavior. It takes the revision route in
        `## Running the loop` before coding past it.
 
-8. **Run to completion.** Do the tasks one after the other until you tick the
-   last plan task. Do not stop for approval between tasks. Close each task under
-   Step 6. Put its code and its tick in one commit whose message has the
-   completion evidence block. Stop only in two conditions. The first condition
-   is a material deviation (Step 7). Then use the route of that deviation. The
-   second condition is a task that is blocked or not complete. Then do not tick
-   that task. Write the work that remains or the evidence that fails. Then stop.
-   If the user asks to review each task, stop after each task. Then report the
-   progress: "3/5 tasks, next: <task name>".
+8. **Run to completion.** Execute tasks continuously until the plan's last box
+   ticks, without pausing for approval between them — each task still closes
+   under Step 6, its code and tick in one commit whose message has the
+   completion evidence block. Stop only when an interlock fires: a material
+   deviation (Step 7), which then takes its route, or a task that is blocked or
+   incomplete mid-task — leave that box unticked, describe the remaining work
+   or failing evidence, and stop there. If the user asks to review each task,
+   stop after each instead and report progress: "3/5 tasks, next: <task
+   name>".
 9. **Finish.** Run the plan's `## Verification` commands, then report a
    rollup of the tasks executed this session — the first and only report of a
    continuous run — with the verification results. With every task closed,
@@ -200,7 +200,7 @@ the review reads committed code. Act on each finding by its **Defeats** line:
 - A finding that names no claim is filed through the `/agentdev:iwe-capture`
   skill and named in the report.
 
-Tick the task after you fix each finding that defeats a claim. The completion
+Tick the task once every claim-defeating finding is fixed. The completion
 evidence block of that commit says what fixed each finding and names each
 captured document's key.
 

@@ -10,7 +10,7 @@ it, and nothing edits it after the cut.
 ---
 type: release # required
 version: 0.1.0 # required
-date: 2026-07-18 # required: the day of the release cut
+date: 2026-07-18 # the day the release was cut
 stage: released # required, always released
 ---
 ```
@@ -18,11 +18,11 @@ stage: released # required, always released
 Body: plain text with no Markdown link, with these sections in this order. A
 page leaves out a section that has no content.
 
-- Sections with a theme as the heading — the changes, in plain language. The
+- Sections with a theme as the heading — in plain language, the changes that the
   `## Acceptance` scenarios of the plans in the archive folder of the release
-  give the changes. For an archived plan with no `## Acceptance`, the page uses
-  its `## Spec changes`.
-- `## Removed` — behaviour that the release removed.
+  state. For an archived plan with no `## Acceptance`, the page uses its
+  `## Spec changes`.
+- `## Removed` — behaviour that went away.
 - `## Upgrade notes` — a change that needs action from a consumer.
 - `## Decisions` — the title of each ADR that became accepted or superseded
   after the commit that added the previous release page.

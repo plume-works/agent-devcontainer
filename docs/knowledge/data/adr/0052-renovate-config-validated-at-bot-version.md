@@ -6,18 +6,20 @@ description: renovate-config-validator --no-global --strict validates the Renova
 
 # The Renovate version that reads the config also validates it
 
-No other check reads `.github/renovate.json` before the bot. A wrong option or a
-bad custom-manager regex only stops updates, and nothing shows it. The
+Nothing else checks `.github/renovate.json` before it reaches the bot, and a
+mistyped option or an unparseable custom-manager regex presents as updates that
+quietly stop arriving, which looks the same as having no updates to make. The
 `renovate-config-validator` pre-commit hook and
 `.github/workflows/validate-renovate-config.yml` validate the config with
 `--no-global --strict`, at the release that the hook pins. The bot runs at that
-release too.
+release too, so one pin serves the hook, the workflow, and the bot.
 
 ## Considered Options
 
 - Install Renovate in the `agentdev-devcontainer` image. Rejected: it is still
-  one pin, but it adds a large Node dependency tree to the image of each
-  developer. `bunx` downloads the pinned release for each run.
+  one pin, but it brings a large Node dependency tree into every developer's
+  image for the rare commit that touches `.github/renovate.json`. `bunx` fetches
+  the pinned release for each run instead.
 
 ## Consequences
 
@@ -25,9 +27,11 @@ release too.
   each pull request. A paths filter skips the validation job when a pull request
   does not change the config, the hook pins, or the image pin.
 - `--no-global` is necessary. Without it, the validator applies the global
-  schema, which accepts a different set of options than the repository schema.
-  For example, a repository config with the global option `allowedCommands`
-  passes without the flag.
+  schema, which accepts and rejects a different set of options than the
+  repository schema that Renovate reads for this file. For example, a repository
+  config with the global option `allowedCommands` passes without the flag.
 - The bot reads its global options only from `RENOVATE_*` variables, never from
   a config file in the repository.
-- Neither gate checks that the `matchStrings` of a custom manager find a match.
+- Both gates check that the config is valid. Neither checks that the
+  `matchStrings` of a custom manager find a match, so a regex that silently
+  extracts zero dependencies passes both.

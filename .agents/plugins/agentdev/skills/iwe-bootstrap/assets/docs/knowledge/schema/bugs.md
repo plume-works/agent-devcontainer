@@ -1,6 +1,6 @@
 # Bugs
 
-A bug is a defect in shipped behaviour. The defect is incorrect behaviour that a
+A bug is a defect in shipped behaviour: behaviour that is incorrect and that a
 reader can reproduce, or code that does not agree with an accepted ADR. A bug
 holds the report and the investigation.
 
@@ -15,8 +15,8 @@ severity: high # critical | high | medium | low — required
 ---
 ```
 
-- `severity` is the effect of the defect when it occurs, not its urgency. It
-  does not set `rank`.
+- `severity` is the impact of the defect — how bad it is when it happens — not
+  its urgency. It is descriptive only and does not set `rank`.
 - `rank` is optional. See `schema/build-order.md`.
 
 | Stage       | Meaning                           | Set by                                             | Location     |

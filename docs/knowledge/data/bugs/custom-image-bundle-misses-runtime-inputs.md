@@ -1,6 +1,6 @@
 ---
 type: bug
-description: The guide's custom-image setup names only the validator and catalog mounts. The Dev Container and deploy Dockerfiles also mount py_packages/agentdev_runtime, and CI tests more publisher trees. Thus the build of the second choice fails.
+description: The guide's custom-image setup names only the validator and catalog mounts. The Dev Container and deploy Dockerfiles also mount py_packages/agentdev_runtime, and CI tests more publisher trees, so the second choice still gives a build that fails.
 stage: pending
 severity: medium
 sources:
@@ -15,12 +15,13 @@ sources:
 
 ## Symptom
 
-A kept custom-image bundle must build from an explicit choice. The guide tells
-the consumer that the base Dockerfile reads the validator and catalog source,
-and that the second choice removes those steps. The other Dockerfiles also read
+A kept custom-image bundle must build from an explicit choice. The consumption
+guide of the `template-consume` skill tells the consumer that the base
+Dockerfile reads the validator and catalog source, and that the second choice
+removes those steps. The other Dockerfiles also read
 `py_packages/agentdev_runtime`, and CI runs tests and path filters on more
-publisher trees. If a consumer makes the second choice, the build cannot find
-its inputs.
+publisher trees. A consumer who makes the second choice gets a build that cannot
+find its inputs.
 
 ## Reproduction
 

@@ -16,7 +16,7 @@ Gated by `install_agent_catalog` in the playbook, and placed after
 
 The role copies `.claude-plugin/` and `.agents/plugins/` to `agent_catalog_root`
 in their source layout. The Claude Code marketplace manifest resolves each plugin
-by a path relative to the marketplace root, and OpenCode loads the bridge plugin
+by a path relative to the marketplace root, and OpenCode loads the OpenCode bridge
 inside it, so the layout is preserved rather than rearranged:
 
 ```text

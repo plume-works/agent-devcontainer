@@ -13,10 +13,12 @@ sections can be there. A finding gives:
 - the measurement;
 - each hypothesis that was eliminated, and what eliminated it;
 - what can settle the question;
-- what closes the finding. "Not worth the cost" is a valid closing, and the
-  finding records it as a decision.
+- what closing the finding looks like. "Not worth the cost" is a valid closing,
+  and the finding records it as a decision rather than leaving it to lapse.
 
-A finding has its own document. The document that the question came from keeps
-no summary of the finding, no section about it, and no link to it. The one
-exception is its status line, and only when the finding changes its own
-acceptance. A reference points from the newer document to the older document.
+A finding has its own document: a question that the original work did not scope
+goes in a new document. The document that the question came from keeps no
+summary of the finding, no section about it, and no forward link to it. The one
+exception is the status line of that document, and only when the finding affects
+that document's own acceptance. References point from the newer document to the
+older one.

@@ -20,7 +20,7 @@ The `pr-review` skill runs `/agentdev:audit-ste100` on the prose that a pull
 request adds. Each finding blocks the merge. The audit does not give the same
 findings two times for the same text: see [Bug: the ASD-STE100 audit gives
 different findings for the same
-text](../../../bugs/ste100-audit-not-deterministic.md). Thus the AI reviewer can
+text](../bugs/ste100-audit-not-deterministic.md). Thus the AI reviewer can
 request changes again after each fix.
 
 The repository owner decided these points:
@@ -307,7 +307,7 @@ Ship merges no spec, so this task makes the spec edits that this plan needs.
 ## Out of scope
 
 - The fix of [Bug: the ASD-STE100 audit gives different findings for the same
-  text](../../../bugs/ste100-audit-not-deterministic.md).
+  text](../bugs/ste100-audit-not-deterministic.md).
 - An audit of the pull request title, the pull request body, or a commit
   message.
 - A spec for `pr-open`.

@@ -1,6 +1,6 @@
 ---
 type: finding
-description: A Remote Control server that starts with --settings gives each session that it spawns the plugins of one folder through CLAUDE_CODE_PLUGIN_DIRS. A copy of the plugin in the worktree of a session has no effect. The maintainer has not made a decision to use this method.
+description: A Remote Control server that starts with --settings gives each session that it spawns the plugins of one fixed folder through CLAUDE_CODE_PLUGIN_DIRS. A copy of the plugin in the worktree of a session has no effect. The maintainer has not made a decision to use this method.
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/worktree.py
@@ -52,26 +52,26 @@ block of the file sets `CLAUDE_CODE_PLUGIN_DIRS` to an absolute folder outside
 the repository:
 
 - **Each spawned session gets the settings file.** The process of the
-  pre-created session has `--settings=<file>` on the command line and the
-  variable in the environment. The process of a worktree session has the same
-  two items.
+  pre-created session, which the server creates in its own folder when it
+  starts, has `--settings=<file>` on the command line and the variable in the
+  environment. The process of a worktree session has the same two items.
 - **Each spawned session has the plugin.** A user ran the skill of the plugin in
   the pre-created session and in a worktree session.
-- **A change in the folder goes to the sessions that are in operation.** After a
+- **A change in the folder goes to the sessions that are running.** After a
   change to the skill body in the folder and `/reload-skills`, both sessions ran
-  the changed skill. The test does not show if the reload was necessary.
+  the changed skill. The test does not show whether the reload was necessary.
 - **A copy in the worktree has no effect.** With a different copy of the plugin
   in the worktree of the session, the session ran the skill of the folder,
   before and after `/reload-skills`.
 - **The plugin of the folder replaces an installed plugin of the same name.**
-  The same plugin was also installed at user scope from a marketplace and
-  enabled. `claude plugin list` shows the two plugins. The session has one
-  skill, the skill of the folder. Without the settings file, the session has the
-  skill of the installed plugin.
-- **A changed description needs `/reload-skills`.** The test used a `claude -p`
-  session with more than one turn and the plugin of the folder. The skill list
-  of the session does not show a change to the `description` in the frontmatter
-  of a skill. After `/reload-skills`, the session has the changed description,
+  With the same plugin also installed at user scope from a marketplace and
+  enabled, `claude plugin list` shows the two, and the session has one skill,
+  the skill of the folder. Without the settings file, the session has the skill
+  of the installed plugin.
+- **A changed description needs `/reload-skills`.** In a `claude -p` session
+  with more than one turn and the plugin of the folder, a change to the
+  `description` in the frontmatter of a skill does not show in the skill list of
+  the session. After `/reload-skills`, the session has the changed description,
   and the reload reports no added or removed skill.
 
 ## Eliminated hypotheses
@@ -90,8 +90,8 @@ the repository:
 - With one folder for all sessions, a session that changes the catalog in its
   worktree cannot run the change. The per-worktree catalog has the opposite
   property: only the worktree of the session has an effect.
-- A session with the per-worktree catalog can run the catalog of any branch: do
-  a checkout of the branch in the worktree of the session.
+- A session with the per-worktree catalog can run the catalog of any branch:
+  check out the branch in the worktree of the session.
 
 ## Closing
 

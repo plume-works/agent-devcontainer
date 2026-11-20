@@ -6,17 +6,20 @@ description: Pull request description guidance of a consumer is in .github/pr-de
 
 # Pull request description guidance is a separate file
 
-`.github/pull_request_template.md` is only one of two states: the stub or a real
-template. As a result, a template update can identify the state. The guidance of
-a consumer is in `.github/pr-description-guidance.md`. The consumer owns this
-file, and updates keep it. The guidance holds instructions, because
-`pr-gen-description` owns the list of sections.
+`.github/pull_request_template.md` stays a pure two-state pointer, the stub or a
+real template, so a template update can tell the two apart. The guidance of a
+consumer is in `.github/pr-description-guidance.md`, consumer-created state that
+updates preserve. The guidance holds instructions, because `pr-gen-description`
+owns the section list: a section such as `## Rollback plan` is captured as an
+instruction to cover rollback.
 
 ## Considered Options
 
-- A guidance block in the pull request template. Rejected: the template is then
-  not a two-state pointer, and an update must merge consumer text into a
-  template path.
+- A guidance block in the pull request template. Rejected: the template would
+  stop being a two-state pointer, and an update would have to merge consumer
+  text into a template path.
 - Delete `.github/pull_request_template.md`. Rejected: the text box of the
-  GitHub web interface then opens empty, and a person finds nothing that tells
-  where the structure is.
+  GitHub web interface would open blank, and a person arriving at the repository
+  would find nothing pointing at where the description structure lives. A stub
+  that names no sections avoids both and cannot drift, because it makes no
+  structural claim.

@@ -75,17 +75,17 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    Acceptance, ADRs, Depends on, Verification, Out of scope, and Key references.
    For example, a task edit can need an Approach edit or a Verification edit,
    and an Approach edit can need new tasks or new scenarios. When the decision
-   changes behavior, change `## Acceptance` in the same pass. In that pass, also
-   make the tasks, the verification, and the out-of-scope limits that depend on
-   the decision agree with it. This pass prevents a split: do not edit a
-   scenario alone, and do not keep the old intent in a scenario when its tasks
-   change. When the decision changes a proposed ADR, edit that ADR in the same
+   changes behavior, `## Acceptance` moves with it in the same pass, and the
+   tasks, verification, and out-of-scope boundaries that depend on it are
+   reconciled together. A scenario edited alone, or left describing the old
+   intent while the tasks around it change, is the split this pass exists to
+   prevent. When the decision changes a proposed ADR, edit that ADR in the same
    pass. A change of intent moves `release` with it.
 
-   Find again, in the current checkout, each code anchor that the change
-   affects. Find the ticked tasks and the code that the revision makes
-   incorrect. Find the completion evidence blocks of the commits that ticked
-   those tasks. Report them. Do not write that code again from this skill.
+   Re-locate every affected code anchor in the current checkout. Identify the
+   ticked tasks and the existing implementation that the revision makes stale,
+   with the completion evidence blocks of the commits that ticked those tasks,
+   and report them; do not rewrite that implementation from this skill.
 
 5. **File a created plan.** In create mode, do these steps:
    - Add the link of the plan to `data/plans.md` as
@@ -99,12 +99,12 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    - If the plan started as a backlog task, close the task as done. Then move
      the task to the archive. `docs/knowledge/schema/backlog-tasks.md` and
      `docs/knowledge/schema/archive.md` give the procedure.
-   - Step 8 closes the issue that the plan started from, after validation. Do
-     not close the issue before validation shows that the plan is correct.
+   - An issue that the plan grew from is closed in step 8, after validation —
+     never before the plan is known to be sound.
 
-   In revise mode, keep the graph membership and the lifecycle of the plan.
-   Change them only when the requested change makes a different valid state of
-   the plan necessary. A revision that adds a bug to `release` sets it to
+   In revise mode, preserve the plan's existing graph membership and lifecycle
+   unless the requested planning change explicitly requires another valid
+   planning-state update. A revision that adds a bug to `release` sets it to
    `stage: planned`; one that removes a bug returns it to `stage: pending`.
 
 6. **Check coherence.** Re-read the complete plan as a future implementer.
@@ -114,18 +114,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    checkbox, ask which single observation closes it, and split any checkbox
    that names more than one.
 7. **Review the plan from a fresh context.** In both create and revise mode,
-   run `/agentdev:iwe-plan-review` on the plan draft. It dispatches the
-   `STE100 Auditor` agent first and alone. When that agent reports a finding,
-   the skill returns only that report. Correct the draft for each finding.
-   Then run `/agentdev:iwe-plan-review` again. Run it three times at most on
-   one draft. In the request of the third run, name that run as the
-   last `STE100 Auditor` run. The skill then dispatches the three other agents
-   also when the `STE100 Auditor` reports a finding. Apply the findings of the
-   last `STE100 Auditor` run, and do not run the `STE100 Auditor` again. When
-   the `STE100 Auditor` reports no finding, the skill dispatches three agents:
-   the `Durable Knowledge Auditor` agent in plan scope, `iwe-plan-reviewer`
-   with the plan rules, and `iwe-ship-reviewer` in plan mode. Each agent reads the draft without the context of this
-   conversation. The skill returns the four reports.
+   run `/agentdev:iwe-plan-review` on the plan draft. It dispatches three
+   agents: the `Durable Knowledge Auditor` agent in plan scope,
+   `iwe-plan-reviewer` with the plan rules, and `iwe-ship-reviewer` in plan
+   mode. Each agent reads the draft without the context of this conversation.
+   The skill returns the three reports.
    Apply the `Durable Knowledge Auditor` report-only verdicts to the draft (DROP/REWRITE/MOVE as
    recommended). Fix the draft for each `iwe-plan-reviewer` and
    `iwe-ship-reviewer` gap, asking the user where a fix is a material choice
@@ -194,8 +187,8 @@ Never invent a scenario to fill the section.
 `docs/knowledge/schema/adrs.md` gives which decisions get an ADR. Propose an ADR
 only for such a decision. `## Approach` gives the shape of the solution.
 
-Plan never edits an accepted ADR. A plan that changes a decision proposes a new
-ADR, as that section gives.
+A plan never edits an accepted ADR. A plan that changes a decision proposes a
+new ADR that names the earlier ADR in its `supersedes` list.
 
 ## Rules
 
@@ -219,12 +212,12 @@ ADR, as that section gives.
   skill and never dispatches `iwe-adversarial-reviewer`, in either mode.
 - Before validation, check each scenario in `## Acceptance` against the plan's
   `## Approach` and against the code it describes, and resolve every
-  disagreement before you write the plan.
+  disagreement in the plan before it is written.
 - A scenario claims only what its mechanism delivers and names each limit of
   that mechanism you know.
-- Always write `## Acceptance`, also when its only correct content is
+- `## Acceptance` is mandatory thinking, even when its honest content is
   "None — no behavioral change". A behaviour that changes with no scenario is a
-  Verify CRITICAL.
+  Verify CRITICAL, not a matter of taste.
 - Scale ceremony with risk: a small low-risk plan can be short, but never
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as

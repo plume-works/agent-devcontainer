@@ -20,7 +20,7 @@ in place. Pass `--path .agents/plugins/agentdev/skills` when scaffolding. Never 
 copy or create a separate per-harness copy. Use a personal skill directory only when the user
 explicitly asks for a user-wide skill.
 
-The catalog ships as a plugin through `claude plugin install` and to OpenCode through its bridge plugin. The
+The catalog ships as a plugin through `claude plugin install` and to OpenCode through the OpenCode bridge. The
 edited repository files are the deliverable; do not create a separate `.skill` archive.
 
 For an existing skill, read its `SKILL.md` and every resource it references before editing.

@@ -30,7 +30,7 @@ repository can delete the publisher source without inheriting its maintenance ru
   `/agentdev:<skill-name>`.
 - Claude Code consumes the tree through the marketplace in `.claude-plugin/`; never create a
   separate copy for either harness.
-- OpenCode consumes the same tree through the bridge plugin in
+- OpenCode consumes the same tree through the OpenCode bridge in
   `.agents/plugins/agentdev/.opencode-plugin/`. The bridge takes no runtime dependencies:
   type-only imports and Bun built-ins, nothing to install.
 - Update `.agents/plugins/agentdev/` sources directly.

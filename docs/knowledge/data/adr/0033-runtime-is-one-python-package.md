@@ -7,14 +7,15 @@ description: The runtime images run one Python package, agentdev_runtime, behind
 # The runtime is one Python package that the base image does not contain
 
 The two runtime images need lifecycle code. They run one Python package,
-`agentdev_runtime`, as a uv tool. The package has one command,
-`agentdev-runtime`, and it is not on PyPI. `agentdev-base` does not contain the
-package, so a consumer can run the base image without a lifecycle.
-`agentdev-deploy` and `agentdev-devcontainer` start from `agentdev-base` and
-install the package.
+`agentdev_runtime`, installed as a uv tool the way the validator is. The package
+has one command, `agentdev-runtime`. It is not published to PyPI, because the
+two runtime images are its only installs. `agentdev-base` never contains the
+package, so the base image stays lifecycle-neutral and a consumer can run it
+without a lifecycle. `agentdev-deploy` and `agentdev-devcontainer` start from
+`agentdev-base` and install the package.
 
 ## Considered Options
 
-- Separate standard-library scripts on the system interpreter. Rejected: they
-  need a PyPI download at container start or a search for apt packages, and a
-  separate checksum file for each script.
+- Loose standard-library scripts on the system interpreter. Rejected: they keep
+  either a PyPI download at container start or a hunt for apt dependencies, and
+  they need a separate per-file checksum manifest for integrity.

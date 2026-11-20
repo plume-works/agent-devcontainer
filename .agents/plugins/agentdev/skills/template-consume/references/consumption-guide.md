@@ -37,7 +37,8 @@ project's product.
 Use this workflow with GitHub's "Use this template" operation, a normal clone
 copied into a new repository, or any equivalent complete checkout.
 
-Generate the progress document's setup task list from this manifest exactly:
+Generate the setup task list of the progress document
+(`.agentdev-template-progress.md`) from this manifest exactly:
 
 ```text
 - [ ] Establish the new repository identity
@@ -97,7 +98,7 @@ Delete the empty `py_packages/` wrapper and its standalone `LICENSE` once
 
 The catalog is not lost: the published image stages it at `/opt/agentdev`, and
 the retained post-create scripts install it through the Claude plugin CLI and
-OpenCode's bridge plugin. The validator source is also unnecessary — the image installs
+the OpenCode bridge. The validator source is also unnecessary — the image installs
 `validate_agent_files` at `/usr/local/bin/validate_agent_files`, so the command
 works in the devcontainer with no `uv run` prefix. Confirm it with
 `command -v validate_agent_files`.
@@ -183,12 +184,13 @@ Review `.pre-commit-config.yaml` hook by hook:
    local hooks unless the project keeps IWE-based project memory under
    `docs/knowledge/` (see [Knowledge-base
    validation](#knowledge-base-validation)); they require the `iwe` binary on
-   `PATH`, which the development image also supplies;
+   `PATH`, which the development image also provides;
 7. remove the `link-knowledge-support` local hook and
-   `scripts/link-knowledge-support.py`. They keep each support file in
-   `docs/knowledge/` a link to the `iwe-bootstrap` scaffold under `.agents/`,
+   `scripts/link-knowledge-support.py`. They keep each file in
+   `docs/knowledge/` outside `data/` a link to the `iwe-bootstrap` scaffold
+   under `.agents/`,
    and the consumer has no scaffold; and
-8. update file selectors for the source layout of the consumer.
+8. update file selectors for the consuming project's source layout.
 
 In `.ruff.toml`, remove `validate_agent_files` and `mock_catalog` from
 `known-first-party`, then add the consuming project's own first-party
@@ -259,7 +261,7 @@ Retain `.claude/`, then review it as project policy:
 
 The project does not need to declare `agentdev` in `.claude/settings.json`
 merely to use the devcontainer. The image-staged installation is handled by
-`postCreateCommand`. The retained post-start installers look for a workspace
+`postCreateCommand`. The retained start-phase installers look for a workspace
 marketplace and exit successfully when the consumer has none.
 
 The IWE workflow skills are delivered by the installed `agentdev` catalog as
@@ -389,7 +391,7 @@ prerequisites are **required**:
    the push's run. While `block-ai-reviews` is on, no review runs at all, an
    explicit `request-ai-review` included; a request added meanwhile stays on,
    and removing `block-ai-reviews` runs it. The block never waives the gate: a
-   blocked pull request without an accepted review still needs ruleset bypass
+   blocked pull request without a review from the AI reviewer still needs ruleset bypass
    to merge.
 
 The gate checks that the pull request has been reviewed, not that its current
@@ -452,10 +454,10 @@ Then adapt the workflows themselves:
 Two trigger behaviors are part of the workflow contract:
 
 - The `pull_request` triggers include `synchronize`, but a push re-reviews only
-  a pull request that has no accepted review yet; a push to an already-reviewed
+  a pull request that has no review from the AI reviewer yet; a push to an already-reviewed
   pull request runs the gate alone, which passes on the existing review. Adding
   a blanket review-every-push would be prohibitively expensive; re-request a
-  review of a reviewed pull request by adding `request-ai-review` instead. That label reviews whether or not an accepted review exists, unless
+  review of a reviewed pull request by adding `request-ai-review` instead. That label reviews whether or not a review from the AI reviewer exists, unless
   `block-ai-reviews` is on. Assigning someone or requesting a reviewer starts
   no run. Removing `block-ai-reviews` starts a run that reviews a waiting
   request; any other label change starts a run in its own concurrency group, so it cannot
@@ -474,9 +476,11 @@ workflow, and must not add `ai-review-present` to its branch protection.
 A pull request that depends on an open pull request has the branch of its
 predecessor as its base. A merge into that branch must not occur: the pull
 request merges into the default branch after its predecessor merges. A
-repository ruleset on `refs/heads/iwe/**` makes this rule. For this ruleset, the status check `base-is-main` is necessary, and no workflow reports that check. Thus GitHub
+repository ruleset on `refs/heads/iwe/**` makes this rule. It requires the
+status check `base-is-main`, and no workflow reports that check. Thus GitHub
 does not merge a pull request into an `iwe/` branch. The Write, Maintain, and
-Admin roles can bypass the ruleset, so the ruleset does not block a push to an `iwe/` branch. This setting is not in the repository, and a diff does not show it.
+Admin roles can bypass the ruleset, so a push to an `iwe/` branch is not
+blocked. This setting is not in the repository, and a diff does not show it.
 Create it once:
 
 ```bash
@@ -556,8 +560,8 @@ Run these checks from the new repository:
    ./.devcontainer/devcontainer-init.sh && cat .devcontainer/.env
    ```
 
-5. Create or rebuild the devcontainer and confirm the post-create and
-   post-start commands finish successfully.
+5. Create or rebuild the devcontainer and confirm the create-phase and
+   start-phase commands finish successfully.
 
 6. Confirm Claude Code lists `agentdev@agent-devcontainer` and OpenCode lists the
    catalog's skills after starting new sessions.
@@ -873,9 +877,8 @@ already exists.
      `docs/knowledge/`. Compare both trees against the same ref's, leaving out
      `docs/knowledge/tests/`, which holds template tests rather than memory.
      In the template, `.iwe` is a symbolic link into `.agents/`. If the copied
-     `.iwe` is still that link, it is the link of the template. After
-     [Delete publisher-only source](#2-delete-publisher-only-source), this link
-     points to a directory that does not exist. The same is true for the
+     `.iwe` is still that link, it is the publisher copy, and it is broken
+     after [Delete publisher-only source](#2-delete-publisher-only-source). The same is true for the
      support files in `docs/knowledge/`: `AGENTS.md`, `CLAUDE.md`, `SCHEMA.md`,
      `README.md`, `.markdownlint.yml`, and each document in `schema/` are links
      into `.agents/` in the template.

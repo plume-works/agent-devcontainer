@@ -59,9 +59,10 @@ item, and sessions here have carried two different versions of the file.
 Eliminated:
 
 - **The repository.** No file under version control contains the text.
-- **A client switch.** `claude remote-control --help` and the Remote Control
-  documentation offer no flag, setting, or variable for spawned sessions'
-  prompts, and the server refuses `--settings` ([Claude Remote Control server
+- **A Claude Code switch.** `claude remote-control --help` and the Remote
+  Control documentation offer no flag, setting, or variable for spawned
+  sessions' prompts, and the server refuses `--settings` ([Claude Remote Control
+  server
   mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md)).
 
 ## Potential solution

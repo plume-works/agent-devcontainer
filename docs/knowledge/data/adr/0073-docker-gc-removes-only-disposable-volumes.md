@@ -4,13 +4,14 @@ stage: accepted
 description: A supervised service collects Docker garbage when it starts and then each hour, and it removes only old disposable volumes.
 ---
 
-# Docker garbage collection is a supervised hourly service with a list of the volumes that it can remove
+# Docker garbage collection is a supervised hourly service with an allow-list for volumes
 
-All Coder workspaces share one host disk. When the disk is full, a workspace
-cannot extract its Dev Container image, and nothing that the agent start runs
-can start. Workspaces have no autostop, so a prune at agent start almost never
-runs. As a result, the supervised `docker-gc` service runs a pass when it starts
-and then each hour.
+All Coder workspaces share one host disk. A full disk stops a workspace from
+unpacking its Dev Container image, so its sub-agent never starts and nothing
+that the Coder agent start runs, Remote Control included, comes up. Workspaces
+have no autostop, so a prune at agent start almost never runs. As a result, the
+supervised `docker-gc` service runs a garbage collection pass when it starts and
+then each hour.
 
 ## Considered Options
 
@@ -25,8 +26,10 @@ and then each hour.
 
 - Each pass runs `docker builder prune` itself, because BuildKit can run its own
   collection only after a build.
-- The cache limit counts only cache that no kept image shares. Shared cache is
-  the layers of a kept image, so its removal gives no free disk space.
-- A pass never removes a volume whose name does not match
-  `py_packages/agentdev_runtime/agentdev_runtime/docker.py::DISPOSABLE_VOLUME`.
-  Test volumes stay until the age limit of a pass removes them.
+- The cache limit counts only cache that no image kept by the pass shares.
+  Shared cache is the layers of such an image, so removing it frees no disk; it
+  starts to count once a pass removes its image.
+- A pass removes a volume only when it is old and its name matches
+  `py_packages/agentdev_runtime/agentdev_runtime/docker.py::DISPOSABLE_VOLUME`,
+  so a volume that the pass does not know is kept. Per-id test volumes are left
+  to that age limit rather than removed as each run finishes.

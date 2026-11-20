@@ -8,9 +8,9 @@ description: The runtime reads its configuration only from the documented variab
 
 The runtime reads its configuration only from the variables that
 `agentdev_runtime.settings` documents. A consumer extends the runtime only
-through these variables and the hook directories of the image. The runtime
-splits each variable that names a command into a list of arguments and runs it
-without a shell.
+through these variables and the hook directories of the image, under
+`/etc/agentdev/hooks/`. The runtime splits each variable that names a command
+into a list of arguments and runs it without a shell.
 
 ## Considered Options
 

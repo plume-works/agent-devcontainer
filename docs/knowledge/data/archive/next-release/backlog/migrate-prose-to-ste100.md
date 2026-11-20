@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: cancelled
 priority: low
 created: 2026-11-12
 description: Convert the prose written before the ASD-STE100 rule to ASD-STE100, and prove with the semantic-refactor audit that each rewrite keeps its meaning.

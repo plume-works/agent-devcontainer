@@ -1,26 +1,28 @@
 ---
 type: adr
 stage: accepted
-description: Ship runs Verify itself, and the user cannot cancel the stop that a CRITICAL result causes.
+description: Ship runs Verify itself, and a CRITICAL result blocks the ship with no user override.
 ---
 
-# A CRITICAL result always stops Ship
+# A CRITICAL result stops Ship with no override
 
-Ship runs Verify itself, so the check always runs, and a `CRITICAL` result stops
-the Ship run. A user cannot cancel this stop, because the Ship run then records
-a durable claim that Verify found false. A plan with a `CRITICAL` stays active
-for a correction, gets a revision that removes the work, or Ship cancels it.
+A normal Ship run runs Verify itself, so verification is not a step a user can
+forget, and a `CRITICAL` result refuses the ship mechanically. A user cannot
+override it, because the ship would then record a durable claim known to be
+false. A plan with a `CRITICAL` stays active for fixes, is revised through
+`/agentdev:iwe-plan` revise mode to drop the offending work, or is cancelled; a
+known-false durable claim is never shipped.
 
 ## Considered Options
 
-- Let Ship close a plan that has a task that the user does not want. Rejected: a
-  revision through `/agentdev:iwe-plan` revise mode removes the task. Removal is
-  a material scope change, so revise mode asks the user, and the Verify check
-  stays complete.
-- Ship does its own copy of the Verify checks. Rejected: two copies of one
-  rulebook become different.
+- Soften the no-override rule so that a plan with a task the user declined can
+  ship. Rejected: a revision through `/agentdev:iwe-plan` revise mode drops the
+  task instead. Dropping a task is a material scope change, so revise mode asks
+  the user, and the gate stays whole.
+- Ship runs its own copy of the Verify checks. Rejected: two copies of one
+  rulebook drift apart.
 
 ## Consequences
 
-- A cancellation does not run Verify, because it records that the work stopped,
-  not a behaviour.
+- Cancellation is exempt from Verify, because it records abandonment, not
+  behaviour.

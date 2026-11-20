@@ -36,5 +36,5 @@ okf_version: '0.2'
   defines.
 - [Product vision](product-vision.md) - The product-vision documents, which
   `docs/knowledge/schema/product-vision.md` defines.
-- [Glossary](glossary.md) - The project terms that the prose rule permits, each
-  with its meaning.
+- [Glossary](glossary.md) - The shared language of the project - the terms
+  specific to it, each with one name.
