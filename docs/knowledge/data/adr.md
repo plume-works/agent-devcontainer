@@ -226,7 +226,7 @@ instance](adr/0075-one-empty-home-volume.md)
 [OpenCode runs with full access, merged into its configuration at each
 start](adr/0076-opencode-full-access-merged-at-each-start.md)
 
-[The runtime supervises the Dev Container engine, and the image has no SSH
+[The runtime supervises the Docker engine, and the image has no SSH
 server](adr/0079-runtime-supervises-the-nested-engine.md)
 
 [Each checkout links .venv to its own environment on the home

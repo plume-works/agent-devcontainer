@@ -23,8 +23,8 @@ of a hook tool, such as `uv.lock` or the image.
   organization, it lists only the first 30 commits of a pull request, and it
   downloads its own gitleaks beside the pinned one.
 - Run the job in the image that the pull request builds. Rejected: lint then
-  waits for the full image build, while the pinned image already carries the
-  binary of every hook.
+  waits for the full image build, while the pinned image already carries every
+  binary hook.
 - Remote hook repositories. Rejected: each installs its own copy of a tool
   beside `uv.lock` or the image, which is the drift that one owner per tool
   removes.

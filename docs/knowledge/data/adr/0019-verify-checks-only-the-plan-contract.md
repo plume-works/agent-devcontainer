@@ -7,11 +7,11 @@ description: Verify reports only what contradicts the plan, CI stays with pr-mer
 # Verify checks only what the plan promised
 
 Verify is a conformance check. Each `CRITICAL` or `WARNING` result cites the
-requirement, scenario, task, or verification step of the plan that the code
-contradicts, and CI belongs to `pr-merge`, which gates every merge on it. As a
-result, the Implement session converges once the code meets the plan's contract,
-and the run is bounded: it stops on a recurring result, after three Verify
-rounds, or when it would need a second revision.
+scenario, task, or verification step of the plan that the code contradicts, and
+CI belongs to `pr-merge`, which gates every merge on it. As a result, the
+Implement session converges once the code meets the plan's contract, and the run
+is bounded: it stops on a recurring result, after three Verify rounds, or when
+it would need a second revision.
 
 ## Considered Options
 

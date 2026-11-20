@@ -4,15 +4,16 @@ stage: accepted
 description: The runtime supervises the nested Docker engine on a volume of its own in both runtime profiles, and the image has no SSH server.
 ---
 
-# The runtime supervises the Dev Container engine, and the image has no SSH server
+# The runtime supervises the Docker engine, and the image has no SSH server
 
 A nested Docker engine cannot use the overlay-mounted writable layer of the
 container for `/var/lib/docker`. As a result, it needs a separate volume and an
 owner that starts, watches, and restarts it. The runtime already supervises
 every other service that the editor relies on, so the engine is a supervised
-service of the runtime in both runtime profiles: the runtime gates readiness on
-it and recovers it within its recovery budget. The same supervised engine serves
-the deploy image, which has no Dev Containers client to run a feature.
+service of the runtime in both runtime profiles. In a Dev Container, the runtime
+gates readiness on it and recovers it within its recovery budget. The same
+supervised engine serves the deploy image, which has no Dev Containers client to
+run a feature.
 
 ## Considered Options
 
