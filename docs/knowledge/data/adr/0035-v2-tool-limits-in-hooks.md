@@ -30,3 +30,5 @@ and denies its actions in `permission.hook("evaluate")`.
   replaces it, and only the permissions of the user apply.
 - A `tools:` list limits the tools but does not approve them, so each mapped
   tool keeps the approval settings of the user.
+- The bridge does not deny `execute`; this is the maintainer's choice. `browser`
+  keeps the v2 default, which is deny.

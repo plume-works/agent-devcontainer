@@ -28,6 +28,9 @@ script behind one top-level task has no override ordering to get wrong.
   `scripts/refresh-pin-checksums.py::PIN_FILES`.
 - Renovate keeps the output of the task only for paths that `fileFilters`
   matches. Each path that a Renovate manager edits must match it.
+- The script runs pre-commit through `uv run`, never the image's unpinned apt
+  copy, so the pass formats with the versions that the update pins: `uv run`
+  syncs the environment to the bumped `uv.lock` before pre-commit starts.
 - CI never pushes a fix to a Renovate branch. Its pre-commit job fails the pull
   request when the post-upgrade task missed a change.
 - The task runs code at just-bumped versions as the same user as Renovate, so
