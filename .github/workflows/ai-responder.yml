@@ -353,7 +353,7 @@ jobs:
       - name: Create GitHub App token
         id: app_token
         if: steps.eligible.outputs.approve == 'true'
-        uses: actions/create-github-app-token@v3.3.0
+        uses: actions/create-github-app-token@v3.4.0
         with:
           client-id: ${{ secrets.QUILL_APP_CLIENT_ID }}
           private-key: ${{ secrets.QUILL_APP_PRIVATE_KEY }}
