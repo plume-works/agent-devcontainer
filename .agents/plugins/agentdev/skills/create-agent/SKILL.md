@@ -17,7 +17,7 @@ Instructions for creating effective and maintainable custom agents (subagents) t
 - Official documentation: https://code.claude.com/docs/en/sub-agents
 
 Claude Code discovers every `*.md` file in the plugin's `agents/` directory, and
-OpenCode's bridge plugin loads every `*.agent.md` there. Name agent files with the
+The OpenCode bridge loads every `*.agent.md` there. Name agent files with the
 `.agent.md` suffix so both harnesses load them and the validator recognizes them.
 
 ## Agent Frontmatter

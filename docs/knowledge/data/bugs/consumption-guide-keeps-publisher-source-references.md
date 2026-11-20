@@ -16,9 +16,9 @@ sources:
 
 Publisher-only source must not stay after adoption: the consumer must adapt each
 CI workflow, hook, `pyproject.toml` entry, and path filter that refers to a
-removed tree. The guide removes only the `validate_agent_files` entries. A
-consumer who follows it keeps entries that name trees that the guide told them
-to remove, and `uv sync` or CI fails.
+removed tree. The consumption guide of the `template-consume` skill removes only
+the `validate_agent_files` entries. A consumer who follows it keeps entries that
+name trees that the guide told them to remove, and `uv sync` or CI fails.
 
 ## Reproduction
 

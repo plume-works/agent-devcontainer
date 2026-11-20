@@ -10,11 +10,11 @@ rank: 300 # optional; positive integer
 
 - The sequence is
   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`. An item
-  without `rank` is not in the sequence. The query `rank: {$exists: false}`
-  finds these items.
-- Ranks increase in steps of 100. An item that goes between two others takes the
-  midpoint of their ranks. Only a reorder pull request changes the `rank` of
-  more than one item.
+  without `rank` is not yet sequenced and is never part of the sequence; the
+  separate query `rank: {$exists: false}` finds these items.
+- Ranks step by 100. An item that goes between two others takes the midpoint of
+  their ranks. Only a reorder pull request changes the `rank` of more than one
+  item.
 - A done or cancelled item has no `rank`. The session that closes the item
   removes it.
 - Equal ranks are valid. The key decides their order, and CI gives a warning.

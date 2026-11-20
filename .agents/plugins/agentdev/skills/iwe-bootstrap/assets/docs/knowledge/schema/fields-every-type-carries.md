@@ -1,7 +1,7 @@
 # Fields every type carries
 
-The optional families of OKF (SPEC §4.1, §5) are on each schema.
-`.iwe/schemas/okf.yaml` checks them.
+The optional families of OKF, the Open Knowledge Format (SPEC §4.1, §5), are on
+each schema. `.iwe/schemas/okf.yaml` checks them.
 
 - `type` — required on each document under `data/`, with one exception:
   `data/index.md`.
@@ -13,8 +13,12 @@ The optional families of OKF (SPEC §4.1, §5) are on each schema.
   claim, use a Markdown footnote with the `id` of the entry as its label.
 - `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
-`stage` is the only lifecycle field. The state of a work item is only in its own
-frontmatter, and no hub repeats it. No document sets the optional `status` of
-OKF, so a state change edits one field. No document sets `generated` or
-`verified` of OKF: source control records when a document changed and who
-changed it.
+`stage` is the only lifecycle field. The state of a work item — its `stage`,
+`priority`, `completed`, and `rank` — lives only in its own frontmatter, and no
+hub repeats it, so a state change edits one file that only its own pull request
+touches.
+
+The workspace diverges from OKF only to cut merge and upkeep cost. No document
+sets the optional `status` of OKF, so a state change edits one field. No
+document sets `generated` or `verified` of OKF: source control records when a
+document changed and who changed it.

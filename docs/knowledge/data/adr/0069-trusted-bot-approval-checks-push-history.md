@@ -9,7 +9,8 @@ description: The trusted-bot approval checks each commit and each push since the
 The `main` ruleset keeps an approval after a push. For this reason, the
 `trusted-bot-approval` job approves only when each push since the latest
 creation of the branch is from the trusted bot. Each commit must also have the
-bot as author and a verified signature.
+bot as author and a verified signature. A failed check dismisses the standing
+approval.
 
 ## Considered Options
 
@@ -26,5 +27,6 @@ bot as author and a verified signature.
 - The push history check stops at the latest `branch_creation`, so a branch name
   that a bot uses again, such as `renovate/<dep>`, starts with no history.
 - The job runs the copy of the workflow in the pull request. A writer can change
-  the job to remove the checks. As a result, the approval is only as strong as
-  the trust in the writers of the repository.
+  the job to remove the checks; the checks guard only against commits that leave
+  the workflow unchanged. As a result, the approval is only as strong as the
+  trust in the writers of the repository.

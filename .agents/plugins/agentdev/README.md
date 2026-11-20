@@ -37,7 +37,7 @@ Restart Claude Code (or run `/plugin`) and the catalog is available.
 
 ## Installing in OpenCode
 
-OpenCode reads the same directory through the bridge plugin in
+OpenCode reads the same directory through the OpenCode bridge in
 `.opencode-plugin/`. The agentdev images register the staged bridge in
 `~/.config/opencode/opencode.json`, and this repository's devcontainer points it
 at the workspace copy on every editor attachment.
@@ -126,7 +126,7 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:git-commit`             | Conventional commit messages from the staged changes.                   |
 | `/agentdev:git-new-branch`         | Start a work branch at the fetched remote base, with its own upstream.  |
 | `/agentdev:git-merge-resolve`      | Merge a ref and resolve conflicts, escalating when unsure.              |
-| `/agentdev:update-branch`          | Update the current feature branch from its remote base.                 |
+| `/agentdev:update-branch`          | Update the current work branch from its remote base.                    |
 | `/agentdev:pr-open`                | Open a PR from conversation context, or refresh the branch existing PR. |
 | `/agentdev:pr-sync`                | Resync the branch PR title and body, delegating to `pr-open`.           |
 | `/agentdev:pr-gen-description`     | Write a PR description from the change analysis.                        |
@@ -142,7 +142,6 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 
 | Skill                                   | What it does                                            |
 | --------------------------------------- | ------------------------------------------------------- |
-| `/agentdev:audit-ste100`                | Check new prose against ASD-STE100 Issue 9.             |
 | `/agentdev:code-review-standards`       | The review standards the other review skills apply.     |
 | `/agentdev:exec-summary`                | One-minute, non-technical summary of the work in focus. |
 | `/agentdev:extract-github-actions-logs` | Pull failing job logs out of a workflow run.            |
@@ -176,7 +175,7 @@ documents. They are the project's memory across sessions.
 | `/agentdev:iwe-capture`            | Files a complete bug, proposed feature, or task, deduplicated.      |
 | `/agentdev:iwe-implement`          | Executes a plan task-by-task, ticking boxes with evidence.          |
 | `/agentdev:iwe-branch-name`        | Names a plan's next `iwe/` iteration branch.                        |
-| `/agentdev:iwe-verify`             | Compares the acceptance scenarios with the code before Ship.        |
+| `/agentdev:iwe-verify`             | Pre-ship gate and drift audit: graph claims checked against code.   |
 | `/agentdev:iwe-adversarial-review` | Tries to defeat a plan's design or its code; runs only when asked.  |
 | `/agentdev:iwe-ship`               | Accepts the ADRs, changes the stages, and records the release.      |
 | `/agentdev:iwe-weekly`             | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |

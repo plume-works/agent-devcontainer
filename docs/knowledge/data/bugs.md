@@ -45,7 +45,7 @@ instructions](bugs/remote-control-sessions-get-cloud-prompt.md)
 [Bug: Renovate's post-upgrade file filters do not include the runtime package's
 lock file](bugs/renovate-file-filters-omit-runtime-lock.md)
 
-[Bug: a deploy runtime that reuses a checkout does not configure the git
+[Bug: a standalone runtime that reuses a checkout does not configure the git
 credential helper](bugs/reused-checkout-gets-no-credential-helper.md)
 
 [Bug: the root-test launcher guard against unmarked tests cannot
@@ -53,9 +53,6 @@ operate](bugs/root-test-guard-cannot-fire.md)
 
 [Bug: the runtime package installs two dependencies from a version
 range](bugs/runtime-dependencies-not-pinned.md)
-
-[Bug: the ASD-STE100 audit gives different findings for the same
-text](bugs/ste100-audit-not-deterministic.md)
 
 [Bug: the promote step can move the `ubuntu-ansible` tags to an older
 image](bugs/ubuntu-ansible-tags-can-move-backwards.md)

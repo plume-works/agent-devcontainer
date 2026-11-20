@@ -13,12 +13,12 @@ sources:
 
 ## Symptom
 
-The post-upgrade task's `fileFilters` must match each path that a Renovate
-manager in this repository edits. Renovate keeps post-upgrade output only where
-it matches them. `py_packages/agentdev_runtime/uv.lock` is next to a `pep621`
-manifest, and lock file maintenance relocks it, but no filter matches it. A
-change that the post-upgrade task makes to this file is not in Renovate's
-commit.
+The `fileFilters` of the post-upgrade task, `scripts/renovate-post-upgrade.py`,
+must match each path that a Renovate manager in this repository edits. Renovate
+keeps post-upgrade output only where it matches them.
+`py_packages/agentdev_runtime/uv.lock` is next to a `pep621` manifest, and lock
+file maintenance relocks it, but no filter matches it. A change that the
+post-upgrade task makes to this file is not in Renovate's commit.
 
 ## Reproduction
 

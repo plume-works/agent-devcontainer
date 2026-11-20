@@ -68,12 +68,12 @@ the driver of design decisions — internal needs come first.
   - `pyproject.toml` — root Python project (`agent-devcontainer`), dev
     dependency group only, `package = false`.
   - `py_packages/validate_agent_files/` — an independently-released Python
-    package (its own `pyproject.toml`, isolated test suite) that validates
-    agent/skill definitions.
-  - `.agents/plugins/agentdev/` — the canonical source for the `agentdev` Claude
-    Code / OpenCode plugin (agents, skills, `bin/` scripts); this directory is
-    the source of truth, everything else under `.claude-plugin/` and the
-    reinstall scripts is derived.
+    package (its own `pyproject.toml`, isolated test suite) that validates agent
+    and skill rulebooks.
+  - `.agents/plugins/agentdev/` — the canonical source for the `agentdev`
+    catalog for Claude Code and OpenCode (agents, skills, `bin/` scripts); this
+    directory is the source of truth, everything else under `.claude-plugin/`
+    and the reinstall scripts is derived.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
   - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
     — image build.
@@ -82,8 +82,8 @@ the driver of design decisions — internal needs come first.
     images install as a uv tool: PID 1 and its supervisor, the health probes,
     every supervised service, the lifecycle commands, the firewall, and Xpra.
 - **Tests**: two independent pytest suites declared in `pyproject.toml`'s
-  `testpaths` — `.agents/plugins/agentdev/tests/` (plugin script behavior, via a
-  `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
+  `testpaths` — `.agents/plugins/agentdev/tests/` (catalog script behavior, via
+  a `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
   `validate_agent_files` package, must pass with no knowledge of this
   repository:
   `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`).
@@ -166,9 +166,6 @@ it):
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/AGENTS.md` when editing it
   directly.
-- Write all prose in ASD-STE100 Issue 9 (Simplified Technical English), as Best
-  Practice 15 in `AGENTS.md` tells. The rule applies to the text that a change
-  adds or edits. Use a project term only if `data/glossary.md` lists it.
 
 ## Changelog
 
@@ -210,3 +207,5 @@ it):
 - 2026-11-13 — added the rule that all new prose follows ASD-STE100 Issue 9.
 - 2026-11-13 — routed a spike's design decision to an ADR that a plan proposes;
   Plan, Verify, and Ship no longer read or write a spec.
+- 2026-11-20 — removed the ASD-STE100 prose rule, the `audit-ste100` skill, and
+  the `STE100 Auditor` agent.

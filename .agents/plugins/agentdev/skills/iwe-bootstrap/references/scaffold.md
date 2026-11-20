@@ -12,13 +12,13 @@ installs, laid out exactly as it lands in a repository root:
 
 ## What the graph contains
 
-- **Hubs and trackers** — one hub for each document type. The documents in
-  `schema/` define the types.
+- **Hubs and trackers** — one per document type. The documents in `schema/`
+  define the types.
 - **`data/product.md`** — the foundation document, left as ✏️ placeholder blocks
   for `/agentdev:iwe-setup` to fill.
 - **Onboarding tasks** under `data/backlog/` — `fill-product-doc` is the one
-  task `/agentdev:iwe-setup` closes; if you rename or remove it, the last step
-  of that skill fails.
+  task `/agentdev:iwe-setup` closes; renaming or removing it breaks that
+  skill's closing step.
 - **`*.example.md` documents** — fictional documents about a fictional product,
   showing the shape of each type, including a shipped plan and feature under
   `data/archive/0.1.0/`. `/agentdev:iwe-setup` deletes them once real
@@ -40,26 +40,27 @@ Once installed, every file belongs to the consuming repository. `/agentdev:templ
 
 Each checkout of agent-devcontainer is a checkout for plugin development. Only
 in agent-devcontainer, the root `.iwe` is a symbolic link to `assets/.iwe/`.
-Therefore, the `.iwe/` of agent-devcontainer and the `.iwe/` of the scaffold
-always have the same bytes.
+Thus the `.iwe/` of agent-devcontainer and the `.iwe/` of the scaffold are
+always the same bytes.
 
 The scaffold structure and the knowledge-base structure of agent-devcontainer
-are always the same. Only in agent-devcontainer, each support file in
-`docs/knowledge/` is a symbolic link to its copy under `assets/docs/knowledge/`.
+are always the same. Only in agent-devcontainer, each file in
+`docs/knowledge/` outside `data/`, such as `AGENTS.md`, `SCHEMA.md`, or a
+document in `schema/`, is a symbolic link to its copy under `assets/docs/knowledge/`.
 `LICENSE.md` and `.gitignore` are real files: the consumer owns `LICENSE.md`,
 and git does not read a `.gitignore` that is a link. `schema/` is a real
 directory with one link for each document, because `iwe` does not follow a link
 to a directory. The `link-knowledge-support` pre-commit hook runs
-`scripts/link-knowledge-support.py`, which makes and checks the links. A schema
-change is also a scaffold change. Adjust the documents that the scaffold
-installs in the same commit. If you do not, the next `/agentdev:iwe-bootstrap`
-installs a workspace that fails `iwe schema validate`. Every file under `assets/` must be the same
-as its `iwe normalize` output.
+`scripts/link-knowledge-support.py`, which makes and checks the links. Thus a
+schema change is a scaffold change: adjust the documents that the scaffold
+installs in the same commit, or the next `/agentdev:iwe-bootstrap` installs a
+workspace that fails `iwe schema validate`. Every file under `assets/` must
+equal its `iwe normalize` output.
 
 Through the link, `iwe` writes its runtime files into `assets/.iwe/`. Their
 names are in `assets/.iwe/.gitignore`, and `/agentdev:iwe-bootstrap` does not
 copy them.
 
-The scaffold graph is not part of a graph that `iwe` reads. No
-`.iwe/config.toml` sets `assets/docs/knowledge/` as a workspace.
-`iwe normalize`, not Prettier, formats its Markdown.
+The scaffold graph is not a member of a live graph: no `.iwe/config.toml` sets
+`assets/docs/knowledge/` as a workspace, and `iwe normalize`, not Prettier,
+owns its Markdown.

@@ -14,17 +14,15 @@ The decisions for this procedure are in
 
 ### 1. Attach the Coder agent start, or choose the spawn mode
 
-On Coder, the `coder_script` of the workspace template runs the agent-start
-command of the repository on each agent start. The default command is
-`agentdev-runtime coder start`. That command starts
-`agentdev-runtime remote-control start`. The `coder_script` runs nothing when
-the repository has no agent-start command.
+On Coder, the workspace template's `coder_script` runs the repository's
+agent-start command, by default `agentdev-runtime coder start`, on every agent
+start, and that command execs `agentdev-runtime remote-control start`. The
+`coder_script` runs nothing when the repository has no agent-start command.
 
-In a runtime that a supervisor runs, the `remote-control` watcher runs
-`agentdev-runtime remote-control start` when a claude.ai login exists.
-`agentdev-runtime health status` shows the status of the watcher. On other
-hosts, nothing starts Remote Control. You can start it manually with the same
-command.
+In the standalone runtime (`agentdev-deploy`), the `remote-control` watcher runs
+`agentdev-runtime remote-control start` once a claude.ai login exists, and
+`agentdev-runtime health status` reports what it is doing. On other hosts
+nothing starts Remote Control; the command can still be run by hand.
 
 `AGENTDEV_CLAUDE_RC_SPAWN` selects the spawn mode of the server: `worktree` (the
 default), `same-dir`, or `session`. Set it to `off` to stop Remote Control.
@@ -32,10 +30,10 @@ default), `same-dir`, or `session`. Set it to `off` to stop Remote Control.
 ### 2. Log in
 
 Run `claude` inside the container and complete `/login` with a claude.ai
-account. The login persists in the shared volume, so later workspaces on the
-same host start Remote Control on their next agent start. In the workspace where
-the login happened, start it by hand from a Coder terminal, which carries the
-same environment as the `coder_script`:
+account. The login persists in the auth volume, so later workspaces on the same
+host start Remote Control on their next agent start. In the workspace where the
+login happened, start it by hand from a Coder terminal, which carries the same
+environment as the `coder_script`:
 
 ``` bash
 agentdev-runtime remote-control start
@@ -45,9 +43,9 @@ A workspace restart also starts it.
 
 ### 3. Approve first-run Claude state
 
-Post-create has already answered these prompts. Attach to the named tmux session
-only if Claude still shows one, for example after a Claude Code release adds a
-new first-run prompt:
+The pre-approval of the create phase has already answered these prompts. Attach
+to the named tmux session only if Claude still shows one, for example after a
+Claude Code release adds a new first-run prompt:
 
 ``` bash
 tmux -L claude-remote attach -t claude-remote
@@ -68,8 +66,8 @@ mobile app.
 
 ### 4. Verify without exposing credentials
 
-Run the following checks inside the nested container. They inspect metadata and
-boolean authentication state, not credential values:
+Run the following checks inside the container. They inspect metadata and boolean
+authentication state, not credential values:
 
 ``` bash
 stat -c '%U %a %n' \
@@ -117,10 +115,11 @@ Inspect only field presence, emptiness, expiry metadata, file timestamps, and
 `refreshTokenExpiresAt` does not make an empty or rejected refresh token usable.
 
 Correlate the credential file modification time with other refresh owners. A
-credential rotating in one client immediately before another copy is cleared is
-evidence of refresh-token divergence. The same signature is reported upstream
-when concurrent Claude clients race a single-use refresh token: the losing
-client persists empty token fields and `expiresAt: 0`.
+credential rotating in one Claude Code process immediately before another copy
+is cleared is evidence of refresh-token divergence. The same signature is
+reported upstream when concurrent Claude Code processes race a single-use
+refresh token: the losing process persists empty token fields and
+`expiresAt: 0`.
 
 The cleared credential document is still a non-empty file, so a healthy JSON
 parse and mode `0600` prove storage integrity, not authentication health. Run

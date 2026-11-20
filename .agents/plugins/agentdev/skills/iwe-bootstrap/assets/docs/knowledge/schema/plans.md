@@ -2,8 +2,7 @@
 
 A plan is committed work that a later session can do with no other context. A
 plan is an implementation plan, a migration, or a design proposal. One plan has
-one topic: work that needs two sets of verification checks that are not related
-is two plans.
+one topic: work that needs two unrelated verification stories is two plans.
 
 - Path: `data/plans/YYYYMMDD-<slug>.md`. The date is the day of creation.
 - Hub: `data/plans.md`.
@@ -21,8 +20,9 @@ release: # required while the plan is active: internal, or the keys below
 
 - `release` lists the documents that the plan closes: the `features/` keys and
   the `bugs/` keys that Ship marks implemented or done when the plan ships. The
-  value is `internal` when the plan closes no document. The field supplies no
-  release page, so a plan needs no feature to change what users see.
+  value is `internal` when the plan closes no document. The field feeds no
+  release page. A plan needs no feature to change what users see: the release
+  cut writes the page from the archived plans.
 - `sources` lists the GitHub issue that the plan grew from, if there is one.
 - `rank` is optional. See `schema/build-order.md`.
 

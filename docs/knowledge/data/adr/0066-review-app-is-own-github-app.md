@@ -14,15 +14,19 @@ Each job makes its own token, which has no contents write.
 ## Considered Options
 
 - Post with `GITHUB_TOKEN` and let GitHub Actions approve pull requests.
-  Rejected: each workflow of the organization can then approve as the reviewer.
+  Rejected: any workflow of the organization could then approve as the reviewer
+  and satisfy the required review.
 - The App reviews and `GITHUB_TOKEN` approves trusted bots. Rejected: the
   organization setting must stay on, so the same gap stays open.
 - The Claude GitHub App through OIDC (`claude[bot]`). Rejected: the organization
   does not control that identity, and other installations share it.
-- Use `GITHUB_TOKEN` when the App secrets are empty. Rejected: this returns the
-  shared identity without a warning. A job without the secrets fails.
+- Use `GITHUB_TOKEN` when the App secrets are empty. Rejected: this silently
+  brings back the shared identity that the gate no longer accepts. A job without
+  the secrets fails.
 - Push with `GITHUB_TOKEN` as a ruleset bypass actor. Rejected: a bypass list
-  does not accept the GitHub Actions app that `GITHUB_TOKEN` acts as.
+  accepts only repository roles, teams, and GitHub Apps installed on the owner
+  of the repository. The built-in GitHub Actions app that `GITHUB_TOKEN` acts as
+  is none of these, so such a push can never bypass.
 
 ## Consequences
 
@@ -31,7 +35,8 @@ Each job makes its own token, which has no contents write.
   for its token.
 - The lifecycle commands run code of the pull request in the review job. The job
   makes the token after them, so their environment never holds it. A process
-  that they start and do not stop can still get it.
+  that they start and do not stop can still get it. The fork and write-access
+  checks of the preflight job limit that exposure to writers.
 - The organization setting "Allow GitHub Actions to create and approve pull
   requests" stays off.
 - The `permissions:` block of a job limits only `GITHUB_TOKEN`. The

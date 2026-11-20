@@ -24,9 +24,9 @@ what the code can't answer. Every future session reads what you write here.
    - `data/product.md` — What is it, Platforms, Stack from direct evidence;
      leave ✏️ plus a concrete question under any section the code can't
      answer (Users, Constraints usually need the developer).
-   - Propose a guide (`docs/knowledge/schema/guides.md`) for each applicable
-     procedure, such as the build, the tests, and the release. Do not write the
-     guide at this time.
+   - Propose (don't yet write) a guide (`docs/knowledge/schema/guides.md`) for
+     each procedure a contributor must follow that the README does not already
+     give — building, testing, releasing.
 4. **Interview.** Ask in batches, conversationally:
    - _Product_: the one-liner; who uses it and for what; who it's not for.
    - _Reality_: current stage, what's shipped vs. aspirational, the next thing
@@ -38,7 +38,7 @@ what the code can't answer. Every future session reads what you write here.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
    instruction lines as sections fill; add a dated entry to its Changelog. Write
    the guides the developer approved, and link each from `data/guides.md`. A
-   measurement that the scan made is a finding
+   measurement the scan made that settles nothing yet is a finding
    (`docs/knowledge/schema/findings.md`): write it and link it from
    `data/findings.md`.
 6. **Complete the onboarding.** Close the finished onboarding task
@@ -46,13 +46,13 @@ what the code can't answer. Every future session reads what you write here.
    `docs/knowledge/schema/backlog-tasks.md` and
    `docs/knowledge/schema/archive.md` give:
    `iwe update -k data/backlog/<slug> --set stage=done --set completed=<today>`,
-   then
+   remove any `rank` it carries, then
    `iwe rename data/backlog/<slug> data/archive/next-release/backlog/<slug>`.
-   Delete each example document, which is each `*.example.md` under `data/`,
-   with `iwe delete <key>`. `iwe delete` removes their inclusion links from the
-   hubs automatically. It changes each inline link to plain text. Find the lines
-   in the hubs and the other documents that have this plain text. Remove these
-   lines.
+   Delete the example docs — every `*.example.md` under `data/`
+   (`iwe delete <key>` per doc). `iwe delete` removes their inclusion links from
+   hubs automatically but _flattens_ inline links to plain text: sweep the hub
+   files and remaining docs for leftover de-linked example lines and remove
+   them.
 7. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — both
    must pass clean. Commit with a message like
    `setup: product doc filled, first guides drafted, examples removed`.
@@ -64,7 +64,7 @@ what the code can't answer. Every future session reads what you write here.
 - Never leave a ✏️ block half-filled — ask follow-ups until each section is
   concrete, but let the user say "skip for now" (leave the ✏️ so the gap stays
   visible).
-- Propose each guide in one line, and get the developer's approval before you
-  write it.
+- Propose before bulk-writing: each guide gets a one-line pitch and the
+  developer's yes before it exists.
 - Don't delete the examples until real documents exist for the developer to
   learn the conventions from (product.md filled is the minimum).

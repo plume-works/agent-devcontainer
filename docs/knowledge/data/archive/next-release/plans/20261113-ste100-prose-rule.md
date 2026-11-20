@@ -32,15 +32,14 @@ The repository owner's decisions:
   rulebooks, `AGENTS.md` files, READMEs, code comments, commit messages, and
   pull request titles and bodies.
 - The rule applies only to the text that a change adds or edits. [Migrate
-  existing prose to ASD-STE100](../../../backlog/migrate-prose-to-ste100.md)
-  converts the earlier text.
+  existing prose to ASD-STE100](../backlog/migrate-prose-to-ste100.md) converts
+  the earlier text.
 - The rule names the issue of the standard, so that a later issue does not
   change the rule without a decision.
 - A new skill, `audit-ste100`, checks the rule from a fresh context and runs
   before the Durable Knowledge Auditor.
-- The skill checks from the model's own knowledge of the standard. [Full
-  ASD-STE100 compliance](../../../someday/ste100-full-compliance.md) holds the
-  idea of a check against the standard itself.
+- The skill checks from the model's own knowledge of the standard. Full
+  ASD-STE100 compliance holds the idea of a check against the standard itself.
 - A glossary is the list of project terms that the rule permits.
 - Commit messages and pull request text follow the written rule. No audit reads
   them.
@@ -400,9 +399,9 @@ uv run scripts/check-anchors.py
 ## Out of scope
 
 - The conversion of text that existed before the rule. [Migrate existing prose
-  to ASD-STE100](../../../backlog/migrate-prose-to-ste100.md) owns it.
-- A check against the standard itself or its dictionary. [Full ASD-STE100
-  compliance](../../../someday/ste100-full-compliance.md) owns it.
+  to ASD-STE100](../backlog/migrate-prose-to-ste100.md) owns it.
+- A check against the standard itself or its dictionary. Full ASD-STE100
+  compliance owns it.
 - An audit of commit messages, pull request titles, or pull request bodies.
 - A change to `/agentdev:git-commit`, `/agentdev:pr-open`, or
   `/agentdev:pr-gen-description`.

@@ -15,11 +15,10 @@ the installed catalog.
 ## Considered Options
 
 - Track `docs/knowledge/data/`. Rejected: each difference is the history of one
-  owner, and a merge of it in either direction destroys the memory of the other
+  owner, and applying it in either direction destroys the memory of the other
   owner.
-- Copy the memory into the consumer from the template checkout. Rejected: it
-  needs the checkout, and the consumer starts with the memory of this
-  repository.
+- Seed the consumer from the template checkout. Rejected: it needs the checkout,
+  and it starts the consumer from the memory of this repository.
 
 ## Consequences
 

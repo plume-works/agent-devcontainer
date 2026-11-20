@@ -13,8 +13,8 @@ supersedes:
 The `claude remote-control` server is the only Remote Control mode, and it runs
 by default. `AGENTDEV_CLAUDE_RC_SPAWN` selects the spawn mode: `worktree` (the
 default, by decision of the maintainer), `same-dir`, or `session`. The value
-`off` stops Remote Control. A value that is not in this list stops the start, so
-that an incorrect value does not run a different mode with no message.
+`off` disables Remote Control. An unrecognized value stops the start, so that an
+incorrect value does not silently run a different mode.
 
 ## Considered Options
 
@@ -29,9 +29,10 @@ that an incorrect value does not run a different mode with no message.
 ## Consequences
 
 - No Dev Container lifecycle command starts Remote Control. In a Coder
-  workspace, the agent start `agentdev-runtime coder start` starts it. A runtime
-  supervisor starts it with its `remote-control` watcher. Both skip the start
-  when the spawn mode is `off`.
+  workspace, the Coder agent start `agentdev-runtime coder start` starts it. The
+  supervisor of the `deploy` runtime profile starts it with its `remote-control`
+  watcher. The `devcontainer` runtime profile does not (ADR-0095). Both skip the
+  start when the spawn mode is `off`.
 - `AGENTDEV_CLAUDE_RC_MODE` has no effect. A runtime that set
   `AGENTDEV_CLAUDE_RC_MODE=session` now runs the server in `worktree` mode.
 - Each conversation that the server starts receives the environment of the start

@@ -15,7 +15,7 @@ sources:
 
 The `org.opencontainers.image.description` label of `agentdev-base` is
 "Lifecycle-neutral agentdev tools, staged catalog, and default policy." The
-image contains no firewall allowlist and no agent policy. Thus, a consumer who
+image contains no firewall allowlist and no agent policy, so a consumer who
 reads the label expects a policy that the image does not have.
 
 ## Reproduction
@@ -30,8 +30,8 @@ reads the label expects a policy that the image does not have.
 ## Root cause
 
 The two runtime images copy the allowlist, and the runtime writes the agent
-policy at each start. Nobody changed the label of `agentdev-base` when the
-policy files moved from the base image.
+policy at each start. The label of `agentdev-base` was not changed when the
+policy files moved out of the base image.
 
 ## Potential solution
 

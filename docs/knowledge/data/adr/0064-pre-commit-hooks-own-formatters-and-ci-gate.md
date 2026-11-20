@@ -6,23 +6,28 @@ description: Each formatter and linter has one owner, a pre-commit hook, and the
 
 # The pre-commit hooks own each formatter and the CI check
 
-Two tools that both format a file change the output of each other. For this
-reason, each formatter and linter has one owner, a pre-commit hook. The CI
-`pre-commit` job runs the same hooks in the pinned `agentdev-devcontainer`
-image. CI and a commit then use tools from the same version owners, so no second
-version can be different.
+Two tools that both claim a file rewrite each other's output, so the diff
+depends on which one ran last. For this reason, each formatter and linter has
+one owner, a pre-commit hook. The CI `pre-commit` job runs the same hooks in the
+pinned `agentdev-devcontainer` image. CI and a commit then use tools from the
+same version owners, so there is no second version to drift from and nothing to
+keep in parity by hand. A version owner is the one place that pins the version
+of a hook tool, such as `uv.lock` or the image.
 
 ## Considered Options
 
-- Super-Linter as the CI check. Rejected: its image has a copy of each hook with
-  its own tool versions, and Renovate cannot keep them the same.
+- Super-Linter as the CI check. Rejected: its image duplicates each hook and
+  pins its own tool versions, so every version bump is a manual sync that
+  Renovate cannot do.
 - `gitleaks/gitleaks-action`. Rejected: it needs a licence key for an
-  organization, it sees only the first 30 commits of a pull request, and it
-  downloads a second gitleaks.
+  organization, it lists only the first 30 commits of a pull request, and it
+  downloads its own gitleaks beside the pinned one.
 - Run the job in the image that the pull request builds. Rejected: lint then
-  waits for the full image build, and the pinned image already has each binary.
-- Remote hook repositories. Rejected: each installs a second copy of a tool next
-  to `uv.lock` or the image.
+  waits for the full image build, while the pinned image already carries every
+  binary hook.
+- Remote hook repositories. Rejected: each installs its own copy of a tool
+  beside `uv.lock` or the image, which is the drift that one owner per tool
+  removes.
 
 ## Consequences
 

@@ -55,7 +55,7 @@ Do NOT flag:
 
 Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path::symbol` → `path::symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
 
-**Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`, `*.agent.md`), and docstrings:
+**Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent rulebooks (`SKILL.md`, `*.agent.md`), and docstrings:
 
 - Run `/agentdev:iwe-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
@@ -69,7 +69,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — a finding from one of two passes. A **correctness pass** finds compile or parse failures, wrong outcomes of a reachable scenario, and security problems. A **durable-knowledge pass** finds session residue that a rule forbids. Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
+- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed. A review whose findings are all non-blocking is an `APPROVE`; its inline threads still hold the merge until resolved.
 
@@ -99,7 +99,7 @@ Which size each slot gets, and how many of it run:
 
 The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
 
-Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` as they run at `full`. The light tier costs less, but it does not check less. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
+Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` exactly as they do at `full`: the light tier is a cheaper review, not a weaker one. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
 
 ## Steps
 
@@ -116,11 +116,11 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
    - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers.
-   - **The lens follows the file.** The correctness passes scan code files. The durable-knowledge pass scans docs and skills files. Each pass ignores the text outside its lens. On a mixed docs+code diff, each lens runs against its own subset in the same review. On a code-only diff, the durable-knowledge pass does not run, so four passes run at full effort and two at light.
+   - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run, leaving four passes at full effort and two at light.
    - **Every pass prompt carries the "Never execute code" constraint** (see Constraints) verbatim: a pass does not inherit this skill's text.
    - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
    - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
-   - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
+   - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these subagents must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
 5. **Merge and deduplicate.** Collect the candidate findings from every pass. Discard every correctness candidate with an empty Trigger, Path, or Outcome; it never reaches validation. Collapse candidates that name the same file/line and describe the same underlying issue into one, retaining one of them whole — its description and, for a correctness candidate, its scenario — and keeping the **blocking** tier if either collapsed candidate was blocking.
 6. **Validate the surviving candidates, on the `light` model at every effort level.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Preserve each surviving candidate's severity tier from Step 5 unchanged — validation confirms or drops a finding, it never changes its tier.
    - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the Trigger, Path, and Outcome of a candidate that carries a scenario in place of its claim, the claim made against any other candidate, the full text of any rule that claim invokes, where to read the diff and the PR title and description, that the working tree is already at the head commit so files can be read for ground truth, and the "Never execute code" constraint verbatim. It never names which pass raised a candidate.

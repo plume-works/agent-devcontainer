@@ -13,15 +13,16 @@ metadata for tools that a checkout does not have.
 
 ## Considered Options
 
-- Do not use a file that the tool cannot parse. Rejected: the tool then gives an
-  incorrect result and shows no error, because it did not read a rule in that
-  file.
+- Skip a file that the tool cannot parse. Rejected: the tool would silently
+  compute the wrong answer, for example report content as unchanged because the
+  rule that would flag it never loaded.
 
 ## Consequences
 
-- The `template-consume` key is the marker, and it is correct only in the root
-  file, because a repository uses the template at one commit. The same key in a
-  file in a subdirectory is broken metadata.
+- The `template-consume` key is the marker, which records the template state of
+  a consumer. It is correct only in the root file, because a repository uses the
+  template at one commit. The same key in a file in a subdirectory is broken
+  metadata.
 - The setup mode of `template-consume` writes the marker in the consumer. The
   template never copies it from this repository. As a result, the template
   classifies the root file by its top-level keys, not as one file.

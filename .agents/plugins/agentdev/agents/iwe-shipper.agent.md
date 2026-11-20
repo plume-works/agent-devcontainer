@@ -128,9 +128,9 @@ needed. In particular:
      bug to `stage: done` with its `rank` removed. Never create a feature or
      bug.
    - Write each listed bug's `## Fix` as `docs/knowledge/schema/bugs.md` defines
-     it, from Verify's evidence. Leave `## Potential solution` as it is. Do not
-     change a `## Fix` that already gives this fix. Replace a `## Fix` that does
-     not.
+     it, from Verify's evidence. Leave `## Potential solution` as it is. A
+     `## Fix` that already describes this fix stays as it is; one that does not
+     is replaced.
    - Archive what closed, last: move the plan and each feature and bug it
      closed with `iwe rename <key> data/archive/next-release/<folder>/<name>`,
      `<folder>` being the folder it lived in (`plans`, `features`, `bugs`),
