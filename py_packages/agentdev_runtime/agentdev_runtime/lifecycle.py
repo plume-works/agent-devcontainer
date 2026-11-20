@@ -100,6 +100,8 @@ def created(settings: env.Settings) -> None:
             catalog.install(settings, staged, 'user')
     else:
         print('No catalog staged in the image; skipping the image-scoped plugin install.')
+    with agent_state.config_lock(settings):
+        catalog.install_enabled(workspace_of(settings))
     # Before Remote Control starts: it reads the worktree hooks only then.
     if not project.deploy(settings):
         with agent_state.config_lock(settings):

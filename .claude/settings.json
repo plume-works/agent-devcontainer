@@ -1,8 +1,36 @@
 {
   "model": "opus",
   "cleanupPeriodDays": 14,
+  "env": {
+    "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
+    "CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT": "1"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "disableArtifact": true,
+  "disableClaudeAiConnectors": true,
+  "autoMemoryEnabled": false,
+  "includeGitInstructions": false,
+  "disableBundledSkills": true,
+  "disableWorkflows": true,
   "permissions": {
     "defaultMode": "auto",
+    "deny": [
+      "EnterPlanMode",
+      "ExitPlanMode",
+      "DesignSync",
+      "NotebookEdit",
+      "ReportFindings",
+      "AskUserQuestion",
+
+      "RemoteTrigger",
+      "ScheduleWakeup",
+      "CronCreate",
+      "CronDelete",
+      "CronList"
+    ],
     "allow": [
       "Agent",
       "ToolSearch",
@@ -60,11 +88,7 @@
     ]
   },
   "enabledPlugins": {
-    "github@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true
+    "context7@claude-plugins-official": true
   },
   "worktree": {
     "baseRef": "fresh"

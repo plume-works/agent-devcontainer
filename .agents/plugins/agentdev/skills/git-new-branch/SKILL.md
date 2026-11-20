@@ -113,7 +113,7 @@ agent-code/git-new-branch.py <name>
 
 ## Workflow 3: Uncommitted Changes Git Cannot Carry
 
-On `CARRY_CONFLICT`, ask the user with the structured-question tool:
+On `CARRY_CONFLICT`, ask the user in prose, and then stop:
 
 - **Stash and retry** — rerun the same command with `--stash`.
 - **Cancel** — leave the checkout and changes as they are.

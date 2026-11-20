@@ -78,8 +78,7 @@ When `.agentdev-template-progress.md` already exists with unticked setup tasks,
 resume from those tasks and its recorded choices. Do not restart the workflow
 or scope interview.
 
-1. **Ask which workflow applies** (AskUserQuestion, or ask in prose and stop if
-   unavailable): Workflow A (a fresh full copy — GitHub "Use this template",
+1. **Ask which workflow applies** (ask in prose, and then stop): Workflow A (a fresh full copy — GitHub "Use this template",
    or a clone into a new repository) or Workflow B (adding the template
    surface to an existing repository that already has its own source, CI, and
    possibly its own `pyproject.toml`/pre-commit config).

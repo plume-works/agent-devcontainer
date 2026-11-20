@@ -93,8 +93,8 @@ If the problem has open questions, ask the user one question at a time.
   settles the topic. List remaining topics only after the current topic closes.
   Note findings about other topics for later. Do not start those topics.
 - **Ask for one decision per question.** Give numbered options. State the
-  consequence of each option. Put your recommendation first. Use the
-  structured-question tool when the options fit the tool.
+  consequence of each option. Put your recommendation first. Ask in prose, not
+  with a structured-question tool.
 - **Keep the user's names and design.** Ask a separate question before you
   change a name or the design. Do not make an unannounced substitution.
 - **Check behavior before discussion.** If a choice depends on system behavior,

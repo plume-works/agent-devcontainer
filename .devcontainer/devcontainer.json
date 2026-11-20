@@ -157,42 +157,7 @@
           "virtualenv",
           "xpra",
           "zizmor"
-        ],
-
-        // Copilot / VS Code chat agent behaviour
-        "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-        "github.copilot.chat.notebook.alternativeFormat": "markdown",
-        "github.copilot.nextEditSuggestions.enabled": true,
-        "github.copilot.enable": {
-          "*": true
-        },
-        "chat.agent.enabled": true,
-        "chat.agent.maxRequests": 250,
-        "chat.useAgentSkills": true,
-        "chat.useAgentsMdFile": true,
-        "chat.mcp.gallery.enabled": true,
-        "chat.mcp.autostart": "newAndOutdated",
-        "chat.tools.terminal.autoApprove": {
-          "/.*/": true, // Allow all commands, denied commands will still need approval.
-          "gh": true,
-          "rm": false
-        },
-        "chat.tools.terminal.ignoreDefaultAutoApproveRules": false,
-        "chat.tools.terminal.blockDetectedFileWrites": "outsideWorkspace",
-        "chat.tools.terminal.autoReplyToPrompts": true,
-        "chat.tools.urls.autoApprove": {
-          "https://code.visualstudio.com": true,
-          "https://code.visualstudio.com/docs": true,
-          "https://github.com": true,
-          "https://docs.github.com": true,
-          "https://*.github.com": {
-            "approveRequest": true
-          },
-          "https://raw.githubusercontent.com/github/github-mcp-server/": true,
-          "https://www.google.com/search": true,
-          "https://docs.docker.com": true,
-          "https://code.claude.com/docs/en/": true
-        }
+        ]
       }
     }
   }
