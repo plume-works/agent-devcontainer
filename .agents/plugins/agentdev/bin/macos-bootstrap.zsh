@@ -6,11 +6,11 @@ setopt err_exit no_unset pipe_fail
 
 typeset -r PYTHON_VERSION=3.12
 # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-typeset -r IWE_VERSION=iwe-v0.33.0
+typeset -r IWE_VERSION=iwe-v0.34.0
 # Renovate bumps the versions; scripts/refresh-pin-checksums.py rewrites these digests.
 typeset -rA SHA256=(
-  iwe-arm64 828c78ede50995445572aa672c5178d853576a0025bafa52b4229f5f986d248c
-  iwe-amd64 c7c8c5efd63318f94f2fbd631824580b97289ca53a1765d08e36070c1414503e
+  iwe-arm64 d42d875198c391c165e74e15783683598402b26afc244510bd6ad74d8c5f724f
+  iwe-amd64 97ae1aa3fcd6777c3c670dceb95f05fc20d53aaa23d5b1ee594717555fc460cf
 )
 
 typeset -r MARKETPLACE_REPO=plume-works/agent-devcontainer
