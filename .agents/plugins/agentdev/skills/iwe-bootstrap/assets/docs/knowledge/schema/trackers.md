@@ -9,4 +9,5 @@ each with `type: tracker` and `stage: living`.
   session reads it first.
 - `data/milestone.md` — the links to the aggregator plans. See
   `schema/plans.md`.
-- `data/glossary.md` — the project terms and their meanings.
+- `data/glossary.md` — the shared language of the project. See
+  `schema/glossary.md`.

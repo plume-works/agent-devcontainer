@@ -29,7 +29,7 @@ different type.
 | ----------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
 | How the product behaves                               | The code and its tests                    | The change that builds the behaviour    |
 | What the product is, its constraints, authoring rules | `data/product.md` (`schema/trackers.md`)  | `/agentdev:iwe-setup`                   |
-| A project term                                        | `data/glossary.md` (`schema/trackers.md`) | The change that first uses the term     |
+| A project term                                        | `data/glossary.md` (`schema/glossary.md`) | The change that settles the term        |
 | A principle that stays true in each release           | `schema/product-vision.md`                | `/agentdev:iwe-explore`                 |
 | An idea that is not a commitment                      | `schema/someday-ideas.md`                 | `/agentdev:iwe-explore`                 |
 | Work that one session can complete                    | `schema/backlog-tasks.md`                 | `/agentdev:iwe-capture`                 |
@@ -59,5 +59,6 @@ no `stage`.
 - `schema/code-anchors.md` — the forms of a code anchor.
 - `schema/hubs.md` — the hub of each type.
 - `schema/trackers.md` — the three trackers.
+- `schema/glossary.md` — the format and the rules of the glossary.
 - `schema/index-file.md` — `data/index.md`.
 - `schema/archive.md` — where finished work goes.

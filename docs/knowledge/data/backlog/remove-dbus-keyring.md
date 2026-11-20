@@ -57,7 +57,6 @@ The `ENV` prevents this. This problem occurs only because the images install
 - Move a `gh` token that is in an existing keyring into `hosts.yml`, or tell the
   user to do the `gh auth login` procedure again. Before you start this step,
   find which of the two actions is necessary.
-- Remove the keyring terms from the glossary.
 
 ## Dependencies
 
