@@ -11,7 +11,6 @@
 .tmp/
 .worktrees/
 .copilot-tracking/
-.superpowers/
 
 # Ansible
 .ansible/
