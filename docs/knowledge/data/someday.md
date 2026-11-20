@@ -35,5 +35,3 @@ review](someday/revision-evaluator-calibration.md)
 
 [Share one BuildKit builder across Coder
 workspaces](someday/shared-buildkit-builder.md)
-
-[Full ASD-STE100 compliance](someday/ste100-full-compliance.md)

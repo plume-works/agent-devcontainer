@@ -1,12 +1,11 @@
 ---
 type: tracker
-description: The project terms that the prose rule permits, each with its meaning.
+description: The project terms, each with its meaning.
 stage: living
 ---
 
 # Glossary
 
-The prose rule in `AGENTS.md` permits a project term only if this page lists it.
 Each entry is one list item: the term in bold, then `(noun)` or `(verb)`, then
 the meaning in one sentence. Keep the entries in alphabetical order. Add a new
 term in the same change that first uses it.
@@ -49,9 +48,6 @@ term in the same change that first uses it.
 - **attach phase** (noun): The Dev Container lifecycle command
   `agentdev-runtime lifecycle attached`, which runs each time an editor attaches
   to the container.
-- **audit** (noun): The check of prose against ASD-STE100 Issue 9 that
-  `/agentdev:audit-ste100` does.
-- **audit** (verb): To do an audit.
 - **auth volume** (noun): The Docker volume that holds only the Claude
   credentials, which all Dev Container instances of one host user share.
 - **backlog task** (noun): A work item that

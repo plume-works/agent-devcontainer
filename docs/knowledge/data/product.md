@@ -166,9 +166,6 @@ it):
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/AGENTS.md` when editing it
   directly.
-- Write all prose in ASD-STE100 Issue 9 (Simplified Technical English), as Best
-  Practice 15 in `AGENTS.md` tells. The rule applies to the text that a change
-  adds or edits. Use a project term only if `data/glossary.md` lists it.
 
 ## Changelog
 
@@ -210,3 +207,5 @@ it):
 - 2026-11-13 — added the rule that all new prose follows ASD-STE100 Issue 9.
 - 2026-11-13 — routed a spike's design decision to an ADR that a plan proposes;
   Plan, Verify, and Ship no longer read or write a spec.
+- 2026-11-20 — removed the ASD-STE100 prose rule, the `audit-ste100` skill, and
+  the `STE100 Auditor` agent.

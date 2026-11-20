@@ -89,9 +89,6 @@ software project's memory and system of record. The division of labor:
   document shape (a fictional product; schema-validated so they can't rot).
   Ignore them when reporting real project state; the setup skill deletes them at
   the end of onboarding.
-- **Prose follows ASD-STE100 Issue 9.** Best Practice 15 in the repository
-  `AGENTS.md` is the rule. `data/glossary.md` is the list of technical nouns and
-  technical verbs that the rule permits.
 
 ## Where narrative is the format
 

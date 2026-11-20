@@ -1,6 +1,6 @@
 ---
 type: bug
-stage: pending
+stage: cancelled
 severity: medium
 description: Two runs of the ASD-STE100 audit on the same text give different findings, and a run can report the replacement text that an earlier run gave.
 sources:

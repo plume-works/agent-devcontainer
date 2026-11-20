@@ -9,4 +9,4 @@ each with `type: tracker` and `stage: living`.
   session reads it first.
 - `data/milestone.md` — the links to the aggregator plans. See
   `schema/plans.md`.
-- `data/glossary.md` — the project terms that the prose rule permits.
+- `data/glossary.md` — the project terms and their meanings.

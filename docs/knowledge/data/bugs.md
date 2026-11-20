@@ -54,8 +54,5 @@ operate](bugs/root-test-guard-cannot-fire.md)
 [Bug: the runtime package installs two dependencies from a version
 range](bugs/runtime-dependencies-not-pinned.md)
 
-[Bug: the ASD-STE100 audit gives different findings for the same
-text](bugs/ste100-audit-not-deterministic.md)
-
 [Bug: the promote step can move the `ubuntu-ansible` tags to an older
 image](bugs/ubuntu-ansible-tags-can-move-backwards.md)
