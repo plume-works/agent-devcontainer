@@ -90,24 +90,24 @@ dev_tools_pinned_tools:
   # The tarball also ships iwec, the MCP server, which no agent config registers.
   - name: iwe
     # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-    version: iwe-v0.33.0
+    version: iwe-v0.34.0
     url_prefix: https://github.com/iwe-org/iwe/releases/download
     asset_prefix: "{version}-"
     binaries: [iwe, iwes]
     archives:
       amd64:
         target: x86_64-unknown-linux-gnu
-        checksum: c62ce2502224f28c22ba94e3539bd5334e7641fb92a49e0ca141ba3a54d24474
+        checksum: 6e72216d8f48b71700b0b2a4583ce1939b1c42516f0ab4110e5d177d277f467e
       arm64:
         target: aarch64-unknown-linux-gnu
-        checksum: 98d60922c261eb8350faebcb7d2f526cf2a6faddd4deca4e0b7f79ab83afb743
+        checksum: 488efe412fb9a92beb8067ab258394003905c07e1d11d1d90300b7087fb0fdc4
 
   # Bun's .zip holds its binary under a directory named after the asset, hence
   # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
   # which runs without AVX2; plain `x64` faults on a host that lacks it.
   - name: bun
     # renovate: datasource=github-releases depName=oven-sh/bun versioning=regex:^bun-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-    version: bun-v1.4.4
+    version: bun-v1.4.5
     url_prefix: https://github.com/oven-sh/bun/releases/download
     asset_prefix: bun-linux-
     extension: zip
@@ -115,7 +115,7 @@ dev_tools_pinned_tools:
     archives:
       amd64:
         target: x64-baseline
-        checksum: e0446eb55995772eb9894bebae9a6be368d985a8b9271ee124486f9946eedd76
+        checksum: dcb23a18a1c2fff12d57bcef696dbbb42eb67fde29f43816ecb595459a24c463
       arm64:
         target: aarch64
-        checksum: baa6bb36f51d6e58561e02bbea825038a9df454f673d6d776e8bbf86f8c7850e
+        checksum: 18656a3bf0ea5641f5796ae4213b75255579a70a0fded2f337933785568cdf84
