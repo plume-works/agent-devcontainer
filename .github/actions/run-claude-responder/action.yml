@@ -102,7 +102,7 @@ runs:
     # Only these permission inputs bound the token, not the job's permissions.
     - name: Create GitHub App token
       id: app_token
-      uses: actions/create-github-app-token@v3.3.0
+      uses: actions/create-github-app-token@v3.4.0
       with:
         client-id: ${{ inputs.app-client-id }}
         private-key: ${{ inputs.app-private-key }}
