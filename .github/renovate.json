@@ -2,6 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":enablePreCommit"],
   "rebaseWhen": "auto",
+  "schedule": ["* 3-4 * * *"],
+  "minimumReleaseAge": "3 days",
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
   "postUpgradeTasks": {
     "commands": ["scripts/renovate-post-upgrade.py"],
     "executionMode": "branch",
@@ -23,10 +28,7 @@
     ]
   },
   "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true,
-    "automergeType": "pr",
-    "platformAutomerge": true
+    "enabled": true
   },
   "docker-compose": {
     "managerFilePatterns": [
@@ -36,23 +38,20 @@
   },
   "packageRules": [
     {
-      "description": "Automatically merge GitHub Actions dependency updates after Renovate observes green CI.",
-      "matchManagers": ["github-actions"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
+      "description": "An x.y.0 release waits 10 days instead of 3 (ADR-0098). The pattern also matches a `v` prefix and a range such as `>=1.2.0`.",
+      "matchNewValue": "/(^|[^0-9.])\\d+\\.\\d+\\.0($|[^0-9.])/",
+      "minimumReleaseAge": "10 days"
     },
     {
-      "description": "agentdev-devcontainer and agentdev-deploy are built by this repository's own pipeline, so their edge digest bumps share one pull request. Each pin lives outside the CI image path filter (devcontainer-compose-pins.yml, opencode-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. CI moves agentdev-deploy's edge only to digests that passed native acceptance. That is what makes automerge safe here. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
+      "description": "agentdev-devcontainer and agentdev-deploy are built by this repository's own pipeline, so their edge digest bumps share one pull request and skip the release-age wait and the daily window (ADR-0098). Each pin lives outside the CI image path filter (devcontainer-compose-pins.yml, opencode-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. CI moves agentdev-deploy's edge only to digests that passed native acceptance. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
       "matchDatasources": ["docker"],
       "matchPackageNames": [
         "ghcr.io/plume-works/agentdev-devcontainer",
         "ghcr.io/plume-works/agentdev-deploy"
       ],
       "groupName": "agentdev image digests",
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
+      "schedule": ["at any time"],
+      "minimumReleaseAge": null
     },
     {
       "description": "The image's Ubuntu base release is not bumped by Renovate: it stays at 24.04 because downstream consumers depend on that release. Another Ubuntu release ships as a separately named image tag with an explicit base, never as a bump of this one.",
@@ -68,26 +67,7 @@
       "matchFileNames": ["docker/ansible/Dockerfile"],
       "matchDepNames": ["ubuntu"],
       "matchUpdateTypes": ["digest"],
-      "schedule": ["* 0-3 * * 1"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
-    },
-    {
-      "description": "pre-commit hook revisions. A rev bump edits .pre-commit-config.yaml, which runs the pre-commit checks before it can merge.",
-      "matchManagers": ["pre-commit"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
-    },
-    {
-      "description": "The renovate-config-validator hook's `bunx --package renovate@<version>` pin: it is the Renovate version the bot and the validation workflow run. A bump edits .pre-commit-config.yaml, which runs the required validation check at the new version before it can merge.",
-      "matchManagers": ["custom.regex"],
-      "matchFileNames": [".pre-commit-config.yaml"],
-      "matchDepNames": ["renovate"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
+      "schedule": ["* 0-3 * * 1"]
     },
     {
       "description": "The provisioning tools the Ansible roles pin, including the checksum-carrying downloads, and the macOS bootstrap's pins of the same release tools, so a tool's Linux and macOS pins move in one pull request. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a pin half-updated. That is what makes batching and automerge safe here.",
@@ -96,18 +76,12 @@
         "ansible/roles/*/defaults/main.yml",
         ".agents/plugins/agentdev/bin/macos-bootstrap.zsh"
       ],
-      "groupName": "ansible role dependency pins",
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
+      "groupName": "ansible role dependency pins"
     },
     {
       "description": "uv is pinned twice: the setup-python-venv action input CI runs on, and the uv_setup role the image ships. Grouping them keeps both in one PR so CI never validates against a different uv than the image carries.",
       "matchDepNames": ["astral-sh/uv"],
-      "groupName": "uv",
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
+      "groupName": "uv"
     }
   ],
   "customManagers": [
@@ -150,15 +124,6 @@
         "bunx (?<depName>prettier)@(?<currentValue>[0-9][^\\s]*)"
       ],
       "datasourceTemplate": "npm"
-    },
-    {
-      "description": "Commit pins in the Ansible roles' defaults, for upstreams whose tags are unusable. The comment carries the branch the commit is tracked on.",
-      "customType": "regex",
-      "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
-      "matchStrings": [
-        "# renovate: datasource=git-refs depName=(?<depName>\\S+) currentValue=(?<currentValue>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentDigest>[0-9a-f]{40})\""
-      ],
-      "datasourceTemplate": "git-refs"
     }
   ]
 }
