@@ -322,6 +322,9 @@ If `gh` is unavailable or unauthenticated, fall back to the connected GitHub
 MCP server's pull-request creation operation with the same title, body, base,
 and head values.
 
+In both modes, list in the report every check `pr-gen-description` reported as
+open, with the reason it gave; none of them is in the body.
+
 ### 10. Re-Review Evaluation
 
 In **update mode**, always apply
