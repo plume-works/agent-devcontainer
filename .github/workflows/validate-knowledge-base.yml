@@ -27,23 +27,30 @@ jobs:
     outputs:
       pass: ${{ steps.filter.outputs.pass }}
     steps:
+      # nx-set-shas needs the history to find the base commit.
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
         with:
+          fetch-depth: 0
+          filter: tree:0
           persist-credentials: false
 
       - name: Filters
         uses: $/.github/actions/paths-filter
         id: filter
         with:
-          extra-filter: |
+          filters: |
             - docs/knowledge/**
             - .iwe
             - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
             - ansible/roles/dev_tools/defaults/main.yml
             - scripts/fetch-pinned-tool.py
+            - pyproject.toml
+            - uv.lock
             - .github/workflows/validate-knowledge-base.yml
+            - .github/actions/setup-python-venv/**
             - .github/actions/log-debug-stats/**
+            - .github/actions/paths-filter/**
 
       - name: Log debug stats
         if: ${{ always() }}
