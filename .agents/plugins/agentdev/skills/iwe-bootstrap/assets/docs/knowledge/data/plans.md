@@ -6,6 +6,4 @@ stage: living
 
 # 🗺️ Plans
 
-[MVP](plans/mvp.example)
-
 [Streak widget](plans/20260720-streak-widget.example)

@@ -83,8 +83,3 @@ exceptions: `## Acceptance` and `## Verification` are always there.
 - **THEN** the `ship-records` check reports the bug and exits 1
 - **Test:** `scripts/tests/test_check_ship_records.py::test_done_bug_without_fix_fails`
 ```
-
-A milestone is a plan whose children are plans: the work for one release. This
-aggregator plan has inclusion links to its child plans as one flat list. The
-`rank` of each child sets the build order, and dependencies stay in prose. The
-milestone ships when its last child plan ships.

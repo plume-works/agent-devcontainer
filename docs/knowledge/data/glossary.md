@@ -195,10 +195,6 @@ the document.
 **Build order**: The one sequence of open work, across plans, bugs, and backlog
 tasks. *Avoid*: Priority list, queue
 
-**Milestone**: A plan whose children are plans.
-
-**Aggregator plan**: The plan of a milestone, which links its child plans.
-
 **Active plan**: A plan that is not yet closed.
 
 **Plan key**: The name of a plan in the graph: its path in the knowledge base,

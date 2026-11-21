@@ -1,6 +1,6 @@
 $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
-  A tracker (data/product.md, data/milestone.md, data/glossary.md). The definition is
+  A tracker (data/product.md, data/glossary.md). The definition is
   docs/knowledge/schema/trackers.md.
 maxDepth: 4
 frontmatter:

@@ -143,9 +143,7 @@ needed. In particular:
    ADR of the plan before committing. While a bug `release` lists has no
    `## Fix`, commit nothing and return a Ship blocker report naming each such
    bug. Report which valid results were preserved from an earlier
-   attempt and which operations this invocation completed. If the plan's
-   milestone aggregator lists it, check whether it was the last child and say
-   when the milestone is complete.
+   attempt and which operations this invocation completed.
 8. **Cut a release only when the operation is `release <X.Y.Z>`.** The cut is
    the only writer of release pages. Inspect `data/releases.md`, every release
    page, any page for the requested version, `data/archive/next-release/`, and

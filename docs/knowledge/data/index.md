@@ -13,8 +13,6 @@ okf_version: '0.2'
   defines.
 - [Backlog](backlog.md) - The open backlog tasks, which
   `docs/knowledge/schema/backlog-tasks.md` defines.
-- [Milestones](milestone.md) - The milestones, which
-  `docs/knowledge/schema/plans.md` defines.
 - [Someday](someday.md) - The someday ideas, which
   `docs/knowledge/schema/someday-ideas.md` defines.
 

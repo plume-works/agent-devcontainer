@@ -59,7 +59,7 @@ ideas are durable reference documents. A reference document has a `type` and no
 - `schema/build-order.md` — the `rank` field and the build order.
 - `schema/code-anchors.md` — the forms of a code anchor.
 - `schema/hubs.md` — the hub of each type.
-- `schema/trackers.md` — the three trackers.
+- `schema/trackers.md` — the trackers.
 - `schema/glossary.md` — the format and the rules of the glossary.
 - `schema/index-file.md` — `data/index.md`.
 - `schema/archive.md` — where finished work goes.
