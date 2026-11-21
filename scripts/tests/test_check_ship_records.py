@@ -118,11 +118,16 @@ REVIEW = """## Ship review
 - [x] Every ADR that the plan proposed is `stage: accepted` — correct: data/adr/0001-example
 - [x] Every ADR that the plan superseded is `stage: superseded` and in the archive — not applicable: the plan superseded no ADR
 - [x] The plan is `stage: done` with `completed` and no `rank` — correct: 2026-11-14
-- [x] Every feature in `release` is `stage: implemented` — not applicable: `release` lists no feature
 - [x] Every bug in `release` is `stage: done` with no `rank` — correct: data/bugs/example
 - [x] Every bug in `release` has a `## Fix` that links this plan — correct: data/bugs/example
-- [x] The plan and every feature and bug that it completed are in the archive, and no hub links them — correct: data/archive/next-release/plans/example
+- [x] The plan and every bug that it completed are in the archive, and no hub links them — correct: data/archive/next-release/plans/example
 """
+
+FEATURE_REVIEW = REVIEW.replace(
+    '- [x] Every bug in `release` is',
+    '- [x] Every feature in `release` is `stage: implemented` — not applicable: '
+    '`release` lists no feature\n- [x] Every bug in `release` is',
+).replace('every bug that it completed', 'every feature and bug that it completed')
 
 ADR_REVIEW = """## Ship review
 
@@ -182,6 +187,20 @@ def test_well_formed_ship_review_passes(write: Write) -> None:
     """A Ship review in the fixed structure passes, followed by another section."""
     result = run(write('plan.md', plan() + '\n## Verification results\n\nAll green.\n'))
     assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_feature_ship_review_passes(write: Write) -> None:
+    """A Ship review in the structure that has the feature item passes."""
+    result = run(write('plan.md', plan(FEATURE_REVIEW)))
+    assert (result.returncode, result.stdout) == (0, '')
+
+
+def test_feature_ship_review_still_fails_when_malformed(write: Write) -> None:
+    """A feature-structure review with an unticked item fails against the current one."""
+    text = plan(FEATURE_REVIEW.replace('- [x] Every feature', '- [ ] Every feature'))
+    result = run(write('plan.md', text))
+    assert result.returncode == 1
+    assert 'found "Every feature in `release`' in result.stdout
 
 
 def test_spec_ship_review_passes(write: Write) -> None:
@@ -249,19 +268,19 @@ def test_missing_item_fails_naming_the_section(write: Write) -> None:
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, "## Ship review")} ' in result.stdout
-    assert 'missing item "The plan and every feature and bug that it completed' in result.stdout
+    assert 'missing item "The plan and every bug that it completed' in result.stdout
 
 
 def test_reordered_items_fail_naming_the_line(write: Write) -> None:
     """Two swapped items fail, each naming its line."""
     lines = REVIEW.splitlines(True)
-    first = line_of(REVIEW, 'Every feature')
+    first = line_of(REVIEW, 'Every bug in `release` is')
     lines[first - 1], lines[first] = lines[first], lines[first - 1]
     text = plan(''.join(lines))
     result = run(path := write('plan.md', text))
     assert result.returncode == 1
     assert f'{path}:{line_of(text, "Every bug in `release` is")} ' in result.stdout
-    assert f'{path}:{line_of(text, "Every feature")} ' in result.stdout
+    assert f'{path}:{line_of(text, "has a `## Fix`")} ' in result.stdout
 
 
 def test_unticked_item_fails_naming_the_line(write: Write) -> None:
@@ -377,24 +396,6 @@ def test_open_item_inside_the_archive_fails(write_at: Write, kind: str, stage: s
     result = run(path)
     assert result.returncode == 1
     assert 'sits in data/archive/' in result.stdout
-
-
-@pytest.mark.parametrize(
-    ('folder', 'stage', 'fails'),
-    [
-        ('features', 'implemented', True),
-        ('features', 'deprecated', True),
-        ('features', 'accepted', False),
-        ('archive/1.0.0/features', 'proposed', True),
-        ('archive/1.0.0/features', 'implemented', False),
-    ],
-)
-def test_feature_placement_follows_its_stage(
-    write_at: Write, folder: str, stage: str, fails: bool
-) -> None:
-    """A feature is live only at proposed or accepted, and archived at any other stage."""
-    path = write_at(f'docs/knowledge/data/{folder}/x.md', item('feature', stage))
-    assert run(path).returncode == (1 if fails else 0)
 
 
 @pytest.mark.parametrize(

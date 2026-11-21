@@ -2,7 +2,7 @@
 """
 Gate the records Ship leaves in the knowledge graph.
 
-Checks each bug, plan, backlog task, feature, ADR, and release document named on the command line,
+Checks each bug, plan, backlog task, ADR, and release document named on the command line,
 prints every violation as ``path:line message``, and exits 1 when there is any.
 """
 
@@ -19,7 +19,6 @@ HEADING = re.compile(r'^(?P<level>#{1,6})\s')
 ITEM = re.compile(r'^- \[(?P<tick>.)\] (?P<text>.+?) — (?P<ending>.*)$')
 LINK = re.compile(r'(?<!!)\[[^\]]*\]\([^)\s]+\)')
 CLOSED = frozenset({'done', 'cancelled'})
-LIVE_FEATURE = frozenset({'proposed', 'accepted'})
 LIVE_ADR = frozenset({'proposed', 'accepted'})
 
 
@@ -69,9 +68,22 @@ SHIP_REVIEW = Structure(
         Item('Every ADR that the plan proposed is `stage: accepted`'),
         Item('Every ADR that the plan superseded is `stage: superseded` and in the archive'),
         Item('The plan is `stage: done` with `completed` and no `rank`', not_applicable=False),
-        Item('Every feature in `release` is `stage: implemented`'),
         Item('Every bug in `release` is `stage: done` with no `rank`'),
         Item('Every bug in `release` has a `## Fix` that links this plan'),
+        Item(
+            'The plan and every bug that it completed are in the archive, and no hub links them',
+            not_applicable=False,
+        ),
+    ),
+    holds='correct',
+    absent='not applicable',
+)
+FEATURE_STRUCTURE = Structure(
+    SHIP_REVIEW.opening,
+    (
+        *SHIP_REVIEW.items[:4],
+        Item('Every feature in `release` is `stage: implemented`'),
+        *SHIP_REVIEW.items[4:6],
         Item(
             'The plan and every feature and bug that it completed are in the archive, '
             'and no hub links them',
@@ -110,9 +122,12 @@ EARLIEST_ITEMS = (
         'Ship edited no hub, release page, or `data/log.md`', evidence=False, not_applicable=False
     ),
 )
-EARLIER_STRUCTURES = tuple(
-    Structure(OLD_OPENING, items, holds='confirmed', absent='N/A')
-    for items in (ADR_ITEMS, SPEC_ITEMS, EARLIEST_ITEMS)
+EARLIER_STRUCTURES = (
+    FEATURE_STRUCTURE,
+    *(
+        Structure(OLD_OPENING, items, holds='confirmed', absent='N/A')
+        for items in (ADR_ITEMS, SPEC_ITEMS, EARLIEST_ITEMS)
+    ),
 )
 
 
@@ -238,10 +253,8 @@ def archived(path: Path) -> bool:
 
 
 def check_placement(kind: str, stage: str, inside: bool) -> list[tuple[int, str]]:
-    """Return a violation when a work item, feature, or ADR is on the wrong side of the archive."""
-    if kind == 'feature':
-        live = stage in LIVE_FEATURE
-    elif kind == 'adr':
+    """Return a violation when a work item or ADR is on the wrong side of the archive."""
+    if kind == 'adr':
         live = stage in LIVE_ADR
     elif kind in ('plan', 'bug', 'task'):
         live = stage not in CLOSED

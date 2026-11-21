@@ -18,9 +18,6 @@ workspaces](backlog/coder-supervised-remote-control.md)
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
 
-[Plans as ephemeral implementation documents; stories as the planned
-work](backlog/ephemeral-plans-and-stories.md)
-
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 

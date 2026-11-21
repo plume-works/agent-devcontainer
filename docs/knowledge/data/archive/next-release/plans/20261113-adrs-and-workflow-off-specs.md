@@ -751,7 +751,7 @@ uv run validate_agent_files --recommend . --require-marketplace claude
 - The glossary. [Make ASD-STE100 the rule for all
   prose](20261113-ste100-prose-rule.md) writes it.
 - The other parts of [Plans as ephemeral implementation documents; stories as
-  the planned work](../../../backlog/ephemeral-plans-and-stories.md).
+  the planned work](../backlog/ephemeral-plans-and-stories.md).
 - A check that stops an edit to an accepted ADR.
 
 ## Key references

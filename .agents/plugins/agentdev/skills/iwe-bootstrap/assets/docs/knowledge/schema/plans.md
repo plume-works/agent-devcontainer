@@ -14,15 +14,15 @@ stage: done # done | cancelled — absent while the plan is active
 created: 2026-07-01 # required, YYYY-MM-DD
 completed: 2026-07-18 # required when stage: done
 release: # required while the plan is active: internal, or the keys below
-- features/focus-sessions
+- bugs/timer-drifts-on-sleep
 ---
 ```
 
-- `release` lists the documents that the plan closes: the `features/` keys and
-  the `bugs/` keys that Ship marks implemented or done when the plan ships. The
-  value is `internal` when the plan closes no document. The field feeds no
-  release page. A plan needs no feature to change what users see: the release
-  cut writes the page from the archived plans.
+- `release` lists the `bugs/` keys of the bugs that Ship marks done when the
+  plan ships. The value is `internal` when the plan closes no bug. The field
+  feeds no release page: the release cut writes the page from the
+  `## Acceptance` scenarios of the archived plans. A shipped plan can also list
+  `features/` keys of the retired feature type.
 - `sources` lists the GitHub issue that the plan grew from, if there is one.
 - `rank` is optional. See `schema/build-order.md`.
 
@@ -37,9 +37,9 @@ A done or cancelled plan is in the archive. See `schema/archive.md`.
 Body, in this order. A plan leaves out a section that has no content, with two
 exceptions: `## Acceptance` and `## Verification` are always there.
 
-- `## Context` — why the work is done now. It links the feature, bug, or backlog
-  task that started the work, each document in `release`, and the GitHub issue
-  that the plan grew from.
+- `## Context` — why the work is done now. It links the bug, or backlog task
+  that started the work, each document in `release`, and the GitHub issue that
+  the plan grew from.
 - `## Approach` — the shape of the solution, in a few sentences. A rejected
   option goes in an ADR.
 - `## Implementation Steps` — `### Task N: <name>` blocks. Each block has a

@@ -32,7 +32,7 @@ missing input.
 ## Steps
 
 1. **Load the plan.** Read the full plan, each ADR its `## ADRs` links, and the
-   feature and bug documents it links. The plan's claims are its
+   bug documents it links. The plan's claims are its
    `## Acceptance` scenarios, its tasks, the decisions its ADRs record, and the
    outcomes its `## Approach` states.
 2. **Apply the rubric for the target.**

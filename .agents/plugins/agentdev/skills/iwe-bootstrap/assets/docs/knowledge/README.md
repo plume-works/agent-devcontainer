@@ -66,7 +66,6 @@ iwe find --filter '{type: plan, stage: done}' -f keys               # what shipp
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys    # the build order
 iwe find --references data/adr/0001-timer-counts-wall-clock-time -f keys  # what cites this ADR
 iwe retrieve -k data/plans/mvp --expand-includes 1                   # a milestone and its plans
-iwe tree -k data/features                                            # the open proposals
 ```
 
 ## What's inside
@@ -76,7 +75,6 @@ data/
 ├── index.md                            # the graph root
 ├── product.md                          # the document that each session reads first
 ├── plans.md           plans/
-├── features.md        features/
 ├── bugs.md            bugs/
 ├── adr.md             adr/
 ├── findings.md        findings/
