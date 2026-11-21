@@ -59,7 +59,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so a digest bump runs this
     # required check inside the new image.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:16e038485c6f476628ad854fe58a7045421e0d58d0b8850174c3331b826ae0ae
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:464884e9d1c74ed6f5d6a31b01b62666652b6c69589cd1462a93768adf4cfc75
     timeout-minutes: 15
     steps:
       - name: Checkout repository
