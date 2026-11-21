@@ -221,17 +221,57 @@ def test_a_package_that_breaks_the_hash_chain_publishes_nothing(
 
 
 def test_a_superseded_git_man_left_in_an_index_is_skipped(ppa: FakePpa, scratch: Path) -> None:
-    path = f'{cache.PPA}/dists/{cache.SERIES}/main/binary-arm64/Packages.gz'
-    stale = (
+    republish_arm64_index(
+        ppa,
         'Package: git-man\nVersion: 1:2.47.0-0ppa1~ubuntu24.04.1\nArchitecture: all\n'
-        'Filename: pool/main/g/git/git-man_old_all.deb\nSize: 1\nSHA256: 00\n'
+        'Filename: pool/main/g/git/git-man_old_all.deb\nSize: 1\nSHA256: 00\n',
     )
-    ppa.indexes['arm64'] = gzip.compress(
-        gzip.decompress(ppa.indexes['arm64']) + f'\n{stale}'.encode()
-    )
-    ppa.urls[path] = ppa.indexes['arm64']
-    ppa.sign(ppa.home)
 
     assert cache.main([]) == 0
 
     assert f'gh release create {TAG} ' in gh_log(scratch)
+
+
+def republish_arm64_index(ppa: FakePpa, extra_stanza: str) -> None:
+    """Append a stanza to the arm64 index, and re-sign the InRelease over it."""
+    ppa.indexes['arm64'] = gzip.compress(
+        gzip.decompress(ppa.indexes['arm64']) + f'\n{extra_stanza}'.encode()
+    )
+    ppa.urls[f'{cache.PPA}/dists/{cache.SERIES}/main/binary-arm64/Packages.gz'] = ppa.indexes[
+        'arm64'
+    ]
+    ppa.sign(ppa.home)
+
+
+def test_an_index_listing_git_twice_publishes_nothing(
+    ppa: FakePpa, scratch: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    republish_arm64_index(
+        ppa,
+        'Package: git\nVersion: 1:2.47.0-0ppa1~ubuntu24.04.1\nArchitecture: arm64\n'
+        'Filename: pool/main/g/git/git_old_arm64.deb\nSize: 1\nSHA256: 00\n',
+    )
+
+    assert cache.main([]) == 1
+
+    assert 'binary-arm64/Packages.gz lists 2 git packages' in capsys.readouterr().err
+    assert gh_log(scratch) == ''
+
+
+def test_an_index_without_the_git_man_of_its_git_publishes_nothing(
+    ppa: FakePpa, scratch: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    stanzas = gzip.decompress(ppa.indexes['arm64']).decode().split('\n\n')
+    ppa.indexes['arm64'] = gzip.compress(
+        ''.join(f'{s.strip()}\n\n' for s in stanzas if 'Package: git-man' not in s).encode()
+    )
+    republish_arm64_index(
+        ppa,
+        'Package: git-man\nVersion: 1:2.47.0-0ppa1~ubuntu24.04.1\nArchitecture: all\n'
+        'Filename: pool/main/g/git/git-man_old_all.deb\nSize: 1\nSHA256: 00\n',
+    )
+
+    assert cache.main([]) == 1
+
+    assert f'binary-arm64/Packages.gz lists no git-man {VERSION}' in capsys.readouterr().err
+    assert gh_log(scratch) == ''
