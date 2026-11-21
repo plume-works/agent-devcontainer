@@ -80,7 +80,6 @@ data/
 ├── adr.md             adr/
 ├── findings.md        findings/
 ├── guides.md          guides/
-├── product-vision.md  product-vision/
 ├── releases.md        releases/
 ├── backlog.md         backlog/
 ├── someday.md         someday/

@@ -32,7 +32,5 @@ okf_version: '0.2'
   `docs/knowledge/schema/findings.md` defines.
 - [Guides](guides.md) - The guides, which `docs/knowledge/schema/guides.md`
   defines.
-- [Product vision](product-vision.md) - The product-vision documents, which
-  `docs/knowledge/schema/product-vision.md` defines.
 - [Glossary](glossary.md) - The shared language of the project - the terms
   specific to it, each with one name.

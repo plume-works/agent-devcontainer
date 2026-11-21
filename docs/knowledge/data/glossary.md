@@ -174,8 +174,8 @@ or a bug.
 **Work item**: A document that has a lifecycle: a plan, a feature, a bug, a
 release, a backlog task, or an ADR. *Avoid*: Ticket, issue
 
-**Reference document**: A document that has no lifecycle: a finding, a guide, a
-product-vision document, or a someday idea.
+**Reference document**: A document that has no lifecycle: a finding, a guide, or
+a someday idea.
 
 **Tracker**: A living document that sessions edit in place.
 

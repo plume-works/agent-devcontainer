@@ -87,9 +87,6 @@ match = "data/findings/**"
 [schemas.guide]
 match = "data/guides/**"
 
-[schemas.product-vision]
-match = "data/product-vision/**"
-
 [schemas.someday]
 match = "data/someday/**"
 
@@ -103,7 +100,6 @@ match = [
   "data/findings",
   "data/guides",
   "data/plans",
-  "data/product-vision",
   "data/releases",
   "data/someday",
 ]
