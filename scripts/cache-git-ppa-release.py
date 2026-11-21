@@ -107,25 +107,35 @@ def checked(body: bytes, sha256: str, what: str) -> bytes:
 
 
 def packages(release: str, arch: str) -> dict[str, Package]:
-    """Return the git and git-man entries of one architecture's signed Packages index."""
+    """Return the git entry of one architecture's signed Packages index, and its git-man."""
     path = f'main/binary-{arch}/Packages.gz'
     url = f'{PPA}/dists/{SERIES}/{path}'
     body = checked(fetch(url), index_digest(release, path), url)
-    found = {}
+    gits = []
+    git_mans = {}
     for stanza in gzip.decompress(body).decode().split('\n\n'):
         fields = dict(re.findall(r'^([\w-]+): (.*)$', stanza, re.MULTILINE))
-        if fields.get('Package') in ('git', 'git-man'):
-            found[fields['Package']] = Package(
-                name=fields['Package'],
-                version=fields['Version'],
-                arch=fields['Architecture'],
-                url=f'{PPA}/{fields["Filename"]}',
-                sha256=fields['SHA256'],
-                size=int(fields['Size']),
-            )
-    if set(found) != {'git', 'git-man'}:
-        raise CacheError(f'{url} lists {sorted(found)}, not git and git-man')
-    return found
+        if fields.get('Package') not in ('git', 'git-man'):
+            continue
+        package = Package(
+            name=fields['Package'],
+            version=fields['Version'],
+            arch=fields['Architecture'],
+            url=f'{PPA}/{fields["Filename"]}',
+            sha256=fields['SHA256'],
+            size=int(fields['Size']),
+        )
+        if package.name == 'git':
+            gits.append(package)
+        else:
+            git_mans[package.version] = package
+    if len(gits) != 1:
+        raise CacheError(f'{url} lists {len(gits)} git packages, not one')
+    # An arch-all git-man of a superseded build can linger in the index beside the current one.
+    git_man = git_mans.get(gits[0].version)
+    if git_man is None:
+        raise CacheError(f'{url} lists no git-man {gits[0].version}')
+    return {'git': gits[0], 'git-man': git_man}
 
 
 def newest_build(release: str) -> list[Package]:
