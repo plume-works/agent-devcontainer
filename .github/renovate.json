@@ -124,15 +124,6 @@
         "bunx (?<depName>prettier)@(?<currentValue>[0-9][^\\s]*)"
       ],
       "datasourceTemplate": "npm"
-    },
-    {
-      "description": "Commit pins in the Ansible roles' defaults, for upstreams whose tags are unusable. The comment carries the branch the commit is tracked on.",
-      "customType": "regex",
-      "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
-      "matchStrings": [
-        "# renovate: datasource=git-refs depName=(?<depName>\\S+) currentValue=(?<currentValue>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentDigest>[0-9a-f]{40})\""
-      ],
-      "datasourceTemplate": "git-refs"
     }
   ]
 }
