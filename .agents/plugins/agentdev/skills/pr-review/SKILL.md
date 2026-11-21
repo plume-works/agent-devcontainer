@@ -39,6 +39,7 @@ Two independent concerns feed two different pass types (see Steps below) so they
 
 - Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
 - Potential bugs, incorrect logic, and security implications introduced by the changed code
+- Every guarantee the change states — in the PR description, a code comment, a config `description`, or a doc — checked against what the code allows; a guarantee the code does not keep is a wrong outcome, and the input that breaks it is the Trigger
 - Test coverage and quality
 - Report every issue you believe is real; Step 6 rates each one `Confidence: X/10`, so doubt is not a reason to hold one back
 
