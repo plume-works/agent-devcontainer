@@ -218,3 +218,20 @@ def test_a_package_that_breaks_the_hash_chain_publishes_nothing(
 
     assert 'git_amd64.deb hashes to' in capsys.readouterr().err
     assert 'release create' not in gh_log(scratch)
+
+
+def test_a_superseded_git_man_left_in_an_index_is_skipped(ppa: FakePpa, scratch: Path) -> None:
+    path = f'{cache.PPA}/dists/{cache.SERIES}/main/binary-arm64/Packages.gz'
+    stale = (
+        'Package: git-man\nVersion: 1:2.47.0-0ppa1~ubuntu24.04.1\nArchitecture: all\n'
+        'Filename: pool/main/g/git/git-man_old_all.deb\nSize: 1\nSHA256: 00\n'
+    )
+    ppa.indexes['arm64'] = gzip.compress(
+        gzip.decompress(ppa.indexes['arm64']) + f'\n{stale}'.encode()
+    )
+    ppa.urls[path] = ppa.indexes['arm64']
+    ppa.sign(ppa.home)
+
+    assert cache.main([]) == 0
+
+    assert f'gh release create {TAG} ' in gh_log(scratch)
