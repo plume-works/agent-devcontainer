@@ -231,7 +231,7 @@ def test_installed_graph_has_the_single_home_layout(
     assert not (data / 'architecture.md').exists()
     assert not (data / 'architecture').exists()
     assert not (data / 'log.md').exists()
-    assert list((data / 'archive').rglob('*.example.md'))
+    assert not (data / 'archive').exists()
 
 
 @requires_iwe
