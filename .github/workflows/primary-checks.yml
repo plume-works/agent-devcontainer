@@ -65,7 +65,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so the hooks run the tools the
     # image installs.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:6fb0a0b8872085b114b0b70ac64a6fd1dfe5a75d5a0e0c97851a5598748bbfae
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:09769f13cbebbb52d479488c2c049dbcc1848aab74e73dce3618116d084cd877
     timeout-minutes: 30
     env:
       # checkout trusts the workspace only within its own step; the container user
