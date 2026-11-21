@@ -263,3 +263,6 @@ Container](adr/0095-coder-agent-start-runs-opencode-and-remote-control.md)
 enable](adr/0096-create-phase-installs-enabled-plugins.md)
 
 [The knowledge base has no feature documents](adr/0097-no-feature-documents.md)
+
+[Renovate keeps pins current, after a
+wait](adr/0097-renovate-keeps-pins-current-after-a-wait.md)
