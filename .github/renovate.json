@@ -38,12 +38,12 @@
   },
   "packageRules": [
     {
-      "description": "An x.y.0 release waits 10 days instead of 3 (ADR-0097). The pattern also matches a `v` prefix and a range such as `>=1.2.0`.",
+      "description": "An x.y.0 release waits 10 days instead of 3 (ADR-0098). The pattern also matches a `v` prefix and a range such as `>=1.2.0`.",
       "matchNewValue": "/(^|[^0-9.])\\d+\\.\\d+\\.0($|[^0-9.])/",
       "minimumReleaseAge": "10 days"
     },
     {
-      "description": "agentdev-devcontainer and agentdev-deploy are built by this repository's own pipeline, so their edge digest bumps share one pull request and skip the release-age wait and the daily window (ADR-0097). Each pin lives outside the CI image path filter (devcontainer-compose-pins.yml, opencode-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. CI moves agentdev-deploy's edge only to digests that passed native acceptance. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
+      "description": "agentdev-devcontainer and agentdev-deploy are built by this repository's own pipeline, so their edge digest bumps share one pull request and skip the release-age wait and the daily window (ADR-0098). Each pin lives outside the CI image path filter (devcontainer-compose-pins.yml, opencode-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. CI moves agentdev-deploy's edge only to digests that passed native acceptance. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
       "matchDatasources": ["docker"],
       "matchPackageNames": [
         "ghcr.io/plume-works/agentdev-devcontainer",
