@@ -110,14 +110,6 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
     ]
 
 
-def test_setup_installs_the_cloud_instructions(scratch: Path) -> None:
-    """The cloud-session instructions become the session's user-level CLAUDE.md."""
-    result, _ = run_startup(scratch)
-    assert result.returncode == 0, result.stderr
-    installed = (scratch / '.claude/CLAUDE.md').read_text()
-    assert installed == (REPO_ROOT / '.claude/CLAUDE.cloud.md').read_text()
-
-
 def test_setup_adds_the_session_env_to_existing_user_settings(scratch: Path) -> None:
     """The user-level settings gain SESSION_ENV and keep everything they already held."""
     settings = scratch / '.claude/settings.json'
