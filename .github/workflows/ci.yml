@@ -72,8 +72,8 @@ jobs:
             - scripts/**
             - pyproject.toml
             - uv.lock
-            # scripts/tests loads the session startup code from here.
-            - .claude/**
+            # scripts/tests runs the cloud session startup code from here.
+            - .claude/*.py
             # The devcontainer suite is the only check of the deployment compose files. The
             # pins files stay out, so a pin bump never rebuilds the image it names.
             - compose.opencode*.yml
