@@ -401,23 +401,6 @@ def test_open_item_inside_the_archive_fails(write_at: Write, kind: str, stage: s
 @pytest.mark.parametrize(
     ('folder', 'stage', 'fails'),
     [
-        ('features', 'proposed', True),
-        ('features', 'implemented', True),
-        ('archive/1.0.0/features', 'implemented', False),
-        ('archive/1.0.0/features', 'cancelled', False),
-    ],
-)
-def test_feature_belongs_in_the_archive(
-    write_at: Write, folder: str, stage: str, fails: bool
-) -> None:
-    """A feature is a retired type: it passes only under data/archive/."""
-    path = write_at(f'docs/knowledge/data/{folder}/x.md', item('feature', stage))
-    assert run(path).returncode == (1 if fails else 0)
-
-
-@pytest.mark.parametrize(
-    ('folder', 'stage', 'fails'),
-    [
         ('adr', 'proposed', False),
         ('adr', 'accepted', False),
         ('adr', 'rejected', True),

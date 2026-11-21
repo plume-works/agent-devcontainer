@@ -2,7 +2,7 @@
 """
 Gate the records Ship leaves in the knowledge graph.
 
-Checks each bug, plan, backlog task, archived feature, ADR, and release document named on the command line,
+Checks each bug, plan, backlog task, ADR, and release document named on the command line,
 prints every violation as ``path:line message``, and exits 1 when there is any.
 """
 
@@ -253,9 +253,7 @@ def archived(path: Path) -> bool:
 
 
 def check_placement(kind: str, stage: str, inside: bool) -> list[tuple[int, str]]:
-    """Return a violation when a work item, feature, or ADR is on the wrong side of the archive."""
-    if kind == 'feature':
-        return [] if inside else [(1, 'feature is a retired type and belongs in data/archive/')]
+    """Return a violation when a work item or ADR is on the wrong side of the archive."""
     if kind == 'adr':
         live = stage in LIVE_ADR
     elif kind in ('plan', 'bug', 'task'):
