@@ -53,14 +53,7 @@ type: guide
 Run it.
 """
 
-ARCHITECTURE_NOTE = """---
-type: architecture
----
-
-# A retired design note
-"""
-
-ARCHIVED_PLAN = """---
+DONE_PLAN = """---
 type: plan
 created: 2026-01-01
 stage: done
@@ -68,7 +61,7 @@ completed: 2026-01-02
 release: internal
 ---
 
-# An archived plan
+# A done plan
 """
 
 
@@ -108,11 +101,8 @@ def _validate(workspace: Path) -> subprocess.CompletedProcess[str]:
     [
         ('data/findings/measured', FINDING),
         ('data/guides/run-the-thing', GUIDE),
-        ('data/archive/2.1.0/plans/20260101-archived', ARCHIVED_PLAN),
-        ('data/archive/next-release/plans/20260101-archived', ARCHIVED_PLAN),
-        ('data/archive/2.1.0/architecture/retired', ARCHITECTURE_NOTE),
     ],
-    ids=['finding', 'guide', 'archived-plan', 'next-release-plan', 'archived-architecture'],
+    ids=['finding', 'guide'],
 )
 def test_conforming_document_validates(workspace: Path, key: str, content: str) -> None:
     """A document of each new kind that follows its schema passes."""
@@ -124,10 +114,6 @@ def test_conforming_document_validates(workspace: Path, key: str, content: str) 
 @pytest.mark.parametrize(
     ('key', 'content'),
     [
-        (
-            'data/archive/2.1.0/plans/20260101-archived',
-            ARCHIVED_PLAN.replace('stage: done', 'stage: shipped'),
-        ),
         ('data/findings/measured', FINDING[: FINDING.index('## Closing')]),
         (
             'data/findings/measured',
@@ -137,20 +123,15 @@ def test_conforming_document_validates(workspace: Path, key: str, content: str) 
             'data/guides/run-the-thing',
             GUIDE.replace('type: guide\n', 'type: guide\nstage: done\n'),
         ),
-        ('data/architecture/retired', ARCHITECTURE_NOTE),
-        ('data/notes/retired', ARCHITECTURE_NOTE),
         (
-            'data/archive/2.1.0/plans/20260101-archived',
-            ARCHIVED_PLAN.replace('release: internal\n', 'release: internal\nreleased: 2.1.0\n'),
+            'data/plans/20260101-done',
+            DONE_PLAN.replace('release: internal\n', 'release: internal\nreleased: 2.1.0\n'),
         ),
     ],
     ids=[
-        'archived-plan-invalid-stage',
         'finding-without-closing',
         'finding-with-stage',
         'guide-with-stage',
-        'live-architecture-note',
-        'architecture-note-in-an-unbound-folder',
         'plan-carrying-released',
     ],
 )
@@ -160,3 +141,15 @@ def test_broken_document_is_rejected(workspace: Path, key: str, content: str) ->
     result = _validate(workspace)
     assert result.returncode != 0
     assert key in result.stdout
+
+
+@pytest.mark.parametrize(
+    'key',
+    ['data/archive/2.1.0/plans/20260101-archived', 'data/archive/next-release/notes/retired'],
+    ids=['archived-plan', 'retired-type'],
+)
+def test_archived_document_is_not_validated(workspace: Path, key: str) -> None:
+    """A document under data/archive/ passes even when it breaks every schema."""
+    _write(workspace, key, '---\ntype: plan\nstage: shipped\nreleased: 2.1.0\n---\n')
+    result = _validate(workspace)
+    assert result.returncode == 0, result.stdout + result.stderr
