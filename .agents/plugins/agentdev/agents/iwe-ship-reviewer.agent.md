@@ -32,13 +32,12 @@ Report only: edit nothing, commit nothing. Read the plan in full and check:
 
 1. `release` is `internal`, or lists only keys with a document behind them.
 2. Every bug `release` lists is at `stage: planned`.
-3. Every feature `release` lists is at `stage: accepted`.
-4. `## Acceptance` is `None — no behavioral change`, or holds only complete
+3. `## Acceptance` is `None — no behavioral change`, or holds only complete
    scenarios: each `### Scenario:` block has each line that
    `docs/knowledge/schema/plans.md` requires.
-5. Each ADR that `## ADRs` links exists and is at `stage: proposed`.
+4. Each ADR that `## ADRs` links exists and is at `stage: proposed`.
 
-Lead with `Ready for Ship` when all five hold, otherwise `Gaps`, then one line
+Lead with `Ready for Ship` when all four hold, otherwise `Gaps`, then one line
 per check: the check, `holds` or the gap, and the documents it read.
 
 ## Ship mode
@@ -69,10 +68,9 @@ per check: the check, `holds` or the gap, and the documents it read.
      ADR names is `stage: superseded`, is under `data/archive/`, and has no
      link in `data/adr.md`. The item is `not applicable` when no such list names an ADR.
    - **Plan stage** — `stage: done`, a `completed` date, and no `rank`.
-   - **Features** — every feature `release` lists is `stage: implemented`.
    - **Bug stage** — every bug `release` lists is `stage: done` with no `rank`.
    - **Bug Fix** — every bug `release` lists has a `## Fix` that links the plan.
-   - **Archive** — the plan, and every feature and bug `release` lists, is
+   - **Archive** — the plan, and every bug `release` lists, is
      under `data/archive/`, no hub (`[schemas.hub]` in `.iwe/config.toml`)
      links it, every link to it resolves, and the reviewed range changes
      nothing under `data/releases/`.
@@ -95,17 +93,20 @@ The structure, fixed — no item is added, dropped, reordered, or reworded:
 - [x] Every ADR that the plan proposed is `stage: accepted` — correct: <keys> | not applicable: the plan proposed no ADR
 - [x] Every ADR that the plan superseded is `stage: superseded` and in the archive — correct: <archive keys> | not applicable: the plan superseded no ADR
 - [x] The plan is `stage: done` with `completed` and no `rank` — correct: <completed date>
-- [x] Every feature in `release` is `stage: implemented` — correct: <keys> | not applicable: `release` lists no feature
 - [x] Every bug in `release` is `stage: done` with no `rank` — correct: <keys> | not applicable: `release` lists no bug
 - [x] Every bug in `release` has a `## Fix` that links this plan — correct: <keys> | not applicable: `release` lists no bug
-- [x] The plan and every feature and bug that it completed are in the archive, and no hub links them — correct: <archive keys>
+- [x] The plan and every bug that it completed are in the archive, and no hub links them — correct: <archive keys>
 ```
 
-A `## Ship review` recorded before this structure follows one of three earlier
-structures; it stays valid and is never rewritten. All three start with
+A `## Ship review` recorded before this structure follows one of four earlier
+structures; it stays valid and is never rewritten. The newest of them has the
+same opening and endings, an item "Every feature in `release` is
+`stage: implemented`" before the first bug item, and the archive item "The plan
+and every feature and bug that it completed are in the archive, and no hub links
+them". The other three start with
 "Reviewed by `iwe-ship-reviewer` on <YYYY-MM-DD>." and end each item with
 `confirmed` or `N/A` in place of `correct` or `not applicable`. The newest of
-them has the same eight items in different words. The next structure
+those has the eight items of that structure in different words. The next structure
 has three items about `## Spec changes` and about created and retired
 documents of the removed `data/spec/` folder, in place of the two ADR items. It also has an item about `## Rationale` entries
 before the archive item. The oldest structure is the same without the `## Rationale` and

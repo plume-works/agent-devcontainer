@@ -36,7 +36,7 @@ from what `binaries` (or the default of `name`) can express.
 
 Each entry's `version` carries a `# renovate:` comment, so Renovate bumps it,
 and its post-upgrade task recomputes the checksums in the same commit; see
-`docs/knowledge/data/features/renovate-maintains-checksums.md`.
+`docs/knowledge/data/archive/2.0.0/features/renovate-maintains-checksums.md`.
 
 ## Example Usage
 

@@ -171,8 +171,8 @@ consumer.
 **Document type**: A category of document in the knowledge base, such as a plan
 or a bug.
 
-**Work item**: A document that has a lifecycle: a plan, a feature, a bug, a
-release, a backlog task, or an ADR. *Avoid*: Ticket, issue
+**Work item**: A document that has a lifecycle: a plan, a bug, a release, a
+backlog task, or an ADR. *Avoid*: Ticket, issue
 
 **Reference document**: A document that has no lifecycle: a finding, a guide, a
 product-vision document, or a someday idea.
@@ -225,7 +225,7 @@ behaviour, the acceptance scenarios, the ADRs, or the boundaries of the plan.
 
 **Explore**: The workflow phase that examines a problem before a plan exists.
 
-**Capture**: The workflow step that files a bug, a feature, or a backlog task.
+**Capture**: The workflow step that files a bug or a backlog task.
 
 **Plan**: The workflow phase that writes a plan.
 

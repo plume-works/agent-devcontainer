@@ -293,7 +293,7 @@ complete workflow:
 | `iwe-setup`       | Onboard an existing project and establish its product context.        |
 | `iwe-explore`     | Investigate ideas or GitHub issues without changing code.             |
 | `iwe-plan`        | Plan work with verified anchors and risk-scaled specification impact. |
-| `iwe-capture`     | File complete, deduplicated bugs, proposed features, and tasks.       |
+| `iwe-capture`     | File complete, deduplicated bugs and tasks.                           |
 | `iwe-implement`   | Execute plans task by task and record evidence.                       |
 | `iwe-branch-name` | Name a plan's next implementation or shipping branch.                 |
 | `iwe-verify`      | Check implementation claims against code and specifications.          |

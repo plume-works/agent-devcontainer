@@ -21,7 +21,7 @@ Test: would this still be true if the code were rewritten from scratch?
 
 ## Scope
 
-Audit any text that promises durable content: `data/adr/`, `data/findings/`, `data/guides/`, `data/features/`, `product.md`,
+Audit any text that promises durable content: `data/adr/`, `data/findings/`, `data/guides/`, `product.md`,
 code comments, and —
 outside the graph — `README.md`, `AGENTS.md`, skill and agent rulebooks, and
 docstrings.

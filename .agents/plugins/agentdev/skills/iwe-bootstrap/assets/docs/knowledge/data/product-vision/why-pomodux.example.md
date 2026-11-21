@@ -24,6 +24,5 @@ Principles:
 
 *Convention notes: when the team cannot agree about a feature, the
 product-vision document gives the decision. For example, the [streak
-widget](../features/streak-widget.example) proposal had to argue its case
-against "data serves reflection, not judgment" before it was accepted for
-planning.*
+widget](../plans/20260720-streak-widget.example) had to argue its case against
+"data serves reflection, not judgment" before it got a plan.*
