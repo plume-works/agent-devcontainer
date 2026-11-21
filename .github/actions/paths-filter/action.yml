@@ -1,95 +1,28 @@
-name: Shared paths filters
-description: A set of filters to be used to fitler jobs
+name: Paths filter
+description: Report whether the change touches any of the given paths
 inputs:
-  event-name:
-    description: GitHub event name
-    required: false
-    default: ''
-  base-branch:
-    description: Base branch
-    required: false
-    default: main
-  extra-filter:
-    description: Extra filters (YAML list entries, one per line)
-    required: false
-    default: 'default-path-that-will-never-match'
+  filters:
+    description: Path globs (YAML list entries, one per line)
+    required: true
 outputs:
   pass:
-    description: Filtered file present
-    value: ${{ steps.filter-pr.outputs.image || steps.filter-base.outputs.image }}
+    description: A changed file matches the filters
+    value: ${{ steps.filter.outputs.pass }}
 runs:
   using: composite
   steps:
-    - name: Build filters
-      id: build-filters
-      shell: bash -xeuo pipefail {0}
-      run: |
-        # Build the filters YAML with proper formatting for extra-filter
-        EXTRA=$(printf '%s\n' "${INPUTS_EXTRA_FILTER}" | \
-          sed -En 's/^[[:space:]]*-[[:space:]]*//p' | \
-          sed -E 's/^/  - /' | \
-          sed '/^  - $/d')
-        {
-          echo "filters<<EOF"
-          cat <<'YAML'
-        image:
-          - .devcontainer/**
-          - .github/actions/**
-          - ansible/**
-          - ansible.cfg
-          - docker/**
-          - scripts/**
-          # The whole catalog is seeded into the image, so any change to it
-          # makes the published image stale until it is rebuilt.
-          - .agents/plugins/**
-          - .claude-plugin/**
-          # The validator is built from source into the image, so the same
-          # applies to it.
-          - py_packages/validate_agent_files/**
-          - py_packages/agentdev_runtime/**
-        YAML
-          if [ -n "$EXTRA" ]; then
-            printf '%s\n' "$EXTRA"
-          fi
-          echo "EOF"
-        } >> "$GITHUB_OUTPUT"
-      env:
-        INPUTS_EXTRA_FILTER: ${{ inputs.extra-filter }}
+    # A push to main compares against the last commit its workflow passed on: see ADR-0060.
+    - name: Find the base commit
+      id: shas
+      uses: nrwl/nx-set-shas@v5.1.0
+      with:
+        set-environment-variables-for-job: 'false'
 
-    - name: Filter (pull request)
-      if: inputs.event-name == 'pull_request'
-      id: filter-pr
+    - name: Filter
+      id: filter
       uses: dorny/paths-filter@v4.0.3
       with:
-        filters: ${{ steps.build-filters.outputs.filters }}
-
-    # A newer push cancels the running check, so the previous push may never
-    # have passed; diff from the last commit this workflow passed on instead.
-    - name: Find the last commit this workflow passed on
-      if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', inputs.base-branch)
-      id: last-pass
-      shell: bash -euo pipefail {0}
-      run: |
-        if ! workflow_id="$(gh api "repos/${REPO}/actions/runs/${RUN_ID}" --jq .workflow_id)" ||
-          ! sha="$(gh api "repos/${REPO}/actions/workflows/${workflow_id}/runs?branch=${BRANCH}&event=push&status=success&per_page=1" \
-            --jq '.workflow_runs[0].head_sha // empty')"; then
-          echo "::warning::Could not look up the last passing run; comparing against the previous push."
-          exit 0
-        fi
-        if [[ -n "$sha" && "$sha" != "$HEAD_SHA" ]]; then
-          echo "sha=$sha" >> "$GITHUB_OUTPUT"
-        fi
-      env:
-        GH_TOKEN: ${{ github.token }}
-        REPO: ${{ github.repository }}
-        RUN_ID: ${{ github.run_id }}
-        BRANCH: ${{ inputs.base-branch }}
-        HEAD_SHA: ${{ github.sha }}
-
-    - name: Filter (non pull request)
-      if: inputs.event-name != 'pull_request'
-      id: filter-base
-      uses: dorny/paths-filter@v4.0.3
-      with:
-        base: ${{ steps.last-pass.outputs.sha || inputs.base-branch }}
-        filters: ${{ steps.build-filters.outputs.filters }}
+        base: ${{ steps.shas.outputs.base }}
+        filters: |
+          pass:
+          ${{ inputs.filters }}

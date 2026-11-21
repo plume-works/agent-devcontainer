@@ -33,21 +33,23 @@ jobs:
     outputs:
       pass: ${{ steps.filter.outputs.pass }}
     steps:
+      # nx-set-shas needs the history to find the base commit.
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
         with:
+          fetch-depth: 0
+          filter: tree:0
           persist-credentials: false
 
       - name: Filters
         uses: $/.github/actions/paths-filter
         id: filter
         with:
-          event-name: ${{ github.event_name }}
-          extra-filter: |
+          filters: |
             - .github/renovate.json
             - .pre-commit-config.yaml
-            - devcontainer-compose-pins.yml
             - .github/workflows/validate-renovate-config.yml
+            - .github/actions/paths-filter/**
 
   validate:
     name: Validate Renovate config

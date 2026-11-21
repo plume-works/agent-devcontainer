@@ -123,7 +123,7 @@ docker/
 
 Then remove the `ci` job that calls `.github/workflows/ci.yml` from
 `.github/workflows/primary-checks.yml`, and remove image/catalog publisher
-paths from `.github/actions/paths-filter/action.yml`.
+paths from the `filters:` list of each remaining workflow's `paths-filter` job.
 
 If the project needs image customization, retain those paths for reference and
 complete the additional steps in [Optional custom-image
@@ -285,11 +285,9 @@ with it.
 a change to any of them makes the job check every file. Drop
 `ansible/roles/dev_tools/defaults/main.yml` when the optional bundle is gone.
 
-In `.github/actions/paths-filter/action.yml`, the built-in filter is named
-`image` and lists the publisher's build inputs. Delete the `ansible/**`,
-`docker/**`, `scripts/**`, `.agents/plugins/**`, `.claude-plugin/**`, and
-`py_packages/validate_agent_files/**` entries; keep `.devcontainer/**` and
-`.github/actions/**` so the retained workflows still trigger.
+The `paths-filter` job of each workflow lists, in its `filters:` input, the
+paths that workflow's jobs read. In every retained workflow, delete the entries
+that name removed publisher sources, and add the consuming project's own inputs.
 
 #### Agent-file validation
 
@@ -302,7 +300,7 @@ Copying that workflow as-is fails once `py_packages/` is gone. Remove: the
 `.agents/plugins/agentdev/tests` step; the `--require-marketplace claude`
 argument, which asserts publisher manifests a consumer does not have;
 and path filters for deleted catalog/package source in the `paths-filter`
-job's `extra-filter`.
+job's `filters`.
 
 Rebuild the remaining job to run through the digest-pinned `agentdev-devcontainer`
 image instead of `uv run`, since the working-tree package that made `uv run`

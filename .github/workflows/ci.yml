@@ -40,28 +40,49 @@ jobs:
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     permissions:
       actions: read
+      contents: read
     timeout-minutes: 10
     outputs:
       pass: ${{ steps.filter.outputs.pass }}
     steps:
+      # nx-set-shas needs the history to find the base commit.
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
         with:
+          fetch-depth: 0
+          filter: tree:0
           persist-credentials: false
 
       - name: Filters
         uses: $/.github/actions/paths-filter
         id: filter
         with:
-          event-name: ${{ inputs.caller_event_name }}
-          extra-filter: |
-            - .github/workflows/ci.yml
-            - .github/actions/log-debug-stats/**
+          filters: |
+            # The image build context: the .dockerignore allow-list and what it lets through.
+            - .dockerignore
+            - docker/**
+            - ansible/**
+            - ansible.cfg
+            - .claude-plugin/**
+            - .agents/plugins/**
+            - .devcontainer/**
+            # Both packages are built into the image, and the suite tests all of py_packages.
+            - py_packages/**
+            # The devcontainer suite and its environment.
+            - scripts/**
+            - pyproject.toml
+            - uv.lock
             # scripts/tests loads the session startup code from here.
             - .claude/**
             # The devcontainer suite is the only check of the deployment compose files. The
-            # pins file stays out, so a pin bump never rebuilds the image it names.
+            # pins files stay out, so a pin bump never rebuilds the image it names.
             - compose.opencode*.yml
+            - .github/workflows/ci.yml
+            - .github/actions/docker/**
+            - .github/actions/ai-review-status/**
+            - .github/actions/setup-python-venv/**
+            - .github/actions/log-debug-stats/**
+            - .github/actions/paths-filter/**
 
       - name: Log debug stats
         if: ${{ always() }}
