@@ -1,1 +1,0 @@
-../../../.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/schema/features.md

@@ -9,8 +9,7 @@ stage: living
 *The foundation document. Every plan, ADR, and release decision derives from
 what's written here — fill it in before anything else (the setup skill walks you
 through it, drafting most sections from your codebase). Replace each ✏️ block;
-delete the instruction lines when done. Log every material change in the
-Changelog section at the bottom.*
+delete the instruction lines when done.*
 
 ## What is it
 
@@ -65,7 +64,3 @@ write. Group by target, e.g.:*
   from memory"*
 
 ✏️
-
-## Changelog
-
-- 2026-08-01 — document created.

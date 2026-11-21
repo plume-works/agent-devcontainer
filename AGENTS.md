@@ -48,6 +48,10 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
    If no, drop it. Record a decision as a decision — never as the obstacle that
    prompted it, which goes stale and reads as a workaround.
 
+   **No changelogs.** No document records its own history: no `## Changelog`
+   section, no `CHANGELOG` file, no dated list of edits. Git history records
+   what changed and when.
+
 9. **Default OpenCode test models.** When a test or check runs OpenCode, use
    `openai/gpt-6.1-sol` as the big model and `openai/gpt-6-luna` as the small
    model. Use a costlier model only when the user names it.

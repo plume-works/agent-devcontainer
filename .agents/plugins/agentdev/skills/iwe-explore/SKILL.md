@@ -67,9 +67,6 @@ The user decides in the conversation whether to close such an issue.
   `iwe find --lexical "<phrase>" -f keys`. Read the related ADRs in
   `data/adr/`. Read related `data/findings/` documents and plans.
   Cite existing decisions. Do not derive those decisions again.
-- **Check principles.** Read `data/product-vision/` early. If an approach contradicts
-  a stated principle, identify the contradiction explicitly. The principle can
-  be wrong. Do not leave the contradiction unstated.
 - **Investigate with the user.** Ask questions as necessary. Check assumptions.
   Consider other ways to describe the problem. Identify open topics. Discuss
   one topic at a time. Do not direct the discussion toward a conclusion.
@@ -117,15 +114,15 @@ without telling the user.
 Offer once to record a settled topic. Do not file a document without a user request.
 When the user wants a record, select the applicable destination:
 
-- **A someday idea, a finding, a guide, or a product-vision document:**
+- **A someday idea, a finding, or a guide:**
   `docs/knowledge/SCHEMA.md#what-goes-where` gives which of these the topic is.
   Write the document as its document in `docs/knowledge/schema/` defines it.
   Link the document from its hub.
 - **A decision:** Give the decision and its rejected alternatives to Plan in
   the plan handoff below. Plan proposes the ADR. Do not write an ADR from
   explore mode.
-- **A bug, a proposed feature, or a backlog task:** Give the settled content to
-  `/agentdev:iwe-capture`. Specify `bug`, `feature`, or `task`. A defect
+- **A bug or a backlog task:** Give the settled content to
+  `/agentdev:iwe-capture`. Specify `bug` or `task`. A defect
   includes reproducible incorrect behavior. `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
   check. If the investigation started from a GitHub issue, include `ISSUE_URL`.
   The captured document links the issue and closes the issue.

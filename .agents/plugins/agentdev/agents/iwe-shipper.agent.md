@@ -53,9 +53,9 @@ needed. In particular:
    - **Cancellation** only when the operation is `cancel`. Go to step 2.
    - **Normal shipping** records implemented work. Go to step 3.
 
-   Read the current plan frontmatter, plus the frontmatter of every feature and
-   bug its `release` field lists, and every ADR its `## ADRs` links. A listed
-   `features/<slug>` or `bugs/<slug>` key names the live document or, once an
+   Read the current plan frontmatter, plus the frontmatter of every bug its
+   `release` field lists, and every ADR its `## ADRs` links. A listed
+   `bugs/<slug>` key names the live document or, once an
    earlier attempt archived it, the one under `data/archive/next-release/`.
    Record which intended results already exist. Do not assume a prior Ship
    invocation finished or failed atomically.
@@ -79,7 +79,7 @@ needed. In particular:
    mutation.
 
 2. **Cancel without shipping.** Do not verify implementation, accept an ADR,
-   or mark a feature implemented or bug fixed. If needed, set the plan to
+   or mark a bug fixed. If needed, set the plan to
    `stage: cancelled` and remove its `rank`, and set every bug its `release`
    lists at `stage: planned` back to `stage: pending`, writing no `## Fix`;
    skip any change that already happened. Set each ADR at `stage: proposed`
@@ -118,34 +118,31 @@ needed. In particular:
 5. **Validate the ADR changes before lifecycle changes.** Run `iwe normalize`,
    then `iwe schema validate`. Check `git diff` after each rename: every link
    to the moved ADR must now resolve. If a step fails, return a Ship blocker
-   report without marking the plan, feature, or bug complete.
+   report without marking the plan or bug complete.
 6. **Apply frontmatter transitions idempotently.** A work item's state lives
    only in its own frontmatter. Before each mutation, re-inspect that document
    and skip a result that is already correct.
    - Set the plan to `stage: done` with `completed: <today>`, and remove its
      `rank`.
-   - Set each feature `release` lists to `stage: implemented`, and each listed
-     bug to `stage: done` with its `rank` removed. Never create a feature or
-     bug.
+   - Set each bug `release` lists to `stage: done` with its `rank` removed.
+     Never create a bug.
    - Write each listed bug's `## Fix` as `docs/knowledge/schema/bugs.md` defines
      it, from Verify's evidence. Leave `## Potential solution` as it is. A
      `## Fix` that already describes this fix stays as it is; one that does not
      is replaced.
-   - Archive what closed, last: move the plan and each feature and bug it
+   - Archive what closed, last: move the plan and each bug it
      closed with `iwe rename <key> data/archive/next-release/<folder>/<name>`,
-     `<folder>` being the folder it lived in (`plans`, `features`, `bugs`),
+     `<folder>` being the folder it lived in (`plans`, `bugs`),
      and remove its inclusion link from its hub. A document already under
      `data/archive/` stays where it is. Check `git diff` after each rename:
      every link to it must now resolve. Write no release page.
 7. **Validate, commit, and report.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. Re-inspect the final plan, each
-   feature or bug — including every bug `## Fix` written in step 6 — and each
+   bug — including every bug `## Fix` written in step 6 — and each
    ADR of the plan before committing. While a bug `release` lists has no
    `## Fix`, commit nothing and return a Ship blocker report naming each such
    bug. Report which valid results were preserved from an earlier
-   attempt and which operations this invocation completed. If the plan's
-   milestone aggregator lists it, check whether it was the last child and say
-   when the milestone is complete.
+   attempt and which operations this invocation completed.
 8. **Cut a release only when the operation is `release <X.Y.Z>`.** The cut is
    the only writer of release pages. Inspect `data/releases.md`, every release
    page, any page for the requested version, `data/archive/next-release/`, and
@@ -240,7 +237,7 @@ in full with its anchored evidence — never a line number — and route, becaus
 ## Rules
 
 - Cancellation and normal shipping are separate paths; cancellation never
-  inherits normal shipping's verification, ADR acceptance, feature/bug, or
+  inherits normal shipping's verification, ADR acceptance, bug, or
   release work.
 - Normal shipping never proceeds past a Verify report containing a CRITICAL,
   nor while a task carrying a `**Closed by:**` line is unticked.

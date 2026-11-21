@@ -1,6 +1,6 @@
 ---
 type: task
-stage: pending
+stage: cancelled
 priority: medium
 created: 2026-11-11
 description: Track planned work only as ready stories and bugs, make plans ephemeral implementation documents that a release cut deletes once they are on the default branch, and keep decisions in architecture docs and the iteration goal in milestone.md.
@@ -121,7 +121,7 @@ Every decision here is the maintainer's.
 ## Out of scope
 
 - Renaming "plan": a separate idea, [Rename the plan
-  document](../someday/rename-plan-document.md).
+  document](../../../someday/rename-plan-document.md).
 - Acceptance criteria on bugs: a bug keeps Symptom / Reproduction / Root cause.
 - Rewriting the earlier backlog tasks as stories: each one is promoted with
   `/agentdev:iwe-capture task --from someday/<slug>` when someone picks it up.

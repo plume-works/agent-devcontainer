@@ -65,8 +65,6 @@ Ask questions against the graph instead of re-reading the codebase:
 iwe find --filter '{type: plan, stage: done}' -f keys               # what shipped
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys    # the build order
 iwe find --references data/adr/0001-timer-counts-wall-clock-time -f keys  # what cites this ADR
-iwe retrieve -k data/plans/mvp --expand-includes 1                   # a milestone and its plans
-iwe tree -k data/features                                            # the open proposals
 ```
 
 ## What's inside
@@ -76,16 +74,13 @@ data/
 ├── index.md                            # the graph root
 ├── product.md                          # the document that each session reads first
 ├── plans.md           plans/
-├── features.md        features/
 ├── bugs.md            bugs/
 ├── adr.md             adr/
 ├── findings.md        findings/
 ├── guides.md          guides/
-├── product-vision.md  product-vision/
 ├── releases.md        releases/
 ├── backlog.md         backlog/
 ├── someday.md         someday/
-├── milestone.md
 └── archive/
 ```
 
@@ -103,9 +98,9 @@ deleted by setup.
 ## Built on IWE
 
 [IWE](https://iwe.md) treats markdown files as a graph: a link on its own line
-makes the target a child document, so hubs, milestones, and release pages are
-structure, not convention. The CLI queries it (`iwe find`, `iwe tree`),
-refactors it safely (`iwe rename` updates every reference), and validates it
+makes the target a child document, so hubs and release pages are structure, not
+convention. The CLI queries it (`iwe find`, `iwe tree`), refactors it safely
+(`iwe rename` updates every reference), and validates it
 (`iwe schema validate`). Editor support (VSCode, Neovim, Zed, Helix) via LSP.
 
 ## Acknowledgments

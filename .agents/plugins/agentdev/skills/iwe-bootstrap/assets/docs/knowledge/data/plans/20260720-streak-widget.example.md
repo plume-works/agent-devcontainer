@@ -3,8 +3,7 @@ type: plan
 description: 'Example active plan: building the streak widget.'
 created: 2026-07-20
 rank: 500
-release:
-- features/streak-widget.example
+release: internal
 ---
 
 # Streak widget
@@ -15,9 +14,8 @@ onboarding.*
 
 ## Context
 
-The [streak widget feature](../features/streak-widget.example) is proposed: an
-always-on-top widget showing the daily focus streak. Streaks are derived from
-the session log at read time — no new stored state.
+Users asked for an always-on-top widget showing the daily focus streak. Streaks
+are derived from the session log at read time — no new stored state.
 
 ## Approach
 
@@ -39,7 +37,7 @@ completion time so timezone changes never double-count.
 **Files:** Create: `src/ui/widgets/streak.tsx`; Modify: `src/main.ts`
 
 - [ ] Frameless always-on-top window, click opens history
-- [ ] No notifications, no negative framing (product-vision constraint)
+- [ ] No notifications, no negative framing (product constraint)
 
 ## Acceptance
 

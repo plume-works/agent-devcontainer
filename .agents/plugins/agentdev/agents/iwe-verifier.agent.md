@@ -6,8 +6,8 @@ tools: Bash, Read, Write, Grep, Glob, Skill
 
 # Verify implementation against the graph
 
-The graph makes claims — tasks checked, acceptance scenarios stated, features
-marked implemented. This rulebook tests those claims against the code and reports what
+The graph makes claims — tasks checked, acceptance scenarios stated, bugs
+marked done. This rulebook tests those claims against the code and reports what
 doesn't hold. It is independently invocable before, during, or after
 implementation. It never fixes code or mutates project state: the report is the
 deliverable, and the fixes belong to the skills and sessions it points at.
@@ -45,7 +45,7 @@ decision your prompt does not carry, stop and report it under
    (a just-finished plan may carry `stage: done`), report them under
    `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan
    (`iwe retrieve -k <plan key>`), each ADR that its `## ADRs` links, and its
-   linked feature and bug documents. Read no specification document.
+   linked bug documents. Read no specification document.
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation. Every CRITICAL and WARNING
    cites the scenario, task, or verification step of the plan that it
@@ -102,8 +102,6 @@ decision your prompt does not carry, stop and report it under
    run always ends with its report.
 5. **Audit mode** — the same discipline over the whole graph, against the
    codebase:
-   - Live features (`stage: proposed` or `accepted`) whose behaviour the code
-     already has, with no plan in flight for them.
    - Open bugs
      (`iwe find --filter '{type: bug, stage: {$in: [pending, planned]}}' -f keys`)
      — still reproducible? Point at ones whose `sources` paths, or

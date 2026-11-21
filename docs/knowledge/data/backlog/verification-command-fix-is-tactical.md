@@ -17,12 +17,12 @@ Two rules turn a command that is broken by its own invocation into a full
 revision round. `iwe-verifier` reports every failing `## Verification` command
 as a CRITICAL, whether the command or the code is at fault. `iwe-implementer`
 lists "a corrected verification step" as a material deviation, so the fix takes
-the revision route: draft the revision, run the Durable Knowledge Auditor, have
-`iwe-revision-evaluator` approve it, then run Verify again. A command such as
-`bun test <path>`, which a newer `bun` reads as a name filter until the path
-starts with `./`, costs that whole round for a one-character change, and the
-implementer that already found the working form may not correct the plan line.
-[Make the Implement loop
+the revision route: draft the revision, run the `durable-knowledge-auditor`
+agent, have `iwe-revision-evaluator` approve it, then run Verify again. A
+command such as `bun test <path>`, which a newer `bun` reads as a name filter
+until the path starts with `./`, costs that whole round for a one-character
+change, and the implementer that already found the working form may not correct
+the plan line. [Make the Implement loop
 converge](../archive/2.1.0/plans/20261102-autonomy-loop.md) keeps both rules.
 
 The work: classify a corrected verification step by what it checks.

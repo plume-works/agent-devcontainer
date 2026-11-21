@@ -13,15 +13,11 @@ okf_version: '0.2'
   defines.
 - [Backlog](backlog.md) - The open backlog tasks, which
   `docs/knowledge/schema/backlog-tasks.md` defines.
-- [Milestones](milestone.md) - The milestones, which
-  `docs/knowledge/schema/plans.md` defines.
 - [Someday](someday.md) - The someday ideas, which
   `docs/knowledge/schema/someday-ideas.md` defines.
 
 # Delivery
 
-- [Features](features.md) - The live features, which
-  `docs/knowledge/schema/features.md` defines.
 - [Bugs](bugs.md) - The open bugs, which `docs/knowledge/schema/bugs.md`
   defines.
 - [Releases](releases.md) - The release pages, which
@@ -34,7 +30,5 @@ okf_version: '0.2'
   `docs/knowledge/schema/findings.md` defines.
 - [Guides](guides.md) - The guides, which `docs/knowledge/schema/guides.md`
   defines.
-- [Product vision](product-vision.md) - The product-vision documents, which
-  `docs/knowledge/schema/product-vision.md` defines.
 - [Glossary](glossary.md) - The shared language of the project - the terms
   specific to it, each with one name.

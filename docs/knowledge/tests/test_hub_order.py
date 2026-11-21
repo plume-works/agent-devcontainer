@@ -102,7 +102,7 @@ def test_sectioned_hub_is_rejected() -> None:
         (root / 'docs' / 'knowledge').mkdir(parents=True)
         shutil.copytree(IWE_CONFIG.parent, root / '.iwe')
         shutil.copytree(KNOWLEDGE / 'data', root / 'docs' / 'knowledge' / 'data')
-        hub = root / 'docs' / 'knowledge' / 'data' / 'product-vision.md'
+        hub = root / 'docs' / 'knowledge' / 'data' / 'guides.md'
         hub.write_text(hub.read_text() + '\n## Done\n')
         result = subprocess.run(
             ['iwe', 'schema', 'validate'],
@@ -114,4 +114,4 @@ def test_sectioned_hub_is_rejected() -> None:
     finally:
         shutil.rmtree(root, ignore_errors=True)
     assert result.returncode != 0
-    assert 'data/product-vision' in result.stdout
+    assert 'data/guides' in result.stdout
