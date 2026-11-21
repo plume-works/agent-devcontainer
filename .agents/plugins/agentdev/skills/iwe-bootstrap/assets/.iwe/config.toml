@@ -87,9 +87,6 @@ match = "data/findings/**"
 [schemas.guide]
 match = "data/guides/**"
 
-[schemas.product-vision]
-match = "data/product-vision/**"
-
 [schemas.someday]
 match = "data/someday/**"
 
@@ -102,13 +99,12 @@ match = [
   "data/findings",
   "data/guides",
   "data/plans",
-  "data/product-vision",
   "data/releases",
   "data/someday",
 ]
 
 [schemas.tracker]
-match = ["data/product", "data/milestone", "data/glossary"]
+match = ["data/product", "data/glossary"]
 
 # OKF v0.2 conformance (SPEC §11), except the `status` field: `stage` records the
 # lifecycle (docs/knowledge/schema/fields-every-type-carries.md). okf stacks on the per-type schemas; the

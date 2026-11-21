@@ -36,7 +36,7 @@ what the code can't answer. Every future session reads what you write here.
    - _Rules_: recurring instructions they find themselves repeating to agents
      or contributors — these become the Authoring rules section.
 5. **Write.** Fill every `data/product.md` section, deleting the italic
-   instruction lines as sections fill; add a dated entry to its Changelog. Write
+   instruction lines as sections fill. Write
    the guides the developer approved, and link each from `data/guides.md`. A
    measurement the scan made that settles nothing yet is a finding
    (`docs/knowledge/schema/findings.md`): write it and link it from

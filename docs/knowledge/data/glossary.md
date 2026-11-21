@@ -174,8 +174,8 @@ or a bug.
 **Work item**: A document that has a lifecycle: a plan, a bug, a release, a
 backlog task, or an ADR. *Avoid*: Ticket, issue
 
-**Reference document**: A document that has no lifecycle: a finding, a guide, a
-product-vision document, or a someday idea.
+**Reference document**: A document that has no lifecycle: a finding, a guide, or
+a someday idea.
 
 **Tracker**: A living document that sessions edit in place.
 
@@ -194,10 +194,6 @@ the document.
 
 **Build order**: The one sequence of open work, across plans, bugs, and backlog
 tasks. *Avoid*: Priority list, queue
-
-**Milestone**: A plan whose children are plans.
-
-**Aggregator plan**: The plan of a milestone, which links its child plans.
 
 **Active plan**: A plan that is not yet closed.
 

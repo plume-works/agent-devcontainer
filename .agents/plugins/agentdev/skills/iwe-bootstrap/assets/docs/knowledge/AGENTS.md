@@ -40,8 +40,8 @@ software project's memory and system of record. The division of labor:
    `schema/` for that type gives its path, frontmatter, body, and stages.
    - Work starts → `/agentdev:iwe-plan`.
    - A bug or an actionable task → `/agentdev:iwe-capture`.
-   - An idea, a finding, a guide, or a product-vision document → write the
-     document and add its link to its hub.
+   - An idea, a finding, or a guide → write the document and add its link to its
+     hub.
    - Work ships, or a plan is abandoned → `/agentdev:iwe-ship`. It runs
      `/agentdev:iwe-verify` first.
    - A release cut → the release mode of `/agentdev:iwe-ship`.
@@ -67,6 +67,9 @@ software project's memory and system of record. The division of labor:
   (`schema/build-order.md`), and the archive (`schema/archive.md`). Refer to the
   document. Do not give a definition again in a different file.
 - **Never put a plan task on `data/index.md` for ordinary document work.**
+- **No changelogs.** No document records its own history: no `## Changelog`
+  section, no `CHANGELOG` file, no dated list of edits. Git history records what
+  changed and when.
 - **Queries select documents by `type` and frontmatter fields**, not by hub
   membership.
 - **`data/` is an OKF (Open Knowledge Format) v0.2 bundle**, and CI checks
