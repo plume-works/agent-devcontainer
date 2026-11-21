@@ -30,8 +30,8 @@ software project's memory and system of record. The division of labor:
    backlog head).
 2. **Consult** before you act: the related ADRs in `data/adr/` (the decisions in
    force and the alternatives they rejected), any `data/findings/` doc on the
-   area, and the feature/bug doc the work belongs to. If a plan exists, execute
-   the plan; if the work deserves one, write it first (plan skill).
+   area, and the bug doc the work belongs to. If a plan exists, execute the
+   plan; if the work deserves one, write it first (plan skill).
 3. **Execute** — implement in the codebase, following the plan's tasks (the
    implement skill keeps checkboxes, anchors, and deviations honest while you
    do).
@@ -39,7 +39,7 @@ software project's memory and system of record. The division of labor:
    the document type for each kind of knowledge and its writer. The document in
    `schema/` for that type gives its path, frontmatter, body, and stages.
    - Work starts → `/agentdev:iwe-plan`.
-   - A bug, a proposed feature, or an actionable task → `/agentdev:iwe-capture`.
+   - A bug or an actionable task → `/agentdev:iwe-capture`.
    - An idea, a finding, or a guide → write the document and add its link to its
      hub.
    - Work ships, or a plan is abandoned → `/agentdev:iwe-ship`. It runs
@@ -56,9 +56,9 @@ software project's memory and system of record. The division of labor:
 ## Conventions
 
 - **Inclusion link** = a markdown link on its own line — it makes the target a
-  child in the graph. Hubs (`data/plans.md`, `data/features.md`, …)
-  inclusion-link their members. Inline links (inside sentences/list items) are
-  soft references for cross-cutting relationships.
+  child in the graph. Hubs (`data/plans.md`, `data/bugs.md`, …) inclusion-link
+  their members. Inline links (inside sentences/list items) are soft references
+  for cross-cutting relationships.
 - **`SCHEMA.md` and the documents in `schema/` are the only definition of the
   document types.** `SCHEMA.md#what-goes-where` gives what goes where. One
   document in `schema/` for each type gives the path, the frontmatter, the body,
@@ -146,7 +146,7 @@ iwe find --filter '{type: plan, stage: done}' -f keys           # frontmatter qu
 iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys   # the build order
 iwe tree -k data/plans -d 2                                      # subtree overview
 iwe new --key data/plans/20260801-my-plan                        # create at an explicit key
-iwe update -k data/features/foo --set stage=implemented         # set frontmatter
+iwe update -k data/bugs/foo --set stage=done                     # set frontmatter
 iwe rename <old-key> <new-key>                                   # move; references auto-update
 iwe delete <key>                                                 # delete + reference cleanup
 iwe normalize                                                    # run after manual edits
@@ -165,7 +165,7 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 | `/agentdev:iwe-setup`       | Sets up the workspace from the codebase: product doc and guides       |
 | `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code    |
 | `/agentdev:iwe-plan`        | Files a plan: verified anchors, acceptance, ADRs, hub link, rank      |
-| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated |
+| `/agentdev:iwe-capture`     | Files a complete bug or backlog task, deduplicated                    |
 | `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries |
 | `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it         |
 | `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code |

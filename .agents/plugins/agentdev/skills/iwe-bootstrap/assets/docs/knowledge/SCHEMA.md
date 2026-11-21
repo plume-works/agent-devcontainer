@@ -34,7 +34,6 @@ maintains.
 | An idea that is not a commitment                      | `schema/someday-ideas.md`                 | `/agentdev:iwe-explore`                 |
 | Work that one session can complete                    | `schema/backlog-tasks.md`                 | `/agentdev:iwe-capture`                 |
 | A defect in shipped behaviour                         | `schema/bugs.md`                          | `/agentdev:iwe-capture`                 |
-| What users must get, written before the work          | `schema/features.md`                      | `/agentdev:iwe-capture`                 |
 | Committed work: its tasks, acceptance, and checks     | `schema/plans.md`                         | `/agentdev:iwe-plan`                    |
 | A design decision and its reason                      | `schema/adrs.md`                          | `/agentdev:iwe-plan`                    |
 | A measurement that does not yet settle a question     | `schema/findings.md`                      | The session that made the measurement   |
@@ -46,10 +45,10 @@ The Home column names a document in `schema/`, or a file. In each path that
 these documents give, a `<slug>` is a short name in kebab case, and one document
 has one topic.
 
-Plans, features, bugs, ADRs, releases, and backlog tasks are work items. A work
-item has a `stage`. Findings, guides, and someday ideas are durable reference
-documents. A reference document has a `type` and no `stage`, because nothing
-about it is a lifecycle.
+Plans, bugs, ADRs, releases, and backlog tasks are work items. A work item has a
+`stage`. Findings, guides, and someday ideas are durable reference documents. A
+reference document has a `type` and no `stage`, because nothing about it is a
+lifecycle.
 
 ## Rules that all types share
 

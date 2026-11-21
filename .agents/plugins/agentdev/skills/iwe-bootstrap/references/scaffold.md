@@ -20,7 +20,7 @@ installs, laid out exactly as it lands in a repository root:
   task `/agentdev:iwe-setup` closes; renaming or removing it breaks that
   skill's closing step.
 - **`*.example.md` documents** — fictional documents about a fictional product,
-  showing the shape of each type, including a shipped plan and feature under
+  showing the shape of each type, including a shipped plan under
   `data/archive/0.1.0/`. `/agentdev:iwe-setup` deletes them once real
   documents exist.
 

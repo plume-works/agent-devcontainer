@@ -1,15 +1,15 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field its document in docs/knowledge/schema/ requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, and guides stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph — a bug or a backlog task — after checking for a duplicate and refusing any document that misses a section or field its document in docs/knowledge/schema/ requires. Use when Explore settles a defect or a task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, and guides stay with /agentdev:iwe-explore.
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Capture an inbox item
 
-`/agentdev:iwe-capture <bug|feature|task> [--from someday/<slug>]`
+`/agentdev:iwe-capture <bug|task> [--from someday/<slug>]`
 
-Capture is the single writer of the three inbox lanes: `data/bugs/`,
-`data/features/` at `stage: proposed`, and `data/backlog/`. It is a gate, not a
+Capture is the single writer of the two inbox lanes: `data/bugs/` and
+`data/backlog/`. It is a gate, not a
 drafting aid — the thinking happened in the caller, and Capture files the
 result only when it is complete and new. It writes graph documents only, never
 code.
@@ -20,7 +20,7 @@ Run every `iwe` command from the repository root; keys are relative to
 ## Steps
 
 1. **Read the contract.** Read the schema document for the
-   type (`docs/knowledge/schema/bugs.md`, `docs/knowledge/schema/features.md`, or
+   type (`docs/knowledge/schema/bugs.md` or
    `docs/knowledge/schema/backlog-tasks.md`) and
    `docs/knowledge/schema/fields-every-type-carries.md`. Read `data/product.md`
    `## Authoring rules`. The schema document is the only definition of what the
@@ -28,8 +28,8 @@ Run every `iwe` command from the repository root; keys are relative to
 2. **Check for a duplicate.** Search with both
    `iwe find --fuzzy "<title words>" -f keys` and
    `iwe find --lexical "<one-line summary>" -f keys`, then read the top hits
-   among bugs, features, backlog tasks, plans, and someday ideas. A hit that
-   describes the same defect, feature, or work is a duplicate: **STOP**, write
+   among bugs, backlog tasks, plans, and someday ideas. A hit that
+   describes the same defect or work is a duplicate: **STOP**, write
    nothing, and show the matching key with the sentence that matches. Extending
    the existing document is the caller's decision, not this skill's.
 3. **Gate on completeness.** Check the supplied content against every
@@ -46,9 +46,6 @@ Run every `iwe` command from the repository root; keys are relative to
    `stage: done` in the archive (`docs/knowledge/schema/archive.md`), with its
    `## Fix`. Add `sources` that name each code path, each page, and each GitHub
    issue URL that the item came from.
-
-   Capture never files a feature past `proposed`; accepting one is
-   `/agentdev:iwe-plan`'s step.
 
 5. **Link it from its hub** at its sorted position, as
    `docs/knowledge/schema/hubs.md` defines. A bug filed into the archive gets no

@@ -18,8 +18,6 @@ okf_version: '0.2'
 
 # Delivery
 
-- [Features](features.md) - The live features, which
-  `docs/knowledge/schema/features.md` defines.
 - [Bugs](bugs.md) - The open bugs, which `docs/knowledge/schema/bugs.md`
   defines.
 - [Releases](releases.md) - The release pages, which

@@ -123,14 +123,15 @@ def done_plan(workspace: Path) -> Iterator[Path]:
         'release: internal-ish',
         'release: []',
         'release:\n- plans/20260101-other',
-        'release:\n- features/Upper-Case',
+        'release:\n- bugs/Upper-Case',
+        'release:\n- features/some-feature',
     ],
-    ids=['missing', 'other-string', 'empty-list', 'plan-key', 'bad-slug'],
+    ids=['missing', 'other-string', 'empty-list', 'plan-key', 'bad-slug', 'feature-key'],
 )
 def test_active_plan_without_valid_release_is_rejected(
     workspace: Path, active_plan: Path, release: str | None
 ) -> None:
-    """An active plan must declare `internal` or feature and bug keys."""
+    """An active plan must declare `internal` or bug keys."""
     active_plan.write_text(_with_release(active_plan.read_text(), release))
     result = _validate(workspace)
     assert result.returncode != 0
@@ -142,10 +143,10 @@ def test_active_plan_without_valid_release_is_rejected(
     'release',
     [
         'release: internal',
-        'release:\n- features/some-feature\n- bugs/some-bug',
-        'release:\n- features/streak-widget.example',
+        'release:\n- bugs/some-bug\n- bugs/other-bug',
+        'release:\n- bugs/some-bug.example',
     ],
-    ids=['internal', 'feature-and-bug', 'example-key'],
+    ids=['internal', 'bugs', 'example-key'],
 )
 def test_active_plan_with_valid_release_passes(
     workspace: Path, active_plan: Path, release: str

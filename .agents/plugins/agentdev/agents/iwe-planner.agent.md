@@ -35,8 +35,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
 
 1. **Consult and select a mode.** Read `data/product.md` — especially `## Constraints` and
    `## Authoring rules`, which bind what you write. Check for related work:
-   `iwe find --fuzzy <topic> -f keys`, the related ADRs in `data/adr/`, the
-   relevant `data/features/` docs, and whether an active plan already covers this
+   `iwe find --fuzzy <topic> -f keys`, the related ADRs in `data/adr/`, and whether an active plan already covers this
    (`iwe find --filter '{type: plan, stage: {$exists: false}}' -f keys`).
    Choose:
    - **Create mode** for a topic with no matching active plan.
@@ -63,8 +62,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    kebab slug), then write the frontmatter and the body sections that
    `docs/knowledge/schema/plans.md` defines, in its order.
 
-   Ship applies `release` as written. List in it each feature that the work
-   implements and each bug that the work fixes.
+   Ship applies `release` as written. List in it each bug that the work fixes.
 
    File each ADR that the plan proposes as `docs/knowledge/schema/adrs.md`
    defines it, at `stage: proposed`, and add its link to `data/adr.md`.
@@ -94,8 +92,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
      `rank` as `docs/knowledge/schema/build-order.md` gives. Do not edit the
      `rank` of a different document. If the user gives no position, set no
      `rank`.
-   - Set each proposed feature that the plan lists to `stage: accepted`. Set
-     each pending bug that the plan lists to `stage: planned`.
+   - Set each pending bug that the plan lists to `stage: planned`.
    - If the plan started as a backlog task, close the task as done. Then move
      the task to the archive. `docs/knowledge/schema/backlog-tasks.md` and
      `docs/knowledge/schema/archive.md` give the procedure.

@@ -190,7 +190,7 @@ repos:
         name: ship-records
         entry: uv run scripts/check-ship-records.py
         language: system
-        files: '^docs/knowledge/data/(adr|archive|backlog|bugs|features|plans|releases)/.*\.md$'
+        files: '^docs/knowledge/data/(adr|archive|backlog|bugs|plans|releases)/.*\.md$'
         pass_filenames: true
 
       # Always runs: a code rename in any file can break an anchor in use. See ADR-0083.

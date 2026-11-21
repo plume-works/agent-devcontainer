@@ -27,7 +27,7 @@ frontmatter:
       format: date
       description: completed must be a YYYY-MM-DD date
     release:
-      description: 'release must be internal, or a non-empty list of the features/<slug> and bugs/<slug> keys the plan closes'
+      description: 'release must be internal, or a non-empty list of the bugs/<slug> keys the plan closes; a shipped plan may also list retired features/<slug> keys'
       anyOf:
         - { const: internal }
         - type: array
@@ -84,4 +84,9 @@ frontmatter:
   anyOf:
     - required: [stage]
     - required: [release]
-  description: an active plan (no stage) must declare release
+      properties:
+        release:
+          anyOf:
+            - { const: internal }
+            - items: { pattern: '^bugs/' }
+  description: an active plan (no stage) must declare release, internal or bugs/<slug> keys; a features/<slug> key is valid only on a shipped plan
