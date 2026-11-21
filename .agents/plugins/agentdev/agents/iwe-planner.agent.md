@@ -115,11 +115,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    that names more than one.
 7. **Review the plan from a fresh context.** In both create and revise mode,
    run `/agentdev:iwe-plan-review` on the plan draft. It dispatches three
-   agents: the `Durable Knowledge Auditor` agent in plan scope,
+   agents: the `durable-knowledge-auditor` agent in plan scope,
    `iwe-plan-reviewer` with the plan rules, and `iwe-ship-reviewer` in plan
    mode. Each agent reads the draft without the context of this conversation.
    The skill returns the three reports.
-   Apply the `Durable Knowledge Auditor` report-only verdicts to the draft (DROP/REWRITE/MOVE as
+   Apply the `durable-knowledge-auditor` report-only verdicts to the draft (DROP/REWRITE/MOVE as
    recommended). Fix the draft for each `iwe-plan-reviewer` and
    `iwe-ship-reviewer` gap, asking the user where a fix is a material choice
    (step 2), and resolve every gap before step 8. This gate runs on every

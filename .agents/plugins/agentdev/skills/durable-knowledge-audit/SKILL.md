@@ -1,5 +1,5 @@
 ---
-name: iwe-audit
+name: durable-knowledge-audit
 description: Audit documents and code comments for session residue — provenance, defended alternatives, dated tool behavior — and prune it or restate it as a verified durable fact. Use when cleaning up docs, pruning stale rationale, or reviewing comments for noise. Proving a rewrite preserved meaning belongs to /agentdev:semantic-refactor-audit.
 ---
 
