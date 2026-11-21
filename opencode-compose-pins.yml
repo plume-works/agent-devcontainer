@@ -2,4 +2,4 @@
 # The image-build path filter does not include this file.
 services:
   opencode:
-    image: ghcr.io/plume-works/agentdev-deploy:edge@sha256:3130c85e435bd550b3393ee41540e241b2ae93a562d97058e67576f5b3d7ba20
+    image: ghcr.io/plume-works/agentdev-deploy:edge@sha256:729813edd46b475d25b883cd4f87de69102d934c8eef6a74f2f8c07697bd8e43
