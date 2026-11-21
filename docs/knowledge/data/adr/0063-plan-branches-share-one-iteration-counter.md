@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Plan work branches have the name iwe/<slug>/iter-<N>-<phase>, with one counter N for all phases that counts branches and pull requests in all states.
 ---
 
 # Plan work branches share one iteration counter

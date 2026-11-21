@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: An unrecoverable failure latches the runtime; a standalone runtime waits until an operator tells it to try again, and a Dev Container exits.
 ---
 
 # A latch waits for a retry in the standalone runtime and ends a Dev Container

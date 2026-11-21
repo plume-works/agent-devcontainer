@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: A supervised service collects Docker garbage when it starts and then each hour, and it removes only old disposable volumes.
 ---
 
 # Docker garbage collection is a supervised hourly service with an allow-list for volumes

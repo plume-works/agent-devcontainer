@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: A CI agent job runs the create, start, and attach phases against its checkout without the supervisor, so the agent uses the catalog of the branch under review.
 ---
 
 # CI agent jobs run the lifecycle commands against their checkout

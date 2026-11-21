@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The request-ai-review label is the one way to request an AI review, and the block-ai-reviews label stops all reviews of a pull request while it is on.
 ---
 
 # A label requests an AI review and a label stops it

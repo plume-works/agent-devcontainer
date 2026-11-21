@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: A state change edits only the file of the work item, the build order is a rank query, and each hub is one flat list sorted by key.
 ---
 
 # The graph layout keeps parallel pull requests free of merge conflicts

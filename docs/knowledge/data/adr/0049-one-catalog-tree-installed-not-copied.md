@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The catalog has one source tree, .agents/plugins/agentdev/, that every harness reads and that a consumer runs from the installed plugin.
 ---
 
 # One catalog tree, installed and not copied

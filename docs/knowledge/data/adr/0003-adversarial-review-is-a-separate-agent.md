@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Adversarial review runs in its own report-only agent, iwe-adversarial-reviewer, and only on request, never in Verify.
 ---
 
 # Adversarial review is a separate agent, not part of Verify

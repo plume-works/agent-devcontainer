@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The AI review gives APPROVE when it has no finding that blocks the merge and REQUEST_CHANGES when it has one, because only an approval meets the main ruleset.
 ---
 
 # The AI review verdict follows severity alone

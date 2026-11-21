@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Each CI run builds, tests, and then promotes its own candidate images, and a moving tag moves only after acceptance and never to an older commit.
 ---
 
 # A run promotes only the images it built and accepted

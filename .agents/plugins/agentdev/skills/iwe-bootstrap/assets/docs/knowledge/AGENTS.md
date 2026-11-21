@@ -48,8 +48,9 @@ software project's memory and system of record. The division of labor:
    - A task is complete or cancelled → close it as `schema/backlog-tasks.md` and
      `schema/archive.md` give.
 5. **Stamp** — every document you create or meaningfully change gets a
-   one-sentence `description` if it has none, and — when you derived it from
-   code or an external page — a `sources` entry naming that path or URL.
+   one-sentence `description` if it has none, unless it is an ADR, and — when
+   you derived it from code or an external page — a `sources` entry naming that
+   path or URL.
 6. **Validate & commit** — `iwe normalize`, then `iwe schema validate` must
    pass; commit with a short message describing the state change.
 

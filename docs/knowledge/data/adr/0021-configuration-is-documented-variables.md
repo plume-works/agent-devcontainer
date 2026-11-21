@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The runtime reads its configuration only from the documented variables, and it runs no configured value through a shell.
 ---
 
 # Configuration is documented variables, never shell code

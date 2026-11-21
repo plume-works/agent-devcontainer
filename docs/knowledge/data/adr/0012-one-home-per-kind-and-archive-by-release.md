@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Each kind of knowledge has one document type, and finished work moves to one archive folder for each release, with one subfolder for each type.
 ---
 
 # Each kind of knowledge has one home, and the archive is by release

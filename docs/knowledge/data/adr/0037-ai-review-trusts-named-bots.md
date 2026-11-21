@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The `ai-review-present` check does not require the AI review for the bot logins in TRUSTED_BOT_ACTORS, and no comment or manual trigger can start the review responder workflow.
 ---
 
 # The `ai-review-present` check trusts only named bots

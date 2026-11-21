@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: PID 1 runs the root bootstrap and then the main function of supervisord in the same process, and the `controller` event listener owns order and recovery.
 ---
 
 # supervisord runs in the PID 1 process, and the controller event listener owns the order

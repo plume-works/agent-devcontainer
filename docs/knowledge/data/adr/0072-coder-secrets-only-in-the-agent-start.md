@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Setup that needs Coder user secrets or the Coder agent environment runs from the agent start, never from a Dev Container lifecycle command.
 ---
 
 # Setup that needs Coder user secrets runs from the Coder agent start

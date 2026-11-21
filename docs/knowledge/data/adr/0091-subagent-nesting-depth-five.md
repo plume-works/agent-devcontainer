@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The Dev Container and the standalone runtime set the subagent depth limit of Claude Code and OpenCode to 5.
 ---
 
 # Both harnesses permit a subagent depth of 5 in the containers

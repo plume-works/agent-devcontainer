@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The knowledge base has no feature document type; a plan's acceptance scenarios state what users get, and archived features stay as history.
 ---
 
 # The knowledge base has no feature documents

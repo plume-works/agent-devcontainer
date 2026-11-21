@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Catalog scripts are standard-library Python that share code through bin/ on sys.path, and only the macOS bootstrap is zsh.
 ---
 
 # Catalog scripts are standard-library Python

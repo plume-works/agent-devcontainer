@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The Plan, Implement, Verify, and Ship rulebooks are catalog agents; the Verify and Ship skills dispatch theirs, and the Plan and Implement skills follow theirs in place.
 ---
 
 # The workflow rulebooks are catalog agents
