@@ -267,5 +267,5 @@ enable](adr/0096-create-phase-installs-enabled-plugins.md)
 [Renovate keeps pins current, after a
 wait](adr/0098-renovate-keeps-pins-current-after-a-wait.md)
 
-[The AI review posts every finding with a confidence
-score](adr/0099-ai-review-posts-every-finding-with-a-confidence-score.md)
+[The AI review posts every finding with its
+Confidence](adr/0099-ai-review-posts-every-finding-with-its-confidence.md)
