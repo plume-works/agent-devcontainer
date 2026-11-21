@@ -57,7 +57,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent rulebooks (`SKILL.md`, `*.agent.md`), and docstrings:
 
-- Run `/agentdev:iwe-audit` in diff mode over the changed docs/skills files.
+- Run `/agentdev:durable-knowledge-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
 - **High-signal bar:** flag a finding only when you can quote the added line and name the specific rule it breaks — the same anti-nitpick threshold the Compliance focus uses. Drop any finding you cannot tie to a quoted line and a named rule.
 
@@ -88,14 +88,14 @@ Model sizes, unversioned so each name resolves to that model's latest release:
 
 Which size each slot gets, and how many of it run:
 
-| Slot          | light effort     | full effort          |
-| ------------- | ---------------- | -------------------- |
-| orchestrator  | light            | large                |
-| metadata gate | light            | large                |
-| compliance    | 1x light         | 2x light             |
-| correctness   | 1x light         | 2x large             |
-| iwe-audit     | light            | large                |
-| validation    | one batch, light | per-candidate, light |
+| Slot                    | light effort     | full effort          |
+| ----------------------- | ---------------- | -------------------- |
+| orchestrator            | light            | large                |
+| metadata gate           | light            | large                |
+| compliance              | 1x light         | 2x light             |
+| correctness             | 1x light         | 2x large             |
+| durable-knowledge-audit | light            | large                |
+| validation              | one batch, light | per-candidate, light |
 
 The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
 

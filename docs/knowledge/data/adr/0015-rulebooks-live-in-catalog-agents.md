@@ -25,7 +25,8 @@ its workflow.
   file. Rejected: the read succeeds, but the Skill tool's refusal tells the
   model not to replicate the workflow by other means. A model may rightly
   refuse, and one that complies has bypassed the gate.
-- Keep the Verify rulebook in the skill behind a thin agent, as the Durable
-  Knowledge Auditor does with `iwe-audit`. Rejected: the skill would be both the
-  rulebook and the entry point that must dispatch the agent, so a session that
-  loads it already holds the rules it would otherwise run inline.
+- Keep the Verify rulebook in the skill behind a thin agent, as the
+  `durable-knowledge-auditor` agent does with `durable-knowledge-audit`.
+  Rejected: the skill would be both the rulebook and the entry point that must
+  dispatch the agent, so a session that loads it already holds the rules it
+  would otherwise run inline.
