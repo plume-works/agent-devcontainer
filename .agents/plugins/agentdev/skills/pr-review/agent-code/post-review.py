@@ -44,8 +44,8 @@ the Write tool first) containing an array of findings, e.g.:
     {"path": "src/foo.py", "line": 42, "side": "RIGHT", "body": "..."},
     {"path": "src/bar.cpp", "line": 7, "side": "RIGHT", "body": "..."}
   ]
-Omit --comments-file (or pass a file containing []) when there are no
-validated findings to attach.
+Omit --comments-file (or pass a file containing []) when the review has
+no findings to attach.
 
 Output (key=value lines):
   RESULT

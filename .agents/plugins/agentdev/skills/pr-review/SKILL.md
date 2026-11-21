@@ -40,26 +40,26 @@ Two independent concerns feed two different pass types (see Steps below) so they
 - Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
 - Potential bugs, incorrect logic, and security implications introduced by the changed code
 - Test coverage and quality
-- Flag only significant, high-confidence issues; ignore nitpicks and likely false positives
+- Report every issue you believe is real; Step 6 scores how sure the review is, so doubt is not a reason to hold one back
 
-**CRITICAL: we only want HIGH SIGNAL issues.** Flag an issue only when at least one of these holds:
+An issue is in scope when at least one of these holds:
 
 - The code will fail to compile or parse (syntax errors, type errors, missing imports, unresolved references)
 - A reachable scenario produces a wrong outcome: you can name a concrete input or state the code can actually receive at the head commit (an event, an environment value, a run order, a prior state, a concurrent run) and the wrong result, failure, or security exposure it produces
-- It's a clear, unambiguous compliance violation where you can quote the exact rule being broken
+- It's a compliance violation where you can quote the exact rule being broken
 
 Do NOT flag:
 
 - Code style or quality concerns
 - Subjective suggestions or improvements
 
-Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path::symbol` → `path::symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
+Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path::symbol` → `path::symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation: report it with the parts it has, and Step 6 caps its score.
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent rulebooks (`SKILL.md`, `*.agent.md`), and docstrings:
 
 - Run `/agentdev:durable-knowledge-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
-- **High-signal bar:** flag a finding only when you can quote the added line and name the specific rule it breaks — the same anti-nitpick threshold the Compliance focus uses. Drop any finding you cannot tie to a quoted line and a named rule.
+- **Anchor bar:** flag a finding only when you can quote the added line and name the specific rule it breaks, as the Compliance focus does. Drop any finding you cannot tie to a quoted line and a named rule: it has no place to be posted.
 
 **PR metadata focus** (title/description relevance) — use `/agentdev:pr-gen-description` before the in-depth passes:
 
@@ -67,11 +67,18 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 - The title must describe the main change, and the description must cover the material changes, testing actually performed, breaking changes, migration or rollout requirements, and related issues or docs when they apply.
 - Flag only material stale, misleading, missing, or irrelevant title/description content. Do not block on wording polish or optional detail.
 
-**Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
+**Severity tiers** (carried through Steps 4–9 on every candidate and scored finding):
 
 - **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed. A review whose findings are all non-blocking is an `APPROVE`; its inline threads still hold the merge until resolved.
+
+**Confidence score** (set in Step 6 on every finding, posted with it): an integer from 0 to 10 for how sure the review is that the finding is real at the head commit. It measures certainty, not severity, and never changes a finding's tier or the review's verdict.
+
+- **9–10** — verified against the head commit
+- **7–8** — very likely
+- **4–6** — plausible; the files did not settle it
+- **0–3** — doubtful, or a correctness candidate missing part of its scenario; posted for the author to judge
 
 ## Effort Tiers
 
@@ -121,22 +128,22 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
    - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
    - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these subagents must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
-5. **Merge and deduplicate.** Collect the candidate findings from every pass. Discard every correctness candidate with an empty Trigger, Path, or Outcome; it never reaches validation. Collapse candidates that name the same file/line and describe the same underlying issue into one, retaining one of them whole — its description and, for a correctness candidate, its scenario — and keeping the **blocking** tier if either collapsed candidate was blocking.
-6. **Validate the surviving candidates, on the `light` model at every effort level.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Preserve each surviving candidate's severity tier from Step 5 unchanged — validation confirms or drops a finding, it never changes its tier.
+5. **Merge and deduplicate.** Collect the candidate findings from every pass. Collapse candidates that name the same file/line and describe the same underlying issue into one, retaining one of them whole — its description and, for a correctness candidate, its scenario — and keeping the **blocking** tier if either collapsed candidate was blocking.
+6. **Score every candidate, on the `light` model at every effort level.** A validator gives each candidate its confidence score and a one-sentence reason; no candidate is dropped, however low it scores. Preserve each candidate's severity tier from Step 5 unchanged — the score never changes a tier.
    - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the Trigger, Path, and Outcome of a candidate that carries a scenario in place of its claim, the claim made against any other candidate, the full text of any rule that claim invokes, where to read the diff and the PR title and description, that the working tree is already at the head commit so files can be read for ground truth, and the "Never execute code" constraint verbatim. It never names which pass raised a candidate.
    - **Make the validator re-derive what the candidate asserts** from the files rather than trust it. The bar follows the candidate's shape:
-     - **A candidate carrying a scenario is judged part by part, as written,** against the head commit, in order: the Trigger can actually occur, the Path leads from it to the fault, and the Outcome follows from that path. The validator stops at the first part that does not hold and returns `DROP: trigger|path|outcome — <reason>` naming it; a part false as written is a drop even when another scenario would reach the same fault. The verdict is `CONFIRM` only when every part holds as written.
-     - **Any other candidate** is dropped when ambiguous, trivial, or not clearly a violation; ask for `CONFIRM` or `DROP` with a one-sentence justification.
-   - **Stated intent is evidence, not a verdict.** A code comment or PR description presenting a behavior as deliberate does not refute a reachable wrong outcome, and a guarantee the PR description promises that the code breaks counts toward the outcome. The validator weighs either against the files like any other evidence.
-   - **Never argue the verdict in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the verdict before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
+     - **A candidate carrying a scenario is judged part by part, as written,** against the head commit, in order: the Trigger can actually occur, the Path leads from it to the fault, and the Outcome follows from that path. The validator stops at the first part that does not hold, or is missing, and returns `SCORE: <0-3> — trigger|path|outcome: <reason>` naming it; a part false as written caps the score even when another scenario would reach the same fault. A score of 4 or more needs every part to hold as written.
+     - **Any other candidate** scores lower the more ambiguous, trivial, or arguable its violation is; ask for `SCORE: <0-10> — <one-sentence reason>`.
+   - **Stated intent is evidence, not a score.** A code comment or PR description presenting a behavior as deliberate does not refute a reachable wrong outcome, and a guarantee the PR description promises that the code breaks counts toward the outcome. The validator weighs either against the files like any other evidence.
+   - **Never argue the score in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the score before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
    - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
-   - **Light effort: one batched dispatch** carrying every surviving candidate at once and returning a confirm-or-drop verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
-   - **Batching is the light tier's trade and nothing else's.** A self-sized review validates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
+   - **Light effort: one batched dispatch** carrying every candidate at once and returning a score for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
+   - **Batching is the light tier's trade and nothing else's.** A self-sized review scores one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
    - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below.
 7. Create a pending review with `create_pending_pull_request_review`.
-8. For every validated finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) naming its location by anchor and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
-9. Submit the review with `submit_pending_pull_request_review`, choosing `event` by the severity of the validated findings that survived Step 6 alone:
-   - **No validated findings, or only non-blocking findings → `APPROVE`.** Inline comments on an approving review still open threads that must be resolved before merge.
+8. For every scored finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes. Open the comment body with one line naming its tier and score, `**Blocking · confidence 5/10** — <validator's reason>` (or `**Non-blocking · …**`), then the finding; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) naming its location by anchor and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
+9. Submit the review with `submit_pending_pull_request_review`, choosing `event` by the severity tiers of the findings alone — a confidence score never changes it:
+   - **No findings, or only non-blocking findings → `APPROVE`.** Inline comments on an approving review still open threads that must be resolved before merge.
    - **Any blocking finding, inline or not → `REQUEST_CHANGES`.** That includes the Step-3 metadata gate; name in the body any blocking finding that has no inline anchor.
 
    `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments); for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `APPROVE` or `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account cannot approve or request changes on its own PR. That retry is the only review submitted as `COMMENT`.
@@ -168,7 +175,7 @@ If the review tools above are confirmed unavailable, post the whole review — s
 Write two plain files under `./.tmp` (never assemble this JSON live in a shell command):
 
 - a summary file containing only the short overall review body (no per-finding detail)
-- a comments file containing a JSON array of every validated finding: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if no findings survived Step 6)
+- a comments file containing a JSON array of every scored finding: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if the review has no findings)
 
 Then run `agent-code/post-review.py --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule, and pass `--event COMMENT` only for its self-owned retry. Do not fall further back to typing `gh api` calls by hand.
 
@@ -185,8 +192,8 @@ The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a 
 
 - **Never execute code** — no test run, build, linter, dependency install or sync, `docker`, or `devcontainer` command, in this session or in any pass or validator it dispatches. CI runs those; a review reads the diff and the head commit. A pass or validator never reads CI results either: it states the Trigger, Path, and Outcome from the code alone. This skill's own `agent-code/` scripts are the only programs it runs.
 - **CI results: one look, from this session, never a wait.** Only this session, while composing the review in Steps 7–9, may read CI results — one `gh pr checks`, plus `gh run view --log-failed` for a check that has already failed — to cite a finished check beside a finding. A check still running is left out. Never wait for one: no `--watch`, `gh run watch`, `sleep`, or polling loop.
-- **Never post a standalone top-level PR comment** (`gh pr comment`, `add_issue_comment`, etc.) for review findings. All feedback must go through the pull request review flow (steps 7–9) so it renders as a proper review with threaded, resolvable inline comments. **Sole exception:** a validated finding whose inline attachment was attempted and rejected (Step 8 fallback) is posted as a normal PR comment so it is not silently lost.
+- **Never post a standalone top-level PR comment** (`gh pr comment`, `add_issue_comment`, etc.) for review findings. All feedback must go through the pull request review flow (steps 7–9) so it renders as a proper review with threaded, resolvable inline comments. **Sole exception:** a finding whose inline attachment was attempted and rejected (Step 8 fallback) is posted as a normal PR comment so it is not silently lost.
 - **Never write a location as a line number — in the review body, a comment, or chat.** Every finding tied to a specific place in the diff must be an actual inline comment placed there via `add_comment_to_pending_review`, whose `line` field is the one machine position this skill writes; it is not prose pointing at a location. The Step 8 fallback comment is the sole exception — there, the location is named in prose, by anchor, precisely because the inline placement failed. The Step 3 PR metadata gate is also review-body-only because title and description findings do not have file locations.
 - Do not submit review text as plain chat/assistant messages.
 - Keep each inline comment specific and actionable, scoped to the line(s) it annotates.
-- Only findings that survived Step 6 validation may be posted — never publish an unvalidated candidate.
+- Every finding is posted with the confidence score Step 6 gave it — never publish an unscored candidate, and never hold one back for a low score.

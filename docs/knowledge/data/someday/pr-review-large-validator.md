@@ -1,6 +1,6 @@
 ---
 type: someday
-description: Validate pr-review's scenario-carrying correctness candidates on the large model at full effort, pending a cost/benefit evaluation against the recorded light-validator decision.
+description: Score pr-review's scenario-carrying correctness candidates on the large model at full effort, pending a cost/benefit evaluation against the recorded light-validator decision.
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 ---
@@ -12,8 +12,8 @@ every candidate is validated on `light`. A scenario claim — a trigger reachabl
 at the head commit, the path to the fault, and the wrong outcome — asks the
 validator to reason across lifecycles, runs, and files outside the diff, which
 is the reasoning the correctness passes get the large model for. Validating
-scenario-carrying candidates on `large` at full effort could make their verdicts
-more reliable.
+scenario-carrying candidates on `large` at full effort could make their
+confidence scores more accurate.
 
 It contradicts a recorded decision: [PR review effort
 tiers](../archive/2.0.0/architecture/pr-review-effort-tiers.md) fixes validation
@@ -28,8 +28,8 @@ A cost/benefit evaluation would settle it:
 
 - **Benefit:** a validator-only replay of a frozen candidate set, comparing
   `light` and `large` per candidate over repeated runs, positives and negative
-  controls together. It counts only if `large` raises the confirm rate of real
-  scenario candidates without confirming more negatives.
+  controls together. It counts only if `large` scores real scenario candidates
+  higher without scoring more negatives high.
 - **Cost:** the added per-candidate validation cost at full effort, given the
   number of correctness candidates a typical full review produces.
 
