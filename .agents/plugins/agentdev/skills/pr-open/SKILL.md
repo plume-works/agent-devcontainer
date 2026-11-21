@@ -322,6 +322,14 @@ If `gh` is unavailable or unauthenticated, fall back to the connected GitHub
 MCP server's pull-request creation operation with the same title, body, base,
 and head values.
 
+In both modes, close the open items `pr-gen-description` reported; none of them
+is in the body. For an item that needs this pull request's CI run, wait for the
+job that shows it, read its log, and add the item to `## Verification` with the
+log as evidence through `gh pr edit --body-file`. A log that contradicts the
+item is a defect: report it instead. Name every item that only someone outside
+the session can close in the report, with the reason, and ask the user whether
+and how it enters the pull request.
+
 ### 10. Re-Review Evaluation
 
 In **update mode**, always apply

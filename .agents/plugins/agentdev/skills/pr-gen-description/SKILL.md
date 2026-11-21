@@ -105,9 +105,18 @@ already runs on the branch, then keep only what survives both filters:
    verification list.
 
 What remains is the residue: manual checks no test covers, and
-environment-dependent behavior CI cannot reach. Sort it by tense for Step 7 —
-already done into `## Verification`, still outstanding into
-`## Reviewer Handoff`. Expect the residue to be short and often empty.
+environment-dependent behavior CI cannot reach. Expect it to be short and often
+empty. The body records only closed items, so close each one or leave it out:
+
+- **The session can close it now**: run the check, then list it under
+  `## Verification` with its evidence.
+- **It needs this pull request's own CI run**, such as a value only a job log
+  shows: leave it out of the body and report it to the caller, which reads the
+  log once that run finishes and adds the item to `## Verification`.
+- **Only someone outside the session can close it**, such as a human with the
+  hardware or the staging network: leave it out of the body and report it to
+  the caller with the reason the session cannot close it. The user decides
+  whether and how it enters the pull request.
 
 ### Step 6: Check Breaking Changes
 
@@ -123,12 +132,9 @@ This section list is the structure. Follow the wording rules from [code-review-s
 - **What Changed**: Group related changes instead of listing files
 - **Why**: User or system impact
 - **Verification**: Closed items only, each a `- [x]` box with an
-  `**Evidence:**` child naming what closed it. Past tense: work already done.
-  Frequently empty — when CI covers the change, an empty `## Verification` is
-  the expected outcome, not a gap.
-- **Reviewer Handoff**: Open items only, each a `- [ ]` box with a
-  `**Closed by:**` child naming the party who can close it. Future tense: work
-  still outstanding.
+  `**Evidence:**` child naming what closed it. Frequently empty — when CI
+  covers the change, an empty `## Verification` is the expected outcome, not a
+  gap.
 - **Breaking Changes**: Only when applicable
 - **Migration**: Required rollout, upgrade, backfill, or operator steps
 - **Related**: Issues, design docs, or follow-up work
@@ -139,17 +145,18 @@ This section list is the structure. Follow the wording rules from [code-review-s
   into merge records, and a regenerated body must never drop or reword one.
   Never add the section to an existing pull request that lacks it.
 
-Neither verification section may hold the other's box type — the split by tense
-is what makes each item's state readable without reading its text.
+No section holds an open item: no `- [ ]` box, and no list of checks left
+for a reviewer, a merger, or anyone else. An open item goes to the caller
+(Step 5), never into the body.
 
 When a consumer-owned guidance file `.github/pr-description-guidance.md` exists,
 read it and let its instructions take precedence over the default generation of
 the sections above. It holds instructions — repository-specific directions such
 as "always link the Jira ticket in Related" — not section headings; a heading
 list would be a structure file, which this step supersedes. Its instructions
-MAY add to or override how any section is generated, but SHALL NOT collapse or
-rename the `## Verification` / `## Reviewer Handoff` split: that tense split is
-the one floor guidance may not override. This is the only customization channel;
+MAY add to or override how any section is generated, but SHALL NOT add a
+section of open items or put an open item into the body: that is the one floor
+guidance may not override. This is the only customization channel;
 the skill still never reads structure out of the pull request template itself.
 
 Check whether the repository has its own pull request template —
@@ -184,7 +191,7 @@ regenerating, and one `--depends-on` per dependency for a new dependent pull
 request. Anything but `RESULT=SUCCESS` means the body is not done: fix the
 section the error names and check again. Never hand over a body that fails.
 
-Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list plus any guidance-added sections that comply with the Verification / Reviewer Handoff split, and does not repeat generic review or clean-code checklists from the referenced documents.
+Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list plus any guidance-added sections, holds no open item, and does not repeat generic review or clean-code checklists from the referenced documents.
 
 ## Edge Cases
 
@@ -196,14 +203,12 @@ Ensure completeness, technical accuracy, valid links, and that every `## Verific
   a gap to fill. Everything CI covers was correctly filtered out in Step 5;
   writing items back in to make the section look complete reintroduces the
   noise the filters exist to remove.
-- **No test covers a change**: say so under `## Reviewer Handoff` as an open
-  item naming who can close it. Do not warn about a thin verification section
-  that is thin because CI covers the change.
-- **An item nobody reviewing can close**: it still belongs under
-  `## Reviewer Handoff`, with `**Closed by:**` naming the party who can — a
-  human with the hardware, a follow-up deploy, an operator. An item the
-  reviewer cannot perform is exactly what the section exists to carry; dropping
-  it is how it gets silently absorbed into a "verified" verdict.
+- **No test covers a change**: close it with a manual check now, or report it
+  to the caller as Step 5 sorts it. Do not warn about a thin verification
+  section that is thin because CI covers the change.
+- **An item the session cannot close**: report it to the caller with the
+  reason; never write it into the body for a reviewer to pick up. Leaving it
+  out of `## Verification` is what keeps it from reading as verified.
 - **Multiple unrelated changes**: Suggest splitting PRs
 
 ## Related Resources
@@ -211,6 +216,6 @@ Ensure completeness, technical accuracy, valid links, and that every `## Verific
 - The section structure: the list in Step 7 of this skill
 - The consumer customization point: `.github/pr-description-guidance.md`, a
   consumer-owned instructions file whose directions take precedence over the
-  default section generation (subject to the Step 7 tense-split floor)
+  default section generation (subject to the Step 7 no-open-items floor)
 - [code-review-standards](../code-review-standards/)
 - Coding Conventions in the repository's root `AGENTS.md`

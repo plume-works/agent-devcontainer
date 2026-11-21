@@ -719,8 +719,8 @@ the real template as unexamined structure — evaluate it first:
 
 1. **Map, then confirm.** Propose a section-by-section mapping of the consumer's
    existing template headings onto the sections `pr-gen-description` generates
-   (its Step 7 list: Summary, What Changed, Why, Verification, Reviewer Handoff,
-   Breaking Changes, Migration, Related). Present two buckets — **covered** (a
+   (its Step 7 list: Summary, What Changed, Why, Verification, Breaking Changes,
+   Migration, Related). Present two buckets — **covered** (a
    consumer heading with a Step 7 equivalent) and **extras** (a heading with no
    equivalent) — and let the user correct the split before anything is written.
    Nothing is captured or deleted until the user confirms the buckets.
@@ -745,10 +745,10 @@ the real template as unexamined structure — evaluate it first:
    Step 7 supersedes.
 
 4. **Respect the precedence floor.** Guidance instructions take precedence over
-   `pr-gen-description`'s default section generation, but they may not collapse
-   or rename the Verification / Reviewer Handoff split — that tense split is what
-   makes each item's state readable. Never capture an instruction that would
-   merge or rename those two sections.
+   `pr-gen-description`'s default section generation, but they may not add a
+   section of open items or put an open item into the description. Never
+   capture an instruction that would, such as a consumer `## Test plan` of
+   checks left for the reviewer.
 
 Leave `.github/pr-description-guidance.md` out of the marker's `tracked_paths`;
 it is consumer-created state, not a template-owned upstream diff input. See
