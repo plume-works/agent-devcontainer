@@ -138,6 +138,12 @@ This section list is the structure. Follow the wording rules from [code-review-s
   into merge records, and a regenerated body must never drop or reword one.
   Never add the section to an existing pull request that lacks it.
 
+A picture is worth a thousand words. Use diagrams where they make a change
+easier to understand. Draw component interactions, control flow, state
+changes, data flow, and module maps as Mermaid code blocks
+(` ```mermaid `), placed in the section they explain, most often
+`## What Changed`. Skip a diagram when the change has no structure to show.
+
 No section holds an open item: no `- [ ]` box, and no list of checks left
 for a reviewer, a merger, or anyone else. An open item goes to the caller
 (Step 5), never into the body.
