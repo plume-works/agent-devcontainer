@@ -327,8 +327,9 @@ create the `plume-works-review` environment holding the `CLAUDE_CODE_OAUTH_TOKEN
 `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` secrets, and create the
 `request-ai-review` and `block-ai-reviews` labels before enabling the workflow.
 
-Pull-request descriptions separate completed `Verification` evidence from open
-`Reviewer Handoff` tasks. Repository-specific additions belong in
+Pull-request descriptions record only closed checks, each with its evidence,
+under `Verification`; an open check goes to the user, never into the
+description. Repository-specific additions belong in
 `.github/pr-description-guidance.md`.
 
 ## Validation and quality
