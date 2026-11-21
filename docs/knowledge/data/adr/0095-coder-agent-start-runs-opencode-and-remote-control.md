@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: In a Dev Container, only the Coder agent start starts the OpenCode server and the Remote Control server; the devcontainer runtime profile does not supervise them.
 ---
 
 # The Coder agent start runs OpenCode and Remote Control in a Dev Container

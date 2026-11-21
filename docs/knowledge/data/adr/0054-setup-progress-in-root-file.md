@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The template setup progress is in the root file .agentdev-template-progress.md, and consumed_ref stays in the marker in .agent.metadata.json.
 ---
 
 # Setup progress is a root file and the consumed ref stays in JSON

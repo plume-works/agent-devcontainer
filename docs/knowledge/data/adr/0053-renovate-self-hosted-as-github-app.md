@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Renovate runs self-hosted from a workflow in the development image and opens pull requests with a GitHub App token.
 ---
 
 # Renovate runs self-hosted as a GitHub App

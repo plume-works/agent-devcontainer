@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: renovate-config-validator --no-global --strict validates the Renovate config at the one Renovate version that the hook, the validation workflow, and the bot share.
 ---
 
 # The Renovate version that reads the config also validates it

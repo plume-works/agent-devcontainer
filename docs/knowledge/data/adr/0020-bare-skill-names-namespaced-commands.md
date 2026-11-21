@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: 'The OpenCode bridge registers skills under their bare names and commands as agentdev:<name>, and the skill tool strips an agentdev: prefix.'
 ---
 
 # Skills keep their bare names, and commands have a namespace

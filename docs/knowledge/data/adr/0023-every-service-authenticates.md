@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: OpenCode and Xpra in the standalone runtime each require their own password, because each peer on the shared proxy network can reach their ports.
 ---
 
 # Each service authenticates on its own

@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The template never tracks docs/knowledge/data/, and a consumer receives its knowledge workspace from the iwe-bootstrap scaffold in the installed catalog.
 ---
 
 # Knowledge data is never a template path

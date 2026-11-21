@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: A cloud session installs its toolchain on the session host and runs no Dev Container.
 ---
 
 # A cloud session works on its host, not in a Dev Container
@@ -9,8 +8,9 @@ description: A cloud session installs its toolchain on the session host and runs
 The session host, which is the machine that a cloud session runs on, is
 reclaimed after a few idle minutes and cold-boots with a new agent proxy port. A
 toolchain on the host's disk survives that, while a long-running container would
-have to be restored before every turn. As a result, a cloud session runs no Dev
-Container, by decision of the repository owner.
+have to be restored before every turn. As a result, a cloud session installs its
+toolchain on the session host and runs no Dev Container, by decision of the
+repository owner.
 
 ## Considered Options
 

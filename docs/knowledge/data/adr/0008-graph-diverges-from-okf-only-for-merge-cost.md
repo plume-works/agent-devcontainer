@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The graph follows OKF v0.2 and is different only where OKF causes merge or maintenance work, so no document sets status, generated, or verified.
 ---
 
 # The graph is different from OKF only where OKF causes merge work

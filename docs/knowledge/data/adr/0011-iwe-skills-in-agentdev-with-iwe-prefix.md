@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The IWE workflow skills are in the agentdev catalog, and their names keep the iwe- prefix.
 ---
 
 # The IWE workflow skills are in agentdev, with an iwe- prefix

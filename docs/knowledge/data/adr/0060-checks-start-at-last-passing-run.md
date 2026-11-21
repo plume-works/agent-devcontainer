@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: On a push to main, the path filter and the pre-commit range start at the last passing run, not at the previous push.
 ---
 
 # Push checks on main start at the last passing run

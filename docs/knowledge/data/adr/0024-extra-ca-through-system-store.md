@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The root bootstrap adds an extra CA bundle from the host to the system store, and the images point each tool with its own root store at the system store.
 ---
 
 # Extra CA trust goes through the system store

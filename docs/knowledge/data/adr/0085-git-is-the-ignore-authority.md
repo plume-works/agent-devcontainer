@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Inside a git work tree, agent file discovery asks git which paths to ignore, and the excluded-directory set applies only outside a work tree.
 ---
 
 # Git decides which paths agent file discovery ignores

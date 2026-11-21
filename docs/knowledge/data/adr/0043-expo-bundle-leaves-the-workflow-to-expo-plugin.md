@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The expo optional bundle only prepares a consumer for EAS builds; Expo's own plugin owns the agent workflow, and EXPO_TOKEN passes through the shared devcontainer descriptor.
 ---
 
 # The Expo bundle prepares EAS builds and leaves the workflow to Expo

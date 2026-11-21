@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The Ansible roles install apt packages by name with no version, and the fixed Ubuntu 24.04 base limits what an apt update can change.
 ---
 
 # apt packages float within a fixed Ubuntu release

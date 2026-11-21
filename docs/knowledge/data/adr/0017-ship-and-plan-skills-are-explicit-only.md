@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The Ship and Plan skills are explicit-only; the Implement, Verify, adversarial review, and Capture skills are model-invocable.
 ---
 
 # Only the Ship and Plan skills are explicit-only

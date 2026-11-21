@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: A skill names its bundled code by a path relative to the skill under agent-code/, and ${CLAUDE_SKILL_DIR} appears only in allowed-tools.
 ---
 
 # Bundled code is relative to the skill, under agent-code/

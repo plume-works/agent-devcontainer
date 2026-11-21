@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The runtime supervises the nested Docker engine on a volume of its own in both runtime profiles, and the image has no SSH server.
 ---
 
 # The runtime supervises the Docker engine, and the image has no SSH server

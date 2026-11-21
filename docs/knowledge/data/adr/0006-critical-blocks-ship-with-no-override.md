@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Ship runs Verify itself, and a CRITICAL result blocks the ship with no user override.
 ---
 
 # A CRITICAL result stops Ship with no override

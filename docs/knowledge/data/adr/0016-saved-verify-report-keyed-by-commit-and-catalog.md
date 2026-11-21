@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Verify keeps one saved report for each plan, with the commit and a hash of the catalog files as its key, and uses it again on a match.
 ---
 
 # The saved Verify report is keyed by commit and catalog hash

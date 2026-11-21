@@ -35,13 +35,13 @@ These decisions qualify:
 ---
 type: adr # required
 stage: proposed # required: see the table
-description: One sentence that gives the decision. # required
 supersedes: # optional: the earlier ADRs that this ADR replaces
 - adr/0001-code-and-tests-state-behaviour
 ---
 ```
 
-The frontmatter has no date field. Git records the date.
+The frontmatter has no date field and no `description`. Git records the date,
+and the H1 and the first paragraph already give the decision.
 
 | Stage        | Meaning                                        | Set by | Location    |
 | ------------ | ---------------------------------------------- | ------ | ----------- |

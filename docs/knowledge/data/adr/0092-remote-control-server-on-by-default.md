@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The `claude remote-control` server is the only Remote Control mode, it runs by default, and AGENTDEV_CLAUDE_RC_SPAWN selects its spawn mode or `off`.
 supersedes:
 - adr/0077-remote-control-server-mode-is-opt-in
 - adr/0078-remote-control-starts-from-the-agent-start
