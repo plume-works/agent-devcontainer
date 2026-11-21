@@ -106,17 +106,10 @@ already runs on the branch, then keep only what survives both filters:
 
 What remains is the residue: manual checks no test covers, and
 environment-dependent behavior CI cannot reach. Expect it to be short and often
-empty. The body records only closed items, so close each one or leave it out:
-
-- **The session can close it now**: run the check, then list it under
-  `## Verification` with its evidence.
-- **It needs this pull request's own CI run**, such as a value only a job log
-  shows: leave it out of the body and report it to the caller, which reads the
-  log once that run finishes and adds the item to `## Verification`.
-- **Only someone outside the session can close it**, such as a human with the
-  hardware or the staging network: leave it out of the body and report it to
-  the caller with the reason the session cannot close it. The user decides
-  whether and how it enters the pull request.
+empty. Close each item the session can, and list it under `## Verification`
+with its evidence. No outstanding work may be placed in the pull request as a
+to-do item: placing it there is not a substitute for completing it. Report it
+to the caller with the reason the session cannot close it.
 
 ### Step 6: Check Breaking Changes
 
@@ -203,12 +196,9 @@ Ensure completeness, technical accuracy, valid links, and that every `## Verific
   a gap to fill. Everything CI covers was correctly filtered out in Step 5;
   writing items back in to make the section look complete reintroduces the
   noise the filters exist to remove.
-- **No test covers a change**: close it with a manual check now, or report it
-  to the caller as Step 5 sorts it. Do not warn about a thin verification
-  section that is thin because CI covers the change.
-- **An item the session cannot close**: report it to the caller with the
-  reason; never write it into the body for a reviewer to pick up. Leaving it
-  out of `## Verification` is what keeps it from reading as verified.
+- **No test covers a change**: close it with a manual check, or report it to
+  the caller as Step 5 says. Do not warn about a thin verification section
+  that is thin because CI covers the change.
 - **Multiple unrelated changes**: Suggest splitting PRs
 
 ## Related Resources
