@@ -1,8 +1,8 @@
 """
-Checks for the shape the bug and feature schemas require.
+Checks for the shape the bug schema requires.
 
-Each test copies the graph into `/tmp`, changes one conforming bug or archived
-feature document the way a hand-written one would, and asserts whether
+Each test copies the graph into `/tmp`, changes one conforming bug document the
+way a hand-written one would, and asserts whether
 `iwe schema validate` accepts it or refuses it and names the document.
 """
 
@@ -132,19 +132,11 @@ def test_unmodified_graph_validates(workspace: Path) -> None:
         ('bugs', _drop('Root cause'), 'required section "Root cause" is missing'),
         ('bugs', _move_after('Root cause', 'Symptom'), 'is missing'),
         ('bugs', _strip_bug_prefix, 'is missing'),
-        (
-            'archive/1.0.0/features',
-            _drop('Edge cases'),
-            'required section "Edge cases" is missing',
-        ),
-        ('archive/1.0.0/features', _move_after('Open questions', 'Purpose'), 'is missing'),
     ],
     ids=[
         'bug-missing-section',
         'bug-out-of-order',
         'bug-title-prefix',
-        'feature-missing-section',
-        'feature-out-of-order',
     ],
     indirect=['document'],
 )

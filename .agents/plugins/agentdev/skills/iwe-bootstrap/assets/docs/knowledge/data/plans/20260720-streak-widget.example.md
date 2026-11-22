@@ -58,9 +58,7 @@ completion time so timezone changes never double-count.
 
 ## Depends on
 
-Requires the session log populated by [Focus
-sessions](../archive/0.1.0/plans/20260701-focus-sessions.example) — streaks
-derive from completed sessions.
+None — streaks derive from the session log, which already ships.
 
 ## Verification
 

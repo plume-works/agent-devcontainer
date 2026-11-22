@@ -226,13 +226,12 @@ def test_installed_graph_has_the_single_home_layout(
     schemas = config['schemas']
 
     assert {'finding', 'guide'} <= set(schemas)
-    assert 'data/archive/*/plans/**' in schemas['plan']['match']
     assert {'data/findings', 'data/guides'} <= set(schemas['hub']['match'])
     assert (data / 'findings.md').is_file() and (data / 'guides.md').is_file()
     assert not (data / 'architecture.md').exists()
     assert not (data / 'architecture').exists()
     assert not (data / 'log.md').exists()
-    assert list((data / 'archive').rglob('*.example.md'))
+    assert not (data / 'archive').exists()
 
 
 @requires_iwe
