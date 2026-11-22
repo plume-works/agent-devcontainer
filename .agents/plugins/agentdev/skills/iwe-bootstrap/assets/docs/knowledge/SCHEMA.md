@@ -9,8 +9,8 @@ document, for example `docs/knowledge/schema/bugs.md`.
 
 The schemas in `.iwe/schemas/*.yaml` enforce the shapes. The `[schemas]` section
 of `.iwe/config.toml` binds each schema to a path, and each document under
-`data/` has a binding, hubs included. `iwe schema validate` must exit 0 before a
-commit.
+`data/` outside `data/archive/` has a binding, hubs included.
+`iwe schema validate` must exit 0 before a commit.
 
 The examples in these documents describe one fictional product (Pomodux, a
 focus-timer app). The `*.example.md` documents show each shape in place.
