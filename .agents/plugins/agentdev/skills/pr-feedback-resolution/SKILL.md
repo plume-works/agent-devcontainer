@@ -118,9 +118,12 @@ gh api graphql --paginate --slurp \
     misrepresents the change set and `pr-review` stops before its inline passes
     — is always posted this way, with
     no thread to anchor to. Collect every review whose `body` is non-empty,
-    process the newest per author, and classify a `Severity: P1` or gate body as
-    feedback to act on (typically: update the PR title/description to match the
-    diff, then re-request review) even when no review thread exists.
+    process the newest per author, and classify a gate body as feedback to act
+    on (typically: update the PR title/description to match the diff, then
+    re-request review) even when no review thread exists. A `pr-review` body
+    also lists findings that quote no added line, each with its `Severity: Pn`:
+    every one of them, whatever its Severity, gets a fix or a reasoned reply in
+    a PR comment, like a thread.
     `reviewThreads` alone is structurally blind to these.
 
 After fetching, **filter out resolved threads** using these rules (apply in order):
