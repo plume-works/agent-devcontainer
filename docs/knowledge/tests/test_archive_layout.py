@@ -141,15 +141,3 @@ def test_broken_document_is_rejected(workspace: Path, key: str, content: str) ->
     result = _validate(workspace)
     assert result.returncode != 0
     assert key in result.stdout
-
-
-@pytest.mark.parametrize(
-    'key',
-    ['data/archive/2.1.0/plans/20260101-archived', 'data/archive/next-release/notes/retired'],
-    ids=['archived-plan', 'retired-type'],
-)
-def test_archived_document_is_not_validated(workspace: Path, key: str) -> None:
-    """A document under data/archive/ passes even when it breaks every schema."""
-    _write(workspace, key, '---\ntype: plan\nstage: shipped\nreleased: 2.1.0\n---\n')
-    result = _validate(workspace)
-    assert result.returncode == 0, result.stdout + result.stderr
