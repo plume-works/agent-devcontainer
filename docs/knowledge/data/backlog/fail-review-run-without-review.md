@@ -5,6 +5,7 @@ stage: pending
 priority: medium
 description: Fail a Claude PR review responder run that published no review of its own, by tying the published review to the run through an identity rather than a time window.
 sources:
+- resource: .github/actions/run-claude-responder/action.yml
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/issues/198
 rank: 1400

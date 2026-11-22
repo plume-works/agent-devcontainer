@@ -1,0 +1,198 @@
+name: Run Claude responder
+description: Prepare the CI agent environment and run the Claude responder action.
+
+inputs:
+  artifact-name:
+    description: Name for the responder execution artifact.
+    required: true
+  claude-code-oauth-token:
+    description: OAuth token for the Claude Code action.
+    required: true
+  app-client-id:
+    description: Client ID of the GitHub App the responder posts as.
+    required: true
+  app-private-key:
+    description: Private key of the GitHub App the responder posts as.
+    required: true
+  prompt:
+    description: Prompt for the Claude responder.
+    required: true
+  remove-request-label:
+    description: >-
+      'true' when the pull request carries request-ai-review, which this review
+      takes by removing it as the App.
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    # Do not use GITHUB_TOKEN as an alternative token: see ADR-0066.
+    - name: Require the App secrets
+      shell: bash
+      env:
+        APP_CLIENT_ID: ${{ inputs.app-client-id }}
+        APP_PRIVATE_KEY: ${{ inputs.app-private-key }}
+      run: |
+        missing=()
+        [[ -n "${APP_CLIENT_ID}" ]] || missing+=('QUILL_APP_CLIENT_ID (input app-client-id)')
+        [[ -n "${APP_PRIVATE_KEY}" ]] || missing+=('QUILL_APP_PRIVATE_KEY (input app-private-key)')
+        for name in "${missing[@]}"; do
+          echo "::error::The App secret ${name} is empty."
+        done
+        [[ ${#missing[@]} -eq 0 ]]
+
+    # See ADR-0099.
+    - name: Run devcontainer lifecycle commands
+      shell: bash
+      env:
+        DEV_WORKSPACE_FOLDER: ${{ github.workspace }}
+        AGENTDEV_SKIP_PRE_COMMIT: '1'
+        AGENTDEV_SKIP_XPRA: '1'
+        AGENTDEV_SKIP_CLAUDE_PREAPPROVE: '1'
+        UV_PROJECT_ENVIRONMENT: /opt/ci-venv
+      run: |
+        mkdir -p /root/.claude
+        # A pinned image built before the runtime package lacks the CLI. The build
+        # runs on a copy so its build/ tree stays out of the reviewed checkout.
+        if ! command -v agentdev-runtime >/dev/null; then
+          src="$(mktemp -d)"
+          cp -r "$GITHUB_WORKSPACE/py_packages/agentdev_runtime/." "$src"
+          UV_TOOL_DIR=/opt/uv-tools UV_TOOL_BIN_DIR=/usr/local/bin UV_PYTHON_DOWNLOADS=never \
+            uv tool install --python /usr/bin/python3 "$src"
+        fi
+        agentdev-runtime lifecycle created
+        # No supervisor runs in a container job: run the per-start repairs directly.
+        agentdev-runtime lifecycle ready --no-wait
+        # The attach phase without its catalog install: the review keeps the image's
+        # catalog that the create phase installed, see ADR-0099.
+        uv sync --all-groups --all-extras
+        agentdev-runtime lifecycle hooks attached
+
+    # claude-code-action merges its settings input into the user settings one
+    # level deep, so the hook-written user layer rides underneath here or its
+    # enabledPlugins is replaced wholesale.
+    - name: Merge Claude settings
+      id: claude_settings
+      shell: bash
+      run: |
+        layers=()
+        if [[ -f "${HOME}/.claude/settings.json" ]]; then
+          layers+=("${HOME}/.claude/settings.json")
+        fi
+        layers+=(.claude/settings.json)
+        if [[ -f .claude/settings.local.json ]]; then
+          layers+=(.claude/settings.local.json)
+        fi
+        merged=$(jq -cs 'reduce .[] as $layer ({}; . * $layer)' "${layers[@]}")
+        {
+          echo 'json<<CLAUDE_SETTINGS_EOF'
+          echo "$merged"
+          echo 'CLAUDE_SETTINGS_EOF'
+        } >>"$GITHUB_OUTPUT"
+
+    - name: Compose Claude arguments
+      id: claude_args
+      shell: bash
+      env:
+        ALLOWED_TOOLS: ${{ env.CLAUDE_PR_REVIEW_ARGS }}
+        DISALLOWED_TOOLS: ${{ env.CLAUDE_PR_REVIEW_DISALLOWED_TOOLS }}
+      run: |
+        printf 'args=%s\n' "--allowedTools '${ALLOWED_TOOLS}' --disallowedTools '${DISALLOWED_TOOLS}'" \
+          >>"${GITHUB_OUTPUT}"
+
+    # Minted after the lifecycle scripts so their environment never holds it.
+    # Only these permission inputs bound the token, not the job's permissions.
+    - name: Create GitHub App token
+      id: app_token
+      uses: actions/create-github-app-token@v3.4.0
+      with:
+        client-id: ${{ inputs.app-client-id }}
+        private-key: ${{ inputs.app-private-key }}
+        permission-contents: read
+        permission-pull-requests: write
+        permission-issues: write
+        permission-actions: read
+
+    - name: Resolve the App's bot user
+      id: app_bot
+      shell: bash
+      env:
+        APP_SLUG: ${{ steps.app_token.outputs.app-slug }}
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+      run: |
+        id=$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)
+        {
+          echo "id=${id}"
+          echo "name=${APP_SLUG}[bot]"
+        } >>"$GITHUB_OUTPUT"
+
+    # Do not set track_progress: the review must reach the pull request as a submitted review.
+    - name: Claude Responder
+      id: claude_responder
+      uses: anthropics/claude-code-action@v1
+      with:
+        claude_code_oauth_token: ${{ inputs.claude-code-oauth-token }}
+        github_token: ${{ steps.app_token.outputs.token }}
+        bot_id: ${{ steps.app_bot.outputs.id }}
+        bot_name: ${{ steps.app_bot.outputs.name }}
+        settings: ${{ steps.claude_settings.outputs.json }}
+        claude_args: ${{ steps.claude_args.outputs.args }}
+        show_full_output: true
+        prompt: ${{ inputs.prompt }}
+
+    # The finished review takes the request: see ADR-0059. A
+    # cancelled review keeps the label for the run that replaced it, and another
+    # run may already have taken it, so a missing label is not an error.
+    - name: Take the review request label
+      if: |
+        !cancelled() &&
+        inputs.remove-request-label == 'true' &&
+        contains(fromJSON('["success", "failure"]'), steps.claude_responder.outcome)
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.app_token.outputs.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        if ! output=$(gh api -X DELETE \
+          "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/labels/request-ai-review" 2>&1); then
+          if [[ "${output}" != *"HTTP 404"* ]]; then
+            echo "${output}" >&2
+            exit 1
+          fi
+          echo 'Another run already took request-ai-review.'
+        fi
+
+    - name: Attach responder output file
+      if: always() && steps.claude_responder.outputs.execution_file != ''
+      uses: actions/upload-artifact@v7.0.2
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.claude_responder.outputs.execution_file }}
+        retention-days: 7
+
+    - name: Fail on Claude usage limit
+      if: always() && steps.claude_responder.outputs.execution_file != ''
+      shell: bash
+      env:
+        EXECUTION_FILE: ${{ steps.claude_responder.outputs.execution_file }}
+      run: |
+        if jq --exit-status '
+          any(
+            .[]?
+            | select(
+                .type? == "assistant"
+                and .message.type? == "message"
+                and .message.role? == "assistant"
+              )
+            | .message.content[]?
+            | select(
+                .type? == "text"
+                and (.text? | contains("You'\''ve hit your org'\''s monthly spend limit"))
+              );
+            true
+          )
+        ' "$EXECUTION_FILE" >/dev/null; then
+          echo "::error::Claude hit the organization's monthly spend limit."
+          exit 1
+        fi

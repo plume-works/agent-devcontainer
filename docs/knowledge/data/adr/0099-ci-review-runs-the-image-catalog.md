@@ -8,8 +8,8 @@ supersedes:
 # The CI review runs the catalog of its image, not of the checkout
 
 A GitHub Actions `container:` job runs no image entrypoint and no Dev Container
-lifecycle command, so the review job of `.github/workflows/ai-responder.yml`
-runs the create and start phases itself, with
+lifecycle command, so `.github/actions/run-claude-responder/action.yml` runs the
+create and start phases itself, with
 `agentdev-runtime lifecycle ready --no-wait`. The create phase installs the
 catalog the pinned image stages in `AGENTDEV_CATALOG_DIR`. The job runs the
 attach phase's project sync and hooks but not `lifecycle attached`, which would
