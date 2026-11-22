@@ -1177,10 +1177,12 @@ in `## Choices`.
    edited copy of an agentdev script.
 5. **Copied scripts.** Delete `.devcontainer/scripts/`. Repoint any workflow
    step that ran `.devcontainer/scripts/postCreateCommand.sh`,
-   `postStartCommand.sh`, or `postAttachCommand.sh` — the copied
-   `run-claude-responder` action does — at `agentdev-runtime lifecycle created`,
-   `agentdev-runtime lifecycle ready --no-wait` (a job with no supervisor), and
-   `agentdev-runtime lifecycle attached`, and record that action as customized.
+   `postStartCommand.sh`, or `postAttachCommand.sh` at
+   `agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready
+--no-wait` (a job with no supervisor), and `agentdev-runtime lifecycle
+attached`, and record that workflow as customized. The review job of
+   `ai-responder.yml` runs the attach phase without its catalog install instead,
+   so it reviews with the image's catalog.
 6. **Marker.** Replace the `.devcontainer/` entry in `tracked_paths` with the
    files the consumer still owns, so later updates stop proposing the
    publisher's runtime scripts:

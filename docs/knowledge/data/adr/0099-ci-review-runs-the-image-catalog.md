@@ -8,23 +8,23 @@ supersedes:
 # The CI review runs the catalog of its image, not of the checkout
 
 A GitHub Actions `container:` job runs no image entrypoint and no Dev Container
-lifecycle command, so `.github/actions/run-claude-responder/action.yml` runs the
-create, start, and attach phases itself, with
-`agentdev-runtime lifecycle ready --no-wait`. The attach phase installs the
-checkout's catalog, and the action then installs the catalog the pinned image
-stages in `AGENTDEV_CATALOG_DIR` again, so the review runs the skills of the
+lifecycle command, so the review job of `.github/workflows/ai-responder.yml`
+runs the create and start phases itself, with
+`agentdev-runtime lifecycle ready --no-wait`. The create phase installs the
+catalog the pinned image stages in `AGENTDEV_CATALOG_DIR`. The job runs the
+attach phase's project sync and hooks but not `lifecycle attached`, which would
+install the checkout's catalog over it, so the review runs the skills of the
 image. A pull request that changes `pr-review` is reviewed by the released
 skill, not by itself: a skill that grades its own rules finds only the cases
-those rules create. A changed skill reviews other pull requests once Renovate
-moves the image pin. The step fails when the image stages no catalog, because an
-agent whose skill does not resolve improvises a review rather than failing.
+those rules create. A changed skill reviews pull requests once Renovate moves
+the image pin.
 
 ## Considered Options
 
 - Review with the checkout's catalog, as ADR-0041 did. Rejected: a pull request
   that changes the review skill is reviewed by the change under review.
-- Skip the attach phase. Rejected: it also syncs the project environment that
-  grounds a review.
+- Run the whole attach phase, then install the image's catalog again over the
+  checkout's. Rejected: two installs, where skipping one gives the same result.
 - Start the supervisor in the background in the container job. Rejected: the
   profile's core `dockerd` needs a privileged job container.
 - Run the review on a bare runner, or as a host job through `devcontainers/ci`.
