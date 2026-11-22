@@ -266,3 +266,9 @@ events](adr/0099-responder-runs-on-pull-request-and-review-events.md)
 
 [The CI review runs the catalog of its image, not of the
 checkout](adr/0100-ci-review-runs-the-image-catalog.md)
+
+[The catalog is split into opt-in plugins, and the IWE workflow is its own
+plugin](adr/0101-catalog-split-into-opt-in-plugins.md)
+
+[Catalog scripts run through uv and share code through a published
+package](adr/0102-catalog-scripts-run-through-uv-with-a-published-package.md)
