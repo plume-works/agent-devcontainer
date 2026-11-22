@@ -112,6 +112,9 @@ its "Determine agent prompts" step.
   non-zero; `bun test test/reviewer.test.ts` passes.
 - [ ] With a stubbed `claude` that exits 0 and prints the spend-limit message,
   `reviewer/review.sh` exits non-zero; `bun test test/reviewer.test.ts` passes.
+- [ ] With a stubbed `claude` whose plugin list has no `agentdev` plugin,
+  `reviewer/review.sh` exits non-zero before it starts a review;
+  `bun test test/reviewer.test.ts` passes.
 
 ### Task 4: Load the configuration
 
@@ -362,6 +365,15 @@ installing the Quill App on it, then watching its pull requests.
 - **WHEN** Claude reports the organization's spend limit during a review
 - **THEN** `reviewer/review.sh` exits non-zero, so the check run fails
 - **Test:** `test/reviewer.test.ts::exits non-zero on the spend limit`
+
+### Scenario: The reviewer refuses to review without its catalog
+
+- **WHEN** the `agentdev` plugin, and with it `agentdev:pr-review`, is not
+  available in the reviewer container
+- **THEN** `reviewer/review.sh` exits non-zero before Claude reviews, so no
+  review or approval posts and the check run fails
+- **Test:**
+  `test/reviewer.test.ts::exits non-zero when the agentdev plugin is missing`
 
 ### Scenario: The reviewer posts a review of the head
 
