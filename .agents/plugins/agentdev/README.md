@@ -117,69 +117,11 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | -------------------- | -------------------------------------------------------- |
 | `principal-engineer` | Architecture, design decisions, implementation strategy. |
 
-### Skills
-
-#### Pull requests and git
-
-| Skill                              | What it does                                                            |
-| ---------------------------------- | ----------------------------------------------------------------------- |
-| `/agentdev:git-commit`             | Conventional commit messages from the staged changes.                   |
-| `/agentdev:git-new-branch`         | Start a work branch at the fetched remote base, with its own upstream.  |
-| `/agentdev:git-merge-resolve`      | Merge a ref and resolve conflicts, escalating when unsure.              |
-| `/agentdev:update-branch`          | Update the current work branch from its remote base.                    |
-| `/agentdev:pr-open`                | Open a PR from conversation context, or refresh the branch existing PR. |
-| `/agentdev:pr-sync`                | Resync the branch PR title and body, delegating to `pr-open`.           |
-| `/agentdev:pr-gen-description`     | Write a PR description from the change analysis.                        |
-| `/agentdev:pr-review`              | Full automated review, published as one GitHub review.                  |
-| `/agentdev:pr-feedback-resolution` | Work through review threads, CI failures, and CodeQL findings.          |
-| `/agentdev:pr-eval-review-needed`  | Decide if pushed work needs a fresh AI review, and request it.          |
-| `/agentdev:pr-request-ai-review`   | Ask an AI agent to review a PR.                                         |
-| `/agentdev:pr-merge`               | Merge a PR with an explicit squash once CI and reviews are resolved.    |
-| `/agentdev:pr-restack-all`         | Restack a chain of dependent PRs with merges after one moves or merges. |
-| `/agentdev:pr-merge-stack`         | Merge a chain of dependent PRs bottom-up, restacking after each merge.  |
-
-#### Review, CI, and formatting
-
-| Skill                                   | What it does                                            |
-| --------------------------------------- | ------------------------------------------------------- |
-| `/agentdev:code-review-standards`       | The review standards the other review skills apply.     |
-| `/agentdev:exec-summary`                | One-minute, non-technical summary of the work in focus. |
-| `/agentdev:extract-github-actions-logs` | Pull failing job logs out of a workflow run.            |
-| `/agentdev:get-codeql-data`             | Fetch CodeQL code-scanning alerts.                      |
-| `/agentdev:semantic-refactor-audit`     | Prove a behavior-preserving rewrite preserved behavior. |
-| `/agentdev:tdd`                         | Run Red, Green, Refactor for executable code logic.     |
-
-#### Specs and escalation
-
-| Skill                            | What it does                                                           |
-| -------------------------------- | ---------------------------------------------------------------------- |
-| `/agentdev:devcontainer-sandbox` | Run a command through the project devcontainer.                        |
-| `/agentdev:create-agent`         | Add or update an agent in this catalog.                                |
-| `/agentdev:create-skill`         | Add or update a skill in this catalog.                                 |
-| `/agentdev:skill-scripts`        | Write a skill script's result and exit-code contract.                  |
-| `/agentdev:template-consume`     | Adopt or update the agent-devcontainer template in another repository. |
-
-#### Knowledge-graph workflow (IWE)
+### Knowledge-graph workflow (IWE)
 
 These skills run against an [IWE](https://iwe.md) workspace — a markdown
 knowledge graph with a `data/` bundle of product, ADR, plan, and archive
 documents. They are the project's memory across sessions.
-
-| Skill                               | What it does                                                        |
-| ----------------------------------- | ------------------------------------------------------------------- |
-| `/agentdev:iwe-bootstrap`           | Installs a blank IWE workspace without touching existing knowledge. |
-| `/agentdev:iwe-setup`               | Brownfield onboarding: drafts the product and architecture docs.    |
-| `/agentdev:iwe-explore`             | Thinking partner from an idea or a GitHub issue; never writes code. |
-| `/agentdev:iwe-plan`                | Files a plan with verified anchors, acceptance scenarios, and ADRs. |
-| `/agentdev:iwe-plan-review`         | Reviews a plan draft for residue, the plan rules, and Ship's needs. |
-| `/agentdev:iwe-capture`             | Files a complete bug or task, deduplicated.                         |
-| `/agentdev:iwe-implement`           | Executes a plan task-by-task, ticking boxes with evidence.          |
-| `/agentdev:iwe-branch-name`         | Names a plan's next `iwe/` iteration branch.                        |
-| `/agentdev:iwe-verify`              | Pre-ship gate and drift audit: graph claims checked against code.   |
-| `/agentdev:iwe-adversarial-review`  | Tries to defeat a plan's design or its code; runs only when asked.  |
-| `/agentdev:iwe-ship`                | Accepts the ADRs, changes the stages, and records the release.      |
-| `/agentdev:iwe-weekly`              | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |
-| `/agentdev:durable-knowledge-audit` | Prunes session residue from documents and comments.                 |
 
 ## What it expects
 
