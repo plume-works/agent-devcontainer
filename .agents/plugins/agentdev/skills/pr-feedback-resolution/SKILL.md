@@ -113,11 +113,11 @@ gh api graphql --paginate --slurp \
     `reviews` block above returns each submitted review's own `body` — the
     summary a reviewer writes with the verdict, distinct from any inline
     thread. A review can carry a non-empty `body` with **zero** inline
-    comments, so it never appears under `reviewThreads`. A blocking
-    *metadata gate* — `pr-review` stops before its inline passes when the PR
+    comments, so it never appears under `reviewThreads`. The
+    *metadata gate*, a `Severity: P1` finding, — `pr-review` stops before its inline passes when the PR
     description misrepresents the change set — is always posted this way, with
     no thread to anchor to. Collect every review whose `body` is non-empty,
-    process the newest per author, and classify a blocking or gate body as
+    process the newest per author, and classify a `Severity: P1` or gate body as
     feedback to act on (typically: update the PR title/description to match the
     diff, then re-request review) even when no review thread exists.
     `reviewThreads` alone is structurally blind to these.
@@ -170,7 +170,7 @@ Determine confidence level before making changes. **Only process threads that pa
    - **≥70% confidence**: Proceed with change, document rationale
    - **<70% confidence**: Reply asking for clarification, do not change code
 
-   A `pr-review` comment's own `Confidence: X/10` is how sure the reviewer is that the issue is real, not this intent confidence: check a low-Confidence finding against the code, and either fix it, or reply in its thread with the evidence that it does not hold and then resolve that thread.
+   A `pr-review` comment's own `Confidence: X/10` is how sure the reviewer is that the issue is real, not this intent confidence, and its `Severity: Pn` is the reviewer's judgment of impact; a `Severity: P2` or `Severity: P3` thread still needs a fix or a reasoned reply before merge. Check a low-Confidence finding against the code, and either fix it, or reply in its thread with the evidence that it does not hold and then resolve that thread.
 
 ### Workflow 3: Address Review Comments
 
