@@ -121,9 +121,6 @@ agent-code/](adr/0039-bundled-code-under-agent-code.md)
 [Catalog scripts are standard-library
 Python](adr/0040-catalog-scripts-are-standard-library-python.md)
 
-[CI agent jobs run the lifecycle commands against their
-checkout](adr/0041-ci-agent-jobs-run-lifecycle-commands.md)
-
 [The Expo bridge keeps its record in its own
 repository](adr/0042-expo-bridge-record-in-its-own-repository.md)
 
@@ -266,3 +263,6 @@ enable](adr/0096-create-phase-installs-enabled-plugins.md)
 
 [Renovate keeps pins current, after a
 wait](adr/0098-renovate-keeps-pins-current-after-a-wait.md)
+
+[The CI review runs the catalog of its image, not of the
+checkout](adr/0099-ci-review-runs-the-image-catalog.md)

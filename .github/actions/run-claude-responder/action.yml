@@ -42,7 +42,7 @@ runs:
         done
         [[ ${#missing[@]} -eq 0 ]]
 
-    # See ADR-0041.
+    # See ADR-0099.
     - name: Run devcontainer lifecycle commands
       shell: bash
       env:
@@ -65,6 +65,12 @@ runs:
         # No supervisor runs in a container job: run the per-start repairs directly.
         agentdev-runtime lifecycle ready --no-wait
         agentdev-runtime lifecycle attached
+        # The review runs the catalog the pinned image ships, not the checkout's: see ADR-0099.
+        if [[ ! -d "${AGENTDEV_CATALOG_DIR:-}" ]]; then
+          echo "::error::The image stages no catalog (AGENTDEV_CATALOG_DIR='${AGENTDEV_CATALOG_DIR:-}')."
+          exit 1
+        fi
+        agentdev-runtime catalog install "${AGENTDEV_CATALOG_DIR}" --claude-scope user
 
     # claude-code-action merges its settings input into the user settings one
     # level deep, so the hook-written user layer rides underneath here or its
