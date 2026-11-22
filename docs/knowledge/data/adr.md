@@ -170,9 +170,6 @@ own](adr/0056-validate-agent-files-ships-on-its-own.md)
 [Each worktree loads its catalog from a marketplace in the
 worktree](adr/0057-worktree-catalog-from-in-worktree-marketplace.md)
 
-[The AI review verdict follows severity
-alone](adr/0058-ai-review-verdict-follows-severity.md)
-
 [A label requests an AI review and a label stops
 it](adr/0059-ai-reviews-requested-and-held-by-label.md)
 
@@ -269,3 +266,6 @@ wait](adr/0098-renovate-keeps-pins-current-after-a-wait.md)
 
 [The AI review posts every finding with its
 Confidence](adr/0099-ai-review-posts-every-finding-with-its-confidence.md)
+
+[The AI review verdict follows P1
+severity](adr/0100-ai-review-verdict-follows-p1-severity.md)

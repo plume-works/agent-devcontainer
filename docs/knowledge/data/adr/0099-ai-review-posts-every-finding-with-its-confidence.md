@@ -13,7 +13,8 @@ named by anchor, when it quotes no added line. The author decides what a
 doubtful one is worth. It is always written `Confidence: X/10`, never a bare
 number or score, because Confidence measures certainty, not severity: the
 verdict still follows the severity tiers alone, as
-[ADR-0058](0058-ai-review-verdict-follows-severity.md) records.
+[ADR-0058](../archive/next-release/adr/0058-ai-review-verdict-follows-severity.md)
+records.
 
 ## Considered Options
 
