@@ -222,7 +222,36 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
-### Task 12: Name the IWE skills and agents by their new namespace
+### Task 12: Point every reference to a moved file at its new path
+
+**Files:** Modify: the support links in `docs/knowledge/`,
+`scripts/link-knowledge-support.py`, `scripts/check-anchors.py`,
+`.pre-commit-config.yaml`, `.prettierignore`, `.github/renovate.json`,
+`.github/workflows/validate-knowledge-base.yml`,
+`docs/knowledge/tests/test_banned_frontmatter_keys.py`,
+`docs/knowledge/tests/test_plan_release_schema.py`,
+`docs/knowledge/tests/test_rank_and_base_schemas.py`, and the anchors in
+`docs/knowledge/data/backlog/exercise-removed-delta-blocks.md`,
+`docs/knowledge/data/backlog/implement-opens-pr.md`,
+`docs/knowledge/data/backlog/incremental-re-verify.md`,
+`docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md`,
+`docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md`,
+`docs/knowledge/data/backlog/observe-planned-adversarial-review.md`,
+`docs/knowledge/data/backlog/pr-merge-post-merge-cleanup.md`,
+`docs/knowledge/data/backlog/verification-command-fix-is-tactical.md`, and the
+`## Key references` of this plan.
+
+- [ ] Each support link in `docs/knowledge/` resolves into
+  `.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/`.
+- [ ] `uv run pre-commit run link-knowledge-support --all-files` passes.
+- [ ] `scripts/check-anchors.py` scans the skills and agents of every plugin
+  under `.agents/plugins/`.
+- [ ] `uv run scripts/check-anchors.py` exits 0.
+- [ ] `uv run pytest docs/knowledge/tests` passes.
+- [ ] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
+  prints nothing.
+
+### Task 13: Name the IWE skills and agents by their new namespace
 
 **Files:** Modify: the files under `.agents/plugins/` and `AGENTS.md` that name
 `agentdev:iwe-`, and `docs/knowledge/data/backlog/implement-opens-pr.md`,
@@ -236,7 +265,7 @@ ADRs keep their text.
 - [ ] `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
   prints nothing.
 
-### Task 13: Move the OpenCode bridge out of agentdev
+### Task 14: Move the OpenCode bridge out of agentdev
 
 **Files:** Move: `.agents/plugins/agentdev/.opencode-plugin/` to
 `.agents/opencode-bridge/`, `.agents/plugins/agentdev/tests/opencode/` to
@@ -253,7 +282,7 @@ ADRs keep their text.
 - [ ] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
   passes.
 
-### Task 14: Install every plugin in a cloud session
+### Task 15: Install every plugin in a cloud session
 
 **Files:** Modify: `.claude/startup.py`, `scripts/tests/test_cloud_startup.py`,
 `.claude/settings.json`.
@@ -263,7 +292,7 @@ ADRs keep their text.
 - [ ] `.claude/settings.json#permissions.allow` allows the scripts of every
   plugin, in the checkout and in the plugin cache.
 
-### Task 15: Document the plugins, uv, and the script contract
+### Task 16: Document the plugins, uv, and the script contract
 
 **Files:** Modify: `.agents/plugins/agentdev/README.md`, `.agents/AGENTS.md`,
 `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`, `README.md`.
@@ -278,7 +307,7 @@ ADRs keep their text.
 - [ ] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
   imports `result_codes` from `agentdev_lib`.
 
-### Task 16: Observe the first agentdev-lib release
+### Task 17: Observe the first agentdev-lib release
 
 **Closed by:** the first merge to `main` after Task 8.
 
@@ -288,7 +317,7 @@ ADRs keep their text.
 - [ ] The GitHub Release for the tag has the wheel attached.
 - [ ] The next push to `main` that keeps the version pushes no tag.
 
-### Task 17: Observe both plugins in a built image and outside it
+### Task 18: Observe both plugins in a built image and outside it
 
 **Closed by:** the maintainer, in a container from the image that CI builds
 after the merge, and in a Claude Code session outside the image.
@@ -388,6 +417,8 @@ None.
 - `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
 - `bun test ./.agents/opencode-bridge/tests`
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
+- `uv run scripts/check-anchors.py`
+- `uv run pytest docs/knowledge/tests`
 - `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
   prints nothing.
 - `git grep -n "sys.path.insert" -- '.agents/plugins/*/bin/*.py' '.agents/plugins/*/skills/*/agent-code/*.py'`
@@ -397,7 +428,8 @@ None.
 
 ## Out of scope
 
-- Dropping the `iwe-` prefix from the skill and agent names.
+- Dropping the `iwe-` prefix from the skill and agent names: [Drop the iwe-
+  prefix from the agentdev-iwe skills and agents](20261122-drop-iwe-prefix.md).
 - `bin/macos-bootstrap.zsh` and the native macOS install.
 - OpenCode outside the image.
 - Further splits of `agentdev`.
@@ -454,5 +486,9 @@ None.
   rule that goes.
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation` — the
   script contract.
+- `scripts/link-knowledge-support.py` › "SCAFFOLD = Path(" — the scaffold path
+  that the support links follow.
+- `scripts/check-anchors.py` › "SCAN_GLOBS = (" — the catalog paths that the
+  anchor check scans.
 - `docs/knowledge/data/adr/0081-venv-link-to-the-home-volume.md` — rejects one
   `UV_PROJECT_ENVIRONMENT` for the whole container.
