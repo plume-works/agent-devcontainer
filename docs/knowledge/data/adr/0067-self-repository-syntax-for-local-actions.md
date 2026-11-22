@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Each uses reference to an action or reusable workflow of this repository starts with $/, and the zizmor self-repository audit enforces it.
 ---
 
 # Local actions use the self-repository syntax
@@ -10,7 +9,8 @@ A `uses:` value in the self-repository syntax, which starts with `$/`, loads the
 action from the commit that runs, so a step needs no earlier checkout. A `./`
 value needs a checkout, and loads the files that the checkout or a later step
 left on disk. For this reason, each reference to an action or reusable workflow
-of this repository starts with `$/`.
+of this repository starts with `$/`, and the zizmor self-repository audit
+enforces it.
 
 ## Considered Options
 

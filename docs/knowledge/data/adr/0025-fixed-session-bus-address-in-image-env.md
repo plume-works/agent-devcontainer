@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The runtime images set one fixed D-Bus session bus address as an image ENV, so that each process uses the same bus.
 ---
 
 # The session bus address is an image ENV

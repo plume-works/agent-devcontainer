@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The image build installs the catalog for a consumer that runs only the image, and the create phase installs it again because the home volume hides what the build wrote.
 ---
 
 # The image installs the catalog, and the create phase installs it again

@@ -21,7 +21,7 @@ sections:
 additionalSections: false
 frontmatter:
   type: object
-  required: [type, stage, description]
+  required: [type, stage]
   properties:
     type: { const: adr }
     stage:
@@ -34,9 +34,6 @@ frontmatter:
         type: string
         pattern: '^adr/[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*$'
         description: 'each supersedes entry is an adr/NNNN-<slug> key'
-    description:
-      type: string
-      description: one sentence summarizing this document
     resource:
       type: string
       description: canonical URI of the underlying asset this document describes

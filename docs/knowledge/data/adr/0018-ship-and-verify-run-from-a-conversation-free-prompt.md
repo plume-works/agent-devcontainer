@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Ship and Verify always run as dispatched agents whose prompt holds only the plan key, the operation, and quoted approvals; Implement runs in the session that loaded it.
 ---
 
 # Ship and Verify start from a prompt without the conversation; Implement runs in place

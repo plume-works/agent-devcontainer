@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The setup-python-venv action makes the project environment with uv sync --locked and does not activate it, so each step uses it through uv run.
 ---
 
 # CI provisions the Python environment and never activates it

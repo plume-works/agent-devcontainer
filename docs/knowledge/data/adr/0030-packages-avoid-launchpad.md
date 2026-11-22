@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Image builds get no package from a Launchpad host; the git build of the Git Core PPA comes from a release of this repository.
 ---
 
 # Image builds get no package from Launchpad

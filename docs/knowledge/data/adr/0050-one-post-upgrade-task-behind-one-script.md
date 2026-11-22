@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Renovate runs one top-level post-upgrade task, scripts/renovate-post-upgrade.py, which commits the derived files of a version update in the update commit of Renovate.
 ---
 
 # One post-upgrade task behind one script

@@ -5,7 +5,8 @@ each schema. `.iwe/schemas/okf.yaml` checks them.
 
 - `type` — required on each document under `data/`, with one exception:
   `data/index.md`.
-- `description` — one sentence. Each document has one. An OKF tool and
+- `description` — one sentence. Each document has one, except an ADR, whose H1
+  and first paragraph already state the decision. An OKF tool and
   `data/index.md` show it before a reader opens the file.
 - `sources` — the materials that a document derives from. Each entry is
   `{ id, resource, title, author, usage_count, last_modified }`, and `resource`

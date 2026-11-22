@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The Implement session writes a plan revision, runs a plan review on it, gets a verdict from iwe-revision-evaluator, and only then commits it.
 ---
 
 # The Implement session evaluates a plan revision after its plan review, then commits it

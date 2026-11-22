@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: One bridge module exports both the v1 server entry and the v2 effect entry, and both read the catalog through one parser.
 ---
 
 # One bridge module serves OpenCode v1 and v2

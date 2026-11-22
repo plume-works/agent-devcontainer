@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: On OpenCode v2, the bridge applies the declared tools of a catalog agent in the context and evaluate hooks, and only while the agent still has the catalog prompt.
 ---
 
 # On OpenCode v2, hooks apply the tool limits of a catalog agent

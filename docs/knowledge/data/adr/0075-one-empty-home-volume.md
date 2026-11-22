@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The Dev Container runs as a non-root agent account remapped to the host user, whose whole home is one home volume that starts empty.
 ---
 
 # The agent account has one empty home volume for each instance

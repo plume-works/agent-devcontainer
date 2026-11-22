@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Claude Code and OpenCode are the only harnesses, but `validate_agent_files` keeps its `codex` ecosystem for other repositories.
 ---
 
 # Claude Code and OpenCode are the only harnesses

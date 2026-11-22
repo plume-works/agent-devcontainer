@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: OpenCode runs with full access, and the runtime merges the agent policy into the OpenCode configuration of the user at each start.
 ---
 
 # OpenCode runs with full access, merged into its configuration at each start

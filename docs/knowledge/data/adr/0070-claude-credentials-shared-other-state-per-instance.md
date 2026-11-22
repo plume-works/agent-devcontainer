@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Containers share only the Claude credentials, on one auth volume for each UID/GID pair. All other agent state stays on the home volume of each instance.
 ---
 
 # Containers share only the Claude credentials, on one auth volume for each UID/GID pair

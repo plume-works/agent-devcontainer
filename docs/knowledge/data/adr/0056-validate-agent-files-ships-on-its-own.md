@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: validate_agent_files is a separate package with its own pyproject.toml and a test suite that uses no fixture of this repository.
 ---
 
 # validate_agent_files ships on its own

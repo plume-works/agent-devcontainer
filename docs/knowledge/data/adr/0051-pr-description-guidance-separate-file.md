@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Pull request description guidance of a consumer is in .github/pr-description-guidance.md as instructions, and the pull request template stays a two-state pointer.
 ---
 
 # Pull request description guidance is a separate file

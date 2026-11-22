@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The graph keeps no data/codebase/ documents and the catalog contains no map skill; update mode removes these documents from a consumer without a question.
 ---
 
 # The graph keeps no codebase map

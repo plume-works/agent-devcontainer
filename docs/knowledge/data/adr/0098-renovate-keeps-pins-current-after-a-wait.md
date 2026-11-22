@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Renovate automerges every update once the build passes, proposes them once a day, and waits 3 days after a release (10 for an x.y.0) except for this repository's own images.
 ---
 
 # Renovate keeps pins current, after a wait

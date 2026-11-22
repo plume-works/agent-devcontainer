@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The standalone runtime calls the same agentdev_runtime functions as the Dev Container lifecycle commands, not the lifecycle commands themselves.
 ---
 
 # The standalone runtime shares functions, not lifecycle commands
