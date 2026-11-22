@@ -8,8 +8,9 @@ stage: accepted
 A validator that drops every finding it cannot confirm hides real issues from
 the author, who never learns they were raised. So `pr-review` validation rates
 each finding `Confidence: X/10`, from 0 to 10, for how sure the review is that
-it is real, and every finding is posted inline with it; the author decides what
-a doubtful one is worth. It is always written `Confidence: X/10`, never a bare
+it is real, and every finding is posted with it: inline, or in the review body,
+named by anchor, when it quotes no added line. The author decides what a
+doubtful one is worth. It is always written `Confidence: X/10`, never a bare
 number or score, because Confidence measures certainty, not severity: the
 verdict still follows the severity tiers alone, as
 [ADR-0058](0058-ai-review-verdict-follows-severity.md) records.
@@ -27,7 +28,8 @@ verdict still follows the severity tiers alone, as
 
 ## Consequences
 
-- Every finding opens a thread that holds the merge until resolved; a
-  low-Confidence thread can be closed with a reasoned reply.
+- Every inline finding opens a thread that holds the merge until resolved; a
+  low-Confidence thread can be closed with a reasoned reply. A finding in the
+  review body opens no thread and holds the merge only through the verdict.
 - A blocking finding requests changes whatever its Confidence, so a doubtful
   blocking finding blocks the merge until its thread is answered.

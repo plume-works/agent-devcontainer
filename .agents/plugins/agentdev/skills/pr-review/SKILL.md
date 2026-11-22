@@ -176,7 +176,7 @@ If the review tools above are confirmed unavailable, post the whole review — s
 
 Write two plain files under `./.tmp` (never assemble this JSON live in a shell command):
 
-- a summary file containing only the short overall review body (no per-finding detail)
+- a summary file containing only the short overall review body (no per-finding detail), plus the Step 9 entry for each finding that quotes no added line
 - a comments file containing a JSON array of every finding, each `body` opening with its Step 8 tier and Confidence line: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if the review has no findings)
 
 Then run `agent-code/post-review.py --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule, and pass `--event COMMENT` only for its self-owned retry. Do not fall further back to typing `gh api` calls by hand.
