@@ -25,15 +25,14 @@ environments, or Dev Container lifecycle replay.
 
 The service lives in a new repository, `plume-works/quill-as-a-service`. Its
 code cannot be anchored or tested from this checkout, so this plan names the
-files it creates there and its `## Verification` clones that repository. Its
+files it creates there and its `## Verification` cites that repository's CI. Its
 first user is `plume-works/images`. [Switch this repository's AI review to
 quill-as-a-service](20261122-switch-agentdev-review-to-quill.md) follows once
 this plan ships.
 
 ## Approach
 
-The repository builds two images
-([ADR-0101](../adr/0101-quill-as-a-service-is-a-service-and-a-reviewer-image.md)).
+The repository builds two images.
 
 - The **reviewer image**, `FROM ghcr.io/plume-works/core`, installs the
   `agentdev` plugin of `plume-works/agent-devcontainer` at a pinned commit, and
@@ -53,20 +52,21 @@ App private key, the webhook secret, and the Claude OAuth token — sit in an en
 file on the host. Each reviewer container gets an installation token limited to
 its one repository and the Claude token, never the App key.
 
-Review rules ([ADR-0104](../adr/0104-review-starts-on-open-or-request.md)): a
+Review rules ([ADR-0103](../adr/0103-review-starts-on-open-or-request.md)): a
 same-repository pull request that opens, is reopened, or leaves draft, or gets
 `request-ai-review` from a person with write access, is reviewed, unless it is a
 draft, is from a bot, carries `block-ai-reviews`, or the service is paused. A
 push while the label is on cancels the running review of that pull request and
-queues one for the new head. Each review creates a `Quill Review` check run on
-its head when it is queued, sets it in progress when its container starts, and
-completes it with the container's outcome. On start the review dismisses Quill's
-earlier approval and leaves an earlier change request. After a successful or
-failed review, the service removes `request-ai-review`; a cancelled review
-leaves it.
+queues one for the new head. A pull request has at most one review at a time: a
+new one cancels the earlier one first. Each review creates a `Quill Review`
+check run on its head when it is queued, sets it in progress when its container
+starts, and completes it with the container's outcome. On start the review
+dismisses Quill's earlier approval and leaves an earlier change request. After a
+successful or failed review, the service removes `request-ai-review`; a
+cancelled review leaves it.
 
 Bypass auto-approvals
-([ADR-0103](../adr/0103-required-approval-is-the-only-ai-review-gate.md)) port
+([ADR-0102](../adr/0102-required-approval-is-the-only-ai-review-gate.md)) port
 `review-gate.js::botApprovalFailure`: a pull request from a configured trusted
 bot whose every push and commit is the bot's is approved without a review, and
 an earlier approval is dismissed when that stops holding.
@@ -139,29 +139,45 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `src/decide.ts`, `test/decide.test.ts`
 
-- [ ] A same-repository pull request that opens, is reopened, or leaves draft is
-  reviewed; `bun test test/decide.test.ts` passes.
+- [ ] A same-repository pull request that opens is reviewed;
+  `bun test test/decide.test.ts` passes.
+- [ ] A same-repository pull request that is reopened is reviewed;
+  `bun test test/decide.test.ts` passes.
+- [ ] A same-repository pull request that leaves draft is reviewed;
+  `bun test test/decide.test.ts` passes.
 - [ ] `request-ai-review` added by a person with write, maintain, or admin
   access is reviewed; `bun test test/decide.test.ts` passes.
 - [ ] `request-ai-review` added by a person without that access is not reviewed;
   `bun test test/decide.test.ts` passes.
-- [ ] A pull request from a fork, a draft, or a bot author is not reviewed;
+- [ ] A pull request from a fork is not reviewed; `bun test test/decide.test.ts`
+  passes.
+- [ ] A draft pull request is not reviewed; `bun test test/decide.test.ts`
+  passes.
+- [ ] A pull request from a bot author is not reviewed;
   `bun test test/decide.test.ts` passes.
-- [ ] A pull request carrying `block-ai-reviews`, or any pull request while the
-  configuration pauses the service, is not reviewed;
+- [ ] A pull request carrying `block-ai-reviews` is not reviewed;
+  `bun test test/decide.test.ts` passes.
+- [ ] No pull request is reviewed while the configuration pauses the service;
   `bun test test/decide.test.ts` passes.
 
 ### Task 7: Run reviews through a queue
 
 **Files:** Create: `src/queue.ts`, `src/reviewer.ts`, `test/queue.test.ts`
 
-- [ ] `src/queue.ts` runs at most the configured number of reviews at once and
-  starts the oldest waiting review when one ends; `bun test test/queue.test.ts`
-  passes.
-- [ ] A push while `request-ai-review` is on cancels the running or waiting
-  review of that pull request; `bun test test/queue.test.ts` passes.
+- [ ] `src/queue.ts` runs at most the configured number of reviews at once;
+  `bun test test/queue.test.ts` passes.
+- [ ] When a review ends, the oldest waiting review starts;
+  `bun test test/queue.test.ts` passes.
+- [ ] A push while `request-ai-review` is on cancels the running review of that
+  pull request; `bun test test/queue.test.ts` passes.
+- [ ] A push while `request-ai-review` is on cancels the waiting review of that
+  pull request; `bun test test/queue.test.ts` passes.
 - [ ] That push queues a review of the new head; `bun test test/queue.test.ts`
   passes.
+- [ ] A review queued for a pull request that already has a running or waiting
+  review, provoked by opening the pull request and then adding
+  `request-ai-review`, cancels the earlier review before it is queued;
+  `bun test test/queue.test.ts` passes.
 - [ ] `src/reviewer.ts` asks for an installation token limited to the one
   repository; `bun test test/queue.test.ts` passes.
 - [ ] A reviewer container still running after 30 minutes is stopped, provoked
@@ -180,7 +196,8 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [ ] A container that exits non-zero completes the check run as failure;
   `bun test test/review.test.ts` passes.
-- [ ] A container stopped at the timeout completes the check run as failure;
+- [ ] A container stopped at the timeout, provoked in the test with a fake clock
+  and a container that never exits, completes the check run as failure;
   `bun test test/review.test.ts` passes.
 - [ ] A review cancelled by a push completes the check run as cancelled;
   `bun test test/review.test.ts` passes.
@@ -198,8 +215,10 @@ its "Determine agent prompts" step.
 - [ ] A pull request from a configured trusted bot whose every push and commit
   satisfies `review-gate.js::botApprovalFailure`'s rule is approved once by
   Quill; `bun test test/approve.test.ts` passes.
-- [ ] A push or commit from anyone other than the bot dismisses Quill's
-  approval; `bun test test/approve.test.ts` passes.
+- [ ] A push from anyone other than the bot dismisses Quill's approval;
+  `bun test test/approve.test.ts` passes.
+- [ ] A commit authored by anyone other than the bot dismisses Quill's approval;
+  `bun test test/approve.test.ts` passes.
 - [ ] `test/approve.test.ts` carries the cases of
   `.github/actions/ai-review-status/review-gate.test.js` that cover
   `botApprovalFailure`.
@@ -232,8 +251,8 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `renovate.json`
 
-- [ ] `renovate.json` keeps the `core` and `core-systemd` digests and the
-  `agent-devcontainer` commit pin current.
+- [ ] `renovate.json` has rules that match the `core` and `core-systemd` digests
+  and the `agent-devcontainer` commit pin.
 
 ### Task 14: Publish the images
 
@@ -310,6 +329,15 @@ installing the Quill App on it, then watching its pull requests.
 - **Test:**
   `test/decide.test.ts::skips blocked pull requests and a paused service`
 
+### Scenario: A pull request has at most one review at a time
+
+- **WHEN** a review is queued for a pull request that already has a running or
+  waiting review
+- **THEN** the earlier review is cancelled first, so it leaves
+  `request-ai-review` on and only the newest review removes it
+- **Test:**
+  `test/queue.test.ts::a new review of a pull request cancels its earlier review`
+
 ### Scenario: A push during a requested review restarts it
 
 - **WHEN** a push arrives while `request-ai-review` is on the pull request
@@ -382,20 +410,11 @@ installing the Quill App on it, then watching its pull requests.
 - **Checked at ship:**
   `docs/knowledge/data/plans/20261122-quill-as-a-service.md#task-16-onboard-plume-worksimages`
 
-## ADRs
-
-[quill-as-a-service is a webhook service and a separate reviewer
-image](../adr/0101-quill-as-a-service-is-a-service-and-a-reviewer-image.md)
-
 ## Verification
 
-``` bash
-rm -rf ./.tmp/quill-as-a-service
-git clone --depth 1 https://github.com/plume-works/quill-as-a-service ./.tmp/quill-as-a-service
-cd ./.tmp/quill-as-a-service && bun install --frozen-lockfile && bun test
-```
-
-`bun test` passes with every test that `## Acceptance` names.
+The code lives in `plume-works/quill-as-a-service`, outside this checkout. Its
+`.github/workflows/ci.yml` `bun test` job (Task 12) runs every test that
+`## Acceptance` names.
 
 ## Out of scope
 

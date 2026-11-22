@@ -29,16 +29,16 @@ runs of `ai-responder.yml` and the `Claude PR Review Responder` check, and
 One change removes the workflow, its actions, its CI hooks, and the cost scripts
 that read its runs. The `main` ruleset keeps its required approval and drops the
 `ai-review-present` check
-([ADR-0103](../adr/0103-required-approval-is-the-only-ai-review-gate.md)), and
+([ADR-0102](../adr/0102-required-approval-is-the-only-ai-review-gate.md)), and
 the service configuration lists this repository
-([ADR-0102](../adr/0102-ai-review-runs-in-quill-as-a-service.md)).
+([ADR-0101](../adr/0101-ai-review-runs-in-quill-as-a-service.md)).
 
 `request-review.py` keeps its results and its rule of one request per head and
 title and description, and reads the `Quill Review` check run where it read the
 responder check. A `Quill Review` check on the head that is queued or in
 progress means the label waits for a running review; with none, a label still on
 the pull request is stale. The skills and the consumption guide describe the
-service's rules ([ADR-0104](../adr/0104-review-starts-on-open-or-request.md)):
+service's rules ([ADR-0103](../adr/0103-review-starts-on-open-or-request.md)):
 no required review check, Quill's approval counting toward the required
 approval, and `request-ai-review` held until the review ends.
 
@@ -218,13 +218,13 @@ service configuration, when this plan's pull request merges.
 ## ADRs
 
 [The AI review of this repository runs in
-quill-as-a-service](../adr/0102-ai-review-runs-in-quill-as-a-service.md)
+quill-as-a-service](../adr/0101-ai-review-runs-in-quill-as-a-service.md)
 
 [The required approval is the only gate of the AI
-review](../adr/0103-required-approval-is-the-only-ai-review-gate.md)
+review](../adr/0102-required-approval-is-the-only-ai-review-gate.md)
 
-[A review starts on open or on request, and the request label holds
-it](../adr/0104-review-starts-on-open-or-request.md)
+[A review starts on open or on
+request](../adr/0103-review-starts-on-open-or-request.md)
 
 ## Depends on
 
