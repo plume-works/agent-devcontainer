@@ -33,7 +33,7 @@ this plan ships.
 ## Approach
 
 The repository builds two images
-([ADR-0100](../adr/0100-quill-as-a-service-is-a-service-and-a-reviewer-image.md)).
+([ADR-0101](../adr/0101-quill-as-a-service-is-a-service-and-a-reviewer-image.md)).
 
 - The **reviewer image**, `FROM ghcr.io/plume-works/core`, installs the
   `agentdev` plugin of `plume-works/agent-devcontainer` at a pinned commit, and
@@ -53,7 +53,7 @@ App private key, the webhook secret, and the Claude OAuth token — sit in an en
 file on the host. Each reviewer container gets an installation token limited to
 its one repository and the Claude token, never the App key.
 
-Review rules ([ADR-0103](../adr/0103-review-starts-on-open-or-request.md)): a
+Review rules ([ADR-0104](../adr/0104-review-starts-on-open-or-request.md)): a
 same-repository pull request that opens, is reopened, or leaves draft, or gets
 `request-ai-review` from a person with write access, is reviewed, unless it is a
 draft, is from a bot, carries `block-ai-reviews`, or the service is paused. A
@@ -66,7 +66,7 @@ failed review, the service removes `request-ai-review`; a cancelled review
 leaves it.
 
 Bypass auto-approvals
-([ADR-0102](../adr/0102-required-approval-is-the-only-ai-review-gate.md)) port
+([ADR-0103](../adr/0103-required-approval-is-the-only-ai-review-gate.md)) port
 `review-gate.js::botApprovalFailure`: a pull request from a configured trusted
 bot whose every push and commit is the bot's is approved without a review, and
 an earlier approval is dismissed when that stops holding.
@@ -373,7 +373,7 @@ installing the Quill App on it, then watching its pull requests.
 ## ADRs
 
 [quill-as-a-service is a webhook service and a separate reviewer
-image](../adr/0100-quill-as-a-service-is-a-service-and-a-reviewer-image.md)
+image](../adr/0101-quill-as-a-service-is-a-service-and-a-reviewer-image.md)
 
 ## Verification
 
