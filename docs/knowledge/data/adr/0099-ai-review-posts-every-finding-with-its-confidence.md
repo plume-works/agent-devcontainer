@@ -34,3 +34,7 @@ follows the finding's Severity alone, as
 - A `Severity: P1` finding requests changes whatever its Confidence. Answering
   its thread does not lift that verdict; only a fresh review of a later head
   does.
+- A finding the author already answered in a resolved thread, whose reply still
+  holds at the head commit, is listed in the review body with a link instead of
+  posted again, and does not count toward the verdict: the author has decided
+  it.

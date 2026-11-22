@@ -114,8 +114,9 @@ gh api graphql --paginate --slurp \
     summary a reviewer writes with the verdict, distinct from any inline
     thread. A review can carry a non-empty `body` with **zero** inline
     comments, so it never appears under `reviewThreads`. The
-    *metadata gate*, a `Severity: P1` finding, — `pr-review` stops before its inline passes when the PR
-    description misrepresents the change set — is always posted this way, with
+    *metadata gate* — a `Severity: P1` finding, raised when the PR description
+    misrepresents the change set and `pr-review` stops before its inline passes
+    — is always posted this way, with
     no thread to anchor to. Collect every review whose `body` is non-empty,
     process the newest per author, and classify a `Severity: P1` or gate body as
     feedback to act on (typically: update the PR title/description to match the
