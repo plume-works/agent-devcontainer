@@ -30,5 +30,4 @@ verdict still follows the severity tiers alone, as
 - Every finding opens a thread that holds the merge until resolved; a
   low-Confidence thread can be closed with a reasoned reply.
 - A blocking finding requests changes whatever its Confidence, so a doubtful
-  blocking finding that the validator once dropped now blocks the merge until
-  its thread is answered.
+  blocking finding blocks the merge until its thread is answered.

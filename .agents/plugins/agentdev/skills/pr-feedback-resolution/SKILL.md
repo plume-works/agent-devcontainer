@@ -170,7 +170,7 @@ Determine confidence level before making changes. **Only process threads that pa
    - **≥70% confidence**: Proceed with change, document rationale
    - **<70% confidence**: Reply asking for clarification, do not change code
 
-   A `pr-review` comment's own `Confidence: X/10` is how sure the reviewer is that the issue is real, not this intent confidence: check a low-Confidence finding against the code, and fix it or reply with the evidence that it does not hold.
+   A `pr-review` comment's own `Confidence: X/10` is how sure the reviewer is that the issue is real, not this intent confidence: check a low-Confidence finding against the code, and either fix it, or reply in its thread with the evidence that it does not hold and then resolve that thread.
 
 ### Workflow 3: Address Review Comments
 

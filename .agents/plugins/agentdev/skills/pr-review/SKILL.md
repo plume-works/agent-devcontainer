@@ -60,7 +60,7 @@ Every correctness candidate states its scenario in three parts: **Trigger** — 
 
 - Run `/agentdev:durable-knowledge-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
-- **Anchor bar:** tie every finding to a quoted added line and name the rule it breaks, as the Compliance focus does. A finding with a doubtful rule still goes to Step 6 for a low Confidence; only a finding that quotes no added line is left out, since there is no line for it to annotate.
+- **Anchor bar:** tie every finding to a quoted added line and name the rule it breaks, as the Compliance focus does. A finding with a doubtful rule still goes to Step 6 for a low Confidence; a finding that quotes no added line goes to Step 6 like any other and is posted in the review body, named by anchor, because it has no line to annotate.
 
 **PR metadata focus** (title/description relevance) — use `/agentdev:pr-gen-description` before the in-depth passes:
 
