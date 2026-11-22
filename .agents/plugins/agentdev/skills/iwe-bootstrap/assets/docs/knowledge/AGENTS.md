@@ -158,17 +158,3 @@ iwe stats                                                        # counts, orpha
 Filters are YAML (`$eq`, `$ne`, `$in`, `$gte`, `$exists`, …), not jq. Structural
 anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 `--roots`.
-
-## Workspace skills
-
-| Skill                       | What it does                                                          |
-| --------------------------- | --------------------------------------------------------------------- |
-| `/agentdev:iwe-setup`       | Sets up the workspace from the codebase: product doc and guides       |
-| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code    |
-| `/agentdev:iwe-plan`        | Files a plan: verified anchors, acceptance, ADRs, hub link, rank      |
-| `/agentdev:iwe-capture`     | Files a complete bug or backlog task, deduplicated                    |
-| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries |
-| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it         |
-| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code |
-| `/agentdev:iwe-ship`        | Accepts the ADRs, changes the stages, and cuts a release              |
-| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health     |

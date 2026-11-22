@@ -1,7 +1,6 @@
 ---
 name: iwe-explore
-description: Investigate problems, compare approaches, and clarify ideas with the user before planning. Read code and the graph. Do not write code. Use when the user says "let's think about ...", "explore <idea>", or "what are our options for ...". Also use when the user wants to discuss an idea before a decision. To investigate a GitHub issue before planning, accept an issue URL, OWNER/REPO#N, or a number prefixed with a hash sign.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
+description: Investigate problems, compare approaches, and clarify ideas with the user before planning. Read code and the graph. Do not write code. Use when the user says "let's think about ...", "explore <idea>", or "what are our options for ...". Also use when the user wants to discuss an idea before a decision.
 ---
 
 # Explore mode
@@ -14,45 +13,6 @@ a decision or plan before the user is ready.
 
 **Do not write code in explore mode.** You can add a document to the graph when
 the user asks. This records the discussion; it does not implement a change.
-
-## Starting from a GitHub issue
-
-Accept an issue URL, `OWNER/REPO#N`, `#N`, or a number as a starting point.
-Resolve a number without a repository name against the current repository.
-Before you assess the problem, read the issue with the supplied script:
-
-```bash
-agent-code/fetch-issue.py 123
-```
-
-The script prints `ISSUE_REPO`, `ISSUE_NUMBER`, `ISSUE_URL`, `ISSUE_STATE`,
-`ISSUE_TITLE`, and `ISSUE_FILE`. `ISSUE_FILE` identifies a Markdown file under
-`./.tmp/`. This file contains the title, labels, body, and all comments.
-Read the full file. A comment can contain a decision that the body does not contain.
-The last stdout line is `RESULT=<NAME>`.
-
-| RESULT            | Exit   | Action                                                                                                                                           |
-| ----------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SUCCESS`         | `0`    | Read `ISSUE_FILE`. Continue the investigation. Keep `ISSUE_URL` for the handoff.                                                                 |
-| `ISSUE_NOT_FOUND` | `4`    | Stop. Show the resolved `OWNER/REPO#N`. Ask for the correct reference.                                                                           |
-| `GH_UNAVAILABLE`  | `3`    | If a connected GitHub MCP server is available, use it to read the issue. Save the text to `./.tmp/`. Otherwise, stop and ask for the issue text. |
-| `PREFLIGHT_ERROR` | `2`    | Stop. Report the error text exactly. Examples: the directory is not a repository, or the reference cannot be parsed.                             |
-| `SCRIPT_FAILURE`  | `1`    | Stop. Report the error text exactly. Do not retry or use an alternative method.                                                                  |
-| `SIGNAL_*`        | `129`+ | Stop. Report that the run was interrupted.                                                                                                       |
-
-The issue describes the user's view of the problem. It is not a statement of
-the required behavior.
-Check claims against the code and the graph before you use those claims.
-State each difference between the issue and the checkout clearly.
-Search the repository for specific terms from the issue. Identify the code
-that supports each claim about behavior. Ask the user for clarification in
-the conversation. Do not edit the issue from explore mode.
-
-If the investigation identifies work for a plan, include `ISSUE_URL` in the
-handoff to `/agentdev:iwe-plan`. The plan links the issue and closes the issue
-after the plan is filed. If no plan is necessary, report the reason.
-Examples include an existing fix, an issue outside the scope, or a duplicate.
-The user decides in the conversation whether to close such an issue.
 
 ## The stance
 
@@ -124,8 +84,7 @@ When the user wants a record, select the applicable destination:
 - **A bug or a backlog task:** Give the settled content to
   `/agentdev:iwe-capture`. Specify `bug` or `task`. A defect
   includes reproducible incorrect behavior. `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
-  check. If the investigation started from a GitHub issue, include `ISSUE_URL`.
-  The captured document links the issue and closes the issue.
+  check.
 - **A finding that belongs to an active plan:** Use
   `## During implementation` instead. Return the finding to that plan. Do not
   create a separate document beside the plan.
@@ -133,8 +92,7 @@ When the user wants a record, select the applicable destination:
   `/agentdev:iwe-plan` with the handoff. The investigation supplies the plan's
   `## Context` and `## Approach`. Only the user starts `/agentdev:iwe-plan`.
   Do not invoke `/agentdev:iwe-plan` from explore mode. An answer about plan scope
-  or timing is not a request to start `/agentdev:iwe-plan`. If the investigation
-  started from a GitHub issue, include `ISSUE_URL`. The plan links the issue and closes the issue.
+  or timing is not a request to start `/agentdev:iwe-plan`.
 - **Approved wording:** Write `.tmp/approved-wording-<slug>.md` before the
   conversation continues. Approved document text, snippets, and messages are
   deliverables. Do not replace approved text with a description. Copy the text

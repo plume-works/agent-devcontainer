@@ -23,7 +23,6 @@ release: # required while the plan is active: internal, or the keys below
   feeds no release page: the release cut writes the page from the
   `## Acceptance` scenarios of the archived plans. A shipped plan can also list
   `features/` keys of the retired feature type.
-- `sources` lists the GitHub issue that the plan grew from, if there is one.
 - `rank` is optional. See `schema/build-order.md`.
 
 | Stage        | Meaning                | Set by | Other fields               |
@@ -38,8 +37,7 @@ Body, in this order. A plan leaves out a section that has no content, with two
 exceptions: `## Acceptance` and `## Verification` are always there.
 
 - `## Context` — why the work is done now. It links the bug, or backlog task
-  that started the work, each document in `release`, and the GitHub issue that
-  the plan grew from.
+  that started the work, and each document in `release`.
 - `## Approach` — the shape of the solution, in a few sentences. A rejected
   option goes in an ADR.
 - `## Implementation Steps` — `### Task N: <name>` blocks. Each block has a

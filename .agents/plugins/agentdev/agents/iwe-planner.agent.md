@@ -27,8 +27,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
   `/agentdev:iwe-implement` follows this file to draft one revision that answers a finding. Revise mode
   only: draft the revision through steps 1-4, 6, and 7, including the
   `/agentdev:iwe-plan-review` gate, run step 8's validation, and stop with the revision
-  uncommitted for the `iwe-revision-evaluator`. Never create a plan, close an
-  issue, or re-dispatch the Shipper. Wherever a step would ask the user, stop,
+  uncommitted for the `iwe-revision-evaluator`. Never create a plan or
+  re-dispatch the Shipper. Wherever a step would ask the user, stop,
   restore the plan from `HEAD`, and report the decision needed.
 
 ## Steps
@@ -96,8 +96,6 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    - If the plan started as a backlog task, close the task as done. Then move
      the task to the archive. `docs/knowledge/schema/backlog-tasks.md` and
      `docs/knowledge/schema/archive.md` give the procedure.
-   - An issue that the plan grew from is closed in step 8, after validation —
-     never before the plan is known to be sound.
 
    In revise mode, preserve the plan's existing graph membership and lifecycle
    unless the requested planning change explicitly requires another valid
@@ -122,21 +120,8 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    (step 2), and resolve every gap before step 8. This gate runs on every
    plan-intent edit: create, revise, and each route Implement, Verify, and Ship
    take back to revise mode all funnel here.
-8. **Validate, close the issue, re-ship a blocked plan, and stop.** Run `iwe normalize`, then
-   `iwe schema validate` — both must pass. When a created plan grew from a
-   GitHub issue, close that issue now with the bundled script, which posts a
-   comment naming the plan and then closes it:
-
-   The script is the `iwe-plan` skill's bundled `agent-code/close-issue.py`, run
-   from that skill's directory:
-
-   ```bash
-   agent-code/close-issue.py \
-     --issue <url-or-ref> --plan docs/knowledge/data/plans/<YYYYMMDD>-<slug>.md
-   ```
-
-   The last stdout line is `RESULT=<NAME>`; see `## Closing the issue` for
-   what each result means.
+8. **Validate, re-ship a blocked plan, and stop.** Run `iwe normalize`, then
+   `iwe schema validate` — both must pass.
 
    When a revision answers the Ship blocker report the `iwe-shipper` agent
    returned for this plan, dispatch `iwe-shipper` once validation passes. Its
@@ -149,30 +134,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    the reviewer's outcome and every gap still open.
 
    Report whether the plan was created or revised, any assumptions,
-   collisions, implementation that may now be stale, the issue outcome, and
+   collisions, implementation that may now be stale, and
    any Shipper and reviewer outcome. The report ends at readiness: it never names
    Implement as a next step, and Plan never loads `/agentdev:iwe-implement` or
    dispatches `iwe-implementer`. Every other revision stops here, before
    implementation code changes.
-
-## Closing the issue
-
-A plan is the issue's replacement, not its companion: once the plan is filed
-and validated, the issue's job is done, and leaving it open invites a second
-plan for the same work. The plan keeps the link in both directions — the issue
-URL under `sources:` and in `## Context`, and the closing comment naming the
-plan path — so the history stays reachable from either side. This applies to a
-created plan only; revising a plan never touches the issue it came from.
-
-| RESULT            | Exit   | Action                                                                                                                                                    |
-| ----------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`    | Report the closed `ISSUE_URL` alongside the plan.                                                                                                         |
-| `ALREADY_CLOSED`  | `5`    | Nothing to do; report that the issue was already closed. The plan still links it.                                                                         |
-| `ISSUE_NOT_FOUND` | `4`    | **STOP.** Show the resolved `OWNER/REPO#N` and ask for the right reference; the plan stays filed.                                                         |
-| `GH_UNAVAILABLE`  | `3`    | **Fallback.** Comment and close through a connected GitHub MCP server, if one is present. Otherwise report the plan as filed and the issue as still open. |
-| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repo, missing plan file, unparseable reference).                                                             |
-| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                    |
-| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it and whether the issue closed.                                                                                |
 
 ## Acceptance
 

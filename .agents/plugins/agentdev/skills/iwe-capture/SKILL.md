@@ -1,7 +1,6 @@
 ---
 name: iwe-capture
 description: File a finished inbox item in the IWE graph — a bug or a backlog task — after checking for a duplicate and refusing any document that misses a section or field its document in docs/knowledge/schema/ requires. Use when Explore settles a defect or a task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, and guides stay with /agentdev:iwe-explore.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Capture an inbox item
@@ -44,8 +43,8 @@ Run every `iwe` command from the repository root; keys are relative to
    File the document at the stage that the schema document gives for Capture. A
    bug that the same change already fixed is closed work. File it at
    `stage: done` in the archive (`docs/knowledge/schema/archive.md`), with its
-   `## Fix`. Add `sources` that name each code path, each page, and each GitHub
-   issue URL that the item came from.
+   `## Fix`. Add `sources` that name each code path and each page that the item
+   came from.
 
 5. **Link it from its hub** at its sorted position, as
    `docs/knowledge/schema/hubs.md` defines. A bug filed into the archive gets no
@@ -59,19 +58,7 @@ Run every `iwe` command from the repository root; keys are relative to
 
 6. **Validate.** Run `iwe normalize`, then `iwe schema validate`; both must
    pass before anything else happens.
-7. **Close the issue** when the item grew from a GitHub issue, with the bundled
-   script, which posts a comment naming the captured document and then closes
-   the issue:
-
-   ```bash
-   agent-code/close-issue.py \
-     --issue <url-or-ref> --doc docs/knowledge/data/<lane>/<slug>.md
-   ```
-
-   The last stdout line is `RESULT=<NAME>`; see `## Closing the issue`.
-
-8. **Report** the key written, its hub, any `sources`, and the issue
-   outcome.
+7. **Report** the key written, its hub, and any `sources`.
 
 ## Promoting a someday idea
 
@@ -86,23 +73,6 @@ caller adds — usually the priority. Then:
 3. Remove the link from `data/someday.md`, since the document left that hub,
    and add it at its sorted position in `data/backlog.md`.
 4. Continue from Step 6.
-
-## Closing the issue
-
-The captured document replaces the issue: it carries the issue URL under
-`sources:`, and the closing comment names the document, so either side reaches
-the other. Close only after validation passes — a refused or failed capture
-leaves the issue open.
-
-| RESULT            | Exit   | Action                                                                                                                                                        |
-| ----------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`    | Report the closed `ISSUE_URL` alongside the document.                                                                                                         |
-| `ALREADY_CLOSED`  | `5`    | Nothing to do; report that the issue was already closed. The document still links it.                                                                         |
-| `ISSUE_NOT_FOUND` | `4`    | **STOP.** Show the resolved `OWNER/REPO#N` and ask for the right reference; the document stays filed.                                                         |
-| `GH_UNAVAILABLE`  | `3`    | **Fallback.** Comment and close through a connected GitHub MCP server, if one is present. Otherwise report the document as filed and the issue as still open. |
-| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repo, missing document, unparseable reference).                                                                  |
-| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                        |
-| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it and whether the issue closed.                                                                                    |
 
 ## Boundaries
 

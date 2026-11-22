@@ -279,27 +279,14 @@ workspace copy on editor attachment.
 
 Skills use the `/agentdev:<name>` namespace, including `/agentdev:pr-open`,
 `/agentdev:pr-review`, and `/agentdev:pr-merge`. See the
-[catalog README](.agents/plugins/agentdev/README.md) for the complete skill list,
-standalone installation instructions, and contributor guidance.
+[catalog README](.agents/plugins/agentdev/README.md) for standalone installation
+instructions and contributor guidance.
 
 ## IWE project memory
 
 IWE stores product context, architecture, specifications, plans, and releases as
-a Markdown knowledge graph. The catalog provides a
-complete workflow:
-
-| Skill                     | Purpose                                                               |
-| ------------------------- | --------------------------------------------------------------------- |
-| `iwe-setup`               | Onboard an existing project and establish its product context.        |
-| `iwe-explore`             | Investigate ideas or GitHub issues without changing code.             |
-| `iwe-plan`                | Plan work with verified anchors and risk-scaled specification impact. |
-| `iwe-capture`             | File complete, deduplicated bugs and tasks.                           |
-| `iwe-implement`           | Execute plans task by task and record evidence.                       |
-| `iwe-branch-name`         | Name a plan's next implementation or shipping branch.                 |
-| `iwe-verify`              | Check implementation claims against code and specifications.          |
-| `iwe-ship`                | Block CRITICAL findings and record released behavior.                 |
-| `iwe-weekly`              | Summarize project status and graph health.                            |
-| `durable-knowledge-audit` | Keep durable documents free of session residue.                       |
+a Markdown knowledge graph. The catalog's `iwe-*` skills
+provide a complete workflow over it.
 
 Plan checkboxes carry traceable evidence, and behavior-changing plans state their
 intended contract before implementation. Machine-managed dependency pins can be
