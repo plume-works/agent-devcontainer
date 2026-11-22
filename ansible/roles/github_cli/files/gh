@@ -26,9 +26,12 @@ log() {
 
 if [[ -n "${GH_TOKEN:-}" || -n "${GITHUB_TOKEN:-}" ]]; then
   log "GH_TOKEN/GITHUB_TOKEN already set, leaving as-is"
+elif [[ -n "${GH_WRAPPER_FILLING:-}" ]]; then
+  # gh is git's credential helper here: filling again would recurse without end.
+  log "inside our own git credential fill, skipping extraction"
 elif helper=$(git config --get credential.helper 2>/dev/null) && [[ -n "$helper" ]]; then
   log "credential.helper configured, attempting git credential fill"
-  token=$(printf 'protocol=https\nhost=github.com\n\n' | timeout 2 git credential fill 2>/dev/null | grep '^password=' | cut -d= -f2- || true)
+  token=$(printf 'protocol=https\nhost=github.com\n\n' | GH_WRAPPER_FILLING=1 timeout 2 git credential fill 2>/dev/null | grep '^password=' | cut -d= -f2- || true)
   if [[ -n "$token" ]]; then
     log "derived GH_TOKEN from host credential helper"
     export GH_TOKEN="$token"
