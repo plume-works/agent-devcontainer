@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: 'The AI review posts every finding it raises with its `Confidence: X/10` instead of dropping the ones its validator cannot confirm, and Confidence never changes the verdict.'
 ---
 
 # The AI review posts every finding with its Confidence

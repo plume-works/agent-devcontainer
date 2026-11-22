@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: 'Every AI review finding carries `Severity: P1`, `P2`, or `P3` by its impact, and only a P1 finding makes the review request changes.'
 supersedes:
 - adr/0058-ai-review-verdict-follows-severity
 ---
