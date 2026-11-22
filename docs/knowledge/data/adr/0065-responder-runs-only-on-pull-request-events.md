@@ -5,10 +5,10 @@ stage: accepted
 
 # The review responder workflow runs only on pull request events
 
-The review responder workflow starts only on `pull_request`,
-`pull_request_review`, and `merge_group` events. Each run then runs the copy of
-the workflow in the pull request. No trigger gives a run the privileges of the
-default branch, and no job needs contents write.
+The review responder workflow starts only on `pull_request` and
+`pull_request_review` events. Each run then runs the copy of the workflow in the
+pull request. No trigger gives a run the privileges of the default branch, and
+no job needs contents write.
 
 ## Considered Options
 
