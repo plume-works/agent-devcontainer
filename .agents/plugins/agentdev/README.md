@@ -111,12 +111,6 @@ available as its command only.
 Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 `python_lint_check.py` directly in a terminal.
 
-### Agents
-
-| Agent                | Use it for                                               |
-| -------------------- | -------------------------------------------------------- |
-| `principal-engineer` | Architecture, design decisions, implementation strategy. |
-
 ### Knowledge-graph workflow (IWE)
 
 These skills run against an [IWE](https://iwe.md) workspace — a markdown
