@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The WorktreeCreate hook installs each worktree's catalog from a file-source marketplace inside the worktree, named wt-<worktree name>, at local scope.
 ---
 
 # Each worktree loads its catalog from a marketplace in the worktree

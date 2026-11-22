@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Agents read and write the graph through the iwe CLI; the repository registers no IWE MCP server, and the image does not install iwec.
 ---
 
 # Agents use the iwe CLI, not an IWE MCP server

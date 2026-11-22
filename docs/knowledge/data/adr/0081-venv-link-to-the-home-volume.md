@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Each checkout links its .venv to its own uv environment in the venv root on the home volume.
 ---
 
 # Each checkout links .venv to its own environment on the home volume

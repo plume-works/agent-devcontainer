@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The gh wrapper that the image installs at /usr/local/bin/gh authenticates gh, and no shell configuration puts a checkout path before it.
 ---
 
 # Only the gh wrapper of the image authenticates gh

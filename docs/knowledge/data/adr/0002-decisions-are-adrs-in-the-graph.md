@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Each decision is one short ADR in data/adr/, proposed by Plan, accepted by Ship, and never edited after that.
 ---
 
 # Each decision is a short ADR in the graph

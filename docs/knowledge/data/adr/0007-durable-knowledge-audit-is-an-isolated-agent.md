@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The durable-knowledge check runs in an agent that did not see the work and cannot edit the file, with its rule in the one rulebook durable-knowledge-audit.
 ---
 
 # The durable-knowledge audit runs in an isolated agent

@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The runtime images run one Python package, agentdev_runtime, behind one CLI, and agentdev-base does not contain it.
 ---
 
 # The runtime is one Python package that the base image does not contain

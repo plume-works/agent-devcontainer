@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Each formatter and linter has one owner, a pre-commit hook, and the CI pre-commit job runs the same hooks in the pinned agentdev-devcontainer image.
 ---
 
 # The pre-commit hooks own each formatter and the CI check

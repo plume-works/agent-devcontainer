@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Work that depends on an open pull request is a normal pull request based on the branch of its predecessor, and a restack uses only merges and plain pushes.
 ---
 
 # Dependent pull requests stack with merges only

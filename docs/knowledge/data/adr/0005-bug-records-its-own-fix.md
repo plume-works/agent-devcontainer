@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: A bug keeps its own optional Fix section, and a backlog task has no planned stage.
 ---
 
 # A bug records its own correction

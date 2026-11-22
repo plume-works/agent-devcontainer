@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: PID 1 runs the create phase as a supervised one-shot program, and the image label declares the three Dev Container lifecycle commands.
 ---
 
 # PID 1 runs the create phase, and the image label declares the lifecycle commands

@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: OpenCode reads the agentdev catalog from the same tree as Claude Code, through the OpenCode bridge, which translates skills, commands, and agents at start.
 ---
 
 # OpenCode reads the catalog through the OpenCode bridge

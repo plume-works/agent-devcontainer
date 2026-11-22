@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The trusted-bot approval checks each commit and each push since the latest creation of the branch, and removes its earlier approval when a check fails.
 ---
 
 # The trusted-bot approval checks the full push history

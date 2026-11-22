@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: 'Example decision record: a focus session lasts its length in real time, also while the laptop sleeps.'
 ---
 
 # The timer counts wall-clock time

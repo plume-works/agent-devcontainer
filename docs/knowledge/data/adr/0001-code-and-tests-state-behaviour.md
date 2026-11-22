@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Code and tests are the only statement of how the product behaves; ADRs hold the reasons and the glossary holds the terms.
 ---
 
 # Code and tests are the only statement of behaviour

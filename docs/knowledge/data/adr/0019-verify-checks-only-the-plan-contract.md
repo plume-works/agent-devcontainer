@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Verify reports only what contradicts the plan, CI stays with pr-merge, and the Implement session stops at a fixed limit.
 ---
 
 # Verify checks only what the plan promised

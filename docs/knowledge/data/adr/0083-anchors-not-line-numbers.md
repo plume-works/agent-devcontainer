@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: Committed text names a place in a file by an anchor and never by a line number, and `scripts/check-anchors.py` holds the rule on each commit.
 ---
 
 # Committed text names places by anchors, not by line numbers

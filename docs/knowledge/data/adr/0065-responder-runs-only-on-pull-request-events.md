@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The review responder workflow has no comment or dispatch trigger, so each run uses the workflow from the pull request and no job needs contents write.
 ---
 
 # The review responder workflow runs only on pull request events

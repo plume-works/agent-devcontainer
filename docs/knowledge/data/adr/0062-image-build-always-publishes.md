@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The CI image build always pushes its images, so a pull request from a fork fails at the push and a maintainer runs it from a branch of this repository.
 ---
 
 # The CI image build always publishes

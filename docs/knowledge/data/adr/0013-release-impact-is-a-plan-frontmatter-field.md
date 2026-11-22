@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The release impact of a plan is its required release frontmatter field, set when the plan is written.
 ---
 
 # The release impact of a plan is a frontmatter field

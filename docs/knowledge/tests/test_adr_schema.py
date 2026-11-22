@@ -28,7 +28,6 @@ pytestmark = pytest.mark.skipif(
 FRONTMATTER = """---
 type: adr
 stage: {stage}
-description: The timer counts wall-clock time.
 ---
 """
 

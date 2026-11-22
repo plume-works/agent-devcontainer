@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The AI review and the trusted-bot approval post as the plume-works-quill GitHub App, with a token that has no contents write, and never with GITHUB_TOKEN.
 ---
 
 # The AI review posts as a GitHub App of the organization

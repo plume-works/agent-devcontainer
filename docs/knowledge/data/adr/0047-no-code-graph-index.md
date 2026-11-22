@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: The images, the runtime, and the catalog contain no code-graph daemon, MCP server, hook, or index, and the create phase removes an old codebase-memory-mcp installation.
 ---
 
 # The runtime ships no code-graph index
