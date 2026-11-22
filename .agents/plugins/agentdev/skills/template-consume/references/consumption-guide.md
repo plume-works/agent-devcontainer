@@ -1181,8 +1181,6 @@ in `## Choices`.
    `run-claude-responder` action does — at `agentdev-runtime lifecycle created`,
    `agentdev-runtime lifecycle ready --no-wait` (a job with no supervisor), and
    `agentdev-runtime lifecycle attached`, and record that action as customized.
-   The responder action itself skips `lifecycle attached` and runs its project
-   sync and hooks, so the review keeps the image's catalog.
 6. **Marker.** Replace the `.devcontainer/` entry in `tracked_paths` with the
    files the consumer still owns, so later updates stop proposing the
    publisher's runtime scripts:
