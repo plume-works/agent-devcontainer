@@ -119,15 +119,6 @@ def test_pull_request_checks_base_to_head(repo: Repo) -> None:
     assert repo.run('pull_request', payload) == ranged(base, head)
 
 
-def test_merge_group_checks_base_to_head(repo: Repo) -> None:
-    """A merge queue entry is checked between its base and head commits."""
-    base = repo.git('rev-parse', 'HEAD')
-    head = repo.commit('src/feature.py')
-    payload = {'merge_group': {'base_sha': base, 'head_sha': head}}
-
-    assert repo.run('merge_group', payload) == ranged(base, head)
-
-
 def test_push_checks_before_to_after(repo: Repo) -> None:
     """A push is checked between its before and after commits."""
     before = repo.git('rev-parse', 'HEAD')

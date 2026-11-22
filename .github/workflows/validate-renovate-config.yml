@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - main
-  merge_group:
-    types:
-      - checks_requested
   workflow_dispatch:
 
 concurrency:
@@ -59,7 +56,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so a digest bump runs this
     # required check inside the new image.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:972772abb2dd31740b0791f42aefb5e0f93e0211b1ac742d173961b9a6176fa8
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:93ad59664670e5f22de54911c215b812d2d1be8535f9c8e95e7ede3ea57b5269
     timeout-minutes: 15
     steps:
       - name: Checkout repository

@@ -40,9 +40,6 @@ def _event_range(event_name: str, event: Mapping[str, object]) -> tuple[str, str
     if event_name == 'pull_request':
         pull = event['pull_request']
         return pull['base']['sha'], pull['head']['sha']  # type: ignore[index]
-    if event_name == 'merge_group':
-        group = event['merge_group']
-        return group['base_sha'], group['head_sha']  # type: ignore[index]
     if event_name == 'push':
         before, after = str(event['before']), str(event['after'])
         return None if before == ZERO_SHA else (before, after)

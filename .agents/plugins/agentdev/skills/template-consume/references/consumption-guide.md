@@ -460,8 +460,8 @@ Two trigger behaviors are part of the workflow contract:
   no run. Removing `block-ai-reviews` starts a run that reviews a waiting
   request; any other label change starts a run in its own concurrency group, so it cannot
   replace a queued review, and its gate reports on the existing reviews.
-- **No comment starts the workflow.** It triggers only on `pull_request`,
-  `pull_request_review`, and `merge_group`, so every run uses the pull
+- **No comment starts the workflow.** It triggers only on `pull_request` and
+  `pull_request_review`, so every run uses the pull
   request's own copy of the file and no privileged comment trigger exists. Do
   not add `issue_comment`, `issues`, or `workflow_dispatch` triggers: an
   `@claude` mention, `@claude review` included, is meant to start nothing.

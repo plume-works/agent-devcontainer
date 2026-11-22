@@ -187,9 +187,6 @@ counter](adr/0063-plan-branches-share-one-iteration-counter.md)
 [The pre-commit hooks own each formatter and the CI
 check](adr/0064-pre-commit-hooks-own-formatters-and-ci-gate.md)
 
-[The review responder workflow runs only on pull request
-events](adr/0065-responder-runs-only-on-pull-request-events.md)
-
 [The AI review posts as a GitHub App of the
 organization](adr/0066-review-app-is-own-github-app.md)
 
@@ -264,5 +261,8 @@ enable](adr/0096-create-phase-installs-enabled-plugins.md)
 [Renovate keeps pins current, after a
 wait](adr/0098-renovate-keeps-pins-current-after-a-wait.md)
 
+[The review responder workflow runs only on pull request and review
+events](adr/0099-responder-runs-on-pull-request-and-review-events.md)
+
 [The CI review runs the catalog of its image, not of the
-checkout](adr/0099-ci-review-runs-the-image-catalog.md)
+checkout](adr/0100-ci-review-runs-the-image-catalog.md)
