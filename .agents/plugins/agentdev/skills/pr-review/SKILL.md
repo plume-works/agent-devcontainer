@@ -60,7 +60,7 @@ Every correctness candidate states its scenario in three parts: **Trigger** — 
 
 - Run `/agentdev:durable-knowledge-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
-- **Anchor bar:** tie every finding to a quoted added line and name the rule it breaks, as the Compliance focus does. A finding with a doubtful rule still goes to Step 6 for a low Confidence; a finding that quotes no added line goes to Step 6 like any other and is posted in the review body, named by anchor, because it has no line to annotate.
+- Tie every finding to a quoted added line and name the rule it breaks, as the Compliance focus does. A finding with a doubtful rule still goes to Step 6 for a low Confidence.
 
 **PR metadata focus** (title/description relevance) — use `/agentdev:pr-gen-description` before the in-depth passes:
 
@@ -151,20 +151,26 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
      - **Every correctness candidate is judged under the bullet above**, even one with no scenario at all: each missing part caps it at `Confidence: 3/10`.
      - **Any other candidate** gets a lower Confidence the more ambiguous, trivial, or arguable its violation is.
    - **The validator settles Severity from the files**, by the harm the finding does if it is real: it confirms the proposed Severity or replaces it, and a compliance candidate stays P2 or P3. Every verdict reads `Confidence: X/10 · Severity: Pn — <one-sentence reason>`, with `trigger|path|outcome:` leading the reason when a scenario part fails.
-   - **An earlier thread is evidence, not a verdict.** A reply in it that refutes the candidate, or a fix it names, is weighed against the head commit like any other evidence, and the reason ends `earlier reply holds` or `earlier reply does not hold`.
+   - **An earlier thread is evidence, not a verdict.** A reply in it that refutes the candidate, or a fix it names, is weighed against the head commit like any other evidence, and the reason ends `earlier reply holds` or `earlier reply does not hold`; a thread with no reply ends `earlier reply does not hold`.
    - **Stated intent is evidence, not a Confidence.** A code comment or PR description presenting a behavior as deliberate does not refute a reachable wrong outcome, and a guarantee the PR description promises that the code breaks counts toward the outcome. The validator weighs either against the files like any other evidence.
    - **Never argue the Confidence in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the Confidence before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
    - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
-   - **Light effort: one batched dispatch** carrying every candidate at once and returning a `Confidence: X/10` for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
+   - **Light effort: one batched dispatch** carrying every candidate at once and returning a `Confidence: X/10 · Severity: Pn` verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
    - **Batching is the light tier's trade and nothing else's.** A self-sized review rates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
    - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below.
 7. Create a pending review with `create_pending_pull_request_review`.
-8. For every finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes, except a finding the Anchor bar sends to the review body. Open the comment body with one line naming its Severity and Confidence, `**Severity: P2 · Confidence: 5/10** — <validator's reason>`, then the finding; never describe a finding's location in prose. **A finding with an earlier thread is not posted again:** when that thread is resolved and its reply holds, the review body lists the finding as its Severity-and-Confidence line and a link to the thread, and it does not count toward the Step 9 verdict, because the author has already decided it; when the thread is still open, the finding is already posted, so the body names it with the link, and it counts toward the verdict; when the thread is resolved but its reply no longer holds, post the finding inline again with a link to the earlier thread, and it counts toward the verdict. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) naming its location by anchor and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
+8. For every finding, attach it as an inline comment with `add_comment_to_pending_review` on the added line it quotes, or, for a finding whose fault lies outside the diff, on the added line that causes it — every finding has one, because the review covers only what the change introduces. This is the only place finding text goes. Open the comment body with one line naming its Severity and Confidence, `**Severity: P2 · Confidence: 5/10** — <validator's reason>`, then the finding; never describe a finding's location in prose. **A finding with an earlier thread is not posted again:**
+   - **Its earlier reply holds** (Step 6): the review body lists it as its Severity-and-Confidence line and a link to the thread, and it does not count toward the Step 9 verdict, because the review agrees with the answer the author gave.
+   - **No reply, or the reply no longer holds, and the thread is open:** the body lists it with the link, and it counts toward the verdict.
+   - **No reply, or the reply no longer holds, and the thread is resolved:** post it inline again with a link to the earlier thread, and it counts toward the verdict.
+
+   If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) naming its location by anchor and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
+
 9. Submit the review with `submit_pending_pull_request_review`, choosing `event` by the Severity of the findings alone — Confidence never changes it:
    - **No findings, or only `Severity: P2` and `Severity: P3` findings → `APPROVE`.** Inline comments on an approving review still open threads that must be resolved before merge.
    - **Any `Severity: P1` finding, inline or not → `REQUEST_CHANGES`.** That includes the Step-3 metadata gate.
 
-   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments), plus one entry per finding that quotes no added line: its Severity-and-Confidence line, then a one-line claim naming its location by anchor; for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `APPROVE` or `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account cannot approve or request changes on its own PR. That retry is the only review submitted as `COMMENT`.
+   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments), plus every earlier-thread entry Step 8 lists; for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `APPROVE` or `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account cannot approve or request changes on its own PR. That retry is the only review submitted as `COMMENT`.
 
 ### Waiting on Parallel Passes
 
@@ -192,8 +198,8 @@ If the review tools above are confirmed unavailable, post the whole review — s
 
 Write two plain files under `./.tmp` (never assemble this JSON live in a shell command):
 
-- a summary file containing only the short overall review body (no per-finding detail), plus the Step 9 entry for each finding that quotes no added line
-- a comments file containing a JSON array of every finding Step 8 posts inline (never one the review body holds), each `body` opening with its Step 8 Severity and Confidence line: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if the review has no findings)
+- a summary file containing only the short overall review body (no per-finding detail), plus every earlier-thread entry Step 8 lists
+- a comments file containing a JSON array of every finding Step 8 posts inline, each `body` opening with its Step 8 Severity and Confidence line: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if the review has no findings)
 
 Then run `agent-code/post-review.py --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule, and pass `--event COMMENT` only for its self-owned retry. Do not fall further back to typing `gh api` calls by hand.
 

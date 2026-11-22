@@ -306,5 +306,5 @@ read when it started.
 **Newest verdict**: The latest approval or change request of the AI reviewer,
 which a later comment does not replace.
 
-**Severity**: The impact level of an AI review finding, written `Severity: P1`,
-`P2`, or `P3`; only a P1 finding makes the review request changes (ADR-0100).
+**Severity**: The impact level of an AI review finding, from P1 (ships a defect)
+to P3 (cosmetic).

@@ -115,8 +115,9 @@ gh api graphql --paginate --slurp \
     thread. A review can carry a non-empty `body` with **zero** inline
     comments, so it never appears under `reviewThreads`. Collect every review
     whose `body` is non-empty, process the newest per author, and treat each
-    point it raises as feedback to act on, like a thread: fix it, or reply with
-    the reason it does not hold, even when no review thread exists.
+    issue or request it raises as feedback to act on, like a thread: fix it, or
+    reply with the reason it does not hold, even when no review thread exists. A
+    body that only describes the change needs no action.
     `reviewThreads` alone is structurally blind to these.
 
 After fetching, **filter out resolved threads** using these rules (apply in order):
