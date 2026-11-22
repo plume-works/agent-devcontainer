@@ -90,3 +90,13 @@ def test_with_no_real_gh_on_path_the_wrapper_exits_127(scratch: Path) -> None:
 
     assert result.returncode == 127
     assert 'real gh not found on PATH' in result.stderr
+
+
+def test_gh_as_the_git_credential_helper_is_asked_once(scratch: Path, wrapped: list[Path]) -> None:
+    calls = scratch / 'helper-calls'
+    helper = f'!f() {{ echo call >> {calls}; gh auth git-credential "$@"; }}; f'
+
+    result = run_gh(scratch, wrapped, helper)
+
+    assert result.returncode == 0, result.stderr
+    assert calls.read_text() == 'call\n'
