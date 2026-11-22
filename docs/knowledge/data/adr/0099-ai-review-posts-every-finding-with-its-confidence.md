@@ -1,7 +1,6 @@
 ---
 type: adr
 stage: accepted
-description: 'The AI review posts every finding it raises with its `Confidence: X/10` instead of dropping the ones its validator cannot confirm, and Confidence never changes the verdict.'
 ---
 
 # The AI review posts every finding with its Confidence
@@ -28,6 +27,8 @@ verdict still follows the severity tiers alone, as
 
 ## Consequences
 
-- Every finding opens a thread that holds the merge until resolved, including
-  low-Confidence and blocking ones; a low-Confidence thread can be closed with a
-  reasoned reply.
+- Every finding opens a thread that holds the merge until resolved; a
+  low-Confidence thread can be closed with a reasoned reply.
+- A blocking finding requests changes whatever its Confidence, so a doubtful
+  blocking finding that the validator once dropped now blocks the merge until
+  its thread is answered.

@@ -60,7 +60,7 @@ Every correctness candidate states its scenario in three parts: **Trigger** — 
 
 - Run `/agentdev:durable-knowledge-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
-- **Anchor bar:** flag a finding only when you can quote the added line and name the specific rule it breaks, as the Compliance focus does. Drop any finding you cannot tie to a quoted line and a named rule: it has no place to be posted.
+- **Anchor bar:** tie every finding to a quoted added line and name the rule it breaks, as the Compliance focus does. A finding with a doubtful rule still goes to Step 6 for a low Confidence; only a finding that quotes no added line is left out, since there is no line for it to annotate.
 
 **PR metadata focus** (title/description relevance) — use `/agentdev:pr-gen-description` before the in-depth passes:
 
@@ -74,7 +74,7 @@ Every correctness candidate states its scenario in three parts: **Trigger** — 
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed. A review whose findings are all non-blocking is an `APPROVE`; its inline threads still hold the merge until resolved.
 
-**Confidence** (set in Step 6 on every finding, always written exactly `Confidence: X/10`, `X` an integer from 0 to 10): how sure the review is that the finding is real at the head commit. It is never called a score, rating, or priority, so no reader takes it for severity: it measures certainty, and never changes a finding's tier or the review's verdict.
+**Confidence** (set in Step 6 on every finding except the Step 3 metadata gate's, always written exactly `Confidence: X/10`, `X` an integer from 0 to 10): how sure the review is that the finding is real at the head commit. It is never called a score, rating, or priority, so no reader takes it for severity: it measures certainty, and never changes a finding's tier or the review's verdict.
 
 - **`Confidence: 9/10`–`10/10`** — verified against the head commit
 - **`Confidence: 7/10`–`8/10`** — very likely
@@ -134,6 +134,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the Trigger, Path, and Outcome of a candidate that carries a scenario in place of its claim, the claim made against any other candidate, the full text of any rule that claim invokes, where to read the diff and the PR title and description, that the working tree is already at the head commit so files can be read for ground truth, and the "Never execute code" constraint verbatim. It never names which pass raised a candidate.
    - **Make the validator re-derive what the candidate asserts** from the files rather than trust it. The bar follows the candidate's shape:
      - **A candidate carrying a scenario is judged part by part, as written,** against the head commit, in order: the Trigger can actually occur, the Path leads from it to the fault, and the Outcome follows from that path. The validator stops at the first part that does not hold, or is missing, and returns `Confidence: X/10 — trigger|path|outcome: <reason>` naming it, with `X` at most 3; a part false as written caps the Confidence even when another scenario would reach the same fault. `Confidence: 4/10` or more needs every part to hold as written.
+     - **Every correctness candidate is judged under the bullet above**, even one with no scenario at all: each missing part caps it at `Confidence: 3/10`.
      - **Any other candidate** gets a lower Confidence the more ambiguous, trivial, or arguable its violation is; ask for `Confidence: X/10 — <one-sentence reason>`.
    - **Stated intent is evidence, not a Confidence.** A code comment or PR description presenting a behavior as deliberate does not refute a reachable wrong outcome, and a guarantee the PR description promises that the code breaks counts toward the outcome. The validator weighs either against the files like any other evidence.
    - **Never argue the Confidence in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the Confidence before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
@@ -197,4 +198,4 @@ The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a 
 - **Never write a location as a line number — in the review body, a comment, or chat.** Every finding tied to a specific place in the diff must be an actual inline comment placed there via `add_comment_to_pending_review`, whose `line` field is the one machine position this skill writes; it is not prose pointing at a location. The Step 8 fallback comment is the sole exception — there, the location is named in prose, by anchor, precisely because the inline placement failed. The Step 3 PR metadata gate is also review-body-only because title and description findings do not have file locations.
 - Do not submit review text as plain chat/assistant messages.
 - Keep each inline comment specific and actionable, scoped to the line(s) it annotates.
-- Every finding is posted with the `Confidence: X/10` Step 6 gave it — never publish a candidate without one, and never hold one back for a low Confidence.
+- Every finding from Step 4 is posted with the `Confidence: X/10` Step 6 gave it — never publish one without it, and never hold one back for a low Confidence.
