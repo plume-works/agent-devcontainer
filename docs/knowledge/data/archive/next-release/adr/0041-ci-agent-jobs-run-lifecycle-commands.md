@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 ---
 
 # CI agent jobs run the lifecycle commands against their checkout

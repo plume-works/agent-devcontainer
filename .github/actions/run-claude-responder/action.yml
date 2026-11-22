@@ -42,7 +42,7 @@ runs:
         done
         [[ ${#missing[@]} -eq 0 ]]
 
-    # See ADR-0041.
+    # See ADR-0100.
     - name: Run devcontainer lifecycle commands
       shell: bash
       env:
@@ -64,7 +64,10 @@ runs:
         agentdev-runtime lifecycle created
         # No supervisor runs in a container job: run the per-start repairs directly.
         agentdev-runtime lifecycle ready --no-wait
-        agentdev-runtime lifecycle attached
+        # The attach phase without its catalog install: the review keeps the image's
+        # catalog that the create phase installed, see ADR-0100.
+        uv sync --all-groups --all-extras
+        agentdev-runtime lifecycle hooks attached
 
     # claude-code-action merges its settings input into the user settings one
     # level deep, so the hook-written user layer rides underneath here or its
