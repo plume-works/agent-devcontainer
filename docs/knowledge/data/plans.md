@@ -10,6 +10,3 @@ stage: living
 
 [Split the IWE workflow into the agentdev-iwe
 plugin](plans/20261122-split-agentdev-iwe-plugin.md)
-
-[Drop the iwe- prefix from the agentdev-iwe skills and
-agents](plans/20261122-drop-iwe-prefix.md)

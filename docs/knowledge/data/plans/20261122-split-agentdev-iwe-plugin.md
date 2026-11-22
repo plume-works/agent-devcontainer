@@ -428,8 +428,7 @@ None.
 
 ## Out of scope
 
-- Dropping the `iwe-` prefix from the skill and agent names: [Drop the iwe-
-  prefix from the agentdev-iwe skills and agents](20261122-drop-iwe-prefix.md).
+- Dropping the `iwe-` prefix from the skill and agent names.
 - `bin/macos-bootstrap.zsh` and the native macOS install.
 - OpenCode outside the image.
 - Further splits of `agentdev`.
