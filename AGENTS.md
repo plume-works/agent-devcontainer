@@ -108,9 +108,9 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
 15. **Never list skills or agents in a table or catalog.** Each skill and
     agent describes itself in its frontmatter, which the harness already
     loads; a list repeats it, spends context, and goes stale.
-    - **Files an agent loads automatically** — `AGENTS.md`, `CLAUDE.md`,
-      `docs/knowledge/AGENTS.md`, a `SKILL.md`, an `*.agent.md` — never carry
-      a list of skills or agents. Name a skill or agent only where a step uses it.
+    - **Files an agent loads automatically** — `AGENTS.md`, `CLAUDE.md`, a
+      `SKILL.md`, an `*.agent.md` — never carry a list of skills or agents.
+      Name a skill or agent only where a step uses it.
     - **Files a person reads** — READMEs, guides — name only the skills the
       text needs. A table of skills belongs only in documentation whose
       purpose is to teach the user what the skills are and how to use them.
