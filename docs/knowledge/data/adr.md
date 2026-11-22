@@ -167,9 +167,6 @@ own](adr/0056-validate-agent-files-ships-on-its-own.md)
 [Each worktree loads its catalog from a marketplace in the
 worktree](adr/0057-worktree-catalog-from-in-worktree-marketplace.md)
 
-[The AI review verdict follows severity
-alone](adr/0058-ai-review-verdict-follows-severity.md)
-
 [A label requests an AI review and a label stops
 it](adr/0059-ai-reviews-requested-and-held-by-label.md)
 
@@ -266,3 +263,6 @@ events](adr/0099-responder-runs-on-pull-request-and-review-events.md)
 
 [The CI review runs the catalog of its image, not of the
 checkout](adr/0100-ci-review-runs-the-image-catalog.md)
+
+[AI review findings carry a verdict and a
+priority](adr/0101-ai-review-findings-carry-a-verdict-and-a-priority.md)

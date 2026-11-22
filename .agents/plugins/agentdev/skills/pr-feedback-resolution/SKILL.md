@@ -113,13 +113,11 @@ gh api graphql --paginate --slurp \
     `reviews` block above returns each submitted review's own `body` — the
     summary a reviewer writes with the verdict, distinct from any inline
     thread. A review can carry a non-empty `body` with **zero** inline
-    comments, so it never appears under `reviewThreads`. A blocking
-    *metadata gate* — `pr-review` stops before its inline passes when the PR
-    description misrepresents the change set — is always posted this way, with
-    no thread to anchor to. Collect every review whose `body` is non-empty,
-    process the newest per author, and classify a blocking or gate body as
-    feedback to act on (typically: update the PR title/description to match the
-    diff, then re-request review) even when no review thread exists.
+    comments, so it never appears under `reviewThreads`. Collect every review
+    whose `body` is non-empty, process the newest per author, and treat each
+    issue or request it raises as feedback to act on, like a thread: fix it, or
+    reply with the reason it does not hold, even when no review thread exists. A
+    body that only describes the change needs no action.
     `reviewThreads` alone is structurally blind to these.
 
 After fetching, **filter out resolved threads** using these rules (apply in order):
@@ -169,6 +167,13 @@ Determine confidence level before making changes. **Only process threads that pa
 3. **Decision matrix**:
    - **≥70% confidence**: Proceed with change, document rationale
    - **<70% confidence**: Reply asking for clarification, do not change code
+
+   A review comment that opens with a label — `**P1**`, `**P2**`, or `**P3**`
+   for a finding, `**Question**` for an issue the reviewer could not settle — is
+   not a request whose intent needs scoring, so skip the score and act on the
+   label: fix a `P1` or `P2`, or reply with the evidence that it does not hold;
+   fix a `P3`, or reply with the reason to decline it; answer a `Question` from
+   the code, and fix what the answer shows is wrong. Then resolve the thread.
 
 ### Workflow 3: Address Review Comments
 

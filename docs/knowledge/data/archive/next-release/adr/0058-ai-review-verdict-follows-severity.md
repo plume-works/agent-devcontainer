@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 ---
 
 # The AI review verdict follows severity alone
