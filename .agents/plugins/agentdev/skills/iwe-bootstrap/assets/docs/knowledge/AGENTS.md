@@ -164,7 +164,7 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 | Skill                       | What it does                                                          |
 | --------------------------- | --------------------------------------------------------------------- |
 | `/agentdev:iwe-setup`       | Sets up the workspace from the codebase: product doc and guides       |
-| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code    |
+| `/agentdev:iwe-explore`     | Thinking partner from an idea; never writes code                      |
 | `/agentdev:iwe-plan`        | Files a plan: verified anchors, acceptance, ADRs, hub link, rank      |
 | `/agentdev:iwe-capture`     | Files a complete bug or backlog task, deduplicated                    |
 | `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries |
