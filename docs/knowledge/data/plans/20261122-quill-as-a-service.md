@@ -184,7 +184,7 @@ its "Determine agent prompts" step.
   review, provoked by opening the pull request and then adding
   `request-ai-review`, cancels the earlier review before it is queued;
   `bun test test/queue.test.ts` passes.
-- [ ] `src/reviewer.ts` asks for an installation token limited to the one
+- [x] `src/reviewer.ts` asks for an installation token limited to the one
   repository; `bun test test/queue.test.ts` passes.
 - [ ] A reviewer container still running after 30 minutes is stopped, provoked
   in the test with a fake clock and a container that never exits;
