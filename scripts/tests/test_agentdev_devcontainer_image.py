@@ -109,6 +109,24 @@ class Consumer:
             'systemctl --user is-active agentdev-xpra.service', check=False
         ).stdout.strip()
 
+    def xpra_journal(self) -> str:
+        return subprocess.run(
+            [
+                'docker',
+                'exec',
+                self.container(),
+                'journalctl',
+                '-b',
+                '--no-pager',
+                '-n',
+                '80',
+                '_SYSTEMD_USER_UNIT=agentdev-xpra.service',
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        ).stdout
+
     def lines(self, name: str) -> list[str]:
         path = self.workspace / name
         return path.read_text().splitlines() if path.exists() else []
@@ -136,7 +154,7 @@ def consumer() -> Iterator:
 def assert_ready(box: Consumer, xpra: str = 'active') -> None:
     box.exec('agentdev-runtime health ready')
     box.exec('test "$(systemctl is-system-running)" = running')
-    assert box.xpra() == xpra
+    assert box.xpra() == xpra, box.xpra_journal()
 
 
 def test_a_direct_consumer_gets_the_managed_runtime_without_lifecycle_scripts(consumer):
