@@ -225,7 +225,7 @@ its "Determine agent prompts" step.
 - [x] A pull request from a configured trusted bot whose every push and commit
   satisfies `review-gate.js::botApprovalFailure`'s rule is approved once by
   Quill; `bun test test/approve.test.ts` passes.
-- [ ] A push from anyone other than the bot dismisses Quill's approval;
+- [x] A push from anyone other than the bot dismisses Quill's approval;
   `bun test test/approve.test.ts` passes.
 - [ ] A commit authored by anyone other than the bot dismisses Quill's approval;
   `bun test test/approve.test.ts` passes.
