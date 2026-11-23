@@ -186,7 +186,7 @@ def test_a_failure_after_the_flush_fails_closed(firewall: Firewall, capsys):
         ('yes', True),
         ('ON', True),
         ('TRUE', True),
-        ('ture', True),
+        ('ture', False),
         ('', False),
         ('0', False),
         ('no', False),

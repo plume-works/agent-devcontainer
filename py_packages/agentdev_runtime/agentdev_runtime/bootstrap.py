@@ -199,9 +199,8 @@ def run(settings: env.Settings, environment_file: Path = ENVIRONMENT_FILE) -> in
 
 
 def firewall_requested(environ: dict[str, str]) -> bool:
-    """Accept every boolean spelling of ``ENABLE_FIREWALL``; an unknown one fails closed."""
-    settings = env.Settings(environ=environ)
-    return settings.boolean('ENABLE_FIREWALL') or bool(settings.errors)
+    """Accept every true spelling of ``ENABLE_FIREWALL`` that ``Settings.boolean`` accepts."""
+    return env.Settings(environ=environ).boolean('ENABLE_FIREWALL')
 
 
 def main(argv: list[str]) -> int:
