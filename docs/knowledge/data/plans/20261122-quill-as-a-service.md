@@ -209,7 +209,7 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [x] A review cancelled by a push completes the check run as cancelled;
   `bun test test/review.test.ts` passes.
-- [ ] A starting review dismisses Quill's earlier approval and leaves an earlier
+- [x] A starting review dismisses Quill's earlier approval and leaves an earlier
   change request; `bun test test/review.test.ts` passes.
 - [ ] A review that ends with success removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
