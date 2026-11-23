@@ -165,7 +165,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 - [x] The workflow runs on a push to `main` and pushes the tag
   `agentdev-lib/<version>`, with `<version>` read from
   `py_packages/agentdev_lib/pyproject.toml`.
-- [ ] A step skips the push when the tag `agentdev-lib/<version>` already
+- [x] A step skips the push when the tag `agentdev-lib/<version>` already
   exists.
 - [ ] The push uses a token from `actions/create-github-app-token`
   (`RENOVATE_APP_CLIENT_ID`, `RENOVATE_APP_PRIVATE_KEY`,
