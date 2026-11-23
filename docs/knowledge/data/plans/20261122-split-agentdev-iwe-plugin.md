@@ -131,7 +131,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 - [x] A plugin script that SIGTERM ends while it runs through its shebang prints
   `RESULT=SIGNAL_TERM` last and exits 143.
 - [x] `uv run pytest .agents/plugins/agentdev/tests` passes.
-- [ ] `git status` shows no `.venv/` or `uv.lock` under `.agents/plugins/` after
+- [x] `git status` shows no `.venv/` or `uv.lock` under `.agents/plugins/` after
   the tests run.
 
 ### Task 4: Keep the plugin pins in step with the package version
