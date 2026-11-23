@@ -295,7 +295,7 @@ image context for the mount that Task 10 added.
 - [x] The bridge reads `.claude-plugin/marketplace.json` and registers
   `<plugin>:<skill>` commands for each plugin it lists.
 - [x] The skill tool strips the namespace prefix of each plugin.
-- [ ] `bun test ./.agents/opencode-bridge/tests` passes.
+- [x] `bun test ./.agents/opencode-bridge/tests` passes.
 - [ ] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
   passes.
 
