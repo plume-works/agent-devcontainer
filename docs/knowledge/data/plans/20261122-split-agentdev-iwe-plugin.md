@@ -153,7 +153,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 - [x] In a fixture repository, a commit that changes `py_packages/agentdev_lib/`
   after the latest `agentdev-lib/*` tag and keeps the version makes the check
   exit 1.
-- [ ] In the same fixture, a commit that also changes the version makes the
+- [x] In the same fixture, a commit that also changes the version makes the
   check exit 0.
 - [ ] A pull request job in `.github/workflows/primary-checks.yml` runs the
   check.
