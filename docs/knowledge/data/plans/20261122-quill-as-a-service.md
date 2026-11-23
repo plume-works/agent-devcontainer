@@ -126,7 +126,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `src/config.ts`, `test/config.test.ts`
 
-- [ ] `src/config.ts` reads the repositories, trusted bots, pause switch, and
+- [x] `src/config.ts` reads the repositories, trusted bots, pause switch, and
   maximum concurrent reviews, with 5 as the default maximum;
   `bun test test/config.test.ts` passes.
 
