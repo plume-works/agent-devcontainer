@@ -88,7 +88,7 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
   user, and prints its normal result.
 - [x] A copy of the staged plugin, made as `claude plugin install` makes it in
   `~/.claude/plugins/cache/`, runs the same script.
-- [ ] The size of the staged `.venv/` (`du -sh`) is recorded in
+- [x] The size of the staged `.venv/` (`du -sh`) is recorded in
   `## Verification results`.
 - [ ] The size of the image layer that the staged `.venv/` adds is recorded in
   `## Verification results`.
