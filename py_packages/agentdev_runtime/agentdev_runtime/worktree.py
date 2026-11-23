@@ -21,7 +21,6 @@ from agentdev_runtime import (
     catalog,
     claude_state,
     project,
-    remote_control,
     settings as env,
 )
 
@@ -155,12 +154,17 @@ def uninstall_catalog(path: Path) -> None:
         claude('/', 'plugin', 'marketplace', 'remove', marketplace(path))
 
 
+def claude_config_dir() -> Path:
+    home = Path(os.environ.get('HOME') or Path.home())
+    return Path(os.environ.get('CLAUDE_CONFIG_DIR') or home / '.claude')
+
+
 def base_ref(repository: str) -> str:
     """Return Claude's ``worktree.baseRef`` from local, project, then user settings."""
     for path in (
         Path(repository, '.claude', 'settings.local.json'),
         Path(repository, '.claude', 'settings.json'),
-        remote_control.config_dir() / 'settings.json',
+        claude_config_dir() / 'settings.json',
     ):
         try:
             value = json.loads(path.read_text()).get('worktree', {}).get('baseRef')
@@ -298,7 +302,7 @@ def register() -> None:
             if not any(hook.get('command') == command for hook in hooks):
                 groups.append({'hooks': [{'type': 'command', 'command': command}]})
 
-    claude_state.update_json(remote_control.config_dir() / 'settings.json', add)
+    claude_state.update_json(claude_config_dir() / 'settings.json', add)
 
 
 def main(argv: list[str]) -> int:

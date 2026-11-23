@@ -13,34 +13,10 @@ Handler = Callable[[argparse.Namespace], int]
 Passthrough = Callable[[list[str]], int]
 
 
-def _keyring(argv: list[str]) -> int:
-    from agentdev_runtime import keyring
-
-    return keyring.main(argv)
-
-
-def _opencode(argv: list[str]) -> int:
-    from agentdev_runtime import opencode
-
-    return opencode.main(argv)
-
-
-def _remote_control(argv: list[str]) -> int:
-    from agentdev_runtime import remote_control
-
-    return remote_control.main(argv)
-
-
 def _state(argv: list[str]) -> int:
     from agentdev_runtime import agent_state
 
     return agent_state.main(argv)
-
-
-def _supervisor(argv: list[str]) -> int:
-    from agentdev_runtime import supervisor
-
-    return supervisor.main(argv)
 
 
 def _bootstrap(argv: list[str]) -> int:
@@ -53,18 +29,6 @@ def _catalog(argv: list[str]) -> int:
     from agentdev_runtime import catalog
 
     return catalog.main(argv)
-
-
-def _coder(argv: list[str]) -> int:
-    from agentdev_runtime import coder
-
-    return coder.main(argv)
-
-
-def _docker(argv: list[str]) -> int:
-    from agentdev_runtime import docker
-
-    return docker.main(argv)
 
 
 def _firewall(argv: list[str]) -> int:
@@ -97,12 +61,6 @@ def _project(argv: list[str]) -> int:
     return project.main(argv)
 
 
-def _workspace(argv: list[str]) -> int:
-    from agentdev_runtime import workspace
-
-    return workspace.main(argv)
-
-
 def _lifecycle(argv: list[str]) -> int:
     from agentdev_runtime import lifecycle
 
@@ -127,25 +85,15 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
         _lifecycle,
         'the Dev Container create, start, and attach phases and their hooks',
     ),
-    'workspace': (
-        _workspace,
-        'deploy workspace phases: checkout, project, catalog, config, prepare',
-    ),
     'project': (_project, "the checkout's uv environment link, uv sync, and pre-commit hooks"),
     'worktree': (_worktree, "Claude Code's WorktreeCreate and WorktreeRemove hooks"),
     'git': (_git, 'git trust and HTTPS credentials for the checkout'),
-    'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
-    'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
+    'bootstrap': (_bootstrap, 'the root bootstrap systemd runs before the Docker engine'),
     'catalog': (_catalog, 'register a catalog root with Claude Code and OpenCode'),
-    'coder': (_coder, "the Coder agent's start"),
-    'docker': (_docker, 'the nested Docker engine and its garbage collection'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
-    'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
-    'remote-control': (_remote_control, 'the Claude Remote Control watcher and start'),
+    'health': (_health, 'readiness and the status of the systemd units'),
     'state': (_state, 'agent state: policy and pre-approval'),
     'xpra': (_xpra, 'the Xpra server with its HTML5 client'),
-    'opencode': (_opencode, 'the OpenCode server, its probe, its link, and its Coder start'),
-    'keyring': (_keyring, 'the D-Bus session and the GNOME Keyring Secret Service'),
 }
 
 

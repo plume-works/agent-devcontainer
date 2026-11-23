@@ -123,7 +123,6 @@ def test_create_purges_a_cbm_entry_once_the_claude_json_link_is_a_file(
     settings = env.Settings(
         {
             **home.settings.environ,
-            'AGENTDEV_RUNTIME_MODE': env.DEPLOY,
             'AGENTDEV_AGENTS_AUTH_DIR': str(tmp_path_factory.mktemp('auth')),
             'AGENTDEV_SKIP_CLAUDE_PREAPPROVE': '1',
         }

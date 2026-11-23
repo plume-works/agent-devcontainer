@@ -11,7 +11,7 @@ import sys
 import time
 
 from agentdev_runtime import agent_state, catalog, cbm_purge, claude_state, lifecycle
-from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
+from agentdev_runtime.settings import Settings
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -56,16 +56,16 @@ class Recorder:
         )
 
 
-def settings_for(tmp_path: Path, mode: str = DEVCONTAINER, **extra: str) -> Settings:
-    return Settings(runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE=mode, **extra))
+def settings_for(tmp_path: Path, **extra: str) -> Settings:
+    return Settings(runtime_env(tmp_path, **extra))
 
 
 def mode(path: Path) -> int:
     return stat.S_IMODE(path.stat().st_mode)
 
 
-def test_devcontainer_defaults_are_the_root_layout():
-    settings = Settings({'AGENTDEV_RUNTIME_MODE': DEVCONTAINER, 'HOME': '/root'})
+def test_defaults_are_the_root_layout():
+    settings = Settings({'HOME': '/root'})
     assert [
         settings.get('AGENTDEV_AGENTS_AUTH_DIR'),
         settings.get('AGENTDEV_CLAUDE_DIR'),
@@ -79,16 +79,15 @@ def test_devcontainer_defaults_are_the_root_layout():
     ]
 
 
-@pytest.mark.parametrize('profile', [DEPLOY, DEVCONTAINER])
 def test_create_replaces_the_claude_json_link_with_its_target(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, profile: str
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     home = tmp_path / 'home'
     (home / '.claude').mkdir(parents=True)
     (home / '.claude/claude.json').write_text('{"volume": true}')
     (home / '.claude/claude.json').chmod(0o600)
     (home / '.claude.json').symlink_to(home / '.claude/claude.json')
-    settings = settings_for(tmp_path, profile)
+    settings = settings_for(tmp_path)
     recorder = Recorder(monkeypatch, settings)
 
     agent_state.create(settings)
@@ -102,14 +101,13 @@ def test_create_replaces_the_claude_json_link_with_its_target(
     assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude']
 
 
-@pytest.mark.parametrize('profile', [DEPLOY, DEVCONTAINER])
 def test_create_keeps_a_regular_claude_json_and_links_nothing(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, profile: str
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     home = tmp_path / 'home'
     home.mkdir()
     (home / '.claude.json').write_text('{"user": true}')
-    settings = settings_for(tmp_path, profile)
+    settings = settings_for(tmp_path)
     recorder = Recorder(monkeypatch, settings)
 
     agent_state.create(settings)
@@ -124,7 +122,7 @@ def test_create_leaves_a_link_elsewhere_alone(tmp_path: Path, monkeypatch: pytes
     home.mkdir()
     (tmp_path / 'dotfiles.json').write_text('{"dotfiles": true}')
     (home / '.claude.json').symlink_to(tmp_path / 'dotfiles.json')
-    settings = settings_for(tmp_path, DEPLOY)
+    settings = settings_for(tmp_path)
     Recorder(monkeypatch, settings)
 
     agent_state.create(settings)
@@ -165,8 +163,8 @@ def test_hooks_keep_their_call_order():
     assert ready.index('credential_helper') < ready.index('apply_agent_policy')
     assert ready.rstrip().endswith("hooks.run(settings, 'started')")
     created = inspect.getsource(lifecycle.created)
-    assert created.index('agent_state.create') < created.index('.project()')
-    assert created.index('.project()') < created.index('catalog.install')
+    assert created.index('agent_state.create') < created.index('project.prepare')
+    assert created.index('project.prepare') < created.index('catalog.install')
 
 
 def fake_gh(directory: Path) -> None:
@@ -198,7 +196,6 @@ def gh_env(tmp_path: Path, **extra: str) -> dict[str, str]:
         'GIT_CONFIG_GLOBAL': str(tmp_path / 'gitconfig'),
         'GIT_CONFIG_NOSYSTEM': '1',
         'GIT_TERMINAL_PROMPT': '0',
-        'AGENTDEV_KEYRING_ENV_FILE': str(tmp_path / 'absent.env'),
         **extra,
     }
 
@@ -227,18 +224,6 @@ def test_injected_token_authenticates_https_before_any_checkout_exists(tmp_path:
     assert persisted == []
 
 
-def test_keyring_environment_file_location_is_configurable(tmp_path: Path):
-    (tmp_path / 'home').mkdir()
-    keyring_env = tmp_path / 'run/keyring.env'
-    keyring_env.parent.mkdir()
-    keyring_env.write_text('export GH_TEST_AUTHENTICATED=1\n')
-    env = gh_env(tmp_path, AGENTDEV_KEYRING_ENV_FILE=str(keyring_env))
-
-    setup = subprocess.run(GH_HELPER, env=env, capture_output=True, text=True)
-    assert setup.returncode == 0, setup.stderr
-    assert 'Configured gh as the git credential helper.' in setup.stdout
-
-
 HOLD_LOCK = """
 import sys, time
 from pathlib import Path
@@ -254,7 +239,7 @@ with agent_state.config_lock(settings.Settings()):
 
 def test_concurrent_config_writers_take_turns(tmp_path: Path):
     log = tmp_path / 'calls.log'
-    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy')
+    env = runtime_env(tmp_path)
     first = subprocess.Popen([sys.executable, '-c', HOLD_LOCK, str(log)], env=env)
     deadline = time.monotonic() + 10
     while not log.exists() and time.monotonic() < deadline:

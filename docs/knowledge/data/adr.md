@@ -65,43 +65,20 @@ namespace](adr/0020-bare-skill-names-namespaced-commands.md)
 [Configuration is documented variables, never shell
 code](adr/0021-configuration-is-documented-variables.md)
 
-[The standalone runtime shares functions, not lifecycle
-commands](adr/0022-deploy-image-reuses-runtime-helpers.md)
-
-[Each service authenticates on its own](adr/0023-every-service-authenticates.md)
-
 [Extra CA trust goes through the system
 store](adr/0024-extra-ca-through-system-store.md)
-
-[The session bus address is an image
-ENV](adr/0025-fixed-session-bus-address-in-image-env.md)
-
-[A latch waits for a retry in the standalone runtime and ends a Dev
-Container](adr/0026-latch-waits-for-retry-or-ends-devcontainer.md)
 
 [One bridge module serves OpenCode v1 and
 v2](adr/0027-one-bridge-module-for-opencode-v1-and-v2.md)
 
-[OpenCode starts first, and optional work does not stop
-it](adr/0028-opencode-first-optional-work-after.md)
-
 [OpenCode reads the catalog through the OpenCode
 bridge](adr/0029-opencode-reads-catalog-through-bridge.md)
-
-[Image builds get no package from
-Launchpad](adr/0030-packages-avoid-launchpad.md)
 
 [PID 1 runs the create phase, and the image label declares the lifecycle
 commands](adr/0031-pid1-runs-the-create-phase.md)
 
 [The wheel RECORD is the integrity record of the
 runtime](adr/0032-runtime-integrity-from-wheel-record.md)
-
-[The runtime is one Python package that the base image does not
-contain](adr/0033-runtime-is-one-python-package.md)
-
-[supervisord runs in the PID 1 process, and the controller event listener owns
-the order](adr/0034-supervisord-in-process-as-pid1.md)
 
 [On OpenCode v2, hooks apply the tool limits of a catalog
 agent](adr/0035-v2-tool-limits-in-hooks.md)
@@ -111,9 +88,6 @@ context](adr/0036-validator-built-from-build-context.md)
 
 [The `ai-review-present` check trusts only named
 bots](adr/0037-ai-review-trusts-named-bots.md)
-
-[apt packages float within a fixed Ubuntu
-release](adr/0038-apt-packages-float-within-base-release.md)
 
 [Bundled code is relative to the skill, under
 agent-code/](adr/0039-bundled-code-under-agent-code.md)
@@ -126,9 +100,6 @@ repository](adr/0042-expo-bridge-record-in-its-own-repository.md)
 
 [The Expo bundle prepares EAS builds and leaves the workflow to
 Expo](adr/0043-expo-bundle-leaves-the-workflow-to-expo-plugin.md)
-
-[The image installs the catalog, and the create phase installs it
-again](adr/0044-image-and-create-phase-both-install-catalog.md)
 
 [Pushes to main build after a cooldown that a newer push
 cancels](adr/0046-main-builds-after-cancellable-cooldown.md)
@@ -199,23 +170,11 @@ UID/GID pair](adr/0070-claude-credentials-shared-other-state-per-instance.md)
 [A cloud session works on its host, not in a Dev
 Container](adr/0071-cloud-sessions-work-on-the-host.md)
 
-[Setup that needs Coder user secrets runs from the Coder agent
-start](adr/0072-coder-secrets-only-in-the-agent-start.md)
-
-[Docker garbage collection is a supervised hourly service with an allow-list for
-volumes](adr/0073-docker-gc-removes-only-disposable-volumes.md)
-
 [Only the gh wrapper of the image authenticates
 gh](adr/0074-image-gh-wrapper-is-the-only-gh-shim.md)
 
-[The agent account has one empty home volume for each
-instance](adr/0075-one-empty-home-volume.md)
-
 [OpenCode runs with full access, merged into its configuration at each
 start](adr/0076-opencode-full-access-merged-at-each-start.md)
-
-[The runtime supervises the Docker engine, and the image has no SSH
-server](adr/0079-runtime-supervises-the-nested-engine.md)
 
 [Each checkout links .venv to its own environment on the home
 volume](adr/0081-venv-link-to-the-home-volume.md)
@@ -235,17 +194,11 @@ ignores](adr/0085-git-is-the-ignore-authority.md)
 [Both harnesses permit a subagent depth of 5 in the
 containers](adr/0091-subagent-nesting-depth-five.md)
 
-[The Remote Control server runs by
-default](adr/0092-remote-control-server-on-by-default.md)
-
 [The commit that ticks a plan task contains its
 evidence](adr/0093-completion-evidence-in-the-commit-message.md)
 
 [Code first, git history second, documents
 last](adr/0094-code-then-git-history-then-documents.md)
-
-[The Coder agent start runs OpenCode and Remote Control in a Dev
-Container](adr/0095-coder-agent-start-runs-opencode-and-remote-control.md)
 
 [The create phase installs the plugins that the project settings
 enable](adr/0096-create-phase-installs-enabled-plugins.md)
@@ -272,3 +225,6 @@ package](adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
 
 [The catalog has no template consumption
 skill](adr/0106-no-template-consumption-skill.md)
+
+[agentdev-devcontainer is one Dockerfile on plume-works/devcontainer-base, with
+systemd as PID 1](adr/0107-devcontainer-image-on-plume-devcontainer-base.md)

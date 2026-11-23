@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 
 from agentdev_runtime import project
-from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
+from agentdev_runtime.settings import Settings
 import pytest
 
 CONFIG = """repos:
@@ -40,38 +40,26 @@ def checkout(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return workspace
 
 
-def settings_for(workspace: Path, mode: str) -> Settings:
-    return Settings(
-        {**os.environ, 'AGENTDEV_RUNTIME_MODE': mode, 'DEV_WORKSPACE_FOLDER': str(workspace)}
-    )
+def settings_for(workspace: Path) -> Settings:
+    return Settings({**os.environ, 'DEV_WORKSPACE_FOLDER': str(workspace)})
 
 
-@pytest.mark.parametrize('mode', [DEVCONTAINER, DEPLOY])
 def test_a_missing_system_hook_executable_warns_and_keeps_the_status(
-    checkout: Path, mode: str, capsys: pytest.CaptureFixture[str]
+    checkout: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    assert project.hooks(settings_for(checkout, mode)) == 0
+    assert project.hooks(settings_for(checkout)) == 0
     err = capsys.readouterr().err
     assert 'hook gitleaks runs gitleaks, which is not on PATH' in err
     assert 'absent-python-tool' not in err
 
 
-@pytest.mark.parametrize('mode', [DEVCONTAINER, DEPLOY])
 def test_a_present_executable_draws_no_warning(
-    checkout: Path, mode: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+    checkout: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     gitleaks = tmp_path / 'bin/gitleaks'
     gitleaks.write_text('#!/bin/sh\nexit 0\n')
     gitleaks.chmod(0o755)
-    assert project.hooks(settings_for(checkout, mode)) == 0
-    assert 'not on PATH' not in capsys.readouterr().err
-
-
-def test_deploy_keeps_failing_on_a_custom_hook_without_warning(
-    checkout: Path, capsys: pytest.CaptureFixture[str]
-) -> None:
-    (checkout / '.git/hooks/pre-push').write_text('#!/bin/sh\necho mine\n')
-    assert project.hooks(settings_for(checkout, DEPLOY)) == 1
+    assert project.hooks(settings_for(checkout)) == 0
     assert 'not on PATH' not in capsys.readouterr().err
 
 

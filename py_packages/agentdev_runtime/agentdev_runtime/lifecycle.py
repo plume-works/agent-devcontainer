@@ -2,8 +2,8 @@
 The Dev Container lifecycle commands: create, start, and attach phases.
 
 ``created`` prepares client state, project dependencies and hooks, and the staged catalog;
-``ready`` waits for the supervised runtime and repairs per-start state; ``attached`` indexes,
-syncs, and layers a complete checkout catalog. See ADR-0031 and ADR-0044.
+``ready`` waits for the systemd units and repairs per-start state; ``attached`` syncs and layers
+a complete checkout catalog. See ADR-0031 and ADR-0044.
 """
 
 from __future__ import annotations
@@ -24,7 +24,6 @@ from agentdev_runtime import (
     hooks,
     project,
     settings as env,
-    workspace as checkout,
     worktree,
 )
 
@@ -37,7 +36,7 @@ class LifecycleError(Exception):
 
 
 class NotReady(LifecycleError):
-    """The supervised runtime failed or did not become ready in time."""
+    """A runtime unit failed or did not become ready in time."""
 
 
 def workspace_of(settings: env.Settings) -> str:
@@ -83,7 +82,7 @@ def created(settings: env.Settings) -> None:
     if marker.is_file():
         print(f'{PREFIX}: the create phase already ran in this container.')
         return
-    # Hooks inherit the working directory; supervisord starts this phase elsewhere.
+    # Hooks inherit the working directory; systemd starts this phase elsewhere.
     os.chdir(workspace_of(settings))
     claim_project(settings)
     # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
@@ -91,7 +90,7 @@ def created(settings: env.Settings) -> None:
     with agent_state.config_lock(settings):
         agent_state.create(settings)
     prepare_venv_root(settings)
-    checkout.Workspace(settings).project()
+    project.prepare(settings)
     # The client-state volumes shadow the build-time install, so install the staged catalog
     # again at user scope; the attach phase layers a complete checkout catalog on top.
     staged = settings.raw('AGENTDEV_CATALOG_DIR')
@@ -102,48 +101,39 @@ def created(settings: env.Settings) -> None:
         print('No catalog staged in the image; skipping the image-scoped plugin install.')
     with agent_state.config_lock(settings):
         catalog.install_enabled(workspace_of(settings))
-    # Before Remote Control starts: it reads the worktree hooks only then.
-    if not project.deploy(settings):
-        with agent_state.config_lock(settings):
-            worktree.register()
+    # Before any Claude session starts: it reads the worktree hooks only then.
+    with agent_state.config_lock(settings):
+        worktree.register()
     hooks.run(settings, 'created')
     marker.parent.mkdir(parents=True, exist_ok=True)
     marker.touch()
 
 
-def runtime_failed(settings: env.Settings) -> bool:
-    first = (quietly(health.status, settings)[1].splitlines() or [''])[0]
-    return first == 'runtime state: failed'
-
-
 def wait_created(settings: env.Settings) -> None:
-    """Wait for the supervised create phase, which runs only after the root bootstrap."""
+    """Wait for agentdev-created.service, which runs only after the root bootstrap."""
     timeout = float(settings.get('AGENTDEV_READY_TIMEOUT'))
     deadline = time.monotonic() + timeout
     marker = created_marker(settings)
     while not marker.is_file():
-        if runtime_failed(settings):
-            raise NotReady('the runtime failed before the create phase finished')
+        if health.failed():
+            raise NotReady('a runtime unit failed before the create phase finished')
         if time.monotonic() >= deadline:
             raise NotReady(f'the create phase did not finish within {timeout:g}s')
         time.sleep(1)
     print(f'{PREFIX}: the create phase finished', flush=True)
 
 
-def quietly(call, *args) -> tuple[int, str]:
-    """Run a health call, returning its status and what it printed."""
-    out = io.StringIO()
-    with contextlib.redirect_stdout(out):
-        status = call(*args)
-    return status, out.getvalue()
+def quiet_ready() -> int:
+    with contextlib.redirect_stdout(io.StringIO()):
+        return health.ready()
 
 
 def wait_ready(settings: env.Settings) -> None:
     timeout = float(settings.get('AGENTDEV_READY_TIMEOUT'))
     deadline = time.monotonic() + timeout
-    while quietly(health.ready, settings)[0] != 0:
-        if runtime_failed(settings):
-            raise NotReady('the runtime failed; the editor cannot attach')
+    while quiet_ready() != 0:
+        if health.failed():
+            raise NotReady('a runtime unit failed; the editor cannot attach')
         if time.monotonic() >= deadline:
             raise NotReady(f'the runtime was not ready within {timeout:g}s')
         time.sleep(1)
@@ -151,12 +141,11 @@ def wait_ready(settings: env.Settings) -> None:
 
 
 def ready(settings: env.Settings, wait: bool) -> None:
-    """Run the start phase: wait for a supervisor when there is one, then repair per-start state."""
+    """Run the start phase: wait for systemd's units unless told not to, then repair state."""
     workspace_of(settings)
     if wait:
         wait_ready(settings)
     git.safe_directory(settings)
-    # After the keyring: gh may keep its login there.
     check(git.credential_helper(settings), 'the git credential helper setup')
     with agent_state.config_lock(settings):
         agent_state.apply_agent_policy()
@@ -201,7 +190,7 @@ def main(argv: list[str]) -> int:
     except (
         LifecycleError,
         hooks.HookError,
-        checkout.WorkspaceError,
+        project.ProjectError,
         agent_state.StateError,
         catalog.CatalogError,
         subprocess.CalledProcessError,
@@ -209,6 +198,6 @@ def main(argv: list[str]) -> int:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
         if isinstance(error, NotReady):
             with contextlib.redirect_stdout(sys.stderr):
-                health.status(settings)
+                health.status()
         return 1
     return 0

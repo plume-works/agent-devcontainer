@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from agentdev_runtime import firewall
-from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
+from agentdev_runtime.settings import Settings
 import pytest
 
 
@@ -46,31 +46,13 @@ def test_github_meta_missing_fields_fails(meta: object) -> None:
         firewall.github_ranges(meta)
 
 
-def test_proxy_cidrs_accept_commas_and_spaces() -> None:
-    assert firewall.proxy_cidrs('10.0.0.1/32, 10.1.0.0/16', '4096') == [
-        '10.0.0.1/32',
-        '10.1.0.0/16',
-    ]
-
-
 def test_a_devcontainer_reads_the_checkout_allowlist_when_present(tmp_path: Path) -> None:
     checkout = tmp_path / '.devcontainer/firewall-allowlist.txt'
-    settings = Settings(
-        {'AGENTDEV_RUNTIME_MODE': DEVCONTAINER, 'DEV_WORKSPACE_FOLDER': str(tmp_path)}
-    )
+    settings = Settings({'DEV_WORKSPACE_FOLDER': str(tmp_path)})
     assert firewall.allowlist_path(settings) == firewall.IMAGE_ALLOWLIST
     checkout.parent.mkdir()
     checkout.write_text('github-meta\n')
     assert firewall.allowlist_path(settings) == checkout
-
-
-def test_deploy_reads_the_image_copy_or_the_setting(tmp_path: Path) -> None:
-    (tmp_path / '.devcontainer').mkdir()
-    (tmp_path / '.devcontainer/firewall-allowlist.txt').write_text('github-meta\n')
-    deploy = {'AGENTDEV_RUNTIME_MODE': DEPLOY, 'DEV_WORKSPACE_FOLDER': str(tmp_path)}
-    assert firewall.allowlist_path(Settings(deploy)) == firewall.IMAGE_ALLOWLIST
-    explicit = Settings({**deploy, 'FIREWALL_ALLOWLIST': '/x/allow.txt'})
-    assert firewall.allowlist_path(explicit) == Path('/x/allow.txt')
 
 
 def test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer(tmp_path: Path) -> None:
@@ -78,7 +60,6 @@ def test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer(tmp_path:
     (tmp_path / '.devcontainer/firewall-allowlist.txt').write_text('github-meta\n')
     settings = Settings(
         {
-            'AGENTDEV_RUNTIME_MODE': DEVCONTAINER,
             'DEV_WORKSPACE_FOLDER': str(tmp_path),
             'FIREWALL_ALLOWLIST': '/x/allow.txt',
         }

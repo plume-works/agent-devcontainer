@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 from agentdev_runtime import lifecycle, worktree
-from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
+from agentdev_runtime.settings import Settings
 import pytest
 
 UNRELATED = {
@@ -43,20 +43,18 @@ def test_registering_twice_adds_each_hook_once_and_keeps_the_rest(config: Path) 
     assert commands(config, 'WorktreeRemove') == [worktree.HOOKS['WorktreeRemove']]
 
 
-@pytest.mark.parametrize(('mode', 'registered'), [(DEVCONTAINER, True), (DEPLOY, False)])
-def test_the_create_phase_registers_the_hooks_outside_deploy_mode(
-    config: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str, registered: bool
+def test_the_create_phase_registers_the_hooks(
+    config: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     folder = tmp_path / 'checkout'
     folder.mkdir()
     monkeypatch.setattr(lifecycle, 'claim_project', lambda settings: None)
     monkeypatch.setattr(lifecycle.git, 'safe_directory', lambda settings: None)
     monkeypatch.setattr(lifecycle.agent_state, 'create', lambda settings: None)
-    monkeypatch.setattr(lifecycle.checkout.Workspace, 'project', lambda self: None)
+    monkeypatch.setattr(lifecycle.project, 'prepare', lambda settings: None)
     settings = Settings(
         {
             **os.environ,
-            'AGENTDEV_RUNTIME_MODE': mode,
             'DEV_WORKSPACE_FOLDER': str(folder),
             'AGENTDEV_HOOKS_ROOT': str(tmp_path / 'no-hooks'),
             'AGENTDEV_LIFECYCLE_DIR': str(tmp_path / 'lifecycle'),
@@ -64,4 +62,4 @@ def test_the_create_phase_registers_the_hooks_outside_deploy_mode(
         }
     )
     lifecycle.created(settings)
-    assert config.exists() == registered
+    assert config.exists()

@@ -7,8 +7,6 @@ description = "General-purpose agent development container: image build, devcont
 [dependency-groups]
 dev = [
   "pre-commit>=4.2.0",
-  "ansible>=11.4",
-  "ansible-lint>=25.2.1",
   "clang-format>=21.1.2",
   "pre-commit-hooks>=6.0.0",
   "pytest>=7.0.0",
@@ -40,5 +38,5 @@ testpaths = [
 addopts = "-m 'not stress'"
 markers = [
   "stress: repeats a race many times; excluded by default and run by a separate step of the CI Devcontainer image job with `-m stress -n auto`",
-  "requires_root: needs root (supervisord switching users, chown to other UIDs); skipped otherwise and run as root by scripts/run-root-tests",
+  "requires_root: needs root (setpriv to another account, chown to other UIDs); skipped otherwise and run as root by scripts/run-root-tests",
 ]

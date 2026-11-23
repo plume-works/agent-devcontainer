@@ -2,7 +2,7 @@
 
 NEVER use "$TMPDIR" env variable.
 ALWAYS use "./.tmp" (relative to the repo root) for temporary files; create it if it does not exist.
-The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so supervisord and tmux fail there with `EINVAL`.
+The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so tmux fails there with `EINVAL`.
 NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch contents. Use local git branch workflows instead; if push authentication is unavailable, stop and report the blocker rather than updating the branch remotely via API.
 NEVER force-push. NEVER use `gh stack` or GitHub native stacked pull requests. Work that depends on an open pull request is a normal pull request. Its base is the branch of its predecessor, and merges keep it current (see `docs/knowledge/data/adr/0068-stack-dependent-work-with-merges-only.md`).
 NEVER rebase or reset a branch that has been pushed; bring in other history with a merge.
@@ -12,7 +12,7 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
 ## Best Practices for Agents
 
 0. NEVER change git config on local or global level unless explicitly instructed. NEVER switch/change remote.
-1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `uv sync` (`agentdev-runtime project sync` inside the runtime images) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
+1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `uv sync` (`agentdev-runtime project sync` inside the runtime images) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Dockerfiles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
 2. **Scope test runs narrowly** while iterating: `uv run pytest <path>::<test_name>`, `bun test <path>`. Run the full suite only when asked.
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, use the `/agentdev:devcontainer-sandbox` skill to run the command through `devcontainer exec` when a Docker daemon is available. Only report a blocker when no Docker daemon is available.
 4. **Ask questions in prose, and then stop.** Do not use a structured-question tool, for example `AskUserQuestion` in Claude Code. The tool does not show the text that comes before the question, so the user does not see the context of the question. Give numbered options. Put the option that you recommend first. A question costs one turn. A default that seems correct does not give you permission to decide alone.
@@ -166,8 +166,6 @@ Practice 8.
   runtime's `:100`: X displays and `xpra list` are host-global, whatever `HOME` a test sets.
 - A test that waits for a process to end polls, and counts a zombie as gone: `os.kill(pid, 0)`
   succeeds on a zombie, and PID 1 reaps an orphan only on its next poll.
-- A fake service's background child does not inherit the service's stdout, or the `exec`
-  wrapper outlives the service and supervisord's group kill, not the code under test, ends it.
 - A test of a permission refusal skips under UID 0, which bypasses permission bits; covering
   root needs a refusal privilege does not bypass, such as a read-only mount.
 - A fixture's scratch directory under `/tmp` is unique per run (a `uuid4` suffix) and removed

@@ -24,7 +24,6 @@ def _executable(path: Path, content: str) -> None:
 def _run_health(
     tmp_path: Path,
     *,
-    mode: str = 'deploy',
     missing: frozenset[str] = frozenset(),
     fail_commands: frozenset[str] = frozenset(),
     firewall: str = 'false',
@@ -72,21 +71,18 @@ esac
     commands = {
         'actionlint',
         'agentdev-runtime',
-        'ansible',
         'bun',
         'clang-format',
         'claude',
         'cmake',
         'curl',
         'docker',
-        'gdbus',
         'gitleaks',
         'gh',
         'git',
         'iwe',
         'jq',
         'ninja',
-        'node',
         'opencode',
         'pgrep',
         'pre-commit',
@@ -104,7 +100,6 @@ esac
 
     env = {
         **os.environ,
-        'AGENTDEV_RUNTIME_MODE': mode,
         'CLAUDE_SECURESTORAGE_CONFIG_DIR': str(claude),
         'ENABLE_FIREWALL': firewall,
         'FAIL_COMMANDS': ','.join(sorted(fail_commands)),
@@ -191,8 +186,8 @@ def test_command_timeout_sets_aggregate_failure(tmp_path: Path) -> None:
     assert 'Overall: FAIL' in result.stdout
 
 
-def test_devcontainer_mode_is_healthy(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, mode='devcontainer')
+def test_a_complete_environment_is_healthy(tmp_path: Path) -> None:
+    result = _run_health(tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'Overall: PASS' in result.stdout
 
@@ -213,10 +208,9 @@ def test_enabled_firewall_requires_agent_allowlist_rule(tmp_path: Path) -> None:
         assert re.search(r'^runtime firewall\s+PASS\b', result.stdout, re.MULTILINE)
 
 
-def test_unknown_runtime_mode_and_firewall_value_fail(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, mode='invalid', firewall='perhaps')
+def test_an_unknown_firewall_value_fails(tmp_path: Path) -> None:
+    result = _run_health(tmp_path, firewall='perhaps')
     assert result.returncode == 1
-    assert re.search(r'^runtime mode\s+FAIL\b', result.stdout, re.MULTILINE)
     assert re.search(r'^runtime firewall\s+FAIL\b', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
 

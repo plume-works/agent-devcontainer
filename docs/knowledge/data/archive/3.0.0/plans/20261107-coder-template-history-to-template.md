@@ -209,11 +209,9 @@ None — no behavioral change.
 
 ## Out of scope
 
-- Open work about the template: the active [shared BuildKit
-  plan](../../../someday/shared-buildkit-builder.md), the accepted [shared
-  BuildKit builder](../../../someday/shared-buildkit-builder.md) feature, and
-  the pending [supervised Remote
-  Control](../../../backlog/coder-supervised-remote-control.md) task.
+- Open work about the template: the active shared BuildKit plan, the accepted
+  shared BuildKit builder feature, and the pending [supervised Remote
+  Control](../../next-release/backlog/coder-supervised-remote-control.md) task.
 - Finished documents that mention the template without changing it: the Remote
   Control plans that name its `coder_script` as a caller,
   `20261018-opencode-v2-default`, `20261014-expo-eas-template-profile`, the bug

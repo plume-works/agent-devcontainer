@@ -14,7 +14,7 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = 'scripts/renovate-post-upgrade.py'
-DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
+PINNED_TOOLS = 'docker/devcontainer/pinned-tools.yml'
 IWE_CONFIG = '.iwe/config.toml'
 
 # Each stub logs its arguments; STUB_* variables choose its outcome per call.
@@ -25,7 +25,7 @@ if [[ "$*" == *refresh-pin-checksums.py* ]]; then
   exit "${STUB_REFRESH_EXIT:-0}"
 fi
 if [[ "$*" == *fetch-pinned-tool.py* ]]; then
-  dest="${*: -1}"
+  dest="${@: -2:1}"
   echo "$dest" > "$STUB_LOG.iwe-dir"
   printf '%s\n' "$IWE_STUB" > "$dest/iwe"
   chmod +x "$dest/iwe"
@@ -56,7 +56,7 @@ def repo() -> Iterator[Path]:
     root = TMP_ROOT / f'post-upgrade-{uuid4().hex}'
     (root / 'scripts').mkdir(parents=True)
     (root / '.iwe').mkdir()
-    (root / DEV_TOOLS).parent.mkdir(parents=True)
+    (root / PINNED_TOOLS).parent.mkdir(parents=True)
     (root / 'bin').mkdir()
     shutil.copy(REPO_ROOT / SCRIPT, root / SCRIPT)
     for name, body in (('uv', UV_STUB),):
@@ -65,7 +65,7 @@ def repo() -> Iterator[Path]:
     (root / '.gitignore').write_text('bin/\nstub.log*\n.tmp/\n')
     for path in ('pins.yml', 'gone.yml', IWE_CONFIG):
         (root / path).write_text('original\n')
-    (root / DEV_TOOLS).write_text('original\n')
+    (root / PINNED_TOOLS).write_text('original\n')
     try:
         git(root, 'init', '--quiet', '--initial-branch=main')
         git(root, 'add', '-A')
@@ -175,21 +175,21 @@ def test_pre_commit_skip_keeps_the_callers_value(repo: Path) -> None:
     assert pre_commit_skips(repo) == ['fixture-hook,no-commit-to-branch']
 
 
-def test_dev_tools_bump_runs_the_pinned_iwe_before_pre_commit(repo: Path) -> None:
-    """A dev_tools pin change fetches the pinned iwe, and pre-commit sees what it migrated."""
-    (repo / DEV_TOOLS).write_text('bumped\n')
+def test_pinned_tools_bump_runs_the_pinned_iwe_before_pre_commit(repo: Path) -> None:
+    """A pinned-tools change fetches the pinned iwe, and pre-commit sees what it migrated."""
+    (repo / PINNED_TOOLS).write_text('bumped\n')
 
     code, calls = run(repo)
 
     assert code == 0
-    assert calls[1].startswith('uv run --frozen scripts/fetch-pinned-tool.py iwe ./.tmp/')
+    assert calls[1].startswith('uv run --frozen scripts/fetch-pinned-tool.py ./.tmp/')
     assert calls[2] == 'iwe normalize'
-    assert calls[3] == f'uv run --frozen pre-commit run --files {IWE_CONFIG} {DEV_TOOLS}'
+    assert calls[3] == f'uv run --frozen pre-commit run --files {IWE_CONFIG} {PINNED_TOOLS}'
 
 
 def test_the_fetched_iwe_is_removed_afterwards(repo: Path) -> None:
     """The pinned iwe's directory does not outlive the task."""
-    (repo / DEV_TOOLS).write_text('bumped\n')
+    (repo / PINNED_TOOLS).write_text('bumped\n')
 
     run(repo)
 
@@ -197,8 +197,8 @@ def test_the_fetched_iwe_is_removed_afterwards(repo: Path) -> None:
     assert not (repo / iwe_dir).exists()
 
 
-def test_no_dev_tools_change_runs_no_iwe(repo: Path) -> None:
-    """The pinned iwe is fetched and run only when the dev_tools pins changed."""
+def test_no_pinned_tools_change_runs_no_iwe(repo: Path) -> None:
+    """The pinned iwe is fetched and run only when the pinned tools changed."""
     (repo / 'pins.yml').write_text('bumped\n')
 
     _, calls = run(repo)
@@ -208,7 +208,7 @@ def test_no_dev_tools_change_runs_no_iwe(repo: Path) -> None:
 
 def test_a_failed_iwe_fetch_fails_before_pre_commit(repo: Path) -> None:
     """A pinned iwe that cannot be fetched fails the task without running iwe or pre-commit."""
-    (repo / DEV_TOOLS).write_text('bumped\n')
+    (repo / PINNED_TOOLS).write_text('bumped\n')
 
     code, calls = run(repo, STUB_FETCH_EXIT='1')
 
