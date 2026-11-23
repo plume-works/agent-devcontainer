@@ -41,26 +41,26 @@ Two independent concerns feed two different pass types (see Steps below) so they
 - Potential bugs, incorrect logic, and security implications introduced by the changed code
 - Every guarantee the change states — in the PR description, a code comment, a config `description`, or a doc — checked against what the code allows; a guarantee the code does not keep is a wrong outcome, and the input that breaks it is the Trigger
 - Test coverage and quality
-- Flag only significant, high-confidence issues; ignore nitpicks and likely false positives
+- Report every issue you believe is real, even when you are unsure; Step 6 settles doubt, so never drop a candidate yourself because it seems unlikely, minor, or deliberate
 
-**CRITICAL: we only want HIGH SIGNAL issues.** Flag an issue only when at least one of these holds:
+Flag an issue when at least one of these holds:
 
 - The code will fail to compile or parse (syntax errors, type errors, missing imports, unresolved references)
 - A reachable scenario produces a wrong outcome: you can name a concrete input or state the code can actually receive at the head commit (an event, an environment value, a run order, a prior state, a concurrent run) and the wrong result, failure, or security exposure it produces
-- It's a clear, unambiguous compliance violation where you can quote the exact rule being broken
+- It's a compliance violation where you can quote the exact rule being broken
 
 Do NOT flag:
 
 - Code style or quality concerns
 - Subjective suggestions or improvements
 
-Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path::symbol` → `path::symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
+Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path::symbol` → `path::symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent rulebooks (`SKILL.md`, `*.agent.md`), and docstrings:
 
 - Run `/agentdev:durable-knowledge-audit` in diff mode over the changed docs/skills files.
 - Map each of its findings to an inline review comment placed on the diff line that holds the finding's quoted text, and the verdict plus its replacement/destination becomes the comment body.
-- **High-signal bar:** flag a finding only when you can quote the added line and name the specific rule it breaks — the same anti-nitpick threshold the Compliance focus uses. Drop any finding you cannot tie to a quoted line and a named rule.
+- **Anchor bar:** tie every finding to a quoted added line and the specific rule it breaks, as the Compliance focus does. A finding whose rule applies only arguably still goes to Step 6.
 
 **PR metadata focus** (title/description relevance) — use `/agentdev:pr-gen-description` before the in-depth passes:
 
@@ -76,8 +76,8 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Priority** (given in Step 6 to every `HOLDS` finding): its impact, weighed with how likely its trigger is.
 
-- **`P1`** — the merge ships a defect on a trigger the code meets in normal use, which includes any state a user's environment can plausibly hold: a compile or parse failure, a wrong outcome or security exposure, or a broken guarantee that users or other code rely on. `P1` is the only priority that requests changes.
-- **`P2`** — a real problem with limited impact, or one that needs an unusual trigger; a convention a quoted rule forbids; changed behaviour no test covers.
+- **`P1`** — the merge ships a defect that a user or caller can hit without doing anything wrong, however uncommon the state that triggers it: a compile or parse failure, a wrong outcome or security exposure, or a broken guarantee that users or other code rely on. A state a user's environment can plausibly hold, such as a leftover or dangling file, is doing nothing wrong. `P1` is the only priority that requests changes.
+- **`P2`** — a real problem with limited impact, or one reached only through misuse or an unlikely combination of conditions; a convention a quoted rule forbids; changed behaviour no test covers.
 - **`P3`** — cosmetic: a small doc inaccuracy, a stale pointer.
 - A compliance finding is `P2` or `P3`, never `P1`.
 
@@ -121,7 +121,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    mechanical PR without spending a full review cycle. A docs-only diff is not
    fast-approved: it still runs the durable-knowledge pass (Step 4).
 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR title and description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes. Also fetch the PR's earlier inline review comments, which Steps 5 and 6 use and the Step 4 passes never see: `gh api --paginate 'repos/{owner}/{repo}/pulls/<PR_NUMBER>/comments' --jq '.[] | {id, in_reply_to_id, path, author: .user.login, body}'`. A comment and the comments whose `in_reply_to_id` names it form one thread.
-3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `REQUEST_CHANGES` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
+3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. List every claim the title and description make — what the change does, how it behaves, what was tested and with what result — and check each one against the diff and the head commit. If a claim is contradicted, or the title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `REQUEST_CHANGES` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
 4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"); a correctness issue also carries its scenario's Trigger, Path, and Outcome:
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
