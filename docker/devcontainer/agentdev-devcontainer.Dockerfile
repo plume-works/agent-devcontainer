@@ -98,15 +98,19 @@ RUN --mount=type=bind,source=.claude-plugin,target=/tmp/catalog/.claude-plugin \
 RUN mv /usr/local/bin/gh /usr/bin/gh
 COPY --chmod=0755 docker/devcontainer/gh /usr/local/bin/gh
 
+# COPY --chmod gives the parent directories it creates the file's mode, which no account
+# but root could then traverse, so every target directory exists first.
+RUN install -d -m 0755 /etc/docker /etc/fish/conf.d /etc/agentdev/hooks/created.d \
+      /etc/agentdev/hooks/started.d /etc/agentdev/hooks/attached.d \
+      /etc/systemd/system/docker.service.d /etc/systemd/user
 COPY --chmod=0644 docker/devcontainer/daemon.json /etc/docker/daemon.json
 COPY --chmod=0644 docker/devcontainer/agentdev.fish /etc/fish/conf.d/agentdev.fish
+COPY --chmod=0644 docker/devcontainer/xdg-runtime.sh /etc/profile.d/agentdev-xdg-runtime.sh
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 # Ubuntu's skeleton .bashrc would shorten the system-wide history settings again.
 RUN --mount=type=bind,source=docker/devcontainer/shell.bashrc,target=/tmp/shell.bashrc \
     cat /tmp/shell.bashrc >> /etc/bash.bashrc \
- && sed -i '/^HISTSIZE=/d; /^HISTFILESIZE=/d; /^HISTCONTROL=/d' /etc/skel/.bashrc /home/dev/.bashrc \
- && install -d -m 0755 /etc/agentdev/hooks/created.d /etc/agentdev/hooks/started.d \
-      /etc/agentdev/hooks/attached.d
+ && sed -i '/^HISTSIZE=/d; /^HISTFILESIZE=/d; /^HISTCONTROL=/d' /etc/skel/.bashrc /home/dev/.bashrc
 
 COPY --chmod=0644 docker/devcontainer/systemd/agentdev-bootstrap.service \
      docker/devcontainer/systemd/agentdev-created.service /etc/systemd/system/
