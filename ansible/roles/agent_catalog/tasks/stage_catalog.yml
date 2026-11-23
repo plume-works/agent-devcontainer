@@ -8,9 +8,15 @@
       {{ agent_catalog_source_dir }}/{{ agent_catalog_marketplace_manifest }}
   register: agent_catalog_manifest_raw
 
-- name: Resolve the marketplace name and the plugin entry it publishes
+- name: Resolve the marketplace name and the plugins it publishes
   ansible.builtin.set_fact:
     agent_catalog_marketplace_name: "{{ agent_catalog_manifest.name }}"
+    agent_catalog_plugin_sources: >-
+      {{ agent_catalog_manifest.plugins
+         | map(attribute='source')
+         | map('regex_replace', '^\./', '')
+         | map('regex_replace', '/$', '')
+         | list }}
     agent_catalog_plugin_entries: >-
       {{ agent_catalog_manifest.plugins
          | selectattr('name', 'equalto', agent_catalog_plugin_name)
@@ -28,13 +34,9 @@
       {{ agent_catalog_plugin_entries | length }} plugins named
       '{{ agent_catalog_plugin_name }}'; expected exactly one.
 
-- name: Record the staged plugin version and source path
+- name: Record the pinned plugin's staged version
   ansible.builtin.set_fact:
-    agent_catalog_staged_version: "{{ agent_catalog_plugin_entry.version }}"
-    agent_catalog_staged_source: >-
-      {{ agent_catalog_plugin_entry.source | regex_replace('^\./', '') | regex_replace('/$', '') }}
-  vars:
-    agent_catalog_plugin_entry: "{{ agent_catalog_plugin_entries | first }}"
+    agent_catalog_staged_version: "{{ (agent_catalog_plugin_entries | first).version }}"
 
 - name: Fail when the pinned plugin version is not the one being staged
   ansible.builtin.assert:
@@ -59,7 +61,7 @@
     owner: root
     group: root
     mode: "0755"
-  loop: "{{ agent_catalog_trees }}"
+  loop: "{{ agent_catalog_trees + agent_catalog_plugin_sources }}"
 
 - name: Copy the catalog into the staged tree
   ansible.builtin.command:
@@ -68,7 +70,7 @@
       - --archive
       - "{{ agent_catalog_source_dir }}/{{ item }}/."
       - "{{ agent_catalog_root }}/{{ item }}/"
-  loop: "{{ agent_catalog_trees }}"
+  loop: "{{ agent_catalog_trees + agent_catalog_plugin_sources }}"
   changed_when: true
 
 - name: Find build scratch and test directories copied into the staged catalog

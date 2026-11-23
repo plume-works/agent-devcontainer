@@ -7,10 +7,14 @@
     src: "{{ agent_catalog_root }}/{{ agent_catalog_marketplace_manifest }}"
   register: agent_catalog_install_manifest_raw
 
-- name: Resolve the marketplace name the staged manifest declares
+- name: Resolve the marketplace name and the plugins the staged manifest declares
   ansible.builtin.set_fact:
-    agent_catalog_install_marketplace_name: >-
-      {{ (agent_catalog_install_manifest_raw.content | b64decode | from_json).name }}
+    agent_catalog_install_marketplace_name: "{{ agent_catalog_install_manifest.name }}"
+    agent_catalog_install_plugins: >-
+      {{ agent_catalog_install_manifest.plugins | map(attribute='name') | list }}
+  vars:
+    agent_catalog_install_manifest: >-
+      {{ agent_catalog_install_manifest_raw.content | b64decode | from_json }}
 
 - name: Register the staged catalog as a Claude marketplace at user scope
   ansible.builtin.command:
@@ -24,15 +28,16 @@
       - user
   changed_when: true
 
-- name: Install the plugin for Claude at user scope
+- name: Install every plugin the staged manifest publishes for Claude at user scope
   ansible.builtin.command:
     argv:
       - claude
       - plugin
       - install
-      - "{{ agent_catalog_plugin_name }}@{{ agent_catalog_install_marketplace_name }}"
+      - "{{ item }}@{{ agent_catalog_install_marketplace_name }}"
       - --scope
       - user
+  loop: "{{ agent_catalog_install_plugins }}"
   changed_when: true
 
 - name: Register the staged OpenCode bridge plugin in the user's OpenCode config
