@@ -517,7 +517,7 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   published plugin.
 - `docker/base/agentdev-base.Dockerfile` › "ARG AGENTDEV_PLUGIN_VERSION" — the
   version pin that staging checks.
-- `.claude/startup.py::register_plugin` — installs only `agentdev` in a cloud
+- `.claude/startup.py::register_plugin` — installs the plugins of a cloud
   session.
 - `.claude/settings.json#permissions.allow` — the script permissions.
 - `.github/workflows/validate-agent-files.yml` › "bun test
