@@ -227,7 +227,7 @@ the support links in `docs/knowledge/`, `scripts/link-knowledge-support.py`,
 Move: the 12 `skills/iwe-*`, the 8 `agents/iwe-*.agent.md`, and their tests and
 fixtures.
 
-- [ ] `.claude-plugin/marketplace.json` publishes `agentdev-iwe` at `1.0.0`.
+- [x] `.claude-plugin/marketplace.json` publishes `agentdev-iwe` at `1.0.0`.
 - [ ] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
   `plugin.json`, and in the `AGENTDEV_PLUGIN_VERSION` default of the base
   Dockerfile.
