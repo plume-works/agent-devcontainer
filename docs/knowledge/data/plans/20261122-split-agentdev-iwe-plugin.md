@@ -319,7 +319,7 @@ image context for the mount that Task 10 added.
 - [x] `.agents/plugins/agentdev/README.md#what-it-expects` requires `uv`.
 - [x] `.agents/plugins/agentdev/README.md#installing-in-opencode` describes only
   the image.
-- [ ] `.agents/AGENTS.md#catalog-locations-and-portability` states the uv script
+- [x] `.agents/AGENTS.md#catalog-locations-and-portability` states the uv script
   rule and names `agentdev-lib` instead of the standard-library rule.
 - [ ] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
   imports `result_codes` from `agentdev_lib`.
