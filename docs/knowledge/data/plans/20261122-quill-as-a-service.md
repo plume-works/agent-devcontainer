@@ -170,7 +170,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `src/queue.ts`, `src/reviewer.ts`, `test/queue.test.ts`
 
-- [ ] `src/queue.ts` runs at most the configured number of reviews at once;
+- [x] `src/queue.ts` runs at most the configured number of reviews at once;
   `bun test test/queue.test.ts` passes.
 - [ ] When a review ends, the oldest waiting review starts;
   `bun test test/queue.test.ts` passes.
