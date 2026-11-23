@@ -155,7 +155,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
   exit 1.
 - [x] In the same fixture, a commit that also changes the version makes the
   check exit 0.
-- [ ] A pull request job in `.github/workflows/primary-checks.yml` runs the
+- [x] A pull request job in `.github/workflows/primary-checks.yml` runs the
   check.
 
 ### Task 6: Tag a new agentdev-lib version on main
