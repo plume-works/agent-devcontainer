@@ -128,7 +128,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 - [x] Each script under `.agents/plugins/agentdev/bin/` and
   `.agents/plugins/agentdev/skills/*/agent-code/` starts with
   `#!/usr/bin/env -S uv run --quiet`.
-- [ ] A plugin script that SIGTERM ends while it runs through its shebang prints
+- [x] A plugin script that SIGTERM ends while it runs through its shebang prints
   `RESULT=SIGNAL_TERM` last and exits 143.
 - [ ] `uv run pytest .agents/plugins/agentdev/tests` passes.
 - [ ] `git status` shows no `.venv/` or `uv.lock` under `.agents/plugins/` after
