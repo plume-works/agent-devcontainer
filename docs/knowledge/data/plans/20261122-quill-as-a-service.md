@@ -215,7 +215,7 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [x] A review that ends with failure removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
-- [ ] A review cancelled by a push leaves `request-ai-review`;
+- [x] A review cancelled by a push leaves `request-ai-review`;
   `bun test test/review.test.ts` passes.
 
 ### Task 9: Approve trusted-bot pull requests
