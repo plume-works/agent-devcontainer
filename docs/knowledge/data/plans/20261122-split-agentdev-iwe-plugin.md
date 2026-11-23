@@ -252,7 +252,7 @@ fixtures.
 `docs/knowledge/data/backlog/verification-command-fix-is-tactical.md`, and the
 `## Key references` of this plan.
 
-- [ ] Each support link in `docs/knowledge/` resolves into
+- [x] Each support link in `docs/knowledge/` resolves into
   `.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/`.
 - [ ] `uv run pre-commit run link-knowledge-support --all-files` passes.
 - [x] `scripts/check-anchors.py` scans the skills and agents of every plugin
