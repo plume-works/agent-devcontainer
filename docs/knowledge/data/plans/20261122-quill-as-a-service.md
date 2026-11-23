@@ -111,7 +111,7 @@ its "Determine agent prompts" step.
   tools that
   `.github/workflows/ai-responder.yml#env.CLAUDE_PR_REVIEW_DISALLOWED_TOOLS`
   denies.
-- [ ] `reviewer/review.sh` checks out the given head SHA and runs Claude Code
+- [x] `reviewer/review.sh` checks out the given head SHA and runs Claude Code
   headless with the review prompt; `bun test test/reviewer.test.ts` passes with
   a stubbed `claude`.
 - [ ] With a stubbed `claude` that exits non-zero, `reviewer/review.sh` exits
