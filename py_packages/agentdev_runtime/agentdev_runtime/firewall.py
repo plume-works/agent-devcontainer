@@ -291,6 +291,19 @@ def filter_nested_egress(system: System) -> None:
     iptables(system, '-A', 'DOCKER-USER', '-j', 'REJECT', '--reject-with', 'icmp-admin-prohibited')
 
 
+def lock_down(system: System) -> None:
+    """Fail closed: drop all but loopback traffic when the allowlist policy is not in place."""
+    for tool in ('iptables', 'ip6tables'):
+        if not system.has(tool):
+            continue
+        for chain in ('INPUT', 'FORWARD', 'OUTPUT'):
+            system.run(tool, '-P', chain, 'DROP', check=False)
+        system.run(tool, '-F', check=False)
+        system.run(tool, '-A', 'INPUT', '-i', 'lo', '-j', 'ACCEPT', check=False)
+        system.run(tool, '-A', 'OUTPUT', '-o', 'lo', '-j', 'ACCEPT', check=False)
+    system.say('Firewall failed; all egress is blocked')
+
+
 def apply(settings: env.Settings, system: System | None = None) -> int:
     """``firewall apply``: validate everything, then apply the policy and verify it."""
     system = system or System()
@@ -305,6 +318,7 @@ def apply(settings: env.Settings, system: System | None = None) -> int:
         filter_nested_egress(system)
     except FirewallError as error:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
+        lock_down(system)
         return 1
     return 0
 

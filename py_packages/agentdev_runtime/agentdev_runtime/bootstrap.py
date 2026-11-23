@@ -198,12 +198,24 @@ def run(settings: env.Settings, environment_file: Path = ENVIRONMENT_FILE) -> in
     return egress.apply(settings)
 
 
+def firewall_requested(environ: dict[str, str]) -> bool:
+    """Accept every boolean spelling of ``ENABLE_FIREWALL``; an unknown one fails closed."""
+    settings = env.Settings(environ=environ)
+    return settings.boolean('ENABLE_FIREWALL') or bool(settings.errors)
+
+
 def main(argv: list[str]) -> int:
     if argv:
         print('usage: agentdev-runtime bootstrap', file=sys.stderr)
         return 2
+    environ = container_environment()
+    requested = firewall_requested(environ)
+    # The firewall and the units read the exact word.
+    environ['ENABLE_FIREWALL'] = 'true' if requested else 'false'
     try:
-        return run(env.Settings(environ=container_environment()))
+        return run(env.Settings(environ=environ))
     except (BootstrapError, integrity.IntegrityError, OSError) as error:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
+        if requested:
+            egress.lock_down(egress.System())
         return 1

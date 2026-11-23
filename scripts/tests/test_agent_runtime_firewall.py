@@ -22,6 +22,18 @@ META = {
     'api': ['140.82.112.0/21'],
     'git': ['192.30.252.0/22'],
 }
+LOCKDOWN = [
+    f'{tool} {rule}'
+    for tool in ('iptables', 'ip6tables')
+    for rule in (
+        '-P INPUT DROP',
+        '-P FORWARD DROP',
+        '-P OUTPUT DROP',
+        '-F',
+        '-A INPUT -i lo -j ACCEPT',
+        '-A OUTPUT -o lo -j ACCEPT',
+    )
+]
 NAT = '-A DOCKER_OUTPUT -d 127.0.0.11/32 -p udp -m udp --dport 53 -j DNAT --to-destination 127.0.0.11:41234\n'
 
 
@@ -125,17 +137,17 @@ def test_an_unresolvable_entry_is_skipped(firewall: Firewall):
         ({'FIREWALL_ALLOWLIST': '/nonexistent'}, 'does not exist'),
     ],
 )
-def test_invalid_configuration_fails_before_any_rule(firewall: Firewall, env, message, capsys):
+def test_invalid_configuration_fails_closed(firewall: Firewall, env, message, capsys):
     assert firewall.run(**env) == 1
     assert message in capsys.readouterr().err
-    assert firewall.calls() == []
+    assert firewall.calls() == LOCKDOWN
 
 
 def test_invalid_allowlist_entries_fail(firewall: Firewall, capsys):
     firewall.allowlist.write_text('github-meta\nhttps://evil.example/path\n')
     assert firewall.run() == 1
     assert 'neither github-meta nor a domain name' in capsys.readouterr().err
-    assert firewall.calls() == []
+    assert firewall.calls() == LOCKDOWN
 
 
 @pytest.mark.parametrize(
@@ -150,6 +162,62 @@ def test_self_verification_fails_loudly(firewall: Firewall, system, message, cap
     assert firewall.run() == 1
     assert message in capsys.readouterr().err
     assert not any('DOCKER-USER' in call for call in system.calls)
+    assert system.calls[-len(LOCKDOWN) :] == LOCKDOWN
+
+
+class FailingMetaSystem(FakeSystem):
+    def fetch_json(self, url: str) -> object:
+        raise egress.FirewallError('GitHub meta unavailable')
+
+
+def test_a_failure_after_the_flush_fails_closed(firewall: Firewall, capsys):
+    firewall.system = FailingMetaSystem()
+    assert firewall.run() == 1
+    assert 'GitHub meta unavailable' in capsys.readouterr().err
+    calls = firewall.calls()
+    assert 'iptables -t filter -F' in calls
+    assert calls[-len(LOCKDOWN) :] == LOCKDOWN
+
+
+@pytest.mark.parametrize(
+    ('value', 'requested'),
+    [
+        ('1', True),
+        ('yes', True),
+        ('ON', True),
+        ('TRUE', True),
+        ('ture', True),
+        ('', False),
+        ('0', False),
+        ('no', False),
+        ('false', False),
+    ],
+)
+def test_bootstrap_passes_the_exact_word_to_the_firewall(monkeypatch, value, requested):
+    seen: dict[str, str] = {}
+
+    def run(settings: Settings) -> int:
+        seen['value'] = settings.raw('ENABLE_FIREWALL')
+        return 0
+
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': value})
+    monkeypatch.setattr(bootstrap, 'run', run)
+    assert bootstrap.main([]) == 0
+    assert seen['value'] == ('true' if requested else 'false')
+
+
+@pytest.mark.parametrize(('value', 'locked'), [('yes', True), ('false', False)])
+def test_a_failed_bootstrap_fails_closed_when_the_firewall_is_on(monkeypatch, value, locked):
+    system = FakeSystem()
+
+    def run(settings: Settings) -> int:
+        raise bootstrap.BootstrapError('storage refused')
+
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': value})
+    monkeypatch.setattr(bootstrap, 'run', run)
+    monkeypatch.setattr(egress, 'System', lambda: system)
+    assert bootstrap.main([]) == 1
+    assert system.calls == (LOCKDOWN if locked else [])
 
 
 def test_bootstrap_applies_the_firewall_last():
