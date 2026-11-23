@@ -237,7 +237,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `service/Dockerfile`
 
-- [ ] `service/Dockerfile` builds `FROM ghcr.io/plume-works/core-systemd` by tag
+- [x] `service/Dockerfile` builds `FROM ghcr.io/plume-works/core-systemd` by tag
   and digest and runs the Bun server as a systemd unit.
 - [ ] `service/Dockerfile` pins a `core-systemd` that has the configurable
   cleanup of
