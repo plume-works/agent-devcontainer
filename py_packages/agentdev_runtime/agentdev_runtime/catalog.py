@@ -17,7 +17,9 @@ import tempfile
 from agentdev_runtime import agent_state, settings as env
 
 CLAUDE_MANIFEST = '.claude-plugin/marketplace.json'
-OPENCODE_BRIDGE = '.agents/plugins/agentdev/.opencode-plugin'
+OPENCODE_BRIDGE = '.agents/opencode-bridge'
+# Where agentdev 5 and earlier shipped the bridge; a registration of it is replaced too.
+REPLACED_BRIDGE = '.agents/plugins/agentdev/.opencode-plugin'
 CLAUDE_SCOPES = ('user', 'project', 'local')
 # The removal sweeps run blind, so "nothing to remove" is the expected failure.
 CLAUDE_ABSENT = re.compile(r'not found|is installed in [a-z]+ scope')
@@ -114,7 +116,7 @@ def opencode(settings: env.Settings, root: str) -> None:
     if not config.is_file() or config.stat().st_size == 0:
         config.write_text('{}\n')
     document = json.loads(config.read_text())
-    suffix = '/' + OPENCODE_BRIDGE
+    suffixes = ('/' + OPENCODE_BRIDGE, '/' + REPLACED_BRIDGE)
 
     def spec(entry: object) -> str:
         # A plugin entry is a spec string or a [spec, options] pair.
@@ -122,7 +124,7 @@ def opencode(settings: env.Settings, root: str) -> None:
         return first if isinstance(first, str) else json.dumps(first)
 
     document['plugin'] = [
-        entry for entry in document.get('plugin') or [] if not spec(entry).endswith(suffix)
+        entry for entry in document.get('plugin') or [] if not spec(entry).endswith(suffixes)
     ] + [bridge]
     descriptor, temp = tempfile.mkstemp(dir=config_dir, prefix='opencode.json.')
     with os.fdopen(descriptor, 'w') as handle:

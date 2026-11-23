@@ -292,7 +292,7 @@ ADRs keep their text.
 bridge path. `.dockerignore` also lets `py_packages/agentdev_lib/` into the
 image context for the mount that Task 10 added.
 
-- [ ] The bridge reads `.claude-plugin/marketplace.json` and registers
+- [x] The bridge reads `.claude-plugin/marketplace.json` and registers
   `<plugin>:<skill>` commands for each plugin it lists.
 - [ ] The skill tool strips the namespace prefix of each plugin.
 - [ ] `bun test ./.agents/opencode-bridge/tests` passes.

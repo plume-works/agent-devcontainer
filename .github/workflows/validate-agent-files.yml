@@ -38,6 +38,7 @@ jobs:
         with:
           filters: |
             - .agents/plugins/**
+            - .agents/opencode-bridge/**
             - .claude-plugin/**
             - py_packages/validate_agent_files/**
             - pyproject.toml
@@ -93,7 +94,7 @@ jobs:
         uses: oven-sh/setup-bun@v2.2.0
 
       - name: Test agentdev OpenCode bridge
-        run: bun test ./.agents/plugins/agentdev/tests/opencode
+        run: bun test ./.agents/opencode-bridge/tests
 
       - name: Validate Agent Files
         run: uv run validate_agent_files --recommend . --require-marketplace claude

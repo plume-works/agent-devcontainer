@@ -43,7 +43,7 @@
 - name: Register the staged OpenCode bridge plugin in the user's OpenCode config
   vars:
     agent_catalog_opencode_bridge: >-
-      {{ agent_catalog_root }}/.agents/plugins/{{ agent_catalog_plugin_name }}/.opencode-plugin
+      {{ agent_catalog_root }}/.agents/opencode-bridge
     agent_catalog_opencode_config: "{{ user_home }}/.config/opencode/opencode.json"
   block:
     - name: Stat the staged OpenCode bridge plugin

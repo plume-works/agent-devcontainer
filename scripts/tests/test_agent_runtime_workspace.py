@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 
+from agentdev_runtime import catalog
 from agentdev_runtime.project import HOOK_TYPES
 import pytest
 
@@ -338,7 +339,7 @@ def test_the_config_step_registers_the_catalog(runtime: Runtime):
 def ship_catalog(root: Path) -> None:
     (root / '.claude-plugin').mkdir(parents=True)
     (root / '.claude-plugin/marketplace.json').write_text('{}')
-    (root / '.agents/plugins/agentdev/.opencode-plugin').mkdir(parents=True)
+    (root / catalog.OPENCODE_BRIDGE).mkdir(parents=True)
 
 
 def test_checkout_catalog_wins_when_complete(runtime: Runtime):
@@ -378,11 +379,13 @@ def test_devcontainer_helpers_keep_their_defaults(runtime: Runtime):
 )
 def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
     image_catalog = tmp_path / 'image-catalog'
-    for part in ('.claude-plugin', '.agents/plugins'):
+    for part in ('.claude-plugin', '.agents/plugins', catalog.OPENCODE_BRIDGE):
         shutil.copytree(REPO_ROOT / part, image_catalog / part, symlinks=True)
     home = tmp_path / 'home'
     (home / '.config/opencode').mkdir(parents=True)
-    (home / '.config/opencode/opencode.json').write_text('{"plugin": ["other"], "theme": "x"}')
+    (home / '.config/opencode/opencode.json').write_text(
+        json.dumps({'plugin': ['other', f'/opt/agentdev/{catalog.REPLACED_BRIDGE}'], 'theme': 'x'})
+    )
     env = {
         'PATH': os.environ['PATH'],
         'HOME': str(home),
@@ -418,5 +421,5 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
 
     claude, opencode = registered()
     assert claude == [str(image_catalog)]
-    bridge = str(image_catalog / '.agents/plugins/agentdev/.opencode-plugin')
+    bridge = str(image_catalog / catalog.OPENCODE_BRIDGE)
     assert opencode == {'plugin': ['other', bridge], 'theme': 'x'}

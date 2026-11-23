@@ -14,14 +14,16 @@ Gated by `install_agent_catalog` in the playbook, and placed after
 
 ## The staged catalog
 
-The role copies `.claude-plugin/` and the source directory of every plugin the
-marketplace manifest publishes to `agent_catalog_root` in their source layout. The Claude Code marketplace manifest resolves each plugin
-by a path relative to the marketplace root, and OpenCode loads the OpenCode bridge
-inside it, so the layout is preserved rather than rearranged:
+The role copies `.claude-plugin/`, the OpenCode bridge, and the source directory
+of every plugin the marketplace manifest publishes to `agent_catalog_root` in
+their source layout. The Claude Code marketplace manifest and the OpenCode bridge
+both resolve each plugin by a path relative to the marketplace root, so the
+layout is preserved rather than rearranged:
 
 ```text
 $agent_catalog_root/
   .claude-plugin/marketplace.json     # Claude Code marketplace
+  .agents/opencode-bridge/            # OpenCode plugin that loads every published plugin
   .agents/plugins/<plugin>/           # each published plugin, with its .venv/
   wheels/agentdev_lib-<version>-*.whl  # agentdev-lib built from the same sources
 ```
@@ -35,8 +37,8 @@ directory, so a plugin copy outside the staged root, such as Claude Code's plugi
 cache, also takes the bundled wheel.
 
 The `.agents/` root files are contributor instructions for the catalog's
-publisher and are not staged. Plugin `tests/` directories and build scratch are
-pruned from the staged copy: plugin tests run only in the publisher checkout.
+publisher and are not staged. `tests/` directories and build scratch are
+pruned from the staged copy: those tests run only in the publisher checkout.
 
 **This role both stages and installs.** `install_catalog.yml` registers the
 staged root as a Claude marketplace, installs every plugin it publishes at user
@@ -83,19 +85,19 @@ Two properties constrain changes:
 
 ## Variables
 
-| Variable                             | Default                           | Description                                                                    |
-| ------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------ |
-| `agent_catalog_source_dir`           | the repository root               | Tree whose root holds the marketplace manifest to copy from.                   |
-| `agent_catalog_marketplace_manifest` | `.claude-plugin/marketplace.json` | Claude manifest path within that tree.                                         |
-| `agent_catalog_plugin_name`          | `agentdev`                        | Plugin whose version the pin checks.                                           |
-| `agent_catalog_plugin_version`       | `""`                              | Version pin; the manifest must declare it. Empty means "whatever it declares". |
-| `agent_catalog_root`                 | `/opt/agentdev`                   | Where the catalog is staged.                                                   |
-| `agent_catalog_trees`                | `.claude-plugin`                  | Directories copied besides each published plugin's source directory.           |
-| `agent_catalog_lib_source`           | `py_packages/agentdev_lib`        | The `agentdev-lib` package source within the source tree.                      |
-| `agent_catalog_wheel_dir`            | `<agent_catalog_root>/wheels`     | Where staging writes the `agentdev-lib` wheel.                                 |
-| `agent_catalog_uv_environment`       | system Python, no downloads/cache | Environment of the `uv build` and `uv sync` steps.                             |
-| `agent_catalog_prune_names`          | scratch and `tests` dir names     | Directories removed from the staged copy.                                      |
-| `agent_catalog_mode`                 | `u=rwX,go=rX`                     | Permissions applied across the staged copy.                                    |
+| Variable                             | Default                                     | Description                                                                    |
+| ------------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------ |
+| `agent_catalog_source_dir`           | the repository root                         | Tree whose root holds the marketplace manifest to copy from.                   |
+| `agent_catalog_marketplace_manifest` | `.claude-plugin/marketplace.json`           | Claude manifest path within that tree.                                         |
+| `agent_catalog_plugin_name`          | `agentdev`                                  | Plugin whose version the pin checks.                                           |
+| `agent_catalog_plugin_version`       | `""`                                        | Version pin; the manifest must declare it. Empty means "whatever it declares". |
+| `agent_catalog_root`                 | `/opt/agentdev`                             | Where the catalog is staged.                                                   |
+| `agent_catalog_trees`                | `.claude-plugin`, `.agents/opencode-bridge` | Directories copied besides each published plugin's source directory.           |
+| `agent_catalog_lib_source`           | `py_packages/agentdev_lib`                  | The `agentdev-lib` package source within the source tree.                      |
+| `agent_catalog_wheel_dir`            | `<agent_catalog_root>/wheels`               | Where staging writes the `agentdev-lib` wheel.                                 |
+| `agent_catalog_uv_environment`       | system Python, no downloads/cache           | Environment of the `uv build` and `uv sync` steps.                             |
+| `agent_catalog_prune_names`          | scratch and `tests` dir names               | Directories removed from the staged copy.                                      |
+| `agent_catalog_mode`                 | `u=rwX,go=rX`                               | Permissions applied across the staged copy.                                    |
 
 ## Required External Variables
 

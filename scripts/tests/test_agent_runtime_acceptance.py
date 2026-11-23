@@ -732,7 +732,7 @@ def test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images(
     assert branch == 'feature'
     config = json.loads(ready_runtime.sh('cat ~/.config/opencode/opencode.json').stdout)
     assert config['theme'] == 'kept'
-    assert any(p.endswith('/.opencode-plugin') for p in config['plugin'])
+    assert any(p.endswith('/.agents/opencode-bridge') for p in config['plugin'])
     assert session['id'] in {s['id'] for s in ready_runtime.api('GET', '/session')}
     ready_runtime.sh('docker image inspect acceptance:kept >/dev/null')
 
@@ -743,7 +743,7 @@ def test_restarts_leave_the_opencode_config_byte_identical(make_runtime, scratch
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
     config = 'cat ~/.config/opencode/opencode.json'
     first = runtime.sh(config).stdout
-    assert any(p.endswith('/.opencode-plugin') for p in json.loads(first)['plugin'])
+    assert any(p.endswith('/.agents/opencode-bridge') for p in json.loads(first)['plugin'])
     for _ in range(3):
         runtime.restart()
         assert runtime.wait() == 'ready', runtime.logs()[-4000:]
@@ -764,7 +764,7 @@ def test_upgrade_from_the_previous_image_keeps_user_state(make_runtime, scratch:
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
     config = json.loads(runtime.sh('cat ~/.config/opencode/opencode.json').stdout)
     assert config['theme'] == 'kept'
-    assert any(p.endswith('/.opencode-plugin') for p in config['plugin'])
+    assert any(p.endswith('/.agents/opencode-bridge') for p in config['plugin'])
     assert session['id'] in {s['id'] for s in runtime.api('GET', '/session')}
 
 

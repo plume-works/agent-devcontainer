@@ -76,6 +76,7 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
     --mount=type=bind,readonly,source=ansible,target=/provision/ansible \
     --mount=type=bind,readonly,source=.claude-plugin,target=/provision/.claude-plugin \
     --mount=type=bind,readonly,source=.agents/plugins,target=/provision/.agents/plugins \
+    --mount=type=bind,readonly,source=.agents/opencode-bridge,target=/provision/.agents/opencode-bridge \
     --mount=type=bind,readonly,source=py_packages/agentdev_lib,target=/provision/py_packages/agentdev_lib \
     cd /provision \
     && ANSIBLE_LOG_PATH='' ansible-playbook ansible/playbooks/setup-dev.yml \

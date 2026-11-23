@@ -19,6 +19,7 @@ agent_catalog_root: /opt/agentdev
 # root files are publisher-only contributor instructions and stay out.
 agent_catalog_trees:
   - .claude-plugin
+  - .agents/opencode-bridge
 
 # The agentdev-lib wheel built from the provisioning sources. The image points
 # UV_FIND_LINKS here, and each staged plugin's uv.lock names it, so it stays.

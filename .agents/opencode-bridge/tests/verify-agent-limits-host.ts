@@ -6,7 +6,7 @@ import { spawn, spawnSync } from "node:child_process"
 import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
-const pluginRoot = path.resolve(import.meta.dir, "../..")
+const bridgeDir = path.resolve(import.meta.dir, "..")
 const opencode = process.env.OPENCODE_BIN ?? Bun.which("opencode")
 assert(opencode, "An OpenCode v2 executable is required; set OPENCODE_BIN")
 const version = spawnSync(opencode, ["--version"], { encoding: "utf8" })
@@ -69,7 +69,7 @@ const model = Bun.serve({
 
 function configure(extra: Record<string, unknown> = {}) {
   writeFileSync(path.join(configDir, "opencode.json"), JSON.stringify({
-    plugin: [path.join(pluginRoot, ".opencode-plugin")],
+    plugin: [bridgeDir],
     permission: { "*": "allow", external_directory: "allow" },
     model: "openai/gpt-5",
     provider: { openai: { options: { baseURL: `http://127.0.0.1:${model.port}/v1`, apiKey: "mock" } } },

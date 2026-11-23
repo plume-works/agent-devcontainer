@@ -65,6 +65,7 @@ jobs:
             - ansible.cfg
             - .claude-plugin/**
             - .agents/plugins/**
+            - .agents/opencode-bridge/**
             - .devcontainer/**
             # Both packages are built into the image, and the suite tests all of py_packages.
             - py_packages/**

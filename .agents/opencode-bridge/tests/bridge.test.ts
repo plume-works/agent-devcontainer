@@ -9,29 +9,36 @@ import plugin, {
   bridge,
   setupBridge,
   v2Effect,
-} from "../../.opencode-plugin/index.ts"
+} from "../index.ts"
 
-const root = path.resolve(import.meta.dir, "../..")
-const skillsDir = path.join(root, "skills")
-const agentsDir = path.join(root, "agents")
-const namespace = JSON.parse(readFileSync(path.join(root, ".claude-plugin/plugin.json"), "utf8")).name
+const root = path.resolve(import.meta.dir, "../../..")
+const bridgeDir = path.resolve(import.meta.dir, "..")
+const marketplace = JSON.parse(readFileSync(path.join(root, ".claude-plugin/marketplace.json"), "utf8"))
+const plugins = marketplace.plugins.map((plugin: { name: string; source: string }) => {
+  const pluginRoot = path.resolve(root, plugin.source)
+  return {
+    namespace: JSON.parse(readFileSync(path.join(pluginRoot, ".claude-plugin/plugin.json"), "utf8")).name as string,
+    skillsDir: path.join(pluginRoot, "skills"),
+    agentsDir: path.join(pluginRoot, "agents"),
+  }
+})
 
 function frontmatter(file: string): Record<string, unknown> {
   const text = readFileSync(file, "utf8")
   return Bun.YAML.parse(text.split(/^---$/m)[1]) as Record<string, unknown>
 }
 
-const skills = readdirSync(skillsDir)
+const skills = plugins.flatMap(({ namespace, skillsDir }) => readdirSync(skillsDir)
   .map((dir) => path.join(skillsDir, dir, "SKILL.md"))
   .filter((file) => Bun.file(file).size > 0)
-  .map((file) => ({ dir: path.dirname(file), meta: frontmatter(file) }))
+  .map((file) => ({ namespace, dir: path.dirname(file), meta: frontmatter(file) })))
 
-const agents = readdirSync(agentsDir)
+const agents = plugins.flatMap(({ agentsDir }) => readdirSync(agentsDir)
   .filter((file) => file.endsWith(".agent.md"))
   .map((file) => ({
     stem: file.slice(0, -".agent.md".length),
     meta: frontmatter(path.join(agentsDir, file)),
-  }))
+  })))
 
 function claudeTools(meta: Record<string, unknown>): string[] {
   return String(meta.tools)
@@ -46,15 +53,15 @@ async function configured(config: Record<string, any> = {}) {
 }
 
 describe("config hook", () => {
-  test("adds the catalog skills directory to skills.paths", async () => {
+  test("adds every plugin's skills directory to skills.paths", async () => {
     const config = await configured({ skills: { paths: ["/elsewhere"] } })
-    expect(config.skills.paths).toEqual(["/elsewhere", skillsDir])
+    expect(config.skills.paths).toEqual(["/elsewhere", ...plugins.map((plugin) => plugin.skillsDir)])
   })
 
   test("registers every skill as a namespaced command ending with the base-directory footer", async () => {
     const config = await configured()
     expect(skills.length).toBeGreaterThan(0)
-    for (const { dir, meta } of skills) {
+    for (const { namespace, dir, meta } of skills) {
       const command = config.command[`${namespace}:${meta.name}`]
       expect(command.description).toBe(meta.description)
       expect(command.template).toEndWith(
@@ -103,11 +110,11 @@ describe("config hook", () => {
     const userCommand = { template: "mine" }
     const userAgent = { prompt: "mine" }
     const config = await configured({
-      command: { [`${namespace}:pr-open`]: userCommand },
+      command: { "agentdev:pr-open": userCommand },
       agent: { "iwe-revision-evaluator": userAgent },
       permission: { skill: { "iwe-plan": "allow" } },
     })
-    expect(config.command[`${namespace}:pr-open`]).toBe(userCommand)
+    expect(config.command["agentdev:pr-open"]).toBe(userCommand)
     expect(config.agent["iwe-revision-evaluator"]).toBe(userAgent)
     expect(config.permission.skill["iwe-plan"]).toBe("allow")
     expect(config.permission.skill["iwe-ship"]).toBe("deny")
@@ -120,6 +127,17 @@ describe("config hook", () => {
   })
 })
 
+test("registers every marketplace plugin", async () => {
+  expect(plugins.map((plugin) => plugin.namespace)).toEqual(["agentdev", "agentdev-iwe"])
+  const config = await configured()
+  const { commands } = setUp()
+  for (const { namespace, meta } of skills) {
+    expect(config.command).toHaveProperty([`${namespace}:${meta.name}`])
+    expect(commands.has(`${namespace}:${meta.name}`)).toBe(true)
+  }
+  expect(Object.keys(config.command)).toHaveLength(skills.length)
+})
+
 describe("tool.execute.before hook", () => {
   async function rewrite(tool: string, args: Record<string, unknown>) {
     const hooks = await bridge(root)
@@ -128,8 +146,13 @@ describe("tool.execute.before hook", () => {
     return output.args
   }
 
-  test("strips the namespace from the skill tool's name", async () => {
-    expect(await rewrite("skill", { name: `${namespace}:iwe-plan` })).toEqual({ name: "iwe-plan" })
+  test("strips the namespace of every plugin from the skill tool's name", async () => {
+    expect(await rewrite("skill", { name: "agentdev-iwe:iwe-plan" })).toEqual({ name: "iwe-plan" })
+    expect(await rewrite("skill", { name: "agentdev:pr-open" })).toEqual({ name: "pr-open" })
+  })
+
+  test("leaves a name with an unknown namespace untouched", async () => {
+    expect(await rewrite("skill", { name: "elsewhere:pr-open" })).toEqual({ name: "elsewhere:pr-open" })
   })
 
   test("leaves a bare skill name untouched", async () => {
@@ -137,7 +160,7 @@ describe("tool.execute.before hook", () => {
   })
 
   test("leaves other tools' calls untouched", async () => {
-    const args = { name: `${namespace}:iwe-plan`, command: `${namespace}:iwe-plan` }
+    const args = { name: "agentdev-iwe:iwe-plan", command: "agentdev-iwe:iwe-plan" }
     expect(await rewrite("bash", args)).toEqual(args)
   })
 })
@@ -149,7 +172,7 @@ test("default export loads in OpenCode v1 and v2 without v2's modules", () => {
   expect(plugin).not.toHaveProperty("setup")
   // The module imported above although neither v2 module resolves from it.
   for (const name of ["effect", "@opencode/plugin/promise/adapter"]) {
-    expect(() => Bun.resolveSync(name, path.join(root, ".opencode-plugin"))).toThrow()
+    expect(() => Bun.resolveSync(name, bridgeDir)).toThrow()
   }
 })
 
@@ -229,7 +252,7 @@ describe("v2 setup", () => {
 
   test("adds every skill as a namespaced command that re-prompts with the complete invocation", async () => {
     const { commands, prompts } = setUp()
-    for (const { meta } of skills) {
+    for (const { namespace, meta } of skills) {
       const command = commands.get(`${namespace}:${meta.name}`)
       expect(command.description).toBe(meta.description)
     }
@@ -246,7 +269,7 @@ describe("v2 setup", () => {
       name: "iwe-plan",
       mention: { start: 35, end: 44, text: "/iwe-plan" },
     }]
-    await commands.get(`${namespace}:iwe-implement`).execute({
+    await commands.get("agentdev-iwe:iwe-implement").execute({
       sessionID: "ses_1",
       prompt: {
         text: "fix critical @critical.ts @explore /iwe-plan\nwithout changing behavior",
@@ -256,7 +279,7 @@ describe("v2 setup", () => {
       },
       delivery: "steer",
     })
-    await commands.get(`${namespace}:iwe-ship`).execute({
+    await commands.get("agentdev-iwe:iwe-ship").execute({
       sessionID: "ses_2",
       prompt: { text: "" },
       delivery: "queue",
@@ -266,16 +289,16 @@ describe("v2 setup", () => {
       text: "/agentdev-iwe:iwe-implement fix critical @critical.ts @explore /iwe-plan\nwithout changing behavior",
       files: [{
         uri: "file:///critical.ts",
-        mention: { start: 37, end: 49, text: "@critical.ts" },
+        mention: { start: 41, end: 53, text: "@critical.ts" },
       }],
       agents: [{
         name: "explore",
-        mention: { start: 50, end: 58, text: "@explore" },
+        mention: { start: 54, end: 62, text: "@explore" },
       }],
       skills: [{
         id: "iwe-plan",
         name: "iwe-plan",
-        mention: { start: 59, end: 68, text: "/iwe-plan" },
+        mention: { start: 63, end: 72, text: "/iwe-plan" },
       }, { id: "iwe-implement" }],
       delivery: "steer",
     }, {
@@ -355,9 +378,10 @@ describe("v2 setup", () => {
       await hooks["tool.execute.before"](event)
       return event.input
     }
-    expect(await call("skill", { id: `${namespace}:iwe-plan` })).toEqual({ id: "iwe-plan" })
+    expect(await call("skill", { id: "agentdev-iwe:iwe-plan" })).toEqual({ id: "iwe-plan" })
+    expect(await call("skill", { id: "agentdev:pr-open" })).toEqual({ id: "pr-open" })
     expect(await call("skill", { id: "iwe-plan" })).toEqual({ id: "iwe-plan" })
-    const other = { id: `${namespace}:iwe-plan`, command: `${namespace}:iwe-plan` }
+    const other = { id: "agentdev-iwe:iwe-plan", command: "agentdev-iwe:iwe-plan" }
     expect(await call("shell", other)).toEqual(other)
   })
 
@@ -394,6 +418,6 @@ describe("v2 effect export", () => {
     expect(v2Effect(root, fake.ctx as any, host.load)).toBe("host effect")
     fake.apply()
     expect(host.plugins[0].id).toBe(plugin.id)
-    expect(fake.commands.get(`${namespace}:pr-open`)).toBeDefined()
+    expect(fake.commands.get("agentdev:pr-open")).toBeDefined()
   })
 })

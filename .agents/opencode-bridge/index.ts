@@ -1,5 +1,5 @@
-// OpenCode bridge for the agentdev catalog. It must have no runtime dependencies:
-// the staged catalog is root-owned and read-only, so no node_modules can be next to it.
+// OpenCode bridge for every plugin the catalog's marketplace lists. It must have no runtime
+// dependencies: the staged catalog is root-owned and read-only, so no node_modules can be next to it.
 import type { Hooks, PluginModule } from "@opencode-ai/plugin"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
@@ -176,6 +176,18 @@ function readCatalog(root: string): Catalog {
   return catalog
 }
 
+/** Read every plugin that the marketplace at `root` lists. */
+function readCatalogs(root: string): Catalog[] {
+  const marketplace = JSON.parse(readFileSync(path.join(root, ".claude-plugin/marketplace.json"), "utf8"))
+  return (marketplace.plugins ?? []).map((plugin: { source: string }) => readCatalog(path.resolve(root, plugin.source)))
+}
+
+// Catalog text names sibling skills as /<plugin>:<name>; the skill tool knows them bare.
+function bareSkillName(name: string, catalogs: Catalog[]): string {
+  const catalog = catalogs.find(({ namespace }) => name.startsWith(`${namespace}:`))
+  return catalog ? name.slice(catalog.namespace.length + 1) : name
+}
+
 function applyCatalog(config: BridgeConfig, catalog: Catalog): void {
   const skills = (config.skills ??= {})
   skills.paths = [...(skills.paths ?? []), catalog.skillsDir]
@@ -218,34 +230,33 @@ function applyCatalog(config: BridgeConfig, catalog: Catalog): void {
   config.permission = permission
 }
 
-/** Build the bridge's v1 hooks for the catalog plugin rooted at `root`. */
+/** Build the bridge's v1 hooks for every plugin of the catalog rooted at `root`. */
 export async function bridge(root: string): Promise<Hooks> {
-  const catalog = readCatalog(root)
-  const prefix = `${catalog.namespace}:`
+  const catalogs = readCatalogs(root)
   return {
     config: async (config) => {
-      applyCatalog(config as BridgeConfig, catalog)
+      for (const catalog of catalogs) applyCatalog(config as BridgeConfig, catalog)
     },
-    // Catalog text names sibling skills as /agentdev:<name>; the skill tool knows them bare.
     "tool.execute.before": async (input, output) => {
       const name = output.args?.name
-      if (input.tool === "skill" && typeof name === "string" && name.startsWith(prefix)) {
-        output.args.name = name.slice(prefix.length)
+      if (input.tool === "skill" && typeof name === "string") {
+        output.args.name = bareSkillName(name, catalogs)
       }
     },
   }
 }
 
 /**
- * Register the catalog plugin rooted at `root` through OpenCode v2's plugin ctx.
+ * Register every plugin of the catalog rooted at `root` through OpenCode v2's plugin ctx.
  * Nothing is awaited: v2 holds every request until setup's registrations settle.
  */
 export function setupBridge(root: string, ctx: V2Context): void {
-  const catalog = readCatalog(root)
-  const prefix = `${catalog.namespace}:`
+  const catalogs = readCatalogs(root)
+  const skills = catalogs.flatMap((catalog) => catalog.skills.map((skill) => ({ skill, namespace: catalog.namespace })))
+  const agents = catalogs.flatMap((catalog) => catalog.agents)
 
   void ctx.skill.transform((editor) => {
-    for (const skill of catalog.skills) {
+    for (const { skill } of skills) {
       editor.add({
         id: skill.name,
         name: skill.name,
@@ -258,8 +269,8 @@ export function setupBridge(root: string, ctx: V2Context): void {
   })
 
   void ctx.command.transform((editor) => {
-    for (const skill of catalog.skills) {
-      const command = `${prefix}${skill.name}`
+    for (const { skill, namespace } of skills) {
+      const command = `${namespace}:${skill.name}`
       editor.add({
         name: command,
         description: skill.description,
@@ -282,7 +293,7 @@ export function setupBridge(root: string, ctx: V2Context): void {
   // Tool limits are enforced by the hooks below: the host appends the global
   // permission rules after any rule set here. See ADR-0035.
   void ctx.agent.transform((editor) => {
-    for (const agent of catalog.agents) {
+    for (const agent of agents) {
       editor.update(agent.stem, (info) => {
         info.mode = "subagent"
         info.description = agent.description
@@ -291,7 +302,7 @@ export function setupBridge(root: string, ctx: V2Context): void {
     }
   })
 
-  const denied = new Map(catalog.agents.map((agent) => {
+  const denied = new Map(agents.map((agent) => {
     const granted = new Set(agent.tools.flatMap((tool) => V2_TOOL_ACTIONS[tool] ?? []))
     return [agent.stem, { body: agent.body, actions: V2_SUBAGENT_ACTIONS.filter((a) => !granted.has(a)) }]
   }))
@@ -310,11 +321,11 @@ export function setupBridge(root: string, ctx: V2Context): void {
     if ((await limits(evaluation.agent)).includes(evaluation.action)) evaluation.effect = "deny"
   })
 
-  // Catalog text names sibling skills as /agentdev:<name>; the skill tool knows them bare.
   void ctx.tool.hook("execute.before", (event) => {
     const input = event.input as { id?: unknown } | undefined
-    if (event.tool === "skill" && typeof input?.id === "string" && input.id.startsWith(prefix)) {
-      event.input = { ...input, id: input.id.slice(prefix.length) }
+    if (event.tool === "skill" && typeof input?.id === "string") {
+      const id = bareSkillName(input.id, catalogs)
+      if (id !== input.id) event.input = { ...input, id }
     }
   })
 }
@@ -330,7 +341,7 @@ export function v2Effect(root: string, ctx: unknown, load: (name: string) => any
   return fromPromise({ id, setup: (v2: V2Context) => setupBridge(root, v2) }).effect(ctx)
 }
 
-const root = path.resolve(import.meta.dir, "..")
+const root = path.resolve(import.meta.dir, "../..")
 
 export default {
   id,
