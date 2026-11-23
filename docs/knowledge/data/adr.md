@@ -130,9 +130,6 @@ Expo](adr/0043-expo-bundle-leaves-the-workflow-to-expo-plugin.md)
 [The image installs the catalog, and the create phase installs it
 again](adr/0044-image-and-create-phase-both-install-catalog.md)
 
-[Knowledge data is never a template
-path](adr/0045-knowledge-data-is-never-a-template-path.md)
-
 [Pushes to main build after a cooldown that a newer push
 cancels](adr/0046-main-builds-after-cancellable-cooldown.md)
 
@@ -154,9 +151,6 @@ it](adr/0052-renovate-config-validated-at-bot-version.md)
 
 [Renovate runs self-hosted as a GitHub
 App](adr/0053-renovate-self-hosted-as-github-app.md)
-
-[Setup progress is a root file and the consumed ref stays in
-JSON](adr/0054-setup-progress-in-root-file.md)
 
 [A run promotes only the images it built and
 accepted](adr/0055-tags-move-only-to-accepted-images-of-the-run.md)
@@ -281,3 +275,6 @@ plugin](adr/0104-catalog-split-into-opt-in-plugins.md)
 
 [Catalog scripts run through uv and share code through a published
 package](adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
+
+[The catalog has no template consumption
+skill](adr/0106-no-template-consumption-skill.md)

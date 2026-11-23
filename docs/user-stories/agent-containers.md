@@ -31,9 +31,8 @@
 
 `agentdev-devcontainer` image: agentdev's image that bundles all needed scripts. It runs the persistent services from its entrypoint and supplies the create, start, and attach lifecycle commands through its Dev Container metadata. Scripts include customization points via environment variables and executable files in ordered hook directories (`/etc/agentdev/hooks/{created,started,attached}.d/`), without replacing managed runtime files.
 
-The three sub-scenarios above are the supported adoption modes:
+Sub-scenarios 2 and 3 are the supported adoption modes; a full copy of the devcontainer is not supported:
 
-- **Full adoption** — `/agentdev:template-consume` copies the descriptor, Compose file, and workflows; it remains supported and uses the same published runtime.
 - **Direct** — a descriptor references `agentdev-devcontainer` by tag and digest and copies no lifecycle script.
 - **Derived** — a custom image starts `FROM agentdev-devcontainer` and adds tooling and hooks.
 

@@ -18,7 +18,6 @@ repositories.
 - An optional default-deny egress firewall with repository-controlled allowlisting.
 - IWE knowledge-graph workflows from project setup through verified shipment.
 - GitHub Actions for validation, formatting, image publishing, and AI review.
-- A resumable template workflow for adopting or updating the environment elsewhere.
 
 The repository publishes four images:
 
@@ -33,12 +32,11 @@ The repository publishes four images:
 All are built on native runners and merged into multi-architecture manifests. The two
 runtimes are built from the same run's `agentdev-base` digest, and `edge` moves only
 after both pass native acceptance. The `agent-desktop` and `agent-opencode` names are no
-longer published; `/agentdev:template-consume` update mode migrates a repository that
-still pins `agent-desktop`.
+longer published.
 
 ## Quick start
 
-There are three supported adoption paths, all on the same published runtime.
+There are two supported adoption paths, both on the same published runtime.
 
 ### Use the image
 
@@ -73,19 +71,6 @@ Extend the lifecycle with executable hooks in
 of their phase, and override the image's documented environment. Files below
 `/opt/agentdev-runtime/` belong to the image: the runtime refuses to start when one is
 changed, added, or removed. See [ADR-0032](docs/knowledge/data/adr/0032-runtime-integrity-from-wheel-record.md).
-
-### Adopt the complete template
-
-Run `/agentdev:template-consume` to copy the complete setup or merge selected parts
-into an existing repository. The workflow installs the devcontainer descriptor,
-agent settings, project tooling, and adaptable GitHub workflows.
-It also records the adopted revision so future runs can safely propose upstream
-updates.
-
-Template adoption is resumable, preserves settled choices, and never overwrites
-consumer-authored IWE knowledge. See the
-[template consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md)
-for prerequisites and the full-copy and selective-copy workflows.
 
 ## Standalone OpenCode runtime
 
@@ -391,9 +376,7 @@ uv run --isolated --extra dev pytest
 
 The canonical plugin source is
 [`.agents/plugins/agentdev/`](.agents/plugins/agentdev/). Repository
-conventions live in [AGENTS.md](AGENTS.md), while the
-[consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md) classifies
-the reusable, customizable, and publisher-only parts of the tree.
+conventions live in [AGENTS.md](AGENTS.md).
 
 ## License
 

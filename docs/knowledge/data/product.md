@@ -16,11 +16,10 @@ agentdev image family (Python + Node, nested Docker, an Xpra remote desktop,
 Claude Code and OpenCode preinstalled, an opt-in egress firewall), it publishes
 the `agentdev` catalog of agents and skills for Claude Code and OpenCode, and it
 carries reusable devcontainer scaffolding. Other projects point a descriptor at
-`agentdev-devcontainer`, derive their own image from it, or copy the template
-surface — descriptor, MCP config, GitHub workflows — through
-`/agentdev:template-consume`; the lifecycle implementation always comes from the
-image. A project adopting it gets a digital-pinned, reproducible agent
-development environment without building its own container tooling.
+`agentdev-devcontainer` or derive their own image from it; the lifecycle
+implementation always comes from the image. A project adopting it gets a
+digital-pinned, reproducible agent development environment without building its
+own container tooling.
 
 ## Users
 
