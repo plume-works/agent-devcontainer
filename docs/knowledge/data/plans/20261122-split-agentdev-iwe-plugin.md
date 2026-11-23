@@ -259,7 +259,7 @@ fixtures.
   under `.agents/plugins/`.
 - [ ] `uv run scripts/check-anchors.py` exits 0.
 - [x] `uv run pytest docs/knowledge/tests` passes.
-- [ ] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
+- [x] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
   prints nothing.
 
 ### Task 13: Name the IWE skills and agents by their new namespace

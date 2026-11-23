@@ -13,7 +13,7 @@
     "fileFilters": [
       "ansible/**",
       ".agents/plugins/agentdev/bin/macos-bootstrap.zsh",
-      ".agents/plugins/agentdev/skills/iwe-bootstrap/assets/.iwe/**",
+      ".agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/.iwe/**",
       "docs/knowledge/**",
       ".devcontainer/**",
       "devcontainer-compose-pins.yml",
