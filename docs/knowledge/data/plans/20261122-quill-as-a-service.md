@@ -172,7 +172,7 @@ its "Determine agent prompts" step.
 
 - [x] `src/queue.ts` runs at most the configured number of reviews at once;
   `bun test test/queue.test.ts` passes.
-- [ ] When a review ends, the oldest waiting review starts;
+- [x] When a review ends, the oldest waiting review starts;
   `bun test test/queue.test.ts` passes.
 - [ ] A push while `request-ai-review` is on cancels the running review of that
   pull request; `bun test test/queue.test.ts` passes.
