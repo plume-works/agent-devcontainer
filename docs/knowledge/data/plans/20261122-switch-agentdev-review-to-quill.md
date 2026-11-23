@@ -13,8 +13,7 @@ sources:
 ## Context
 
 [Build quill-as-a-service](20261122-quill-as-a-service.md) builds the service
-and proves it on `plume-works/images`. The user's decision: "Once it's ready we
-switch agentdev in one go." Until then this repository keeps
+and proves it on `plume-works/images`. Until it is ready, this repository keeps
 `.github/workflows/ai-responder.yml`, its two actions, the `plume-works-review`
 environment, and the required `ai-review-present` check.
 
