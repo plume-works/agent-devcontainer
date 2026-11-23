@@ -125,7 +125,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 - [x] No script under `.agents/plugins/agentdev/bin/` or
   `.agents/plugins/agentdev/skills/*/agent-code/` inserts into `sys.path`.
-- [ ] Each script under `.agents/plugins/agentdev/bin/` and
+- [x] Each script under `.agents/plugins/agentdev/bin/` and
   `.agents/plugins/agentdev/skills/*/agent-code/` starts with
   `#!/usr/bin/env -S uv run --quiet`.
 - [ ] A plugin script that SIGTERM ends while it runs through its shebang prints
