@@ -400,10 +400,10 @@ after the merge, and in a Claude Code session outside the image.
 ## ADRs
 
 [The catalog is split into opt-in plugins, and the IWE workflow is its own
-plugin](../adr/0101-catalog-split-into-opt-in-plugins.md)
+plugin](../adr/0104-catalog-split-into-opt-in-plugins.md)
 
 [Catalog scripts run through uv and share code through a published
-package](../adr/0102-catalog-scripts-run-through-uv-with-a-published-package.md)
+package](../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
 
 ## Depends on
 
