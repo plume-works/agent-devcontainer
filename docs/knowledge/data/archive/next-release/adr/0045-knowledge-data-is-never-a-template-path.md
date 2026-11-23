@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 ---
 
 # Knowledge data is never a template path

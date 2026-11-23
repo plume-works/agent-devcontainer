@@ -12,15 +12,6 @@ policy](bugs/base-image-label-names-a-policy.md)
 [Bug: the Coder start configures the git credential helper without a wait for
 the keyring](bugs/coder-start-does-not-wait-for-keyring.md)
 
-[Bug: the consumption guide does not give each template path a
-class](bugs/consumption-guide-classifies-no-path.md)
-
-[Bug: the consumption guide leaves references to deleted publisher
-source](bugs/consumption-guide-keeps-publisher-source-references.md)
-
-[Bug: the consumption guide's custom-image choices do not include the runtime
-package input](bugs/custom-image-bundle-misses-runtime-inputs.md)
-
 [Bug: firewalled Docker Hub pulls fail at the CloudFront
 CDN](bugs/firewall-docker-hub-cloudfront.md)
 
