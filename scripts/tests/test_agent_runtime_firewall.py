@@ -186,7 +186,6 @@ def test_a_failure_after_the_flush_fails_closed(firewall: Firewall, capsys):
         ('yes', True),
         ('ON', True),
         ('TRUE', True),
-        ('ture', False),
         ('', False),
         ('0', False),
         ('no', False),
@@ -204,6 +203,15 @@ def test_bootstrap_passes_the_exact_word_to_the_firewall(monkeypatch, value, req
     monkeypatch.setattr(bootstrap, 'run', run)
     assert bootstrap.main([]) == 0
     assert seen['value'] == ('true' if requested else 'false')
+
+
+def test_an_unrecognized_value_locks_egress_down(monkeypatch, capsys):
+    system = FakeSystem()
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': 'ture'})
+    monkeypatch.setattr(egress, 'System', lambda: system)
+    assert bootstrap.main([]) == 1
+    assert 'ENABLE_FIREWALL must be' in capsys.readouterr().err
+    assert system.calls == LOCKDOWN
 
 
 @pytest.mark.parametrize(('value', 'locked'), [('yes', True), ('false', False)])

@@ -199,8 +199,12 @@ def run(settings: env.Settings, environment_file: Path = ENVIRONMENT_FILE) -> in
 
 
 def firewall_requested(environ: dict[str, str]) -> bool:
-    """Accept every true spelling of ``ENABLE_FIREWALL`` that ``Settings.boolean`` accepts."""
-    return env.Settings(environ=environ).boolean('ENABLE_FIREWALL')
+    """Read ``ENABLE_FIREWALL`` as ``Settings.boolean`` does; refuse an unrecognized value."""
+    settings = env.Settings(environ=environ)
+    requested = settings.boolean('ENABLE_FIREWALL')
+    if settings.errors:
+        fail(settings.errors[0])
+    return requested
 
 
 def main(argv: list[str]) -> int:
@@ -208,10 +212,12 @@ def main(argv: list[str]) -> int:
         print('usage: agentdev-runtime bootstrap', file=sys.stderr)
         return 2
     environ = container_environment()
-    requested = firewall_requested(environ)
-    # The firewall and the units read the exact word.
-    environ['ENABLE_FIREWALL'] = 'true' if requested else 'false'
+    # An unrecognized ENABLE_FIREWALL value locks egress down until it is fixed.
+    requested = True
     try:
+        requested = firewall_requested(environ)
+        # The firewall and the units read the exact word.
+        environ['ENABLE_FIREWALL'] = 'true' if requested else 'false'
         return run(env.Settings(environ=environ))
     except (BootstrapError, integrity.IntegrityError, OSError) as error:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
