@@ -159,7 +159,7 @@ its "Determine agent prompts" step.
   passes.
 - [x] A draft pull request is not reviewed; `bun test test/decide.test.ts`
   passes.
-- [ ] A pull request from a bot author is not reviewed;
+- [x] A pull request from a bot author is not reviewed;
   `bun test test/decide.test.ts` passes.
 - [ ] A pull request carrying `block-ai-reviews` is not reviewed;
   `bun test test/decide.test.ts` passes.
