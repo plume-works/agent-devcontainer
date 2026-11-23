@@ -162,7 +162,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 **Files:** Create: `.github/workflows/tag-agentdev-lib.yml`.
 
-- [ ] The workflow runs on a push to `main` and pushes the tag
+- [x] The workflow runs on a push to `main` and pushes the tag
   `agentdev-lib/<version>`, with `<version>` read from
   `py_packages/agentdev_lib/pyproject.toml`.
 - [ ] A step skips the push when the tag `agentdev-lib/<version>` already
