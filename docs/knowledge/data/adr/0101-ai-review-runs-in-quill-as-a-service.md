@@ -2,6 +2,9 @@
 type: adr
 stage: proposed
 supersedes:
+- adr/0037-ai-review-trusts-named-bots
+- adr/0059-ai-reviews-requested-and-held-by-label
+- adr/0069-trusted-bot-approval-checks-push-history
 - adr/0099-responder-runs-on-pull-request-and-review-events
 - adr/0100-ci-review-runs-the-image-catalog
 ---
