@@ -1,0 +1,10 @@
+{
+  "name": "agentdev-iwe",
+  "version": "1.0.0",
+  "description": "IWE knowledge-graph workflow: explore, plan, implement, verify, and ship work recorded as project memory.",
+  "author": {
+    "name": "PlumeWorks"
+  },
+  "homepage": "https://github.com/plume-works/agent-devcontainer",
+  "license": "MIT"
+}

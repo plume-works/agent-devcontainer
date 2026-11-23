@@ -86,8 +86,8 @@ jobs:
           uv run --frozen scripts/fetch-pinned-tool.py iwe "$RUNNER_TEMP/iwe"
           echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
 
-      - name: Test agentdev plugin scripts
-        run: uv run pytest .agents/plugins/agentdev/tests
+      - name: Test the plugin scripts
+        run: uv run pytest .agents/plugins/agentdev/tests .agents/plugins/agentdev-iwe/tests
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2.2.0

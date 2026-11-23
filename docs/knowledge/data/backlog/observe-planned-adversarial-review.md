@@ -12,7 +12,7 @@ sources:
 # Observe a planned adversarial review task through the Implement loop
 
 No session has been observed to follow the rule in
-`.agents/plugins/agentdev/agents/iwe-implementer.agent.md#the-adversarial-review-task`:
+`.agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md#the-adversarial-review-task`:
 the Implement session running `/agentdev:iwe-adversarial-review <plan> code`
 once, taking each finding that names a plan claim down the code route, and
 filing every other finding through `/agentdev:iwe-capture`.

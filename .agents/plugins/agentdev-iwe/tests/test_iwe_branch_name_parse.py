@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from git_fixtures import outcome
 from iwe_branch_fixtures import run_script
+from iwe_git_fixtures import outcome
 import pytest
 
 

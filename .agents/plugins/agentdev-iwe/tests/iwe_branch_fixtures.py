@@ -9,7 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from git_fixtures import FIXTURE_ENV, git
+from iwe_git_fixtures import FIXTURE_ENV, git
 
 SCRIPT = 'skills/iwe-branch-name/agent-code/iwe-branch-name.py'
 LIBRARY = 'notes'

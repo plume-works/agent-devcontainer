@@ -231,7 +231,7 @@ fixtures.
 - [ ] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
   `plugin.json`, and in the `AGENTDEV_PLUGIN_VERSION` default of the base
   Dockerfile.
-- [ ] `uv run pytest .agents/plugins/agentdev-iwe/tests` passes.
+- [x] `uv run pytest .agents/plugins/agentdev-iwe/tests` passes.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
@@ -484,7 +484,7 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   — a module that moves to `agentdev-lib`.
 - `.agents/plugins/agentdev/tests/conftest.py::plugin_root` — the plugin root
   that the tests resolve scripts from.
-- `.agents/plugins/agentdev/tests/conftest.py::installed_iwe_bootstrap` — a
+- `.agents/plugins/agentdev-iwe/tests/conftest.py::installed_iwe_bootstrap` — a
   fixture that copies `bin/` into a plugin layout.
 - `pyproject.toml#tool.uv.sources` — the root sources that point at the
   checkout.

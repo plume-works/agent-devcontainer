@@ -156,7 +156,7 @@ repos:
         name: validate-agent-files
         entry: uv run validate_agent_files
         language: system
-        files: '(\.agents/plugins/agentdev/skills/.*/SKILL\.md|\.agents/plugins/agentdev/agents/.*\.agent\.md)$'
+        files: '\.agents/plugins/[^/]+/(skills/.*/SKILL\.md|agents/.*\.agent\.md)$'
         pass_filenames: true
 
       # `uv run` for the same reason as validate-agent-files above: the gate
@@ -207,7 +207,7 @@ repos:
         name: banned-frontmatter-keys
         entry: uv run pytest docs/knowledge/tests/test_banned_frontmatter_keys.py
         language: system
-        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
+        files: '^(\.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
         pass_filenames: false
 
       # Each plugin pins the exact agentdev-lib version; see ADR-0105.
@@ -223,7 +223,7 @@ repos:
         name: link-knowledge-support
         entry: uv run scripts/link-knowledge-support.py
         language: system
-        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/'
+        files: '^(\.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/)?docs/knowledge/'
         types: []
         types_or: [file, symlink]
         pass_filenames: false
@@ -235,7 +235,7 @@ repos:
         name: iwe-schema-validate
         entry: iwe schema validate
         language: system
-        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
+        files: '^(\.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false
 
       # normalize rewrites files in place and returns 0 even after changing files;
@@ -245,5 +245,5 @@ repos:
         name: iwe-normalize
         entry: bash -c 'iwe normalize && git diff --exit-code'
         language: system
-        files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
+        files: '^(\.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/)?(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false

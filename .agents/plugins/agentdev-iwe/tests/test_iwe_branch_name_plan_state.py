@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from git_fixtures import git, outcome
 from iwe_branch_fixtures import (
     LIBRARY,
     plan_document,
@@ -15,6 +14,7 @@ from iwe_branch_fixtures import (
     run_script,
     Workspace,
 )
+from iwe_git_fixtures import git, outcome
 import pytest
 
 

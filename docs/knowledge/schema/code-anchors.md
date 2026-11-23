@@ -1,1 +1,1 @@
-../../../.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/schema/code-anchors.md
+../../../.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/docs/knowledge/schema/code-anchors.md

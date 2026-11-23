@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from git_fixtures import git, outcome, stub_gh
 from iwe_branch_fixtures import (
     plan_document,
     PLAN_KEY,
@@ -15,6 +14,7 @@ from iwe_branch_fixtures import (
     tools_without_gh,
     Workspace,
 )
+from iwe_git_fixtures import git, outcome, stub_gh
 import pytest
 
 

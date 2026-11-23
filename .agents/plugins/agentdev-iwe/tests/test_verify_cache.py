@@ -10,7 +10,7 @@ import shutil
 import subprocess
 import sys
 
-from git_fixtures import git, outcome
+from iwe_git_fixtures import git, outcome
 import pytest
 
 PLAN = 'data/plans/20260101-focus-timer'
@@ -22,9 +22,8 @@ PROMPTS = ('--skill-request', SKILL_REQUEST, '--verifier-prompt', VERIFIER_PROMP
 
 @pytest.fixture
 def installed_verify(plugin_root: Path, plugin_tmp_path: Path) -> Path:
-    """Copy the iwe-verify skill and shared `bin/` into an isolated plugin layout."""
+    """Copy the iwe-verify skill into an isolated plugin layout."""
     installed = plugin_tmp_path / 'installed-plugin'
-    shutil.copytree(plugin_root / 'bin', installed / 'bin')
     shutil.copytree(plugin_root / 'skills' / 'iwe-verify', installed / 'skills' / 'iwe-verify')
     return installed
 
@@ -167,7 +166,7 @@ def test_bytecode_cache_leaves_the_catalog_digest_unchanged(
 ) -> None:
     """A __pycache__ directory inside the catalog is not part of its digest."""
     save_current(installed_verify, repository)
-    cache = installed_verify / 'bin' / '__pycache__'
+    cache = installed_verify / 'skills' / 'iwe-verify' / 'agent-code' / '__pycache__'
     cache.mkdir(exist_ok=True)
     (cache / 'stray.pyc').write_bytes(b'bytecode')
 
