@@ -177,7 +177,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 **Files:** Create: `.github/workflows/release-agentdev-lib.yml`.
 
-- [ ] The workflow runs on a pushed `agentdev-lib/*` tag and builds one wheel
+- [x] The workflow runs on a pushed `agentdev-lib/*` tag and builds one wheel
   with `uv build`.
 - [ ] A step publishes that wheel with `pypa/gh-action-pypi-publish` through
   trusted publishing (`id-token: write`, no stored token).
