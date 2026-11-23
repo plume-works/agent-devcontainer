@@ -283,8 +283,12 @@ ADRs keep their text.
 `.agents/opencode-bridge/tests/`. Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/catalog.py`,
 `py_packages/agentdev_runtime/tests/test_opencode_config.py`,
-`.github/workflows/validate-agent-files.yml`, and the tests under
-`scripts/tests/` that name the bridge path.
+`.github/workflows/validate-agent-files.yml`,
+`docker/base/agentdev-base.Dockerfile`,
+`ansible/roles/agent_catalog/defaults/main.yml`,
+`ansible/roles/agent_catalog/tasks/install_catalog.yml`,
+`ansible/roles/agent_catalog/README.md`, and the tests under `scripts/tests/`
+that name the bridge path.
 
 - [ ] The bridge reads `.claude-plugin/marketplace.json` and registers
   `<plugin>:<skill>` commands for each plugin it lists.
