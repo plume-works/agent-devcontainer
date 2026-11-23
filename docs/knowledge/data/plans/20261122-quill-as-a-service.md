@@ -239,7 +239,7 @@ its "Determine agent prompts" step.
 
 - [x] `service/Dockerfile` builds `FROM ghcr.io/plume-works/core-systemd` by tag
   and digest and runs the Bun server as a systemd unit.
-- [ ] `service/Dockerfile` pins a `core-systemd` that has the configurable
+- [x] `service/Dockerfile` pins a `core-systemd` that has the configurable
   cleanup of
   [plume-works/images#79](https://github.com/plume-works/images/pull/79) and
   installs a `docker-prune.service.d` drop-in that sets every `PRUNE_*` setting:
