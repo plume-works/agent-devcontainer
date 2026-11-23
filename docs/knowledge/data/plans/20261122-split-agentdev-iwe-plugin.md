@@ -66,10 +66,6 @@ becomes a package before the skills move.
   names keep their `iwe-` prefix. Every `/agentdev:iwe-*` reference becomes
   `/agentdev-iwe:iwe-*`. `durable-knowledge-audit` and
   `durable-knowledge-auditor` stay in `agentdev`.
-- **Template adoption.** The `template-consume` skill, its consumption guide,
-  and their tests are removed, as ADR-0106 records. The skill read the
-  `iwe-bootstrap` scaffold through a path inside `agentdev`. Its removal comes
-  before the move of `iwe-bootstrap`.
 - **OpenCode.** The bridge moves to `.agents/opencode-bridge/`. It reads
   `.claude-plugin/marketplace.json` and loads every plugin that the marketplace
   lists. OpenCode runs only in the image, where every plugin is installed. The
@@ -218,21 +214,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 - [x] Staging runs `uv sync` in each staged plugin before the step "Make the
   staged catalog root-owned and read-only".
 
-### Task 11: Remove the template-consume skill
-
-**Files:** Delete: `.agents/plugins/agentdev/skills/template-consume/`,
-`.agents/plugins/agentdev/tests/test_template_consume_check_updates.py`,
-`scripts/tests/test_template_consume_migration.py`. Modify:
-`.github/workflows/ci.yml`, `README.md`, `docs/knowledge/data/product.md`,
-`docs/user-stories/agent-containers.md`,
-`.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md`,
-`.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md`.
-
-- [ ] No `template-consume` directory exists under `.agents/plugins/`.
-- [ ] `git grep -n "template-consume\|consumption-guide\|template_consume" -- README.md docs/knowledge/data/product.md docs/user-stories/agent-containers.md .github/workflows/ci.yml .agents/plugins scripts/tests`
-  prints nothing.
-
-### Task 12: Move the IWE workflow into agentdev-iwe
+### Task 11: Move the IWE workflow into agentdev-iwe
 
 **Files:** Create: `.agents/plugins/agentdev-iwe/`
 (`.claude-plugin/plugin.json`, `pyproject.toml`, `README.md`, `tests/`). Modify:
@@ -253,7 +235,7 @@ fixtures.
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
-### Task 13: Point every reference to a moved file at its new path
+### Task 12: Point every reference to a moved file at its new path
 
 **Files:** Modify: `scripts/check-anchors.py`, `.github/renovate.json`,
 `.github/workflows/validate-knowledge-base.yml`,
@@ -280,7 +262,7 @@ fixtures.
 - [ ] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
   prints nothing.
 
-### Task 14: Name the IWE skills and agents by their new namespace
+### Task 13: Name the IWE skills and agents by their new namespace
 
 **Files:** Modify: the files under `.agents/plugins/` and `AGENTS.md` that name
 `agentdev:iwe-`, and `docs/knowledge/data/backlog/implement-opens-pr.md`,
@@ -294,7 +276,7 @@ ADRs keep their text.
 - [ ] `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
   prints nothing.
 
-### Task 15: Move the OpenCode bridge out of agentdev
+### Task 14: Move the OpenCode bridge out of agentdev
 
 **Files:** Move: `.agents/plugins/agentdev/.opencode-plugin/` to
 `.agents/opencode-bridge/`, `.agents/plugins/agentdev/tests/opencode/` to
@@ -311,7 +293,7 @@ ADRs keep their text.
 - [ ] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
   passes.
 
-### Task 16: Install every plugin in a cloud session
+### Task 15: Install every plugin in a cloud session
 
 **Files:** Modify: `.claude/startup.py`, `scripts/tests/test_cloud_startup.py`,
 `.claude/settings.json`.
@@ -321,7 +303,7 @@ ADRs keep their text.
 - [ ] `.claude/settings.json#permissions.allow` allows the scripts of every
   plugin, in the checkout and in the plugin cache.
 
-### Task 17: Document the plugins, uv, and the script contract
+### Task 16: Document the plugins, uv, and the script contract
 
 **Files:** Modify: `.agents/plugins/agentdev/README.md`, `.agents/AGENTS.md`,
 `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`, `README.md`.
@@ -336,7 +318,7 @@ ADRs keep their text.
 - [ ] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
   imports `result_codes` from `agentdev_lib`.
 
-### Task 18: Observe the first agentdev-lib release
+### Task 17: Observe the first agentdev-lib release
 
 **Closed by:** the first merge to `main` after Task 8.
 
@@ -346,7 +328,7 @@ ADRs keep their text.
 - [ ] The GitHub Release for the tag has the wheel attached.
 - [ ] The next push to `main` that keeps the version pushes no tag.
 
-### Task 19: Observe both plugins in a built image and outside it
+### Task 18: Observe both plugins in a built image and outside it
 
 **Closed by:** the maintainer, in a container from the image that CI builds
 after the merge, and in a Claude Code session outside the image.
@@ -419,12 +401,6 @@ after the merge, and in a Claude Code session outside the image.
 - **Checked at ship:** `.claude-plugin/marketplace.json` and the `skills/` and
   `agents/` of `.agents/plugins/agentdev/`
 
-### Scenario: No plugin adopts the template
-
-- **WHEN** a user installs `agentdev`, `agentdev-iwe`, or both
-- **THEN** neither plugin provides a `template-consume` skill
-- **Checked at ship:** the `skills/` of each plugin under `.agents/plugins/`
-
 ### Scenario: OpenCode loads every plugin
 
 - **WHEN** the bridge starts in a catalog whose marketplace lists `agentdev` and
@@ -449,9 +425,6 @@ plugin](../adr/0104-catalog-split-into-opt-in-plugins.md)
 [Catalog scripts run through uv and share code through a published
 package](../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
 
-[The catalog has no template consumption
-skill](../adr/0106-no-template-consumption-skill.md)
-
 ## Depends on
 
 None.
@@ -467,8 +440,6 @@ None.
 - `uv run scripts/check-anchors.py`
 - `uv run pytest docs/knowledge/tests`
 - `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
-  prints nothing.
-- `git grep -n "template-consume\|consumption-guide\|template_consume" -- README.md docs/knowledge/data/product.md docs/user-stories/agent-containers.md .github/workflows/ci.yml .agents/plugins scripts/tests`
   prints nothing.
 - `git grep -n "sys.path.insert" -- '.agents/plugins/*/bin/*.py' '.agents/plugins/*/skills/*/agent-code/*.py'`
   prints nothing.
