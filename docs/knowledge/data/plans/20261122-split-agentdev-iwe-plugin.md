@@ -257,7 +257,7 @@ fixtures.
 - [x] `uv run pre-commit run link-knowledge-support --all-files` passes.
 - [x] `scripts/check-anchors.py` scans the skills and agents of every plugin
   under `.agents/plugins/`.
-- [ ] `uv run scripts/check-anchors.py` exits 0.
+- [x] `uv run scripts/check-anchors.py` exits 0.
 - [x] `uv run pytest docs/knowledge/tests` passes.
 - [x] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
   prints nothing.
