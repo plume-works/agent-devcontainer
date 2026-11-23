@@ -107,7 +107,7 @@ its "Determine agent prompts" step.
 - [x] `reviewer/Dockerfile` builds `FROM ghcr.io/plume-works/core` by tag and
   digest and installs the `agentdev` plugin from
   `plume-works/agent-devcontainer` at a pinned commit SHA.
-- [ ] `reviewer/settings.json` enables the `agentdev` plugin and denies the
+- [x] `reviewer/settings.json` enables the `agentdev` plugin and denies the
   tools that
   `.github/workflows/ai-responder.yml#env.CLAUDE_PR_REVIEW_DISALLOWED_TOOLS`
   denies.
