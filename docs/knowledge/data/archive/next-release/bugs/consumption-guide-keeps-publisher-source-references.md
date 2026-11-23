@@ -1,7 +1,7 @@
 ---
 type: bug
 description: After a full adoption that follows the consumption guide, pyproject.toml and the agent-file validation workflow still refer to the removed trees agentdev_runtime and scripts/tests.
-stage: pending
+stage: cancelled
 severity: medium
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md

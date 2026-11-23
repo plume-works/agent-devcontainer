@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 ---
 
 # Setup progress is a root file and the consumed ref stays in JSON
