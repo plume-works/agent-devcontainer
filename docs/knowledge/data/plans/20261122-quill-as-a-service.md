@@ -200,7 +200,7 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [x] The check run turns in progress when the container starts;
   `bun test test/review.test.ts` passes.
-- [ ] A container that exits 0 completes the check run as success;
+- [x] A container that exits 0 completes the check run as success;
   `bun test test/review.test.ts` passes.
 - [ ] A container that exits non-zero completes the check run as failure;
   `bun test test/review.test.ts` passes.
