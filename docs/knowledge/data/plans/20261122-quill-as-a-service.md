@@ -202,7 +202,7 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [x] A container that exits 0 completes the check run as success;
   `bun test test/review.test.ts` passes.
-- [ ] A container that exits non-zero completes the check run as failure;
+- [x] A container that exits non-zero completes the check run as failure;
   `bun test test/review.test.ts` passes.
 - [ ] A container stopped at the timeout, provoked in the test with a fake clock
   and a container that never exits, completes the check run as failure;
