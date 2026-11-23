@@ -260,7 +260,7 @@ its "Determine agent prompts" step.
 
 - [x] `.github/workflows/ci.yml` runs `bun test` on pull requests.
 - [x] `.github/workflows/ci.yml` builds both images on pull requests.
-- [ ] `.github/workflows/ci.yml` publishes both images to `ghcr.io/plume-works`
+- [x] `.github/workflows/ci.yml` publishes both images to `ghcr.io/plume-works`
   only from `main`.
 
 ### Task 13: Keep the pins current
