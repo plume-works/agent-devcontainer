@@ -1,10 +1,8 @@
-import inspect
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 
-from agentdev_runtime import lifecycle
 import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -18,12 +16,8 @@ def run_setup(
     gh_installed: bool = True,
     authenticated: bool = True,
     helper: str | None = None,
-    keyring_env: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     (tmp_path / 'workspace').mkdir()
-    if keyring_env is not None:
-        (tmp_path / 'workspace/.tmp').mkdir()
-        (tmp_path / 'workspace/.tmp/keyring-session.env').write_text(keyring_env)
     fake_bin = tmp_path / 'bin'
     fake_bin.mkdir()
     for tool in ('git', 'bash', 'env', 'dirname'):
@@ -80,16 +74,3 @@ def test_keeps_existing_helper(tmp_path):
     result, configured = run_setup(tmp_path, helper='store')
     assert result.returncode == 0, result.stderr
     assert configured == 'store'
-
-
-def test_reads_gh_login_through_saved_keyring_session(tmp_path):
-    result, configured = run_setup(
-        tmp_path, authenticated=False, keyring_env='export GH_TEST_AUTHENTICATED=1\n'
-    )
-    assert result.returncode == 0, result.stderr
-    assert configured == GH_HELPER
-
-
-def test_post_start_runs_setup_after_keyring():
-    ready = inspect.getsource(lifecycle.ready)
-    assert ready.index('wait_ready(settings)') < ready.index('git.credential_helper')

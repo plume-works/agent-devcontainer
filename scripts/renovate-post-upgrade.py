@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 
-DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
+PINNED_TOOLS = 'docker/devcontainer/pinned-tools.yml'
 
 
 def run(*command: str, check: bool = True) -> int:
@@ -46,11 +46,11 @@ def main() -> int:
     iwe_dir = None
     try:
         # The image carries the old iwe; the pinned one migrates .iwe/ and serves the hooks below.
-        if DEV_TOOLS in changed:
+        if PINNED_TOOLS in changed:
             Path('.tmp').mkdir(exist_ok=True)
             iwe_dir = './' + os.path.relpath(tempfile.mkdtemp(prefix='renovate-iwe.', dir='.tmp'))
             subprocess.run(
-                ['uv', 'run', '--frozen', 'scripts/fetch-pinned-tool.py', 'iwe', iwe_dir],
+                ['uv', 'run', '--frozen', 'scripts/fetch-pinned-tool.py', iwe_dir, 'iwe'],
                 check=True,
                 stdout=subprocess.DEVNULL,
             )

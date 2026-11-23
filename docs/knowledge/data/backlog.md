@@ -9,12 +9,6 @@ stage: living
 [Resolve bare-path anchors or narrow the anchor
 rule](backlog/bare-path-anchors.md)
 
-[Smoke-test the agentdev-base catalog without lifecycle
-commands](backlog/base-image-catalog-smoke-test.md)
-
-[Supervise Claude Remote Control in Coder
-workspaces](backlog/coder-supervised-remote-control.md)
-
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
 
@@ -43,9 +37,6 @@ job](backlog/parallel-ci-with-pre-commit.md)
 
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
-
-[Remove the D-Bus session bus and GNOME Keyring from the runtime
-images](backlog/remove-dbus-keyring.md)
 
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)

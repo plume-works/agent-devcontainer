@@ -1,0 +1,15 @@
+[Unit]
+Description=agentdev root bootstrap: container environment, storage, extra CA, firewall
+# The firewall must be in place before the engine starts, and the environment file before the
+# user manager reads it.
+Before=docker.service containerd.service systemd-logind.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/agentdev-runtime bootstrap
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

@@ -1,192 +1,81 @@
 """
-Per-service probes, the aggregate readiness both healthchecks read, and a status report.
+The runtime's readiness and a status report, read from systemd's view of the image's units.
 
-``agentdev-runtime health <service>|ready|status`` exits 0 when ready.
+The image healthcheck and ``postStartCommand`` read the readiness; systemd supervises the
+services, and this module only asks it. See ADR-0107. ``agentdev-runtime health ready|status``
+exits 0 when ready.
 """
 
 from __future__ import annotations
 
-import json
-import os
-from pathlib import Path
-import pwd
-import shlex
 import subprocess
 import sys
 
-from agentdev_runtime import settings as env, state as files
-from agentdev_runtime.supervisor import RETRY_COMMAND
-
-SERVICES = (
-    'dockerd',
-    'docker-gc',
-    'dbus',
-    'keyring',
-    'xpra',
-    'opencode',
-    'remote-control',
-)
-# The session bus admits only the account that owns it.
-USER_SERVICES = frozenset({'dbus', 'keyring', 'opencode', 'xpra', 'remote-control'})
-# -P keeps the probe's working directory, often a checkout, off sys.path.
-SELF = (sys.executable, '-P', '-m', 'agentdev_runtime')
-USAGE = f'usage: agentdev-runtime health {"|".join(SERVICES)}|ready|status'
+# Required for the editor to attach; Xpra is a convenience and only reported.
+CORE_UNITS = ('agentdev-bootstrap.service', 'docker.service', 'agentdev-created.service')
+OPTIONAL_USER_UNITS = ('agentdev-xpra.service',)
+USAGE = 'usage: agentdev-runtime health ready|status'
 
 
-def _run(
-    command: list[str], timeout: float | None = None, stdout: bool = True, stderr: bool = True
-) -> bool:
-    """Run a probe command; a timeout or a missing program is a failed probe."""
+def _run(command: list[str], timeout: float = 10) -> subprocess.CompletedProcess[str] | None:
+    """Run a query; None when it timed out or its program is missing."""
     try:
-        result = subprocess.run(
-            command,
-            stdout=None if stdout else subprocess.DEVNULL,
-            stderr=None if stderr else subprocess.DEVNULL,
-            timeout=timeout,
-            check=False,
+        return subprocess.run(
+            command, capture_output=True, text=True, timeout=timeout, check=False
         )
     except subprocess.TimeoutExpired:
-        return False
+        return None
     except OSError as error:
         print(f'{command[0]}: {error}', file=sys.stderr)
-        return False
-    return result.returncode == 0
-
-
-def probe(settings: env.Settings, service: str) -> bool:
-    if service == 'dockerd':
-        return _run(['docker', 'info'], timeout=10, stdout=False, stderr=False)
-    if service == 'docker-gc':
-        # The collector serves nothing; supervisord's RUNNING state is its whole health.
-        return True
-    if service == 'dbus':
-        return _run(
-            [
-                'gdbus',
-                'call',
-                '--session',
-                '--dest',
-                'org.freedesktop.DBus',
-                '--object-path',
-                '/org/freedesktop/DBus',
-                '--method',
-                'org.freedesktop.DBus.GetId',
-            ],
-            timeout=5,
-            stdout=False,
-            stderr=False,
-        )
-    if service == 'keyring':
-        return _run([*SELF, 'keyring', 'check'], timeout=5)
-    if service == 'xpra':
-        port = settings.get('AGENTDEV_XPRA_PORT')
-        return _run(
-            ['curl', '-fsS', '-o', '/dev/null', '--max-time', '5', f'http://127.0.0.1:{port}/']
-        )
-    if service == 'opencode':
-        return _run([*SELF, 'opencode', 'probe'])
-    if service == 'remote-control':
-        return _run([*SELF, 'remote-control', 'check'])
-    raise ValueError(service)
-
-
-def _as_runtime_user(settings: env.Settings, service: str) -> int | None:
-    """Re-run a user-scope probe as the runtime account when called as root; None to go on."""
-    user = settings.raw('AGENTDEV_USER')
-    if os.geteuid() != 0 or not user:
         return None
-    try:
-        account = pwd.getpwnam(user)
-    except KeyError:
-        print(f'id: {user}: no such user', file=sys.stderr)
-        return 1
-    if account.pw_uid == 0:
-        return None
-    home = settings.raw('AGENTDEV_HOME') or f'/home/{user}'
-    command = [
-        'setpriv',
-        f'--reuid={user}',
-        f'--regid={account.pw_gid}',
-        '--init-groups',
-        'env',
-        f'HOME={home}',
-        f'USER={user}',
-        *SELF,
-        'health',
-        service,
-    ]
-    os.execvp(command[0], command)
-    return None
 
 
-def ready(settings: env.Settings) -> int:
-    """Pass only while a live controller reports ready and every core probe passes."""
-    run = files.RunFiles(settings.path('AGENTDEV_RUN_DIR'))
-    state, document = files.current(run.state)
-    if state in {'stale', 'missing', 'unreadable'} or document.get('ready') is not True:
-        print(f'runtime state: {state}')
-        return 1
-    probe_command = shlex.split(settings.raw('AGENTDEV_HEALTH_COMMAND')) or [*SELF, 'health']
-    for core in document.get('probes') or []:
-        if not _run([*probe_command, core], stdout=False, stderr=False):
-            print(f'core probe failed: {core}')
+def unit_states(units: tuple[str, ...], user: bool = False) -> dict[str, str]:
+    """Map each unit to its ``systemctl is-active`` word; ``unknown`` when systemd cannot say."""
+    scope = ['--user'] if user else []
+    result = _run(['systemctl', *scope, 'is-active', *units])
+    words = result.stdout.split() if result is not None else []
+    if len(words) != len(units):
+        return dict.fromkeys(units, 'unknown')
+    return dict(zip(units, words, strict=True))
+
+
+def failed(units: tuple[str, ...] = CORE_UNITS) -> list[str]:
+    """Return the core units systemd reports as failed."""
+    return [unit for unit, state in unit_states(units).items() if state == 'failed']
+
+
+def ready() -> int:
+    """Pass only while every core unit is active and the engine answers."""
+    for unit, state in unit_states(CORE_UNITS).items():
+        if state != 'active':
+            print(f'{unit}: {state}')
             return 1
+    engine = _run(['docker', 'info', '--format', '{{.ServerVersion}}'])
+    if engine is None or engine.returncode != 0:
+        print('docker.service is active, but the engine does not answer')
+        return 1
     return 0
 
 
-def status(settings: env.Settings) -> int:
-    run = files.RunFiles(settings.path('AGENTDEV_RUN_DIR'))
-    state, _ = files.current(run.state)
-    print(f'runtime state: {state}')
-    try:
-        document = json.loads(run.state.read_text())
-    except FileNotFoundError:
-        return 1
-    except (OSError, json.JSONDecodeError):
-        document = {}
-    ready_word = 'true' if document.get('ready') else 'false'
-    print(f'  profile: {document.get("profile") or "unknown"}, ready: {ready_word}')
-    components = document.get('components') or {}
-    for name, component in components.items():
-        if component.get('status') not in {'failed', 'blocked'}:
-            continue
-        reason = f' ({component["reason"]})' if component.get('reason') else ''
-        print(f'  {name}: {component["status"]}{reason}')
-        if component['status'] == 'failed':
-            print(f'    retry: docker exec <container> {RETRY_COMMAND} {name}')
-    if 'remote-control' in components:
-        runtime_dir = settings.raw('XDG_RUNTIME_DIR')
-        try:
-            rc_status = Path(f'{runtime_dir}/remote-control.status').read_text().strip()
-        except OSError:
-            rc_status = 'not started'
-        print(f'  remote-control: {rc_status}')
-    home = Path(settings.raw('AGENTDEV_HOME') or Path.home())
-    record_path = files.failure_record(home)
-    record = files.read_json(record_path) if record_path.is_file() else None
-    if record is not None:
-        exit_status = record.get('exit_status')
-        print(
-            f'last failure: {record.get("component")}, exit status '
-            f'{"none" if exit_status is None else exit_status}, at {record.get("time")}'
-        )
-        print(f'  record: {record_path}')
-    return 0 if files.current(run.state)[0] == 'ready' else 1
+def status() -> int:
+    """Print each unit's state and how to read a failed one's log."""
+    states = unit_states(CORE_UNITS)
+    for unit, state in states.items():
+        print(f'{unit}: {state}')
+    for unit, state in unit_states(OPTIONAL_USER_UNITS, user=True).items():
+        print(f'{unit} (user): {state}')
+    broken = [unit for unit, state in states.items() if state == 'failed']
+    for unit in broken:
+        print(f'  log: journalctl -u {unit} -b --no-pager')
+    return 0 if all(state == 'active' for state in states.values()) else 1
 
 
 def main(argv: list[str]) -> int:
-    """Dispatch ``agentdev-runtime health <service>|ready|status``."""
-    service = argv[0] if argv else ''
-    settings = env.Settings()
-    if service in SERVICES:
-        if service in USER_SERVICES:
-            refused = _as_runtime_user(settings, service)
-            if refused is not None:
-                return refused
-        return 0 if probe(settings, service) else 1
-    if service == 'ready':
-        return ready(settings)
-    if service == 'status':
-        return status(settings)
+    """Dispatch ``agentdev-runtime health ready|status``."""
+    if argv == ['ready']:
+        return ready()
+    if argv == ['status']:
+        return status()
     print(USAGE, file=sys.stderr)
     return 2

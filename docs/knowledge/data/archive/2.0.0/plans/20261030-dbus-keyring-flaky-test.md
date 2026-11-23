@@ -136,7 +136,7 @@ affected clients coherently".
 ## Out of scope
 
 - Dependency-ordered recovery as a general init-system behavior
-  ([dependency-ordered-recovery](../../../someday/dependency-ordered-recovery.md)).
+  (dependency-ordered-recovery).
 - Changing which clients each service's `refresh` list names, or how the real
   D-Bus and keyring probes in `runtime-health.sh` behave.
 - Changing the probe-failure debounce for a service whose own probe fails with

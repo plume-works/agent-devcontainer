@@ -1,51 +1,41 @@
 ---
 type: guide
-description: How to set up Claude Remote Control on a Coder workspace or the standalone runtime, and how to diagnose a Login expired state.
+description: How to run Claude Remote Control by hand in agentdev-devcontainer, verify its login without exposing credentials, and diagnose a Login expired state.
 sources:
-- resource: py_packages/agentdev_runtime/
+- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 ---
 
 # Claude Remote Control setup
 
-The decisions for this procedure are in
-[ADR-0092](../adr/0092-remote-control-server-on-by-default.md).
+`agentdev-devcontainer` starts no Remote Control server
+([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)). A
+Coder workspace gets a supervised one from plume-works' Coder template image. In
+the Dev Container, run it by hand.
 
 ## Set it up
 
-### 1. Attach the Coder agent start, or choose the spawn mode
-
-On Coder, the workspace template's `coder_script` runs the repository's
-agent-start command, by default `agentdev-runtime coder start`, on every agent
-start, and that command execs `agentdev-runtime remote-control start`. The
-`coder_script` runs nothing when the repository has no agent-start command.
-
-In the standalone runtime (`agentdev-deploy`), the `remote-control` watcher runs
-`agentdev-runtime remote-control start` once a claude.ai login exists, and
-`agentdev-runtime health status` reports what it is doing. On other hosts
-nothing starts Remote Control; the command can still be run by hand.
-
-`AGENTDEV_CLAUDE_RC_SPAWN` selects the spawn mode of the server: `worktree` (the
-default), `same-dir`, or `session`. Set it to `off` to stop Remote Control.
-
-### 2. Log in
+### 1. Log in
 
 Run `claude` inside the container and complete `/login` with a claude.ai
-account. The login persists in the auth volume, so later workspaces on the same
-host start Remote Control on their next agent start. In the workspace where the
-login happened, start it by hand from a Coder terminal, which carries the same
-environment as the `coder_script`:
+account. The login persists in the auth volume, so later containers of the same
+host user reuse it.
+
+### 2. Start the server in tmux
 
 ``` bash
-agentdev-runtime remote-control start
+tmux -L claude-remote new-session -d -s claude-remote \
+  'claude remote-control --spawn worktree --permission-mode auto'
 ```
 
-A workspace restart also starts it.
+`--spawn` selects the spawn mode of the server: `worktree`, `same-dir`, or
+`session`. Each conversation that the server starts receives the environment of
+the tmux server.
 
 ### 3. Approve first-run Claude state
 
 The pre-approval of the create phase has already answered these prompts. Attach
-to the named tmux session only if Claude still shows one, for example after a
-Claude Code release adds a new first-run prompt:
+to the tmux session only if Claude still shows one, for example after a Claude
+Code release adds a new first-run prompt:
 
 ``` bash
 tmux -L claude-remote attach -t claude-remote
@@ -76,15 +66,13 @@ stat -c '%U %a %n' \
 
 claude auth status --json
 
-tmux -L claude-remote list-sessions -F '#{session_name}'
 tmux -L claude-remote list-panes -t =claude-remote \
   -F 'session=#{session_name} dead=#{pane_dead} command=#{pane_current_command}'
 ```
 
-Expected filesystem metadata is ownership by the runtime account, mode `0700` on
-the credential directory, and mode `0600` on the credential file. Exactly one
-tmux session named `claude-remote` on the `claude-remote` tmux server should
-contain one live `claude` pane.
+Expected filesystem metadata is ownership by the `dev` account, mode `0700` on
+the credential directory, and mode `0600` on the credential file. The
+`claude-remote` session should contain one live `claude` pane.
 
 To verify that native file authentication took precedence, inspect only the
 environment variable names of the Claude process and assert that

@@ -1,14 +1,12 @@
 """
 Egress firewall, inert unless ``ENABLE_FIREWALL=true``.
 
-The bootstrap runs ``agentdev-runtime firewall apply`` as root before supervisord starts dockerd,
-so the flush keeps the engine's rules. Only deploy admits a proxy. Adapted from the Claude Code
-reference implementation.
+The root bootstrap applies it before systemd starts the Docker engine, so the flush keeps the
+engine's rules. Adapted from the Claude Code reference implementation.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 import ipaddress
 import json
@@ -66,19 +64,6 @@ def validate_allowlist(path: Path) -> list[str]:
     return [entry for _, entry in found]
 
 
-def proxy_cidrs(raw: str, web_ports: str) -> list[str]:
-    cidrs = [cidr for cidr in raw.replace(',', ' ').split() if cidr]
-    for cidr in cidrs:
-        if not CIDR_RE.match(cidr):
-            raise FirewallError(f"AGENTDEV_TRUSTED_PROXY_CIDRS entry '{cidr}' is not an IPv4 CIDR")
-    if not cidrs:
-        raise FirewallError(
-            'ENABLE_FIREWALL=true requires AGENTDEV_TRUSTED_PROXY_CIDRS, or the proxy cannot '
-            f'reach {web_ports}'
-        )
-    return cidrs
-
-
 def github_ranges(meta: object) -> list[str]:
     """Collapse GitHub's IPv4 ``web``, ``api``, and ``git`` ranges into the fewest CIDRs."""
     if not isinstance(meta, dict) or not all(meta.get(key) for key in ('web', 'api', 'git')):
@@ -99,8 +84,6 @@ def allowlist_path(settings: env.Settings) -> Path:
     explicit = settings.raw('FIREWALL_ALLOWLIST')
     if explicit:
         return Path(explicit)
-    if settings.raw('AGENTDEV_RUNTIME_MODE') == env.DEPLOY:
-        return IMAGE_ALLOWLIST
     checkout = settings.path('DEV_WORKSPACE_FOLDER') / CHECKOUT_ALLOWLIST
     return checkout if checkout.is_file() else IMAGE_ALLOWLIST
 
@@ -287,26 +270,6 @@ def verify(system: System) -> None:
     system.say('Firewall verification passed - api.github.com is reachable as expected')
 
 
-def allow_proxy_ingress(system: System, cidrs: Iterable[str], web_ports: str) -> None:
-    """Admit only the trusted proxy sources to the web ports."""
-    for cidr in cidrs:
-        iptables(
-            system,
-            '-A',
-            'INPUT',
-            '-p',
-            'tcp',
-            '-s',
-            cidr,
-            '-m',
-            'multiport',
-            '--dports',
-            web_ports,
-            '-j',
-            'ACCEPT',
-        )
-
-
 def filter_nested_egress(system: System) -> None:
     """Apply the allowlist again in DOCKER-USER, which dockerd keeps and consults first."""
     if not system.run('iptables', '-N', 'DOCKER-USER', check=False):
@@ -334,19 +297,11 @@ def apply(settings: env.Settings, system: System | None = None) -> int:
     if settings.raw('ENABLE_FIREWALL') != 'true':
         print(f"{PREFIX}: ENABLE_FIREWALL is not 'true'; the firewall stays inert", flush=True)
         return 0
-    deploy = settings.raw('AGENTDEV_RUNTIME_MODE') == env.DEPLOY
-    web_ports = f'{settings.get("AGENTDEV_OPENCODE_PORT")},{settings.get("AGENTDEV_XPRA_PORT")}'
     try:
         source = allowlist_path(settings)
         allowlist = validate_allowlist(source)
-        cidrs = (
-            proxy_cidrs(settings.raw('AGENTDEV_TRUSTED_PROXY_CIDRS'), web_ports) if deploy else []
-        )
         apply_policy(system, allowlist, source)
         verify(system)
-        if deploy:
-            allow_proxy_ingress(system, cidrs, web_ports)
-            system.say(f'{PREFIX}: proxy sources {" ".join(cidrs)} may reach ports {web_ports}')
         filter_nested_egress(system)
     except FirewallError as error:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)

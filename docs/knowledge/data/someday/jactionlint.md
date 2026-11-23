@@ -5,7 +5,7 @@ sources:
 - resource: https://github.com/jdx/jactionlint
 - resource: https://jactionlint.jdx.dev/zizmor-parity
 - resource: https://jactionlint.jdx.dev/actionlint
-- resource: ansible/roles/dev_tools/defaults/main.yml
+- resource: docker/devcontainer/pinned-tools.yml
 - resource: .pre-commit-config.yaml
 - resource: zizmor.yaml
 ---
@@ -25,7 +25,7 @@ changes the tool set, so it is evaluated on its own.
 ## What it would change
 
 - **One hook and one pin** instead of the `actionlint` and `zizmor` entries in
-  `dev_tools_pinned_tools` and `.pre-commit-config.yaml`.
+  `docker/devcontainer/pinned-tools.yml` and `.pre-commit-config.yaml`.
 - **Config migration.** It reads `.github/actionlint.yml` and honors
   `# zizmor: ignore[...]` comments; the rule settings and file-and-line ignores
   in `zizmor.yaml` would move to `.github/jactionlint.yaml`.

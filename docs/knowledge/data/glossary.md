@@ -78,14 +78,11 @@ from the user.
 
 ### Runtime
 
-**Runtime profile**: The set of services that a container supervises, one for
-each way to run the image.
-
-**Standalone runtime**: A container that prepares its own workspace and serves
-an agent without an editor. *Avoid*: Deploy runtime
-
 **Instance**: One Dev Container of one checkout or worktree. *Avoid*:
 Environment
+
+**Root bootstrap**: The root step that systemd runs at each container start,
+before the Dev Container engine: storage, the extra CA, and the firewall.
 
 **Create phase**: The lifecycle phase that runs one time for each container.
 
@@ -95,40 +92,11 @@ Post-start
 **Attach phase**: The lifecycle phase that runs each time an editor attaches to
 the container.
 
-**Agent start**: The runtime step that a Coder workspace runs each time its
-Coder agent starts, outside the lifecycle phases.
-
-**Core service**: A service whose failure stops the standalone runtime.
-
-**Optional service**: A service whose failure only degrades the standalone
-runtime.
-
-**Latched failure**: The state of a standalone runtime after a failure that it
-cannot recover from, in which nothing restarts until an operator intervenes.
-*Avoid*: Crash, fatal error
-
-**Degraded runtime**: A standalone runtime that still serves its agent after an
-optional service failed.
-
-**Recovery budget**: The number of restarts that a service can use before its
-failure counts.
-
-**Opt-in client**: A supervised program that starts after the create phase and
-does not block readiness.
-
-**Watcher**: A supervised program that monitors one condition and starts a
-client when the condition occurs.
-
 **Home volume**: The storage of one instance that holds the home directory of
-the agent account.
+the `dev` account.
 
 **Auth volume**: The storage that holds only agent credentials and that the
 instances of one host user share.
-
-**Login volume**: Any volume that holds agent credentials, which cleanup never
-removes.
-
-**Disposable volume**: A volume that cleanup can remove.
 
 **UID/GID cohort**: The containers that run with the same user and group IDs and
 that can share one auth volume. *Avoid*: Identity cohort

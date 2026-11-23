@@ -18,7 +18,7 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 STARTUP = REPO_ROOT / '.claude/startup.py'
-STUBBED = ('claude', 'bash', 'ansible-playbook', 'uv', 'docker', 'dockerd')
+STUBBED = ('claude', 'bash', 'uv', 'docker', 'dockerd')
 
 
 def load_startup() -> ModuleType:
@@ -71,8 +71,7 @@ def run_startup(
     for name in STUBBED:
         stub = bin_dir / name
         stub.write_text(
-            f'#!/bin/sh\necho {name} "$@" ANSIBLE_LOG_PATH="${{ANSIBLE_LOG_PATH-unset}}"'
-            f' >> {calls}\nexit {1 if name in failing.split() else 0}\n'
+            f'#!/bin/sh\necho {name} "$@" >> {calls}\nexit {1 if name in failing.split() else 0}\n'
         )
         stub.chmod(0o755)
     result = subprocess.run(
@@ -88,7 +87,7 @@ def run_startup(
         check=False,
     )
     lines = calls.read_text().splitlines() if calls.exists() else []
-    return result, [line.removesuffix(' ANSIBLE_LOG_PATH=unset') for line in lines]
+    return result, lines
 
 
 @pytest.mark.parametrize('args', [(), ('setup',)], ids=['default', 'explicit'])
@@ -102,9 +101,12 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
     assert calls == [
         'claude plugin marketplace add ./',
         'claude plugin install agentdev@agent-devcontainer',
-        'bash docker/ansible/setup-ansible.sh',
-        f'ansible-playbook ansible/playbooks/setup-dev.yml --tags {startup.TOOLCHAIN_TAGS}'
-        ' ANSIBLE_LOG_PATH=',
+        f'bash -c curl -LsSf https://astral.sh/uv/{startup.UV_VERSION}/install.sh'
+        f' | env UV_INSTALL_DIR={startup.TOOL_DIR} UV_NO_MODIFY_PATH=1 sh',
+        'bash -c curl -fsSL https://bun.sh/install'
+        f' | env BUN_INSTALL=/usr/local bash -s bun-v{startup.BUN_VERSION}',
+        'uv run --no-project --with pyyaml scripts/fetch-pinned-tool.py'
+        f' {startup.TOOL_DIR} {" ".join(startup.HOOK_TOOLS)}',
         'uv sync',
         f'uv run pre-commit install --install-hooks {hook_types}',
     ]
@@ -133,7 +135,7 @@ def test_setup_adds_the_session_env_to_existing_user_settings(scratch: Path) -> 
 
 def test_a_failing_step_fails_setup_and_stops_it(scratch: Path) -> None:
     """A failed provisioning step fails the script before the project is synced."""
-    result, calls = run_startup(scratch, failing='ansible-playbook')
+    result, calls = run_startup(scratch, failing='bash')
     assert result.returncode == 1
     assert 'startup: error:' in result.stderr
     assert not [line for line in calls if line.startswith('uv ')]
@@ -173,7 +175,7 @@ def test_setup_gives_its_commands_blocking_stdio(scratch: Path) -> None:
     [
         {},
         {'CLAUDE_CODE_REMOTE': 'false'},
-        {'CLAUDE_CODE_REMOTE': 'true', 'AGENTDEV_RUNTIME_MODE': 'devcontainer'},
+        {'CLAUDE_CODE_REMOTE': 'true', 'AGENTDEV_USER': 'dev'},
     ],
     ids=['local-host', 'remote-false', 'inside-devcontainer'],
 )

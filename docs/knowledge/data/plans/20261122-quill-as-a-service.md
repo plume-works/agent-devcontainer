@@ -473,5 +473,8 @@ cd ./.tmp/quill-as-a-service && bun install --frozen-lockfile && bun test
   limit" — the spend-limit message the reviewer detects.
 - `.agents/plugins/agentdev/skills/pr-review/agent-code/post-review.py` — how
   the review posts without `claude-code-action`.
-- `docker/deploy/README.md#1-create-the-proxy-network` — the reverse-proxy
-  pattern the deployment follows.
+- The reverse-proxy pattern the deployment follows: each service container joins
+  one external `docker network create agentdev-proxy` network and publishes no
+  host ports, so only the proxy reaches it. The `agentdev-deploy` README that
+  described it is removed
+  ([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).

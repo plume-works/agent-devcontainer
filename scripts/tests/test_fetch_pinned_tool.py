@@ -11,6 +11,7 @@ import shutil
 import sys
 import tarfile
 from uuid import uuid4
+import zipfile
 
 import pytest
 from scratch import TMP_ROOT
@@ -30,13 +31,11 @@ def _load_script():
 
 
 fetch_tool = _load_script()
-DEV_TOOLS = fetch_tool.DEV_TOOLS_DEFAULTS
-DEV_TOOLS_TASK = fetch_tool._refresh_module().PIN_FILES[DEV_TOOLS].task_file
 BINARIES = {'tool': b'#!/bin/sh\necho tool\n', 'toold': b'#!/bin/sh\necho toold\n'}
 
 
-def archive(files: dict[str, bytes]) -> bytes:
-    """Return a flat tar.gz holding the given files."""
+def tar_gz(files: dict[str, bytes]) -> bytes:
+    """Return a tar.gz holding the given files."""
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode='w:gz') as bundle:
         for name, body in files.items():
@@ -46,33 +45,40 @@ def archive(files: dict[str, bytes]) -> bytes:
     return buffer.getvalue()
 
 
+def zip_bytes(files: dict[str, bytes]) -> bytes:
+    """Return a zip holding the given files."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, 'w') as bundle:
+        for name, body in files.items():
+            bundle.writestr(name, body)
+    return buffer.getvalue()
+
+
 @pytest.fixture
-def repo() -> Iterator[Path]:
-    """Create a tree with the real install task and an empty release directory."""
+def root() -> Iterator[Path]:
+    """Create a scratch tree with an empty release directory."""
     TMP_ROOT.mkdir(exist_ok=True)
-    root = TMP_ROOT / f'fetch-pinned-tool-{uuid4().hex}'
-    (root / DEV_TOOLS_TASK).parent.mkdir(parents=True)
-    (root / DEV_TOOLS).parent.mkdir(parents=True, exist_ok=True)
-    (root / 'releases/v1').mkdir(parents=True)
-    shutil.copy(REPO_ROOT / DEV_TOOLS_TASK, root / DEV_TOOLS_TASK)
+    path = TMP_ROOT / f'fetch-pinned-tool-{uuid4().hex}'
+    (path / 'releases/v1').mkdir(parents=True)
     try:
-        yield root
+        yield path
     finally:
-        shutil.rmtree(root)
+        shutil.rmtree(path)
 
 
-def pin(root: Path, body: bytes, checksum: str | None = None) -> None:
-    """Publish body as every architecture's archive and pin it under that checksum."""
+def pin(root: Path, body: bytes, extra: str = '', checksum: str | None = None, suffix='.tar.gz'):
+    """Publish body as every architecture's asset and pin it under that checksum."""
     for target in ('x86_64-linux', 'aarch64-linux'):
-        (root / f'releases/v1/tool-{target}.tar.gz').write_bytes(body)
+        (root / f'releases/v1/tool-{target}{suffix}').write_bytes(body)
     digest = checksum or hashlib.sha256(body).hexdigest()
-    (root / DEV_TOOLS).write_text(
-        'dev_tools_pinned_tools:\n'
+    pins = root / 'pinned-tools.yml'
+    pins.write_text(
+        'tools:\n'
         '  - name: tool\n'
         '    version: v1\n'
         f'    url_prefix: file://{root / "releases"}\n'
         '    asset_prefix: tool-\n'
-        '    binaries: [tool, toold]\n'
+        f'{extra}'
         '    archives:\n'
         '      amd64:\n'
         '        target: x86_64-linux\n'
@@ -81,44 +87,96 @@ def pin(root: Path, body: bytes, checksum: str | None = None) -> None:
         '        target: aarch64-linux\n'
         f'        checksum: {digest}\n'
     )
+    return pins
 
 
-def test_installs_every_binary_executable(repo: Path) -> None:
+def fetch(root: Path, pins: Path, *names: str) -> int:
+    return fetch_tool.main([str(root / 'bin'), *names, '--pins', str(pins)])
+
+
+def test_installs_every_binary_executable(root: Path) -> None:
     """Each listed binary lands in the destination with its archived content."""
-    pin(repo, archive(BINARIES))
+    pins = pin(root, tar_gz(BINARIES), '    binaries: [tool, toold]\n')
 
-    code = fetch_tool.main(['tool', str(repo / 'bin'), '--repo-root', str(repo)])
+    assert fetch(root, pins, 'tool') == 0
 
-    assert code == 0
     for name, body in BINARIES.items():
-        assert (repo / 'bin' / name).read_bytes() == body
-        assert (repo / 'bin' / name).stat().st_mode & 0o111
-    assert sorted(path.name for path in (repo / 'bin').iterdir()) == sorted(BINARIES)
+        assert (root / 'bin' / name).read_bytes() == body
+        assert (root / 'bin' / name).stat().st_mode & 0o111
+    assert sorted(path.name for path in (root / 'bin').iterdir()) == sorted(BINARIES)
 
 
-def test_a_checksum_mismatch_installs_nothing(repo: Path) -> None:
+def test_all_fetches_every_entry(root: Path) -> None:
+    pins = pin(root, tar_gz({'tool': BINARIES['tool']}))
+
+    assert fetch_tool.main([str(root / 'bin'), '--all', '--pins', str(pins)]) == 0
+
+    assert (root / 'bin/tool').read_bytes() == BINARIES['tool']
+
+
+def test_a_binary_under_a_directory_in_a_zip(root: Path) -> None:
+    pins = pin(
+        root,
+        zip_bytes({'tool-v1/tool': BINARIES['tool']}),
+        '    extension: zip\n    binaries_dir: "tool-{version}"\n',
+        suffix='.zip',
+    )
+
+    assert fetch(root, pins, 'tool') == 0
+
+    assert (root / 'bin/tool').read_bytes() == BINARIES['tool']
+
+
+def test_a_bare_binary_is_the_asset_itself(root: Path) -> None:
+    pins = pin(root, BINARIES['tool'], '    bare_binary: true\n', suffix='')
+
+    assert fetch(root, pins, 'tool') == 0
+
+    assert (root / 'bin/tool').read_bytes() == BINARIES['tool']
+    assert (root / 'bin/tool').stat().st_mode & 0o111
+
+
+def test_a_deb_is_written_as_its_package_file(root: Path) -> None:
+    pins = pin(root, b'!<arch>\n', '    extension: deb\n    deb: true\n', suffix='.deb')
+
+    assert fetch(root, pins, 'tool') == 0
+
+    assert (root / 'bin/tool.deb').read_bytes() == b'!<arch>\n'
+
+
+def test_a_checksum_mismatch_installs_nothing(root: Path) -> None:
     """An archive that does not hash to its pin is rejected before anything is unpacked."""
-    pin(repo, archive(BINARIES), checksum='f' * 64)
+    pins = pin(root, tar_gz(BINARIES), '    binaries: [tool, toold]\n', checksum='f' * 64)
 
-    code = fetch_tool.main(['tool', str(repo / 'bin'), '--repo-root', str(repo)])
+    assert fetch(root, pins, 'tool') == 1
 
-    assert code == 1
-    assert list((repo / 'bin').iterdir()) == []
+    assert list((root / 'bin').iterdir()) == []
 
 
-def test_a_binary_missing_from_the_archive_fails(repo: Path) -> None:
+def test_a_binary_missing_from_the_archive_installs_nothing(root: Path) -> None:
     """A listed binary the archive lacks is an error, not a partial install."""
-    pin(repo, archive({'tool': BINARIES['tool']}))
+    pins = pin(root, tar_gz({'tool': BINARIES['tool']}), '    binaries: [tool, toold]\n')
 
-    code = fetch_tool.main(['tool', str(repo / 'bin'), '--repo-root', str(repo)])
+    assert fetch(root, pins, 'tool') == 1
 
-    assert code == 1
+    assert list((root / 'bin').iterdir()) == []
 
 
-def test_an_unknown_tool_fails(repo: Path) -> None:
+def test_an_unknown_tool_fails(root: Path) -> None:
     """A name with no pinned entry is reported, not silently skipped."""
-    pin(repo, archive(BINARIES))
+    pins = pin(root, tar_gz(BINARIES))
 
-    code = fetch_tool.main(['other', str(repo / 'bin'), '--repo-root', str(repo)])
+    assert fetch(root, pins, 'other') == 1
 
-    assert code == 1
+
+def test_the_url_substitutes_the_version_without_its_prefix() -> None:
+    tool = {
+        'version': 'v2.5.0',
+        'url_prefix': 'https://example.invalid/download',
+        'asset_prefix': 'tool_{bare_version}_',
+        'archives': {'amd64': {'target': 'linux_amd64'}},
+    }
+
+    assert fetch_tool.url(tool, 'amd64') == (
+        'https://example.invalid/download/v2.5.0/tool_2.5.0_linux_amd64.tar.gz'
+    )

@@ -66,7 +66,7 @@ class Checkout:
                 'docker',
                 'exec',
                 '-u',
-                'agent',
+                'dev',
                 '-w',
                 self.workspace,
                 self.container,
@@ -82,7 +82,8 @@ class Checkout:
         return result.stdout.strip()
 
     def startup_id(self) -> str:
-        return self.sh('jq -r .startup_id /run/agentdev/state.json')
+        """Return the root bootstrap's invocation ID, new each time the container starts."""
+        return self.sh('systemctl show --value -p InvocationID agentdev-bootstrap.service')
 
     def remove(self) -> None:
         homes = (

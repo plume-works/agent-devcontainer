@@ -44,7 +44,7 @@ jobs:
             - uv.lock
             # The iwe pin the iwe-bootstrap tests install.
             - scripts/fetch-pinned-tool.py
-            - ansible/roles/dev_tools/defaults/main.yml
+            - docker/devcontainer/pinned-tools.yml
             # The plugin tests compare the scaffold with these.
             - .iwe
             - docs/knowledge/*

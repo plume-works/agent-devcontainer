@@ -462,8 +462,10 @@ None.
   registers the bridge path in `opencode.json`.
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — installs
   every plugin that a marketplace publishes.
-- `ansible/roles/agent_catalog/defaults/main.yml#agent_catalog_trees` — the
-  trees that staging copies.
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile` ›
+  "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the trees that
+  staging copies; the `agent_catalog` role is removed
+  ([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
 - `ansible/roles/agent_catalog/tasks/stage_catalog.yml` › "Fail when the
   manifest does not publish exactly one matching plugin" — the one-plugin check.
 - `ansible/roles/agent_catalog/tasks/stage_catalog.yml` › "Make the staged

@@ -2,8 +2,9 @@
 """
 Recompute the per-architecture SHA-256 of pinned downloads in their pin files.
 
-Each pin's download URL is rendered from its consumer's own templates — an Ansible role's
-Jinja, or the macOS bootstrap's zsh — so the script fetches exactly what that consumer fetches. Every pin in a given file is hashed:
+Each pin's download URL is assembled the way its consumer assembles it — the image's pinned
+tools through ``fetch-pinned-tool.py``, the macOS bootstrap through its zsh — so the script fetches
+exactly what that consumer fetches. Every pin in a given file is hashed:
 a bumped pin gets its checksums rewritten, and a pin whose version matches ``HEAD`` must
 hash to its recorded value, or the tag moved under it. Any failure leaves every file as it
 was and exits non-zero. Files that carry no known pins are ignored.
@@ -14,20 +15,33 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import hashlib
+import importlib.util
 from pathlib import Path
 import re
 import subprocess
 import sys
+from types import ModuleType
 from typing import Any
 import urllib.error
 import urllib.request
 
-import jinja2
 import yaml
 
-ARCHITECTURES = ('amd64', 'arm64')
-DOWNLOAD_TIMEOUT_SECONDS = 120
-JINJA = jinja2.Environment(undefined=jinja2.StrictUndefined, keep_trailing_newline=False)
+
+def _fetch_module() -> ModuleType:
+    """Load fetch-pinned-tool.py, whose hyphenated name rules out a plain import."""
+    path = Path(__file__).with_name('fetch-pinned-tool.py')
+    spec = importlib.util.spec_from_file_location('fetch_pinned_tool', path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+FETCH = _fetch_module()
+ARCHITECTURES = FETCH.ARCHITECTURES
+DOWNLOAD_TIMEOUT_SECONDS = FETCH.DOWNLOAD_TIMEOUT_SECONDS
 
 
 class RefreshError(Exception):
@@ -46,74 +60,27 @@ class Pin:
 
 @dataclass(frozen=True)
 class ToolListPins:
-    """A list of tool entries whose URLs are assembled by an install task file."""
-
-    list_var: str
-    task_file: str
+    """The image's pinned tools, whose URLs ``fetch-pinned-tool.py`` assembles."""
 
     def load(self, text: str) -> Any:
         """Parse the pin file."""
         return yaml.safe_load(text)
 
-    def versions(self, defaults: dict[str, Any]) -> dict[str, str]:
+    def versions(self, pinned: dict[str, Any]) -> dict[str, str]:
         """Map each tool's name to its version."""
-        return {tool['name']: str(tool['version']) for tool in defaults[self.list_var]}
+        return {tool['name']: str(tool['version']) for tool in pinned['tools']}
 
-    def pins(self, defaults: dict[str, Any], repo_root: Path) -> list[Pin]:
-        """Return one pin per tool entry, rendering URLs with the task file's templates."""
-        facts, url_template = self._templates(repo_root)
-        pins = []
-        for tool in defaults[self.list_var]:
-            urls = {}
-            for arch in ARCHITECTURES:
-                context = {'dev_tools_tool': tool, 'system_arch': arch}
-                for name, template in facts:
-                    context[name] = _render(template, context)
-                urls[arch] = _render(url_template, context)
-            checksums = {arch: tool['archives'][arch]['checksum'] for arch in ARCHITECTURES}
-            pins.append(Pin(tool['name'], str(tool['version']), urls, checksums))
-        return pins
-
-    def _templates(self, repo_root: Path) -> tuple[list[tuple[str, str]], str]:
-        """Read the facts, in task order, and the URL expression from the install task file."""
-        tasks = yaml.safe_load((repo_root / self.task_file).read_text())
-        facts: list[tuple[str, str]] = []
-        url = None
-        for task in tasks:
-            facts.extend(task.get('ansible.builtin.set_fact', {}).items())
-            url = task.get('ansible.builtin.get_url', {}).get('url', url)
-        if url is None or not facts:
-            raise RefreshError(f'{self.task_file}: no download URL template found')
-        return facts, url
-
-
-@dataclass(frozen=True)
-class VariablePin:
-    """A single pin spread over a version, a URL template, and a checksum map variable."""
-
-    version_var: str
-    url_var: str
-    checksums_var: str
-    arch_var: str
-
-    def load(self, text: str) -> Any:
-        """Parse the pin file."""
-        return yaml.safe_load(text)
-
-    def versions(self, defaults: dict[str, Any]) -> dict[str, str]:
-        """Map the pin's version variable to its version; empty when the file lacks it."""
-        if self.version_var not in defaults:
-            return {}
-        return {self.version_var: str(defaults[self.version_var])}
-
-    def pins(self, defaults: dict[str, Any], repo_root: Path) -> list[Pin]:
-        """Return the pin, rendering its URL template once per architecture."""
-        urls = {
-            arch: _render(defaults[self.url_var], {**defaults, self.arch_var: arch})
-            for arch in ARCHITECTURES
-        }
-        checksums = {arch: defaults[self.checksums_var][arch] for arch in ARCHITECTURES}
-        return [Pin(self.version_var, str(defaults[self.version_var]), urls, checksums)]
+    def pins(self, pinned: dict[str, Any], repo_root: Path) -> list[Pin]:
+        """Return one pin per tool entry."""
+        return [
+            Pin(
+                tool['name'],
+                str(tool['version']),
+                {arch: FETCH.url(tool, arch) for arch in ARCHITECTURES},
+                {arch: tool['archives'][arch]['checksum'] for arch in ARCHITECTURES},
+            )
+            for tool in pinned['tools']
+        ]
 
 
 @dataclass(frozen=True)
@@ -188,49 +155,12 @@ def _render_zsh(template: str, context: dict[str, str]) -> str:
     return ZSH_PARAMETER.sub(value, template)
 
 
-PinSpec = ToolListPins | VariablePin | ZshReleasePins
+PinSpec = ToolListPins | ZshReleasePins
 
 PIN_FILES: dict[str, PinSpec | tuple[PinSpec, ...]] = {
-    'ansible/roles/dev_tools/defaults/main.yml': ToolListPins(
-        list_var='dev_tools_pinned_tools',
-        task_file='ansible/roles/dev_tools/tasks/install_pinned_tool.yml',
-    ),
-    'ansible/roles/agentic_tools/defaults/main.yml': VariablePin(
-        version_var='agentic_tools_cc_filter_version',
-        url_var='agentic_tools_cc_filter_download_url',
-        checksums_var='agentic_tools_cc_filter_checksums',
-        arch_var='system_arch',
-    ),
-    'ansible/roles/git_ppa/defaults/main.yml': (
-        VariablePin(
-            version_var='git_ppa_release_tag',
-            url_var='git_ppa_download_url',
-            checksums_var='git_ppa_checksums',
-            arch_var='system_arch',
-        ),
-        VariablePin(
-            version_var='git_ppa_release_tag',
-            url_var='git_ppa_man_download_url',
-            checksums_var='git_ppa_man_checksums',
-            arch_var='system_arch',
-        ),
-    ),
-    'ansible/roles/xpra_setup/defaults/main.yml': VariablePin(
-        version_var='xpra_setup_virtualgl_version',
-        url_var='xpra_setup_virtualgl_download_url',
-        checksums_var='xpra_setup_virtualgl_checksums',
-        arch_var='xpra_setup_virtualgl_arch',
-    ),
+    FETCH.PINNED_TOOLS: ToolListPins(),
     '.agents/plugins/agentdev/bin/macos-bootstrap.zsh': ZshReleasePins(),
 }
-
-
-def _render(template: str, context: dict[str, Any]) -> str:
-    """Render one Jinja expression the way Ansible templates a variable."""
-    try:
-        return JINJA.from_string(template).render(context).strip()
-    except jinja2.TemplateError as error:
-        raise RefreshError(f'cannot render {template!r}: {error}') from error
 
 
 def _digest_of(value: str) -> str:

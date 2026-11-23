@@ -34,7 +34,7 @@ tests for 7 of the other 13. The 5 other requirements have no test, because each
 one is configuration, a rule, or a guard against a possible future edit, and not
 logic. The last one is [a deploy runtime that reuses a checkout does not
 configure the git credential
-helper](../../../bugs/reused-checkout-gets-no-credential-helper.md).
+helper](../bugs/reused-checkout-gets-no-credential-helper.md).
 
 The 2 `user-doc` requirements are in a README already. The requirement about the
 GitHub ruleset goes to the consumption guide of the `template-consume` skill.

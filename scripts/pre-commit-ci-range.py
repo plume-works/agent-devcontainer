@@ -24,7 +24,7 @@ TOOL_VERSION_OWNERS = (
     'uv.lock',
     'pyproject.toml',
     '.pre-commit-config.yaml',
-    'ansible/roles/dev_tools/defaults/main.yml',
+    'docker/devcontainer/pinned-tools.yml',
     'devcontainer-compose-pins.yml',
 )
 ZERO_SHA = '0' * 40

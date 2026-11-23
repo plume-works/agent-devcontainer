@@ -101,10 +101,9 @@ Rejected directions:
 - **Not charging the client's budget while its dependency is down.** It still
   restarts the client against a dead dependency, and it removes the budget's
   bound on those restarts.
-- **Dependency-ordered recovery**
-  ([dependency-ordered-recovery](../../../someday/dependency-ordered-recovery.md)).
-  It covers this case, but it is the general init-system behavior that idea was
-  held back to avoid, and this defect does not need it.
+- **Dependency-ordered recovery** (dependency-ordered-recovery). It covers this
+  case, but it is the general init-system behavior that idea was held back to
+  avoid, and this defect does not need it.
 
 Still unknown: whether Xpra or OpenCode exit or only degrade when their
 dependency is replaced. That decides whether the defect reached beyond keyring

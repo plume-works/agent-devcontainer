@@ -40,7 +40,7 @@ jobs:
             - docs/knowledge/**
             - .iwe
             - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
-            - ansible/roles/dev_tools/defaults/main.yml
+            - docker/devcontainer/pinned-tools.yml
             - scripts/fetch-pinned-tool.py
             - pyproject.toml
             - uv.lock
