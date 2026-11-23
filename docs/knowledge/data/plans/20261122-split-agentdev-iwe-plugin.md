@@ -210,7 +210,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 `ansible/roles/agent_catalog/README.md`.
 
 - [x] Staging builds the `agentdev-lib` wheel from `py_packages/agentdev_lib/`.
-- [ ] The image sets `UV_FIND_LINKS` to the directory of that wheel.
+- [x] The image sets `UV_FIND_LINKS` to the directory of that wheel.
 - [ ] Staging runs `uv sync` in each staged plugin before the step "Make the
   staged catalog root-owned and read-only".
 
