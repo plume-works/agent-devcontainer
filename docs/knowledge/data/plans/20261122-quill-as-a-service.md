@@ -259,7 +259,7 @@ its "Determine agent prompts" step.
 **Files:** Create: `.github/workflows/ci.yml`
 
 - [x] `.github/workflows/ci.yml` runs `bun test` on pull requests.
-- [ ] `.github/workflows/ci.yml` builds both images on pull requests.
+- [x] `.github/workflows/ci.yml` builds both images on pull requests.
 - [ ] `.github/workflows/ci.yml` publishes both images to `ghcr.io/plume-works`
   only from `main`.
 
