@@ -138,7 +138,7 @@ its "Determine agent prompts" step.
   `bun test test/webhook.test.ts` passes.
 - [x] An event other than `pull_request` is ignored;
   `bun test test/webhook.test.ts` passes.
-- [ ] A `pull_request` event from a repository not in the configuration is
+- [x] A `pull_request` event from a repository not in the configuration is
   ignored; `bun test test/webhook.test.ts` passes.
 
 ### Task 6: Decide whether to review
