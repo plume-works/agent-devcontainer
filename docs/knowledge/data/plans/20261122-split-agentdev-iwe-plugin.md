@@ -90,7 +90,7 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
   `~/.claude/plugins/cache/`, runs the same script.
 - [x] The size of the staged `.venv/` (`du -sh`) is recorded in
   `## Verification results`.
-- [ ] The size of the image layer that the staged `.venv/` adds is recorded in
+- [x] The size of the image layer that the staged `.venv/` adds is recorded in
   `## Verification results`.
 
 ### Task 2: Create the agentdev-lib package
