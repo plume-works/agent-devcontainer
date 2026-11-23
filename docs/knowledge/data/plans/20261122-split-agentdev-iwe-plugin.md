@@ -424,8 +424,6 @@ None.
 - `git grep -n "sys.path.insert" -- '.agents/plugins/*/bin/*.py' '.agents/plugins/*/skills/*/agent-code/*.py'`
   prints nothing.
 
-## Verification results
-
 ## Out of scope
 
 - Dropping the `iwe-` prefix from the skill and agent names.
