@@ -5,8 +5,8 @@ stage: pending
 priority: low
 description: Observe Implement running a plan's adversarial review task end to end — fixing each finding that defeats a plan claim and filing the rest — on Claude Code and OpenCode, the first time a real plan carries one.
 sources:
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-adversarial-review/SKILL.md
 ---
 
 # Observe a planned adversarial review task through the Implement loop

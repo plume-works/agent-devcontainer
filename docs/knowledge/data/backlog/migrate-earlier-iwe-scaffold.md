@@ -5,7 +5,7 @@ stage: pending
 priority: medium
 created: 2026-11-12
 sources:
-- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/assets/
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/
 - resource: docs/knowledge/data/plans/20261112-knowledge-base-single-home.md
 ---
 

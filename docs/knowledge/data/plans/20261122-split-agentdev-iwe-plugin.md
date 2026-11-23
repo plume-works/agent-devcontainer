@@ -255,7 +255,7 @@ fixtures.
 - [ ] Each support link in `docs/knowledge/` resolves into
   `.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/`.
 - [ ] `uv run pre-commit run link-knowledge-support --all-files` passes.
-- [ ] `scripts/check-anchors.py` scans the skills and agents of every plugin
+- [x] `scripts/check-anchors.py` scans the skills and agents of every plugin
   under `.agents/plugins/`.
 - [ ] `uv run scripts/check-anchors.py` exits 0.
 - [ ] `uv run pytest docs/knowledge/tests` passes.

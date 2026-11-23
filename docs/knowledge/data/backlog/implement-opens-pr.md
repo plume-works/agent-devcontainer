@@ -6,7 +6,7 @@ priority: medium
 description: Add a standing AGENTS.md rule that authorizes an iwe-implement run to open or update its branch's pull request through pr-open, without asking, once it stops with committed work.
 sources:
 - resource: AGENTS.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 rank: 1950
 ---
