@@ -228,7 +228,7 @@ Move: the 12 `skills/iwe-*`, the 8 `agents/iwe-*.agent.md`, and their tests and
 fixtures.
 
 - [x] `.claude-plugin/marketplace.json` publishes `agentdev-iwe` at `1.0.0`.
-- [ ] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
+- [x] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
   `plugin.json`, and in the `AGENTDEV_PLUGIN_VERSION` default of the base
   Dockerfile.
 - [x] `uv run pytest .agents/plugins/agentdev-iwe/tests` passes.

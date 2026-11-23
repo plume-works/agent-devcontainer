@@ -65,7 +65,7 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
 # Version of the agentdev catalog staged into the image: a pin the build verifies, not
 # a version it fetches. .claude-plugin/marketplace.json must declare exactly this
 # version or provisioning fails. Bump both together when releasing the catalog.
-ARG AGENTDEV_PLUGIN_VERSION=5.0.0
+ARG AGENTDEV_PLUGIN_VERSION=6.0.0
 
 # Where the staged catalog lives. Outside $HOME on purpose: ~/.claude is commonly
 # mounted as a volume, which would shadow anything placed under them.
