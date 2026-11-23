@@ -86,7 +86,7 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
 
 - [x] The changed script runs from the read-only staged plugin as a non-root
   user, and prints its normal result.
-- [ ] A copy of the staged plugin, made as `claude plugin install` makes it in
+- [x] A copy of the staged plugin, made as `claude plugin install` makes it in
   `~/.claude/plugins/cache/`, runs the same script.
 - [ ] The size of the staged `.venv/` (`du -sh`) is recorded in
   `## Verification results`.
