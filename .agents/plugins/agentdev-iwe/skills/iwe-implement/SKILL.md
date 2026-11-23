@@ -14,6 +14,6 @@ full and follow it in place for the plan the request names. Do not dispatch it
 as a subagent: the rulebook is never dispatched.
 
 This session is the Implement session, so it also runs the rulebook's
-`## Running the loop`: it runs Verify through `/agentdev:iwe-verify`, acts on
+`## Running the loop`: it runs Verify through `/agentdev-iwe:iwe-verify`, acts on
 the findings, and takes an evaluated revision without asking. Ask the user only
 for an always-escalate deviation, a Verify `Needs decision`, or a stop bound.

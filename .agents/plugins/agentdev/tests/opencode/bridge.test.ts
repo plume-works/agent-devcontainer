@@ -263,7 +263,7 @@ describe("v2 setup", () => {
     })
     expect(prompts).toEqual([{
       sessionID: "ses_1",
-      text: "/agentdev:iwe-implement fix critical @critical.ts @explore /iwe-plan\nwithout changing behavior",
+      text: "/agentdev-iwe:iwe-implement fix critical @critical.ts @explore /iwe-plan\nwithout changing behavior",
       files: [{
         uri: "file:///critical.ts",
         mention: { start: 37, end: 49, text: "@critical.ts" },
@@ -280,7 +280,7 @@ describe("v2 setup", () => {
       delivery: "steer",
     }, {
       sessionID: "ses_2",
-      text: "/agentdev:iwe-ship",
+      text: "/agentdev-iwe:iwe-ship",
       files: undefined,
       agents: undefined,
       skills: [{ id: "iwe-ship" }],

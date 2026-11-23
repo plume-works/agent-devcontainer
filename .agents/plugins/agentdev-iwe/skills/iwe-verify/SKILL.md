@@ -107,8 +107,8 @@ report, which carries the Verify report.
    result and the save heredoc are tool output the user may never see, and a
    path to the saved report does not count. When it reports `Needs decision`,
    name the choice it needs and tell the user to re-run
-   `/agentdev:iwe-verify <plan>` making it. When it lists a `## Verification`
-   step as `not run`, say so, and that `/agentdev:iwe-verify <plan>` with an
+   `/agentdev-iwe:iwe-verify <plan>` making it. When it lists a `## Verification`
+   step as `not run`, say so, and that `/agentdev-iwe:iwe-verify <plan>` with an
    approval naming the step runs it.
 
 ## Rules

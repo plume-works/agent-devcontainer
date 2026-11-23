@@ -26,20 +26,20 @@ Each kind of knowledge has one home, and no type repeats the content of a
 different type: a statement with two homes drifts in the one that nobody
 maintains.
 
-| Knowledge                                             | Home                                      | Writer                                  |
-| ----------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
-| How the product behaves                               | The code and its tests                    | The change that builds the behaviour    |
-| What the product is, its constraints, authoring rules | `data/product.md` (`schema/trackers.md`)  | `/agentdev:iwe-setup`                   |
-| A project term                                        | `data/glossary.md` (`schema/glossary.md`) | The change that settles the term        |
-| An idea that is not a commitment                      | `schema/someday-ideas.md`                 | `/agentdev:iwe-explore`                 |
-| Work that one session can complete                    | `schema/backlog-tasks.md`                 | `/agentdev:iwe-capture`                 |
-| A defect in shipped behaviour                         | `schema/bugs.md`                          | `/agentdev:iwe-capture`                 |
-| Committed work: its tasks, acceptance, and checks     | `schema/plans.md`                         | `/agentdev:iwe-plan`                    |
-| A design decision and its reason                      | `schema/adrs.md`                          | `/agentdev:iwe-plan`                    |
-| A measurement that does not yet settle a question     | `schema/findings.md`                      | The session that made the measurement   |
-| A procedure that a contributor repeats                | `schema/guides.md`                        | The session that found the procedure    |
-| What one release changed                              | `schema/releases.md`                      | The release cut of `/agentdev:iwe-ship` |
-| Finished work                                         | `schema/archive.md`                       | The session that closes the work        |
+| Knowledge                                             | Home                                      | Writer                                      |
+| ----------------------------------------------------- | ----------------------------------------- | ------------------------------------------- |
+| How the product behaves                               | The code and its tests                    | The change that builds the behaviour        |
+| What the product is, its constraints, authoring rules | `data/product.md` (`schema/trackers.md`)  | `/agentdev-iwe:iwe-setup`                   |
+| A project term                                        | `data/glossary.md` (`schema/glossary.md`) | The change that settles the term            |
+| An idea that is not a commitment                      | `schema/someday-ideas.md`                 | `/agentdev-iwe:iwe-explore`                 |
+| Work that one session can complete                    | `schema/backlog-tasks.md`                 | `/agentdev-iwe:iwe-capture`                 |
+| A defect in shipped behaviour                         | `schema/bugs.md`                          | `/agentdev-iwe:iwe-capture`                 |
+| Committed work: its tasks, acceptance, and checks     | `schema/plans.md`                         | `/agentdev-iwe:iwe-plan`                    |
+| A design decision and its reason                      | `schema/adrs.md`                          | `/agentdev-iwe:iwe-plan`                    |
+| A measurement that does not yet settle a question     | `schema/findings.md`                      | The session that made the measurement       |
+| A procedure that a contributor repeats                | `schema/guides.md`                        | The session that found the procedure        |
+| What one release changed                              | `schema/releases.md`                      | The release cut of `/agentdev-iwe:iwe-ship` |
+| Finished work                                         | `schema/archive.md`                       | The session that closes the work            |
 
 The Home column names a document in `schema/`, or a file. In each path that
 these documents give, a `<slug>` is a short name in kebab case, and one document

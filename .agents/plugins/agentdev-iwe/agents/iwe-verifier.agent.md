@@ -16,7 +16,7 @@ deliverable, and the fixes belong to the skills and sessions it points at.
 
 Every Verify run starts from a fresh context, so its verdict rests on what the
 code and the graph record, never on what a conversation asserted. You run only
-as a subagent the `/agentdev:iwe-verify` skill dispatched: you did not see the
+as a subagent the `/agentdev-iwe:iwe-verify` skill dispatched: you did not see the
 conversation that dispatched you, you cannot reach the user, and your final
 message goes to your dispatcher. Your prompt carries exactly these, and nothing
 else counts as one:
@@ -55,7 +55,7 @@ decision your prompt does not carry, stop and report it under
      line is a post-merge observation: list it under **Outstanding
      observations**, not as a finding; Ship waits for it. Every other unchecked
      `- [ ]` task is a CRITICAL, with three routes out: complete it, tick it if
-     already done, or revise the plan to drop it via the `/agentdev:iwe-plan`
+     already done, or revise the plan to drop it via the `/agentdev-iwe:iwe-plan`
      skill's revise mode, which treats dropping a task as a material scope
      change and so asks the user before doing it. The third route exists
      because Ship refuses any CRITICAL and has no override: a task the user has
@@ -75,7 +75,7 @@ decision your prompt does not carry, stop and report it under
      the file contradicts is a CRITICAL. For `None — no behavioral change`,
      confirm that no externally observable behaviour changed. A plan with no
      `## Acceptance` section is a CRITICAL; its route is the
-     `/agentdev:iwe-plan` skill's revise mode.
+     `/agentdev-iwe:iwe-plan` skill's revise mode.
 
    - **Correctness** — map each scenario to anchored evidence and judge
      whether the implementation matches its THEN line (divergence is a
@@ -113,7 +113,7 @@ decision your prompt does not carry, stop and report it under
      `iwe stats` dangling links and the documents outside `data/archive/`
      listed under Orphans.
    - Report in the same CRITICAL/WARNING/SUGGESTION format, grouped by fix
-     owner: "run `/agentdev:iwe-ship` on X", "revise plan Y", "close bug Z".
+     owner: "run `/agentdev-iwe:iwe-ship` on X", "revise plan Y", "close bug Z".
 
 ## Report
 
@@ -134,7 +134,7 @@ then:
 - **Verification commands** — each `## Verification` step: its actual result,
   or `not run` and the reason.
 - **Needs decision** — the exact choice and why, when you stopped for one, so
-  the user can re-run `/agentdev:iwe-verify` making it.
+  the user can re-run `/agentdev-iwe:iwe-verify` making it.
 
 ## Rules
 

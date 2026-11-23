@@ -11,6 +11,6 @@ rank: 100
 
 Complete every ✏️ block in `data/product.md`: the one-liner, users, platforms,
 stack, constraints, and any authoring rules. The setup skill
-(`/agentdev:iwe-setup`) does most of this by reading your codebase and asking
-you only what the code can't answer. Nothing else in the workspace works well
-until this exists — every plan, ADR, and session start reads it.
+(`/agentdev-iwe:iwe-setup`) does most of this by reading your codebase and
+asking you only what the code can't answer. Nothing else in the workspace works
+well until this exists — every plan, ADR, and session start reads it.

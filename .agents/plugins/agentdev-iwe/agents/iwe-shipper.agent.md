@@ -43,7 +43,7 @@ needed. In particular:
 - a command needs approval because its effects reach beyond the working tree —
   a deploy, a push, a published artifact, a CI trigger, anything remote — and
   no quoted approval names it. Report the exact command, so the user can re-run
-  `/agentdev:iwe-ship` granting it.
+  `/agentdev-iwe:iwe-ship` granting it.
 
 ## Steps
 
@@ -73,7 +73,7 @@ needed. In particular:
    For normal shipping, every plan the plan's `## Depends on` links must carry
    `stage: done` in the checkout — a section whose text starts
    with `None` links no dependency, whatever it mentions: read each through
-   `/agentdev:iwe-branch-name plan-state <plan-key>`, following that skill's
+   `/agentdev-iwe:iwe-branch-name plan-state <plan-key>`, following that skill's
    result table. Any `PLAN_STATE` other than `done` ends the run here with a
    Ship blocker report naming each such plan — before Verify and with no
    mutation.
@@ -89,7 +89,7 @@ needed. In particular:
    last bullet does. Run `iwe normalize` and `iwe schema validate`, commit the
    cancellation, report it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
-   `/agentdev:iwe-verify` skill for the selected plan, forwarding every
+   `/agentdev-iwe:iwe-verify` skill for the selected plan, forwarding every
    approval your prompt quotes, verbatim, and take its session route: it
    returns the report saved for this commit and catalog when one exists, and
    otherwise dispatches `iwe-verifier` with the plan key and those approvals,
@@ -211,7 +211,7 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 
 A **Ship blocker report** leads with `Blocked`, names the plan, and lists every
 blocker with the route that answers it (below). A Verify CRITICAL is listed by
-its ID and route only — `C2: /agentdev:iwe-implement` — because the Verify
+its ID and route only — `C2: /agentdev-iwe:iwe-implement` — because the Verify
 report above already states it. Each blocker Ship found on its own — an
 linked ADR that is missing or not at `stage: proposed`, a failed ADR change, a
 missing or unresolvable `release` declaration, an unshipped prerequisite — is written out
@@ -219,20 +219,20 @@ in full with its anchored evidence — never a line number — and route, becaus
 
 - **Code or verification failure** — a failing `## Verification` command, a
   scenario or task with no implementation:
-  `/agentdev:iwe-implement` on that plan, then `/agentdev:iwe-ship` again.
+  `/agentdev-iwe:iwe-implement` on that plan, then `/agentdev-iwe:iwe-ship` again.
 - **Intent the plan got wrong** — a recorded scenario the verified behavior
   rightly departs from, a plan that no longer states what should ship, a
   linked ADR that is missing or not at `stage: proposed`, or a missing or
   unresolvable `release` declaration:
-  `/agentdev:iwe-plan` revise mode on that plan, which re-dispatches this agent
+  `/agentdev-iwe:iwe-plan` revise mode on that plan, which re-dispatches this agent
   once the revision validates.
 - **Dirty worktree** — uncommitted changes Verify refuses to judge: the user
-  commits or discards the listed paths, then runs `/agentdev:iwe-ship` again.
+  commits or discards the listed paths, then runs `/agentdev-iwe:iwe-ship` again.
 - **Unshipped prerequisite** — a `## Depends on` plan not `stage: done` in the
-  checkout: `/agentdev:iwe-ship` on that plan first, then
-  `/agentdev:iwe-ship` again.
+  checkout: `/agentdev-iwe:iwe-ship` on that plan first, then
+  `/agentdev-iwe:iwe-ship` again.
 - **Outstanding observation** — an unticked task carrying a `**Closed by:**`
-  line: observe it, tick it, then run `/agentdev:iwe-ship` again.
+  line: observe it, tick it, then run `/agentdev-iwe:iwe-ship` again.
 
 ## Rules
 

@@ -65,7 +65,7 @@ If the problem has open questions, ask the user one question at a time.
 If an implementation problem starts the investigation, first read the active
 plan and current task. Do not write code. Summarize resulting decisions,
 scope changes, and newly identified work. Prepare a handoff to
-`/agentdev:iwe-plan`, which controls changes to the written plan.
+`/agentdev-iwe:iwe-plan`, which controls changes to the written plan.
 Do not start Plan or Implement from explore mode. Do not change the plan
 without telling the user.
 
@@ -82,21 +82,21 @@ When the user wants a record, select the applicable destination:
   the plan handoff below. Plan proposes the ADR. Do not write an ADR from
   explore mode.
 - **A bug or a backlog task:** Give the settled content to
-  `/agentdev:iwe-capture`. Specify `bug` or `task`. A defect
-  includes reproducible incorrect behavior. `/agentdev:iwe-capture` controls the document format, hub link, and duplicate
+  `/agentdev-iwe:iwe-capture`. Specify `bug` or `task`. A defect
+  includes reproducible incorrect behavior. `/agentdev-iwe:iwe-capture` controls the document format, hub link, and duplicate
   check.
 - **A finding that belongs to an active plan:** Use
   `## During implementation` instead. Return the finding to that plan. Do not
   create a separate document beside the plan.
 - **Work ready for implementation:** Write a handoff. Ask the user to run
-  `/agentdev:iwe-plan` with the handoff. The investigation supplies the plan's
-  `## Context` and `## Approach`. Only the user starts `/agentdev:iwe-plan`.
-  Do not invoke `/agentdev:iwe-plan` from explore mode. An answer about plan scope
-  or timing is not a request to start `/agentdev:iwe-plan`.
+  `/agentdev-iwe:iwe-plan` with the handoff. The investigation supplies the plan's
+  `## Context` and `## Approach`. Only the user starts `/agentdev-iwe:iwe-plan`.
+  Do not invoke `/agentdev-iwe:iwe-plan` from explore mode. An answer about plan scope
+  or timing is not a request to start `/agentdev-iwe:iwe-plan`.
 - **Approved wording:** Write `.tmp/approved-wording-<slug>.md` before the
   conversation continues. Approved document text, snippets, and messages are
   deliverables. Do not replace approved text with a description. Copy the text
-  exactly into the handoff. Name the file so `/agentdev:iwe-plan` includes the
+  exactly into the handoff. Name the file so `/agentdev-iwe:iwe-plan` includes the
   exact approved text, not equivalent wording. Use the repository-root `.tmp/`
   scratch directory required by `AGENTS.md`. This directory is gitignored.
   The plan becomes the permanent record when the plan includes the text.
@@ -109,7 +109,7 @@ After each capture, run `iwe normalize` and `iwe schema validate`.
 ## Rules
 
 - **Do not write code or implement changes.** This includes small fixes.
-  If the user asks for implementation, direct the user to `/agentdev:iwe-plan`.
+  If the user asks for implementation, direct the user to `/agentdev-iwe:iwe-plan`.
   Continue the conversation without implementation.
 - **Check system claims.** Before you state a claim about the existing system,
   check the claim against the code or the graph.

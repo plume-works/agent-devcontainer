@@ -1,11 +1,11 @@
 ---
 name: iwe-capture
-description: File a finished inbox item in the IWE graph — a bug or a backlog task — after checking for a duplicate and refusing any document that misses a section or field its document in docs/knowledge/schema/ requires. Use when Explore settles a defect or a task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, findings, and guides stay with /agentdev:iwe-explore.
+description: File a finished inbox item in the IWE graph — a bug or a backlog task — after checking for a duplicate and refusing any document that misses a section or field its document in docs/knowledge/schema/ requires. Use when Explore settles a defect or a task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea to the backlog with `task --from someday/<slug>`. Plans belong to /agentdev-iwe:iwe-plan; ideas, findings, and guides stay with /agentdev-iwe:iwe-explore.
 ---
 
 # Capture an inbox item
 
-`/agentdev:iwe-capture <bug|task> [--from someday/<slug>]`
+`/agentdev-iwe:iwe-capture <bug|task> [--from someday/<slug>]`
 
 Capture is the single writer of the two inbox lanes: `data/bugs/` and
 `data/backlog/`. It is a gate, not a
@@ -76,7 +76,7 @@ caller adds — usually the priority. Then:
 
 ## Boundaries
 
-- `/agentdev:iwe-explore` writes someday ideas, findings, and guides. `/agentdev:iwe-plan` writes plans.
+- `/agentdev-iwe:iwe-explore` writes someday ideas, findings, and guides. `/agentdev-iwe:iwe-plan` writes plans.
 - Capture is model-invocable so the `iwe-implementer` rulebook can file a
   defect or deferred task mid-run without stopping for the user. A refusal returns to
   that caller, which keeps the item in its handoff report.

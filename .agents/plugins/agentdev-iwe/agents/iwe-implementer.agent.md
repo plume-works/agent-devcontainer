@@ -14,7 +14,7 @@ is not proof that behavior exists; current code and passing task evidence are.
 
 ## How you run
 
-The session that loaded `/agentdev:iwe-implement` follows this file in place —
+The session that loaded `/agentdev-iwe:iwe-implement` follows this file in place —
 on the user's command or on any request that names a plan, including one in
 another session's message — and is the Implement session. You are never
 dispatched as a subagent. Every decision this rulebook asks for comes from this
@@ -31,7 +31,7 @@ claims the user gave is not one.
    `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`
    — and ask which one. Announce:
    "Working on: <plan> — task N of M". No plan exists for what the user wants
-   built? Stop and point at the `/agentdev:iwe-plan` skill.
+   built? Stop and point at the `/agentdev-iwe:iwe-plan` skill.
 2. **Load the context.** Read the full plan, its `## Acceptance` scenarios,
    each ADR its `## ADRs` links, and `data/product.md` `## Constraints` and
    `## Authoring rules` — they bind the code you are about to write. Read no
@@ -49,7 +49,7 @@ claims the user gave is not one.
    `git symbolic-ref --short refs/remotes/origin/HEAD` names, or, when that is
    unset, the one `gh repo view --json defaultBranchRef` reports — create the
    work branch before executing any task: name it with
-   `/agentdev:iwe-branch-name next <plan-key> --phase impl`, following that
+   `/agentdev-iwe:iwe-branch-name next <plan-key> --phase impl`, following that
    skill's result table, and create the `NEXT` it prints through the
    `/agentdev:git-new-branch` skill — with one `--depends-on <n>` per
    `PREDECESSOR` from Step 3, or from the default branch when it printed
@@ -104,7 +104,7 @@ claims the user gave is not one.
        an exception to specified behavior, change `release`, or change text
        the user approved. Explain the needed change and wait for user
        direction before changing the plan or coding beyond it; it goes back
-       through the `/agentdev:iwe-plan` skill's revise mode, with the user's
+       through the `/agentdev-iwe:iwe-plan` skill's revise mode, with the user's
        direction, before coding continues.
      - **Any other material deviation** — an added task or scenario, a new or
        changed ADR, a corrected verification step, each
@@ -141,17 +141,17 @@ The Implement session runs this section. Every agent the loop dispatches is a
 leaf and dispatches nothing.
 
 1. **Run Verify** once the plan's last task closes, through the
-   `/agentdev:iwe-verify` skill's session route, which dispatches
+   `/agentdev-iwe:iwe-verify` skill's session route, which dispatches
    `iwe-verifier` and saves its report for the Shipper to reuse. Give it only
    the plan key and each approval the user gave, quoted verbatim; forward no
    conversation turns. Commit every change first: Verify refuses a dirty
    worktree. Wait for its report.
 2. **Pick the findings to act on**: every CRITICAL, and a WARNING only when its
    fix fits a task the plan already has and adds no claim the code must newly
-   meet. File every other WARNING through the `/agentdev:iwe-capture` skill and
+   meet. File every other WARNING through the `/agentdev-iwe:iwe-capture` skill and
    name it in the report. Report SUGGESTIONs only. Outstanding observations do
    not stop the run; the report names them. With none to act on, the run ends
-   with the report (step 6) and suggests the `/agentdev:iwe-ship` skill.
+   with the report (step 6) and suggests the `/agentdev-iwe:iwe-ship` skill.
 3. **Code route** — a finding about code. Fix it under the Steps
    above: the code and its test in one commit. Then
    run Verify again (step 1).
@@ -163,7 +163,7 @@ leaf and dispatches nothing.
       evaluator's diff is only the revision and a restore keeps that edit.
    2. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
       its **From the Implement session** mode: draft the revision, run
-      its `/agentdev:iwe-plan-review` gate and validation, and leave the plan
+      its `/agentdev-iwe:iwe-plan-review` gate and validation, and leave the plan
       uncommitted. The revision changes only lines that answer the quoted
       finding and adds or sharpens no claim the code must newly meet.
    3. Dispatch `iwe-revision-evaluator` with a prompt carrying only the plan
@@ -190,14 +190,14 @@ leaf and dispatches nothing.
 
 ## The adversarial review task
 
-A plan task that runs `/agentdev:iwe-adversarial-review <plan> code` runs once
+A plan task that runs `/agentdev-iwe:iwe-adversarial-review <plan> code` runs once
 per plan, and the Implement session runs it on reaching the task. Commit every
 earlier task first, so
 the review reads committed code. Act on each finding by its **Defeats** line:
 
 - A finding that names a plan claim takes the code route: fix it under the
   Steps above — the code and its test, in one commit.
-- A finding that names no claim is filed through the `/agentdev:iwe-capture`
+- A finding that names no claim is filed through the `/agentdev-iwe:iwe-capture`
   skill and named in the report.
 
 Tick the task once every claim-defeating finding is fixed. The completion
@@ -217,18 +217,18 @@ Route each finding by type:
   `docs/knowledge/schema/findings.md` or `docs/knowledge/schema/guides.md`
   defines it, and link it from its hub.
 - A defect in shipped behavior, not caused by this work → hand it to the
-  `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
+  `/agentdev-iwe:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
   bug bar — no reproduction, no root cause — stays in the handoff report
   instead.
-- Work this plan should not absorb → hand it to the `/agentdev:iwe-capture`
+- Work this plan should not absorb → hand it to the `/agentdev-iwe:iwe-capture`
   skill as a `task`, and say so in the handoff report rather than growing
   `## Out of scope` silently.
 - A finding that changes a material boundary → stop and route it by Step 7:
-  the user's direction through the `/agentdev:iwe-plan` skill, or an evaluated
+  the user's direction through the `/agentdev-iwe:iwe-plan` skill, or an evaluated
   revision. These are the only routes that may edit intent.
 
 `## Context` and `## Approach` state intent and stay stable while you build.
-The `/agentdev:iwe-plan` skill owns them; implement edits them only via Step 7's
+The `/agentdev-iwe:iwe-plan` skill owns them; implement edits them only via Step 7's
 material
 deviation route. Do not write findings into these sections; a future implementer
 must be able to distinguish planned intent from implementation findings.
@@ -258,4 +258,4 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   flag, option, or parameter, an interface with a single implementation, or a
   hook "for later". Inline before you extract; hard-code before you configure.
 - This rulebook implements; it doesn't ship. Status flips, ADR acceptance, and
-  release recording stay with the `/agentdev:iwe-ship` skill.
+  release recording stay with the `/agentdev-iwe:iwe-ship` skill.

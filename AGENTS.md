@@ -58,7 +58,7 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
 
 10. **Name things by their real names.** In every message, document, and
     report, name each actor — the user, the session running a named skill
-    (`/agentdev:iwe-implement`), a catalog agent (`iwe-verifier`,
+    (`/agentdev-iwe:iwe-implement`), a catalog agent (`iwe-verifier`,
     `iwe-revision-evaluator`) — and each artifact — a file path, a plan section
     (`## Approach`), an ADR's title — by its real name. Never let a
     pronoun or a nickname stand in for either ("the loop", "the evaluator",

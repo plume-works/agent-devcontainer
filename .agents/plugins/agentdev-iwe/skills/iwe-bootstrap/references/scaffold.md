@@ -1,6 +1,6 @@
 # Bootstrap scaffold
 
-`assets/` is the complete blank IWE workspace `/agentdev:iwe-bootstrap`
+`assets/` is the complete blank IWE workspace `/agentdev-iwe:iwe-bootstrap`
 installs, laid out exactly as it lands in a repository root:
 
 - `assets/.iwe/` — the IWE configuration and the schemas that validate the
@@ -15,12 +15,12 @@ installs, laid out exactly as it lands in a repository root:
 - **Hubs and trackers** — one per document type. The documents in `schema/`
   define the types.
 - **`data/product.md`** — the foundation document, left as ✏️ placeholder blocks
-  for `/agentdev:iwe-setup` to fill.
+  for `/agentdev-iwe:iwe-setup` to fill.
 - **Onboarding tasks** under `data/backlog/` — `fill-product-doc` is the one
-  task `/agentdev:iwe-setup` closes; renaming or removing it breaks that
+  task `/agentdev-iwe:iwe-setup` closes; renaming or removing it breaks that
   skill's closing step.
 - **`*.example.md` documents** — fictional documents about a fictional product,
-  showing the shape of each type. `/agentdev:iwe-setup` deletes them once real
+  showing the shape of each type. `/agentdev-iwe:iwe-setup` deletes them once real
   documents exist.
 
 ## Ownership
@@ -52,12 +52,12 @@ directory with one link for each document, because `iwe` does not follow a link
 to a directory. The `link-knowledge-support` pre-commit hook runs
 `scripts/link-knowledge-support.py`, which makes and checks the links. Thus a
 schema change is a scaffold change: adjust the documents that the scaffold
-installs in the same commit, or the next `/agentdev:iwe-bootstrap` installs a
+installs in the same commit, or the next `/agentdev-iwe:iwe-bootstrap` installs a
 workspace that fails `iwe schema validate`. Every file under `assets/` must
 equal its `iwe normalize` output.
 
 Through the link, `iwe` writes its runtime files into `assets/.iwe/`. Their
-names are in `assets/.iwe/.gitignore`, and `/agentdev:iwe-bootstrap` does not
+names are in `assets/.iwe/.gitignore`, and `/agentdev-iwe:iwe-bootstrap` does not
 copy them.
 
 The scaffold graph is not a member of a live graph: no `.iwe/config.toml` sets

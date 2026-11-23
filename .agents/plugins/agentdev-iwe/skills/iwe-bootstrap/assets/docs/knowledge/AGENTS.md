@@ -15,8 +15,8 @@ software project's memory and system of record. The division of labor:
 ## Start of every session
 
 1. Read `docs/knowledge/data/product.md`. If it still contains ✏️ placeholders,
-   run the setup flow (`/agentdev:iwe-setup`) before anything else — planning
-   without product context is guessing. Note `## Constraints` and
+   run the setup flow (`/agentdev-iwe:iwe-setup`) before anything else —
+   planning without product context is guessing. Note `## Constraints` and
    `## Authoring rules`: they bind everything you write.
 2. Check the state of work: the build order —
    `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys` — lists
@@ -38,13 +38,13 @@ software project's memory and system of record. The division of labor:
 4. **Record** — write the state in the graph. `SCHEMA.md#what-goes-where` names
    the document type for each kind of knowledge and its writer. The document in
    `schema/` for that type gives its path, frontmatter, body, and stages.
-   - Work starts → `/agentdev:iwe-plan`.
-   - A bug or an actionable task → `/agentdev:iwe-capture`.
+   - Work starts → `/agentdev-iwe:iwe-plan`.
+   - A bug or an actionable task → `/agentdev-iwe:iwe-capture`.
    - An idea, a finding, or a guide → write the document and add its link to its
      hub.
-   - Work ships, or a plan is abandoned → `/agentdev:iwe-ship`. It runs
-     `/agentdev:iwe-verify` first.
-   - A release cut → the release mode of `/agentdev:iwe-ship`.
+   - Work ships, or a plan is abandoned → `/agentdev-iwe:iwe-ship`. It runs
+     `/agentdev-iwe:iwe-verify` first.
+   - A release cut → the release mode of `/agentdev-iwe:iwe-ship`.
    - A task is complete or cancelled → close it as `schema/backlog-tasks.md` and
      `schema/archive.md` give.
 5. **Stamp** — every document you create or meaningfully change gets a

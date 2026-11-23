@@ -13,20 +13,20 @@ planning state changes only, plus re-dispatching Ship on a plan whose Ship
 blocker report the revision answers (step 8). Even when the same request also
 asks to build the change, create or revise and validate the plan, report
 readiness, and stop before editing implementation code. Plan never loads
-`/agentdev:iwe-implement`, never dispatches `iwe-implementer`, and never names
+`/agentdev-iwe:iwe-implement`, never dispatches `iwe-implementer`, and never names
 Implement as a next step.
 
 ## How you run
 
 This rulebook is never dispatched. It runs in place, in one of two modes:
 
-- **From `/agentdev:iwe-plan`** — the skill had the user's session follow this
+- **From `/agentdev-iwe:iwe-plan`** — the skill had the user's session follow this
   file. Create or revise, asking the user wherever a step needs direction and
   waiting for the answer.
 - **From the Implement session** — the session running
-  `/agentdev:iwe-implement` follows this file to draft one revision that answers a finding. Revise mode
+  `/agentdev-iwe:iwe-implement` follows this file to draft one revision that answers a finding. Revise mode
   only: draft the revision through steps 1-4, 6, and 7, including the
-  `/agentdev:iwe-plan-review` gate, run step 8's validation, and stop with the revision
+  `/agentdev-iwe:iwe-plan-review` gate, run step 8's validation, and stop with the revision
   uncommitted for the `iwe-revision-evaluator`. Never create a plan or
   re-dispatch the Shipper. Wherever a step would ask the user, stop,
   restore the plan from `HEAD`, and report the decision needed.
@@ -109,7 +109,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    checkbox, ask which single observation closes it, and split any checkbox
    that names more than one.
 7. **Review the plan from a fresh context.** In both create and revise mode,
-   run `/agentdev:iwe-plan-review` on the plan draft. It dispatches three
+   run `/agentdev-iwe:iwe-plan-review` on the plan draft. It dispatches three
    agents: the `durable-knowledge-auditor` agent in plan scope,
    `iwe-plan-reviewer` with the plan rules, and `iwe-ship-reviewer` in plan
    mode. Each agent reads the draft without the context of this conversation.
@@ -127,7 +127,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    returned for this plan, dispatch `iwe-shipper` once validation passes. Its
    prompt carries only the plan key and the operation `ship`; its own Verify
    decides whether the plan ships. Re-post its report. When it leads with
-   `Shipped`, run the review loop of `/agentdev:iwe-ship` yourself: dispatch
+   `Shipped`, run the review loop of `/agentdev-iwe:iwe-ship` yourself: dispatch
    `iwe-ship-reviewer` with the plan key and the mode `ship`; on `Gaps`,
    dispatch `iwe-shipper` with the plan key and the operation `fix`, quoting
    the gap list verbatim, and review again, for at most 3 `fix` rounds. Report
@@ -136,7 +136,7 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    Report whether the plan was created or revised, any assumptions,
    collisions, implementation that may now be stale, and
    any Shipper and reviewer outcome. The report ends at readiness: it never names
-   Implement as a next step, and Plan never loads `/agentdev:iwe-implement` or
+   Implement as a next step, and Plan never loads `/agentdev-iwe:iwe-implement` or
    dispatches `iwe-implementer`. Every other revision stops here, before
    implementation code changes.
 
@@ -170,7 +170,7 @@ new ADR that names the earlier ADR in its `supersedes` list.
   implementation, or a hook "for later"; generality waits for a second real
   caller or a user request.
 - A plan may carry one task, closing or near-closing, that runs
-  `/agentdev:iwe-adversarial-review <plan> code`, when its claims are worth
+  `/agentdev-iwe:iwe-adversarial-review <plan> code`, when its claims are worth
   attacking — a trust boundary, an integrity check. Planning never invokes that
   skill and never dispatches `iwe-adversarial-reviewer`, in either mode.
 - Before validation, check each scenario in `## Acceptance` against the plan's

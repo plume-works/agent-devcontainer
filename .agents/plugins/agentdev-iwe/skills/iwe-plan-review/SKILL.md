@@ -1,6 +1,6 @@
 ---
 name: iwe-plan-review
-description: Review one IWE plan draft from three fresh contexts at once — the durable-knowledge-auditor agent for durable-knowledge residue, iwe-plan-reviewer for the plan rules, and iwe-ship-reviewer in plan mode for what Ship will need — and return the reports unchanged; report-only. Use when the iwe-planner rulebook reaches its review step on a created or revised plan, in every mode. Conformance of code to a plan belongs to /agentdev:iwe-verify, and attacking a plan's design to /agentdev:iwe-adversarial-review.
+description: Review one IWE plan draft from three fresh contexts at once — the durable-knowledge-auditor agent for durable-knowledge residue, iwe-plan-reviewer for the plan rules, and iwe-ship-reviewer in plan mode for what Ship will need — and return the reports unchanged; report-only. Use when the iwe-planner rulebook reaches its review step on a created or revised plan, in every mode. Conformance of code to a plan belongs to /agentdev-iwe:iwe-verify, and attacking a plan's design to /agentdev-iwe:iwe-adversarial-review.
 ---
 
 # Review a plan draft

@@ -273,7 +273,7 @@ fixtures.
 `docs/knowledge/data/plans/20261115-decisions-in-git-history.md`. The accepted
 ADRs keep their text.
 
-- [ ] `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
+- [x] `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
   prints nothing.
 
 ### Task 14: Move the OpenCode bridge out of agentdev

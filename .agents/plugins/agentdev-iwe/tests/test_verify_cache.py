@@ -15,7 +15,7 @@ import pytest
 
 PLAN = 'data/plans/20260101-focus-timer'
 REPORT = 'Ready to ship data/plans/20260101-focus-timer\n\n- Findings: none\n'
-SKILL_REQUEST = '/agentdev:iwe-verify data/plans/20260101-focus-timer'
+SKILL_REQUEST = '/agentdev-iwe:iwe-verify data/plans/20260101-focus-timer'
 VERIFIER_PROMPT = 'Plan key: data/plans/20260101-focus-timer\n\nApprovals: none.'
 PROMPTS = ('--skill-request', SKILL_REQUEST, '--verifier-prompt', VERIFIER_PROMPT)
 
@@ -303,7 +303,7 @@ def test_help_prints_the_results_table(installed_verify: Path, repository: Path)
 
 def test_save_records_both_prompts_verbatim(installed_verify: Path, repository: Path) -> None:
     """Multi-line prompts with a colon and quotes survive into the frontmatter, and still hit."""
-    skill_request = "/agentdev:iwe-verify data/plans/x — I approve: 'e2e'"
+    skill_request = "/agentdev-iwe:iwe-verify data/plans/x — I approve: 'e2e'"
     verifier_prompt = (
         'Plan key: data/plans/x\n\nApprovals:\n  - "I approve running `bin/e2e.sh`."\n---'
     )

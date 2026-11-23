@@ -28,10 +28,10 @@ only builds its prompt and relays its report.
 
 2. **Dispatch `iwe-shipper`** with that prompt and wait for its report.
 3. **Re-post its report verbatim.** When it reports `Needs decision`, name the
-   approval it needs and tell the user to re-run `/agentdev:iwe-ship <plan>`
+   approval it needs and tell the user to re-run `/agentdev-iwe:iwe-ship <plan>`
    granting it. When it returns a Ship blocker report, point at the route it
-   names for each blocker: `/agentdev:iwe-implement` for a code or verification
-   failure, `/agentdev:iwe-plan` revise mode for intent the plan got wrong.
+   names for each blocker: `/agentdev-iwe:iwe-implement` for a code or verification
+   failure, `/agentdev-iwe:iwe-plan` revise mode for intent the plan got wrong.
 4. **Review a shipped plan.** When the report leads with `Shipped`, run the
    review loop (`## Review loop`) on the plan, then report the reviewer's
    outcome and every gap still open.

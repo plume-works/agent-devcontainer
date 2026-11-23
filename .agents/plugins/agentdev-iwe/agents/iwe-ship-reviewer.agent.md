@@ -124,8 +124,8 @@ with one line — `Reviewed`, `Gaps`, or `Needs decision` — and the plan key, 
   record shows instead, with the document key or anchor and never a line
   number, and the Ship operation that closes it, for example
   `write the ## Fix of data/bugs/<slug>`. A gap no Ship operation can close —
-  a missing or blocked Verify report — says so, naming `/agentdev:iwe-verify`
-  and `/agentdev:iwe-ship` as its route.
+  a missing or blocked Verify report — says so, naming `/agentdev-iwe:iwe-verify`
+  and `/agentdev-iwe:iwe-ship` as its route.
 
 ## Rules
 

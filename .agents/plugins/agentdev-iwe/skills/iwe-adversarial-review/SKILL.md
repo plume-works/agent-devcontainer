@@ -1,6 +1,6 @@
 ---
 name: iwe-adversarial-review
-description: Look for ways to defeat an IWE plan's design or its implemented code, from a fresh context — report-only. Use only when the user explicitly asks for an adversarial review of a named plan, or when a plan task being implemented runs `/agentdev:iwe-adversarial-review <plan> <plan|code>`; never while planning, and never on a pull-request review or a Verify request.
+description: Look for ways to defeat an IWE plan's design or its implemented code, from a fresh context — report-only. Use only when the user explicitly asks for an adversarial review of a named plan, or when a plan task being implemented runs `/agentdev-iwe:iwe-adversarial-review <plan> <plan|code>`; never while planning, and never on a pull-request review or a Verify request.
 ---
 
 # Review a plan adversarially
@@ -9,7 +9,7 @@ The adversarial rubric is the `iwe-adversarial-reviewer` catalog agent, and
 every review starts from a fresh context: whether a design or its code can be
 defeated must rest on what the plan and the code record, never on what a
 conversation asserted. This skill routes the request there and returns its
-report. It is a separate question from `/agentdev:iwe-verify`, which checks
+report. It is a separate question from `/agentdev-iwe:iwe-verify`, which checks
 conformance to the plan.
 
 ## Steps
@@ -33,7 +33,7 @@ conformance to the plan.
 4. **Re-post its report verbatim** in your final message text: the subagent's
    result is tool output the user may never see. When it reports
    `Needs decision`, name the approval it needs and tell the user to re-run
-   `/agentdev:iwe-adversarial-review <plan> <target>` granting it.
+   `/agentdev-iwe:iwe-adversarial-review <plan> <target>` granting it.
 
 ## Rules
 

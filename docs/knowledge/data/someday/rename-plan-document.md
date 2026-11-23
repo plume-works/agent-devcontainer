@@ -12,7 +12,7 @@ Once plans are ephemeral (`architecture/ephemeral-plans`), a plan only tracks
 implementation progress for one story or bug, and Ship deletes it. The name
 "plan" then overlaps with what the story already settles.
 
-A rename reaches the skill names (`/agentdev:iwe-plan`, `iwe-planner`),
+A rename reaches the skill names (`/agentdev-iwe:iwe-plan`, `iwe-planner`),
 `data/plans/`, the branch suffix `iter-<N>-plan` and
-`/agentdev:iwe-branch-name`, and every spec that says "plan". The new name is
-undecided.
+`/agentdev-iwe:iwe-branch-name`, and every spec that says "plan". The new name
+is undecided.
