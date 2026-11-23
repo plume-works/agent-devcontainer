@@ -275,3 +275,9 @@ review](adr/0102-required-approval-is-the-only-ai-review-gate.md)
 
 [A review starts on open or on
 request](adr/0103-review-starts-on-open-or-request.md)
+
+[The catalog is split into opt-in plugins, and the IWE workflow is its own
+plugin](adr/0104-catalog-split-into-opt-in-plugins.md)
+
+[Catalog scripts run through uv and share code through a published
+package](adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
