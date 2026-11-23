@@ -147,7 +147,7 @@ its "Determine agent prompts" step.
 
 - [x] A same-repository pull request that opens is reviewed;
   `bun test test/decide.test.ts` passes.
-- [ ] A same-repository pull request that is reopened is reviewed;
+- [x] A same-repository pull request that is reopened is reviewed;
   `bun test test/decide.test.ts` passes.
 - [ ] A same-repository pull request that leaves draft is reviewed;
   `bun test test/decide.test.ts` passes.
