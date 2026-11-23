@@ -449,7 +449,8 @@ plugin](../adr/0104-catalog-split-into-opt-in-plugins.md)
 [Catalog scripts run through uv and share code through a published
 package](../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
 
-[Template adoption has no skill](../adr/0106-template-adoption-has-no-skill.md)
+[The catalog has no template consumption
+skill](../adr/0106-no-template-consumption-skill.md)
 
 ## Depends on
 

@@ -19,7 +19,6 @@ add CI workflows, pre-commit hooks, or other repository configuration.
 
 - A repository should start keeping IWE project memory and has neither `.iwe/`
   nor `docs/knowledge/`
-- `/agentdev:template-consume` reaches knowledge-base initialization
 - Checking whether a repository already holds a complete IWE workspace
 
 ## Safety Rules
