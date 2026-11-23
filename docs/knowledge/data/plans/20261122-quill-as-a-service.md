@@ -412,9 +412,13 @@ installing the Quill App on it, then watching its pull requests.
 
 ## Verification
 
-The code lives in `plume-works/quill-as-a-service`, outside this checkout. Its
-`.github/workflows/ci.yml` `bun test` job (Task 12) runs every test that
-`## Acceptance` names.
+The code lives in `plume-works/quill-as-a-service`, outside this checkout. The
+verifier clones it into `./.tmp` and runs every test that `## Acceptance` names:
+
+``` bash
+git clone --depth 1 https://github.com/plume-works/quill-as-a-service ./.tmp/quill-as-a-service
+cd ./.tmp/quill-as-a-service && bun install --frozen-lockfile && bun test
+```
 
 ## Out of scope
 
