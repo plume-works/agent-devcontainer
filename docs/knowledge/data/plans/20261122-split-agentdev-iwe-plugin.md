@@ -179,7 +179,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 - [x] The workflow runs on a pushed `agentdev-lib/*` tag and builds one wheel
   with `uv build`.
-- [ ] A step publishes that wheel with `pypa/gh-action-pypi-publish` through
+- [x] A step publishes that wheel with `pypa/gh-action-pypi-publish` through
   trusted publishing (`id-token: write`, no stored token).
 - [ ] A step creates a GitHub Release for the tag with that wheel attached.
 
