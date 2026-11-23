@@ -210,6 +210,14 @@ repos:
         files: '^(\.agents/plugins/agentdev/skills/iwe-bootstrap/assets/)?docs/knowledge/data/.*\.md$'
         pass_filenames: false
 
+      # Each plugin pins the exact agentdev-lib version; see ADR-0105.
+      - id: sync-agentdev-lib-pins
+        name: sync-agentdev-lib-pins
+        entry: uv run scripts/sync-agentdev-lib-pins.py
+        language: system
+        files: '^(py_packages/agentdev_lib/pyproject\.toml|\.agents/plugins/[^/]+/pyproject\.toml)$'
+        pass_filenames: false
+
       # Support files in docs/knowledge/ are links to the iwe-bootstrap scaffold copy.
       - id: link-knowledge-support
         name: link-knowledge-support

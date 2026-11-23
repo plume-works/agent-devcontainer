@@ -140,7 +140,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 `scripts/tests/test_sync_agentdev_lib_pins.py`. Modify:
 `.pre-commit-config.yaml`.
 
-- [ ] In a fixture tree, the hook rewrites a plugin pin that differs from the
+- [x] In a fixture tree, the hook rewrites a plugin pin that differs from the
   package version and exits non-zero, as a formatter hook does.
 - [ ] In a fixture tree whose pins match, the hook changes nothing and exits 0.
 
