@@ -142,7 +142,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 - [x] In a fixture tree, the hook rewrites a plugin pin that differs from the
   package version and exits non-zero, as a formatter hook does.
-- [ ] In a fixture tree whose pins match, the hook changes nothing and exits 0.
+- [x] In a fixture tree whose pins match, the hook changes nothing and exits 0.
 
 ### Task 5: Fail a pull request that changes agentdev-lib without a new version
 
