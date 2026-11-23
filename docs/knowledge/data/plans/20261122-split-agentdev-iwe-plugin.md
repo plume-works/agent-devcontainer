@@ -40,7 +40,10 @@ becomes a package before the skills move.
   points `agentdev-lib` at `py_packages/agentdev_lib` with `[tool.uv.sources]`.
   In a checkout, the scripts run the local package, and an edit applies at once.
   In a plugin cache, the first run downloads the package from PyPI and writes
-  `uv.lock` and `.venv/` in the cache.
+  `uv.lock` and `.venv/` in the cache. `uv` is the parent of the script, so a
+  script that a terminating signal ends still prints its `SIGNAL_*` result last,
+  but its caller sees exit status 128 + the signal number, not a signal death.
+  The maintainer accepted this.
 - **Pins in step.** A pre-commit hook writes the version from
   `py_packages/agentdev_lib/pyproject.toml` into each plugin's pin. A PR check
   fails when `py_packages/agentdev_lib/` changed since the latest
@@ -111,8 +114,12 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
 
 **Files:** Create: `.agents/plugins/agentdev/pyproject.toml`. Modify:
 `pyproject.toml`, `.gitignore`, every `.agents/plugins/agentdev/bin/*.py`
-executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
-Delete: `.agents/plugins/agentdev/bin/result_codes.py`,
+executable, every `.agents/plugins/agentdev/skills/*/agent-code/*.py`, the tests
+under `.agents/plugins/agentdev/tests/` that run them,
+`py_packages/agentdev_lib/tests/test_result_codes.py`,
+`py_packages/agentdev_lib/agentdev_lib/result_codes.py`, and
+`.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`. Delete:
+`.agents/plugins/agentdev/bin/result_codes.py`,
 `.agents/plugins/agentdev/bin/skill_common.py`,
 `.agents/plugins/agentdev/bin/git_default_branch.py`.
 
@@ -121,6 +128,8 @@ Delete: `.agents/plugins/agentdev/bin/result_codes.py`,
 - [ ] Each script under `.agents/plugins/agentdev/bin/` and
   `.agents/plugins/agentdev/skills/*/agent-code/` starts with
   `#!/usr/bin/env -S uv run --quiet`.
+- [ ] A plugin script that SIGTERM ends while it runs through its shebang prints
+  `RESULT=SIGNAL_TERM` last and exits 143.
 - [ ] `uv run pytest .agents/plugins/agentdev/tests` passes.
 - [ ] `git status` shows no `.venv/` or `uv.lock` under `.agents/plugins/` after
   the tests run.
@@ -341,6 +350,15 @@ after the merge, and in a Claude Code session outside the image.
 - **Test:**
   `py_packages/agentdev_lib/tests/test_checkout_source.py::test_plugin_script_imports_checkout_package`
 
+### Scenario: A signal ends a script that runs through uv
+
+- **WHEN** SIGTERM ends a plugin script that runs through its
+  `#!/usr/bin/env -S uv run --quiet` shebang
+- **THEN** the script prints `RESULT=SIGNAL_TERM` last, and its caller sees exit
+  status 143, not a signal death
+- **Test:**
+  `py_packages/agentdev_lib/tests/test_result_codes.py::test_sigterm_through_a_uv_shebang_exits_143`
+
 ### Scenario: The pin hook rewrites a stale pin
 
 - **WHEN** a plugin pins an `agentdev-lib` version that differs from the version
@@ -456,14 +474,12 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   publishes.
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json#version` — the `agentdev`
   version.
-- `.agents/plugins/agentdev/bin/result_codes.py::emit_result` — a module that
-  moves to `agentdev-lib`.
-- `.agents/plugins/agentdev/bin/skill_common.py::Stop` — a module that moves to
-  `agentdev-lib`.
-- `.agents/plugins/agentdev/bin/git_default_branch.py::is_default_branch` — a
+- `py_packages/agentdev_lib/agentdev_lib/result_codes.py::emit_result` — a
   module that moves to `agentdev-lib`.
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`
-  › "resolve().parents[3] / 'bin'" — the import pattern that goes.
+- `py_packages/agentdev_lib/agentdev_lib/skill_common.py::Stop` — a module that
+  moves to `agentdev-lib`.
+- `py_packages/agentdev_lib/agentdev_lib/git_default_branch.py::is_default_branch`
+  — a module that moves to `agentdev-lib`.
 - `.agents/plugins/agentdev/tests/conftest.py::plugin_root` — the plugin root
   that the tests resolve scripts from.
 - `.agents/plugins/agentdev/tests/conftest.py::installed_iwe_bootstrap` — a
@@ -502,6 +518,9 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   rule that goes.
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation` — the
   script contract.
+- `py_packages/agentdev_lib/agentdev_lib/result_codes.py::_report_signal` —
+  re-raises a terminating signal; behind `uv run` the caller sees 128 + its
+  number.
 - `scripts/link-knowledge-support.py` › "SCAFFOLD = Path(" — the scaffold path
   that the support links follow.
 - `scripts/check-anchors.py` › "SCAN_GLOBS = (" — the catalog paths that the
