@@ -232,7 +232,7 @@ fixtures.
   `plugin.json`, and in the `AGENTDEV_PLUGIN_VERSION` default of the base
   Dockerfile.
 - [x] `uv run pytest .agents/plugins/agentdev-iwe/tests` passes.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
 ### Task 12: Point every reference to a moved file at its new path
