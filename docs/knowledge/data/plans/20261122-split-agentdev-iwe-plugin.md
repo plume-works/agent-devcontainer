@@ -150,7 +150,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 `scripts/tests/test_check_agentdev_lib_version.py`. Modify:
 `.github/workflows/primary-checks.yml`.
 
-- [ ] In a fixture repository, a commit that changes `py_packages/agentdev_lib/`
+- [x] In a fixture repository, a commit that changes `py_packages/agentdev_lib/`
   after the latest `agentdev-lib/*` tag and keeps the version makes the check
   exit 1.
 - [ ] In the same fixture, a commit that also changes the version makes the
