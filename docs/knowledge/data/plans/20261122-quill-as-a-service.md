@@ -155,7 +155,7 @@ its "Determine agent prompts" step.
   access is reviewed; `bun test test/decide.test.ts` passes.
 - [x] `request-ai-review` added by a person without that access is not reviewed;
   `bun test test/decide.test.ts` passes.
-- [ ] A pull request from a fork is not reviewed; `bun test test/decide.test.ts`
+- [x] A pull request from a fork is not reviewed; `bun test test/decide.test.ts`
   passes.
 - [ ] A draft pull request is not reviewed; `bun test test/decide.test.ts`
   passes.
