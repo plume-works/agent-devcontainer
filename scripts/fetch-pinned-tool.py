@@ -6,6 +6,13 @@ Each entry of ``docker/devcontainer/pinned-tools.yml`` is fetched, verified agai
 checksum, and only its named binaries are written out; a ``deb`` entry is written as its package
 file. The image build installs every entry with ``--all``; Renovate's post-upgrade task fetches
 a just-bumped tool the image does not carry yet.
+
+An entry's download URL is ``{url_prefix}/{version}/{asset}{suffix}``. ``asset`` is
+``asset_prefix`` (with ``{version}``, and ``{bare_version}`` for the version without a leading
+``v``) followed by the architecture's ``target``; ``suffix`` is ``.`` plus ``extension`` (default
+``tar.gz``), or nothing for ``bare_binary``. Binaries sit at the archive root unless
+``binaries_dir`` names their directory. A ``# renovate:`` comment above an entry's ``version``
+lets Renovate bump it; the post-upgrade script then recomputes its checksums.
 """
 
 from __future__ import annotations

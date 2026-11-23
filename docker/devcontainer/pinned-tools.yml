@@ -1,14 +1,6 @@
----
 # Pinned single-binary tools and packages the agentdev-devcontainer image installs on top of
-# its base image. scripts/fetch-pinned-tool.py downloads each entry, checks its per-architecture
-# SHA-256, and writes only its named binaries (or, for `deb`, the package file) to a directory.
-#
-# The download URL is "{url_prefix}/{version}/{asset}{suffix}", where `asset` is `asset_prefix`
-# (with `{version}`, and `{bare_version}` for the version without a leading `v`) followed by the
-# architecture's `target`, and `suffix` is "." plus `extension` (default tar.gz), or nothing for
-# `bare_binary`. Binaries sit at the archive root unless `binaries_dir` names their directory.
-# A `# renovate:` comment above an entry's `version` lets Renovate bump it; the post-upgrade
-# script then recomputes its checksums.
+# its base image. scripts/fetch-pinned-tool.py downloads and verifies each entry; its docstring
+# gives the download URL scheme and the Renovate bump flow.
 tools:
   - name: zizmor
     # renovate: datasource=github-releases depName=zizmorcore/zizmor
