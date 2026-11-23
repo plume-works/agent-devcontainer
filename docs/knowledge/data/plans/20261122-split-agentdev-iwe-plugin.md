@@ -200,7 +200,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 `ansible/roles/agent_catalog/README.md`.
 
 - [x] Staging copies every plugin that the marketplace publishes.
-- [ ] The `agent_catalog_plugin_version` pin checks the version of `agentdev`.
+- [x] The `agent_catalog_plugin_version` pin checks the version of `agentdev`.
 - [ ] The Claude install step installs every staged plugin at user scope.
 
 ### Task 10: Bundle agentdev-lib in the image
