@@ -186,7 +186,7 @@ its "Determine agent prompts" step.
   `bun test test/queue.test.ts` passes.
 - [x] `src/reviewer.ts` asks for an installation token limited to the one
   repository; `bun test test/queue.test.ts` passes.
-- [ ] A reviewer container still running after 30 minutes is stopped, provoked
+- [x] A reviewer container still running after 30 minutes is stopped, provoked
   in the test with a fake clock and a container that never exits;
   `bun test test/queue.test.ts` passes.
 - [ ] `src/reviewer.ts` starts each reviewer container without `--rm`, so it
