@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Install the blank IWE workspace this skill ships into a repository root.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
@@ -16,10 +15,8 @@ import re
 import shutil
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import print_error, run_to_stderr, run_tool, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import print_error, run_to_stderr, run_tool, Stop
 
 MISSING_DEPENDENCY = 3
 ALREADY_INITIALIZED = 4

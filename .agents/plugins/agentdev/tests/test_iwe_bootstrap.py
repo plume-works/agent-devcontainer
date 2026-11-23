@@ -24,6 +24,7 @@ KNOWLEDGE_INSTRUCTIONS = ('AGENTS.md', 'CLAUDE.md', 'SCHEMA.md')
 HELPER_TOOLS = (
     'bash',
     'env',
+    'uv',
     'git',
     'cp',
     'mv',
@@ -430,7 +431,7 @@ def test_interrupted_staging_is_discarded_on_the_next_run(
     os.killpg(process.pid, signal.SIGTERM)
     stdout, _ = process.communicate(timeout=30)
 
-    assert process.returncode == -signal.SIGTERM
+    assert process.returncode == 128 + signal.SIGTERM
     assert stdout.splitlines()[-1] == 'RESULT=SIGNAL_TERM'
     after = snapshot(unrelated_repository)
     for path, state in before.items():

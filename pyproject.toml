@@ -27,6 +27,9 @@ dev = [
 package = false
 default-groups = ["dev"]
 
+[tool.uv.workspace]
+members = [".agents/plugins/*"]
+
 [tool.uv.sources]
 agentdev-lib = { path = "py_packages/agentdev_lib", editable = true }
 agentdev_runtime = { path = "py_packages/agentdev_runtime", editable = true }

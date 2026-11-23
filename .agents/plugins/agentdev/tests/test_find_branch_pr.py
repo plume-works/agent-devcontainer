@@ -17,7 +17,7 @@ import pytest
 from test_update_branch import initialize_repository
 
 SCRIPT_PATH = 'skills/pr-open/agent-code/find-branch-pr.py'
-TOOLS = ('git', 'python3')
+TOOLS = ('git', 'python3', 'uv')
 
 GH_STUB = """
 import json

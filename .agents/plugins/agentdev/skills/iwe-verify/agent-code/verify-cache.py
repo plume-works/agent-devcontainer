@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Look up and save the one saved Verify report per plan, keyed by commit and catalog digest.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
@@ -17,9 +16,7 @@ import subprocess
 import sys
 from typing import NamedTuple
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
+from agentdev_lib import result_codes as rc
 
 USAGE = """\
 Look up or save the one saved Verify report for a plan or for audit mode,

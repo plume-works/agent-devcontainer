@@ -7,6 +7,12 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
+[manifest]
+members = [
+    "agent-devcontainer",
+    "agentdev",
+]
+
 [[package]]
 name = "agent-devcontainer"
 version = "0.0.0"
@@ -52,6 +58,17 @@ dev = [
     { name = "ruff", specifier = ">=0.11.5" },
     { name = "validate-agent-files", editable = "py_packages/validate_agent_files" },
 ]
+
+[[package]]
+name = "agentdev"
+version = "0.0.0"
+source = { virtual = ".agents/plugins/agentdev" }
+dependencies = [
+    { name = "agentdev-lib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "agentdev-lib", editable = "py_packages/agentdev_lib" }]
 
 [[package]]
 name = "agentdev-lib"

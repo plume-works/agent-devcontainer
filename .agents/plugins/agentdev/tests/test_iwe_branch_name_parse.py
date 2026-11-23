@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import sys
 
 from git_fixtures import outcome
 from iwe_branch_fixtures import run_script
@@ -76,15 +75,3 @@ def test_usage_error_is_a_preflight_error(plugin_root: Path, plugin_tmp_path: Pa
     completed, _ = run_script(plugin_root, plugin_tmp_path, 'parse')
 
     assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
-
-
-def test_script_imports_only_the_standard_library(plugin_root: Path) -> None:
-    """The script runs from a consumer's plugin cache with nothing installed."""
-    source = (plugin_root / 'skills/iwe-branch-name/agent-code/iwe-branch-name.py').read_text()
-    imports = {
-        line.split()[1].split('.')[0]
-        for line in source.splitlines()
-        if line.startswith(('import ', 'from '))
-    }
-
-    assert imports - {'result_codes', 'git_default_branch'} <= sys.stdlib_module_names

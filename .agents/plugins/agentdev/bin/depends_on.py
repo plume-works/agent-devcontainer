@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Read and edit the dependency records of a manual stacked pull request.

@@ -4,9 +4,12 @@
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 import signal
 import subprocess
 import sys
+import time
 
 
 def run_python_helper(body: str) -> subprocess.CompletedProcess[str]:
@@ -117,3 +120,39 @@ def test_python_failed_subprocess_prints_its_own_stderr() -> None:
         ' returned non-zero exit status 3.',
         'fixture boom',
     ]
+
+
+def test_sigterm_through_a_uv_shebang_exits_143(scratch: Path) -> None:
+    """Behind its uv shebang, a script ended by SIGTERM names it last and exits 128 + 15."""
+    ready = scratch / 'ready'
+    script = scratch / 'stalls.py'
+    script.write_text(
+        '#!/usr/bin/env -S uv run --quiet\n'
+        'import pathlib, sys, time\n'
+        'from agentdev_lib import result_codes as rc\n'
+        'rc.install()\n'
+        'def main():\n'
+        f'    pathlib.Path({str(ready)!r}).touch()\n'
+        '    time.sleep(60)\n'
+        'rc.run(main)\n'
+    )
+    script.chmod(0o755)
+    environment = {**os.environ, 'VIRTUAL_ENV': sys.prefix}
+    process = subprocess.Popen(
+        [str(script)],
+        cwd=scratch,
+        env=environment,
+        stdout=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    deadline = time.monotonic() + 30
+    while not ready.exists():
+        assert time.monotonic() < deadline, 'the script never started'
+        time.sleep(0.05)
+
+    os.killpg(process.pid, signal.SIGTERM)
+    stdout, _ = process.communicate(timeout=30)
+
+    assert process.returncode == 128 + signal.SIGTERM
+    assert stdout.splitlines()[-1] == 'RESULT=SIGNAL_TERM'

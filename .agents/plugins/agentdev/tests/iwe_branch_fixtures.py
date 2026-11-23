@@ -72,7 +72,7 @@ class Workspace:
 def tools_without_gh(directory: Path) -> Path:
     """Return a PATH directory holding the tools the script needs, and no gh."""
     directory.mkdir()
-    for tool in ('bash', 'git', 'python3'):
+    for tool in ('bash', 'git', 'python3', 'uv'):
         found = shutil.which(tool)
         assert found is not None, tool
         (directory / tool).symlink_to(found)

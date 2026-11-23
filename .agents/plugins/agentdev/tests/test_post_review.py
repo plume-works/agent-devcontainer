@@ -16,7 +16,7 @@ from git_fixtures import outcome
 import pytest
 
 SCRIPT_PATH = 'skills/pr-review/agent-code/post-review.py'
-TOOLS = ('python3',)
+TOOLS = ('python3', 'uv')
 HEAD_SHA = 'c' * 40
 REVIEW = {'id': 501, 'state': 'COMMENTED', 'html_url': 'https://github.com/octo/repo/pull/7#r501'}
 

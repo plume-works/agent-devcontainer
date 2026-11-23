@@ -143,9 +143,9 @@ the exception hook, and the HUP, INT, and TERM handlers; `rc.run(main)` exits
 with the code `main` returns after printing its `RESULT` line. **Never print
 `RESULT=` yourself.** An uncaught exception still ends as
 `RESULT=SCRIPT_FAILURE` with status `1`, and a terminating signal prints its
-`SIGNAL_*` result, restores the default action, and re-raises the signal, so a
-shell caller observes `129`, `130`, or `143` and the operating system records a
-genuine signal death.
+`SIGNAL_*` result, restores the default action, and re-raises the signal. The
+script dies by the signal, and `uv`, its parent through the shebang, exits
+`129`, `130`, or `143`, so its caller sees that status, not a signal death.
 
 `bin/skill_common.py` holds what every script needs: `print_error` (the
 `ERROR: ` line on stderr), `Stop` (raised by a helper to end the run with a
@@ -343,7 +343,7 @@ happens to sit beside it in the developing repository.
   `sys.exit(N)` with a workflow meaning remains outside `main`.
 - Exactly one declared, uppercase `RESULT=` value reaches stdout last.
 - HUP, INT, and TERM emit exactly one matching `SIGNAL_*` result, re-raise the
-  signal, and produce shell statuses `129`, `130`, and `143` respectively.
+  signal, and produce statuses `129`, `130`, and `143` respectively.
 - Diagnostics and remediation advice are on stderr, not stdout.
 - Metadata printed after streamed foreign stdout starts on its own line even
   when the foreign output is not newline-terminated.

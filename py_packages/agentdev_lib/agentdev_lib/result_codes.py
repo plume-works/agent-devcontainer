@@ -2,8 +2,9 @@
 Shared result-code helpers for agentdev skill scripts.
 
 One code-to-name table, one ``RESULT=<NAME>`` line as the last thing on stdout
-for every exit path, and terminating signals named and then re-raised so a
-shell caller still observes signal death rather than a normal exit.
+for every exit path, and terminating signals named and then re-raised. Behind
+a ``uv run`` shebang, ``uv`` reports that death to the caller as 128 + the signal
+number.
 
 Codes 0, 1, 2, 129, 130, and 143 are shared. Scripts declare outcomes from 3
 through 125; a later assignment overrides an earlier name for the same code.

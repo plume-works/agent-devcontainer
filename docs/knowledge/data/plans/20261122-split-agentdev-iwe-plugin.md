@@ -123,7 +123,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 `.agents/plugins/agentdev/bin/skill_common.py`,
 `.agents/plugins/agentdev/bin/git_default_branch.py`.
 
-- [ ] No script under `.agents/plugins/agentdev/bin/` or
+- [x] No script under `.agents/plugins/agentdev/bin/` or
   `.agents/plugins/agentdev/skills/*/agent-code/` inserts into `sys.path`.
 - [ ] Each script under `.agents/plugins/agentdev/bin/` and
   `.agents/plugins/agentdev/skills/*/agent-code/` starts with

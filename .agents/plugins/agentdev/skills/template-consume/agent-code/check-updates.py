@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Diff this repository's copy of the agent-devcontainer template against the upstream template.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
@@ -17,10 +16,8 @@ import sys
 import tempfile
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import help_header, print_error, require_git_repo, run_tool, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import help_header, print_error, require_git_repo, run_tool, Stop
 
 NO_MARKER = 3
 UP_TO_DATE = 4

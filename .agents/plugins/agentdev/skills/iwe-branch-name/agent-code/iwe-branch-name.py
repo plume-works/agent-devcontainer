@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Name an IWE plan's work branches and read the plan's state in the checkout.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
@@ -16,10 +15,7 @@ import subprocess
 import sys
 from typing import NamedTuple
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import git_default_branch  # noqa: E402  (path set above so the plugin's bin/ resolves)
-import result_codes as rc  # noqa: E402
+from agentdev_lib import git_default_branch, result_codes as rc
 
 USAGE = """\
 Name an IWE plan's work branches iwe/<slug>/iter-<N>-<phase> and read
