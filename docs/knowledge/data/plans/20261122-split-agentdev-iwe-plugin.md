@@ -96,10 +96,7 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
 ### Task 2: Create the agentdev-lib package
 
 **Files:** Create: `py_packages/agentdev_lib/` (with `tests/`). Modify:
-`pyproject.toml`. Delete: `.agents/plugins/agentdev/bin/result_codes.py`,
-`.agents/plugins/agentdev/bin/skill_common.py`,
-`.agents/plugins/agentdev/bin/git_default_branch.py`. Move:
-`.agents/plugins/agentdev/tests/test_result_codes.py`,
+`pyproject.toml`. Move: `.agents/plugins/agentdev/tests/test_result_codes.py`,
 `.agents/plugins/agentdev/tests/test_skill_common.py`, and
 `.agents/plugins/agentdev/tests/test_git_default_branch.py` to
 `py_packages/agentdev_lib/tests/`.
@@ -115,6 +112,9 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
 **Files:** Create: `.agents/plugins/agentdev/pyproject.toml`. Modify:
 `pyproject.toml`, `.gitignore`, every `.agents/plugins/agentdev/bin/*.py`
 executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
+Delete: `.agents/plugins/agentdev/bin/result_codes.py`,
+`.agents/plugins/agentdev/bin/skill_common.py`,
+`.agents/plugins/agentdev/bin/git_default_branch.py`.
 
 - [ ] No script under `.agents/plugins/agentdev/bin/` or
   `.agents/plugins/agentdev/skills/*/agent-code/` inserts into `sys.path`.
