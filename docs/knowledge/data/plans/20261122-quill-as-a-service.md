@@ -207,7 +207,7 @@ its "Determine agent prompts" step.
 - [x] A container stopped at the timeout, provoked in the test with a fake clock
   and a container that never exits, completes the check run as failure;
   `bun test test/review.test.ts` passes.
-- [ ] A review cancelled by a push completes the check run as cancelled;
+- [x] A review cancelled by a push completes the check run as cancelled;
   `bun test test/review.test.ts` passes.
 - [ ] A starting review dismisses Quill's earlier approval and leaves an earlier
   change request; `bun test test/review.test.ts` passes.
