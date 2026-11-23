@@ -73,6 +73,54 @@
   loop: "{{ agent_catalog_trees + agent_catalog_plugin_sources }}"
   changed_when: true
 
+# The build context is bind-mounted read-only and setuptools writes *.egg-info
+# into the source tree, so the wheel is built from a copy.
+- name: Create a temporary directory for the agentdev-lib build
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: agentdev-lib
+  register: agent_catalog_lib_build_dir
+
+- name: Copy the agentdev-lib source into the build directory
+  ansible.builtin.command:
+    argv:
+      - cp
+      - --archive
+      - "{{ agent_catalog_source_dir }}/{{ agent_catalog_lib_source }}/."
+      - "{{ agent_catalog_lib_build_dir.path }}/"
+  changed_when: true
+
+- name: Build the agentdev-lib wheel into the staged catalog
+  ansible.builtin.command:
+    argv:
+      - uv
+      - build
+      - --wheel
+      - --out-dir
+      - "{{ agent_catalog_wheel_dir }}"
+      - "{{ agent_catalog_lib_build_dir.path }}"
+  changed_when: true
+  environment: "{{ agent_catalog_uv_environment }}"
+
+- name: Remove the agentdev-lib build directory
+  ansible.builtin.file:
+    path: "{{ agent_catalog_lib_build_dir.path }}"
+    state: absent
+
+# uv run cannot create a plugin's .venv/ once the catalog is read-only. Offline,
+# with no cache, the bundled wheel is the only agentdev-lib uv can resolve.
+- name: Sync each staged plugin's environment against the bundled wheel
+  ansible.builtin.command:
+    argv:
+      - uv
+      - sync
+      - --offline
+      - --project
+      - "{{ agent_catalog_root }}/{{ item }}"
+  loop: "{{ agent_catalog_plugin_sources }}"
+  changed_when: true
+  environment: "{{ agent_catalog_uv_environment | combine({'UV_FIND_LINKS': agent_catalog_wheel_dir}) }}"
+
 - name: Find build scratch and test directories copied into the staged catalog
   ansible.builtin.find:
     paths: "{{ agent_catalog_root }}"

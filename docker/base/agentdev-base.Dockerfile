@@ -76,6 +76,7 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
     --mount=type=bind,readonly,source=ansible,target=/provision/ansible \
     --mount=type=bind,readonly,source=.claude-plugin,target=/provision/.claude-plugin \
     --mount=type=bind,readonly,source=.agents/plugins,target=/provision/.agents/plugins \
+    --mount=type=bind,readonly,source=py_packages/agentdev_lib,target=/provision/py_packages/agentdev_lib \
     cd /provision \
     && ANSIBLE_LOG_PATH='' ansible-playbook ansible/playbooks/setup-dev.yml \
       -vvv \
@@ -93,6 +94,8 @@ RUN --mount=type=bind,readonly,source=ansible.cfg,target=/provision/ansible.cfg 
 # carries no runtime lifecycle; agentdev-devcontainer reinstalls the catalog into the
 # persistent ~/.claude volume it mounts over this install.
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
+# The agentdev-lib wheel staging built from this context; uv takes it over PyPI.
+ENV UV_FIND_LINKS=$AGENTDEV_CATALOG_DIR/wheels
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
 # Tools with their own root store read the system one, so an added CA reaches them all.
 # See ADR-0024.

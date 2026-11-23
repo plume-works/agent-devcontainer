@@ -22,8 +22,17 @@ inside it, so the layout is preserved rather than rearranged:
 ```text
 $agent_catalog_root/
   .claude-plugin/marketplace.json     # Claude Code marketplace
-  .agents/plugins/<plugin>/           # each published plugin
+  .agents/plugins/<plugin>/           # each published plugin, with its .venv/
+  wheels/agentdev_lib-<version>-*.whl  # agentdev-lib built from the same sources
 ```
+
+Each plugin's scripts run through `uv run`, which cannot create a `.venv/` in
+the read-only copy. So staging builds the `agentdev-lib` wheel from
+`py_packages/agentdev_lib/` into `agent_catalog_wheel_dir` and runs
+`uv sync --offline` in each plugin against it, with the image's own interpreter,
+before the copy becomes read-only. The image sets `UV_FIND_LINKS` to that
+directory, so a plugin copy outside the staged root, such as Claude Code's plugin
+cache, also takes the bundled wheel.
 
 The `.agents/` root files are contributor instructions for the catalog's
 publisher and are not staged. Plugin `tests/` directories and build scratch are
@@ -82,6 +91,9 @@ Two properties constrain changes:
 | `agent_catalog_plugin_version`       | `""`                              | Version pin; the manifest must declare it. Empty means "whatever it declares". |
 | `agent_catalog_root`                 | `/opt/agentdev`                   | Where the catalog is staged.                                                   |
 | `agent_catalog_trees`                | `.claude-plugin`                  | Directories copied besides each published plugin's source directory.           |
+| `agent_catalog_lib_source`           | `py_packages/agentdev_lib`        | The `agentdev-lib` package source within the source tree.                      |
+| `agent_catalog_wheel_dir`            | `<agent_catalog_root>/wheels`     | Where staging writes the `agentdev-lib` wheel.                                 |
+| `agent_catalog_uv_environment`       | system Python, no downloads/cache | Environment of the `uv build` and `uv sync` steps.                             |
 | `agent_catalog_prune_names`          | scratch and `tests` dir names     | Directories removed from the staged copy.                                      |
 | `agent_catalog_mode`                 | `u=rwX,go=rX`                     | Permissions applied across the staged copy.                                    |
 

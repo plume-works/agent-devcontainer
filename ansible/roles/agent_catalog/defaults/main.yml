@@ -20,6 +20,17 @@ agent_catalog_root: /opt/agentdev
 agent_catalog_trees:
   - .claude-plugin
 
+# The agentdev-lib wheel built from the provisioning sources. The image points
+# UV_FIND_LINKS here, and each staged plugin's uv.lock names it, so it stays.
+agent_catalog_lib_source: py_packages/agentdev_lib
+agent_catalog_wheel_dir: "{{ agent_catalog_root }}/wheels"
+# The image's interpreter, never a downloaded one, and no cache in the layer.
+agent_catalog_uv_environment:
+  UV_PYTHON: /usr/bin/python3
+  UV_PYTHON_DOWNLOADS: never
+  UV_NO_CACHE: "1"
+  UV_LINK_MODE: copy
+
 # Directories 0755, files 0644, and anything already executable stays executable
 # so the scripts the plugin ships in bin/ keep working.
 agent_catalog_mode: "u=rwX,go=rX"
