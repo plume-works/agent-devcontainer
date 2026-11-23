@@ -306,7 +306,7 @@ image context for the mount that Task 10 added.
 
 - [x] `.claude/startup.py::register_plugin` installs each plugin that
   `.claude-plugin/marketplace.json` publishes.
-- [ ] `.claude/settings.json#permissions.allow` allows the scripts of every
+- [x] `.claude/settings.json#permissions.allow` allows the scripts of every
   plugin, in the checkout and in the plugin cache.
 
 ### Task 16: Document the plugins, uv, and the script contract
