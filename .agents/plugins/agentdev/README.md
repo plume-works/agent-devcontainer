@@ -11,8 +11,8 @@ so projects consume it by version instead of copying files around.
 ## Installing in Claude Code
 
 Working inside the `agentdev-devcontainer` image, there is no setup step:
-the image stages the catalog and installs it at user scope once the container
-is created, without a clone or network access. It is an ordinary install, so updating
+the image stages the catalog and installs every plugin it publishes at user
+scope once the container is created, without a clone or network access. It is an ordinary install, so updating
 it means updating the image, and a project that declares its own marketplace
 composes with it the usual way.
 
@@ -33,29 +33,25 @@ and no trailing commas (unlike `devcontainer.json`):
 }
 ```
 
+The IWE project-memory workflow is a separate plugin from the same marketplace.
+To use it as well, also enable it:
+
+```json
+  "enabledPlugins": {
+    "agentdev@agent-devcontainer": true,
+    "agentdev-iwe@agent-devcontainer": true
+  }
+```
+
 Restart Claude Code (or run `/plugin`) and the catalog is available.
 
 ## Installing in OpenCode
 
-OpenCode reads the same directory through the OpenCode bridge in
-`.opencode-plugin/`. The agentdev images register the staged bridge in
-`~/.config/opencode/opencode.json`, and this repository's devcontainer points it
-at the workspace copy on every editor attachment.
-
-Everywhere else, check out this repository and list the bridge directory's
-absolute path in the `plugin` array of your OpenCode config — the project's
-`opencode.json`, or `~/.config/opencode/opencode.json` for every project:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "/path/to/agent-devcontainer/.agents/plugins/agentdev/.opencode-plugin"
-  ]
-}
-```
-
-The bridge has no dependencies to install. Restart OpenCode to load it.
+OpenCode runs the catalog only inside the agentdev images. The image stages an
+OpenCode bridge beside the plugins and registers it in
+`~/.config/opencode/opencode.json`; the bridge loads every plugin that the
+marketplace publishes. This repository's devcontainer points it at the
+workspace copy on every editor attachment.
 
 ## Native macOS
 
@@ -113,15 +109,17 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 
 ### Knowledge-graph workflow (IWE)
 
-These skills run against an [IWE](https://iwe.md) workspace — a markdown
-knowledge graph with a `data/` bundle of product, ADR, plan, and archive
-documents. They are the project's memory across sessions.
+The IWE workflow — planning, implementing, verifying, and shipping work recorded
+in an [IWE](https://iwe.md) knowledge graph — is the separate `agentdev-iwe`
+plugin, invoked as `/agentdev-iwe:<name>`.
 
 ## What it expects
 
-Most skills shell out to tools rather than reimplementing them. Depending on
-which ones you use, you will need `git`, an authenticated `gh` CLI, Docker (for
-`devcontainer-sandbox`), and `uv` for the Python skills. The
+Every bundled script runs through `uv run`, so `uv` is required: on first use
+it installs the script's dependencies, including the `agentdev-lib` package from
+PyPI. Most skills shell out to tools rather than reimplementing them. Depending on
+which ones you use, you will also need `git`, an authenticated `gh` CLI, and
+Docker (for `devcontainer-sandbox`). The
 [devcontainer image](https://github.com/plume-works/agent-devcontainer) ships
 all of them preinstalled, but the plugin works in any environment that has the
 tools a given skill needs.
@@ -130,9 +128,8 @@ tools a given skill needs.
 
 The plugin carries its own suite in `tests/`, covering the observable behavior of the
 scripts it ships — the `bin/` helpers and the `agent-code/` bundled with individual skills,
-including their exit codes and `RESULT=` lines. Run it with `pytest tests` from this
-directory; it needs `pytest`, `git`, and `bash`. The OpenCode bridge has its own
-suite, run with `bun test ./tests/opencode`.
+including their exit codes and `RESULT=` lines. Run it with `uv run pytest tests` from
+this directory; it needs `git` and `bash`.
 
 The tests resolve everything they exercise through a `plugin_root` fixture, so they pass
 from an installed copy of the plugin as readily as from the repository that develops it.

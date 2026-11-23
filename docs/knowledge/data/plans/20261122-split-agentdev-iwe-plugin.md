@@ -314,7 +314,7 @@ image context for the mount that Task 10 added.
 **Files:** Modify: `.agents/plugins/agentdev/README.md`, `.agents/AGENTS.md`,
 `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`, `README.md`.
 
-- [ ] `.agents/plugins/agentdev/README.md#installing-in-claude-code` enables
+- [x] `.agents/plugins/agentdev/README.md#installing-in-claude-code` enables
   `agentdev-iwe@agent-devcontainer` as a separate choice.
 - [ ] `.agents/plugins/agentdev/README.md#what-it-expects` requires `uv`.
 - [ ] `.agents/plugins/agentdev/README.md#installing-in-opencode` describes only
