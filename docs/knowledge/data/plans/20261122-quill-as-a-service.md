@@ -213,7 +213,7 @@ its "Determine agent prompts" step.
   change request; `bun test test/review.test.ts` passes.
 - [x] A review that ends with success removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
-- [ ] A review that ends with failure removes `request-ai-review`;
+- [x] A review that ends with failure removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
 - [ ] A review cancelled by a push leaves `request-ai-review`;
   `bun test test/review.test.ts` passes.
