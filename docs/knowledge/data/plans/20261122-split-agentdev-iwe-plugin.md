@@ -181,7 +181,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
   with `uv build`.
 - [x] A step publishes that wheel with `pypa/gh-action-pypi-publish` through
   trusted publishing (`id-token: write`, no stored token).
-- [ ] A step creates a GitHub Release for the tag with that wheel attached.
+- [x] A step creates a GitHub Release for the tag with that wheel attached.
 
 ### Task 8: Set up the PyPI project
 
