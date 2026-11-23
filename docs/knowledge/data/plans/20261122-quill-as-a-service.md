@@ -157,7 +157,7 @@ its "Determine agent prompts" step.
   `bun test test/decide.test.ts` passes.
 - [x] A pull request from a fork is not reviewed; `bun test test/decide.test.ts`
   passes.
-- [ ] A draft pull request is not reviewed; `bun test test/decide.test.ts`
+- [x] A draft pull request is not reviewed; `bun test test/decide.test.ts`
   passes.
 - [ ] A pull request from a bot author is not reviewed;
   `bun test test/decide.test.ts` passes.
