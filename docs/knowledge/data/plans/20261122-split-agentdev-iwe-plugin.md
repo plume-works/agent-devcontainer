@@ -296,7 +296,7 @@ image context for the mount that Task 10 added.
   `<plugin>:<skill>` commands for each plugin it lists.
 - [x] The skill tool strips the namespace prefix of each plugin.
 - [x] `bun test ./.agents/opencode-bridge/tests` passes.
-- [ ] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
+- [x] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
   passes.
 
 ### Task 15: Install every plugin in a cloud session
