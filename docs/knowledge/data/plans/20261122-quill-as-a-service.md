@@ -134,7 +134,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `src/server.ts`, `src/webhook.ts`, `test/webhook.test.ts`
 
-- [ ] A delivery whose signature does not match the webhook secret gets 401;
+- [x] A delivery whose signature does not match the webhook secret gets 401;
   `bun test test/webhook.test.ts` passes.
 - [ ] An event other than `pull_request` is ignored;
   `bun test test/webhook.test.ts` passes.
