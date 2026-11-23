@@ -118,7 +118,7 @@ its "Determine agent prompts" step.
   non-zero; `bun test test/reviewer.test.ts` passes.
 - [x] With a stubbed `claude` that exits 0 and prints the spend-limit message,
   `reviewer/review.sh` exits non-zero; `bun test test/reviewer.test.ts` passes.
-- [ ] With a stubbed `claude` whose plugin list has no `agentdev` plugin,
+- [x] With a stubbed `claude` whose plugin list has no `agentdev` plugin,
   `reviewer/review.sh` exits non-zero before it starts a review;
   `bun test test/reviewer.test.ts` passes.
 
