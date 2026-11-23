@@ -196,7 +196,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `src/review.ts`, `test/review.test.ts`
 
-- [ ] A queued review creates a queued `Quill Review` check run on its head;
+- [x] A queued review creates a queued `Quill Review` check run on its head;
   `bun test test/review.test.ts` passes.
 - [ ] The check run turns in progress when the container starts;
   `bun test test/review.test.ts` passes.
