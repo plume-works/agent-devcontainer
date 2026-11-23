@@ -19,7 +19,7 @@ GRAPHS = (
     REPO_ROOT
     / '.agents'
     / 'plugins'
-    / 'agentdev'
+    / 'agentdev-iwe'
     / 'skills'
     / 'iwe-bootstrap'
     / 'assets'
