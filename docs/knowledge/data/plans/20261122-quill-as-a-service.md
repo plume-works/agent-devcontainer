@@ -114,7 +114,7 @@ its "Determine agent prompts" step.
 - [x] `reviewer/review.sh` checks out the given head SHA and runs Claude Code
   headless with the review prompt; `bun test test/reviewer.test.ts` passes with
   a stubbed `claude`.
-- [ ] With a stubbed `claude` that exits non-zero, `reviewer/review.sh` exits
+- [x] With a stubbed `claude` that exits non-zero, `reviewer/review.sh` exits
   non-zero; `bun test test/reviewer.test.ts` passes.
 - [ ] With a stubbed `claude` that exits 0 and prints the spend-limit message,
   `reviewer/review.sh` exits non-zero; `bun test test/reviewer.test.ts` passes.
