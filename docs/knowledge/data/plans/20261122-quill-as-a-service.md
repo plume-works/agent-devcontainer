@@ -88,7 +88,7 @@ its "Determine agent prompts" step.
 
 **Closed by:** a maintainer of the `plume-works` organization.
 
-- [ ] `plume-works/quill-as-a-service` exists.
+- [x] `plume-works/quill-as-a-service` exists.
 - [ ] Renovate is enabled on `plume-works/quill-as-a-service`.
 
 ### Task 2: Configure the Quill App
