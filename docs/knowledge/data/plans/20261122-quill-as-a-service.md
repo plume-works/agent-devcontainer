@@ -163,7 +163,7 @@ its "Determine agent prompts" step.
   `bun test test/decide.test.ts` passes.
 - [x] A pull request carrying `block-ai-reviews` is not reviewed;
   `bun test test/decide.test.ts` passes.
-- [ ] No pull request is reviewed while the configuration pauses the service;
+- [x] No pull request is reviewed while the configuration pauses the service;
   `bun test test/decide.test.ts` passes.
 
 ### Task 7: Run reviews through a queue
