@@ -227,7 +227,7 @@ its "Determine agent prompts" step.
   Quill; `bun test test/approve.test.ts` passes.
 - [x] A push from anyone other than the bot dismisses Quill's approval;
   `bun test test/approve.test.ts` passes.
-- [ ] A commit authored by anyone other than the bot dismisses Quill's approval;
+- [x] A commit authored by anyone other than the bot dismisses Quill's approval;
   `bun test test/approve.test.ts` passes.
 - [ ] `test/approve.test.ts` carries the cases of
   `.github/actions/ai-review-status/review-gate.test.js` that cover
