@@ -267,7 +267,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `renovate.json`
 
-- [ ] `renovate.json` has rules that match the `core` and `core-systemd` digests
+- [x] `renovate.json` has rules that match the `core` and `core-systemd` digests
   and the `agent-devcontainer` commit pin.
 
 ### Task 14: Publish the images
