@@ -7,3 +7,8 @@ stage: living
 # 🗺️ Plans
 
 [Put decisions in the git history](plans/20261115-decisions-in-git-history.md)
+
+[Build quill-as-a-service](plans/20261122-quill-as-a-service.md)
+
+[Switch this repository's AI review to
+quill-as-a-service](plans/20261122-switch-agentdev-review-to-quill.md)
