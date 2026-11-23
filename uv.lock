@@ -14,6 +14,7 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
+    { name = "agentdev-lib" },
     { name = "agentdev-runtime" },
     { name = "ansible", version = "14.6.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13'" },
     { name = "ansible", version = "15.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13'" },
@@ -35,6 +36,7 @@ dev = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "agentdev-lib", editable = "py_packages/agentdev_lib" },
     { name = "agentdev-runtime", editable = "py_packages/agentdev_runtime" },
     { name = "ansible", specifier = ">=11.4" },
     { name = "ansible-lint", specifier = ">=25.2.1" },
@@ -50,6 +52,11 @@ dev = [
     { name = "ruff", specifier = ">=0.11.5" },
     { name = "validate-agent-files", editable = "py_packages/validate_agent_files" },
 ]
+
+[[package]]
+name = "agentdev-lib"
+version = "1.0"
+source = { editable = "py_packages/agentdev_lib" }
 
 [[package]]
 name = "agentdev-runtime"

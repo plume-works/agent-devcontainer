@@ -101,7 +101,7 @@ stop and take the result to `/agentdev:iwe-plan` as a revision.
 `.agents/plugins/agentdev/tests/test_git_default_branch.py` to
 `py_packages/agentdev_lib/tests/`.
 
-- [ ] `py_packages/agentdev_lib/` builds with `uv build` into a wheel named
+- [x] `py_packages/agentdev_lib/` builds with `uv build` into a wheel named
   `agentdev_lib-<version>-py3-none-any.whl` that contains `result_codes`,
   `skill_common`, and `git_default_branch`.
 - [ ] The tests of the three modules run from `py_packages/agentdev_lib/tests/`
