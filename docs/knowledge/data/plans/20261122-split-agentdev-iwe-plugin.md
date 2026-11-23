@@ -170,7 +170,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 - [x] The push uses a token from `actions/create-github-app-token`
   (`RENOVATE_APP_CLIENT_ID`, `RENOVATE_APP_PRIVATE_KEY`,
   `permission-contents: write`).
-- [ ] A comment of at most 3 lines at the push step gives the reason for the app
+- [x] A comment of at most 3 lines at the push step gives the reason for the app
   token.
 
 ### Task 7: Release agentdev-lib from its tag
