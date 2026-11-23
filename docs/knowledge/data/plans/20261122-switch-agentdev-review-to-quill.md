@@ -12,8 +12,10 @@ sources:
 
 ## Context
 
-[Build quill-as-a-service](20261122-quill-as-a-service.md) builds the service
-and proves it on `plume-works/images`. Until it is ready, this repository keeps
+[Build
+quill-as-a-service](https://github.com/plume-works/quill-as-a-service/blob/main/docs/plans/20261122-quill-as-a-service.md),
+in `plume-works/quill-as-a-service`, builds the service and proves it on
+`plume-works/images`. Until it is ready, this repository keeps
 `.github/workflows/ai-responder.yml`, its two actions, the `plume-works-review`
 environment, and the required `ai-review-present` check.
 
@@ -25,9 +27,9 @@ runs of `ai-responder.yml` and the `Claude PR Review Responder` check, and
 
 One change removes the workflow, its actions, its CI hooks, and the cost scripts
 that read its runs. The `main` ruleset keeps its required approval and drops the
-`ai-review-present` check
-([ADR-0102](../adr/0102-required-approval-is-the-only-ai-review-gate.md)), and
-the service configuration lists this repository
+`ai-review-present` check (quill-as-a-service
+[ADR-0001](https://github.com/plume-works/quill-as-a-service/blob/main/docs/adrs/0001-required-approval-is-the-only-ai-review-gate.md)),
+and the service configuration lists this repository
 ([ADR-0101](../adr/0101-ai-review-runs-in-quill-as-a-service.md)).
 
 `request-review.py` keeps its results and its rule of one request per head and
@@ -35,9 +37,10 @@ title and description, and reads the `Quill Review` check run where it read the
 responder check. A `Quill Review` check on the head that is queued or in
 progress means the label waits for a running review; with none, a label still on
 the pull request is stale. The skills describe the service's rules
-([ADR-0103](../adr/0103-review-starts-on-open-or-request.md)): no required
-review check, Quill's approval counting toward the required approval, and
-`request-ai-review` held until the review ends.
+(quill-as-a-service
+[ADR-0002](https://github.com/plume-works/quill-as-a-service/blob/main/docs/adrs/0002-review-starts-on-open-or-request.md)):
+no required review check, Quill's approval counting toward the required
+approval, and `request-ai-review` held until the review ends.
 
 The backlog tasks about the workflow's tests, its silent review runs, and its
 assignee trigger end with it and are cancelled.
@@ -205,16 +208,6 @@ service configuration, when this plan's pull request merges.
 [The AI review of this repository runs in
 quill-as-a-service](../adr/0101-ai-review-runs-in-quill-as-a-service.md)
 
-[The required approval is the only gate of the AI
-review](../adr/0102-required-approval-is-the-only-ai-review-gate.md)
-
-[A review starts on open or on
-request](../adr/0103-review-starts-on-open-or-request.md)
-
-## Depends on
-
-[Build quill-as-a-service](20261122-quill-as-a-service.md)
-
 ## Verification
 
 ``` bash
@@ -236,7 +229,8 @@ The `rg` command prints nothing.
 ## Out of scope
 
 - Building the service and onboarding `plume-works/images`; [Build
-  quill-as-a-service](20261122-quill-as-a-service.md) holds it.
+  quill-as-a-service](https://github.com/plume-works/quill-as-a-service/blob/main/docs/plans/20261122-quill-as-a-service.md)
+  holds it.
 - Other repositories that copied the workflow from the template.
 - The archived documents and findings that describe the workflow.
 
