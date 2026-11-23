@@ -104,7 +104,7 @@ its "Determine agent prompts" step.
 **Files:** Create: `reviewer/Dockerfile`, `reviewer/settings.json`,
 `reviewer/review.sh`, `test/reviewer.test.ts`
 
-- [ ] `reviewer/Dockerfile` builds `FROM ghcr.io/plume-works/core` by tag and
+- [x] `reviewer/Dockerfile` builds `FROM ghcr.io/plume-works/core` by tag and
   digest and installs the `agentdev` plugin from
   `plume-works/agent-devcontainer` at a pinned commit SHA.
 - [ ] `reviewer/settings.json` enables the `agentdev` plugin and denies the
