@@ -151,7 +151,7 @@ its "Determine agent prompts" step.
   `bun test test/decide.test.ts` passes.
 - [x] A same-repository pull request that leaves draft is reviewed;
   `bun test test/decide.test.ts` passes.
-- [ ] `request-ai-review` added by a person with write, maintain, or admin
+- [x] `request-ai-review` added by a person with write, maintain, or admin
   access is reviewed; `bun test test/decide.test.ts` passes.
 - [ ] `request-ai-review` added by a person without that access is not reviewed;
   `bun test test/decide.test.ts` passes.
