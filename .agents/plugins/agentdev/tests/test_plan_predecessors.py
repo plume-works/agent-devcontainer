@@ -10,7 +10,7 @@ import sys
 from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV
-from iwe_branch_fixtures import LIBRARY, plan_document, Workspace
+from plan_fixtures import LIBRARY, plan_document, Workspace
 import pytest
 
 PLAN = 'data/plans/20250105-session-log'
