@@ -136,7 +136,7 @@ its "Determine agent prompts" step.
 
 - [x] A delivery whose signature does not match the webhook secret gets 401;
   `bun test test/webhook.test.ts` passes.
-- [ ] An event other than `pull_request` is ignored;
+- [x] An event other than `pull_request` is ignored;
   `bun test test/webhook.test.ts` passes.
 - [ ] A `pull_request` event from a repository not in the configuration is
   ignored; `bun test test/webhook.test.ts` passes.
