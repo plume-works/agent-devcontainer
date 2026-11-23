@@ -189,7 +189,7 @@ its "Determine agent prompts" step.
 - [x] A reviewer container still running after 30 minutes is stopped, provoked
   in the test with a fake clock and a container that never exits;
   `bun test test/queue.test.ts` passes.
-- [ ] `src/reviewer.ts` starts each reviewer container without `--rm`, so it
+- [x] `src/reviewer.ts` starts each reviewer container without `--rm`, so it
   stays after it ends; `bun test test/queue.test.ts` passes.
 
 ### Task 8: Report each review as a check run
