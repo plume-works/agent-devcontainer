@@ -205,6 +205,32 @@ def test_bootstrap_passes_the_exact_word_to_the_firewall(monkeypatch, value, req
     assert seen['value'] == ('true' if requested else 'false')
 
 
+def test_an_unexpected_bootstrap_error_fails_closed_and_propagates(monkeypatch):
+    system = FakeSystem()
+
+    def run(settings: Settings) -> int:
+        return float('30s')
+
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': 'true'})
+    monkeypatch.setattr(bootstrap, 'run', run)
+    monkeypatch.setattr(egress, 'System', lambda: system)
+    with pytest.raises(ValueError):
+        bootstrap.main([])
+    assert system.calls == LOCKDOWN
+
+
+class FailingSaveSystem(FakeSystem):
+    def output(self, *argv: str) -> str:
+        raise subprocess.CalledProcessError(1, argv)
+
+
+def test_an_unexpected_firewall_error_fails_closed_and_propagates(firewall: Firewall):
+    firewall.system = FailingSaveSystem()
+    with pytest.raises(subprocess.CalledProcessError):
+        firewall.run()
+    assert firewall.calls() == LOCKDOWN
+
+
 def test_an_unrecognized_value_locks_egress_down(monkeypatch, capsys):
     system = FakeSystem()
     monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': 'ture'})

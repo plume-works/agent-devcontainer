@@ -224,3 +224,7 @@ def main(argv: list[str]) -> int:
         if requested:
             egress.lock_down(egress.System())
         return 1
+    except BaseException:
+        if requested:
+            egress.lock_down(egress.System())
+        raise

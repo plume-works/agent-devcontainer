@@ -320,6 +320,9 @@ def apply(settings: env.Settings, system: System | None = None) -> int:
         print(f'{PREFIX}: {error}', file=sys.stderr, flush=True)
         lock_down(system)
         return 1
+    except BaseException:
+        lock_down(system)
+        raise
     return 0
 
 

@@ -1,4 +1,4 @@
-"""The image's pinned hook binaries report the versions docker/devcontainer/pinned-tools.yml pins."""
+"""Pinned hook binaries in the image report the versions pinned-tools.yml pins."""
 
 from __future__ import annotations
 
