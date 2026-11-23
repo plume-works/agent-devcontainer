@@ -217,12 +217,6 @@ checkout](adr/0100-ci-review-runs-the-image-catalog.md)
 [The AI review of this repository runs in
 quill-as-a-service](adr/0101-ai-review-runs-in-quill-as-a-service.md)
 
-[The required approval is the only gate of the AI
-review](adr/0102-required-approval-is-the-only-ai-review-gate.md)
-
-[A review starts on open or on
-request](adr/0103-review-starts-on-open-or-request.md)
-
 [The catalog is split into opt-in plugins, and the IWE workflow is its own
 plugin](adr/0104-catalog-split-into-opt-in-plugins.md)
 
