@@ -167,7 +167,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
   `py_packages/agentdev_lib/pyproject.toml`.
 - [x] A step skips the push when the tag `agentdev-lib/<version>` already
   exists.
-- [ ] The push uses a token from `actions/create-github-app-token`
+- [x] The push uses a token from `actions/create-github-app-token`
   (`RENOVATE_APP_CLIENT_ID`, `RENOVATE_APP_PRIVATE_KEY`,
   `permission-contents: write`).
 - [ ] A comment of at most 3 lines at the push step gives the reason for the app
