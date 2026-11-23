@@ -52,6 +52,11 @@ App private key, the webhook secret, and the Claude OAuth token — sit in an en
 file on the host. Each reviewer container gets an installation token limited to
 its one repository and the Claude token, never the App key.
 
+Reviewer containers run without `--rm`: a finished container is the review's
+log, transcript included. core-systemd's daily cleanup removes it once it has
+been stopped for a week, at the ages the service image sets
+([plume-works/images#79](https://github.com/plume-works/images/pull/79)).
+
 Review rules ([ADR-0103](../adr/0103-review-starts-on-open-or-request.md)): a
 same-repository pull request that opens, is reopened, or leaves draft, or gets
 `request-ai-review` from a person with write access, is reviewed, unless it is a
@@ -183,6 +188,8 @@ its "Determine agent prompts" step.
 - [ ] A reviewer container still running after 30 minutes is stopped, provoked
   in the test with a fake clock and a container that never exits;
   `bun test test/queue.test.ts` passes.
+- [ ] `src/reviewer.ts` starts each reviewer container without `--rm`, so it
+  stays after it ends; `bun test test/queue.test.ts` passes.
 
 ### Task 8: Report each review as a check run
 
@@ -229,6 +236,12 @@ its "Determine agent prompts" step.
 
 - [ ] `service/Dockerfile` builds `FROM ghcr.io/plume-works/core-systemd` by tag
   and digest and runs the Bun server as a systemd unit.
+- [ ] `service/Dockerfile` pins a `core-systemd` that has the configurable
+  cleanup of
+  [plume-works/images#79](https://github.com/plume-works/images/pull/79) and
+  installs a `docker-prune.service.d` drop-in that sets every `PRUNE_*` setting:
+  `168h` for stopped containers, anonymous volumes, images and build cache,
+  `off` for named volumes.
 
 ### Task 11: Write the deployment
 
@@ -337,6 +350,14 @@ installing the Quill App on it, then watching its pull requests.
   `request-ai-review` on and only the newest review removes it
 - **Test:**
   `test/queue.test.ts::a new review of a pull request cancels its earlier review`
+
+### Scenario: A finished reviewer container is kept
+
+- **WHEN** a review ends with success or failure, is stopped at the timeout, or
+  is cancelled
+- **THEN** its reviewer container stays on the service's engine, transcript
+  included, until core-systemd's cleanup removes it
+- **Test:** `test/queue.test.ts::a reviewer container is started without --rm`
 
 ### Scenario: A push during a requested review restarts it
 
