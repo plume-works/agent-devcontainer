@@ -252,7 +252,7 @@ its "Determine agent prompts" step.
 
 - [x] `compose.yml` runs the service image under the sysbox runtime on the proxy
   network and publishes no host port.
-- [ ] `docs/deploy.md` gives the steps from an empty host to a running service.
+- [x] `docs/deploy.md` gives the steps from an empty host to a running service.
 
 ### Task 12: Build and test in CI
 
