@@ -117,10 +117,10 @@ COPY --chmod=0644 docker/devcontainer/systemd/agentdev-bootstrap.service \
 COPY --chmod=0644 docker/devcontainer/systemd/docker.service.d/agentdev.conf \
      /etc/systemd/system/docker.service.d/agentdev.conf
 COPY --chmod=0644 docker/devcontainer/systemd/agentdev-xpra.service /etc/systemd/user/
-# The xpra package's system proxy socket would hold the port the desktop's own server binds.
+# Where the xpra package ships a system proxy socket, it would hold the port agentdev-xpra binds.
 RUN systemctl enable agentdev-bootstrap.service agentdev-created.service \
  && systemctl --global enable agentdev-xpra.service \
- && systemctl disable xpra.socket && systemctl mask xpra.socket xpra.service
+ && systemctl mask xpra.socket xpra.service
 
 # Tools with their own root store read the system one, so an added CA reaches them all.
 # See ADR-0024. A consumer descriptor or a derived image can change the other defaults.
