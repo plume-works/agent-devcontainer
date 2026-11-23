@@ -198,7 +198,7 @@ its "Determine agent prompts" step.
 
 - [x] A queued review creates a queued `Quill Review` check run on its head;
   `bun test test/review.test.ts` passes.
-- [ ] The check run turns in progress when the container starts;
+- [x] The check run turns in progress when the container starts;
   `bun test test/review.test.ts` passes.
 - [ ] A container that exits 0 completes the check run as success;
   `bun test test/review.test.ts` passes.
