@@ -176,7 +176,7 @@ its "Determine agent prompts" step.
   `bun test test/queue.test.ts` passes.
 - [x] A push while `request-ai-review` is on cancels the running review of that
   pull request; `bun test test/queue.test.ts` passes.
-- [ ] A push while `request-ai-review` is on cancels the waiting review of that
+- [x] A push while `request-ai-review` is on cancels the waiting review of that
   pull request; `bun test test/queue.test.ts` passes.
 - [ ] That push queues a review of the new head; `bun test test/queue.test.ts`
   passes.
