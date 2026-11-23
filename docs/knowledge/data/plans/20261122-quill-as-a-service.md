@@ -250,7 +250,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `compose.yml`, `service.env.example`, `docs/deploy.md`
 
-- [ ] `compose.yml` runs the service image under the sysbox runtime on the proxy
+- [x] `compose.yml` runs the service image under the sysbox runtime on the proxy
   network and publishes no host port.
 - [ ] `docs/deploy.md` gives the steps from an empty host to a running service.
 
