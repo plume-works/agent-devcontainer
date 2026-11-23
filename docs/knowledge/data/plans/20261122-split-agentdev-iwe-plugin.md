@@ -201,7 +201,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 - [x] Staging copies every plugin that the marketplace publishes.
 - [x] The `agent_catalog_plugin_version` pin checks the version of `agentdev`.
-- [ ] The Claude install step installs every staged plugin at user scope.
+- [x] The Claude install step installs every staged plugin at user scope.
 
 ### Task 10: Bundle agentdev-lib in the image
 
