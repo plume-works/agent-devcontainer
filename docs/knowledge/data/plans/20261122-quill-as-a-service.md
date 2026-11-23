@@ -211,7 +211,7 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [x] A starting review dismisses Quill's earlier approval and leaves an earlier
   change request; `bun test test/review.test.ts` passes.
-- [ ] A review that ends with success removes `request-ai-review`;
+- [x] A review that ends with success removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
 - [ ] A review that ends with failure removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
