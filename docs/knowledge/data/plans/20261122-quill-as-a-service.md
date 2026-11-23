@@ -145,7 +145,7 @@ its "Determine agent prompts" step.
 
 **Files:** Create: `src/decide.ts`, `test/decide.test.ts`
 
-- [ ] A same-repository pull request that opens is reviewed;
+- [x] A same-repository pull request that opens is reviewed;
   `bun test test/decide.test.ts` passes.
 - [ ] A same-repository pull request that is reopened is reviewed;
   `bun test test/decide.test.ts` passes.
