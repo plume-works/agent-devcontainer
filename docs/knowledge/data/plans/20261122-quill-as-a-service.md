@@ -25,8 +25,9 @@ environments, or Dev Container lifecycle replay.
 
 The service lives in a new repository, `plume-works/quill-as-a-service`. Its
 code cannot be anchored or tested from this checkout, so this plan names the
-files it creates there and its `## Verification` cites that repository's CI. Its
-first user is `plume-works/images`. [Switch this repository's AI review to
+files it creates there, and its `## Verification` clones that repository and
+runs its tests. Its first user is `plume-works/images`. [Switch this
+repository's AI review to
 quill-as-a-service](20261122-switch-agentdev-review-to-quill.md) follows once
 this plan ships.
 
@@ -210,7 +211,9 @@ its "Determine agent prompts" step.
   `bun test test/review.test.ts` passes.
 - [ ] A starting review dismisses Quill's earlier approval and leaves an earlier
   change request; `bun test test/review.test.ts` passes.
-- [ ] A review that ends with success or failure removes `request-ai-review`;
+- [ ] A review that ends with success removes `request-ai-review`;
+  `bun test test/review.test.ts` passes.
+- [ ] A review that ends with failure removes `request-ai-review`;
   `bun test test/review.test.ts` passes.
 - [ ] A review cancelled by a push leaves `request-ai-review`;
   `bun test test/review.test.ts` passes.
