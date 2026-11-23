@@ -84,7 +84,7 @@ skill script to import from `agentdev_lib`. Run `uv sync` in the plugin with
 `ansible/roles/agent_catalog/tasks/stage_catalog.yml` does. If a checkbox fails,
 stop and take the result to `/agentdev:iwe-plan` as a revision.
 
-- [ ] The changed script runs from the read-only staged plugin as a non-root
+- [x] The changed script runs from the read-only staged plugin as a non-root
   user, and prints its normal result.
 - [ ] A copy of the staged plugin, made as `claude plugin install` makes it in
   `~/.claude/plugins/cache/`, runs the same script.
@@ -423,6 +423,25 @@ None.
   prints nothing.
 - `git grep -n "sys.path.insert" -- '.agents/plugins/*/bin/*.py' '.agents/plugins/*/skills/*/agent-code/*.py'`
   prints nothing.
+
+## Verification results
+
+Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
+`iwe-branch-name.py` importing `git_default_branch` and `result_codes` from an
+`agentdev_lib` wheel:
+
+- `uv run` finds the plugin's project from the script's own path, not from the
+  working directory, so a script run from inside another uv project still uses
+  the plugin's `.venv/`.
+- From the root-owned, read-only staged plugin, a non-root user runs the script
+  and gets its normal result. uv cannot take the environment lock there and
+  warns; `--quiet` hides the warning. Nothing in the staged tree changes.
+- The copy that `claude plugin install` makes in `~/.claude/plugins/cache/` has
+  no `.venv/bin/python`. The first `uv run` there repairs the `.venv/` and runs
+  the script, so the cache copy must be writable by the session user.
+- The staged `.venv/` is 120K (`du -sh`) and adds a 147kB image layer.
+- `uv.lock` records the `UV_FIND_LINKS` directory as the registry of
+  `agentdev-lib`, so that directory must stay in the image.
 
 ## Out of scope
 
