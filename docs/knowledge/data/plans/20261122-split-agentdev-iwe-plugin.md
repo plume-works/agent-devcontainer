@@ -287,8 +287,10 @@ ADRs keep their text.
 `docker/base/agentdev-base.Dockerfile`,
 `ansible/roles/agent_catalog/defaults/main.yml`,
 `ansible/roles/agent_catalog/tasks/install_catalog.yml`,
-`ansible/roles/agent_catalog/README.md`, and the tests under `scripts/tests/`
-that name the bridge path.
+`ansible/roles/agent_catalog/README.md`, `.dockerignore`,
+`.github/workflows/ci.yml`, and the tests under `scripts/tests/` that name the
+bridge path. `.dockerignore` also lets `py_packages/agentdev_lib/` into the
+image context for the mount that Task 10 added.
 
 - [ ] The bridge reads `.claude-plugin/marketplace.json` and registers
   `<plugin>:<skill>` commands for each plugin it lists.
@@ -493,12 +495,12 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
 - `pyproject.toml#tool.uv.sources` — the root sources that point at the
   checkout.
 - `pyproject.toml#tool.pytest.ini_options.testpaths` — the test roots.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts::readCatalog` — reads one
-  plugin root and takes the namespace from its `plugin.json`.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts::bridge` — the v1 entry
-  and its prefix strip.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts::setupBridge` — the v2
-  entry and its prefix strip.
+- `.agents/opencode-bridge/index.ts::readCatalogs` — reads every plugin that the
+  marketplace lists, each namespaced by its `plugin.json`.
+- `.agents/opencode-bridge/index.ts::bridge` — the v1 entry and its prefix
+  strip.
+- `.agents/opencode-bridge/index.ts::setupBridge` — the v2 entry and its prefix
+  strip.
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::opencode` —
   registers the bridge path in `opencode.json`.
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — installs
@@ -519,7 +521,7 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   session.
 - `.claude/settings.json#permissions.allow` — the script permissions.
 - `.github/workflows/validate-agent-files.yml` › "bun test
-  ./.agents/plugins/agentdev/tests/opencode" — the bridge test run.
+  ./.agents/opencode-bridge/tests" — the bridge test run.
 - `.github/workflows/renovate.yml` › "permission-contents: write" — the app
   token pattern that Task 6 follows.
 - `.agents/AGENTS.md#catalog-locations-and-portability` — the standard-library
