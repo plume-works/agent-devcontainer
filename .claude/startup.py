@@ -2,7 +2,8 @@
 """
 Set up a Claude Code cloud session's host to work on this repository.
 
-`startup.py setup`, the environment setup script, registers the agentdev plugin, installs the
+`startup.py setup`, the environment setup script, installs every plugin of this checkout's
+marketplace, installs the
 cloud-session instructions and environment, provisions the project toolchain on the host, and
 installs the git hooks.
 `startup.py resume`, the SessionStart hook, restarts the host dockerd and the agent proxy relay
@@ -24,6 +25,7 @@ import time
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RELAY_SCRIPT = REPO_ROOT / '.claude/agent-proxy-relay.py'
+MARKETPLACE = REPO_ROOT / '.claude-plugin/marketplace.json'
 LOG_DIR = Path(os.environ.get('AGENTDEV_STARTUP_LOG_DIR') or '/var/log')
 DOCKERD_LOG = LOG_DIR / 'dockerd.log'
 RELAY_LOG = LOG_DIR / 'agent-proxy-relay.log'
@@ -243,10 +245,13 @@ def prepare_proxy_access(environ: Mapping[str, str]) -> None:
 
 
 def register_plugin() -> None:
-    """Register this checkout as the plugin marketplace and install agentdev."""
-    log('Registering agent-devcontainer marketplace and installing agentdev')
+    """Register this checkout as the plugin marketplace and install every plugin it publishes."""
+    marketplace = json.loads(MARKETPLACE.read_text())
+    plugins = [plugin['name'] for plugin in marketplace['plugins']]
+    log(f'Registering the {marketplace["name"]} marketplace and installing {", ".join(plugins)}')
     run('claude', 'plugin', 'marketplace', 'add', './')
-    run('claude', 'plugin', 'install', 'agentdev@agent-devcontainer')
+    for plugin in plugins:
+        run('claude', 'plugin', 'install', f'{plugin}@{marketplace["name"]}')
 
 
 def add_cloud_instructions() -> None:

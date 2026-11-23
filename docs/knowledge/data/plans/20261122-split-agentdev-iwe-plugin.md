@@ -304,7 +304,7 @@ image context for the mount that Task 10 added.
 **Files:** Modify: `.claude/startup.py`, `scripts/tests/test_cloud_startup.py`,
 `.claude/settings.json`.
 
-- [ ] `.claude/startup.py::register_plugin` installs each plugin that
+- [x] `.claude/startup.py::register_plugin` installs each plugin that
   `.claude-plugin/marketplace.json` publishes.
 - [ ] `.claude/settings.json#permissions.allow` allows the scripts of every
   plugin, in the checkout and in the plugin cache.
