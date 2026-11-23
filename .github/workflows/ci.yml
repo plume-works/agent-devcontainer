@@ -492,8 +492,7 @@ jobs:
           AGENTDEV_DEVCONTAINER_TEST_IMAGE: ${{ needs.merge-dev-image.outputs.devcontainer_image_pinned }}
         run: |
           uv run pytest scripts/tests/test_agentdev_devcontainer_image.py \
-            scripts/tests/test_agentdev_devcontainer_repository.py \
-            scripts/tests/test_template_consume_migration.py -rs
+            scripts/tests/test_agentdev_devcontainer_repository.py -rs
 
       - name: Log debug stats
         if: ${{ always() }}

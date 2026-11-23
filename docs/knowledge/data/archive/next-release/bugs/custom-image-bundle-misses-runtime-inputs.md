@@ -1,7 +1,7 @@
 ---
 type: bug
 description: The guide's custom-image setup names only the validator and catalog mounts. The Dev Container and deploy Dockerfiles also mount py_packages/agentdev_runtime, and CI tests more publisher trees, so the second choice still gives a build that fails.
-stage: pending
+stage: cancelled
 severity: medium
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md

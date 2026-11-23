@@ -1,7 +1,7 @@
 ---
 type: bug
 description: The consumption guide names its five path classes once but labels no path with a class. Many tracked template paths are not in the guide.
-stage: pending
+stage: cancelled
 severity: low
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
