@@ -321,7 +321,7 @@ image context for the mount that Task 10 added.
   the image.
 - [x] `.agents/AGENTS.md#catalog-locations-and-portability` states the uv script
   rule and names `agentdev-lib` instead of the standard-library rule.
-- [ ] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
+- [x] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
   imports `result_codes` from `agentdev_lib`.
 
 ### Task 17: Observe the first agentdev-lib release
