@@ -211,7 +211,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 - [x] Staging builds the `agentdev-lib` wheel from `py_packages/agentdev_lib/`.
 - [x] The image sets `UV_FIND_LINKS` to the directory of that wheel.
-- [ ] Staging runs `uv sync` in each staged plugin before the step "Make the
+- [x] Staging runs `uv sync` in each staged plugin before the step "Make the
   staged catalog root-owned and read-only".
 
 ### Task 11: Move the IWE workflow into agentdev-iwe
