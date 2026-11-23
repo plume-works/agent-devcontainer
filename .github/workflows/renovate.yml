@@ -110,4 +110,5 @@ jobs:
           RENOVATE_ALLOWED_COMMANDS: '["^scripts/renovate-post-upgrade\\.py$"]'
           RENOVATE_GIT_AUTHOR: ${{ steps.author.outputs.git-author }}
           LOG_LEVEL: info
+          RENOVATE_X_IGNORE_RE2: 'true'
         run: bunx --package "renovate@${RENOVATE_VERSION}" renovate

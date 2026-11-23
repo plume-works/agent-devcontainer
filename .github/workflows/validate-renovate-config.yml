@@ -67,6 +67,8 @@ jobs:
       # The hook's bunx pin is the Renovate release the bot runs, and --no-global is
       # necessary: see ADR-0052.
       - name: Validate .github/renovate.json
+        env:
+          RENOVATE_X_IGNORE_RE2: 'true'
         run: |
           rev=$(sed -nE 's/.*bunx --package renovate@([0-9][^ ]*) .*/\1/p' \
             .pre-commit-config.yaml | head -n 1)
