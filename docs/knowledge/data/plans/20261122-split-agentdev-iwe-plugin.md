@@ -187,7 +187,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 **Closed by:** the maintainer.
 
-- [ ] The name `agentdev-lib` is free on PyPI, or the plan is revised with
+- [x] The name `agentdev-lib` is free on PyPI, or the plan is revised with
   another name.
 - [ ] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
   this repository as its publisher.
