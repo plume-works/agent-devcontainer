@@ -327,7 +327,7 @@ image context for the mount that Task 10 added.
 
 **Closed by:** the first merge to `main` after Task 8.
 
-- [ ] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
+- [x] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
 - [ ] `.github/workflows/release-agentdev-lib.yml` published the version to
   PyPI.
 - [ ] The GitHub Release for the tag has the wheel attached.
