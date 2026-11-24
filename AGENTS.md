@@ -118,6 +118,12 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
 16. **Do not put reasoning and examples into skill texts and accompanying
     references.**
 
+17. **Run an edited skill through the Skill tool, never by following its
+    `SKILL.md` by hand.** A worktree session loads the catalog from that
+    worktree's `.agents/plugins/`, uncommitted edits included (ADR-0057). If
+    a loaded skill's base directory is not under the current worktree, or the
+    skill is new, ask the user to run `/reload-skills`, then load it again.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
