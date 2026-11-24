@@ -53,7 +53,7 @@ Do NOT flag:
 - Code style or quality concerns
 - Subjective suggestions or improvements
 
-Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path::symbol` → `path::symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
+Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the anchor chain (`path@symbol` → `path@symbol`, never line numbers) from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent rulebooks (`SKILL.md`, `*.agent.md`), and docstrings:
 

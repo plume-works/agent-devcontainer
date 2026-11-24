@@ -117,7 +117,7 @@ In 17 the spec is behind the code or says more than the code was built to do:
   checks no actor permission).
 - `catalog-lifecycle`: "standalone startup selects and reconciles the runtime
   catalog"
-  (`py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.catalog`
+  (`py_packages/agentdev_runtime/agentdev_runtime/workspace.py@Workspace.catalog`
   reinstalls on every start).
 - `ci-python-environment`: "one action provisions the environment and activates
   nothing" (the `macos-bootstrap` job does not use the action).
@@ -137,15 +137,15 @@ In 17 the spec is behind the code or says more than the code was built to do:
   `link-venv` hook runs an image binary).
 - `self-improve-learning-loop`: "The plugin is published but not enabled by
   default" (the image stages it and
-  `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py::created` installs
+  `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py@created` installs
   it; the test
-  `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py::test_attach_installs_the_checkout_catalog_at_user_scope`
+  `py_packages/agentdev_runtime/tests/test_attach_catalog_scope.py@test_attach_installs_the_checkout_catalog_at_user_scope`
   asserts that).
 - `standalone-opencode-runtime`: "state survives replacement without
   cross-project session sharing" (no credential link exists to repair),
   "services have supervised bounded recovery" (two further non-zero exits),
   "runtime state is reported, persisted, and retried explicitly"
-  (`py_packages/agentdev_runtime/agentdev_runtime/health.py::status` prints only
+  (`py_packages/agentdev_runtime/agentdev_runtime/health.py@status` prints only
   failed and blocked components).
 
 In 16 the spec states a guarantee the implementation does not deliver, and no
@@ -155,7 +155,7 @@ test fails:
   dependencies in
   `py_packages/agentdev_runtime/pyproject.toml#project.dependencies` are ranges.
 - `firewall` "enabled firewall default-DROPs IPv4 and blocks IPv6 entirely":
-  `py_packages/agentdev_runtime/agentdev_runtime/firewall.py::block_ipv6` leaves
+  `py_packages/agentdev_runtime/agentdev_runtime/firewall.py@block_ipv6` leaves
   IPv6 open when `ip6tables` is missing.
 - `pre-commit-gate` "every commit path runs the hooks, merges included":
   `end-of-file-fixer` and `trailing-whitespace` in `.pre-commit-config.yaml`
@@ -163,12 +163,12 @@ test fails:
 - `image-pinning` "published tags name only tested images": the `ubuntu-ansible`
   image is built without the revision label the promote guard reads.
 - `standalone-opencode-runtime` "startup prepares or reuses one workspace":
-  `py_packages/agentdev_runtime/agentdev_runtime/git.py::credential_helper` runs
+  `py_packages/agentdev_runtime/agentdev_runtime/git.py@credential_helper` runs
   only from
-  `py_packages/agentdev_runtime/agentdev_runtime/workspace.py::Workspace.clone`,
+  `py_packages/agentdev_runtime/agentdev_runtime/workspace.py@Workspace.clone`,
   so a reused checkout gets no helper.
 - `devcontainer-git-credentials` "HTTPS git uses the gh login":
-  `py_packages/agentdev_runtime/agentdev_runtime/coder.py::start` does not wait
+  `py_packages/agentdev_runtime/agentdev_runtime/coder.py@start` does not wait
   for the keyring session.
 - `devcontainer-state` "the home volume starts empty and the bootstrap claims
   it": the `fish_setup` role writes `dev.fish` into the build user's home.
@@ -185,7 +185,7 @@ test fails:
   `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py`
   interpolates the remote name unquoted.
 - `self-improve-learning-loop` "The mutator enforces a normative path
-  allowlist": `.agents/plugins/self-improve/selfimprove/allowlist.py::_kind_of`
+  allowlist": `.agents/plugins/self-improve/selfimprove/allowlist.py@_kind_of`
   accepts a rule at any depth.
 - `git-new-branch` "The git-commit skill never commits on the default branch":
   the detached-`HEAD` refusal names no skill.
@@ -327,7 +327,7 @@ guide that `AGENTS.md#tests` allows no test to check.
   `iwe-verifier`'s effective contract, the spec plus the intent in a plan's
   `## Spec changes`; `iwe-shipper` steps for spec merge, rationale distillation,
   and the release page written from the spec diff; three of the items in
-  `scripts/check-ship-records.py::SHIP_REVIEW_ITEMS`; `.iwe/schemas/spec.yaml`;
+  `scripts/check-ship-records.py@SHIP_REVIEW_ITEMS`; `.iwe/schemas/spec.yaml`;
   the `iwe-setup` skill; and the `iwe-bootstrap` assets every template consumer
   receives. Seven requirements of `iwe-workflow-skills` have no subject once
   `data/spec/` is gone.

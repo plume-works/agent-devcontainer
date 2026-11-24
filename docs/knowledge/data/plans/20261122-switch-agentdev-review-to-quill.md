@@ -171,7 +171,7 @@ service configuration, when this plan's pull request merges.
   its head
 - **THEN** it reports `ALREADY_REQUESTED` and changes no label
 - **Test:**
-  `.agents/plugins/agentdev/tests/test_request_review.py::test_label_waiting_for_a_quill_review_is_already_requested`
+  `.agents/plugins/agentdev/tests/test_request_review.py@test_label_waiting_for_a_quill_review_is_already_requested`
 
 ### Scenario: A stale request label is sent again
 
@@ -179,7 +179,7 @@ service configuration, when this plan's pull request merges.
   `request-ai-review` and has no unfinished `Quill Review` check on its head
 - **THEN** it removes the label and adds it again
 - **Test:**
-  `.agents/plugins/agentdev/tests/test_request_review.py::test_stale_label_is_removed_and_added_again`
+  `.agents/plugins/agentdev/tests/test_request_review.py@test_stale_label_is_removed_and_added_again`
 
 ### Scenario: The Quill Review check on the head counts as a request
 
@@ -187,7 +187,7 @@ service configuration, when this plan's pull request merges.
   description edit and completed other than cancelled
 - **THEN** `request-review.py` reports `ALREADY_REQUESTED` with that check's URL
 - **Test:**
-  `.agents/plugins/agentdev/tests/test_request_review.py::test_quill_review_check_completed_after_metadata_edit_counts`
+  `.agents/plugins/agentdev/tests/test_request_review.py@test_quill_review_check_completed_after_metadata_edit_counts`
 
 ### Scenario: The merge needs an approval, not a review check
 
@@ -236,12 +236,12 @@ The `rg` command prints nothing.
 
 ## Key references
 
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::run`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py@run`
   › "actions/workflows/ai-responder.yml/runs" — the workflow-run read that Task
   3 replaces.
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::requesting_check`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py@requesting_check`
   — the check that counts as a request.
-- `.agents/plugins/agentdev/tests/test_request_review.py::test_label_waiting_for_a_run_is_already_requested`
+- `.agents/plugins/agentdev/tests/test_request_review.py@test_label_waiting_for_a_run_is_already_requested`
   — the test that Task 3 replaces.
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#confirm-it-started`
   — the confirmation through workflow runs.

@@ -28,7 +28,7 @@ marked tests and deselects the unmarked ones without a message.
 ## Root cause
 
 `scripts/run-root-tests` always passes `-m requires_root`. pytest deselects the
-unmarked tests before `scripts/tests/conftest.py::pytest_collection_finish`
-reads `session.items`, so its list of other tests is always empty. The guard
-fires only when a caller gives a second `-m`. `.github/workflows/ci.yml` runs
+unmarked tests before `scripts/tests/conftest.py@pytest_collection_finish` reads
+`session.items`, so its list of other tests is always empty. The guard fires
+only when a caller gives a second `-m`. `.github/workflows/ci.yml` runs
 `scripts/run-root-tests -n 8 scripts/tests` and expects success.

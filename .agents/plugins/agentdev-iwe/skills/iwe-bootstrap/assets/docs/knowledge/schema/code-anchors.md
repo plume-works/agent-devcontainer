@@ -3,7 +3,7 @@
 An anchor names a place in a file. A document never records a line number: it is
 wrong the next time the file changes.
 
-- Code: `path::Class.method` or `path::function`.
+- Code: `path@Class.method` or `path@function`.
 - Markdown: `path#heading-slug`.
 - YAML, JSON, and TOML: `path#key.path`. The `id` or the `name` of a list
   element identifies it.
