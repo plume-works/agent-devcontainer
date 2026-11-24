@@ -6,6 +6,9 @@ stage: living
 
 # 📋 Backlog
 
+[Skip name@ref spans that are not anchors in the anchor
+checker](backlog/at-anchor-false-positives.md)
+
 [Resolve bare-path anchors or narrow the anchor
 rule](backlog/bare-path-anchors.md)
 
