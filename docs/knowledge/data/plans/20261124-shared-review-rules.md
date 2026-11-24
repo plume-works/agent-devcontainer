@@ -138,7 +138,7 @@ verdict.
 - [x] `#workflow-3-address-review-comments` has no confidence branch and keeps
   its procedure: delegate runtime code to the Principal Engineer, edit
   non-executable artifacts directly, reply, verify, resolve that exact thread.
-- [ ] `#quality-standards` holds no "Avoid risky refactors without explicit
+- [x] `#quality-standards` holds no "Avoid risky refactors without explicit
   reviewer request" or "Prefer targeted, minimal diffs" line.
 - [ ] `#troubleshooting` has no "Cannot determine comment intent" entry.
 

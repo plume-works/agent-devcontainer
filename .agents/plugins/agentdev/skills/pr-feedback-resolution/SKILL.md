@@ -459,9 +459,7 @@ Maintain an internal execution log documenting:
 - Maintain or improve test coverage when runtime executable code changed
 - No introduction of new technical debt
 - Document non-obvious decisions
-- Avoid risky refactors without explicit reviewer request
 - Avoid behavior changes unless explicitly requested
-- Prefer targeted, minimal diffs
 
 ### Communication
 
