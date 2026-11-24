@@ -132,14 +132,10 @@ Update PR based on code review feedback.
 
 ## Troubleshooting
 
-| Issue                               | Solution                                             |
-| ----------------------------------- | ---------------------------------------------------- |
-| PR description too technical        | Add "Why" section explaining user impact             |
-| Feedback seems nitpicky             | Consider if it genuinely improves maintainability    |
-| Author defensive about feedback     | Keep tone neutral; focus on code, not person         |
-| Conflicting feedback from reviewers | Discuss in thread; find consensus or escalate        |
-| Changes seem unnecessary            | Ask for clarification of impact/rationale            |
-| Too many comments per review        | Prioritize critical issues; discuss style separately |
+| Issue                        | Solution                                  |
+| ---------------------------- | ----------------------------------------- |
+| PR description too technical | Add "Why" section explaining user impact  |
+| Changes seem unnecessary     | Ask for clarification of impact/rationale |
 
 ## References
 

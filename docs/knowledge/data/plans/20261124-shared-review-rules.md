@@ -149,7 +149,7 @@ verdict.
 
 - [x] The skill has no `## Review Workflow` section, and
   `## Responding To Review Feedback` stays.
-- [ ] Its `## Troubleshooting` table has no "Feedback seems nitpicky", "Author
+- [x] Its `## Troubleshooting` table has no "Feedback seems nitpicky", "Author
   defensive about feedback", "Conflicting feedback from reviewers", or "Too many
   comments per review" row.
 - [ ] Its `description` and `## When to Use This Skill` name no code review.
