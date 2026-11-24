@@ -102,13 +102,9 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
     result, calls = run_startup(scratch, *args)
     assert result.returncode == 0, result.stderr
     hook_types = ' '.join(f'--hook-type {hook}' for hook in startup.HOOK_TYPES)
-    marketplace = json.loads((REPO_ROOT / '.claude-plugin/marketplace.json').read_text())
-    assert calls == [
+    # test_setup_installs_every_marketplace_plugin covers the plugin installs.
+    assert [call for call in calls if not call.startswith('claude plugin install ')] == [
         'claude plugin marketplace add ./',
-        *(
-            f'claude plugin install {plugin["name"]}@{marketplace["name"]}'
-            for plugin in marketplace['plugins']
-        ),
         f'bash -c curl -LsSf https://astral.sh/uv/{startup.UV_VERSION}/install.sh'
         f' | env UV_INSTALL_DIR={startup.TOOL_DIR} UV_NO_MODIFY_PATH=1 sh',
         'bash -c curl -fsSL https://bun.sh/install'
