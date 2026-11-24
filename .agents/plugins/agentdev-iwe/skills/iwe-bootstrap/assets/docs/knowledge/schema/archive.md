@@ -1,10 +1,10 @@
 # Archive
 
-Finished work is archived, never deleted. `data/archive/` has one folder for
-each cut version, and the folder `next-release`. Each folder has the subfolder
-that its documents were in: `plans/`, `bugs/`, `backlog/`, `adr/`, or a retired
-type's folder. No schema is bound under `data/archive/`: archived documents are
-not validated.
+Finished work is archived. `data/archive/` has the folder `next-release` and one
+folder for each cut version that has not been pruned. Each folder has the
+subfolder that its documents were in: `plans/`, `bugs/`, `backlog/`, `adr/`, or
+a retired type's folder. No schema is bound under `data/archive/`: archived
+documents are not validated.
 
 - The session that closes a plan, a bug, a task, or an ADR moves it with
   `iwe rename` to `data/archive/next-release/<folder>/` in the same change that
@@ -18,5 +18,8 @@ not validated.
 - `architecture/` and `features/` hold retired types: a system design note, with
   the alternatives that were rejected, and a proposal of what users must get,
   written before the work.
+- A released version's folder may be pruned: it is deleted, and git history
+  keeps it. `next-release` is never pruned. A link into a pruned folder becomes
+  the link's plain text, and a `sources` entry for a pruned document is dropped.
 - The `ship-records` check fails when a document is in the incorrect folder for
   its stage.

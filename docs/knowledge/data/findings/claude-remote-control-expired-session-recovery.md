@@ -8,9 +8,8 @@ sources:
 
 # Claude Remote Control expired session recovery
 
-Finding against [Claude Remote Control server
-mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md),
-measured on Claude Code 2.1.310 with `claude remote-control --spawn same-dir`.
+Finding against Claude Remote Control server mode, measured on Claude Code
+2.1.310 with `claude remote-control --spawn same-dir`.
 
 ## Measurement
 

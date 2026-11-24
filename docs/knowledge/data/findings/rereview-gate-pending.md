@@ -4,7 +4,6 @@ description: How the required ai-review-present check could read pending while a
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
-- resource: docs/knowledge/data/archive/2.0.0/architecture/assignee-review-trigger.md
 - resource: docs/knowledge/data/backlog/verify-assignee-review-automerge.md
 ---
 
@@ -51,9 +50,8 @@ the gate's acceptance check. The newest status for a context is the one that
 counts, which is exactly the pending-then-green lifecycle wanted.
 
 - Statuses are attached to the commit directly, not to a check suite. The
-  failure mode in [Bug: a comment-requested review's gate does not count toward
-  merge](../archive/2.0.0/bugs/dispatched-review-gate-not-counted.md) is a check
-  whose suite the rollup leaves out, so it does not apply.
+  failure mode in Bug: a comment-requested review's gate does not count toward
+  merge is a check whose suite the rollup leaves out, so it does not apply.
 - The `main` ruleset requires `ai-review-present` from the GitHub Actions app.
   Whether a status posted with `GITHUB_TOKEN` counts as that source is an open
   question below.

@@ -32,9 +32,6 @@ work](adr/0008-graph-diverges-from-okf-only-for-merge-cost.md)
 [The graph layout keeps parallel pull requests free of merge
 conflicts](adr/0009-graph-layout-avoids-merge-conflicts.md)
 
-[Each kind of knowledge has one home, and the archive is by
-release](adr/0012-one-home-per-kind-and-archive-by-release.md)
-
 [The release impact of a plan is a frontmatter
 field](adr/0013-release-impact-is-a-plan-frontmatter-field.md)
 

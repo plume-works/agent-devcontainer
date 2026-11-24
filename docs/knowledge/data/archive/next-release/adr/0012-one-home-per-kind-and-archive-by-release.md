@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: deprecated
 ---
 
 # Each kind of knowledge has one home, and the archive is by release

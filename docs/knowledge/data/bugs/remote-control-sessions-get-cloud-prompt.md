@@ -5,7 +5,6 @@ severity: medium
 description: Sessions spawned by `claude remote-control` on an agentdev container receive Claude Code's cloud-session instructions, which wrongly state that the session runs in Anthropic's cloud without `gh`, and those instructions override this repository's own workflow.
 sources:
 - resource: .claude/startup.py
-- resource: docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-server-mode.md
 - resource: https://code.claude.com/docs/en/remote-control
 - resource: https://code.claude.com/docs/en/claude-code-on-the-web
 ---
@@ -59,9 +58,8 @@ Eliminated:
 - **The repository.** No file under version control contains the text.
 - **A Claude Code switch.** `claude remote-control --help` and the Remote
   Control documentation offer no flag, setting, or variable for spawned
-  sessions' prompts, and the server refuses `--settings` ([Claude Remote Control
-  server
-  mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md)).
+  sessions' prompts, and the server refuses `--settings` (Claude Remote Control
+  server mode).
 
 ## Potential solution
 

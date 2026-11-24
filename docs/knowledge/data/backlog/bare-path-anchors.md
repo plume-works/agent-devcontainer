@@ -15,11 +15,10 @@ sources:
 bare `<path>` that names a full file as an anchor, and says that
 `scripts/check-anchors.py` enforces the graph and the catalog.
 `scripts/check-anchors.py::anchors` gives only spans that hold `::`, `#`, or a
-quote, as Task 2 of the [line-free anchors
-plan](../archive/3.0.0/plans/20261108-line-free-anchors.md) defines an anchor.
-So a bare back-ticked path under an active plan's `## Key references`, in an
-open bug or backlog item, or in a guide is never checked for existence. The rule
-and the code disagree until one of them changes.
+quote, as Task 2 of the line-free anchors plan defines an anchor. So a bare
+back-ticked path under an active plan's `## Key references`, in an open bug or
+backlog item, or in a guide is never checked for existence. The rule and the
+code disagree until one of them changes.
 
 The work is to decide one of:
 
