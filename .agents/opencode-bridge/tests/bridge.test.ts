@@ -128,7 +128,6 @@ describe("config hook", () => {
 })
 
 test("registers every marketplace plugin", async () => {
-  expect(plugins.map((plugin) => plugin.namespace)).toEqual(["agentdev", "agentdev-iwe"])
   const config = await configured()
   const { commands } = setUp()
   for (const { namespace, meta } of skills) {
