@@ -117,7 +117,7 @@ verdict.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `#review-focus` holds no "CRITICAL: we only want HIGH SIGNAL issues" list,
+- [x] `#review-focus` holds no "CRITICAL: we only want HIGH SIGNAL issues" list,
   no "Do NOT flag" list, and no severity tier definitions; it keeps each pass's
   focus, the Trigger/Path/Outcome shape of a correctness candidate, and the
   durable-knowledge and metadata focuses.
