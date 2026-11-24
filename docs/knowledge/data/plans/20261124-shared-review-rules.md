@@ -47,7 +47,7 @@ rules and output formats live.
 
 **Files:** Create: `.agents/plugins/agentdev/rules/review.md`
 
-- [ ] `.agents/plugins/agentdev/rules/review.md` holds exactly this text:
+- [x] `.agents/plugins/agentdev/rules/review.md` holds exactly this text:
 
 ``` markdown
 # Review rules
