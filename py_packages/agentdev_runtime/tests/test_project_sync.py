@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 
 from agentdev_runtime import project
-from agentdev_runtime.settings import DEVCONTAINER, Settings
+from agentdev_runtime.settings import Settings
 import pytest
 
 
@@ -30,7 +30,6 @@ def settings_for(checkout: Path) -> Settings:
     return Settings(
         {
             **os.environ,
-            'AGENTDEV_RUNTIME_MODE': DEVCONTAINER,
             'AGENTDEV_VENV_ROOT': str(root),
             'DEV_WORKSPACE_FOLDER': str(checkout),
         }

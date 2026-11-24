@@ -56,7 +56,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so a digest bump runs this
     # required check inside the new image.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:1e4a41f900a6744d8e785370d460cde1972b5adf712070bfceebd48bc70e8603
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:6727eedaafe79900d2aa85e23351ace77df1e37d0ddbb17d0a53300087321a96
     timeout-minutes: 15
     steps:
       - name: Checkout repository
@@ -67,6 +67,8 @@ jobs:
       # The hook's bunx pin is the Renovate release the bot runs, and --no-global is
       # necessary: see ADR-0052.
       - name: Validate .github/renovate.json
+        env:
+          RENOVATE_X_IGNORE_RE2: 'true'
         run: |
           rev=$(sed -nE 's/.*bunx --package renovate@([0-9][^ ]*) .*/\1/p' \
             .pre-commit-config.yaml | head -n 1)

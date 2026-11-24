@@ -41,6 +41,7 @@ update.code.visualstudio.com
 *.gallerycdn.vsassets.io
 
 # The rest of the dev image: Ubuntu, container registries and tooling
+snapshot.ubuntu.com
 security.ubuntu.com
 archive.ubuntu.com
 ports.ubuntu.com
@@ -49,7 +50,5 @@ ghcr.io
 registry-1.docker.io
 auth.docker.io
 production.cloudflare.docker.com
-deb.nodesource.com
-apt.kitware.com
-cli.github.com
+xpra.org
 bun.com

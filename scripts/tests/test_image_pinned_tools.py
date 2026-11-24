@@ -1,4 +1,4 @@
-"""The image's pinned hook binaries report the versions dev_tools pins."""
+"""Pinned hook binaries in the image report the versions pinned-tools.yml pins."""
 
 from __future__ import annotations
 
@@ -10,12 +10,12 @@ import pytest
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEV_TOOLS = REPO_ROOT / 'ansible/roles/dev_tools/defaults/main.yml'
+PINNED_TOOLS = REPO_ROOT / 'docker/devcontainer/pinned-tools.yml'
 VERSION_COMMANDS = {'gitleaks': ['version'], 'actionlint': ['--version']}
 
 
 def pinned(name: str) -> str:
-    tools = yaml.safe_load(DEV_TOOLS.read_text())['dev_tools_pinned_tools']
+    tools = yaml.safe_load(PINNED_TOOLS.read_text())['tools']
     return next(t['version'] for t in tools if t['name'] == name).removeprefix('v')
 
 

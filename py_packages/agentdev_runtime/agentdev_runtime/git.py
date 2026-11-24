@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
@@ -29,28 +27,13 @@ def safe_directory(settings: env.Settings) -> int:
     return 0
 
 
-def keyring_environment(path: Path) -> dict[str, str]:
-    """Return the environment a saved keyring-session file exports, so gh reaches the keyring."""
-    if not path.is_file():
-        return dict(os.environ)
-    result = subprocess.run(
-        ['bash', '-c', 'set -a; source "$1"; env -0', 'keyring-session', str(path)],
-        capture_output=True,
-        check=True,
-    )
-    pairs = (item.split(b'=', 1) for item in result.stdout.split(b'\0') if b'=' in item)
-    return {key.decode(): value.decode() for key, value in pairs}
-
-
 def credential_helper(settings: env.Settings) -> int:
     """Make HTTPS git reuse gh's login, unless another helper is already configured."""
-    environ = keyring_environment(settings.path('AGENTDEV_KEYRING_ENV_FILE'))
-    if shutil.which('gh', path=environ.get('PATH')) is None:
+    if shutil.which('gh') is None:
         print('gh is not installed; skipping git credential helper setup.')
         return 0
     status = subprocess.run(
         ['gh', 'auth', 'status', '--hostname', 'github.com'],
-        env=environ,
         capture_output=True,
         check=False,
     )
@@ -59,7 +42,6 @@ def credential_helper(settings: env.Settings) -> int:
         return 0
     existing = subprocess.run(
         ['git', 'config', '--get-urlmatch', 'credential.helper', 'https://github.com'],
-        env=environ,
         capture_output=True,
         text=True,
         check=False,
@@ -70,7 +52,7 @@ def credential_helper(settings: env.Settings) -> int:
         )
         return 0
     sys.stdout.flush()
-    subprocess.run(['gh', 'auth', 'setup-git'], env=environ, check=True)
+    subprocess.run(['gh', 'auth', 'setup-git'], check=True)
     print('Configured gh as the git credential helper.')
     return 0
 

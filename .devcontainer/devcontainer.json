@@ -9,8 +9,8 @@
     "../devcontainer-compose-pins.yml"
   ],
   "service": "devcontainer",
-  // agentdev-devcontainer supplies the lifecycle commands, waitFor, and the supervised
-  // services, nested Docker included, through its image metadata; see
+  // agentdev-devcontainer supplies the lifecycle commands, waitFor, and its volumes through
+  // its image metadata; systemd in the image runs the services, nested Docker included. See
   // ADR-0031. A declaration here too runs each command two times.
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "containerEnv": {
@@ -26,7 +26,7 @@
     // uv's cache, interpreters, and pre-commit's cache are at their default places on the home volume,
     // never on a volume inside the checkout.
     // Each checkout's .venv links to its own environment here: see ADR-0081.
-    "AGENTDEV_VENV_ROOT": "/home/agent/.local/share/uv/venvs"
+    "AGENTDEV_VENV_ROOT": "/home/dev/.local/share/uv/venvs"
   },
 
   "forwardPorts": [14500],
@@ -61,8 +61,6 @@
         "tamasfe.even-better-toml",
         "redhat.vscode-yaml",
         "redhat.vscode-xml",
-        "redhat.ansible",
-        "ipierre1.ansible-vault-vscode",
         "samuelcolvin.jinjahtml",
         "davidanson.vscode-markdownlint",
         "esbenp.prettier-vscode",
@@ -110,15 +108,6 @@
         "ruff.fixAll": true,
         "ruff.lint.enable": true,
 
-        "ansible.ansible.path": "${workspaceFolder}/.venv/bin/ansible",
-        "ansible.python.interpreterPath": "${workspaceFolder}/.venv/bin/python3",
-        "ansible.validation.lint.path": "${workspaceFolder}/.venv/bin/ansible-lint",
-        "ansible.mcpServer.enabled": true,
-        "files.associations": {
-          "**/ansible/**/*.yml": "ansible",
-          "**/ansible/**/*.yaml": "ansible"
-        },
-
         "cmake.configureOnEdit": false,
         "cmake.configureOnOpen": false,
         "cmake.cmakePath": "cmake",
@@ -146,7 +135,6 @@
           "agentdev",
           "devcontainer",
           "dotfiles",
-          "fisher",
           "hadolint",
           "iwes",
           "noqa",

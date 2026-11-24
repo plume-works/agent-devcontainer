@@ -10,7 +10,7 @@ from uuid import uuid4
 import pytest
 from scratch import TMP_ROOT
 
-WRAPPER = Path(__file__).parents[2] / 'ansible/roles/github_cli/files/gh'
+WRAPPER = Path(__file__).parents[2] / 'docker/devcontainer/gh'
 TOOLS = ('bash', 'sh', 'git', 'timeout', 'grep', 'cut', 'readlink', 'printf', 'cat')
 REAL_GH = '#!/usr/bin/env bash\necho "token=${GH_TOKEN:-} args=$*"\n'
 HELPER = '!f() { echo username=x-access-token; echo password=helper-token; }; f'

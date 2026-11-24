@@ -257,9 +257,8 @@ retitled spec.
 
 - Moving or editing finished plans, fixed bugs, `log.md`, or release notes here.
 - The documents of this repository's features that run on Coder (Remote Control
-  and OpenCode autostart, the shared BuildKit builder) and the active [shared
-  BuildKit plan](../../../someday/shared-buildkit-builder.md), whose template
-  task keeps naming `coder-ide-baseline`.
+  and OpenCode autostart, the shared BuildKit builder) and the active shared
+  BuildKit plan, whose template task keeps naming `coder-ide-baseline`.
 - Adopting the agentdev catalog or a root `AGENTS.md` in `coder-ide-baseline`
   (`/agentdev:template-consume`); until then, IWE skills reach that workspace
   only from a session that has the catalog.

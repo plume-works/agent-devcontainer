@@ -16,7 +16,7 @@ import pytest
 LIFECYCLE = """
 import os, sys
 from pathlib import Path
-from agentdev_runtime import agent_state, catalog, git, health, lifecycle, project, workspace
+from agentdev_runtime import agent_state, catalog, git, health, lifecycle, project
 
 state = Path(os.environ['LIFECYCLE_STATE'])
 
@@ -29,16 +29,20 @@ git.safe_directory = lambda settings: record('agentdev-runtime git safe-director
 git.credential_helper = lambda settings: record('agentdev-runtime git credential-helper')
 agent_state.create = lambda settings: record('agentdev-runtime state create')
 agent_state.apply_agent_policy = lambda: record('agentdev-runtime state agent-policy')
-workspace.Workspace.project = lambda self: record('agentdev-runtime workspace project')
+project.prepare = lambda settings: record('agentdev-runtime project prepare')
 catalog.install = lambda settings, root, scope: record(
     f'agentdev-runtime catalog install {root}' + (f' --claude-scope {scope}' if scope else '')
 )
 project.sync = lambda settings: record('agentdev-runtime project sync')
-health.ready = lambda settings: 0 if (state / 'ready').exists() else 1
+health.ready = lambda: 0 if (state / 'ready').exists() else 1
 
-def status(settings):
-    current = (state / 'state').read_text() if (state / 'state').exists() else 'pending'
-    print(f'runtime state: {current}')
+def unit_state():
+    return (state / 'state').read_text() if (state / 'state').exists() else 'activating'
+
+health.failed = lambda units=health.CORE_UNITS: ['agentdev-created.service'] if unit_state() == 'failed' else []
+
+def status():
+    print(f'agentdev-created.service: {unit_state()}')
     return 1
 
 health.status = status
@@ -95,7 +99,6 @@ class Lifecycle:
             'AGENTDEV_LIFECYCLE_DIR': str(self.root / 'lifecycle'),
             'AGENTDEV_HOOKS_ROOT': str(self.hooks),
             'AGENTDEV_CATALOG_DIR': str(self.staged),
-            'AGENTDEV_RUN_DIR': str(self.root / 'run'),
             'AGENTDEV_READY_TIMEOUT': '3',
             'LIFECYCLE_STATE': str(self.state),
             'CALL_LOG': str(self.log),
@@ -151,7 +154,7 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
     assert lifecycle.calls() == [
         'agentdev-runtime git safe-directory',
         'agentdev-runtime state create',
-        'agentdev-runtime workspace project',
+        'agentdev-runtime project prepare',
         f'agentdev-runtime catalog install {lifecycle.staged} --claude-scope user',
         'hook created/10-first created',
         'hook created/20-second created',
@@ -219,7 +222,7 @@ def test_wait_fails_when_the_runtime_fails_before_the_create_phase(lifecycle):
     (lifecycle.state / 'state').write_text('failed')
     result = lifecycle.run('created', '--wait')
     assert result.returncode == 1
-    assert 'the runtime failed before the create phase finished' in result.stderr
+    assert 'a runtime unit failed before the create phase finished' in result.stderr
 
 
 def test_wait_gives_up_after_the_ready_timeout(lifecycle):
@@ -248,8 +251,8 @@ def test_start_fails_when_the_runtime_failed(lifecycle):
     (lifecycle.state / 'state').write_text('failed')
     result = lifecycle.run('ready', AGENTDEV_READY_TIMEOUT='30')
     assert result.returncode == 1
-    assert 'the runtime failed; the editor cannot attach' in result.stderr
-    assert 'runtime state: failed' in result.stderr
+    assert 'a runtime unit failed; the editor cannot attach' in result.stderr
+    assert 'agentdev-created.service: failed' in result.stderr
     assert lifecycle.calls() == []
 
 
@@ -346,7 +349,7 @@ def test_a_hook_root_inside_the_workspace_is_refused(lifecycle):
     assert not (inside / 'attached.d/x.ran').exists()
 
 
-def test_a_start_without_a_supervisor_runs_the_start_steps(lifecycle):
+def test_a_start_told_not_to_wait_runs_the_start_steps(lifecycle):
     assert_ok(lifecycle.run('ready', '--no-wait'))
     assert lifecycle.calls() == START_STEPS
 

@@ -4,7 +4,6 @@ stage: pending
 severity: medium
 description: Sessions spawned by `claude remote-control` on an agentdev container receive Claude Code's cloud-session instructions, which wrongly state that the session runs in Anthropic's cloud without `gh`, and those instructions override this repository's own workflow.
 sources:
-- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: .claude/startup.py
 - resource: docs/knowledge/data/archive/2.0.0/architecture/claude-remote-control-server-mode.md
 - resource: https://code.claude.com/docs/en/remote-control
@@ -15,7 +14,7 @@ sources:
 
 ## Symptom
 
-A session spawned by `claude remote-control` on a Coder workspace is told it
+A session spawned by `claude remote-control` in an agentdev container is told it
 runs in a managed cloud environment. The instructions state that `gh` is
 unavailable and may be used only for search, and that every other GitHub
 operation goes through `mcp__github__` tools. None of that holds on the
@@ -29,8 +28,7 @@ its own commit, push, attribution, and pull-request rules on top of `AGENTS.md`.
 
 ## Reproduction
 
-1. Run with the default `AGENTDEV_CLAUDE_RC_SPAWN`, so the `claude-remote` tmux
-   session runs `claude remote-control --spawn worktree`.
+1. In the container, run `claude remote-control --spawn worktree`.
 2. Start a session from claude.ai or the Claude app.
 3. On the workspace, read
    `~/.claude/bridge-spawn/<session>/append-system-prompt.txt`.
@@ -71,11 +69,10 @@ The text cannot be removed from this side, so the workspace has to state the
 facts that correct it, and the defect should be reported to Anthropic.
 
 - **Correct it at session start.** Have the repository's `SessionStart` hook,
-  `.claude/startup.py`, detect `CLAUDE_CODE_ENVIRONMENT_KIND=bridge` together
-  with `AGENTDEV_RUNTIME_MODE`, and add context saying this is the user's own
-  workspace, that `gh` is the GitHub client, and that `AGENTS.md` governs. It
-  applies only where the text is wrong, and needs no change to the session's
-  launch.
+  `.claude/startup.py`, detect `CLAUDE_CODE_ENVIRONMENT_KIND=bridge` inside the
+  agentdev image, and add context saying this is the user's own workspace, that
+  `gh` is the GitHub client, and that `AGENTS.md` governs. It applies only where
+  the text is wrong, and needs no change to the session's launch.
 - **State the precedence in `AGENTS.md`.** One rule, for any harness instruction
   that describes the environment, covers text the hook cannot anticipate.
 

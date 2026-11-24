@@ -11,13 +11,12 @@
     "commands": ["scripts/renovate-post-upgrade.py"],
     "executionMode": "branch",
     "fileFilters": [
-      "ansible/**",
+      ".claude/startup.py",
       ".agents/plugins/agentdev/bin/macos-bootstrap.zsh",
       ".agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/.iwe/**",
       "docs/knowledge/**",
       ".devcontainer/**",
       "devcontainer-compose-pins.yml",
-      "opencode-compose-pins.yml",
       "docker/**",
       ".github/actions/**",
       ".github/workflows/**",
@@ -31,10 +30,7 @@
     "enabled": true
   },
   "docker-compose": {
-    "managerFilePatterns": [
-      "/(^|/)devcontainer-compose-pins\\.ya?ml$/",
-      "/(^|/)opencode-compose-pins\\.ya?ml$/"
-    ]
+    "managerFilePatterns": ["/(^|/)devcontainer-compose-pins\\.ya?ml$/"]
   },
   "packageRules": [
     {
@@ -43,56 +39,45 @@
       "minimumReleaseAge": "10 days"
     },
     {
-      "description": "agentdev-devcontainer and agentdev-deploy are built by this repository's own pipeline, so their edge digest bumps share one pull request and skip the release-age wait and the daily window (ADR-0098). Each pin lives outside the CI image path filter (devcontainer-compose-pins.yml, opencode-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. CI moves agentdev-deploy's edge only to digests that passed native acceptance. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
+      "description": "agentdev-devcontainer is built by this repository's own pipeline, so its edge digest bumps skip the release-age wait and the daily window (ADR-0098). The pin lives outside the CI image path filter (devcontainer-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
       "matchDatasources": ["docker"],
-      "matchPackageNames": [
-        "ghcr.io/plume-works/agentdev-devcontainer",
-        "ghcr.io/plume-works/agentdev-deploy"
-      ],
+      "matchPackageNames": ["ghcr.io/plume-works/agentdev-devcontainer"],
       "groupName": "agentdev image digests",
       "schedule": ["at any time"],
       "minimumReleaseAge": null
     },
     {
-      "description": "The image's Ubuntu base release is not bumped by Renovate: it stays at 24.04 because downstream consumers depend on that release. Another Ubuntu release ships as a separately named image tag with an explicit base, never as a bump of this one.",
-      "matchManagers": ["dockerfile"],
-      "matchFileNames": ["docker/ansible/Dockerfile"],
-      "matchDepNames": ["ubuntu"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "enabled": false
+      "description": "The base image publishes only `edge`, so Renovate moves its digest. A bump edits the image Dockerfile, which rebuilds and accepts the image from the new base before it can merge. That is what makes automerge safe here.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/plume-works/devcontainer-base"],
+      "groupName": "plume-works base image"
     },
     {
-      "description": "The 24.04 base's digest moves weekly, which is the images' scheduled clean rebuild. A bump edits docker/ansible/Dockerfile, which rebuilds and accepts every image from the new base before it can merge. That is what makes automerge safe here.",
-      "matchManagers": ["dockerfile"],
-      "matchFileNames": ["docker/ansible/Dockerfile"],
-      "matchDepNames": ["ubuntu"],
-      "matchUpdateTypes": ["digest"],
-      "schedule": ["* 0-3 * * 1"]
-    },
-    {
-      "description": "The provisioning tools the Ansible roles pin, including the checksum-carrying downloads, and the macOS bootstrap's pins of the same release tools, so a tool's Linux and macOS pins move in one pull request. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a pin half-updated. That is what makes batching and automerge safe here.",
+      "description": "The image's pinned tools, including the checksum-carrying downloads, and the macOS bootstrap's pins of the same release tools, so a tool's Linux and macOS pins move in one pull request. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a pin half-updated. That is what makes batching and automerge safe here.",
       "matchManagers": ["custom.regex"],
       "matchFileNames": [
-        "ansible/roles/*/defaults/main.yml",
+        "docker/devcontainer/pinned-tools.yml",
         ".agents/plugins/agentdev/bin/macos-bootstrap.zsh"
       ],
-      "groupName": "ansible role dependency pins"
+      "groupName": "image tool pins"
     },
     {
-      "description": "uv is pinned twice: the setup-python-venv action input CI runs on, and the uv_setup role the image ships. Grouping them keeps both in one PR so CI never validates against a different uv than the image carries.",
+      "description": "uv and Bun are pinned where the image's base does not reach: the setup-python-venv action input CI runs on, and the cloud-session startup script. Grouping each keeps its pins in one pull request.",
       "matchDepNames": ["astral-sh/uv"],
       "groupName": "uv"
+    },
+    {
+      "matchDepNames": ["oven-sh/bun"],
+      "groupName": "bun"
     }
   ],
   "customManagers": [
     {
-      "description": "Versions of the checksum-carrying tools in dev_tools_pinned_tools: an entry's unquoted `version:` field, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
+      "description": "Versions of the checksum-carrying tools in docker/devcontainer/pinned-tools.yml: an entry's `version:` field, quoted or not, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
       "customType": "regex",
-      "managerFilePatterns": [
-        "/^ansible/roles/dev_tools/defaults/main\\.yml$/"
-      ],
+      "managerFilePatterns": ["/^docker/devcontainer/pinned-tools\\.yml$/"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\n\\s*version: (?<currentValue>\\S+)"
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\n\\s*version: \"?(?<currentValue>[^\"\\s]+)\"?"
       ]
     },
     {
@@ -106,13 +91,14 @@
       ]
     },
     {
-      "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it that may name an extractVersion or a versioning scheme.",
+      "description": "Versions in the image Dockerfile's `ARG <NAME>_VERSION=` lines and the cloud-session startup script's `<NAME>_VERSION = '...'` constants, each under a `# renovate:` comment that may name an extractVersion.",
       "customType": "regex",
-      "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
+      "managerFilePatterns": [
+        "/^docker/devcontainer/agentdev-devcontainer\\.Dockerfile$/",
+        "/^\\.claude/startup\\.py$/"
+      ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) versioning=(?<versioning>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\""
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s*\\n(?:ARG [A-Z0-9_]+=|[A-Z0-9_]+ = ')(?<currentValue>[^'\\s]+)"
       ]
     },
     {

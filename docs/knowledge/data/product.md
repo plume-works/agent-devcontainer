@@ -8,61 +8,61 @@ stage: living
 
 ## What is it
 
-A general-purpose, Ansible-provisioned devcontainer built for agent-driven
-development, published as `ghcr.io/plume-works/agentdev-devcontainer`.
+A general-purpose devcontainer built for agent-driven development, published as
+`ghcr.io/plume-works/agentdev-devcontainer` and built on
+`ghcr.io/plume-works/devcontainer-base`.
 
 The repository has three responsibilities in one checkout: it publishes the
-agentdev image family (Python + Node, nested Docker, an Xpra remote desktop,
-Claude Code and OpenCode preinstalled, an opt-in egress firewall), it publishes
+`agentdev-devcontainer` image (the base image's toolchain, nested Docker, and
+Claude Code and OpenCode, plus an Xpra remote desktop, Playwright, the staged
+catalog, an opt-in egress firewall, and the lifecycle commands), it publishes
 the `agentdev` catalog of agents and skills for Claude Code and OpenCode, and it
-carries reusable devcontainer scaffolding. Other projects point a descriptor at
-`agentdev-devcontainer` or derive their own image from it; the lifecycle
-implementation always comes from the image. A project adopting it gets a
-digital-pinned, reproducible agent development environment without building its
-own container tooling.
+carries the devcontainer descriptor this repository develops in. Other projects
+point a descriptor at `agentdev-devcontainer` or derive their own image from it;
+the lifecycle implementation always comes from the image. A project adopting it
+gets a digest-pinned, reproducible agent development environment without
+building its own container tooling.
 
 ## Users
 
 Two audiences, matching the repo's own dual role:
 
-- **This repository's maintainers** — build and evolve the agentdev images, the
-  `agentdev` catalog (agents and skills), and the Ansible/Docker publishing
-  pipeline itself.
+- **This repository's maintainers** — build and evolve the image, the `agentdev`
+  catalog (agents and skills), and the image publishing pipeline itself.
 - **Consuming-project developers** — point their own devcontainer at the
-  published image, or copy the template surface into an existing repository, to
-  get the same environment and agent catalog without building it themselves.
+  published image, or derive an image from it, to get the same environment and
+  agent catalog without building it themselves.
 
 Built internal-first for plume-works' own projects: external reuse is welcome
-and supported (the template/copy workflow exists deliberately), but it is not
-the driver of design decisions — internal needs come first.
+and supported, but it is not the driver of design decisions — internal needs
+come first.
 
 ## Platforms
 
-- **Distribution**: multi-arch (`linux/amd64` + `linux/arm64`) container images
-  on GHCR, pinned by tag *and* digest (`devcontainer-compose-pins.yml`), kept
-  current by Renovate: `ubuntu-ansible`, the lifecycle-neutral `agentdev-base`
-  (tools and the staged catalog), and its siblings `agentdev-devcontainer` and
-  `agentdev-deploy`, each built from the same run's `agentdev-base` digest.
+- **Distribution**: one multi-arch (`linux/amd64` + `linux/arm64`) image on
+  GHCR, `agentdev-devcontainer`, pinned by tag *and* digest
+  (`devcontainer-compose-pins.yml`) and kept current by Renovate. Its base,
+  `ghcr.io/plume-works/devcontainer-base`, is pinned by tag and digest in
+  `docker/devcontainer/agentdev-devcontainer.Dockerfile`.
   - Consumed via VS Code / any `devcontainer.json`-compatible tool (Dev
-    Containers spec), or GitHub Codespaces.
-- **Standalone runtime**: `ghcr.io/plume-works/agentdev-deploy:edge` starts one
-  project's OpenCode server and its supporting services by itself. It is
-  deployed with the root `compose.opencode.yml` behind an operator's existing
-  reverse proxy, with its digest pinned in `opencode-compose-pins.yml`.
-- **Host requirement**: a Docker daemon (the runtime images supervise their own
-  nested Docker engine for nested builds).
-- **Base OS**: Ubuntu, provisioned with Ansible.
-- **Deliberately not supported**: no non-container/bare-metal install path; the
-  environment is only distributed as a container image plus copyable
-  devcontainer scaffolding, not as a standalone installer.
+    Containers spec), in privileged mode.
+- **Host requirement**: a Docker daemon that can run a privileged container: the
+  image runs systemd as PID 1 and its own nested Docker engine.
+- **Base OS**: Ubuntu 26.04, with apt pinned to the base image's dated archive
+  snapshot.
+- **Deliberately not supported**: GitHub Codespaces; a standalone runtime that
+  serves an agent without an editor (plume-works' Coder template image fills
+  that role); a non-container/bare-metal install path.
 
 ## Stack
 
 - **Languages**: Python (`uv`-managed, `requires-python >= 3.12`) and shell
-  (bash, `set -euo pipefail`, shellcheck-clean) for tooling; Ansible YAML for
-  provisioning; the devcontainer/catalog surfaces are JSON/YAML/Markdown.
+  (bash, `set -euo pipefail`, shellcheck-clean) for tooling; one plain
+  Dockerfile and systemd units for the image; the devcontainer/catalog surfaces
+  are JSON/YAML/Markdown.
 - **Package/build tools**: `uv` for Python, `bun` for JavaScript — see
-  `AGENTS.md` at the repository root. Never install packages globally.
+  `AGENTS.md` at the repository root. Never install packages globally. The image
+  carries no Node.js.
 - **Key entry points**:
   - `pyproject.toml` — root Python project (`agent-devcontainer`), dev
     dependency group only, `package = false`.
@@ -73,40 +73,42 @@ the driver of design decisions — internal needs come first.
     catalog for Claude Code and OpenCode (agents, skills, `bin/` scripts); this
     directory is the source of truth, everything else under `.claude-plugin/`
     and the reinstall scripts is derived.
-  - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
-  - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
-    — image build.
+  - `docker/devcontainer/` — the image build: its Dockerfile, the systemd units
+    under `systemd/`, and `pinned-tools.yml`, the checksum-pinned release tools
+    that `scripts/fetch-pinned-tool.py` installs.
   - `.devcontainer/` — the devcontainer descriptor and the firewall allowlist.
-  - `py_packages/agentdev_runtime/` — the `agentdev-runtime` CLI both runtime
-    images install as a uv tool: PID 1 and its supervisor, the health probes,
-    every supervised service, the lifecycle commands, the firewall, and Xpra.
-- **Tests**: two independent pytest suites declared in `pyproject.toml`'s
-  `testpaths` — `.agents/plugins/agentdev/tests/` (catalog script behavior, via
-  a `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
-  `validate_agent_files` package, must pass with no knowledge of this
-  repository:
-  `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`).
-  Run both from root with `uv run pytest`.
+  - `py_packages/agentdev_runtime/` — the `agentdev-runtime` CLI the image
+    installs as a uv tool: the root bootstrap, the health probes, the lifecycle
+    commands, the firewall, and Xpra. systemd supervises the services.
+- **Tests**: pytest suites declared in `pyproject.toml`'s `testpaths` —
+  `.agents/plugins/agentdev/tests/` (catalog script behavior, via a
+  `plugin_root` fixture, not repo-relative paths), `docs/knowledge/tests/`,
+  `py_packages/` (including `validate_agent_files`, which must pass with no
+  knowledge of this repository:
+  `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`),
+  and `scripts/tests/`. Run them from root with `uv run pytest`.
 - **Lint/format**: ruff (Python, 99-char line limit per `.ruff.toml`, not 79),
-  ansible-lint, shellcheck, clang-format, Prettier — applied locally by the
+  hadolint, shellcheck, clang-format, Prettier — applied locally by the
   pre-commit hooks that run on every commit, and gated in CI by the same hooks
   in the `pre-commit` job of `primary-checks.yml`.
-- **CI**: GitHub Actions — `ci.yml` (image build/publish), `primary-checks.yml`,
-  `validate-agent-files.yml`, `validate-knowledge-base.yml`,
-  `delete-old-containers.yml`.
+- **CI**: GitHub Actions — `ci.yml` (image build, acceptance, and publish),
+  `primary-checks.yml`, `validate-agent-files.yml`,
+  `validate-knowledge-base.yml`, `validate-renovate-config.yml`, `renovate.yml`,
+  `ai-responder.yml`, `delete-old-containers.yml`.
 
 ## Constraints
 
 - Images are pinned by tag **and** digest everywhere they're consumed
-  (`devcontainer-compose-pins.yml`); moving off a pin is a deliberate
-  Renovate-driven update, never a silent float.
+  (`devcontainer-compose-pins.yml`, the image's `FROM`); moving off a pin is a
+  deliberate Renovate-driven update, never a silent float.
 - The staged `agentdev` catalog inside the image is root-owned and read-only;
   updating it requires rebuilding the image, not a runtime patch.
 - `py_packages/validate_agent_files` must remain installable and testable with
   zero knowledge of this repository — it is released independently.
-- `agentdev-runtime firewall apply`, run as root by the runtime bootstrap, is
-  inert by default (`ENABLE_FIREWALL` opt-in); when enabled, it default-DROPs
-  IPv4 egress and blocks IPv6 entirely, self-verifying at start.
+- `agentdev-runtime firewall apply`, run as root by the root bootstrap before
+  the nested Docker engine starts, is inert by default (`ENABLE_FIREWALL`
+  opt-in); when enabled, it default-DROPs IPv4 egress and blocks IPv6 entirely,
+  self-verifying at start.
 - License: MIT.
 
 No additional performance budgets, compatibility promises, or privacy/security

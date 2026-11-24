@@ -51,7 +51,7 @@
       "Bash(git *)",
       "Bash(.agents/plugins/*/skills/*/agent-code/*)",
       "Bash(/root/.claude/plugins/cache/agent-devcontainer/*)",
-      "Bash(/home/agent/.claude/plugins/cache/agent-devcontainer/*)",
+      "Bash(/home/dev/.claude/plugins/cache/agent-devcontainer/*)",
       "Bash(gh)",
       "Bash(gh *)",
       "Bash(mkdir *)",

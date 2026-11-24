@@ -300,8 +300,8 @@ helper.
 
 - Pruning Docker volumes, containers, or networks.
 - Replacing the Dev Container engine with docker-outside-of-docker.
-- Sharing build cache between workspaces: [Share one BuildKit builder across
-  Coder workspaces](../../../someday/shared-buildkit-builder.md).
+- Sharing build cache between workspaces: Share one BuildKit builder across
+  Coder workspaces.
 - Deduplicating storage at the host filesystem: [Deduplicate Docker storage at
   the host filesystem](../../../someday/host-filesystem-dedup.md).
 

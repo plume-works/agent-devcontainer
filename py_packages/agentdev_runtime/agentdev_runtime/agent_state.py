@@ -1,4 +1,4 @@
-"""Agent state shared by the Dev Container lifecycle and deploy startup."""
+"""Agent state the Dev Container lifecycle prepares: credentials, policy, and pre-approval."""
 
 from __future__ import annotations
 
@@ -27,10 +27,6 @@ class StateError(Exception):
     def __init__(self, message: str, status: int = 1) -> None:
         super().__init__(message)
         self.status = status
-
-
-def deploy(settings: env.Settings) -> bool:
-    return settings.raw('AGENTDEV_RUNTIME_MODE') == env.DEPLOY
 
 
 @contextmanager

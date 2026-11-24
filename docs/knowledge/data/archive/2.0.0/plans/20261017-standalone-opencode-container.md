@@ -2000,8 +2000,7 @@ Recorded 2026-10-18 at `afae3a2`.
 - An automated end-to-end test through a real Traefik deployment; the maintainer
   covers real proxy routing, TLS, and WebSocket sessions in Task 16.
 - Stopping and restarting a recovering dependency's dependents in order:
-  [Dependency-ordered service
-  recovery](../../../someday/dependency-ordered-recovery.md).
+  Dependency-ordered service recovery.
 - A separate pre-commit environment warm-up job, and any change to devcontainer
   pre-commit installation or devcontainer `AGENTDEV_SKIP_XPRA` parsing.
 

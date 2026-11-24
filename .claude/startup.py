@@ -42,11 +42,14 @@ DOCKER_BRIDGE_CIDR = '10.213.0.1/24'
 RELAY_HOST = DOCKER_BRIDGE_CIDR.split('/')[0]
 DOCKER_WAIT_SECONDS = 30
 LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
-# Ansible's apt module needs apt's bindings, built only for the system Python 3.12.
-# See ADR-0071.
-ANSIBLE_PYTHON = '/usr/bin/python3.12'
-# The ansible playbook's roles that put every pre-commit hook's binary on PATH.
-TOOLCHAIN_TAGS = 'dev_tools,bun_setup,uv_setup'
+# The image gets uv and Bun from its base image; a cloud host gets the same versions here.
+# renovate: datasource=github-releases depName=astral-sh/uv
+UV_VERSION = '0.13.9'
+# renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.+)$
+BUN_VERSION = '1.4.5'
+# The pinned tools whose binaries the pre-commit hooks run.
+HOOK_TOOLS = ('zizmor', 'gitleaks', 'actionlint', 'hadolint', 'shellcheck', 'iwe')
+TOOL_DIR = '/usr/local/bin'
 HOOK_TYPES = ('pre-commit', 'commit-msg', 'pre-push', 'pre-merge-commit', 'post-checkout')
 # The session's placeholder GH_TOKEN fails zizmor's online audits:
 # see bugs/zizmor-online-audits-fail-in-cloud-devcontainer.
@@ -65,7 +68,7 @@ def log(message: str) -> None:
 def run(*command: str, env: Mapping[str, str] | None = None) -> None:
     """Run a command in the checkout with its output on stderr, raising when it fails."""
     for stream in (sys.stdin, sys.stdout, sys.stderr):
-        os.set_blocking(stream.fileno(), True)  # Ansible aborts on non-blocking handles.
+        os.set_blocking(stream.fileno(), True)  # Installers abort on non-blocking handles.
     subprocess.run(command, cwd=REPO_ROOT, env=env, stdout=sys.stderr, check=True)
 
 
@@ -79,8 +82,8 @@ def output(*command: str) -> str:
 
 
 def is_cloud_host(environ: Mapping[str, str]) -> bool:
-    """Tell a cloud session's host from the devcontainer, which sets AGENTDEV_RUNTIME_MODE."""
-    return environ.get('CLAUDE_CODE_REMOTE') == 'true' and not environ.get('AGENTDEV_RUNTIME_MODE')
+    """Tell a cloud session's host from the devcontainer, whose image sets AGENTDEV_USER."""
+    return environ.get('CLAUDE_CODE_REMOTE') == 'true' and not environ.get('AGENTDEV_USER')
 
 
 def proxy_port(environ: Mapping[str, str]) -> int | None:
@@ -271,15 +274,31 @@ def add_session_env() -> None:
 
 
 def provision_toolchain(environ: Mapping[str, str]) -> None:
-    """Install Ansible, then the pinned tools the image's toolchain roles install."""
+    """Install uv and Bun at the image's versions, then the hooks' pinned tools."""
     log('Provisioning the project toolchain on the host')
-    run('bash', 'docker/ansible/setup-ansible.sh')
     run(
-        'ansible-playbook',
-        'ansible/playbooks/setup-dev.yml',
-        '--tags',
-        TOOLCHAIN_TAGS,
-        env={**environ, 'ANSIBLE_LOG_PATH': '', 'ANSIBLE_PYTHON_INTERPRETER': ANSIBLE_PYTHON},
+        'bash',
+        '-c',
+        f'curl -LsSf https://astral.sh/uv/{UV_VERSION}/install.sh'
+        f' | env UV_INSTALL_DIR={TOOL_DIR} UV_NO_MODIFY_PATH=1 sh',
+        env=environ,
+    )
+    run(
+        'bash',
+        '-c',
+        f'curl -fsSL https://bun.sh/install | env BUN_INSTALL=/usr/local bash -s bun-v{BUN_VERSION}',
+        env=environ,
+    )
+    run(
+        'uv',
+        'run',
+        '--no-project',
+        '--with',
+        'pyyaml',
+        'scripts/fetch-pinned-tool.py',
+        TOOL_DIR,
+        *HOOK_TOOLS,
+        env=environ,
     )
 
 

@@ -1,0 +1,105 @@
+# Pinned single-binary tools and packages the agentdev-devcontainer image installs on top of
+# its base image. scripts/fetch-pinned-tool.py downloads and verifies each entry; its docstring
+# gives the download URL scheme and the Renovate bump flow.
+tools:
+  - name: zizmor
+    # renovate: datasource=github-releases depName=zizmorcore/zizmor
+    version: v1.32.0
+    url_prefix: https://github.com/zizmorcore/zizmor/releases/download
+    asset_prefix: zizmor-
+    archives:
+      amd64:
+        target: x86_64-unknown-linux-gnu
+        checksum: bb110cc765eca9cd7efb2e284a956be5974c60027b0970f16397d86208a9957b
+      arm64:
+        target: aarch64-unknown-linux-gnu
+        checksum: cb152b207f815116d7fa1c1ee4614f61578803351395052908095e79adfd9fd0
+
+  # Run by the gitleaks and actionlint pre-commit hooks, so a hook needs no Go toolchain.
+  - name: gitleaks
+    # renovate: datasource=github-releases depName=gitleaks/gitleaks
+    version: v8.30.1
+    url_prefix: https://github.com/gitleaks/gitleaks/releases/download
+    asset_prefix: 'gitleaks_{bare_version}_'
+    archives:
+      amd64:
+        target: linux_x64
+        checksum: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+      arm64:
+        target: linux_arm64
+        checksum: e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
+
+  # The kjanat fork, because it accepts the `$/` self-repository syntax: see ADR-0067.
+  - name: actionlint
+    # renovate: datasource=github-releases depName=kjanat/actionlint
+    version: v1.17.1
+    url_prefix: https://github.com/kjanat/actionlint/releases/download
+    asset_prefix: 'actionlint_{bare_version}_'
+    archives:
+      amd64:
+        target: linux_amd64
+        checksum: 6bfe0f49f0e108b9b23732baf7de63bfa4d89174fa40f9cb98feb9676df3318f
+      arm64:
+        target: linux_arm64
+        checksum: 81fa498f30f5dfadcc87fff0ff073281703fc56e9b50bc523b415c69aef0cccc
+
+  # Run by the hadolint and shellcheck pre-commit hooks.
+  - name: hadolint
+    # renovate: datasource=github-releases depName=hadolint/hadolint
+    version: v2.15.1
+    url_prefix: https://github.com/hadolint/hadolint/releases/download
+    asset_prefix: hadolint-linux-
+    bare_binary: true
+    archives:
+      amd64:
+        target: x86_64
+        checksum: c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
+      arm64:
+        target: arm64
+        checksum: f6198ef8090f404dbb771abfee086eb8c48ac177f30da7fd3510aca35b344b5d
+
+  - name: shellcheck
+    # renovate: datasource=github-releases depName=koalaman/shellcheck
+    version: v0.11.0
+    url_prefix: https://github.com/koalaman/shellcheck/releases/download
+    asset_prefix: 'shellcheck-{version}.linux.'
+    extension: tar.xz
+    binaries_dir: 'shellcheck-{version}'
+    archives:
+      amd64:
+        target: x86_64
+        checksum: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+      arm64:
+        target: aarch64
+        checksum: 12b331c1d2db6b9eb13cfca64306b1b157a86eb69db83023e261eaa7e7c14588
+
+  # The tarball also ships iwec, the MCP server, which no agent config registers.
+  - name: iwe
+    # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
+    version: iwe-v0.34.0
+    url_prefix: https://github.com/iwe-org/iwe/releases/download
+    asset_prefix: '{version}-'
+    binaries: [iwe, iwes]
+    archives:
+      amd64:
+        target: x86_64-unknown-linux-gnu
+        checksum: 6e72216d8f48b71700b0b2a4583ce1939b1c42516f0ab4110e5d177d277f467e
+      arm64:
+        target: aarch64-unknown-linux-gnu
+        checksum: 488efe412fb9a92beb8067ab258394003905c07e1d11d1d90300b7087fb0fdc4
+
+  # Xpra's GPU path. The package file is installed with apt, so its dependencies resolve.
+  - name: virtualgl
+    # renovate: datasource=github-releases depName=VirtualGL/virtualgl
+    version: 3.1.5
+    url_prefix: https://github.com/VirtualGL/virtualgl/releases/download
+    asset_prefix: 'virtualgl_{version}_'
+    extension: deb
+    deb: true
+    archives:
+      amd64:
+        target: amd64
+        checksum: df3f7788ce41b182a47c0d298e5cd6d2d63579522cb41825970b7726e825485e
+      arm64:
+        target: arm64
+        checksum: 9ac238e8a18c06d84ef65444a591a7a5bb4c4ce9e8cfdd92f8a2aea35edbb5d7

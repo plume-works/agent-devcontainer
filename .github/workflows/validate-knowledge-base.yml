@@ -40,7 +40,7 @@ jobs:
             - docs/knowledge/**
             - .iwe
             - .agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/**
-            - ansible/roles/dev_tools/defaults/main.yml
+            - docker/devcontainer/pinned-tools.yml
             - scripts/fetch-pinned-tool.py
             - pyproject.toml
             - uv.lock
@@ -75,7 +75,7 @@ jobs:
       # The image's pin, so CI validates with the iwe that writes .iwe/config.toml.
       - name: Install the pinned iwe
         run: |
-          uv run --frozen scripts/fetch-pinned-tool.py iwe "$RUNNER_TEMP/iwe"
+          uv run --frozen scripts/fetch-pinned-tool.py "$RUNNER_TEMP/iwe" iwe
           echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
 
       - name: Validate every document against its schemas

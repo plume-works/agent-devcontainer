@@ -59,17 +59,6 @@ repos:
         files: '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$'
         args: [-style=file]
 
-      # The repository root: ansible.cfg lives there, so that is where the
-      # inventory and roles paths resolve from.
-      - id: ansible-lint
-        name: ansible-lint
-        entry: uv run ansible-lint -v --force-color
-        language: system
-        files: '^ansible/.*\.ya?ml$'
-        args: ['--project-dir=.']
-        pass_filenames: true
-        always_run: false
-
       - id: hadolint-docker
         name: Lint Dockerfiles
         entry: hadolint
@@ -134,10 +123,11 @@ repos:
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
 
       # Both flags, and why this pin is also the bot's and the workflow's
-      # Renovate version: see ADR-0052.
+      # Renovate version: see ADR-0052. Bun cannot load Renovate's re2 addon, which needs
+      # Node's V8 API, so Renovate uses native RegExp.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.257.6 renovate-config-validator --no-global --strict
+        entry: env RENOVATE_X_IGNORE_RE2=true bunx --package renovate@44.257.6 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 

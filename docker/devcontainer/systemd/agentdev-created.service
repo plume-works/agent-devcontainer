@@ -1,0 +1,17 @@
+[Unit]
+Description=agentdev create phase (once per container)
+Requires=agentdev-bootstrap.service
+After=agentdev-bootstrap.service docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=dev
+EnvironmentFile=/run/agentdev/container.env
+ExecStart=/usr/local/bin/agentdev-runtime lifecycle created
+TimeoutStartSec=30min
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

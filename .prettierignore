@@ -1,5 +1,3 @@
-ansible/**/*.yml
-ansible/**/*.yaml
 
 # docs/knowledge is normalized by `iwe normalize` (enforced in
 # validate-knowledge-base.yml), which disagrees with prettier on markdown

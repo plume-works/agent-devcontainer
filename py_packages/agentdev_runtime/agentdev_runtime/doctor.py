@@ -1,5 +1,5 @@
 """
-Read-only health report for the devcontainer or deploy runtime; exits 1 on any FAIL.
+Read-only health report for the Dev Container runtime; exits 1 on any FAIL.
 
 Run from the workspace root as the runtime user. It never prints auth output.
 """
@@ -20,7 +20,6 @@ REQUIRED_TOOLS = (
     'uv',
     'bun',
     'python3',
-    'node',
     'git',
     'gh',
     'docker',
@@ -31,7 +30,6 @@ REQUIRED_TOOLS = (
     'actionlint',
     'cmake',
     'ninja',
-    'ansible',
     'iwe',
     'xpra',
 )
@@ -95,12 +93,8 @@ def git_config(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(['git', 'config', *args], capture_output=True, text=True, check=False)
 
 
-def runtime(report: Report, mode: str) -> None:
+def runtime(report: Report) -> None:
     print('== Runtime ==')
-    if mode in env.PROFILES:
-        report.result('runtime mode', 'PASS', mode)
-    else:
-        report.result('runtime mode', 'FAIL', 'expected deploy or devcontainer')
     if shutil.which('agentdev-runtime'):
         report.check('runtime ready', 'agentdev-runtime', 'health', 'ready')
         report.check('runtime status', 'agentdev-runtime', 'health', 'status')
@@ -138,19 +132,6 @@ def services(report: Report, firewall: str) -> None:
         '{{.ServerVersion}} containers={{.Containers}} running={{.ContainersRunning}}',
     )
     report.check(
-        'dbus session',
-        'gdbus',
-        'call',
-        '--session',
-        '--dest',
-        'org.freedesktop.DBus',
-        '--object-path',
-        '/org/freedesktop/DBus',
-        '--method',
-        'org.freedesktop.DBus.GetId',
-    )
-    report.check('keyring', 'agentdev-runtime', 'keyring', 'check')
-    report.check(
         'xpra http :14500',
         'curl',
         '-fsS',
@@ -163,7 +144,6 @@ def services(report: Report, firewall: str) -> None:
         'http://127.0.0.1:14500/',
     )
     report.check('xpra process', 'bash', '-c', "pgrep -f '[x]pra' >/dev/null")
-    report.check('opencode probe', 'agentdev-runtime', 'opencode', 'probe')
     if firewall in TRUE_WORDS:
         report.check(
             'runtime firewall',
@@ -230,9 +210,8 @@ def main(argv: list[str]) -> int:
         print('usage: agentdev-runtime doctor', file=sys.stderr)
         return 2
     settings = env.Settings()
-    mode = settings.raw('AGENTDEV_RUNTIME_MODE') or env.DEVCONTAINER
     report = Report(timeout=float(settings.get('AGENTDEV_HEALTH_TIMEOUT')))
-    runtime(report, mode)
+    runtime(report)
     toolchain(report)
     ai_tools(report)
     services(report, settings.get('ENABLE_FIREWALL'))

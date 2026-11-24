@@ -29,9 +29,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   REGISTRY: ghcr.io
   REGISTRY_USERNAME: ${{ github.actor }} # for nektos/act, use your own username via --actor option
-  ANSIBLE_IMAGE_NAME: ubuntu-ansible
-  BASE_IMAGE_NAME: agentdev-base
-  DEPLOY_IMAGE_NAME: agentdev-deploy
   DEVCONTAINER_IMAGE_NAME: agentdev-devcontainer
 
 jobs:
@@ -61,8 +58,6 @@ jobs:
             # The image build context: the .dockerignore allow-list and what it lets through.
             - .dockerignore
             - docker/**
-            - ansible/**
-            - ansible.cfg
             - .claude-plugin/**
             - .agents/plugins/**
             - .agents/opencode-bridge/**
@@ -75,9 +70,6 @@ jobs:
             - uv.lock
             # scripts/tests runs the cloud session startup code from here.
             - .claude/*.py
-            # The devcontainer suite is the only check of the deployment compose files. The
-            # pins files stay out, so a pin bump never rebuilds the image it names.
-            - compose.opencode*.yml
             - .github/workflows/ci.yml
             - .github/actions/docker/**
             - .github/actions/ai-review-status/**
@@ -122,62 +114,8 @@ jobs:
             const found = pattern.test(commitMessage) || pattern.test(prBody);
             core.setOutput('found', found);
 
-      - name: Read Playwright version from the Ansible role
-        id: playwright_version
-        run: |
-          defaults=ansible/roles/playwright_browser/defaults/main.yml
-          version=$(sed -n 's/^playwright_browser_version: *"\([^"]*\)"$/\1/p' "$defaults")
-          test -n "$version"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Build ubuntu ansible image
-        id: build_ubuntu_ansible
-        uses: $/.github/actions/docker/build-push-action
-        with:
-          context: docker/ansible
-          file: docker/ansible/Dockerfile
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
-          arch: ${{ matrix.arch }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
-          stable-labels: 'true'
-
-      # The base image's build context is the repository root, narrowed by the
-      # .dockerignore allow-list; each provisioning step mounts only its inputs.
-      - name: Build agentdev base image
-        id: build
-        uses: $/.github/actions/docker/build-push-action
-        with:
-          context: .
-          file: docker/base/agentdev-base.Dockerfile
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}
-          arch: ${{ matrix.arch }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
-          build-args: |
-            FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}@${{ steps.build_ubuntu_ansible.outputs.platform-digest }}
-            PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}
-
-      # Both runtimes are siblings layered on exactly the base digest this job just
-      # built, never on each other.
-      - name: Build agentdev deploy image
-        uses: $/.github/actions/docker/build-push-action
-        with:
-          context: .
-          file: docker/deploy/agentdev-deploy.Dockerfile
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEPLOY_IMAGE_NAME }}
-          arch: ${{ matrix.arch }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-          no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
-          build-args: |
-            FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
-
+      # The build context is the repository root, narrowed by the .dockerignore allow-list;
+      # each step mounts only its inputs.
       - name: Build agentdev devcontainer image
         uses: $/.github/actions/docker/build-push-action
         with:
@@ -189,8 +127,6 @@ jobs:
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
           no-cache: ${{ inputs.clean_build || steps.clean_build_msg.outputs.found == 'true' }}
-          build-args: |
-            FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}@${{ steps.build.outputs.digest }}
 
       - name: Log debug stats
         if: ${{ always() }}
@@ -208,40 +144,9 @@ jobs:
     timeout-minutes: 15
     outputs:
       devcontainer_image_pinned: ${{ steps.merge_devcontainer.outputs.image_pinned }}
-      deploy_image_pinned: ${{ steps.merge_deploy.outputs.image_pinned }}
-      ansible_digest: ${{ steps.merge_ansible.outputs.digest }}
-      base_digest: ${{ steps.merge.outputs.digest }}
-      deploy_digest: ${{ steps.merge_deploy.outputs.digest }}
       devcontainer_digest: ${{ steps.merge_devcontainer.outputs.digest }}
     steps:
       # Candidate tags only; promote-dev-image moves the public tags after the tests.
-      - name: Merge and push ubuntu ansible image
-        id: merge_ansible
-        uses: $/.github/actions/docker/multiarch-merge
-        with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Merge and push agentdev base image
-        id: merge
-        uses: $/.github/actions/docker/multiarch-merge
-        with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Merge and push agentdev deploy image
-        id: merge_deploy
-        uses: $/.github/actions/docker/multiarch-merge
-        with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEPLOY_IMAGE_NAME }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Merge and push agentdev devcontainer image
         id: merge_devcontainer
         uses: $/.github/actions/docker/multiarch-merge
@@ -315,13 +220,13 @@ jobs:
           noCache: true
           runCmd: |
             set -eu
-            # The image's supervised runtime must be ready, nested Docker included.
+            # The image's systemd units must be ready, nested Docker included.
             agentdev-runtime health ready
             docker run --rm hello-world | head -n 5
 
             # The provisioned toolchain must be present and on PATH
             bun --version
-            node --version
+            if command -v node; then echo 'unexpected Node.js on PATH' >&2; exit 1; fi
             uv --version
             gh --version | head -n 1
             cmake --version | head -n 1
@@ -332,7 +237,6 @@ jobs:
             if command -v go; then echo 'unexpected Go toolchain on PATH' >&2; exit 1; fi
             command -v xpra
             command -v iptables ipset
-            command -v gnome-keyring-daemon
             command -v ssh ssh-keygen
 
             # The image must carry a launchable browser; this command cannot
@@ -417,44 +321,6 @@ jobs:
           SKIP: no-commit-to-branch
         run: uv run pre-commit run --all-files --show-diff-on-failure
 
-  deploy-acceptance:
-    name: Deploy runtime acceptance
-    needs: [merge-dev-image]
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: ${{ vars.AMD_ONLY == '1' && 'amd64' || 'arm64' }}
-          - arch: ${{ vars.ARM_ONLY == '1' && 'arm64' || 'amd64' }}
-    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
-    permissions:
-      packages: read
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - uses: docker/login-action@v4.8.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ env.REGISTRY_USERNAME }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: $/.github/actions/setup-python-venv
-
-      # Root, because the fixtures hand checkouts to the runtime's UIDs.
-      - name: Run container acceptance on the native architecture
-        env:
-          AGENTDEV_RUNTIME_TEST_IMAGE: ${{ needs.merge-dev-image.outputs.deploy_image_pinned }}
-        run: |
-          sudo env "PATH=$PATH" "AGENTDEV_RUNTIME_TEST_IMAGE=$AGENTDEV_RUNTIME_TEST_IMAGE" \
-            timeout 1500 uv run pytest scripts/tests/test_agent_runtime_acceptance.py -rs
-
-      - name: Log debug stats
-        if: ${{ always() }}
-        uses: $/.github/actions/log-debug-stats
-        with:
-          github-token: ${{ github.token }}
-
   devcontainer-acceptance:
     name: Dev Container runtime acceptance
     needs: [merge-dev-image]
@@ -511,7 +377,6 @@ jobs:
       - merge-dev-image
       - dev-container-ci
       - candidate-pre-commit
-      - deploy-acceptance
       - devcontainer-acceptance
     timeout-minutes: 15
     steps:
@@ -520,33 +385,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-
-      - name: Promote ubuntu ansible image
-        uses: $/.github/actions/docker/promote
-        with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
-          digest: ${{ needs.merge-dev-image.outputs.ansible_digest }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Promote agentdev base image
-        uses: $/.github/actions/docker/promote
-        with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.BASE_IMAGE_NAME }}
-          digest: ${{ needs.merge-dev-image.outputs.base_digest }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Promote agentdev deploy image
-        uses: $/.github/actions/docker/promote
-        with:
-          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DEPLOY_IMAGE_NAME }}
-          digest: ${{ needs.merge-dev-image.outputs.deploy_digest }}
-          registry: ${{ env.REGISTRY }}
-          registry-username: ${{ env.REGISTRY_USERNAME }}
-          registry-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Promote agentdev devcontainer image
         uses: $/.github/actions/docker/promote
@@ -572,7 +410,6 @@ jobs:
         merge-dev-image,
         dev-container-ci,
         candidate-pre-commit,
-        deploy-acceptance,
         devcontainer-acceptance,
         promote-dev-image,
       ]
