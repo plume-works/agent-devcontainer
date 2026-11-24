@@ -6,7 +6,7 @@ stage: accepted
 # The wheel RECORD is the integrity record of the runtime
 
 A derived image that replaces, adds, or removes a runtime file runs lifecycle
-code that nobody tested. For this reason, `agentdev_runtime.integrity::verify`
+code that nobody tested. For this reason, `agentdev_runtime.integrity@verify`
 compares the installed files with the `RECORD` file of the installed wheel, and
 the runtime refuses a difference. The refusal names the file and directs the
 consumer to the hook directories under `/etc/agentdev/hooks/` and the documented
