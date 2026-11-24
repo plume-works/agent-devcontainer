@@ -339,7 +339,7 @@ image context for the mount that Task 10 added.
 after the merge, and in a Claude Code session outside the image.
 
 - [x] In the image, a Claude Code session lists `/agentdev-iwe:iwe-plan`.
-- [ ] In the image, `/agentdev-iwe:iwe-branch-name` in a Claude Code session
+- [x] In the image, `/agentdev-iwe:iwe-branch-name` in a Claude Code session
   runs its script.
 - [ ] In the image, an OpenCode session lists `agentdev-iwe:iwe-plan`.
 - [ ] In the image, `agentdev-iwe:iwe-branch-name` in an OpenCode session runs
