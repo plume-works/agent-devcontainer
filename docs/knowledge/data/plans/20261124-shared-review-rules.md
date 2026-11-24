@@ -103,7 +103,7 @@ verdict.
 `.agents/plugins/agentdev/skills/pr-review/references/reporting.md`. Modify:
 `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `references/reporting.md` holds the verdict rule, the review body rules,
+- [x] `references/reporting.md` holds the verdict rule, the review body rules,
   the inline comment rules, the standalone-comment exception, the rule against
   review text as chat, the pending-review tool sequence, and the single-call
   fallback script with its RESULT table, all taken from `SKILL.md` Steps 3 and
