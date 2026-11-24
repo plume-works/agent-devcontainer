@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: proposed
+stage: accepted
 supersedes:
 - adr/0011-iwe-skills-in-agentdev-with-iwe-prefix
 ---

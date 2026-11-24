@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-24
 created: 2026-11-22
 release: internal
 description: Move the IWE workflow into its own plugin, agentdev-iwe, with catalog scripts on uv sharing the agentdev-lib package.
@@ -187,9 +189,9 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 **Closed by:** the maintainer.
 
-- [ ] The name `agentdev-lib` is free on PyPI, or the plan is revised with
+- [x] The name `agentdev-lib` is free on PyPI, or the plan is revised with
   another name.
-- [ ] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
+- [x] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
   this repository as its publisher.
 
 ### Task 9: Stage and install every plugin in the image
@@ -327,24 +329,24 @@ image context for the mount that Task 10 added.
 
 **Closed by:** the first merge to `main` after Task 8.
 
-- [ ] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
-- [ ] `.github/workflows/release-agentdev-lib.yml` published the version to
+- [x] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
+- [x] `.github/workflows/release-agentdev-lib.yml` published the version to
   PyPI.
-- [ ] The GitHub Release for the tag has the wheel attached.
-- [ ] The next push to `main` that keeps the version pushes no tag.
+- [x] The GitHub Release for the tag has the wheel attached.
+- [x] The next push to `main` that keeps the version pushes no tag.
 
 ### Task 18: Observe both plugins in a built image and outside it
 
 **Closed by:** the maintainer, in a container from the image that CI builds
 after the merge, and in a Claude Code session outside the image.
 
-- [ ] In the image, a Claude Code session lists `/agentdev-iwe:iwe-plan`.
-- [ ] In the image, `/agentdev-iwe:iwe-branch-name` in a Claude Code session
+- [x] In the image, a Claude Code session lists `/agentdev-iwe:iwe-plan`.
+- [x] In the image, `/agentdev-iwe:iwe-branch-name` in a Claude Code session
   runs its script.
-- [ ] In the image, an OpenCode session lists `agentdev-iwe:iwe-plan`.
-- [ ] In the image, `agentdev-iwe:iwe-branch-name` in an OpenCode session runs
+- [x] In the image, an OpenCode session lists `agentdev-iwe:iwe-plan`.
+- [x] In the image, `agentdev-iwe:iwe-branch-name` in an OpenCode session runs
   its script.
-- [ ] Outside the image, with both plugins enabled, the first run of a skill
+- [x] Outside the image, with both plugins enabled, the first run of a skill
   script downloads `agentdev-lib` from PyPI and succeeds.
 
 ## Acceptance
@@ -426,10 +428,10 @@ after the merge, and in a Claude Code session outside the image.
 ## ADRs
 
 [The catalog is split into opt-in plugins, and the IWE workflow is its own
-plugin](../adr/0104-catalog-split-into-opt-in-plugins.md)
+plugin](../../../adr/0104-catalog-split-into-opt-in-plugins.md)
 
 [Catalog scripts run through uv and share code through a published
-package](../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
+package](../../../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
 
 ## Depends on
 
@@ -509,7 +511,7 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the catalog
   step, which stages the trees, builds the `agentdev-lib` wheel, and syncs each
   plugin before the copy turns read-only
-  ([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
+  ([ADR-0107](../../../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile` › "ARG
   AGENTDEV_PLUGIN_VERSION" — the version pin that staging checks.
 - `.claude/startup.py::register_plugin` — installs the plugins of a cloud
@@ -532,3 +534,26 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   anchor check scans.
 - `docs/knowledge/data/adr/0081-venv-link-to-the-home-volume.md` — rejects one
   `UV_PROJECT_ENVIRONMENT` for the whole container.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-24.
+
+- [x] Verify found no CRITICAL problem — correct: Ready to ship —
+  data/plans/20261122-split-agentdev-iwe-plugin
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct:
+  data/adr/0104-catalog-split-into-opt-in-plugins,
+  data/adr/0105-catalog-scripts-run-through-uv-with-a-published-package
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — correct:
+  data/archive/next-release/adr/0011-iwe-skills-in-agentdev-with-iwe-prefix,
+  data/archive/next-release/adr/0040-catalog-scripts-are-standard-library-python
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-24
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every bug that it completed are in the archive, and no hub
+  links them — correct:
+  data/archive/next-release/plans/20261122-split-agentdev-iwe-plugin

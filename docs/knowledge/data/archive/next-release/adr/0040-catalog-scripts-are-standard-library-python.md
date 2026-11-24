@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 ---
 
 # Catalog scripts are standard-library Python

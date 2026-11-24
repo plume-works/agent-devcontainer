@@ -32,9 +32,6 @@ work](adr/0008-graph-diverges-from-okf-only-for-merge-cost.md)
 [The graph layout keeps parallel pull requests free of merge
 conflicts](adr/0009-graph-layout-avoids-merge-conflicts.md)
 
-[The IWE workflow skills are in agentdev, with an iwe-
-prefix](adr/0011-iwe-skills-in-agentdev-with-iwe-prefix.md)
-
 [Each kind of knowledge has one home, and the archive is by
 release](adr/0012-one-home-per-kind-and-archive-by-release.md)
 
@@ -91,9 +88,6 @@ bots](adr/0037-ai-review-trusts-named-bots.md)
 
 [Bundled code is relative to the skill, under
 agent-code/](adr/0039-bundled-code-under-agent-code.md)
-
-[Catalog scripts are standard-library
-Python](adr/0040-catalog-scripts-are-standard-library-python.md)
 
 [The Expo bridge keeps its record in its own
 repository](adr/0042-expo-bridge-record-in-its-own-repository.md)
