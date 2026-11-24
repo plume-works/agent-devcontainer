@@ -344,7 +344,7 @@ after the merge, and in a Claude Code session outside the image.
 - [ ] In the image, an OpenCode session lists `agentdev-iwe:iwe-plan`.
 - [ ] In the image, `agentdev-iwe:iwe-branch-name` in an OpenCode session runs
   its script.
-- [ ] Outside the image, with both plugins enabled, the first run of a skill
+- [x] Outside the image, with both plugins enabled, the first run of a skill
   script downloads `agentdev-lib` from PyPI and succeeds.
 
 ## Acceptance
