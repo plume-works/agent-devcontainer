@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: proposed
+stage: accepted
 ---
 
 # Shared rules live at the plugin root

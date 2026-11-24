@@ -8,6 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
 - resource: .agents/plugins/agentdev/agents/principal-engineer.agent.md
+stage: done
+completed: 2026-11-24
 ---
 
 # Share review rules between pr-review and pr-feedback-resolution
@@ -217,7 +219,7 @@ verdict.
 ## ADRs
 
 [Shared rules live at the plugin
-root](../adr/0108-shared-rules-at-plugin-root.md)
+root](../../../adr/0108-shared-rules-at-plugin-root.md)
 
 ## Depends on
 
