@@ -130,7 +130,7 @@ verdict.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] `#workflow-2-classify-review-comment-intent` is one step: read
+- [x] `#workflow-2-classify-review-comment-intent` is one step: read
   `rules/review.md` (linked as `../../rules/review.md`) and judge each
   unresolved thread and review body by its `## Act on a finding` section. The
   skill holds no confidence score, no "≥70%" or "<70%" branch, and no
