@@ -165,7 +165,7 @@ verdict.
 
 **Files:** Modify: `.agents/AGENTS.md`
 
-- [ ] `#catalog-locations-and-portability` holds exactly this item:
+- [x] `#catalog-locations-and-portability` holds exactly this item:
 
 ``` markdown
 - Shared rules live in `rules/<artifact>.md` at the plugin root: concise,
