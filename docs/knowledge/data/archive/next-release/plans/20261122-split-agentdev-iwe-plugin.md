@@ -1,5 +1,7 @@
 ---
 type: plan
+stage: done
+completed: 2026-11-24
 created: 2026-11-22
 release: internal
 description: Move the IWE workflow into its own plugin, agentdev-iwe, with catalog scripts on uv sharing the agentdev-lib package.
@@ -426,10 +428,10 @@ after the merge, and in a Claude Code session outside the image.
 ## ADRs
 
 [The catalog is split into opt-in plugins, and the IWE workflow is its own
-plugin](../adr/0104-catalog-split-into-opt-in-plugins.md)
+plugin](../../../adr/0104-catalog-split-into-opt-in-plugins.md)
 
 [Catalog scripts run through uv and share code through a published
-package](../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
+package](../../../adr/0105-catalog-scripts-run-through-uv-with-a-published-package.md)
 
 ## Depends on
 
@@ -509,7 +511,7 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the catalog
   step, which stages the trees, builds the `agentdev-lib` wheel, and syncs each
   plugin before the copy turns read-only
-  ([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
+  ([ADR-0107](../../../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile` › "ARG
   AGENTDEV_PLUGIN_VERSION" — the version pin that staging checks.
 - `.claude/startup.py::register_plugin` — installs the plugins of a cloud

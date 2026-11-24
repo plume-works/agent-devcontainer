@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: accepted
+stage: superseded
 ---
 
 # The IWE workflow skills are in agentdev, with an iwe- prefix

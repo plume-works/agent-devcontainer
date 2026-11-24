@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: proposed
+stage: accepted
 supersedes:
 - adr/0040-catalog-scripts-are-standard-library-python
 ---
