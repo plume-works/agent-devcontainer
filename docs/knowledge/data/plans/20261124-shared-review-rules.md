@@ -147,7 +147,7 @@ verdict.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md`
 
-- [ ] The skill has no `## Review Workflow` section, and
+- [x] The skill has no `## Review Workflow` section, and
   `## Responding To Review Feedback` stays.
 - [ ] Its `## Troubleshooting` table has no "Feedback seems nitpicky", "Author
   defensive about feedback", "Conflicting feedback from reviewers", or "Too many
