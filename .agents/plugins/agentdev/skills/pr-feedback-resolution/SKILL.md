@@ -174,7 +174,7 @@ Determine confidence level before making changes. **Only process threads that pa
 
 Resolve code review feedback systematically.
 
-1. **For each high-confidence comment (≥70%)**:
+1. **For each comment that holds**:
    - Validate the approach against the applicable repository conventions and the
      artifact classification above
    - For runtime executable behavior that can be exercised by an automated unit
@@ -195,11 +195,8 @@ Resolve code review feedback systematically.
      }'
      ```
 
-2. **For each low-confidence comment (<70%)**:
-   - Reply in-thread with interpretation and ask for confirmation
-   - Example: "I understand this as [interpretation]. Should I [proposed action]?"
-   - Wait for clarification before making changes
-   - Document decision in PR thread
+2. **For each comment that does not hold or is unclear**, reply in the thread and
+   change nothing until the reviewer answers.
 
 3. **For suggested code changes**:
    - Review suggestion for correctness and style

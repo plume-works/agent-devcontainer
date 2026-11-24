@@ -135,7 +135,7 @@ verdict.
   unresolved thread and review body by its `## Act on a finding` section. The
   skill holds no confidence score, no "≥70%" or "<70%" branch, and no
   comment-language categories.
-- [ ] `#workflow-3-address-review-comments` has no confidence branch and keeps
+- [x] `#workflow-3-address-review-comments` has no confidence branch and keeps
   its procedure: delegate runtime code to the Principal Engineer, edit
   non-executable artifacts directly, reply, verify, resolve that exact thread.
 - [ ] `#quality-standards` holds no "Avoid risky refactors without explicit
