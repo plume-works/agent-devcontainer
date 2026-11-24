@@ -109,7 +109,7 @@ verdict.
   fallback script with its RESULT table, all taken from `SKILL.md` Steps 3 and
   7–9, `#prerequisites`, `#fallback-single-call-script`, and `#constraints`. It
   is concise: rules, not reasons or examples.
-- [ ] In `SKILL.md`, Steps 7–9 are one step that says to publish the validated
+- [x] In `SKILL.md`, Steps 7–9 are one step that says to publish the validated
   findings as `references/reporting.md` describes.
 - [ ] `SKILL.md` has no `## Fallback: single-call script` section.
 

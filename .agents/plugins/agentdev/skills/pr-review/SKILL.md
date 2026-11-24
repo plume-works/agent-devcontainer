@@ -17,12 +17,6 @@ Use this skill to review a pull request's diff and publish feedback as a GitHub 
 
 - `gh` must be installed and authenticated
 - REPO (`owner/name`) and PR NUMBER must be known — read them from the workflow context or ask the user if not provided
-- The review is created, annotated, and submitted with three separate GitHub review tools:
-  - `create_pending_pull_request_review` — open a pending review
-  - `add_comment_to_pending_review` — attach each inline comment to the pending review
-  - `submit_pending_pull_request_review` — submit the pending review with an `event`
-
-- If those review tools are unavailable or uncertain, use the single-call fallback flow described after Step 9. **Never construct `gh api` review-posting calls by hand**.
 
 ## Review Focus
 
@@ -107,11 +101,12 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    closed/merged, stop. For a version-only or generated-file-only diff, do not
    launch the review passes. Instead, confirm the changed file list with
    `gh pr diff <PR_NUMBER> --name-only`, then publish a clean `APPROVE` review
-   with a short summary. This preserves the required AI-review gate for a
+   with a short summary as [references/reporting.md](references/reporting.md)
+   describes. This preserves the required AI-review gate for a
    mechanical PR without spending a full review cycle. A docs-only diff is not
    fast-approved: it still runs the durable-knowledge pass (Step 4).
 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR title and description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
-3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `REQUEST_CHANGES` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
+3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, publish the metadata finding as [references/reporting.md](references/reporting.md) describes and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
 4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"); a correctness issue also carries its scenario's Trigger, Path, and Outcome:
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
@@ -133,18 +128,12 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **Light effort: one batched dispatch** carrying every surviving candidate at once and returning a confirm-or-drop verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
    - **Batching is the light tier's trade and nothing else's.** A self-sized review validates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
    - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below.
-7. Create a pending review with `create_pending_pull_request_review`.
-8. For every validated finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) naming its location by anchor and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
-9. Submit the review with `submit_pending_pull_request_review`, choosing `event` by the severity of the validated findings that survived Step 6 alone:
-   - **No validated findings, or only non-blocking findings → `APPROVE`.** Inline comments on an approving review still open threads that must be resolved before merge.
-   - **Any blocking finding, inline or not → `REQUEST_CHANGES`.** That includes the Step-3 metadata gate; name in the body any blocking finding that has no inline anchor.
-
-   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments); for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `APPROVE` or `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account cannot approve or request changes on its own PR. That retry is the only review submitted as `COMMENT`.
+7. **Publish** the validated findings as [references/reporting.md](references/reporting.md) describes.
 
 ### Waiting on Parallel Passes
 
 Every parallel pass from Steps 4 and 6 must complete or be cancelled before
-Steps 5–9. Never end a turn with an outstanding task, substitute a text status
+Steps 5–7. Never end a turn with an outstanding task, substitute a text status
 update, or poll with a no-op shell command. If the runner can neither run passes
 in the foreground nor block on them, run the passes sequentially.
 
@@ -184,9 +173,4 @@ The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a 
 ## Constraints
 
 - **Never execute code** — no test run, build, linter, dependency install or sync, `docker`, or `devcontainer` command, in this session or in any pass or validator it dispatches. CI runs those; a review reads the diff and the head commit. A pass or validator never reads CI results either: it states the Trigger, Path, and Outcome from the code alone. This skill's own `agent-code/` scripts are the only programs it runs.
-- **CI results: one look, from this session, never a wait.** Only this session, while composing the review in Steps 7–9, may read CI results — one `gh pr checks`, plus `gh run view --log-failed` for a check that has already failed — to cite a finished check beside a finding. A check still running is left out. Never wait for one: no `--watch`, `gh run watch`, `sleep`, or polling loop.
-- **Never post a standalone top-level PR comment** (`gh pr comment`, `add_issue_comment`, etc.) for review findings. All feedback must go through the pull request review flow (steps 7–9) so it renders as a proper review with threaded, resolvable inline comments. **Sole exception:** a validated finding whose inline attachment was attempted and rejected (Step 8 fallback) is posted as a normal PR comment so it is not silently lost.
-- **Never write a location as a line number — in the review body, a comment, or chat.** Every finding tied to a specific place in the diff must be an actual inline comment placed there via `add_comment_to_pending_review`, whose `line` field is the one machine position this skill writes; it is not prose pointing at a location. The Step 8 fallback comment is the sole exception — there, the location is named in prose, by anchor, precisely because the inline placement failed. The Step 3 PR metadata gate is also review-body-only because title and description findings do not have file locations.
-- Do not submit review text as plain chat/assistant messages.
-- Keep each inline comment specific and actionable, scoped to the line(s) it annotates.
-- Only findings that survived Step 6 validation may be posted — never publish an unvalidated candidate.
+- **CI results: one look, from this session, never a wait.** Only this session, while publishing the review in Step 7, may read CI results — one `gh pr checks`, plus `gh run view --log-failed` for a check that has already failed — to cite a finished check beside a finding. A check still running is left out. Never wait for one: no `--watch`, `gh run watch`, `sleep`, or polling loop.
