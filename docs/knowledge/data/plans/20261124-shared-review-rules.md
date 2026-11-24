@@ -111,7 +111,7 @@ verdict.
   is concise: rules, not reasons or examples.
 - [x] In `SKILL.md`, Steps 7–9 are one step that says to publish the validated
   findings as `references/reporting.md` describes.
-- [ ] `SKILL.md` has no `## Fallback: single-call script` section.
+- [x] `SKILL.md` has no `## Fallback: single-call script` section.
 
 ### Task 3: Have pr-review apply the review rulebook
 

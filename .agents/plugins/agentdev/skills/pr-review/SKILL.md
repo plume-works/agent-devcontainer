@@ -150,26 +150,6 @@ Concretely:
 
 - **Claude Code: dispatch in the foreground.** Issue each batch's `Agent` calls in a single message with `run_in_background: false`; the message returns with every pass's result, so nothing is left to wait on. This path has no per-pass ceiling and never drops a hung pass: the responder job's `timeout-minutes` bounds the whole review, and a review that exceeds it fails the job.
 
-## Fallback: single-call script
-
-If the review tools above are confirmed unavailable, post the whole review — summary, event, and every inline comment — through the repository script in one atomic GitHub review API call. GitHub's `POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews` endpoint accepts a `comments[]` array alongside `event` and `body`, so there is no pending-review state to manage or discard.
-
-Write two plain files under `./.tmp` (never assemble this JSON live in a shell command):
-
-- a summary file containing only the short overall review body (no per-finding detail)
-- a comments file containing a JSON array of every validated finding: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if no findings survived Step 6)
-
-Then run `agent-code/post-review.py --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule, and pass `--event COMMENT` only for its self-owned retry. Do not fall further back to typing `gh api` calls by hand.
-
-The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a bare number:
-
-| RESULT            | Exit | Meaning                                                                            | Action                                                                                                                                                                                                                                                                                                                                                      |
-| ----------------- | ---- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`  | The review was created and submitted                                               | Done. The created review object is printed above the `RESULT` line.                                                                                                                                                                                                                                                                                         |
-| `GH_CALL_FAILED`  | `3`  | A `gh` API call failed (repo/PR lookup, or the review POST)                        | If the error names a `comments[]` entry that cannot be placed inline (its file/line is outside the PR diff), remove that entry from the comments file, re-run the script, then post the removed finding as a normal PR comment (`gh pr comment`) naming its location by anchor — same fallback as Step 8. Otherwise **STOP** and report the error verbatim. |
-| `PREFLIGHT_ERROR` | `2`  | Usage error, a missing or malformed input file, or `gh` missing or unauthenticated | **STOP.** Fix the reported problem — write the summary/comments file, correct the arguments, or report the missing prerequisite — then retry. Never hand-write the `gh api` call instead.                                                                                                                                                                   |
-| `SCRIPT_FAILURE`  | `1`  | The script broke                                                                   | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                                                                                                                                                                                      |
-
 ## Constraints
 
 - **Never execute code** — no test run, build, linter, dependency install or sync, `docker`, or `devcontainer` command, in this session or in any pass or validator it dispatches. CI runs those; a review reads the diff and the head commit. A pass or validator never reads CI results either: it states the Trigger, Path, and Outcome from the code alone. This skill's own `agent-code/` scripts are the only programs it runs.
