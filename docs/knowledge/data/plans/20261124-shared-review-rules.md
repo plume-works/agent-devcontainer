@@ -179,7 +179,7 @@ verdict.
 **Closed by:** the first AI review of a pull request that runs the
 `agentdev:pr-review` this plan changes.
 
-- [ ] The review has a short body, every finding as an inline comment, and the
+- [x] The review has a short body, every finding as an inline comment, and the
   verdict that `references/reporting.md` gives for its findings.
 
 ## Acceptance
