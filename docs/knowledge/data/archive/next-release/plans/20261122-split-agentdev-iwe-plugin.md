@@ -534,3 +534,26 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
   anchor check scans.
 - `docs/knowledge/data/adr/0081-venv-link-to-the-home-volume.md` — rejects one
   `UV_PROJECT_ENVIRONMENT` for the whole container.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-24.
+
+- [x] Verify found no CRITICAL problem — correct: Ready to ship —
+  data/plans/20261122-split-agentdev-iwe-plugin
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct:
+  data/adr/0104-catalog-split-into-opt-in-plugins,
+  data/adr/0105-catalog-scripts-run-through-uv-with-a-published-package
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — correct:
+  data/archive/next-release/adr/0011-iwe-skills-in-agentdev-with-iwe-prefix,
+  data/archive/next-release/adr/0040-catalog-scripts-are-standard-library-python
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-24
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every bug that it completed are in the archive, and no hub
+  links them — correct:
+  data/archive/next-release/plans/20261122-split-agentdev-iwe-plugin
