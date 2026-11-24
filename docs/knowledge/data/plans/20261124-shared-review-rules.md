@@ -158,7 +158,7 @@ verdict.
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/principal-engineer.agent.md`
 
-- [ ] `#pull-requests` › "Reviewing" names `pr-review` alone, with no
+- [x] `#pull-requests` › "Reviewing" names `pr-review` alone, with no
   `code-review-standards` link.
 
 ### Task 7: Record the convention
