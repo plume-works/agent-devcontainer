@@ -60,6 +60,8 @@ enforces this across `SKILL.md`, `references/` pages, and the plugin README.
 Put general repository rules in `AGENTS.md`, not in a skill that repeats them on every
 invocation. Add no README, changelog, or quick-reference file to a skill directory.
 
+Do not put reasoning and examples into skill texts and accompanying references.
+
 ## Gates Before Done
 
 1. `uv run validate_agent_files --recommend . --require-marketplace claude` passes.
