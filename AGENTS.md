@@ -89,7 +89,7 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
     file changes. Everything committed or published — graph documents,
     skills, agent rulebooks, code comments, PR and issue bodies — and every
     skill's chat report names a place by an anchor:
-    - code: `path::Class.method` or `path::function`
+    - code: `path@Class.method` or `path@function`
     - Markdown: `path#heading-slug`
     - YAML, JSON, TOML: `path#key.path`, a list element by its `id` or `name`
     - Makefile, Dockerfile: `path#target` or `path#stage`

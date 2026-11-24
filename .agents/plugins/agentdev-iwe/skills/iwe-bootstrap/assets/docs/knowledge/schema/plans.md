@@ -54,7 +54,7 @@ exceptions: `## Acceptance` and `## Verification` are always there.
 - `## Acceptance` — one `### Scenario:` block for each behaviour that the plan
   adds, changes, or removes. A block has a `- **WHEN**` line and a `- **THEN**`
   line. Then it has one of two lines. `- **Test:**` names the test that proves
-  the scenario, as `path::test_name`. `- **Checked at ship:**` is for behaviour
+  the scenario, as `path@test_name`. `- **Checked at ship:**` is for behaviour
   that no test can reach. It names the rulebook or the file that the verifier
   reads.
   - A plan that changes no behaviour writes `None — no behavioral change`.
@@ -79,5 +79,5 @@ exceptions: `## Acceptance` and `## Verification` are always there.
 
 - **WHEN** a bug at `stage: done` has no `## Fix` section
 - **THEN** the `ship-records` check reports the bug and exits 1
-- **Test:** `scripts/tests/test_check_ship_records.py::test_done_bug_without_fix_fails`
+- **Test:** `scripts/tests/test_check_ship_records.py@test_done_bug_without_fix_fails`
 ```

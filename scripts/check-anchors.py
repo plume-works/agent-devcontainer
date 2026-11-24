@@ -36,7 +36,7 @@ LINE_NUMBER_FORMS = (
 )
 
 ANCHOR = re.compile(
-    r'`(?P<path>[\w.][\w./-]*)(?:(?P<sep>::|#)(?P<fragment>[^`\s]+))?'
+    r'`(?P<path>[\w.][\w./-]*)(?:(?P<sep>@|#)(?P<fragment>[^`\s]+))?'
     r'(?:\s+›\s+"(?P<quote>[^"`]+)")?`'
 )
 FRONTMATTER = re.compile(r'\A---\n(.*?)\n---\n', re.S)
@@ -207,7 +207,7 @@ def resolve_in(path: Path, match: re.Match[str]) -> str | None:
     text = path.read_text()
     region = text
     separator, fragment = match['sep'], match['fragment']
-    if separator == '::':
+    if separator == '@':
         names = fragment.split('.')
         found = (
             python_symbol_exists(text, names)

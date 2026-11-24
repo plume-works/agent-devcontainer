@@ -27,6 +27,6 @@ work when you copy it, or that does a different thing.
 
 ## Root cause
 
-`.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py::resolve_base`
+`.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py@resolve_base`
 writes `f'Pass --base <branch>, or run: git remote set-head {remote} --auto'`
 without `bash_quote`.

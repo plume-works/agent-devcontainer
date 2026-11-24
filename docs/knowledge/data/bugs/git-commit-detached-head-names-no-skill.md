@@ -27,7 +27,7 @@ instead." and names no skill.
 
 ## Root cause
 
-`.agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py::run`
+`.agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py@run`
 answers a detached `HEAD` with `PREFLIGHT_ERROR`, and the message names no
 skill. The `PREFLIGHT_ERROR` row in
 `.agents/plugins/agentdev/skills/git-commit/SKILL.md#create-the-commit-through-the-script`

@@ -46,7 +46,7 @@ completion time so timezone changes never double-count.
 - **WHEN** the session log has sessions on Monday and Wednesday and none on
   Tuesday
 - **THEN** `computeStreak` on Wednesday returns 1
-- **Test:** `src/store/streak.test.ts::restarts after a skipped day`
+- **Test:** `src/store/streak.test.ts@restarts after a skipped day`
 
 ### Scenario: A time zone change does not count a day twice
 
@@ -54,7 +54,7 @@ completion time so timezone changes never double-count.
   completes another session on the same local day
 - **THEN** `computeStreak` counts that day once
 - **Test:**
-  `src/store/streak.test.ts::counts a day once across a time zone change`
+  `src/store/streak.test.ts@counts a day once across a time zone change`
 
 ## Depends on
 

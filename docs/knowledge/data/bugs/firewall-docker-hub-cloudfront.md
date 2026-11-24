@@ -46,7 +46,7 @@ covers a checkout that ships none.
 
 - `.devcontainer/firewall-allowlist.txt › "production.cloudflare.docker.com"` —
   `production.cloudflare.docker.com`, the only Docker CDN entry
-- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py::apply_policy` —
-  the final `OUTPUT` REJECT rule
-- `scripts/tests/test_agent_runtime_firewall.py::RUNTIME_SCRIPT` — the test
+- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py@apply_policy` — the
+  final `OUTPUT` REJECT rule
+- `scripts/tests/test_agent_runtime_firewall.py@RUNTIME_SCRIPT` — the test
   allowlist that adds the CloudFront host
