@@ -6,7 +6,7 @@ description: Move the IWE workflow into its own plugin, agentdev-iwe, with catal
 sources:
 - resource: .claude-plugin/marketplace.json
 - resource: .agents/plugins/agentdev/
-- resource: ansible/roles/agent_catalog/
+- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 ---
 
 # Split the IWE workflow into the agentdev-iwe plugin
@@ -83,9 +83,9 @@ Run this before every other task. In a scratch tree under `/tmp`, copy the
 current `.claude-plugin/` and `.agents/plugins/agentdev/`. Add the plugin
 `pyproject.toml` and an `agentdev-lib` wheel that Approach describes. Change one
 skill script to import from `agentdev_lib`. Run `uv sync` in the plugin with
-`UV_FIND_LINKS` set, then make the tree root-owned and read-only, as
-`ansible/roles/agent_catalog/tasks/stage_catalog.yml` does. If a checkbox fails,
-stop and take the result to `/agentdev:iwe-plan` as a revision.
+`UV_FIND_LINKS` set, then make the tree root-owned and read-only, as the image's
+catalog staging does. If a checkbox fails, stop and take the result to
+`/agentdev:iwe-plan` as a revision.
 
 - [x] The changed script runs from the read-only staged plugin as a non-root
   user, and prints its normal result.
@@ -194,10 +194,11 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 ### Task 9: Stage and install every plugin in the image
 
-**Files:** Modify: `ansible/roles/agent_catalog/defaults/main.yml`,
-`ansible/roles/agent_catalog/tasks/stage_catalog.yml`,
-`ansible/roles/agent_catalog/tasks/install_catalog.yml`,
-`ansible/roles/agent_catalog/README.md`.
+**Files:** Modify: the catalog step of
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`. The
+`agent_catalog_plugin_version` pin is its `AGENTDEV_PLUGIN_VERSION` check, and
+the create phase installs every staged plugin through
+`py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude`.
 
 - [x] Staging copies every plugin that the marketplace publishes.
 - [x] The `agent_catalog_plugin_version` pin checks the version of `agentdev`.
@@ -205,9 +206,10 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 ### Task 10: Bundle agentdev-lib in the image
 
-**Files:** Modify: `docker/base/agentdev-base.Dockerfile`,
-`ansible/roles/agent_catalog/tasks/stage_catalog.yml`,
-`ansible/roles/agent_catalog/README.md`.
+**Files:** Modify: the catalog step of
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`, `.dockerignore`. The
+step "Make the staged catalog root-owned and read-only" is its final `chown` and
+`chmod`.
 
 - [x] Staging builds the `agentdev-lib` wheel from `py_packages/agentdev_lib/`.
 - [x] The image sets `UV_FIND_LINKS` to the directory of that wheel.
@@ -220,12 +222,12 @@ under `.agents/plugins/agentdev/tests/` that run them,
 (`.claude-plugin/plugin.json`, `pyproject.toml`, `README.md`, `tests/`). Modify:
 `.claude-plugin/marketplace.json`,
 `.agents/plugins/agentdev/.claude-plugin/plugin.json`,
-`docker/base/agentdev-base.Dockerfile`, `pyproject.toml`, the `.iwe` link and
-the support links in `docs/knowledge/`, `scripts/link-knowledge-support.py`,
-`.pre-commit-config.yaml`, `.prettierignore`, and the pytest runs in
-`.github/workflows/ci.yml` and `.github/workflows/validate-agent-files.yml`.
-Move: the 12 `skills/iwe-*`, the 8 `agents/iwe-*.agent.md`, and their tests and
-fixtures.
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`, `pyproject.toml`, the
+`.iwe` link and the support links in `docs/knowledge/`,
+`scripts/link-knowledge-support.py`, `.pre-commit-config.yaml`,
+`.prettierignore`, and the pytest runs in `.github/workflows/ci.yml` and
+`.github/workflows/validate-agent-files.yml`. Move: the 12 `skills/iwe-*`, the 8
+`agents/iwe-*.agent.md`, and their tests and fixtures.
 
 - [x] `.claude-plugin/marketplace.json` publishes `agentdev-iwe` at `1.0.0`.
 - [x] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
@@ -284,10 +286,7 @@ ADRs keep their text.
 `py_packages/agentdev_runtime/agentdev_runtime/catalog.py`,
 `py_packages/agentdev_runtime/tests/test_opencode_config.py`,
 `.github/workflows/validate-agent-files.yml`,
-`docker/base/agentdev-base.Dockerfile`,
-`ansible/roles/agent_catalog/defaults/main.yml`,
-`ansible/roles/agent_catalog/tasks/install_catalog.yml`,
-`ansible/roles/agent_catalog/README.md`, `.dockerignore`,
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`, `.dockerignore`,
 `.github/workflows/ci.yml`, and the tests under `scripts/tests/` that name the
 bridge path. `.dockerignore` also lets `py_packages/agentdev_lib/` into the
 image context for the mount that Task 10 added.
@@ -397,7 +396,8 @@ after the merge, and in a Claude Code session outside the image.
 - **WHEN** a script of a staged plugin runs in the image
 - **THEN** it imports the `agentdev-lib` built from the image's source, and
   writes nothing in the read-only catalog
-- **Checked at ship:** `ansible/roles/agent_catalog/tasks/stage_catalog.yml` and
+- **Checked at ship:** the catalog step of
+  `docker/devcontainer/agentdev-devcontainer.Dockerfile` and
   `## Verification results` of this plan
 
 ### Scenario: A consumer installs agentdev without the IWE workflow
@@ -506,19 +506,12 @@ Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — installs
   every plugin that a marketplace publishes.
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile` ›
-  "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the trees that
-  staging copies; the `agent_catalog` role is removed
+  "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the catalog
+  step, which stages the trees, builds the `agentdev-lib` wheel, and syncs each
+  plugin before the copy turns read-only
   ([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
-- `ansible/roles/agent_catalog/tasks/stage_catalog.yml` › "Fail when the
-  manifest does not publish exactly one matching plugin" — the check that the
-  pinned plugin is published once.
-- `ansible/roles/agent_catalog/tasks/stage_catalog.yml` › "Make the staged
-  catalog root-owned and read-only" — the step that `uv sync` runs before.
-- `ansible/roles/agent_catalog/tasks/install_catalog.yml` › "Install every
-  plugin the staged manifest publishes for Claude at user scope" — installs each
-  published plugin.
-- `docker/base/agentdev-base.Dockerfile` › "ARG AGENTDEV_PLUGIN_VERSION" — the
-  version pin that staging checks.
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile` › "ARG
+  AGENTDEV_PLUGIN_VERSION" — the version pin that staging checks.
 - `.claude/startup.py::register_plugin` — installs the plugins of a cloud
   session.
 - `.claude/settings.json#permissions.allow` — the script permissions.
