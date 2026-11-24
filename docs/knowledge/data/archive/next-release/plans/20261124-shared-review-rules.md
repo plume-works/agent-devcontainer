@@ -265,3 +265,23 @@ None.
   is recorded.
 - `py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py@find_bundled_markdown`
   — checks the links of `rules/review.md`.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-24.
+
+- [x] Verify found no CRITICAL problem — correct: Ready to ship:
+  data/plans/20261124-shared-review-rules
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct:
+  data/adr/0108-shared-rules-at-plugin-root
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — not applicable: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-24
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every bug that it completed are in the archive, and no hub
+  links them — correct:
+  data/archive/next-release/plans/20261124-shared-review-rules
