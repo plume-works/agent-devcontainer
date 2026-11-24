@@ -220,5 +220,4 @@ skill](adr/0106-no-template-consumption-skill.md)
 [agentdev-devcontainer is one Dockerfile on plume-works/devcontainer-base, with
 systemd as PID 1](adr/0107-devcontainer-image-on-plume-devcontainer-base.md)
 
-[Shared rules live at the plugin root; output formats stay in the
-skill](adr/0108-shared-rules-at-plugin-root.md)
+[Shared rules live at the plugin root](adr/0108-shared-rules-at-plugin-root.md)

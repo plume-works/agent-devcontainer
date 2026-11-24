@@ -216,8 +216,8 @@ verdict.
 
 ## ADRs
 
-[Shared rules live at the plugin root; output formats stay in the
-skill](../adr/0108-shared-rules-at-plugin-root.md)
+[Shared rules live at the plugin
+root](../adr/0108-shared-rules-at-plugin-root.md)
 
 ## Depends on
 
