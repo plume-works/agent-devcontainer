@@ -152,7 +152,7 @@ verdict.
 - [x] Its `## Troubleshooting` table has no "Feedback seems nitpicky", "Author
   defensive about feedback", "Conflicting feedback from reviewers", or "Too many
   comments per review" row.
-- [ ] Its `description` and `## When to Use This Skill` name no code review.
+- [x] Its `description` and `## When to Use This Skill` name no code review.
 
 ### Task 6: Point the Principal Engineer at pr-review
 

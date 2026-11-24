@@ -512,7 +512,7 @@ Maintain an internal execution log documenting:
 
 - [Update Branch](../update-branch/SKILL.md) - Merge the PR's base branch and resolve conflicts
 - [Evaluate Whether a Re-Review Is Needed](../pr-eval-review-needed/SKILL.md) - decide if work went beyond what was reviewed
-- [Code Review Standards](../code-review-standards/) - PR description and review practices
+- [Code Review Standards](../code-review-standards/) - PR description practices and responding to review feedback
 - [Extract GitHub Actions Logs](../extract-github-actions-logs/) - Fetch CI job logs and download test-report artifacts
 - [Get CodeQL Data](../get-codeql-data/) - Fetch PR, branch, or repository CodeQL alerts with `gh api`
 - Coding Conventions in the repository's root `AGENTS.md` - project style, testing, and error-handling rules

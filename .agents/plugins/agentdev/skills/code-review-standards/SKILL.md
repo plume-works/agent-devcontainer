@@ -1,21 +1,17 @@
 ---
 name: code-review-standards
-description: Apply review standards and write pull request descriptions. Use when asked to review code, assess a change for correctness or maintainability, or draft a PR description. Commit creation belongs to /agentdev:git-commit and PR publishing belongs to /agentdev:pr-open.
+description: Write pull request descriptions and update a pull request after review feedback. Use when drafting a PR description or answering feedback on one. Commit creation belongs to /agentdev:git-commit and PR publishing belongs to /agentdev:pr-open.
 ---
 
 # Code Review Standards
 
-Write high-quality pull request descriptions and conduct effective code reviews using established best practices. Use the Coding Conventions section of the `AGENTS.md` at the root of the repository being reviewed as the source of truth for project-specific style, testing, and error-handling expectations.
+Write high-quality pull request descriptions and update a pull request after review feedback. Use the Coding Conventions section of the `AGENTS.md` at the root of the repository as the source of truth for project-specific style, testing, and error-handling expectations.
 
 ## When to Use This Skill
 
 - Write PR descriptions for GitHub
-- Review code for quality and standards compliance
 - Ensure PR documentation is complete
-- Apply clean code principles to reviews
-- Evaluate code for maintainability
-- Provide constructive feedback on changes
-- Validate against project coding standards
+- Update a PR's description and replies after review feedback
 
 ## Prerequisites
 
@@ -23,11 +19,10 @@ Write high-quality pull request descriptions and conduct effective code reviews 
 - Knowledge of changed files and their purposes
 - Context about what the changes accomplish
 - Understanding of why specific design decisions were made
-- Familiarity with the codebase being reviewed
 
 ## Scope
 
-This skill covers review-specific workflow and PR-writing structure. Do not restate broad engineering rules from the shared instructions unless the review needs a tighter, task-specific requirement.
+This skill covers PR-writing structure and responding to review feedback. Do not restate broad engineering rules from the shared instructions.
 
 ## PR Description Workflow
 
@@ -139,6 +134,6 @@ Update PR based on code review feedback.
 
 ## References
 
-- Coding Conventions in the reviewed repository's root `AGENTS.md`
+- Coding Conventions in the repository's root `AGENTS.md`
 - [Generate pull request description](../pr-gen-description/)
 - [Create conventional commits](../git-commit/)
