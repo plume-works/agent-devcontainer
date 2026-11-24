@@ -330,7 +330,7 @@ image context for the mount that Task 10 added.
 - [x] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
 - [x] `.github/workflows/release-agentdev-lib.yml` published the version to
   PyPI.
-- [ ] The GitHub Release for the tag has the wheel attached.
+- [x] The GitHub Release for the tag has the wheel attached.
 - [ ] The next push to `main` that keeps the version pushes no tag.
 
 ### Task 18: Observe both plugins in a built image and outside it
