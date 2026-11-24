@@ -121,7 +121,7 @@ verdict.
   no "Do NOT flag" list, and no severity tier definitions; it keeps each pass's
   focus, the Trigger/Path/Outcome shape of a correctness candidate, and the
   durable-knowledge and metadata focuses.
-- [ ] Steps 4 and 6 say that every review pass prompt and every validator prompt
+- [x] Steps 4 and 6 say that every review pass prompt and every validator prompt
   carries the full text of `rules/review.md`, linked as `../../rules/review.md`.
 - [ ] Step 6 has no "Stated intent is evidence, not a verdict" paragraph.
 
