@@ -7,11 +7,9 @@ sources:
 
 # Claude Remote Control archived pre-created session
 
-Finding against [Claude Remote Control server
-mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md) and
-[Claude Remote Control server restart
-resume](claude-remote-control-server-restart-resume.md), measured on Claude Code
-2.1.310 with `claude remote-control --spawn worktree` and
+Finding against Claude Remote Control server mode and [Claude Remote Control
+server restart resume](claude-remote-control-server-restart-resume.md), measured
+on Claude Code 2.1.310 with `claude remote-control --spawn worktree` and
 `--create-session-in-dir` at its default, on.
 
 ## Measurement

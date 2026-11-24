@@ -22,8 +22,7 @@ agent, have `iwe-revision-evaluator` approve it, then run Verify again. A
 command such as `bun test <path>`, which a newer `bun` reads as a name filter
 until the path starts with `./`, costs that whole round for a one-character
 change, and the implementer that already found the working form may not correct
-the plan line. [Make the Implement loop
-converge](../archive/2.1.0/plans/20261102-autonomy-loop.md) keeps both rules.
+the plan line. Make the Implement loop converge keeps both rules.
 
 The work: classify a corrected verification step by what it checks.
 

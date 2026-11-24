@@ -7,12 +7,10 @@ sources:
 
 # Claude Remote Control spawn mode switch
 
-Finding against [Claude Remote Control server
-mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md) and
-[Claude Remote Control worktree restart
-resume](claude-remote-control-worktree-restart-resume.md), measured on Claude
-Code 2.1.310 by restarting the server with `AGENTDEV_CLAUDE_RC_SPAWN` switched
-between `worktree` and `same-dir`.
+Finding against Claude Remote Control server mode and [Claude Remote Control
+worktree restart resume](claude-remote-control-worktree-restart-resume.md),
+measured on Claude Code 2.1.310 by restarting the server with
+`AGENTDEV_CLAUDE_RC_SPAWN` switched between `worktree` and `same-dir`.
 
 ## Measurement
 

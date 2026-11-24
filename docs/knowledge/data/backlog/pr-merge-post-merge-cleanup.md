@@ -56,5 +56,5 @@ merge confirmed, pr-merge ran in place on the PR head branch
 - A kept branch that the next name would nest under is a stop, not a forced
   delete.
 
-Stacked PRs are out of scope here; see [Clean up the local checkout after
-pr-merge-stack](../archive/2.1.0/backlog/pr-merge-stack-post-merge-cleanup.md).
+Stacked PRs are out of scope here; see Clean up the local checkout after
+pr-merge-stack.
