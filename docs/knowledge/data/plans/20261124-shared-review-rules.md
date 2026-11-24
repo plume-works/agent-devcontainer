@@ -255,8 +255,8 @@ None.
   publishing constraints move to `references/reporting.md`.
 - `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-2-classify-review-comment-intent`
   — the confidence score that the rulebook replaces.
-- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#review-workflow`
-  — the review half that is removed.
+- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#responding-to-review-feedback`
+  — the half that stays once the review half is removed.
 - `.agents/plugins/agentdev/agents/principal-engineer.agent.md#pull-requests` —
   where the Principal Engineer is sent to review.
 - `.agents/AGENTS.md#catalog-locations-and-portability` — where the convention
