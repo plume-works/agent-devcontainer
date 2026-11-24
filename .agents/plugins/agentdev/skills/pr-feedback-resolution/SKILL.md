@@ -152,29 +152,15 @@ After fetching, **filter out resolved threads** using these rules (apply in orde
 
 ### Workflow 2: Classify Review Comment Intent
 
-Determine confidence level before making changes. **Only process threads that passed the Workflow 1 filters** — resolved or completion-signaled threads are never classified.
-
-1. **Analyze comment language**:
-   - **Explicit requests**: "Change X to Y", "Add Z", "Remove A"
-   - **Questions**: "Should this handle X?" (may be rhetorical)
-   - **Suggestions**: "Consider using Y" (may be optional)
-   - **Observations**: "This could be simpler" (may not require action)
-
-2. **Compute confidence score**:
-   - **90-100%**: Explicit change request with clear instructions
-   - **70-89%**: Strong suggestion with clear direction
-   - **50-69%**: Suggestion or question with unclear intent
-   - **<50%**: Observation or open-ended question
-
-3. **Decision matrix**:
-   - **≥70% confidence**: Proceed with change, document rationale
-   - **<70% confidence**: Reply asking for clarification, do not change code
+Read [the review rules](../../rules/review.md) and judge each unresolved thread and
+review body that passed the Workflow 1 filters by the rules' `## Act on a finding`
+section. Resolved or completion-signaled threads are never judged.
 
 ### Workflow 3: Address Review Comments
 
 Resolve code review feedback systematically.
 
-1. **For each high-confidence comment (≥70%)**:
+1. **For each comment that holds**:
    - Validate the approach against the applicable repository conventions and the
      artifact classification above
    - For runtime executable behavior that can be exercised by an automated unit
@@ -195,11 +181,8 @@ Resolve code review feedback systematically.
      }'
      ```
 
-2. **For each low-confidence comment (<70%)**:
-   - Reply in-thread with interpretation and ask for confirmation
-   - Example: "I understand this as [interpretation]. Should I [proposed action]?"
-   - Wait for clarification before making changes
-   - Document decision in PR thread
+2. **For each comment that does not hold or is unclear**, reply in the thread and
+   change nothing until the reviewer answers.
 
 3. **For suggested code changes**:
    - Review suggestion for correctness and style
@@ -351,7 +334,7 @@ When iterating over PR review threads, apply these filters in order before any c
 | Last-comment instruction | Last comment contains explicit instructions (e.g., "instead do X", "use Y", "change to Z")                                                                                                                                                                                                                | **Follow last comment only**; ignore earlier comments in thread |
 | Default                  | None of the above                                                                                                                                                                                                                                                                                         | Process thread normally using all comments                      |
 
-This filtering must be applied **before** computing confidence scores or taking any action.
+This filtering must be applied **before** judging any comment or taking any action.
 
 ### Pattern: Feedback Resolution Summary Template
 
@@ -405,7 +388,7 @@ completion-signaled thread that GitHub still marks unresolved.
 
 ### Pattern: Clarification Template
 
-When comment intent is unclear (<70% confidence):
+When a comment is unclear:
 
 ```markdown
 @reviewer Thanks for the feedback! I want to make sure I understand correctly:
@@ -459,7 +442,7 @@ Safe remediation of CodeQL alerts:
 
 Maintain an internal execution log documenting:
 
-- **Comment tracking**: Review comment URL → confidence score → action taken → resolution status
+- **Comment tracking**: Review comment URL → holds, does not hold, or unclear → action taken → resolution status
 - **CI failures**: Check name → failure reason → fix applied → verification result
 - **Security findings**: CodeQL ID → severity → remediation → test added
 - **Coverage gaps**: uncovered code by anchor → tests added → coverage delta
@@ -476,10 +459,7 @@ Maintain an internal execution log documenting:
 - Maintain or improve test coverage when runtime executable code changed
 - No introduction of new technical debt
 - Document non-obvious decisions
-- **Safety-first**: 70% intent confidence minimum for code changes; below 70% ask for clarification
-- Avoid risky refactors without explicit reviewer request
 - Avoid behavior changes unless explicitly requested
-- Prefer targeted, minimal diffs
 
 ### Communication
 
@@ -498,10 +478,6 @@ Maintain an internal execution log documenting:
 - No regression introduced
 
 ## Troubleshooting
-
-### Problem: Cannot determine comment intent
-
-**Solution**: Reply asking for clarification with your interpretation and proposed action. Do not guess or assume.
 
 ### Problem: CI fails intermittently (flaky test)
 
@@ -536,7 +512,7 @@ Maintain an internal execution log documenting:
 
 - [Update Branch](../update-branch/SKILL.md) - Merge the PR's base branch and resolve conflicts
 - [Evaluate Whether a Re-Review Is Needed](../pr-eval-review-needed/SKILL.md) - decide if work went beyond what was reviewed
-- [Code Review Standards](../code-review-standards/) - PR description and review practices
+- [Code Review Standards](../code-review-standards/) - PR description practices and responding to review feedback
 - [Extract GitHub Actions Logs](../extract-github-actions-logs/) - Fetch CI job logs and download test-report artifacts
 - [Get CodeQL Data](../get-codeql-data/) - Fetch PR, branch, or repository CodeQL alerts with `gh api`
 - Coding Conventions in the repository's root `AGENTS.md` - project style, testing, and error-handling rules

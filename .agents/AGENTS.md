@@ -52,3 +52,7 @@ repository can delete the publisher source without inheriting its maintenance ru
   they resolve in the repository using the installed plugin.
 - The validator enforces plugin containment across every Markdown file the plugin ships,
   including `references/` pages and the plugin README.
+- Shared rules live in `rules/<artifact>.md` at the plugin root: concise,
+  instructional, naming no skill. A skill that uses one says how. A skill's
+  output format is prescriptive and stays private in its
+  `references/reporting.md`.

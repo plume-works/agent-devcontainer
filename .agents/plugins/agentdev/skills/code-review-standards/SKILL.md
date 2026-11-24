@@ -1,21 +1,17 @@
 ---
 name: code-review-standards
-description: Apply review standards and write pull request descriptions. Use when asked to review code, assess a change for correctness or maintainability, or draft a PR description. Commit creation belongs to /agentdev:git-commit and PR publishing belongs to /agentdev:pr-open.
+description: Write pull request descriptions and update a pull request after review feedback. Use when drafting a PR description or answering feedback on one. Commit creation belongs to /agentdev:git-commit and PR publishing belongs to /agentdev:pr-open.
 ---
 
 # Code Review Standards
 
-Write high-quality pull request descriptions and conduct effective code reviews using established best practices. Use the Coding Conventions section of the `AGENTS.md` at the root of the repository being reviewed as the source of truth for project-specific style, testing, and error-handling expectations.
+Write high-quality pull request descriptions and update a pull request after review feedback. Use the Coding Conventions section of the `AGENTS.md` at the root of the repository as the source of truth for project-specific style, testing, and error-handling expectations.
 
 ## When to Use This Skill
 
 - Write PR descriptions for GitHub
-- Review code for quality and standards compliance
 - Ensure PR documentation is complete
-- Apply clean code principles to reviews
-- Evaluate code for maintainability
-- Provide constructive feedback on changes
-- Validate against project coding standards
+- Update a PR's description and replies after review feedback
 
 ## Prerequisites
 
@@ -23,11 +19,10 @@ Write high-quality pull request descriptions and conduct effective code reviews 
 - Knowledge of changed files and their purposes
 - Context about what the changes accomplish
 - Understanding of why specific design decisions were made
-- Familiarity with the codebase being reviewed
 
 ## Scope
 
-This skill covers review-specific workflow and PR-writing structure. Do not restate broad engineering rules from the shared instructions unless the review needs a tighter, task-specific requirement.
+This skill covers PR-writing structure and responding to review feedback. Do not restate broad engineering rules from the shared instructions.
 
 ## PR Description Workflow
 
@@ -107,71 +102,6 @@ Create a comprehensive pull request description.
    - Removed `sync_read()` function (use async variant instead)
    ```
 
-## Review Workflow
-
-Evaluate code changes against the shared engineering standards, then focus your review on findings, evidence, and impact.
-
-**Code is the source of truth.** Base the review on the actual diff — analyze every branch change with git diff, file listings, and code search — not on the commit messages or PR description. Read those with healthy skepticism: flag where they misstate the change, hide side effects, overclaim, or leave modifications undocumented.
-
-### What To Check
-
-1. Correctness and behavioral regressions
-2. Missing or weak tests for changed behavior
-3. Maintainability risks that materially raise future cost
-4. Security or performance issues with concrete impact
-5. Standards violations that conflict with the shared engineering guidelines
-
-### How To Write Findings
-
-Write helpful, actionable review comments.
-
-**Good feedback example:**
-
-```
-The mutex lock here could be a deadlock risk if `process_data()`
-throws an exception. Consider using RAII pattern or try/finally
-to ensure lock is always released.
-```
-
-**Poor feedback example:**
-
-```
-This is bad. Fix it.
-```
-
-**Guidelines:**
-
-1. **Be specific**: Point to exact lines and explain why it's an issue
-2. **Suggest solutions**: Provide code examples when helpful
-3. **Use neutral language**: Avoid judgmental tone
-4. **Consider context**: Ask questions if you don't understand intent
-5. **Praise good code**: Acknowledge well-written sections
-6. **Focus on impact**: Explain how the issue affects functionality/maintenance
-
-### Common Finding Categories
-
-```
-## Clarity Issues
-- "Variable name X is ambiguous; consider Y for clarity"
-- "This logic could be extracted to method Z for reuse"
-
-## Potential Bugs
-- "This could fail if Z is null; add guard clause"
-- "Race condition possible here if called from multiple threads"
-
-## Performance
-- "O(n²) loop could be optimized to O(n) using a set"
-- "String concatenation in loop creates many allocations"
-
-## Testing
-- "This error case isn't tested; add test_X"
-- "Coverage would be higher if we test the else branch"
-
-## Architecture
-- "This couples module A to module B unnecessarily"
-- "Consider using pattern X instead for better separation"
-```
-
 ## Responding To Review Feedback
 
 Update PR based on code review feedback.
@@ -197,17 +127,13 @@ Update PR based on code review feedback.
 
 ## Troubleshooting
 
-| Issue                               | Solution                                             |
-| ----------------------------------- | ---------------------------------------------------- |
-| PR description too technical        | Add "Why" section explaining user impact             |
-| Feedback seems nitpicky             | Consider if it genuinely improves maintainability    |
-| Author defensive about feedback     | Keep tone neutral; focus on code, not person         |
-| Conflicting feedback from reviewers | Discuss in thread; find consensus or escalate        |
-| Changes seem unnecessary            | Ask for clarification of impact/rationale            |
-| Too many comments per review        | Prioritize critical issues; discuss style separately |
+| Issue                        | Solution                                  |
+| ---------------------------- | ----------------------------------------- |
+| PR description too technical | Add "Why" section explaining user impact  |
+| Changes seem unnecessary     | Ask for clarification of impact/rationale |
 
 ## References
 
-- Coding Conventions in the reviewed repository's root `AGENTS.md`
+- Coding Conventions in the repository's root `AGENTS.md`
 - [Generate pull request description](../pr-gen-description/)
 - [Create conventional commits](../git-commit/)

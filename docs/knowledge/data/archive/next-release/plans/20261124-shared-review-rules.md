@@ -8,6 +8,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
 - resource: .agents/plugins/agentdev/agents/principal-engineer.agent.md
+stage: done
+completed: 2026-11-24
 ---
 
 # Share review rules between pr-review and pr-feedback-resolution
@@ -47,7 +49,7 @@ rules and output formats live.
 
 **Files:** Create: `.agents/plugins/agentdev/rules/review.md`
 
-- [ ] `.agents/plugins/agentdev/rules/review.md` holds exactly this text:
+- [x] `.agents/plugins/agentdev/rules/review.md` holds exactly this text:
 
 ``` markdown
 # Review rules
@@ -103,69 +105,69 @@ verdict.
 `.agents/plugins/agentdev/skills/pr-review/references/reporting.md`. Modify:
 `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `references/reporting.md` holds the verdict rule, the review body rules,
+- [x] `references/reporting.md` holds the verdict rule, the review body rules,
   the inline comment rules, the standalone-comment exception, the rule against
   review text as chat, the pending-review tool sequence, and the single-call
   fallback script with its RESULT table, all taken from `SKILL.md` Steps 3 and
   7–9, `#prerequisites`, `#fallback-single-call-script`, and `#constraints`. It
   is concise: rules, not reasons or examples.
-- [ ] In `SKILL.md`, Steps 7–9 are one step that says to publish the validated
+- [x] In `SKILL.md`, Steps 7–9 are one step that says to publish the validated
   findings as `references/reporting.md` describes.
-- [ ] `SKILL.md` has no `## Fallback: single-call script` section.
+- [x] `SKILL.md` has no `## Fallback: single-call script` section.
 
 ### Task 3: Have pr-review apply the review rulebook
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] `#review-focus` holds no "CRITICAL: we only want HIGH SIGNAL issues" list,
+- [x] `#review-focus` holds no "CRITICAL: we only want HIGH SIGNAL issues" list,
   no "Do NOT flag" list, and no severity tier definitions; it keeps each pass's
   focus, the Trigger/Path/Outcome shape of a correctness candidate, and the
   durable-knowledge and metadata focuses.
-- [ ] Steps 4 and 6 say that every review pass prompt and every validator prompt
+- [x] Steps 4 and 6 say that every review pass prompt and every validator prompt
   carries the full text of `rules/review.md`, linked as `../../rules/review.md`.
-- [ ] Step 6 has no "Stated intent is evidence, not a verdict" paragraph.
+- [x] Step 6 has no "Stated intent is evidence, not a verdict" paragraph.
 
 ### Task 4: Have pr-feedback-resolution judge comments by the rulebook
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] `#workflow-2-classify-review-comment-intent` is one step: read
+- [x] `#workflow-2-classify-review-comment-intent` is one step: read
   `rules/review.md` (linked as `../../rules/review.md`) and judge each
   unresolved thread and review body by its `## Act on a finding` section. The
   skill holds no confidence score, no "≥70%" or "<70%" branch, and no
   comment-language categories.
-- [ ] `#workflow-3-address-review-comments` has no confidence branch and keeps
+- [x] `#workflow-3-address-review-comments` has no confidence branch and keeps
   its procedure: delegate runtime code to the Principal Engineer, edit
   non-executable artifacts directly, reply, verify, resolve that exact thread.
-- [ ] `#quality-standards` holds no "Avoid risky refactors without explicit
+- [x] `#quality-standards` holds no "Avoid risky refactors without explicit
   reviewer request" or "Prefer targeted, minimal diffs" line.
-- [ ] `#troubleshooting` has no "Cannot determine comment intent" entry.
+- [x] `#troubleshooting` has no "Cannot determine comment intent" entry.
 
 ### Task 5: Remove the review half of code-review-standards
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md`
 
-- [ ] The skill has no `## Review Workflow` section, and
+- [x] The skill has no `## Review Workflow` section, and
   `## Responding To Review Feedback` stays.
-- [ ] Its `## Troubleshooting` table has no "Feedback seems nitpicky", "Author
+- [x] Its `## Troubleshooting` table has no "Feedback seems nitpicky", "Author
   defensive about feedback", "Conflicting feedback from reviewers", or "Too many
   comments per review" row.
-- [ ] Its `description` and `## When to Use This Skill` name no code review.
+- [x] Its `description` and `## When to Use This Skill` name no code review.
 
 ### Task 6: Point the Principal Engineer at pr-review
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/principal-engineer.agent.md`
 
-- [ ] `#pull-requests` › "Reviewing" names `pr-review` alone, with no
+- [x] `#pull-requests` › "Reviewing" names `pr-review` alone, with no
   `code-review-standards` link.
 
 ### Task 7: Record the convention
 
 **Files:** Modify: `.agents/AGENTS.md`
 
-- [ ] `#catalog-locations-and-portability` holds exactly this item:
+- [x] `#catalog-locations-and-portability` holds exactly this item:
 
 ``` markdown
 - Shared rules live in `rules/<artifact>.md` at the plugin root: concise,
@@ -179,7 +181,7 @@ verdict.
 **Closed by:** the first AI review of a pull request that runs the
 `agentdev:pr-review` this plan changes.
 
-- [ ] The review has a short body, every finding as an inline comment, and the
+- [x] The review has a short body, every finding as an inline comment, and the
   verdict that `references/reporting.md` gives for its findings.
 
 ## Acceptance
@@ -217,7 +219,7 @@ verdict.
 ## ADRs
 
 [Shared rules live at the plugin
-root](../adr/0108-shared-rules-at-plugin-root.md)
+root](../../../adr/0108-shared-rules-at-plugin-root.md)
 
 ## Depends on
 
@@ -248,18 +250,38 @@ None.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus` — the review
   bar and severity tiers that move to the rulebook.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps` — Steps 4 and 6
-  dispatch passes and validators; Steps 7–9 publish.
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#fallback-single-call-script`
-  — moves to `references/reporting.md`.
+  dispatch passes and validators; Step 7 publishes.
+- `.agents/plugins/agentdev/skills/pr-review/references/reporting.md#single-call-script`
+  — the single-call fallback, moved out of `SKILL.md`.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints` — the
   publishing constraints move to `references/reporting.md`.
 - `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-2-classify-review-comment-intent`
   — the confidence score that the rulebook replaces.
-- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#review-workflow`
-  — the review half that is removed.
+- `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md#responding-to-review-feedback`
+  — the half that stays once the review half is removed.
 - `.agents/plugins/agentdev/agents/principal-engineer.agent.md#pull-requests` —
   where the Principal Engineer is sent to review.
 - `.agents/AGENTS.md#catalog-locations-and-portability` — where the convention
   is recorded.
 - `py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py@find_bundled_markdown`
   — checks the links of `rules/review.md`.
+
+## Ship review
+
+`iwe-ship-reviewer` did this review on 2026-11-24.
+
+- [x] Verify found no CRITICAL problem — correct: Ready to ship:
+  data/plans/20261124-shared-review-rules
+- [x] Every ADR that the plan proposed is `stage: accepted` — correct:
+  data/adr/0108-shared-rules-at-plugin-root
+- [x] Every ADR that the plan superseded is `stage: superseded` and in the
+  archive — not applicable: the plan superseded no ADR
+- [x] The plan is `stage: done` with `completed` and no `rank` — correct:
+  2026-11-24
+- [x] Every bug in `release` is `stage: done` with no `rank` — not applicable:
+  `release` lists no bug
+- [x] Every bug in `release` has a `## Fix` that links this plan — not
+  applicable: `release` lists no bug
+- [x] The plan and every bug that it completed are in the archive, and no hub
+  links them — correct:
+  data/archive/next-release/plans/20261124-shared-review-rules
