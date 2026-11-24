@@ -248,9 +248,9 @@ None.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#review-focus` — the review
   bar and severity tiers that move to the rulebook.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#steps` — Steps 4 and 6
-  dispatch passes and validators; Steps 7–9 publish.
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md#fallback-single-call-script`
-  — moves to `references/reporting.md`.
+  dispatch passes and validators; Step 7 publishes.
+- `.agents/plugins/agentdev/skills/pr-review/references/reporting.md#single-call-script`
+  — the single-call fallback, moved out of `SKILL.md`.
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md#constraints` — the
   publishing constraints move to `references/reporting.md`.
 - `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md#workflow-2-classify-review-comment-intent`
