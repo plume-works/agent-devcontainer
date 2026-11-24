@@ -115,6 +115,9 @@ NEVER put AI attribution in a pull request body — no "Generated with Claude Co
       text needs. A table of skills belongs only in documentation whose
       purpose is to teach the user what the skills are and how to use them.
 
+16. **Do not put reasoning and examples into skill texts and accompanying
+    references.**
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
