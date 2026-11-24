@@ -338,7 +338,7 @@ image context for the mount that Task 10 added.
 **Closed by:** the maintainer, in a container from the image that CI builds
 after the merge, and in a Claude Code session outside the image.
 
-- [ ] In the image, a Claude Code session lists `/agentdev-iwe:iwe-plan`.
+- [x] In the image, a Claude Code session lists `/agentdev-iwe:iwe-plan`.
 - [ ] In the image, `/agentdev-iwe:iwe-branch-name` in a Claude Code session
   runs its script.
 - [ ] In the image, an OpenCode session lists `agentdev-iwe:iwe-plan`.
