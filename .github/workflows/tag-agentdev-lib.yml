@@ -31,13 +31,19 @@ jobs:
           version=$(python3 -c 'import tomllib; print(tomllib.load(open("py_packages/agentdev_lib/pyproject.toml", "rb"))["project"]["version"])')
           echo "tag=agentdev-lib/$version" >> "$GITHUB_OUTPUT"
 
+      # Two pull requests can raise the package to the same version; the one merged second
+      # would go unreleased, so a tagged version whose package tree changed fails here.
       - name: Find the tag
         id: existing
         env:
           TAG: ${{ steps.version.outputs.tag }}
         run: |
           if git rev-parse --quiet --verify "refs/tags/$TAG" > /dev/null; then
-            echo "$TAG already exists; nothing to push."
+            if ! git diff --quiet "$TAG" "$GITHUB_SHA" -- py_packages/agentdev_lib; then
+              echo "::error::py_packages/agentdev_lib/ changed since $TAG, which is already released. Raise the version in py_packages/agentdev_lib/pyproject.toml."
+              exit 1
+            fi
+            echo "$TAG already exists and matches; nothing to push."
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
