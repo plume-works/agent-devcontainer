@@ -57,7 +57,7 @@ def test_existing_config_preserves_unmanaged_settings(config_dir: Path) -> None:
         json.dumps(
             {
                 '$schema': 'https://example.invalid/config.json',
-                'plugin': ['/catalog/.agents/plugins/agentdev/.opencode-plugin'],
+                'plugin': ['/catalog/.agents/opencode-bridge'],
                 'model': 'openai/gpt-6.1-sol',
                 'permission': {
                     '*': 'ask',
@@ -75,7 +75,7 @@ def test_existing_config_preserves_unmanaged_settings(config_dir: Path) -> None:
 
     assert json.loads(config.read_text()) == {
         '$schema': SCHEMA,
-        'plugin': ['/catalog/.agents/plugins/agentdev/.opencode-plugin'],
+        'plugin': ['/catalog/.agents/opencode-bridge'],
         'model': 'openai/gpt-6.1-sol',
         'permission': {
             '*': 'allow',

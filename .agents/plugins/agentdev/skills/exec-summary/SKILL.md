@@ -1,6 +1,6 @@
 ---
 name: exec-summary
-description: Translate whatever is in focus — the current thread, a plan, bug, feature, or PR — into a one-minute, non-technical executive summary. Use when asked for an executive view, a plain-language summary, a "1 minute version", or a non-technical explanation of the work. Technical PR descriptions belong to /agentdev:pr-gen-description and the graph-wide weekly digest to /agentdev:iwe-weekly.
+description: Translate whatever is in focus — the current thread, a plan, bug, feature, or PR — into a one-minute, non-technical executive summary. Use when asked for an executive view, a plain-language summary, a "1 minute version", or a non-technical explanation of the work. Technical PR descriptions belong to /agentdev:pr-gen-description and the graph-wide weekly digest to /agentdev-iwe:iwe-weekly.
 ---
 
 # Executive summary

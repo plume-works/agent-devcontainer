@@ -6,7 +6,7 @@ description: Move the IWE workflow into its own plugin, agentdev-iwe, with catal
 sources:
 - resource: .claude-plugin/marketplace.json
 - resource: .agents/plugins/agentdev/
-- resource: ansible/roles/agent_catalog/
+- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 ---
 
 # Split the IWE workflow into the agentdev-iwe plugin
@@ -40,7 +40,10 @@ becomes a package before the skills move.
   points `agentdev-lib` at `py_packages/agentdev_lib` with `[tool.uv.sources]`.
   In a checkout, the scripts run the local package, and an edit applies at once.
   In a plugin cache, the first run downloads the package from PyPI and writes
-  `uv.lock` and `.venv/` in the cache.
+  `uv.lock` and `.venv/` in the cache. `uv` is the parent of the script, so a
+  script that a terminating signal ends still prints its `SIGNAL_*` result last,
+  but its caller sees exit status 128 + the signal number, not a signal death.
+  The maintainer accepted this.
 - **Pins in step.** A pre-commit hook writes the version from
   `py_packages/agentdev_lib/pyproject.toml` into each plugin's pin. A PR check
   fails when `py_packages/agentdev_lib/` changed since the latest
@@ -80,49 +83,55 @@ Run this before every other task. In a scratch tree under `/tmp`, copy the
 current `.claude-plugin/` and `.agents/plugins/agentdev/`. Add the plugin
 `pyproject.toml` and an `agentdev-lib` wheel that Approach describes. Change one
 skill script to import from `agentdev_lib`. Run `uv sync` in the plugin with
-`UV_FIND_LINKS` set, then make the tree root-owned and read-only, as
-`ansible/roles/agent_catalog/tasks/stage_catalog.yml` does. If a checkbox fails,
-stop and take the result to `/agentdev:iwe-plan` as a revision.
+`UV_FIND_LINKS` set, then make the tree root-owned and read-only, as the image's
+catalog staging does. If a checkbox fails, stop and take the result to
+`/agentdev:iwe-plan` as a revision.
 
-- [ ] The changed script runs from the read-only staged plugin as a non-root
+- [x] The changed script runs from the read-only staged plugin as a non-root
   user, and prints its normal result.
-- [ ] A copy of the staged plugin, made as `claude plugin install` makes it in
+- [x] A copy of the staged plugin, made as `claude plugin install` makes it in
   `~/.claude/plugins/cache/`, runs the same script.
-- [ ] The size of the staged `.venv/` (`du -sh`) is recorded in
+- [x] The size of the staged `.venv/` (`du -sh`) is recorded in
   `## Verification results`.
-- [ ] The size of the image layer that the staged `.venv/` adds is recorded in
+- [x] The size of the image layer that the staged `.venv/` adds is recorded in
   `## Verification results`.
 
 ### Task 2: Create the agentdev-lib package
 
 **Files:** Create: `py_packages/agentdev_lib/` (with `tests/`). Modify:
-`pyproject.toml`. Delete: `.agents/plugins/agentdev/bin/result_codes.py`,
-`.agents/plugins/agentdev/bin/skill_common.py`,
-`.agents/plugins/agentdev/bin/git_default_branch.py`. Move:
-`.agents/plugins/agentdev/tests/test_result_codes.py`,
+`pyproject.toml`. Move: `.agents/plugins/agentdev/tests/test_result_codes.py`,
 `.agents/plugins/agentdev/tests/test_skill_common.py`, and
 `.agents/plugins/agentdev/tests/test_git_default_branch.py` to
 `py_packages/agentdev_lib/tests/`.
 
-- [ ] `py_packages/agentdev_lib/` builds with `uv build` into a wheel named
+- [x] `py_packages/agentdev_lib/` builds with `uv build` into a wheel named
   `agentdev_lib-<version>-py3-none-any.whl` that contains `result_codes`,
   `skill_common`, and `git_default_branch`.
-- [ ] The tests of the three modules run from `py_packages/agentdev_lib/tests/`
+- [x] The tests of the three modules run from `py_packages/agentdev_lib/tests/`
   and pass.
 
 ### Task 3: Run the agentdev scripts through uv
 
 **Files:** Create: `.agents/plugins/agentdev/pyproject.toml`. Modify:
 `pyproject.toml`, `.gitignore`, every `.agents/plugins/agentdev/bin/*.py`
-executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
+executable, every `.agents/plugins/agentdev/skills/*/agent-code/*.py`, the tests
+under `.agents/plugins/agentdev/tests/` that run them,
+`py_packages/agentdev_lib/tests/test_result_codes.py`,
+`py_packages/agentdev_lib/agentdev_lib/result_codes.py`, and
+`.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`. Delete:
+`.agents/plugins/agentdev/bin/result_codes.py`,
+`.agents/plugins/agentdev/bin/skill_common.py`,
+`.agents/plugins/agentdev/bin/git_default_branch.py`.
 
-- [ ] No script under `.agents/plugins/agentdev/bin/` or
+- [x] No script under `.agents/plugins/agentdev/bin/` or
   `.agents/plugins/agentdev/skills/*/agent-code/` inserts into `sys.path`.
-- [ ] Each script under `.agents/plugins/agentdev/bin/` and
+- [x] Each script under `.agents/plugins/agentdev/bin/` and
   `.agents/plugins/agentdev/skills/*/agent-code/` starts with
   `#!/usr/bin/env -S uv run --quiet`.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests` passes.
-- [ ] `git status` shows no `.venv/` or `uv.lock` under `.agents/plugins/` after
+- [x] A plugin script that SIGTERM ends while it runs through its shebang prints
+  `RESULT=SIGNAL_TERM` last and exits 143.
+- [x] `uv run pytest .agents/plugins/agentdev/tests` passes.
+- [x] `git status` shows no `.venv/` or `uv.lock` under `.agents/plugins/` after
   the tests run.
 
 ### Task 4: Keep the plugin pins in step with the package version
@@ -131,9 +140,9 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 `scripts/tests/test_sync_agentdev_lib_pins.py`. Modify:
 `.pre-commit-config.yaml`.
 
-- [ ] In a fixture tree, the hook rewrites a plugin pin that differs from the
+- [x] In a fixture tree, the hook rewrites a plugin pin that differs from the
   package version and exits non-zero, as a formatter hook does.
-- [ ] In a fixture tree whose pins match, the hook changes nothing and exits 0.
+- [x] In a fixture tree whose pins match, the hook changes nothing and exits 0.
 
 ### Task 5: Fail a pull request that changes agentdev-lib without a new version
 
@@ -141,38 +150,38 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 `scripts/tests/test_check_agentdev_lib_version.py`. Modify:
 `.github/workflows/primary-checks.yml`.
 
-- [ ] In a fixture repository, a commit that changes `py_packages/agentdev_lib/`
+- [x] In a fixture repository, a commit that changes `py_packages/agentdev_lib/`
   after the latest `agentdev-lib/*` tag and keeps the version makes the check
   exit 1.
-- [ ] In the same fixture, a commit that also changes the version makes the
+- [x] In the same fixture, a commit that also changes the version makes the
   check exit 0.
-- [ ] A pull request job in `.github/workflows/primary-checks.yml` runs the
+- [x] A pull request job in `.github/workflows/primary-checks.yml` runs the
   check.
 
 ### Task 6: Tag a new agentdev-lib version on main
 
 **Files:** Create: `.github/workflows/tag-agentdev-lib.yml`.
 
-- [ ] The workflow runs on a push to `main` and pushes the tag
+- [x] The workflow runs on a push to `main` and pushes the tag
   `agentdev-lib/<version>`, with `<version>` read from
   `py_packages/agentdev_lib/pyproject.toml`.
-- [ ] A step skips the push when the tag `agentdev-lib/<version>` already
+- [x] A step skips the push when the tag `agentdev-lib/<version>` already
   exists.
-- [ ] The push uses a token from `actions/create-github-app-token`
+- [x] The push uses a token from `actions/create-github-app-token`
   (`RENOVATE_APP_CLIENT_ID`, `RENOVATE_APP_PRIVATE_KEY`,
   `permission-contents: write`).
-- [ ] A comment of at most 3 lines at the push step gives the reason for the app
+- [x] A comment of at most 3 lines at the push step gives the reason for the app
   token.
 
 ### Task 7: Release agentdev-lib from its tag
 
 **Files:** Create: `.github/workflows/release-agentdev-lib.yml`.
 
-- [ ] The workflow runs on a pushed `agentdev-lib/*` tag and builds one wheel
+- [x] The workflow runs on a pushed `agentdev-lib/*` tag and builds one wheel
   with `uv build`.
-- [ ] A step publishes that wheel with `pypa/gh-action-pypi-publish` through
+- [x] A step publishes that wheel with `pypa/gh-action-pypi-publish` through
   trusted publishing (`id-token: write`, no stored token).
-- [ ] A step creates a GitHub Release for the tag with that wheel attached.
+- [x] A step creates a GitHub Release for the tag with that wheel attached.
 
 ### Task 8: Set up the PyPI project
 
@@ -185,24 +194,26 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 
 ### Task 9: Stage and install every plugin in the image
 
-**Files:** Modify: `ansible/roles/agent_catalog/defaults/main.yml`,
-`ansible/roles/agent_catalog/tasks/stage_catalog.yml`,
-`ansible/roles/agent_catalog/tasks/install_catalog.yml`,
-`ansible/roles/agent_catalog/README.md`.
+**Files:** Modify: the catalog step of
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`. The
+`agent_catalog_plugin_version` pin is its `AGENTDEV_PLUGIN_VERSION` check, and
+the create phase installs every staged plugin through
+`py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude`.
 
-- [ ] Staging copies every plugin that the marketplace publishes.
-- [ ] The `agent_catalog_plugin_version` pin checks the version of `agentdev`.
-- [ ] The Claude install step installs every staged plugin at user scope.
+- [x] Staging copies every plugin that the marketplace publishes.
+- [x] The `agent_catalog_plugin_version` pin checks the version of `agentdev`.
+- [x] The Claude install step installs every staged plugin at user scope.
 
 ### Task 10: Bundle agentdev-lib in the image
 
-**Files:** Modify: `docker/base/agentdev-base.Dockerfile`,
-`ansible/roles/agent_catalog/tasks/stage_catalog.yml`,
-`ansible/roles/agent_catalog/README.md`.
+**Files:** Modify: the catalog step of
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`, `.dockerignore`. The
+step "Make the staged catalog root-owned and read-only" is its final `chown` and
+`chmod`.
 
-- [ ] Staging builds the `agentdev-lib` wheel from `py_packages/agentdev_lib/`.
-- [ ] The image sets `UV_FIND_LINKS` to the directory of that wheel.
-- [ ] Staging runs `uv sync` in each staged plugin before the step "Make the
+- [x] Staging builds the `agentdev-lib` wheel from `py_packages/agentdev_lib/`.
+- [x] The image sets `UV_FIND_LINKS` to the directory of that wheel.
+- [x] Staging runs `uv sync` in each staged plugin before the step "Make the
   staged catalog root-owned and read-only".
 
 ### Task 11: Move the IWE workflow into agentdev-iwe
@@ -211,22 +222,24 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 (`.claude-plugin/plugin.json`, `pyproject.toml`, `README.md`, `tests/`). Modify:
 `.claude-plugin/marketplace.json`,
 `.agents/plugins/agentdev/.claude-plugin/plugin.json`,
-`docker/base/agentdev-base.Dockerfile`, `pyproject.toml`. Move: the 12
-`skills/iwe-*`, the 8 `agents/iwe-*.agent.md`, and their tests and fixtures.
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`, `pyproject.toml`, the
+`.iwe` link and the support links in `docs/knowledge/`,
+`scripts/link-knowledge-support.py`, `.pre-commit-config.yaml`,
+`.prettierignore`, and the pytest runs in `.github/workflows/ci.yml` and
+`.github/workflows/validate-agent-files.yml`. Move: the 12 `skills/iwe-*`, the 8
+`agents/iwe-*.agent.md`, and their tests and fixtures.
 
-- [ ] `.claude-plugin/marketplace.json` publishes `agentdev-iwe` at `1.0.0`.
-- [ ] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
+- [x] `.claude-plugin/marketplace.json` publishes `agentdev-iwe` at `1.0.0`.
+- [x] `agentdev` is at `6.0.0` in `.claude-plugin/marketplace.json`, in its
   `plugin.json`, and in the `AGENTDEV_PLUGIN_VERSION` default of the base
   Dockerfile.
-- [ ] `uv run pytest .agents/plugins/agentdev-iwe/tests` passes.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+- [x] `uv run pytest .agents/plugins/agentdev-iwe/tests` passes.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 
 ### Task 12: Point every reference to a moved file at its new path
 
-**Files:** Modify: the support links in `docs/knowledge/`,
-`scripts/link-knowledge-support.py`, `scripts/check-anchors.py`,
-`.pre-commit-config.yaml`, `.prettierignore`, `.github/renovate.json`,
+**Files:** Modify: `scripts/check-anchors.py`, `.github/renovate.json`,
 `.github/workflows/validate-knowledge-base.yml`,
 `docs/knowledge/tests/test_banned_frontmatter_keys.py`,
 `docs/knowledge/tests/test_plan_release_schema.py`,
@@ -241,14 +254,14 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 `docs/knowledge/data/backlog/verification-command-fix-is-tactical.md`, and the
 `## Key references` of this plan.
 
-- [ ] Each support link in `docs/knowledge/` resolves into
+- [x] Each support link in `docs/knowledge/` resolves into
   `.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/`.
-- [ ] `uv run pre-commit run link-knowledge-support --all-files` passes.
-- [ ] `scripts/check-anchors.py` scans the skills and agents of every plugin
+- [x] `uv run pre-commit run link-knowledge-support --all-files` passes.
+- [x] `scripts/check-anchors.py` scans the skills and agents of every plugin
   under `.agents/plugins/`.
-- [ ] `uv run scripts/check-anchors.py` exits 0.
-- [ ] `uv run pytest docs/knowledge/tests` passes.
-- [ ] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
+- [x] `uv run scripts/check-anchors.py` exits 0.
+- [x] `uv run pytest docs/knowledge/tests` passes.
+- [x] `git grep -n "plugins/agentdev/skills/iwe-" -- .pre-commit-config.yaml .prettierignore .github/renovate.json .github/workflows/validate-knowledge-base.yml scripts/link-knowledge-support.py`
   prints nothing.
 
 ### Task 13: Name the IWE skills and agents by their new namespace
@@ -262,7 +275,7 @@ executable, and every `.agents/plugins/agentdev/skills/*/agent-code/*.py`.
 `docs/knowledge/data/plans/20261115-decisions-in-git-history.md`. The accepted
 ADRs keep their text.
 
-- [ ] `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
+- [x] `git grep -n "agentdev:iwe-" -- .agents/plugins AGENTS.md docs/knowledge/data/backlog/implement-opens-pr.md docs/knowledge/data/backlog/migrate-earlier-iwe-scaffold.md docs/knowledge/data/backlog/observe-adversarial-review-depth-on-opencode.md docs/knowledge/data/backlog/observe-planned-adversarial-review.md docs/knowledge/data/someday/rename-plan-document.md docs/knowledge/data/plans/20261115-decisions-in-git-history.md`
   prints nothing.
 
 ### Task 14: Move the OpenCode bridge out of agentdev
@@ -272,14 +285,17 @@ ADRs keep their text.
 `.agents/opencode-bridge/tests/`. Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/catalog.py`,
 `py_packages/agentdev_runtime/tests/test_opencode_config.py`,
-`.github/workflows/validate-agent-files.yml`, and the tests under
-`scripts/tests/` that name the bridge path.
+`.github/workflows/validate-agent-files.yml`,
+`docker/devcontainer/agentdev-devcontainer.Dockerfile`, `.dockerignore`,
+`.github/workflows/ci.yml`, and the tests under `scripts/tests/` that name the
+bridge path. `.dockerignore` also lets `py_packages/agentdev_lib/` into the
+image context for the mount that Task 10 added.
 
-- [ ] The bridge reads `.claude-plugin/marketplace.json` and registers
+- [x] The bridge reads `.claude-plugin/marketplace.json` and registers
   `<plugin>:<skill>` commands for each plugin it lists.
-- [ ] The skill tool strips the namespace prefix of each plugin.
-- [ ] `bun test ./.agents/opencode-bridge/tests` passes.
-- [ ] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
+- [x] The skill tool strips the namespace prefix of each plugin.
+- [x] `bun test ./.agents/opencode-bridge/tests` passes.
+- [x] `uv run pytest py_packages/agentdev_runtime/tests/test_opencode_config.py`
   passes.
 
 ### Task 15: Install every plugin in a cloud session
@@ -287,9 +303,9 @@ ADRs keep their text.
 **Files:** Modify: `.claude/startup.py`, `scripts/tests/test_cloud_startup.py`,
 `.claude/settings.json`.
 
-- [ ] `.claude/startup.py::register_plugin` installs each plugin that
+- [x] `.claude/startup.py::register_plugin` installs each plugin that
   `.claude-plugin/marketplace.json` publishes.
-- [ ] `.claude/settings.json#permissions.allow` allows the scripts of every
+- [x] `.claude/settings.json#permissions.allow` allows the scripts of every
   plugin, in the checkout and in the plugin cache.
 
 ### Task 16: Document the plugins, uv, and the script contract
@@ -297,14 +313,14 @@ ADRs keep their text.
 **Files:** Modify: `.agents/plugins/agentdev/README.md`, `.agents/AGENTS.md`,
 `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`, `README.md`.
 
-- [ ] `.agents/plugins/agentdev/README.md#installing-in-claude-code` enables
+- [x] `.agents/plugins/agentdev/README.md#installing-in-claude-code` enables
   `agentdev-iwe@agent-devcontainer` as a separate choice.
-- [ ] `.agents/plugins/agentdev/README.md#what-it-expects` requires `uv`.
-- [ ] `.agents/plugins/agentdev/README.md#installing-in-opencode` describes only
+- [x] `.agents/plugins/agentdev/README.md#what-it-expects` requires `uv`.
+- [x] `.agents/plugins/agentdev/README.md#installing-in-opencode` describes only
   the image.
-- [ ] `.agents/AGENTS.md#catalog-locations-and-portability` states the uv script
+- [x] `.agents/AGENTS.md#catalog-locations-and-portability` states the uv script
   rule and names `agentdev-lib` instead of the standard-library rule.
-- [ ] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
+- [x] `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation`
   imports `result_codes` from `agentdev_lib`.
 
 ### Task 17: Observe the first agentdev-lib release
@@ -341,6 +357,15 @@ after the merge, and in a Claude Code session outside the image.
 - **Test:**
   `py_packages/agentdev_lib/tests/test_checkout_source.py::test_plugin_script_imports_checkout_package`
 
+### Scenario: A signal ends a script that runs through uv
+
+- **WHEN** SIGTERM ends a plugin script that runs through its
+  `#!/usr/bin/env -S uv run --quiet` shebang
+- **THEN** the script prints `RESULT=SIGNAL_TERM` last, and its caller sees exit
+  status 143, not a signal death
+- **Test:**
+  `py_packages/agentdev_lib/tests/test_result_codes.py::test_sigterm_through_a_uv_shebang_exits_143`
+
 ### Scenario: The pin hook rewrites a stale pin
 
 - **WHEN** a plugin pins an `agentdev-lib` version that differs from the version
@@ -371,7 +396,8 @@ after the merge, and in a Claude Code session outside the image.
 - **WHEN** a script of a staged plugin runs in the image
 - **THEN** it imports the `agentdev-lib` built from the image's source, and
   writes nothing in the read-only catalog
-- **Checked at ship:** `ansible/roles/agent_catalog/tasks/stage_catalog.yml` and
+- **Checked at ship:** the catalog step of
+  `docker/devcontainer/agentdev-devcontainer.Dockerfile` and
   `## Verification results` of this plan
 
 ### Scenario: A consumer installs agentdev without the IWE workflow
@@ -424,6 +450,25 @@ None.
 - `git grep -n "sys.path.insert" -- '.agents/plugins/*/bin/*.py' '.agents/plugins/*/skills/*/agent-code/*.py'`
   prints nothing.
 
+## Verification results
+
+Task 1 spike, with uv 0.13.8, a copy of `agentdev` 5.0.0, and
+`iwe-branch-name.py` importing `git_default_branch` and `result_codes` from an
+`agentdev_lib` wheel:
+
+- `uv run` finds the plugin's project from the script's own path, not from the
+  working directory, so a script run from inside another uv project still uses
+  the plugin's `.venv/`.
+- From the root-owned, read-only staged plugin, a non-root user runs the script
+  and gets its normal result. uv cannot take the environment lock there and
+  warns; `--quiet` hides the warning. Nothing in the staged tree changes.
+- The copy that `claude plugin install` makes in `~/.claude/plugins/cache/` has
+  no `.venv/bin/python`. The first `uv run` there repairs the `.venv/` and runs
+  the script, so the cache copy must be writable by the session user.
+- The staged `.venv/` is 120K (`du -sh`) and adds a 147kB image layer.
+- `uv.lock` records the `UV_FIND_LINKS` directory as the registry of
+  `agentdev-lib`, so that directory must stay in the image.
+
 ## Out of scope
 
 - Dropping the `iwe-` prefix from the skill and agent names.
@@ -437,54 +482,50 @@ None.
   publishes.
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json#version` — the `agentdev`
   version.
-- `.agents/plugins/agentdev/bin/result_codes.py::emit_result` — a module that
-  moves to `agentdev-lib`.
-- `.agents/plugins/agentdev/bin/skill_common.py::Stop` — a module that moves to
-  `agentdev-lib`.
-- `.agents/plugins/agentdev/bin/git_default_branch.py::is_default_branch` — a
+- `py_packages/agentdev_lib/agentdev_lib/result_codes.py::emit_result` — a
   module that moves to `agentdev-lib`.
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`
-  › "resolve().parents[3] / 'bin'" — the import pattern that goes.
+- `py_packages/agentdev_lib/agentdev_lib/skill_common.py::Stop` — a module that
+  moves to `agentdev-lib`.
+- `py_packages/agentdev_lib/agentdev_lib/git_default_branch.py::is_default_branch`
+  — a module that moves to `agentdev-lib`.
 - `.agents/plugins/agentdev/tests/conftest.py::plugin_root` — the plugin root
   that the tests resolve scripts from.
-- `.agents/plugins/agentdev/tests/conftest.py::installed_iwe_bootstrap` — a
+- `.agents/plugins/agentdev-iwe/tests/conftest.py::installed_iwe_bootstrap` — a
   fixture that copies `bin/` into a plugin layout.
 - `pyproject.toml#tool.uv.sources` — the root sources that point at the
   checkout.
 - `pyproject.toml#tool.pytest.ini_options.testpaths` — the test roots.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts::readCatalog` — reads one
-  plugin root and takes the namespace from its `plugin.json`.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts::bridge` — the v1 entry
-  and its prefix strip.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts::setupBridge` — the v2
-  entry and its prefix strip.
+- `.agents/opencode-bridge/index.ts::readCatalogs` — reads every plugin that the
+  marketplace lists, each namespaced by its `plugin.json`.
+- `.agents/opencode-bridge/index.ts::bridge` — the v1 entry and its prefix
+  strip.
+- `.agents/opencode-bridge/index.ts::setupBridge` — the v2 entry and its prefix
+  strip.
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::opencode` —
   registers the bridge path in `opencode.json`.
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py::claude` — installs
   every plugin that a marketplace publishes.
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile` ›
-  "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the trees that
-  staging copies; the `agent_catalog` role is removed
+  "source=.agents/plugins,target=/tmp/catalog/.agents/plugins" — the catalog
+  step, which stages the trees, builds the `agentdev-lib` wheel, and syncs each
+  plugin before the copy turns read-only
   ([ADR-0107](../adr/0107-devcontainer-image-on-plume-devcontainer-base.md)).
-- `ansible/roles/agent_catalog/tasks/stage_catalog.yml` › "Fail when the
-  manifest does not publish exactly one matching plugin" — the one-plugin check.
-- `ansible/roles/agent_catalog/tasks/stage_catalog.yml` › "Make the staged
-  catalog root-owned and read-only" — the step that `uv sync` runs before.
-- `ansible/roles/agent_catalog/tasks/install_catalog.yml` › "Install the plugin
-  for Claude at user scope" — the one-plugin install.
-- `docker/base/agentdev-base.Dockerfile` › "ARG AGENTDEV_PLUGIN_VERSION" — the
-  version pin that staging checks.
-- `.claude/startup.py::register_plugin` — installs only `agentdev` in a cloud
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile` › "ARG
+  AGENTDEV_PLUGIN_VERSION" — the version pin that staging checks.
+- `.claude/startup.py::register_plugin` — installs the plugins of a cloud
   session.
 - `.claude/settings.json#permissions.allow` — the script permissions.
 - `.github/workflows/validate-agent-files.yml` › "bun test
-  ./.agents/plugins/agentdev/tests/opencode" — the bridge test run.
+  ./.agents/opencode-bridge/tests" — the bridge test run.
 - `.github/workflows/renovate.yml` › "permission-contents: write" — the app
   token pattern that Task 6 follows.
 - `.agents/AGENTS.md#catalog-locations-and-portability` — the standard-library
   rule that goes.
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md#implementation` — the
   script contract.
+- `py_packages/agentdev_lib/agentdev_lib/result_codes.py::_report_signal` —
+  re-raises a terminating signal; behind `uv run` the caller sees 128 + its
+  number.
 - `scripts/link-knowledge-support.py` › "SCAFFOLD = Path(" — the scaffold path
   that the support links follow.
 - `scripts/check-anchors.py` › "SCAN_GLOBS = (" — the catalog paths that the

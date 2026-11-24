@@ -15,7 +15,8 @@ repositories.
 - Python development through `uv`, and Bun for JavaScript (no Node.js).
 - systemd as PID 1, running a nested Docker engine with Buildx and Compose, plus CMake,
   Ninja, Git LFS, and GitHub CLI.
-- Claude Code and OpenCode preinstalled with the shared `agentdev` catalog.
+- Claude Code and OpenCode preinstalled with the shared `agentdev` and `agentdev-iwe`
+  plugins.
 - A browser-accessible Xpra desktop with VirtualGL support.
 - An optional default-deny egress firewall with repository-controlled allowlisting.
 - IWE knowledge-graph workflows from project setup through verified shipment.
@@ -135,13 +136,20 @@ docker run --rm -v agentdev-agents-auth:/auth busybox rm -rf /auth/codex
 
 ## The plugin catalog
 
-The repository is its own plugin marketplace. Claude Code sees one plugin,
-`agentdev`; OpenCode loads `agentdev` through the OpenCode bridge that it contains.
+The repository is its own plugin marketplace. It publishes two plugins, `agentdev`
+and `agentdev-iwe`; a project enables either or both. OpenCode loads every published
+plugin through the OpenCode bridge in `.agents/opencode-bridge/`. The plugins'
+bundled scripts run through `uv run` and share the `agentdev-lib` package, published
+to PyPI from `py_packages/agentdev_lib/`.
+
+The image stages the catalog under `/opt/agentdev`. The create phase installs every
+plugin into each agent's user scope, and the attach phase refreshes a repository's
+workspace copy on editor attachment.
 
 ### `agentdev`
 
-The image carries `agentdev` 5.0.0, a cross-agent plugin with 37 skills and five
-agents for Claude Code and OpenCode. It covers:
+The image carries `agentdev` 6.0.0, a cross-agent plugin for Claude Code and
+OpenCode. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
 - Pull-request creation, synchronization, review, feedback resolution, and merging.
@@ -149,22 +157,22 @@ agents for Claude Code and OpenCode. It covers:
 - Formatting, linting, and semantic-refactor auditing.
 - Agent and skill authoring.
 - Docker-backed execution through the project devcontainer.
-- Template adoption and updates.
-- The complete IWE project-memory workflow.
-
-The image stages the catalog under `/opt/agentdev`. The create phase installs it into
-each agent's user scope, and the attach phase refreshes a repository's workspace copy
-on editor attachment.
 
 Skills use the `/agentdev:<name>` namespace, including `/agentdev:pr-open`,
 `/agentdev:pr-review`, and `/agentdev:pr-merge`. See the
 [catalog README](.agents/plugins/agentdev/README.md) for standalone installation
 instructions and contributor guidance.
 
+### `agentdev-iwe`
+
+`agentdev-iwe` 1.0.0 is the complete IWE project-memory workflow described in
+[IWE project memory](#iwe-project-memory). Its skills use the `/agentdev-iwe:<name>`
+namespace, such as `/agentdev-iwe:iwe-plan`.
+
 ## IWE project memory
 
 IWE stores product context, architecture, specifications, plans, and releases as
-a Markdown knowledge graph. The catalog's `iwe-*` skills
+a Markdown knowledge graph. The `agentdev-iwe` plugin's `iwe-*` skills
 provide a complete workflow over it.
 
 Plan checkboxes carry traceable evidence, and behavior-changing plans state their

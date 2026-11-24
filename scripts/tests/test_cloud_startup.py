@@ -62,7 +62,11 @@ def scratch() -> Iterator[Path]:
 
 
 def run_startup(
-    scratch: Path, *args: str, failing: str = 'docker dockerd', **env: str
+    scratch: Path,
+    *args: str,
+    failing: str = 'docker dockerd',
+    script: Path = STARTUP,
+    **env: str,
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
     """Run startup.py with stubs that log each call; the stubs named in failing exit 1."""
     bin_dir = scratch / 'bin'
@@ -75,7 +79,7 @@ def run_startup(
         )
         stub.chmod(0o755)
     result = subprocess.run(
-        [sys.executable, '-c', ISOLATED, str(STARTUP), str(scratch), *args],
+        [sys.executable, '-c', ISOLATED, str(script), str(scratch), *args],
         env={
             'PATH': f'{bin_dir}:/usr/bin:/bin',
             'HOME': str(scratch),
@@ -98,9 +102,9 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
     result, calls = run_startup(scratch, *args)
     assert result.returncode == 0, result.stderr
     hook_types = ' '.join(f'--hook-type {hook}' for hook in startup.HOOK_TYPES)
-    assert calls == [
+    # test_setup_installs_every_marketplace_plugin covers the plugin installs.
+    assert [call for call in calls if not call.startswith('claude plugin install ')] == [
         'claude plugin marketplace add ./',
-        'claude plugin install agentdev@agent-devcontainer',
         f'bash -c curl -LsSf https://astral.sh/uv/{startup.UV_VERSION}/install.sh'
         f' | env UV_INSTALL_DIR={startup.TOOL_DIR} UV_NO_MODIFY_PATH=1 sh',
         'bash -c curl -fsSL https://bun.sh/install'
@@ -109,6 +113,33 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
         f' {startup.TOOL_DIR} {" ".join(startup.HOOK_TOOLS)}',
         'uv sync',
         f'uv run pre-commit install --install-hooks {hook_types}',
+    ]
+
+
+def test_setup_installs_every_marketplace_plugin(scratch: Path) -> None:
+    """Setup installs each plugin that the checkout's marketplace publishes, in its order."""
+    checkout = scratch / 'checkout'
+    (checkout / '.claude').mkdir(parents=True)
+    shutil.copy(STARTUP, checkout / '.claude/startup.py')
+    (checkout / '.claude-plugin').mkdir()
+    (checkout / '.claude-plugin/marketplace.json').write_text(
+        json.dumps(
+            {
+                'name': 'fixture-market',
+                'plugins': [
+                    {'name': 'alpha', 'source': './plugins/alpha'},
+                    {'name': 'beta', 'source': './plugins/beta'},
+                ],
+            }
+        )
+    )
+
+    _, calls = run_startup(scratch, 'setup', script=checkout / '.claude/startup.py')
+
+    assert [call for call in calls if call.startswith('claude ')] == [
+        'claude plugin marketplace add ./',
+        'claude plugin install alpha@fixture-market',
+        'claude plugin install beta@fixture-market',
     ]
 
 

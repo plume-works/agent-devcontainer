@@ -7,6 +7,20 @@
 !.claude-plugin
 !.agents/plugins
 .agents/plugins/*/tests
+# The image build syncs each plugin's environment itself.
+.agents/plugins/*/.venv
+.agents/plugins/*/uv.lock
+!.agents/opencode-bridge
+.agents/opencode-bridge/tests
+!py_packages/agentdev_lib
+py_packages/agentdev_lib/tests
+# Staging runs its own uv sync against the bundled wheel.
+.agents/plugins/*/.venv
+.agents/plugins/*/uv.lock
+!.agents/opencode-bridge
+.agents/opencode-bridge/tests
+!py_packages/agentdev_lib
+py_packages/agentdev_lib/tests
 !py_packages/validate_agent_files
 !py_packages/agentdev_runtime
 !.devcontainer/firewall-allowlist.txt

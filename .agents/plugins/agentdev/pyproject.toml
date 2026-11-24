@@ -1,0 +1,9 @@
+[project]
+name = "agentdev"
+version = "0.0.0"
+description = "The scripts of the agentdev plugin, run through `uv run`."
+requires-python = ">=3.12"
+dependencies = ["agentdev-lib==1.0"]
+
+[tool.uv]
+package = false

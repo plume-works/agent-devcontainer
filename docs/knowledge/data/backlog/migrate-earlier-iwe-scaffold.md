@@ -5,18 +5,18 @@ stage: pending
 priority: medium
 created: 2026-11-12
 sources:
-- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/assets/
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/
 - resource: docs/knowledge/data/plans/20261112-knowledge-base-single-home.md
 ---
 
 # Migrate a repository that consumed the earlier IWE scaffold
 
-A repository that ran `/agentdev:iwe-bootstrap` before the single-home layout
-holds `data/architecture/`, `data/log.md`, the `okf-log` schema, `released`
-fields on done plans, release pages that link features, and closed plans, bugs,
-tasks, and features listed in their hubs. The current scaffold and the workflow
-rulebooks write the new layout, so once such a consumer updates the catalog its
-graph is checked against rules it does not meet.
+A repository that ran `/agentdev-iwe:iwe-bootstrap` before the single-home
+layout holds `data/architecture/`, `data/log.md`, the `okf-log` schema,
+`released` fields on done plans, release pages that link features, and closed
+plans, bugs, tasks, and features listed in their hubs. The current scaffold and
+the workflow rulebooks write the new layout, so once such a consumer updates the
+catalog its graph is checked against rules it does not meet.
 
 The work: give that consumer a migration path —
 

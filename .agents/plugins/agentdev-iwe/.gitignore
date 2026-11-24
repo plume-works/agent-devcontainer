@@ -1,0 +1,6 @@
+# The plugin is installed and extracted standalone into a consumer's plugin
+# cache, where the ignore rules of the repository that develops it do not apply.
+# Anything the plugin's own tooling generates has to be ignored from here.
+.tmp/
+__pycache__/
+.pytest_cache/

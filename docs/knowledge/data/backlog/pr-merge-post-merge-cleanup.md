@@ -7,7 +7,7 @@ description: After pr-merge squash-merges a PR from its own head branch, release
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
 rank: 1200
 ---
 

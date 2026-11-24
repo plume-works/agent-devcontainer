@@ -7,6 +7,13 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
+[manifest]
+members = [
+    "agent-devcontainer",
+    "agentdev",
+    "agentdev-iwe",
+]
+
 [[package]]
 name = "agent-devcontainer"
 version = "0.0.0"
@@ -14,6 +21,7 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
+    { name = "agentdev-lib" },
     { name = "agentdev-runtime" },
     { name = "clang-format" },
     { name = "json5" },
@@ -32,6 +40,7 @@ dev = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "agentdev-lib", editable = "py_packages/agentdev_lib" },
     { name = "agentdev-runtime", editable = "py_packages/agentdev_runtime" },
     { name = "clang-format", specifier = ">=21.1.2" },
     { name = "json5", specifier = ">=0.17.3" },
@@ -45,6 +54,33 @@ dev = [
     { name = "ruff", specifier = ">=0.11.5" },
     { name = "validate-agent-files", editable = "py_packages/validate_agent_files" },
 ]
+
+[[package]]
+name = "agentdev"
+version = "0.0.0"
+source = { virtual = ".agents/plugins/agentdev" }
+dependencies = [
+    { name = "agentdev-lib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "agentdev-lib", editable = "py_packages/agentdev_lib" }]
+
+[[package]]
+name = "agentdev-iwe"
+version = "0.0.0"
+source = { virtual = ".agents/plugins/agentdev-iwe" }
+dependencies = [
+    { name = "agentdev-lib" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "agentdev-lib", editable = "py_packages/agentdev_lib" }]
+
+[[package]]
+name = "agentdev-lib"
+version = "1.0"
+source = { editable = "py_packages/agentdev_lib" }
 
 [[package]]
 name = "agentdev-runtime"

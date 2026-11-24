@@ -5,9 +5,9 @@ stage: pending
 priority: medium
 description: Let a Verify run whose HEAD descends from a commit with a saved Verify report re-check only what changed since that commit, instead of re-running every check and verification command.
 sources:
-- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-verifier.agent.md
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
 rank: 1900
 ---
 

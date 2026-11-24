@@ -103,6 +103,23 @@ jobs:
             uv run pre-commit run --from-ref "$FROM_REF" --to-ref "$TO_REF" --show-diff-on-failure
           fi
 
+  agentdev-lib-version:
+    name: agentdev-lib version
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check that a changed agentdev-lib has a new version
+        run: scripts/check-agentdev-lib-version.py
+
   ci:
     name: CI/CD
     needs: [cooldown, pre-commit]

@@ -130,7 +130,7 @@ class Lifecycle:
     def complete_catalog(self) -> None:
         (self.workspace / '.claude-plugin').mkdir()
         (self.workspace / '.claude-plugin/marketplace.json').write_text('{}')
-        (self.workspace / '.agents/plugins/agentdev/.opencode-plugin').mkdir(parents=True)
+        (self.workspace / '.agents/opencode-bridge').mkdir(parents=True)
 
     @property
     def marker(self) -> Path:
@@ -276,9 +276,7 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     ]
 
 
-@pytest.mark.parametrize(
-    'missing', ['.claude-plugin/marketplace.json', '.agents/plugins/agentdev/.opencode-plugin']
-)
+@pytest.mark.parametrize('missing', ['.claude-plugin/marketplace.json', '.agents/opencode-bridge'])
 def test_attach_keeps_the_staged_catalog_for_an_incomplete_checkout(lifecycle, missing):
     lifecycle.complete_catalog()
     target = lifecycle.workspace / missing

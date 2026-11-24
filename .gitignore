@@ -76,3 +76,8 @@ node_modules/
 openspec/
 **/skills/openspec-*/
 .openspec-target
+
+# A plugin's environment and lock, written when its scripts run outside this
+# checkout's uv workspace; the image build writes them in its staged copy.
+.agents/plugins/*/.venv/
+.agents/plugins/*/uv.lock

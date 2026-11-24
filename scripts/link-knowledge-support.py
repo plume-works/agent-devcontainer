@@ -14,7 +14,7 @@ import filecmp
 import os
 from pathlib import Path
 
-SCAFFOLD = Path('.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge')
+SCAFFOLD = Path('.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/docs/knowledge')
 KNOWLEDGE = Path('docs/knowledge')
 # Names at the top of docs/knowledge/ that the repository owns: never links.
 OWNED = frozenset({'data', 'tests', 'LICENSE.md', '.gitignore'})

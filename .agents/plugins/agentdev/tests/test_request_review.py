@@ -176,7 +176,7 @@ def install_stub_path(path: Path, *, with_gh: bool = True) -> Path:
     """Create a PATH directory holding only the commands the script needs."""
     stub_directory = path / 'stub-bin'
     stub_directory.mkdir(parents=True, exist_ok=True)
-    for command in ('cat', 'dirname', 'python3'):
+    for command in ('cat', 'dirname', 'python3', 'uv'):
         executable = shutil.which(command)
         assert executable is not None
         (stub_directory / command).symlink_to(executable)

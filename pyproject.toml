@@ -15,6 +15,7 @@ dev = [
   "ruff>=0.11.5",
   "pydantic>=2.0",
   "python-frontmatter>=1.1.0",
+  "agentdev-lib",
   "agentdev_runtime",
   "validate_agent_files",
   "json5>=0.17.3",
@@ -24,13 +25,18 @@ dev = [
 package = false
 default-groups = ["dev"]
 
+[tool.uv.workspace]
+members = [".agents/plugins/*"]
+
 [tool.uv.sources]
+agentdev-lib = { path = "py_packages/agentdev_lib", editable = true }
 agentdev_runtime = { path = "py_packages/agentdev_runtime", editable = true }
 validate_agent_files = { path = "py_packages/validate_agent_files", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = [
   ".agents/plugins/agentdev/tests",
+  ".agents/plugins/agentdev-iwe/tests",
   "docs/knowledge/tests",
   "py_packages",
   "scripts/tests",

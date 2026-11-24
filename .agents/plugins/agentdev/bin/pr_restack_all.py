@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Restack a chain of manual stacked pull requests with merges, never a rewrite.
@@ -6,8 +6,6 @@ Restack a chain of manual stacked pull requests with merges, never a rewrite.
 Works in one fresh detached worktree under ``./.tmp/`` built from remote refs,
 so the script does not check out, create, or move a local branch. Design: see
 ADR-0068 of the repository's IWE graph.
-
-Standard library only.
 """
 
 from __future__ import annotations
@@ -21,18 +19,15 @@ import sys
 from typing import Protocol
 from uuid import uuid4
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import depends_on  # noqa: E402  (path set above so the plugin's bin/ resolves)
-import git_default_branch  # noqa: E402
-import result_codes as rc  # noqa: E402
-from skill_common import (  # noqa: E402
+from agentdev_lib import git_default_branch, result_codes as rc
+from agentdev_lib.skill_common import (
     bash_quote,
     print_error,
     require_git_repo,
     run_tool,
     Stop,
 )
+import depends_on
 
 PREFLIGHT_ERROR = 2
 GH_FAILED = 3

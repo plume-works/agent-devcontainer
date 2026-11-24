@@ -5,9 +5,9 @@ stage: pending
 priority: high
 description: Treat a corrected `## Verification` command that runs the same check as a tactical correction, so a command broken by its own invocation no longer costs a full revision round.
 sources:
-- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-- resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-verifier.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-revision-evaluator.agent.md
 - resource: docs/knowledge/data/plans/20261102-autonomy-loop.md
 ---
 

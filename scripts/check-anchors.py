@@ -22,8 +22,8 @@ import yaml
 
 SCAN_GLOBS = (
     'docs/knowledge/data/**/*.md',
-    '.agents/plugins/agentdev/skills/**/*.md',
-    '.agents/plugins/agentdev/agents/**/*.md',
+    '.agents/plugins/*/skills/**/*.md',
+    '.agents/plugins/*/agents/**/*.md',
 )
 DATA = Path('docs/knowledge/data')
 OPEN_STAGES = frozenset({'pending', 'planned'})

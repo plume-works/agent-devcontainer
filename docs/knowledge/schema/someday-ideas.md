@@ -1,1 +1,1 @@
-../../../.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/schema/someday-ideas.md
+../../../.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/docs/knowledge/schema/someday-ideas.md

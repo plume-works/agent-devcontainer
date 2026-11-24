@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Create and submit a GitHub PR review with all inline comments in one call.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
@@ -16,10 +15,8 @@ import subprocess
 import sys
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import print_error, run_tool, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import print_error, run_tool, Stop
 
 GH_CALL_FAILED = 3
 PREFLIGHT_ERROR = 2

@@ -77,17 +77,28 @@ RUN --mount=type=bind,source=py_packages/validate_agent_files,target=/tmp/valida
       = "$VALIDATE_AGENT_FILES_VERSION" ] \
  && chmod -R u=rwX,go=rX /opt/uv-tools
 
-# The agentdev catalog, staged outside every home: the create phase installs it into each
-# agent's user scope. A pin the build verifies: bump it with .claude-plugin/marketplace.json.
-ARG AGENTDEV_PLUGIN_VERSION=5.0.0
+# The agentdev catalog, staged outside every home: the create phase installs every plugin it
+# publishes into each agent's user scope. A pin the build verifies: bump it with
+# .claude-plugin/marketplace.json.
+ARG AGENTDEV_PLUGIN_VERSION=6.0.0
 ENV AGENTDEV_CATALOG_DIR=/opt/agentdev
+# The agentdev-lib wheel built from this context; uv takes it over PyPI. See ADR-0105.
+ENV UV_FIND_LINKS=$AGENTDEV_CATALOG_DIR/wheels
+# Each plugin's .venv is synced before the copy turns read-only: uv run cannot create it there.
 RUN --mount=type=bind,source=.claude-plugin,target=/tmp/catalog/.claude-plugin \
     --mount=type=bind,source=.agents/plugins,target=/tmp/catalog/.agents/plugins \
+    --mount=type=bind,source=.agents/opencode-bridge,target=/tmp/catalog/.agents/opencode-bridge \
+    --mount=type=bind,source=py_packages/agentdev_lib,target=/tmp/agentdev-lib,rw \
     m=/tmp/catalog/.claude-plugin/marketplace.json \
  && [ "$(jq '[.plugins[] | select(.name == "agentdev")] | length' "$m")" = 1 ] \
  && [ "$(jq -r '.plugins[] | select(.name == "agentdev").version' "$m")" = "$AGENTDEV_PLUGIN_VERSION" ] \
- && install -d -m 0755 "$AGENTDEV_CATALOG_DIR" \
+ && install -d -m 0755 "$AGENTDEV_CATALOG_DIR" "$UV_FIND_LINKS" \
  && cp -a /tmp/catalog/. "$AGENTDEV_CATALOG_DIR/" \
+ && export UV_PYTHON=/usr/bin/python3 UV_PYTHON_DOWNLOADS=never UV_NO_CACHE=1 UV_LINK_MODE=copy \
+ && uv build --wheel --out-dir "$UV_FIND_LINKS" /tmp/agentdev-lib \
+ && jq -r '.plugins[].source' "$m" | while read -r source; do \
+      uv sync --offline --project "$AGENTDEV_CATALOG_DIR/${source#./}" || exit 1; \
+    done \
  && find "$AGENTDEV_CATALOG_DIR" -depth -type d \( -name __pycache__ -o -name .pytest_cache \
       -o -name .ruff_cache -o -name .tmp -o -name tests \) -exec rm -rf {} + \
  && chown -R root:root "$AGENTDEV_CATALOG_DIR" \

@@ -1,10 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
-"""
-Find the open pull requests an IWE plan's work branch must be stacked on.
-
-Standard library only.
-"""
+"""Find the open pull requests an IWE plan's work branch must be stacked on."""
 
 from __future__ import annotations
 
@@ -15,10 +11,8 @@ import re
 import sys
 from typing import NamedTuple
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import print_error, require_git_repo, run_tool, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import print_error, require_git_repo, run_tool, Stop
 
 PREFLIGHT_ERROR = 2
 NO_PULL_REQUEST = 3

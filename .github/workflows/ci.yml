@@ -60,6 +60,7 @@ jobs:
             - docker/**
             - .claude-plugin/**
             - .agents/plugins/**
+            - .agents/opencode-bridge/**
             - .devcontainer/**
             # Both packages are built into the image, and the suite tests all of py_packages.
             - py_packages/**
@@ -256,7 +257,7 @@ jobs:
             # The repo's own checks
             uv sync --locked --all-groups --all-extras
             # The runtime tests mostly wait on subprocess deadlines, so workers beyond the core count pay.
-            uv run pytest -n 8 py_packages .agents/plugins/agentdev/tests scripts/tests
+            uv run pytest -n 8 py_packages .agents/plugins/agentdev/tests .agents/plugins/agentdev-iwe/tests scripts/tests
             bun test ./.github/actions/ai-review-status
 
             # The tests that the runtime account skips run as root.

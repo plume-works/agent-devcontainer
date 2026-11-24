@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from pathlib import Path
 import shutil
-import subprocess
 from uuid import uuid4
 
 import pytest
@@ -33,37 +32,3 @@ def plugin_tmp_path(plugin_root: Path):
         yield temp_path
     finally:
         shutil.rmtree(temp_path)
-
-
-@pytest.fixture
-def installed_iwe_bootstrap(plugin_root: Path, plugin_tmp_path: Path) -> Path:
-    """Copy the bootstrap skill and shared `bin/` into an isolated plugin layout."""
-    installed = plugin_tmp_path / 'installed-plugin'
-    skill = plugin_root / 'skills' / 'iwe-bootstrap'
-    shutil.copytree(plugin_root / 'bin', installed / 'bin')
-    # In this repository, the root `.iwe` is a link to `assets/.iwe`,
-    # so iwe writes its runtime files there.
-    gitignore = (skill / 'assets' / '.iwe' / '.gitignore').read_text(encoding='utf-8')
-    runtime = [line.rstrip('/') for line in gitignore.splitlines() if line]
-    shutil.copytree(
-        skill,
-        installed / 'skills' / 'iwe-bootstrap',
-        symlinks=True,
-        ignore=shutil.ignore_patterns(*runtime),
-    )
-    return installed / 'skills' / 'iwe-bootstrap'
-
-
-@pytest.fixture
-def unrelated_repository(plugin_tmp_path: Path) -> Path:
-    """Create a git repository that shares nothing with the publisher checkout."""
-    repository = plugin_tmp_path / 'unrelated-repository'
-    repository.mkdir()
-    subprocess.run(
-        ['git', 'init', '--quiet', '--initial-branch=main'],
-        cwd=repository,
-        check=True,
-        capture_output=True,
-    )
-    (repository / 'README.md').write_text('# Unrelated project\n', encoding='utf-8')
-    return repository

@@ -171,7 +171,9 @@ def test_a_direct_consumer_gets_the_managed_runtime_without_lifecycle_scripts(co
     box.exec('grep -q agentdev "$HOME/.claude/plugins/installed_plugins.json"')
     box.exec('test -d "$AGENTDEV_CATALOG_DIR/.claude-plugin"')
     box.exec('test -z "$(find "$AGENTDEV_CATALOG_DIR" -type d -name tests)"')
-    box.exec('test "$(ls -A "$AGENTDEV_CATALOG_DIR/.agents")" = plugins')
+    box.exec(
+        'test "$(ls -A "$AGENTDEV_CATALOG_DIR/.agents" | tr "\\n" " ")" = "opencode-bridge plugins "'
+    )
     box.exec('curl -fsS -o /dev/null http://127.0.0.1:14500/')
     box.exec(
         'mkdir -p /tmp/ctx && echo hi > /tmp/ctx/f && printf "FROM scratch\\nCOPY f /f\\n" '

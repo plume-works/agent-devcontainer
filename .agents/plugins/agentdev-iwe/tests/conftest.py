@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+"""
+Shared fixtures for the plugin's own script tests.
+
+These tests exercise the scripts bundled with the plugin's skills, and run only
+in the repository that develops the plugin, never from a consumer's plugin cache.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+import shutil
+import subprocess
+from uuid import uuid4
+
+import pytest
+
+
+@pytest.fixture
+def plugin_root() -> Path:
+    """Resolve the plugin root that ships the scripts under test."""
+    return Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture
+def plugin_tmp_path():
+    """Create an isolated temporary directory under /tmp."""
+    temp_path = Path('/tmp/agentdev-iwe-tests') / f'pytest-{uuid4().hex}'
+    temp_path.mkdir(parents=True)
+    try:
+        yield temp_path
+    finally:
+        shutil.rmtree(temp_path)
+
+
+@pytest.fixture
+def installed_iwe_bootstrap(plugin_root: Path, plugin_tmp_path: Path) -> Path:
+    """Copy the bootstrap skill into an isolated plugin layout."""
+    installed = plugin_tmp_path / 'installed-plugin'
+    skill = plugin_root / 'skills' / 'iwe-bootstrap'
+    # In this repository, the root `.iwe` is a link to `assets/.iwe`,
+    # so iwe writes its runtime files there.
+    gitignore = (skill / 'assets' / '.iwe' / '.gitignore').read_text(encoding='utf-8')
+    runtime = [line.rstrip('/') for line in gitignore.splitlines() if line]
+    shutil.copytree(
+        skill,
+        installed / 'skills' / 'iwe-bootstrap',
+        symlinks=True,
+        ignore=shutil.ignore_patterns(*runtime),
+    )
+    return installed / 'skills' / 'iwe-bootstrap'
+
+
+@pytest.fixture
+def unrelated_repository(plugin_tmp_path: Path) -> Path:
+    """Create a git repository that shares nothing with the publisher checkout."""
+    repository = plugin_tmp_path / 'unrelated-repository'
+    repository.mkdir()
+    subprocess.run(
+        ['git', 'init', '--quiet', '--initial-branch=main'],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+    )
+    (repository / 'README.md').write_text('# Unrelated project\n', encoding='utf-8')
+    return repository

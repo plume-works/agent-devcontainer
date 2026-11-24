@@ -9,8 +9,14 @@
     {
       "name": "agentdev",
       "source": "./.agents/plugins/agentdev",
-      "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container escalation, and an IWE knowledge-graph planning workflow.",
-      "version": "5.0.0"
+      "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, and container escalation.",
+      "version": "6.0.0"
+    },
+    {
+      "name": "agentdev-iwe",
+      "source": "./.agents/plugins/agentdev-iwe",
+      "description": "IWE knowledge-graph workflow: explore, plan, implement, verify, and ship work recorded as project memory.",
+      "version": "1.0.0"
     }
   ]
 }
