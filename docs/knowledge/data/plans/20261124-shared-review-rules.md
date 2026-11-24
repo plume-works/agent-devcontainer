@@ -26,7 +26,7 @@ places that disagree:
 - About half of `pr-review/SKILL.md` is how a review is published, mixed into
   how findings are found and validated.
 
-This is the first writer/reviewer pair to share a rulebook under ADR-0108.
+This plan applies ADR-0108 to the `pr-review` and `pr-feedback-resolution` pair.
 
 ## Approach
 
@@ -195,8 +195,7 @@ verdict.
 
 - **WHEN** `/agentdev:pr-review` reviews a change with untested changed behavior
   or a maintainability risk that materially raises future cost
-- **THEN** a pass may raise it as a non-blocking finding, where before "Do NOT
-  flag: Code style or quality concerns" excluded it
+- **THEN** a pass may raise it as a non-blocking finding
 - **Checked at ship:** `.agents/plugins/agentdev/rules/review.md`
 
 ### Scenario: Feedback is judged against the code, not its wording
