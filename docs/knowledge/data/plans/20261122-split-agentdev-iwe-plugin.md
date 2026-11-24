@@ -189,7 +189,7 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 - [x] The name `agentdev-lib` is free on PyPI, or the plan is revised with
   another name.
-- [ ] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
+- [x] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
   this repository as its publisher.
 
 ### Task 9: Stage and install every plugin in the image
