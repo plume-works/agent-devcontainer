@@ -123,7 +123,7 @@ verdict.
   durable-knowledge and metadata focuses.
 - [x] Steps 4 and 6 say that every review pass prompt and every validator prompt
   carries the full text of `rules/review.md`, linked as `../../rules/review.md`.
-- [ ] Step 6 has no "Stated intent is evidence, not a verdict" paragraph.
+- [x] Step 6 has no "Stated intent is evidence, not a verdict" paragraph.
 
 ### Task 4: Have pr-feedback-resolution judge comments by the rulebook
 
