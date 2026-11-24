@@ -140,7 +140,7 @@ verdict.
   non-executable artifacts directly, reply, verify, resolve that exact thread.
 - [x] `#quality-standards` holds no "Avoid risky refactors without explicit
   reviewer request" or "Prefer targeted, minimal diffs" line.
-- [ ] `#troubleshooting` has no "Cannot determine comment intent" entry.
+- [x] `#troubleshooting` has no "Cannot determine comment intent" entry.
 
 ### Task 5: Remove the review half of code-review-standards
 

@@ -479,10 +479,6 @@ Maintain an internal execution log documenting:
 
 ## Troubleshooting
 
-### Problem: Cannot determine comment intent
-
-**Solution**: Reply asking for clarification with your interpretation and proposed action. Do not guess or assume.
-
 ### Problem: CI fails intermittently (flaky test)
 
 **Solution**: Identify source of non-determinism (timing, randomness, external dependency). Fix test to be deterministic or mark as integration test.
