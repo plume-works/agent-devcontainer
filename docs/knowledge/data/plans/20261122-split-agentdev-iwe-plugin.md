@@ -187,9 +187,9 @@ under `.agents/plugins/agentdev/tests/` that run them,
 
 **Closed by:** the maintainer.
 
-- [ ] The name `agentdev-lib` is free on PyPI, or the plan is revised with
+- [x] The name `agentdev-lib` is free on PyPI, or the plan is revised with
   another name.
-- [ ] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
+- [x] The PyPI project trusts `.github/workflows/release-agentdev-lib.yml` of
   this repository as its publisher.
 
 ### Task 9: Stage and install every plugin in the image
@@ -327,11 +327,11 @@ image context for the mount that Task 10 added.
 
 **Closed by:** the first merge to `main` after Task 8.
 
-- [ ] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
-- [ ] `.github/workflows/release-agentdev-lib.yml` published the version to
+- [x] `.github/workflows/tag-agentdev-lib.yml` pushed `agentdev-lib/<version>`.
+- [x] `.github/workflows/release-agentdev-lib.yml` published the version to
   PyPI.
-- [ ] The GitHub Release for the tag has the wheel attached.
-- [ ] The next push to `main` that keeps the version pushes no tag.
+- [x] The GitHub Release for the tag has the wheel attached.
+- [x] The next push to `main` that keeps the version pushes no tag.
 
 ### Task 18: Observe both plugins in a built image and outside it
 
