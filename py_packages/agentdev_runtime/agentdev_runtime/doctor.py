@@ -35,7 +35,7 @@ REQUIRED_TOOLS = (
 )
 # gitleaks prints its version through a subcommand; every other tool takes --version.
 VERSION_ARGS = {'gitleaks': ('version',)}
-OPTIONAL_TOOLS = ('clang-format',)
+OPTIONAL_TOOLS = ()
 AI_TOOLS = ('claude', 'opencode')
 DETAIL_LIMIT = 160
 FALSE_WORDS = {'false', '0', 'no', 'off', ''}

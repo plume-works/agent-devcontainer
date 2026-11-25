@@ -72,7 +72,6 @@ esac
         'actionlint',
         'agentdev-runtime',
         'bun',
-        'clang-format',
         'claude',
         'cmake',
         'curl',
