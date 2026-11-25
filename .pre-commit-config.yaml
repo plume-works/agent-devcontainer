@@ -51,14 +51,6 @@ repos:
         always_run: true
         args: [--branch, main, --branch, master]
 
-      - id: clang-format
-        name: clang-format
-        entry: uv run clang-format -i
-        language: system
-        types_or: [c, c++]
-        files: '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$'
-        args: [-style=file]
-
       - id: hadolint-docker
         name: Lint Dockerfiles
         entry: hadolint

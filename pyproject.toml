@@ -7,7 +7,6 @@ description = "General-purpose agent development container: image build, devcont
 [dependency-groups]
 dev = [
   "pre-commit>=4.2.0",
-  "clang-format>=21.1.2",
   "pre-commit-hooks>=6.0.0",
   "pytest>=7.0.0",
   "pytest-cov>=7.0.0",

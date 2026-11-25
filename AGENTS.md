@@ -196,12 +196,6 @@ Practice 8.
 - The one exception is the agentdev catalog's `bin/macos-bootstrap.zsh`: it is zsh because it runs on a stock macOS host before anything is installed, where `/bin/zsh` is the only modern shell. `shellcheck` cannot parse zsh, so it is checked with `zsh -n` instead
 - Quote every expansion; prefer `"${var:-default}"` over assuming a variable is set
 
-### C++
-
-- Follow the C++ Core Guidelines with modern C++ (C++17 or later): RAII for resource management, value semantics by default, smart pointers instead of raw pointers, standard library containers and algorithms
-- Make ownership explicit in API design; focus on correctness first, then optimize with evidence
-- Formatting is `clang-format` per [.clang-format](.clang-format)
-
 **Edit `AGENTS.md`; `CLAUDE.md` only includes it (`@AGENTS.md`), so changes there cover all agents.**
 
 ## Project memory

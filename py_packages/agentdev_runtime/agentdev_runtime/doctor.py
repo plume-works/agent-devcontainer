@@ -28,14 +28,11 @@ REQUIRED_TOOLS = (
     'pre-commit',
     'gitleaks',
     'actionlint',
-    'cmake',
-    'ninja',
     'iwe',
     'xpra',
 )
 # gitleaks prints its version through a subcommand; every other tool takes --version.
 VERSION_ARGS = {'gitleaks': ('version',)}
-OPTIONAL_TOOLS = ('clang-format',)
 AI_TOOLS = ('claude', 'opencode')
 DETAIL_LIMIT = 160
 FALSE_WORDS = {'false', '0', 'no', 'off', ''}
@@ -109,11 +106,6 @@ def toolchain(report: Report) -> None:
     report.check('uv project python', 'uv', 'run', '--no-sync', 'python', '--version')
     report.check('ruff', 'uv', 'run', '--no-sync', 'ruff', '--version')
     report.check('uv sync --check', 'uv', 'sync', '--locked', '--check')
-    for tool in OPTIONAL_TOOLS:
-        if shutil.which(tool):
-            report.check(tool, tool, '--version')
-        else:
-            report.result(tool, 'SKIP', 'optional tool not installed')
 
 
 def ai_tools(report: Report) -> None:

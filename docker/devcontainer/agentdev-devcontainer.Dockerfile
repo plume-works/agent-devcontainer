@@ -9,8 +9,8 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 # fetcher below; iptables and ipset the egress firewall; fuse-overlayfs the nested engine.
 RUN apt-get update --error-on=any \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      bash-completion build-essential dirmngr ffmpeg fuse-overlayfs ipset iptables locales \
-      lsb-release openssh-client pkg-config pre-commit python3-argcomplete python3-pip \
+      bash-completion dirmngr ffmpeg fuse-overlayfs ipset iptables locales \
+      lsb-release openssh-client pre-commit python3-argcomplete python3-pip \
       python3-setuptools python3-venv python3-yaml tzdata unzip wget xz-utils \
  && locale-gen en_US.UTF-8 \
  && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \

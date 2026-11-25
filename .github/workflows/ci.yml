@@ -229,7 +229,6 @@ jobs:
             if command -v node; then echo 'unexpected Node.js on PATH' >&2; exit 1; fi
             uv --version
             gh --version | head -n 1
-            cmake --version | head -n 1
             zizmor --version
             # Pre-commit's gitleaks and actionlint hooks run these pinned binaries, without Go.
             gitleaks version

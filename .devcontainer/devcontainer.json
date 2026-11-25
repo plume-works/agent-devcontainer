@@ -74,7 +74,6 @@
         "ms-vscode-remote.remote-containers",
         "ms-vscode-remote.remote-ssh",
         "ms-vscode-remote.remote-ssh-edit",
-        "ms-vscode.cmake-tools",
         "mads-hartmann.bash-ide-vscode",
         "rogalmic.bash-debug",
         "rpinski.shebang-snippets",
@@ -107,12 +106,6 @@
         "ruff.organizeImports": true,
         "ruff.fixAll": true,
         "ruff.lint.enable": true,
-
-        "cmake.configureOnEdit": false,
-        "cmake.configureOnOpen": false,
-        "cmake.cmakePath": "cmake",
-        "cmake.generator": "Ninja",
-        "cmake.exportCompileCommandsFile": true,
 
         "coverage-gutters.coverageFileNames": [
           "*.info",

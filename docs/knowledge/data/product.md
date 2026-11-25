@@ -88,9 +88,9 @@ come first.
   `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`),
   and `scripts/tests/`. Run them from root with `uv run pytest`.
 - **Lint/format**: ruff (Python, 99-char line limit per `.ruff.toml`, not 79),
-  hadolint, shellcheck, clang-format, Prettier — applied locally by the
-  pre-commit hooks that run on every commit, and gated in CI by the same hooks
-  in the `pre-commit` job of `primary-checks.yml`.
+  hadolint, shellcheck, Prettier — applied locally by the pre-commit hooks that
+  run on every commit, and gated in CI by the same hooks in the `pre-commit` job
+  of `primary-checks.yml`.
 - **CI**: GitHub Actions — `ci.yml` (image build, acceptance, and publish),
   `primary-checks.yml`, `validate-agent-files.yml`,
   `validate-knowledge-base.yml`, `validate-renovate-config.yml`, `renovate.yml`,
