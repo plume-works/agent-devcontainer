@@ -13,8 +13,8 @@ repositories.
 - A multi-architecture `linux/amd64` and `linux/arm64` image published through GHCR,
   built on [`ghcr.io/plume-works/devcontainer-base`](https://github.com/plume-works/images).
 - Python development through `uv`, and Bun for JavaScript (no Node.js).
-- systemd as PID 1, running a nested Docker engine with Buildx and Compose, plus CMake,
-  Ninja, Git LFS, and GitHub CLI.
+- systemd as PID 1, running a nested Docker engine with Buildx and Compose, plus Git LFS
+  and GitHub CLI.
 - Claude Code and OpenCode preinstalled with the shared `agentdev` and `agentdev-iwe`
   plugins.
 - A browser-accessible Xpra desktop with VirtualGL support.
@@ -103,18 +103,17 @@ GID to the host user's.
 
 ## Development environment
 
-| Area          | Included tools and capabilities                                        |
-| ------------- | ---------------------------------------------------------------------- |
-| Python        | `uv`, system Python, and `pre-commit`                                  |
-| JavaScript    | Bun; Playwright and MCP Inspector run through `bun --bun`              |
-| Agents        | Claude Code, OpenCode, and MCP Inspector                               |
-| Build tooling | `build-essential`, CMake, Ninja, and `pkg-config`                      |
-| Quality       | Ruff, ShellCheck, Zizmor, Prettier, Hadolint, Gitleaks, and Actionlint |
-| GitHub        | Git, Git LFS, `gh`, and a transparent host-token wrapper               |
-| Containers    | Docker CE, Buildx, and Compose under systemd                           |
-| Desktop       | Xpra with its HTML5 client, VirtualGL, Mesa, and Xvfb                  |
-| Credentials   | Shared agent authentication                                            |
-| Security      | An opt-in egress firewall with an allowlist and startup checks         |
+| Area        | Included tools and capabilities                                        |
+| ----------- | ---------------------------------------------------------------------- |
+| Python      | `uv`, system Python, and `pre-commit`                                  |
+| JavaScript  | Bun; Playwright and MCP Inspector run through `bun --bun`              |
+| Agents      | Claude Code, OpenCode, and MCP Inspector                               |
+| Quality     | Ruff, ShellCheck, Zizmor, Prettier, Hadolint, Gitleaks, and Actionlint |
+| GitHub      | Git, Git LFS, `gh`, and a transparent host-token wrapper               |
+| Containers  | Docker CE, Buildx, and Compose under systemd                           |
+| Desktop     | Xpra with its HTML5 client, VirtualGL, Mesa, and Xvfb                  |
+| Credentials | Shared agent authentication                                            |
+| Security    | An opt-in egress firewall with an allowlist and startup checks         |
 
 Python commands run through `uv run`. Python environments, agent state, and pre-commit
 environments persist across container rebuilds and remain isolated per worktree. Authentication is shared so opening another worktree does not
