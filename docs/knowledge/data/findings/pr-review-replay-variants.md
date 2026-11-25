@@ -32,7 +32,7 @@ The corpus, the harness and every run record are in
   gets. The `large` size ran `claude-opus-5-5` and the `light` size ran
   `claude-sonnet-5-5` in every run; each run record lists the model each
   subagent actually ran.
-- **Runs.** Three replays per variant and case: 126 runs over 13 arms.
+- **Runs.** Three replays per variant and case: 138 runs over 13 arms.
 - **Scoring.** Each case's `case.json` lists the expected findings and a pattern
   for each; `tools/report.py` scores every run as posted, dropped by the
   validator, not raised, or stopped at the metadata check. The patterns were
