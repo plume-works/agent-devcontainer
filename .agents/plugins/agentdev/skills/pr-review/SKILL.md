@@ -29,7 +29,7 @@ Two independent concerns feed two different pass types (see Steps below) so they
 - IGNORE import ordering, that is handled by `ruff` and `clang-format` in CI
 - Only flag a violation if you can quote the exact rule text being broken
 
-**Correctness focus** (bug-hunting) — runs on the model the effort matrix gives it:
+**Correctness focus** (bug-hunting) — runs on the `large` model at both tiers, per the effort matrix:
 
 - Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
 - Potential bugs, incorrect logic, and security implications introduced by the changed code
@@ -53,7 +53,7 @@ A correctness candidate that claims a wrong outcome states its scenario in three
 
 The review runs at one of two effort tiers, `light` or `full`. Nothing requests a tier: no PR body marker, label, or prompt line selects one.
 
-**Size the review yourself** from the diff you already hold: how many passes to run, which model each slot gets, and how deep the durable-knowledge pass goes. This is the same judgment Step 1 makes when it fast-approves a mechanical diff. The validation slot is the one exception — Step 6 fixes it at every effort level, self-sized included.
+**Size the review yourself** from the diff you already hold: how many passes to run, which model each slot gets, and how deep the durable-knowledge pass goes. This is the same judgment Step 1 makes when it fast-approves a mechanical diff. Two slots are exceptions, fixed at every effort level, self-sized included: every correctness pass runs on `large`, and Step 6 fixes the validation slot.
 
 Model sizes, unversioned so each name resolves to that model's latest release:
 
@@ -69,11 +69,11 @@ Which size each slot gets, and how many of it run:
 | orchestrator            | light            | large                |
 | metadata gate           | light            | large                |
 | compliance              | 1x light         | 2x light             |
-| correctness             | 1x light         | 2x large             |
+| correctness             | 1x large         | 2x large             |
 | durable-knowledge-audit | light            | large                |
 | validation              | one batch, light | per-candidate, light |
 
-The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
+The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light` except correctness, which stays `large` at both tiers. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
 
 Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` exactly as they do at `full`: the light tier is a cheaper review, not a weaker one. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
 
