@@ -5,18 +5,17 @@ stage: pending
 priority: medium
 description: Exercise the REMOVED Requirements delta operation end to end, which the risk-scaled spec-delta work specified but never ran against a real retirement.
 sources:
-- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-ship/SKILL.md
 - resource: docs/knowledge/data/plans/20260816-structured-plan-spec-deltas.md
 rank: 1800
 ---
 
 # Exercise REMOVED delta blocks end to end
 
-[Embed structured spec deltas in IWE
-plans](../archive/1.0.0/plans/20260816-structured-plan-spec-deltas.md) specified
-three delta operations and worked two of them. `ADDED` and `MODIFIED` were
-written, verified, and merged into IWE workflow skills by that plan's own
+The plan “Embed structured spec deltas in IWE plans” specified three delta
+operations and worked two of them. `ADDED` and `MODIFIED` were written,
+verified, and merged into IWE workflow skills by that plan's own
 `## Spec changes`, which is why the contract for those two is backed by a real
 merge. `REMOVED` was specified in the same pass and never run: no plan in this
 workspace has retired a requirement, so no `## REMOVED Requirements` block has
@@ -34,7 +33,7 @@ Wait for the first plan that genuinely retires a requirement and use it as the
 fixture, rather than inventing a retirement to exercise the path. When it comes:
 
 - Author the `## REMOVED Requirements` block with the retirement reason that
-  `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` requires.
+  `.agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md` requires.
 - Confirm Verify treats a removal that drops a still-live scenario as a
   CRITICAL, and that a legitimate retirement passes.
 - Confirm Ship's second pass accounts for the `REMOVED` operation and that the
@@ -50,12 +49,12 @@ than leaving an unmet bullet standing in a shipped plan.
 ## Why it is not urgent
 
 The operation is fully specified and carried by all four skills — Plan
-`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`, Implement
-`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`, Verify
-`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`, Ship
-`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` and
-`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`. Nothing is missing from the
-contract; what is missing is a worked instance proving the four agree in
+`.agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md`, Implement
+`.agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md`, Verify
+`.agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md`, Ship
+`.agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md` and
+`.agents/plugins/agentdev-iwe/skills/iwe-plan/SKILL.md`. Nothing is missing from
+the contract; what is missing is a worked instance proving the four agree in
 practice. The risk is that the three operations were written together and only
 two were ever pressure-tested, so a disagreement about `REMOVED` would first
 surface during a real retirement.

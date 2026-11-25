@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Check a candidate pull request body's ``## Depends on`` section before it is applied.
 
 The section must stay readable and editable by the parser pr-restack-all uses.
-Standard library only.
 """
 
 from __future__ import annotations
@@ -12,11 +11,9 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import depends_on  # noqa: E402  (path set above so the plugin's bin/ resolves)
-import result_codes as rc  # noqa: E402
-from skill_common import print_error, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import print_error, Stop
+import depends_on
 
 PREFLIGHT_ERROR = 2
 NO_SECTION = 3

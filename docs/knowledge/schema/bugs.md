@@ -1,1 +1,1 @@
-../../../.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/schema/bugs.md
+../../../.agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/docs/knowledge/schema/bugs.md

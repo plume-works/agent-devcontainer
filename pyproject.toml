@@ -7,8 +7,6 @@ description = "General-purpose agent development container: image build, devcont
 [dependency-groups]
 dev = [
   "pre-commit>=4.2.0",
-  "ansible>=11.4",
-  "ansible-lint>=25.2.1",
   "clang-format>=21.1.2",
   "pre-commit-hooks>=6.0.0",
   "pytest>=7.0.0",
@@ -17,6 +15,7 @@ dev = [
   "ruff>=0.11.5",
   "pydantic>=2.0",
   "python-frontmatter>=1.1.0",
+  "agentdev-lib",
   "agentdev_runtime",
   "validate_agent_files",
   "json5>=0.17.3",
@@ -26,13 +25,18 @@ dev = [
 package = false
 default-groups = ["dev"]
 
+[tool.uv.workspace]
+members = [".agents/plugins/*"]
+
 [tool.uv.sources]
+agentdev-lib = { path = "py_packages/agentdev_lib", editable = true }
 agentdev_runtime = { path = "py_packages/agentdev_runtime", editable = true }
 validate_agent_files = { path = "py_packages/validate_agent_files", editable = true }
 
 [tool.pytest.ini_options]
 testpaths = [
   ".agents/plugins/agentdev/tests",
+  ".agents/plugins/agentdev-iwe/tests",
   "docs/knowledge/tests",
   "py_packages",
   "scripts/tests",
@@ -40,5 +44,5 @@ testpaths = [
 addopts = "-m 'not stress'"
 markers = [
   "stress: repeats a race many times; excluded by default and run by a separate step of the CI Devcontainer image job with `-m stress -n auto`",
-  "requires_root: needs root (supervisord switching users, chown to other UIDs); skipped otherwise and run as root by scripts/run-root-tests",
+  "requires_root: needs root (setpriv to another account, chown to other UIDs); skipped otherwise and run as root by scripts/run-root-tests",
 ]

@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 from agentdev_runtime import project
-from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
+from agentdev_runtime.settings import Settings
 import pytest
 
 
@@ -23,9 +23,9 @@ def root(tmp_path: Path) -> Path:
     return tmp_path / 'uv' / 'venvs'
 
 
-def settings_for(root: Path, mode: str = DEVCONTAINER) -> Settings:
+def settings_for(root: Path) -> Settings:
     (root.parent).mkdir(parents=True, exist_ok=True)
-    return Settings({**os.environ, 'AGENTDEV_RUNTIME_MODE': mode, 'AGENTDEV_VENV_ROOT': str(root)})
+    return Settings({**os.environ, 'AGENTDEV_VENV_ROOT': str(root)})
 
 
 def test_a_fresh_checkout_gets_a_link_to_its_own_directory(checkout: Path, root: Path) -> None:
@@ -90,11 +90,6 @@ def test_a_dangling_link_outside_the_root_is_replaced(
     assert 'replacing dangling' in capsys.readouterr().err
 
 
-def test_deploy_mode_changes_nothing(checkout: Path, root: Path) -> None:
-    assert project.link_venv(settings_for(root, DEPLOY), checkout) == 0
-    assert not os.path.lexists(checkout / '.venv')
-
-
 def test_outside_a_checkout_changes_nothing(tmp_path: Path, root: Path) -> None:
     plain = tmp_path / 'plain'
     plain.mkdir()
@@ -104,9 +99,7 @@ def test_outside_a_checkout_changes_nothing(tmp_path: Path, root: Path) -> None:
 
 def test_a_missing_root_parent_changes_nothing(checkout: Path, tmp_path: Path) -> None:
     root = tmp_path / 'absent' / 'venvs'
-    settings = Settings(
-        {**os.environ, 'AGENTDEV_RUNTIME_MODE': DEVCONTAINER, 'AGENTDEV_VENV_ROOT': str(root)}
-    )
+    settings = Settings({**os.environ, 'AGENTDEV_VENV_ROOT': str(root)})
     assert project.link_venv(settings, checkout) == 0
     assert not os.path.lexists(checkout / '.venv')
 
@@ -115,7 +108,7 @@ def test_the_command_line_links_the_named_checkout(checkout: Path, root: Path) -
     root.parent.mkdir(parents=True)
     result = subprocess.run(
         [sys.executable, '-m', 'agentdev_runtime', 'project', 'link-venv', str(checkout)],
-        env={**os.environ, 'AGENTDEV_RUNTIME_MODE': DEVCONTAINER, 'AGENTDEV_VENV_ROOT': str(root)},
+        env={**os.environ, 'AGENTDEV_VENV_ROOT': str(root)},
         capture_output=True,
         text=True,
         check=False,

@@ -25,6 +25,5 @@ Open questions:
 - How the overlayfs snapshotter, and Sysbox's mounts under `/var/lib/sysbox`,
   behave on each filesystem.
 - How much space it would actually save. Pruning unused images and capping the
-  build cache already remove most of the waste: [Cap Docker storage with
-  automatic garbage
-  collection](../archive/2.0.0/plans/20261013-docker-storage-gc.md).
+  build cache already remove most of the waste: Cap Docker storage with
+  automatic garbage collection.

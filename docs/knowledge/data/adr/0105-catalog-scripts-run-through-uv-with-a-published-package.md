@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: proposed
+stage: accepted
 supersedes:
 - adr/0040-catalog-scripts-are-standard-library-python
 ---
@@ -35,3 +35,6 @@ A consumer outside the image needs `uv`. The first run of a script downloads
   that version.
 - A pushed version tag starts the release. The tag is pushed with a GitHub App
   token, because a tag pushed with the workflow's own token starts no workflow.
+- `uv` is the parent of every script. A script that a terminating signal ends
+  still prints its `SIGNAL_*` result, but its caller sees exit status 128 + the
+  signal number, not a signal death.

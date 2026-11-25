@@ -51,7 +51,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml; Renovate's agentdev-devcontainer
     # group moves every copy together.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:1e4a41f900a6744d8e785370d460cde1972b5adf712070bfceebd48bc70e8603
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:9a00eb9a9fa05b1f1c22e7b2c3607e88a016172eb1c9431f5379a1edcb9abfca
     timeout-minutes: 60
     steps:
       - name: Checkout repository
@@ -110,4 +110,5 @@ jobs:
           RENOVATE_ALLOWED_COMMANDS: '["^scripts/renovate-post-upgrade\\.py$"]'
           RENOVATE_GIT_AUTHOR: ${{ steps.author.outputs.git-author }}
           LOG_LEVEL: info
+          RENOVATE_X_IGNORE_RE2: 'true'
         run: bunx --package "renovate@${RENOVATE_VERSION}" renovate

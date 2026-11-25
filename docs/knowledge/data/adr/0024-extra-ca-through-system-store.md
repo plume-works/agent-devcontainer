@@ -6,8 +6,8 @@ stage: accepted
 # Extra CA trust goes through the system store
 
 A host behind a TLS-intercepting proxy hands its CA bundle over as a file.
-`agentdev_runtime.bootstrap::install_extra_ca`, in the root bootstrap, adds it
-to the system store before any service starts. `agentdev-base` sets
+`agentdev_runtime.bootstrap@install_extra_ca`, in the root bootstrap, adds it to
+the system store before any service starts. `agentdev-base` sets
 `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and `NODE_EXTRA_CA_CERTS` to the system
 bundle, because uv, Python `requests`, Node, and Bun otherwise read their own
 root stores.

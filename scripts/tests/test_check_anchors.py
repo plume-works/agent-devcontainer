@@ -86,7 +86,7 @@ def test_line_number_forms_fail(write: Write, run: Run, reference: str) -> None:
 @pytest.mark.parametrize(
     'reference',
     [
-        '`scripts/x.py::main`',
+        '`scripts/x.py@main`',
         '`README.md#usage`',
         '`.github/workflows/ci.yml#jobs.ci.steps.lint`',
         '`SKILL.md#workflow-2 › "never reset it"`',
@@ -165,7 +165,7 @@ def plan(references: str, stage: str = '', steps: str = '') -> str:
     front = f'---\ntype: plan\n{stage}---\n'
     return (
         f'{front}\n# Demo\n\n## Implementation Steps\n\n{steps}\n\n'
-        f'## Key references\n\n{references}\n\n## Trailer\n\n`missing.py::gone`\n'
+        f'## Key references\n\n{references}\n\n## Trailer\n\n`missing.py@gone`\n'
     )
 
 
@@ -180,10 +180,10 @@ def targets(write: Write) -> None:
 @pytest.mark.parametrize(
     'anchor',
     [
-        '`src/tool.py::main`',
-        '`src/tool.py::Store.append`',
-        '`src/tool.py::LIMIT`',
-        '`src/run.sh::setup_env`',
+        '`src/tool.py@main`',
+        '`src/tool.py@Store.append`',
+        '`src/tool.py@LIMIT`',
+        '`src/run.sh@setup_env`',
         '`docs/guide.md#workflow-2-handle-the-result`',
         '`docs/guide.md#notes-1`',
         '`docs/guide.md#workflow-2-handle-the-result › "Never reset it"`',
@@ -210,9 +210,9 @@ def test_anchor_forms_resolve(write: Write, run: Run, anchor: str) -> None:
 @pytest.mark.parametrize(
     ('anchor', 'reason'),
     [
-        ('`src/tool.py::run`', 'symbol `run` not found'),
-        ('`src/tool.py::Store.drop`', 'symbol `Store.drop` not found'),
-        ('`src/run.sh::teardown`', 'symbol `teardown` not found'),
+        ('`src/tool.py@run`', 'symbol `run` not found'),
+        ('`src/tool.py@Store.drop`', 'symbol `Store.drop` not found'),
+        ('`src/run.sh@teardown`', 'symbol `teardown` not found'),
         ('`docs/guide.md#workflow-3`', 'heading `#workflow-3` not found'),
         ('`docs/guide.md#not-a-heading`', 'heading `#not-a-heading` not found'),
         ('`docs/guide.md#notes › "Another."`', 'quote "Another." not found'),
@@ -220,7 +220,7 @@ def test_anchor_forms_resolve(write: Write, run: Run, anchor: str) -> None:
         ('`config.json#a.c`', 'key path'),
         ('`Makefile#install`', 'target or stage'),
         ('`docker/app.Dockerfile#runtime`', 'target or stage'),
-        ('`src/gone.py::main`', 'file not found'),
+        ('`src/gone.py@main`', 'file not found'),
     ],
 )
 def test_broken_anchors_fail(write: Write, run: Run, anchor: str, reason: str) -> None:
@@ -246,18 +246,18 @@ def test_quote_spans_wrapped_lines(write: Write, run: Run) -> None:
 @pytest.mark.parametrize(
     ('relative', 'text'),
     [
-        (ACTIVE_PLAN, plan('- `src/gone.py::main`', stage='stage: done\ncompleted: 2026-01-02\n')),
-        (ACTIVE_PLAN, plan('- `src/gone.py::main`', stage='stage: cancelled\n')),
-        (ACTIVE_PLAN, plan('- `src/tool.py::main`', steps='- [ ] Create `src/new.py::main`')),
-        ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py::b`\n'),
-        ('docs/knowledge/data/findings/measured.md', '---\ntype: finding\n---\n`a.py::b`\n'),
+        (ACTIVE_PLAN, plan('- `src/gone.py@main`', stage='stage: done\ncompleted: 2026-01-02\n')),
+        (ACTIVE_PLAN, plan('- `src/gone.py@main`', stage='stage: cancelled\n')),
+        (ACTIVE_PLAN, plan('- `src/tool.py@main`', steps='- [ ] Create `src/new.py@main`')),
+        ('docs/knowledge/data/bugs/fixed.md', '---\ntype: bug\nstage: done\n---\n`a.py@b`\n'),
+        ('docs/knowledge/data/findings/measured.md', '---\ntype: finding\n---\n`a.py@b`\n'),
         (
             'docs/knowledge/data/archive/2.1.0/plans/20260101-old.md',
-            plan('- `src/gone.py::main`'),
+            plan('- `src/gone.py@main`'),
         ),
         (
             'docs/knowledge/data/archive/next-release/bugs/open.md',
-            '---\ntype: bug\nstage: pending\n---\n`a.py::b`\n',
+            '---\ntype: bug\nstage: pending\n---\n`a.py@b`\n',
         ),
     ],
 )
@@ -281,7 +281,7 @@ def test_out_of_scope_anchors_are_not_resolved(
 def test_live_documents_resolve_everywhere(write: Write, run: Run, relative: str) -> None:
     """Open bugs and backlog items and guides resolve their whole body."""
     stage = '' if 'guides' in relative else 'stage: pending\n'
-    text = f'---\ntype: x\n{stage}---\n\nSee `src/tool.py::gone`.\n'
+    text = f'---\ntype: x\n{stage}---\n\nSee `src/tool.py@gone`.\n'
     write(relative, text)
     result = run()
     assert result.returncode == 1
@@ -291,7 +291,7 @@ def test_live_documents_resolve_everywhere(write: Write, run: Run, relative: str
 @pytest.mark.usefixtures('targets')
 def test_the_same_anchor_fails_in_an_active_plan(write: Write, run: Run) -> None:
     """The deleted-file anchor the closed-plan cases tolerate fails once the plan is active."""
-    write(ACTIVE_PLAN, plan('- `src/gone.py::main`'))
+    write(ACTIVE_PLAN, plan('- `src/gone.py@main`'))
     result = run()
     assert result.returncode == 1
     assert 'file not found' in result.stdout
@@ -303,7 +303,7 @@ def test_the_same_anchor_fails_in_an_active_plan(write: Write, run: Run) -> None
         ('broken.json', b'{"a": [1,, }\n', '`broken.json#a`'),
         ('broken.yml', b'a: [1, 2\nb: {\n', '`broken.yml#a`'),
         ('broken.toml', b'[a\nb = \n', '`broken.toml#a`'),
-        ('broken.py', b'def main(:\n', '`broken.py::main`'),
+        ('broken.py', b'def main(:\n', '`broken.py@main`'),
         ('latin.md', b'# Caf\xe9\n', '`latin.md › "Caf"`'),
     ],
 )
@@ -312,9 +312,9 @@ def test_unparseable_target_is_an_unresolved_anchor(
 ) -> None:
     """A target that cannot be parsed or decoded fails its anchor, and the run goes on."""
     (tree / relative).write_bytes(content)
-    write(ACTIVE_PLAN, plan(f'- {anchor} — target\n- `src/gone.py::main` — other'))
+    write(ACTIVE_PLAN, plan(f'- {anchor} — target\n- `src/gone.py@main` — other'))
     result = run()
     assert result.returncode == 1
     assert 'Traceback' not in result.stderr, result.stderr
     assert f'{anchor} does not resolve: cannot parse file (' in result.stdout
-    assert '`src/gone.py::main` does not resolve: file not found' in result.stdout
+    assert '`src/gone.py@main` does not resolve: file not found' in result.stdout

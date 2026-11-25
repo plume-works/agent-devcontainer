@@ -125,8 +125,8 @@ The `rg` command prints nothing.
 
 - A change that moves ADRs to the archive. [Archive ADRs when their plans
   ship](../someday/archive-adrs-when-their-plans-ship.md) holds it.
-- The order that the catalog rulebooks (`iwe-planner`, `/agentdev:iwe-explore`)
-  use to find related work. They stay as they are.
+- The order that the catalog rulebooks (`iwe-planner`,
+  `/agentdev-iwe:iwe-explore`) use to find related work. They stay as they are.
 - A test of the text of a pull request body.
 
 ## Key references

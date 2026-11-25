@@ -38,13 +38,14 @@ jobs:
         with:
           filters: |
             - .agents/plugins/**
+            - .agents/opencode-bridge/**
             - .claude-plugin/**
             - py_packages/validate_agent_files/**
             - pyproject.toml
             - uv.lock
             # The iwe pin the iwe-bootstrap tests install.
             - scripts/fetch-pinned-tool.py
-            - ansible/roles/dev_tools/defaults/main.yml
+            - docker/devcontainer/pinned-tools.yml
             # The plugin tests compare the scaffold with these.
             - .iwe
             - docs/knowledge/*
@@ -83,17 +84,17 @@ jobs:
       # The iwe-bootstrap tests validate the installed scaffold with the image's iwe pin.
       - name: Install the pinned iwe
         run: |
-          uv run --frozen scripts/fetch-pinned-tool.py iwe "$RUNNER_TEMP/iwe"
+          uv run --frozen scripts/fetch-pinned-tool.py "$RUNNER_TEMP/iwe" iwe
           echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
 
-      - name: Test agentdev plugin scripts
-        run: uv run pytest .agents/plugins/agentdev/tests
+      - name: Test the plugin scripts
+        run: uv run pytest .agents/plugins/agentdev/tests .agents/plugins/agentdev-iwe/tests
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2.2.0
 
       - name: Test agentdev OpenCode bridge
-        run: bun test ./.agents/plugins/agentdev/tests/opencode
+        run: bun test ./.agents/opencode-bridge/tests
 
       - name: Validate Agent Files
         run: uv run validate_agent_files --recommend . --require-marketplace claude

@@ -62,7 +62,7 @@ runs:
             uv tool install --python /usr/bin/python3 "$src"
         fi
         agentdev-runtime lifecycle created
-        # No supervisor runs in a container job: run the per-start repairs directly.
+        # systemd does not run in a container job: run the per-start repairs directly.
         agentdev-runtime lifecycle ready --no-wait
         # The attach phase without its catalog install: the review keeps the image's
         # catalog that the create phase installed, see ADR-0100.
@@ -132,6 +132,8 @@ runs:
       id: claude_responder
       uses: anthropics/claude-code-action@v1
       with:
+        # The image's managed settings block the action's own installer.
+        path_to_claude_code_executable: /usr/local/bin/claude
         claude_code_oauth_token: ${{ inputs.claude-code-oauth-token }}
         github_token: ${{ steps.app_token.outputs.token }}
         bot_id: ${{ steps.app_bot.outputs.id }}

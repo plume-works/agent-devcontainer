@@ -36,7 +36,7 @@ def test_a_configured_file_keeps_its_key_order(tmp_path: Path) -> None:
     opencode_config.configure(tmp_path)
     config = tmp_path / 'opencode.json'
     document = json.loads(config.read_text())
-    document['plugin'] = ['/catalog/.opencode-plugin']
+    document['plugin'] = ['/catalog/.agents/opencode-bridge']
     document['mcp'] = {'server': {'type': 'local'}}
     config.write_text(json.dumps(document, indent=2) + '\n')
     before = config.read_bytes()

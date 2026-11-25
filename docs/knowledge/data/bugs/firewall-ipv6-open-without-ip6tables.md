@@ -28,7 +28,7 @@ the allowlist.
 
 ## Root cause
 
-`py_packages/agentdev_runtime/agentdev_runtime/firewall.py::block_ipv6` returns
+`py_packages/agentdev_runtime/agentdev_runtime/firewall.py@block_ipv6` returns
 after the warning when `system.has('ip6tables')` is false. It does not fail the
 start.
 

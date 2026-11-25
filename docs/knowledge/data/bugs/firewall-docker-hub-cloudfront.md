@@ -5,7 +5,7 @@ severity: medium
 description: With the egress firewall enabled, Docker Hub pulls fail because blob downloads now come from production.cloudfront.docker.com, which the shipped allowlist does not include.
 sources:
 - resource: .devcontainer/firewall-allowlist.txt
-- resource: ansible/roles/devcontainer_firewall/files/init-firewall.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/firewall.py
 - resource: scripts/tests/test_agent_runtime_firewall.py
 ---
 
@@ -19,14 +19,13 @@ gets the manifest but fails fetching the first layer:
 
 ## Reproduction
 
-1. Start a privileged container from `agent-desktop` with a nested `dockerd`,
-   after running `init-firewall.sh` with an allowlist holding the shipped Docker
-   entries: `registry-1.docker.io`, `auth.docker.io`, and
-   `production.cloudflare.docker.com`.
+1. Start `agentdev-devcontainer` with `ENABLE_FIREWALL=true`, so the bootstrap
+   applies `agentdev-runtime firewall apply` before the nested engine starts,
+   with an allowlist holding the shipped Docker entries: `registry-1.docker.io`,
+   `auth.docker.io`, and `production.cloudflare.docker.com`.
 2. Run `docker run --rm hello-world`; the blob fetch fails as above.
 3. Add `production.cloudfront.docker.com` to the allowlist and repeat; the pull
-   succeeds. `test_proxy_ingress_egress_and_nested_docker_together` runs exactly
-   this, with the extra entry.
+   succeeds.
 
 ## Root cause
 
@@ -39,14 +38,15 @@ route to host".
 ## Potential solution
 
 Add `production.cloudfront.docker.com` beside `production.cloudflare.docker.com`
-in `.devcontainer/firewall-allowlist.txt`. The standalone image bakes that file
-as its default allowlist, so the fix covers both runtimes.
+in `.devcontainer/firewall-allowlist.txt`. The image copies that file to
+`/etc/agentdev/firewall-allowlist.txt` as its default allowlist, so the fix also
+covers a checkout that ships none.
 
 ## Key references
 
 - `.devcontainer/firewall-allowlist.txt › "production.cloudflare.docker.com"` —
   `production.cloudflare.docker.com`, the only Docker CDN entry
-- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py::apply_policy` —
-  the final `OUTPUT` REJECT rule
-- `scripts/tests/test_agent_runtime_firewall.py::RUNTIME_SCRIPT` — the test
+- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py@apply_policy` — the
+  final `OUTPUT` REJECT rule
+- `scripts/tests/test_agent_runtime_firewall.py@RUNTIME_SCRIPT` — the test
   allowlist that adds the CloudFront host

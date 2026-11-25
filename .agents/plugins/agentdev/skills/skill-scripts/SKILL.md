@@ -90,28 +90,23 @@ discriminator. Codes are for outcomes, not for variants of one outcome.
 
 ## Implementation
 
-A script is Python on `#!/usr/bin/env python3` and imports nothing beyond the
-standard library: it ships in the plugin cache of any consuming repository and
-runs on whatever host runs the agent, where nothing is installed for it. It
-reaches the plugin's shared `bin/` modules through `sys.path`, resolved from the
-script's own location, so it works from a repository checkout and from an
-installed plugin cache alike. Never copy or inline the shared helpers into a
-skill.
+A script is Python on `#!/usr/bin/env -S uv run --quiet`. `uv` finds the
+plugin's own `pyproject.toml` from the script's location and runs the script in
+that project's environment, which pins the `agentdev-lib` package, so it works
+from a repository checkout and from an installed plugin cache alike. The shared
+helpers come from `agentdev_lib`; never copy or inline them into a skill.
 
 ```python
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """Find the pull request whose head is the current branch."""
 
 from __future__ import annotations
 
-from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import print_error, require_git_repo, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import print_error, require_git_repo, Stop
 
 NO_PR_FOUND = 3
 MULTIPLE_PRS = 4
@@ -138,23 +133,23 @@ if __name__ == '__main__':
     rc.run(main)
 ```
 
-`bin/result_codes.py` owns the contract. `rc.install()` installs the exit hook,
+`agentdev_lib.result_codes` owns the contract. `rc.install()` installs the exit hook,
 the exception hook, and the HUP, INT, and TERM handlers; `rc.run(main)` exits
 with the code `main` returns after printing its `RESULT` line. **Never print
 `RESULT=` yourself.** An uncaught exception still ends as
 `RESULT=SCRIPT_FAILURE` with status `1`, and a terminating signal prints its
-`SIGNAL_*` result, restores the default action, and re-raises the signal, so a
-shell caller observes `129`, `130`, or `143` and the operating system records a
-genuine signal death.
+`SIGNAL_*` result, restores the default action, and re-raises the signal. The
+script dies by the signal, and `uv`, its parent through the shebang, exits
+`129`, `130`, or `143`, so its caller sees that status, not a signal death.
 
-`bin/skill_common.py` holds what every script needs: `print_error` (the
+`agentdev_lib.skill_common` holds what every script needs: `print_error` (the
 `ERROR: ` line on stderr), `Stop` (raised by a helper to end the run with a
 declared code, caught once in `main`), `require_git_repo`, `current_branch`,
 `help_header`, `bash_quote` (bash's `printf %q`, for a command line a shell will
 re-read), and the subprocess runners below. Shared code that only one skill's
 scripts use lives beside them as `agent-code/<name>_common.py`, imported by
 name, since the script's own directory is on `sys.path`. Code two skills share
-moves to `bin/`; a skill never imports a sibling skill's code.
+moves to `agentdev_lib`; a skill never imports a sibling skill's code.
 
 Declare the script's codes as module constants and register their names in the
 `__main__` block, before `rc.install()`. A helper deep in the call stack ends
@@ -333,17 +328,16 @@ happens to sit beside it in the developing repository.
 
 - Every result an agent branches on is pinned by a test in the plugin's
   `tests/`, resolving the script through `plugin_root`.
-- The script imports only the standard library and the plugin's `bin/`
-  modules, and `python3 -S agent-code/<script>.py --help` runs, proving it needs
-  nothing installed.
-- Every skill loads the sole result-code implementation from the plugin's
-  shared `bin/result_codes.py` through `rc.install()` and `rc.run(main)`; none
+- The script runs through the `uv run` shebang and imports only the standard
+  library, `agentdev_lib`, and its own skill's `agent-code/` modules.
+- Every skill loads the sole result-code implementation from
+  `agentdev_lib.result_codes` through `rc.install()` and `rc.run(main)`; none
   copies or inlines its helpers, and none prints `RESULT=` itself.
 - Every terminal path returns a declared code from `main` or raises `Stop`; no
   `sys.exit(N)` with a workflow meaning remains outside `main`.
 - Exactly one declared, uppercase `RESULT=` value reaches stdout last.
 - HUP, INT, and TERM emit exactly one matching `SIGNAL_*` result, re-raise the
-  signal, and produce shell statuses `129`, `130`, and `143` respectively.
+  signal, and produce statuses `129`, `130`, and `143` respectively.
 - Diagnostics and remediation advice are on stderr, not stdout.
 - Metadata printed after streamed foreign stdout starts on its own line even
   when the foreign output is not newline-terminated.

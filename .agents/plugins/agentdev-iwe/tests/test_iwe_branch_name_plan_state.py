@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+
+"""Behavior tests for iwe-branch-name.py plan-state against a local bare remote."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from iwe_branch_fixtures import (
+    LIBRARY,
+    plan_document,
+    PLAN_KEY,
+    PLAN_SLUG,
+    run_script,
+    Workspace,
+)
+from iwe_git_fixtures import git, outcome
+import pytest
+
+
+@pytest.mark.parametrize(
+    ('document', 'state'),
+    [
+        (plan_document(stage='cancelled'), 'cancelled'),
+        (plan_document(stage='done', ticks=(True, True)), 'done'),
+        (plan_document(ticks=(True, True)), 'complete'),
+        (plan_document(ticks=(True, False)), 'incomplete'),
+        (plan_document(ticks=(True, True), heading='Tasks'), 'complete'),
+        (plan_document(ticks=(True, False), heading='Tasks'), 'incomplete'),
+        (plan_document(ticks=()), 'incomplete'),
+        (plan_document(ticks=(True,), heading='Steps'), 'incomplete'),
+    ],
+)
+def test_plan_state_classifies_the_plan(
+    plugin_root: Path, plugin_tmp_path: Path, document: str, state: str
+) -> None:
+    """Stage wins; without one, every task checkbox ticked is complete."""
+    workspace = Workspace(plugin_tmp_path, {PLAN_KEY: document})
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values == {
+        'DEFAULT_BRANCH': 'main',
+        'PLAN_KEY': PLAN_KEY,
+        'PLAN_STATE': state,
+        'RESULT': 'SUCCESS',
+    }
+
+
+def test_plan_state_reports_a_missing_plan(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A slug no plan carries is missing, with no key."""
+    workspace = Workspace(plugin_tmp_path)
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', 'no-such-plan')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_STATE'] == 'missing'
+    assert 'PLAN_KEY' not in values
+
+
+def test_plan_state_reads_the_working_tree(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A plan finished only in the working tree, or written there, reads as it stands."""
+    workspace = Workspace(plugin_tmp_path)
+    finished = plan_document(ticks=(True, True))
+    (workspace.work / LIBRARY / f'{PLAN_KEY}.md').write_text(finished)
+    (workspace.work / LIBRARY / 'data/plans/20250103-other.md').write_text(finished)
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+    _, other = run_script(plugin_root, workspace.work, 'plan-state', 'other')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_STATE'] == 'complete'
+    assert other['PLAN_STATE'] == 'complete'
+
+
+def test_plan_state_ignores_the_remote(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A plan finished only on the remote default branch reads as the checkout holds it."""
+    workspace = Workspace(plugin_tmp_path)
+    workspace.publish(PLAN_KEY, plan_document(ticks=(True, True)))
+    git(workspace.work, 'remote', 'set-url', 'origin', str(plugin_tmp_path / 'gone.git'))
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_STATE'] == 'incomplete'
+
+
+@pytest.mark.parametrize('target', [PLAN_KEY, f'{PLAN_KEY}.md', '20250102-focus-timer', PLAN_SLUG])
+def test_plan_state_resolves_a_key_or_a_slug(
+    plugin_root: Path, plugin_tmp_path: Path, target: str
+) -> None:
+    """The plan key, its file name, its dated name, and its bare slug name one plan."""
+    workspace = Workspace(plugin_tmp_path)
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', target)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_KEY'] == PLAN_KEY
+
+
+def test_plan_state_refuses_a_shared_slug(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A slug two dated plans share is ambiguous; either full key still resolves."""
+    later = 'data/plans/20250220-focus-timer'
+    workspace = Workspace(plugin_tmp_path, {PLAN_KEY: plan_document(), later: plan_document()})
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+    _, by_key = run_script(plugin_root, workspace.work, 'plan-state', later)
+
+    assert outcome(completed) == (4, 'RESULT=AMBIGUOUS_PLAN')
+    assert 'PLAN_STATE' not in values
+    assert by_key['PLAN_KEY'] == later
+
+
+def test_plan_state_reads_an_archived_plan(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A plan that exists only in a release's archive folder is found by slug or key."""
+    archived = f'data/archive/2.1.0/plans/{PLAN_KEY.removeprefix("data/plans/")}'
+    workspace = Workspace(plugin_tmp_path, {archived: plan_document(stage='done')})
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+    _, by_key = run_script(plugin_root, workspace.work, 'plan-state', archived)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert values['PLAN_KEY'] == archived
+    assert values['PLAN_STATE'] == 'done'
+    assert by_key['PLAN_KEY'] == archived
+
+
+def test_plan_state_refuses_a_slug_shared_with_the_archive(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A live plan and an archived plan that share a slug are ambiguous."""
+    archived = 'data/archive/2.1.0/plans/20241020-focus-timer'
+    workspace = Workspace(
+        plugin_tmp_path, {PLAN_KEY: plan_document(), archived: plan_document(stage='done')}
+    )
+
+    completed, values = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+
+    assert outcome(completed) == (4, 'RESULT=AMBIGUOUS_PLAN')
+    assert 'PLAN_STATE' not in values
+
+
+def test_plan_state_needs_an_iwe_workspace(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A repository without .iwe/config.toml is a preflight error."""
+    workspace = Workspace(plugin_tmp_path)
+    git(workspace.work, 'rm', '--quiet', '.iwe/config.toml')
+
+    completed, _ = run_script(plugin_root, workspace.work, 'plan-state', PLAN_SLUG)
+
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')

@@ -1,4 +1,4 @@
-"""Tests for `agentdev-runtime firewall apply`: opt-in, validation, policy, proxy, nested egress."""
+"""Tests for `agentdev-runtime firewall apply`: opt-in, validation, policy, nested egress."""
 
 from __future__ import annotations
 
@@ -22,6 +22,18 @@ META = {
     'api': ['140.82.112.0/21'],
     'git': ['192.30.252.0/22'],
 }
+LOCKDOWN = [
+    f'{tool} {rule}'
+    for tool in ('iptables', 'ip6tables')
+    for rule in (
+        '-P INPUT DROP',
+        '-P FORWARD DROP',
+        '-P OUTPUT DROP',
+        '-F',
+        '-A INPUT -i lo -j ACCEPT',
+        '-A OUTPUT -o lo -j ACCEPT',
+    )
+]
 NAT = '-A DOCKER_OUTPUT -d 127.0.0.11/32 -p udp -m udp --dport 53 -j DNAT --to-destination 127.0.0.11:41234\n'
 
 
@@ -74,9 +86,7 @@ class Firewall:
     def run(self, **env: str) -> int:
         base = {
             'ENABLE_FIREWALL': 'true',
-            'AGENTDEV_RUNTIME_MODE': 'deploy',
             'FIREWALL_ALLOWLIST': str(self.allowlist),
-            'AGENTDEV_TRUSTED_PROXY_CIDRS': '10.9.0.5/32,10.9.1.0/24',
             'DEV_WORKSPACE_FOLDER': str(self.root),
         }
         return egress.apply(Settings(base | env), self.system)
@@ -92,12 +102,12 @@ def firewall(tmp_path: Path) -> Firewall:
 
 @pytest.mark.parametrize('value', ['', 'false', 'yes'])
 def test_inert_unless_explicitly_enabled(firewall: Firewall, value: str, capsys):
-    assert firewall.run(ENABLE_FIREWALL=value, AGENTDEV_TRUSTED_PROXY_CIDRS='') == 0
+    assert firewall.run(ENABLE_FIREWALL=value) == 0
     assert 'stays inert' in capsys.readouterr().out
     assert firewall.calls() == []
 
 
-def test_applies_the_shared_policy_then_proxy_ingress_and_nested_egress(firewall: Firewall):
+def test_applies_the_shared_policy_then_nested_egress(firewall: Firewall):
     assert firewall.run() == 0
     calls = firewall.calls()
     assert calls[0] == 'iptables-save -t nat'
@@ -111,14 +121,7 @@ def test_applies_the_shared_policy_then_proxy_ingress_and_nested_egress(firewall
     assert not any('140.82.112.0/21' in call or '2a0a' in call for call in calls)
     assert 'ipset add allowed-domains 3.0.0.2' in calls
     assert 'iptables -P OUTPUT DROP' in calls and 'ip6tables -P OUTPUT DROP' in calls
-    ingress = [call for call in calls if call.startswith('iptables -A INPUT -p tcp -s 10.9.')]
-    assert ingress == [
-        'iptables -A INPUT -p tcp -s 10.9.0.5/32 -m multiport --dports 4096,14500 -j ACCEPT',
-        'iptables -A INPUT -p tcp -s 10.9.1.0/24 -m multiport --dports 4096,14500 -j ACCEPT',
-    ]
-    assert calls.index(ingress[0]) > calls.index(
-        'iptables -A OUTPUT -j REJECT --reject-with icmp-admin-prohibited'
-    )
+    assert not any('--dports' in call for call in calls)
     assert 'iptables -A DOCKER-USER -m set --match-set allowed-domains dst -j RETURN' in calls
     assert calls[-1] == 'iptables -A DOCKER-USER -j REJECT --reject-with icmp-admin-prohibited'
 
@@ -128,32 +131,23 @@ def test_an_unresolvable_entry_is_skipped(firewall: Firewall):
     assert 'WARNING: Failed to resolve *.example-cdn.net (skipping)' in firewall.system.said
 
 
-def test_a_devcontainer_filters_egress_without_admitting_a_proxy(firewall: Firewall):
-    assert firewall.run(AGENTDEV_RUNTIME_MODE='devcontainer', AGENTDEV_TRUSTED_PROXY_CIDRS='') == 0
-    calls = firewall.calls()
-    assert not any('--dports' in call for call in calls)
-    assert calls[-1].startswith('iptables -A DOCKER-USER -j REJECT')
-
-
 @pytest.mark.parametrize(
     ('env', 'message'),
     [
-        ({'AGENTDEV_TRUSTED_PROXY_CIDRS': ''}, 'requires AGENTDEV_TRUSTED_PROXY_CIDRS'),
-        ({'AGENTDEV_TRUSTED_PROXY_CIDRS': '10.0.0.0/33'}, 'is not an IPv4 CIDR'),
         ({'FIREWALL_ALLOWLIST': '/nonexistent'}, 'does not exist'),
     ],
 )
-def test_invalid_configuration_fails_before_any_rule(firewall: Firewall, env, message, capsys):
+def test_invalid_configuration_fails_closed(firewall: Firewall, env, message, capsys):
     assert firewall.run(**env) == 1
     assert message in capsys.readouterr().err
-    assert firewall.calls() == []
+    assert firewall.calls() == LOCKDOWN
 
 
 def test_invalid_allowlist_entries_fail(firewall: Firewall, capsys):
     firewall.allowlist.write_text('github-meta\nhttps://evil.example/path\n')
     assert firewall.run() == 1
     assert 'neither github-meta nor a domain name' in capsys.readouterr().err
-    assert firewall.calls() == []
+    assert firewall.calls() == LOCKDOWN
 
 
 @pytest.mark.parametrize(
@@ -168,12 +162,100 @@ def test_self_verification_fails_loudly(firewall: Firewall, system, message, cap
     assert firewall.run() == 1
     assert message in capsys.readouterr().err
     assert not any('DOCKER-USER' in call for call in system.calls)
+    assert system.calls[-len(LOCKDOWN) :] == LOCKDOWN
+
+
+class FailingMetaSystem(FakeSystem):
+    def fetch_json(self, url: str) -> object:
+        raise egress.FirewallError('GitHub meta unavailable')
+
+
+def test_a_failure_after_the_flush_fails_closed(firewall: Firewall, capsys):
+    firewall.system = FailingMetaSystem()
+    assert firewall.run() == 1
+    assert 'GitHub meta unavailable' in capsys.readouterr().err
+    calls = firewall.calls()
+    assert 'iptables -t filter -F' in calls
+    assert calls[-len(LOCKDOWN) :] == LOCKDOWN
+
+
+@pytest.mark.parametrize(
+    ('value', 'requested'),
+    [
+        ('1', True),
+        ('yes', True),
+        ('ON', True),
+        ('TRUE', True),
+        ('', False),
+        ('0', False),
+        ('no', False),
+        ('false', False),
+    ],
+)
+def test_bootstrap_passes_the_exact_word_to_the_firewall(monkeypatch, value, requested):
+    seen: dict[str, str] = {}
+
+    def run(settings: Settings) -> int:
+        seen['value'] = settings.raw('ENABLE_FIREWALL')
+        return 0
+
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': value})
+    monkeypatch.setattr(bootstrap, 'run', run)
+    assert bootstrap.main([]) == 0
+    assert seen['value'] == ('true' if requested else 'false')
+
+
+def test_an_unexpected_bootstrap_error_fails_closed_and_propagates(monkeypatch):
+    system = FakeSystem()
+
+    def run(settings: Settings) -> int:
+        return float('30s')
+
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': 'true'})
+    monkeypatch.setattr(bootstrap, 'run', run)
+    monkeypatch.setattr(egress, 'System', lambda: system)
+    with pytest.raises(ValueError):
+        bootstrap.main([])
+    assert system.calls == LOCKDOWN
+
+
+class FailingSaveSystem(FakeSystem):
+    def output(self, *argv: str) -> str:
+        raise subprocess.CalledProcessError(1, argv)
+
+
+def test_an_unexpected_firewall_error_fails_closed_and_propagates(firewall: Firewall):
+    firewall.system = FailingSaveSystem()
+    with pytest.raises(subprocess.CalledProcessError):
+        firewall.run()
+    assert firewall.calls() == LOCKDOWN
+
+
+def test_an_unrecognized_value_locks_egress_down(monkeypatch, capsys):
+    system = FakeSystem()
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': 'ture'})
+    monkeypatch.setattr(egress, 'System', lambda: system)
+    assert bootstrap.main([]) == 1
+    assert 'ENABLE_FIREWALL must be' in capsys.readouterr().err
+    assert system.calls == LOCKDOWN
+
+
+@pytest.mark.parametrize(('value', 'locked'), [('yes', True), ('false', False)])
+def test_a_failed_bootstrap_fails_closed_when_the_firewall_is_on(monkeypatch, value, locked):
+    system = FakeSystem()
+
+    def run(settings: Settings) -> int:
+        raise bootstrap.BootstrapError('storage refused')
+
+    monkeypatch.setattr(bootstrap, 'container_environment', lambda: {'ENABLE_FIREWALL': value})
+    monkeypatch.setattr(bootstrap, 'run', run)
+    monkeypatch.setattr(egress, 'System', lambda: system)
+    assert bootstrap.main([]) == 1
+    assert system.calls == (LOCKDOWN if locked else [])
 
 
 def test_bootstrap_applies_the_firewall_last():
-    main = inspect.getsource(bootstrap.main).rstrip()
-    assert main.endswith('return firewall(settings)')
-    assert 'egress.apply(settings)' in inspect.getsource(bootstrap.firewall)
+    assert inspect.getsource(bootstrap.run).rstrip().endswith('return egress.apply(settings)')
 
 
 def desktop_image() -> str | None:
@@ -221,9 +303,7 @@ FIREWALL_ALLOWLIST=/tmp/allowlist.txt PYTHONPATH=/opt/agentdev-runtime-src \\
   python3 -m agentdev_runtime firewall apply > /tmp/fw.log 2>&1 \\
   || { cat /tmp/fw.log; exit 1; }
 echo firewall-ready
-python3 -m http.server 4096 >/dev/null 2>&1 &
-python3 -m http.server 5000 >/dev/null 2>&1 &
-PYTHONPATH=/opt/agentdev-runtime-src python3 -m agentdev_runtime docker run > /tmp/dockerd.log 2>&1 &
+dockerd > /tmp/dockerd.log 2>&1 &
 for _ in $(seq 120); do docker info >/dev/null 2>&1 && break; sleep 0.5; done
 docker run --rm hello-world >/dev/null && echo nested-pull-ok
 gh_ip=$(getent ahostsv4 api.github.com | awk 'NR == 1 {print $1}')
@@ -236,30 +316,7 @@ sleep 600
 """
 
 
-def probe(network: str, image: str, ip: str, target: str) -> str:
-    result = subprocess.run(
-        [
-            'docker',
-            'run',
-            '--rm',
-            '--network',
-            network,
-            '--ip',
-            ip,
-            '--entrypoint',
-            'bash',
-            image,
-            '-c',
-            f'curl -s -o /dev/null -w "%{{http_code}}" --max-time 5 {target} || true',
-        ],
-        capture_output=True,
-        text=True,
-        timeout=120,
-    )
-    return result.stdout.strip()
-
-
-def test_proxy_ingress_egress_and_nested_docker_together(network):
+def test_egress_and_nested_docker_together(network):
     name, image = network
     runtime = f'{name}-runtime'
     subprocess.run(
@@ -276,10 +333,6 @@ def test_proxy_ingress_egress_and_nested_docker_together(network):
             '10.231.7.10',
             '-e',
             'ENABLE_FIREWALL=true',
-            '-e',
-            'AGENTDEV_TRUSTED_PROXY_CIDRS=10.231.7.20/32',
-            '-e',
-            'AGENTDEV_RUNTIME_MODE=deploy',
             '-v',
             f'{PACKAGE}:/opt/agentdev-runtime-src:ro',
             '--tmpfs',
@@ -316,7 +369,3 @@ def test_proxy_ingress_egress_and_nested_docker_together(network):
         'egress-blocked',
     ):
         assert line in output, logs.stdout + logs.stderr
-
-    assert probe(name, image, '10.231.7.20', 'http://10.231.7.10:4096/') == '200'
-    assert probe(name, image, '10.231.7.20', 'http://10.231.7.10:5000/') == '000'
-    assert probe(name, image, '10.231.7.30', 'http://10.231.7.10:4096/') == '000'

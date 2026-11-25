@@ -5,9 +5,9 @@ stage: pending
 priority: medium
 description: Let a Verify run whose HEAD descends from a commit with a saved Verify report re-check only what changed since that commit, instead of re-running every check and verification command.
 sources:
-- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-verifier.agent.md
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
 rank: 1900
 ---
 
@@ -32,5 +32,5 @@ and carry the rest of the earlier verdict forward. Settling it means deciding:
   forward, so its verdict is not read as a full run.
 
 A rebase or squash rewrites the ancestor commit, which ends reuse; the same
-limit is tracked for evidence lines in [Make plan task evidence survive history
-rewrites](../archive/3.0.0/backlog/resilient-task-evidence.md).
+limit is tracked for evidence lines in Make plan task evidence survive history
+rewrites.

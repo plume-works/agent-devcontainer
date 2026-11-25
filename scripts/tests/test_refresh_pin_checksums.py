@@ -31,9 +31,7 @@ def _load_script():
 
 
 refresh = _load_script()
-XPRA = 'ansible/roles/xpra_setup/defaults/main.yml'
-DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
-DEV_TOOLS_TASK = refresh.PIN_FILES[DEV_TOOLS].task_file
+PINS = 'docker/devcontainer/pinned-tools.yml'
 
 
 def sha(body: bytes) -> str:
@@ -74,13 +72,12 @@ def server() -> Iterator[AssetServer]:
 
 @pytest.fixture
 def repo(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
-    """Create an isolated Git repository carrying the real dev_tools install task."""
+    """Create an isolated Git repository."""
     for name in ('GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE'):
         monkeypatch.delenv(name, raising=False)
     TMP_ROOT.mkdir(exist_ok=True)
     root = TMP_ROOT / f'refresh-pins-{uuid4().hex}'
-    (root / DEV_TOOLS_TASK).parent.mkdir(parents=True)
-    shutil.copy(REPO_ROOT / DEV_TOOLS_TASK, root / DEV_TOOLS_TASK)
+    root.mkdir()
     try:
         git(root, 'init', '--quiet', '--initial-branch=main')
         yield root
@@ -106,18 +103,24 @@ def commit(root: Path) -> None:
     git(root, 'commit', '--quiet', '-m', 'fixture')
 
 
-def xpra_defaults(url: str, version: str, amd64: str, arm64: str) -> str:
-    """Return a VirtualGL-shaped defaults file."""
+def virtualgl_pins(url: str, version: str, amd64: str, arm64: str) -> str:
+    """Return a pin file holding one VirtualGL-shaped package entry."""
     return (
         '---\n'
-        '# VirtualGL pin.\n'
-        f'xpra_setup_virtualgl_version: "{version}"\n'
-        'xpra_setup_virtualgl_checksums:\n'
-        f'  amd64: "sha256:{amd64}"\n'
-        f'  arm64: "sha256:{arm64}"\n'
-        'xpra_setup_virtualgl_download_url: >-\n'
-        f'  {url}/{{{{ xpra_setup_virtualgl_version }}}}/virtualgl_{{{{\n'
-        '  xpra_setup_virtualgl_version }}_{{ xpra_setup_virtualgl_arch }}.deb\n'
+        'tools:\n'
+        '  - name: virtualgl\n'
+        f'    version: "{version}"\n'
+        f'    url_prefix: {url}\n'
+        '    asset_prefix: "virtualgl_{version}_"\n'
+        '    extension: deb\n'
+        '    deb: true\n'
+        '    archives:\n'
+        '      amd64:\n'
+        '        target: amd64\n'
+        f'        checksum: {amd64}\n'
+        '      arm64:\n'
+        '        target: arm64\n'
+        f'        checksum: {arm64}\n'
     )
 
 
@@ -139,13 +142,13 @@ def run(root: Path, *paths: str) -> int:
 def test_bumped_pin_gets_every_architecture_rehashed(repo: Path, server: AssetServer) -> None:
     """A bumped version's checksums are recomputed from the new assets, in place."""
     old = serve_virtualgl(server, '1.0', b'old')
-    write(repo, XPRA, xpra_defaults(server.url, '1.0', old['amd64'], old['arm64']))
+    write(repo, PINS, virtualgl_pins(server.url, '1.0', old['amd64'], old['arm64']))
     commit(repo)
     new = serve_virtualgl(server, '2.0', b'new')
-    write(repo, XPRA, xpra_defaults(server.url, '2.0', old['amd64'], old['arm64']))
+    write(repo, PINS, virtualgl_pins(server.url, '2.0', old['amd64'], old['arm64']))
 
-    assert run(repo, XPRA) == 0
-    assert (repo / XPRA).read_text() == xpra_defaults(
+    assert run(repo, PINS) == 0
+    assert (repo / PINS).read_text() == virtualgl_pins(
         server.url, '2.0', new['amd64'], new['arm64']
     )
 
@@ -153,45 +156,45 @@ def test_bumped_pin_gets_every_architecture_rehashed(repo: Path, server: AssetSe
 def test_unchanged_pin_with_matching_assets_is_left_alone(repo: Path, server: AssetServer) -> None:
     """A pin whose version and assets are unchanged passes without an edit."""
     checksums = serve_virtualgl(server, '1.0', b'same')
-    text = xpra_defaults(server.url, '1.0', checksums['amd64'], checksums['arm64'])
-    write(repo, XPRA, text)
+    text = virtualgl_pins(server.url, '1.0', checksums['amd64'], checksums['arm64'])
+    write(repo, PINS, text)
     commit(repo)
 
-    assert run(repo, XPRA) == 0
-    assert (repo / XPRA).read_text() == text
+    assert run(repo, PINS) == 0
+    assert (repo / PINS).read_text() == text
 
 
 def test_failed_download_fails_and_leaves_the_file(repo: Path, server: AssetServer) -> None:
     """A missing asset for any architecture fails the refresh with nothing written."""
     old = serve_virtualgl(server, '1.0', b'old')
-    write(repo, XPRA, xpra_defaults(server.url, '1.0', old['amd64'], old['arm64']))
+    write(repo, PINS, virtualgl_pins(server.url, '1.0', old['amd64'], old['arm64']))
     commit(repo)
     serve_virtualgl(server, '2.0', b'new')
     del server.assets['/2.0/virtualgl_2.0_arm64.deb']
-    bumped = xpra_defaults(server.url, '2.0', old['amd64'], old['arm64'])
-    write(repo, XPRA, bumped)
+    bumped = virtualgl_pins(server.url, '2.0', old['amd64'], old['arm64'])
+    write(repo, PINS, bumped)
 
-    assert run(repo, XPRA) == 1
-    assert (repo / XPRA).read_text() == bumped
+    assert run(repo, PINS) == 1
+    assert (repo / PINS).read_text() == bumped
 
 
 def test_moved_tag_under_unchanged_version_fails(repo: Path, server: AssetServer) -> None:
     """An unchanged version that now hashes differently is a moved tag, not a bump."""
     recorded = serve_virtualgl(server, '1.0', b'original')
-    text = xpra_defaults(server.url, '1.0', recorded['amd64'], recorded['arm64'])
-    write(repo, XPRA, text)
+    text = virtualgl_pins(server.url, '1.0', recorded['amd64'], recorded['arm64'])
+    write(repo, PINS, text)
     commit(repo)
     serve_virtualgl(server, '1.0', b'republished')
 
-    assert run(repo, XPRA) == 1
-    assert (repo / XPRA).read_text() == text
+    assert run(repo, PINS) == 1
+    assert (repo / PINS).read_text() == text
 
 
-def dev_tools_defaults(url: str, version: str, checksums: dict[str, str]) -> str:
-    """Return a dev_tools-shaped defaults file with one tool whose prefix carries its version."""
+def tool_pins(url: str, version: str, checksums: dict[str, str]) -> str:
+    """Return a pin file with one tool whose prefix carries its version."""
     return (
         '---\n'
-        'dev_tools_pinned_tools:\n'
+        'tools:\n'
         '  - name: tool\n'
         f'    version: tool-v{version}\n'
         f'    url_prefix: {url}\n'
@@ -207,7 +210,7 @@ def dev_tools_defaults(url: str, version: str, checksums: dict[str, str]) -> str
 
 
 def serve_tool(server: AssetServer, version: str, tag: bytes) -> dict[str, str]:
-    """Serve the tool's archives at the URL the install task assembles."""
+    """Serve the tool's archives at the URL fetch-pinned-tool.py assembles."""
     checksums = {}
     for arch, target in (('amd64', 'x86_64'), ('arm64', 'aarch64')):
         body = tag + target.encode()
@@ -216,34 +219,16 @@ def serve_tool(server: AssetServer, version: str, tag: bytes) -> dict[str, str]:
     return checksums
 
 
-def test_tool_list_urls_follow_the_install_task(repo: Path, server: AssetServer) -> None:
-    """dev_tools URLs come from the install task's templates, version placeholder included."""
+def test_tool_list_urls_follow_the_fetcher(repo: Path, server: AssetServer) -> None:
+    """A tool's URL is the one fetch-pinned-tool.py assembles, version placeholder included."""
     old = serve_tool(server, '1.0', b'old')
-    write(repo, DEV_TOOLS, dev_tools_defaults(server.url, '1.0', old))
+    write(repo, PINS, tool_pins(server.url, '1.0', old))
     commit(repo)
     new = serve_tool(server, '2.0', b'new')
-    write(repo, DEV_TOOLS, dev_tools_defaults(server.url, '2.0', old))
+    write(repo, PINS, tool_pins(server.url, '2.0', old))
 
-    assert run(repo, DEV_TOOLS) == 0
-    assert (repo / DEV_TOOLS).read_text() == dev_tools_defaults(server.url, '2.0', new)
-
-
-def test_failure_in_one_file_writes_no_file(repo: Path, server: AssetServer) -> None:
-    """Every file stays untouched when any file's refresh fails."""
-    old_tool = serve_tool(server, '1.0', b'old')
-    old_gl = serve_virtualgl(server, '1.0', b'old')
-    write(repo, DEV_TOOLS, dev_tools_defaults(server.url, '1.0', old_tool))
-    write(repo, XPRA, xpra_defaults(server.url, '1.0', old_gl['amd64'], old_gl['arm64']))
-    commit(repo)
-    serve_tool(server, '2.0', b'new')
-    tool_bumped = dev_tools_defaults(server.url, '2.0', old_tool)
-    gl_bumped = xpra_defaults(server.url, '2.0', old_gl['amd64'], old_gl['arm64'])
-    write(repo, DEV_TOOLS, tool_bumped)
-    write(repo, XPRA, gl_bumped)
-
-    assert run(repo, DEV_TOOLS, XPRA) == 1
-    assert (repo / DEV_TOOLS).read_text() == tool_bumped
-    assert (repo / XPRA).read_text() == gl_bumped
+    assert run(repo, PINS) == 0
+    assert (repo / PINS).read_text() == tool_pins(server.url, '2.0', new)
 
 
 def test_files_without_pins_are_ignored(repo: Path) -> None:
@@ -264,47 +249,47 @@ def serve_shared_virtualgl(server: AssetServer, version: str, body: bytes) -> st
 def test_bumped_pin_sharing_one_checksum_is_rehashed(repo: Path, server: AssetServer) -> None:
     """Architectures that record one shared checksum get it rewritten together."""
     old = serve_shared_virtualgl(server, '1.0', b'old')
-    write(repo, XPRA, xpra_defaults(server.url, '1.0', old, old))
+    write(repo, PINS, virtualgl_pins(server.url, '1.0', old, old))
     commit(repo)
     new = serve_shared_virtualgl(server, '2.0', b'new')
-    write(repo, XPRA, xpra_defaults(server.url, '2.0', old, old))
+    write(repo, PINS, virtualgl_pins(server.url, '2.0', old, old))
 
-    assert run(repo, XPRA) == 0
-    assert (repo / XPRA).read_text() == xpra_defaults(server.url, '2.0', new, new)
+    assert run(repo, PINS) == 0
+    assert (repo / PINS).read_text() == virtualgl_pins(server.url, '2.0', new, new)
 
 
 def test_shared_checksum_that_now_diverges_fails(repo: Path, server: AssetServer) -> None:
     """A shared recorded checksum whose architectures now hash apart cannot be replaced."""
     old = serve_shared_virtualgl(server, '1.0', b'old')
-    write(repo, XPRA, xpra_defaults(server.url, '1.0', old, old))
+    write(repo, PINS, virtualgl_pins(server.url, '1.0', old, old))
     commit(repo)
     serve_virtualgl(server, '2.0', b'new')
-    bumped = xpra_defaults(server.url, '2.0', old, old)
-    write(repo, XPRA, bumped)
+    bumped = virtualgl_pins(server.url, '2.0', old, old)
+    write(repo, PINS, bumped)
 
-    assert run(repo, XPRA) == 1
-    assert (repo / XPRA).read_text() == bumped
+    assert run(repo, PINS) == 1
+    assert (repo / PINS).read_text() == bumped
 
 
 def test_checksum_recorded_elsewhere_in_the_file_fails(repo: Path, server: AssetServer) -> None:
     """A stale checksum that also appears outside the bumped pin is not replaced."""
     old = serve_shared_virtualgl(server, '1.0', b'old')
-    text = xpra_defaults(server.url, '1.0', old, old) + f'other_checksum: "sha256:{old}"\n'
-    write(repo, XPRA, text)
+    text = virtualgl_pins(server.url, '1.0', old, old) + f'other_checksum: "sha256:{old}"\n'
+    write(repo, PINS, text)
     commit(repo)
     serve_shared_virtualgl(server, '2.0', b'new')
     bumped = text.replace('"1.0"', '"2.0"')
-    write(repo, XPRA, bumped)
+    write(repo, PINS, bumped)
 
-    assert run(repo, XPRA) == 1
-    assert (repo / XPRA).read_text() == bumped
+    assert run(repo, PINS) == 1
+    assert (repo / PINS).read_text() == bumped
 
 
 LAYOUT_TARGETS = (('amd64', 'x86_64'), ('arm64', 'aarch64'))
 
 
 def layout_defaults(url: str, version: str, checksums: dict[str, dict[str, str]]) -> str:
-    """Return dev_tools defaults with a bare-binary tool and a tool unpacking into its own dir."""
+    """Return a pin file with a bare-binary tool and a tool unpacking into its own dir."""
 
     def archives(name: str) -> str:
         return ''.join(
@@ -314,7 +299,7 @@ def layout_defaults(url: str, version: str, checksums: dict[str, dict[str, str]]
 
     return (
         '---\n'
-        'dev_tools_pinned_tools:\n'
+        'tools:\n'
         '  - name: bare\n'
         f'    version: v{version}\n'
         f'    url_prefix: {url}\n'
@@ -346,18 +331,18 @@ def serve_layouts(server: AssetServer, version: str, tag: bytes) -> dict[str, di
     return checksums
 
 
-def test_bare_binary_and_nested_dir_urls_follow_the_install_task(
+def test_bare_binary_and_nested_dir_urls_follow_the_fetcher(
     repo: Path, server: AssetServer
 ) -> None:
     """A bare binary has no extension in its URL; a nested archive keeps its own extension."""
     old = serve_layouts(server, '1.0', b'old')
-    write(repo, DEV_TOOLS, layout_defaults(server.url, '1.0', old))
+    write(repo, PINS, layout_defaults(server.url, '1.0', old))
     commit(repo)
     new = serve_layouts(server, '2.0', b'new')
-    write(repo, DEV_TOOLS, layout_defaults(server.url, '2.0', old))
+    write(repo, PINS, layout_defaults(server.url, '2.0', old))
 
-    assert run(repo, DEV_TOOLS) == 0
-    assert (repo / DEV_TOOLS).read_text() == layout_defaults(server.url, '2.0', new)
+    assert run(repo, PINS) == 0
+    assert (repo / PINS).read_text() == layout_defaults(server.url, '2.0', new)
 
 
 BOOTSTRAP = '.agents/plugins/agentdev/bin/macos-bootstrap.zsh'
@@ -412,3 +397,21 @@ def test_bootstrap_moved_tag_fails(repo: Path, server: AssetServer) -> None:
 
     assert run(repo, BOOTSTRAP) == 1
     assert (repo / BOOTSTRAP).read_text() == text
+
+
+def test_failure_in_one_file_writes_no_file(repo: Path, server: AssetServer) -> None:
+    """Every file stays untouched when any file's refresh fails."""
+    old_tool = serve_tool(server, '1.0', b'old')
+    old_darwin = serve_darwin(server, 'iwe-v1.0.0', b'old')
+    write(repo, PINS, tool_pins(server.url, '1.0', old_tool))
+    write(repo, BOOTSTRAP, bootstrap(server.url, 'iwe-v1.0.0', old_darwin))
+    commit(repo)
+    serve_tool(server, '2.0', b'new')
+    tool_bumped = tool_pins(server.url, '2.0', old_tool)
+    bootstrap_bumped = bootstrap(server.url, 'iwe-v9.9.9', old_darwin)
+    write(repo, PINS, tool_bumped)
+    write(repo, BOOTSTRAP, bootstrap_bumped)
+
+    assert run(repo, PINS, BOOTSTRAP) == 1
+    assert (repo / PINS).read_text() == tool_bumped
+    assert (repo / BOOTSTRAP).read_text() == bootstrap_bumped

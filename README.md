@@ -10,35 +10,32 @@ repositories.
 
 ## What you get
 
-- Multi-architecture `linux/amd64` and `linux/arm64` images published through GHCR.
-- Python development through `uv`, plus Bun and Node.js 24.
-- A supervised nested Docker engine, Buildx, Compose, CMake, Ninja, Git LFS, and GitHub CLI.
-- Claude Code and OpenCode preinstalled with the shared `agentdev` catalog.
+- A multi-architecture `linux/amd64` and `linux/arm64` image published through GHCR,
+  built on [`ghcr.io/plume-works/devcontainer-base`](https://github.com/plume-works/images).
+- Python development through `uv`, and Bun for JavaScript (no Node.js).
+- systemd as PID 1, running a nested Docker engine with Buildx and Compose, plus CMake,
+  Ninja, Git LFS, and GitHub CLI.
+- Claude Code and OpenCode preinstalled with the shared `agentdev` and `agentdev-iwe`
+  plugins.
 - A browser-accessible Xpra desktop with VirtualGL support.
 - An optional default-deny egress firewall with repository-controlled allowlisting.
 - IWE knowledge-graph workflows from project setup through verified shipment.
 - GitHub Actions for validation, formatting, image publishing, and AI review.
-- A resumable template workflow for adopting or updating the environment elsewhere.
 
-The repository publishes four images:
+The repository publishes one image, `ghcr.io/plume-works/agentdev-devcontainer:edge`:
+the base image's toolchain and agents, plus Xpra, Playwright, the pinned linters, the
+staged catalog, the firewall, and the lifecycle commands. It is built on native runners,
+merged into a multi-architecture manifest, and `edge` moves only after it passes native
+acceptance. Ubuntu 26.04 comes from the base image, with apt pinned to a dated archive
+snapshot.
 
-- `ghcr.io/plume-works/agentdev-devcontainer:edge` — the Dev Container runtime: tools,
-  the staged catalog, supervised services, and the lifecycle commands.
-- `ghcr.io/plume-works/agentdev-deploy:edge` — a self-starting single-project OpenCode
-  runtime; see [Standalone OpenCode runtime](#standalone-opencode-runtime).
-- `ghcr.io/plume-works/agentdev-base:edge` — the lifecycle-neutral base both runtimes
-  derive from, for custom images that bring their own runtime.
-- `ghcr.io/plume-works/ubuntu-ansible:edge` — the Ansible-ready base image.
-
-All are built on native runners and merged into multi-architecture manifests. The two
-runtimes are built from the same run's `agentdev-base` digest, and `edge` moves only
-after both pass native acceptance. The `agent-desktop` and `agent-opencode` names are no
-longer published; `/agentdev:template-consume` update mode migrates a repository that
-still pins `agent-desktop`.
+To run OpenCode or Claude Remote Control without an editor, as a Coder workspace, use
+plume-works' Coder template image instead; this repository publishes no standalone
+runtime.
 
 ## Quick start
 
-There are three supported adoption paths, all on the same published runtime.
+There are two supported adoption paths, both on the same published runtime.
 
 ### Use the image
 
@@ -55,10 +52,11 @@ Point an existing devcontainer at the published image:
 ```
 
 The image's metadata supplies the create, start, and attach commands, `waitFor`, the
-privileged mode and `/var/lib/docker` volume nested Docker needs, and its entrypoint
-starts the supervised services. Declare none of them again, add no Docker-in-Docker
-Feature, and copy no lifecycle script; the editor attaches only once the required
-services are ready.
+privileged mode, the `dev` remote user, and the volumes for `/home/dev`,
+`/var/lib/docker`, and `/var/lib/containerd`. systemd stays PID 1 and starts the
+services. Declare none of them again, add no Docker-in-Docker Feature, and copy no
+lifecycle script; the editor attaches only once the required services are ready.
+GitHub Codespaces is not supported.
 
 Pin by tag and digest so the environment never changes silently. Renovate or an
 equivalent dependency updater can advance the digest when a new image is available;
@@ -71,168 +69,52 @@ Add tooling in an image that starts `FROM ghcr.io/plume-works/agentdev-devcontai
 Extend the lifecycle with executable hooks in
 `/etc/agentdev/hooks/{created,started,attached}.d/`, which run in name order at the end
 of their phase, and override the image's documented environment. Files below
-`/opt/agentdev-runtime/` belong to the image: the runtime refuses to start when one is
+`/opt/uv-tools/agentdev-runtime/` belong to the image: the runtime refuses to start when one is
 changed, added, or removed. See [ADR-0032](docs/knowledge/data/adr/0032-runtime-integrity-from-wheel-record.md).
 
-### Adopt the complete template
+## Services and troubleshooting
 
-Run `/agentdev:template-consume` to copy the complete setup or merge selected parts
-into an existing repository. The workflow installs the devcontainer descriptor,
-agent settings, project tooling, and adaptable GitHub workflows.
-It also records the adopted revision so future runs can safely propose upstream
-updates.
+systemd runs every service. At each start, `agentdev-bootstrap.service` runs as root
+before the Docker engine: it hands the container's environment to the other units,
+prepares the home, workspace, and shared auth volume, trusts an extra CA, and applies
+the opt-in firewall. `docker.service` comes from the base image and requires the
+bootstrap, so the engine never starts without the firewall. `agentdev-created.service`
+runs the create phase once per container as `dev`, and the user unit
+`agentdev-xpra.service` runs the desktop.
 
-Template adoption is resumable, preserves settled choices, and never overwrites
-consumer-authored IWE knowledge. See the
-[template consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md)
-for prerequisites and the full-copy and selective-copy workflows.
+- `agentdev-runtime health status` prints each unit's state and, for a failed one,
+  the `journalctl` command that shows its log. The image healthcheck runs
+  `agentdev-runtime health ready`.
+- `systemctl status agentdev-bootstrap agentdev-created docker` and
+  `systemctl --user status agentdev-xpra` show the units; `journalctl -u <unit> -b`
+  shows a unit's log.
+- systemd restarts a failed engine or desktop; a failed bootstrap or create phase
+  stays failed until the container restarts, and the start phase reports it.
 
-## Standalone OpenCode runtime
+Tools run as `dev`, with passwordless `sudo`. The devcontainer CLI changes its UID and
+GID to the host user's.
 
-`agentdev-deploy` runs one project with no Dev Containers client, Coder, or project
-scaffolding. On start it creates its runtime account, prepares the workspace, and
-starts the OpenCode server, with nested Docker, an instance-local keyring, and the
-Xpra desktop around it. Each service is supervised and recovered
-within a bounded budget. Claude Code is installed and configured but not started.
-
-### Launch
-
-[Deploying agentdev-deploy](docker/deploy/README.md) walks a new host through the
-proxy network, settings, first start, proxy routes, logins, and continuity checks.
-The supported deployment is [`compose.opencode.yml`](compose.opencode.yml) behind an
-existing reverse proxy. It publishes no host ports. Every launch adds the digest pin in
-[`opencode-compose-pins.yml`](opencode-compose-pins.yml), which Renovate advances to
-each digest CI promotes to `edge`; CI promotes only builds that passed native
-acceptance. Settings come
-from a private copy of
-[`docker/deploy/runtime.env.example`](docker/deploy/runtime.env.example):
-
-```bash
-# First start clones AGENTDEV_REPOSITORY_URL into a persistent workspace volume.
-docker compose -p myproject --env-file ~/secrets/myproject.env \
-  -f compose.opencode.yml -f opencode-compose-pins.yml up -d
-
-# Or mount a host checkout (AGENTDEV_CHECKOUT) at the same in-container path.
-docker compose -p myproject --env-file ~/secrets/myproject.env \
-  -f compose.opencode.yml -f opencode-compose-pins.yml -f compose.opencode.bind.yml up -d
-```
-
-The project name (`-p`) scopes the instance's volumes. A clone-mode workspace is
-cloned once and then reused; the runtime never fetches, pulls, resets, or switches
-branches. A bind-mounted worktree also needs its main repository's `.git` mounted at
-the path its `.git` file names.
-
-### Proxy, password, and logins
-
-- `OPENCODE_SERVER_PASSWORD` is required. The proxy routes to the container on port
-  `4096` for OpenCode, which enforces the password itself, and on `14500` for Xpra.
-  Both are served at the root path, WebSockets included.
-- `XPRA_PASSWORD` is required unless `AGENTDEV_SKIP_XPRA` is set; without it the
-  runtime latches failed before starting anything. Xpra checks it on every session, so a
-  peer on the proxy network cannot bypass the proxy. The HTML5 page loads without
-  it and asks for it on connect.
-- `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
-- Claude Code logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
-  every project container in the same UID/GID cohort. Each project container logs in
-  to OpenCode once: its logins share a database with its sessions in the instance
-  `home` volume, and survive replacement and upgrade there. Sessions, configuration,
-  keyrings, caches, and Docker engines stay per instance.
-- GitHub access uses an injected `GH_TOKEN` or `GITHUB_TOKEN`, which configures HTTPS
-  Git through `gh` before a private clone. The token is never written to disk.
-  `GIT_AUTHOR_*` and `GIT_COMMITTER_*` pass through only when set.
-
-### Identity and storage
-
-Tools run as `agent` with passwordless `sudo`, using numeric IDs from
-`AGENTDEV_UID`/`AGENTDEV_GID` (default `1000:1000`). Every container sharing one auth
-volume must use the same IDs; a container with other IDs latches failed rather than
-change the volume. A bind-mounted checkout must be writable by those IDs, and its
-ownership is never changed.
-
-| Path                     | Volume                   | Holds                                                                        |
-| ------------------------ | ------------------------ | ---------------------------------------------------------------------------- |
-| `/workspaces/project`    | `workspace` or the bind  | The checkout                                                                 |
-| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring, uv cache and project venv |
-| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store                                 |
-| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude Code logins                                                    |
-
-Back up `home`, `workspace`, and the auth volume to keep an instance's state; `docker`
-can be rebuilt. Removing the container keeps every volume. `docker compose
-down -v` also deletes the shared auth volume, so remove a single project's state by
-name instead, for example `docker volume rm myproject_home myproject_docker`.
-
-### Startup and failures
-
-The core path is the root bootstrap (account, volumes, and the opt-in firewall), the
-session bus and keyring, then the core phase (checkout, the Claude credential links,
-agent policy), then OpenCode. Everything else is optional work:
-
-- before OpenCode, which reads it when it starts: catalog registration;
-- beside OpenCode: Xpra, which neither waits for OpenCode nor delays it;
-- after OpenCode: nested Docker and its image prune, uv sync, and pre-commit hook
-  registration.
-
-Hook environments build on first use rather than at startup.
-
-The runtime reports one state:
-
-- `pending` while startup or a recovery runs;
-- `ready` when everything is up;
-- `degraded` when optional work failed or exhausted its recovery budget. OpenCode keeps
-  serving.
-- `failed` when the bootstrap, a configuration check, the core phase, or a core service
-  failed. The runtime is latched: PID 1 stays up, nothing restarts or reruns, and
-  OpenCode is stopped. Docker's restart policy never reruns preparation.
-
-`AGENTDEV_STRICT_STARTUP=true` treats any optional failure as a core one. The container
-exits nonzero, and Docker restarts it, only when the supervisor's own controller or
-supervisord fails.
-
-### Operating it
-
-- `docker logs` carries every service's output. The image healthcheck reports healthy
-  only while a live controller reports `ready` and the core probes pass; `pending`,
-  `degraded`, and `failed` all report unhealthy.
-- `docker exec <container> agentdev-runtime health status` prints the
-  state, each failed or blocked component, the last failure record, and the retry
-  command for each failure.
-- Every failure writes `~/.local/state/agentdev/last-failure.json` on the `home`
-  volume: the start's ID, the component, its command and exit status, the last 200
-  lines of its output, and the time. A later start never deletes it; only a later
-  failure replaces it. A failure before the home volume is checked, such as an invalid
-  setting or a failed bootstrap, goes to `docker logs` only.
-- After fixing the cause, `docker exec <container> agentdev-runtime supervisor
-retry` resumes a latched runtime from
-  the failed component in the same container, and `retry <component>` reruns one
-  failed optional component. The usual causes are an unwritable checkout, an auth
-  volume from another identity, a missing worktree `.git`, or a failed project setup.
-- `docker exec <container> supervisorctl -c /etc/agentdev/supervisord.conf status`
-  lists the services. `docker exec -u agent -it <container> bash` gives a shell with
-  the same Docker, keyring, and display environment OpenCode's tools see.
-- To upgrade, advance the pin and run the same `up -d`. The new image reapplies its
-  managed client and catalog configuration and keeps user settings and sessions.
-- `AGENTDEV_SKIP_XPRA=1` drops the desktop. The egress firewall stays off unless
-  `ENABLE_FIREWALL=true`, which applies the default-deny policy and then needs
-  `AGENTDEV_TRUSTED_PROXY_CIDRS`.
-- Booleans, `ENABLE_FIREWALL` included, accept `1`, `true`, `yes`, or `on`, and `0`,
-  `false`, `no`, `off`, or empty.
-  Counts and deadlines must be positive. Any other value latches a configuration
-  failure naming the variable.
+| Path                     | Volume                                 | Holds                                                   |
+| ------------------------ | -------------------------------------- | ------------------------------------------------------- |
+| `/home/dev`              | `agentdev-home-<devcontainerId>`       | Configuration, sessions, uv cache, and project venvs    |
+| `/var/lib/docker`        | `dind-var-lib-docker-<devcontainerId>` | The nested engine, including its image store            |
+| `/var/lib/containerd`    | `dind-var-lib-containerd-<id>`         | The nested engine's containerd content                  |
+| `/var/lib/agentdev/auth` | `agentdev-agents-auth-<uid>-<gid>`     | Claude Code logins shared by the host user's containers |
 
 ## Development environment
 
-| Area          | Included tools and capabilities                                                      |
-| ------------- | ------------------------------------------------------------------------------------ |
-| Python        | `uv`, system Python, and `pre-commit`                                                |
-| JavaScript    | Bun, Node.js 24, and Yarn                                                            |
-| Agents        | Claude Code, OpenCode, and MCP Inspector                                             |
-| Build tooling | `build-essential`, Kitware CMake, Ninja, and `pkg-config`                            |
-| Quality       | Ruff, ShellCheck, Zizmor, Ansible Lint, Prettier, Hadolint, Gitleaks, and Actionlint |
-| GitHub        | Git, Git LFS, `gh`, and a transparent host-token wrapper                             |
-| Containers    | Docker CE, Buildx, and Compose                                                       |
-| Desktop       | Xpra with its HTML5 client, VirtualGL, Mesa, and Xvfb                                |
-| Credentials   | Headless GNOME Keyring and shared agent authentication                               |
-| Security      | An opt-in egress firewall with an allowlist and startup checks                       |
+| Area          | Included tools and capabilities                                        |
+| ------------- | ---------------------------------------------------------------------- |
+| Python        | `uv`, system Python, and `pre-commit`                                  |
+| JavaScript    | Bun; Playwright and MCP Inspector run through `bun --bun`              |
+| Agents        | Claude Code, OpenCode, and MCP Inspector                               |
+| Build tooling | `build-essential`, CMake, Ninja, and `pkg-config`                      |
+| Quality       | Ruff, ShellCheck, Zizmor, Prettier, Hadolint, Gitleaks, and Actionlint |
+| GitHub        | Git, Git LFS, `gh`, and a transparent host-token wrapper               |
+| Containers    | Docker CE, Buildx, and Compose under systemd                           |
+| Desktop       | Xpra with its HTML5 client, VirtualGL, Mesa, and Xvfb                  |
+| Credentials   | Shared agent authentication                                            |
+| Security      | An opt-in egress firewall with an allowlist and startup checks         |
 
 Python commands run through `uv run`. Python environments, agent state, and pre-commit
 environments persist across container rebuilds and remain isolated per worktree. Authentication is shared so opening another worktree does not
@@ -250,19 +132,24 @@ them; delete them by hand once you no longer need them:
 docker volume rm <project>_agentdev-codex
 # The Codex login on the devcontainer's shared auth volume
 docker run --rm -v agentdev-agents-auth:/auth busybox rm -rf /auth/codex
-# The Codex login on an agentdev-deploy auth volume
-docker run --rm -v "${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}":/auth busybox rm -rf /auth/codex
 ```
 
 ## The plugin catalog
 
-The repository is its own plugin marketplace. Claude Code sees one plugin,
-`agentdev`; OpenCode loads `agentdev` through the OpenCode bridge that it contains.
+The repository is its own plugin marketplace. It publishes two plugins, `agentdev`
+and `agentdev-iwe`; a project enables either or both. OpenCode loads every published
+plugin through the OpenCode bridge in `.agents/opencode-bridge/`. The plugins'
+bundled scripts run through `uv run` and share the `agentdev-lib` package, published
+to PyPI from `py_packages/agentdev_lib/`.
+
+The image stages the catalog under `/opt/agentdev`. The create phase installs every
+plugin into each agent's user scope, and the attach phase refreshes a repository's
+workspace copy on editor attachment.
 
 ### `agentdev`
 
-The image carries `agentdev` 5.0.0, a cross-agent plugin with 37 skills and five
-agents for Claude Code and OpenCode. It covers:
+The image carries `agentdev` 6.0.0, a cross-agent plugin for Claude Code and
+OpenCode. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
 - Pull-request creation, synchronization, review, feedback resolution, and merging.
@@ -270,22 +157,22 @@ agents for Claude Code and OpenCode. It covers:
 - Formatting, linting, and semantic-refactor auditing.
 - Agent and skill authoring.
 - Docker-backed execution through the project devcontainer.
-- Template adoption and updates.
-- The complete IWE project-memory workflow.
-
-The catalog is installed during image construction. The devcontainer lifecycle
-installs it again after persistent agent volumes mount and refreshes a repository's
-workspace copy on editor attachment.
 
 Skills use the `/agentdev:<name>` namespace, including `/agentdev:pr-open`,
 `/agentdev:pr-review`, and `/agentdev:pr-merge`. See the
 [catalog README](.agents/plugins/agentdev/README.md) for standalone installation
 instructions and contributor guidance.
 
+### `agentdev-iwe`
+
+`agentdev-iwe` 1.0.0 is the complete IWE project-memory workflow described in
+[IWE project memory](#iwe-project-memory). Its skills use the `/agentdev-iwe:<name>`
+namespace, such as `/agentdev-iwe:iwe-plan`.
+
 ## IWE project memory
 
 IWE stores product context, architecture, specifications, plans, and releases as
-a Markdown knowledge graph. The catalog's `iwe-*` skills
+a Markdown knowledge graph. The `agentdev-iwe` plugin's `iwe-*` skills
 provide a complete workflow over it.
 
 Plan checkboxes carry traceable evidence, and behavior-changing plans state their
@@ -349,28 +236,18 @@ GPU access. Use it only with trusted repositories and container contents.
 Xpra starts on display `:100` and container port `14500`. Open the **Xpra HTML5**
 entry in VS Code's Ports panel to reach the desktop; concurrent worktrees receive
 distinct local ports. Prefix graphical applications with `vglrun` for GPU
-acceleration. Advanced users can manage the service with
-`agentdev-runtime xpra --background`, `--stop`, or `--port <n>`.
+acceleration. `systemctl --user restart agentdev-xpra` restarts the desktop, and
+`AGENTDEV_SKIP_XPRA=1` keeps it off.
 
 ## Build and contribute
 
-Build the images from the repository root:
+Build the image from the repository root:
 
 ```bash
-docker build -t local/ubuntu-ansible docker/ansible
-
-docker buildx build \
-  -f docker/base/agentdev-base.Dockerfile \
-  --build-arg FROM_IMAGE=local/ubuntu-ansible \
-  -t local/agentdev-base .
-
 docker buildx build \
   -f docker/devcontainer/agentdev-devcontainer.Dockerfile \
-  --build-arg FROM_IMAGE=local/agentdev-base \
   -t local/agentdev-devcontainer .
 ```
-
-`docker/deploy/agentdev-deploy.Dockerfile` builds `agentdev-deploy` the same way.
 
 Install dependencies and run the primary repository checks:
 
@@ -378,8 +255,6 @@ Install dependencies and run the primary repository checks:
 uv sync --all-groups
 uv run validate_agent_files --recommend . --require-marketplace claude
 uv run pytest
-uv run ansible-lint ansible
-uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml
 ```
 
 The independently released validator must also pass outside the publisher project:
@@ -391,9 +266,7 @@ uv run --isolated --extra dev pytest
 
 The canonical plugin source is
 [`.agents/plugins/agentdev/`](.agents/plugins/agentdev/). Repository
-conventions live in [AGENTS.md](AGENTS.md), while the
-[consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md) classifies
-the reusable, customizable, and publisher-only parts of the tree.
+conventions live in [AGENTS.md](AGENTS.md).
 
 ## License
 

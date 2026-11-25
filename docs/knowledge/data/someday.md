@@ -12,13 +12,8 @@ tree](someday/agentdev-single-module-tree.md)
 [Archive ADRs when their plans
 ship](someday/archive-adrs-when-their-plans-ship.md)
 
-[Dependency-ordered service recovery](someday/dependency-ordered-recovery.md)
-
 [Narrow the devcontainer's forwarded agent
 exposure](someday/devcontainer-forwarded-agent-exposure.md)
-
-[Restart Coder-started harness sessions after a catalog
-refresh](someday/harness-refresh-restart-signal.md)
 
 [Deduplicate Docker storage at the host
 filesystem](someday/host-filesystem-dedup.md)
@@ -32,6 +27,3 @@ model](someday/pr-review-large-validator.md)
 
 [Calibrate the revision evaluator against human
 review](someday/revision-evaluator-calibration.md)
-
-[Share one BuildKit builder across Coder
-workspaces](someday/shared-buildkit-builder.md)

@@ -1,7 +1,7 @@
 """
 Start an Xpra server with the HTML5 web client enabled.
 
-``--supervised`` replaces this process with a foreground Xpra for the supervisor;
+``--supervised`` replaces this process with a foreground Xpra for systemd;
 ``--background`` starts a daemon and returns; ``--stop`` stops the session on the display.
 """
 
@@ -31,7 +31,7 @@ Options:
   --host HOST       Host/IP to bind the Xpra server (default: XPRA_HOST or 127.0.0.1)
   --display DISPLAY X display (accepts :100 or 100; default: :100)
   --background      Start Xpra in the background and exit immediately
-  --supervised      Replace this process with a foreground Xpra for a supervisor; a
+  --supervised      Replace this process with a foreground Xpra for systemd; a
                     missing xpra or an already-live session is an error
   --stop            Stop the Xpra server and clean up resources
 
@@ -226,6 +226,9 @@ def main(argv: list[str]) -> int:
     print(f'Display: {display}', flush=True)
     installed = shutil.which('xpra') is not None
     if args.supervised:
+        if settings.boolean('AGENTDEV_SKIP_XPRA'):
+            print('AGENTDEV_SKIP_XPRA is set; Xpra stays off.')
+            return 0
         if not installed:
             print('Error: xpra is not installed.')
             return 1
@@ -259,7 +262,7 @@ def main(argv: list[str]) -> int:
     if args.background:
         return background(start, display, Path(settings.get('XPRA_LOG_FILE')))
     if args.supervised:
-        # The supervisor signals and reaps Xpra itself, so no process stays in between.
+        # systemd signals and reaps Xpra itself, so no process stays in between.
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         os.execvp(start[0], start)

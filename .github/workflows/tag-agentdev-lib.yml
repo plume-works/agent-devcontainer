@@ -1,0 +1,71 @@
+name: Tag agentdev-lib
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  tag:
+    name: tag
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Read the agentdev-lib version
+        id: version
+        run: |
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("py_packages/agentdev_lib/pyproject.toml", "rb"))["project"]["version"])')
+          echo "tag=agentdev-lib/$version" >> "$GITHUB_OUTPUT"
+
+      # Two pull requests can raise the package to the same version; the one merged second
+      # would go unreleased, so a tagged version whose package tree changed fails here.
+      - name: Find the tag
+        id: existing
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if git rev-parse --quiet --verify "refs/tags/$TAG" > /dev/null; then
+            if ! git diff --quiet "$TAG" "$GITHUB_SHA" -- py_packages/agentdev_lib; then
+              echo "::error::py_packages/agentdev_lib/ changed since $TAG, which is already released. Raise the version in py_packages/agentdev_lib/pyproject.toml."
+              exit 1
+            fi
+            echo "$TAG already exists and matches; nothing to push."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub App token
+        if: steps.existing.outputs.exists == 'false'
+        id: app-token
+        uses: actions/create-github-app-token@v3.4.0
+        with:
+          client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+          permission-contents: write
+
+      # A tag pushed with GITHUB_TOKEN starts no workflow, so the push authenticates as the
+      # GitHub App; its tag starts release-agentdev-lib.yml. See ADR-0105.
+      - name: Push the tag
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git tag "$TAG" "$GITHUB_SHA"
+          git push "https://x-access-token:${TOKEN}@github.com/${REPOSITORY}.git" "refs/tags/$TAG"

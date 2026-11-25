@@ -6,8 +6,8 @@ services:
     image: ghcr.io/plume-works/agentdev-devcontainer:edge
     # devcontainer-init.sh writes this value.
     hostname: ${CONTAINER_HOSTNAME:-agentdev}
-    # No `init` or `command`: the image's supervisor is PID 1, owns the persistent
-    # services, and reaps every orphan.
+    # No `init` or `command`: the image's systemd is PID 1, runs the services, and reaps
+    # every orphan.
 
     # Nested Docker and the host GPU for Xpra/VirtualGL need privileged mode, which grants
     # elevated host access: use it only in trusted environments.

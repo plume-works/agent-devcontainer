@@ -7,7 +7,6 @@ from pathlib import Path
 import subprocess
 
 from agentdev_runtime import catalog
-from agentdev_runtime.settings import DEVCONTAINER
 import pytest
 
 GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
@@ -53,7 +52,6 @@ def claude_stub(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv('HOME', str(tmp_path / 'home'))
     monkeypatch.setenv('CLAUDE_STUB_LOG', str(log))
     monkeypatch.setenv('CLAUDE_STUB_MARKETPLACES', str(marketplaces))
-    monkeypatch.setenv('AGENTDEV_RUNTIME_MODE', DEVCONTAINER)
     monkeypatch.setenv('AGENTDEV_VENV_ROOT', str(tmp_path / 'uv' / 'venvs'))
     return log
 

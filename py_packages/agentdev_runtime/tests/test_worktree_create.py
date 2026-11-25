@@ -7,7 +7,6 @@ import subprocess
 import sys
 
 from agentdev_runtime import project, worktree
-from agentdev_runtime.settings import DEVCONTAINER
 import pytest
 
 GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
@@ -21,7 +20,6 @@ def repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, claude_stub: Pat
     subprocess.run(['git', 'init', '-q', str(repo)], check=True)
     subprocess.run(['git', *GIT_ID, '-C', str(repo), 'commit', '-q', '--allow-empty', '-m', 'i'])
     (repo / 'sub').mkdir()
-    monkeypatch.setenv('AGENTDEV_RUNTIME_MODE', DEVCONTAINER)
     monkeypatch.setenv('AGENTDEV_VENV_ROOT', str(tmp_path / 'uv' / 'venvs'))
     return repo
 

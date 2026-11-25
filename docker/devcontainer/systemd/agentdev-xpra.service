@@ -1,0 +1,11 @@
+[Unit]
+Description=Xpra desktop with the HTML5 client
+
+[Service]
+EnvironmentFile=-/run/agentdev/container.env
+ExecStart=/usr/local/bin/agentdev-runtime xpra --supervised
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -4,14 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
-import math
 import os
 from pathlib import Path
-
-DEVCONTAINER = 'devcontainer'
-DEPLOY = 'deploy'
-PROFILES = (DEVCONTAINER, DEPLOY)
-BOTH = PROFILES
 
 TRUE_WORDS = frozenset({'1', 'true', 'yes', 'on'})
 FALSE_WORDS = frozenset({'0', 'false', 'no', 'off', ''})
@@ -30,18 +24,11 @@ Default = str | Derived
 
 @dataclass(frozen=True)
 class Variable:
-    """One environment variable: its default, per profile where the profiles differ."""
+    """One environment variable and its default."""
 
     name: str
     description: str
     default: Default = ''
-    deploy: Default | None = None
-    profiles: tuple[str, ...] = BOTH
-
-    def default_for(self, profile: str) -> Default:
-        if profile == DEPLOY and self.deploy is not None:
-            return self.deploy
-        return self.default
 
 
 def _home(s: Settings) -> str:
@@ -54,15 +41,8 @@ def _workspace(s: Settings) -> str:
 
 
 VARIABLES: tuple[Variable, ...] = (
-    # Identity and profile.
-    Variable(
-        'AGENTDEV_RUNTIME_MODE',
-        'Service profile, `devcontainer` or `deploy`; PID 1 requires it explicitly.',
-        DEVCONTAINER,
-    ),
-    Variable('AGENTDEV_USER', 'Runtime account name.', 'root', deploy='agent'),
-    Variable('AGENTDEV_UID', 'Runtime account UID the bootstrap creates or reuses.', '1000'),
-    Variable('AGENTDEV_GID', 'Runtime account GID the bootstrap creates or reuses.', '1000'),
+    # Identity.
+    Variable('AGENTDEV_USER', 'Runtime account name.', 'root'),
     Variable(
         'AGENTDEV_HOME',
         'Runtime account home.',
@@ -72,10 +52,8 @@ VARIABLES: tuple[Variable, ...] = (
         'DEV_WORKSPACE_FOLDER',
         'Project checkout.',
         Derived('the working directory', _workspace),
-        deploy='/workspaces/project',
     ),
     # Image-owned paths.
-    Variable('AGENTDEV_RUN_DIR', 'Controller state, retry request, and socket.', '/run/agentdev'),
     Variable(
         'AGENTDEV_LIFECYCLE_DIR',
         'Per-container lifecycle markers.',
@@ -83,32 +61,15 @@ VARIABLES: tuple[Variable, ...] = (
     ),
     Variable('AGENTDEV_HOOKS_ROOT', 'Derived-image lifecycle hook root.', '/etc/agentdev/hooks'),
     Variable(
-        'AGENTDEV_SUPERVISOR_CONFIG',
-        'supervisord configuration PID 1 runs.',
-        '/etc/agentdev/supervisord.conf',
-    ),
-    Variable(
-        'AGENTDEV_SUDOERS_FILE',
-        'Sudoers entry the bootstrap writes for the runtime account.',
-        '/etc/sudoers.d/agentdev-runtime',
-    ),
-    Variable(
         'AGENTDEV_EXTRA_CA_CERTS',
         'PEM bundle the bootstrap adds to the system trust store; absent or empty adds none.',
         '/etc/agentdev/extra-ca.crt',
-    ),
-    Variable(
-        'AGENTDEV_REQUIRE_MOUNTS',
-        '`1` makes the bootstrap refuse unmounted instance storage.',
-        '1',
-        profiles=(DEPLOY,),
     ),
     # Agent state.
     Variable(
         'AGENTDEV_AGENTS_AUTH_DIR',
         'Shared agent credential directory.',
         '/root/.agents-auth',
-        deploy='/var/lib/agentdev/auth',
     ),
     Variable(
         'AGENTDEV_AUTH_LOCK_TIMEOUT',
@@ -163,7 +124,7 @@ VARIABLES: tuple[Variable, ...] = (
     Variable(
         'XDG_RUNTIME_DIR',
         'Per-user runtime directory.',
-        Derived('/run/user/$AGENTDEV_UID', lambda s: f'/run/user/{s.get("AGENTDEV_UID")}'),
+        Derived('/run/user/$UID', lambda s: f'/run/user/{os.getuid()}'),
     ),
     Variable(
         'AGENTDEV_STATE_DIR',
@@ -179,35 +140,8 @@ VARIABLES: tuple[Variable, ...] = (
         'AGENTDEV_SKIP_CLAUDE_PREAPPROVE',
         'Non-empty skips the Claude workspace pre-approval.',
     ),
-    # Supervisor budgets and switches.
-    Variable('AGENTDEV_RECOVERY_ATTEMPTS', 'Restarts per service before latching failed.', '3'),
-    Variable('AGENTDEV_RECOVERY_BACKOFF', 'Seconds before the first restart.', '1'),
-    Variable('AGENTDEV_HEALTHY_RESET', 'Healthy seconds that refill the recovery budget.', '60'),
-    Variable('AGENTDEV_SERVICE_START_TIMEOUT', 'Seconds a service has to become ready.', '60'),
-    Variable('AGENTDEV_BOOTSTRAP_TIMEOUT', 'Seconds the root bootstrap may run.', '1800'),
-    Variable('AGENTDEV_PREPARE_TIMEOUT', 'Seconds the deploy `prepare` phase may run.', '1800'),
-    Variable('AGENTDEV_HEALTH_INTERVAL', 'Seconds between health probes.', '2'),
-    Variable('AGENTDEV_PROBE_FAILURES', 'Consecutive failed probes that count as down.', '2'),
-    Variable('AGENTDEV_STOP_TIMEOUT', "Seconds supervisord waits for a program's stop.", '30'),
-    Variable(
-        'AGENTDEV_HEALTH_COMMAND',
-        'Probe command the controller runs per service.',
-        'agentdev-runtime health',
-    ),
-    Variable(
-        'AGENTDEV_BOOTSTRAP_COMMAND',
-        'Root bootstrap PID 1 runs before supervisord.',
-        'agentdev-runtime bootstrap',
-    ),
-    Variable('AGENTDEV_STRICT_STARTUP', 'True makes an optional-service failure fatal.'),
+    # Lifecycle and services.
     Variable('AGENTDEV_SKIP_XPRA', 'True leaves Xpra out.'),
-    Variable(
-        'AGENTDEV_CLAUDE_RC_SPAWN',
-        'The Remote Control spawn mode: `worktree`, `same-dir`, or `session`. `off` stops it.',
-        'worktree',
-    ),
-    Variable('AGENTDEV_STARTUP_ID', 'Set by PID 1 for each start; read by its children.'),
-    Variable('AGENTDEV_RETRY_ID', 'Set by PID 1 for each retry; read by its children.'),
     Variable('AGENTDEV_READY_TIMEOUT', 'Seconds `postStartCommand` waits for ready.', '900'),
     Variable('AGENTDEV_HEALTH_TIMEOUT', 'Seconds each health-report check may run.', '30'),
     # Firewall.
@@ -217,54 +151,15 @@ VARIABLES: tuple[Variable, ...] = (
         'Firewall allowlist; unset, a Dev Container reads its checkout copy when present.',
         '/etc/agentdev/firewall-allowlist.txt',
     ),
-    Variable(
-        'AGENTDEV_TRUSTED_PROXY_CIDRS',
-        'CIDRs allowed to reach the web ports through the firewall.',
-        profiles=(DEPLOY,),
-    ),
-    Variable('AGENTDEV_OPENCODE_PORT', 'OpenCode Web port.', '4096'),
     Variable('AGENTDEV_XPRA_PORT', 'Xpra port.', '14500'),
-    # Docker.
-    Variable('AGENTDEV_DOCKER_DATA_DIR', 'Nested engine data root.', '/var/lib/docker'),
-    Variable('AGENTDEV_DOCKER_SOCKET', 'Nested engine socket.', '/var/run/docker.sock'),
-    Variable('AGENTDEV_DOCKER_CONFIG', 'Nested engine configuration.', '/etc/docker/daemon.json'),
-    Variable('AGENTDEV_DOCKER_EXEC_ROOT', 'Nested engine exec root.', '/var/run/docker'),
-    Variable('AGENTDEV_DOCKER_PIDFILE', 'Nested engine PID file.', '/var/run/docker.pid'),
-    Variable('AGENTDEV_DOCKER_GC_INTERVAL', 'Seconds between Docker garbage collections.', '3600'),
-    Variable(
-        'AGENTDEV_PROC_STATUS',
-        'Process status file the privilege preflight reads.',
-        '/proc/self/status',
-    ),
     # Workspace and project.
-    Variable(
-        'AGENTDEV_REPOSITORY_URL', 'Repository the deploy profile clones.', profiles=(DEPLOY,)
-    ),
-    Variable('AGENTDEV_REPOSITORY_REF', 'Ref the deploy profile checks out.', profiles=(DEPLOY,)),
     Variable('AGENTDEV_CATALOG_DIR', 'Catalog to register instead of the checkout.'),
     Variable('AGENTDEV_SKIP_PRE_COMMIT', 'Non-empty skips pre-commit hook registration.'),
-    Variable(
-        'AGENTDEV_KEYRING_ENV_FILE',
-        'Keyring-session environment the credential helper reads.',
-        Derived(
-            '$DEV_WORKSPACE_FOLDER/.tmp/keyring-session.env',
-            lambda s: f'{s.get("DEV_WORKSPACE_FOLDER")}/.tmp/keyring-session.env',
-        ),
-    ),
-    Variable('UV_PROJECT_ENVIRONMENT', "The project's uv environment."),
     Variable(
         'AGENTDEV_VENV_ROOT',
         "Directory holding each checkout's uv environment, linked from its `.venv`.",
         '/uv/venvs',
-        profiles=(DEVCONTAINER,),
     ),
-    # Keyring.
-    Variable('DBUS_SESSION_BUS_ADDRESS', 'Session bus address.'),
-    # OpenCode and Coder.
-    Variable('OPENCODE_SERVER_USERNAME', 'OpenCode Web user.', 'opencode'),
-    Variable('OPENCODE_SERVER_PASSWORD', 'OpenCode Web password; generated when empty.'),
-    Variable('VSCODE_PROXY_URI', 'Coder proxy URL template for the OpenCode link.'),
-    Variable('CODER_WORKSPACE_NAME', 'Coder workspace name for the Remote Control session.'),
     # Xpra.
     Variable('XPRA_HOST', 'Xpra bind address.', '127.0.0.1'),
     Variable('XPRA_VIDEO_ENCODERS', 'Xpra video encoders.', 'x264,vpx'),
@@ -282,15 +177,10 @@ BY_NAME: Mapping[str, Variable] = {variable.name: variable for variable in VARIA
 
 @dataclass
 class Settings:
-    """Environment values resolved against the profile's defaults, with every error kept."""
+    """Environment values resolved against their defaults, with every error kept."""
 
     environ: Mapping[str, str] = field(default_factory=lambda: dict(os.environ))
     errors: list[str] = field(default_factory=list)
-
-    @property
-    def profile(self) -> str:
-        mode = self.environ.get('AGENTDEV_RUNTIME_MODE', '')
-        return mode if mode in PROFILES else DEVCONTAINER
 
     @property
     def home(self) -> str:
@@ -303,11 +193,11 @@ class Settings:
         return self.environ.get(name, '')
 
     def get(self, name: str) -> str:
-        """Return the variable, or its profile default when unset or empty."""
+        """Return the variable, or its default when unset or empty."""
         value = self.raw(name)
         if value:
             return value
-        default = BY_NAME[name].default_for(self.profile)
+        default = BY_NAME[name].default
         return default if isinstance(default, str) else default.compute(self)
 
     def path(self, name: str) -> Path:
@@ -324,47 +214,9 @@ class Settings:
             )
         return False
 
-    def positive(self, name: str) -> float:
-        default = float(self.get_default(name))
-        raw = self.raw(name)
-        if not raw:
-            return default
-        try:
-            value = float(raw)
-        except ValueError:
-            value = math.nan
-        if not (math.isfinite(value) and value > 0):
-            self.errors.append(f'{name} must be a positive number; got {raw!r}')
-            return default
-        return value
-
-    def count(self, name: str) -> int:
-        default = int(self.get_default(name))
-        raw = self.raw(name)
-        if not raw:
-            return default
-        if not raw.strip().isdigit() or int(raw) <= 0:
-            self.errors.append(f'{name} must be a positive integer; got {raw!r}')
-            return default
-        return int(raw)
-
-    def required(self, name: str, options: tuple[str, ...]) -> str:
-        raw = self.raw(name)
-        if raw not in options:
-            self.errors.append(f'{name} must be {" or ".join(options)}; got {raw!r}')
-            return ''
-        return raw
-
-    def choice(self, name: str, options: tuple[str, ...]) -> str:
-        raw = self.raw(name)
-        if raw and raw not in options:
-            self.errors.append(f'{name} must be {", ".join(options)}, or empty; got {raw!r}')
-            return ''
-        return self.get(name)
-
     def get_default(self, name: str) -> str:
-        """Return the profile default, ignoring the environment."""
-        default = BY_NAME[name].default_for(self.profile)
+        """Return the default, ignoring the environment."""
+        default = BY_NAME[name].default
         return default if isinstance(default, str) else default.compute(self)
 
     @staticmethod
@@ -382,13 +234,12 @@ def _describe_default(default: Default) -> str:
 def markdown_table() -> str:
     """Render the settings as the Markdown table the package README carries."""
     rows = [
-        '| Variable | Default | Deploy default | Profiles | Meaning |',
-        '| --- | --- | --- | --- | --- |',
+        '| Variable | Default | Meaning |',
+        '| --- | --- | --- |',
     ]
     for variable in VARIABLES:
-        deploy = '' if variable.deploy is None else _describe_default(variable.deploy)
         rows.append(
-            f'| `{variable.name}` | {_describe_default(variable.default)} | {deploy} '
-            f'| {", ".join(variable.profiles)} | {variable.description} |'
+            f'| `{variable.name}` | {_describe_default(variable.default)} '
+            f'| {variable.description} |'
         )
     return '\n'.join(rows)

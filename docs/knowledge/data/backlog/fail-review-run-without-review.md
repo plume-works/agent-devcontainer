@@ -19,10 +19,9 @@ the pull request was reviewed, not that this run reviewed it. That property is
 deliberate, because a review for each commit costs too much, so the run itself
 must fail when it published nothing, or a re-review that vanishes stays silent.
 
-The known cause of such runs is closed in [The review orchestrator ends its turn
-while its passes are still
-running](../archive/2.0.0/bugs/review-orchestrator-ends-turn-while-passes-run.md);
-this check is the safety net for any cause that is not.
+The known cause of such runs is closed in The review orchestrator ends its turn
+while its passes are still running; this check is the safety net for any cause
+that is not.
 
 ## What to do
 

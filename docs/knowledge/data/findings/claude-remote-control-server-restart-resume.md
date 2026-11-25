@@ -7,9 +7,8 @@ sources:
 
 # Claude Remote Control server restart resume
 
-Finding against [Claude Remote Control server
-mode](../archive/2.0.0/architecture/claude-remote-control-server-mode.md),
-measured on Claude Code 2.1.309 with `claude remote-control --spawn same-dir`.
+Finding against Claude Remote Control server mode, measured on Claude Code
+2.1.309 with `claude remote-control --spawn same-dir`.
 
 ## Measurement
 

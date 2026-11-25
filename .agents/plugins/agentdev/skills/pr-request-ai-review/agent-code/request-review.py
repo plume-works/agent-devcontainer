@@ -1,27 +1,23 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Request an AI review of a pull request's head commit by adding the request-ai-review label.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
 
 from datetime import datetime
 import json
-from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import print_error, Stop  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import print_error, Stop
 
 ALREADY_REVIEWED = 3
 ALREADY_REQUESTED = 4

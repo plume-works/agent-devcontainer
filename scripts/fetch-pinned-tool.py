@@ -1,44 +1,66 @@
 #!/usr/bin/env python3
 """
-Download one dev_tools pinned tool for this machine's architecture and unpack its binaries.
+Download pinned tools for this machine's architecture and write their binaries to a directory.
 
-The archive is fetched from the URL ``refresh-pin-checksums.py`` renders, verified against the
-recorded checksum, and its binaries are written to the destination directory. Renovate's
-post-upgrade task uses it to run a just-bumped tool the image does not carry yet.
+Each entry of ``docker/devcontainer/pinned-tools.yml`` is fetched, verified against its recorded
+checksum, and only its named binaries are written out; a ``deb`` entry is written as its package
+file. The image build installs every entry with ``--all``; Renovate's post-upgrade task fetches
+a just-bumped tool the image does not carry yet.
+
+An entry's download URL is ``{url_prefix}/{version}/{asset}{suffix}``. ``asset`` is
+``asset_prefix`` (with ``{version}``, and ``{bare_version}`` for the version without a leading
+``v``) followed by the architecture's ``target``; ``suffix`` is ``.`` plus ``extension`` (default
+``tar.gz``), or nothing for ``bare_binary``. Binaries sit at the archive root unless
+``binaries_dir`` names their directory. A ``# renovate:`` comment above an entry's ``version``
+lets Renovate bump it; the post-upgrade script then recomputes its checksums.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import importlib.util
 from pathlib import Path
 import platform
 import sys
 import tarfile
 import tempfile
-from types import ModuleType
+from typing import Any
 import urllib.error
 import urllib.request
+import zipfile
 
-DEV_TOOLS_DEFAULTS = 'ansible/roles/dev_tools/defaults/main.yml'
+import yaml
+
+PINNED_TOOLS = 'docker/devcontainer/pinned-tools.yml'
+ARCHITECTURES = ('amd64', 'arm64')
 MACHINE_ARCHITECTURES = {'x86_64': 'amd64', 'amd64': 'amd64', 'aarch64': 'arm64', 'arm64': 'arm64'}
+DOWNLOAD_TIMEOUT_SECONDS = 120
 
 
 class FetchError(Exception):
     """A pinned tool that cannot be downloaded, verified, or unpacked."""
 
 
-def _refresh_module() -> ModuleType:
-    """Load refresh-pin-checksums.py, whose hyphenated name rules out a plain import."""
-    path = Path(__file__).with_name('refresh-pin-checksums.py')
-    spec = importlib.util.spec_from_file_location('refresh_pin_checksums', path)
-    if spec is None or spec.loader is None:
-        raise FetchError(f'cannot load {path}')
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
+def load_tools(path: Path) -> dict[str, dict[str, Any]]:
+    """Map each entry's name to the entry."""
+    return {tool['name']: tool for tool in yaml.safe_load(path.read_text())['tools']}
+
+
+def suffix(tool: dict[str, Any]) -> str:
+    return '' if tool.get('bare_binary') else '.' + tool.get('extension', 'tar.gz')
+
+
+def url(tool: dict[str, Any], arch: str) -> str:
+    """Return the entry's download URL for one architecture."""
+    version = str(tool['version'])
+    asset = (
+        tool['asset_prefix']
+        .replace('{version}', version)
+        .replace('{bare_version}', version.removeprefix('v'))
+    )
+    return (
+        f'{tool["url_prefix"]}/{version}/{asset}{tool["archives"][arch]["target"]}{suffix(tool)}'
+    )
 
 
 def _architecture() -> str:
@@ -49,63 +71,96 @@ def _architecture() -> str:
     return MACHINE_ARCHITECTURES[machine]
 
 
-def _download(url: str, target: Path, timeout: int) -> str:
+def _download(source: str, target: Path) -> str:
     """Write a URL's body to target and return its SHA-256."""
     digest = hashlib.sha256()
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as response, target.open('wb') as out:
+        with (
+            urllib.request.urlopen(source, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response,
+            target.open('wb') as out,
+        ):
             while chunk := response.read(1 << 20):
                 digest.update(chunk)
                 out.write(chunk)
     except (urllib.error.URLError, OSError) as error:
-        raise FetchError(f'download failed: {url}: {error}') from error
+        raise FetchError(f'download failed: {source}: {error}') from error
     return digest.hexdigest()
 
 
-def fetch(name: str, destination: Path, repo_root: Path) -> list[Path]:
-    """Install the named tool's binaries into destination; return their paths."""
-    refresh = _refresh_module()
-    defaults = refresh.yaml.safe_load((repo_root / DEV_TOOLS_DEFAULTS).read_text())
-    spec = refresh.PIN_FILES[DEV_TOOLS_DEFAULTS]
-    tools = {tool['name']: tool for tool in defaults[spec.list_var]}
-    pins = {pin.key: pin for pin in spec.pins(defaults, repo_root)}
-    if name not in tools:
-        raise FetchError(f'{DEV_TOOLS_DEFAULTS}: no pinned tool named {name}')
-    tool, pin, arch = tools[name], pins[name], _architecture()
-    if tool.get('extension', 'tar.gz') != 'tar.gz' or tool.get('binaries_in_asset_dir'):
-        raise FetchError(f'{name}: only flat tar.gz archives are supported')
+def _read_member(archive: Path, member: str) -> bytes:
+    """Return one file's bytes from a tar or zip archive."""
+    if zipfile.is_zipfile(archive):
+        with zipfile.ZipFile(archive) as bundle:
+            try:
+                return bundle.read(member)
+            except KeyError as error:
+                raise FetchError(f'{archive.name}: no file {member}') from error
+    with tarfile.open(archive) as bundle:
+        try:
+            extracted = bundle.extractfile(member)
+        except KeyError as error:
+            raise FetchError(f'{archive.name}: no file {member}') from error
+        if extracted is None:
+            raise FetchError(f'{archive.name}: {member} is not a regular file')
+        return extracted.read()
 
+
+def fetch(tool: dict[str, Any], destination: Path, arch: str) -> list[Path]:
+    """Write the entry's binaries, or its package file, into destination; return their paths."""
+    name, version = tool['name'], str(tool['version'])
+    if arch not in tool['archives']:
+        raise FetchError(f'{name} is not available for architecture {arch}')
     destination.mkdir(parents=True, exist_ok=True)
-    installed = []
     with tempfile.TemporaryDirectory(dir=destination) as scratch:
-        archive = Path(scratch) / f'{name}.tar.gz'
-        actual = _download(pin.urls[arch], archive, refresh.DOWNLOAD_TIMEOUT_SECONDS)
-        recorded = refresh._digest_of(pin.checksums[arch])
+        archive = Path(scratch) / f'{name}{suffix(tool)}'
+        actual = _download(url(tool, arch), archive)
+        recorded = str(tool['archives'][arch]['checksum']).removeprefix('sha256:')
         if actual != recorded:
-            raise FetchError(f'{name} {pin.version} ({arch}) hashes to {actual}, not {recorded}')
-        with tarfile.open(archive) as bundle:
-            for binary in tool.get('binaries', [name]):
-                member = bundle.extractfile(binary)
-                if member is None:
-                    raise FetchError(f'{name} {pin.version}: archive has no file {binary}')
-                target = destination / binary
-                target.write_bytes(member.read())
-                target.chmod(0o755)
-                installed.append(target)
+            raise FetchError(f'{name} {version} ({arch}) hashes to {actual}, not {recorded}')
+        if tool.get('deb'):
+            target = destination / f'{name}.deb'
+            archive.replace(target)
+            return [target]
+        if tool.get('bare_binary'):
+            target = destination / name
+            archive.replace(target)
+            target.chmod(0o755)
+            return [target]
+        directory = tool.get('binaries_dir', '').replace('{version}', version)
+        # Every binary is read before any is written, so a short archive installs nothing.
+        bodies = {
+            binary: _read_member(archive, f'{directory}/{binary}'.lstrip('/'))
+            for binary in tool.get('binaries', [name])
+        }
+    installed = []
+    for binary, body in bodies.items():
+        target = destination / binary
+        target.write_bytes(body)
+        target.chmod(0o755)
+        installed.append(target)
     return installed
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Fetch the named tool into the destination directory."""
+    """Fetch the named tools, or every tool, into the destination directory."""
     parser = argparse.ArgumentParser(description=__doc__.strip().splitlines()[0])
-    parser.add_argument('name', help='The tool entry name in dev_tools_pinned_tools.')
     parser.add_argument('destination', type=Path, help='Directory to write the binaries to.')
-    parser.add_argument('--repo-root', type=Path, default=Path.cwd())
+    parser.add_argument('names', nargs='*', help='Entry names in the pin file.')
+    parser.add_argument('--all', action='store_true', help='Fetch every entry.')
+    parser.add_argument('--pins', type=Path, default=Path(PINNED_TOOLS))
     args = parser.parse_args(argv)
+    if bool(args.names) == args.all:
+        parser.error('name the tools to fetch, or pass --all')
     try:
-        for path in fetch(args.name, args.destination, args.repo_root):
-            print(path)
-    except (FetchError, KeyError, tarfile.TarError) as error:
+        tools = load_tools(args.pins)
+        names = list(tools) if args.all else args.names
+        arch = _architecture()
+        for name in names:
+            if name not in tools:
+                raise FetchError(f'{args.pins}: no pinned tool named {name}')
+            for path in fetch(tools[name], args.destination, arch):
+                print(path)
+    except (FetchError, OSError, tarfile.TarError, zipfile.BadZipFile) as error:
         print(f'fetch-pinned-tool: {error}', file=sys.stderr)
         return 1
     return 0

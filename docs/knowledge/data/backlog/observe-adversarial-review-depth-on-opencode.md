@@ -5,13 +5,13 @@ stage: pending
 priority: low
 description: Rerun the plan-target adversarial review on OpenCode after the reviewer was told to check every rubric part and report every finding, and record whether OpenCode models now find the structural weaknesses Claude Code finds.
 sources:
-- resource: .agents/plugins/agentdev/agents/iwe-adversarial-reviewer.agent.md
-- resource: .agents/plugins/agentdev/skills/iwe-adversarial-review/SKILL.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-adversarial-reviewer.agent.md
+- resource: .agents/plugins/agentdev-iwe/skills/iwe-adversarial-review/SKILL.md
 ---
 
 # Check adversarial review depth on OpenCode
 
-On the same fixture plan, `/agentdev:iwe-adversarial-review <plan> plan`
+On the same fixture plan, `/agentdev-iwe:iwe-adversarial-review <plan> plan`
 reported five weaknesses on Claude Code and one or two on every OpenCode model
 tried (`openai/gpt-6.1-sol` at default and high effort, `gpt-6-astra`,
 `gpt-6-astra-fast`). No OpenCode run reported the two structural weaknesses:

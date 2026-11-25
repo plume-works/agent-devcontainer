@@ -6,39 +6,39 @@ description: Replace this repository's AI responder workflow with quill-as-a-ser
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
-- resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
 
 # Switch this repository's AI review to quill-as-a-service
 
 ## Context
 
-[Build quill-as-a-service](20261122-quill-as-a-service.md) builds the service
-and proves it on `plume-works/images`. The user's decision: "Once it's ready we
-switch agentdev in one go." Until then this repository keeps
+[Build
+quill-as-a-service](https://github.com/plume-works/quill-as-a-service/blob/main/docs/plans/20261122-quill-as-a-service.md),
+in `plume-works/quill-as-a-service`, builds the service and proves it on
+`plume-works/images`. Until it is ready, this repository keeps
 `.github/workflows/ai-responder.yml`, its two actions, the `plume-works-review`
 environment, and the required `ai-review-present` check.
 
 The catalog's review skills assume the workflow: `request-review.py` reads the
 runs of `ai-responder.yml` and the `Claude PR Review Responder` check, and
-`pr-merge`, `pr-eval-review-needed`, and the consumption guide describe
-`ai-review-present` as the gate.
+`pr-merge` and `pr-eval-review-needed` describe `ai-review-present` as the gate.
 
 ## Approach
 
 One change removes the workflow, its actions, its CI hooks, and the cost scripts
 that read its runs. The `main` ruleset keeps its required approval and drops the
-`ai-review-present` check
-([ADR-0102](../adr/0102-required-approval-is-the-only-ai-review-gate.md)), and
-the service configuration lists this repository
+`ai-review-present` check (quill-as-a-service
+[ADR-0001](https://github.com/plume-works/quill-as-a-service/blob/main/docs/adrs/0001-required-approval-is-the-only-ai-review-gate.md)),
+and the service configuration lists this repository
 ([ADR-0101](../adr/0101-ai-review-runs-in-quill-as-a-service.md)).
 
 `request-review.py` keeps its results and its rule of one request per head and
 title and description, and reads the `Quill Review` check run where it read the
 responder check. A `Quill Review` check on the head that is queued or in
 progress means the label waits for a running review; with none, a label still on
-the pull request is stale. The skills and the consumption guide describe the
-service's rules ([ADR-0103](../adr/0103-review-starts-on-open-or-request.md)):
+the pull request is stale. The skills describe the service's rules
+(quill-as-a-service
+[ADR-0002](https://github.com/plume-works/quill-as-a-service/blob/main/docs/adrs/0002-review-starts-on-open-or-request.md)):
 no required review check, Quill's approval counting toward the required
 approval, and `request-ai-review` held until the review ends.
 
@@ -117,26 +117,14 @@ assignee trigger end with it and are cancelled.
   `## Establish what the last review saw` describe Quill's latest verdict and
   the required approval, and name no `ai-review-present` gate.
 
-### Task 7: Rewrite the consumption guide's review section
-
-**Files:** Modify:
-`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
-
-- [ ] `#### AI responder and the review gate` tells a consumer to have the
-  repository added to a quill-as-a-service configuration, install the Quill App,
-  create the `request-ai-review` and `block-ai-reviews` labels, and require one
-  approval, and names no workflow, environment, or `ai-review-present`.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
-  passes.
-
-### Task 8: Update the README
+### Task 7: Update the README
 
 **Files:** Modify: `README.md`
 
 - [ ] `## Pull-request automation` describes quill-as-a-service and names no
   `ai-responder.yml`, `plume-works-review` environment, or secret.
 
-### Task 9: Cancel the backlog tasks the workflow carried
+### Task 8: Cancel the backlog tasks the workflow carried
 
 **Files:** Modify: `docs/knowledge/data/backlog.md`; Move:
 `docs/knowledge/data/backlog/test-responder-workflow-js.md`,
@@ -147,28 +135,28 @@ assignee trigger end with it and are cancelled.
   `data/archive/next-release/backlog/`.
 - [ ] `iwe schema validate` passes.
 
-### Task 10: Point the service at this repository
+### Task 9: Point the service at this repository
 
 **Closed by:** a maintainer adding `plume-works/agent-devcontainer` to the
 service configuration, when this plan's pull request merges.
 
 - [ ] The service configuration lists `plume-works/agent-devcontainer`.
 
-### Task 11: Drop the review check from the ruleset
+### Task 10: Drop the review check from the ruleset
 
 **Closed by:** a repository administrator, when this plan's pull request merges.
 
 - [ ] The `main` ruleset requires one approval and no `ai-review-present` check.
 
-### Task 12: Delete the review environment
+### Task 11: Delete the review environment
 
-**Closed by:** a repository administrator, after Task 11.
+**Closed by:** a repository administrator, after Task 10.
 
 - [ ] The `plume-works-review` environment and its secrets are gone.
 
-### Task 13: Observe a review by the service
+### Task 12: Observe a review by the service
 
-**Closed by:** the first pull request opened on this repository after Task 10.
+**Closed by:** the first pull request opened on this repository after Task 9.
 
 - [ ] It gets a review by `plume-works-quill[bot]`.
 - [ ] It gets a `Quill Review` check on its head.
@@ -183,7 +171,7 @@ service configuration, when this plan's pull request merges.
   its head
 - **THEN** it reports `ALREADY_REQUESTED` and changes no label
 - **Test:**
-  `.agents/plugins/agentdev/tests/test_request_review.py::test_label_waiting_for_a_quill_review_is_already_requested`
+  `.agents/plugins/agentdev/tests/test_request_review.py@test_label_waiting_for_a_quill_review_is_already_requested`
 
 ### Scenario: A stale request label is sent again
 
@@ -191,7 +179,7 @@ service configuration, when this plan's pull request merges.
   `request-ai-review` and has no unfinished `Quill Review` check on its head
 - **THEN** it removes the label and adds it again
 - **Test:**
-  `.agents/plugins/agentdev/tests/test_request_review.py::test_stale_label_is_removed_and_added_again`
+  `.agents/plugins/agentdev/tests/test_request_review.py@test_stale_label_is_removed_and_added_again`
 
 ### Scenario: The Quill Review check on the head counts as a request
 
@@ -199,7 +187,7 @@ service configuration, when this plan's pull request merges.
   description edit and completed other than cancelled
 - **THEN** `request-review.py` reports `ALREADY_REQUESTED` with that check's URL
 - **Test:**
-  `.agents/plugins/agentdev/tests/test_request_review.py::test_quill_review_check_completed_after_metadata_edit_counts`
+  `.agents/plugins/agentdev/tests/test_request_review.py@test_quill_review_check_completed_after_metadata_edit_counts`
 
 ### Scenario: The merge needs an approval, not a review check
 
@@ -220,16 +208,6 @@ service configuration, when this plan's pull request merges.
 [The AI review of this repository runs in
 quill-as-a-service](../adr/0101-ai-review-runs-in-quill-as-a-service.md)
 
-[The required approval is the only gate of the AI
-review](../adr/0102-required-approval-is-the-only-ai-review-gate.md)
-
-[A review starts on open or on
-request](../adr/0103-review-starts-on-open-or-request.md)
-
-## Depends on
-
-[Build quill-as-a-service](20261122-quill-as-a-service.md)
-
 ## Verification
 
 ``` bash
@@ -242,8 +220,7 @@ rg -n 'ai-review-present|ai-responder\.yml|Claude PR Review Responder|plume-work
   .github/workflows/ci.yml README.md \
   .agents/plugins/agentdev/skills/pr-request-ai-review \
   .agents/plugins/agentdev/skills/pr-merge/SKILL.md \
-  .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md \
-  .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
+  .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 iwe schema validate
 ```
 
@@ -252,19 +229,19 @@ The `rg` command prints nothing.
 ## Out of scope
 
 - Building the service and onboarding `plume-works/images`; [Build
-  quill-as-a-service](20261122-quill-as-a-service.md) holds it.
-- Other repositories that copied the workflow from the template; each switches
-  through the consumption guide.
+  quill-as-a-service](https://github.com/plume-works/quill-as-a-service/blob/main/docs/plans/20261122-quill-as-a-service.md)
+  holds it.
+- Other repositories that copied the workflow from the template.
 - The archived documents and findings that describe the workflow.
 
 ## Key references
 
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::run`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py@run`
   › "actions/workflows/ai-responder.yml/runs" — the workflow-run read that Task
   3 replaces.
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py::requesting_check`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py@requesting_check`
   — the check that counts as a request.
-- `.agents/plugins/agentdev/tests/test_request_review.py::test_label_waiting_for_a_run_is_already_requested`
+- `.agents/plugins/agentdev/tests/test_request_review.py@test_label_waiting_for_a_run_is_already_requested`
   — the test that Task 3 replaces.
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md#confirm-it-started`
   — the confirmation through workflow runs.
@@ -272,8 +249,6 @@ The `rg` command prints nothing.
   recovery of a red `ai-review-present`.
 - `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md#why-this-decision-has-an-owner`
   — the gate the skill explains.
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md#ai-responder-and-the-review-gate`
-  — the consumer setup of the workflow.
 - `README.md#pull-request-automation` — the workflow's description.
 - `.github/workflows/ci.yml` › "bun test ./.github/actions/ai-review-status" —
   the CI step that tests the gate module.

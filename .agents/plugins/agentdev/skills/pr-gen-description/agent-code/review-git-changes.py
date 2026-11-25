@@ -1,21 +1,17 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Review working tree and branch changes for the pr-gen-description skill.
 
-Runs from any consuming repository that installs this plugin, so it imports
-nothing beyond the standard library.
+Runs from any consuming repository that installs this plugin.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
-
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
-from skill_common import (  # noqa: E402
+from agentdev_lib import result_codes as rc
+from agentdev_lib.skill_common import (
     current_branch,
     help_header,
     print_error,

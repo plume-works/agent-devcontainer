@@ -24,7 +24,7 @@ script behind one top-level task has no override ordering to get wrong.
 ## Consequences
 
 - A new pin with a checksum needs its file in
-  `scripts/refresh-pin-checksums.py::PIN_FILES`.
+  `scripts/refresh-pin-checksums.py@PIN_FILES`.
 - Renovate keeps the output of the task only for paths that `fileFilters`
   matches. Each path that a Renovate manager edits must match it.
 - The script runs pre-commit through `uv run`, never the image's unpinned apt

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 
 """
 Apply ShellCheck's suggested fixes to every shell script under the working directory.

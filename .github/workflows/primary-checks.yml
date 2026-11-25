@@ -62,7 +62,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so the hooks run the tools the
     # image installs.
     container:
-      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:1e4a41f900a6744d8e785370d460cde1972b5adf712070bfceebd48bc70e8603
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:9a00eb9a9fa05b1f1c22e7b2c3607e88a016172eb1c9431f5379a1edcb9abfca
     timeout-minutes: 30
     env:
       # checkout trusts the workspace only within its own step; the container user
@@ -102,6 +102,23 @@ jobs:
           else
             uv run pre-commit run --from-ref "$FROM_REF" --to-ref "$TO_REF" --show-diff-on-failure
           fi
+
+  agentdev-lib-version:
+    name: agentdev-lib version
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check that a changed agentdev-lib has a new version
+        run: scripts/check-agentdev-lib-version.py
 
   ci:
     name: CI/CD

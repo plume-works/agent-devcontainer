@@ -91,7 +91,7 @@ Two more that grep cannot find:
 
 Nothing becomes a durable fact on the strength of the prose already asserting
 it. For every REWRITE and KEEP, confirm it against the current code and cite
-its anchor (`path::symbol`, `path#heading-slug`, or one of them plus
+its anchor (`path@symbol`, `path#heading-slug`, or one of them plus
 ` › "verbatim quote"`), never a line number. Cannot confirm → mark UNVERIFIED and leave the text alone; report
 it as needing a human. A stale claim restated confidently is worse than the
 sloppy version, because it now reads as settled.

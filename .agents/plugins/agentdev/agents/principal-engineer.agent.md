@@ -53,9 +53,8 @@ when TDD applies; never test text files, only real executable code logic.
 
 ## Pull Requests
 
-- **Reviewing** — run the [pr-review](../skills/pr-review/SKILL.md) skill and apply
-  [code-review-standards](../skills/code-review-standards/SKILL.md); do not free-style
-  a parallel rubric.
+- **Reviewing** — run the [pr-review](../skills/pr-review/SKILL.md) skill; do not
+  free-style a parallel rubric.
 - **Creating / describing** — use
   [pr-gen-description](../skills/pr-gen-description/SKILL.md) and
   [pr-open](../skills/pr-open/SKILL.md).

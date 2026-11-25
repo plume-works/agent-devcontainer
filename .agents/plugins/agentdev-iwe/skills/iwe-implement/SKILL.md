@@ -1,0 +1,19 @@
+---
+name: iwe-implement
+description: Implement a named IWE plan task-by-task with state discipline — verified anchors, tests before checkbox ticks, clean stopping points, deviations written back into the plan — then verify the result and act on the findings. Use only when the request names the plan to implement; a request to build something with no plan named does not match.
+---
+
+# Implement a plan
+
+The Implement rulebook is the `iwe-implementer` catalog agent. Run it here, in
+this session, so you can ask the user about an ambiguous plan or a material
+deviation and wait for the answer.
+
+Read [the iwe-implementer rulebook](../../agents/iwe-implementer.agent.md) in
+full and follow it in place for the plan the request names. Do not dispatch it
+as a subagent: the rulebook is never dispatched.
+
+This session is the Implement session, so it also runs the rulebook's
+`## Running the loop`: it runs Verify through `/agentdev-iwe:iwe-verify`, acts on
+the findings, and takes an evaluated revision without asking. Ask the user only
+for an always-escalate deviation, a Verify `Needs decision`, or a stop bound.

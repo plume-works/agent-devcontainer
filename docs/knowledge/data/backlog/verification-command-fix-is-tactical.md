@@ -5,9 +5,9 @@ stage: pending
 priority: high
 description: Treat a corrected `## Verification` command that runs the same check as a tactical correction, so a command broken by its own invocation no longer costs a full revision round.
 sources:
-- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
-- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
-- resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-verifier.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev-iwe/agents/iwe-revision-evaluator.agent.md
 - resource: docs/knowledge/data/plans/20261102-autonomy-loop.md
 ---
 
@@ -22,8 +22,7 @@ agent, have `iwe-revision-evaluator` approve it, then run Verify again. A
 command such as `bun test <path>`, which a newer `bun` reads as a name filter
 until the path starts with `./`, costs that whole round for a one-character
 change, and the implementer that already found the working form may not correct
-the plan line. [Make the Implement loop
-converge](../archive/2.1.0/plans/20261102-autonomy-loop.md) keeps both rules.
+the plan line. Make the Implement loop converge keeps both rules.
 
 The work: classify a corrected verification step by what it checks.
 
