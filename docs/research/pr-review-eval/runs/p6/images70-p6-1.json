@@ -1,0 +1,69 @@
+{
+ "run": "images70-p6-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.77,
+ "duration_s": 84,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.51,
+  "claude-sonnet-5-5": 0.27
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no clear violations in the added lines. I checked these:\n\n- **Comments:** the new comments in `images.yml` and `docker-bake.hcl` give a constraint or reason, not a restatement of the code.\n- **ADRs:** `0020` and `0021` match the existing format of a title, a paragraph, `## Considered Options` and `## Consequences`. They contain no code implementation details. The only ADR in the diff that names an earlier decision is `0020`, which lists it under \"Considered Options\". That fork behaviour was never recorded as an ADR, so there is no superseded ADR to delete.\n- **README:** the two additions are brief and link to the new ADR."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no candidate that meets the Trigger, Path and Outcome bar.\n\n- **Fork pull requests:** `PUBLISH` is now true for them, but their token is read-only. The cache write in `images/docker-bake.hcl::cache_to` and the digest push in `.github/workflows/images.yml::build` will fail, so the check fails. ADR 0020 states this as intended.\n- **Cleanup:** `.github/workflows/ghcr-cleanup.yml` only deletes `pr-N` tags and excludes `edge`, so the `cache-amd64` and `cache-arm64` tags are untouched.\n- **Cache refs and flags:** the cache ref `${REGISTRY}/${name}:cache-<arch>` is per image and per architecture, and `PLATFORM` is always set in the build job. An absent cache ref on a first run only produces a warning. The `mode=max,image-manifest=true,oci-mediatypes=true` combination is valid.\n- **Manual runs on other branches:** `workflow_dispatch` on a non-main branch now writes the shared cache, but `PUBLISH` stays false there, so `edge` does not move. ADR 0021 states the shared cache as a consequence.\n- **Cache poisoning:** a pull request branch writing to the same cache tag that `main` reads would need collaborator write access, which already allows far more."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Findings: 1**\n\n1. **File:** `docs/adr/0020-pull-requests-from-collaborators-only.md`\n   - **Quoted added line:** `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n   - **Rule broken:** durable-knowledge audit, \"Not durable\". The clause \"never recorded as an ADR\" narrates the repo's documentation history. It does not state a decision or a constraint, and it would not stay true if the code were rewritten from scratch. Pattern: provenance.\n   - **Verdict:** DROP the clause \"never recorded as an ADR\". Keep \"the previous behaviour\", because AGENTS.md wants the old decision listed under \"Considered options\".\n   - **Suggested replacement:** `- Forks build and test without publishing (the previous behaviour).`\n   - **Evidence:** the dropped clause makes no checkable claim about behaviour. The option itself is still stated in full.\n\n**Checked and not flagged:**\n- **`.github/workflows/images.yml`:**\n  - `# A manual run on another branch must not move edge.` states a constraint the `PUBLISH` condition enforces.\n  - `# Every run reads and writes the build cache in GHCR, publishing or not.` explains why the login step lost its `if:` guard.\n- **`images/docker-bake.hcl`:**\n  - `# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.` states a real dependency.\n  - The `mode=max` / `image-manifest=true` comment is borderline. It restates what `mode=max` means, but the GHCR claim is a genuine gotcha that the code cannot show. I could not verify it offline, so it is UNVERIFIED and I left it alone. A human could confirm it if wanted.\n- **`docs/adr/0021-build-cache-in-the-registry.md`:** it contains no code implementation details, only decisions, alternatives and consequences.\n- **`README.md`:** the additions are brief and durable."
+  },
+  {
+   "description": "Validate ADR provenance candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**CONFIRM**: the clause \"never recorded as an ADR\" narrates the repository's documentation history rather than stating an option or a constraint, so it fails the durable-knowledge test as provenance residue. The rest of the line is legitimate, because AGENTS.md requires listing the old decision under \"Considered options\". The fix is to trim it to \"Forks build and test without publishing.\""
+  }
+ ],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "The workflow and bake changes look correct. The registry cache refs are per image and per architecture. The login runs on every build, which the cache write needs. The new fork-free conditions match ADR 0020. The cleanup job never touches the `cache-*` tags. One blocking documentation finding is inline: an ADR carries provenance residue.",
+  "comments": [
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**Blocking (durable knowledge: provenance residue).** \"never recorded as an ADR\" describes the repository's documentation history. It is not part of the option and states no decision or constraint. Listing the old behaviour under Considered Options is right (AGENTS.md: \"List old decision under 'Considered options'\"), but the ADR should state only the option itself.\n\nSuggested:\n\n```suggestion\n- Forks build and test without publishing (the previous behaviour).\n```"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The clause \"never recorded as an ADR\" in the Considered Options bullet is provenance residue: it narrates documentation history rather than stating the option, a decision or a constraint.",
+   "validation": "CONFIRM — the clause \"never recorded as an ADR\" narrates the repository's documentation history rather than stating an option or constraint, failing the durable-knowledge test as provenance residue, while the rest of the line is legitimate because AGENTS.md requires listing the old decision under \"Considered options\"; trimming to \"Forks build and test without publishing.\" fixes it.",
+   "posted": true
+  }
+ ]
+}

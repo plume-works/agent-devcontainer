@@ -1,0 +1,63 @@
+{
+ "run": "images70-p9-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.79,
+ "duration_s": 104,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.54,
+  "claude-sonnet-5-5": 0.25
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No compliance violations found. I read `AGENTS.md` and `docs/agents/domain.md`, compared the two new ADRs with the existing ones, and checked the README, workflow and bake comments. I did not read `pr.json` because the tool blocked access to it.\n\n- **ADRs:** 0020 and 0021 contain no code or implementation details. They follow the existing format: a title, a short decision paragraph, then \"Considered Options\". The \"Consequences\" section in 0021 is an extra section, but no rule bans it.\n- **Superseded ADRs:** The PR supersedes nothing. ADR 0020 records the old fork behaviour under \"Considered Options\", so no deletion is required.\n- **Comments:** The new comments in the workflow and `images/docker-bake.hcl` state constraints or reasons, such as GHCR rejecting the default cache index and the cache needing `PLATFORM`. None only restates the code.\n- **README:** The additions are two short sentences, so it stays brief. It links to ADR 0020 and does not duplicate the ADR's content.\n- **Glossary:** The vocabulary does not conflict with it, and the PR adds no new domain terms.\n- **PR rules:** I couldn't check these because `pr.json` was unreadable.\n\nIssues: none."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found no reportable issues in `images.yml` or `docker-bake.hcl`. I read the code only and ran nothing.\n\nChecks that came out clean:\n- **`CACHE` and `PUSH`:** the env string `\"true\"` converts to the HCL bool declared by `variable \"CACHE\" { default = false }`. `PUSH` already works this way in `out()`, so `CACHE ? [...] : []` behaves the same. The default `false` gives `[]` for local builds.\n- **`PLATFORM` with `CACHE`:** the `build` job always sets `PLATFORM` (`linux/amd64` or `linux/arm64`). `cache_ref` therefore always yields `cache-amd64` or `cache-arm64`, one distinct ref per image and architecture. An empty `PLATFORM` (giving `cache-`) can't happen while `CACHE` is set in CI.\n- **`contexts = { parent = \"target:core\" }` with cache:** the parent is built in the same bake invocation. Each target has its own `cache-from` and `cache-to` ref, so the refs don't collide. On a first run with no cache tag, buildkit only warns and builds.\n- **`workflow_dispatch` on a non-main branch:** `PUBLISH` is false, so the digest steps and the `publish` job are skipped and `edge` doesn't move. It still writes the shared `cache-*` tags. ADR 0021 states this, and every PR run does the same, so it is a design choice.\n- **`ghcr-cleanup.yml`:** it only deletes `pr-N` tags, with `exclude-tags: edge`. It doesn't touch `cache-*` tags or untagged versions.\n- **`PUBLISH` and the `publish` job condition:** the same-repository check on `pull_request` was dropped on purpose (ADR 0020). A fork PR gets a read-only `GITHUB_TOKEN`, so the cache or digest push fails in `build` and `publish` never runs. That failure is the intended outcome under the new ADR.\n- **Cache poisoning by PR branches:** a PR from a collaborator's branch already runs with `packages: write` on its own workflow file. It could push to GHCR directly, so the shared cache gives no new capability. The ADR lists the shared cache as a consequence.\n- **Cache write failures:** a GHCR outage during cache export now fails the build, because `ignore-error` defaults to false. This is a robustness trade-off with no concrete input that makes it a bug.\n\nIssues: none."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found one finding. It does not block.\n\n**1. `docs/adr/0020-pull-requests-from-collaborators-only.md`, line 9 (RIGHT side)**\n- Quoted text: `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n- Pattern: provenance (\"previous behaviour\", \"never recorded\").\n- Verdict: REWRITE. The parenthetical tells the history of the decision. It does not state a constraint, and the ADR would read the same without it.\n- Rule broken: the \"durable vs not\" test. Text that records how something was reached, not what a reader needs, dies with the code. AGENTS.md says ADRs hold decisions, with superseded ones listed under \"Considered options\".\n- Replacement: `- Forks build and test without publishing.`\n- Evidence: the workflow's old `PUBLISH` expression in the diff shows that behaviour, so the option stays as a considered alternative.\n- Blocks: no.\n\n**Checked and kept**\n- **`images.yml` comments:**\n  - `# A manual run on another branch must not move edge.` matches the new `PUBLISH` expression, where only `pull_request` and `main` publish.\n  - `# Every run reads and writes the build cache in GHCR, publishing or not.` explains why the login step lost its `if:`.\n- **`docker-bake.hcl` comments:**\n  - `# CI sets CACHE=true; needs PLATFORM, ...` is a real constraint. `cache_ref` derives the tag from `PLATFORM`.\n  - `# mode=max: ... image-manifest=true: GHCR rejects the default cache index.` is a claim about how GHCR behaves, which I couldn't check offline (UNVERIFIED). It states a constraint, so I left it in. The `mode=max` half is close to restating the flag. I did not raise it because it is borderline and falls under taste.\n- **ADR 0021:**\n  - I found no implementation detail or residue in it.\n  - Its consequence that pull requests and `main` share one cache matches `cache_ref`, which takes no branch input.\n  - I did not check the \"cleanup keeps untagged versions\" claim against the repo.\n- **README:** the two additions are brief and durable, and they point to ADR 0020.\n\n**Reviewer-dismissed items to log (AGENTS.md \"Reviews\")**\n- `mode=max` comment in `images/docker-bake.hcl` (the `# mode=max: also cache the layers of intermediate stages.` half of the comment): dismissed as borderline restatement."
+  },
+  {
+   "description": "Validate ADR 0020 candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP — The parenthetical marks this option as the old behaviour AGENTS.md says to list under \"Considered options\". It also explains why no superseded ADR is deleted, so it is arguably load-bearing. At most it is a trivial wording nit, not a clear violation of a quotable rule."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No issues found. The title and description match the change. The registry build cache is set up correctly: one ref per image and architecture, off for local builds, and the GHCR login now runs on every build because every run reads and writes the cache. The simplified publish conditions match ADR 0020: no fork path, and a manual run on another branch still does not move `edge`. The new ADRs record decisions without implementation detail, and the README additions are brief and link to them.",
+  "comments": []
+ },
+ "candidates": [
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "Line `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`: the parenthetical is provenance residue; rewrite to `- Forks build and test without publishing.` Non-blocking.",
+   "validation": "DROP — The parenthetical marks this option as the old behaviour AGENTS.md says to list under \"Considered options\". It also explains why no superseded ADR is deleted, so it is arguably load-bearing. At most it is a trivial wording nit, not a clear violation of a quotable rule.",
+   "posted": false
+  }
+ ]
+}

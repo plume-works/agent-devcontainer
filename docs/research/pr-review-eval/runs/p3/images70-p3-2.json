@@ -1,0 +1,90 @@
+{
+ "run": "images70-p3-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.25,
+ "duration_s": 140,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.97,
+  "claude-sonnet-5-5": 0.28
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found nothing that meets the bar of a quotable rule broken by a quotable added line.\n\n- **ADR content:** ADR 0020 and ADR 0021 contain no code or implementation details, so the \"DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER\" rule isn't broken.\n- **ADR numbering:** Existing ADRs already skip numbers 0003, 0004 and 0005's neighbours, so the new numbers 0020 and 0021 are consistent.\n- **Superseded ADRs:** The repo contains no earlier ADR on forks or publishing, and ADR 0020 says the fork behaviour was \"never recorded as an ADR\". Nothing needs deleting.\n- **ADR format:** Both new ADRs have a \"Considered Options\" section, as the rule requires. Existing ADRs already mix \"Considered Options\" and \"Considered options\" for that heading, so the capitalisation isn't a violation.\n- **Code comments:** The added comments state constraints or reasons rather than restating the code. These are the comments in `images.yml` (the \"Every run reads and writes the build cache…\" and \"A manual run on another branch must not move edge.\" lines) and in `docker-bake.hcl` (the `CACHE` variable comment and the `mode=max` / `image-manifest=true` comment).\n- **Glossary vocabulary:** The new text introduces no glossary terms and uses none the glossary says to avoid."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Finding (1)**\n\n- **File:** `docs/adr/0020-pull-requests-from-collaborators-only.md`\n- **Quoted added line:** `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n- **Rule broken:** durable-knowledge-audit, \"Not durable\" provenance. The parenthetical narrates history and process: that the behaviour was previous, and that it was never recorded. A reader of the ADR does not need either fact, and neither survives a rewrite from scratch.\n- **Verdict:** DROP the parenthetical only. The option itself is a real considered alternative and stays.\n- **Replacement:** `- Forks build and test without publishing.`\n- **Evidence:** the diff to `.github/workflows/images.yml` removes the fork-exclusion condition from `PUBLISH` and `publish.if`, so the \"previous behaviour\" claim is true. It is still history, not a constraint.\n\n**Dismissed items.** AGENTS.md asks for these to be logged for a human to review.\n\n- **`docs/adr/0021-build-cache-in-the-registry.md`, \"A superseded cache stays as an untagged version, like the other untagged images the cleanup keeps.\"**\n  - Verdict: KEEP.\n  - It is verified against `.github/workflows/ghcr-cleanup.yml`, whose line 1 reads \"Untagged images are kept\" and which only deletes stale `pr-N` tags.\n  - It describes behaviour, not code, so it is not an implementation detail for the ADR.\n- **`docs/adr/0021-build-cache-in-the-registry.md`, \"The GitHub Actions cache: capped in size, evicts, and is scoped per branch.\"**\n  - Verdict: KEEP.\n  - It is the reason a rejected option was rejected, which is what the \"Considered Options\" section is for.\n  - It is a statement about a third-party tool and cannot be checked offline, so it is UNVERIFIED but left alone.\n- **`docs/adr/0021-build-cache-in-the-registry.md`, mention of GHCR, cache tags and per-architecture caches.**\n  - Verdict: KEEP.\n  - These are decision-level facts about where the cache lives. The ADR has no flags, file names or code.\n- **`docs/adr/0020-pull-requests-from-collaborators-only.md`, \"a pull request from a fork fails its checks.\"**\n  - Verdict: KEEP.\n  - It is a consequence of the unconditional GHCR login and `PUBLISH` change in `.github/workflows/images.yml`, assuming fork pull requests get no registry credentials. I could not confirm that offline.\n- **`README.md`, \"The `cache-amd64` and `cache-arm64` tags are CI's build cache, not images to pull.\"**\n  - Verdict: KEEP.\n  - It matches `cache_ref` in `images/docker-bake.hcl` and keeps readers from pulling cache tags.\n- **`README.md`, \"It takes no outside contributions … forks are not supported (ADR 0020).\"**\n  - Verdict: KEEP.\n  - It is brief and points to the ADR.\n- **`.github/workflows/images.yml`, \"# A manual run on another branch must not move edge.\"**\n  - Verdict: KEEP.\n  - It is a live constraint, and the `PUBLISH` expression still enforces it.\n- **`.github/workflows/images.yml`, \"# Every run reads and writes the build cache in GHCR, publishing or not.\"**\n  - Verdict: KEEP.\n  - It explains why the login step is now unconditional, which the code alone does not show.\n- **`images/docker-bake.hcl`, \"# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.\"**\n  - Verdict: KEEP.\n  - The `cache_ref` function depends on `PLATFORM`, so this is a real constraint.\n- **`images/docker-bake.hcl`, \"# mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.\"**\n  - Verdict: KEEP.\n  - It is a why-comment on a flag. The GHCR behaviour is third-party and cannot be checked offline, so it is UNVERIFIED but left alone."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one significant issue.\n\n**Issue: apt packages in `edge` no longer get updated on rebuild, which breaks ADR 0013 and the README**\n\n- **File / added line:** `.github/workflows/images.yml`, `          CACHE: true`. It works through `images/docker-bake.hcl`, `  result = CACHE ? [\"type=registry,ref=${cache_ref(name)},mode=max,image-manifest=true,oci-mediatypes=true\"] : []`, and the matching `cache-from` line.\n- **Trigger:** a push to `main` (or any PR) that changes a file under `images/**`, `.github/scripts/images.sh` or `.github/workflows/images.yml`, but leaves the Ubuntu base digest and the apt `RUN` lines unchanged. Examples are a Renovate bump of `GH_VERSION` or `CLAUDE_CODE_VERSION`, a smoke-script edit, or a workflow edit. Meanwhile Ubuntu or Docker's apt repository has released newer packages, such as a security fix to `curl`, `git`, `systemd` or `containerd.io`.\n- **Path:** `.github/workflows/images.yml::build` (\"Build every image…\" step, `CACHE: true`) → `images/docker-bake.hcl::cache_from` / `cache_to` / `cache_ref`. Each target reads `${REGISTRY}/<name>:cache-<arch>`, and that cache is shared by PRs and `main` (ADR 0021). The cache then reaches the apt steps:\n  - `images/core/Dockerfile`: `RUN apt-get update && apt-get install … ca-certificates curl git …`, plus the python3 step and the Docker step that installs `containerd.io` unpinned.\n  - `images/core-systemd/Dockerfile`: `RUN apt-get update && apt-get install … systemd …`.\n- **Why it happens:** BuildKit keys a `RUN` cache entry on the command text, the parent layer and the build args, not on what the network returns. Every one of these apt steps therefore hits the registry cache, and the old package layers are reused.\n- **Outcome:** `edge` and `pr-N` keep shipping the apt packages from whenever the cache entry was first built. That lasts until a Renovate bump of the `ubuntu:26.04@sha256` digest or a change to the `RUN` text or its preceding `ARG`s. Package fixes, including security fixes, are silently left out of rebuilds that used to pull them in.\n  - This contradicts ADR 0013 (\"Apt packages are the exception to pinning: they float within the Ubuntu release, so a rebuild can pick up newer ones\").\n  - It also contradicts the README (\"Apt packages … float within the Ubuntu release\") and the `core` Dockerfile comment \"containerd.io floats\".\n  - ADR 0021 doesn't mention this change, and it doesn't replace ADR 0013.\n  - Possible fixes: run with `--no-cache-filter` on the apt stages, add a periodic `main` run that skips the cache, or record the change in ADR 0013.\n\n**Checked and not reported:**\n- **Fork PRs:** `PUBLISH` is now true for them, so their push or cache write fails. ADR 0020 says that is intended.\n- **Manual runs on other branches:** `PUBLISH` and `publish.if` stay false, so `edge` doesn't move.\n- **Cleanup:** `ghcr-cleanup.yml` only deletes stale `pr-N` tags, so the cache tags are safe.\n- **Untagged cache versions:** they pile up, but ADR 0021 states that.\n- **PR and `main` overwriting each other's cache:** stated in ADR 0021.\n- **Cache poisoning from PRs:** collaborator PR runs already had `packages: write` before this change, so this adds no new privilege.\n- **`CACHE` without `PLATFORM`:** locally `CACHE` defaults to false, and CI always sets `PLATFORM`.\n\nNo reviewer findings were dismissed in this pass."
+  },
+  {
+   "description": "Validate apt cache candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P2 — The trigger occurs: the workflow runs on any change under images/** (for example a Renovate bump of a tool ARG placed after the apt steps), and CACHE: true is set for every run. In the path, docker-bake.hcl uses `cache_from` and `cache_to` with a registry cache in mode=max. The apt RUN steps in images/core/Dockerfile (lines 8, 57 and 173) are keyed on their command text and parent layer, not on what the apt repos currently serve. They are therefore reused until the base digest or the RUN text changes, so newer apt packages, including security fixes, are not picked up. ADR 0013 says only that a rebuild \"can\" pick up newer packages, and ADR 0021 does not record stale apt layers as a trade-off, so nothing documents this outcome as accepted. The impact is limited, because a Renovate base-digest bump or an edit to an apt line refreshes the cache."
+  },
+  {
+   "description": "Validate ADR provenance candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "UNSETTLED — \"never recorded as an ADR\" is process narration that the skill's \"not durable\" list plausibly covers. \"The previous behaviour\" is arguably the \"old decision\" that AGENTS.md says to list under \"Considered options\", and the files don't settle whether the parenthetical marks that option as the superseded one or is residue."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The registry build cache and the collaborators-only scope match the title, the description and ADRs 0020/0021. The `PUBLISH` and `publish` conditions keep a manual run on another branch from moving `edge`, and the cleanup workflow leaves the cache tags alone. I left one non-blocking finding (P2) on how the cache interacts with floating apt packages, and one question on ADR 0020's wording. Neither blocks the merge.",
+  "comments": [
+   {
+    "path": ".github/workflows/images.yml",
+    "line": 96,
+    "body": "**P2** — With the shared registry cache (`mode=max`), the `apt-get update && apt-get install` steps in `images/core/Dockerfile` and `images/core-systemd/Dockerfile` are cache hits. BuildKit keys a `RUN` step on its command text, parent layer and args, not on what the apt repositories currently serve. So a rebuild triggered by a tool-version bump, a smoke-script edit or a workflow edit reuses the old package layers. `edge` and `pr-N` then keep shipping the apt packages from whenever the cache entry was first written, security fixes included, until the Ubuntu base digest or the `RUN` text changes.\n\nADR 0013 relies on the opposite: \"Apt packages are the exception to pinning: they float within the Ubuntu release, so a rebuild can pick up newer ones\". The README says the same. ADR 0021 doesn't record giving this up as a trade-off.\n\nOptions:\n- Exclude the apt stages from the cache (`no-cache-filter`).\n- Refresh the cache periodically with an uncached `main` run.\n- Record the trade-off in ADR 0021 and revise ADR 0013."
+   },
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**Question** — Is the parenthetical \"(the previous behaviour, never recorded as an ADR)\" needed? \"Never recorded as an ADR\" reads as process history rather than a durable fact. On the other hand, AGENTS.md asks for the old decision to be listed under \"Considered options\", and \"the previous behaviour\" may be how this line marks that option. Would `- Forks build and test without publishing (the previous decision).` or just `- Forks build and test without publishing.` say what's needed?"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": ".github/workflows/images.yml",
+   "claim": "CACHE: true makes the apt-get RUN steps in core/core-systemd Dockerfiles registry-cache hits, so edge/pr-N stop picking up newer apt packages (incl. security fixes) on rebuild until base digest or RUN text changes; contradicts ADR 0013 and README that apt packages float and a rebuild can pick up newer ones.",
+   "validation": "HOLDS P2 — The trigger occurs: the workflow runs on any change under images/** (for example a Renovate bump of a tool ARG placed after the apt steps), and CACHE: true is set for every run. In the path, docker-bake.hcl uses `cache_from` and `cache_to` with a registry cache in mode=max. The apt RUN steps in images/core/Dockerfile (lines 8, 57 and 173) are keyed on their command text and parent layer, not on what the apt repos currently serve. They are therefore reused until the base digest or the RUN text changes, so newer apt packages, including security fixes, are not picked up. ADR 0013 says only that a rebuild \"can\" pick up newer packages, and ADR 0021 does not record stale apt layers as a trade-off, so nothing documents this outcome as accepted. The impact is limited, because a Renovate base-digest bump or an edit to an apt line refreshes the cache.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "Parenthetical '(the previous behaviour, never recorded as an ADR)' is provenance residue; drop it, leaving '- Forks build and test without publishing.'",
+   "validation": "UNSETTLED — \"never recorded as an ADR\" is process narration that the skill's \"not durable\" list plausibly covers. \"The previous behaviour\" is arguably the \"old decision\" that AGENTS.md says to list under \"Considered options\", and the files don't settle whether the parenthetical marks that option as the superseded one or is residue.",
+   "posted": true
+  }
+ ]
+}

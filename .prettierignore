@@ -12,3 +12,10 @@ docs/knowledge/**
 # The devcontainer CLI owns this file and rewrites it, without a final newline, on
 # every `devcontainer up`.
 .devcontainer/devcontainer-lock.json
+
+# The pr-review replay corpus holds byte-exact copies of diffs and tool output, and
+# tools/report.py writes results.md.
+docs/research/pr-review-eval/cases/
+docs/research/pr-review-eval/variants/
+docs/research/pr-review-eval/runs/
+docs/research/pr-review-eval/results.md

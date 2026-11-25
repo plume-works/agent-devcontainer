@@ -1,0 +1,17 @@
+{
+ "run": "images83-p9-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.42,
+ "duration_s": 59,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.42
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "The PR metadata gate stopped this review before the in-depth passes ran. The description says something the code does not do, so the description and the code have to agree before a full review is worth running.\n\n**Blocking (metadata gate, no inline anchor): the description misstates how the Renovate `ubuntu-snapshot` datasource picks the latest snapshot.**\n\n- The description says \"the latest one is the moment the `resolute-security` pocket last changed, read from its InRelease `Date:` line (a snapshot at that moment includes it)\". It also says a local dry run proposed `20261121T000000Z` → `20261121T095046Z`.\n- The `transformTemplates` expression in `renovate.json` keeps only the day, month and year from the `Date:` line and always appends `T000000Z`. It can never produce `20261121T095046Z`. What it produces is midnight UTC of the day the pocket last changed, not the moment it changed. The datasource `description` in `renovate.json` (\"the latest is the day the security pocket last changed\") and ADR 0022 (\"at most once a day\") describe that day-granular behaviour.\n- So the description's claim that the proposed snapshot includes the latest security-pocket change does not hold for the code as written. A midnight snapshot comes before any change published later that same day. If the pocket then stays quiet, Renovate keeps proposing that same midnight value, and the image misses the change until the pocket changes again on a later day.\n\nPlease make the two agree. Either have the transform emit the full `Date:` timestamp as the description and the dry run describe, or rewrite the description (and its dry-run result) to match the midnight-of-the-day behaviour, along with what that means for how quickly security fixes arrive. Once they agree, a re-review will run the full compliance, correctness and durable-knowledge passes.",
+  "comments": []
+ },
+ "candidates": []
+}

@@ -1,0 +1,140 @@
+{
+ "run": "images71-p11-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 2.11,
+ "duration_s": 218,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.79,
+  "claude-sonnet-5-5": 0.32
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass A",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no violations I can back with a quote from AGENTS.md or docs/agents/domain.md. I read `pr.diff`, `pr.json`, and the repo's markdown files that mention `settings.json`. I executed nothing.\n\n- **Code comments:** Both new comments explain why. The service's `cp, not install` comment gives a constraint the code can't show: it writes through a symlink instead of replacing it. The `Before=` comment gives the ordering reason.\n- **GLOSSARY.md:** The new \"Claude default settings\" entry defines the term and has an `_Avoid_` line. It has no implementation details.\n- **ADRs:** The PR adds none, so no \"no code in ADRs\" or \"delete superseded ADRs\" rule applies. No existing ADR conflicts with the change. The only ADR hit for `settings.json` is 0005, which is unrelated.\n- **PR body:** It has no diffs and no file lists. It contains one small ASCII flow sketch, which is not a diff and not a file list. The title matches the change.\n- **Session residue:** Nothing is left in the diff, and no temporary files were added."
+  },
+  {
+   "description": "Compliance pass B",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Issues: none.**\n\nI checked the diff against AGENTS.md, which includes `docs/agents/domain.md`. I found no violation I can quote a rule for.\n\n- **Code comments:** The new comments each give a reason the code can't show.\n  - The ordering comment in `claude-default-settings.service` explains why `Before=` is needed.\n  - The `cp, not install` comment gives the reason for choosing `cp` (it writes through a symlink).\n  - The `# shellcheck disable=SC2016 # jq's own $d` line in `smoke.sh` explains the suppression.\n  - None of them restates the code, and there are no file headers.\n- **Glossary:** The new \"Claude default settings\" entry has a definition and an `_Avoid_` line, and it holds no implementation details. Its wording matches the term used in the docs and the PR.\n- **ADRs:** The PR adds no ADR, supersedes none, and contradicts none.\n  - ADR 0012 (nothing under home) is consistent, because the defaults sit under `/usr/local/share` and are copied at each start.\n  - ADR 0016 says pre-approval \"only grants\". The default-settings unit runs before pre-approval, so pre-approval still adds `enableAllProjectMcpServers` afterwards.\n- **Design principles:** The PR uses one unit, one JSON file and a plain `cp`. I saw no speculative merge logic.\n- **PR title and body:** They contain no diffs and no file lists, so the PR rules hold. The body says user edits to `~/.claude/settings.json` are overwritten, and the code does that.\n- **systemd and Dockerfile idioms:** The unit's `PartOf`, `Before`, `Type=oneshot` and `RemainAfterExit` match the existing `claude-pre-approval.service`. The `Wants=` entry and the `COPY` lines are consistent with the other units.\n\nOne non-blocking observation, with no quotable rule behind it. Overwriting the user's `~/.claude/settings.json` at every start is a notable decision, and the repo records comparable decisions as ADRs (for example 0016). No rule in AGENTS.md requires an ADR here. The PR body states the choice, so I'm only noting it.\n\nDismissed findings to log for human review: the missing ADR above."
+  },
+  {
+   "description": "Durable-knowledge pass",
+   "role": "durable-knowledge",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one issue in the changed docs and comments. It does not block.\n\n**1. `GLOSSARY.md` (diff line 24, added line)**\n- Quoted line: `The Claude Code user settings the Coder template image gives every workspace user, taking precedence over the user's own.`\n- Verdict: **REWRITE.** The words \"taking precedence over the user's own\" don't match the code:\n  - `images/coder-template/claude-default-settings.service` › `ExecStart=/bin/cp ... %h/.claude/settings.json` copies the defaults over the user's own `~/.claude/settings.json`. Nothing is layered on top of the user's file; it is replaced.\n  - The PR's own usage doc says project settings are untouched (`docs/usage/coder-template.md` › \"`~/.claude.json` and project settings are untouched\"). Project settings still override user settings, so the defaults do not take precedence over everything the user sets.\n  - \"Precedence\" is how Claude Code's managed settings behave, and the same entry lists \"Managed settings\" as a term to avoid. So the definition describes the concept it tells readers not to confuse it with.\n- Suggested replacement: `The Claude Code user settings the Coder template image writes over every workspace user's own at each workspace start.`\n- Rules:\n  - The audit skill's §3 \"Verify before promoting\": nothing becomes a durable fact just because the prose already asserts it. This claim fails when checked against the code.\n  - `docs/agents/domain.md` \"Use the glossary's vocabulary\": the entry's definition should not read as the synonym it lists under _Avoid_.\n- Blocks: no. It is a glossary definition, not a runtime fault. It would block only if the PR description repeated the same misstatement, and I did not check that because it was outside this lens.\n\n**Lines checked and kept, with nothing to report:**\n- `docs/usage/coder-template.md`, diff lines 34–36 (\"written over `~/.claude/settings.json` at every workspace start ... lasts only until the next start; `~/.claude.json` and project settings are untouched\"). Confirmed against `claude-default-settings.service`, which is a oneshot unit that is `PartOf=agent-services.target` and runs `cp`. It is also confirmed by the `smoke.sh` `cmp` check.\n- `claude-default-settings.service`, line 119 (\"Claude pre-approval adds to the same file, and remote control must start with the defaults in place.\"). This is an ordering constraint that the `Before=` line depends on. Confirmed by `images/coder-template/claude-pre-approval` › `merge ~/.claude/settings.json '.enableAllProjectMcpServers = true'`.\n- `claude-default-settings.service`, line 126 (\"cp, not install: it writes through a symlinked file ... instead of replacing the link.\"). This states a rejected alternative that is still a live prohibition, which AGENTS.md explicitly allows in comments. The symlink behaviour is checked by `smoke.sh` (the `readlink` checks and the `dotfiles/settings.json` comparison).\n- `smoke.sh`, line 140 (`# shellcheck disable=SC2016 # jq's own $d`). A short, accurate explanation of why the lint warning is suppressed.\n\n**Dismissed findings, logged as AGENTS.md \"Reviews\" requires:**\n- The rule against rejected alternatives could apply to line 126 (\"cp, not install\"). Dismissed: `install` is the obvious alternative, and the comment protects against switching to it, so the text carries a constraint and is not leftover.\n- Overwriting a file under `/home` might conflict with ADR 0012 (\"Nothing under a home directory\"). Dismissed: ADR 0012 is about installing at image build time so nothing freezes in a home volume. Writing at every workspace start does not freeze anything.\n- The new usage-doc bullet cites no ADR, while the bullets around it do. Dismissed: no rule in my lens requires a citation, and whether this decision needs its own ADR falls outside the changed-docs lens."
+  },
+  {
+   "description": "Correctness pass: obvious bugs",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "Two findings, neither high severity: one bug in an edge case and one maintainability point. I found nothing wrong with unit ordering, the Dockerfile, the target wiring or the smoke test's assertions.\n\n### 1. `images/coder-template/claude-default-settings.service`: the copy fails when the dotfiles symlink has no target yet\nAdded line: `ExecStart=/bin/cp /usr/local/share/claude-code/default-settings.json %h/.claude/settings.json`\n\n- **Reason:** bug.\n- **Blocks:** yes under the review rules, since it is a wrong outcome. The trigger is an edge case, so the author may reasonably accept it as a follow-up.\n- **Description:** `cp` is used so it writes through a dotfiles symlink. GNU `cp` follows a symlink only if its target exists. If the target is missing, it refuses with \"not writing through dangling symlink\" and exits non-zero. The sibling `claude-pre-approval@merge` handles exactly this case: it resolves the link with `readlink -f` and creates the target as `{}` if it is missing or empty. The new unit does not.\n- **Trigger:** `~/.claude/settings.json` is a symlink into a dotfiles checkout whose `settings.json` does not exist. For example, an installer linked it but the repo does not carry the file, or the user deleted it. The containing directory exists.\n- **Path:** Coder startup script → `agent-services.target@Wants` → `claude-default-settings.service@ExecStart` (`cp` refuses the dangling link, the unit fails) → `claude-pre-approval.service`. Its `Before=` ordering only orders and does not require success, so pre-approval runs anyway → `claude-pre-approval@merge` creates the target as `{}`, plus `enableAllProjectMcpServers` when trust is on → `claude-remote-control.service` starts.\n- **Outcome:** On every workspace start, Claude remote control and the user run without the Claude default settings. `claude-default-settings.service` is left failed. Because the target only `Wants=` it, the startup script's `systemctl --user start agent-services.target` still succeeds and nobody sees the failure.\n- **Suggested fix:** Write through the resolved path the same way `merge` does. For example, run `/bin/sh -c 'cp … \"$(readlink -f %h/.claude/settings.json)\"'`, or call a small script that resolves the link and then copies.\n- **Test gap:** `smoke.sh` covers a fresh home and a symlink whose target exists, but not a dangling symlink. That is the one case where the unit's behaviour differs from its sibling's.\n\n### 2. `images/coder-template/claude-default-settings.json`: a second hand-kept copy of the repo's own Claude settings\nAdded lines: the whole file (it mirrors `.claude/settings.json`), notably `\"commit\": \"Built with AI\",` and `enabledPlugins` without `mattpocock-skills@claude-plugins-official`.\n\n- **Reason:** maintainability. AGENTS.md says \"YAGNI, KISS, DRY.\"\n- **Blocks:** no.\n- **Description:** The new file repeats `.claude/settings.json` key for key, apart from two differences:\n  - `attribution.commit` is `\"Built with AI\"` instead of `\"\"`.\n  - One plugin is left out.\n\n  The PR also changes `.claude/settings.json` (`worktree.baseRef`) to keep the two in step by hand, so they are clearly meant to track each other. Yet nothing in the code says which differences are deliberate, and nothing checks for drift.\n- **Question for the author:** Are the `attribution.commit` value and the dropped plugin intended for workspaces? If so, a comment, or one file built from the other, would stop the next edit to one of them from silently missing the other.\n\n### Checked and found fine\n- **Startup order:** `claude-default-settings` runs before `claude-pre-approval` and `claude-remote-control` because of `Before=`. The target waits for the units it wants, since a target gets an implicit `After=` on them.\n- **Restarts:** `PartOf=` plus `RemainAfterExit=yes` makes the copy run again on each start of the target, including the smoke test's stop and start.\n- **Pre-approval merge:** the merge onto the defaults keeps the symlink, because it writes to the resolved target.\n- **Smoke test assertions:** the symlink case checks that the target equals the defaults plus `enableAllProjectMcpServers`. The fresh-home case compares the file byte for byte with `cmp`.\n- **PR text:** the title and body describe the change accurately, including that users' own edits are overwritten.\n\nNo reviewer dismissed any findings in this pass, so there is nothing to log for the human review."
+  },
+  {
+   "description": "Correctness pass: security/logic",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one non-blocking finding and nothing that blocks. I only read files. Nothing was run and nothing was written.\n\n### Finding 1: the defaults overwrite the user's dotfiles source file, not just this workspace's setting\n\n- **File:** `images/coder-template/claude-default-settings.service`\n- **Added lines:**\n  - `# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.`\n  - `ExecStart=/bin/cp /usr/local/share/claude-code/default-settings.json %h/.claude/settings.json`\n- **Reason:** data loss / maintainability. Non-blocking, because the PR body says it writes through the link on purpose.\n- **Trigger:** a workspace user whose `~/.claude/settings.json` is a symlink into a dotfiles checkout, such as `../dotfiles/settings.json`. `smoke.sh` sets up exactly this case in its second boot.\n- **Path:** `images/coder-template/agent-services.target@Wants` → `images/coder-template/claude-default-settings.service@ExecStart` (`cp` follows the symlink) → the file in the dotfiles checkout is replaced. Next, `images/coder-template/claude-pre-approval@merge` (it runs `readlink -f`, then `mv`) adds `enableAllProjectMcpServers` to that same file when trust is on.\n- **Outcome:** at every start, the file tracked in the dotfiles repo is replaced by the image defaults. The user's own content is lost from the source file, not only from this workspace, and the dotfiles repo shows a modification. If the user commits that, it spreads to their other machines.\n  - The user docs added in this PR say a change made in `~/.claude/settings.json` \"lasts only until the next start\". They do not say the dotfiles copy is overwritten too.\n  - Keeping the link gains nothing here, because this unit throws away the file's content anyway.\n- **Suggested fix:** if the link points outside `~/.claude`, replace it with a regular file (for example `cp --remove-destination`, or `install -m0644`). Then the dotfiles source is never touched. `claude-pre-approval` would then merge into a plain file.\n  - The smoke assertions on `/home/dev/dotfiles/settings.json` and on the link surviving would need to change.\n- **Question for the author:** is overwriting the dotfiles source file intended, or only keeping the link?\n\n### Checked and found sound (not reported)\n\n- **Unit ordering:** `Before=claude-pre-approval.service claude-remote-control.service` on a oneshot with `RemainAfterExit=yes` makes pre-approval and remote control wait until the copy finishes. Pre-approval then adds its key to the defaults. Remote-control restarts do not run the copy again. Restarting or starting the target again via `PartOf=` and `Wants=` behaves the same way as the existing pre-approval unit.\n- **ADR 0016 (\"nothing is ever revoked\"):** the overwrite does drop a previously granted `enableAllProjectMcpServers` when trust is off. But the choice is fixed when the workspace is created, so no real input switches it from on to off. No live conflict.\n- **File modes:**\n  - A settings file created by `cp` gets 0644 (0600 after pre-approval's `umask 077` rewrite when trust is on). It holds no secrets.\n  - The `~/.claude` directory created by `mkdir -p` under the user manager's umask may be looser than before. But the container has only the `dev` user (uid 1000), so no other user can read it.\n- **Symlink handling:** the symlink is controlled by the user, and the unit runs as that same user, so it cannot be used to gain privileges.\n- **`smoke.sh` changes:**\n  - The tests match the new behaviour: defaults plus the pre-approval key in the symlink target, the link kept, and a fresh home equal to the defaults.\n  - The `.claude.json` assertions are unchanged.\n  - The new SC2016 disable is justified.\n- **`.claude/settings.json`:** adding `worktree.baseRef` is harmless.\n\n### Dismissed candidates (the repo rules ask for this log)\n\n- **Dangling or read-only symlink target:** `cp` would fail and leave a failed unit. Dropped because nothing in the image or the startup flow produces a dangling or read-only target.\n- **`\"defaultMode\": \"auto\"` and the deny list forced on terminal sessions:** dropped because it is a stated design choice, and ADR 0016 treats the workspace as the sandbox.\n- **A Claude process reading `settings.json` while `cp` is rewriting it:** dropped because remote control is ordered after the copy, and no other process at start is shown to read the file.\n- **Looser `~/.claude` directory mode:** dropped because no second user exists in the container."
+  },
+  {
+   "description": "Validate settings duplication",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: The two files differ in a real way (`attribution.commit` and the omitted plugin), but the copy is a separate artifact that the Dockerfile bakes into the image as the container's defaults. A deliberately different image default with no stated sync requirement is not a clear DRY violation or a material maintainability risk, so the claim is too speculative to confirm with high confidence."
+  },
+  {
+   "description": "Validate dangling symlink",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — All three parts hold at the head commit.\n\n- **Trigger:** A dotfiles checkout can contain `settings.json` as a dangling link, and `claude-default-settings.service` only runs `mkdir -p %h/.claude` before the `cp`. The directory therefore exists.\n- **Path:** `agent-services.target` has `Wants=` on `claude-default-settings.service`. That unit is `Type=oneshot` with a plain `cp` as `ExecStart`, and GNU cp refuses to write through a dangling destination symlink. I did not run cp, so that behavior is from memory. `Before=` only orders units, so `claude-pre-approval.service` still runs. Its `merge` function resolves the link with `readlink -f`, then `echo '{}' >\"$file\"` creates the target. `claude-remote-control.service` has no `Requires=` on the default-settings unit.\n- **Outcome:** The workspace starts without the default settings, and only the unit fails because the target merely `Wants=` it.\n- **Minor inaccuracy:** `claude-pre-approval` calls `merge` on `settings.json` only when trust is on, so the target is created as `{}` only in that case. That doesn't change the outcome."
+  },
+  {
+   "description": "Validate glossary precedence",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — the service file's own description says the settings are \"written over the user's at each start\", and `ExecStart` is a plain `cp` over `%h/.claude/settings.json`, so the glossary's \"taking precedence over the user's own\" describes layering that the code doesn't do. The same entry also lists \"Managed settings\" under _Avoid_, and precedence is how managed settings behave, so the wording drifts toward a term the entry rules out. The claim holds against the code, though it is non-blocking, as the finding says."
+  },
+  {
+   "description": "Validate dotfiles overwrite",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: outcome — The write-through is the specified behavior, not a fault. The trigger and path hold as written, but the outcome is the PR's deliberate, documented design.\n\n- **Trigger and path:** a symlinked `~/.claude/settings.json` can occur, and `cp` writes through the link to its target.\n- **Deliberate design:** `smoke.sh` lines 92-97 assert that the defaults land in the dotfiles target and that the link survives. The unit's Description says the defaults are \"written over the user's at each start\". The GLOSSARY entry says they take \"precedence over the user's own\".\n- **Why it isn't a wrong outcome:** the user's own settings are meant to be overridden. The suggested fix would also leave the link-preserving behavior of `claude-pre-approval` out of step with this unit. I can't show from the code alone that clobbering the dotfiles target is wrong rather than a chosen trade-off.\n- **What remains:** at most a documentation gap, since the usage doc doesn't say the write reaches a symlink's target. That doesn't meet the bar for a defect finding."
+  }
+ ],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "Title and description match the change. One blocking finding: the copy in the new `claude-default-settings` unit fails when `~/.claude/settings.json` is a symlink whose target does not exist yet. When that happens the workspace starts without the Claude default settings and nobody sees an error. Also one non-blocking wording fix on the new glossary entry. Details are in the inline comments.",
+  "comments": [
+   {
+    "path": "images/coder-template/claude-default-settings.service",
+    "line": 12,
+    "body": "**Bug (blocking): this copy fails when the symlink has no target yet.** Suppose `~/.claude/settings.json` is a symlink into a dotfiles checkout that has no `settings.json`: the link exists but its target doesn't. GNU `cp` refuses to write through a dangling symlink (\"not writing through dangling symlink\") and exits non-zero, so this oneshot unit fails.\n\nNothing notices the failure:\n- `Before=` only sets the order, so `claude-pre-approval` and `claude-remote-control` still start.\n- `agent-services.target` only `Wants=` this unit, so the startup script's `systemctl --user start agent-services.target` still succeeds.\n\nResult: the workspace runs without the Claude default settings and nothing reports it. When trust is on, `claude-pre-approval@merge` then creates the target as `{}` plus `enableAllProjectMcpServers`. That's because `merge` already handles this case: it resolves the link with `readlink -f`.\n\n**Suggested fix:** resolve the link the same way before copying, e.g. `ExecStart=/bin/sh -c 'cp /usr/local/share/claude-code/default-settings.json \"$(readlink -f %h/.claude/settings.json)\"'`. Also add a dangling-link case to `smoke.sh`. It currently covers a fresh home and a symlink whose target exists, but not this case."
+   },
+   {
+    "path": "GLOSSARY.md",
+    "line": 36,
+    "body": "**Wording (non-blocking): the definition describes the mechanism the entry tells readers to avoid.** \"Taking precedence over the user's own\" describes layering, which is how Claude Code's managed settings work. This entry lists \"Managed settings\" under _Avoid_.\n\nThe code doesn't layer anything. The unit copies the defaults over the user's `~/.claude/settings.json` at each start. Project settings still override them (the usage doc says they are untouched).\n\nSuggested wording: \"The Claude Code user settings the Coder template image writes over every workspace user's own at each workspace start.\" (docs/agents/domain.md: \"Don't drift to synonyms the glossary explicitly avoids.\")"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness (obvious bugs)",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "cp refuses to write through a dangling ~/.claude/settings.json symlink (dotfiles target missing); the oneshot fails silently (target only Wants= it, Before= only orders), so the workspace runs without the Claude default settings. Sibling claude-pre-approval@merge handles this via readlink -f. Smoke test lacks a dangling-link case. Blocking.",
+   "validation": "CONFIRM — Trigger, path and outcome all hold at the head commit: a dotfiles symlink can dangle and the unit only creates ~/.claude; agent-services.target only Wants= the oneshot cp unit; GNU cp refuses a dangling destination symlink; Before= only orders, so pre-approval (whose merge resolves the link with readlink -f and creates the target) and remote control (no Requires=) still run, and the workspace comes up without the defaults while only the unit fails. Minor inaccuracy: pre-approval merges settings.json, creating the {} target, only when trust is on; the outcome is unchanged.",
+   "posted": true
+  },
+  {
+   "pass": "correctness (obvious bugs)",
+   "path": "images/coder-template/claude-default-settings.json",
+   "claim": "Second hand-kept copy of the repo's .claude/settings.json (differs in attribution.commit and one omitted plugin) with no note of which differences are deliberate and no drift guard; DRY / maintainability. Non-blocking.",
+   "validation": "DROP: the two files do differ (attribution.commit and the omitted plugin), but the Dockerfile bakes this copy into the image as the container's own defaults; a deliberately different image default with no stated sync requirement is neither a clear DRY violation nor a material maintainability risk, so the claim cannot be confirmed with high confidence.",
+   "posted": false
+  },
+  {
+   "pass": "correctness (security/logic)",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "cp writes through a dotfiles symlink, overwriting the user's tracked dotfiles source file with the image defaults at every start (lost from the dotfiles repo, could propagate if committed); usage doc only says changes last until next start. Suggest replacing the link with a regular file. Non-blocking.",
+   "validation": "DROP: outcome — writing through the symlink is the PR's deliberate, documented design, not a fault: trigger and path hold, but smoke.sh asserts the defaults land in the dotfiles target with the link kept, and the unit description and glossary say the defaults are written over / take precedence over the user's own. The suggested fix would put this unit out of step with claude-pre-approval's link-preserving merge. At most a documentation gap remains (the usage doc does not say the write reaches a symlink's target), below the bar for a defect.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "GLOSSARY.md",
+   "claim": "Glossary definition 'taking precedence over the user's own' misdescribes the mechanism (cp overwrite, not layering; project settings still win) and reads as 'Managed settings', which the entry lists under _Avoid_. Suggest rewrite. Non-blocking.",
+   "validation": "CONFIRM — the unit's description says the defaults are \"written over the user's at each start\" and ExecStart is a plain cp over %h/.claude/settings.json, so \"taking precedence over the user's own\" describes layering the code does not do, and it drifts toward \"Managed settings\", which the same entry lists under _Avoid_. Non-blocking.",
+   "posted": true
+  }
+ ]
+}

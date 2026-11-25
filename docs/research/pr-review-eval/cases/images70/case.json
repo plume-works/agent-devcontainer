@@ -1,0 +1,17 @@
+{
+  "source": "plume-works/images",
+  "pr": 70,
+  "head": "94d64a6504fe9371e6ec1a7873d53ee421536e6a",
+  "base": "1247ef73cba16ebabe7f5ed2bd9f60c5734c7d25",
+  "description": "As published when the head commit was pushed.",
+  "threads": "none",
+  "expected": [
+    {
+      "id": "apt-cache",
+      "title": "The registry build cache stops apt packages from floating, contradicting ADR 0013",
+      "detail": "With `cache-from`/`cache-to` on every CI run, BuildKit reuses the unpinned `apt-get update && apt-get install` layers until an earlier layer changes, so rebuilt images stop picking up newer Ubuntu packages, which ADR 0013 says they do.",
+      "expect": "posted",
+      "match": "0013|float|apt[^.]{0,120}(?:stale|refresh|newer|freez|stop)|(?:stale|refresh|newer|freez)[^.]{0,120}apt"
+    }
+  ]
+}

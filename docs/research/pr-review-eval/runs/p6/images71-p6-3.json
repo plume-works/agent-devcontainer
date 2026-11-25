@@ -1,0 +1,46 @@
+{
+ "run": "images71-p6-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.76,
+ "duration_s": 79,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.52,
+  "claude-sonnet-5-5": 0.24
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 71",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI checked the added lines against `AGENTS.md`, `GLOSSARY.md` and the ADRs in `docs/adr/`. No ADR touches this area. The ADR mentions of settings (0005, 0018) are unrelated and not contradicted.\n\n- **Comments:** each added comment states a constraint or gotcha the code cannot show. This covers the `cp` versus `install` symlink note, the ordering note in `claude-default-settings.service`, and the shellcheck disable.\n- **Glossary:** the new \"Claude default settings\" entry has a definition and an `_Avoid_` line, and contains no implementation details. `docs/usage/coder-template.md` uses the term as defined.\n- **Shell, Dockerfile and systemd style:** nothing breaks a rule I could quote."
+  },
+  {
+   "description": "Durable-knowledge pass PR 71",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI checked every added line against the smell list and found no residue. Three comments looked like candidates, and I classed them as KEEP:\n\n- **`claude-default-settings.service`**: `# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.` This states an ordering constraint. It matches the `Before=` line below it. It is also true of the code: `claude-pre-approval` line 28 merges `.enableAllProjectMcpServers` into `~/.claude/settings.json`.\n- **`claude-default-settings.service`**: `# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.` The \"not install\" wording looks like a rejected alternative. It is load-bearing, because it keeps the symlink intact. The `smoke.sh` additions check this: they assert the symlink is still a link and that the default settings land in the dotfiles target.\n- **`smoke.sh`**: `# shellcheck disable=SC2016 # jq's own $d`. This explains the suppression and has no provenance.\n\nThe added `GLOSSARY.md` entry and the `docs/usage/coder-template.md` bullet are plain statements of behaviour and constraint, with no provenance, dated tool behaviour or defensive adverbs. The usage doc says a change to the settings file lasts only until the next start. That matches the `cp` in `ExecStart`, which runs at each workspace start.\n\nI did not log any dismissed findings."
+  },
+  {
+   "description": "Correctness pass PR 71",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no issue that meets the bar: every ordering, permission and symlink path I traced behaves as the PR says.\n\n- **Ordering:** `Before=claude-pre-approval.service claude-remote-control.service` on the new unit orders it ahead of both. The target's `Wants=` pulls it in, and `PartOf=agent-services.target` stops it with the target.\n- **Rerun on stop and start:** the oneshot has `RemainAfterExit=yes`, so it runs again only when the target is stopped and started. Remote control's `Restart=always` does not rerun it.\n- **Symlinked settings file:** `cp` writes through an existing symlinked `~/.claude/settings.json` and keeps the link. `claude-pre-approval`'s `merge` then edits the same file through `readlink -f`, so the pre-approval key lands on top of the defaults.\n- **Pre-approval off after on:** the defaults overwrite the file at each start, which removes a stale `enableAllProjectMcpServers`. The smoke test's \"both choices off\" check expects exactly that.\n- **Smoke test timing:** the new assertions run only after `.claude.json` exists. `claude-pre-approval` creates that file and starts after the defaults unit, so the defaults are already written and there is no race.\n- **Smoke jq comparison:** `del(.enableAllProjectMcpServers) == $d[0]` is insensitive to key order."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No issues found. The title and description match the change. The compliance, correctness and durable-knowledge passes found nothing that meets the bar: the defaults unit is ordered before Claude pre-approval and remote control, it writes through a symlinked settings file, and the smoke test covers both a fresh home and a symlinked one.",
+  "comments": []
+ },
+ "candidates": []
+}

@@ -1,0 +1,69 @@
+{
+ "run": "images70-p9-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.86,
+ "duration_s": 116,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.56,
+  "claude-sonnet-5-5": 0.29
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found no violations I can back with both a quoted rule and a quoted added line, so the issue list is empty.\n\n- **Code comments:** the new comments are in `.github/workflows/images.yml` and `images/docker-bake.hcl`. They give a constraint or reason, not a restatement of the code. Examples are \"GHCR rejects the default cache index\" and \"needs PLATFORM, since each architecture has its own cache\".\n- **ADR content rule:** ADR 0020 and ADR 0021 state decisions, \"Considered Options\" and consequences. They name the registry, the `cache-<arch>` tags and the per-architecture split. They contain no code or build flags, so they do not break \"DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER\". The wording is borderline, but I would not call it a breach.\n- **Superseded ADRs:** the diff adds no replacement for an existing ADR, so the delete-superseded rule does not apply. ADR 0020 mentions the previous fork behaviour, but only as a considered option, and notes it was never an ADR.\n- **README rule:** the README additions are two short sentences, one about the cache tags and one linking to ADR 0020. That fits \"Keep it current ... and brief\".\n- **Glossary and ADR numbering:** there is no `GLOSSARY.md` in the repo, so there was no vocabulary to check. ADR 0020 and 0021 continue the existing numbering after 0019.\n\nI did not take the title or body (`in/pr.json`) as a finding. Both match the diff.\n\nNo findings were dismissed."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No issues to raise on `.github/workflows/images.yml` or `images/docker-bake.hcl`. I read the diff, both files at the head commit, and `.github/workflows/ghcr-cleanup.yml`. I did not read `stale-pr-tags.sh`, and nothing was run.\n\nEach candidate below failed the Trigger/Path/Outcome test, so I dropped it:\n\n- **`PUBLISH` and the `publish` job condition.**\n  - The new condition is `github.event_name == 'pull_request' || github.ref == 'refs/heads/main'`.\n  - A push to main and a `workflow_dispatch` on main publish.\n  - A `workflow_dispatch` on another branch gets `PUBLISH=false` and `publish` is skipped, so it cannot move `edge`.\n  - A fork PR now also evaluates to true. Its token is read-only, so the push or cache write fails the check, which is the outcome ADR 0020 states.\n- **Cache ref when `PLATFORM` is empty.** `CACHE=true` is set only in the `build` job step, where `PLATFORM` is always `linux/<arch>`. A local bake leaves `CACHE` false, so both `cache_from` and `cache_to` return `[]`.\n- **HCL semantics.**\n  - Both ternaries return list types on each branch, so `cache-from` and `cache-to` get lists.\n  - `replace(PLATFORM, \"linux/\", \"\")` gives `amd64` or `arm64`.\n  - The `CACHE: true` env string converts to bool for the variable.\n- **`cache-to` on a non-publishing run.** This is intended. The login step now runs unconditionally, and the job has `packages: write`, so the push works.\n- **Cache concurrency.**\n  - Each architecture writes its own tag, so amd64 and arm64 do not collide.\n  - A PR run and a main run on the same tag are last-write-wins and cannot corrupt each other. ADR 0021 records this.\n  - The concurrency group is per ref, so those runs can overlap. The cost is cache thrash.\n- **Cleanup interaction.**\n  - `ghcr-cleanup.yml` deletes only the explicit stale `pr-N` tags and excludes `edge`, so it never touches `cache-*` tags.\n  - Superseded cache manifests become untagged and are kept, as the ADR says.\n- **Cache poisoning from PR into main.** BuildKit keys layers by parent chain plus instruction. Only a collaborator can write the cache (ADR 0020), and collaborators can already push to main. I found no concrete input that gives a wrong outcome.\n- **Test coverage.** The repo has no tests for workflow or bake logic, and the smoke tests are unchanged.\n\n**Issues:** none."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "There is one finding. It is non-blocking.\n\n**1. `docs/adr/0020-pull-requests-from-collaborators-only.md`, line 82**\n- **Quoted added text:** `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n- **Rule:** durable-knowledge audit, provenance (the \"previously / used to\" smell). An ADR records the decision and the constraint it creates, not the history of how the repo got there. The parenthetical narrates history (\"the previous behaviour\") and process (\"never recorded as an ADR\"). A reader of the ADR in a year learns nothing from either phrase.\n- **Verdict:** REWRITE. Keep the option, since AGENTS.md requires the old decision under \"Considered options\", and drop the provenance. Replacement: `- Forks build and test without publishing.`\n- **Evidence:** the removed words state no constraint. The option itself is still verified by the workflow change in the same PR. The diff removes the `head.repo.full_name == github.repository` fork guard from the `PUBLISH` env and the `publish` job `if`, so the \"forks build and test only\" behaviour no longer exists in `.github/workflows/images.yml`.\n- **Blocks:** no.\n\n**Checked and kept**\n- `README.md`, lines 19-20: the `cache-amd64` and `cache-arm64` tags note matches `images/docker-bake.hcl@cache_ref`.\n- `README.md`, lines 34-35: the no-outside-contributions line matches ADR 0020.\n- `docs/adr/0020-pull-requests-from-collaborators-only.md`, lines 76-78: the decision text is durable. Its claim that a fork pull request \"fails its checks\" is plausible, because login now runs for every run.\n- `docs/adr/0021-build-cache-in-the-registry.md`:\n  - The decision text and the rejected alternatives state durable constraints.\n  - \"The GitHub Actions cache: capped in size, evicts, and is scoped per branch\" is a rationale for a rejected option, not session narration.\n  - The consequence about untagged versions matches `.github/workflows/ghcr-cleanup.yml`, which deletes only stale `pr-N` tags.\n  - Neither ADR contains code implementation details. The bake flags (`mode=max`, `image-manifest`) appear only in the HCL comment.\n\nNo UNVERIFIED items. I dropped nothing for lack of a quotable line."
+  },
+  {
+   "description": "Validate ADR provenance candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — \"(the previous behaviour, never recorded as an ADR)\" narrates repo history, since it says the option used to apply and that no ADR covered it. It fails the skill's rewrite-from-scratch test and states no constraint, so the line should read `- Forks build and test without publishing.`\n\nThe rest of the file stands without it. The ADR already records the current decision, that forks are out of scope. Listing the old behaviour under \"Considered Options\" is what AGENTS.md requires, and that does not need a label saying it came first.\n\nRules relied on:\n- durable-knowledge-audit SKILL.md: \"Not durable — how the decision was reached, what broke on the way, a tool's behavior on one day, the alternative that was almost written, whether something was hard to find. Dies with the code that provoked it.\"\n- The same file: \"Test: would this still be true if the code were rewritten from scratch?\"\n- The same file: \"DROP — provenance, obstacle narration, defense of a draft nobody else saw, adverbs that assert nothing.\"\n- Review rules, \"What blocks\": \"session residue a rule forbids\".\n- AGENTS.md: \"List old decision under 'Considered options'.\" The old decision stays in the list. Only the history note comes out."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No blocking issues found. The title and description match the change. The publish conditions still keep a manual run on another branch from moving `edge`. The cache refs resolve per architecture only when CI sets `CACHE`, and the cleanup workflow never touches the `cache-*` tags. One non-blocking suggestion is inline, on ADR 0020.",
+  "comments": [
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "Suggestion (non-blocking): the parenthetical \"(the previous behaviour, never recorded as an ADR)\" tells the repo's history rather than the decision. Once the change merges, a reader learns nothing from it, which is the provenance residue the durable-knowledge audit drops. AGENTS.md asks for the old decision under \"Considered options\", and listing the option covers that without the history note:\n\n```suggestion\n- Forks build and test without publishing.\n```"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical '(the previous behaviour, never recorded as an ADR)' in Considered Options is provenance residue that narrates history; rewrite to '- Forks build and test without publishing.' Non-blocking.",
+   "validation": "CONFIRM — \"(the previous behaviour, never recorded as an ADR)\" narrates repo history, since it says the option used to apply and that no ADR covered it. It fails the skill's rewrite-from-scratch test and states no constraint, so the line should read `- Forks build and test without publishing.`",
+   "posted": true
+  }
+ ]
+}

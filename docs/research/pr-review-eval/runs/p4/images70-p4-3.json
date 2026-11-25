@@ -1,0 +1,78 @@
+{
+ "run": "images70-p4-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.32,
+ "duration_s": 120,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.12,
+  "claude-sonnet-5-5": 0.2
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Issues: none.\n\nI checked each added line against the AGENTS.md rules and found no violation I can quote with the exact rule text.\n\n- **ADR content:** `docs/adr/0020-pull-requests-from-collaborators-only.md` and `docs/adr/0021-build-cache-in-the-registry.md` describe decisions, options and consequences. They contain no code, config keys or step-level implementation detail. The mentions of \"GHCR package\", \"cache tags\" and \"untagged version\" state design facts, not code.\n- **Superseded ADRs:** no existing ADR in `docs/adr/` covers fork publishing or CI caching, so there is nothing to delete or list under \"Considered options\". ADR 0020 lists the old fork behaviour as a considered option. It is not a deleted ADR, which fits the rule since the old behaviour was never recorded.\n- **Code comments:** each added comment gives a reason or constraint, none restates the code, and there are no file headers.\n  - In `images/docker-bake.hcl`, the comments on `CACHE` and `cache_to` give constraints: it needs `PLATFORM`, and GHCR rejects the default cache index.\n  - In `.github/workflows/images.yml`, \"Every run reads and writes the build cache in GHCR, publishing or not.\" explains why the login is now unconditional.\n- **README:** the added lines are brief and link to ADR 0020, as the README rule asks.\n- **Other rules:** `docs/agents/domain.md` has no applicable violation. No CLAUDE.md or AGENTS.md exists other than the root ones.\n\nDismissed findings for the human report: none were dismissed. Nothing was flagged to begin with."
+  },
+  {
+   "description": "Durable-knowledge pass",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Verdict: one finding, in ADR 0020. Nothing else breaks a rule.**\n\n| File | Quoted added line | Rule broken | Verdict | Replacement |\n|---|---|---|---|---|\n| `docs/adr/0020-pull-requests-from-collaborators-only.md` | `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).` | The audit skill's \"Not durable\" test: \"how the decision was reached… dies with the code that provoked it.\" The parenthetical \"(the previous behaviour, never recorded as an ADR)\" is provenance. It would stop being true if the ADR were written from scratch, and the PR itself removes the behaviour it calls \"previous\". | DROP the parenthetical. This removes no constraint, since the rejected option stays named. | `- Forks build and test without publishing.` |\n\nI checked the other changed docs and comments and found nothing that meets the bar:\n\n- **ADR 0020 and ADR 0021 hold no code implementation details.** They name no variables, flags, tag-building code or mediatype settings, only decisions and consequences.\n- **ADR 0021, the untagged-version claim:** \"like the other untagged images the cleanup keeps\" is confirmed by `.github/workflows/ghcr-cleanup.yml`, whose first line is \"# Untagged images are kept: …\".\n- **README additions:** both are short and state durable facts. The first says the `cache-*` tags are not images to pull. The second says there are no outside contributions and links to ADR 0020. This fits the AGENTS.md rule \"Keep it current… and brief\".\n- **Comments in `.github/workflows/images.yml`:** both say why. \"A manual run on another branch must not move edge.\" gives the reason for the `main` condition. \"Every run reads and writes the build cache in GHCR, publishing or not.\" explains why the login step is now unconditional. Neither restates the code, so they pass the AGENTS.md rule \"A comment says why… Never restate what the code… already says.\"\n- **Comments in `images/docker-bake.hcl`:**\n  - \"CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.\" states a real constraint.\n  - In \"mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.\", the `mode=max` half explains an option's documented meaning, which is borderline. The GHCR claim is dated third-party behaviour that I cannot verify offline, so it is **UNVERIFIED**. A human should confirm it. I recommend leaving the text alone.\n  - `oci-mediatypes=true` has no explanation. That is a gap rather than a violation, so I am not reporting it.\n- **ADR 0020, the line \"a pull request from a fork fails its checks\":** this is a design consequence, so it is not residue. It follows from the workflow now publishing on every `pull_request` and logging in to GHCR unconditionally. It rests on an outside assumption that fork tokens cannot push to GHCR, so it is **UNVERIFIED** from the repo alone. Leave it as written."
+  },
+  {
+   "description": "Correctness pass: bugs",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "**Result: none.** I found no significant, high-confidence correctness bug in `.github/workflows/images.yml` or `images/docker-bake.hcl`.\n\nWhat I checked and ruled out:\n\n- **Bake HCL semantics:**\n  - `CACHE: true` reaches bake as the string `\"true\"`. Bake turns it into a bool because the variable's default is `false`, the same way the existing `PUSH` variable already works.\n  - `cache_from` and `cache_to` return `[]` when `CACHE` is off, so local builds get no cache.\n  - If `PLATFORM` is empty, `cache_ref` would produce `:cache-`. This can't happen in CI, because the build job always sets `PLATFORM` in the same job as `CACHE`.\n- **Cache tags vs. the cleanup scripts:**\n  - `.github/scripts/stale-pr-tags.sh` keeps only tags matching `^pr-[0-9]+$`, so `cache-amd64` and `cache-arm64` are never selected for deletion.\n  - `ghcr-cleanup.yml` only deletes the tags it is given and keeps untagged versions. Live caches are safe, and superseded ones become untagged versions that are kept, as ADR 0021 says.\n  - `.github/scripts/images.sh` reads only the default group and `contexts`, so the new `cache-from`/`cache-to` attributes don't affect it.\n- **Cache writes:** amd64 and arm64 write different tags, so the two matrix legs don't collide. Pull requests and `main` overwriting each other's cache is stated in ADR 0021.\n- **`PUBLISH` and publish-condition changes:**\n  - `workflow_dispatch` on `main` still publishes `edge`, and on any other branch still doesn't.\n  - Fork pull requests now get `PUBLISH=true`, then fail when pushing with a read-only token. ADR 0020 says a fork pull request fails its checks, so this is intended.\n  - Logging in to GHCR on every run is needed for the cache reads and writes.\n\nOne observation, below the bar (not a bug): with the cache, the `apt-get update && apt-get install` layers in `images/core/Dockerfile` and `images/core-systemd/Dockerfile` are reused until an earlier layer changes, such as an Ubuntu base digest bump. Before this PR, every build fetched current packages. ADR 0013 only says a rebuild \"can\" pick up newer apt packages, so no stated guarantee is broken.\n\nDismissed findings to log for a human: the empty-`PLATFORM` `cache_ref` case (CI always sets it), fork pull requests now failing (intended under ADR 0020), and the apt-layer freshness change above."
+  },
+  {
+   "description": "Correctness pass: security/logic",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "No significant, high-confidence correctness or security issues were introduced by this change.\n\nNone of the scenarios you listed holds up as an issue with a reachable Trigger → Path → Outcome:\n\n- **When it publishes is unchanged.** For `push` (main only) and `workflow_dispatch`, the new `PUBLISH` gives the same answer as the old one. A manual run on another branch evaluates to false, so `publish` is skipped and edge does not move.\n- **Fork pull requests now pass the publish condition, but cannot publish.** On a public repo, GitHub forces a fork's `GITHUB_TOKEN` to read-only and gives it no secrets. The now-unconditional login still succeeds, but writing the cache (`cache-to`) and pushing by digest both get 403. BuildKit fails the build on a cache export error by default, so `build` fails and `publish` is skipped. That matches ADR 0020's \"a pull request from a fork fails its checks\". The exception is a fork PR that touches nothing the path filter watches: it skips the build and passes, which harms nothing.\n- **Dependabot:** the repo has no `.github/dependabot.yml`, and Renovate pushes branches to this repository, so it gets the same token as any collaborator's branch.\n- **Token permissions:** `packages: write` is unchanged in both `build` and `publish`. The only new writer is a manual run on a non-main branch, which now writes the cache tags. Anyone who can dispatch already has write access and can push through a pull request run, so nobody gains reach.\n- **Cache poisoning from pull requests into main:** whoever can write a poisoned cache is a collaborator or Renovate. A pull request run uses the workflow file from its own head with `packages: write`, so that person could already push any image directly. The cache gives them nothing new. Genuine Renovate bumps change the cache keys, so main reuses only layers built from the same merged content.\n- **Concurrent writers:** pull request and main runs sit in different concurrency groups, so they can both write a `cache-<arch>` tag at once. Each export is a complete manifest and the last write wins. A superseded manifest stays as an untagged version, and the cleanup workflow keeps those, so a reader that already resolved it still gets its layers. The cost is only lost cache hits, which ADR 0021 accepts.\n- **Cleanup workflow:** it deletes only stale `pr-N` tags. The new `cache-*` tags never match that pattern.\n- **Bake file:** `CACHE` defaults to false (local builds don't use the cache, as stated), and CI always sets `PLATFORM`. `cache_ref` and `cache_from`/`cache_to` are applied the same way to all four images.\n\nOne thing that is not a defect: unpinned `apt-get install` layers in `images/core/Dockerfile` and `images/core-systemd/Dockerfile` will now be served from the cache until the pinned Ubuntu base digest changes. That only makes package updates arrive later, so it doesn't meet the bar.\n\nNo reviewer findings were dismissed in this pass."
+  },
+  {
+   "description": "Validate ADR 0020 candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "UNSETTLED — \"never recorded as an ADR\" is provenance that the skill's \"how the decision was reached\" test covers. \"The previous behaviour\" is arguably a durable fact, because it marks this option as the status quo being replaced, and AGENTS.md says to list the old decision under Considered options. The skill's DROP rule forbids deleting a fact, and the files don't show whether the ADR needs that marker."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The title and description match the change. Compliance, correctness, security, and documentation passes found no blocking issues. The publish conditions still keep a manual run on another branch from moving `edge`. The new `cache-*` tags are not matched by the stale-tag cleanup. Local builds still skip the cache. One question about wording in an ADR is left inline.",
+  "comments": [
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**Question** — The audit rule treats \"how the decision was reached\" as residue that doesn't belong in an ADR, so \"never recorded as an ADR\" looks like it should go. \"The previous behaviour\" may still be worth keeping, because it marks this option as the old decision that AGENTS.md says to list under Considered options. Should the parenthetical be cut to `(the previous behaviour)`, or dropped entirely as `- Forks build and test without publishing.`?"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical \"(the previous behaviour, never recorded as an ADR)\" in the Considered Options entry \"Forks build and test without publishing\" is provenance (how the decision was reached), not durable knowledge; drop it.",
+   "validation": "UNSETTLED — \"never recorded as an ADR\" is provenance that the skill's \"how the decision was reached\" test covers. \"The previous behaviour\" is arguably a durable fact, because it marks this option as the status quo being replaced, and AGENTS.md says to list the old decision under Considered options. The skill's DROP rule forbids deleting a fact, and the files don't show whether the ADR needs that marker.",
+   "posted": true
+  }
+ ]
+}

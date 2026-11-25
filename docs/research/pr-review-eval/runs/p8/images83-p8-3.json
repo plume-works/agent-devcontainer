@@ -1,0 +1,31 @@
+{
+ "run": "images83-p8-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.37,
+ "duration_s": 45,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.37
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "Blocking: the PR description doesn't match the change, so I stopped before the in-depth review (metadata gate).\n\nThe description says the `ubuntu-snapshot` datasource takes the latest snapshot as \"the moment the `resolute-security` pocket last changed, read from its InRelease `Date:` line (a snapshot at that moment includes it)\". The test plan says a Renovate dry run proposed `20261121T000000Z` → `20261121T095046Z`. The `transformTemplates` expression in `renovate.json` keeps only the day, month and year from the `Date:` line and always appends `T000000Z`. It can't produce `20261121T095046Z`, and it never gives the moment of the change. It gives midnight UTC of that day, which is before the change, so that snapshot doesn't contain it. The inline comment has the details.\n\nPlease either fix the transform to keep the time (if the moment is what you want), or update the description and the dry-run result to match a day-granular pin. Then request a fresh review.",
+  "comments": [
+   {
+    "path": "renovate.json",
+    "line": 18,
+    "body": "This transform matches only `(\\d+) (\\w{3}) (\\d{4})` from the InRelease `Date:` line and appends a fixed `T000000Z`, so every proposed snapshot is midnight UTC of the day the security pocket last changed. The PR description says something different: the snapshot is \"the moment the pocket last changed … (a snapshot at that moment includes it)\", and a dry run proposed `20261121T095046Z`, a value this expression can't emit.\n\nIt also changes what gets pinned. If the pocket changes at 09:50 on 2026-11-21, Renovate proposes `20261121T000000Z`, which is still the archive state before that change. Renovate then reports itself current, and the new security fix doesn't arrive until the pocket changes again on a later day. ADR 0019 and the `minimumReleaseAge: null` rule justify skipping the release wait because the snapshot carries security fixes, and that reasoning assumes the pin includes the change.\n\nFix: also capture `(\\d{2}):(\\d{2}):(\\d{2})` and build `YYYYMMDDTHHMMSSZ` from it (the Dockerfile's `versioning=regex:^(?<major>\\d{8})T(?<minor>\\d{6})Z$` already accepts that). Or, if a day-granular pin is intended, use the end of that day, or the next day's midnight, so the pin includes the change, and update the description and dry-run result to match."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "metadata gate",
+   "path": "renovate.json",
+   "claim": "The PR description says the ubuntu-snapshot datasource proposes the moment the resolute-security pocket last changed (a snapshot that includes the change), and that a dry run proposed 20261121T095046Z. The transformTemplates expression keeps only day/month/year from the InRelease Date line and appends a fixed T000000Z. It can't produce that value, and it pins midnight UTC of the change day, a snapshot that predates and excludes the security change. The description misstates the change, which blocks.",
+   "validation": null,
+   "posted": true
+  }
+ ]
+}

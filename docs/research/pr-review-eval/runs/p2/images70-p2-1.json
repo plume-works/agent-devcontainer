@@ -1,0 +1,195 @@
+{
+ "run": "images70-p2-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.85,
+ "duration_s": 241,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.36,
+  "claude-sonnet-5-5": 0.49
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No violations found in the added lines, so the issue list is empty.\n\n- **Code comments:** the three new comments each give a reason or constraint. These are the \"A manual run on another branch must not move edge\" line in `images.yml`, the \"Every run reads and writes the build cache in GHCR, publishing or not\" line, and the bake comments on `CACHE`, `mode=max` and `image-manifest=true`. None restates the code.\n- **ADRs 0020 and 0021:**\n  - **Implementation details:** neither contains code or implementation details.\n  - **Considered options:** the old fork behaviour is listed under \"Considered Options\" in 0020.\n  - **Supersession:** no existing ADR is superseded, so no deletion is owed. A grep for \"fork\" in `docs/adr` found only the new 0020.\n- **README:** the two additions are short and link to ADR 0020, so durable knowledge stays in the ADR.\n- **Heading casing:** the new ADRs use \"## Considered Options\", while 10 of the 12 existing ADRs with a considered-options section use \"## Considered options\". ADR 0019 also uses \"Options\". This is not flagged because AGENTS.md has no rule on it that I can quote.\n- **HCL:** the alignment of `=` in the bake targets is consistent."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Three findings, all P3. Everything else in the added lines is KEEP.\n\n**1. `docs/adr/0020-pull-requests-from-collaborators-only.md`**\n- Added line: `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n- Verdict: REWRITE. Drop the parenthetical, which is provenance and says nothing about the decision. Replacement: `- Forks build and test without publishing.`\n- Rule broken: AGENTS.md, \"A comment says why: a constraint, gotcha or rejected alternative the code cannot show.\" The skill's durable-vs-not test also applies, since the history of the old behaviour does not survive a rewrite. The alternative itself stays as a \"Considered options\" entry.\n- Severity: P3. It is a small piece of narration in an ADR.\n\n**2. `docs/adr/0021-build-cache-in-the-registry.md`**\n- Added line: `- The GitHub Actions cache: capped in size, evicts, and is scoped per branch.`\n- Verdict: UNVERIFIED, for a human to decide. This is a present-tense claim about a third-party tool's behaviour, and nothing in the repo confirms it. The rejection reason is the only place the alternative's flaws are recorded, so I would keep the rejected alternative and trim the claim to the one constraint that drove the choice. Suggested wording, only if the maintainer confirms the reason: `- The GitHub Actions cache: scoped per branch, so pull requests could not share main's cache.`\n- Rule broken: the skill's \"Dated third-party behavior\" smell. The relevant rule is \"never invent a rationale\", so I would not rewrite it unless the maintainer confirms.\n- Severity: P3. The claim could go stale without anyone noticing.\n\n**3. `images/docker-bake.hcl`**\n- Added line: `# mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.`\n- Verdict: KEEP the constraint, but mark UNVERIFIED. The GHCR claim is dated third-party behaviour that I cannot confirm from the repo. The comment is correctly a why-comment because `image-manifest=true` is not self-explanatory. It does not explain `oci-mediatypes=true`, which the code also sets.\n- Rule broken: none clearly. The risk is staleness, which a human should check.\n- Severity: P3.\n\nChecked and fine:\n- **README sentence:** `The cache-amd64 and cache-arm64 tags are CI's build cache, not images to pull.` Durable, and it matches `cache_ref` in `images/docker-bake.hcl`.\n- **README sentence:** `It takes no outside contributions: …` Brief, and it points to ADR 0020.\n- **ADR 0021 consequence:** the line about an untagged superseded cache is consistent with `.github/workflows/ghcr-cleanup.yml`, which only deletes stale `pr-N` tags.\n- **ADR 0021 body:** it states the decision and its consequences without implementation detail.\n- **Workflow comment:** `# Every run reads and writes the build cache in GHCR, publishing or not.` It explains why the login step is now unconditional.\n- **Bake comment:** `# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.` It states a real constraint.\n- **Unchanged line:** `# A manual run on another branch must not move edge.` is existing context, not an added line.\n\nOne claim for a human to check: ADR 0020 says `a pull request from a fork fails its checks`. In `.github/workflows/images.yml` the GHCR login is now unconditional, so a fork would fail there only because it lacks credentials. The ADR states this as policy, not as a mechanism, so it is acceptable. I am flagging it only because nothing else in the repo enforces it."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found four issues in the two code files (`.github/workflows/images.yml` and `images/docker-bake.hcl`): one P2 and three P3. Nothing fails to parse. Passing env `CACHE: true` into the bake variable `CACHE { default = false }` turns it into a boolean the same way `PUSH` already does, so that part is fine.\n\n### 1. With the cache, apt packages no longer refresh on a rebuild, which goes against ADR 0013 (P2)\n- **File:** `.github/workflows/images.yml`, attached to `CACHE: true` (the same applies to `images/docker-bake.hcl` `cache_to`, `result = CACHE ? [\"type=registry,ref=${cache_ref(name)},mode=max,image-manifest=true,oci-mediatypes=true\"] : []`)\n- **Category:** wrong logic / a stated guarantee broken (security updates)\n- **Impact:** published `edge` images silently stop getting Ubuntu security updates between base-image digest bumps.\n- **Description:** BuildKit caches a `RUN` step by its command text and the layer before it, not by what it fetches. `images/core/Dockerfile` starts from a digest-pinned `ubuntu:26.04@sha256:…` and runs `RUN apt-get update && apt-get install …` with no version pins. `core-systemd` and the Docker apt repo steps do the same. ADR 0013 says: \"Apt packages are the exception to pinning: they float within the Ubuntu release, so a rebuild can pick up newer ones.\" Every run now reads `cache-<arch>`, and the PR adds no way to skip the cache. So those apt layers stay frozen at the first cached result until the Ubuntu digest changes. Even a manual run, which \"always builds\", is served from cache. This contradicts ADR 0013, and ADR 0021 does not say so.\n- **Trigger:** Ubuntu publishes a security update. Later a PR changes a step lower in `images/core/Dockerfile`, such as a `CLAUDE_CODE_VERSION` bump, or someone starts a manual run on main.\n- **Path:** `.github/workflows/images.yml::build` (\"Build every image…\" step, `CACHE: true`) → `images/docker-bake.hcl::cache_from` / `cache_ref` → `images/core/Dockerfile` apt `RUN` (cache hit) → `.github/workflows/images.yml::publish` (tags `edge`)\n- **Outcome:** `edge` is published with the apt packages from whenever the cache was first filled, not the current ones. A rebuild no longer picks up newer apt packages, and nothing can force it to.\n\n### 2. An unmerged collaborator PR writes cache that main's `edge` build trusts (P3)\n- **File:** `.github/workflows/images.yml`, attached to `CACHE: true` and to the login comment `# Every run reads and writes the build cache in GHCR, publishing or not.`\n- **Category:** security / cache poisoning between PR and main runs\n- **Impact:** the risk is limited, because PR runs already had `packages: write` and could move tags. What is new is that a poisoned layer leaves no trace on main.\n- **Description:** A `pull_request` run uses the PR branch's own workflow file and gets a `packages: write` `GITHUB_TOKEN`. It can push any content under the cache key of an unchanged step, for example core's apt `RUN`, to `ghcr.io/plume-works/<img>:cache-<arch>`. The next main run imports it as `CACHED`, smoke-tests it, and publishes it as `edge`. Main's logs and the reviewed diff show nothing wrong.\n- **Trigger:** a collaborator branch, or a compromised Renovate update that runs code at build time, opens a PR and never merges it. Then any main run follows.\n- **Path:** `.github/workflows/images.yml::build` on the PR (login, then bake `cache-to`) → `images/docker-bake.hcl::cache_to` → shared `:cache-<arch>` tag → main's `.github/workflows/images.yml::build` (`cache_from`) → `::publish`\n- **Outcome:** `edge` contains layers that never came from reviewed code.\n\n### 3. Each CI run leaves 8 untagged cache versions that the cleanup never deletes (P3)\n- **File:** `images/docker-bake.hcl`, attached to `function \"cache_to\" {`\n- **Category:** interaction with `ghcr-cleanup`\n- **Impact:** registry storage and the package version list grow without bound.\n- **Description:** `image-manifest=true` writes the cache as a separate manifest version in each package. Each run's push replaces `cache-<arch>` and leaves the previous manifest untagged. `ghcr-cleanup.yml` keeps untagged versions on purpose, and `stale-pr-tags.sh` only matches `pr-N`. ADR 0021 admits that superseded caches stay. In practice that means 4 images × 2 architectures of new untagged versions per run, each pinning `mode=max` layers, kept forever.\n- **Trigger:** any normal CI run.\n- **Path:** `images/docker-bake.hcl::cache_to` → `.github/workflows/ghcr-cleanup.yml::cleanup` (deletes only `pr-N`) → `.github/scripts/stale-pr-tags.sh`\n- **Outcome:** old cache versions pile up and nothing removes them.\n\n### 4. The rule that `CACHE` needs `PLATFORM` is only a comment; a generic `CACHE` env var turns the cache on locally (P3)\n- **File:** `images/docker-bake.hcl`, attached to `result = \"${REGISTRY}/${name}:cache-${replace(PLATFORM, \"linux/\", \"\")}\"` (also `variable \"CACHE\" { default = false }`)\n- **Category:** wrong logic, against a stated guarantee (\"Local builds do not use it\")\n- **Impact:** limited, since it needs a stray env var plus a GHCR login.\n- **Description:** Bake fills variables from environment variables of the same name, and `CACHE` is a very generic name. A local `docker buildx bake` with `CACHE=1` or `true` in the environment turns the cache on. `PLATFORM` is then empty, so the ref becomes `ghcr.io/plume-works/<img>:cache-`. If the developer is logged into GHCR, this pushes a stray `cache-` tag that cleanup never removes. A non-boolean value such as a path fails the bake with a type error.\n- **Trigger:** `CACHE=true docker buildx bake` (or an exported `CACHE`) in `images/` with no `PLATFORM`.\n- **Path:** `images/docker-bake.hcl::variable CACHE` → `::cache_from` / `::cache_to` → `::cache_ref`\n- **Outcome:** a local build uses and writes the shared registry cache under a tag with no architecture, or the bake fails.\n\n### Checked and not reported\n- **Fork PRs:** they now get `PUBLISH=true` and fail at the cache or push stage with a read-only token. ADR 0020 accepts that, and no secrets are exposed.\n- **Manual runs on other branches:** `PUBLISH` stays false, so `edge` is safe. They do write the shared cache, which ADR 0021 states (\"every CI run\").\n- **Other files:** `images.sh` and the cleanup's `bake --print` don't set `CACHE`, so they are unaffected. amd64 and arm64 use separate refs, so they don't collide.\n- **Test coverage:** no automated check covers the bake cache output or the empty-`PLATFORM` case. The workflow itself is the only thing that exercises it.\n\nNo reviewer findings were dismissed in this pass."
+  },
+  {
+   "description": "Validate C1 apt cache freeze",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 6/10 · Severity: P2 — every part holds as written: `CACHE: true` is unconditional in the bake step, so main and manual runs and later-step PRs reuse the cached apt `RUN` layers while the base digest is unchanged, and the workflow has no way to bypass the cache. That undercuts ADR 0013's \"a rebuild can pick up newer ones\". I did not read the whole of ADR 0021, which deliberately adopts the registry cache, so I could not rule out that it already accepts this staleness. earlier reply does not hold"
+  },
+  {
+   "description": "Validate C2 cache poisoning",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 5/10 · Severity: P3 — every part holds as written (a same-repo PR run has `packages:write`, `cache_to` pushes the shared `:cache-<arch>` tag, and main's `cache_from` reads it back), but a PR run could already push `:edge` directly, so the added harm is only that a poisoned layer leaves no trace in main's diff or logs, and no file showed whether main would hit the crafted cache key; earlier reply does not hold"
+  },
+  {
+   "description": "Validate C3 untagged cache pileup",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 4/10 · Severity: P3 — the growth is real, since cleanup deletes only stale pr-N tags and keeps untagged versions, but ADR 0021 and the cleanup workflow header record it as a deliberate trade-off, so it is minor and the effort-to-fix versus benefit is unclear. earlier reply does not hold"
+  },
+  {
+   "description": "Validate C4 CACHE env local",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 6/10 · Severity: P3 — Bake does read same-named env vars for variables, so a generic CACHE=true set locally with no PLATFORM makes cache_ref produce a tag `cache-` with no architecture and turns on registry cache reads, contrary to ADR 0021's \"Local builds do not use it\". A non-boolean value like CACHE=1 may be coerced by bake rather than failing. Writes need a GHCR login and a stray env var, so the impact is small; earlier reply does not hold"
+  },
+  {
+   "description": "Validate D1 ADR provenance",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 6/10 · Severity: P3 — the parenthetical is history about the repo rather than the decision, and the AGENTS.md rule cited covers code comments, so this is a minor wording nit that is also arguable, since the note identifies the option being rejected; earlier reply does not hold"
+  },
+  {
+   "description": "Validate D2 GHA cache claim",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 3/10 · Severity: P3 — the cap, eviction and per-branch scoping are long-stable, documented Actions cache behaviour and are the stated reason the option was rejected, so the staleness risk is small and a verify marker would add little; earlier reply does not hold"
+  },
+  {
+   "description": "Validate D3 bake comment",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 4/10 · Severity: P3 — The comment does state a real \"why\" (the GHCR constraint behind `image-manifest=true`), but it names third-party behaviour the repo can't verify and doesn't explain `oci-mediatypes=true`, so the finding is plausible but minor and arguable; earlier reply does not hold"
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The registry build cache and the removal of the fork conditions match the title and description. The `PUBLISH` and `publish` conditions behave the same as before for same-repository pull requests and `main`. ADRs 0020 and 0021 record the decisions without implementation detail, and no existing ADR is superseded.\n\nThere are no P1 findings. Seven inline comments are left for the author to judge: one P2 and six P3. The P2 is that the unconditional cache stops apt packages from floating on a rebuild, as ADR 0013 says they should.",
+  "comments": [
+   {
+    "path": ".github/workflows/images.yml",
+    "line": 96,
+    "body": "**Severity: P2 · Confidence: 6/10** — every part holds as written: `CACHE: true` is unconditional, so main runs, manual runs and pull requests that change a later step reuse the cached apt `RUN` layers while the base digest is unchanged. Nothing can bypass the cache, which undercuts ADR 0013's \"a rebuild can pick up newer ones\".\n\n**Apt packages stop floating once the cache is filled.** BuildKit keys a `RUN` step on its command text and its parent layer, not on what the step downloads. `images/core/Dockerfile` (and the `core-systemd` apt and Docker-repo steps) run unpinned `apt-get update && apt-get install …` on a digest-pinned Ubuntu base. With every run reading `cache-<arch>`, those layers stay frozen at the first cached result until the base digest or the command text changes.\n\n- **Trigger:** Ubuntu ships a security update. Then a pull request bumps a later step in `images/core/Dockerfile`, or a manual or `main` run happens.\n- **Path:** `.github/workflows/images.yml::build` (bake step, `CACHE: true`) → `images/docker-bake.hcl::cache_from` → the apt `RUN` in `images/core/Dockerfile` (cache hit) → `.github/workflows/images.yml::publish`\n- **Outcome:** `edge` ships stale apt packages. This contradicts ADR 0013, and ADR 0021 does not record it as a consequence.\n\n**Suggested fix:** do one of these.\n- Add a cache bypass, such as `no-cache` on scheduled or manual runs, or a periodic cache reset.\n- Record the trade-off in ADR 0021 and reconcile it with ADR 0013."
+   },
+   {
+    "path": ".github/workflows/images.yml",
+    "line": 96,
+    "body": "**Severity: P3 · Confidence: 5/10** — every part holds as written. Pull request runs could already push tags with `packages: write`, so the added harm is only that a poisoned layer leaves no trace on `main`.\n\n**Pull request runs write the cache that `main` publishes from.** A `pull_request` run uses the branch's own workflow and gets a `packages: write` token. It can push arbitrary content under the cache key of an unchanged step to `:cache-<arch>`. The next `main` run imports it as `CACHED`, smoke-tests it and tags it `edge`, and nothing in `main`'s diff or logs shows it.\n\n- **Trigger:** a pull request from a collaborator branch (or a Renovate update that runs code at build time) that is never merged.\n- **Path:** `.github/workflows/images.yml::build` (pull request) → `images/docker-bake.hcl::cache_to` → the shared `:cache-<arch>` tag → `.github/workflows/images.yml::build` (`main`, `cache_from`) → `::publish`\n- **Outcome:** `edge` can contain layers that never came from reviewed code.\n\n**Suggested fix:** do one of these.\n- Give pull requests their own cache ref that reads from `main`'s cache but never writes to it.\n- Accept the risk explicitly in ADR 0021."
+   },
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 46,
+    "body": "**Severity: P3 · Confidence: 4/10** — the growth is real: cleanup deletes only stale `pr-N` tags and keeps untagged versions. However, ADR 0021 and the cleanup workflow header record this as a deliberate trade-off.\n\n**Superseded cache manifests are never cleaned up.** Each run retags `cache-<arch>` on four packages for two architectures and leaves the previous manifest untagged. Each of those keeps its `mode=max` layers. `ghcr-cleanup.yml` and `stale-pr-tags.sh` only remove `pr-N`, so storage and the version list grow with every CI run. Consider a cleanup step that prunes untagged versions older than N days that no tag references."
+   },
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 37,
+    "body": "**Severity: P3 · Confidence: 6/10** — bake reads same-named environment variables. A stray `CACHE=true` in a local shell, with no `PLATFORM` set, turns on registry cache reads under a `cache-` tag with no architecture, contrary to ADR 0021's \"Local builds do not use it\". The impact is small.\n\n**The rule that `CACHE` needs `PLATFORM` is only a comment.** `CACHE` is a very generic environment variable name.\n\n- **Trigger:** `CACHE=true docker buildx bake` in `images/` with no `PLATFORM` set.\n- **Path:** `images/docker-bake.hcl::variable CACHE` → `::cache_from` / `::cache_to` → `::cache_ref`\n- **Outcome:** a local build reads the shared cache from `ghcr.io/plume-works/<img>:cache-`. If the developer is logged in to GHCR, it also writes that tag, which nothing cleans up.\n\n**Suggested fix:** use a more specific variable name, such as `CI_REGISTRY_CACHE`. Alternatively, make `cache_from` and `cache_to` return `[]` when `PLATFORM == \"\"`."
+   },
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**Severity: P3 · Confidence: 6/10** — the parenthetical is history about the repo rather than part of the decision. It is a minor, arguable wording nit.\n\n**Provenance in an ADR.** \"(the previous behaviour, never recorded as an ADR)\" describes how the repository got here, not the option being weighed. Suggested wording: `- Forks build and test without publishing.`"
+   },
+   {
+    "path": "docs/adr/0021-build-cache-in-the-registry.md",
+    "line": 9,
+    "body": "**Severity: P3 · Confidence: 3/10** — the size cap, eviction and per-branch scoping are long-standing, documented Actions cache behaviour and the stated reason the option was rejected, so the risk of it going stale is small.\n\n**Third-party behaviour stated as fact.** This line rests on GitHub Actions cache limits that the repository cannot verify and that could change. If one constraint drove the decision, consider trimming the line to it, for example per-branch scoping keeping pull requests away from `main`'s cache."
+   },
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 45,
+    "body": "**Severity: P3 · Confidence: 4/10** — the comment gives a real reason for `image-manifest=true`, but it names third-party behaviour the repository can't verify and doesn't explain `oci-mediatypes=true`. The finding is plausible but minor.\n\n**Unverified GHCR claim, and `oci-mediatypes=true` is unexplained.** \"GHCR rejects the default cache index\" is GHCR behaviour that may change, and the same cache-to string also sets `oci-mediatypes=true` with no reason given. Either add the reason for `oci-mediatypes=true` (it goes with `image-manifest=true`) or note what to re-check if GHCR changes."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": ".github/workflows/images.yml",
+   "claim": "Unconditional CACHE: true freezes unpinned apt-get layers in images/core/Dockerfile (and core-systemd) until the base digest changes, so edge stops picking up apt updates on rebuild, contradicting ADR 0013; no cache bypass exists.",
+   "validation": "Confidence: 6/10 · Severity: P2 — every part holds as written: `CACHE: true` is unconditional in the bake step, so main and manual runs and later-step PRs reuse the cached apt `RUN` layers while the base digest is unchanged, and the workflow has no way to bypass the cache. That undercuts ADR 0013's \"a rebuild can pick up newer ones\". I did not read the whole of ADR 0021, which deliberately adopts the registry cache, so I could not rule out that it already accepts this staleness. earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": ".github/workflows/images.yml",
+   "claim": "An unmerged collaborator PR run (packages:write) can push poisoned layers under the shared :cache-<arch> tag; main imports them as CACHED and publishes them as edge with no trace in main's diff or logs.",
+   "validation": "Confidence: 5/10 · Severity: P3 — every part holds as written (a same-repo PR run has `packages:write`, `cache_to` pushes the shared `:cache-<arch>` tag, and main's `cache_from` reads it back), but a PR run could already push `:edge` directly, so the added harm is only that a poisoned layer leaves no trace in main's diff or logs, and no file showed whether main would hit the crafted cache key; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": "images/docker-bake.hcl",
+   "claim": "Each CI run leaves up to 8 superseded untagged cache manifests (with mode=max layers) that ghcr-cleanup never deletes; registry storage grows without bound.",
+   "validation": "Confidence: 4/10 · Severity: P3 — the growth is real, since cleanup deletes only stale pr-N tags and keeps untagged versions, but ADR 0021 and the cleanup workflow header record it as a deliberate trade-off, so it is minor and the effort-to-fix versus benefit is unclear. earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": "images/docker-bake.hcl",
+   "claim": "CACHE needing PLATFORM is only a comment; a generic CACHE env var set locally enables the registry cache under an arch-less `cache-` tag, contradicting 'Local builds do not use it', or a non-boolean value fails the bake.",
+   "validation": "Confidence: 6/10 · Severity: P3 — Bake does read same-named env vars for variables, so a generic CACHE=true set locally with no PLATFORM makes cache_ref produce a tag `cache-` with no architecture and turns on registry cache reads, contrary to ADR 0021's \"Local builds do not use it\". A non-boolean value like CACHE=1 may be coerced by bake rather than failing. Writes need a GHCR login and a stray env var, so the impact is small; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "Parenthetical '(the previous behaviour, never recorded as an ADR)' is provenance residue; rewrite to '- Forks build and test without publishing.'",
+   "validation": "Confidence: 6/10 · Severity: P3 — the parenthetical is history about the repo rather than the decision, and the AGENTS.md rule cited covers code comments, so this is a minor wording nit that is also arguable, since the note identifies the option being rejected; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0021-build-cache-in-the-registry.md",
+   "claim": "'The GitHub Actions cache: capped in size, evicts, and is scoped per branch.' is unverified dated third-party behaviour; trim to the constraint that drove the decision.",
+   "validation": "Confidence: 3/10 · Severity: P3 — the cap, eviction and per-branch scoping are long-stable, documented Actions cache behaviour and are the stated reason the option was rejected, so the staleness risk is small and a verify marker would add little; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/docker-bake.hcl",
+   "claim": "Comment 'image-manifest=true: GHCR rejects the default cache index' is unverified dated third-party behaviour, and oci-mediatypes=true is left unexplained.",
+   "validation": "Confidence: 4/10 · Severity: P3 — The comment does state a real \"why\" (the GHCR constraint behind `image-manifest=true`), but it names third-party behaviour the repo can't verify and doesn't explain `oci-mediatypes=true`, so the finding is plausible but minor and arguable; earlier reply does not hold",
+   "posted": true
+  }
+ ]
+}

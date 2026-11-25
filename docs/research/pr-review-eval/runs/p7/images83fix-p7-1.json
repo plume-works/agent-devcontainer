@@ -1,0 +1,108 @@
+{
+ "run": "images83fix-p7-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.23,
+ "duration_s": 155,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.89,
+  "claude-sonnet-5-5": 0.34
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 83",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "One non-blocking issue found. Everything else I checked against AGENTS.md held.\n\n**1. ADR 0022 puts implementation details in a Consequences bullet**\n- File: `/tmp/pr-review-eval-7c1e/runs/images83fix-p7-1/repo/docs/adr/0022-all-inputs-are-pinned.md`\n- Added line: `- The images keep the snapshot in apt's config, so \\`apt-get install\\` in a container or CI job gets that day's`\n- Description: this bullet and the opening paragraph describe where the pin is stored and how it behaves: the apt config location, the `apt-get install` command, and the Docker package-revision pin on `containerd.io`. The opening paragraph's \"set in the core image's apt config\" falls under the same rule. The decision itself is only \"apt packages come from a dated snapshot\". The mechanism is already recorded in the Dockerfile comments, the README and `docs/usage/core.md`.\n- Suggested fix: trim these lines to the decision and its consequences, such as the Docker repository having no snapshots and the snapshot skipping the release wait. Drop the config location and command text.\n- Reason: AGENTS.md adherence. The rule reads \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"\n- Blocks: no. This is a judgment call on where the line falls.\n\n**Checked and found compliant**\n- **Superseded ADRs:** no whole ADR is superseded. ADR 0013 only loses one Consequences bullet, so deletion is not required. The old decision is listed under \"Considered Options\" in ADR 0022.\n- **Stale references:** no \"floats\" or \"exception\" wording about apt remains elsewhere in the repo.\n- **README:** the change is one line and stays brief.\n- **Code comments:** the added Dockerfile and `renovate.json` comments state constraints or reasons, not what the code does.\n- **PR body:** it lists no diffs or files.\n\nDismissed findings for the human report: none beyond the above."
+  },
+  {
+   "description": "Correctness pass PR 83",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "One issue found. Everything else in the four files held up.\n\n**1. The derived snapshot timestamp is midnight of the day the archive changed, so it excludes that change.**\n- File: `renovate.json`\n- Added line: `\"(\\$m := \\$match(releases[\\$substring(version, 0, 6) = \\\"Date: \\\"].version, /(\\\\d+) (\\\\w{3}) (\\\\d{4})/).groups; {\\\"releases\\\": [{\\\"version\\\": \\$m[2] & \\$lookup({...}, \\$m[1]) & \\$pad(\\$m[0], -2, \\\"0\\\") & \\\"T000000Z\\\"}]})\"`\n- Description: The transform keeps only the date from the InRelease `Date:` line (for example `Fri, 21 Nov 2026 14:32:11 UTC`) and appends `T000000Z`. `APT::Snapshot` resolves to the archive state at or before that timestamp. The new pin is therefore the state at 00:00 on the day of the change, which is earlier than the change that triggered the bump.\n- Reason: bug\n- Trigger: `resolute-security` publishes a security update at 14:32 UTC on 2026-11-21. Its `InRelease` then reads `Date: Fri, 21 Nov 2026 14:32:11 UTC`.\n- Path:\n  - `renovate.json@customDatasources.ubuntu-snapshot.transformTemplates` derives `20261121T000000Z`.\n  - `renovate.json@customManagers` rewrites `images/core/Dockerfile@UBUNTU_SNAPSHOT_VERSION`.\n  - The core `Dockerfile` writes `APT::Snapshot \"20261121T000000Z\"` to `/etc/apt/apt.conf.d/50snapshot`.\n  - `apt-get update --error-on=any` in `images/core/Dockerfile` and `images/core-systemd/Dockerfile` reads the snapshot at that timestamp.\n- Outcome:\n  - The automerged bump PR does not contain the security fix that prompted it, so the \"security fixes bump without a wait\" intent of ADR 0019 and ADR 0022 is not met.\n  - The pin is behind by one cycle. The fix only arrives if the archive changes again on a later calendar day, because a second change on the same day yields the same version string and no further PR.\n  - If the archive stays quiet after that day, the image keeps the stale pin indefinitely.\n  - The PR's dry run (`20261101T000000Z` to `20261121T000000Z`) shows only that the date was parsed. It does not show that the snapshot includes the change.\n- Fix, either of:\n  - Keep the time from the `Date:` line, for example `20261121T143211Z`.\n  - Use the next day's `T000000Z`, and accept that the bump lands one day later.\n- Blocks: yes"
+  },
+  {
+   "description": "Durable-knowledge pass PR 83",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Two findings, both in `docs/adr/0022-all-inputs-are-pinned.md`. Neither blocks. README.md, ADR 0013, ADR 0019 and `docs/usage/core.md` have no findings. I did not open the working tree, so the verdicts rest on the diff text alone.\n\n| # | File | Added line (verbatim) | Verdict | Rule broken | Replacement | Blocks |\n|---|---|---|---|---|---|---|\n| 1 | `docs/adr/0022-all-inputs-are-pinned.md` | `- Docker's apt repository has no snapshots, so its packages pin their versions, `containerd.io` down to the package` / `  revision.` | REWRITE. The constraint stays: Docker's repository has no snapshots, so its packages are pinned individually. The package-level detail goes. The Dockerfile already carries it as `# Docker's apt repository keeps old versions, so these pin. containerd.io pins its package revision too...`. | AGENTS.md: \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" The package name and revision-level pin are implementation detail. | \"Docker's apt repository has no snapshots, so its packages are pinned individually.\" | no |\n| 2 | `docs/adr/0022-all-inputs-are-pinned.md` | `packages come from a dated snapshot of its archive, set in the core image's apt config, and Renovate proposes a` (also `- The images keep the snapshot in apt's config, so `apt-get install` in a container or CI job gets that day's` / `  versions too, matching the image's own packages, until a newer image.`) | REWRITE. Keep the decision (a dated snapshot, bumped by Renovate at most daily) and the consequence (a container or CI job sees the same package versions as the image). Drop the config location and the command. The Dockerfile comment and `docs/usage/core.md` already cover them. | AGENTS.md: \"DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" \"apt's config\" and the `apt-get install` command describe where and how it is wired. | \"Ubuntu's packages come from a dated snapshot of its archive, and Renovate proposes a newer snapshot at most once a day.\" Consequence: \"Packages installed in a container or CI job match the image's own, until a newer image.\" | no |\n\nDismissed, for the human review log:\n- ADR 0022 `- Apt packages float within the Ubuntu release (the previous rule, in ADR 0013 and the README).` This is the old decision listed under \"Considered options\", which AGENTS.md asks for. ADR 0013 is amended, not superseded, so no ADR needs deleting.\n- ADR 0022 `An input that floats cannot be traced: a cached build quietly keeps an old...` This states a durable rationale and carries no provenance.\n- ADR 0022 `- Pinning each apt package's version: the Ubuntu archive drops superseded versions, so old pins stop installing.` This is a rejected alternative with its reason, which belongs under \"Considered options\".\n- README.md `Apt packages come from a dated snapshot of the Ubuntu archive ([ADR 0022]...)` is one brief line pointing to the ADR, which fits \"brief\".\n- ADR 0013 `- Apt packages are pinned too, to a dated snapshot of the Ubuntu archive` and ADR 0019 `- The Ubuntu archive snapshot bumps as soon as the archive changes, since it carries security fixes` are durable rules with cross-links.\n- `docs/usage/core.md` `apt installs from the same dated Ubuntu archive snapshot the image was built from...` is user-facing usage, so implementation-level detail is appropriate there."
+  },
+  {
+   "description": "Validate snapshot timestamp candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM: the `transformTemplates` expression keeps only the day from the InRelease `Date:` line and fixes the time at `T000000Z`. A pocket change at 14:32 on the 21st therefore produces a snapshot dated 00:00 on the 21st, which predates that change.\n\n- **Trigger:** the real InRelease `Date:` line has the form `Date: Fri, 21 Nov 2026 14:32:11 UTC`, and the regex captures only day, month and year (renovate.json line 18).\n- **Path and outcome:** the version string is always `<yyyymmdd>T000000Z`, so a second change on the same day gives the same version and no new PR. The update only arrives after the pocket changes again on a later day.\n- **Intent:** the `renovate.json` description says \"at most one bump a day\". ADR 0019 line 12 says the snapshot \"bumps as soon as the archive changes, since it carries security fixes\". The midnight timestamp contradicts that intent.\n- **Minor:** Nov 21, 2026 is a Saturday, not a Friday, but this does not affect the scenario."
+  },
+  {
+   "description": "Validate ADR apt-config candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP — The ADR states a decision and its consequences. The location of the pin (\"apt config\") and the `apt-get install` mention explain a user-visible effect rather than give code-level implementation (no file paths, keys or snippets), so this is not clearly a violation of the quoted rule."
+  },
+  {
+   "description": "Validate ADR containerd candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP — Naming a package and pin granularity is borderline, and it is a decision-level fact (pin Docker's apt packages, including the revision for `containerd.io`), so it is not clearly the \"code implementation detail\" the rule forbids. It also names no file, command or code structure, so the rule is not clearly violated."
+  }
+ ],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "Pinning apt to a dated Ubuntu archive snapshot fits ADR 0022, and the PR title and description match the change. One blocking issue remains. The Renovate `ubuntu-snapshot` datasource turns the security pocket's change date into a midnight timestamp. A bump therefore pins the archive as it was before the change that triggered the bump, so security fixes arrive one archive change late. The inline comment has the details.",
+  "comments": [
+   {
+    "path": "renovate.json",
+    "line": 18,
+    "body": "**Bug (blocking): the snapshot timestamp comes before the archive change that triggered the bump.**\n\nThe transform keeps only the day, month and year from the InRelease `Date:` line and appends `T000000Z`. `APT::Snapshot` serves the archive as it was at that instant.\n\n**Example.**\n1. `resolute-security` is published at 14:32 UTC on 2026-11-21, so its `Date:` line reads `Sat, 21 Nov 2026 14:32:11 UTC`.\n2. The datasource returns `20261121T000000Z`, and Renovate writes it into `UBUNTU_SNAPSHOT_VERSION` in `images/core/Dockerfile`.\n3. The core image writes that value into `/etc/apt/apt.conf.d/50snapshot`.\n4. Every `apt-get update` (core, core-systemd and the other child images) then reads the archive at 00:00 that day, which is before the 14:32 publish.\n\n**Effect.**\n- The automerged bump does not contain the security update that caused it.\n- A second change later the same day yields the same version, so no new PR opens.\n- The fix lands only after the pocket changes again on a later calendar day. If the pocket then stays quiet, the image keeps the stale pin.\n\nThis goes against what ADR 0019 and ADR 0022 say: the snapshot \"bumps as soon as the archive changes, since it carries security fixes\".\n\n**Fix, either of:**\n- Keep the time from the `Date:` line, for example `20261121T143211Z`. The `versioning` regex already accepts a six-digit time. The cost is that a busy day can produce more than one bump.\n- Emit the next day's `T000000Z`. This keeps \"at most one bump a day\", but snapshot.ubuntu.com has to accept that timestamp once it is reached, so the bump lands up to a day later."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "renovate.json",
+   "claim": "The ubuntu-snapshot transformTemplates keeps only the date from the InRelease Date: line and appends T000000Z, so the pinned snapshot is the archive at midnight of the change day, before the change that triggered the bump; the bump misses that security update, and a later same-day change yields no new PR. Blocking.",
+   "validation": "CONFIRM: the `transformTemplates` expression keeps only the day from the InRelease `Date:` line and fixes the time at `T000000Z`. A pocket change at 14:32 on the 21st therefore produces a snapshot dated 00:00 on the 21st, which predates that change.",
+   "posted": true
+  },
+  {
+   "pass": "compliance",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "ADR 0022 contains implementation details (\"set in the core image's apt config\", \"The images keep the snapshot in apt's config, so `apt-get install`...\", containerd.io revision pin), violating AGENTS.md \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" Non-blocking. (Merged with the durable-knowledge pass's identical apt-config finding for validation.)",
+   "validation": "DROP — The ADR states a decision and its consequences. The location of the pin (\"apt config\") and the `apt-get install` mention explain a user-visible effect rather than give code-level implementation (no file paths, keys or snippets), so this is not clearly a violation of the quoted rule.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "Lines \"packages come from a dated snapshot of its archive, set in the core image's apt config...\" and \"The images keep the snapshot in apt's config, so `apt-get install`...\" put config location and command into an ADR, violating the AGENTS.md no-implementation-details-in-ADRs rule; rewrite to the decision and consequence. Non-blocking. (Merged with the compliance candidate above.)",
+   "validation": "DROP — The ADR states a decision and its consequences. The location of the pin (\"apt config\") and the `apt-get install` mention explain a user-visible effect rather than give code-level implementation (no file paths, keys or snippets), so this is not clearly a violation of the quoted rule.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "\"Docker's apt repository has no snapshots, so its packages pin their versions, `containerd.io` down to the package revision.\" names a package and its revision-level pin, an implementation detail forbidden in ADRs by AGENTS.md; replace with \"Docker's apt repository has no snapshots, so its packages are pinned individually.\" Non-blocking.",
+   "validation": "DROP — Naming a package and pin granularity is borderline, and it is a decision-level fact (pin Docker's apt packages, including the revision for `containerd.io`), so it is not clearly the \"code implementation detail\" the rule forbids. It also names no file, command or code structure, so the rule is not clearly violated.",
+   "posted": false
+  }
+ ]
+}

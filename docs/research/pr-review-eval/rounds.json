@@ -1,0 +1,62 @@
+[
+  {
+    "round": 1,
+    "question": "Does #966's Confidence and Severity rating improve on main?",
+    "arms": ["p1", "p2"],
+    "cases": ["images70", "images71", "images75"]
+  },
+  {
+    "round": 2,
+    "question": "How does Anthropic's code-review plugin compare on the same cases?",
+    "arms": ["cr"],
+    "cases": ["images70", "images71", "images75"]
+  },
+  {
+    "round": 3,
+    "question": "Validator verdicts HOLDS/UNSETTLED/REFUTED with priorities.",
+    "arms": ["p3"],
+    "cases": ["images70", "images71", "images75"]
+  },
+  {
+    "round": 4,
+    "question": "p3 plus settled tool behaviour and broken stated guarantees.",
+    "arms": ["p4"],
+    "cases": ["images70", "images71", "images75"]
+  },
+  {
+    "round": 5,
+    "question": "p4 plus P1 without misuse, a looser pass bar and claim-by-claim metadata check.",
+    "arms": ["p5"],
+    "cases": ["images70", "images71", "images75"]
+  },
+  {
+    "round": 6,
+    "question": "Main plus three minimal rules, against p4.",
+    "arms": ["p6", "p4"],
+    "cases": ["images70", "images71", "images75", "images75fix"]
+  },
+  {
+    "round": 7,
+    "question": "The three rules on the shared-rulebook main, against that main.",
+    "arms": ["p7", "p8"],
+    "cases": ["images70", "images71", "images75fix", "images83", "images83fix"]
+  },
+  {
+    "round": 8,
+    "question": "Does the claim-by-claim metadata check alone stop #83 without false stops?",
+    "arms": ["p9"],
+    "cases": ["images70", "images71", "images83"]
+  },
+  {
+    "round": 9,
+    "question": "Does forcing every correctness pass onto the large model find more?",
+    "arms": ["p10"],
+    "cases": ["images70", "images71", "images75fix", "images83fix"]
+  },
+  {
+    "round": 10,
+    "question": "Full pass set always, against one combined correctness pass.",
+    "arms": ["p11", "p12"],
+    "cases": ["images70", "images71", "images75fix"]
+  }
+]

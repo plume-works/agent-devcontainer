@@ -1,0 +1,106 @@
+[
+  {
+    "id": "p1",
+    "commit": "4a3f67442b5e4697f6065533262f226a6fa0433c",
+    "base": "4a3f67442b5e4697f6065533262f226a6fa0433c",
+    "branch": null,
+    "change": "main before #966",
+    "diff": null
+  },
+  {
+    "id": "p2",
+    "commit": "70a4623b8ba800c83b7c39728203122a6b9752f6",
+    "base": "4a3f67442b5e4697f6065533262f226a6fa0433c",
+    "branch": "#966 (closed)",
+    "change": "Every finding carries `Confidence: X/10` and `Severity: P1|P2|P3`; every finding anchored inline; earlier threads keyed on whether the reply holds.",
+    "diff": "variants/p2.diff"
+  },
+  {
+    "id": "p3",
+    "commit": "457fa0b6c783c18ad30d0fc8c21414d187cb79ee",
+    "base": "a86256e5ea89bcc36286ea8c90ae1809d6544508",
+    "branch": "pr-review-verdicts",
+    "change": "The validator returns `HOLDS P1|P2|P3`, `UNSETTLED` (posted as a Question, at most 3) or `REFUTED` (dropped); only P1 or the metadata check requests changes; an earlier reply holds unless the files contradict it.",
+    "diff": "variants/p3.diff"
+  },
+  {
+    "id": "p4",
+    "commit": "473a2b3d0713f1a208054233c044332597f7b63a",
+    "base": "a86256e5ea89bcc36286ea8c90ae1809d6544508",
+    "branch": "pr-review-verdicts",
+    "change": "p3 plus: documented behaviour of standard tools counts as settled; a stated guarantee broken by an accepted input HOLDS however rare the input.",
+    "diff": "variants/p4.diff"
+  },
+  {
+    "id": "p5",
+    "commit": "ca2bb526825a9497e713b2a99dfdb344908f02cc",
+    "base": "a86256e5ea89bcc36286ea8c90ae1809d6544508",
+    "branch": "pr-review-verdicts",
+    "change": "p4 plus: P1 is a defect hit without misuse; passes report every issue they believe real; the metadata check lists and checks each description claim.",
+    "diff": "variants/p5.diff"
+  },
+  {
+    "id": "p6",
+    "commit": "bb7212322cf143d839594b758373497b794be9ce",
+    "base": "445b8cfb734b7d592f71c4c34bc1d49354d0079a",
+    "branch": "pr-review-stated-guarantees",
+    "change": "main plus three rules: the correctness focus checks every stated guarantee; the metadata check lists and checks each description claim; the validator never drops a scenario part on doubt alone and confirms a broken stated guarantee.",
+    "diff": "variants/p6.diff"
+  },
+  {
+    "id": "p7",
+    "commit": "28b5200c9928f03184f85eaee67d26079f6f2b24",
+    "base": "28b5200c9928f03184f85eaee67d26079f6f2b24",
+    "branch": null,
+    "change": "main with the shared review rulebook (#997)",
+    "diff": null
+  },
+  {
+    "id": "p8",
+    "commit": "c96bf96729fd80da0ee02900f5af0b9820782ea0",
+    "base": "28b5200c9928f03184f85eaee67d26079f6f2b24",
+    "branch": "pr-review-stated-guarantees",
+    "change": "p6's three rules merged onto p7.",
+    "diff": "variants/p8.diff"
+  },
+  {
+    "id": "p9",
+    "commit": "850c6d53a748b8995953205d98092b1bc555e0eb",
+    "base": "28b5200c9928f03184f85eaee67d26079f6f2b24",
+    "branch": "pr-review-stated-guarantees",
+    "change": "p7 plus only the claim-by-claim metadata check (merged as #999).",
+    "diff": "variants/p9.diff"
+  },
+  {
+    "id": "p10",
+    "commit": "9f7e9b4e37b99fa2cb3c660b45f75b83cc069007",
+    "base": "28b5200c9928f03184f85eaee67d26079f6f2b24",
+    "branch": "pr-review-correctness-large",
+    "change": "p7 plus: every correctness pass runs on the large model at both effort tiers and when the review sizes itself.",
+    "diff": "variants/p10.diff"
+  },
+  {
+    "id": "p11",
+    "commit": "a0e71b8a3f4aff295f9d1071b2b0d89e39fab807",
+    "base": "ef9c3baf3c179a3dd3c14fa35c765e0e32964685",
+    "branch": "pr-review-full-effort",
+    "change": "main (which now includes #999) with the light tier and self-sizing removed: every review runs 2 compliance (light), 2 correctness (large), the durable-knowledge pass (large) and one validator per candidate.",
+    "diff": "variants/p11.diff"
+  },
+  {
+    "id": "p12",
+    "commit": "0e3cbd5ea8ed4c46b66fd1d789554000031b5360",
+    "base": "ef9c3baf3c179a3dd3c14fa35c765e0e32964685",
+    "branch": "pr-review-single-correctness",
+    "change": "p11 with one correctness pass that covers obvious bugs, logic, security and test coverage in the same pass.",
+    "diff": "variants/p12.diff"
+  },
+  {
+    "id": "cr",
+    "commit": null,
+    "base": null,
+    "branch": null,
+    "change": "Anthropic's `code-review` plugin 1.0.1 (`/code-review` command), run as an outside baseline.",
+    "diff": null
+  }
+]

@@ -1,0 +1,46 @@
+{
+ "run": "images71-p4-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.69,
+ "duration_s": 63,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.45,
+  "claude-sonnet-5-5": 0.24
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no added line that breaks a quotable rule in AGENTS.md, docs/agents/domain.md, GLOSSARY.md or an ADR.\n\n- **Glossary:** The new \"Claude default settings\" entry follows the existing term, definition and `_Avoid_` format.\n- **Comments:** The added comments in the Dockerfile, the `.service` file and `smoke.sh` each state a constraint, so none restates the code.\n- **ADRs:** No ADR contains an added ADR-style implementation detail, and the diff adds none.\n- **ADR 0012:** The settings file is written into `~/.claude/` at each start, not installed under a home directory, so \"Nothing under a home directory\" is not contradicted.\n- **ADR 0016:** The ADR says pre-approval \"only grants: nothing is ever revoked\". Overwriting `~/.claude/settings.json` at each start could drop an earlier `enableAllProjectMcpServers` when pre-approval is off. But ADR 0016 describes the pre-approval choices, not this file, and the new service runs `Before=claude-pre-approval.service`. I did not count this as a contradiction.\n- **PR dismissals:** I did not flag the duplicated content between `.claude/settings.json` and `claude-default-settings.json` as a DRY violation. That would be a judgement call, not a quotable breach."
+  },
+  {
+   "description": "Correctness pass",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no issue that meets the bar of trigger, path and outcome.\n\n- **Ordering:** `claude-default-settings.service` is ordered `Before=` both `claude-pre-approval.service` and `claude-remote-control.service`, and `agent-services.target` pulls all three in with `Wants=`. The pre-approval merge therefore always runs on top of the defaults file.\n- **Symlinked target:** `claude-pre-approval` resolves the path with `readlink -f` before merging, and `cp` writes through the link. Both keep a dotfiles symlink intact, so the new smoke assertions match the code.\n- **File mode:** the copied `settings.json` can be mode 0644 on a fresh home. It holds no credentials, and the sign-in file `~/.claude.json` is still written under `umask 077`.\n- **Documented overwrite:** the whole file is replaced at each start, including any keys the user added. The unit description, `GLOSSARY.md` and `docs/usage/coder-template.md` all say this, so it is not a mismatch.\n- **Tests:** the smoke second boot checks that a symlinked target ends up equal to the defaults minus `enableAllProjectMcpServers`. The both-choices-off boot checks that a fresh home gets a file identical to the defaults, with no `enableAllProjectMcpServers`.\n\nI read the diff and the surrounding unit files, `claude-pre-approval`, `run-in-tmux`, `coder-agent.service` and `smoke.sh`. I did not open `templates/coder/main.tf`, which also references `agent-services`."
+  },
+  {
+   "description": "Durable-knowledge pass",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Result: none.** No added line meets the bar of a quotable line plus a named rule it breaks.\n\nChecked in diff mode against the added lines only, plus the AGENTS.md and domain.md rules.\n\n| Anchor | Added text | Verdict | Evidence |\n|---|---|---|---|\n| `GLOSSARY.md` › Claude default settings | \"…gives every workspace user, taking precedence over the user's own.\" with `_Avoid_: Managed settings, baked-in settings` | KEEP | It is a term definition with no code or implementation detail. The precedence claim holds because `claude-default-settings.service` runs `cp` over `~/.claude/settings.json` at each start. The term is used consistently in the docs, the service `Description=` and the smoke messages. |\n| `docs/usage/coder-template.md` | \"…written over `~/.claude/settings.json` at every workspace start, so a change made there lasts only until the next start; `~/.claude.json` and project settings are untouched.\" | KEEP | It states a durable constraint. The file path is an interface a reader needs, not provenance. The \"untouched\" claim matches the unit, which only copies to `settings.json`. |\n| `claude-default-settings.service` | \"# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.\" | KEEP | It explains why the `Before=` ordering exists, which the code cannot show. |\n| `claude-default-settings.service` | \"# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.\" | KEEP | It records a rejected alternative that still constrains behaviour. The smoke test asserts the symlink survives (`readlink … = ../dotfiles/settings.json`). |\n| `smoke.sh` | \"# shellcheck disable=SC2016 # jq's own $d\" | KEEP | It gives the reason for a lint suppression. |\n\n- **Unchanged comment now partly stale (not an added line, so not a finding):** `smoke.sh` line 64 still says \"(with a setting of the user's own)\". After this PR the user's own `model` setting is overwritten by the defaults, so the parenthetical describes a fixture rather than a preserved value. It is pre-existing text, so it is out of diff scope.\n- **ADRs:** this PR adds no ADR and has no code in an ADR.\n- **Glossary vocabulary:** there is no drift. \"Claude pre-approval\" and \"Claude default settings\" are used as defined.\n\n**Dismissed findings log:** I dismissed no reviewer findings."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No issues found. The title and description match the change. The compliance, correctness and documentation passes raised no findings: the defaults unit runs before Claude pre-approval and remote control, it writes through a symlinked settings file, and the glossary and usage docs state that the defaults overwrite the user's settings at every start.",
+  "comments": []
+ },
+ "candidates": []
+}

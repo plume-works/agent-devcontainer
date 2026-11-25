@@ -1,0 +1,5 @@
+.github/workflows/images.yml
+README.md
+docs/adr/0020-pull-requests-from-collaborators-only.md
+docs/adr/0021-build-cache-in-the-registry.md
+images/docker-bake.hcl

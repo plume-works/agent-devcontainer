@@ -1,0 +1,199 @@
+diff --git a/.github/workflows/images.yml b/.github/workflows/images.yml
+index 7ec59af..5a41579 100644
+--- a/.github/workflows/images.yml
++++ b/.github/workflows/images.yml
+@@ -16,9 +16,8 @@ concurrency:
+ 
+ env:
+   REGISTRY: ghcr.io/plume-works
+-  # Publish for same-repository pull requests (Renovate's included) and for main. Forks build and test only;
+-  # a manual run on another branch must not move edge.
+-  PUBLISH: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name != 'pull_request' && github.ref == 'refs/heads/main') }}
++  # A manual run on another branch must not move edge.
++  PUBLISH: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+ 
+ jobs:
+   # Only a change to an image builds and publishes; Renovate's pin bumps of our own images (.devcontainer.json,
+@@ -82,8 +81,8 @@ jobs:
+       # Default docker-container driver: push-by-digest is not available with the plain docker driver.
+       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+ 
++      # Every run reads and writes the build cache in GHCR, publishing or not.
+       - name: Log in to GHCR
+-        if: env.PUBLISH == 'true'
+         uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+         with:
+           registry: ghcr.io
+@@ -94,6 +93,7 @@ jobs:
+       - name: Build every image of this commit, load it, and push it by digest if publishing
+         env:
+           PUSH: ${{ env.PUBLISH }}
++          CACHE: true
+         working-directory: images
+         run: docker buildx bake --metadata-file "$RUNNER_TEMP/meta.json"
+ 
+@@ -125,7 +125,7 @@ jobs:
+ 
+   publish:
+     needs: build
+-    if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name != 'pull_request' && github.ref == 'refs/heads/main')
++    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+     runs-on: ubuntu-26.04
+     permissions:
+       contents: read
+diff --git a/README.md b/README.md
+index 802c754..42ed3a0 100644
+--- a/README.md
++++ b/README.md
+@@ -16,7 +16,8 @@ commit, so CI, workspaces and dev containers always have the same toolchain.
+ All four are published for `linux/amd64` and `linux/arm64`. The only tags are `edge` (the latest tested `main`;
+ it moves on all four images together, and only when every image passes on both architectures) and `pr-N` (a pull
+ request, deleted two weeks after it closes). There are no version tags: pin by tag and digest,
+-`<image>:edge@sha256:<digest>`, and let Renovate propose digest bumps.
++`<image>:edge@sha256:<digest>`, and let Renovate propose digest bumps. The `cache-amd64` and `cache-arm64` tags are CI's
++build cache, not images to pull.
+ 
+ **Not a goal for now:** an image deployed as a service that takes coding requests from agents. It is a known
+ future image, but the four images above should not grow features in anticipation of it.
+@@ -30,6 +31,9 @@ repository that needs it.
+ This repository is developed inside its own devcontainer base image (`.devcontainer.json`, privileged-mode
+ snippet), so the image gets continuous real use and its engine builds and tests the images.
+ 
++It takes no outside contributions: pull requests come from collaborators' branches of this repository, and forks
++are not supported ([ADR 0020](docs/adr/0020-pull-requests-from-collaborators-only.md)).
++
+ Each image lives in `images/<name>/` with its `Dockerfile` and `smoke.sh`; `images/docker-bake.hcl` lists them, and
+ `.github/workflows/images.yml` builds, tests and publishes them all.
+ 
+diff --git a/docs/adr/0020-pull-requests-from-collaborators-only.md b/docs/adr/0020-pull-requests-from-collaborators-only.md
+new file mode 100644
+index 0000000..3407f06
+--- /dev/null
++++ b/docs/adr/0020-pull-requests-from-collaborators-only.md
+@@ -0,0 +1,10 @@
++# Pull requests from collaborators only
++
++This repository takes no outside contributions. Pull requests come from collaborators' branches of this
++repository, and from Renovate. Forks are out of scope for every feature: nothing is designed or kept working for
++them, and a pull request from a fork fails its checks.
++
++## Considered Options
++
++- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).
++- A separate, reduced path for forks in each feature.
+diff --git a/docs/adr/0021-build-cache-in-the-registry.md b/docs/adr/0021-build-cache-in-the-registry.md
+new file mode 100644
+index 0000000..9f9462e
+--- /dev/null
++++ b/docs/adr/0021-build-cache-in-the-registry.md
+@@ -0,0 +1,16 @@
++# Build cache in the registry
++
++CI caches every build step of each image, separately for each architecture, in the image's own GHCR package
++beside its tags. Every CI run reads and writes it, pull requests and `main` alike. Local builds do not use it.
++
++## Considered Options
++
++- No cache: every run rebuilds every image from scratch.
++- The GitHub Actions cache: capped in size, evicts, and is scoped per branch.
++- A separate cache package per image: more packages to manage, for no gain.
++
++## Consequences
++
++- The cache tags are visible in each image's package.
++- A superseded cache stays as an untagged version, like the other untagged images the cleanup keeps.
++- Pull requests and `main` share one cache per image and architecture, so each overwrites the other's.
+diff --git a/images/docker-bake.hcl b/images/docker-bake.hcl
+index 96d64c6..40b4b59 100644
+--- a/images/docker-bake.hcl
++++ b/images/docker-bake.hcl
+@@ -14,6 +14,8 @@ variable "REGISTRY" { default = "ghcr.io/plume-works" }
+ variable "PUSH" { default = false }
+ # CI sets linux/amd64 or linux/arm64.
+ variable "PLATFORM" { default = "" }
++# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.
++variable "CACHE" { default = false }
+ 
+ # The local :ci tag the smoke scripts use. Set as the docker output's name, not as `tags`: bake would add `tags`
+ # to the push output too, and a tagged name cannot be pushed by digest.
+@@ -30,6 +32,22 @@ function "out" {
+   )
+ }
+ 
++function "cache_ref" {
++  params = [name]
++  result = "${REGISTRY}/${name}:cache-${replace(PLATFORM, "linux/", "")}"
++}
++
++function "cache_from" {
++  params = [name]
++  result = CACHE ? ["type=registry,ref=${cache_ref(name)}"] : []
++}
++
++# mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.
++function "cache_to" {
++  params = [name]
++  result = CACHE ? ["type=registry,ref=${cache_ref(name)},mode=max,image-manifest=true,oci-mediatypes=true"] : []
++}
++
+ group "default" {
+   targets = ["core", "core-systemd", "coder-template", "devcontainer-base"]
+ }
+@@ -40,31 +58,39 @@ target "_common" {
+ }
+ 
+ target "core" {
+-  inherits = ["_common"]
+-  context  = "core"
+-  output   = out("core")
++  inherits   = ["_common"]
++  context    = "core"
++  output     = out("core")
++  cache-from = cache_from("core")
++  cache-to   = cache_to("core")
+ }
+ 
+ target "core-systemd" {
+-  inherits = ["_common"]
+-  context  = "core-systemd"
+-  args     = { BASE_IMAGE = "parent" }
+-  contexts = { parent = "target:core" }
+-  output   = out("core-systemd")
++  inherits   = ["_common"]
++  context    = "core-systemd"
++  args       = { BASE_IMAGE = "parent" }
++  contexts   = { parent = "target:core" }
++  output     = out("core-systemd")
++  cache-from = cache_from("core-systemd")
++  cache-to   = cache_to("core-systemd")
+ }
+ 
+ target "coder-template" {
+-  inherits = ["_common"]
+-  context  = "coder-template"
+-  args     = { BASE_IMAGE = "parent" }
+-  contexts = { parent = "target:core-systemd" }
+-  output   = out("coder-template")
++  inherits   = ["_common"]
++  context    = "coder-template"
++  args       = { BASE_IMAGE = "parent" }
++  contexts   = { parent = "target:core-systemd" }
++  output     = out("coder-template")
++  cache-from = cache_from("coder-template")
++  cache-to   = cache_to("coder-template")
+ }
+ 
+ target "devcontainer-base" {
+-  inherits = ["_common"]
+-  context  = "devcontainer-base"
+-  args     = { BASE_IMAGE = "parent" }
+-  contexts = { parent = "target:core-systemd" }
+-  output   = out("devcontainer-base")
++  inherits   = ["_common"]
++  context    = "devcontainer-base"
++  args       = { BASE_IMAGE = "parent" }
++  contexts   = { parent = "target:core-systemd" }
++  output     = out("devcontainer-base")
++  cache-from = cache_from("devcontainer-base")
++  cache-to   = cache_to("devcontainer-base")
+ }

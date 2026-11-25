@@ -1,0 +1,236 @@
+diff --git a/.hadolint.yaml b/.hadolint.yaml
+index 4504bff..5aa2a47 100644
+--- a/.hadolint.yaml
++++ b/.hadolint.yaml
+@@ -1,2 +1,2 @@
+ ignored:
+-  - DL3008 # apt packages float within the Ubuntu release by design; everything else is pinned
++  - DL3008 # apt packages are pinned by the Ubuntu archive snapshot (ADR 0022), not one by one
+diff --git a/README.md b/README.md
+index 42ed3a0..4c785f1 100644
+--- a/README.md
++++ b/README.md
+@@ -89,7 +89,7 @@ $T fmt -check -diff && $T init -backend=false -input=false && $T validate
+ 
+ Everything is pinned, and a pin changes only through a pull request that passes the same build, test and `pr-N`
+ publish as any other, opened by [Renovate](https://docs.renovatebot.com/) ([`renovate.json`](renovate.json)).
+-Apt packages, Git included, are the exception: they float within the Ubuntu release.
++Apt packages come from a dated snapshot of the Ubuntu archive ([ADR 0022](docs/adr/0022-all-inputs-are-pinned.md)).
+ 
+ To pin a new tool in a Dockerfile, put an `ARG <NAME>_VERSION` (a plain `<NAME>_VERSION=` in a `smoke.sh`)
+ directly below a `# renovate:` comment, with no `v` prefix on the value:
+diff --git a/docs/adr/0013-nothing-updates-itself.md b/docs/adr/0013-nothing-updates-itself.md
+index d24b077..e77f784 100644
+--- a/docs/adr/0013-nothing-updates-itself.md
++++ b/docs/adr/0013-nothing-updates-itself.md
+@@ -7,5 +7,5 @@ core systemd image turns off the OS's periodic updates for the same reason.
+ 
+ ## Consequences
+ 
+-- Apt packages are the exception to pinning: they float within the Ubuntu release, so a rebuild can pick up
+-  newer ones, but only through a build that passes the same tests.
++- Apt packages are pinned too, to a dated snapshot of the Ubuntu archive
++  ([ADR 0022](0022-all-inputs-are-pinned.md)).
+diff --git a/docs/adr/0019-renovate-release-wait.md b/docs/adr/0019-renovate-release-wait.md
+index 3590c7c..f497cbe 100644
+--- a/docs/adr/0019-renovate-release-wait.md
++++ b/docs/adr/0019-renovate-release-wait.md
+@@ -4,11 +4,13 @@ Renovate keeps pins current. Updates merge on their own once the build passes, b
+ the release is 3 days old, because the build cannot tell a bad release from a good one.
+ An `x.y.0` release waits 10 days, since those usually have the most bugs.
+ 
+-Two kinds of pin skip the wait, because their registries do not say when a release was published:
++Three kinds of pin skip the wait, because their registries do not say when a release was published:
+ 
+ - Our own images bump as soon as `edge` moves. CI has already built and tested them.
+ - Docker's engine packages bump as soon as Docker's apt repository has them. That repository already
+   publishes hours or days after GitHub does.
++- The Ubuntu archive snapshot bumps as soon as the archive changes, since it carries security fixes
++  ([ADR 0022](0022-all-inputs-are-pinned.md)).
+ 
+ ## Considered Options
+ 
+diff --git a/docs/adr/0022-all-inputs-are-pinned.md b/docs/adr/0022-all-inputs-are-pinned.md
+new file mode 100644
+index 0000000..c216668
+--- /dev/null
++++ b/docs/adr/0022-all-inputs-are-pinned.md
+@@ -0,0 +1,20 @@
++# All inputs are pinned
++
++Every input to an image is pinned, and a pin changes only through a pull request that passes the tests. Ubuntu's
++packages come from a dated snapshot of its archive, set in the core image's apt config, and Renovate proposes the
++latest snapshot at most once a day. An input that floats cannot be traced: a cached build quietly keeps an old
++version, and an uncached one gives new digests every time, so no build could be shown to be unchanged.
++
++## Considered Options
++
++- Apt packages float within the Ubuntu release (the previous rule, in ADR 0013 and the README).
++- Pinning each apt package's version: the Ubuntu archive drops superseded versions, so old pins stop installing.
++
++## Consequences
++
++- The images keep the snapshot in apt's config, so `apt-get install` in a container or CI job gets that day's
++  versions too, matching the image's own packages, until a newer image.
++- Docker's apt repository has no snapshots, so its packages pin their versions, `containerd.io` down to the package
++  revision.
++- The snapshot bumps without the release wait of [ADR 0019](0019-renovate-release-wait.md): it carries security
++  fixes, and Ubuntu's updates have already passed its own testing.
+diff --git a/docs/usage/core.md b/docs/usage/core.md
+index 21cb9d8..f84f7a8 100644
+--- a/docs/usage/core.md
++++ b/docs/usage/core.md
+@@ -15,6 +15,9 @@ non-root user `dev` (UID 1000, passwordless sudo, in the `docker` group) exists
+ 
+ git authenticates to GitHub through the GitHub CLI wherever `GH_TOKEN` or `GITHUB_TOKEN` is set.
+ 
++apt installs from the same dated Ubuntu archive snapshot the image was built from, so `apt-get install` in a job
++gets the versions of that day; a newer image moves the snapshot.
++
+ ## Docker in a CI job
+ 
+ A job container does not run systemd, so `start-docker` starts the engine and returns once it is ready (calling it
+diff --git a/images/core-systemd/Dockerfile b/images/core-systemd/Dockerfile
+index e62764b..f964040 100644
+--- a/images/core-systemd/Dockerfile
++++ b/images/core-systemd/Dockerfile
+@@ -5,8 +5,8 @@ FROM ${BASE_IMAGE}
+ 
+ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ 
+-# dbus-user-session and libpam-systemd: what dev's per-user manager needs.
+-RUN apt-get update \
++# dbus-user-session and libpam-systemd: what dev's per-user manager needs. From the core image's apt snapshot.
++RUN apt-get update --error-on=any \
+  && apt-get install -y --no-install-recommends systemd systemd-sysv dbus dbus-user-session libpam-systemd \
+  && rm -rf /var/lib/apt/lists/*
+ 
+diff --git a/images/core/Dockerfile b/images/core/Dockerfile
+index 19900bf..d8aceab 100644
+--- a/images/core/Dockerfile
++++ b/images/core/Dockerfile
+@@ -3,10 +3,18 @@ FROM ubuntu:26.04@sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0da0
+ 
+ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ 
++# Ubuntu's packages come from a dated snapshot of its archive (ADR 0022), set in apt's config so every later
++# `apt-get update`, here and in child images, uses it. The base image has no CA certificates yet, so this first
++# step skips TLS peer checks for the snapshot host; apt still checks the archive's signatures and hashes.
++# --error-on=any: apt otherwise ignores a failed index download and installs from what it already has.
++# renovate: datasource=custom.ubuntu-snapshot depName=ubuntu-snapshot versioning=regex:^(?<major>\d{8})T(?<minor>\d{6})Z$
++ARG UBUNTU_SNAPSHOT_VERSION=20261121T095046Z
+ # jq and btop are interactive conveniences outside the admission rule below. tmux: the Coder template image runs
+ # its agent services inside it (ADR 0015).
+-RUN apt-get update \
+- && apt-get install -y --no-install-recommends btop ca-certificates curl git gnupg jq sudo tmux unzip xz-utils \
++RUN echo "APT::Snapshot \"${UBUNTU_SNAPSHOT_VERSION}\";" > /etc/apt/apt.conf.d/50snapshot \
++ && no_ca=Acquire::https::snapshot.ubuntu.com::Verify-Peer=false \
++ && apt-get update --error-on=any -o "$no_ca" \
++ && apt-get install -y --no-install-recommends -o "$no_ca" btop ca-certificates curl git gnupg jq sudo tmux unzip xz-utils \
+  && rm -rf /var/lib/apt/lists/*
+ 
+ # The base image's user `ubuntu` holds UID 1000.
+@@ -41,7 +49,7 @@ RUN for host in github.com gist.github.com; do \
+ # only once, so anything installed there would freeze at that day's version and shadow newer images.
+ # Admission rule: a build toolchain is added only when at least two plume-works repositories need it in CI.
+ 
+-# Git LFS from the release tarball, pinned (Ubuntu's package floats).
++# Git LFS from the release tarball, newer than Ubuntu's.
+ # renovate: datasource=github-releases depName=git-lfs/git-lfs extractVersion=^v(?<version>.+)$
+ ARG GIT_LFS_VERSION=3.8.1
+ RUN a=$(dpkg --print-architecture); f="git-lfs-linux-$a-v${GIT_LFS_VERSION}.tar.gz"; d=$(mktemp -d) \
+@@ -54,7 +62,7 @@ RUN a=$(dpkg --print-architecture); f="git-lfs-linux-$a-v${GIT_LFS_VERSION}.tar.
+  && git lfs install --system --skip-repo \
+  && rm -rf "$d"
+ 
+-RUN apt-get update \
++RUN apt-get update --error-on=any \
+  && apt-get install -y --no-install-recommends python3 python-is-python3 \
+  && rm -rf /var/lib/apt/lists/*
+ # With no Python of its own, uv uses Ubuntu's. A user's own extra Pythons and tools go to their home.
+@@ -98,7 +106,7 @@ RUN case "$(uname -m)" in x86_64) f=ninja-linux.zip ;; aarch64) f=ninja-linux-aa
+  && unzip -q "$d/$f" -d /usr/local/bin \
+  && rm -rf "$d"
+ 
+-# Ubuntu's fish package floats. bash stays dev's shell.
++# fish from upstream, newer than Ubuntu's. bash stays dev's shell.
+ # renovate: datasource=github-releases depName=fish-shell/fish-shell
+ ARG FISH_VERSION=4.9.3
+ RUN d=$(mktemp -d) \
+@@ -157,7 +165,8 @@ RUN install -d /etc/claude-code /etc/environment.d \
+  && printf '%s\n' DISABLE_AUTOUPDATER=1 DISABLE_UPDATES=1 OPENCODE_DISABLE_AUTOUPDATE=1 \
+       | tee -a /etc/environment > /etc/environment.d/50-no-self-update.conf
+ 
+-# Docker's apt repository keeps old versions, so these pin; containerd.io floats. The packages enable docker.service and containerd.service for systemd,
++# Docker's apt repository keeps old versions, so these pin. containerd.io pins its package revision too, since
++# Docker republishes it under new revisions. The packages enable docker.service and containerd.service for systemd,
+ # which the core systemd image relies on; here, without systemd, start-docker runs the engine on demand.
+ # renovate: datasource=deb depName=docker-ce extractVersion=^5:(?<version>[^-]+)-
+ ARG DOCKER_VERSION=29.10.0
+@@ -165,15 +174,17 @@ ARG DOCKER_VERSION=29.10.0
+ ARG BUILDX_VERSION=0.39.1
+ # renovate: datasource=deb depName=docker-compose-plugin extractVersion=^(?<version>[^-]+)-
+ ARG COMPOSE_VERSION=5.8.0
++# renovate: datasource=deb depName=containerd.io versioning=deb extractVersion=^(?<version>[^~]+)~
++ARG CONTAINERD_VERSION=2.4.2-4
+ RUN install -m0755 -d /etc/apt/keyrings \
+  && curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc \
+  && . /etc/os-release \
+  && echo "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu ${VERSION_CODENAME} stable" \
+       > /etc/apt/sources.list.d/docker.list \
+- && apt-get update \
++ && apt-get update --error-on=any \
+  && apt-get install -y --no-install-recommends \
+       "docker-ce=5:${DOCKER_VERSION}-*" "docker-ce-cli=5:${DOCKER_VERSION}-*" \
+-      "docker-buildx-plugin=${BUILDX_VERSION}-*" "docker-compose-plugin=${COMPOSE_VERSION}-*" containerd.io \
++      "docker-buildx-plugin=${BUILDX_VERSION}-*" "docker-compose-plugin=${COMPOSE_VERSION}-*" "containerd.io=${CONTAINERD_VERSION}~*" \
+  && rm -rf /var/lib/apt/lists/* \
+  && usermod -aG docker dev
+ COPY --chmod=0755 start-docker /usr/local/bin/start-docker
+diff --git a/renovate.json b/renovate.json
+index 507af44..2c653c2 100644
+--- a/renovate.json
++++ b/renovate.json
+@@ -9,13 +9,23 @@
+   "automerge": true,
+   "prHourlyLimit": 0,
+   "minimumReleaseAge": "3 days",
++  "customDatasources": {
++    "ubuntu-snapshot": {
++      "description": "The Ubuntu archive snapshot the core image's apt uses (docs/adr/0022-all-inputs-are-pinned.md). The snapshot service lists no snapshots and takes any timestamp, so the latest is the moment the security pocket last changed, read from its InRelease Date line (a snapshot at that moment includes it). The suite is the codename of the core image's Ubuntu release: change it with that release",
++      "defaultRegistryUrlTemplate": "http://archive.ubuntu.com/ubuntu/dists/resolute-security/InRelease",
++      "format": "plain",
++      "transformTemplates": [
++        "($m := $match(releases[$substring(version, 0, 6) = \"Date: \"].version, /(\\d+) (\\w{3}) (\\d{4}) +(\\d+):(\\d{2}):(\\d{2})/).groups; {\"releases\": [{\"version\": $m[2] & $lookup({\"Jan\": \"01\", \"Feb\": \"02\", \"Mar\": \"03\", \"Apr\": \"04\", \"May\": \"05\", \"Jun\": \"06\", \"Jul\": \"07\", \"Aug\": \"08\", \"Sep\": \"09\", \"Oct\": \"10\", \"Nov\": \"11\", \"Dec\": \"12\"}, $m[1]) & $pad($m[0], -2, \"0\") & \"T\" & $pad($m[3], -2, \"0\") & $m[4] & $m[5] & \"Z\"}]})"
++      ]
++    }
++  },
+   "customManagers": [
+     {
+       "customType": "regex",
+       "description": "<NAME>_VERSION pins below a `# renovate:` comment in Dockerfiles and smoke scripts",
+       "managerFilePatterns": ["/(^|/)Dockerfile$/", "/(^|/)smoke\\.sh$/"],
+       "matchStrings": [
+-        "# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>[^\\s]+?)(?: packageName=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: extractVersion=(?<extractVersion>[^\\s]+?))?\\s+(?:ARG )?[A-Z0-9_]+?_VERSION=(?<currentValue>[^\\s]+)"
++        "# renovate: datasource=(?<datasource>[a-z.-]+?) depName=(?<depName>[^\\s]+?)(?: packageName=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: extractVersion=(?<extractVersion>[^\\s]+?))?\\s+(?:ARG )?[A-Z0-9_]+?_VERSION=(?<currentValue>[^\\s]+)"
+       ],
+       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver-coerced{{/if}}",
+       "extractVersionTemplate": "{{#if extractVersion}}{{{extractVersion}}}{{else}}^v?(?<version>.+)${{/if}}"
+@@ -35,10 +45,16 @@
+     {
+       "description": "Docker's packages are looked up in the apt repository the core image installs them from, which publishes a release hours or days after GitHub does, so Renovate proposes only versions that install. The suite is the codename of the core image's Ubuntu release: change it with that release. The apt repository publishes no release timestamps, so these updates go ahead without the release wait rather than being held forever",
+       "matchDatasources": ["deb"],
+-      "matchPackageNames": ["docker-*"],
++      "matchPackageNames": ["docker-*", "containerd.io"],
+       "registryUrls": ["https://download.docker.com/linux/ubuntu?suite=resolute&components=stable&binaryArch=amd64"],
+       "minimumReleaseAgeBehaviour": "timestamp-optional"
+     },
++    {
++      "description": "The Ubuntu snapshot bumps with no release wait: it carries security fixes, and Ubuntu's updates have already passed its own -proposed testing. The archive changes several times a day, so it bumps only in a daily window: at most one rebuild a day",
++      "matchDatasources": ["custom.ubuntu-snapshot"],
++      "minimumReleaseAge": null,
++      "schedule": ["* 0-3 * * *"]
++    },
+     {
+       "description": "An x.y.0 release waits longer than the default, since those usually carry the most bugs",
+       "matchNewValue": "/^v?\\d+\\.\\d+\\.0$/",

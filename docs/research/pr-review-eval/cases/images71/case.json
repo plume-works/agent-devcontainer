@@ -1,0 +1,17 @@
+{
+  "source": "plume-works/images",
+  "pr": 71,
+  "head": "726ba5a912771c9afa9b54a824f58d8e2dc8683c",
+  "base": "1247ef73cba16ebabe7f5ed2bd9f60c5734c7d25",
+  "description": "As published when the head commit was pushed.",
+  "threads": "none",
+  "expected": [
+    {
+      "id": "dangling-symlink",
+      "title": "The defaults unit fails on a dangling `~/.claude/settings.json` symlink",
+      "detail": "GNU `cp` refuses to write through a destination symlink whose target is missing, so the unit fails and the Claude default settings are never written; a dotfiles checkout without `settings.json` leaves exactly that state on the persistent home volume.",
+      "expect": "posted",
+      "match": "dangling"
+    }
+  ]
+}

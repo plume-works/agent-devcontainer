@@ -1,0 +1,61 @@
+{
+  "source": "plume-works/images",
+  "pr": 75,
+  "head": "a94298e0d2f81a27a69b8ab5cc5b00b3ec280e80",
+  "base": "8640351b713243b5b6b399e03f9e6ec9009a4e69",
+  "description": "Hand-corrected to match the head commit, so the metadata check passes and the review passes run.",
+  "threads": "Same as images75.",
+  "expected": [
+    {
+      "id": "daily-window",
+      "title": "The daily Renovate window does not limit snapshot bumps to one a day",
+      "detail": "`schedule: [\"* 0-3 * * *\"]` is a four-hour window; Renovate acts on every run inside it (and `updateNotScheduled` defaults to true), so two archive publications can produce two automerged bumps on one day, breaking the rule description's and ADR 0022's \"at most one rebuild a day\".",
+      "expect": "posted",
+      "match": "0-3|four-hour|4-hour|updateNotScheduled|one (?:re)?build a day|one bump a day|once a day|per day",
+      "path_include": "renovate.json"
+    },
+    {
+      "id": "adr-impl-details",
+      "title": "ADR 0022 carries implementation details",
+      "detail": "ADR 0022 names apt's config file, the `apt-get install` command and the containerd.io revision pin; the repository's AGENTS.md forbids implementation details in an ADR.",
+      "expect": "posted",
+      "match": "implementation detail|IMPLEMENTATION DETAILS|implementation mechanism|code implementation"
+    },
+    {
+      "id": "smoke-test",
+      "title": "No smoke test checks that the image keeps the apt snapshot",
+      "detail": "`docs/usage/core.md` and ADR 0022 promise that apt in the image and its children keeps reading the pinned snapshot; no `smoke.sh` asserts `APT::Snapshot`.",
+      "expect": "posted",
+      "match": "smoke"
+    },
+    {
+      "id": "plain-http",
+      "title": "The snapshot datasource reads an unsigned InRelease over plain HTTP",
+      "detail": "Renovate fetches InRelease over `http://` and reads its `Date:` without a signature check; a forged date becomes an automerged pin.",
+      "expect": "posted",
+      "match": "plain[ -]?`?http|http://|signature"
+    },
+    {
+      "id": "adr0019-claim",
+      "title": "ADR 0019 misstates the snapshot exemption",
+      "detail": "ADR 0019 says the snapshot bumps \"as soon as the archive changes\" and puts it under a lead-in (\"registries do not say when a release was published\") that does not fit it; the config bumps only in a daily window.",
+      "expect": "posted",
+      "match": "as soon as|registries do not say|lead-in",
+      "path_include": "0019"
+    },
+    {
+      "id": "adr0022-pointer",
+      "title": "Stale pointer in ADR 0022",
+      "detail": "\"(the previous rule, in ADR 0013 and the README)\" points at text this same PR removes.",
+      "expect": "posted",
+      "match": "previous rule"
+    },
+    {
+      "id": "thread-reraised",
+      "title": "The answered midnight-snapshot thread is raised again",
+      "detail": "Fixed at the head; raising it again is a false finding.",
+      "expect": "not-posted",
+      "match": "midnight|predat|truncat|keeps? only the (?:day|date)|only the date"
+    }
+  ]
+}

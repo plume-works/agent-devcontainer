@@ -1,0 +1,23 @@
+{
+  "source": "plume-works/images",
+  "pr": 75,
+  "head": "a94298e0d2f81a27a69b8ab5cc5b00b3ec280e80",
+  "base": "8640351b713243b5b6b399e03f9e6ec9009a4e69",
+  "description": "As published at the head commit: it still describes the previous commit (midnight snapshot, `T000000Z` dry run), so it is stale.",
+  "threads": "One earlier thread on `renovate.json`: a reviewer's midnight-snapshot finding and the author's \"Fixed in a94298e\" reply.",
+  "expected": [
+    {
+      "id": "gate-stop",
+      "title": "The metadata check stops the review on the stale description",
+      "detail": "The description says the snapshot is the day the pocket changed and shows a `T000000Z` dry run; the head pins the exact publication time.",
+      "expect": "gate-stop"
+    },
+    {
+      "id": "thread-reraised",
+      "title": "The answered midnight-snapshot thread is raised again",
+      "detail": "The earlier thread was fixed at the head; raising it again is a false finding.",
+      "expect": "not-posted",
+      "match": "midnight|predat|truncat|keeps? only the (?:day|date)|only the date"
+    }
+  ]
+}

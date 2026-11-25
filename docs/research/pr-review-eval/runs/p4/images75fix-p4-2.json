@@ -1,0 +1,139 @@
+{
+ "run": "images75fix-p4-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.76,
+ "duration_s": 204,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.45,
+  "claude-sonnet-5-5": 0.31
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 75",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "One possible violation, borderline. Nothing else in the added lines breaks a quotable rule.\n\n**1. `docs/adr/0022-all-inputs-are-pinned.md`: implementation details in an ADR (borderline)**\n- Added lines:\n  - \"Ubuntu's packages come from a dated snapshot of its archive, set in the core image's apt config, and Renovate proposes the latest snapshot at most once a day.\"\n  - \"The images keep the snapshot in apt's config, so `apt-get install` in a container or CI job gets that day's versions too…\"\n  - \"Docker's apt repository has no snapshots, so its packages pin their versions, `containerd.io` down to the package revision.\"\n- Rule, from `/tmp/pr-review-eval-7c1e/runs/images75fix-p4-2/repo/AGENTS.md`: \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"\n- Why it breaks: these lines say where and how the pin is wired. They name the apt config location, Renovate's once-a-day cadence, and per-package revision pinning. The decision itself is only \"pin all inputs, with apt via a dated snapshot\". The mechanism belongs in the Dockerfile and `renovate.json`, which already carry it.\n- Confidence is moderate, because the lines also state consequences that are arguably decisions.\n\n**Checked and found compliant**\n- **Superseded ADR:** ADR 0013 is edited rather than replaced, and ADR 0022 lists the old \"apt floats\" decision under \"Considered Options\". Nothing needs deleting.\n- **README pin convention:** `ARG UBUNTU_SNAPSHOT_VERSION` and `ARG CONTAINERD_VERSION` sit directly below a `# renovate:` comment, with no `v` prefix.\n- **Code comments:** the new Dockerfile comments state constraints (no CA certificates yet, `--error-on=any`, the revision republish), so they pass.\n- **GLOSSARY.md:** no term from it is contradicted, and the diff adds no new domain term that needs an entry.\n\n**Dismissed finding, for the human review the instructions require**\n- The core-systemd Dockerfile comment \"From the core image's apt snapshot.\" arguably restates what the code shows. I dismissed it because I could not quote a rule it clearly breaks."
+  },
+  {
+   "description": "Durable-knowledge pass PR 75",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Findings (2 reportable, 1 low-confidence note)**\n\n**1. `docs/adr/0022-all-inputs-are-pinned.md`, implementation detail in an ADR**\n- Added line: `latest snapshot at most once a day.` (in \"...and Renovate proposes the latest snapshot at most once a day.\")\n- Rule broken: AGENTS.md says \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"\n- Verdict: DROP the frequency clause. It describes the Renovate `schedule` setting (`\"* 0-3 * * *\"`), which is configuration.\n  - The same text is already in the `renovate.json` rule description (\"at most one rebuild a day\"), so no fact is lost.\n  - Suggested replacement: \"...and Renovate proposes the latest snapshot.\"\n  - Evidence: `renovate.json` › \"it bumps only in a daily window: at most one rebuild a day\".\n\n**2. `docs/adr/0022-all-inputs-are-pinned.md`, implementation detail in an ADR**\n- Added lines:\n  - `- The images keep the snapshot in apt's config, so \\`apt-get install\\` in a container or CI job gets that day's`\n  - `- Docker's apt repository has no snapshots, so its packages pin their versions, \\`containerd.io\\` down to the package` / `  revision.`\n  - `Ubuntu's packages come from a dated snapshot of its archive, set in the core image's apt config,`\n- Rule broken: same AGENTS.md ADR rule. These name the mechanism (the apt config file, the `containerd.io` revision suffix).\n- Verdict: REWRITE to decisions only.\n  - The `apt-get install` bullet is also described in `docs/usage/core.md`, so DROP it from the ADR.\n  - Suggested replacement for the lead sentence: \"Ubuntu's packages come from a dated snapshot of its archive, and Renovate proposes the latest snapshot.\"\n  - Suggested replacement for the Docker bullet: \"Docker's apt repository has no snapshots, so its packages are pinned individually, including `containerd.io`.\"\n  - Keep the 0019 bullet (snapshot bumps without the release wait, because it carries security fixes).\n  - The revision-level pin detail already lives in the Dockerfile comment and `ARG CONTAINERD_VERSION`.\n- Anchors for the facts: `images/core/Dockerfile` › \"ARG CONTAINERD_VERSION=2.4.2-4\" and `docs/usage/core.md`.\n\n**3. Low confidence, dated claims in code comments (`images/core/Dockerfile`)**\n- Added lines:\n  - `# Git LFS from the release tarball, newer than Ubuntu's.`\n  - `# fish from upstream, newer than Ubuntu's. bash stays dev's shell.`\n- Rule broken: the comment rule (\"a constraint, gotcha ... the code cannot show\") and the durable-knowledge test, \"would this still be true if the code were rewritten from scratch?\". \"Newer than Ubuntu's\" is a dated comparison, and it stops being true as soon as Ubuntu's package catches up.\n- Verdict: UNVERIFIED, since Ubuntu's package versions can't be checked offline.\n  - Suggested replacement, if the reason is that upstream is the source: \"Git LFS from the upstream release tarball.\" and \"fish from upstream.\"\n  - Alternatively state the actual constraint, for example that Ubuntu's package is unavailable or too old for a named requirement.\n\n**Checked and kept (no finding)**\n- README, ADR 0013, ADR 0019 and `docs/usage/core.md` lines read as durable decisions or user-facing facts.\n- The \"Considered Options\" entry in ADR 0022 correctly lists the old rule (apt floating, ADR 0013) as the repo rule requires. ADR 0013 is edited rather than superseded, so no deletion is owed.\n- The `core/Dockerfile` comments are why-comments and pass the audit:\n  - The TLS-skip comment (\"The base image has no CA certificates yet...\").\n  - The `--error-on=any` comment.\n  - The Docker/containerd pin comment.\n- The `renovate.json` descriptions, `.hadolint.yaml`, and the `core-systemd` comment (\"From the core image's apt snapshot.\") also pass. The `renovate.json` descriptions are long but state constraints.\n\n**Dismissed findings log (for the human report)**\n- The \"(the previous rule, in ADR 0013 and the README)\" parenthetical in ADR 0022 is mild provenance, but it serves the repo rule to list the old decision under \"Considered options\". Dismissed.\n- The long `ubuntu-snapshot` description in `renovate.json` describes snapshot-service behavior, a dated third-party claim. It explains why the datasource reads the InRelease Date line, so it is a constraint. Dismissed."
+  },
+  {
+   "description": "Correctness pass security/logic PR 75",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one issue: the claim of at most one snapshot rebuild a day does not hold. I found no other significant, high-confidence issues.\n\n**Finding 1: the daily window does not cap snapshot bumps at one rebuild a day**\n\nAdded lines in `renovate.json`, rule for `custom.ubuntu-snapshot`:\n```\n\"description\": \"... it bumps only in a daily window: at most one rebuild a day\",\n\"matchDatasources\": [\"custom.ubuntu-snapshot\"],\n\"minimumReleaseAge\": null,\n\"schedule\": [\"* 0-3 * * *\"]\n```\nADR 0022 makes the same promise (\"Renovate proposes the latest snapshot at most once a day\").\n\n- **Trigger:** Ubuntu's security pocket gets a newer InRelease `Date:` while the window is open or while a snapshot PR is still open. The rule's own description says the archive changes several times a day, so this is the normal case.\n- **Path:** `renovate.json::customDatasources.ubuntu-snapshot.transformTemplates` returns one release, the current `Date:`, on every Renovate run. That goes to `renovate.json::packageRules[custom.ubuntu-snapshot].schedule` (`* 0-3 * * *`, a 4-hour window), then to `renovate.json::automerge: true`, and finally to `images/core/Dockerfile::ARG UBUNTU_SNAPSHOT_VERSION`.\n- **Outcome:** The schedule only limits when Renovate may create a branch. It does not limit how many bumps happen in a day. Two ways it breaks:\n  - Renovate runs several times inside the 4-hour window. Once the first bump automerges, a later run in the same window sees a newer `Date:` and opens another bump. Nothing ties the window to one bump.\n  - The rule leaves `updateNotScheduled` at Renovate's default (true), and `automergeSchedule` is unset (default: any time). So if a snapshot PR is still open after 03:00 because CI is slow or failed, Renovate keeps pushing newer snapshots to it outside the window. Each push triggers a new full build on both architectures, and it automerges whenever CI passes.\n\n  The result is several snapshot rebuilds and pushes to `edge` in a day, against the guarantee in the rule's description and in ADR 0022.\n- **Fix:** add `\"updateNotScheduled\": false` and `\"automergeSchedule\"` with the same window. To make it truly once a day, also narrow the window to a single hour (for example `* 0 * * *`).\n\n**Claims I checked that hold at head:**\n- **TLS peer check:** `Acquire::https::snapshot.ubuntu.com::Verify-Peer=false` is passed with `-o` only to the first `apt-get update` and `apt-get install` in core. It is never written to apt's config, so later layers and child images don't inherit it. InRelease signatures and package hashes are still checked against the base image's keyring.\n- **`--error-on=any` coverage:** every `apt-get update` has it: core (three calls) and core-systemd (one). No other image, smoke script or workflow runs apt.\n- **Plain-http InRelease fetch:** the transform builds the version only from digit regex groups, and versioning is a strict `\\d{8}T\\d{6}Z` regex. A spoofed response could therefore only inject a timestamp, never a package. A bad timestamp would fail the snapshot build in CI before automerge. The worst realistic effect is holding back updates, and I don't rate that as significant.\n- **packageRules order:** the later x.y.0 rule (`matchNewValue` `^v?\\d+\\.\\d+\\.0$`) can never match a snapshot value. The `deb` rule now covering `containerd.io` is consistent with the new `ARG CONTAINERD_VERSION` pin.\n- **Earlier thread (exact-time fix in a94298e):** the head transform builds the full `YYYYMMDDTHHMMSSZ` from the `Date:` line, so nothing at head contradicts that fix.\n\n**Dismissed findings:** none were dismissed; this was a single correctness pass with no reviewer back-and-forth."
+  },
+  {
+   "description": "Correctness pass bugs PR 75",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one issue worth reporting.\n\n**1. The daily window does not limit snapshot bumps to one rebuild a day (medium severity, high confidence about Renovate's behaviour)**\n\nAdded line (`renovate.json`, `packageRules`, the `custom.ubuntu-snapshot` rule):\n```\n\"schedule\": [\"* 0-3 * * *\"]\n```\nThe rule's description promises \"it bumps only in a daily window: at most one rebuild a day\". ADR 0022 says \"Renovate proposes the latest snapshot at most once a day\".\n\n- **Trigger:** The datasource reads the `resolute-security` InRelease `Date:` line. The PR itself says the archive changes several times a day. Two situations break the limit:\n  - The snapshot PR is still open when 04:00 UTC passes, because the multi-arch build is still running or has failed.\n  - Renovate runs more than once between 00:00 and 03:59 UTC and the security pocket changes in between.\n- **Path:** `renovate.json::packageRules[custom.ubuntu-snapshot].schedule` → Renovate's default `updateNotScheduled: true` (a schedule only stops new branches from being created; existing branches are still updated outside it) → `renovate.json::customDatasources.ubuntu-snapshot.transformTemplates` returns a newer `Date:` → `images/core/Dockerfile::UBUNTU_SNAPSHOT_VERSION` is rewritten on the open branch.\n- **Outcome:**\n  - Outside the window, Renovate rewrites the open branch with the newer snapshot each time the security pocket changes. Each push reruns the full image build all day, which is exactly what the window was meant to stop.\n  - Inside the window, an automerged bump can be followed by a second PR on a later run in the same window.\n  - So the \"at most one rebuild a day\" guarantee in the rule description and in ADR 0022 is not enforced. It would need `\"updateNotScheduled\": false` on this rule, and the claim would still not hold if Renovate runs more than once inside the window.\n\n**What I checked and found no problem in:**\n- **Snapshot config and third-party repos:** `APT::Snapshot` with the deb822 sources, its effect on `download.docker.com` (the PR's local build installed from it), and the host-scoped `Verify-Peer` option.\n- **`--error-on=any`** on every `apt-get update`.\n- **containerd.io pin:** the `${CONTAINERD_VERSION}~*` glob matches the `extractVersion` `^(?<version>[^~]+)~`. The PR's local Renovate dry run did propose containerd.io `2.4.2-2` → `2.4.2-4`, which suggests the real version strings contain `~`. I could not check this offline.\n- **The JSONata transform:** plain format turns each line into a release, the `Date:` line is picked out, the regex groups are indexed correctly, `$pad(..., -2, \"0\")` pads on the left, and the Handlebars pass does not touch it (there is no `{{` in it).\n- **Versioning and the regex manager:** the `regex:` versioning, and the widened `[a-z.-]` datasource capture, which now matches `custom.ubuntu-snapshot`.\n- **Rule interactions:** the `minimumReleaseAge: null` rule does not interact with the x.y.0 rule.\n- **Child images:** none of them add apt repositories, and core-systemd's update runs after ca-certificates is installed.\n\n**Dismissed findings, for a human to review:**\n- **Snapshot may not contain the newest publication:** the InRelease `Date:` is set when Launchpad generates the file. A snapshot taken at exactly that moment might not yet include that publication, despite the description's claim that it does. I could not confirm this, and the worst case is one publisher run of lag, so I left it out.\n- **The `-updates` pocket is not watched:** the datasource only tracks `-security`, so changes in `-updates` reach the pin only on the next security change. This looks like a design choice rather than a bug."
+  },
+  {
+   "description": "Validate schedule candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P2 — The schedule `* 0-3 * * *` opens a four-hour window, not a once-a-day gate. The custom datasource returns only the InRelease Date, which the rule's own description says changes several times a day. Renovate can therefore open and automerge a second bump inside the window (global `automerge: true`). Renovate's default `updateNotScheduled: true` also lets it rebase an open branch onto a newer snapshot outside the window, which reruns the build. Either way this breaks \"at most one rebuild a day\" in the rule description (renovate.json line 53) and in ADR 0022, and no repo doc records that as an accepted trade-off. The impact is extra snapshot rebuilds, not a wrong pin."
+  },
+  {
+   "description": "Validate ADR impl-detail candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "UNSETTLED — Lines 4–5 (\"set in the core image's apt config\", Renovate \"at most once a day\"), lines 15–16 (\"keep the snapshot in apt's config\") and lines 17–18 (\"`containerd.io` down to the package revision\") name where and how the pin is configured. They describe configuration and policy (a daily cadence, the Docker repo having no snapshots), not code. Whether the rule's \"code implementation details\" wording reaches them is arguable. I did not check how the other ADRs apply the rule beyond seeing that 0019, 0020 and 0022 mention Renovate."
+  },
+  {
+   "description": "Validate dated-comment candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P3 — \"newer than Ubuntu's\" is a time-relative comparison that goes stale once Ubuntu's package catches up. It states no durable constraint, and the pinned renovate ARG on each line already shows the version is upstream-managed. The replaced text (\"pinned\", \"floats\") was no better, since \"floats\" was also a dated fact."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The pin works as described. The apt snapshot config, the host-scoped TLS skip on the first install only, `--error-on=any` on every `apt-get update`, the containerd.io revision pin and the Renovate datasource transform all hold up, and the earlier thread about pinning to midnight is resolved at head. There is no blocking issue. One P2: the Renovate window does not enforce the \"at most one rebuild a day\" promise. There is also a P3 on two code comments and a question about how much config detail ADR 0022 should carry. See the inline comments.",
+  "comments": [
+   {
+    "path": "renovate.json",
+    "line": 56,
+    "body": "**P2** — `* 0-3 * * *` opens a four-hour window. It is not a once-a-day gate. The datasource returns the current `resolute-security` InRelease `Date:`, which this rule's own description says changes several times a day. That breaks the \"at most one rebuild a day\" promise here and in ADR 0022 in two ways:\n- Renovate can open and automerge a second snapshot bump within the same window (global `automerge: true`).\n- With Renovate's default `updateNotScheduled: true`, a snapshot PR still open after the window closes (slow or failed CI) keeps getting rebased onto newer snapshots all day, and each push reruns the full build.\n\nSuggested fix: add `\"updateNotScheduled\": false` to this rule, and narrow the window (for example `* 0 * * *`) or soften the claim."
+   },
+   {
+    "path": "images/core/Dockerfile",
+    "line": 52,
+    "body": "**P3** — \"newer than Ubuntu's\" is a comparison that goes stale once Ubuntu's package catches up. It states no lasting constraint (AGENTS.md: \"A comment says why: a constraint, gotcha or rejected alternative the code cannot show.\"). Either state the real reason for taking upstream, or just say \"Git LFS from the upstream release tarball.\""
+   },
+   {
+    "path": "images/core/Dockerfile",
+    "line": 109,
+    "body": "**P3** — Same as the Git LFS comment: \"newer than Ubuntu's\" goes stale once Ubuntu's fish catches up, so it is not a lasting why (AGENTS.md: \"A comment says why: a constraint, gotcha or rejected alternative the code cannot show.\"). State the real reason for taking upstream fish, or drop the comparison."
+   },
+   {
+    "path": "docs/adr/0022-all-inputs-are-pinned.md",
+    "line": 4,
+    "body": "**Question** — AGENTS.md says \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" Do these count as implementation details under that rule?\n- \"set in the core image's apt config\" and \"at most once a day\" here.\n- \"keep the snapshot in apt's config\" and \"`containerd.io` down to the package revision\" in Consequences.\n\nThey describe where and how the pin is configured, which `images/core/Dockerfile` and `renovate.json` already show. Should the ADR keep only the decision (apt is pinned through a dated archive snapshot that Renovate bumps without the release wait)?"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness (bugs)",
+   "path": "renovate.json",
+   "claim": "The schedule \"* 0-3 * * *\" does not cap snapshot bumps at one rebuild a day. With the default updateNotScheduled: true, an open snapshot PR is rebased onto newer snapshots outside the window, and several bumps can happen within the window. This breaks the guarantee in the rule description and in ADR 0022.",
+   "validation": "HOLDS P2 — The schedule `* 0-3 * * *` opens a four-hour window, not a once-a-day gate. The custom datasource returns only the InRelease Date, which the rule's own description says changes several times a day. Renovate can therefore open and automerge a second bump inside the window (global `automerge: true`). Renovate's default `updateNotScheduled: true` also lets it rebase an open branch onto a newer snapshot outside the window, which reruns the build. Either way this breaks \"at most one rebuild a day\" in the rule description (renovate.json line 53) and in ADR 0022, and no repo doc records that as an accepted trade-off. The impact is extra snapshot rebuilds, not a wrong pin.",
+   "posted": true
+  },
+  {
+   "pass": "correctness (security/logic)",
+   "path": "renovate.json",
+   "claim": "The daily window does not cap snapshot bumps at one rebuild a day: Renovate runs several times inside the 4-hour window, and with updateNotScheduled at its default of true and automergeSchedule unset, an open PR keeps getting newer snapshots outside the window. Duplicate of the correctness (bugs) candidate; merged in Step 5.",
+   "validation": "HOLDS P2 — merged with the correctness (bugs) candidate on the same line; see its verdict.",
+   "posted": true
+  },
+  {
+   "pass": "compliance",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "ADR 0022 contains implementation details (the apt config location, the once-a-day Renovate cadence, the containerd.io revision pin), against AGENTS.md: \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"",
+   "validation": "UNSETTLED — Lines 4–5 (\"set in the core image's apt config\", Renovate \"at most once a day\"), lines 15–16 (\"keep the snapshot in apt's config\") and lines 17–18 (\"`containerd.io` down to the package revision\") name where and how the pin is configured. They describe configuration and policy (a daily cadence, the Docker repo having no snapshots), not code. Whether the rule's \"code implementation details\" wording reaches them is arguable. I did not check how the other ADRs apply the rule beyond seeing that 0019, 0020 and 0022 mention Renovate.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "The ADR includes the once-a-day frequency clause, which is Renovate schedule configuration, and the apt-config, apt-get install and containerd.io revision detail. These are implementation details in an ADR (AGENTS.md ADR rule). Duplicate of the compliance candidate; merged in Step 5.",
+   "validation": "UNSETTLED — merged with the compliance candidate on the same ADR lines; see its verdict.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/core/Dockerfile",
+   "claim": "The added comments \"Git LFS from the release tarball, newer than Ubuntu's.\" and \"fish from upstream, newer than Ubuntu's.\" state a dated comparison, not a durable why (AGENTS.md comment rule).",
+   "validation": "HOLDS P3 — \"newer than Ubuntu's\" is a time-relative comparison that goes stale once Ubuntu's package catches up. It states no durable constraint, and the pinned renovate ARG on each line already shows the version is upstream-managed. The replaced text (\"pinned\", \"floats\") was no better, since \"floats\" was also a dated fact.",
+   "posted": true
+  }
+ ]
+}

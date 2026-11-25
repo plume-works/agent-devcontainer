@@ -1,0 +1,81 @@
+{
+ "run": "images71-cr-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.2,
+ "duration_s": 69,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.0,
+  "claude-haiku-5-5": 0.0,
+  "claude-sonnet-5-5": 0.2
+ },
+ "subagents": [
+  {
+   "description": "Step1 PR eligibility check",
+   "role": "other",
+   "requested_model": "haiku",
+   "actual_models": [
+    "claude-haiku-5-5"
+   ],
+   "output": "1. **PR closed?** No. `pr.json` has `\"state\": \"OPEN\"`.\n2. **PR a draft?** No. `pr.json` has `\"isDraft\": false`.\n3. **Obviously needs no code review?** No. It changes behavior: the image's defaults overwrite each workspace user's `~/.claude/settings.json` on every start. The PR's own \"Merge Danger\" section flags this as two-way door, workspaces blast radius.\n4. **Claude already commented?** No. `comments.json` and `threads.json` are both empty arrays (`[]`)."
+  },
+  {
+   "description": "Step2 find CLAUDE.md files",
+   "role": "compliance",
+   "requested_model": "haiku",
+   "actual_models": [
+    "claude-haiku-5-5"
+   ],
+   "output": "Root `CLAUDE.md` and `AGENTS.md` are the only instruction files in the repo, and both sit at the root, which is a parent of every changed file's directory.\n\n- `/tmp/pr-review-eval-7c1e/runs-cr/images71-cr-2/repo/CLAUDE.md`\n- `/tmp/pr-review-eval-7c1e/runs-cr/images71-cr-2/repo/AGENTS.md` (imported by the root `CLAUDE.md`)"
+  },
+  {
+   "description": "Step3 summarize PR changes",
+   "role": "other",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "PR #71, \"Write Claude default settings over the workspace user's at each start\", adds a set of Claude Code default settings to the Coder template image. They overwrite `~/.claude/settings.json` on every workspace start.\n\n- **Defaults file:** `claude-default-settings.json` is installed at `/usr/local/share/claude-code/default-settings.json`. It sets:\n  - worktree `baseRef` to `fresh`\n  - auto mode\n  - the Opus model\n  - a deny list of tools\n  - auto memory off\n  - the context7 plugin\n  - other disable flags\n- **Systemd unit:** a new oneshot user unit, `claude-default-settings.service`, runs `cp` onto `~/.claude/settings.json`. `cp` writes through a dotfiles symlink instead of replacing it. The unit runs before `claude-pre-approval` and `claude-remote-control`, and `agent-services.target` now wants it.\n- **Why:** `/home/dev` is a volume that is filled from the image only once (ADR 0012), so baking the defaults into it would not reach existing workspaces.\n- **Behaviour change:** the user's own edits to that file are lost at the next start. The PR body says this is deliberate for now and that merging under the user's values can come later.\n- **Repo settings:** `.claude/settings.json` also gets the `fresh` worktree `baseRef`.\n- **Docs:** `GLOSSARY.md` gets a \"Claude default settings\" term, and `docs/usage/coder-template.md` documents the overwrite.\n- **Smoke test:**\n  - It no longer asserts that the file is absent when pre-approval is off.\n  - It now checks that the symlink target equals the defaults plus `enableAllProjectMcpServers`, and that the symlink is kept.\n  - It checks that a fresh home's file is identical to the defaults.\n\nThe PR body labels the change two-way, with workspaces as the blast radius."
+  },
+  {
+   "description": "CLAUDE.md compliance agent 1",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No clear violations found. I read the diff, the PR body, `GLOSSARY.md` and ADR 0012 (the only ADR I opened). I could not run Bash, so the other ADRs were not read, and I did not run any tests or check the repo beyond those files.\n\n- **Comments:** The new comments in `claude-default-settings.service` (ordering reason, and why `cp` instead of `install`) say why. The smoke test comment on jq's `$d` explains a shellcheck disable. None restate the code, and there are no file headers.\n- **Glossary:** \"Claude default settings\" is added with an `_Avoid_` line. The new docs line in `docs/usage/coder-template.md` uses the term as defined and does not use the avoided synonyms.\n- **ADR 0012:** The PR copies the defaults into the home directory at each start, and the image installs nothing under it. That is consistent with ADR 0012 (nothing under a home directory), and the PR body cites it. I did not read the other ADRs.\n- **README:** It has no matches for \"settings\" or \"pre-approval\", so there is nothing to keep current.\n- **PR body:** It has no diff and no file list. The code block is an illustrative flow of services, not a diff or a list of files.\n\nIssues: none."
+  },
+  {
+   "description": "CLAUDE.md compliance agent 2",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No clear violations found, so the list is empty. I could only use Read, Glob and Grep, because Bash was denied. I did not run anything.\n\n- **ADR conflicts:** I read ADR 0012 (nothing under home) and ADR 0016 (Claude pre-approval on by default). Neither is contradicted.\n  - ADR 0012 says a home volume is filled from the image only once. The PR works around that by copying the settings at each start, so it is consistent.\n  - ADR 0016 says the pre-approval choice \"only grants: nothing is ever revoked\". The new service runs before `claude-pre-approval.service`, which re-adds `enableAllProjectMcpServers` when trust is on. The smoke test also checks the key is absent when the choices are off. Overwriting `~/.claude/settings.json` therefore does not revoke a pre-approval grant.\n- **Superseded ADRs:** none of the ADRs this PR touches is replaced by it, so there is nothing to delete.\n- **Glossary:** the PR adds a \"Claude default settings\" term to `GLOSSARY.md`. It states no implementation details and has an `_Avoid_` line. I found no violation.\n- **Docs and README:** `docs/usage/coder-template.md` is updated for the overwrite-at-every-start behavior. I found no `README.md` rule violation.\n- **Other rules:** the code comments in `claude-default-settings.service` state a constraint (why `cp` rather than `install`), which fits the comment rule. The PR body contains no diff and no file list."
+  },
+  {
+   "description": "Opus bug agent diff-only",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no issues in PR #71 that meet the high-signal bar.\n\n- **JSON:** `claude-default-settings.json` (new) and the edited `.claude/settings.json` hunk both parse cleanly.\n- **systemd unit:** `claude-default-settings.service` is valid. It runs once and stays marked as started, so `Before=` holds pre-approval and remote control until the settings file is written. `PartOf=` plus the new `Wants=` entry in `agent-services.target` start it with the other agent services. `%h` works in a user unit, and `cp` writes through the dotfiles symlink as its comment says.\n- **Dockerfile:** both `COPY` lines are valid. `COPY` creates `/usr/local/share/claude-code/`, and that path matches what the unit and `smoke.sh` read.\n- **smoke.sh:**\n  - The jq `--slurpfile` / `$d[0]` comparison is correct, and jq ignores key order when comparing objects.\n  - The order of the \"both off\" assertions holds: the defaults contain no `enableAllProjectMcpServers`, so the `has(...) | not` and `cmp -s` checks agree.\n  - The shellcheck directive is well-formed.\n\nIssues: none."
+  },
+  {
+   "description": "Opus bug agent introduced code",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no high-signal issues in PR #71: no definite bugs, failing tests or security problems in the changed code. I read the diff and the files it interacts with but couldn't run anything (Bash was denied), so this rests on reading the code alone.\n\nHere is what I checked, point by point:\n\n- **Order of start-up:** `agent-services.target` now pulls in `claude-default-settings.service` along with the other services, so systemd starts them all in one job. `Before=claude-pre-approval.service claude-remote-control.service` therefore makes the defaults get written first. A target is automatically ordered after the units it wants, and ordering alone is enough to guarantee the sequence. A missing `Requires=` would only matter if the copy itself failed, and that depends on the input, so I'm not flagging it.\n- **Re-running at each start:** the new service is `Type=oneshot` with `RemainAfterExit=yes` and `PartOf=agent-services.target`. Stopping the target stops it, so the next start writes the defaults again. The smoke test's stop, `rm -rf ~/.claude`, then start sequence covers exactly this.\n- **Both pre-approval choices off:** `claude-pre-approval` only touches `~/.claude/settings.json` when trust is `true` (lines 27-29). With both choices off the file stays an exact copy of the defaults. The new `cmp -s` assertion (`smoke.sh:217`) and the `has(\"enableAllProjectMcpServers\") | not` check (`smoke.sh:214`) both pass.\n- **Earlier smoke setup (dotfiles file with `model: \"smoke\"`):**\n  - The old `.model == \"smoke\"` check has been removed.\n  - The new check at `smoke.sh:92-94` compares the dotfiles target, minus `enableAllProjectMcpServers`, with the defaults file. `cp` replaces the target's contents with the defaults, and pre-approval then adds only `enableAllProjectMcpServers` to the real file through `readlink -f`. jq compares objects regardless of key order, so the check holds.\n  - The `readlink` checks (`smoke.sh:95-97`) still hold, because neither `cp` nor the pre-approval script replaces the links.\n- **`cp` through a relative symlink:** GNU `cp` opens an existing destination with `O_TRUNC`, which follows the link, even a relative one like `../dotfiles/settings.json`. It writes into the target and leaves the link in place, so the comment is accurate. When the destination already exists it keeps its mode; a newly created file takes the source's 0644.\n- **`%h` in `ExecStart`/`ExecStartPre`:** valid in user units; it expands to the user's home directory.\n- **Image build:** the `.dockerignore` excludes only `smoke.sh`, so the new JSON reaches the build context. `COPY` creates `/usr/local/share/claude-code/`, and the copied file is world-readable, so `as_dev jq --slurpfile` and `as_dev cmp` can read it.\n\nIssues: none.\n\nDismissed findings to log for human review (the project's `AGENTS.md` asks for these):\n- No `Requires=` from pre-approval or remote control on `claude-default-settings.service`. If the copy failed (for example, a dangling symlink into a missing directory), the later services would still start. I dismissed it because it depends on the input, and the PR intends ordering, not a hard dependency."
+  }
+ ],
+ "review": {
+  "issues": []
+ },
+ "candidates": []
+}

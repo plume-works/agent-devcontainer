@@ -1,0 +1,16 @@
+{
+ "run": "images75-p5-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.36,
+ "duration_s": 30,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.36
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "PR metadata gate: the description no longer matches the head commit, so the in-depth review passes were not run.\n\n- The description says the latest snapshot is \"the day the `resolute-security` pocket last changed\", with the once-a-day limit coming from that day granularity. Since the follow-up commit that answered the earlier review thread, the datasource pins the exact time on the InRelease `Date:` line (the core image now pins `20261121T095046Z`, not a midnight timestamp). The once-a-day limit now comes from a Renovate `schedule` window. The \"What changes\" bullet describes the old behaviour and doesn't mention the schedule.\n- The test plan's results come from the old midnight pins: `apt-cache policy` listing only `.../20261121T000000Z` sources, and the Renovate dry run proposing `20261101T000000Z` → `20261121T000000Z`. Nothing records a test of the exact-time snapshot or of the daily schedule window. Please re-run these checks on the current head or mark them as not yet done.\n\nPlease update the description to match the current change set, and the full review will run on the next pass."
+ },
+ "candidates": []
+}

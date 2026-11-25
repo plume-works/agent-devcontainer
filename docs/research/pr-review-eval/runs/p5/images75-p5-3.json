@@ -1,0 +1,17 @@
+{
+ "run": "images75-p5-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.4,
+ "duration_s": 37,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.4
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "**PR metadata gate: the description is stale against the head commit, so the in-depth review passes were not run.**\n\nThe latest commit (\"Pin the Ubuntu snapshot to the exact time the archive last changed\") changed how the snapshot is chosen. The description still describes the earlier version:\n\n- **What changes** says the latest snapshot is \"the day the `resolute-security` pocket last changed\", which caps bumps at one a day. The code now pins the exact time from the InRelease `Date:` line (for example `20261121T095046Z`, not `20261121T000000Z`). The once-a-day limit now comes from a separate Renovate `schedule` window on the `custom.ubuntu-snapshot` rule, and the description doesn't mention that rule.\n- **Test plan** reports that `apt-cache policy` lists only `snapshot.ubuntu.com/ubuntu/20261121T000000Z` sources, and that the Renovate dry run proposes `20261101T000000Z` → `20261121T000000Z`. Neither result matches the pinned value or the datasource transform at head, so these checks were run against code the PR no longer contains.\n\nPlease update the description so it explains the exact-time pin and the daily schedule window. Re-run the snapshot checks against the current head, or uncheck them, and then request a new review.",
+  "comments": []
+ },
+ "candidates": []
+}

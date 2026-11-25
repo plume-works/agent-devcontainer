@@ -1,0 +1,98 @@
+diff --git a/.agents/plugins/agentdev/skills/pr-review/SKILL.md b/.agents/plugins/agentdev/skills/pr-review/SKILL.md
+index 0ab5bb1c..41827e21 100644
+--- a/.agents/plugins/agentdev/skills/pr-review/SKILL.md
++++ b/.agents/plugins/agentdev/skills/pr-review/SKILL.md
+@@ -22,14 +22,14 @@ Use this skill to review a pull request's diff and publish feedback as a GitHub
+ 
+ Two independent concerns feed two different pass types (see Steps below) so they can be reviewed without one blind spot masking the other.
+ 
+-**Compliance focus** (repo-convention adherence) — runs on the `light` model at both tiers, per the effort matrix:
++**Compliance focus** (repo-convention adherence) — runs on the `light` model, per the model table:
+ 
+ - Python and JavaScript/TypeScript style and idioms
+ - Any rule in the Coding Conventions section of the repository `AGENTS.md`, any skill applicable to the changed files (see Step 2), and any repo `CLAUDE.md`/`AGENTS.md` file that shares a path with the changed file or its parents
+ - IGNORE import ordering, that is handled by `ruff` in CI
+ - Only flag a violation if you can quote the exact rule text being broken
+ 
+-**Correctness focus** (bug-hunting) — runs on the model the effort matrix gives it:
++**Correctness focus** (bug-hunting) — runs on the `large` model, per the model table:
+ 
+ - Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
+ - Potential bugs, incorrect logic, and security implications introduced by the changed code
+@@ -49,11 +49,9 @@ A correctness candidate that claims a wrong outcome states its scenario in three
+ - The title must describe the main change, and the description must cover the material changes, testing actually performed, breaking changes, migration or rollout requirements, and related issues or docs when they apply.
+ - Flag only material stale, misleading, missing, or irrelevant title/description content. Do not block on wording polish or optional detail.
+ 
+-## Effort Tiers
++## Passes and Models
+ 
+-The review runs at one of two effort tiers, `light` or `full`. Nothing requests a tier: no PR body marker, label, or prompt line selects one.
+-
+-**Size the review yourself** from the diff you already hold: how many passes to run, which model each slot gets, and how deep the durable-knowledge pass goes. This is the same judgment Step 1 makes when it fast-approves a mechanical diff. The validation slot is the one exception — Step 6 fixes it at every effort level, self-sized included.
++Every review runs every pass in the table below; never size a review down.
+ 
+ Model sizes, unversioned so each name resolves to that model's latest release:
+ 
+@@ -64,18 +62,16 @@ Model sizes, unversioned so each name resolves to that model's latest release:
+ 
+ Which size each slot gets, and how many of it run:
+ 
+-| Slot                    | light effort     | full effort          |
+-| ----------------------- | ---------------- | -------------------- |
+-| orchestrator            | light            | large                |
+-| metadata gate           | light            | large                |
+-| compliance              | 1x light         | 2x light             |
+-| correctness             | 1x light         | 2x large             |
+-| durable-knowledge-audit | light            | large                |
+-| validation              | one batch, light | per-candidate, light |
+-
+-The rule in one line: at full effort everything is `large` except compliance and validation, which stay `light` at both tiers; at light effort everything is `light`. The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
++| Slot                    | Size                 |
++| ----------------------- | -------------------- |
++| orchestrator            | large                |
++| metadata gate           | large                |
++| compliance              | 2x light             |
++| correctness             | 2x large             |
++| durable-knowledge-audit | large                |
++| validation              | per-candidate, light |
+ 
+-Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-knowledge pass run at `light` exactly as they do at `full`: the light tier is a cheaper review, not a weaker one. The Step 1 mechanical fast-approve and its docs-only exclusion are unaffected by the tier.
++The orchestrator runs on the session's configured model, not one from this skill — the rest are yours to pass.
+ 
+ ## Steps
+ 
+@@ -89,25 +85,23 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
+    fast-approved: it still runs the durable-knowledge pass (Step 4).
+ 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR title and description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
+ 3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. List every claim the title and description make — what the change does, how it behaves, what was tested and with what result — and check each one against the diff and the head commit. If a claim is contradicted, or the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, publish the metadata finding as [references/reporting.md](references/reporting.md) describes and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
+-4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description, the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"), and whether it blocks under the rulebook's `## What blocks`; an issue that claims a wrong outcome also carries its scenario's Trigger, Path, and Outcome:
+-   - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
+-   - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
+-   - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers.
+-   - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run, leaving four passes at full effort and two at light.
++4. **Run the independent initial-review passes the model table names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description, the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"), and whether it blocks under the rulebook's `## What blocks`; an issue that claims a wrong outcome also carries its scenario's Trigger, Path, and Outcome:
++   - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x.
++   - **correctness pass** — audit the diff against the Correctness focus list. 2x, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code.
++   - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list.
++   - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run, leaving four passes.
+    - **Every pass prompt carries the full text of [rules/review.md](../../rules/review.md)** and the "Never execute code" constraint (see Constraints) verbatim: a pass does not inherit this skill's text.
+-   - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
++   - **Pass each dispatch the model its slot gets in the model table.** A dispatch that carries no model argument runs at the session's own model, whatever the table says — the argument is what puts the table in force.
+    - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
+    - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these subagents must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
+ 5. **Merge and deduplicate.** Collect the candidate findings from every pass. Discard every candidate that claims a wrong outcome with an empty Trigger, Path, or Outcome; it never reaches validation. Collapse candidates that name the same file/line and describe the same underlying issue into one, retaining one of them whole — its description and, for a correctness candidate, its scenario — and keeping it **blocking** if either collapsed candidate blocks.
+-6. **Validate the surviving candidates, on the `light` model at every effort level.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Validation confirms or drops a finding; it never changes whether the finding blocks.
+-   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the Trigger, Path, and Outcome of a candidate that carries a scenario in place of its claim, the claim made against any other candidate, the full text of [rules/review.md](../../rules/review.md), the full text of any other rule that claim invokes, where to read the diff and the PR title and description, that the working tree is already at the head commit so files can be read for ground truth, and the "Never execute code" constraint verbatim. It never names which pass raised a candidate.
++6. **Validate the surviving candidates, on the `light` model.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Validation confirms or drops a finding; it never changes whether the finding blocks.
++   - **One validator prompt, the same for every candidate.** It carries the candidate's file and line, the added text quoted, the Trigger, Path, and Outcome of a candidate that carries a scenario in place of its claim, the claim made against any other candidate, the full text of [rules/review.md](../../rules/review.md), the full text of any other rule that claim invokes, where to read the diff and the PR title and description, that the working tree is already at the head commit so files can be read for ground truth, and the "Never execute code" constraint verbatim. It never names which pass raised a candidate.
+    - **Make the validator re-derive what the candidate asserts** from the files rather than trust it. The bar follows the candidate's shape:
+      - **A candidate carrying a scenario is judged part by part, as written,** against the head commit, in order: the Trigger can actually occur, the Path leads from it to the fault, and the Outcome follows from that path. The validator stops at the first part that does not hold and returns `DROP: trigger|path|outcome — <reason>` naming it; a part false as written is a drop even when another scenario would reach the same fault. The verdict is `CONFIRM` only when every part holds as written.
+      - **Any other candidate** is dropped when ambiguous, trivial, or not clearly a violation; ask for `CONFIRM` or `DROP` with a one-sentence justification.
+    - **Never argue the verdict in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the verdict before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
+-   - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
+-   - **Light effort: one batched dispatch** carrying every surviving candidate at once and returning a confirm-or-drop verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
+-   - **Batching is the light tier's trade and nothing else's.** A self-sized review validates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
++   - **One dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones; never batch candidates into one dispatch.
+    - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below.
+ 7. **Publish** the validated findings as [references/reporting.md](references/reporting.md) describes.
+ 

@@ -1,0 +1,55 @@
+{
+ "run": "images75-p1-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.61,
+ "duration_s": 62,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.61
+ },
+ "subagents": [
+  {
+   "description": "PR metadata gate",
+   "role": "metadata",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "**Verdict: BLOCKING**\n\nThe title (\"Pin apt to a dated Ubuntu archive snapshot\") describes the main change, and the body covers the material changes, the ADRs (new 0022, updated 0013 and 0019) and the related PR (#70). It contains no diffs or file lists. But the latest commit, a94298e (\"Pin the Ubuntu snapshot to the exact time the archive last changed\"), made the body's account of the Renovate datasource and three test-plan entries stale.\n\n1. **The Renovate datasource is described with the old midnight behaviour.**\n   - Body: \"the latest one is the day the `resolute-security` pocket last changed, read from its InRelease `Date:` line: at most one bump a day.\"\n   - Head commit: the `transformTemplates` in `renovate.json` now build the full time from the `Date:` line (`…T` + hour + minute + second + `Z`), and the pin is `ARG UBUNTU_SNAPSHOT_VERSION=20261121T095046Z`. The snapshot is the exact moment the pocket last changed, not the day. \"At most one bump a day\" now comes from the new package rule's `\"schedule\": [\"* 0-3 * * *\"]`, and the body never mentions that schedule.\n\n2. **The `apt-cache policy` evidence names a snapshot the code no longer uses.**\n   - Body: \"`apt-cache policy` lists only `snapshot.ubuntu.com/ubuntu/20261121T000000Z` sources.\"\n   - Head commit: the image pins `20261121T095046Z`, so the image as built now would show different sources. This check ran on the pre-a94298e code.\n\n3. **The Renovate dry-run evidence shows output the current transform cannot produce.**\n   - Body: \"A local Renovate lookup dry run with older pins proposes `20261101T000000Z` → `20261121T000000Z`.\"\n   - Head commit: the transform now emits real times such as `20261121T095046Z`, not midnight values. Nothing shows the dry run was repeated after the fix. This is the exact behaviour the open greptile thread flagged and a94298e changed.\n\n4. **The reproducibility evidence was gathered on the old snapshot.**\n   - Body: \"`docker buildx bake --no-cache`: all four images build\" and \"`dpkg-query -W` gives the same 177 package versions both times\", both under \"Run locally on arm64, before rebasing onto #71 and #74\".\n   - Head commit: the snapshot changed from midnight to `20261121T095046Z` after those runs, so the package set behind these ticked boxes isn't the one at HEAD. The body should either say these checks predate a94298e or report a re-run.\n\nThe body's other claims match HEAD: `APT::Snapshot` in `50snapshot`, the `Verify-Peer=false` scoped to the first step, `--error-on=any` on every update, the `containerd.io` pin at `2.4.2-4` with the Renovate `deb` rule, and the `docs/usage/core.md` note.\n\nI didn't block on two lesser points. The test plan has two unticked `- [ ]` items (\"core-systemd smoke…\" and \"CI on both architectures\"). The skill says a body should hold no open items, but these are honest statements of what wasn't verified, not misleading claims. The body has no breaking-change or migration section, which seems fine: child images inherit the snapshot automatically, and the `docs/usage/core.md` note covers the user-visible effect on `apt-get install` in CI jobs.\n\n**Dismissed findings:** none. The one earlier review thread (greptile P1, \"Latest fixes stay excluded\") is still unresolved. The author answered it with a94298e, and that fix is what left the body stale."
+  }
+ ],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "**Blocking: the PR description is stale after the latest commit (\"Pin the Ubuntu snapshot to the exact time the archive last changed\").** The in-depth review has not run yet. It will run once the description matches the code.\n\n- **Renovate datasource.** The description says the latest snapshot is \"the day the `resolute-security` pocket last changed … at most one bump a day\". The datasource now pins the exact time from the InRelease `Date:` line (the pin is `20261121T095046Z`). The once-a-day limit now comes from the new daily `schedule` window, which the description never mentions.\n- **Test plan evidence predates that commit.** The `apt-cache policy` check reports `20261121T000000Z` sources, and the Renovate dry run reports `20261101T000000Z` → `20261121T000000Z`. The current transform cannot produce midnight values, and the image now pins a different snapshot. The `--no-cache` build and the `dpkg-query` reproducibility checks also ran against the old snapshot. Re-run these checks against the current pin, or say which ones predate the change."
+ },
+ "candidates": [
+  {
+   "pass": "metadata-gate",
+   "path": "(PR description)",
+   "claim": "Description says the Renovate datasource yields 'the day the resolute-security pocket last changed … at most one bump a day'; after a94298e it pins the exact InRelease Date time (20261121T095046Z) and the daily limit comes from an unmentioned schedule window.",
+   "validation": null,
+   "posted": true
+  },
+  {
+   "pass": "metadata-gate",
+   "path": "(PR description)",
+   "claim": "Test plan 'apt-cache policy lists only snapshot.ubuntu.com/ubuntu/20261121T000000Z sources' names a snapshot the code no longer pins (20261121T095046Z).",
+   "validation": null,
+   "posted": true
+  },
+  {
+   "pass": "metadata-gate",
+   "path": "(PR description)",
+   "claim": "Test plan Renovate dry run '20261101T000000Z → 20261121T000000Z' shows midnight output the current transformTemplates cannot produce; no evidence it was re-run after a94298e.",
+   "validation": null,
+   "posted": true
+  },
+  {
+   "pass": "metadata-gate",
+   "path": "(PR description)",
+   "claim": "Ticked --no-cache build and dpkg-query reproducibility checks ran on the pre-a94298e snapshot, not the package set at HEAD.",
+   "validation": null,
+   "posted": true
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "run": "images75-p6-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.42,
+ "duration_s": 36,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.42
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "**Blocking: PR description is out of date with the head commit.** Review stopped at the metadata gate, before the in-depth passes.\n\n- **Renovate datasource behavior.** The description says the latest snapshot is \"the day the `resolute-security` pocket last changed\", and that one bump a day follows from that. The head commit pins the exact moment taken from the InRelease `Date:` line (the pin is now `20261121T095046Z`, not a midnight value). The once-a-day limit now comes from a separate daily Renovate `schedule` window. The `renovate.json` description says the same as the code, so only the PR description is wrong.\n- **Test plan results predate that change.** The `apt-cache policy` check reports sources at `snapshot.ubuntu.com/ubuntu/20261121T000000Z`. The Renovate dry run reports a proposal of `20261101T000000Z` → `20261121T000000Z`. Neither matches what the head commit builds or what the datasource now produces, so these results don't show that the current code works. Re-run them against the head commit, or drop them.\n- **Open to-do items in the body.** The core-systemd smoke check and \"CI on both architectures\" are listed as unchecked boxes. Either close them or move them out of the description.\n\nPlease update the description to match the current change set, and this will be re-reviewed.",
+  "comments": []
+ },
+ "candidates": []
+}
