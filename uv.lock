@@ -51,7 +51,7 @@ dev = [
 [[package]]
 name = "agentdev"
 version = "0.0.0"
-source = { virtual = ".agents/plugins/agentdev" }
+source = { editable = ".agents/plugins/agentdev" }
 dependencies = [
     { name = "agentdev-lib" },
 ]

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Tests for the dependency-record helpers in bin/depends_on.py."""
+"""Tests for the dependency-record helpers in lib/depends_on.py."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ import pytest
 @pytest.fixture
 def depends_on(plugin_root: Path) -> ModuleType:
     """Load the module from the plugin root under test."""
-    spec = importlib.util.spec_from_file_location('depends_on', plugin_root / 'bin/depends_on.py')
+    spec = importlib.util.spec_from_file_location('depends_on', plugin_root / 'lib/depends_on.py')
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
