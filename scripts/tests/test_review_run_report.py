@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -18,8 +19,11 @@ SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/review-run-report.py'
 _SPEC = importlib.util.spec_from_file_location('review_run_report', SCRIPT)
 assert _SPEC and _SPEC.loader
 _MODULE = importlib.util.module_from_spec(_SPEC)
+sys.modules[_SPEC.name] = _MODULE  # dataclasses resolve their module through sys.modules
 _SPEC.loader.exec_module(_MODULE)
 NOT_RECORDED = _MODULE.NOT_RECORDED
+AGENT_TOOL = sorted(_MODULE.AGENT_TOOLS)[0]
+HANDBACK_TOOL = _MODULE.HANDBACK_TOOL
 SESSION = 'session-1'
 PR_FACTS = {
     'baseRefOid': 'aaa111',
@@ -44,7 +48,7 @@ def agent_call(call_id: str, description: str, model: str, prompt: str) -> dict:
     return {
         'type': 'tool_use',
         'id': call_id,
-        'name': 'Agent',
+        'name': AGENT_TOOL,
         'input': {
             'description': description,
             'model': model,
@@ -224,23 +228,36 @@ def test_batched_validator_is_grouped_under_validation(root: Path) -> None:
 
 def handback(message: str) -> dict:
     """Return a subagent assistant record that hands its report back."""
-    block = {'type': 'tool_use', 'name': 'SubagentHandback', 'input': {'message': message}}
+    block = {'type': 'tool_use', 'name': HANDBACK_TOOL, 'input': {'message': message}}
     return assistant('claude-light-3', block)
 
 
 def test_handback_report_and_marked_up_tags(root: Path) -> None:
     """A report handed back by tool call, with Markdown-marked tags, is read whole."""
     main = [
-        assistant('m', text('**Effort tier:** light — docs only')),
+        assistant('m', text('**Effort tier:** light — docs in `docs/test_run_x.md`')),
         assistant('m', agent_call('c1', 'Compliance pass', 'sonnet', 'Check rules.')),
         tool_result('c1', 'hand-back', agent_result('h1', 'See the hand-back.', 'light')),
         assistant('m', text('## Merge\n- nothing collapsed')),
     ]
     report_text = 'One finding: quotes `DROP TABLE x`.\n## Dropped\n- nit — no rule'
     body = report(root, write_transcripts(root, main, {'h1': [handback(report_text)]}))
-    assert 'Effort tier: light — docs only' in section(body, 'Run')
+    assert 'Effort tier: light — docs in `docs/test_run_x.md`' in section(body, 'Run')
     passes = section(body, 'Passes')
     assert 'quotes `DROP TABLE x`' in passes and 'See the hand-back.' not in passes
     assert '> - nit — no rule' in passes.split('**Dropped by the pass**', 1)[1]
     assert section(body, 'Validation').strip() == 'None.'
     assert '> - nothing collapsed' in section(body, 'Merge')
+
+
+def test_newest_session_wins_and_truncated_lines_are_skipped(root: Path) -> None:
+    """With two sessions the newest is reported, and a cut-off line does not stop it."""
+    transcripts = write_transcripts(root, [assistant('old', text('Old session.'))], {})
+    newest = transcripts / '-repo' / 'session-2.jsonl'
+    record = json.dumps(assistant('new', text('New session.')))
+    newest.write_text(record + '\n{"type": "assist', encoding='utf-8')
+    old = transcripts / '-repo' / f'{SESSION}.jsonl'
+    os.utime(old, (1, 1))
+    body = report(root, transcripts)
+    assert 'session-2.jsonl' in section(body, 'Run')
+    assert 'New session.' in section(body, 'Final message')

@@ -15,7 +15,7 @@ NOT_RECORDED = 'not recorded'
 AGENT_TOOLS = {'Agent', 'Task'}
 HANDBACK_TOOL = 'SubagentHandback'
 VERDICT = re.compile(r'^[\s>*#\d.)-]*(CONFIRM|DROP)\b')
-MARKUP = re.compile(r'[*_#>`]')
+MARKUP = '[*_`]*'
 
 
 @dataclass
@@ -165,10 +165,11 @@ def read_subagents(run: Run) -> None:
 
 def tag_value(line: str, tag: str) -> str | None:
     """Return what follows `tag` when a line, Markdown markup aside, opens with it."""
-    plain = MARKUP.sub('', line).strip()
-    if plain == tag or plain.startswith(f'{tag}:'):
-        return plain[len(tag) :].lstrip(':').strip()
-    return None
+    pattern = rf'[\s#>]*{MARKUP}{re.escape(tag)}{MARKUP}(?::{MARKUP}(?P<rest>.*)|\s*$)'
+    match = re.match(pattern, line)
+    if match is None:
+        return None
+    return (match.group('rest') or '').strip()
 
 
 def tagged_line(texts: list[str], tag: str) -> str:

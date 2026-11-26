@@ -1,6 +1,6 @@
 ---
 type: adr
-stage: proposed
+stage: accepted
 ---
 
 # An AI review run keeps every transcript and a report built from them
