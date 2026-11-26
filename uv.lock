@@ -16,7 +16,6 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
-    { name = "agentdev" },
     { name = "agentdev-lib" },
     { name = "agentdev-runtime" },
     { name = "json5" },
@@ -35,7 +34,6 @@ dev = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "agentdev", editable = ".agents/plugins/agentdev" },
     { name = "agentdev-lib", editable = "py_packages/agentdev_lib" },
     { name = "agentdev-runtime", editable = "py_packages/agentdev_runtime" },
     { name = "json5", specifier = ">=0.17.3" },
@@ -53,7 +51,7 @@ dev = [
 [[package]]
 name = "agentdev"
 version = "0.0.0"
-source = { editable = ".agents/plugins/agentdev" }
+source = { virtual = ".agents/plugins/agentdev" }
 dependencies = [
     { name = "agentdev-lib" },
 ]

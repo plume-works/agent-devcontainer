@@ -27,7 +27,7 @@ from agentdev_lib.skill_common import (
     run_tool,
     Stop,
 )
-from agentdev_plugin import depends_on
+import depends_on
 
 PREFLIGHT_ERROR = 2
 GH_FAILED = 3

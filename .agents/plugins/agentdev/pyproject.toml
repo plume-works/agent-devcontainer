@@ -5,10 +5,5 @@ description = "The scripts of the agentdev plugin, run through `uv run`."
 requires-python = ">=3.12"
 dependencies = ["agentdev-lib==1.0"]
 
-[build-system]
-requires = ["uv_build>=0.9"]
-build-backend = "uv_build"
-
-[tool.uv.build-backend]
-module-name = "agentdev_plugin"
-module-root = ""
+[tool.uv]
+package = false
