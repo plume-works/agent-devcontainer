@@ -11,7 +11,7 @@ import subprocess
 
 from iwe_git_fixtures import FIXTURE_ENV, git
 
-SCRIPT = 'skills/iwe-branch-name/agent-code/iwe-branch-name.py'
+SCRIPT = 'skills/iwe-branch-name/agent-code/iwe-branch-name'
 LIBRARY = 'notes'
 PLAN_KEY = 'data/plans/20250102-focus-timer'
 PLAN_SLUG = 'focus-timer'
@@ -86,7 +86,7 @@ def run_script(
     path_prefix: Path | None = None,
     path: Path | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
-    """Run iwe-branch-name.py and parse its key=value stdout; `path` replaces PATH."""
+    """Run iwe-branch-name and parse its key=value stdout; `path` replaces PATH."""
     env = {**os.environ, **FIXTURE_ENV}
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'

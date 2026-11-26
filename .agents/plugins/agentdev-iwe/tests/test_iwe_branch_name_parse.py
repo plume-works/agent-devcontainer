@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for iwe-branch-name.py parse and its result contract."""
+"""Behavior tests for iwe-branch-name parse and its result contract."""
 
 from __future__ import annotations
 

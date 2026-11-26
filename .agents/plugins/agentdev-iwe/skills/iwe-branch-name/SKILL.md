@@ -40,7 +40,7 @@ Names in the earlier `<impl|ship>/<slug>/iter-<N>` shape are not work branches:
 
 ## Bundled Script
 
-Use [iwe-branch-name.py](agent-code/iwe-branch-name.py); run it from the
+Use [iwe-branch-name](agent-code/iwe-branch-name); run it from the
 repository root. It imports only the standard library and changes no branch.
 
 - `parse <branch>` splits a name into `PHASE`, `SLUG`, and `ITERATION`. A name
@@ -75,7 +75,7 @@ only when the user asked for another remote.
 Pass `--phase` whenever the caller already knows the phase.
 
 ```bash
-agent-code/iwe-branch-name.py next data/plans/20261020-foo --phase impl
+agent-code/iwe-branch-name next data/plans/20261020-foo --phase impl
 ```
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on

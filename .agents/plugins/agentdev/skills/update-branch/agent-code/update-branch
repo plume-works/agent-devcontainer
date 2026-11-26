@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Bring in the branch's upstream, then merge the remote base into the current branch.
@@ -32,17 +32,14 @@ FETCH_FAILED = 6
 PREFLIGHT_ERROR = 2
 
 MERGE_SCRIPT = (
-    Path(__file__).resolve().parents[2]
-    / 'git-merge-resolve'
-    / 'agent-code'
-    / 'git-merge-resolve.py'
+    Path(__file__).resolve().parents[2] / 'git-merge-resolve' / 'agent-code' / 'git-merge-resolve'
 )
 
 DESCRIPTION = "Bring in the branch's upstream, then merge origin/main into the current branch."
 
 USAGE = """
 Usage:
-  update-branch.py [--remote <name>] [--base <branch>]
+  update-branch [--remote <name>] [--base <branch>]
 
 Options:
   --remote <name>    Remote to fetch from. Default: origin
@@ -70,8 +67,8 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE     1  Unhandled error
 
 Examples:
-  agent-code/update-branch.py
-  agent-code/update-branch.py --remote upstream --base main
+  agent-code/update-branch
+  agent-code/update-branch --remote upstream --base main
 """
 
 

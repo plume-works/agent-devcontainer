@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for iwe-branch-name.py next against a local remote and a gh stub."""
+"""Behavior tests for iwe-branch-name next against a local remote and a gh stub."""
 
 from __future__ import annotations
 

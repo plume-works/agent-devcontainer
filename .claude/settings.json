@@ -65,7 +65,7 @@
       "Bash(python3 -m py_compile *)",
       "Bash(python3 -c *)",
       "Bash(python3 -m pytest *)",
-      "Bash(python_lint_check.py *)",
+      "Bash(python_lint_check *)",
       "Bash(pre-commit run *)",
       "mcp__github__*"
     ],

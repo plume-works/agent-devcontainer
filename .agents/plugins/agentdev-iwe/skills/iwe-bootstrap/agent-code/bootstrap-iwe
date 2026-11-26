@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Install the blank IWE workspace this skill ships into a repository root.
@@ -36,7 +36,7 @@ USAGE = """\
 Install the blank IWE workspace this skill ships into a repository root.
 
 Usage:
-  bootstrap-iwe.py [--root <dir>]
+  bootstrap-iwe [--root <dir>]
 
 Options:
   --root <dir>  Repository root to initialize. Default: the git top level of

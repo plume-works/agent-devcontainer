@@ -49,7 +49,7 @@ confirm it before running the script:
 
 ## Bundled Script
 
-Use [git-new-branch.py](agent-code/git-new-branch.py) instead of running the
+Use [git-new-branch](agent-code/git-new-branch) instead of running the
 branch commands manually. It:
 
 - validates the name with `git check-ref-format --branch`
@@ -90,7 +90,7 @@ on a bare number.
 ## Workflow 1: Create the Branch
 
 ```bash
-agent-code/git-new-branch.py <name>
+agent-code/git-new-branch <name>
 ```
 
 ## Workflow 2: Handle the Result
@@ -189,7 +189,7 @@ open it with [pr-open](../pr-open/SKILL.md) before cutting the dependent
 branch.
 
 ```bash
-agent-code/git-new-branch.py <name> --depends-on <P> [--depends-on <Q>]
+agent-code/git-new-branch <name> --depends-on <P> [--depends-on <Q>]
 ```
 
 The script reads each pull request with `gh pr view` against the remote's URL

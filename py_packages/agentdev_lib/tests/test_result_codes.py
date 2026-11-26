@@ -125,9 +125,9 @@ def test_python_failed_subprocess_prints_its_own_stderr() -> None:
 def test_sigterm_through_a_uv_shebang_exits_143(scratch: Path) -> None:
     """Behind its uv shebang, a script ended by SIGTERM names it last and exits 128 + 15."""
     ready = scratch / 'ready'
-    script = scratch / 'stalls.py'
+    script = scratch / 'stalls'
     script.write_text(
-        '#!/usr/bin/env -S uv run --quiet\n'
+        '#!/usr/bin/env -S uv run --quiet --script\n'
         'import pathlib, sys, time\n'
         'from agentdev_lib import result_codes as rc\n'
         'rc.install()\n'

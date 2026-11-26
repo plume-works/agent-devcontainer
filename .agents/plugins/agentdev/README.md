@@ -105,7 +105,7 @@ the tools its definition lists. A skill that opts out of model invocation stays
 available as its command only.
 
 Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
-`python_lint_check.py` directly in a terminal.
+`python_lint_check` directly in a terminal.
 
 ### Knowledge-graph workflow (IWE)
 

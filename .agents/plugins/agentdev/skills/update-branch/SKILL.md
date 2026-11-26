@@ -38,7 +38,7 @@ For a merge that does not require fetching or base-branch synchronization, use
 
 ## Bundled Script
 
-Use [update-branch.py](agent-code/update-branch.py) instead of running the fetch and
+Use [update-branch](agent-code/update-branch) instead of running the fetch and
 merge commands manually. It:
 
 - checks repository, branch, and working-tree preconditions
@@ -74,7 +74,7 @@ bare number.
 ## Workflow 1: Run the Update Script
 
 ```bash
-agent-code/update-branch.py
+agent-code/update-branch
 ```
 
 The script defaults to `origin/main`. Supply `--remote` or `--base` only when
@@ -114,7 +114,7 @@ validation:
    ```
 
 2. Push with the [pr-open](../pr-open/SKILL.md) push helper,
-   `agent-code/push-branch.py`, and handle its result exactly as that skill's
+   `agent-code/push-branch`, and handle its result exactly as that skill's
    step 8 describes. Pass `--remote` only for an explicitly selected remote. If
    push authentication is unavailable, stop and report the blocker. Do not fall
    back to an API-based ref update.

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Restack a chain of manual stacked pull requests with merges, never a rewrite.
@@ -43,8 +43,8 @@ USAGE = """\
 Restack a chain of manual stacked pull requests with merges, never a rewrite.
 
 Usage:
-  pr_restack_all.py <top-pr> [--remote <name>] [--trunk <branch>]
-  pr_restack_all.py <branch> [--remote <name>] [--trunk <branch>] [--list]
+  pr_restack_all <top-pr> [--remote <name>] [--trunk <branch>]
+  pr_restack_all <branch> [--remote <name>] [--trunk <branch>] [--list]
 
   <top-pr>          The top pull request of a chain, as <n> or #<n>. The chain
                     is walked down through each base branch to a base of the

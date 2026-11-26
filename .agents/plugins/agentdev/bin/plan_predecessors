@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """Find the open pull requests an IWE plan's work branch must be stacked on."""
 
@@ -22,7 +22,7 @@ USAGE = """\
 Find the open pull requests an IWE plan's work branch must be stacked on.
 
 Usage:
-  plan_predecessors.py <plan-key> [--remote <name>]
+  plan_predecessors <plan-key> [--remote <name>]
 
   <plan-key>        data/plans/<YYYYMMDD>-<slug>, read from the checkout.
   --remote <name>   The remote whose repository holds the pull requests.

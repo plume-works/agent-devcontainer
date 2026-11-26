@@ -75,7 +75,7 @@ small improvement at a time, running the tests after each.
 - **Harden lightly** — validate external inputs at boundaries, and never hard-code
   credentials or tokens.
 
-Finish with the gates CI enforces: `python_lint_check.py` for Python, with
+Finish with the gates CI enforces: `python_lint_check` for Python, with
 autofixes from `pre-commit run --files <paths>`, then the tests.
 
 ## Report

@@ -4,7 +4,7 @@ description: On a detached HEAD the git-commit script refuses with PREFLIGHT_ERR
 stage: pending
 severity: low
 sources:
-- resource: .agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py
+- resource: .agents/plugins/agentdev/skills/git-commit/agent-code/git-commit
 - resource: .agents/plugins/agentdev/skills/git-commit/SKILL.md
 - resource: docs/knowledge/data/findings/spec-usefulness-audit.md
 ---
@@ -27,9 +27,9 @@ instead." and names no skill.
 
 ## Root cause
 
-`.agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py@run`
-answers a detached `HEAD` with `PREFLIGHT_ERROR`, and the message names no
-skill. The `PREFLIGHT_ERROR` row in
+`.agents/plugins/agentdev/skills/git-commit/agent-code/git-commit@run` answers a
+detached `HEAD` with `PREFLIGHT_ERROR`, and the message names no skill. The
+`PREFLIGHT_ERROR` row in
 `.agents/plugins/agentdev/skills/git-commit/SKILL.md#create-the-commit-through-the-script`
 says "Report the error verbatim". Only the `PROTECTED_BRANCH` row names
 `/agentdev:git-new-branch`.

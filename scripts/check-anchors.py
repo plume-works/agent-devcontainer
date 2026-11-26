@@ -211,7 +211,7 @@ def resolve_in(path: Path, match: re.Match[str]) -> str | None:
         names = fragment.split('.')
         found = (
             python_symbol_exists(text, names)
-            if path.suffix == '.py'
+            if path.suffix == '.py' or text.startswith('#!/usr/bin/env -S uv run')
             else words_in_order(text, names)
         )
         if not found:
