@@ -13,7 +13,9 @@ from typing import Any
 
 NOT_RECORDED = 'not recorded'
 AGENT_TOOLS = {'Agent', 'Task'}
-VERDICT = re.compile(r'^[\W\d]*(CONFIRM|DROP)\b', re.MULTILINE)
+HANDBACK_TOOL = 'SubagentHandback'
+VERDICT = re.compile(r'^[\s>*#\d.)-]*(CONFIRM|DROP)\b')
+MARKUP = re.compile(r'[*_#>`]')
 
 
 @dataclass
@@ -97,12 +99,14 @@ def main_transcript(root: Path) -> Path | None:
 
 def pull_request_facts(text: str) -> dict[str, Any]:
     """Return the `gh pr view --json` object a tool result holds, or nothing."""
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError:
-        return {}
-    if isinstance(data, dict) and {'baseRefOid', 'headRefOid'} <= data.keys():
-        return data
+    decoder = json.JSONDecoder()
+    for start in (m.start() for m in re.finditer(r'^\{', text, re.MULTILINE)):
+        try:
+            data, _ = decoder.raw_decode(text, start)
+        except json.JSONDecodeError:
+            continue  # gh may print hint lines before the JSON object
+        if isinstance(data, dict) and {'baseRefOid', 'headRefOid'} <= data.keys():
+            return data
     return {}
 
 
@@ -140,40 +144,62 @@ def read_run(transcript: Path) -> Run:
     return run
 
 
-def add_served_models(run: Run) -> None:
-    """Read each subagent's own transcript for the models that served it."""
+def read_subagents(run: Run) -> None:
+    """Read each subagent's own transcript for its served models and hand-back report."""
     subagents = run.transcript.with_suffix('') / 'subagents'
     for dispatch in run.dispatches:
         agent_id = dispatch.result.get('agentId')
         path = subagents / f'agent-{agent_id}.jsonl'
-        if agent_id and path.is_file():
-            for record in read_records(path):
-                if record.get('type') == 'assistant':
-                    add_model(dispatch.served_models, record)
+        if not agent_id or not path.is_file():
+            continue
+        for record in read_records(path):
+            if record.get('type') != 'assistant':
+                continue
+            add_model(dispatch.served_models, record)
+            for block in (record.get('message') or {}).get('content') or []:
+                if isinstance(block, dict) and block.get('name') == HANDBACK_TOOL:
+                    dispatch.returned = (block.get('input') or {}).get('message') or (
+                        dispatch.returned
+                    )
+
+
+def tag_value(line: str, tag: str) -> str | None:
+    """Return what follows `tag` when a line, Markdown markup aside, opens with it."""
+    plain = MARKUP.sub('', line).strip()
+    if plain == tag or plain.startswith(f'{tag}:'):
+        return plain[len(tag) :].lstrip(':').strip()
+    return None
 
 
 def tagged_line(texts: list[str], tag: str) -> str:
-    """Return what follows the last line that starts with `tag`."""
+    """Return what follows the last line that opens with `tag`."""
     found = NOT_RECORDED
     for text in texts:
         for line in text.splitlines():
-            if line.strip().startswith(tag):
-                found = line.strip()[len(tag) :].strip() or NOT_RECORDED
+            value = tag_value(line, tag)
+            if value is not None:
+                found = value or NOT_RECORDED
     return found
 
 
 def tagged_section(text: str, tag: str) -> str:
-    """Return a text from its first line starting with `tag` to its end."""
+    """Return a text from its last line that opens with `tag` to its end."""
     lines = text.splitlines()
-    for index, line in enumerate(lines):
-        if line.strip().startswith(tag):
+    for index in range(len(lines) - 1, -1, -1):
+        if tag_value(lines[index], tag) is not None:
             return '\n'.join(lines[index:]).strip()
     return NOT_RECORDED
 
 
+def is_validator(dispatch: Dispatch) -> bool:
+    """Tell a validator by its return opening with a `CONFIRM` or `DROP` verdict line."""
+    first = next((line for line in dispatch.returned.splitlines() if line.strip()), '')
+    return bool(VERDICT.match(first))
+
+
 def merge_section(texts: list[str]) -> str:
     """Return the last `Merge:` section the main session wrote."""
-    sections = [tagged_section(text, 'Merge:') for text in texts]
+    sections = [tagged_section(text, 'Merge') for text in texts]
     recorded = [section for section in sections if section != NOT_RECORDED]
     return recorded[-1] if recorded else NOT_RECORDED
 
@@ -227,11 +253,11 @@ def dispatch_section(number: int, dispatch: Dispatch, link: str) -> list[str]:
         quoted(dispatch.returned),
         '',
     ]
-    if not VERDICT.search(dispatch.returned):
+    if not is_validator(dispatch):
         lines += [
             '**Dropped by the pass**',
             '',
-            quoted(tagged_section(dispatch.returned, 'Dropped:')),
+            quoted(tagged_section(dispatch.returned, 'Dropped')),
             '',
         ]
     return lines
@@ -247,7 +273,7 @@ def render(run: Run, links: list[str]) -> str:
         '## Run',
         '',
         f'- Transcript: `{run.transcript.parent.name}/{run.transcript.name}`',
-        f'- Effort tier: {tagged_line(run.texts, "Effort tier:")}',
+        f'- Effort tier: {tagged_line(run.texts, "Effort tier")}',
         f'- Orchestrator models: {models_text(run.models)}',
         f'- Revision range: {revisions}',
         f'- PR title: {pr.get("title") or NOT_RECORDED}',
@@ -261,7 +287,7 @@ def render(run: Run, links: list[str]) -> str:
     ]
     validators = []
     for number, (dispatch, link) in enumerate(zip(run.dispatches, links), start=1):
-        if VERDICT.search(dispatch.returned):
+        if is_validator(dispatch):
             validators.append((number, dispatch, link))
         else:
             lines += dispatch_section(number, dispatch, link)
@@ -272,7 +298,7 @@ def render(run: Run, links: list[str]) -> str:
         lines += dispatch_section(number, dispatch, link)
     if not validators:
         lines += ['None.', '']
-    lines += ['## Published', '', quoted(run.texts[-1] if run.texts else NOT_RECORDED), '']
+    lines += ['## Final message', '', quoted(run.texts[-1] if run.texts else NOT_RECORDED), '']
     return '\n'.join(lines)
 
 
@@ -288,7 +314,7 @@ def main(argv: list[str]) -> int:
         )
         return 0
     run = read_run(transcript)
-    add_served_models(run)
+    read_subagents(run)
     links = write_prompts(run, args.output.parent / 'prompts')
     args.output.write_text(render(run, links), encoding='utf-8')
     return 0

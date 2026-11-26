@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+import importlib.util
 import json
 from pathlib import Path
 import shutil
@@ -14,6 +15,11 @@ import pytest
 from scratch import TMP_ROOT
 
 SCRIPT = Path(__file__).resolve().parents[2] / 'scripts/review-run-report.py'
+_SPEC = importlib.util.spec_from_file_location('review_run_report', SCRIPT)
+assert _SPEC and _SPEC.loader
+_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+NOT_RECORDED = _MODULE.NOT_RECORDED
 SESSION = 'session-1'
 PR_FACTS = {
     'baseRefOid': 'aaa111',
@@ -114,7 +120,7 @@ def full_run() -> list[dict]:
     """Return a main transcript with a pass, a dropped validation, and a confirmed one."""
     return [
         assistant('claude-big-1', {'type': 'tool_use', 'id': 'gh', 'name': 'Bash', 'input': {}}),
-        tool_result('gh', json.dumps(PR_FACTS)),
+        tool_result('gh', 'hint: use gh event listen\n' + json.dumps(PR_FACTS, indent=2)),
         assistant('claude-big-1', text('Effort tier: full — 40 changed code lines.')),
         assistant('claude-big-1', agent_call('c1', 'Correctness pass', 'opus', 'Find bugs.')),
         tool_result(
@@ -157,7 +163,7 @@ def test_full_run_reports_every_section(root: Path) -> None:
     validation = section(body, 'Validation')
     assert 'CONFIRM — race holds.' in validation and 'DROP: path — no caller.' in validation
     assert 'Served models: `claude-light-2`' in validation
-    assert 'Published REQUEST_CHANGES' in section(body, 'Published')
+    assert 'Published REQUEST_CHANGES' in section(body, 'Final message')
 
 
 def test_prompts_are_written_beside_the_report(root: Path) -> None:
@@ -176,12 +182,12 @@ def test_missing_facts_read_not_recorded(root: Path) -> None:
     )
     body = report(root, transcripts)
     run = section(body, 'Run')
-    assert 'Effort tier: not recorded' in run
-    assert 'Revision range: not recorded' in run
+    assert f'Effort tier: {NOT_RECORDED}' in run
+    assert f'Revision range: {NOT_RECORDED}' in run
     assert section(body, 'Passes').strip() == 'None.'
     assert section(body, 'Validation').strip() == 'None.'
-    assert '> not recorded' in section(body, 'Merge')
-    assert 'Approved: version bump only.' in section(body, 'Published')
+    assert f'> {NOT_RECORDED}' in section(body, 'Merge')
+    assert 'Approved: version bump only.' in section(body, 'Final message')
 
 
 def test_pass_without_dropped_list_and_missing_subagent_file(root: Path) -> None:
@@ -191,8 +197,8 @@ def test_pass_without_dropped_list_and_missing_subagent_file(root: Path) -> None
         tool_result('c1', 'hand-back', agent_result('gone', 'No issues.', 'light')),
     ]
     passes = section(report(root, write_transcripts(root, main, {})), 'Passes')
-    assert 'Served models: not recorded' in passes
-    assert passes.split('**Dropped by the pass**', 1)[1].strip() == '> not recorded'
+    assert f'Served models: {NOT_RECORDED}' in passes
+    assert passes.split('**Dropped by the pass**', 1)[1].strip() == f'> {NOT_RECORDED}'
 
 
 def test_no_transcript_writes_a_stub(root: Path) -> None:
@@ -208,9 +214,33 @@ def test_batched_validator_is_grouped_under_validation(root: Path) -> None:
         tool_result(
             'v1',
             'hand-back',
-            agent_result('b', 'Verdicts:\n1. CONFIRM — a\n2. DROP: path — b', 'l'),
+            agent_result('b', '1. CONFIRM — a\n2. DROP: path — b', 'l'),
         ),
     ]
     body = report(root, write_transcripts(root, main, {}))
     assert section(body, 'Passes').strip() == 'None.'
     assert '2. DROP: path — b' in section(body, 'Validation')
+
+
+def handback(message: str) -> dict:
+    """Return a subagent assistant record that hands its report back."""
+    block = {'type': 'tool_use', 'name': 'SubagentHandback', 'input': {'message': message}}
+    return assistant('claude-light-3', block)
+
+
+def test_handback_report_and_marked_up_tags(root: Path) -> None:
+    """A report handed back by tool call, with Markdown-marked tags, is read whole."""
+    main = [
+        assistant('m', text('**Effort tier:** light — docs only')),
+        assistant('m', agent_call('c1', 'Compliance pass', 'sonnet', 'Check rules.')),
+        tool_result('c1', 'hand-back', agent_result('h1', 'See the hand-back.', 'light')),
+        assistant('m', text('## Merge\n- nothing collapsed')),
+    ]
+    report_text = 'One finding: quotes `DROP TABLE x`.\n## Dropped\n- nit — no rule'
+    body = report(root, write_transcripts(root, main, {'h1': [handback(report_text)]}))
+    assert 'Effort tier: light — docs only' in section(body, 'Run')
+    passes = section(body, 'Passes')
+    assert 'quotes `DROP TABLE x`' in passes and 'See the hand-back.' not in passes
+    assert '> - nit — no rule' in passes.split('**Dropped by the pass**', 1)[1]
+    assert section(body, 'Validation').strip() == 'None.'
+    assert '> - nothing collapsed' in section(body, 'Merge')
