@@ -92,8 +92,8 @@ discriminator. Codes are for outcomes, not for variants of one outcome.
 
 A script is an executable Python file with no extension, on
 `#!/usr/bin/env -S uv run --quiet --script`. A module that the `bin/` scripts of
-a plugin share keeps `.py`, has no shebang, and lives in the plugin's `lib/`,
-which the plugin's `pyproject.toml` builds as a package. `uv` finds the
+a plugin share keeps `.py`, has no shebang, and lives in the plugin's own Python
+package, which the plugin's `pyproject.toml` builds with `uv_build`. `uv` finds the
 plugin's own `pyproject.toml` from the script's location and runs the script in
 that project's environment, which pins the `agentdev-lib` package, so it works
 from a repository checkout and from an installed plugin cache alike. The shared

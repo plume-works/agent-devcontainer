@@ -12,8 +12,9 @@ package that ADR-0105 puts there; an extensionless file does not invite that
 call. The shebang is `#!/usr/bin/env -S uv run --quiet --script`, because
 `uv run` hands a path without `.py` back to the shell and the script would
 invoke itself again. A module that a plugin's scripts share keeps `.py`, has no
-shebang, and lives in the plugin's `lib/`, which the plugin's `pyproject.toml`
-builds as a package. The maintainer made this decision.
+shebang, and lives in the plugin's own Python package, `agentdev_plugin/` in the
+`agentdev` plugin, which the plugin's `pyproject.toml` builds with `uv_build`.
+The maintainer made this decision.
 
 ## Consequences
 

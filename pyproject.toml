@@ -14,6 +14,7 @@ dev = [
   "ruff>=0.11.5",
   "pydantic>=2.0",
   "python-frontmatter>=1.1.0",
+  "agentdev",
   "agentdev-lib",
   "agentdev_runtime",
   "validate_agent_files",
@@ -28,6 +29,7 @@ default-groups = ["dev"]
 members = [".agents/plugins/*"]
 
 [tool.uv.sources]
+agentdev = { workspace = true }
 agentdev-lib = { path = "py_packages/agentdev_lib", editable = true }
 agentdev_runtime = { path = "py_packages/agentdev_runtime", editable = true }
 validate_agent_files = { path = "py_packages/validate_agent_files", editable = true }

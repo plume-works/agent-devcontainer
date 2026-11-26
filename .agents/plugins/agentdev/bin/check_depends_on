@@ -13,7 +13,7 @@ import sys
 
 from agentdev_lib import result_codes as rc
 from agentdev_lib.skill_common import print_error, Stop
-import depends_on
+from agentdev_plugin import depends_on
 
 PREFLIGHT_ERROR = 2
 NO_SECTION = 3

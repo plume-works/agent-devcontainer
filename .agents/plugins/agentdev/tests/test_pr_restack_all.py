@@ -21,7 +21,7 @@ def restack(plugin_root: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     """Load the script as a module, with the fixture identity in the environment."""
     for key, value in FIXTURE_ENV.items():
         monkeypatch.setenv(key, value)
-    monkeypatch.syspath_prepend(str(plugin_root / 'lib'))
+    monkeypatch.syspath_prepend(str(plugin_root))
     path = str(plugin_root / 'bin/pr_restack_all')
     loader = importlib.machinery.SourceFileLoader('pr_restack_all', path)
     spec = importlib.util.spec_from_file_location('pr_restack_all', path, loader=loader)

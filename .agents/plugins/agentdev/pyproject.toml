@@ -6,9 +6,9 @@ requires-python = ">=3.12"
 dependencies = ["agentdev-lib==1.0"]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.9"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-only-include = ["lib/depends_on.py"]
-sources = ["lib"]
+[tool.uv.build-backend]
+module-name = "agentdev_plugin"
+module-root = ""
