@@ -13,7 +13,7 @@ from typing import Any
 
 NOT_RECORDED = 'not recorded'
 AGENT_TOOLS = {'Agent', 'Task'}
-VERDICT = re.compile(r'^\W*(CONFIRM|DROP)\b')
+VERDICT = re.compile(r'^[\W\d]*(CONFIRM|DROP)\b', re.MULTILINE)
 
 
 @dataclass
@@ -227,7 +227,7 @@ def dispatch_section(number: int, dispatch: Dispatch, link: str) -> list[str]:
         quoted(dispatch.returned),
         '',
     ]
-    if not VERDICT.match(dispatch.returned):
+    if not VERDICT.search(dispatch.returned):
         lines += [
             '**Dropped by the pass**',
             '',
@@ -261,7 +261,7 @@ def render(run: Run, links: list[str]) -> str:
     ]
     validators = []
     for number, (dispatch, link) in enumerate(zip(run.dispatches, links), start=1):
-        if VERDICT.match(dispatch.returned):
+        if VERDICT.search(dispatch.returned):
             validators.append((number, dispatch, link))
         else:
             lines += dispatch_section(number, dispatch, link)

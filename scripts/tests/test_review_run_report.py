@@ -199,3 +199,18 @@ def test_no_transcript_writes_a_stub(root: Path) -> None:
     """An empty projects directory still yields a report naming the gap."""
     (root / 'projects').mkdir()
     assert 'No session transcript' in report(root, root / 'projects')
+
+
+def test_batched_validator_is_grouped_under_validation(root: Path) -> None:
+    """A light-tier batch returning numbered verdict lines counts as a validator."""
+    main = [
+        assistant('m', agent_call('v1', 'Validate batch', 'sonnet', 'Check all.')),
+        tool_result(
+            'v1',
+            'hand-back',
+            agent_result('b', 'Verdicts:\n1. CONFIRM — a\n2. DROP: path — b', 'l'),
+        ),
+    ]
+    body = report(root, write_transcripts(root, main, {}))
+    assert section(body, 'Passes').strip() == 'None.'
+    assert '2. DROP: path — b' in section(body, 'Validation')
