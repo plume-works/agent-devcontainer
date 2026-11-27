@@ -1,0 +1,16 @@
+{
+ "run": "images75-p1-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.42,
+ "duration_s": 36,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.42
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "Blocking: the PR description no longer matches the change, so this review stopped at the metadata gate. The in-depth passes did not run.\n\n- **Renovate bullet is stale.** It says the latest snapshot is \"the day the `resolute-security` pocket last changed\", which gives day-level values like `20261121T000000Z`. Since a94298e, the `ubuntu-snapshot` datasource pins the exact time from the InRelease `Date:` line, and the current pin is `20261121T095046Z`. The once-a-day limit now comes from a Renovate `schedule` window on that datasource, and the description doesn't mention it.\n- **Test plan evidence comes from the old commit.** The `apt-cache policy` check reports `snapshot.ubuntu.com/ubuntu/20261121T000000Z` sources, and the Renovate dry run reports a proposal of `20261101T000000Z` → `20261121T000000Z`. The current datasource cannot produce midnight-only values, and the image now pins a different snapshot. So the stated build, reproducibility and Renovate lookup results don't cover the code under review.\n\nPlease update the description to match the exact-time datasource and the daily schedule window. Then re-run the Renovate lookup and the image checks against the current pin, or state that they were not re-run. The review passes will run once the description matches the change."
+ },
+ "candidates": []
+}

@@ -1,0 +1,46 @@
+{
+ "run": "images71-p1-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.67,
+ "duration_s": 66,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.43,
+  "claude-sonnet-5-5": 0.24
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 71",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No violations found.\n\nI audited the added lines in the diff against `AGENTS.md` (including `docs/agents/domain.md`), the `GLOSSARY.md` vocabulary and the ADRs. No `CLAUDE.md` or `AGENTS.md` sits under the changed paths.\n\n- **Code comments:** the added comments in `claude-default-settings.service` explain a constraint (the unit ordering, and `cp` writing through a symlink). The `shellcheck disable` comment in `smoke.sh` explains why it is there. None restate the code.\n- **GLOSSARY.md:** the new \"Claude default settings\" term follows the existing format with an `_Avoid_` line, contains no implementation details, and does not use any term the glossary says to avoid.\n- **Dockerfile and shell idioms:** no violations.\n- **ADRs:** none of them mentions `settings.json`, so none is contradicted. `docs/usage/coder-template.md` cites ADR 0016, but the added bullet makes no claim that conflicts with it.\n- **PR text:** the body contains no diffs and no file lists. It does name `~/.claude/settings.json` and the sandbox-style command in prose, but that is not a file listing.\n- **DRY:** `.claude/settings.json` and `claude-default-settings.json` overlap in content, but no rule text clearly forbids this."
+  },
+  {
+   "description": "Durable-knowledge pass PR 71",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No findings. I audited every added line in GLOSSARY.md and docs/usage/coder-template.md, plus the code comments added in the diff, and none meets the bar of a quotable added line that breaks a named rule.\n\n- **GLOSSARY.md, \"Claude default settings\":** The entry defines a term and contains no implementation detail. The only rule it could touch is \"DO NOT PUT IMPLEMENTATION DETAILS INTO IT EVER\", and the entry does not break it. The `_Avoid_` line follows the file's existing pattern.\n- **docs/usage/coder-template.md:** The added bullet \"are written over `~/.claude/settings.json` at every workspace start, so a change made there lasts only until the next start\" states a durable constraint, not provenance. I checked it against `claude-default-settings.service` (`ExecStart=/bin/cp ... %h/.claude/settings.json`, wired through `agent-services.target`), and the new smoke.sh assertions test it. The file path in the bullet is a pointer a usage doc may carry.\n- **Code comment in `claude-default-settings.service`:** \"# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.\" This is a why-comment backed by the `Before=` line below it. KEEP.\n- **Code comment in `claude-default-settings.service`:** \"# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.\" This is a constraint and a rejected alternative that the code cannot show. KEEP, verified by the smoke.sh symlink assertion on `/home/dev/dotfiles/settings.json`.\n- **Code comment in `smoke.sh`:** \"# shellcheck disable=SC2016 # jq's own $d\". This is a lint-suppression reason, not narration. KEEP.\n\nI added no ADR or glossary-destination moves. The diff has no ADR changes, and the AGENTS.md rule on superseded ADRs is not triggered."
+  },
+  {
+   "description": "Correctness pass PR 71",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No high-signal issues found.\n\nI checked the following and found no reachable failure:\n\n- **Ordering:** `claude-default-settings.service` has `Before=claude-pre-approval.service claude-remote-control.service`. systemd adds an implicit `After=` from a target onto the units it `Wants=`, so `systemctl start agent-services.target` in `smoke.sh` returns only once the new oneshot has run. That covers the new fresh-home checks.\n- **Symlinks:** `cp` writes through a symlinked `~/.claude/settings.json`, so the link survives. `claude-pre-approval`'s `merge` then resolves the link with `readlink -f` and replaces the real file, so the link still survives.\n- **Trust off:** the defaults overwrite the file at each start, which drops a stale `enableAllProjectMcpServers` from an earlier run. The new smoke assertion for the \"choices off\" case covers this.\n- **Secrets and modes:** the defaults file holds no secrets, so the default `cp` mode (not 0600) exposes nothing.\n- **JSON validity:** `claude-default-settings.json` and the `.claude/settings.json` edit are valid JSON.\n\nTwo minor failure modes I did not flag. If `cp` fails, for example onto a dangling symlink, `Before=` does not make `claude-pre-approval.service` wait on the failure, so the rest of the target still starts, just without the defaults. The new `Before=` and `PartOf=` lines also add no coverage for a restart of the target.\n\nI changed no files and ran no code."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No issues found. The PR title and description match the change. The compliance, correctness and durable-knowledge passes raised no findings: the new oneshot unit runs before Claude pre-approval and remote control, `cp` writes the Claude default settings through a symlinked `~/.claude/settings.json`, and the smoke test covers both the fresh-home and the symlinked cases.",
+  "comments": []
+ },
+ "candidates": []
+}

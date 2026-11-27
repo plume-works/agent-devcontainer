@@ -1,0 +1,38 @@
+{
+ "run": "images83-p7-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.46,
+ "duration_s": 58,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.46
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "The PR description describes Renovate behaviour that the diff doesn't contain, so the in-depth review was not run (metadata gate). This is a blocking finding.\n\n- **Snapshot timestamp.** The description says Renovate's latest `ubuntu-snapshot` is \"the moment the `resolute-security` pocket last changed ... (a snapshot at that moment includes it)\". The test plan also says a lookup proposed `20261121T000000Z` → `20261121T095046Z`. But the `ubuntu-snapshot` `transformTemplates` in `renovate.json` only keep the day from the InRelease `Date:` line and always add `T000000Z`. So it can never propose `20261121T095046Z`. A midnight snapshot also comes before that day's pocket change, so it does not include it.\n- **Renovate schedule.** The description says \"An early-morning Renovate window keeps it to about one rebuild a day\". The diff adds no `schedule` to `renovate.json`, and the file has none.\n\nThe code isn't consistent with the PR either: the config's own `description` says \"the day the security pocket last changed\", which contradicts the PR body. Please either change the code to do what the description says (keep the full `Date:` time and add the schedule), or rewrite the description and test plan to match the code. Then request another review, and the full review will run.",
+  "comments": [
+   {
+    "path": "renovate.json",
+    "line": 204,
+    "body": "This template keeps only the day from the InRelease `Date:` line and always adds `T000000Z`. The PR description says the proposed snapshot is \"the moment the `resolute-security` pocket last changed\" and that it includes that change. The test plan reports a proposal of `20261121T095046Z`. This template can't produce either.\n\nA midnight snapshot comes before a pocket change made later that day. So the pin Renovate proposes leaves out the security update that triggered it, and that update stays out until the pocket changes again on a later day.\n\nSuggested fix: build the version from the full `Date:` value, e.g. `Sat, 21 Nov 2026 09:50:46 UTC` → `20261121T095046Z` (this still matches the `versioning=regex` in the core Dockerfile). Alternatively, rewrite the PR description and this config's `description` to match the day-only behaviour."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "metadata gate",
+   "path": "renovate.json",
+   "claim": "PR description says the ubuntu-snapshot datasource proposes the moment the resolute-security pocket last changed (snapshot includes it), and the test plan reports a 20261121T095046Z proposal; the transformTemplates always emit <date>T000000Z (midnight), which precedes and excludes that day's pocket change. Description misstates the change.",
+   "validation": null,
+   "posted": true
+  },
+  {
+   "pass": "metadata gate",
+   "path": "renovate.json",
+   "claim": "PR description claims an early-morning Renovate window limits snapshot bumps to about one a day; the diff adds no schedule and renovate.json has none. Description misstates the change.",
+   "validation": null,
+   "posted": true
+  }
+ ]
+}

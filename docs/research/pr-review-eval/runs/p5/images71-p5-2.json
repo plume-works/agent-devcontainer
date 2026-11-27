@@ -1,0 +1,143 @@
+{
+ "run": "images71-p5-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.74,
+ "duration_s": 227,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.34,
+  "claude-sonnet-5-5": 0.39
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 71",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no violation where I could quote both the rule text and the added line that breaks it. I checked the diff against the root `AGENTS.md`/`CLAUDE.md` and `docs/agents/domain.md`. No other `AGENTS.md` or `CLAUDE.md` shares a path with a changed file.\n\nDismissed candidates, logged per the repo's \"Reviews\" rule for a human to check:\n\n1. **Code comments rule** (\"Never restate what the code, a step name or another comment already says\"). I looked at the two new comments in `claude-default-settings.service`.\n   - \"# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.\" explains why the `Before=` ordering exists.\n   - \"# cp, not install: it writes through a symlinked file ... instead of replacing the link.\" records a rejected alternative.\n   - Both fit the \"why\" rule, so I did not flag them.\n   - The `# shellcheck disable=SC2016 # jq's own $d` line in `smoke.sh` is a tool directive with a brief reason, not a restated comment.\n\n2. **GLOSSARY.md vocabulary.** The new \"Claude default settings\" entry uses \"Coder template image\" as the glossary defines it. Its `_Avoid_` terms, \"Managed settings\" and \"baked-in settings\", appear nowhere in the diff outside that line. The PR body says \"Baking them into `/home/dev`\", which is a verb in a rationale sentence and is not an `_Avoid_` term. The entry also carries no implementation detail, which the glossary rule in `docs/agents/domain.md` forbids.\n\n3. **ADR rules.** The diff adds, edits and deletes no ADR, so the rules on superseded ADRs and on code in ADRs do not apply. The docs line cites ADR 0012 and 0016 only by link. I did not check that ADR 0012 is the right reference; the PR body's \"(ADR 0012)\" is the only place it appears, and the rules do not require a citation.\n\n4. **PR rules** (\"NEVER PUT DIFFS into PR body\" and \"NEVER LIST FILES into PR body\"). The body has a small flow diagram of unit names and mentions `~/.claude/settings.json` and `/home/dev` as runtime paths. It contains no diff and no list of changed files, so I did not flag it.\n\n5. **Design principles (YAGNI, KISS, DRY).** `.claude/settings.json` and `claude-default-settings.json` now hold near-duplicate content, since the new file carries the repository's own `cleanupPeriodDays`, `worktree` and `env` settings. That is a judgement call, not a quotable rule breach, so I did not flag it.\n\n6. **Dockerfile and systemd idioms.** The new unit follows the pattern of the existing units: `PartOf=` the target, a `Before=` ordering, `Type=oneshot` with `RemainAfterExit`. It is listed in `Wants=` of the target and copied to `/etc/systemd/user/`. The repo states no rule that contradicts these."
+  },
+  {
+   "description": "Durable-knowledge pass PR 71",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Two findings, both minor. The other added lines pass.\n\n**Findings**\n\n1. File: `/tmp/pr-review-eval-7c1e/runs/images71-p5-2/repo/GLOSSARY.md`\n   - Added line: `The Claude Code user settings the Coder template image gives every workspace user, taking precedence over the user's own.`\n   - Rule broken: the durable-knowledge test, \"would this still be true if the code were rewritten from scratch?\" AGENTS.md also says \"DO NOT PUT IMPLEMENTATION DETAILS INTO IT EVER\".\n   - Why:\n     - The clause \"taking precedence over the user's own\" is wrong as written. `claude-default-settings.service` copies the file over `~/.claude/settings.json` at every start, so the user's settings are replaced, not outranked.\n     - The usage doc says the same: \"written over ... at every workspace start\". The glossary clause also hints at a layered-precedence mechanism the code does not have.\n     - The `_Avoid_` terms \"Managed settings\" and \"baked-in settings\" are fine.\n   - Verdict: REWRITE, which is a fix to one clause and not a deletion. The decision to overwrite is real and should stay in the definition.\n   - Replacement: `The Claude Code user settings the Coder template image gives every workspace user, replacing the user's own at each workspace start.`\n   - Evidence:\n     - `images/coder-template/claude-default-settings.service::ExecStart` is `/bin/cp ... %h/.claude/settings.json`.\n     - `smoke.sh` asserts `del(.enableAllProjectMcpServers) == $d[0]` against the dotfiles target.\n   - If you want the glossary to avoid even \"replacing\", use \"overriding the user's own\". Do not name `cp` or paths in the glossary.\n\n2. File: `/tmp/pr-review-eval-7c1e/runs/images71-p5-2/repo/docs/usage/coder-template.md`\n   - Added line: `` - Claude default settings (`images/coder-template/claude-default-settings.json`) are written over ``\n   - Rule broken: the Diff-scope rule, \"restate ... a durable fact\". The repo-internal source path is a file location, not usage knowledge, and it goes stale if the file moves.\n   - Verdict: low-severity REWRITE, or KEEP at the author's discretion. The path is verified: `claude-default-settings.json` exists in the diff and `Dockerfile` copies it. It does tell a reader where to edit the defaults, so it is defensible in a usage doc.\n   - Replacement if trimmed: `- Claude default settings are written over `~/.claude/settings.json` at every workspace start, ...`.\n   - The rest of the bullet is durable and verified against the unit file and `smoke.sh`: the overwrite at each start, and `~/.claude.json` and project settings left untouched.\n   - One note: Claude pre-approval does edit `~/.claude/settings.json` to add `enableAllProjectMcpServers`. That is consistent with \"written over at start\" and with the unit's ordering comment, but the bullet does not say so.\n\n**Code comments reviewed (KEEP)**\n- `claude-default-settings.service`: `# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.`\n  - It states a real ordering constraint behind `Before=`.\n  - Verified: `claude-pre-approval` line 28 runs `merge ~/.claude/settings.json '.enableAllProjectMcpServers = true'`.\n- `claude-default-settings.service`: `# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.`\n  - It is a rejected alternative that carries a load-bearing constraint, not a dead one.\n  - Verified: `smoke.sh` asserts the symlink survives and the target receives the defaults.\n- `smoke.sh`: `# shellcheck disable=SC2016 # jq's own $d`\n  - It says why the directive is there.\n\nNone of the added comments restates its code or narrates how something was found."
+  },
+  {
+   "description": "Correctness pass PR 71",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found 3 issues, all medium to low severity. I read the code only and ran nothing.\n\n**1. A dangling or unwritable settings link makes the unit fail, and remote control then starts without the defaults**\n- File: `images/coder-template/claude-default-settings.service`\n- Added lines:\n  - `ExecStart=/bin/cp /usr/local/share/claude-code/default-settings.json %h/.claude/settings.json`\n  - `Before=claude-pre-approval.service claude-remote-control.service`, under the comment `# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.`\n- Trigger: `~/.claude/settings.json` is a symlink whose target is missing. For example, a dotfiles link (`../dotfiles/settings.json`) whose checkout lacks the file or isn't there yet. The same failure happens when the target can't be written, such as a read-only home-manager or `/nix/store` link.\n- Path: `agent-services.target` (Wants) → `claude-default-settings.service::ExecStart` (`cp`) → `claude-pre-approval.service` and `claude-remote-control.service`, ordered only by `Before=`.\n- Outcome:\n  - GNU cp will not write through a dangling destination symlink (\"not writing through dangling symlink\"). It also fails with Permission denied on a read-only target. The unit ends up failed.\n  - `Before=` only orders the units and adds no `Requires=`, and the target only Wants them. So pre-approval and `claude-remote-control` still start, without the defaults. That breaks the unit's own comment, the PR's \"starts with both in place\", and the doc's \"written over ~/.claude/settings.json at every workspace start\".\n  - With trust off, nothing ever creates the link target, so the unit fails again at every start.\n  - With trust on, `claude-pre-approval::merge` uses `readlink -f`, which still resolves a dangling link, then writes `{}` plus `enableAllProjectMcpServers` into the target. That start runs with no defaults at all.\n  - The pre-approval code this replaces as the file's first writer handled the dangling case. The smoke test only covers a link whose target exists.\n\n**2. The defaults do not take precedence over the user's own settings, as GLOSSARY.md and the PR claim**\n- Files: `images/coder-template/claude-default-settings.service`, plus the added GLOSSARY.md line `The Claude Code user settings the Coder template image gives every workspace user, taking precedence over the user's own.`\n- Trigger: the workspace user puts their own value in `/home/dev/repo/.claude/settings.local.json`, for example `{\"model\":\"sonnet\"}` or `\"permissions\":{\"defaultMode\":\"default\"}`.\n- Path: `claude-default-settings.service::ExecStart` writes only the user-scope `%h/.claude/settings.json` → Claude Code (`claude-remote-control.service::ExecStart`, run with `cd $REPO_DIR`) applies project-local settings, which outrank user settings.\n- Outcome: Claude runs with the user's own value instead of the default. This contradicts both the glossary definition and the PR's \"Defaults win\". The usage doc itself says project settings are untouched, so only user scope is ever overwritten.\n\n**3. A `CLAUDE_CONFIG_DIR` set as a Coder secret sends the defaults to a file Claude never reads (lower confidence)**\n- File: `images/coder-template/claude-default-settings.service`\n- Added lines: `ExecStartPre=/bin/mkdir -p %h/.claude` and the `ExecStart` above, which writes to the hardcoded `%h/.claude/settings.json`.\n- Trigger: the user defines a `CLAUDE_CONFIG_DIR` Coder secret. ADR 0002 imports the agent's whole environment into the user manager, and `claude-remote-control.service` only unsets the Anthropic token variables.\n- Path: the Coder `startup_script` runs `systemctl --user import-environment` → `claude-remote-control.service::ExecStart`, where `claude` reads `$CLAUDE_CONFIG_DIR/settings.json` → `claude-default-settings.service` wrote to `%h/.claude/settings.json`.\n- Outcome: remote control and terminal sessions run with none of the defaults. The deny list, auto mode, Opus and no auto memory all go missing, while the unit reports success. The repo already treats this variable as a concern: the scrubber notes \"remote control ignores CLAUDE_CONFIG_DIR here\".\n\n**Checked and found correct:**\n- **Ordering with pre-approval:** default settings run before pre-approval through `Before=`. The target's implicit `After=` on the units it Wants makes `systemctl --user start` wait for both oneshots before returning.\n- **Write-through on an existing symlink:** cp opens the existing target with truncate, so the link stays a link and the target keeps its mode.\n- **Pre-approval's merge:** it still writes into the real file and keeps the link.\n- **Smoke test:** both new assertions test real behaviour. The symlinked case would fail if the order were reversed and proves the user's `model` value is overwritten. The fresh-home `cmp` runs after `rm -rf ~/.claude`. Neither covers a dangling link.\n- **ADR 0016's \"nothing is ever revoked\":** this is not broken in practice. Both pre-approval parameters are `mutable = false`, so the overwrite only removes a key the user added by hand, which is the documented behaviour.\n- **File modes:** a newly created file gets 0644 under the user manager's umask, unlike pre-approval's 0600. Its contents are not secret, so I don't count this as a finding.\n\nNone of my checks was dismissed as not a problem, so there is nothing to add to the dismissed-findings log."
+  },
+  {
+   "description": "Validate dangling symlink candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P2 — The files verify each part. A `~/.claude/settings.json` symlink to a missing target is plausible, and `smoke.sh` already tests a dotfiles link. GNU `cp` refuses to write through a dangling destination symlink, so the unit fails. The target `Wants=` all three units, and the `Before=` ordering has no `Requires=`, so pre-approval and remote control still start without the defaults. No ADR or doc in the repo records this as an accepted trade-off. Impact is limited to a dotfiles misconfiguration where the defaults are skipped, and no test covers this case."
+  },
+  {
+   "description": "Validate precedence-over-project candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "REFUTED: outcome — `docs/usage/coder-template.md` says the defaults are written over `~/.claude/settings.json` at every start and that \"project settings are untouched\". Project-scope values outranking them is therefore the documented scope, not a contradiction. The glossary's \"taking precedence over the user's own\" reads as the user-scope file, which the `cp` does overwrite."
+  },
+  {
+   "description": "Validate CLAUDE_CONFIG_DIR candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P3 — Each part of the scenario checks out against the files. A `CLAUDE_CONFIG_DIR` Coder secret is imported whole (ADR 0002), and `claude-remote-control.service` unsets only the three Anthropic token variables. The default-settings unit then writes only to the hardcoded `%h/.claude/settings.json` and reports success. No repo document records this as an accepted trade-off. The only `CLAUDE_CONFIG_DIR` mention is a comment in `claude-bridge-prompt-scrub`, and `docs/usage/coder-template.md` documents `~/.claude` only. That Claude reads `$CLAUDE_CONFIG_DIR/settings.json` was not checked in the repo. I took it as documented Claude Code behaviour. I rate it P3 because it needs a deliberate, unusual user override and has limited impact."
+  },
+  {
+   "description": "Validate usage-doc path candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "REFUTED: rule — The durable-knowledge-audit skill targets session residue (provenance, defended alternatives, dated tool behavior). A source-file path is none of those. The skill itself cites repo paths as valid anchors (`path::symbol`). Neither the skill nor AGENTS.md says usage docs must omit file paths. The path also helps the reader, who needs to know which file to edit."
+  },
+  {
+   "description": "Validate glossary wording candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P3 — The service `claude-default-settings.service` runs `cp` over `~/.claude/settings.json` at each start, so the user's settings are overwritten. They are not outranked in a layered precedence. The glossary line \"taking precedence over the user's own\" therefore misdescribes this, and `docs/usage/coder-template.md` says \"written over\". The fix is a small wording correction in a definition."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The new unit writes the Claude default settings into place correctly, before Claude pre-approval and remote control start. That order is checked in both the fresh-home case and the symlinked case. The title and description match the change. Approving with three non-blocking comments: one P2 about robustness and two P3 about edge cases and glossary wording.",
+  "comments": [
+   {
+    "path": "images/coder-template/claude-default-settings.service",
+    "line": 12,
+    "body": "**P2** — Suppose `~/.claude/settings.json` is a dangling symlink, for example a dotfiles link whose checkout does not have `settings.json` (yet). GNU `cp` refuses to write through it (\"not writing through dangling symlink\"), so this unit fails.\n\n`agent-services.target` only `Wants=` it, and the other units order on it with `Before=` alone. Claude pre-approval and remote control therefore still start, without the defaults. That breaks the comment above (\"remote control must start with the defaults in place\") and the usage doc's \"written over at every workspace start\".\n\nWhen trust is off, nothing ever creates the target, so the unit fails again at every start. The smoke test only covers a link whose target exists.\n\nPossible fixes:\n- write to the resolved target, the way `claude-pre-approval::merge` does with `readlink -f`;\n- or make the dependents `Requires=` this unit, if a failure here should stop them."
+   },
+   {
+    "path": "images/coder-template/claude-default-settings.service",
+    "line": 10,
+    "body": "**P3** — The path `%h/.claude` is hardcoded. A workspace user who sets a `CLAUDE_CONFIG_DIR` Coder secret has it imported into the user manager (ADR 0002), and `claude-remote-control.service` unsets only the Anthropic token variables. Claude then reads `$CLAUDE_CONFIG_DIR/settings.json` and runs with none of the defaults, while this unit reports success. You could honour `CLAUDE_CONFIG_DIR` here, or unset it for remote control as well."
+   },
+   {
+    "path": "GLOSSARY.md",
+    "line": 36,
+    "body": "**P3** — \"taking precedence over the user's own\" does not describe what happens. The unit copies the defaults over `~/.claude/settings.json` at each start, so the user's own user-scope settings are replaced, not outranked by a higher layer. Project settings, which Claude Code ranks above user settings, are untouched and still win. Suggested wording: \"…gives every workspace user, replacing the user's own at each workspace start.\""
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "A dangling (or read-only) ~/.claude/settings.json symlink makes GNU cp refuse to write, so the unit fails. Dependents are only ordered with Before= and have no Requires=, so pre-approval and remote control start without the defaults, breaking the stated guarantee.",
+   "validation": "HOLDS P2 — The files verify each part. A `~/.claude/settings.json` symlink to a missing target is plausible, and `smoke.sh` already tests a dotfiles link. GNU `cp` refuses to write through a dangling destination symlink, so the unit fails. The target `Wants=` all three units, and the `Before=` ordering has no `Requires=`, so pre-approval and remote control still start without the defaults. No ADR or doc in the repo records this as an accepted trade-off. Impact is limited to a dotfiles misconfiguration where the defaults are skipped, and no test covers this case.",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": "GLOSSARY.md",
+   "claim": "The defaults do not take precedence over the user's own settings as the glossary and PR claim. Project-local settings such as repo/.claude/settings.local.json outrank the user-scope file the unit overwrites.",
+   "validation": "REFUTED: outcome — `docs/usage/coder-template.md` says the defaults are written over `~/.claude/settings.json` at every start and that \"project settings are untouched\". Project-scope values outranking them is therefore the documented scope, not a contradiction. The glossary's \"taking precedence over the user's own\" reads as the user-scope file, which the `cp` does overwrite.",
+   "posted": false
+  },
+  {
+   "pass": "correctness",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "A CLAUDE_CONFIG_DIR Coder secret is imported into the user manager (ADR 0002). Claude then reads $CLAUDE_CONFIG_DIR/settings.json, while the unit writes the hardcoded %h/.claude/settings.json, so no defaults apply and the unit still reports success.",
+   "validation": "HOLDS P3 — Each part of the scenario checks out against the files. A `CLAUDE_CONFIG_DIR` Coder secret is imported whole (ADR 0002), and `claude-remote-control.service` unsets only the three Anthropic token variables. The default-settings unit then writes only to the hardcoded `%h/.claude/settings.json` and reports success. No repo document records this as an accepted trade-off. The only `CLAUDE_CONFIG_DIR` mention is a comment in `claude-bridge-prompt-scrub`, and `docs/usage/coder-template.md` documents `~/.claude` only. That Claude reads `$CLAUDE_CONFIG_DIR/settings.json` was not checked in the repo. I took it as documented Claude Code behaviour. I rate it P3 because it needs a deliberate, unusual user override and has limited impact.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "GLOSSARY.md",
+   "claim": "'taking precedence over the user's own' misdescribes the behaviour: the user's settings are overwritten, not outranked. Reword to 'replacing the user's own at each workspace start'.",
+   "validation": "HOLDS P3 — The service `claude-default-settings.service` runs `cp` over `~/.claude/settings.json` at each start, so the user's settings are overwritten. They are not outranked in a layered precedence. The glossary line \"taking precedence over the user's own\" therefore misdescribes this, and `docs/usage/coder-template.md` says \"written over\". The fix is a small wording correction in a definition.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/usage/coder-template.md",
+   "claim": "The repo-internal source path images/coder-template/claude-default-settings.json in the usage doc is a non-durable file location. Drop the parenthetical.",
+   "validation": "REFUTED: rule — The durable-knowledge-audit skill targets session residue (provenance, defended alternatives, dated tool behavior). A source-file path is none of those. The skill itself cites repo paths as valid anchors (`path::symbol`). Neither the skill nor AGENTS.md says usage docs must omit file paths. The path also helps the reader, who needs to know which file to edit.",
+   "posted": false
+  }
+ ]
+}

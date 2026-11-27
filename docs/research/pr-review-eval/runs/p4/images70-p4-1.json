@@ -1,0 +1,125 @@
+{
+ "run": "images70-p4-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.23,
+ "duration_s": 127,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.0,
+  "claude-sonnet-5-5": 0.24
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no violation that I can pin to both a quoted rule and a quoted added line. Here is what I checked.\n\n- **ADR headings:** `## Considered Options` in ADRs 0020 and 0021 differs in case from most existing ADRs (`## Considered options`). ADR 0019 already uses the capitalised form, so there is no clear convention to break.\n- **ADR content:** neither new ADR contains code or implementation details. ADR 0020 does not supersede an existing ADR, since it records a previous behaviour that was never an ADR, so the deletion rule does not apply.\n- **README:** the added lines are brief and consistent with the repo.\n- **Comments:** the added comments in `images.yml` and `docker-bake.hcl` each state a constraint or reason rather than restating the code.\n- **Glossary:** `GLOSSARY.md` has no entry on forks or cache, so there is no vocabulary to drift from."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "**Findings: 2**\n\n| # | File | Quoted added line | Rule broken | Verdict and replacement |\n|---|---|---|---|---|\n| 1 | `docs/adr/0020-pull-requests-from-collaborators-only.md` | `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).` | Durable-knowledge audit: \"Not durable — how the decision was reached… dies with the code that provoked it.\" AGENTS.md: \"durable knowledge belongs in ADRs\", with no process narration. | REWRITE, dropping the parenthetical. \"Never recorded as an ADR\" is bookkeeping about the repo's history, not a fact a reader needs. The option itself is correct under the \"list old decision under Considered options\" rule. Replacement: `- Forks build and test without publishing.` Evidence: the diff removes the same-repository publish check from `PUBLISH` in `.github/workflows/images.yml`, so the option is a real superseded behaviour. |\n| 2 | `images/docker-bake.hcl` | `# mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.` | AGENTS.md: \"A comment says why: a constraint, gotcha or rejected alternative the code cannot show. Never restate what the code… already says.\" | REWRITE to keep only the constraint. The `mode=max` clause only describes what the option does. The `image-manifest=true` clause is a real constraint and stays. Replacement: `# image-manifest=true: GHCR rejects the default cache index.` The GHCR claim is a dated statement about third-party behaviour that I could not verify offline, so a human should confirm it before it stays. |\n\n**Checked and not flagged:**\n- `README.md`: the cache-tag sentence and the \"no outside contributions\" paragraph are brief and durable.\n- `docs/adr/0021-build-cache-in-the-registry.md`: it has no code implementation details, and the rejected alternatives are legitimate Considered options.\n- `.github/workflows/images.yml`:\n  - `# A manual run on another branch must not move edge.` states a constraint.\n  - `# Every run reads and writes the build cache in GHCR, publishing or not.` explains why the login step has no `if`.\n- `images/docker-bake.hcl`: `# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.` states a constraint and a why.\n\nNothing was changed, and no files were written."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "**Result: none.** I found no high-signal correctness or security issue in PR #70.\n\nI checked the diff against `.github/workflows/images.yml`, `images/docker-bake.hcl`, `.github/workflows/ghcr-cleanup.yml`, `.github/scripts/images.sh` and `.github/scripts/stale-pr-tags.sh`, the Dockerfiles, and ADRs 0013, 0019, 0020 and 0021. Things I confirmed are sound:\n\n- **Publish condition:** the new `PUBLISH` and `publish.if` (`github.event_name == 'pull_request' || github.ref == 'refs/heads/main'`) behave as before for push, manual runs and same-repository pull requests. Only fork pull requests now count as publishing.\n- **Bake functions:** `cache_ref` needs `PLATFORM`. The only place that sets `CACHE: true` is the build job, which always sets `PLATFORM: linux/${{ matrix.arch }}`. `images.sh` and local builds leave `CACHE` at its default `false`, so the empty `cache-` tag can't happen. The YAML `true` reaches bake the same way the existing `PUSH` variable does.\n- **Cleanup:** `stale-pr-tags.sh` only matches `pr-N` and the cleanup action deletes only those tags, so `cache-amd64` and `cache-arm64` are never deleted. ADR 0021 already notes that superseded cache versions stay as untagged versions.\n- **Per-architecture refs:** amd64 and arm64 write different tags, so the two matrix legs never overwrite each other.\n- **Logging in when not publishing:** a manual run on another branch now logs in and writes the cache but still doesn't publish, which matches ADR 0021 (\"every CI run\").\n\n**Candidates I dismissed** (logged for human review, as AGENTS.md asks):\n\n1. **Fork pull requests now fail:** a fork's `GITHUB_TOKEN` can't write packages, so `cache-to` (and the digest push) fails the build. ADR 0020 accepts this: \"a pull request from a fork fails its checks.\"\n2. **Pull requests and `main` share one cache:** a collaborator's pull request writes `cache-<arch>`, which the next `main` build reads to produce `edge`, and concurrent runs overwrite each other. ADR 0021 accepts the sharing: \"Pull requests and `main` share one cache per image and architecture, so each overwrites the other's.\" ADR 0020 limits writers to collaborators and Renovate, who can already push branches.\n3. **Apt updates no longer reach rebuilds:** `RUN apt-get update && apt-get install …` in `images/core/Dockerfile` and `images/core-systemd/Dockerfile` is now served from the registry cache until an earlier layer changes, such as a Renovate bump of the ubuntu digest. A rebuild therefore no longer picks up newer Ubuntu packages, as it did when every run started from scratch. This weakens ADR 0013's note that \"a rebuild can pick up newer ones\", but that note says \"can\", not \"will\". The base-digest bumps still refresh these layers, so I don't count it as a wrong outcome. It may be worth a line in ADR 0021's Consequences.\n4. **Cache writes are a new failure point:** a transient GHCR error now fails non-publishing builds, because `cache-to` has no `ignore-error=true`. These runs already depend on GHCR, and this is a reliability trade-off rather than a wrong result."
+  },
+  {
+   "description": "Validate candidate 1",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P3 — The parenthetical \"(the previous behaviour, never recorded as an ADR)\" is provenance and repo-history bookkeeping. The durable-knowledge-audit skill lists \"previously\" and \"used to\" as residue patterns, and the text fails its rewrite test. The ADR rule that the old decision be listed under Considered Options is still met by the bare option. The AGENTS.md rules quoted in the candidate don't cover the text themselves, so this is a minor cosmetic cleanup."
+  },
+  {
+   "description": "Validate candidate 2",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P3 — The `mode=max` clause only says what the option does (it also caches intermediate-stage layers). The code does not explain why `mode=max` is used, and the comment gives no rationale for it. That fits \"never restate what the code says\", while the `image-manifest=true` clause states a real GHCR constraint and should stay. The issue is cosmetic."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The title and description match the change. The correctness and compliance passes found no issues in the workflow or bake changes. The PR description's guarantees hold: the cache refs are per image and per architecture, the GHCR cleanup only deletes `pr-N` tags, and the shared PR/`main` cache is a trade-off ADR 0021 records. There are two cosmetic documentation notes inline.",
+  "comments": [
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**P3** — The parenthetical \"(the previous behaviour, never recorded as an ADR)\" is repo-history bookkeeping, not durable knowledge. The bare option still meets the rule to list the old decision under Considered options. Suggested: `- Forks build and test without publishing.`"
+   },
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 45,
+    "body": "**P3** — The `mode=max` clause only says what the option does, not why it was chosen, so it restates the code (AGENTS.md: \"A comment says why … Never restate what the code … already says\"). The `image-manifest=true` clause states a real constraint and should stay. Either give the reason for `mode=max` or drop that clause: `# image-manifest=true: GHCR rejects the default cache index.`"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical '(the previous behaviour, never recorded as an ADR)' in the Considered Options entry is provenance/history residue; drop it.",
+   "validation": "HOLDS P3 — The parenthetical \"(the previous behaviour, never recorded as an ADR)\" is provenance and repo-history bookkeeping. The durable-knowledge-audit skill lists \"previously\" and \"used to\" as residue patterns, and the text fails its rewrite test. The ADR rule that the old decision be listed under Considered Options is still met by the bare option. The AGENTS.md rules quoted in the candidate don't cover the text themselves, so this is a minor cosmetic cleanup.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/docker-bake.hcl",
+   "claim": "The 'mode=max: also cache the layers of intermediate stages.' clause restates what the option does instead of why, breaking the AGENTS.md comment rule; keep only the image-manifest=true constraint.",
+   "validation": "HOLDS P3 — The `mode=max` clause only says what the option does (it also caches intermediate-stage layers). The code does not explain why `mode=max` is used, and the comment gives no rationale for it. That fits \"never restate what the code says\", while the `image-manifest=true` clause states a real GHCR constraint and should stay. The issue is cosmetic.",
+   "posted": true
+  },
+  {
+   "pass": "correctness (self-dismissed)",
+   "path": ".github/workflows/images.yml",
+   "claim": "Fork pull requests now fail: a fork's GITHUB_TOKEN cannot write packages, so cache-to and the digest push fail the build.",
+   "validation": null,
+   "posted": false
+  },
+  {
+   "pass": "correctness (self-dismissed)",
+   "path": "images/docker-bake.hcl",
+   "claim": "Pull requests and main share one cache per image/arch; a collaborator PR's cache is read by the next main build producing edge, and concurrent runs overwrite each other.",
+   "validation": null,
+   "posted": false
+  },
+  {
+   "pass": "correctness (self-dismissed)",
+   "path": "images/docker-bake.hcl",
+   "claim": "apt-get update/install layers are served from the registry cache until an earlier layer changes, so rebuilds no longer pick up newer Ubuntu packages (weakens ADR 0013's note that a rebuild can pick up newer ones).",
+   "validation": null,
+   "posted": false
+  },
+  {
+   "pass": "correctness (self-dismissed)",
+   "path": "images/docker-bake.hcl",
+   "claim": "cache-to has no ignore-error=true, so a transient GHCR error on cache export now fails non-publishing builds.",
+   "validation": null,
+   "posted": false
+  },
+  {
+   "pass": "compliance (self-dismissed)",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "'## Considered Options' heading case differs from most ADRs ('## Considered options'); ADR 0019 already uses the capitalised form, so no clear convention is broken.",
+   "validation": null,
+   "posted": false
+  }
+ ]
+}

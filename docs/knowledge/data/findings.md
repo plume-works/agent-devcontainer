@@ -38,6 +38,9 @@ resume](findings/claude-remote-control-worktree-restart-resume.md)
 [iwe CLI usage versus plain
 Markdown](findings/iwe-cli-usage-versus-plain-markdown.md)
 
+[What pr-review variants find on replayed pull
+requests](findings/pr-review-replay-variants.md)
+
 [Holding the AI review gate during a
 re-review](findings/rereview-gate-pending.md)
 

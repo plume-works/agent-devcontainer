@@ -1,0 +1,46 @@
+{
+ "run": "images71-p9-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.76,
+ "duration_s": 99,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.56,
+  "claude-sonnet-5-5": 0.2
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No issues.\n\nI found no added line that breaks a quotable rule in `AGENTS.md`, `docs/agents/domain.md`, `GLOSSARY.md` or the ADRs I checked.\n\n- **Code comments:** the added comments in `claude-default-settings.service` and `smoke.sh` each state a reason the code can't show.\n  - The `Before=` comment explains why the unit must run before pre-approval and remote control.\n  - The `cp, not install` comment explains why `cp` writes through a symlink.\n  - The shellcheck disable names the cause, jq's own `$d`.\n- **Glossary:** `Claude default settings` follows the existing entry format, with a definition and an `_Avoid_` line. It has no implementation detail. The PR uses that term and doesn't drift to the avoided synonyms.\n- **ADRs:**\n  - ADR 0012 (nothing under a home directory) isn't contradicted. The unit writes the settings at each start rather than baking them into `/home/dev`, which is the approach the PR body gives for working around that ADR.\n  - No ADR is superseded, so there is nothing to delete.\n- **PR text:** the body lists no files and contains no diffs.\n\n**Dismissed for human review.** The new `images/coder-template/claude-default-settings.json` largely duplicates the repository's own `.claude/settings.json`, which could be read as against \"YAGNI, KISS, DRY.\" I dropped it. The two files serve different consumers (this repo's Claude sessions versus every workspace user), and the rule text doesn't say they must share a source. It would not block either way."
+  },
+  {
+   "description": "Correctness pass",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No issues.\n\nI checked these against the head commit:\n\n- **Ordering:** `claude-default-settings.service` is `Before=` both `claude-pre-approval.service` and `claude-remote-control.service`. The target `Wants=` all three, so the copy lands first. The pre-approval step then adds `enableAllProjectMcpServers` through `merge`. `merge` resolves the symlink with `readlink -f` and writes the real file.\n- **Restarts:** `claude-remote-control.service` restarts alone because of `Restart=always`. The defaults unit has `RemainAfterExit` and `PartOf` the target, so it doesn't rerun or clobber the pre-approval key on those restarts.\n- **Symlink:** `cp` writes through a symlinked `~/.claude/settings.json` and leaves the link in place. The smoke test checks the target's content and that the link is still a link.\n- **Smoke coverage:**\n  - The symlink case asserts the target equals the defaults plus the pre-approval key. That also proves the user's `model: smoke` is overwritten.\n  - The fresh-home case asserts `cmp` equality with the defaults.\n  - The trust-off case asserts `enableAllProjectMcpServers` is absent.\n\nThe one behavioral shift is that a restart with trust switched off now drops a previously written `enableAllProjectMcpServers`. That is the documented overwrite behavior and the PR description discloses it, so it isn't a defect. I'm not raising it."
+  },
+  {
+   "description": "Durable-knowledge pass",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No issues.\n\nI checked every added line in GLOSSARY.md, docs/usage/coder-template.md, the comments in `claude-default-settings.service`, and the comment in smoke.sh. None records provenance, a defended alternative, or dated tool behavior.\n\n| Anchor | Quoted text | Verdict | Evidence |\n|---|---|---|---|\n| `GLOSSARY.md` › \"Claude default settings\" | \"taking precedence over the user's own\" | KEEP | The service copies the file over `~/.claude/settings.json` at each start. Smoke.sh asserts the result. |\n| `docs/usage/coder-template.md` | \"so a change made there lasts only until the next start; `~/.claude.json` and project settings are untouched\" | KEEP | This states a constraint. `claude-default-settings.service@ExecStart` writes only `~/.claude/settings.json`. |\n| `claude-default-settings.service` | \"Claude pre-approval adds to the same file, and remote control must start with the defaults in place.\" | KEEP | The `Before=` line on the next line encodes it. Smoke.sh checks that pre-approval's `enableAllProjectMcpServers` coexists with the defaults. |\n| `claude-default-settings.service` | \"cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.\" | KEEP | This is a load-bearing prohibition, not a dead alternative. Smoke.sh asserts the symlink survives (`readlink ... ../dotfiles/settings.json`) and that the target holds the defaults. |\n| `smoke.sh` | \"# shellcheck disable=SC2016 # jq's own $d\" | KEEP | It states why a lint suppression is needed. |\n\nI made no edits."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No issues found. The title and description match the change. The new user unit copies the Claude default settings over `~/.claude/settings.json` before Claude pre-approval and remote control start, and `cp` writes through a dotfiles symlink without replacing the link. The smoke test now covers both the symlinked case and a fresh home. The new glossary entry and the usage-doc note agree with ADR 0012 and ADR 0016.",
+  "comments": []
+ },
+ "candidates": []
+}

@@ -1,0 +1,108 @@
+{
+ "run": "images70-p10-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.27,
+ "duration_s": 156,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.01,
+  "claude-sonnet-5-5": 0.25
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found no violations I can back with both an exact rule quote and an exact added line, so the list is empty.\n\n- **ADR content:** ADRs 0020 and 0021 describe decisions only. They have no code, tag-syntax or flag details. The `cache-amd64` and `cache-arm64` tag names appear in the README and the PR body but not in ADR 0021.\n- **ADR format:** Both ADRs follow the existing layout (title, prose, `## Considered Options`). A `## Consequences` section already appears in ADRs 0002, 0013, 0014, 0017 and 0018, so 0021 fits.\n- **Superseded ADRs:** The diff replaces the previous fork behaviour, but no earlier ADR recorded it. ADR 0020 says so itself (\"never recorded as an ADR\"), so nothing needed deleting.\n- **README:** The additions are one sentence about the cache tags and one short paragraph linking ADR 0020. That is brief.\n- **Code comments:** The new comments in `images/docker-bake.hcl` and the workflow give reasons or constraints, not restatements:\n  - PUBLISH comment: \"A manual run on another branch must not move edge.\"\n  - CACHE variable comment: \"needs PLATFORM, since each architecture has its own cache\".\n  - `mode=max` and `image-manifest=true` comment: it says why GHCR needs them.\n  - Login step comment: it says why the step is unconditional.\n- **Glossary:** `GLOSSARY.md` has no entries for \"cache\" or \"fork\", so there was no vocabulary to break."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Three findings, none blocking. I read the diff and the head tree only, and ran nothing.\n\n**1. `docs/adr/0020-pull-requests-from-collaborators-only.md`, line 8**\n- Added text: `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n- Pattern: provenance (\"previous behaviour\").\n- Rule: the audit's \"Not durable — how the decision was reached… whether something was hard to find\". AGENTS.md says \"Never restate what the code… already says\", and no ADR is superseded here, so the \"list old decision\" rule does not require this note.\n- Verdict: DROP the parenthetical. Keep the option itself, because it is a real rejected alternative.\n- Replacement: `- Forks build and test without publishing.`\n- Evidence: the parenthetical says only when the option existed and that nobody wrote it down. It states no constraint.\n- Blocks: no.\n\n**2. `images/docker-bake.hcl`, line 133**\n- Added text: `# mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.`\n- Pattern: a comment that restates the line below it, plus a dated claim about a third-party tool.\n- Rule: AGENTS.md \"Never restate what the code… already says\". The audit also lists a named external tool with a present-tense behavior claim as a smell.\n- Verdict: REWRITE. The `mode=max` clause restates the option. The GHCR clause is a real \"why\", so keep it.\n- Replacement: `# image-manifest=true: GHCR rejects the default cache index.`\n- Evidence: the GHCR claim is unverified, and nothing in the repo anchors it. The line is `images/docker-bake.hcl@cache_to`. Treat the claim as needing a human check. Also, `oci-mediatypes=true` is set without explanation. If it is required by `image-manifest`, the comment could say so.\n- Blocks: no.\n\n**3. `docs/adr/0021-build-cache-in-the-registry.md`, line 98**\n- Added text: `- The GitHub Actions cache: capped in size, evicts, and is scoped per branch.`\n- Pattern: a present-tense claim about a named external tool.\n- Rule: the audit's dated third-party behavior smell. This is a \"Considered options\" entry, which AGENTS.md sanctions.\n- Verdict: KEEP, but UNVERIFIED. No repo anchor confirms the claim, and a human should confirm it still holds.\n- Blocks: no.\n\n**Checked and kept**\n- ADR 0021 line 104: \"A superseded cache stays as an untagged version, like the other untagged images the cleanup keeps.\" This matches `.github/workflows/ghcr-cleanup.yml › \"Delete the stale pr-N tags\"`, which deletes only tags (`delete-tags`, no `delete-untagged`).\n- ADR 0021 line 93: \"Local builds do not use it.\" This matches the `CACHE` default of `false` in `docker-bake.hcl`.\n- ADR 0020 line 77: \"a pull request from a fork fails its checks\". No code states this, so it is UNVERIFIED. The `PUBLISH` condition for fork pull requests was dropped, and the failure presumably comes from GHCR login or cache push using a read-only token. A human should confirm it.\n- `.github/workflows/images.yml` comments are KEEP. \"A manual run on another branch must not move edge.\" and \"Every run reads and writes the build cache in GHCR, publishing or not.\" both state constraints.\n- `docker-bake.hcl` line 114, \"CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.\" is KEEP. It matches `cache_ref`, which uses `PLATFORM`.\n- README additions are KEEP. They state current facts and carry no provenance.\n\n**Minor, not a rule violation:** README line 16 still says \"The only tags are `edge` … and `pr-N`\", and the new sentence then names the `cache-*` tags. Consider \"The only image tags are…\"."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no blocking issues. One minor point is worth raising: a failed cache write fails the whole build. Nothing was run; this comes from reading the diff and the files at the head commit.\n\n## Findings\n\n**1. `images/docker-bake.hcl`, line 48 (`cache_to`): a failed cache write fails the build and stops `edge` from moving** (reason: bug, robustness; blocks: no)\n- **Description:** The cache-write setting doesn't include `ignore-error=true`, and BuildKit defaults to `ignore-error=false`. So if writing the cache to GHCR fails, the whole `bake` step fails, even though the images themselves were built and pushed. Before this PR, a run that didn't publish never needed to write to GHCR at all, and a publishing run needed only the image push. Now every run, including runs that don't publish, depends on the registry for an extra write. The cache only exists to save time, so a failure to save it shouldn't be able to fail CI.\n- **Trigger:** GHCR rejects or times out on the cache upload for any of the 4 images × 2 architectures during a `push` to main. That could be a 5xx error, a rate limit, or a token problem.\n- **Path:** `.github/workflows/images.yml@build` (\"Build every image…\" step, `CACHE: true`) → `images/docker-bake.hcl@cache_to` → the cache-write setting on each of the four targets (`core`, `core-systemd`, `coder-template`, `devcontainer-base`)\n- **Outcome:** The build job fails, `publish` is skipped (it needs `build`), `edge` doesn't move, and `CI finished` reports failure. The cause is only that the cache couldn't be saved; the image, its tests and its push were all fine.\n- **Fix:** Add `ignore-error=true` to the `cache_to` string.\n\n## Candidates checked and dismissed\nThese are logged for human review, as AGENTS.md asks.\n- **Cleanup deleting cache tags:** `ghcr-cleanup.yml` only deletes the `pr-N` tags that `stale-pr-tags.sh` lists; the script matches `^pr-[0-9]+$` only. The cleanup action runs only in delete-tags mode, and the cache manifest is never a child of a `pr-N` index. Old cache versions pile up untagged, which ADR 0021 documents.\n- **`CACHE` as a bool vs the string \"true\":** this follows the same pattern as the existing `PUSH` variable, which already works with a bool default and a string from the environment. `images.sh` (`bake --print`) and the smoke step don't set `CACHE`, so they're unaffected.\n- **`CACHE` true with an empty `PLATFORM`:** CI never hits this, because `PLATFORM` is always set at job level. Locally, `CACHE` defaults to false. Speculative.\n- **`PUBLISH` and the `publish` condition:** for `push` (main only) and `workflow_dispatch` on main or another branch, the result is the same as before. The only change is for pull requests from forks. Without a status function, `publish` still gets the implicit `success()`.\n- **Fork PRs:** they now get `PUBLISH=true` and a read-only token, so writing the cache or pushing fails and the checks fail. That is the stated intent of ADR 0020, so it isn't a regression.\n- **Token permissions:** `build` already had `packages: write`, so logging in on every run gives no new scope.\n- **Cache poisoning from PRs into main:** pull requests from this repo's own branches already had a token with `packages: write` and could edit the workflow to push anything, including `edge`. The cache adds no new exposure, so this isn't concrete with collaborators-only PRs.\n- **Concurrent PR and main runs writing the same cache tag:** the last write wins, and cache entries are keyed by content, so the only cost is cache misses, never a wrong image. ADR 0021 documents this.\n- **Tests:** these are workflow and bake config changes with no unit-test surface. The PR's test plan covers `bake --print` and real runs. Nothing to raise."
+  },
+  {
+   "description": "Validate cache_to ignore-error",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — `cache_to` (docker-bake.hcl line 48) has no `ignore-error=true`, and BuildKit's registry cache exporter defaults it to false. The workflow step runs with `CACHE: true`, so a GHCR export failure fails the bake step and the `build` job. That skips `publish`, so `edge` doesn't move, and `CI finished` fails, even though the images built and loaded fine."
+  },
+  {
+   "description": "Validate ADR 0020 parenthetical",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: The parenthetical \"(the previous behaviour, never recorded as an ADR)\" is borderline provenance, and the rule forbidding session residue doesn't clearly cover it. It also tells a reader that forks used to build and test without publishing, which is context for why this option was rejected, and AGENTS.md asks for old decisions to be listed under \"Considered options\"."
+  },
+  {
+   "description": "Validate bake comment restates",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: the `mode=max` clause is a short gloss that tells the reader why the cache is set that way, since the default `min` skips intermediate stages. That is arguably useful context, and the rule's \"restating\" test is ambiguous here, so I can't confirm a clear violation with high confidence."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The registry build cache and the removal of the fork paths match the title, the description and ADRs 0020 and 0021. The `PUBLISH` and `publish` conditions behave as before for pushes and manual runs, and they change only for fork pull requests, which ADR 0020 puts out of scope. The cleanup workflow deletes only `pr-N` tags, so it leaves the `cache-*` tags alone.\n\nOne non-blocking suggestion is inline: a failed cache write currently fails the whole build.",
+  "comments": [
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 48,
+    "body": "Suggestion, non-blocking: add `ignore-error=true` to this `cache-to` spec.\n\nBuildKit's registry cache exporter defaults `ignore-error` to false. With `CACHE: true` on every CI run, a failed cache upload fails `docker buildx bake` for that architecture. That can happen on a GHCR 5xx error, a rate limit or a timeout. The failure then spreads:\n\n- `build` fails.\n- `publish` is skipped, so on `main` `edge` does not move.\n- `CI finished` goes red.\n\nAll of this happens even though the images built, loaded and passed their smoke tests. The cache only saves time, so failing to write it should not fail the run:\n\n```hcl\nresult = CACHE ? [\"type=registry,ref=${cache_ref(name)},mode=max,image-manifest=true,oci-mediatypes=true,ignore-error=true\"] : []\n```"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "images/docker-bake.hcl",
+   "claim": "cache_to lacks ignore-error=true; a failed GHCR cache export (5xx/rate limit/timeout) fails the bake step, the build job, skips publish (edge does not move) and fails CI finished although images built and tested fine. Non-blocking.",
+   "validation": "CONFIRM — `cache_to` (docker-bake.hcl line 48) has no `ignore-error=true`, and BuildKit's registry cache exporter defaults it to false. The workflow step runs with `CACHE: true`, so a GHCR export failure fails the bake step and the `build` job. That skips `publish`, so `edge` doesn't move, and `CI finished` fails, even though the images built and loaded fine.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "Parenthetical '(the previous behaviour, never recorded as an ADR)' in Considered Options is provenance residue; replace with '- Forks build and test without publishing.'",
+   "validation": "DROP: The parenthetical \"(the previous behaviour, never recorded as an ADR)\" is borderline provenance, and the rule forbidding session residue doesn't clearly cover it. It also tells a reader that forks used to build and test without publishing, which is context for why this option was rejected, and AGENTS.md asks for old decisions to be listed under \"Considered options\".",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/docker-bake.hcl",
+   "claim": "Comment clause 'mode=max: also cache the layers of intermediate stages.' restates the option instead of saying why (AGENTS.md code-comments rule); keep only the GHCR image-manifest clause.",
+   "validation": "DROP: the `mode=max` clause is a short gloss that tells the reader why the cache is set that way, since the default `min` skips intermediate stages. That is arguably useful context, and the rule's \"restating\" test is ambiguous here, so I can't confirm a clear violation with high confidence.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0021-build-cache-in-the-registry.md",
+   "claim": "Considered option 'The GitHub Actions cache: capped in size, evicts, and is scoped per branch.' is an unverified present-tense claim about a third-party tool; the pass itself marked it KEEP (unverified), not a finding.",
+   "validation": null,
+   "posted": false
+  }
+ ]
+}

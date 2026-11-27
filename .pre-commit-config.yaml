@@ -21,13 +21,16 @@ repos:
         language: system
         types: [text]
         # The devcontainer CLI writes its lock file without a final newline on every `up`.
-        exclude: '^\.devcontainer/devcontainer-lock\.json$'
+        # The pr-review replay corpus holds byte-exact diffs and tool output.
+        exclude: '^(\.devcontainer/devcontainer-lock\.json|docs/research/pr-review-eval/(cases|variants|runs)/.*)$'
 
       - id: trailing-whitespace
         name: trim trailing whitespace
         entry: uv run trailing-whitespace-fixer
         language: system
         types: [text]
+        # The pr-review replay corpus holds byte-exact diffs and tool output.
+        exclude: '^docs/research/pr-review-eval/(cases|variants|runs)/'
 
       - id: check-merge-conflict
         name: check for merge conflicts

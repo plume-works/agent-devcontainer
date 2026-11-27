@@ -1,0 +1,132 @@
+{
+ "run": "images71-p2-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.33,
+ "duration_s": 166,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.9,
+  "claude-sonnet-5-5": 0.43
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 71",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No compliance issues found, so the list is empty.\n\nI checked the diff against `AGENTS.md`, `GLOSSARY.md` and the ADRs.\n\n- **Comments:** The comments in the new service file and in `smoke.sh` say why, not what. The `cp`-over-`install` note records a rejected alternative, and the ordering comment records a constraint.\n- **Glossary:** \"Claude default settings\" is added as a term with an `_Avoid_` line, and the usage doc uses that term.\n- **ADRs:** The diff adds no ADR and touches none, so nothing in an ADR holds implementation details and no superseded ADR needs deleting.\n- **PR text:** I did not audit the PR body or description against the \"no diffs, no file lists\" rule, because I did not read `pr.json`."
+  },
+  {
+   "description": "Durable-knowledge pass PR 71",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No findings. I checked the added lines in all three files against the diff and the head commit, and none of them is session residue.\n\n- **`GLOSSARY.md`, \"Claude default settings\"**: KEEP. This is a definition plus an `_Avoid_` line, with no provenance. \"Taking precedence over the user's own\" matches the `cp` in `images/coder-template/claude-default-settings.service` › `ExecStart=/bin/cp /usr/local/share/claude-code/default-settings.json %h/.claude/settings.json`, which overwrites at every start. It contains no implementation detail beyond naming the Coder template image.\n- **`docs/usage/coder-template.md`, \"Claude default settings (`images/coder-template/claude-default-settings.json`) are written over `~/.claude/settings.json` at every workspace start, so a change made there lasts only until the next start\"**: KEEP. This is a user-facing constraint.\n  - The file path exists in the diff.\n  - The behaviour is confirmed by the `.service` unit, which is wired in through `images/coder-template/agent-services.target` › `Wants=`.\n  - The claim that `~/.claude.json` is untouched is consistent with `images/coder-template/smoke.sh`.\n  - The pre-approval service later adds `enableAllProjectMcpServers` to the same file. \"Written over\" is still accurate for the defaults, so I do not propose a rewrite.\n- **`claude-default-settings.service`, \"# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.\"**: KEEP. It states a constraint that justifies the `Before=` ordering. It is verified by `smoke.sh`, which asserts that `enableAllProjectMcpServers` is present in the settings file after the defaults are written.\n- **`claude-default-settings.service`, \"# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.\"**: KEEP. It names a rejected alternative, but the prohibition is load-bearing. The smoke test asserts that `~/.claude/settings.json` is still a symlink after the defaults are written, and that its target holds the defaults.\n- **`claude-default-settings.service`, `Description=Claude default settings (written over the user's at each start)`**: KEEP. It describes current behaviour.\n\nAGENTS.md also asks for a report of dismissed findings. There were no reviewer-dismissed findings to log in this pass."
+  },
+  {
+   "description": "Correctness pass PR 71",
+   "role": "correctness",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found three issues, all P2 or P3. I found no P1 defect, and I did not run anything.\n\n**1. P2: a failed copy is silent, and the unit comment promises more than the ordering gives**\n- File: `images/coder-template/claude-default-settings.service`\n- Added line: `Before=claude-pre-approval.service claude-remote-control.service` (comment above it: \"remote control must start with the defaults in place\")\n- **Trigger:** `~/.claude/settings.json` is a symlink whose target is read-only or dangling, or `~/.claude` can't be created or written. This is realistic for a dotfiles checkout, which the smoke test itself uses.\n- **Path:** `claude-default-settings.service::ExecStart` (`cp`) → `agent-services.target::Wants` → `claude-pre-approval.service` and `claude-remote-control.service`.\n- **Outcome:**\n  - `Before=` only orders units. It does not make them depend on each other.\n  - The unit fails, but the target stays active and pre-approval and remote control still start.\n  - Remote control then runs without the defaults (auto mode, denied tools, model), contrary to the comment and the PR summary.\n  - The only trace is a failed user unit.\n- The fix is `Requires=` on the dependents, or a comment that states the weaker guarantee.\n\n**2. P3: the \"off\" smoke path can fail intermittently**\n- File: `images/coder-template/smoke.sh`\n- Added lines: `claude_has .claude/settings.json 'has(\"enableAllProjectMcpServers\") | not'` and `as_dev cmp -s /usr/local/share/claude-code/default-settings.json /home/dev/.claude/settings.json`\n- **Trigger:** `systemctl --user start agent-services.target` returns before the oneshot has finished writing the file.\n- **Path:** `agent-services.target::Wants` (no `After=` on the services) → `smoke.sh::claude_has`, which runs right after the start.\n- **Outcome:**\n  - The target is not ordered after its `Wants=` units, so the start job can complete before `claude-default-settings` has run `cp`.\n  - The old assertion `! test -e` passed vacuously when the file was absent.\n  - The new assertions require the file to exist, so the smoke test can fail intermittently.\n  - The same race already existed for the `.claude.json` checks.\n- A wait loop such as `wait_for` would fix it.\n\n**3. P3: restarting the unit alone drops the pre-approved MCP setting**\n- File: `images/coder-template/claude-default-settings.service`\n- Added line: `ExecStart=/bin/cp /usr/local/share/claude-code/default-settings.json %h/.claude/settings.json`\n- **Trigger:** a manual `systemctl --user restart claude-default-settings` on a workspace with trust pre-approval on.\n- **Path:** `claude-default-settings.service::ExecStart` → `claude-pre-approval::merge`, which is not re-run.\n- **Outcome:**\n  - `cp` replaces the whole file, so `enableAllProjectMcpServers` is lost.\n  - Pre-approval does not run again until the next target start. Its own unit comment says it runs only at target start.\n  - The result is silent loss of the workspace-wide MCP approval.\n- This is an edge case, and a `Before=` ordering alone does not prevent it."
+  },
+  {
+   "description": "Validate candidate 1",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 4/10 · Severity: P3 — Every part of the scenario holds, but the trigger is a rare edge case. `Before=` only orders units, and `agent-services.target` uses `Wants=`, so a failed `cp` in `claude-default-settings.service` would not stop `claude-pre-approval.service` or `claude-remote-control.service`. Remote control would then start without the defaults. The comment states ordering intent rather than a hard dependency, and the impact is limited because the failed user unit stays visible; earlier reply does not hold."
+  },
+  {
+   "description": "Validate candidate 2",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 1/10 · Severity: P3 — trigger: per systemd.target(5), a target automatically gets After= on every unit it pulls in via Wants=, so `start agent-services.target` does not finish until the oneshot `claude-default-settings.service` has run its cp, and `Before=claude-pre-approval.service` adds to that; the smoke test also already depends on the same start for the `.claude.json` assertions, so the race does not occur; earlier reply does not hold"
+  },
+  {
+   "description": "Validate candidate 3",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 6/10 · Severity: P3 — A manual `systemctl --user restart claude-default-settings` re-runs the `cp` and overwrites `settings.json`, dropping `enableAllProjectMcpServers`. `claude-pre-approval` is `RemainAfterExit=yes` and is not restarted, so the approval stays lost until the next target start. The harm is small: it needs a deliberate manual restart, and the unit's description already says it writes over the user's settings at each start. Earlier reply does not hold."
+  },
+  {
+   "description": "Validate candidate 4",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 7/10 · Severity: P2 — GNU `cp` refuses a dangling-symlink destination, so `claude-default-settings.service` would fail and the defaults would never be written through a dotfiles link whose target does not exist yet. `agent-services.target` only `Wants` the units, so `claude-pre-approval.service` still runs and its `merge()` (readlink -f, then `echo '{}'`) handles that case, leaving only the trust key in the target. The trigger is a narrow edge case, and the failure is loud and limited to that case. Earlier reply does not hold."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "Approving. The change does what it says: the Claude default settings are copied over `~/.claude/settings.json` at each start, before Claude pre-approval and remote control, and the copy writes through a dotfiles symlink. The title and description match the diff.\n\nThe inline comments are P2 and P3 edge cases. The main one: `cp` refuses a dangling dotfiles symlink, which the earlier `merge()` handled. Another is the gap between `Before=` ordering and the comment's \"must start with the defaults in place\". Nothing blocks the merge.",
+  "comments": [
+   {
+    "path": "images/coder-template/claude-default-settings.service",
+    "line": 11,
+    "body": "**Severity: P2 · Confidence: 7/10** — GNU `cp` refuses a dangling-symlink destination, so `claude-default-settings.service` would fail and the defaults would never be written through a dotfiles link whose target does not exist yet. `agent-services.target` only `Wants` the units, so `claude-pre-approval.service` still runs, and its `merge()` (readlink -f, then `echo '{}'`) handles that case, leaving only the trust key in the target. The trigger is a narrow edge case, and the failure is loud and limited to that case.\n\nThe comment promises the copy writes through a dotfiles symlink. GNU coreutils `cp` refuses a destination that is a dangling symlink (`cp: not writing through dangling symlink`) unless `POSIXLY_CORRECT` is set.\n\n- **Trigger:** `~/.claude/settings.json` links into a dotfiles checkout that has no `settings.json` yet.\n- **Path:** `claude-default-settings.service::ExecStart` fails → `agent-services.target::Wants` still starts `claude-pre-approval.service` → `claude-pre-approval::merge` creates the target as `{}`.\n- **Outcome:** that user never gets the Claude default settings, and with trust on the target holds only `enableAllProjectMcpServers`.\n\nThe pre-existing `merge()` handled this case by resolving the link with `readlink -f`. Writing to the resolved path (for example `cp … \"$(readlink -f ~/.claude/settings.json)\"` in a shell `ExecStart`) would keep the link and cover a dangling one."
+   },
+   {
+    "path": "images/coder-template/claude-default-settings.service",
+    "line": 5,
+    "body": "**Severity: P3 · Confidence: 4/10** — Every part of the scenario holds, but the trigger is a rare edge case. `Before=` only orders units, and `agent-services.target` uses `Wants=`, so a failed `cp` would not stop pre-approval or remote control. Remote control would then start without the defaults. The comment states an ordering intent rather than a hard dependency, and the impact is limited because the failed user unit stays visible.\n\nThe comment above says remote control *must* start with the defaults in place, but `Before=` gives ordering only.\n\n- **Trigger:** the copy fails, for example on a read-only or dangling symlink target, or an unwritable `~/.claude`.\n- **Path:** `claude-default-settings.service::ExecStart` fails → `agent-services.target::Wants` → `claude-pre-approval.service` and `claude-remote-control.service` still start.\n- **Outcome:** remote control runs without auto mode, the denied tools or the model default. The only trace is a failed user unit.\n\nEither add `Requires=claude-default-settings.service` on the dependents, or soften the comment to the ordering it actually gives."
+   },
+   {
+    "path": "images/coder-template/claude-default-settings.service",
+    "line": 12,
+    "body": "**Severity: P3 · Confidence: 6/10** — A manual `systemctl --user restart claude-default-settings` re-runs the `cp` and overwrites `settings.json`, dropping `enableAllProjectMcpServers`. `claude-pre-approval` is `RemainAfterExit=yes` and is not restarted, so the approval stays lost until the next target start. The harm is small: it needs a deliberate manual restart, and the unit description already says it writes over the user's settings.\n\n- **Trigger:** a manual restart of this unit alone, on a workspace with trust pre-approval on.\n- **Path:** `claude-default-settings.service::ExecStart` → `claude-pre-approval::merge` is not re-run.\n- **Outcome:** the workspace-wide approval of project MCP servers silently disappears until the next workspace start.\n\nRestarting `agent-services.target` rather than this unit alone re-runs both units. Documenting that may be enough."
+   },
+   {
+    "path": "images/coder-template/smoke.sh",
+    "line": 214,
+    "body": "**Severity: P3 · Confidence: 1/10** — trigger: per systemd.target(5), a target automatically gets `After=` on every unit it pulls in via `Wants=`. So `start agent-services.target` does not finish until the oneshot `claude-default-settings.service` has run its `cp`, and `Before=claude-pre-approval.service` adds to that. The smoke test's existing `.claude.json` assertions already depend on the same start, so the race does not occur.\n\nRaised as a possible flake: these new assertions need the file to exist right after `systemctl --user start agent-services.target` returns, where the old `! test -e` passed vacuously. Validation found that the target's implicit `After=` on its `Wants=` units closes the race. It is posted only for the author to judge."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "Before= is ordering only; if the cp fails (read-only/dangling symlink target, unwritable ~/.claude), agent-services.target's Wants still starts pre-approval and remote control, so remote control runs without the defaults, contrary to the comment 'remote control must start with the defaults in place'.",
+   "validation": "Confidence: 4/10 · Severity: P3 — Every part of the scenario holds, but the trigger is a rare edge case. Before= only orders units, and agent-services.target uses Wants=, so a failed cp in claude-default-settings.service would not stop claude-pre-approval.service or claude-remote-control.service. Remote control would then start without the defaults. The comment states ordering intent rather than a hard dependency, and the impact is limited because the failed user unit stays visible; earlier reply does not hold.",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": "images/coder-template/smoke.sh",
+   "claim": "The new settings.json assertions after 'systemctl --user start agent-services.target' can race the claude-default-settings oneshot, because the target is not ordered after its Wants= units, so the smoke test may fail intermittently.",
+   "validation": "Confidence: 1/10 · Severity: P3 — trigger: per systemd.target(5), a target automatically gets After= on every unit it pulls in via Wants=, so 'start agent-services.target' does not finish until the oneshot claude-default-settings.service has run its cp, and Before=claude-pre-approval.service adds to that; the smoke test also already depends on the same start for the .claude.json assertions, so the race does not occur; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "A manual restart of claude-default-settings alone re-runs cp over the whole file, dropping enableAllProjectMcpServers; pre-approval is not re-run until the next target start.",
+   "validation": "Confidence: 6/10 · Severity: P3 — A manual 'systemctl --user restart claude-default-settings' re-runs the cp and overwrites settings.json, dropping enableAllProjectMcpServers. claude-pre-approval is RemainAfterExit=yes and is not restarted, so the approval stays lost until the next target start. The harm is small: it needs a deliberate manual restart, and the unit's description already says it writes over the user's settings at each start. Earlier reply does not hold.",
+   "posted": true
+  },
+  {
+   "pass": "orchestrator (correctness)",
+   "path": "images/coder-template/claude-default-settings.service",
+   "claim": "GNU cp refuses a dangling-symlink destination, so when ~/.claude/settings.json links into a dotfiles checkout with no settings.json yet, the unit fails and the defaults are never written. The previous merge() (readlink -f) handled this case, which breaks the 'writes through a symlinked file' guarantee.",
+   "validation": "Confidence: 7/10 · Severity: P2 — GNU cp refuses a dangling-symlink destination, so claude-default-settings.service would fail and the defaults would never be written through a dotfiles link whose target does not exist yet. agent-services.target only Wants the units, so claude-pre-approval.service still runs and its merge() (readlink -f, then echo '{}') handles that case, leaving only the trust key in the target. The trigger is a narrow edge case, and the failure is loud and limited to that case. Earlier reply does not hold.",
+   "posted": true
+  }
+ ]
+}

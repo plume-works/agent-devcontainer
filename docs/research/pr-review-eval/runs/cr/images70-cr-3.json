@@ -1,0 +1,81 @@
+{
+ "run": "images70-cr-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.07,
+ "duration_s": 54,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.87,
+  "claude-haiku-5-5": 0.0,
+  "claude-sonnet-5-5": 0.2
+ },
+ "subagents": [
+  {
+   "description": "Check PR eligibility",
+   "role": "other",
+   "requested_model": "haiku",
+   "actual_models": [
+    "claude-haiku-5-5"
+   ],
+   "output": "- PR closed: no (state is OPEN).\n- Draft: no (isDraft is false).\n- Obviously needs no code review (automated/trivial): no (it changes CI image build caching and the images workflow, so it needs review).\n- Claude has already commented: no (threads.json and comments.json are both empty)."
+  },
+  {
+   "description": "Find relevant CLAUDE.md files",
+   "role": "compliance",
+   "requested_model": "haiku",
+   "actual_models": [
+    "claude-haiku-5-5"
+   ],
+   "output": "Only one CLAUDE.md exists in the repo, at the root, and every changed file falls under it. It pulls in AGENTS.md, which in turn @-includes docs/agents/domain.md.\n\n- /tmp/pr-review-eval-7c1e/runs-cr/images70-cr-3/repo/CLAUDE.md\n- /tmp/pr-review-eval-7c1e/runs-cr/images70-cr-3/repo/AGENTS.md\n- /tmp/pr-review-eval-7c1e/runs-cr/images70-cr-3/repo/docs/agents/domain.md"
+  },
+  {
+   "description": "Summarize PR changes",
+   "role": "other",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "PR #70, \"Build cache in the registry; pull requests from collaborators only\", changes three things.\n\n**Registry build cache**\n- `images/docker-bake.hcl` gets a `CACHE` variable and `cache_ref`, `cache_from` and `cache_to` functions.\n- Each of the four image targets (`core`, `core-systemd`, `coder-template`, `devcontainer-base`) now sets `cache-from` and `cache-to`.\n- The cache lives in the image's own GHCR package as `cache-amd64` or `cache-arm64` tags. It uses `mode=max` and `image-manifest=true`.\n- `CACHE` is off by default, so local builds don't use the cache.\n- The images workflow sets `CACHE: true` on its build step. The GHCR login now runs on every run, not only when publishing.\n\n**Fork handling removed**\n- In `.github/workflows/images.yml`, the same-repository check is gone from the `PUBLISH` variable and from the `publish` job's `if`. Both now test only `github.event_name == 'pull_request' || github.ref == 'refs/heads/main'`.\n- As a result, a fork pull request would now satisfy the publish condition. ADR 0020 says a fork pull request \"fails its checks\", but this diff adds nothing that enforces that.\n\n**Docs**\n- Two new ADRs: 0020 (pull requests from collaborators only) and 0021 (build cache in the registry). Both are in `docs/adr/`.\n- `README.md` gets a note that the cache tags are not images to pull, and a statement that the repo takes no outside contributions.\n\nThe PR body reports a second-run build step of about 45s on amd64 and 40s on arm64, against about 2m15s and 2m on `main` without the cache.\n\nI dismissed no review findings, since I did no review."
+  },
+  {
+   "description": "CLAUDE.md compliance review 1",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No clear violations found.\n\nI checked each changed file against the rules:\n\n- **ADRs 0020 and 0021 (`docs/adr/`):** Both state decisions and have \"Considered Options\". Neither contains code or implementation details. No existing ADR covers forks or caching, so nothing is superseded and nothing needs deleting.\n- **`README.md`:** The additions are short and current. They mention the cache tags and link ADR 0020.\n- **Comments in `.github/workflows/images.yml` and `images/docker-bake.hcl`:** Each gives a why or a gotcha, such as GHCR rejecting the default cache index, or the cache needing `PLATFORM`. None restates the code.\n- **PR body (`pr.json`):** It has no diffs and no file lists. The command names and tag names in it are not file lists.\n- **`GLOSSARY.md`:** The PR does not use any glossary term in a way that drifts from its definition.\n\nIssues: none.\n\nDismissed findings to report for human review (none were dismissed outright; these were borderline and left unflagged):\n- The ADR 0021 consequences mention \"untagged version\" and \"GHCR package\". This is borderline implementation detail, but it describes the decision's effects, not code, so I did not flag it."
+  },
+  {
+   "description": "CLAUDE.md compliance review 2",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No clear violations found. I read the diff, the PR body and the existing ADRs; I couldn't run Bash, so I used Read, Glob and Grep only.\n\n- **ADR content (0020, 0021):** Neither contains code, workflow syntax or flags. Both use the Considered Options format. The \"GHCR package\" and \"untagged version\" wording in 0021 is borderline but not a clear breach of \"DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER\".\n- **Superseded ADRs:** The old fork behaviour was \"never recorded as an ADR\", and a grep of the `.md` files found no earlier ADR on forks or CI caching. There is nothing to delete, and the old behaviour is listed under Considered Options in 0020.\n- **README:** The additions are short and the README stays current with the change.\n- **PR body:** It contains no diffs and no file lists. It mentions ADRs 0020 and 0021 and `.github/scripts/images.sh` only in prose or the test plan, which is not a file listing.\n- **Code comments:** The new comments in `images/docker-bake.hcl` and `.github/workflows/images.yml` state constraints or reasons, not what the code already shows.\n- **Review dismissals:** I made no dismissals, so there is nothing to log under the \"Reviews\" rule.\n\nIssues: [] (empty list)"
+  },
+  {
+   "description": "Bug scan on diff only",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no significant bugs in PR #70. I read only the PR body and the diff; I couldn't use Bash, so I used Read instead.\n\nWhat I checked:\n- **Publish condition (`.github/workflows/images.yml`, lines 13 and 40 of the new file):** The new condition (`event_name == 'pull_request' || ref == main`) gives the same result as the old one for same-repository pull requests, pushes to `main` and manual runs on other branches. The only change is that fork pull requests now count as publishing, which is what the PR intends (ADR 0020).\n- **GHCR login now runs on every build:** This is needed so every run can read and write the registry cache. The build job's permissions aren't in the diff, so I can't tell whether they cover this. They likely do, because that job already pushes by digest when publishing.\n- **Cache settings in `images/docker-bake.hcl`:** `CACHE` defaults to `false`, and the `CACHE=true` the workflow passes in is read as true, the same way the existing `PUSH` variable works. The `cache_ref`, `cache_from` and `cache_to` functions and the `cache-from`/`cache-to` lines on each image are valid. If `CACHE` were set without `PLATFORM`, the tag would come out as just `cache-`, but CI always sets both and the file's comment says the cache needs `PLATFORM`, so I didn't flag it.\n\nIssues: []\n\nDismissed findings to log for human review (per AGENTS.md):\n- Build-job permissions for writing the cache: possibly missing, but I can't confirm from the diff, and the job most likely already has write access.\n- The `cache-` tag when `CACHE` is set without `PLATFORM`: depends on how it's called, and the code comment documents it."
+  },
+  {
+   "description": "Logic/security review of changes",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no high-signal issues in PR #70, so the list is empty.\n\nWhat I checked:\n- **Publish condition** (`.github/workflows/images.yml`, lines 20 and 128): for same-repository pull requests and for `main` (push or manual run), the simpler `PUBLISH` and `publish.if` conditions give the same result as the old ones. A manual run on another branch still does not publish, so it cannot move `edge`. The only change is for fork pull requests, which ADR 0020 deliberately drops.\n- **GHCR login now unconditional** (line 85): every run needs it to read and write the cache, and the `build` job already has `packages: write`.\n- **`CACHE: true` env** (line 96): bake turns it into a bool the same way it already does for `PUSH`. The smoke-test step doesn't set it, so `.github/scripts/images.sh` (which runs `bake --print`) is unaffected.\n- **`images/docker-bake.hcl`** (lines 35–95): the `cache_ref`, `cache_from` and `cache_to` functions and the per-target `cache-from`/`cache-to` lists evaluate correctly. In CI they produce `:cache-amd64` / `:cache-arm64` for each package, and with `CACHE` off the lists are empty. With `CACHE` on, `PLATFORM` must be set, which the variable's comment says and CI does.\n- **Cleanup interaction**: `.github/workflows/ghcr-cleanup.yml` and `.github/scripts/stale-pr-tags.sh` only target `pr-N` tags, so they won't delete the cache tags. Superseded cache versions stay as untagged versions, which is what ADR 0021 says.\n\nI'm not flagging three things because the PR body or its ADRs (0020, 0021) make them deliberate choices:\n- pull requests and `main` share one cache and overwrite each other's;\n- a pull request can write cache that `main` later reads, which is acceptable because pull requests come from collaborators only;\n- pull requests from forks now fail.\n\nNo reviewer findings were dismissed."
+  }
+ ],
+ "review": {
+  "issues": []
+ },
+ "candidates": []
+}

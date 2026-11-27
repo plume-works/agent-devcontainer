@@ -1,0 +1,29 @@
+[
+  {
+    "id": "PRRT_kwDOVxZizM66ccs8",
+    "isResolved": false,
+    "path": "renovate.json",
+    "line": 18,
+    "comments": {
+      "pageInfo": {
+        "hasNextPage": false
+      },
+      "nodes": [
+        {
+          "author": {
+            "login": "greptile-apps"
+          },
+          "url": "https://github.com/plume-works/images/pull/75#discussion_r4655035804",
+          "body": "[P1] **Latest fixes stay excluded**\n\nThe datasource selects midnight before the security update it detects. For example, an `InRelease` dated 21 November at 15:00 produces `20261121T000000Z`, which excludes that afternoon's fixes. If no later security publication changes the date, Renovate keeps offering that same older snapshot indefinitely. Select a snapshot that includes the detected publication; limit update frequency separately."
+        },
+        {
+          "author": {
+            "login": "anton-matosov"
+          },
+          "url": "https://github.com/plume-works/images/pull/75#discussion_r4655040533",
+          "body": "Fixed in a94298e: the snapshot now pins the exact time in the InRelease `Date:` line (checked that a snapshot at that moment includes that publication), and a daily Renovate schedule window limits bumps to one a day."
+        }
+      ]
+    }
+  }
+]

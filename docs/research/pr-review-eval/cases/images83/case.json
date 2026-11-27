@@ -1,0 +1,16 @@
+{
+  "source": "plume-works/images",
+  "pr": 83,
+  "head": "018feca97ad7731d2e27cebf298550cd8ace5610",
+  "base": "8640351b713243b5b6b399e03f9e6ec9009a4e69",
+  "description": "#75's later description (exact-time snapshot, `T095046Z` dry run) on #75's first commit, so it is stale.",
+  "threads": "none",
+  "expected": [
+    {
+      "id": "gate-stop",
+      "title": "The metadata check stops the review on the stale description",
+      "detail": "The description claims the exact publication moment; the head's transform appends `T000000Z`.",
+      "expect": "gate-stop"
+    }
+  ]
+}

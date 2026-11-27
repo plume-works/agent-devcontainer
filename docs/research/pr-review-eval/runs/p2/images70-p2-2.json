@@ -1,0 +1,183 @@
+{
+ "run": "images70-p2-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.93,
+ "duration_s": 196,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.49,
+  "claude-sonnet-5-5": 0.44
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI checked the added lines against `AGENTS.md`, `docs/agents/domain.md`, the existing ADR conventions and `GLOSSARY.md`, and found nothing I can tie to quoted rule text.\n\n- **ADRs 0020 and 0021:** Both have a \"Considered Options\" section, and neither contains code implementation details. The heading capitalisation matches ADR 0019, while the other ADRs use \"Considered options\". No rule governs that casing.\n- **Superseded ADRs:** No existing ADR records the earlier fork-publishing behaviour or a build cache, so the \"delete superseded ADRs\" rule has nothing to apply to. ADR 0020 lists the old fork behaviour under \"Considered Options\" as the rule asks.\n- **README:** It is updated and stays brief. It links ADR 0020 and describes the cache tags without pushing durable detail into the README.\n- **Code comments:** The new comments in `images/docker-bake.hcl` and `.github/workflows/images.yml` state constraints or reasons, such as \"GHCR rejects the default cache index\" and \"Every run reads and writes the build cache in GHCR\". None restates what its code already shows.\n- **`GLOSSARY.md`:** It has no entries for \"fork\" or \"cache\", so there is no vocabulary to violate."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Four findings, all P3. Nothing qualifies at P2. I did not run any code and I wrote no files.\n\nAnchors I checked against the repo:\n- `.github/workflows/ghcr-cleanup.yml` keeps untagged images and deletes only `pr-N` tags. That supports the 0021 line \"A superseded cache stays as an untagged version, like the other untagged images the cleanup keeps.\"\n- `images.yml` sets `PLATFORM: linux/${{ matrix.arch }}` and `CACHE: true`.\n- The `cache_ref` function in `images/docker-bake.hcl` produces `cache-amd64` and `cache-arm64`, matching the README.\n- `CACHE` defaults to false, which supports the ADR line \"Local builds do not use it.\"\n\n| # | File | Quoted added line | Verdict | Replacement / destination | Rule | Severity |\n|---|------|-------------------|---------|---------------------------|------|----------|\n| 1 | `docs/adr/0020-pull-requests-from-collaborators-only.md` | `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).` | REWRITE (drop the parenthetical) | `- Forks build and test without publishing.` The parenthetical is provenance. It says how the decision came about, not what a reader needs. The option list is the sanctioned place for the old decision, so keep the option itself. | durable-knowledge-audit: provenance (\"previously\", \"never recorded\"); fails the \"still true if rewritten from scratch\" test | Severity: P3, a stale history note in a permanent record. |\n| 2 | `README.md` | `` The `cache-amd64` and `cache-arm64` tags are CI's build cache, not images to pull. `` | REWRITE | The sentence before it reads \"The only tags are `edge` ... and `pr-N`\", so the paragraph now contradicts itself. Change the earlier clause to \"The only image tags are ...\". Keep the cache sentence. | Keep the README accurate (AGENTS.md); durable-knowledge-audit: durable fact must be self-consistent | Severity: P3, a reader sees two conflicting \"only tags\" claims. |\n| 3 | `images/docker-bake.hcl` | `# mode=max: also cache the layers of intermediate stages. image-manifest=true: GHCR rejects the default cache index.` | REWRITE, partly UNVERIFIED | Drop \"mode=max: also cache the layers of intermediate stages.\" It restates what the option name and the ADR already say. Keep the GHCR constraint but state it as a constraint: `# image-manifest=true: GHCR does not accept the default cache index.` That claim is dated third-party behaviour and I cannot verify it offline, so a human should confirm it. `oci-mediatypes=true` has no stated reason. | AGENTS.md comments say why, never restate the code; durable-knowledge-audit: dated third-party behaviour | Severity: P3, mild noise plus an unconfirmed external claim. |\n| 4 | `images/docker-bake.hcl` | `# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.` | REWRITE | `# Needs PLATFORM: each architecture has its own cache.` \"CI sets CACHE=true\" restates `images.yml::CACHE: true`. The PLATFORM constraint is verified and worth keeping. | AGENTS.md comments (restates the code); durable-knowledge-audit: comment restating another source | Severity: P3, duplicated fact that can drift. |\n\nThe following added lines pass the audit and are KEEP:\n- The `images.yml` comment `# A manual run on another branch must not move edge.` is a real constraint, verified against `PUBLISH`.\n- The `images.yml` comment `# Every run reads and writes the build cache in GHCR, publishing or not.` explains why the GHCR login step has no `if`.\n- The README paragraph about no outside contributions.\n- ADR 0021 states a decision, rejected options and consequences. It has no code details and no provenance. The \"GitHub Actions cache: capped in size, evicts, and is scoped per branch\" bullet is third-party behaviour that I judge to be stable.\n- The ADR 0020 body is acceptable. Its claim that \"a pull request from a fork fails its checks\" follows from the login and cache write now running for every run."
+  },
+  {
+   "description": "Correctness pass: bugs",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no correctness bugs in `.github/workflows/images.yml` or `images/docker-bake.hcl`. This is from reading the diff and the code at head; I ran nothing.\n\nWhat I checked, and why each one is not a bug:\n\n- **`CACHE` typing:** `variable \"CACHE\" { default = false }` has a bool default, so bake reads the env string `\"true\"` as a bool. `PUSH` already works this way with `env.PUBLISH`.\n- **HCL functions:** `cache_ref` calls `replace()` from bake's standard library, and calling one user function from another already happens with `img` inside `out`. The ternaries return either a one-item list or `[]`, the same shape `out` uses.\n- **`PLATFORM` empty:** If `CACHE=true` is set with no `PLATFORM`, the ref would be the invalid `...:cache-`. Only a local build that sets `CACHE` by hand can reach this, and the code comment says `CACHE` needs `PLATFORM`. In CI, `PLATFORM` is always `linux/${{ matrix.arch }}`. When `CACHE` is unset, as in local builds, the `images.sh` smoke-step call and `ghcr-cleanup`, the cache lists are empty. That matches \"Local builds don't use it.\"\n- **Cleanup interaction:** `stale-pr-tags.sh` only picks `^pr-[0-9]+$` tags, so `ghcr-cleanup` never deletes `cache-amd64`/`cache-arm64`. It deletes only `pr-N` tags and keeps untagged versions, so old cache manifests stay untagged, as ADR 0021 says.\n  - Deleting a `pr-N` index does not affect cache manifests: they have their own digests and are not children of that index.\n  - Untagged cache versions pile up without limit (one per image per architecture per run). ADR 0021 accepts this, so it is not a logic bug.\n- **Parallel runs:** A PR run and a main run may write the same cache tag at once. Blobs are uploaded before the manifest and the last writer wins. Cache keys depend on content, so a cache written by another branch cannot produce a wrong image, only fewer cache hits. ADR 0021 accepts this. The amd64 and arm64 jobs write separate tags, so they don't collide.\n- **Manual run on another branch:** `PUBLISH` is false, so nothing is pushed by digest and `edge` does not move. That run does still read and write the shared cache, which is what the workflow comment and ADR 0021 promise. Login no longer depends on `PUBLISH`, and the job has `packages: write`, so the cache push works.\n- **Workflow conditions:** The new `PUBLISH` expression and the `publish` job's `if:` give the same answer for every event: pull_request is true, push to main is true, a manual run on main is true, and a manual run elsewhere is false.\n  - Fork PRs now get `PUBLISH=true`, but their token is read-only, so the cache push in `build` fails, and `publish` (which needs `build`) never runs. That matches ADR 0020: a fork PR fails its checks.\n  - `finished` and `paths-filter` are unchanged.\n- **Smoke tests and digest recording:** These are unaffected. The step-level `CACHE` env does not reach `images.sh` in the smoke step, and the metadata file still holds `containerimage.digest`.\n\nOne robustness note that doesn't qualify as a bug: a failed cache write (for example, a GHCR outage) now fails the build, and that blocks `edge` on main. Adding `ignore-error=true` to `cache_to` would separate the two. It needs an outside failure to happen, so I'm not reporting it as a finding.\n\nNo reviewer findings were dismissed in this pass.\n\n**Result: none**"
+  },
+  {
+   "description": "Correctness pass: security/logic",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found two issues: one stops `edge` from getting newer Ubuntu packages, and the other is a minor trust-boundary issue. The fork questions you raised turn out fine.\n\n**Issue 1**\n- File: `images/docker-bake.hcl` (also `.github/workflows/images.yml`, `CACHE: true`)\n- Added line: `result = CACHE ? [\"type=registry,ref=${cache_ref(name)}\"] : []`\n- Description: Every CI run, `main` included, now reads a cache that never expires. That includes the `RUN apt-get update && apt-get install …` layers in `images/core/Dockerfile` and `images/core-systemd/Dockerfile`. Their apt packages are not pinned and float within the Ubuntu release. BuildKit decides a cache hit from the instruction text and the parent layer, so these layers come back from cache until the `ubuntu:26.04@sha256` digest or the `RUN` text changes. Before this PR, every build that published `edge` fetched current packages. This contradicts ADR 0013, which says \"a rebuild can pick up newer ones\" (it is not flagged in the PR). The workflow also offers no way to build without the cache, not even on a manual run.\n- Reason: bug\n- Severity: P2. `edge` keeps shipping old apt packages, security fixes included, until Renovate bumps the Ubuntu base digest, even though image changes keep rebuilding it.\n- Scenario:\n  - Trigger: Ubuntu publishes a security update for a package that core installs (e.g. `git`, `curl`, `sudo`). Later a PR changes something below that `RUN` layer, such as bumping `CLAUDE_CODE_VERSION`, and merges to `main`.\n  - Path: `.github/workflows/images.yml::build` (CACHE=true) → `images/docker-bake.hcl::cache_from` → `images/docker-bake.hcl::target.core` → `images/core/Dockerfile` apt `RUN` (cache hit) → `.github/workflows/images.yml::publish` (TAG=edge).\n  - Outcome: the new `edge` is described as rebuilt and tested, but it carries the old apt layer from whichever earlier run filled the cache.\n\n**Issue 2**\n- File: `.github/workflows/images.yml`\n- Added line: `# Every run reads and writes the build cache in GHCR, publishing or not.` (together with removing the login `if:` and adding `CACHE: true`)\n- Description: Pull request runs and manual runs on any branch write the same `cache-<arch>` tag that `main` reads when it builds `edge`. ADR 0021 says this is intended (\"each overwrites the other's\"). The effect is that layer content made by an unreviewed branch's run can end up in `edge` without showing in any reviewed diff. That branch runs its own version of the workflow with a `packages: write` token, so it could push a cache manifest whose keys match `main`'s steps but whose layers differ. Collaborators could already push to GHCR directly with that token, so this adds little new exposure. It is still a quiet path from an unmerged branch into the published image.\n- Reason: security\n- Severity: P3. Only collaborators can trigger it, and they already have equal write power. It persists and is hard to see.\n- Scenario:\n  - Trigger: a collaborator's PR branch, or a manual run on any branch, edits the workflow or bake file and writes crafted entries to `ghcr.io/plume-works/core:cache-amd64`. The branch is then closed without merging.\n  - Path: `.github/workflows/images.yml::build` (PR or dispatch, unconditional login, `packages: write`) → `images/docker-bake.hcl::cache_to` → the next `main` push runs `.github/workflows/images.yml::build` → `images/docker-bake.hcl::cache_from` → `.github/workflows/images.yml::publish` (edge).\n  - Outcome: `edge` contains layers that no merged commit produced.\n\n**Checked and fine (no issue)**\n- **Fork pull request:** A fork's token is read-only, so the login still works (read-only), cache reads work, and both the push by digest and the cache write are refused. `bake` fails in the build step, before the smoke scripts run on the host. `publish` is skipped because `needs: build` failed, and `CI finished` fails. So \"a pull request from a fork fails its checks\" holds. Nothing worse happens: the stored registry login is a read-only token, and no fork code on the host runs after the login.\n- **`PUBLISH` and the `publish` condition:** For same-repository runs they behave exactly as before: PR → `pr-N`, `main` → `edge`, a manual run elsewhere doesn't publish.\n- **Bake functions:** They parse, and `CACHE` defaults to false, so local builds don't use the cache.\n- **`ghcr-cleanup.yml` and `stale-pr-tags.sh`:** They only match `pr-N` tags, so they never touch the `cache-*` tags. Superseded cache versions are kept untagged, as ADR 0021 states.\n- **Renovate:** It tracks only `edge` digests, so the cache tags don't affect it."
+  },
+  {
+   "description": "Validate C1 stale apt cache",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 7/10 · Severity: P2 — every part holds at head. `build` sets `CACHE: true` on all runs including main and `publish` tags edge. `core` has an unpinned `apt-get install` RUN. ADR 0013 says a rebuild picks up newer apt packages. ADR 0021 doesn't mention apt staleness, and the workflow has no no-cache path. The apt layer is reused until the base digest or the RUN text changes, and Renovate's digest pins limit how long that lasts, so impact is limited. Earlier reply does not hold."
+  },
+  {
+   "description": "Validate C2 cache poisoning",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 4/10 · Severity: P3 — the trigger, path and outcome all hold at head (a collaborator branch or dispatch run writes `cache-<arch>` and a later main push reads it into edge), but ADR 0021 deliberately has every CI run read and write the shared cache, ADR 0020 limits PRs to collaborators who already hold equivalent write power, and the harm is minor; earlier reply does not hold"
+  },
+  {
+   "description": "Validate C3 ADR provenance",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 3/10 · Severity: P3 — the parenthetical is a mild history note, but the AGENTS.md rule asks for the old decision to be listed under \"Considered options\", and the line holds a real durable fact (forks used to build and test without publishing, which is the rejected alternative). Only the \"never recorded as an ADR\" clause is provenance, so the finding is trivial and arguable and my earlier reply does not hold."
+  },
+  {
+   "description": "Validate C4 README only tags",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 3/10 · Severity: P3 — the paragraph does say \"The only tags are `edge` ... and `pr-N`\" and then names `cache-amd64`/`cache-arm64` tags, but the cache tags are explicitly labeled \"not images to pull\", so the contradiction is mild and readable in context, and the cited AGENTS.md rule (keep the README current and brief) is only loosely tied to it; earlier reply does not hold"
+  },
+  {
+   "description": "Validate C5 cache_to comment",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 3/10 · Severity: P3 — the comment's GHCR clause states a real constraint (a why) and only the mode=max clause plausibly restates the option, while the unexplained `oci-mediatypes=true` is an omission rather than a restatement; the claim is weak and arguable, so the earlier reply does not hold."
+  },
+  {
+   "description": "Validate C6 CACHE var comment",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Confidence: 3/10 · Severity: P3 — the sibling comments on PUSH and PLATFORM use the same \"CI sets X\" pattern, so the file already follows that convention, and \"CI sets CACHE=true\" does restate the workflow's `CACHE: true`, but only marginally and consistently with those siblings; the earlier reply does not hold."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The registry build cache and the collaborators-only scope work as described. For same-repository runs, `PUBLISH` and the `publish` condition keep their earlier behaviour. A fork pull request fails at the cache or digest push, as ADR 0020 says. The cleanup workflow only touches `pr-N` tags, so it never deletes the cache tags. No P1 findings. The inline comments are P2 and P3: the main one is that `edge` can now reuse apt layers from the cache instead of fetching current packages.",
+  "comments": [
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 42,
+    "body": "**Severity: P2 · Confidence: 7/10** — Every part holds at head. `build` sets `CACHE: true` on every run, `main` included, and `publish` tags `edge`. `core` has an unpinned `apt-get install` RUN, and ADR 0013 says a rebuild picks up newer apt packages. ADR 0021 doesn't mention that apt layers can go stale, and there is no way to build without the cache. Renovate's base-digest bumps limit how long this lasts. Earlier reply does not hold.\n\nThe cache is now read on `main` runs too, and it never expires. BuildKit keys the `RUN apt-get update && apt-get install …` layers in `core` and `core-systemd` on their instruction text and parent layer. Those layers are therefore reused until the `ubuntu` base digest or the `RUN` text changes, even when a later change rebuilds layers below them.\n\n- **Trigger:** Ubuntu ships a security update for a package `core` installs. Later, a change that leaves the base digest and the apt `RUN` text alone merges to `main`.\n- **Path:** `.github/workflows/images.yml::build` (CACHE=true) → `images/docker-bake.hcl::cache_from` → `images/docker-bake.hcl::target.core` → `images/core/Dockerfile` apt `RUN` (cache hit) → `.github/workflows/images.yml::publish` (edge).\n- **Outcome:** The new `edge` ships the old apt layer without that update. Before this PR, every `edge` build fetched current packages, and ADR 0013 still says a rebuild picks up newer ones.\n\nEither record this in ADR 0021 as a consequence that reconciles it with ADR 0013, or give `main` a way to refresh, such as `no-cache-filter` or skipping `cache-from` on `main` or on a scheduled run."
+   },
+   {
+    "path": ".github/workflows/images.yml",
+    "line": 84,
+    "body": "**Severity: P3 · Confidence: 4/10** — The trigger, path and outcome all hold at head. A collaborator branch or a manual run writes `cache-<arch>`, and a later `main` push reads it into `edge`. ADR 0021 intends the shared cache, though, and ADR 0020 limits pull requests to collaborators who already have the same write power, so the harm is minor. Earlier reply does not hold.\n\nPull request runs and manual runs on any branch write the same `cache-<arch>` tag that `main` reads when it builds `edge`. A branch runs its own copy of the workflow with a `packages: write` token, so it can push cache entries whose keys match `main`'s steps but whose layers differ.\n\n- **Trigger:** A collaborator's branch, or a manual run on any branch, changes the bake or workflow file and writes crafted entries to `<image>:cache-<arch>`. The branch is then closed without merging.\n- **Path:** `.github/workflows/images.yml::build` (unconditional login, `packages: write`) → `images/docker-bake.hcl::cache_to` → next `main` push → `images/docker-bake.hcl::cache_from` → `.github/workflows/images.yml::publish` (edge).\n- **Outcome:** `edge` contains layers that no merged commit produced, and no reviewed diff shows them.\n\nIf this is accepted, consider stating it as a consequence in ADR 0021."
+   },
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**Severity: P3 · Confidence: 3/10** — The line names a real rejected alternative, which AGENTS.md asks to be listed. Only the \"never recorded as an ADR\" clause is provenance, so the finding is trivial and arguable. Earlier reply does not hold.\n\nThe parenthetical tells how the decision came about rather than stating a durable fact. Suggested wording: `- Forks build and test without publishing.`"
+   },
+   {
+    "path": "README.md",
+    "line": 19,
+    "body": "**Severity: P3 · Confidence: 3/10** — The paragraph does say \"The only tags are `edge` … and `pr-N`\" and then names two more tags. The cache tags are labelled \"not images to pull\", though, so the contradiction is mild and reads fine in context. Earlier reply does not hold.\n\nThe new sentence contradicts the earlier \"The only tags are…\" in the same paragraph. Changing that to \"The only image tags are…\" would make it consistent."
+   },
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 45,
+    "body": "**Severity: P3 · Confidence: 3/10** — The GHCR clause states a real constraint, so it is a why. Only the `mode=max` clause plausibly restates the option. The unexplained `oci-mediatypes=true` is an omission, not a restatement. The claim is weak and arguable. Earlier reply does not hold.\n\nAGENTS.md says: \"A comment says why: a constraint, gotcha or rejected alternative the code cannot show. Never restate what the code, a step name or another comment already says.\" `mode=max: also cache the layers of intermediate stages` describes what the option does, not why it was chosen."
+   },
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 17,
+    "body": "**Severity: P3 · Confidence: 3/10** — \"CI sets CACHE=true\" does restate the workflow's `CACHE: true`. The `PUSH` and `PLATFORM` comments next to it use the same \"CI sets X\" pattern, though, so this follows the file's convention and the overlap is marginal. Earlier reply does not hold.\n\nAGENTS.md says: \"Never restate what the code, a step name or another comment already says.\" Only the `PLATFORM` dependency is a why. Suggested wording: `# Needs PLATFORM: each architecture has its own cache.`"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness (security/logic)",
+   "path": "images/docker-bake.hcl",
+   "claim": "Every CI run, main included, reads a cache that never expires, so the unpinned apt-get RUN layers in core and core-systemd are reused until the base digest or RUN text changes; edge stops picking up newer apt packages, which contradicts ADR 0013.",
+   "validation": "Confidence: 7/10 · Severity: P2 — every part holds at head. `build` sets `CACHE: true` on all runs including main and `publish` tags edge. `core` has an unpinned `apt-get install` RUN. ADR 0013 says a rebuild picks up newer apt packages. ADR 0021 doesn't mention apt staleness, and the workflow has no no-cache path. The apt layer is reused until the base digest or the RUN text changes, and Renovate's digest pins limit how long that lasts, so impact is limited. Earlier reply does not hold.",
+   "posted": true
+  },
+  {
+   "pass": "correctness (security/logic)",
+   "path": ".github/workflows/images.yml",
+   "claim": "PR and manual runs on any branch write the same cache-<arch> tag that main reads when it builds edge, so an unmerged branch can put crafted layers into edge.",
+   "validation": "Confidence: 4/10 · Severity: P3 — the trigger, path and outcome all hold at head (a collaborator branch or dispatch run writes `cache-<arch>` and a later main push reads it into edge), but ADR 0021 deliberately has every CI run read and write the shared cache, ADR 0020 limits PRs to collaborators who already hold equivalent write power, and the harm is minor; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical '(the previous behaviour, never recorded as an ADR)' is provenance residue; drop it.",
+   "validation": "Confidence: 3/10 · Severity: P3 — the parenthetical is a mild history note, but the AGENTS.md rule asks for the old decision to be listed under \"Considered options\", and the line holds a real durable fact (forks used to build and test without publishing, which is the rejected alternative). Only the \"never recorded as an ADR\" clause is provenance, so the finding is trivial and arguable and my earlier reply does not hold.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "README.md",
+   "claim": "The added cache-tags sentence contradicts the earlier 'The only tags are edge and pr-N' in the same paragraph.",
+   "validation": "Confidence: 3/10 · Severity: P3 — the paragraph does say \"The only tags are `edge` ... and `pr-N`\" and then names `cache-amd64`/`cache-arm64` tags, but the cache tags are explicitly labeled \"not images to pull\", so the contradiction is mild and readable in context, and the cited AGENTS.md rule (keep the README current and brief) is only loosely tied to it; earlier reply does not hold",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/docker-bake.hcl",
+   "claim": "The cache_to comment's 'mode=max: also cache the layers of intermediate stages' restates the option; the GHCR claim is unverifiable third-party behaviour; oci-mediatypes=true has no reason.",
+   "validation": "Confidence: 3/10 · Severity: P3 — the comment's GHCR clause states a real constraint (a why) and only the mode=max clause plausibly restates the option, while the unexplained `oci-mediatypes=true` is an omission rather than a restatement; the claim is weak and arguable, so the earlier reply does not hold.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/docker-bake.hcl",
+   "claim": "The CACHE variable comment's 'CI sets CACHE=true' restates images.yml; keep only the PLATFORM constraint.",
+   "validation": "Confidence: 3/10 · Severity: P3 — the sibling comments on PUSH and PLATFORM use the same \"CI sets X\" pattern, so the file already follows that convention, and \"CI sets CACHE=true\" does restate the workflow's `CACHE: true`, but only marginally and consistently with those siblings; the earlier reply does not hold.",
+   "posted": true
+  }
+ ]
+}

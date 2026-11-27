@@ -1,0 +1,78 @@
+{
+ "run": "images70-p3-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.35,
+ "duration_s": 131,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.16,
+  "claude-sonnet-5-5": 0.19
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No issues.\n\nI checked the added lines against `AGENTS.md`, `docs/agents/domain.md`, `GLOSSARY.md` and the existing ADRs. No added line breaks a rule I can quote.\n\n- **ADR content:** ADRs 0020 and 0021 describe decisions and consequences with no code implementation details. The `mode=max` and `image-manifest=true` detail appears only in a comment in `images/docker-bake.hcl`.\n- **Superseded ADRs:** The PR replaces no earlier ADR, so the delete-superseded-ADR rule does not apply. ADR 0020 lists the previous fork behaviour under considered options.\n- **Comments:** The new comments in `.github/workflows/images.yml` and `images/docker-bake.hcl` each give a reason or constraint, such as why login is unconditional, why `PLATFORM` is needed and why `image-manifest=true` is set. None restates the code or narrates the file.\n- **README:** The additions are one sentence about the cache tags and one short paragraph linking ADR 0020. That is brief and points to the ADR.\n- **Glossary:** The added text introduces no term that conflicts with `GLOSSARY.md`.\n\nOne borderline item, not a high-signal violation: both new ADRs use the heading `## Considered Options`. `AGENTS.md` writes it as \"Considered options\", and most existing ADRs use lowercase `options`. ADR 0019 also uses `Options`, so there is precedent either way."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "One finding. The rest of the added lines in the three files pass.\n\n| Path | Quoted added line | Rule broken | Verdict | Replacement |\n|---|---|---|---|---|\n| `docs/adr/0020-pull-requests-from-collaborators-only.md` | `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).` | The durable-knowledge-audit says \"Not durable — how the decision was reached… the alternative that was almost written\". Its provenance pattern also lists \"previously/used to/originally\". The parenthetical narrates history, not a fact a reader needs. | DROP the parenthetical. Deleting it loses no constraint, because the option itself stays and nothing in it is checkable. | `- Forks build and test without publishing.` |\n\nChecks that came out clean:\n- **ADR 0020, other lines:** the policy, including \"a pull request from a fork fails its checks\", is consistent with the `images.yml` diff, which now lets every `pull_request` run publish and log in to GHCR.\n- **ADR 0021:** the decision and the \"Consequences\" items state design, with no code details. The `docker-bake.hcl` diff supports them: per-architecture cache refs, `CACHE` off by default so local builds skip it, and one cache ref per image and architecture.\n- **README:** the added tag note and the contributions paragraph are brief and link to ADR 0020. They do not breach the \"brief\" rule.\n\nI did not verify two things, and neither is a finding.\n- **GitHub Actions cache claims:** \"capped in size, evicts, and is scoped per branch\" in ADR 0021 is third-party behaviour, but it is the stated reason for rejecting that option.\n- **Cleanup claim:** \"like the other untagged images the cleanup keeps\" in ADR 0021 depends on a cleanup behaviour that is not in this diff. It needs a human check against the cleanup workflow.\n\nDismissed candidates, logged for human review per AGENTS.md: the README contributions sentence (duplicates ADR 0020 but is a one-line pointer), the README `cache-*` tag note (user-facing tag information), and ADR 0021's GitHub Actions cache rationale (the rejected-option reasoning an ADR is meant to hold)."
+  },
+  {
+   "description": "Correctness pass bugs PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "No issues.\n\nI checked these possible failure points against the head commit, and none of them leads to a wrong outcome I can reach:\n\n- **`CACHE: true` arrives as the string \"true\".** `images/docker-bake.hcl::variable \"CACHE\"` has a bool default, the same as `PUSH`. `PUSH` already gets a `\"true\"`/`\"false\"` string from the workflow env and its ternary in `out` works, so the ternary in `cache_from` and `cache_to` takes that string the same way.\n- **`PLATFORM` could be empty.** The build job always sets `PLATFORM: linux/${{ matrix.arch }}`, so the cache ref is always `<REGISTRY>/<name>:cache-amd64` or `:cache-arm64`. Locally `CACHE` defaults to false, so `cache_ref` is never used there.\n- **`.github/scripts/images.sh` and the cleanup workflow** run `bake --print` without `CACHE`. Their output and the parent-first order from `contexts` are unchanged.\n- **Publish conditions** (`env.PUBLISH` and the `publish` job's `if`):\n  - A push only fires for `main`.\n  - A manual run on `main` publishes `edge`, as before.\n  - A manual run on another branch still neither pushes nor publishes.\n  - A pull request whose build was skipped by paths-filter also skips publish, because publish needs build.\n- **Login is now unconditional.** That is needed because `cache-to` writes on every run. For a fork pull request the token cannot write packages, so the cache export and the push by digest fail and the checks fail. ADR 0020 states exactly that.\n- **Missing cache on a first run.** buildx only warns and builds from scratch. This matches the PR body.\n- **Cleanup.** `ghcr-cleanup.yml` and `.github/scripts/stale-pr-tags.sh` only pick `pr-N` tags (`sed 's/^pr-\\([0-9][0-9]*\\)$/...'`). The `cache-<arch>` tags are never deleted, and superseded cache versions become untagged and are kept, as ADR 0021 says.\n- **Child images built through `target:` contexts** each export their own cache to their own package. A cache shared between pull requests and `main` can be overwritten, which ADR 0021 accepts.\n- **A pull request can write the cache that `main`'s `edge` build reads.** This is not a new exposure: same-repository pull requests already had `packages: write` and run their own version of the workflow.\n\nTest coverage: nothing to flag. The change is CI configuration only and has no unit-testable logic.\n\nNo reviewer findings were dismissed in this pass."
+  },
+  {
+   "description": "Correctness pass security PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no issues that meet the high-signal bar.\n\nI checked these scenarios, and each one either holds or is a trade-off the repo already accepts in a document at head:\n\n- **Fork pull requests after the fork guards are gone:** For a fork, `PUBLISH` now comes out true and the GHCR login runs unconditionally. GitHub gives a fork's run a read-only `GITHUB_TOKEN`, so writing the cache fails in `images.yml::build` (\"Build every image…\" → `docker-bake.hcl::cache_to`). The build job fails, `publish` never runs (`needs: build`), and nothing is pushed or tagged. ADR 0020 records that \"a pull request from a fork fails its checks\", so this is accepted.\n- **Pull-request cache content reaching a published `edge` image:** Only collaborators' same-repo branches (and Renovate) can write the cache. Before this PR those runs already had `packages: write` and could change the workflow itself, so they could already push to any tag. The shared cache gives them no new trust. A benign PR only reuses a cached step when the earlier steps and the command are identical, which is normal layer caching. ADR 0021 accepts that pull requests and `main` share and overwrite one cache.\n- **Manual run on a non-main branch:** `PUBLISH` is false, so the `publish` job is skipped and `edge` does not move. The run does write the cache, which ADR 0021 states as intended (\"Every CI run reads and writes it\").\n- **Two runs at once:** Each architecture has its own tag (`cache-amd64`, `cache-arm64`), and a cache export only updates the tag after its blobs are pushed. A cancelled pull-request run leaves the previous cache in place. A pull request and `main` overwriting each other only costs cache hits, which ADR 0021 accepts.\n- **Secrets in the public cache:** `mode=max` stores every build step, but each Dockerfile has a single stage with no build secrets or token arguments, so nothing private ends up in the cache tags.\n- **Cleanup and image listing:** `ghcr-cleanup.yml` and `stale-pr-tags.sh` only act on `pr-N` tags and keep untagged versions, so the cache tags are left alone, as ADR 0021 says. `images.sh` calls `bake --print` without `CACHE`, so the cache functions don't change it.\n\nOne thing I set aside as not a defect: ADR 0013 says apt packages \"float … so a rebuild can pick up newer ones\". With the cache, an unchanged apt step is reused until a line before it changes, for example a Renovate bump of the Ubuntu base image. That makes apt security updates less likely to land on a rebuild. The ADR only says \"can\", not that every rebuild updates, so it breaks no stated guarantee. I list it for a human to decide."
+  },
+  {
+   "description": "Validate ADR 0020 candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P3 — \"never recorded as an ADR\" is process provenance and fails the skill's test (\"would this still be true if the code were rewritten from scratch?\"). It also says nothing about the option itself. AGENTS.md only requires listing the old decision under Considered Options, so \"the previous behaviour\" is defensible context, but the ADR-history aside is not. Cosmetic only, so P3."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The registry build cache and the removal of the fork guards are consistent with ADRs 0020 and 0021. The cleanup only removes `pr-N` tags, so it leaves the cache tags alone, and the publish conditions still keep a manual run on another branch from moving `edge`. I found no correctness or security issues. One cosmetic documentation comment is attached inline.",
+  "comments": [
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**P3** — \"never recorded as an ADR\" records how the repository got here, not something about the option itself. It would stop being relevant once the history is forgotten. AGENTS.md asks for the old decision to be listed under Considered options, which the bullet already does, so the aside about ADR history can go. Suggested: `- Forks build and test without publishing.` (or keep \"the previous behaviour\" if you want that context)."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical in '- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).' is provenance/history residue, not durable knowledge; drop it.",
+   "validation": "HOLDS P3 — \"never recorded as an ADR\" is process provenance and fails the skill's test (\"would this still be true if the code were rewritten from scratch?\"). It also says nothing about the option itself. AGENTS.md only requires listing the old decision under Considered Options, so \"the previous behaviour\" is defensible context, but the ADR-history aside is not. Cosmetic only, so P3.",
+   "posted": true
+  }
+ ]
+}

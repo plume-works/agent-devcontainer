@@ -1,0 +1,32 @@
+{
+ "run": "images83-p9-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.41,
+ "duration_s": 56,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.41
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "Requesting changes on the PR metadata gate. The description makes two claims about the Renovate side of this change that the diff contradicts, so I stopped before the in-depth review passes.\n\n1. **Snapshot timestamp.** The description says the latest snapshot is \"the moment the `resolute-security` pocket last changed, read from its InRelease `Date:` line (a snapshot at that moment includes it)\". It also says a local dry run proposed `20261121T000000Z` → `20261121T095046Z`. But the `ubuntu-snapshot` transform in `renovate.json` (`customDatasources.ubuntu-snapshot.transformTemplates`) matches only day, month and year from the `Date:` line and always appends `T000000Z`. It cannot produce `20261121T095046Z`. Midnight of the day the pocket changed is *before* that change, so the proposed snapshot does not include the security update that triggered it. Either the description or the transform is wrong. If the transform is meant to match the description, it has to keep the `HH:MM:SS` from the `Date:` line. The datasource description (\"the day the security pocket last changed … at most one bump a day\") and ADR 0022 (\"at most once a day\") then need updating to match.\n2. **Renovate window.** The description says \"An early-morning Renovate window keeps it to about one rebuild a day\". The diff adds no `schedule` to `renovate.json`, and the repository has none. Either add the window or drop the claim.\n\nNo inline comments: this is a metadata-gate finding, and the in-depth passes did not run.",
+  "comments": []
+ },
+ "candidates": [
+  {
+   "pass": "metadata-gate",
+   "path": "renovate.json",
+   "claim": "The PR description says the snapshot version is the exact moment the resolute-security pocket last changed, and that a dry run proposed 20261121T095046Z. The ubuntu-snapshot transformTemplates keeps only the date and appends T000000Z, so it cannot produce that value. The midnight snapshot comes before the change, so it does not include it.",
+   "validation": null,
+   "posted": true
+  },
+  {
+   "pass": "metadata-gate",
+   "path": "renovate.json",
+   "claim": "The PR description says an early-morning Renovate window limits bumps to about one a day, but the diff adds no schedule to renovate.json and the repository has none.",
+   "validation": null,
+   "posted": true
+  }
+ ]
+}

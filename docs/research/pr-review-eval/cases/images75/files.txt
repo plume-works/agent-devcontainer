@@ -1,0 +1,9 @@
+.hadolint.yaml
+README.md
+docs/adr/0013-nothing-updates-itself.md
+docs/adr/0019-renovate-release-wait.md
+docs/adr/0022-all-inputs-are-pinned.md
+docs/usage/core.md
+images/core-systemd/Dockerfile
+images/core/Dockerfile
+renovate.json

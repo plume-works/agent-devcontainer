@@ -1,0 +1,8 @@
+.claude/settings.json
+GLOSSARY.md
+docs/usage/coder-template.md
+images/coder-template/Dockerfile
+images/coder-template/agent-services.target
+images/coder-template/claude-default-settings.json
+images/coder-template/claude-default-settings.service
+images/coder-template/smoke.sh

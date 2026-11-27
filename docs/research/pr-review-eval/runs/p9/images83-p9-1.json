@@ -1,0 +1,31 @@
+{
+ "run": "images83-p9-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 0.42,
+ "duration_s": 63,
+ "cost_by_model": {
+  "claude-opus-5-5": 0.42
+ },
+ "subagents": [],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "Requesting changes at the PR metadata gate, so the in-depth review passes did not run.\n\nThe description says Renovate's `ubuntu-snapshot` datasource proposes the exact moment the `resolute-security` pocket last changed, and that a local dry run proposed `20261121T000000Z` → `20261121T095046Z`. The committed `transformTemplates` contradicts both: it always emits midnight (`T000000Z`) of that day. So either the description is stale, or the datasource is not what was dry-run, and a midnight snapshot leaves out the same-day security update the description says it includes. Details are in the inline comment on the transform template. Please fix the transform, or the description and its test-plan claim, and the review will run in full after that.",
+  "comments": [
+   {
+    "path": "renovate.json",
+    "line": 18,
+    "body": "The `ubuntu-snapshot` transform keeps only the date from the InRelease `Date:` line and always appends `T000000Z`. That gives midnight of the day the `resolute-security` pocket last changed, which is earlier than the change itself, so the proposed snapshot does not include that day's security update. If the current pin is already that day's `T000000Z` (as `20261121T000000Z` is now), Renovate sees no newer version, and the fix only arrives with the next day the pocket changes.\n\nThis also contradicts the PR description. It says the latest snapshot is \"the moment the `resolute-security` pocket last changed ... (a snapshot at that moment includes it)\", and that the dry run proposed `20261121T000000Z` → `20261121T095046Z`. This template cannot produce a non-midnight time.\n\nSuggested fix: capture the time as well, e.g. `/(\\d+) (\\w{3}) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2})/`, and build `$m[2] & <month> & $pad($m[0], -2, \"0\") & \"T\" & $m[3] & $m[4] & $m[5] & \"Z\"`. Then update the datasource `description` (\"the day ... at most one bump a day\") and ADR 0022 (\"at most once a day\") to match. The other option is to keep day granularity, but then the description, the dry-run claim and the \"includes it\" reasoning need correcting."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "metadata gate",
+   "path": "renovate.json",
+   "claim": "The PR description says the ubuntu-snapshot datasource yields the moment the resolute-security pocket last changed (dry run proposed 20261121T000000Z -> 20261121T095046Z). The transformTemplates always emits <date>T000000Z, which is midnight before the change, so the proposed snapshot misses that day's security update and the diff contradicts the description and its test-plan claim.",
+   "validation": null,
+   "posted": true
+  }
+ ]
+}

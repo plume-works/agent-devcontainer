@@ -1,0 +1,159 @@
+diff --git a/.claude/settings.json b/.claude/settings.json
+index d11ae99..5fc3d33 100644
+--- a/.claude/settings.json
++++ b/.claude/settings.json
+@@ -1,5 +1,8 @@
+ {
+   "cleanupPeriodDays": 14,
++  "worktree": {
++    "baseRef": "fresh"
++  },
+   "env": {
+     "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
+     "CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT": "1"
+diff --git a/GLOSSARY.md b/GLOSSARY.md
+index 2e4451f..47058f9 100644
+--- a/GLOSSARY.md
++++ b/GLOSSARY.md
+@@ -31,3 +31,7 @@ _Avoid_: User service, background agent
+ **Claude pre-approval**:
+ Answering Claude Code's first-run questions for the workspace user before Claude Code asks them: its onboarding.
+ _Avoid_: Seeding, auto-trust
++
++**Claude default settings**:
++The Claude Code user settings the Coder template image gives every workspace user, taking precedence over the user's own.
++_Avoid_: Managed settings, baked-in settings
+diff --git a/docs/usage/coder-template.md b/docs/usage/coder-template.md
+index 0b3f5b9..1b14b0a 100644
+--- a/docs/usage/coder-template.md
++++ b/docs/usage/coder-template.md
+@@ -50,5 +50,8 @@ come from the front matter of the template's README.
+   [ADR 0016](../adr/0016-claude-pre-approval-on-by-default.md)).
+ - The Claude pre-approval choices are workspace-wide, because the workspace is the sandbox: only trust names the
+   cloned repository; every project's MCP servers in the workspace are approved ([ADR 0016](../adr/0016-claude-pre-approval-on-by-default.md)).
++- Claude default settings (`images/coder-template/claude-default-settings.json`) are written over
++  `~/.claude/settings.json` at every workspace start, so a change made there lasts only until the next start;
++  `~/.claude.json` and project settings are untouched.
+ - One volume per workspace persists across rebuilds: `/home/dev`. Everything else is recreated at every start,
+   the Docker engine's storage included ([ADR 0014](../adr/0014-no-engine-storage-volumes.md)).
+diff --git a/images/coder-template/Dockerfile b/images/coder-template/Dockerfile
+index e84a21a..83f9910 100644
+--- a/images/coder-template/Dockerfile
++++ b/images/coder-template/Dockerfile
+@@ -7,7 +7,8 @@ RUN install -d -m0755 /etc/coder \
+  && systemctl enable coder-agent.service
+ 
+ # Nothing enables these user units; only the Coder agent's startup script starts the target (ADR 0002).
+-COPY agent-services.target opencode.service claude-pre-approval.service claude-remote-control.service \
+-     claude-bridge-prompt-scrub.service /etc/systemd/user/
++COPY agent-services.target opencode.service claude-default-settings.service claude-pre-approval.service \
++     claude-remote-control.service claude-bridge-prompt-scrub.service /etc/systemd/user/
++COPY claude-default-settings.json /usr/local/share/claude-code/default-settings.json
+ COPY --chmod=0755 claude-pre-approval run-in-tmux /usr/local/bin/
+ COPY --chmod=0755 claude-bridge-prompt-scrub /usr/local/libexec/
+diff --git a/images/coder-template/agent-services.target b/images/coder-template/agent-services.target
+index e67f121..2b4055d 100644
+--- a/images/coder-template/agent-services.target
++++ b/images/coder-template/agent-services.target
+@@ -1,4 +1,4 @@
+ # Started only after the Coder startup script hands its environment, secrets included, to this user manager (ADR 0002).
+ [Unit]
+ Description=Agent services (started by the Coder agent, never at boot)
+-Wants=opencode.service claude-pre-approval.service claude-remote-control.service
++Wants=opencode.service claude-default-settings.service claude-pre-approval.service claude-remote-control.service
+diff --git a/images/coder-template/claude-default-settings.json b/images/coder-template/claude-default-settings.json
+new file mode 100644
+index 0000000..9e34b76
+--- /dev/null
++++ b/images/coder-template/claude-default-settings.json
+@@ -0,0 +1,40 @@
++{
++  "cleanupPeriodDays": 14,
++  "worktree": {
++    "baseRef": "fresh"
++  },
++  "env": {
++    "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
++    "CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT": "1"
++  },
++  "attribution": {
++    "commit": "Built with AI",
++    "pr": ""
++  },
++  "includeGitInstructions": false,
++  "permissions": {
++    "deny": [
++      "EnterPlanMode",
++      "ExitPlanMode",
++      "DesignSync",
++      "NotebookEdit",
++      "ReportFindings",
++      "AskUserQuestion",
++      "RemoteTrigger",
++      "ScheduleWakeup",
++      "CronCreate",
++      "CronDelete",
++      "CronList"
++    ],
++    "defaultMode": "auto"
++  },
++  "model": "opus",
++  "disableClaudeAiConnectors": true,
++  "disableBundledSkills": true,
++  "disableWorkflows": true,
++  "disableArtifact": true,
++  "enabledPlugins": {
++    "context7@claude-plugins-official": true
++  },
++  "autoMemoryEnabled": false
++}
+diff --git a/images/coder-template/claude-default-settings.service b/images/coder-template/claude-default-settings.service
+new file mode 100644
+index 0000000..0879606
+--- /dev/null
++++ b/images/coder-template/claude-default-settings.service
+@@ -0,0 +1,12 @@
++[Unit]
++Description=Claude default settings (written over the user's at each start)
++PartOf=agent-services.target
++# Claude pre-approval adds to the same file, and remote control must start with the defaults in place.
++Before=claude-pre-approval.service claude-remote-control.service
++
++[Service]
++Type=oneshot
++RemainAfterExit=yes
++ExecStartPre=/bin/mkdir -p %h/.claude
++# cp, not install: it writes through a symlinked file (a dotfiles checkout's, say) instead of replacing the link.
++ExecStart=/bin/cp /usr/local/share/claude-code/default-settings.json %h/.claude/settings.json
+diff --git a/images/coder-template/smoke.sh b/images/coder-template/smoke.sh
+index f5d7412..bdaf976 100755
+--- a/images/coder-template/smoke.sh
++++ b/images/coder-template/smoke.sh
+@@ -86,8 +86,12 @@ claude_has .claude.json '.remoteDialogSeen == true' || fail "remote control's co
+ claude_has .claude.json '.projects["/home/dev/repo"].hasTrustDialogAccepted == true' || fail "the repository is not trusted"
+ claude_has .claude.json '.projects["/home/dev/repo"] | has("enableAllProjectMcpServers") | not' ||
+   fail "project MCP servers are approved for the repository only, not for the whole workspace"
+-claude_has .claude/settings.json '.enableAllProjectMcpServers == true and .model == "smoke"' ||
+-  fail "project MCP servers are not approved for the whole workspace, or the user's own setting is lost"
++claude_has .claude/settings.json '.enableAllProjectMcpServers == true' ||
++  fail "project MCP servers are not approved for the whole workspace"
++# shellcheck disable=SC2016 # jq's own $d
++as_dev jq -e --slurpfile d /usr/local/share/claude-code/default-settings.json \
++  'del(.enableAllProjectMcpServers) == $d[0]' /home/dev/dotfiles/settings.json >/dev/null ||
++  fail "the Claude default settings are not written over the symlinked ~/.claude/settings.json's target"
+ [ "$(as_dev readlink /home/dev/.claude.json)" = dotfiles/claude.json ] || fail "the symlinked ~/.claude.json is no longer a link"
+ [ "$(as_dev readlink /home/dev/.claude/settings.json)" = ../dotfiles/settings.json ] ||
+   fail "the symlinked ~/.claude/settings.json is no longer a link"
+@@ -207,7 +211,11 @@ as_dev systemctl --user start agent-services.target
+ claude_has .claude.json '.hasCompletedOnboarding == true' || fail "Claude's onboarding is not marked completed with both choices off"
+ claude_has .claude.json '.remoteDialogSeen != true' || fail "remote control's consent is granted although switched off"
+ claude_has .claude.json '.projects["/home/dev/repo"].hasTrustDialogAccepted != true' || fail "the repository is trusted although switched off"
+-! as_dev test -e /home/dev/.claude/settings.json || fail "Claude pre-approval created ~/.claude/settings.json"
++claude_has .claude/settings.json 'has("enableAllProjectMcpServers") | not' ||
++  fail "project MCP servers are approved although switched off"
+ pass "with both Claude pre-approval choices off, only onboarding is granted"
++as_dev cmp -s /usr/local/share/claude-code/default-settings.json /home/dev/.claude/settings.json ||
++  fail "a fresh home's ~/.claude/settings.json is not the Claude default settings"
++pass "the Claude default settings are written over a fresh home's or a symlinked ~/.claude/settings.json"
+ 
+ echo "coder-template smoke test passed: $image"

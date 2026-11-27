@@ -1,0 +1,10 @@
+{
+  "number": 71,
+  "state": "OPEN",
+  "isDraft": false,
+  "title": "Write Claude default settings over the workspace user's at each start",
+  "baseRefName": "main",
+  "headRefName": "claude-default-settings",
+  "author": "anton-matosov",
+  "body": "## Summary\n\nClaude default settings (worktrees from a fresh `main`, auto mode, Opus, the denied tools, no auto memory, …) now reach every Coder workspace. Baking them into `/home/dev` would not: home is a volume, filled from the image only once (ADR 0012).\n\n```text\nagent-services.target starts\n  claude-default-settings   copy the image's defaults over ~/.claude/settings.json\n                            (writes through a dotfiles symlink, keeps the link)\n  claude-pre-approval       adds enableAllProjectMcpServers when trust is on\n  claude-remote-control     starts with both in place\n```\n\nDefaults win over anything the user changed in `~/.claude/settings.json`, at every start. Deliberately simple while there are no users; merging under the user's own values can come later.\n\nAlso carries `fresh` worktree baseRef for this repository's own Claude settings.\n\n## Evidence\n\n- **Before:** the coder-template smoke test asserted that with both Claude pre-approval choices off no `~/.claude/settings.json` exists.\n  **After:** it asserts the file is exactly the Claude default settings in a fresh home, and that a symlinked file's target holds the defaults plus the pre-approval key, still a link. `coder-template smoke test passed`; hadolint and shellcheck clean.\n\n## Merge Danger\n\n**Door:** two-way\n\n**Blast Radius:** workspaces\n\nA workspace user's own edits to `~/.claude/settings.json` are overwritten on their next workspace start.\n"
+}

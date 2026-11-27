@@ -1,0 +1,256 @@
+{
+ "run": "images83-p7-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 2.72,
+ "duration_s": 295,
+ "cost_by_model": {
+  "claude-opus-5-5": 2.21,
+  "claude-sonnet-5-5": 0.51
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass A",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Two compliance issues came out of the audit. Neither blocks.\n\n**1. ADR 0022 carries implementation details**\n- Path: `/tmp/pr-review-eval-7c1e/runs/images83-p7-2/repo/docs/adr/0022-all-inputs-are-pinned.md`\n- Added lines (head lines 3, 14 and 16, from the diff since I did not re-read the head file):\n  - \"`packages come from a dated snapshot of its archive, set in the core image's apt config, and Renovate proposes a newer snapshot at most once a day.`\"\n  - \"`- The images keep the snapshot in apt's config, so \\`apt-get install\\` in a container or CI job gets that day's versions too…`\"\n  - \"`…so its packages pin their versions, \\`containerd.io\\` down to the package revision.`\"\n- Description: the ADR names the config location (apt config), the exact command (`apt-get install`) and the package-revision pinning mechanism. It also gives Renovate's update cadence (\"at most once a day\"). The decision itself (\"apt comes from a dated snapshot, and Docker's packages pin versions\") can be stated without these. The how belongs in the Dockerfile, `renovate.json` and `docs/usage/core.md`, which already carry it.\n- Reason: AGENTS.md adherence. The rule reads \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"\n- Fix: reword to the decision and its consequence, for example \"images use a dated Ubuntu archive snapshot, and Docker's repository packages pin versions\".\n- Blocks: no, because it is not a wrong outcome, a security exposure or a misstated PR.\n- Strength: moderate. The ADR has no code blocks, so this rests on whether config location and package-revision detail count as implementation detail.\n\n**2. Dockerfile comment restates what the code shows (weak)**\n- Path: `/tmp/pr-review-eval-7c1e/runs/images83-p7-2/repo/images/core-systemd/Dockerfile`\n- Added line (diff line 103, head line about 8): \"`# dbus-user-session and libpam-systemd: what dev's per-user manager needs. From the core image's apt snapshot.`\"\n- Description: the added sentence is inherited from the parent image via `FROM ${BASE_IMAGE}`. It is a reminder of where packages come from, not a constraint or a gotcha.\n- Reason: AGENTS.md adherence. The rule reads \"A comment says why: a constraint, gotcha or rejected alternative the code cannot show. Never restate what the code, a step name or another comment already says.\"\n- Fix: drop the sentence, since ADR 0022 and the core Dockerfile already say it.\n- Blocks: no.\n- Strength: weak. It could be read as a non-obvious inheritance the code cannot show, so I would not press it.\n\n**Dismissed candidates, logged for human review per the Reviews rule**\n- **Wording mismatch in ADR 0019 (dismissed).** The new bullet \"The Ubuntu archive snapshot bumps as soon as the archive changes, since it carries security fixes\" sits under a lead-in that gives a different reason: \"because their registries do not say when a release was published\". No rule is broken.\n- **Supersession and numbering (dismissed).** ADR 0022 is new, the numbering is sequential, and the old rule is listed under \"Considered Options\". ADRs 0013 and 0019 are amended rather than superseded, so the delete-superseded rule does not apply.\n- **GLOSSARY term \"base image\" (dismissed).** The comment \"The base image has no CA certificates yet\" in `images/core/Dockerfile` refers to the upstream `ubuntu` image, not the core image. The phrase was already used elsewhere in that file. The glossary's \"Avoid: base image\" is about naming the core image, so I could not quote a violation.\n- **README and the PR body (dismissed).** The README line is brief and current, and the diff contains no PR body text to check."
+  },
+  {
+   "description": "Compliance pass B",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "One finding, which does not block. Everything else I checked complies.\n\n**1. `/tmp/pr-review-eval-7c1e/runs/images83-p7-2/repo/docs/adr/0022-all-inputs-are-pinned.md`, lines 3 and 14, plus lines 4 and 16**\n- Added lines:\n  - Line 3: \"Ubuntu's packages come from a dated snapshot of its archive, set in the core image's apt config, and Renovate proposes a newer snapshot at most once a day.\"\n  - Line 14: \"The images keep the snapshot in apt's config, so `apt-get install` in a container or CI job gets that day's versions too…\"\n  - Line 16: \"…so its packages pin their versions, `containerd.io` down to the package revision.\"\n- Description: The ADR names where the pin lives (apt's config in the core image), the command it affects (`apt-get install`), and the pinning granularity (the package revision). These describe how the Dockerfile and Renovate setup work, not the decision. The decision is that all inputs are pinned, apt via a dated archive snapshot. The how already sits in the Dockerfile comment, `renovate.json` and `docs/usage/core.md`.\n- Rule broken: AGENTS.md says \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"\n- Suggested fix: Drop \"set in the core image's apt config\", \"at most once a day\" and \"down to the package revision\". Reword the first consequence to the user-visible effect only, for example \"`apt-get install` inside the images gets the same snapshot's versions.\"\n- Blocks: No. This is a convention violation, not a wrong outcome.\n- Confidence: Low to medium. Whether these phrases count as \"code implementation details\" is a judgment call, since they are prose with no code blocks.\n\n**Checked and compliant, no finding**\n- **README pinning convention:** `ARG UBUNTU_SNAPSHOT_VERSION=20261121T000000Z` and `ARG CONTAINERD_VERSION=2.4.2-4` each sit directly below a `# renovate:` comment, with no `v` prefix.\n- **`renovate.json` regex:** the change from `[a-z-]` to `[a-z.-]` is needed for the `custom.ubuntu-snapshot` datasource.\n- **ADR numbering and supersession:** 0022 is the next free number. No ADR is wholly superseded, so nothing needs deleting, and the old rule is listed under \"Considered Options\" as required.\n- **Cross-references:** ADRs 0013 and 0019 are updated to match, and no stale \"floats\" or \"exception\" wording remains for apt.\n- **Code comments:** the new comments give reasons (the missing CA certificates, `--error-on=any`, why containerd is pinned). None restates the code.\n- **`.hadolint.yaml` comment:** it gives a reason, not a restatement."
+  },
+  {
+   "description": "Correctness pass: bugs",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found 3 issues: 2 block and 1 does not. The `ubuntu-snapshot` datasource sets every pin to midnight of the day the pocket last changed. The PR description claims behaviour the diff does not have.\n\nThe rest checks out at the head commit:\n- **Regex manager:** widening `[a-z-]` to `[a-z.-]` still matches every existing `# renovate:` comment in the Dockerfiles and `smoke.sh`. It also matches the new `datasource=custom.ubuntu-snapshot … versioning=regex:…` line, and the value has no whitespace, so the lazy `versioning` capture works.\n- **apt in all images:** only `core` and `core-systemd` run apt; `coder-template` and `devcontainer-base` don't. The later `apt-get update --error-on=any` calls run after `ca-certificates` is installed, so they check TLS normally against the snapshot host.\n- **containerd.io:** with `extractVersion=^(?<version>[^~]+)~`, the install pattern `containerd.io=2.4.2-4~*` and the Renovate rule are consistent with each other, assuming Docker suffixes the version with `~ubuntu…`. I could not check that suffix offline.\n\n---\n\n**1. The datasource pins the snapshot to midnight, which leaves out the security update it was meant to pick up**\n- **Location:** `/tmp/pr-review-eval-7c1e/runs/images83-p7-2/repo/renovate.json`, line 18, the `transformTemplates` entry ending in `& $pad($m[0], -2, \"0\") & \"T000000Z\"}]})`.\n- **Reason:** bug. **Blocks:** yes.\n- **Trigger:** `resolute-security` changes at 09:50 on 21 Nov, so its InRelease has `Date: Sat, 21 Nov 2026 09:50:46 UTC`.\n- **Path:** `renovate.json@customDatasources.ubuntu-snapshot.transformTemplates` → `images/core/Dockerfile@UBUNTU_SNAPSHOT_VERSION` → `images/core/Dockerfile@/etc/apt/apt.conf.d/50snapshot` (`APT::Snapshot`).\n- **Outcome:**\n  - The regex captures only day, month and year, and the template hard-codes `T000000Z`, so Renovate proposes `20261121T000000Z`.\n  - That snapshot is from about 10 hours before the security update was published, so the image misses it.\n  - If the pocket doesn't change on a later day, the datasource keeps returning the same value and Renovate proposes nothing. The update stays out until another security change lands on a later date.\n  - With the current pin at `20261121T000000Z`, any later change on 21 Nov is also never proposed.\n- **Fix:** capture the time as well, for example `/(\\d+) (\\w{3}) (\\d{4}) (\\d{2}):(\\d{2}):(\\d{2})/`, and build `YYYYMMDDTHHMMSSZ`. That gives a snapshot \"at that moment\" that includes the change, as the PR describes. Then update the \"at most one bump a day\" wording in the datasource description and ADR 0022, or add a `schedule` (see issue 2) to keep it to one bump a day.\n\n**2. The PR description claims an early-morning Renovate window, but the diff adds none**\n- **Location:** `/tmp/pr-review-eval-7c1e/runs/images83-p7-2/repo/renovate.json`, line 55, `\"minimumReleaseAge\": null` in the new `custom.ubuntu-snapshot` package rule.\n- **Reason:** bug (the description misstates the change). **Blocks:** yes, under \"a PR title or description that misstates the change\".\n- **Trigger:** the description says \"An early-morning Renovate window keeps it to about one rebuild a day.\"\n- **Path:** `renovate.json@packageRules[matchDatasources=custom.ubuntu-snapshot]`\n- **Outcome:**\n  - There is no `schedule` anywhere in `renovate.json`, so nothing time-boxes these updates.\n  - Only the date-only truncation from issue 1 limits the cadence. Once that bug is fixed, Renovate would propose and automerge a rebuild every time the security pocket changes, possibly several times a day.\n- **Fix:** either add `\"schedule\": [...]` to this rule, or remove the claim from the description.\n- **Related misstatement:** the test plan says a dry run proposed `20261121T000000Z` → `20261121T095046Z`. The transform can only produce `T000000Z` values, so it cannot yield `T095046Z`. Either that dry run did not use this config, or the description is wrong.\n\n**3. The smoke tests don't check the snapshot pin or the containerd.io pin**\n- **Location:** `/tmp/pr-review-eval-7c1e/runs/images83-p7-2/repo/images/core/Dockerfile`, line 14, `RUN echo \"APT::Snapshot \\\"${UBUNTU_SNAPSHOT_VERSION}\\\";\" > /etc/apt/apt.conf.d/50snapshot \\`. Line 187 is related: `... \"containerd.io=${CONTAINERD_VERSION}~*\" \\`.\n- **Reason:** tests. **Blocks:** no.\n- **What is untested:**\n  - The PR promises users something new (`docs/usage/core.md`): the image keeps the snapshot, so `apt-get install` in a job gets that day's versions.\n  - `images/core/smoke.sh` has nothing about the snapshot, `50snapshot`, `apt-cache policy` or containerd, so if a later step dropped or overwrote the config, CI would still pass.\n  - The `apt-cache policy` check exists only as a manual, local item in the PR's test plan.\n- **Fix:** add a smoke assertion that `apt-config dump APT::Snapshot` prints the build-arg value, or that `apt-cache policy` lists only `snapshot.ubuntu.com` sources. Optionally assert that `dpkg-query -W containerd.io` starts with `${CONTAINERD_VERSION}~`.\n\nNo reviewer findings were dismissed in this pass."
+  },
+  {
+   "description": "Durable-knowledge pass",
+   "role": "durable-knowledge",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I ran the durable-knowledge audit in diff mode over the five doc files, report-only, and wrote nothing. Five findings hold, none blocking. Three are hard rule breaks: the AGENTS.md ban on code implementation details in ADRs (findings 1 to 3). Finding 4 is a claim that doesn't match the code, and finding 5 is a DRY suggestion.\n\n## Findings\n\n**1. docs/adr/0022-all-inputs-are-pinned.md, line 4**\n- Added line: \"Ubuntu's packages come from a dated snapshot of its archive, set in the core image's apt config, and Renovate proposes a newer snapshot at most once a day.\"\n- Verdict: REWRITE. Drop the clause \"set in the core image's apt config\". Replacement: \"Ubuntu's packages come from a dated snapshot of its archive, and Renovate proposes a newer snapshot at most once a day.\"\n- Rule broken: AGENTS.md, \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" Where the snapshot is configured is a code detail; it lives in `images/core/Dockerfile` (`ARG UBUNTU_SNAPSHOT_VERSION`, `APT::Snapshot`).\n- Blocks: no.\n\n**2. docs/adr/0022-all-inputs-are-pinned.md, lines 15–16**\n- Added line: \"The images keep the snapshot in apt's config, so `apt-get install` in a container or CI job gets that day's versions too, matching the image's own packages, until a newer image.\"\n- Verdict: REWRITE. Replacement: \"Packages a user installs in a container or CI job come from the same snapshot as the image's own, until a newer image.\"\n- Rule broken: the same ADR rule (\"in apt's config\" and the `apt-get install` command are implementation). The `apt-get install` usage is already in the added lines of `docs/usage/core.md` (lines 18–19), so the ADR repeating it also breaks AGENTS.md's DRY.\n- Blocks: no.\n\n**3. docs/adr/0022-all-inputs-are-pinned.md, lines 17–18**\n- Added line: \"Docker's apt repository has no snapshots, so its packages pin their versions, `containerd.io` down to the package revision.\"\n- Verdict: REWRITE. Replacement: \"Docker's apt repository has no snapshots, so its packages are pinned one by one.\"\n- Rule broken: the same ADR rule. How one named package is pinned is an implementation detail, and it is already explained in the code comment at `images/core/Dockerfile` › \"containerd.io pins its package revision too\".\n- Blocks: no.\n\n**4. docs/adr/0019-renovate-release-wait.md, line 12 (and its lead-in on line 7)**\n- Added lines: \"- The Ubuntu archive snapshot bumps as soon as the archive changes, since it carries security fixes\" and \"Three kinds of pin skip the wait, because their registries do not say when a release was published:\"\n- Verdict: REWRITE. It fails the audit's verify-before-promoting step (§3), against both the code and the new ADR:\n  - \"as soon as the archive changes\" contradicts ADR 0022 line 4 (\"at most once a day\").\n  - The `renovate.json` datasource truncates the version to a day (\"at most one bump a day\"), and it watches only the security pocket (`resolute-security`), not the whole archive.\n  - The lead-in gives \"registries do not say when a release was published\" as the reason all three kinds skip the wait. The new bullet gives a different reason, so the list no longer matches its own lead-in.\n- Replacement: keep the lead-in as \"Two kinds of pin skip the wait…\" and pull the snapshot out of the list into its own sentence: \"The Ubuntu archive snapshot skips the wait too, because it carries security fixes, and bumps at most once a day ([ADR 0022](0022-all-inputs-are-pinned.md)).\"\n- Rule broken: durable-knowledge-audit §3 (a claim that doesn't match the code) and review rule \"Raise 1\" (wrong outcome stated in docs). It describes how fast bumps happen, not what the images contain.\n- Blocks: no.\n\n**5. docs/adr/0022-all-inputs-are-pinned.md, line 3**\n- Added line: \"Every input to an image is pinned, and a pin changes only through a pull request that passes the tests.\"\n- Verdict: Suggestion (REWRITE). The second clause repeats ADR 0013 › \"a pinned version changes only through a pull request that passes the tests\". Replacement: \"Every input to an image is pinned ([ADR 0013](0013-nothing-updates-itself.md) covers how a pin changes).\" Or just drop the clause.\n- Rule broken: AGENTS.md \"DRY\".\n- Blocks: no.\n\n## Checked and kept (no finding)\n- **README.md line 92:** \"Apt packages come from a dated snapshot of the Ubuntu archive ([ADR 0022](…)).\" It's one line, as short as the line it replaces, and points to the ADR, so it meets the README brevity rule.\n- **docs/adr/0013-nothing-updates-itself.md lines 10–11:** \"Apt packages are pinned too, to a dated snapshot of the Ubuntu archive…\" This is a durable consequence and it matches the Dockerfile.\n- **The superseded-ADR rule:** ADR 0022 replaces only one Consequence bullet of ADR 0013. ADR 0013's decision about self-update for Claude Code, OpenCode and the OS still stands, so 0013 is not superseded and doesn't need deleting. ADR 0022 lists the old decision under \"Considered Options\" as required.\n- **docs/usage/core.md lines 18–19:** user-facing usage that matches the code.\n\n## Dismissed findings, for a human to review (per the AGENTS.md \"Reviews\" rule)\n- **ADR 0022 line 10, \"(the previous rule, in ADR 0013 and the README)\":** I considered DROP as provenance, since once this PR merges neither file still says it. I dismissed it because AGENTS.md requires the old decision under Considered options, and naming where it lived is borderline. If tightened, the line would become \"Apt packages float within the Ubuntu release.\"\n- **ADR 0022 line 4, \"Renovate proposes a newer snapshot at most once a day\":** I considered it as an implementation detail but kept it. The bump cadence is the decision, and `renovate.json` confirms it.\n- **ADR 0022 lines 19–20 repeating ADR 0019's reason for skipping the wait:** I dismissed this as an acceptable cross-reference rather than a DRY violation.\n- **ADR 0022 lines 5–6, \"a cached build quietly keeps an old version…\":** I kept it as the decision's rationale, not provenance.\n\n## Outside the doc scope (not a finding here)\nThe `ubuntu-snapshot` transform in `renovate.json` sets the version to `<date>T000000Z`, which is midnight at the start of the day the security pocket changed. A snapshot at that moment may not include that day's change, but the PR body says \"a snapshot at that moment includes it\". The PR body also mentions \"an early-morning Renovate window\", and `renovate.json` has no `schedule`. Both are worth checking in the code review pass."
+  },
+  {
+   "description": "Correctness pass: security/logic",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found 3 issues. One of them blocks: the Renovate transform drops the time of day from the snapshot version, and the PR description says it does something else.\n\n### 1. The snapshot version is always midnight, so the newest security fixes are always left out (blocks; bug, and the PR description misstates the change)\n\n- **Path:** `renovate.json`, line 18\n- **Added line:** `\"($m := $match(releases[$substring(version, 0, 6) = \\\"Date: \\\"].version, /(\\\\d+) (\\\\w{3}) (\\\\d{4})/).groups; {\\\"releases\\\": [{\\\"version\\\": $m[2] & $lookup({...}, $m[1]) & $pad($m[0], -2, \\\"0\\\") & \\\"T000000Z\\\"}]})\"`\n- **Description:** The regex captures only day, month and year, and the version always ends in `T000000Z`. Ubuntu's snapshot service serves the archive as it stood at that timestamp. A snapshot taken at midnight on the day the security pocket last changed is taken *before* that change. So the fixes from the latest publication are never in the image. They only arrive once the pocket changes on a later day, and that day's own fixes are left out in turn.\n  - The PR body says the latest version is \"the moment the `resolute-security` pocket last changed … (a snapshot at that moment includes it)\". The code does not do that.\n  - The body's test plan says a dry run proposed `20261121T000000Z` → `20261121T095046Z`. This transform cannot produce `095046Z`, so that test was not run against this code.\n  - The body also says \"An early-morning Renovate window keeps it to about one rebuild a day\". `renovate.json` has no `schedule` anywhere.\n- **Trigger:** The `resolute-security` InRelease has a normal line such as `Date: Sat, 21 Nov 2026 09:50:46 UTC`.\n- **Path:** `renovate.json@customDatasources.ubuntu-snapshot.defaultRegistryUrlTemplate` → `renovate.json@customDatasources.ubuntu-snapshot.transformTemplates` → `images/core/Dockerfile@UBUNTU_SNAPSHOT_VERSION` → `images/core/Dockerfile@APT::Snapshot` (written to `/etc/apt/apt.conf.d/50snapshot`) → every later `apt-get update`/`install` in core and in core-systemd.\n- **Outcome:** Renovate proposes `20261121T000000Z`, a snapshot from before the 09:50:46 publication. Images, and the `apt-get install` that CI jobs run against the snapshot the image keeps, miss that day's security updates. If the pocket then goes quiet, those fixes never arrive.\n- **Fix:** Also capture `(\\d{2}):(\\d{2}):(\\d{2})` and build `YYYYMMDDTHHMMSSZ`. To keep \"about one bump a day\", add the `schedule` the description promises. Then correct the PR body.\n\n### 2. Renovate reads the InRelease Date over plain HTTP (does not block; security)\n\n- **Path:** `renovate.json`, line 15\n- **Added line:** `\"defaultRegistryUrlTemplate\": \"http://archive.ubuntu.com/ubuntu/dists/resolute-security/InRelease\",`\n- **Description:** Renovate does not check the InRelease PGP signature. It only parses the `Date:` line, and it fetches the file without TLS. Anyone on the network path can choose the pin value, and the update automerges with no release wait.\n  - **What still protects integrity:** apt's signature and hash checks against the keyring in the digest-pinned base image. Package contents cannot be forged this way.\n  - **What is exposed:** which snapshot gets pinned. A far-future date (e.g. `Date: Thu, 31 Dec 2099 …`) would become `20991231T000000Z`. If the build passes with it, Renovate never proposes anything lower, so the snapshot never moves forward again.\n  - **Caveat:** whether a future-dated build passes depends on how snapshot.ubuntu.com answers a future timestamp, which I cannot check offline.\n- **Trigger:** An HTTP response altered in transit to the Renovate runner.\n- **Path:** `renovate.json@customDatasources.ubuntu-snapshot.defaultRegistryUrlTemplate` → `transformTemplates` → automerged `images/core/Dockerfile@UBUNTU_SNAPSHOT_VERSION`.\n- **Outcome:** The attacker chooses the snapshot pin (a freeze, or a forced bump).\n- **Fix:** Use an `https://` URL for the InRelease (an HTTPS-serving Ubuntu mirror, or the snapshot host itself).\n\n### 3. No smoke check for the snapshot the image now promises to keep (does not block; tests)\n\n- **Path:** `images/core/Dockerfile`, line 14\n- **Added line:** `RUN echo \"APT::Snapshot \\\"${UBUNTU_SNAPSHOT_VERSION}\\\";\" > /etc/apt/apt.conf.d/50snapshot \\`\n- **Description:** `docs/usage/core.md` and ADR 0022 now promise that `apt-get install` inside the image uses the build's snapshot. `images/core/smoke.sh` does not check that `/etc/apt/apt.conf.d/50snapshot` exists or holds the pinned value. A later change that removes or overrides it would publish without failing.\n- **Fix:** Add a check that `apt-config dump APT::Snapshot` (or the file) matches the expected value.\n\n### Checked and found sound (not raised)\n\n- **TLS bypass scope:** `Verify-Peer=false` is limited to `snapshot.ubuntu.com`. It is passed with `-o` to the first `update` and `install` only, so it is not saved into the image. Later updates verify TLS once `ca-certificates` is installed. apt still checks signatures and hashes. A replayed older signed InRelease was already possible with the previous plain-HTTP `archive.ubuntu.com` sources, so this is not a regression.\n- **Child images:** only core-systemd runs apt, and it picks up the snapshot from the core image's config. devcontainer-base and coder-template run no apt, and CI workflows and smoke scripts don't run apt.\n- **containerd.io pin:** `extractVersion=^(?<version>[^~]+)~` with `versioning=deb` matches the install spec `containerd.io=${CONTAINERD_VERSION}~*`. `\"containerd.io\"` is an exact match in the Docker rule.\n- **packageRules order:** the `minimumReleaseAge: null` rule for `custom.ubuntu-snapshot` comes before the x.y.0 rule. The x.y.0 rule's `matchNewValue` matches neither the snapshot versions nor the `2.4.2-4`-style containerd versions, so nothing overrides it. The datasource regex change `[a-z.-]` is needed for `custom.` and is safe.\n\nNone of my candidate findings fell through, so there are no dismissed ones to log."
+  },
+  {
+   "description": "Validate C1 midnight snapshot",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — Trigger, path and outcome all hold at the head commit. InRelease `Date:` lines carry a time of day. The transform in `renovate.json` line 18 matches only `(\\d+) (\\w{3}) (\\d{4})` and appends a fixed `T000000Z`, so `Date: Sat, 21 Nov 2026 09:50:46 UTC` becomes `20261121T000000Z`. `UBUNTU_SNAPSHOT_VERSION` in `images/core/Dockerfile` is already pinned to `20261121T000000Z` and feeds `APT::Snapshot`. Renovate would therefore propose no newer snapshot. That pin is midnight, before the 09:50:46 publication, and the PR body's test plan expects `20261121T095046Z`, which this transform cannot produce."
+  },
+  {
+   "description": "Validate C2 description claims",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — The PR body does say both things. `renovate.json` at head has no `schedule` or `timezone` setting, so there is no early-morning window. The only transform emits a fixed `T000000Z` suffix, so it can never propose `20261121T095046Z`, and the description misstates the change. The candidate's anchor is the `minimumReleaseAge: null` line (55), which is only loosely tied to the fault; the real problem is the missing schedule and the dry-run claim."
+  },
+  {
+   "description": "Validate C3 smoke tests",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP — The claim holds: the smoke test has no snapshot check, and the apt-snapshot promise is only a manual item in the PR test plan. Still, this is a single non-blocking test gap on a one-line config, and the repo's smoke checks are about tool behaviour, so I don't think it's worth flagging."
+  },
+  {
+   "description": "Validate S1 http registry URL",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — The `http://` InRelease URL is fetched unauthenticated, and the transform turns whatever `Date:` line comes back into the automerged `UBUNTU_SNAPSHOT_VERSION` pin. A forged far-future date would therefore yield `20991231T000000Z` and freeze the snapshot, with apt's signature checks still protecting package contents."
+  },
+  {
+   "description": "Validate ADR impl-details",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — The ADR names where the snapshot is configured (the core image's apt config), the `apt-get install` command and the `containerd.io` package-revision pin, which are implementation details that AGENTS.md forbids in ADRs. The decision and its consequences read fine without them. This is a non-blocking finding."
+  },
+  {
+   "description": "Validate ADR 0019 bullet",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM — The new bullet's \"as soon as the archive changes\" conflicts with ADR 0022's \"at most once a day\" (docs/adr/0022-all-inputs-are-pinned.md line 5), and the lead-in \"Three kinds... because their registries do not say when a release was published\" doesn't match the bullet's stated reason (security fixes). Non-blocking."
+  },
+  {
+   "description": "Validate core-systemd comment",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP — The core comment explains that the snapshot applies to child images, but the core-systemd sentence says why this `apt-get update` needs no extra setup. That is a minor, ambiguous overlap and not a clear violation of the rule."
+  },
+  {
+   "description": "Validate ADR 0022 DRY",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP — ADR 0013 already links to ADR 0022 and says the same thing, but 0022's opening sentence states its own rule (\"every input is pinned\") and the clause is a short restatement. That is a minor overlap, not a clear DRY violation, and it doesn't block anything."
+  }
+ ],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "The snapshot pinning in the Dockerfiles holds up. The TLS bypass applies only to the first `update`/`install` against `snapshot.ubuntu.com`, the child images pick up the config, and the regex manager still matches every existing `# renovate:` comment. Two things block:\n\n- **The Renovate `ubuntu-snapshot` datasource always pins to midnight**, so the snapshot never includes the security-pocket change it is meant to pick up. See the inline comment.\n- **The PR description misstates the change.**\n  - It says \"An early-morning Renovate window keeps it to about one rebuild a day\", but `renovate.json` has no `schedule` (or `timezone`) anywhere.\n  - It says the dry run proposed `20261121T000000Z` → `20261121T095046Z`, but the transform can only emit `…T000000Z` values, so that dry run cannot have used this config.\n  - It says \"a snapshot at that moment includes it\", which the code does not do.\n  - Please fix the code or the description so they agree.\n\nThe other inline comments do not block.",
+  "comments": [
+   {
+    "path": "renovate.json",
+    "line": 18,
+    "body": "**Bug (blocking): the snapshot version is truncated to midnight, so it is taken before the change it was meant to pick up.**\n\nThe regex captures only `(\\d+) (\\w{3}) (\\d{4})`, and the template appends a fixed `T000000Z`.\n\n- **Trigger:** `resolute-security` publishes at 09:50, so its InRelease reads `Date: Sat, 21 Nov 2026 09:50:46 UTC`.\n- **Path:** `renovate.json@customDatasources.ubuntu-snapshot.transformTemplates` → `images/core/Dockerfile@UBUNTU_SNAPSHOT_VERSION` → `APT::Snapshot` in `50snapshot` → every later `apt-get update`/`install`.\n- **Outcome:**\n  - Renovate proposes `20261121T000000Z`, which is the archive about 10 hours *before* that security publication, so the image misses it.\n  - With the pin already at `20261121T000000Z`, nothing newer is proposed until the pocket changes on a later day, and that day's own fixes are again left out.\n\n**Fix:** also capture `(\\d{2}):(\\d{2}):(\\d{2})` and build `YYYYMMDDTHHMMSSZ`, which is what the PR body and its dry-run output describe. Then add the `schedule` the description promises to keep it to about one bump a day, or reword the \"at most one bump a day\" claims in this description string and in ADR 0022."
+   },
+   {
+    "path": "renovate.json",
+    "line": 15,
+    "body": "**Security (non-blocking): the snapshot pin comes from an unauthenticated `Date:` line.**\n\nThe InRelease is fetched over plain `http://`, and Renovate only parses its `Date:` line without checking the PGP signature.\n\n- Anyone on the network path can choose the pin, and the update automerges with no release wait.\n- A forged far-future date (`Date: Thu, 31 Dec 2099 …` → `20991231T000000Z`) would leave Renovate never proposing a lower value, which freezes the snapshot.\n- apt's signature checks still protect package contents. The exposure is only which snapshot gets pinned.\n\n**Fix:** switch to an `https://` URL for this InRelease."
+   },
+   {
+    "path": "docs/adr/0022-all-inputs-are-pinned.md",
+    "line": 4,
+    "body": "**AGENTS.md (non-blocking):** the rule is \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" These phrases describe the implementation, not the decision:\n\n- \"set in the core image's apt config\" here;\n- \"keep the snapshot in apt's config, so `apt-get install` …\" in the first consequence;\n- \"`containerd.io` down to the package revision\" in the second consequence.\n\nThe Dockerfile comments and `docs/usage/core.md` already carry them.\n\n**Suggested wording:**\n- Drop the apt-config clause here.\n- First consequence: \"Packages installed in a container or CI job come from the same snapshot as the image's own, until a newer image.\"\n- Second consequence: \"…so its packages are pinned one by one.\""
+   },
+   {
+    "path": "docs/adr/0019-renovate-release-wait.md",
+    "line": 12,
+    "body": "**Non-blocking: this bullet contradicts ADR 0022 and does not fit its lead-in.**\n\n- \"bumps as soon as the archive changes\" contradicts ADR 0022 (\"at most once a day\").\n- The datasource watches only the `resolute-security` pocket, not the whole archive.\n- The lead-in now gives \"their registries do not say when a release was published\" as the reason, but this bullet skips the wait for a different reason (security fixes).\n\n**Suggested fix:** keep \"Two kinds of pin…\" and state the snapshot's exception in its own sentence. For example: \"The Ubuntu archive snapshot skips the wait too, because it carries security fixes ([ADR 0022](0022-all-inputs-are-pinned.md)).\""
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "compliance-A",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "ADR 0022 carries code implementation details (apt config location, apt-get install, containerd.io package revision), against the AGENTS.md ADR rule. Non-blocking.",
+   "validation": "CONFIRM — The ADR names where the snapshot is configured (the core image's apt config), the `apt-get install` command and the `containerd.io` package-revision pin, which are implementation details that AGENTS.md forbids in ADRs. The decision and its consequences read fine without them. This is a non-blocking finding.",
+   "posted": true
+  },
+  {
+   "pass": "compliance-A",
+   "path": "images/core-systemd/Dockerfile",
+   "claim": "Added comment sentence 'From the core image's apt snapshot.' restates what the core Dockerfile comment already says (AGENTS.md Code comments rule). Non-blocking.",
+   "validation": "DROP — The core comment explains that the snapshot applies to child images, but the core-systemd sentence says why this `apt-get update` needs no extra setup. That is a minor, ambiguous overlap and not a clear violation of the rule.",
+   "posted": false
+  },
+  {
+   "pass": "compliance-B",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "ADR 0022 contains implementation details (apt config, apt-get install, containerd.io package revision), against the AGENTS.md ADR rule. Non-blocking. (Merged with the compliance-A and durable-knowledge duplicates.)",
+   "validation": "CONFIRM — The ADR names where the snapshot is configured (the core image's apt config), the `apt-get install` command and the `containerd.io` package-revision pin, which are implementation details that AGENTS.md forbids in ADRs. The decision and its consequences read fine without them. This is a non-blocking finding.",
+   "posted": true
+  },
+  {
+   "pass": "correctness-bugs",
+   "path": "renovate.json",
+   "claim": "The ubuntu-snapshot transform truncates the InRelease Date to midnight (T000000Z), so the pinned snapshot predates the security-pocket change it should include. Blocking.",
+   "validation": "CONFIRM — Trigger, path and outcome all hold at the head commit. InRelease `Date:` lines carry a time of day. The transform in `renovate.json` line 18 matches only `(\\d+) (\\w{3}) (\\d{4})` and appends a fixed `T000000Z`, so `Date: Sat, 21 Nov 2026 09:50:46 UTC` becomes `20261121T000000Z`. `UBUNTU_SNAPSHOT_VERSION` in `images/core/Dockerfile` is already pinned to `20261121T000000Z` and feeds `APT::Snapshot`. Renovate would therefore propose no newer snapshot. That pin is midnight, before the 09:50:46 publication, and the PR body's test plan expects `20261121T095046Z`, which this transform cannot produce.",
+   "posted": true
+  },
+  {
+   "pass": "correctness-bugs",
+   "path": "renovate.json",
+   "claim": "The PR description claims an early-morning Renovate window (no schedule exists) and a dry run proposing T095046Z, which the transform cannot produce, so it misstates the change. Blocking.",
+   "validation": "CONFIRM — The PR body does say both things. `renovate.json` at head has no `schedule` or `timezone` setting, so there is no early-morning window. The only transform emits a fixed `T000000Z` suffix, so it can never propose `20261121T095046Z`, and the description misstates the change. The candidate's anchor is the `minimumReleaseAge: null` line (55), which is only loosely tied to the fault; the real problem is the missing schedule and the dry-run claim.",
+   "posted": true
+  },
+  {
+   "pass": "correctness-bugs",
+   "path": "images/core/Dockerfile",
+   "claim": "Smoke tests do not check the APT::Snapshot config or the containerd.io pin. Non-blocking.",
+   "validation": "DROP — The claim holds: the smoke test has no snapshot check, and the apt-snapshot promise is only a manual item in the PR test plan. Still, this is a single non-blocking test gap on a one-line config, and the repo's smoke checks are about tool behaviour, so I don't think it's worth flagging.",
+   "posted": false
+  },
+  {
+   "pass": "correctness-security",
+   "path": "renovate.json",
+   "claim": "Transform drops the time of day, so the snapshot is always midnight and misses the latest security fixes; the PR body misstates this. Blocking. (Duplicate of the correctness-bugs midnight finding, merged.)",
+   "validation": "CONFIRM — Trigger, path and outcome all hold at the head commit. InRelease `Date:` lines carry a time of day. The transform in `renovate.json` line 18 matches only `(\\d+) (\\w{3}) (\\d{4})` and appends a fixed `T000000Z`, so `Date: Sat, 21 Nov 2026 09:50:46 UTC` becomes `20261121T000000Z`. `UBUNTU_SNAPSHOT_VERSION` in `images/core/Dockerfile` is already pinned to `20261121T000000Z` and feeds `APT::Snapshot`. Renovate would therefore propose no newer snapshot. That pin is midnight, before the 09:50:46 publication, and the PR body's test plan expects `20261121T095046Z`, which this transform cannot produce.",
+   "posted": true
+  },
+  {
+   "pass": "correctness-security",
+   "path": "renovate.json",
+   "claim": "The InRelease Date is fetched over plain HTTP with no signature check, so a network attacker can choose the automerged snapshot pin (e.g. a far-future date freezes it). Non-blocking.",
+   "validation": "CONFIRM — The `http://` InRelease URL is fetched unauthenticated, and the transform turns whatever `Date:` line comes back into the automerged `UBUNTU_SNAPSHOT_VERSION` pin. A forged far-future date would therefore yield `20991231T000000Z` and freeze the snapshot, with apt's signature checks still protecting package contents.",
+   "posted": true
+  },
+  {
+   "pass": "correctness-security",
+   "path": "images/core/Dockerfile",
+   "claim": "No smoke check for the snapshot config the image now promises to keep. Non-blocking. (Duplicate of the correctness-bugs smoke-test finding, merged.)",
+   "validation": "DROP — The claim holds: the smoke test has no snapshot check, and the apt-snapshot promise is only a manual item in the PR test plan. Still, this is a single non-blocking test gap on a one-line config, and the repo's smoke checks are about tool behaviour, so I don't think it's worth flagging.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "Line 4 'set in the core image's apt config' is an implementation detail in an ADR (AGENTS.md). Non-blocking. (Merged into the ADR implementation-details finding.)",
+   "validation": "CONFIRM — The ADR names where the snapshot is configured (the core image's apt config), the `apt-get install` command and the `containerd.io` package-revision pin, which are implementation details that AGENTS.md forbids in ADRs. The decision and its consequences read fine without them. This is a non-blocking finding.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "The consequence 'keep the snapshot in apt's config, so `apt-get install`…' is an implementation detail in an ADR and duplicates docs/usage/core.md. Non-blocking. (Merged into the ADR implementation-details finding.)",
+   "validation": "CONFIRM — The ADR names where the snapshot is configured (the core image's apt config), the `apt-get install` command and the `containerd.io` package-revision pin, which are implementation details that AGENTS.md forbids in ADRs. The decision and its consequences read fine without them. This is a non-blocking finding.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "'`containerd.io` down to the package revision' is an implementation detail in an ADR. Non-blocking. (Merged into the ADR implementation-details finding.)",
+   "validation": "CONFIRM — The ADR names where the snapshot is configured (the core image's apt config), the `apt-get install` command and the `containerd.io` package-revision pin, which are implementation details that AGENTS.md forbids in ADRs. The decision and its consequences read fine without them. This is a non-blocking finding.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0019-renovate-release-wait.md",
+   "claim": "The new bullet 'bumps as soon as the archive changes' contradicts ADR 0022's 'at most once a day' and the security-pocket-only datasource, and its reason does not match the 'Three kinds…' lead-in. Non-blocking.",
+   "validation": "CONFIRM — The new bullet's \"as soon as the archive changes\" conflicts with ADR 0022's \"at most once a day\" (docs/adr/0022-all-inputs-are-pinned.md line 5), and the lead-in \"Three kinds... because their registries do not say when a release was published\" doesn't match the bullet's stated reason (security fixes). Non-blocking.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "Line 3 'a pin changes only through a pull request that passes the tests' repeats ADR 0013 (AGENTS.md DRY). Non-blocking suggestion.",
+   "validation": "DROP — ADR 0013 already links to ADR 0022 and says the same thing, but 0022's opening sentence states its own rule (\"every input is pinned\") and the clause is a short restatement. That is a minor overlap, not a clear DRY violation, and it doesn't block anything.",
+   "posted": false
+  }
+ ]
+}

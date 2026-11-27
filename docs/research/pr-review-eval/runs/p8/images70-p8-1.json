@@ -1,0 +1,117 @@
+{
+ "run": "images70-p8-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.51,
+ "duration_s": 208,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.2,
+  "claude-sonnet-5-5": 0.31
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 70",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No issues found. I could not quote a rule that an added line breaks.\n\n- **ADRs 0020 and 0021:** Neither contains code implementation details. Both list the old behaviour or rejected alternatives under \"Considered Options\". No existing ADR covers forks or build cache, so there is no superseded ADR to delete.\n- **README.md:** The additions are brief and keep the README current, as AGENTS.md asks.\n- **Code comments:** The new comments in `images.yml` and `docker-bake.hcl` each give a reason or constraint, not a restatement of the code.\n- **PR body:** It contains no diff and no file list. It mentions `.github/scripts/images.sh` once in the test plan. That is a single reference, not \"LIST FILES\", so I did not raise it.\n\nI dismissed one finding, for the human reviewer:\n- **PR body mentions `.github/scripts/images.sh`:** The \"NEVER LIST FILES\" rule does not clearly cover a single script named in a test-plan item. Non-blocking at most."
+  },
+  {
+   "description": "Durable-knowledge pass PR 70",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Two findings, neither blocking. The README additions and the rest of ADRs 0020 and 0021 pass.\n\n1. **`docs/adr/0020-pull-requests-from-collaborators-only.md`: DROP part of the line.**\n   - Added line: `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).`\n   - Rule: durable-knowledge audit, \"Not durable\" (provenance, how things were decided). \"never recorded as an ADR\" narrates the repo's history, and the ADR would still be true without it.\n   - Verdict: REWRITE. The replacement is `- Forks build and test without publishing.` or `- Forks build and test without publishing (the behaviour before this decision).`\n   - Evidence: the deleted workflow comment (`Forks build and test only`) in the diff supports the \"previous behaviour\" part. The \"never recorded\" part asserts nothing a reader needs.\n   - Blocks: no.\n\n2. **`docs/adr/0021-build-cache-in-the-registry.md`: UNVERIFIED, leave the text alone and send it to a human.**\n   - Added line: `- A superseded cache stays as an untagged version, like the other untagged images the cleanup keeps.`\n   - Rule: durable-knowledge audit §3, \"Nothing becomes a durable fact on the strength of the prose already asserting it.\"\n   - Verdict: the claim rests on a \"cleanup\" that keeps untagged images. I grepped `docs/adr/*.md`, `README.md` and `.github/workflows/*.yml` for \"untagged\" and found no source for it. The cleanup is not in the PR's workflow diff and is not documented elsewhere. A human should confirm that the cleanup exists and keeps untagged versions, and cite its anchor. If it cannot be confirmed, state only the constraint: `A superseded cache stays in the package as an untagged version.`\n   - Blocks: no.\n\nNo findings against the README added lines. They state durable constraints: the cache tags are not images to pull, and there are no forks. The ADR 0020 link resolves to the file the PR adds. No code implementation details appear in either ADR, so AGENTS.md's ADR rule is not broken.\n\nI dismissed no findings."
+  },
+  {
+   "description": "Correctness pass PR 70",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one blocking issue and one non-blocking issue in the two code files.\n\n### 1. The cache keeps old apt packages, which contradicts ADR 0013 (blocks)\n\n- **File:** `images/docker-bake.hcl`\n- **Anchor:** `  result = CACHE ? [\"type=registry,ref=${cache_ref(name)}\"] : []` (the same applies to `cache-from = cache_from(\"core\")` and `cache-from = cache_from(\"core-systemd\")`)\n- **Reason:** bug (a stated guarantee the code no longer keeps)\n- **Description:** ADR 0013 (`docs/adr/0013-nothing-updates-itself.md`, Consequences) says apt packages \"float within the Ubuntu release, so a rebuild can pick up newer ones\". `README.md` says the same. Every Dockerfile installs floating apt packages, so the layer cache key depends only on the parent layers and the instruction text. With `cache-from` on every run, a rebuild reuses the cached apt layer until something earlier in the Dockerfile changes. In `core`, that is only a Renovate bump of the `ubuntu:26.04@sha256:` digest. Before this PR, every build that changed an image ran from scratch and got current Ubuntu updates. The PR does not flag the conflict with ADR 0013, which `docs/agents/domain.md` requires (\"If your output contradicts an existing ADR, surface it explicitly\").\n- **Trigger:** Renovate opens and automerges a bump of `CLAUDE_CODE_VERSION` (or `GH_VERSION`, `UV_VERSION`, …) in `images/core/Dockerfile` while the Ubuntu base digest is unchanged. Meanwhile Ubuntu has shipped security updates to `curl`, `git`, `ca-certificates`, `sudo` or `python3`, or Docker has shipped a new `containerd.io`.\n- **Path:** `.github/workflows/images.yml@build` (step \"Build every image…\", `CACHE: true`) → `images/docker-bake.hcl@target \"core\"` `cache-from = cache_from(\"core\")` → `cache_from` → `cache_ref` (`ghcr.io/plume-works/core:cache-<arch>`) → the cache hits on `images/core/Dockerfile`'s first `RUN apt-get update && apt-get install … curl git …` layer, and on the Docker-engine `RUN` with its floating `containerd.io`. The parent of `core-systemd`'s `systemd/dbus` apt layer does not change when only a later `core` layer changes, so that layer also comes from the cache.\n- **Outcome:** `publish` tags `edge` with apt packages from whenever the cache was first filled. A rebuild can no longer pick up newer apt packages, contrary to ADR 0013. Security fixes in floating packages wait until the next base-digest bump.\n- **Fix:** Either refresh the apt layers on purpose, or record the change in an ADR that replaces 0013's consequence (and delete the old one, per AGENTS.md). Ways to refresh:\n  - main builds without `cache-from` but keep `cache-to`;\n  - a scheduled run with `--no-cache-filter`;\n  - a dated build arg ahead of the apt `RUN`.\n\n### 2. A failed cache export now fails the build, including main's publish (does not block)\n\n- **File:** `images/docker-bake.hcl`\n- **Anchor:** `  result = CACHE ? [\"type=registry,ref=${cache_ref(name)},mode=max,image-manifest=true,oci-mediatypes=true\"] : []`\n- **Reason:** bug (reliability)\n- **Description:** `cache-to` defaults to `ignore-error=false`. If GHCR fails to accept the cache export, `docker buildx bake` exits non-zero even though every image built. The run then skips smoke tests and publishing, so on `main` `edge` does not move, all because the cache did not upload. Before this PR, a non-publishing run never wrote to GHCR at all.\n- **Trigger:** a 5xx, rate-limit or timeout from GHCR while the `mode=max` cache uploads at the end of a build (this upload is larger than the image push).\n- **Path:** `.github/workflows/images.yml@build` \"Build every image…\" → `images/docker-bake.hcl@cache_to` → buildkit registry cache exporter.\n- **Outcome:** the build step fails, `finished` reports failure, and `publish` does not run.\n- **Fix:** add `ignore-error=true` to the `cache_to` attribute string, since the cache only saves time.\n\n### Considered and dismissed (logged for human review, per AGENTS.md)\n- **A PR poisoning the cache that main reads:** cache keys are content-addressed, so an honest PR build writes the same layers main would build. A malicious same-repo PR already had a `packages: write` token in `build`, and on host-run smoke scripts the GHCR login was already active when `PUBLISH` was true. It could therefore push `edge` directly before this PR, so the PR adds no new exposure. Fork PRs get a read-only token.\n- **The `PUBLISH` / `publish.if` rewrite:** for push and `workflow_dispatch` it behaves as before; a manual run on another branch still does not move `edge`. The only change is fork PRs, which now fail at login, `cache-to` or the push. ADR 0020 accepts that.\n- **`workflow_dispatch` on a non-main branch now logs in and overwrites the shared cache tags:** this only costs cache misses and does not affect correctness. ADR 0021 mentions only PRs and main, but the \"every run\" wording covers it.\n- **`CACHE=true` without `PLATFORM` gives an invalid `:cache-` ref:** CI always sets `PLATFORM`, and the variable's comment documents the requirement. `images.sh` and the cleanup workflow never set `CACHE`.\n- **Superseded cache manifests pile up as untagged versions:** ADR 0021 states and accepts this. `stale-pr-tags.sh` only matches `pr-N`, and deleting a `pr-N` tag does not touch the separate cache manifests.\n- **Tests:** the repo has no automated test for the bake cache settings, and the PR's test plan is manual (`bake --print` and two CI runs). I did not raise this: the repo has no test harness for bake files, so there is no clear way to add one."
+  },
+  {
+   "description": "Validate C1 apt cache staleness",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM: The head commit lets BuildKit reuse the apt layers, so a rebuild can leave floating apt packages stale, which breaks the guarantee in `docs/adr/0013-nothing-updates-itself.md`.\n\n- **Trigger holds.** A pin bump such as CLAUDE_CODE_VERSION in `images/core/Dockerfile` can land while the base digest is unchanged. `images.yml` has no scheduled rebuild and no `--no-cache` or `--pull` flag.\n- **Path holds.** `images.yml` runs `docker buildx bake` with `CACHE: true` on every run. `images/docker-bake.hcl` then sets `cache-from` to the registry ref `ghcr.io/plume-works/<name>:cache-<arch>`, and `cache_to` uses `mode=max` to refill that cache. The `RUN apt-get update && apt-get install` layer at `images/core/Dockerfile` line 8 comes before the tool pins. Its cache key depends only on the instruction text and its parent layers, so BuildKit reuses the layer and does not re-run `apt-get update`.\n- **Outcome holds.** The ADR and `README.md` line 92 say apt packages float, so \"a rebuild can pick up newer ones\". With the cache on, a rebuild triggered by a pin bump keeps the old apt packages until something at or above the apt layer changes. That input is accepted by the code, which is what the bar requires.\n\nI did not check whether the PR surfaces the ADR conflict, but that does not affect the verdict."
+  },
+  {
+   "description": "Validate C2 cache-to ignore-error",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: outcome — The outcome overstates the effect on pushed images. The trigger and path hold, but the claim that `edge` stays put only because the cache upload failed is too broad.\n\n- **Trigger and path hold.** `images/docker-bake.hcl` line 48 sets a registry `cache-to` with no `ignore-error`, so a cache export failure from GHCR fails the bake step. The step in `.github/workflows/images.yml` (lines 93-98) has no `continue-on-error`, and the later steps run only if it succeeds.\n- **Outcome is partly wrong as written.** The candidate says \"every image built\" and that the run fails solely because of the cache upload. With `PUSH` set, the registry-cache export happens at the end of the build, and the push-by-digest image output happens in the same export phase. A failed cache export can therefore leave the image push unfinished, and the candidate's premise that every image was built and pushed is unsupported.\n- **Not a clean contradiction.** I could not fully verify from the files that the bake output ordering makes this claim false. The failure of the later steps (smoke tests, record digests, publish) does follow from the missing `ignore-error`.\n\nI'm returning DROP because the candidate's stated outcome, that the run fails solely over a cache upload after all images built, is not shown by the files."
+  },
+  {
+   "description": "Validate D1 ADR provenance phrase",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: the parenthetical is arguably a durable fact about the repo's decision record, so it is not clearly a provenance violation of a quotable rule. It says no earlier ADR exists for this behaviour, which is a checkable statement, and it labels the \"Considered Options\" entry as a prior decision. The skill's own \"Test: would this still be true if the code were rewritten from scratch?\" passes, since it stays true as long as no earlier ADR exists. The AGENTS.md rule about superseded ADRs does not forbid the note. The finding is ambiguous at best."
+  },
+  {
+   "description": "Validate D2 untagged cleanup claim",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: `.github/workflows/ghcr-cleanup.yml` exists and its first line says \"Untagged images are kept\", so the repo does source the claim that the cleanup keeps untagged images."
+  }
+ ],
+ "review": {
+  "event": "REQUEST_CHANGES",
+  "body": "The registry cache is well scoped: one cache per image and architecture, no cache for local builds, and the fork-free workflow conditions behave as before for push and manual runs. One blocking finding, inline: the cache now also reuses the floating apt layers, which breaks a consequence of ADR 0013 that this PR does not surface or replace.",
+  "comments": [
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 42,
+    "body": "**Blocking: this breaks ADR 0013's apt guarantee.** `docs/adr/0013-nothing-updates-itself.md` says apt packages \"float within the Ubuntu release, so a rebuild can pick up newer ones\". With `cache-from` on every CI run, BuildKit keys the `RUN apt-get update && apt-get install …` layers in `images/core/Dockerfile` (and core-systemd's apt layer) only on the parent layers and the instruction text. So those layers come from the cache and `apt-get update` never runs again.\n\n- **Trigger:** Renovate bumps a pinned tool version such as `CLAUDE_CODE_VERSION` in `images/core/Dockerfile`. The `ubuntu` base digest is unchanged, and Ubuntu has meanwhile shipped updates to `curl`, `git`, `ca-certificates` or other installed packages.\n- **Path:** `.github/workflows/images.yml@build` (`CACHE: true`) → `images/docker-bake.hcl@target \"core\"` `cache-from = cache_from(\"core\")` → `cache_ref` (`…/core:cache-<arch>`) → a cache hit on the apt `RUN` layer.\n- **Outcome:** `edge` ships the apt packages from whenever the cache was first filled. Security fixes in floating packages wait until something above the apt layer changes, such as a base-digest bump. Before this PR, every image change rebuilt those layers from scratch.\n\n`docs/agents/domain.md` asks that a contradiction of an existing ADR be surfaced explicitly. Pick one of these:\n- Keep the apt layers fresh. Options: `main` writes the cache but does not read it; a scheduled run with `--no-cache-filter`; or a dated build arg before the apt `RUN`.\n- Record the new trade-off in an ADR that supersedes 0013's consequence, deleting the old one as AGENTS.md requires."
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "images/docker-bake.hcl",
+   "claim": "Registry cache-from reuses the floating apt-get update/install layers across rebuilds (e.g. a Renovate tool-version bump with an unchanged base digest), so edge ships stale apt packages, contradicting ADR 0013 ('apt packages float ... a rebuild can pick up newer ones') without the PR surfacing the ADR conflict.",
+   "validation": "CONFIRM: The head commit lets BuildKit reuse the apt layers, so a rebuild can leave floating apt packages stale, which breaks the guarantee in docs/adr/0013-nothing-updates-itself.md. Trigger holds: a pin bump such as CLAUDE_CODE_VERSION in images/core/Dockerfile can land while the base digest is unchanged, and images.yml has no scheduled rebuild and no --no-cache or --pull flag. Path holds: images.yml runs docker buildx bake with CACHE: true on every run; images/docker-bake.hcl sets cache-from to the registry ref ghcr.io/plume-works/<name>:cache-<arch>, and cache_to uses mode=max to refill it; the RUN apt-get update && apt-get install layer in images/core/Dockerfile comes before the tool pins, and its cache key depends only on the instruction text and its parent layers, so BuildKit reuses it and does not re-run apt-get update. Outcome holds: the ADR and README say apt packages float so a rebuild can pick up newer ones; with the cache on, a rebuild triggered by a pin bump keeps the old apt packages until something at or above the apt layer changes, an input the code accepts. I did not check whether the PR surfaces the ADR conflict, but that does not affect the verdict.",
+   "posted": true
+  },
+  {
+   "pass": "correctness",
+   "path": "images/docker-bake.hcl",
+   "claim": "cache-to lacks ignore-error=true, so a transient GHCR failure during cache export fails the bake step even though images built, skipping smoke tests and publish (edge does not move on main) solely because the cache upload failed.",
+   "validation": "DROP: outcome — The outcome overstates the effect on pushed images; the trigger and path hold, but the claim that edge stays put only because the cache upload failed is too broad. Trigger and path hold: images/docker-bake.hcl sets a registry cache-to with no ignore-error, so a cache export failure from GHCR fails the bake step; the step in .github/workflows/images.yml has no continue-on-error, and the later steps run only if it succeeds. Outcome is partly wrong as written: the candidate says every image built and the run fails solely because of the cache upload, but with PUSH set the registry-cache export and the push-by-digest image output happen in the same export phase at the end of the build, so a failed cache export can leave the image push unfinished, and the premise that every image was built and pushed is unsupported. Not a clean contradiction: the files do not fully show that the bake output ordering makes the claim false, and the failure of the later steps (smoke tests, record digests, publish) does follow from the missing ignore-error. Returning DROP because the stated outcome, that the run fails solely over a cache upload after all images built, is not shown by the files.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical 'never recorded as an ADR' in the Considered Options entry is provenance/session residue; rewrite to '- Forks build and test without publishing (the previous behaviour).'",
+   "validation": "DROP: the parenthetical is arguably a durable fact about the repo's decision record, so it is not clearly a provenance violation of a quotable rule. It says no earlier ADR exists for this behaviour, which is a checkable statement, and it labels the Considered Options entry as a prior decision. The skill's own 'Test: would this still be true if the code were rewritten from scratch?' passes, since it stays true as long as no earlier ADR exists. The AGENTS.md rule about superseded ADRs does not forbid the note. The finding is ambiguous at best.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0021-build-cache-in-the-registry.md",
+   "claim": "'A superseded cache stays as an untagged version, like the other untagged images the cleanup keeps.' asserts a cleanup that keeps untagged images with no source in the repo; unverified.",
+   "validation": "DROP: .github/workflows/ghcr-cleanup.yml exists and its first line says \"Untagged images are kept\", so the repo does source the claim that the cleanup keeps untagged images.",
+   "posted": false
+  }
+ ]
+}

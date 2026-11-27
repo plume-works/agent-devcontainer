@@ -1,0 +1,98 @@
+{
+ "run": "images75-cr-3",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.35,
+ "duration_s": 53,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.06,
+  "claude-haiku-5-5": 0.0,
+  "claude-sonnet-5-5": 0.28
+ },
+ "subagents": [
+  {
+   "description": "Check PR eligibility",
+   "role": "other",
+   "requested_model": "haiku",
+   "actual_models": [
+    "claude-haiku-5-5"
+   ],
+   "output": "- PR closed: No. `state` is OPEN.\n- PR draft: No. `isDraft` is false.\n- PR doesn't need review: No. It pins apt to a dated snapshot, changes the core image and Renovate config, and touches ADRs, so it is not automated or trivially correct.\n- Claude already commented: No. The only comments are from greptile-apps and anton-matosov, and the one review thread is still unresolved."
+  },
+  {
+   "description": "List CLAUDE.md files",
+   "role": "compliance",
+   "requested_model": "haiku",
+   "actual_models": [
+    "claude-haiku-5-5"
+   ],
+   "output": "Only one CLAUDE.md exists in the repo, at the root, and it imports the root AGENTS.md. The changed files sit in the root, `docs/adr/`, `docs/usage/`, and `images/core*/`, and none of those directories has its own CLAUDE.md or AGENTS.md.\n\n- /tmp/pr-review-eval-7c1e/runs-cr/images75-cr-3/repo/CLAUDE.md\n- /tmp/pr-review-eval-7c1e/runs-cr/images75-cr-3/repo/AGENTS.md (imported by the root CLAUDE.md)\n\nI ran two Globs, one per pattern, rather than the single combined Glob you asked for."
+  },
+  {
+   "description": "Summarize PR changes",
+   "role": "other",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "PR #75, \"Pin apt to a dated Ubuntu archive snapshot\", pins apt packages to a dated Ubuntu archive snapshot. Before this, apt packages floated within the Ubuntu release, so builds could not be shown to be unchanged.\n\n- **Core image:**\n  - A new `UBUNTU_SNAPSHOT_VERSION` ARG writes `APT::Snapshot` into apt config, so every `apt-get update` (including child images) reads `snapshot.ubuntu.com`.\n  - The first update and install skip the TLS peer check for the snapshot host, because the base image has no CA certificates. apt still verifies signatures and hashes.\n  - Every `apt-get update` gets `--error-on=any`, including the one in the core-systemd image.\n  - `containerd.io` is pinned to its package revision (`2.4.2-4`), since Docker's apt repository has no snapshots.\n- **Renovate:**\n  - A new custom `ubuntu-snapshot` datasource derives the latest snapshot from the `Date:` line of the `resolute-security` InRelease file.\n  - It skips the release wait and runs only in a 00:00–03:59 window, so at most one bump a day.\n  - The regex manager now accepts dots in datasource names.\n  - `containerd.io` joins the Docker package rule.\n- **Docs:**\n  - A new ADR 0022, \"All inputs are pinned\", replaces the apt exception in ADR 0013 and the README.\n  - ADR 0019 gains the snapshot as a third pin that skips the release wait.\n  - `docs/usage/core.md` notes that the image keeps the snapshot, so `apt-get install` in CI gets that day's versions.\n  - The `.hadolint.yaml` DL3008 comment and some Dockerfile comments are updated.\n\nThe core-systemd smoke test fails locally, but the published `edge` image fails the same way on that machine. CI on both architectures is still unchecked."
+  },
+  {
+   "description": "CLAUDE.md compliance review 1",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No clear CLAUDE.md violations found in the changed lines.\n\nI checked the diff, the PR body and `GLOSSARY.md` against the AGENTS.md rules on comments, ADR content, superseded ADRs, glossary vocabulary and the PR body. I read the files only, because Bash was denied.\n\nPer the Reviews rule, here are the findings I considered and dismissed, for a human to look at:\n\n1. **ADR content, `docs/adr/0022-all-inputs-are-pinned.md` lines 61-78.** The rule is \"DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\" The ADR mentions the apt config, Renovate's once-a-day bump and `containerd.io` pinned to its package revision. It has no code, commands or file paths, and these read as decision rationale and consequences. This is a judgment call, so I did not flag it.\n2. **Superseded ADRs.** The rule is \"Delete superseded ADRs in the same PR that introduces replacement.\" ADR 0013 is not superseded. Only its apt-exception consequence was edited, and the old rule is listed under \"Considered Options\" in ADR 0022. No deletion is required.\n3. **PR body, `docs/usage/core.md` mention.** The rule is \"NEVER LIST FILES into PR body.\" The body names `docs/usage/core.md` once in passing, which is not a list of files. The body has no diffs. I did not flag it.\n4. **Glossary term \"base image\", `images/core/Dockerfile` line 117.** The glossary says to avoid \"base image\" for the core image. The comment uses it for the upstream `ubuntu` image, not the core image, and the same usage already exists in the file. It is not a violation.\n5. **Dockerfile comments (`images/core/Dockerfile` lines 116-120, `images/core-systemd/Dockerfile` line 101).** They explain why: the skipped TLS peer check, the effect of `--error-on=any`, and the snapshot source. They do not restate the code, so I did not flag them."
+  },
+  {
+   "description": "CLAUDE.md compliance review 2",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found one clear violation, in the new ADR.\n\n**1. `docs/adr/0022-all-inputs-are-pinned.md`, lines 14-17 (also the \"set in the core image's apt config\" phrase on line 3)**\n- Rule: \"ADR is a Architecture DECISION RECORD, DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER.\"\n- The Consequences section records how the pinning is built, not the decision:\n  - Lines 14-15 say the images \"keep the snapshot in apt's config\", so `apt-get install` in a container or CI job gets that day's versions.\n  - Lines 16-17 say \"`containerd.io` down to the package revision\", which names a package and its pin granularity.\n- This is configuration-level detail. It belongs in the Dockerfile, `docs/usage/core.md` and the README, not in the ADR.\n- The decision itself, that Ubuntu packages come from a dated archive snapshot, can stay.\n\n**Dismissed findings, for human review**\n- **ADR 0013 edited, not deleted.** The PR body says ADR 0022 \"replaces the apt exception in ADR 0013\". Only a Consequences bullet changed, and the ADR's decision is intact. So I did not treat 0013 as superseded under the \"delete superseded ADRs\" rule. The old apt-floating rule is listed under Considered options in 0022, as the rule requires.\n- **PR body names `docs/usage/core.md`.** It appears once, inline, as \"noted in `docs/usage/core.md`\". That is a reference, not a list of files, and the body has no diffs. I left it alone as ambiguous.\n- **Code comments in the Dockerfiles and `renovate.json`.** The new comments explain a constraint or gotcha: no CA certificates in the base image, `--error-on=any`, and the Docker revision republish. They follow the \"why\" rule.\n- **README and glossary.** The README change is brief and current. There is no `GLOSSARY.md` change in the PR, so I found no vocabulary violation."
+  },
+  {
+   "description": "Bug scan of diff",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no significant bugs in PR #75 that the diff alone shows will definitely fail or give wrong results.\n\nWhat I checked:\n\n- **Renovate JSONata transform (`renovate.json`, line 204 of the diff):** With the `plain` format, each line of the InRelease file becomes a release, and the `Date: ` filter picks out the date line. On a line like `Date: Sat, 21 Nov 2026 09:50:46 UTC`, the regex groups are day, month, year, hour, minute, second. The template puts them in the right order with the month lookup and the zero padding, giving `20261121T095046Z`. That matches the `regex:^(?<major>\\d{8})T(?<minor>\\d{6})Z$` versioning and the current pin.\n- **Regex manager `matchStrings`:** Widening the datasource class to `[a-z.-]` lets `custom.ubuntu-snapshot` match. The new `# renovate:` lines parse with the existing order of optional groups (packageName, versioning, extractVersion).\n- **containerd.io pin:** The `extractVersion` `^(?<version>[^~]+)~` keeps the text before the first `~`. The install pattern `\"containerd.io=${CONTAINERD_VERSION}~*\"` relies on the same `~`, so the two agree. Adding `containerd.io` to the `deb` packageRule gives it the Docker registry URL.\n- **Apt shell in the core image:** The `APT::Snapshot` echo is quoted correctly. The per-host `Acquire::https::snapshot.ubuntu.com::Verify-Peer=false` is valid apt option syntax and is passed to both `update` and `install`. `--error-on=any` is a valid `apt-get update` option in that position.\n- **Renovate packageRule:** `minimumReleaseAge: null` is an allowed reset, which matters because this datasource returns no timestamps. The `* 0-3 * * *` schedule is a valid Renovate cron.\n\nTwo things fall outside \"definite from the diff\":\n\n- Whether a global `APT::Snapshot` behaves well with Docker's apt repository, which has no snapshots, depends on apt's runtime behaviour. The PR reports that all four images built with `--no-cache`.\n- The PR body says `apt-cache policy` showed `20261121T000000Z`, while the pinned ARG is `20261121T095046Z`. That is a mismatch in the test-plan text, not in the code.\n\nNo reviewer findings were dismissed, so there is nothing to log for human review."
+  },
+  {
+   "description": "Logic/security review of changes",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no high-signal issues in PR #75. The code I checked should parse, build and produce the right results.\n\nWhat I checked:\n\n- **`images/core/Dockerfile` (lines 10–18):** the snapshot pin appears before the first `apt-get` call, so it applies there and in later `apt-get update` runs, including those in the child images.\n  - The TLS-check override (`Acquire::https::snapshot.ubuntu.com::Verify-Peer=false`) applies only to that first update and install. Later updates check TLS normally once `ca-certificates` is installed.\n  - The new `--error-on=any` flag is valid on every `apt-get update`.\n  - The `containerd.io=${CONTAINERD_VERSION}~*` pin matches how Docker's repository versions that package (for example `2.4.2-4~ubuntu.26.04~resolute`), and the extract rule (`^(?<version>[^~]+)~`) pulls out a matching value.\n  - The `# renovate:` comment directly above `ARG UBUNTU_SNAPSHOT_VERSION` still matches the custom manager regex. That regex's datasource class now allows `.`, which `custom.ubuntu-snapshot` needs.\n- **`images/core-systemd/Dockerfile`:** inherits the snapshot setting from core, and `ca-certificates` is already installed by then. No other Dockerfile runs `apt-get`.\n- **`renovate.json` (lines 12–21, 47–57):**\n  - In the date conversion, the capture groups map correctly to year, month, zero-padded day, hour, minute and second. The output is in the same `YYYYMMDDTHHMMSSZ` form as the current pin and the declared version pattern.\n  - `\"minimumReleaseAge\": null` in the snapshot rule removes the global 3-day wait. That matters because this datasource has no timestamps and would otherwise never update.\n  - The x.y.0 rule can't match a snapshot value.\n  - `containerd.io` is added to the Docker apt repository rule.\n\nOne thing I couldn't confirm from the code: `APT::Snapshot` is set for all sources, including Docker's repository, which has no snapshots. With the implicit default, apt should simply use that repository without a snapshot rather than fail. The author's test plan says a `--no-cache` bake built all four images, so I didn't flag it.\n\nThere were no reviewer-dismissed findings to log."
+  },
+  {
+   "description": "Validate ADR detail finding",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "REJECTED\n\nThe ADR states a decision (pin inputs through a dated archive snapshot, with Renovate proposing it daily) and its consequences. It contains no code, commands, file paths or config syntax. \"Set in the core image's apt config\" and \"keep the snapshot in apt's config\" name where the pin lives, which is a decision-level fact, and `apt-get install` is a passing mention of behaviour. \"`containerd.io` down to the package revision\" states the pinning granularity, not an implementation. Other ADRs in the repo, such as 0009 on plain Dockerfiles and 0021 on cache tags in GHCR packages, are equally concrete, so a senior reviewer would accept this as normal ADR content."
+  }
+ ],
+ "review": {
+  "issues": []
+ },
+ "candidates": [
+  {
+   "agent": "CLAUDE.md compliance 2 (sonnet)",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "The ADR breaks 'DO NOT PUT CODE IMPLEMENTATION DETAILS INTO IT EVER': 'set in the core image's apt config' (line 3), and the Consequences bullets say the images keep the snapshot in apt's config so `apt-get install` gets that day's versions, and pin `containerd.io` down to the package revision (lines 15-18).",
+   "validation": "REJECTED. The ADR states a decision (pin inputs through a dated archive snapshot, with Renovate proposing it daily) and its consequences. It contains no code, commands, file paths or config syntax. \"Set in the core image's apt config\" and \"keep the snapshot in apt's config\" name where the pin lives, which is a decision-level fact, and `apt-get install` is a passing mention of behaviour. \"`containerd.io` down to the package revision\" states the pinning granularity, not an implementation. Other ADRs in the repo, such as 0009 on plain Dockerfiles and 0021 on cache tags in GHCR packages, are equally concrete, so a senior reviewer would accept this as normal ADR content.",
+   "posted": false
+  }
+ ]
+}

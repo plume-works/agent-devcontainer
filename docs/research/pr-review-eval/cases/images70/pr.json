@@ -1,0 +1,10 @@
+{
+  "number": 70,
+  "state": "OPEN",
+  "isDraft": false,
+  "title": "Build cache in the registry; pull requests from collaborators only",
+  "baseRefName": "main",
+  "headRefName": "build-cache-in-registry",
+  "author": "anton-matosov",
+  "body": "CI rebuilt every image from scratch on every run. Each image now keeps a build cache per architecture in its own GHCR package, as `cache-amd64` / `cache-arm64` tags, read and written by every CI run. Local builds don't use it.\n\nThe repository takes no outside contributions, so forks are out of scope for every feature: the fork conditions in the images workflow are gone, and the cache needs no fork fallback. Both decisions are recorded as ADRs 0020 and 0021.\n\n## Results\n\n| Run | Build step (amd64 / arm64) | Steps from cache (amd64 / arm64) |\n|---|---|---|\n| `main`, no cache (3 recent runs) | ~2m15s / ~2m | none |\n| This PR, first run (fills the cache) | 1m51s / 2m13s | 0 / 0 |\n| This PR, second run | **45s / 40s** | **58 / 60** |\n\nThe first run logs `failed to configure registry cache importer: …: not found` for each image: the cache did not exist yet. It is harmless and the run passed. The whole job still takes about 3 minutes, mostly smoke tests, which the cache does not affect.\n\n## Test plan\n- [x] `bake --print` shows no cache without `CACHE`, and the right `:cache-<arch>` refs for all four images with it\n- [x] `.github/scripts/images.sh` still lists the images parent first\n- [x] actionlint passes\n- [x] The first run created `cache-amd64` and `cache-arm64` on all four packages\n- [x] The second run served nearly every step from the cache, building in about a third of the time"
+}

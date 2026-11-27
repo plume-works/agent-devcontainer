@@ -1,0 +1,111 @@
+{
+ "run": "images70-p3-1",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.4,
+ "duration_s": 141,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.07,
+  "claude-sonnet-5-5": 0.34
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "none\n\nI found no clear violations of AGENTS.md or the ADR conventions in the diff.\n\n- **Comments:** The added comments in `images.yml` and `docker-bake.hcl` state constraints or reasons, so they pass the \"a comment says why\" rule.\n- **README:** The additions are brief, and they link to the new ADR.\n- **ADRs:** 0020 and 0021 contain no code. Both have a \"Considered options\" section. The previous fork behaviour is listed there rather than a superseded ADR, because it was never recorded as one, so there is nothing to delete.\n- **Heading case:** The new ADRs use \"Considered Options\". Older ADRs mix both casings, so I did not flag it."
+  },
+  {
+   "description": "Durable-knowledge pass",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "Two findings, one in each ADR, and nothing in the README or the code comments.\n\n| File | Quoted added line | Rule | Verdict | Replacement |\n|---|---|---|---|---|\n| `docs/adr/0020-pull-requests-from-collaborators-only.md` | `- Forks build and test without publishing (the previous behaviour, never recorded as an ADR).` | The audit skill's provenance pattern (\"previously\", \"used to\"). The parenthetical describes how the repo got here, not what a reader needs to know, and it would be false once the ADR is old. The audit test fails: \"would this still be true if rewritten from scratch?\" | REWRITE (drop the parenthetical, keep the option) | `- Forks build and test without publishing.` |\n| `docs/adr/0021-build-cache-in-the-registry.md` | `- The GitHub Actions cache: capped in size, evicts, and is scoped per branch.` | The audit skill's \"dated third-party behavior\" pattern: a named external tool plus a present-tense claim about how it behaves. The claim is unverifiable from the repo. | UNVERIFIED (needs a human; leave the text alone) | If it can't be confirmed, state only the repo-side reason, for example \"The GitHub Actions cache: scoped per branch, so pull requests could not share it with `main`.\" Do not invent a rationale. |\n\nI checked the rest and found nothing to report:\n- **ADR 0020, \"a pull request from a fork fails its checks\":** consistent with the workflow diff. `PUBLISH` is now true for every `pull_request`, and the GHCR login no longer has an `if:`. KEEP.\n- **ADR 0021, \"like the other untagged images the cleanup keeps\":** verified. `.github/workflows/ghcr-cleanup.yml` opens with \"Untagged images are kept\". KEEP.\n- **ADR 0021, \"Pull requests and `main` share one cache per image and architecture\":** consistent with `cache_ref` in `images/docker-bake.hcl`. KEEP.\n- **AGENTS.md rule that ADRs hold no implementation details:** neither ADR contains code, file lists or commands. The mentions of GHCR package, tags and untagged versions describe the decision and its consequences.\n- **README:** the two added passages are short, state durable facts, and link to ADR 0020. No finding.\n- **Code comment `# mode=max: ... image-manifest=true: GHCR rejects the default cache index.`:** this is a dated third-party claim, but it also gives the reason for the option. I could not verify it offline, so I'm not flagging it. KEEP. A human could confirm it if wanted.\n- **Other added comments** (`# Every run reads and writes the build cache in GHCR, publishing or not.`, `# CI sets CACHE=true; needs PLATFORM, since each architecture has its own cache.`): each states a constraint, so KEEP."
+  },
+  {
+   "description": "Correctness pass",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found one issue worth flagging: the build cache stops apt packages from being refreshed, which contradicts ADR 0013. Nothing will fail to parse, and I found no security exposure that the change introduces.\n\n**Finding 1: the cache freezes apt packages, contradicting ADR 0013 (\"Nothing updates itself\")**\n\n- **File and line:** `images/docker-bake.hcl`, added line `cache-from = cache_from(\"core\")`. The same applies to the other three targets, and it is switched on by `CACHE: true` in `.github/workflows/images.yml`.\n- **Trigger:** Ubuntu publishes newer packages in the `26.04` archive, for example a security fix to `curl`, `git`, `sudo` or `systemd`. Meanwhile the `ubuntu:26.04@sha256:…` pin and the Dockerfile lines stay the same. That is the normal state between Renovate's base-digest bumps. Then a run on `main` or a pull request rebuilds.\n- **Path:**\n  1. `.github/workflows/images.yml::build` step \"Build every image…\" (`CACHE: true`)\n  2. `images/docker-bake.hcl::cache_from` → `type=registry,ref=…:cache-<arch>`\n  3. `images/core/Dockerfile`, the first `RUN apt-get update && apt-get install … ca-certificates curl git gnupg … sudo …` layer. Its cache key covers only the base digest and the command text, so it is always a cache hit.\n  4. The same happens in `images/core-systemd/Dockerfile` (`RUN apt-get update && apt-get install … systemd …`) whenever the `core` layers are unchanged.\n  5. In the `core` Dockerfile, the Docker apt step pulls in `containerd.io`, which floats. That layer is also reused until `DOCKER_VERSION`, `BUILDX_VERSION` or `COMPOSE_VERSION` changes.\n  6. Finally `images.yml::publish` moves `edge`.\n- **Outcome:** each build reuses the apt layers from the first time those layers were cached, and `edge` ships them. Before this change, every run rebuilt from scratch and picked up the current archive. The packages, security fixes included, now update only when an unrelated change busts the cache. For the `core` base layer that means only a Renovate bump of the Ubuntu digest.\n- **ADR conflict:** ADR 0013's Consequences say \"Apt packages … float within the Ubuntu release, so a rebuild can pick up newer ones, but only through a build that passes the same tests.\" With the cache, a rebuild no longer picks them up. Neither ADR 0021 nor the PR description mentions this or records it as an accepted trade-off. The fix is one of two:\n  - keep the cache, and amend or supersede ADR 0013 to say apt packages refresh only when the base pin or the Dockerfile line changes; or\n  - keep the refresh, for example with a periodic `main` run that skips `cache-from` (`no-cache`) or a cache-busting build argument on the apt steps.\n\n**Candidates I checked and dismissed (logged for a human, as AGENTS.md asks):**\n\n- **Fork pull requests now fail.** With the fork conditions removed, `PUBLISH` is true for them and the cache export needs a write token they don't get. This is intended and recorded in ADR 0020 (\"a pull request from a fork fails its checks\").\n- **A pull request could poison the cache that `main` reads.** The cache tag is shared, so a collaborator's PR run could write crafted cache entries that a `main` build then uses for `edge`. That run already has `packages: write` and runs the workflow from its own branch, so it could already tag `edge` directly. The cache adds no new exposure, and ADR 0020 restricts PRs to collaborators.\n- **An empty `PLATFORM` gives an invalid tag.** `cache_ref` would produce `…:cache-`. CI always sets `PLATFORM`, and local builds leave `CACHE` false, so this can't happen at head. The variable's comment documents the requirement.\n- **The cleanup workflow might delete the cache tags.** `.github/scripts/stale-pr-tags.sh` only matches `^pr-[0-9]+$`, and `ghcr-cleanup.yml` deletes only the tags it is given, so `cache-amd64` and `cache-arm64` are never removed. A superseded cache stays as an untagged version, which ADR 0021 states.\n- **The image list could change.** `.github/scripts/images.sh` runs `bake --print` without `CACHE`, and its output depends only on the targets and their `contexts`, which this PR doesn't change.\n- **Concurrent runs overwrite each other's cache.** A pull request and `main` writing the same tag only costs cache misses, never a wrong build. ADR 0021 states this.\n- **The first run reads a cache that doesn't exist yet.** The `not found` error from `cache-from` is only a warning, as the PR description reports."
+  },
+  {
+   "description": "Validate cache-freezes-apt candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "HOLDS P2 — The trigger occurs and the path is sound. `images.yml` sets `CACHE: true`, so every run on main or a PR imports the registry cache, and `core/Dockerfile`'s `apt-get update && install` RUN layer sits right after a digest-pinned `FROM`. BuildKit keys that layer on the parent layer plus the command text, so it hits the cache while Ubuntu's archive moves on. The apt layers stay stale until the base digest or an earlier line changes. I could not find anything in the repo that busts the cache, such as a no-cache or scheduled rebuild. ADR 0013 says a rebuild \"can pick up newer\" apt packages, and with the cache that no longer happens on a bare rebuild. ADR 0021 doesn't record this as an accepted trade-off. Impact is limited because Renovate digest bumps of the base image periodically invalidate the layers. The BuildKit cache-matching behaviour is third-party knowledge, not something the files show."
+  },
+  {
+   "description": "Validate ADR 0020 provenance candidate",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "UNSETTLED — The parenthetical \"the previous behaviour, never recorded as an ADR\" matches the skill's provenance pattern (\"previously\"), and \"never recorded as an ADR\" is process history. The AGENTS.md rule only says to list an old decision under \"Considered options\". It neither requires nor forbids labelling that option as the previous behaviour. No superseded ADR exists here to settle whether the label identifies a replaced decision or is just history, so the rule covers the text only arguably."
+  },
+  {
+   "description": "Validate ADR 0021 GHA-cache claim",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "UNSETTLED — The rule's \"dated third-party behavior\" pattern (a named external tool plus a present-tense claim about how it behaves) fits this line only arguably. The line sits in a Considered Options rejection reason, and the skill also says the durable decision and its constraint survive. The repo can't confirm that the GitHub Actions cache is capped, evicts, and is scoped per branch, because that is third-party behaviour."
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "The registry build cache and the collaborators-only scope are coherent, and the title and description match the change. I'm approving with one P2 finding and two questions, all inline. The P2: the cache stops apt packages from refreshing on a rebuild, which ADR 0013 promises they do.",
+  "comments": [
+   {
+    "path": "images/docker-bake.hcl",
+    "line": 64,
+    "body": "**P2** — `CACHE: true` makes every run import the registry cache, including runs on `main` and pull requests. The `apt-get update && apt-get install` RUN layers come right after a `FROM` pinned by digest, in `images/core/Dockerfile` and likewise in `core-systemd`. BuildKit identifies such a layer by its parent layer and its command text, so it keeps hitting the cache while Ubuntu's 26.04 archive moves on. That archive includes security fixes.\n\nThe apt layers, and therefore `edge`, now stay stale until the base digest or an earlier Dockerfile line changes. That contradicts ADR 0013 (\"apt packages … float within the Ubuntu release, so a rebuild can pick up newer ones\"), and ADR 0021 does not record it as an accepted trade-off. Renovate's base-digest bumps limit the impact.\n\nTwo ways to resolve it:\n- record the trade-off by amending or superseding ADR 0013; or\n- keep a refresh path, such as a periodic `main` build without `cache-from`, or a cache-busting build argument on the apt steps.\n\nThe same applies to the other three targets."
+   },
+   {
+    "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+    "line": 9,
+    "body": "**Question** — Is \"(the previous behaviour, never recorded as an ADR)\" meant to stay? It reads as provenance, a note on how the repo got here, which the durable-knowledge rules prune; `- Forks build and test without publishing.` would carry the option alone. AGENTS.md asks for the old decision to be listed under Considered options, but it does not say whether to label it as the previous behaviour, so this one is your call."
+   },
+   {
+    "path": "docs/adr/0021-build-cache-in-the-registry.md",
+    "line": 9,
+    "body": "**Question** — Can the reasons given here (\"capped in size, evicts, and is scoped per branch\") be confirmed as durable? They describe a third-party service's current behaviour, which the repository cannot verify. If not all of them are confirmed, could the reason be limited to the one the decision depends on: per-branch scoping keeps pull requests from sharing a cache with `main`?"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "images/docker-bake.hcl",
+   "claim": "The registry build cache (CACHE: true on every run) keeps reusing the apt-get update/install RUN layers after a digest-pinned FROM. The apt packages, security fixes included, no longer refresh on rebuild, and edge ships stale layers. This contradicts ADR 0013, which says apt packages float within the release so a rebuild can pick up newer ones.",
+   "validation": "HOLDS P2 — The trigger occurs and the path is sound. `images.yml` sets `CACHE: true`, so every run on main or a PR imports the registry cache, and `core/Dockerfile`'s `apt-get update && install` RUN layer sits right after a digest-pinned `FROM`. BuildKit keys that layer on the parent layer plus the command text, so it hits the cache while Ubuntu's archive moves on. The apt layers stay stale until the base digest or an earlier line changes. I could not find anything in the repo that busts the cache, such as a no-cache or scheduled rebuild. ADR 0013 says a rebuild \"can pick up newer\" apt packages, and with the cache that no longer happens on a bare rebuild. ADR 0021 doesn't record this as an accepted trade-off. Impact is limited because Renovate digest bumps of the base image periodically invalidate the layers. The BuildKit cache-matching behaviour is third-party knowledge, not something the files show.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0020-pull-requests-from-collaborators-only.md",
+   "claim": "The parenthetical '(the previous behaviour, never recorded as an ADR)' is provenance residue. Drop it and keep the option.",
+   "validation": "UNSETTLED — The parenthetical \"the previous behaviour, never recorded as an ADR\" matches the skill's provenance pattern (\"previously\"), and \"never recorded as an ADR\" is process history. The AGENTS.md rule only says to list an old decision under \"Considered options\". It neither requires nor forbids labelling that option as the previous behaviour. No superseded ADR exists here to settle whether the label identifies a replaced decision or is just history, so the rule covers the text only arguably.",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0021-build-cache-in-the-registry.md",
+   "claim": "'The GitHub Actions cache: capped in size, evicts, and is scoped per branch.' is dated third-party behaviour that the repo cannot verify. It needs human confirmation, or a restatement limited to the repo-side reason.",
+   "validation": "UNSETTLED — The rule's \"dated third-party behavior\" pattern (a named external tool plus a present-tense claim about how it behaves) fits this line only arguably. The line sits in a Considered Options rejection reason, and the skill also says the durable decision and its constraint survive. The repo can't confirm that the GitHub Actions cache is capped, evicts, and is scoped per branch, because that is third-party behaviour.",
+   "posted": true
+  }
+ ]
+}

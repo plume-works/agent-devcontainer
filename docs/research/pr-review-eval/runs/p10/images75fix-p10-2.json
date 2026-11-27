@@ -1,0 +1,122 @@
+{
+ "run": "images75fix-p10-2",
+ "orchestrator_model": "claude-opus-5-5",
+ "claude_code_version": "2.1.325",
+ "cost_usd": 1.47,
+ "duration_s": 245,
+ "cost_by_model": {
+  "claude-opus-5-5": 1.16,
+  "claude-sonnet-5-5": 0.32
+ },
+ "subagents": [
+  {
+   "description": "Compliance pass PR 75",
+   "role": "compliance",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "No convention violations found, so the list is empty. I read the diff and the repo's AGENTS.md rules. I ran nothing.\n\n- **Superseded ADR:** the new ADR 0022 replaces a rule, not a whole ADR. It lists \"Apt packages float within the Ubuntu release (the previous rule, in ADR 0013 and the README)\" under Considered Options. ADR 0013 is edited in place and still stands for its other content, so nothing needed deleting.\n- **ADR implementation details:** the phrases \"set in the core image's apt config\" and \"`containerd.io` down to the package revision\" in ADR 0022 describe decisions and outcomes. They contain no code, commands or file contents. I couldn't show they break the \"no code implementation details\" rule, so I didn't flag them.\n- **Code comments:** the new Dockerfile comments explain why. Examples are the `--error-on=any` rationale, the skipped TLS peer check, and the containerd revision republishing. Rewording the \"Ubuntu's package floats\" comments to \"newer than Ubuntu's\" removes a claim that is no longer true.\n- **README and glossary:** the README change is a single line that links to the ADR. No new domain term appears that needs a GLOSSARY.md entry.\n- **Dockerfile and JSON style:** nothing in the diff conflicts with the repo's idioms, and I didn't compare it against files outside the diff.\n\n**Issues:** none."
+  },
+  {
+   "description": "Durable-knowledge pass PR 75",
+   "role": "durable-knowledge",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "I found three items to fix, all non-blocking. I audited the added lines only, from the diff, and ran nothing.\n\n**Findings**\n\n| # | Path | Head line | Quoted added text | Verdict | Rule | Replacement | Blocks |\n|---|---|---|---|---|---|---|---|\n| 1 | `images/core/Dockerfile` | 52 | `# Git LFS from the release tarball, newer than Ubuntu's.` | REWRITE (dated claim, UNVERIFIED) | Durable-knowledge test: \"newer than Ubuntu's\" is true only on the snapshot's day, and nothing in the repo confirms it. AGENTS.md: a comment says why, a constraint the code cannot show. | `# Git LFS from the release tarball.` The reason for not using the apt package cannot be recovered from the repo, so state no rationale. If a human can confirm one, state it as a constraint, for example the minimum LFS version needed. | no |\n| 2 | `images/core/Dockerfile` | 109 | `# fish from upstream, newer than Ubuntu's. bash stays dev's shell.` | REWRITE (same dated claim, UNVERIFIED) | Same as finding 1. | `# fish from upstream. bash stays dev's shell.` | no |\n| 3 | `docs/adr/0022-all-inputs-are-pinned.md` | 10 | `- Apt packages float within the Ubuntu release (the previous rule, in ADR 0013 and the README).` | REWRITE (provenance, stale pointer) | Durable-knowledge audit: \"previous rule\" is provenance. The README no longer states that rule, and ADR 0013 is rewritten in this same diff, so the pointer is dead. | `- Apt packages float within the Ubuntu release.` The alternative stays listed, as AGENTS.md requires for a replaced decision. | no |\n\n**Added lines that passed**\n- The renovate.json `description` strings carry constraints or reasons and passed. Two examples are the suite-codename note and the \"no release wait: it carries security fixes\" reason.\n- The comments on the TLS-peer skip, `--error-on=any`, containerd's package revision, `.hadolint.yaml`, and the README, `docs/usage/core.md` and ADR 0013/0019 edits all passed. The first two appear in the new core Dockerfile comment block (lines 7–10); the rest are the other added comments and docs lines.\n- The snapshot-service claim in the renovate.json description is third-party behavior that could change over time. I could not check it offline. I left it as KEEP and did not raise it as a finding.\n\n**Not raised**\n- ADR 0022 line 4, \"set in the core image's apt config\", and line 14 (`containerd.io` \"down to the package revision\") lean toward implementation detail. AGENTS.md forbids code implementation details in ADRs. Both lines state a decision's scope more than code, so I did not raise them. A human may want to look.\n\n**Dismissed findings** (AGENTS.md asks for these to be reported to a human)\n- ADR 0022 lines 4 and 14, for the reason above.\n- The snapshot-service claim, because I could not verify it."
+  },
+  {
+   "description": "Correctness pass PR 75",
+   "role": "correctness",
+   "requested_model": "opus",
+   "actual_models": [
+    "claude-opus-5-5"
+   ],
+   "output": "I found no blocking correctness or security issues. There is one non-blocking test gap.\n\n**1. Nothing tests the snapshot the image keeps in its apt config**\n- **Path / line:** `images/core/Dockerfile`, line 14\n- **Quoted added text:** `RUN echo \"APT::Snapshot \\\"${UBUNTU_SNAPSHOT_VERSION}\\\";\" > /etc/apt/apt.conf.d/50snapshot \\`\n- **Reason flagged:** tests\n- **Blocks:** no\n- **Description:** The PR adds a user-facing promise in `docs/usage/core.md` and ADR 0022: the image keeps the snapshot, so `apt-get install` in a job gets that day's versions. Child images also count on the snapshot being inherited. But `images/core/smoke.sh` and `images/core-systemd/smoke.sh` never check it. If a later edit drops or renames `50snapshot`, or a child image's own apt config overrides it, apt quietly falls back to the floating archive, and CI still passes. The PR's test plan only checked this by hand, with `apt-cache policy`.\n- **Suggested fix:** Add an offline check to `images/core/smoke.sh`, for example that `apt-config dump APT::Snapshot` prints the snapshot ID, and run the same check in the core-systemd smoke test.\n\n**Checked and found correct (not raised):**\n- **TLS override scope:** `Acquire::https::snapshot.ubuntu.com::Verify-Peer=false` applies only to that one host and is passed only with `-o` in the first `RUN`. It is not written to `/etc/apt`. By the next `apt-get update`, `ca-certificates` is installed, so TLS checks run normally. apt still verifies the signed InRelease and the package hashes.\n- **Child images:** only core-systemd runs apt. It inherits `50snapshot`, has `--error-on=any`, and doesn't use the TLS override (it doesn't need it). coder-template, devcontainer-base, the workflows in `.github/` and the smoke scripts run no apt. No `apt-get update` in the repo is missing `--error-on=any`.\n- **Renovate transform:**\n  - Plain format turns each line of InRelease into one release. The filter on `\"Date: \"` picks only the Date line.\n  - The regex groups are 0 day, 1 month, 2 year, 3 hour, 4 minute, 5 second. They are assembled as year, month, padded day, `T`, padded hour, minute, second, `Z`.\n  - So `Date: Sat, 21 Nov 2026 09:50:46 UTC` becomes `20261121T095046Z`. A day or hour that isn't zero-padded is handled by the padding.\n- **Snapshot versioning:** the regex `^(?<major>\\d{8})T(?<minor>\\d{6})Z$` orders values correctly, and leading zeros in the time part don't matter.\n- **Custom manager:** the matcher's lazy `versioning=` capture stops at whitespace. Widening the datasource pattern to `[a-z.-]` is needed for `custom.ubuntu-snapshot`.\n- **Release wait and schedule:** setting `minimumReleaseAge: null` is needed, because the custom datasource gives no release timestamps and the default behaviour would hold updates forever. No later rule matches these values. `* 0-3 * * *` is valid Renovate cron.\n- **containerd.io pin:**\n  - `containerd.io=${CONTAINERD_VERSION}~*` matches Docker's `<ver>-<rev>~ubuntu.<rel>~<codename>` version strings.\n  - `extractVersion=^(?<version>[^~]+)~` gives `2.4.2-4`, which `versioning=deb` compares correctly.\n  - `containerd.io` was added to the deb packageRule, so it gets the Docker registry URL and the timestamp-optional setting.\n- **Earlier review thread:** the snapshot is now pinned to the exact InRelease Date time instead of midnight, so the fix answers it. Not re-raised.\n\nNo reviewer findings were dismissed in this pass."
+  },
+  {
+   "description": "Validate candidate 1",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "CONFIRM: `images/core/Dockerfile` writes `/etc/apt/apt.conf.d/50snapshot`, and `docs/usage/core.md` and ADR 0022 promise that child images and CI jobs keep using that snapshot. Neither `images/core/smoke.sh` nor `images/core-systemd/smoke.sh` mentions the snapshot, so dropping or overriding the file would pass CI. The build step would also still succeed without it, so this is a real gap in tests for changed behavior (rule 2)."
+  },
+  {
+   "description": "Validate candidate 2",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: \"Newer than Ubuntu's\" gives a reason the code can't show for using the tarball instead of the apt package. The Dockerfile pins the snapshot date and the Renovate-managed `GIT_LFS_VERSION`, but it never states which version Ubuntu ships, so the comment is not clearly a violation of the \"why\" rule."
+  },
+  {
+   "description": "Validate candidate 3",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "DROP: the comment gives the real reason fish is installed from upstream instead of apt, and that is a constraint the Dockerfile can't show. It also isn't a clear breach of the rule, since \"newer than Ubuntu's\" is a judgment call and the line carries no stated constraint that would make it wrong."
+  },
+  {
+   "description": "Validate candidate 4",
+   "role": "validator",
+   "requested_model": "sonnet",
+   "actual_models": [
+    "claude-sonnet-5-5"
+   ],
+   "output": "`CONFIRM`: the PR removes the apt-floats rule from both the README (diff line 17) and ADR 0013 (diff line 30), so the pointer \"(the previous rule, in ADR 0013 and the README)\" names places that no longer hold it. That makes it provenance residue in a durable doc. The considered option reads fine as just \"Apt packages float within the Ubuntu release.\""
+  }
+ ],
+ "review": {
+  "event": "APPROVE",
+  "body": "No blocking issues. Pinning apt to an archive snapshot looks right: the TLS peer skip covers only the snapshot host on the first install and is not kept in apt's config, every `apt-get update` fails on a bad index, the Renovate `Date:` transform builds the right snapshot ID, and the `containerd.io` pin fits Docker's version strings. The earlier thread about the snapshot leaving out the latest fixes is answered by pinning the exact `Date:` time. Two non-blocking notes are inline: a smoke test for the snapshot the image keeps, and a stale pointer in ADR 0022's considered options.",
+  "comments": [
+   {
+    "path": "images/core/Dockerfile",
+    "line": 14,
+    "body": "**Untested: the snapshot the image keeps** (non-blocking, tests)\n\n`docs/usage/core.md` and ADR 0022 now promise that the image keeps this snapshot, so `apt-get` in core-systemd and in CI jobs reads the same dated archive. Neither `images/core/smoke.sh` nor `images/core-systemd/smoke.sh` checks this. If a later change drops `50snapshot`, or a child image overrides it, apt silently goes back to the floating archive and CI still passes.\n\nSuggested fix: add an offline smoke check, for example that `apt-config dump APT::Snapshot` prints the pinned ID, and run it in both images."
+   },
+   {
+    "path": "docs/adr/0022-all-inputs-are-pinned.md",
+    "line": 10,
+    "body": "**Stale pointer in a considered option** (non-blocking, durable knowledge)\n\n\"(the previous rule, in ADR 0013 and the README)\" is a provenance note. This PR removes that rule from both the README and ADR 0013, so after merge the pointer names places that no longer hold it. AGENTS.md only asks to \"List old decision under \\\"Considered options\\\"\".\n\nSuggested: `- Apt packages float within the Ubuntu release.`"
+   }
+  ]
+ },
+ "candidates": [
+  {
+   "pass": "correctness",
+   "path": "images/core/Dockerfile",
+   "claim": "No automated test covers the apt snapshot the image keeps (50snapshot): the core and core-systemd smoke tests never check it, so dropping or overriding it would pass CI. Suggest a smoke check such as `apt-config dump APT::Snapshot`.",
+   "validation": "CONFIRM: `images/core/Dockerfile` writes `/etc/apt/apt.conf.d/50snapshot`, and `docs/usage/core.md` and ADR 0022 promise that child images and CI jobs keep using that snapshot. Neither `images/core/smoke.sh` nor `images/core-systemd/smoke.sh` mentions the snapshot, so dropping or overriding the file would pass CI. The build step would also still succeed without it, so this is a real gap in tests for changed behavior (rule 2).",
+   "posted": true
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/core/Dockerfile",
+   "claim": "Comment '# Git LFS from the release tarball, newer than Ubuntu's.' is a dated, unverified claim and breaks the AGENTS.md rule that a comment says why (a constraint the code cannot show).",
+   "validation": "DROP: \"Newer than Ubuntu's\" gives a reason the code can't show for using the tarball instead of the apt package. The Dockerfile pins the snapshot date and the Renovate-managed `GIT_LFS_VERSION`, but it never states which version Ubuntu ships, so the comment is not clearly a violation of the \"why\" rule.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "images/core/Dockerfile",
+   "claim": "Comment '# fish from upstream, newer than Ubuntu's. bash stays dev's shell.' is a dated, unverified claim and breaks the AGENTS.md rule that a comment says why.",
+   "validation": "DROP: the comment gives the real reason fish is installed from upstream instead of apt, and that is a constraint the Dockerfile can't show. It also isn't a clear breach of the rule, since \"newer than Ubuntu's\" is a judgment call and the line carries no stated constraint that would make it wrong.",
+   "posted": false
+  },
+  {
+   "pass": "durable-knowledge",
+   "path": "docs/adr/0022-all-inputs-are-pinned.md",
+   "claim": "The considered option's parenthetical '(the previous rule, in ADR 0013 and the README)' is provenance residue: this PR removes the rule from both places, so the pointer is dead. State the option on its own.",
+   "validation": "CONFIRM: the PR removes the apt-floats rule from both the README (diff line 17) and ADR 0013 (diff line 30), so the pointer \"(the previous rule, in ADR 0013 and the README)\" names places that no longer hold it. That makes it provenance residue in a durable doc. The considered option reads fine as just \"Apt packages float within the Ubuntu release.\"",
+   "posted": true
+  }
+ ]
+}
