@@ -32,7 +32,7 @@ most once per head and title and description; see
 [Post at most once per reviewed input](#post-at-most-once-per-reviewed-input).
 
 ```bash
-agent-code/request-review.py --pr <pr> [--rationale '<one line>']
+agent-code/request-review --pr <pr> [--rationale '<one line>']
 ```
 
 It prints `PR_NUMBER`, `HEAD_SHA`, `CHECK_URL` — the responder check already
@@ -111,7 +111,7 @@ a metadata-gate stop, fix the title or description instead; the edit alone
 lets the script request a review of the same head.
 
 Request at most one review per head and title and description.
-`request-review.py` enforces the rule whoever started the review: a
+`request-review` enforces the rule whoever started the review: a
 `Claude PR Review Responder` check on the head that is queued or in progress,
 or started after the latest title or description edit and completed other than
 skipped or cancelled, is that input's request. A run reads the title and

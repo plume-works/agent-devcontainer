@@ -160,7 +160,7 @@ bounded waits; never replace a wait with a text-only promise to check later.
 5. After a code change, run the narrowest relevant local verification —
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
-   `agent-code/push-branch.py`, handling its result as that skill's step 8 does.
+   `agent-code/push-branch`, handling its result as that skill's step 8 does.
    After the push, apply
    [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) and report its
    decision. Restart the loop from step 1 because the head SHA and checks have
@@ -211,7 +211,7 @@ it are filed on the head commit and listed by `gh pr checks`.
 
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
-   `request-review.py` adds the `request-ai-review` label at most once per head
+   `request-review` adds the `request-ai-review` label at most once per head
    and title and description. On `ALREADY_REQUESTED`, the label is still waiting
    for a run or a responder check already covers this head: confirm it started as that skill describes and
    wait on the head's checks; never request again. On `ALREADY_REVIEWED`, an

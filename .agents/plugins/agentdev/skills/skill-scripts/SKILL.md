@@ -90,14 +90,16 @@ discriminator. Codes are for outcomes, not for variants of one outcome.
 
 ## Implementation
 
-A script is Python on `#!/usr/bin/env -S uv run --quiet`. `uv` finds the
-plugin's own `pyproject.toml` from the script's location and runs the script in
+A script is an executable Python file with no extension, on
+`#!/usr/bin/env -S uv run --quiet --script`. A module that the `bin/` scripts of
+a plugin share keeps `.py`, has no shebang, is not executable, and lives beside
+them in `bin/`. `uv` finds the plugin's own `pyproject.toml` from the script's location and runs the script in
 that project's environment, which pins the `agentdev-lib` package, so it works
 from a repository checkout and from an installed plugin cache alike. The shared
 helpers come from `agentdev_lib`; never copy or inline them into a skill.
 
 ```python
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """Find the pull request whose head is the current branch."""
 
@@ -306,7 +308,7 @@ script directly. Pin the outcomes an agent acts on with a test in the plugin's
 `tests/` directory.
 
 Resolve the script from the `plugin_root` fixture — `plugin_root / 'bin/...'` or
-`plugin_root / 'skills/<name>/agent-code/<script>.py'` — never through a path that
+`plugin_root / 'skills/<name>/agent-code/<script>'` — never through a path that
 climbs out of the plugin, which resolves nowhere once the plugin is installed
 into a cache. Use `plugin_tmp_path` for scratch fixtures, and assert on the pair
 that forms the contract:

@@ -12,7 +12,7 @@ from git_fixtures import FIXTURE_ENV, git, outcome
 import pytest
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/git-merge-resolve/agent-code/git-merge-resolve.py'
+SCRIPT_PATH = 'skills/git-merge-resolve/agent-code/git-merge-resolve'
 
 
 def run_script(plugin_root: Path, cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:

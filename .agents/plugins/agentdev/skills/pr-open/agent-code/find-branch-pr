@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Find the pull request whose head is the current branch.
@@ -32,7 +32,7 @@ DESCRIPTION = 'Find the pull request whose head is the current branch.'
 
 USAGE = """
 Usage:
-  find-branch-pr.py [--branch <name>] [--state open|all]
+  find-branch-pr [--branch <name>] [--state open|all]
 
 Options:
   --branch <name>    Head branch to look up. Default: current branch
@@ -130,7 +130,7 @@ def run(arguments: list[str]) -> int:
         )
         return PROTECTED_BRANCH
 
-    # The pull request head is the remote branch, which push-branch.py writes to.
+    # The pull request head is the remote branch, which push-branch writes to.
     # It only matches the local branch name when the branch has no upstream or the
     # upstream carries the same name.
     head_branch = branch

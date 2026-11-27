@@ -40,7 +40,7 @@ pass it explicitly. Name the root back to the user before writing.
 ## Workflow 2: Run the Helper
 
 ```bash
-agent-code/bootstrap-iwe.py [--root <dir>]
+agent-code/bootstrap-iwe [--root <dir>]
 ```
 
 Without `--root`, the helper uses `git rev-parse --show-toplevel` from the

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for bin/plan_predecessors.py against a local bare remote."""
+"""Behavior tests for bin/plan_predecessors against a local bare remote."""
 
 from __future__ import annotations
 
+import importlib.machinery
 import importlib.util
 from pathlib import Path
 import sys
@@ -23,9 +24,9 @@ def predecessors(plugin_root: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleTy
     """Load the script as a module, with the fixture identity in the environment."""
     for key, value in FIXTURE_ENV.items():
         monkeypatch.setenv(key, value)
-    spec = importlib.util.spec_from_file_location(
-        'plan_predecessors', plugin_root / 'bin/plan_predecessors.py'
-    )
+    path = str(plugin_root / 'bin/plan_predecessors')
+    loader = importlib.machinery.SourceFileLoader('plan_predecessors', path)
+    spec = importlib.util.spec_from_file_location('plan_predecessors', path, loader=loader)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     monkeypatch.setitem(sys.modules, 'plan_predecessors', module)
@@ -62,7 +63,7 @@ def run(
         lambda _remote_url: [module.PullRequest(*pull) for pull in pulls],
     )
     monkeypatch.chdir(workspace.work)
-    monkeypatch.setattr(sys, 'argv', ['plan_predecessors.py', PLAN])
+    monkeypatch.setattr(sys, 'argv', ['plan_predecessors', PLAN])
     code = module.main()
     captured = capsys.readouterr()
     found = [

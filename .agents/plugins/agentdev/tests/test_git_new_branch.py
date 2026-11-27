@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import importlib.machinery
 import importlib.util
 import os
 from pathlib import Path
@@ -14,7 +15,7 @@ from types import ModuleType
 from git_fixtures import FIXTURE_ENV, git, outcome, stub_gh
 import pytest
 
-SCRIPT_PATH = 'skills/git-new-branch/agent-code/git-new-branch.py'
+SCRIPT_PATH = 'skills/git-new-branch/agent-code/git-new-branch'
 
 
 def commit_file(repository: Path, name: str, content: str) -> None:
@@ -56,7 +57,7 @@ def run_script(
     path_prefix: Path | None = None,
     runtime_mode: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
-    """Run git-new-branch.py and parse its key=value stdout."""
+    """Run git-new-branch and parse its key=value stdout."""
     script = plugin_root / SCRIPT_PATH
     env = {**os.environ, **FIXTURE_ENV}
     env.pop('AGENTDEV_RUNTIME_MODE', None)
@@ -196,7 +197,7 @@ def test_update_branch_merges_the_base_into_moved_commits(
     main_sha = git(fixture.work, 'rev-parse', 'main')
     _, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
     assert keys['LOCAL_COMMITS'] == '1'
-    update_branch = plugin_root / 'skills/update-branch/agent-code/update-branch.py'
+    update_branch = plugin_root / 'skills/update-branch/agent-code/update-branch'
 
     # Act
     merged = subprocess.run(
@@ -621,8 +622,10 @@ def test_deploy_worktree_mode_uses_the_ignored_worktrees_directory(
 
 
 def load_script(plugin_root: Path) -> ModuleType:
-    """Import git-new-branch.py as a module without running it."""
-    spec = importlib.util.spec_from_file_location('git_new_branch', plugin_root / SCRIPT_PATH)
+    """Import git-new-branch as a module without running it."""
+    path = str(plugin_root / SCRIPT_PATH)
+    loader = importlib.machinery.SourceFileLoader('git_new_branch', path)
+    spec = importlib.util.spec_from_file_location('git_new_branch', path, loader=loader)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

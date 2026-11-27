@@ -1,10 +1,10 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Apply ShellCheck's suggested fixes to every shell script under the working directory.
 
 Usage:
-  shellcheck_fix.py
+  shellcheck_fix
 
 Vendored trees, virtual environments, and .tmp are skipped. Exits with
 ShellCheck's status when it fails outright (status above 1), otherwise with the

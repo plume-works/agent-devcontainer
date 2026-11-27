@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Push a branch to its pull request head ref without rewriting history.
@@ -30,7 +30,7 @@ DESCRIPTION = 'Push a branch to its pull request head ref without rewriting hist
 
 USAGE = """
 Usage:
-  push-branch.py [--remote <name>] [--branch <name>]
+  push-branch [--remote <name>] [--branch <name>]
 
 Options:
   --remote <name>    Remote to push to when no upstream is configured. Default: origin

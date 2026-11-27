@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Create and submit a GitHub PR review with all inline comments in one call.
@@ -28,7 +28,7 @@ Create and submit a GitHub PR review with all inline comments in a
 single atomic call -- no pending-review/add-comment/submit dance.
 
 Usage:
-  post-review.py --pr <PR_NUMBER> --event <COMMENT|APPROVE|REQUEST_CHANGES> \\
+  post-review --pr <PR_NUMBER> --event <COMMENT|APPROVE|REQUEST_CHANGES> \\
     --summary-file <path> [--comments-file <path>] [--repo <owner/name>]
 
 --summary-file must be a plain file (write it with the Write tool

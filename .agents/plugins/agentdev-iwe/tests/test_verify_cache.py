@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for iwe-verify's verify-cache.py lookup and save."""
+"""Behavior tests for iwe-verify's verify-cache lookup and save."""
 
 from __future__ import annotations
 
@@ -43,8 +43,8 @@ def repository(plugin_tmp_path: Path) -> Path:
 def run_cache(
     installed: Path, repository: Path, *arguments: str, stdin: str = ''
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
-    """Run verify-cache.py in `repository`, returning the process and its key=value lines."""
-    script = installed / 'skills' / 'iwe-verify' / 'agent-code' / 'verify-cache.py'
+    """Run verify-cache in `repository`, returning the process and its key=value lines."""
+    script = installed / 'skills' / 'iwe-verify' / 'agent-code' / 'verify-cache'
     completed = subprocess.run(
         [sys.executable, str(script), *arguments],
         cwd=repository,

@@ -21,7 +21,7 @@ The GitHub CLI (`gh`) is the primary GitHub client for this skill, and a
 connected GitHub MCP server is a secondary fallback used only when `gh` is
 missing or unauthenticated. Every GitHub step below is written against `gh`:
 
-- `gh pr list` (through `find-branch-pr.py`) - detect an existing pull request
+- `gh pr list` (through `find-branch-pr`) - detect an existing pull request
 - `gh pr create` - create the pull request
 - `gh pr edit` - update an existing pull request's title and body
 - `gh issue list` - list recent issues when an issue number is missing
@@ -31,13 +31,13 @@ If `gh` is unavailable or unauthenticated, fall back to the equivalent GitHub
 MCP operations (for example a pull-request listing tool for detection, or a
 `create_pull_request` tool for creation) only when the active environment
 documents them; do not assume particular MCP tool names. That fallback covers
-existing-PR detection too: `find-branch-pr.py` reports every unusable-`gh`
+existing-PR detection too: `find-branch-pr` reports every unusable-`gh`
 condition as `RESULT=GH_UNAVAILABLE` (exit `6`) — distinct from the preflight
 failures no fallback can rescue — and prints `HEAD_BRANCH` before it checks
 `gh`, so the head branch to look up is available even then. If neither path
 works, stop and report the blocker.
 
-The branch is always pushed with local `git` through `push-branch.py` — never
+The branch is always pushed with local `git` through `push-branch` — never
 through a GitHub API or MCP tool.
 
 ## PR Description Source of Truth
@@ -58,8 +58,8 @@ The pr-open skill is responsible for:
 
 Use these exact helper scripts instead of retyping inline shell commands:
 
-- [find-branch-pr.py](agent-code/find-branch-pr.py) resolves the single pull request whose head is the current branch, and fails loudly when more than one matches.
-- [push-branch.py](agent-code/push-branch.py) verifies upstream tracking, pushes the branch when needed, and blocks on divergence without ever rewriting history.
+- [find-branch-pr](agent-code/find-branch-pr) resolves the single pull request whose head is the current branch, and fails loudly when more than one matches.
+- [push-branch](agent-code/push-branch) verifies upstream tracking, pushes the branch when needed, and blocks on divergence without ever rewriting history.
 
 The detailed PR description structure, section requirements, and quality checks
 are defined in the [pr-gen-description](../pr-gen-description/) skill
@@ -92,7 +92,7 @@ Context signals for PR type:
 Before doing any work, resolve whether this branch already has a pull request:
 
 ```bash
-agent-code/find-branch-pr.py
+agent-code/find-branch-pr
 ```
 
 The last stdout line is `RESULT=<NAME>`; it decides the rest of the run:
@@ -115,7 +115,7 @@ The script also prints `HEAD_BRANCH` on every run. That is the pull request
 head: the configured upstream branch name when the local branch tracks a
 differently named ref, and the local branch name otherwise. Use `HEAD_BRANCH`
 — never the local branch name — as the head when creating the PR, so it matches
-the ref `push-branch.py` writes to.
+the ref `push-branch` writes to.
 
 ### 3. Commit Any Uncommitted PR Scope
 
@@ -136,10 +136,10 @@ whether it depends on other pull requests — whether it carries the
 `Depends-on: #<P>` trailers `/agentdev:git-new-branch --depends-on` writes:
 
 ```bash
-pr_restack_all.py <HEAD_BRANCH> --list
+pr_restack_all <HEAD_BRANCH> --list
 ```
 
-`pr_restack_all.py` ships in the plugin's `bin/`, on `PATH` while the plugin is
+`pr_restack_all` ships in the plugin's `bin/`, on `PATH` while the plugin is
 enabled; it reads the pushed branch. A branch with no upstream yet reports
 `PREFLIGHT_ERROR` and has no dependency: `git-new-branch --depends-on` always
 pushes the branch it cuts. Each `DEPENDENCY=#<P> <STATE>
@@ -158,7 +158,7 @@ skill instead of re-implementing merge logic inline.
 2. Push the branch's own commits first with step 8's helper, so the restack
    builds on them.
 3. Restack it through `/agentdev:pr-restack-all` with
-   `pr_restack_all.py <HEAD_BRANCH>`, following that skill's result table, then
+   `pr_restack_all <HEAD_BRANCH>`, following that skill's result table, then
    bring its merges into the local branch with `git merge --ff-only @{u}`.
    This replaces the `update-branch` merge: a restack never merges `main`.
 4. In create mode, the base is the one `OPEN` dependency's head branch, or
@@ -242,7 +242,7 @@ head ref contains every commit the body describes.
 Run the bundled helper:
 
 ```bash
-agent-code/push-branch.py
+agent-code/push-branch
 ```
 
 The script handles these cases:
@@ -271,9 +271,9 @@ Before applying any body, check its `## Depends on` section with the parser
 `gh pr view <PR_NUMBER> --json body --jq .body > ./.tmp/pr-body-current.md`:
 
 ```bash
-check_depends_on.py ./.tmp/pr-body.md --current ./.tmp/pr-body-current.md  # update mode
-check_depends_on.py ./.tmp/pr-body.md --depends-on <P> ...                   # create mode, dependent branch
-check_depends_on.py ./.tmp/pr-body.md                                        # create mode, otherwise
+check_depends_on ./.tmp/pr-body.md --current ./.tmp/pr-body-current.md  # update mode
+check_depends_on ./.tmp/pr-body.md --depends-on <P> ...                   # create mode, dependent branch
+check_depends_on ./.tmp/pr-body.md                                        # create mode, otherwise
 ```
 
 Anything but `RESULT=SUCCESS`: do not apply the body. Regenerate it through
@@ -305,7 +305,7 @@ gh pr create --title "<title>" --body-file ./.tmp/pr-body.md \
   [pr-gen-description](../pr-gen-description/) skill
 - `--base` (required): base branch. The base step 4 chose for a dependent
   branch; otherwise, if not explicitly provided by user or repo policy, `main`
-- `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr.py`,
+- `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr`,
   which is the configured upstream branch name rather than the local branch
   name whenever the two differ
 - `--draft` (optional): pass when the user wants a draft PR
@@ -359,7 +359,7 @@ If you are falling back to a GitHub MCP server, verify its authentication and
 token scopes instead.
 ```
 
-**Not on a work branch** (`find-branch-pr.py` or `push-branch.py` reports `PROTECTED_BRANCH`):
+**Not on a work branch** (`find-branch-pr` or `push-branch` reports `PROTECTED_BRANCH`):
 
 ```
 Cannot continue: you're on the main/master branch.
@@ -371,7 +371,7 @@ freshly fetched remote base and pushes it with its own upstream.
 Then rerun this skill.
 ```
 
-**Multiple pull requests share the branch** (`find-branch-pr.py` reports `MULTIPLE_PRS`):
+**Multiple pull requests share the branch** (`find-branch-pr` reports `MULTIPLE_PRS`):
 
 ```
 Found several pull requests with this head branch.

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for bin/pr_restack_all.py against real git repositories."""
+"""Behavior tests for bin/pr_restack_all against real git repositories."""
 
 from __future__ import annotations
 
 import dataclasses
+import importlib.machinery
 import importlib.util
 from pathlib import Path
 import subprocess
@@ -21,9 +22,9 @@ def restack(plugin_root: Path, monkeypatch: pytest.MonkeyPatch) -> ModuleType:
     for key, value in FIXTURE_ENV.items():
         monkeypatch.setenv(key, value)
     monkeypatch.syspath_prepend(str(plugin_root / 'bin'))
-    spec = importlib.util.spec_from_file_location(
-        'pr_restack_all', plugin_root / 'bin/pr_restack_all.py'
-    )
+    path = str(plugin_root / 'bin/pr_restack_all')
+    loader = importlib.machinery.SourceFileLoader('pr_restack_all', path)
+    spec = importlib.util.spec_from_file_location('pr_restack_all', path, loader=loader)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     monkeypatch.setitem(sys.modules, 'pr_restack_all', module)
@@ -331,7 +332,7 @@ def test_a_final_head_that_moved_stops(restack: ModuleType, hub: Hub) -> None:
 
 def test_the_command_line_names_its_result(plugin_root: Path, plugin_tmp_path: Path) -> None:
     completed = subprocess.run(
-        [str(plugin_root / 'bin/pr_restack_all.py')],
+        [str(plugin_root / 'bin/pr_restack_all')],
         cwd=plugin_tmp_path, check=False, capture_output=True, text=True,
     )  # fmt: skip
     assert (completed.returncode, completed.stdout.splitlines()[-1]) == (

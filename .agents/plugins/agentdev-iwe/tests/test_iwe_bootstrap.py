@@ -14,7 +14,7 @@ import tomllib
 
 import pytest
 
-SCRIPT = Path('agent-code') / 'bootstrap-iwe.py'
+SCRIPT = Path('agent-code') / 'bootstrap-iwe'
 ASSETS = Path('assets')
 # The transaction directory name is part of the skill's documented contract.
 TRANSACTION = '.iwe-bootstrap.txn'

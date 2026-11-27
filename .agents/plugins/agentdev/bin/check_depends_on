@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Check a candidate pull request body's ``## Depends on`` section before it is applied.
@@ -25,7 +25,7 @@ USAGE = """\
 Check a candidate pull request body's '## Depends on' section before it is applied.
 
 Usage:
-  check_depends_on.py <body-file|-> [--current <body-file>] [--depends-on <pr>]...
+  check_depends_on <body-file|-> [--current <body-file>] [--depends-on <pr>]...
 
   <body-file|->           The candidate body; '-' reads it from stdin
   --current <body-file>   The body the pull request has now. When it carries a

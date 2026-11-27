@@ -142,6 +142,7 @@ TARGETS = {
         'def main() -> int:\n    """Run."""\n    return 0\n'
     ),
     'src/run.sh': '#!/usr/bin/env bash\nsetup_env() {\n  :\n}\n',
+    'bin/tool': '#!/usr/bin/env -S uv run --quiet --script\n# run\ndef main() -> int:\n    return 0\n',
     'docs/guide.md': (
         '# Guide\n\n## Workflow 2: Handle the Result\n\nNever reset   it.\n\n'
         '## Notes\n\nA note.\n\n## Notes\n\nAnother.\n\n```\n## Not a heading\n```\n'
@@ -184,6 +185,7 @@ def targets(write: Write) -> None:
         '`src/tool.py@Store.append`',
         '`src/tool.py@LIMIT`',
         '`src/run.sh@setup_env`',
+        '`bin/tool@main`',
         '`docs/guide.md#workflow-2-handle-the-result`',
         '`docs/guide.md#notes-1`',
         '`docs/guide.md#workflow-2-handle-the-result › "Never reset it"`',
@@ -213,6 +215,7 @@ def test_anchor_forms_resolve(write: Write, run: Run, anchor: str) -> None:
         ('`src/tool.py@run`', 'symbol `run` not found'),
         ('`src/tool.py@Store.drop`', 'symbol `Store.drop` not found'),
         ('`src/run.sh@teardown`', 'symbol `teardown` not found'),
+        ('`bin/tool@run`', 'symbol `run` not found'),
         ('`docs/guide.md#workflow-3`', 'heading `#workflow-3` not found'),
         ('`docs/guide.md#not-a-heading`', 'heading `#not-a-heading` not found'),
         ('`docs/guide.md#notes › "Another."`', 'quote "Another." not found'),

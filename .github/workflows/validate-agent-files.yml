@@ -129,7 +129,7 @@ jobs:
         run: SHELL="$(brew --prefix)/bin/fish" /bin/zsh .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 
       - name: Run a catalog script on the provisioned Python
-        run: /bin/zsh -l -c '.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py --help'
+        run: /bin/zsh -l -c '.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch --help'
 
       - name: Test the bootstrap
         run: /bin/zsh -l -c 'uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py'

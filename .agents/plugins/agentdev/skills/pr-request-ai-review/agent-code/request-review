@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Request an AI review of a pull request's head commit by adding the request-ai-review label.
@@ -44,7 +44,7 @@ Request an AI review of a pull request's head commit by adding the
 request-ai-review label, at most once per head and title and description.
 
 Usage:
-  request-review.py --pr <number> [--rationale <one line>] [--repo <owner/repo>]
+  request-review --pr <number> [--rationale <one line>] [--repo <owner/repo>]
 
 Options:
   --pr <number>          Pull request to request a review for. Required.

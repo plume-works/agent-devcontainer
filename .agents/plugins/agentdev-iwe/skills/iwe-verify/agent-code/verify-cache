@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Look up and save the one saved Verify report per plan, keyed by commit and catalog digest.
@@ -24,8 +24,8 @@ keyed by the commit Verify ran on and the digest of the active agentdev
 catalog. Run from inside the repository being verified.
 
 Usage:
-  verify-cache.py lookup <plan-key|audit> [--fresh]
-  verify-cache.py save <plan-key|audit> --commit <sha> --verdict <verdict>
+  verify-cache lookup <plan-key|audit> [--fresh]
+  verify-cache save <plan-key|audit> --commit <sha> --verdict <verdict>
                   --skill-request <text> --verifier-prompt <text> < report
 
 Arguments:

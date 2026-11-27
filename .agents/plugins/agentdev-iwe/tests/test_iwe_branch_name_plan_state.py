@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for iwe-branch-name.py plan-state against a local bare remote."""
+"""Behavior tests for iwe-branch-name plan-state against a local bare remote."""
 
 from __future__ import annotations
 
