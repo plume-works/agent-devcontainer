@@ -43,12 +43,14 @@ def text(value: str) -> dict:
     return {'type': 'text', 'text': value}
 
 
-def agent_call(call_id: str, description: str, model: str, prompt: str) -> dict:
-    """Return an Agent tool_use block."""
+def agent_call(
+    call_id: str, description: str, model: str, prompt: str, tool: str = AGENT_TOOL
+) -> dict:
+    """Return a subagent tool_use block."""
     return {
         'type': 'tool_use',
         'id': call_id,
-        'name': AGENT_TOOL,
+        'name': tool,
         'input': {
             'description': description,
             'model': model,
@@ -301,3 +303,13 @@ def test_tagged_lines_win_over_reasoning_notes(root: Path) -> None:
     assert '- Effort tier: light — docs only' in section(body, 'Run')
     merge = section(body, 'Merge')
     assert 'nothing discarded or collapsed' in merge and 'Merge note.' not in merge
+
+
+@pytest.mark.parametrize('tool', sorted(_MODULE.AGENT_TOOLS))
+def test_every_subagent_tool_name_is_reported(root: Path, tool: str) -> None:
+    """A subagent call under each tool name Claude Code has used is reported as a pass."""
+    main = [
+        assistant('m', agent_call('c1', 'Compliance pass', 'sonnet', 'Check.', tool)),
+        tool_result('c1', 'hand-back', agent_result('a1', 'No issues.\nDropped: none', 'l')),
+    ]
+    assert 'Compliance pass' in section(report(root, write_transcripts(root, main, {})), 'Passes')
