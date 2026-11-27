@@ -261,3 +261,43 @@ def test_newest_session_wins_and_truncated_lines_are_skipped(root: Path) -> None
     body = report(root, transcripts)
     assert 'session-2.jsonl' in section(body, 'Run')
     assert 'New session.' in section(body, 'Final message')
+
+
+def thinking(note: str) -> dict:
+    """Return a thinking content block."""
+    return {'type': 'thinking', 'thinking': note}
+
+
+def test_reasoning_notes_stand_in_for_missing_tagged_lines(root: Path) -> None:
+    """With no `Effort tier:` or `Merge:` line, the matching reasoning notes are reported."""
+    main = [
+        assistant('m', thinking('Early note.')),
+        assistant('m', thinking('Full effort: a new script.')),
+        assistant('m', agent_call('c1', 'Correctness pass', 'opus', 'Find bugs.')),
+        tool_result('c1', 'hand-back', agent_result('a1', 'Issue: x.\nDropped: none', 'big')),
+        assistant('m', thinking('')),
+        assistant('m', thinking('Merged two duplicates into one.')),
+        assistant('m', agent_call('v1', 'Validate x', 'sonnet', 'Check x.')),
+        tool_result('v1', 'hand-back', agent_result('a2', 'DROP: path — no caller.', 'light')),
+        assistant('m', thinking('Publishing now.')),
+    ]
+    body = report(root, write_transcripts(root, main, {}))
+    tier = f'Effort tier: {NOT_RECORDED}; reasoning note before the passes: Full effort'
+    assert tier in section(body, 'Run')
+    merge = section(body, 'Merge')
+    assert 'Merged two duplicates into one.' in merge
+    assert 'Early note.' not in merge and 'Publishing now.' not in merge
+
+
+def test_tagged_lines_win_over_reasoning_notes(root: Path) -> None:
+    """A written `Effort tier:` or `Merge:` line is reported instead of any note."""
+    main = [
+        assistant('m', thinking('Note.'), text('Effort tier: light — docs only')),
+        assistant('m', agent_call('c1', 'Pass', 'sonnet', 'Check.')),
+        tool_result('c1', 'hand-back', agent_result('a1', 'No issues.\nDropped: none', 'l')),
+        assistant('m', thinking('Merge note.'), text('Merge: nothing discarded or collapsed')),
+    ]
+    body = report(root, write_transcripts(root, main, {}))
+    assert '- Effort tier: light — docs only' in section(body, 'Run')
+    merge = section(body, 'Merge')
+    assert 'nothing discarded or collapsed' in merge and 'Merge note.' not in merge

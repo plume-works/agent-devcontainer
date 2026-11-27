@@ -38,6 +38,8 @@ class Run:
     texts: list[str] = field(default_factory=list)
     pull_request: dict[str, Any] = field(default_factory=dict)
     dispatches: list[Dispatch] = field(default_factory=list)
+    notes: list[tuple[int, str]] = field(default_factory=list)
+    """Reasoning notes, each with the number of subagent calls made before it."""
 
 
 def parse(argv: list[str]) -> argparse.Namespace:
@@ -122,6 +124,8 @@ def read_run(transcript: Path) -> Run:
             for block in content if isinstance(content, list) else []:
                 if block.get('type') == 'text' and block.get('text', '').strip():
                     run.texts.append(block['text'])
+                elif block.get('type') == 'thinking' and block.get('thinking', '').strip():
+                    run.notes.append((len(run.dispatches), block['thinking'].strip()))
                 elif block.get('type') == 'tool_use' and block.get('name') in AGENT_TOOLS:
                     dispatch = Dispatch(block.get('id', ''), block.get('input') or {})
                     by_id[dispatch.tool_use_id] = dispatch
@@ -198,11 +202,31 @@ def is_validator(dispatch: Dispatch) -> bool:
     return bool(VERDICT.match(first))
 
 
-def merge_section(texts: list[str]) -> str:
-    """Return the last `Merge:` section the main session wrote."""
-    sections = [tagged_section(text, 'Merge') for text in texts]
+def notes_at(run: Run, position: int) -> list[str]:
+    """Return the reasoning notes written after exactly `position` subagent calls."""
+    return [note for at, note in run.notes if at == position]
+
+
+def effort_tier(run: Run) -> str:
+    """Return the `Effort tier:` line, else the last reasoning note before the passes."""
+    tier = tagged_line(run.texts, 'Effort tier')
+    notes = notes_at(run, 0) if run.dispatches else []
+    if tier == NOT_RECORDED and notes:
+        return f'{NOT_RECORDED}; reasoning note before the passes: {notes[-1]}'
+    return tier
+
+
+def merge_section(run: Run, first_validator: int | None) -> str:
+    """Return the last `Merge:` section, else the reasoning notes before validation."""
+    sections = [tagged_section(text, 'Merge') for text in run.texts]
     recorded = [section for section in sections if section != NOT_RECORDED]
-    return recorded[-1] if recorded else NOT_RECORDED
+    if recorded:
+        return recorded[-1]
+    passes = first_validator if first_validator is not None else len(run.dispatches)
+    notes = notes_at(run, passes) if passes else []
+    if notes:
+        return '\n\n'.join([f'{NOT_RECORDED}; reasoning notes before validation:', *notes])
+    return NOT_RECORDED
 
 
 def slug(text: str) -> str:
@@ -274,7 +298,7 @@ def render(run: Run, links: list[str]) -> str:
         '## Run',
         '',
         f'- Transcript: `{run.transcript.parent.name}/{run.transcript.name}`',
-        f'- Effort tier: {tagged_line(run.texts, "Effort tier")}',
+        f'- Effort tier: {effort_tier(run)}',
         f'- Orchestrator models: {models_text(run.models)}',
         f'- Revision range: {revisions}',
         f'- PR title: {pr.get("title") or NOT_RECORDED}',
@@ -294,7 +318,9 @@ def render(run: Run, links: list[str]) -> str:
             lines += dispatch_section(number, dispatch, link)
     if len(validators) == len(run.dispatches):
         lines += ['None.', '']
-    lines += ['## Merge', '', quoted(merge_section(run.texts)), '', '## Validation', '']
+    first_validator = validators[0][0] - 1 if validators else None
+    merge = merge_section(run, first_validator)
+    lines += ['## Merge', '', quoted(merge), '', '## Validation', '']
     for number, dispatch, link in validators:
         lines += dispatch_section(number, dispatch, link)
     if not validators:
