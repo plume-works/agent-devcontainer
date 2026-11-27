@@ -21,13 +21,12 @@ every run's scored detail is in [results.md](results.md).
 | `runs/<variant>/<run>.json`  | One replay: orchestrator model, cost, time, every subagent (role, model requested, model it ran, its final output), every candidate with the validator's verdict, and the review it would post |
 | `results.md`                 | Generated: per round, per case, per run, each expected finding scored, every posted comment and dropped candidate                                                                              |
 | `tools/run.sh`               | Replays one review                                                                                                                                                                             |
+| `tools/cr-prompt.txt`        | The prompt the `cr` baseline runs used                                                                                                                                                         |
 | `tools/extract.py`           | Turns a replay's raw output into a run record                                                                                                                                                  |
 | `tools/report.py`            | Scores the run records and writes `results.md`                                                                                                                                                 |
 
 A run is named `<case>-<variant>-<n>`. Variant `cr` is Anthropic's
 `code-review` plugin 1.0.1, run as an outside baseline. It writes
-`{"issues": [...]}` in place of a review, and its candidates name an `agent`
-in place of a `pass`. It writes
 `{"issues": [...]}` in place of a review, and its candidates name an `agent`
 in place of a `pass`.
 
@@ -55,8 +54,14 @@ An `expect: not-posted` finding is a false finding the review must not raise.
    review runs on `claude -p --model opus` with `gh` replaced by a stub that
    fails, and writes `out/review.json` and `out/candidates.json` instead of
    posting.
-4. Run `tools/extract.py <run-dir> ~/.claude/projects runs/<variant>/<run>.json`,
-   then `tools/report.py .` from this directory.
+4. Run `uv run python tools/extract.py <run-dir> ~/.claude/projects runs/<variant>/<run>.json`,
+   then `uv run python tools/report.py .` from this directory.
+
+The `cr` runs did not come from `tools/run.sh`. Their prompt, with the run
+directory and PR number as placeholders, is in `tools/cr-prompt.txt`; their
+sessions loaded `code-review` 1.0.1 with `--plugin-dir` and also this
+repository's `agentdev` plugin. The tool permissions they ran with are not
+recorded, so a `cr` replay reruns the prompt, not the exact session.
 
 ## Measuring a change
 

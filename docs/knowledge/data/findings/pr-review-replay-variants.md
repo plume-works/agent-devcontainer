@@ -108,9 +108,11 @@ The main finding against the correctness passes a run dispatched, pooled over
 | #75 daily window | —               | 2/5             | 15/16             |
 | #83 midnight pin | 1/1             | 1/1             | 7/7               |
 
-In the 17 runs with two correctness passes, both passes raised the main bug in
-15; in the other 2, both on #75, only one pass did. The plain-HTTP InRelease
-finding came only from the security and logic pass.
+Over the 41 runs in the "2 passes, `large`" column, both correctness passes
+raised the main bug in 28 and one did in 10. In 3, neither did: on #70 twice,
+where a pass named the bug and set it aside, and on #75 once, where only the
+durable-knowledge pass raised it. The plain-HTTP InRelease finding came only
+from the security and logic pass.
 
 What happened to each secondary finding of #75 and #83, pooled over the runs
 that dispatched passes:
@@ -165,9 +167,8 @@ No variant stopped #70 or #71 at the metadata check in any of 78 runs.
   still ran every other stage, so the compliance passes, the durable-knowledge
   pass and the validator added their own run-to-run variation to the effect
   under test.
-- **Arms sit on different `main` bases.** `p1`–`p6` and `p7`–`p10` and
-  `p11`–`p12` each sit on a different `main`; only arms in one round share a
-  base, except `p6` against `p4`.
+- **Arms sit on five `main` bases:** `p1`–`p2`, `p3`–`p5`, `p6`, `p7`–`p10` and
+  `p11`–`p12`. Only arms in one round share a base, except `p6` against `p4`.
 - **Three runs per cell.** A 1-of-3 difference is within the spread between runs
   of the same arm.
 - **Expected findings were fixed after the runs** and scored by pattern.
