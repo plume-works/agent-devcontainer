@@ -73,9 +73,11 @@ come first.
     catalog for Claude Code and OpenCode (agents, skills, `bin/` scripts); this
     directory is the source of truth, everything else under `.claude-plugin/`
     and the reinstall scripts is derived.
-  - `docker/devcontainer/` — the image build: its Dockerfile, the systemd units
-    under `systemd/`, and `pinned-tools.yml`, the checksum-pinned release tools
-    that `scripts/fetch-pinned-tool.py` installs.
+  - `docker/devcontainer/` — the image build: its Dockerfile and the systemd
+    units under `systemd/`.
+  - `mise.toml`, `mise.dev.toml`, `mise.image.toml` and their lockfiles — the
+    checksum-pinned release tools that `scripts/install-toolchain` installs in
+    the image, on a cloud session's host, and on macOS.
   - `.devcontainer/` — the devcontainer descriptor and the firewall allowlist.
   - `py_packages/agentdev_runtime/` — the `agentdev-runtime` CLI the image
     installs as a uv tool: the root bootstrap, the health probes, the lifecycle

@@ -1,0 +1,4 @@
+# Xpra's GPU path, for the image only. mise downloads the package file; apt installs it.
+[tools."github:VirtualGL/virtualgl"]
+version = "3.1.5"
+platforms = { linux-x64 = { asset_pattern = "virtualgl_{{ version }}_amd64.deb" }, linux-arm64 = { asset_pattern = "virtualgl_{{ version }}_arm64.deb" } }

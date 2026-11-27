@@ -1,0 +1,7 @@
+# The binaries this repository's pre-commit hooks run, for the image and cloud sessions.
+[tools]
+zizmor = "1.32.0"
+gitleaks = "8.30.1"
+# The kjanat fork, because it accepts the `$/` self-repository syntax: see ADR-0067.
+"github:kjanat/actionlint" = "1.17.1"
+hadolint = "2.15.1"

@@ -36,8 +36,10 @@ jobs:
             - pyproject.toml
             - uv.lock
             # The iwe pin the iwe-bootstrap tests install.
-            - scripts/fetch-pinned-tool.py
-            - docker/devcontainer/pinned-tools.yml
+            - mise.toml
+            - mise.lock
+            # What the macOS bootstrap installs the toolchain with.
+            - scripts/install-toolchain
             # The plugin tests compare the scaffold with these.
             - .iwe
             - docs/knowledge/*
@@ -72,11 +74,14 @@ jobs:
       - name: Test validate_agent_files
         run: uv run pytest py_packages/validate_agent_files/tests
 
-      # The iwe-bootstrap tests validate the installed scaffold with the image's iwe pin.
-      - name: Install the pinned iwe
-        run: |
-          uv run --frozen scripts/fetch-pinned-tool.py "$RUNNER_TEMP/iwe" iwe
-          echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
+      # The iwe-bootstrap tests validate the installed scaffold with the iwe mise.lock pins.
+      - name: Install the locked iwe
+        uses: jdx/mise-action@v5.3.0
+        with:
+          install_args: github:iwe-org/iwe
+        env:
+          MISE_LOCKED: '1'
+          MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}
 
       - name: Test the plugin scripts
         run: uv run pytest .agents/plugins/agentdev/tests .agents/plugins/agentdev-iwe/tests
@@ -117,7 +122,10 @@ jobs:
 
       # A fish login shell makes the bootstrap write its fish block and check python3 there too.
       - name: Run the bootstrap
+        # The toolchain files of this checkout, not of main.
         run: SHELL="$(brew --prefix)/bin/fish" /bin/zsh .agents/plugins/agentdev/bin/macos-bootstrap.zsh
+        env:
+          AGENTDEV_TOOLCHAIN_URL: file://${{ github.workspace }}
 
       - name: Run a catalog script on the provisioned Python
         run: /bin/zsh -l -c '.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch --help'

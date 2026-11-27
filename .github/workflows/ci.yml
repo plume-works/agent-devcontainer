@@ -55,6 +55,8 @@ jobs:
             - .agents/plugins/**
             - .agents/opencode-bridge/**
             - .devcontainer/**
+            - mise*.toml
+            - mise*.lock
             # Both packages are built into the image, and the suite tests all of py_packages.
             - py_packages/**
             # The devcontainer suite and its environment.

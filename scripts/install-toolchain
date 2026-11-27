@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Install the tools the repository root's mise.toml declares, at the checksums its lockfile
+# records, and link their binaries into BIN_DIR. MISE_ENV adds mise.<env>.toml: see ADR-0111.
+set -euo pipefail
+
+# renovate: datasource=github-releases depName=jdx/mise
+readonly MISE_VERSION=2026.11.14
+# The musl asset's SHA-256 per architecture: renovate-post-upgrade.py refreshes them on a bump.
+readonly MISE_SHA256_X64=3b2dbc7011bfd96c4b1160db2bca9f0937f226cc61ae5beddfd1fec536e81b2a
+readonly MISE_SHA256_ARM64=7a5252b6a4f30baa96486234e9f217c9f9aaef2343f32b744cd1a54fb4248268
+
+die() {
+  echo "install-toolchain: $*" >&2
+  exit 1
+}
+
+# A Linux host without mise gets the pinned release, checked against the pinned digest.
+install_mise() {
+  local bin_dir=$1 arch digest asset base work
+  [ "$(uname -s)" = Linux ] || die "mise is not installed; install it first (brew install mise)"
+  case "$(uname -m)" in
+    x86_64) arch=x64 digest=$MISE_SHA256_X64 ;;
+    aarch64 | arm64) arch=arm64 digest=$MISE_SHA256_ARM64 ;;
+    *) die "unsupported architecture: $(uname -m)" ;;
+  esac
+  asset="mise-v${MISE_VERSION}-linux-${arch}-musl"
+  base="https://github.com/jdx/mise/releases/download/v${MISE_VERSION}"
+  work=$(mktemp -d)
+  curl -fsSL -o "$work/$asset" "$base/$asset"
+  (cd "$work" && echo "$digest  $asset" | sha256sum --quiet -c -) ||
+    die "checksum mismatch for $asset"
+  install -m 0755 "$work/$asset" "$bin_dir/mise"
+  rm -rf "$work"
+}
+
+main() {
+  [ $# -eq 1 ] || die "usage: install-toolchain BIN_DIR"
+  local bin_dir=$1 root dir tool
+  root=$(cd "$(dirname "$0")/.." && pwd)
+  mkdir -p "$bin_dir"
+  bin_dir=$(cd "$bin_dir" && pwd)
+  export PATH="$bin_dir:$PATH"
+  command -v mise >/dev/null || install_mise "$bin_dir"
+
+  # Only the repository's lists: no user-level config and no config above the checkout.
+  export MISE_TRUSTED_CONFIG_PATHS="$root" MISE_CEILING_PATHS="${root%/*}" \
+    MISE_GLOBAL_CONFIG_FILE="$root/mise.toml" MISE_YES=1
+  cd "$root"
+  mise install --locked
+  mise bin-paths | while IFS= read -r dir; do
+    for tool in "$dir"/*; do
+      # iwe's tarball also ships iwec, the MCP server the image does not install: ADR-0004.
+      [ "${tool##*/}" != iwec ] || continue
+      if [ -f "$tool" ] && [ -x "$tool" ]; then
+        ln -sf "$tool" "$bin_dir/${tool##*/}"
+      fi
+    done
+  done
+}
+
+main "$@"

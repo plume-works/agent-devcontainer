@@ -66,12 +66,16 @@ Once the plugin is enabled, the same script is on `PATH` as
 `macos-bootstrap.zsh`, so re-running it is a plain command. Every step is safe
 to repeat. It changes the host in these ways:
 
-- **Homebrew packages** — `uv`, `jq`, `gh`, `shellcheck`, `bun`, `pre-commit`,
-  and the `claude-code` cask, at whatever version Homebrew ships.
+- **Homebrew packages** — `mise` and the `claude-code` cask, at whatever
+  version Homebrew ships.
+- **`~/.local/bin`** — `uv`, `bun`, `jq`, `gh`, `shellcheck`, `pre-commit`,
+  `iwe`, and `iwes`, at the versions and checksums the repository's `mise.toml`
+  and `mise.lock` record, the same ones the devcontainer image installs. The
+  bootstrap downloads both files and the repository's `scripts/install-toolchain`
+  from GitHub. mise keeps the tools under `~/.local/share/agentdev/mise`, apart
+  from your own mise installs, so your `mise prune` never removes them.
 - **Python** — `uv python install --default` puts the Python version the catalog
   is tested on in `~/.local/bin` as `python3`.
-- **`~/.local/bin`** — `iwe` and `iwes` from their GitHub release, at the version
-  the devcontainer image pins, verified against a recorded SHA-256.
 - **`~/.zprofile`** — one block between `# >>> agentdev macos-bootstrap >>>`
   markers that loads `brew shellenv` and puts `~/.local/bin` first on `PATH`.
   A re-run rewrites that block and leaves the rest of the file alone.

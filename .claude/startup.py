@@ -42,14 +42,9 @@ DOCKER_BRIDGE_CIDR = '10.213.0.1/24'
 RELAY_HOST = DOCKER_BRIDGE_CIDR.split('/')[0]
 DOCKER_WAIT_SECONDS = 30
 LOOPBACK_PROXY = re.compile(r'http://127\.0\.0\.1:(\d+)/?')
-# The image gets uv and Bun from its base image; a cloud host gets the same versions here.
-# renovate: datasource=github-releases depName=astral-sh/uv
-UV_VERSION = '0.13.9'
-# renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.+)$
-BUN_VERSION = '1.4.5'
-# The pinned tools whose binaries the pre-commit hooks run.
-HOOK_TOOLS = ('zizmor', 'gitleaks', 'actionlint', 'hadolint', 'shellcheck', 'iwe')
 TOOL_DIR = '/usr/local/bin'
+# The catalog's tools and the hooks' tools, as the image installs them: see ADR-0111.
+TOOLCHAIN_ENV = 'dev'
 HOOK_TYPES = ('pre-commit', 'commit-msg', 'pre-push', 'pre-merge-commit', 'post-checkout')
 # The session's placeholder GH_TOKEN fails zizmor's online audits:
 # see bugs/zizmor-online-audits-fail-in-cloud-devcontainer.
@@ -274,31 +269,13 @@ def add_session_env() -> None:
 
 
 def provision_toolchain(environ: Mapping[str, str]) -> None:
-    """Install uv and Bun at the image's versions, then the hooks' pinned tools."""
+    """Install the toolchain the checkout's mise lists declare, as the image does."""
     log('Provisioning the project toolchain on the host')
     run(
         'bash',
-        '-c',
-        f'curl -LsSf https://astral.sh/uv/{UV_VERSION}/install.sh'
-        f' | env UV_INSTALL_DIR={TOOL_DIR} UV_NO_MODIFY_PATH=1 sh',
-        env=environ,
-    )
-    run(
-        'bash',
-        '-c',
-        f'curl -fsSL https://bun.sh/install | env BUN_INSTALL=/usr/local bash -s bun-v{BUN_VERSION}',
-        env=environ,
-    )
-    run(
-        'uv',
-        'run',
-        '--no-project',
-        '--with',
-        'pyyaml',
-        'scripts/fetch-pinned-tool.py',
+        'scripts/install-toolchain',
         TOOL_DIR,
-        *HOOK_TOOLS,
-        env=environ,
+        env={**environ, 'MISE_ENV': TOOLCHAIN_ENV},
     )
 
 
