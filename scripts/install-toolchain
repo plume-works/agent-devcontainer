@@ -49,6 +49,8 @@ main() {
   mise install --locked
   mise bin-paths | while IFS= read -r dir; do
     for tool in "$dir"/*; do
+      # iwe's tarball also ships iwec, the MCP server the image does not install: ADR-0004.
+      [ "${tool##*/}" != iwec ] || continue
       if [ -f "$tool" ] && [ -x "$tool" ]; then
         ln -sf "$tool" "$bin_dir/${tool##*/}"
       fi

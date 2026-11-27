@@ -87,6 +87,21 @@ def test_installs_from_the_checkout_and_links_every_executable(scratch: Path) ->
     assert os.readlink(bin_dir / 'alpha') == str(first / 'alpha')
 
 
+def test_iwec_is_not_linked(scratch: Path) -> None:
+    """The iwe release's MCP server stays unlinked: see ADR-0004."""
+    stubs = scratch / 'stubs'
+    stub(stubs, 'mise', MISE_STUB)
+    iwe = scratch / 'installs/iwe'
+    for name in ('iwe', 'iwec', 'iwes'):
+        stub(iwe, name, '#!/bin/sh\n')
+    bin_dir = scratch / 'out'
+
+    result = run(scratch, stubs, str(bin_dir), TOOL_DIRS=str(iwe))
+
+    assert result.returncode == 0, result.stderr
+    assert sorted(path.name for path in bin_dir.iterdir()) == ['iwe', 'iwes']
+
+
 def test_a_failed_install_links_nothing(scratch: Path) -> None:
     stubs = scratch / 'stubs'
     stub(stubs, 'mise', '#!/bin/sh\n[ "$1" != install ] || exit 3\necho /nowhere\n')

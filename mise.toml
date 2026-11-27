@@ -7,5 +7,5 @@ jq = "1.8.1"
 gh = "2.105.0"
 shellcheck = "0.11.0"
 pre-commit = "4.7.0"
-# The tarball also ships iwec, the MCP server, which no agent config registers.
+# install-toolchain skips the tarball's iwec, the MCP server: see ADR-0004.
 "github:iwe-org/iwe" = { version = "0.34.0", version_prefix = "iwe-v" }
