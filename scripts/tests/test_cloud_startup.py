@@ -105,12 +105,7 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
     # test_setup_installs_every_marketplace_plugin covers the plugin installs.
     assert [call for call in calls if not call.startswith('claude plugin install ')] == [
         'claude plugin marketplace add ./',
-        f'bash -c curl -LsSf https://astral.sh/uv/{startup.UV_VERSION}/install.sh'
-        f' | env UV_INSTALL_DIR={startup.TOOL_DIR} UV_NO_MODIFY_PATH=1 sh',
-        'bash -c curl -fsSL https://bun.sh/install'
-        f' | env BUN_INSTALL=/usr/local bash -s bun-v{startup.BUN_VERSION}',
-        'uv run --no-project --with pyyaml scripts/fetch-pinned-tool.py'
-        f' {startup.TOOL_DIR} {" ".join(startup.HOOK_TOOLS)}',
+        f'bash scripts/install-toolchain {startup.TOOL_DIR}',
         'uv sync',
         f'uv run pre-commit install --install-hooks {hook_types}',
     ]

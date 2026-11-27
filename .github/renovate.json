@@ -11,8 +11,9 @@
     "commands": ["scripts/renovate-post-upgrade.py"],
     "executionMode": "branch",
     "fileFilters": [
-      ".claude/startup.py",
-      ".agents/plugins/agentdev/bin/macos-bootstrap.zsh",
+      "mise*.toml",
+      "mise*.lock",
+      "scripts/install-toolchain",
       ".agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/.iwe/**",
       "docs/knowledge/**",
       ".devcontainer/**",
@@ -53,52 +54,30 @@
       "groupName": "plume-works base image"
     },
     {
-      "description": "The image's pinned tools, including the checksum-carrying downloads, and the macOS bootstrap's pins of the same release tools, so a tool's Linux and macOS pins move in one pull request. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a pin half-updated. That is what makes batching and automerge safe here.",
-      "matchManagers": ["custom.regex"],
-      "matchFileNames": [
-        "docker/devcontainer/pinned-tools.yml",
-        ".agents/plugins/agentdev/bin/macos-bootstrap.zsh"
-      ],
-      "groupName": "image tool pins"
+      "description": "The toolchain mise.toml, mise.dev.toml, and mise.image.toml declare. Renovate's mise manager rewrites each lockfile's checksums with `mise lock` in the same commit, so no bump leaves a pin half-updated. That is what makes batching and automerge safe here. See ADR-0111.",
+      "matchManagers": ["mise"],
+      "groupName": "toolchain"
     },
     {
-      "description": "uv and Bun are pinned where the image's base does not reach: the setup-python-venv action input CI runs on, and the cloud-session startup script. Grouping each keeps its pins in one pull request.",
-      "matchDepNames": ["astral-sh/uv"],
+      "description": "uv is pinned in mise.toml and in the setup-python-venv action input CI runs on. Grouping each keeps its pins in one pull request.",
+      "matchDepNames": ["astral-sh/uv", "uv"],
       "groupName": "uv"
     },
     {
-      "matchDepNames": ["oven-sh/bun"],
+      "matchDepNames": ["oven-sh/bun", "bun"],
       "groupName": "bun"
     }
   ],
   "customManagers": [
     {
-      "description": "Versions of the checksum-carrying tools in docker/devcontainer/pinned-tools.yml: an entry's `version:` field, quoted or not, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
-      "customType": "regex",
-      "managerFilePatterns": ["/^docker/devcontainer/pinned-tools\\.yml$/"],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\n\\s*version: \"?(?<currentValue>[^\"\\s]+)\"?"
-      ]
-    },
-    {
-      "description": "Release-tool versions in the macOS bootstrap: a `typeset -r` constant under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^\\.agents/plugins/agentdev/bin/macos-bootstrap\\.zsh$/"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\ntypeset -r [A-Z0-9_]+=(?<currentValue>\\S+)"
-      ]
-    },
-    {
-      "description": "Versions in the image Dockerfile's `ARG <NAME>_VERSION=` lines and the cloud-session startup script's `<NAME>_VERSION = '...'` constants, each under a `# renovate:` comment that may name an extractVersion.",
+      "description": "Versions in the image Dockerfile's `ARG <NAME>_VERSION=` lines and scripts/install-toolchain's `readonly <NAME>_VERSION=` constant, each under a `# renovate:` comment that may name an extractVersion.",
       "customType": "regex",
       "managerFilePatterns": [
         "/^docker/devcontainer/agentdev-devcontainer\\.Dockerfile$/",
-        "/^\\.claude/startup\\.py$/"
+        "/^scripts/install-toolchain$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s*\\n(?:ARG [A-Z0-9_]+=|[A-Z0-9_]+ = ')(?<currentValue>[^'\\s]+)"
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: extractVersion=(?<extractVersion>\\S+))?\\s*\\n(?:ARG |readonly )[A-Z0-9_]+=(?<currentValue>\\S+)"
       ]
     },
     {

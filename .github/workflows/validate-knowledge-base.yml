@@ -32,8 +32,8 @@ jobs:
             - docs/knowledge/**
             - .iwe
             - .agents/plugins/agentdev-iwe/skills/iwe-bootstrap/assets/**
-            - docker/devcontainer/pinned-tools.yml
-            - scripts/fetch-pinned-tool.py
+            - mise.toml
+            - mise.lock
             - pyproject.toml
             - uv.lock
             - .github/workflows/validate-knowledge-base.yml
@@ -63,11 +63,14 @@ jobs:
       - name: Set up the Python environment
         uses: $/.github/actions/setup-python-venv
 
-      # The image's pin, so CI validates with the iwe that writes .iwe/config.toml.
-      - name: Install the pinned iwe
-        run: |
-          uv run --frozen scripts/fetch-pinned-tool.py "$RUNNER_TEMP/iwe" iwe
-          echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
+      # mise.lock's iwe, so CI validates with the iwe that writes .iwe/config.toml.
+      - name: Install the locked iwe
+        uses: jdx/mise-action@v5.3.0
+        with:
+          install_args: github:iwe-org/iwe
+        env:
+          MISE_LOCKED: '1'
+          MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}
 
       - name: Validate every document against its schemas
         run: iwe schema validate

@@ -227,3 +227,6 @@ extension](adr/0109-catalog-scripts-have-no-extension.md)
 
 [An AI review run keeps every transcript and a report built from
 them](adr/0110-review-run-report-built-from-transcripts.md)
+
+[The toolchain is declared once, in mise files, and installed by one
+script](adr/0111-toolchain-declared-once-in-mise.md)

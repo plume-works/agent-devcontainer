@@ -1,0 +1,11 @@
+# The tools the agentdev catalog runs, installed by scripts/install-toolchain at the
+# checksums mise.lock records: see ADR-0111. mise.dev.toml adds this repository's hook tools.
+[tools]
+uv = "0.13.9"
+bun = "1.4.5"
+jq = "1.8.1"
+gh = "2.105.0"
+shellcheck = "0.11.0"
+pre-commit = "4.7.0"
+# The tarball also ships iwec, the MCP server, which no agent config registers.
+"github:iwe-org/iwe" = { version = "0.34.0", version_prefix = "iwe-v" }

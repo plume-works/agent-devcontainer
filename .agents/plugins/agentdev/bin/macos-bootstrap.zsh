@@ -5,13 +5,9 @@ emulate -R zsh
 setopt err_exit no_unset pipe_fail
 
 typeset -r PYTHON_VERSION=3.12
-# renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-typeset -r IWE_VERSION=iwe-v0.34.0
-# Renovate bumps the versions; scripts/refresh-pin-checksums.py rewrites these digests.
-typeset -rA SHA256=(
-  iwe-arm64 d42d875198c391c165e74e15783683598402b26afc244510bd6ad74d8c5f724f
-  iwe-amd64 97ae1aa3fcd6777c3c670dceb95f05fc20d53aaa23d5b1ee594717555fc460cf
-)
+# The repository files that declare and install the catalog's toolchain: see ADR-0111.
+typeset -r TOOLCHAIN_URL=${AGENTDEV_TOOLCHAIN_URL:-https://raw.githubusercontent.com/plume-works/agent-devcontainer/main}
+typeset -r TOOLCHAIN_FILES=(scripts/install-toolchain mise.toml mise.lock)
 
 typeset -r MARKETPLACE_REPO=plume-works/agent-devcontainer
 typeset -r MARKETPLACE=agent-devcontainer
@@ -36,8 +32,9 @@ step() {
 usage() {
   print -r -- "Usage: macos-bootstrap.zsh [--skip-plugins]
 
-Install the tools the agentdev catalog needs on macOS: Homebrew packages, a
-uv-managed Python $PYTHON_VERSION as the default python3, iwe in ~/.local/bin,
+Install the tools the agentdev catalog needs on macOS: mise and Claude Code from
+Homebrew, the toolchain mise.toml declares linked into ~/.local/bin, a
+uv-managed Python $PYTHON_VERSION as the default python3,
 a PATH block in ~/.zprofile, and the $PLUGIN plugin for Claude Code. When fish is installed, the same PATH setup
 goes in ~/.config/fish/conf.d/agentdev.fish.
 
@@ -52,37 +49,25 @@ login_shell() {
 install_brew_packages() {
   step "Installing Homebrew packages"
   brew bundle --file=- <<'BREWFILE'
-brew "uv"
-brew "jq"
-brew "gh"
-brew "shellcheck"
-brew "bun"
-brew "pre-commit"
+brew "mise"
 cask "claude-code"
 BREWFILE
 }
 
-install_python() {
-  step "Installing Python $PYTHON_VERSION with uv"
-  UV_PYTHON_BIN_DIR=$BIN_DIR uv python install $PYTHON_VERSION --default
+# The same script and lockfile the devcontainer image and cloud sessions install from.
+install_toolchain() {
+  local file
+  step "Installing the toolchain from $TOOLCHAIN_URL"
+  for file in $TOOLCHAIN_FILES; do
+    mkdir -p $work/toolchain/${file:h}
+    curl -fsSL -o $work/toolchain/$file $TOOLCHAIN_URL/$file
+  done
+  bash $work/toolchain/scripts/install-toolchain $BIN_DIR
 }
 
-# Download a release archive, verify its SHA-256, and install only the named binaries.
-install_release() {
-  local key=$1 url=$2
-  shift 2
-  local archive=$work/${url:t} unpacked=$work/$key digest binary
-  step "Installing ${(j:, :)@} from ${url:t}"
-  curl -fsSL -o $archive $url
-  digest=$(shasum -a 256 $archive)
-  digest=${digest%% *}
-  [[ $digest == $SHA256[$key] ]] ||
-    die "SHA-256 mismatch for ${url:t}: expected $SHA256[$key], got $digest"
-  mkdir -p $unpacked $BIN_DIR
-  tar -xzf $archive -C $unpacked $@
-  for binary; do
-    install -m 0755 $unpacked/$binary $BIN_DIR/$binary
-  done
+install_python() {
+  step "Installing Python $PYTHON_VERSION with uv"
+  UV_PYTHON_BIN_DIR=$BIN_DIR $BIN_DIR/uv python install $PYTHON_VERSION --default
 }
 
 # Replace the marker block in a file in place, or append it; content outside it is kept.
@@ -145,7 +130,7 @@ verify() {
   local -a failures
   local tool output
   step "Verifying from a fresh login shell"
-  for tool in uv jq gh shellcheck bun pre-commit iwe iwes claude; do
+  for tool in mise uv jq gh shellcheck bun pre-commit iwe iwes claude; do
     # iwes is a language server without --version; --skip-plugins promises no claude call.
     if [[ $tool == iwes ]] || { (( skip_plugins )) && [[ $tool == claude ]] }; then
       output=$(login_shell "command -v $tool") || { failures+=($tool); continue }
@@ -165,7 +150,7 @@ verify() {
 }
 
 main() {
-  local arg arch iwe_target work
+  local arg work
   local -i skip_plugins=0
   for arg; do
     case $arg in
@@ -181,20 +166,12 @@ main() {
     print -ru2 -- "  $BREW_INSTALL"
     die "then follow its instructions to put brew on PATH and re-run this script"
   fi
-  case $(uname -m) in
-    arm64) arch=arm64 iwe_target=aarch64-apple-darwin ;;
-    x86_64) arch=amd64 iwe_target=x86_64-apple-darwin ;;
-    *) die "unsupported architecture: $(uname -m)" ;;
-  esac
-
   work=$(mktemp -d)
   trap "rm -rf -- ${(q)work}" EXIT
 
   install_brew_packages
+  install_toolchain
   install_python
-  install_release iwe-$arch \
-    https://github.com/iwe-org/iwe/releases/download/$IWE_VERSION/$IWE_VERSION-$iwe_target.tar.gz \
-    iwe iwes
   write_path_blocks
   (( skip_plugins )) || install_plugins
   verify

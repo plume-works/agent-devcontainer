@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Install the tools the repository root's mise.toml declares, at the checksums its lockfile
+# records, and link their binaries into BIN_DIR. MISE_ENV adds mise.<env>.toml: see ADR-0111.
+set -euo pipefail
+
+# renovate: datasource=github-releases depName=jdx/mise
+readonly MISE_VERSION=2026.11.14
+
+die() {
+  echo "install-toolchain: $*" >&2
+  exit 1
+}
+
+# A Linux host without mise gets the pinned release, checked against the release's checksums.
+install_mise() {
+  local bin_dir=$1 arch asset base work
+  [ "$(uname -s)" = Linux ] || die "mise is not installed; install it first (brew install mise)"
+  case "$(uname -m)" in
+    x86_64) arch=x64 ;;
+    aarch64 | arm64) arch=arm64 ;;
+    *) die "unsupported architecture: $(uname -m)" ;;
+  esac
+  asset="mise-v${MISE_VERSION}-linux-${arch}-musl"
+  base="https://github.com/jdx/mise/releases/download/v${MISE_VERSION}"
+  work=$(mktemp -d)
+  curl -fsSL -o "$work/$asset" "$base/$asset"
+  curl -fsSL -o "$work/SHASUMS256.txt" "$base/SHASUMS256.txt"
+  grep " \./${asset}\$" "$work/SHASUMS256.txt" >"$work/expected" ||
+    die "no checksum for $asset in the release"
+  (cd "$work" && sha256sum --quiet -c expected) || die "checksum mismatch for $asset"
+  install -m 0755 "$work/$asset" "$bin_dir/mise"
+  rm -rf "$work"
+}
+
+main() {
+  [ $# -eq 1 ] || die "usage: install-toolchain BIN_DIR"
+  local bin_dir=$1 root dir tool
+  root=$(cd "$(dirname "$0")/.." && pwd)
+  mkdir -p "$bin_dir"
+  bin_dir=$(cd "$bin_dir" && pwd)
+  export PATH="$bin_dir:$PATH"
+  command -v mise >/dev/null || install_mise "$bin_dir"
+
+  # Only the repository's lists: no user-level config and no config above the checkout.
+  export MISE_TRUSTED_CONFIG_PATHS="$root" MISE_CEILING_PATHS="${root%/*}" \
+    MISE_GLOBAL_CONFIG_FILE="$root/mise.toml" MISE_YES=1
+  cd "$root"
+  mise install --locked
+  mise bin-paths | while IFS= read -r dir; do
+    for tool in "$dir"/*; do
+      if [ -f "$tool" ] && [ -x "$tool" ]; then
+        ln -sf "$tool" "$bin_dir/${tool##*/}"
+      fi
+    done
+  done
+}
+
+main "$@"

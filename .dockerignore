@@ -3,7 +3,9 @@
 # another path adds it here.
 *
 !docker/devcontainer
-!scripts/fetch-pinned-tool.py
+!scripts/install-toolchain
+!mise*.toml
+!mise*.lock
 !.claude-plugin
 !.agents/plugins
 .agents/plugins/*/tests

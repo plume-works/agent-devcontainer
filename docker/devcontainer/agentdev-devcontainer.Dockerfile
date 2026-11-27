@@ -1,17 +1,17 @@
 # The base supplies systemd as PID 1, the Docker engine under systemd, the `dev` account, and
 # the shared toolchain and agent CLIs; see ADR-0107. Renovate moves the digest through a pull
 # request that builds and tests this image.
-FROM ghcr.io/plume-works/devcontainer-base:edge@sha256:283df43f0be62d88ea4995a828b3842b7c89b80c8927a08f3c20a5be4e9fe93e
+FROM ghcr.io/plume-works/devcontainer-base:edge@sha256:6e8618e0b21d6739dac1a80db9a38972f2710c54dfadea61eed8ec8669933cda
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
-# From the base image's dated Ubuntu archive snapshot. python3-yaml serves the pinned-tool
-# fetcher below; iptables and ipset the egress firewall; fuse-overlayfs the nested engine.
+# From the base image's dated Ubuntu archive snapshot. iptables and ipset serve the egress
+# firewall; fuse-overlayfs the nested engine.
 RUN apt-get update --error-on=any \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       bash-completion dirmngr ffmpeg fuse-overlayfs ipset iptables locales \
-      lsb-release openssh-client pre-commit python3-argcomplete python3-pip \
-      python3-setuptools python3-venv python3-yaml tzdata unzip wget xz-utils \
+      lsb-release openssh-client python3-argcomplete python3-pip \
+      python3-setuptools python3-venv tzdata unzip wget xz-utils \
  && locale-gen en_US.UTF-8 \
  && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
  && ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime \
@@ -31,16 +31,24 @@ RUN a=$(dpkg --print-architecture) && . /etc/os-release \
  && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' xpra)" ge 6 \
  && rm -rf /var/lib/apt/lists/*
 
-# Checksum-pinned release binaries and VirtualGL: see docker/devcontainer/pinned-tools.yml.
-RUN --mount=type=bind,source=scripts/fetch-pinned-tool.py,target=/tmp/fetch-pinned-tool.py \
-    --mount=type=bind,source=docker/devcontainer/pinned-tools.yml,target=/tmp/pinned-tools.yml \
-    d=$(mktemp -d) \
- && python3 -I /tmp/fetch-pinned-tool.py "$d" --all --pins /tmp/pinned-tools.yml \
+# The toolchain mise.toml and mise.dev.toml declare, linked into /usr/local/bin, and VirtualGL
+# from mise.image.toml, all at their lockfiles' checksums: see ADR-0111.
+RUN --mount=type=bind,source=scripts/install-toolchain,target=/tmp/toolchain/scripts/install-toolchain \
+    --mount=type=bind,source=mise.toml,target=/tmp/toolchain/mise.toml \
+    --mount=type=bind,source=mise.lock,target=/tmp/toolchain/mise.lock \
+    --mount=type=bind,source=mise.dev.toml,target=/tmp/toolchain/mise.dev.toml \
+    --mount=type=bind,source=mise.dev.lock,target=/tmp/toolchain/mise.dev.lock \
+    --mount=type=bind,source=mise.image.toml,target=/tmp/toolchain/mise.image.toml \
+    --mount=type=bind,source=mise.image.lock,target=/tmp/toolchain/mise.image.lock \
+    export MISE_DATA_DIR=/opt/mise MISE_CACHE_DIR=/tmp/mise-cache \
+ && MISE_ENV=dev /tmp/toolchain/scripts/install-toolchain /usr/local/bin \
+ && export MISE_ENV=image MISE_TRUSTED_CONFIG_PATHS=/tmp/toolchain \
+ && mise -C /tmp/toolchain install --locked github:VirtualGL/virtualgl \
+ && deb=$(mise -C /tmp/toolchain where github:VirtualGL/virtualgl) \
  && apt-get update --error-on=any \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y "$d/virtualgl.deb" \
- && rm "$d/virtualgl.deb" \
- && install -m 0755 -o root -g root "$d"/* /usr/local/bin/ \
- && rm -rf "$d" /var/lib/apt/lists/*
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y "$deb"/virtualgl_*.deb \
+ && rm -rf "$deb" /tmp/mise-cache /var/lib/apt/lists/* \
+ && chmod -R a+rX /opt/mise
 
 # Bun runs these npm packages' Node scripts, so their commands work without Node.js.
 # renovate: datasource=npm depName=playwright

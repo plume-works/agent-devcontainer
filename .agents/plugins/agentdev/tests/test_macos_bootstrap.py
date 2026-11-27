@@ -5,12 +5,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import io
 from pathlib import Path
 import re
 import shutil
 import subprocess
-import tarfile
 
 import pytest
 
@@ -19,7 +17,8 @@ pytestmark = pytest.mark.skipif(ZSH is None, reason='the bootstrap runs under zs
 
 MARKER_BEGIN = '# >>> agentdev macos-bootstrap >>>'
 MARKER_END = '# <<< agentdev macos-bootstrap <<<'
-VERSION_TOOLS = ('jq', 'gh', 'shellcheck', 'bun', 'pre-commit')
+VERSION_TOOLS = ('mise', 'jq', 'gh', 'shellcheck', 'bun', 'pre-commit', 'iwe', 'iwes')
+TOOLCHAIN_URL = 'https://toolchain.example/ref'
 # The host tools the script and its stubs run; nothing else on the host leaks onto PATH.
 SYSTEM_TOOLS = (
     'awk',
@@ -29,12 +28,11 @@ SYSTEM_TOOLS = (
     'chmod',
     'cp',
     'env',
-    'gzip',
     'install',
+    'ln',
     'mkdir',
     'mktemp',
     'rm',
-    'tar',
     'zsh',
 )
 
@@ -56,27 +54,13 @@ case "$1" in
   shellenv) echo "export PATH=\\"$STUB_DIR/bin:\\$PATH\\"" ;;
 esac
 """,
-    'uv': """
-if [ "$1" = python ] && [ "$2" = install ] && [ -n "${STUB_UV_PYTHON:-}" ]; then
-  mkdir -p "$UV_PYTHON_BIN_DIR"
-  printf '#!/bin/bash\\necho "Python %s"\\n' "$STUB_UV_PYTHON" > "$UV_PYTHON_BIN_DIR/python3"
-  chmod +x "$UV_PYTHON_BIN_DIR/python3"
-fi
-[ "$1" = --version ] && echo 'uv 0.0.0'
-exit 0
-""",
     'curl': """
 out=''
 while [ $# -gt 1 ]; do
   [ "$1" = -o ] && out="$2"
   shift
 done
-cp "$STUB_DIR/archives/$(basename "$1")" "$out"
-""",
-    'shasum': """
-for file; do :; done
-digest="$(cat "$STUB_DIR/sha256/$(basename "$file")" 2>/dev/null || printf '0%.0s' {1..64})"
-echo "$digest  $file"
+cp "$STUB_DIR/toolchain/${1#"$STUB_TOOLCHAIN_URL"/}" "$out"
 """,
     'claude': """
 [ "$1" = --version ] && echo 'claude 0.0.0'
@@ -84,6 +68,23 @@ echo "$digest  $file"
 exit 0
 """,
 }
+
+UV_STUB = """
+if [ "$1" = python ] && [ "$2" = install ] && [ -n "${STUB_UV_PYTHON:-}" ]; then
+  mkdir -p "$UV_PYTHON_BIN_DIR"
+  printf '#!/bin/bash\\necho "Python %s"\\n' "$STUB_UV_PYTHON" > "$UV_PYTHON_BIN_DIR/python3"
+  chmod +x "$UV_PYTHON_BIN_DIR/python3"
+fi
+[ "$1" = --version ] && echo 'uv 0.0.0'
+exit 0
+"""
+
+# Stands in for scripts/install-toolchain: links the toolchain's stubs into its BIN_DIR.
+INSTALL_TOOLCHAIN = """#!/bin/bash
+printf '%s\\n' "install-toolchain $* MISE_ENV=${MISE_ENV:-}" >> "$STUB_LOG"
+mkdir -p "$1"
+for tool in "$STUB_DIR"/tools/*; do ln -sf "$tool" "$1/"; done
+"""
 
 CODEX_STUB = """
 [ "$1" = --version ] && echo 'codex 0.0.0'
@@ -96,24 +97,6 @@ def recorded(script: Path, name: str) -> str:
     match = re.search(rf'^typeset -r {name}=(\S+)$', script.read_text(), re.MULTILINE)
     assert match, f'{name} is not recorded in {script.name}'
     return match.group(1)
-
-
-def recorded_sha256(script: Path, key: str) -> str:
-    """Return the SHA-256 the bootstrap records for one tool and architecture."""
-    match = re.search(rf'^\s*{re.escape(key)} ([0-9a-f]{{64}})$', script.read_text(), re.MULTILINE)
-    assert match, f'no SHA-256 recorded for {key}'
-    return match.group(1)
-
-
-def tarball(path: Path, members: dict[str, str]) -> None:
-    """Write a flat gzip tarball of executable shell scripts."""
-    with tarfile.open(path, 'w:gz') as bundle:
-        for name, body in members.items():
-            data = f'#!/bin/bash\n{body}\n'.encode()
-            info = tarfile.TarInfo(name)
-            info.size = len(data)
-            info.mode = 0o755
-            bundle.addfile(info, io.BytesIO(data))
 
 
 @dataclass
@@ -140,19 +123,13 @@ class Host:
         lines = log.read_text().splitlines() if log.exists() else []
         return [line for line in lines if line.split(' ', 1)[0] == tool]
 
-    def stub(self, name: str, body: str) -> None:
-        path = self.stub_dir / 'bin' / name
+    def stub(self, name: str, body: str, where: str = 'bin') -> None:
+        path = self.stub_dir / where / name
         path.write_text(LOGGING_STUB + body)
         path.chmod(0o755)
 
     def unstub(self, name: str) -> None:
         (self.stub_dir / 'bin' / name).unlink()
-
-    def trust_archives(self) -> None:
-        """Make the shasum stub report each archive's recorded SHA-256."""
-        for archive in (self.stub_dir / 'archives').iterdir():
-            digest = recorded_sha256(self.script, 'iwe-arm64')
-            (self.stub_dir / 'sha256' / archive.name).write_text(digest)
 
 
 @pytest.fixture
@@ -161,7 +138,7 @@ def host(plugin_root: Path, plugin_tmp_path: Path) -> Host:
     home = plugin_tmp_path / 'home'
     stub_dir = plugin_tmp_path / 'stubs'
     system = stub_dir / 'system'
-    for directory in (home, stub_dir / 'bin', stub_dir / 'archives', stub_dir / 'sha256', system):
+    for directory in (home, stub_dir / 'bin', stub_dir / 'tools', system):
         directory.mkdir(parents=True)
     for tool in SYSTEM_TOOLS:
         (system / tool).symlink_to(shutil.which(tool))
@@ -173,18 +150,20 @@ def host(plugin_root: Path, plugin_tmp_path: Path) -> Host:
         'STUB_UNAME_S': 'Darwin',
         'STUB_UNAME_M': 'arm64',
         'STUB_UV_PYTHON': f'{recorded(script, "PYTHON_VERSION")}.99',
+        'AGENTDEV_TOOLCHAIN_URL': TOOLCHAIN_URL,
+        'STUB_TOOLCHAIN_URL': TOOLCHAIN_URL,
     }
     stubbed = Host(script, plugin_tmp_path, home, stub_dir, env)
     for name, body in STUBS.items():
         stubbed.stub(name, body)
     for name in VERSION_TOOLS:
-        stubbed.stub(name, f'echo "{name} 0.0.0"')
-
-    iwe = recorded(script, 'IWE_VERSION')
-    tarball(
-        stub_dir / 'archives' / f'{iwe}-aarch64-apple-darwin.tar.gz',
-        {name: f'echo "{name} 0.0.0"' for name in ('iwe', 'iwes', 'iwec')},
-    )
+        stubbed.stub(name, f'echo "{name} 0.0.0"', where='tools')
+    stubbed.stub('uv', UV_STUB, where='tools')
+    toolchain = stub_dir / 'toolchain'
+    (toolchain / 'scripts').mkdir(parents=True)
+    (toolchain / 'scripts/install-toolchain').write_text(INSTALL_TOOLCHAIN)
+    for name in ('mise.toml', 'mise.lock'):
+        (toolchain / name).write_text(f'# {name}\n')
     return stubbed
 
 
@@ -208,20 +187,43 @@ def test_missing_brew_prints_install_command_and_changes_nothing(host: Host) -> 
     assert sorted(path.name for path in host.home.iterdir()) == []
 
 
-def test_brew_bundle_receives_every_formula_and_the_claude_code_cask(host: Host) -> None:
-    host.trust_archives()
-
+def test_brew_bundle_receives_mise_and_the_claude_code_cask(host: Host) -> None:
     host.run('--skip-plugins')
 
     assert any(call.startswith('brew bundle --file=-') for call in host.calls('brew'))
     brewfile = (host.stub_dir / 'brewfile').read_text()
-    for formula in ('uv', 'jq', 'gh', 'shellcheck', 'bun', 'pre-commit'):
-        assert re.search(rf'^brew "{formula}"$', brewfile, re.MULTILINE), formula
-    assert re.search(r'^cask "claude-code"$', brewfile, re.MULTILINE)
+    assert re.findall(r'^(?:brew|cask) .*$', brewfile, re.MULTILINE) == [
+        'brew "mise"',
+        'cask "claude-code"',
+    ]
+
+
+def test_the_catalog_toolchain_is_fetched_and_linked_into_local_bin(host: Host) -> None:
+    """The fetched install-toolchain gets ~/.local/bin and the catalog's list alone."""
+    result = host.run('--skip-plugins')
+
+    assert result.returncode == 0, result.stderr
+    fetched = [call.split()[-1] for call in host.calls('curl')]
+    assert fetched == [
+        f'{TOOLCHAIN_URL}/{name}'
+        for name in ('scripts/install-toolchain', 'mise.toml', 'mise.lock')
+    ]
+    bin_dir = host.home / '.local' / 'bin'
+    assert host.calls('install-toolchain') == [f'install-toolchain {bin_dir} MISE_ENV=']
+    assert (bin_dir / 'iwe').exists()
+
+
+def test_a_failed_toolchain_install_stops_the_bootstrap(host: Host) -> None:
+    (host.stub_dir / 'toolchain/scripts/install-toolchain').write_text('exit 4\n')
+
+    result = host.run('--skip-plugins')
+
+    assert result.returncode != 0
+    assert host.calls('uv') == []
+    assert not (host.home / '.zprofile').exists()
 
 
 def test_uv_installs_the_recorded_python_as_default(host: Host) -> None:
-    host.trust_archives()
 
     host.run('--skip-plugins')
 
@@ -230,29 +232,7 @@ def test_uv_installs_the_recorded_python_as_default(host: Host) -> None:
     assert installs == [['python', 'install', version, '--default']]
 
 
-def test_checksum_mismatch_rejects_the_archive(host: Host) -> None:
-    result = host.run('--skip-plugins')
-
-    assert result.returncode != 0
-    assert 'SHA-256' in result.stderr
-    bin_dir = host.home / '.local' / 'bin'
-    assert not any((bin_dir / name).exists() for name in ('iwe', 'iwes', 'iwec'))
-
-
-def test_only_iwe_and_iwes_are_installed_from_the_iwe_archive(host: Host) -> None:
-    host.trust_archives()
-
-    result = host.run('--skip-plugins')
-
-    assert result.returncode == 0, result.stderr
-    bin_dir = host.home / '.local' / 'bin'
-    assert (bin_dir / 'iwe').exists()
-    assert (bin_dir / 'iwes').exists()
-    assert not (bin_dir / 'iwec').exists()
-
-
 def test_rerun_keeps_one_marker_block_and_preserves_other_content(host: Host) -> None:
-    host.trust_archives()
     zprofile = host.home / '.zprofile'
     before, after = 'export EDITOR=vim\n# keep me\n', '\nalias ll="ls -l"\n'
     zprofile.write_text(before)
@@ -285,7 +265,6 @@ esac
 
 
 def test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content(host: Host) -> None:
-    host.trust_archives()
     host.stub('fish', 'exit 0')
     conf = host.home / '.config' / 'fish' / 'conf.d' / 'agentdev.fish'
     conf.parent.mkdir(parents=True)
@@ -313,7 +292,6 @@ def test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content(host: Host) 
 
 
 def test_no_fish_block_without_fish(host: Host) -> None:
-    host.trust_archives()
     host.env['SHELL'] = '/bin/zsh'
 
     result = host.run('--skip-plugins')
@@ -323,7 +301,6 @@ def test_no_fish_block_without_fish(host: Host) -> None:
 
 
 def test_user_shell_resolving_another_python_fails_its_check(host: Host) -> None:
-    host.trust_archives()
     host.stub('othersh', login_shell_stub('/opt/homebrew/bin/python3', '3.14.0'))
     host.env['SHELL'] = str(host.stub_dir / 'bin' / 'othersh')
 
@@ -335,7 +312,6 @@ def test_user_shell_resolving_another_python_fails_its_check(host: Host) -> None
 
 
 def test_user_shell_resolving_the_provisioned_python_passes(host: Host) -> None:
-    host.trust_archives()
     provisioned = host.home / '.local' / 'bin' / 'python3'
     host.stub('othersh', login_shell_stub(str(provisioned), host.env['STUB_UV_PYTHON']))
     host.env['SHELL'] = str(host.stub_dir / 'bin' / 'othersh')
@@ -347,7 +323,6 @@ def test_user_shell_resolving_the_provisioned_python_passes(host: Host) -> None:
 
 
 def test_stock_python_first_on_path_fails_the_python_check(host: Host) -> None:
-    host.trust_archives()
     del host.env['STUB_UV_PYTHON']
 
     result = host.run('--skip-plugins')
@@ -357,7 +332,6 @@ def test_stock_python_first_on_path_fails_the_python_check(host: Host) -> None:
 
 
 def test_plugin_step_installs_only_agentdev(host: Host) -> None:
-    host.trust_archives()
 
     result = host.run()
 
@@ -372,7 +346,6 @@ def test_plugin_step_installs_only_agentdev(host: Host) -> None:
 
 
 def test_plugin_step_never_invokes_codex_on_path(host: Host) -> None:
-    host.trust_archives()
     host.stub('codex', CODEX_STUB)
 
     result = host.run()
@@ -383,7 +356,6 @@ def test_plugin_step_never_invokes_codex_on_path(host: Host) -> None:
 
 
 def test_skip_plugins_does_not_invoke_claude(host: Host) -> None:
-    host.trust_archives()
 
     result = host.run('--skip-plugins')
 

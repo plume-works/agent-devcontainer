@@ -14,23 +14,13 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = 'scripts/renovate-post-upgrade.py'
-PINNED_TOOLS = 'docker/devcontainer/pinned-tools.yml'
+TOOLCHAIN = 'mise.toml'
 IWE_CONFIG = '.iwe/config.toml'
 
 # Each stub logs its arguments; STUB_* variables choose its outcome per call.
 UV_STUB = """#!/usr/bin/env bash
 set -euo pipefail
 printf 'uv %s\\n' "$*" >> "$STUB_LOG"
-if [[ "$*" == *refresh-pin-checksums.py* ]]; then
-  exit "${STUB_REFRESH_EXIT:-0}"
-fi
-if [[ "$*" == *fetch-pinned-tool.py* ]]; then
-  dest="${@: -2:1}"
-  echo "$dest" > "$STUB_LOG.iwe-dir"
-  printf '%s\n' "$IWE_STUB" > "$dest/iwe"
-  chmod +x "$dest/iwe"
-  exit "${STUB_FETCH_EXIT:-0}"
-fi
 printf '%s\n' "${SKIP-<unset>}" >> "$STUB_LOG.skip"
 count_file="$STUB_LOG.precommit"
 count=$(( $(cat "$count_file" 2>/dev/null || echo 0) + 1 ))
@@ -41,10 +31,11 @@ if [[ $count -eq 1 && -n "${STUB_PRECOMMIT_REWRITE:-}" ]]; then
 fi
 exit "${STUB_PRECOMMIT_EXIT:-0}"
 """
-# The fetched iwe logs its calls and migrates the config the way a version bump does.
-IWE_STUB = """#!/usr/bin/env bash
+# mise runs the command it is given; the bumped iwe migrates the config the way a bump does.
+MISE_STUB = """#!/usr/bin/env bash
 set -euo pipefail
-printf 'iwe %s\\n' "$*" >> "$STUB_LOG"
+printf 'mise %s | trusted=%s\\n' "$*" "${MISE_TRUSTED_CONFIG_PATHS-}" >> "$STUB_LOG"
+[[ -z "${STUB_MISE_EXIT:-}" ]] || exit "$STUB_MISE_EXIT"
 echo migrated > .iwe/config.toml
 """
 
@@ -56,16 +47,15 @@ def repo() -> Iterator[Path]:
     root = TMP_ROOT / f'post-upgrade-{uuid4().hex}'
     (root / 'scripts').mkdir(parents=True)
     (root / '.iwe').mkdir()
-    (root / PINNED_TOOLS).parent.mkdir(parents=True)
     (root / 'bin').mkdir()
     shutil.copy(REPO_ROOT / SCRIPT, root / SCRIPT)
-    for name, body in (('uv', UV_STUB),):
+    for name, body in (('uv', UV_STUB), ('mise', MISE_STUB)):
         (root / 'bin' / name).write_text(body)
         (root / 'bin' / name).chmod(0o755)
     (root / '.gitignore').write_text('bin/\nstub.log*\n.tmp/\n')
     for path in ('pins.yml', 'gone.yml', IWE_CONFIG):
         (root / path).write_text('original\n')
-    (root / PINNED_TOOLS).write_text('original\n')
+    (root / TOOLCHAIN).write_text('original\n')
     try:
         git(root, 'init', '--quiet', '--initial-branch=main')
         git(root, 'add', '-A')
@@ -86,16 +76,14 @@ def run(root: Path, **stub_env: str) -> tuple[int, list[str]]:
     """Run the script with stubbed tools; return its exit code and the stub call log."""
     log = root / 'stub.log'
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update(
-        stub_env, STUB_LOG=str(log), IWE_STUB=IWE_STUB, PATH=f'{root / "bin"}:{env["PATH"]}'
-    )
+    env.update(stub_env, STUB_LOG=str(log), PATH=f'{root / "bin"}:{env["PATH"]}')
     result = subprocess.run([str(root / SCRIPT)], cwd=root, env=env, check=False)
     calls = log.read_text().splitlines() if log.exists() else []
     return result.returncode, calls
 
 
-def test_changed_files_reach_the_refresh_and_pre_commit(repo: Path) -> None:
-    """Modified and new files are refreshed and checked; deleted files are skipped."""
+def test_changed_files_reach_pre_commit(repo: Path) -> None:
+    """Modified and new files are checked; deleted files are skipped."""
     (repo / 'pins.yml').write_text('bumped\n')
     (repo / 'new.yml').write_text('added\n')
     (repo / 'gone.yml').unlink()
@@ -103,10 +91,7 @@ def test_changed_files_reach_the_refresh_and_pre_commit(repo: Path) -> None:
     code, calls = run(repo)
 
     assert code == 0
-    assert calls == [
-        'uv run --frozen scripts/refresh-pin-checksums.py pins.yml new.yml',
-        'uv run --frozen pre-commit run --files pins.yml new.yml',
-    ]
+    assert calls == ['uv run --frozen pre-commit run --files pins.yml new.yml']
 
 
 def test_a_hook_rewrite_passes_on_the_second_pass(repo: Path) -> None:
@@ -130,16 +115,6 @@ def test_a_hook_still_failing_on_the_second_pass_fails(repo: Path) -> None:
     code, _ = run(repo, STUB_PRECOMMIT_EXIT='1')
 
     assert code != 0
-
-
-def test_a_failed_refresh_fails_before_pre_commit(repo: Path) -> None:
-    """A checksum refresh failure fails the task without running anything after it."""
-    (repo / 'pins.yml').write_text('bumped\n')
-
-    code, calls = run(repo, STUB_REFRESH_EXIT='1')
-
-    assert code != 0
-    assert calls == ['uv run --frozen scripts/refresh-pin-checksums.py pins.yml']
 
 
 def test_nothing_changed_runs_nothing(repo: Path) -> None:
@@ -175,42 +150,33 @@ def test_pre_commit_skip_keeps_the_callers_value(repo: Path) -> None:
     assert pre_commit_skips(repo) == ['fixture-hook,no-commit-to-branch']
 
 
-def test_pinned_tools_bump_runs_the_pinned_iwe_before_pre_commit(repo: Path) -> None:
-    """A pinned-tools change fetches the pinned iwe, and pre-commit sees what it migrated."""
-    (repo / PINNED_TOOLS).write_text('bumped\n')
+def test_toolchain_bump_runs_the_bumped_iwe_before_pre_commit(repo: Path) -> None:
+    """A mise.toml change runs the locked iwe, and pre-commit sees what it migrated."""
+    (repo / TOOLCHAIN).write_text('bumped\n')
 
     code, calls = run(repo)
 
     assert code == 0
-    assert calls[1].startswith('uv run --frozen scripts/fetch-pinned-tool.py ./.tmp/')
-    assert calls[2] == 'iwe normalize'
-    assert calls[3] == f'uv run --frozen pre-commit run --files {IWE_CONFIG} {PINNED_TOOLS}'
+    assert calls == [
+        f'mise exec --locked -- iwe normalize | trusted={repo}',
+        f'uv run --frozen pre-commit run --files {IWE_CONFIG} {TOOLCHAIN}',
+    ]
 
 
-def test_the_fetched_iwe_is_removed_afterwards(repo: Path) -> None:
-    """The pinned iwe's directory does not outlive the task."""
-    (repo / PINNED_TOOLS).write_text('bumped\n')
-
-    run(repo)
-
-    iwe_dir = (repo / 'stub.log.iwe-dir').read_text().strip()
-    assert not (repo / iwe_dir).exists()
-
-
-def test_no_pinned_tools_change_runs_no_iwe(repo: Path) -> None:
-    """The pinned iwe is fetched and run only when the pinned tools changed."""
+def test_no_toolchain_change_runs_no_iwe(repo: Path) -> None:
+    """The bumped iwe runs only when the toolchain changed."""
     (repo / 'pins.yml').write_text('bumped\n')
 
     _, calls = run(repo)
 
-    assert not any('fetch-pinned-tool' in call or call.startswith('iwe') for call in calls)
+    assert not any(call.startswith('mise') for call in calls)
 
 
-def test_a_failed_iwe_fetch_fails_before_pre_commit(repo: Path) -> None:
-    """A pinned iwe that cannot be fetched fails the task without running iwe or pre-commit."""
-    (repo / PINNED_TOOLS).write_text('bumped\n')
+def test_a_failed_iwe_run_fails_before_pre_commit(repo: Path) -> None:
+    """An iwe that cannot be installed or run fails the task without running pre-commit."""
+    (repo / TOOLCHAIN).write_text('bumped\n')
 
-    code, calls = run(repo, STUB_FETCH_EXIT='1')
+    code, calls = run(repo, STUB_MISE_EXIT='1')
 
     assert code != 0
-    assert not any(call.startswith('iwe') or 'pre-commit' in call for call in calls)
+    assert not any('pre-commit' in call for call in calls)

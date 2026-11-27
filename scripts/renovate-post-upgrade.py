@@ -4,13 +4,11 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
-import shutil
 import subprocess
 import sys
-import tempfile
 
-PINNED_TOOLS = 'docker/devcontainer/pinned-tools.yml'
+# Declares the iwe that the hooks and .iwe/ migrations run: see ADR-0111.
+TOOLCHAIN = 'mise.toml'
 
 
 def run(*command: str, check: bool = True) -> int:
@@ -42,31 +40,16 @@ def main() -> int:
     changed = changed_files()
     if not changed:
         return 0
-    run('uv', 'run', '--frozen', 'scripts/refresh-pin-checksums.py', *changed)
-    iwe_dir = None
-    try:
-        # The image carries the old iwe; the pinned one migrates .iwe/ and serves the hooks below.
-        if PINNED_TOOLS in changed:
-            Path('.tmp').mkdir(exist_ok=True)
-            iwe_dir = './' + os.path.relpath(tempfile.mkdtemp(prefix='renovate-iwe.', dir='.tmp'))
-            subprocess.run(
-                ['uv', 'run', '--frozen', 'scripts/fetch-pinned-tool.py', iwe_dir, 'iwe'],
-                check=True,
-                stdout=subprocess.DEVNULL,
-            )
-            os.environ['PATH'] = f'{os.path.realpath(iwe_dir)}:{os.environ["PATH"]}'
-            run('iwe', 'normalize')
-        # pre-commit through uv, not the image's apt copy: see ADR-0050.
-        # Post-upgrade runs on the base branch; the guard is for commits.
-        skip = os.environ.get('SKIP')
-        os.environ['SKIP'] = f'{skip},no-commit-to-branch' if skip else 'no-commit-to-branch'
-        if run(
-            'uv', 'run', '--frozen', 'pre-commit', 'run', '--files', *changed_files(), check=False
-        ):
-            run('uv', 'run', '--frozen', 'pre-commit', 'run', '--files', *changed_files())
-    finally:
-        if iwe_dir is not None:
-            shutil.rmtree(iwe_dir, ignore_errors=True)
+    # The image carries the old iwe; the bumped one migrates .iwe/ before the hooks run.
+    if TOOLCHAIN in changed:
+        os.environ['MISE_TRUSTED_CONFIG_PATHS'] = root
+        run('mise', 'exec', '--locked', '--', 'iwe', 'normalize')
+    # pre-commit through uv, not the image's copy: see ADR-0050.
+    # Post-upgrade runs on the base branch; the guard is for commits.
+    skip = os.environ.get('SKIP')
+    os.environ['SKIP'] = f'{skip},no-commit-to-branch' if skip else 'no-commit-to-branch'
+    if run('uv', 'run', '--frozen', 'pre-commit', 'run', '--files', *changed_files(), check=False):
+        run('uv', 'run', '--frozen', 'pre-commit', 'run', '--files', *changed_files())
     return 0
 
 
