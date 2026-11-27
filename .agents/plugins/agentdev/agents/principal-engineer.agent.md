@@ -49,7 +49,7 @@ when TDD applies; never test text files, only real executable code logic.
 - **Build / test** — `uv run pytest <path>` for Python, `bun run test` for
   JavaScript. Scope to the narrowest path or test id while iterating.
 - **Python style** — ruff formats and autofixes via the pre-commit hooks;
-  verify with `python_lint_check.py` (the same tools run in CI).
+  verify with `python_lint_check` (the same tools run in CI).
 
 ## Pull Requests
 

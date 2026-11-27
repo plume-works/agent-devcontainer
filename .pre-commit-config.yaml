@@ -61,7 +61,8 @@ repos:
         name: ruff format
         entry: uv run ruff format --force-exclude
         language: system
-        types_or: [python, pyi, jupyter]
+        # Catalog scripts carry no extension (ADR-0109), so match them by path.
+        files: '(\.(py|pyi|ipynb)|^\.agents/plugins/[^/]+/(skills/[^/]+/agent-code|bin)/[^/.]+)$'
         require_serial: true
 
       # `I` (isort) is in .ruff.toml's select list, so this single pass also
@@ -70,7 +71,8 @@ repos:
         name: ruff (legacy alias)
         entry: uv run ruff check --force-exclude
         language: system
-        types_or: [python, pyi, jupyter]
+        # Catalog scripts carry no extension (ADR-0109), so match them by path.
+        files: '(\.(py|pyi|ipynb)|^\.agents/plugins/[^/]+/(skills/[^/]+/agent-code|bin)/[^/.]+)$'
         args: [--fix]
         require_serial: true
 

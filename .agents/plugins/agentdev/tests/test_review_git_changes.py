@@ -12,7 +12,7 @@ from git_fixtures import FIXTURE_ENV, git, outcome
 import pytest
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/pr-gen-description/agent-code/review-git-changes.py'
+SCRIPT_PATH = 'skills/pr-gen-description/agent-code/review-git-changes'
 
 
 def run_script(plugin_root: Path, cwd: Path, *arguments: str) -> subprocess.CompletedProcess[str]:

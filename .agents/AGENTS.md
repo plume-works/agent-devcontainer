@@ -37,8 +37,9 @@ repository can delete the publisher source without inheriting its maintenance ru
   `.agents/opencode-bridge/`. The bridge takes no runtime dependencies: type-only imports
   and Bun built-ins, nothing to install.
 - Update the `.agents/plugins/<plugin>/` sources directly.
-- Every Python script under a plugin's `bin/` and `skills/*/agent-code/` runs through a
-  `#!/usr/bin/env -S uv run --quiet` shebang in its plugin's uv project, whose
+- Every Python script under a plugin's `bin/` and `skills/*/agent-code/` is an executable
+  file with no `.py` extension, so it is run only by its path (ADR-0109). It runs through a
+  `#!/usr/bin/env -S uv run --quiet --script` shebang in its plugin's uv project, whose
   `pyproject.toml` pins `agentdev-lib`. Shared helpers come from the `agentdev_lib`
   package (`py_packages/agentdev_lib/`), never from another plugin's files; the
   `skill-scripts` skill holds the output contract. The one exception is

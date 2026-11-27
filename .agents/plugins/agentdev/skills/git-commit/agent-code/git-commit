@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Create a commit, refusing on the repository's default branch.
@@ -22,7 +22,7 @@ USAGE = """\
 Create a commit, refusing on the repository's default branch.
 
 Usage:
-  git-commit.py [--remote <name>] -- <git commit arguments>
+  git-commit [--remote <name>] -- <git commit arguments>
 
 Options:
   --remote <name>  Remote whose default branch is protected. Default: origin
@@ -51,8 +51,8 @@ Results (RESULT / exit code):
   SIGNAL_TERM     143  Interrupted by TERM
 
 Examples:
-  agent-code/git-commit.py -- -m "fix(serial): handle reconnect timeout"
-  agent-code/git-commit.py -- -F .tmp/commit-message.txt
+  agent-code/git-commit -- -m "fix(serial): handle reconnect timeout"
+  agent-code/git-commit -- -F .tmp/commit-message.txt
 """
 
 

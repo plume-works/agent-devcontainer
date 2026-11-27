@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-SCRIPT_PATH = 'skills/pr-request-ai-review/agent-code/request-review.py'
+SCRIPT_PATH = 'skills/pr-request-ai-review/agent-code/request-review'
 
 REPO = 'octo/repo'
 PR_NUMBER = '42'

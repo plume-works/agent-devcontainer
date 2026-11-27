@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Name an IWE plan's work branches and read the plan's state in the checkout.
@@ -22,9 +22,9 @@ Name an IWE plan's work branches iwe/<slug>/iter-<N>-<phase> and read
 the plan's state in the working tree. Creates, switches, and deletes no branch.
 
 Usage:
-  iwe-branch-name.py parse <branch>
-  iwe-branch-name.py plan-state <plan-key|slug> [--remote <name>]
-  iwe-branch-name.py next <plan-key|slug> [--phase plan|impl|ship] [--remote <name>]
+  iwe-branch-name parse <branch>
+  iwe-branch-name plan-state <plan-key|slug> [--remote <name>]
+  iwe-branch-name next <plan-key|slug> [--phase plan|impl|ship] [--remote <name>]
 
 Arguments:
   <branch>          A branch name to split into phase, slug, and iteration.

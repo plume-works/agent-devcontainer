@@ -60,8 +60,8 @@ Write two files under `./.tmp`, never JSON assembled in a shell command:
   `[]`, or no file, when there are none.
 
 Run
-`agent-code/post-review.py --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES|COMMENT> --summary-file <path> --comments-file <path>`
-([post-review.py](../agent-code/post-review.py); `-h` for usage; `--repo`
+`agent-code/post-review --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES|COMMENT> --summary-file <path> --comments-file <path>`
+([post-review](../agent-code/post-review); `-h` for usage; `--repo`
 defaults to the current repository). It replaces the three review tools;
 choose `event` by the verdict rules above.
 

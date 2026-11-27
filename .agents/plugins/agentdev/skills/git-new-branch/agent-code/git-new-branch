@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Create a work branch at the freshly fetched remote base and push it with its own upstream.
@@ -39,9 +39,9 @@ PREFLIGHT_ERROR = 2
 
 USAGE = """
 Usage:
-  git-new-branch.py <name> [--remote <name>] [--base <branch>] [--stash]
-  git-new-branch.py <name> --worktree [--worktree-root <dir>] [--remote <name>] [--base <branch>]
-  git-new-branch.py <name> --depends-on <pr> [--depends-on <pr>]... [--remote <name>]
+  git-new-branch <name> [--remote <name>] [--base <branch>] [--stash]
+  git-new-branch <name> --worktree [--worktree-root <dir>] [--remote <name>] [--base <branch>]
+  git-new-branch <name> --depends-on <pr> [--depends-on <pr>]... [--remote <name>]
                     [--stash | --worktree [--worktree-root <dir>]]
 
 Options:
@@ -103,10 +103,10 @@ Results (RESULT / exit code):
   SIGNAL_TERM    143  Interrupted by TERM
 
 Examples:
-  agent-code/git-new-branch.py my-feature
-  agent-code/git-new-branch.py my-feature --stash
-  agent-code/git-new-branch.py my-feature --worktree
-  agent-code/git-new-branch.py my-feature --depends-on 591
+  agent-code/git-new-branch my-feature
+  agent-code/git-new-branch my-feature --stash
+  agent-code/git-new-branch my-feature --worktree
+  agent-code/git-new-branch my-feature --depends-on 591
 """
 
 DESCRIPTION = (

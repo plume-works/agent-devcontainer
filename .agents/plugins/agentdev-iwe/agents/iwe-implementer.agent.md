@@ -37,7 +37,7 @@ claims the user gave is not one.
    `## Authoring rules` — they bind the code you are about to write. Read no
    specification document. The scenarios are the behavior this work is meant
    to produce, and each one names the test that proves it.
-3. **Check `## Depends on`.** Run `plan_predecessors.py <plan-key>`, which
+3. **Check `## Depends on`.** Run `plan_predecessors <plan-key>`, which
    ships in the plugin's `bin/`, on `PATH` while the plugin is enabled. A
    prerequisite plan that is not `stage: done` in the checkout
    may be built on while it has an open pull request; on `NO_PULL_REQUEST`,

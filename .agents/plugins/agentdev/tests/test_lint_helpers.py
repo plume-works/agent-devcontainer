@@ -43,7 +43,7 @@ def test_lint_check_runs_format_then_lint_on_the_targets(
     stub(stubs, 'ruff', 'exit 0')
 
     completed = run_helper(
-        plugin_root, 'python_lint_check.py', plugin_tmp_path, 'a.py', path=str(stubs)
+        plugin_root, 'python_lint_check', plugin_tmp_path, 'a.py', path=str(stubs)
     )
 
     assert completed.returncode == 0
@@ -59,7 +59,7 @@ def test_lint_check_stops_at_a_format_failure(plugin_root: Path, plugin_tmp_path
     stub(stubs, 'ruff', 'exit 1')
 
     completed = run_helper(
-        plugin_root, 'python_lint_check.py', plugin_tmp_path, 'a.py', path=str(stubs)
+        plugin_root, 'python_lint_check', plugin_tmp_path, 'a.py', path=str(stubs)
     )
 
     assert completed.returncode == 1
@@ -71,7 +71,7 @@ def test_lint_check_without_ruff_fails(plugin_root: Path, plugin_tmp_path: Path)
     empty = plugin_tmp_path / 'empty'
     empty.mkdir()
 
-    completed = run_helper(plugin_root, 'python_lint_check.py', plugin_tmp_path, path=str(empty))
+    completed = run_helper(plugin_root, 'python_lint_check', plugin_tmp_path, path=str(empty))
 
     assert completed.returncode == 1
     assert completed.stderr == "ruff not found: run 'uv sync', or invoke via 'uv run'.\n"
@@ -93,7 +93,7 @@ def test_shellcheck_fix_applies_fixes_outside_pruned_trees(
         str(Path(found).parent) for found in (shutil.which('shellcheck'), shutil.which('git'))
     )
 
-    completed = run_helper(plugin_root, 'shellcheck_fix.py', tree, path=tools)
+    completed = run_helper(plugin_root, 'shellcheck_fix', tree, path=tools)
 
     assert completed.returncode == 0, completed.stderr
     quoted = '#!/bin/bash\necho "$1"\n'

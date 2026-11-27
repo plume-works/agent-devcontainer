@@ -40,7 +40,7 @@ Generate a comprehensive PR description by analyzing the change set and writing 
 
 Use this helper instead of retyping inline git commands:
 
-- [review-git-changes.py](agent-code/review-git-changes.py) prints the branch,
+- [review-git-changes](agent-code/review-git-changes) prints the branch,
   working tree status, diff stat, patch, and commit log for the change set.
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a
@@ -51,7 +51,7 @@ bare number.
 ### Step 1: Analyze Git Changes
 
 ```bash
-agent-code/review-git-changes.py
+agent-code/review-git-changes
 ```
 
 Pass `--base-ref <ref>` when the caller supplies a base other than
@@ -181,10 +181,10 @@ Write the candidate body to a file under `./.tmp/` and check its
 `## Depends on` section with the parser `pr-restack-all` uses:
 
 ```bash
-check_depends_on.py <body-file> [--current <current-body-file>] [--depends-on <P>]...
+check_depends_on <body-file> [--current <current-body-file>] [--depends-on <P>]...
 ```
 
-`check_depends_on.py` ships in the plugin's `bin/`, on `PATH` while the plugin
+`check_depends_on` ships in the plugin's `bin/`, on `PATH` while the plugin
 is enabled. Pass `--current` with the existing pull request's body when
 regenerating, and one `--depends-on` per dependency for a new dependent pull
 request. Anything but `RESULT=SUCCESS` means the body is not done: fix the

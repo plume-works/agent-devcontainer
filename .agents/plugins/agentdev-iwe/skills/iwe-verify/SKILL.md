@@ -16,7 +16,7 @@ same route, which starts and ends at the cache.
 
 ## The saved report
 
-[verify-cache.py](agent-code/verify-cache.py) keeps one saved report per plan,
+[verify-cache](agent-code/verify-cache) keeps one saved report per plan,
 and one for audit mode, keyed by the commit Verify ran on and the digest of the
 active agentdev catalog. Run it from the repository root. Its target is the plan
 key — `data/plans/<name>`, or `data/archive/<release>/plans/<name>` for a plan
@@ -31,7 +31,7 @@ result or the save heredoc.
 request carries it or quotes an approval, so an approved command always runs:
 
 ```bash
-agent-code/verify-cache.py lookup <plan-key|audit> [--fresh]
+agent-code/verify-cache lookup <plan-key|audit> [--fresh]
 ```
 
 | RESULT            | Exit   | Action                                                                                                                                                |
@@ -58,7 +58,7 @@ included, and write a single quote inside one as `'\''`; the report goes on
 stdin through a quoted heredoc:
 
 ```bash
-agent-code/verify-cache.py save <plan-key|audit> --commit <COMMIT> \
+agent-code/verify-cache save <plan-key|audit> --commit <COMMIT> \
   --verdict '<verdict>' \
   --skill-request '<the skill request, verbatim>' \
   --verifier-prompt '<the verifier prompt, verbatim>' <<'VERIFY_REPORT'
@@ -117,7 +117,7 @@ report, which carries the Verify report.
   command. Every one belongs to the dispatched agent;
   the cache script's `lookup` and `save` are the only commands this session
   runs.
-- Only `verify-cache.py` writes the saved report; never write or edit it by
+- Only `verify-cache` writes the saved report; never write or edit it by
   hand.
 - Never paraphrase an approval into the prompt; quote it, or leave it out.
 - Report-only: this skill fixes no code, ticks no box, and mutates no graph.

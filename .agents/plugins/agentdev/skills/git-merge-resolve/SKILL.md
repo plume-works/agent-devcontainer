@@ -45,10 +45,10 @@ to this skill.
 
 ## Bundled Script
 
-Use [git-merge-resolve.py](agent-code/git-merge-resolve.py) to start a new merge:
+Use [git-merge-resolve](agent-code/git-merge-resolve) to start a new merge:
 
 ```bash
-agent-code/git-merge-resolve.py <source-ref>
+agent-code/git-merge-resolve <source-ref>
 ```
 
 Options:
@@ -80,7 +80,7 @@ git diff --name-only --diff-filter=U
 Run the bundled script with the source ref:
 
 ```bash
-agent-code/git-merge-resolve.py <source-ref>
+agent-code/git-merge-resolve <source-ref>
 ```
 
 Handle its result:

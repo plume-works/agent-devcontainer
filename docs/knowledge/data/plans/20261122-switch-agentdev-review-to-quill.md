@@ -5,7 +5,7 @@ release: internal
 description: Replace this repository's AI responder workflow with quill-as-a-service in one change, make the required approval the only review gate, and point the catalog's review skills at the Quill Review check.
 sources:
 - resource: .github/workflows/ai-responder.yml
-- resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
+- resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review
 ---
 
 # Switch this repository's AI review to quill-as-a-service
@@ -19,9 +19,9 @@ in `plume-works/quill-as-a-service`, builds the service and proves it on
 `.github/workflows/ai-responder.yml`, its two actions, the `plume-works-review`
 environment, and the required `ai-review-present` check.
 
-The catalog's review skills assume the workflow: `request-review.py` reads the
-runs of `ai-responder.yml` and the `Claude PR Review Responder` check, and
-`pr-merge` and `pr-eval-review-needed` describe `ai-review-present` as the gate.
+The catalog's review skills assume the workflow: `request-review` reads the runs
+of `ai-responder.yml` and the `Claude PR Review Responder` check, and `pr-merge`
+and `pr-eval-review-needed` describe `ai-review-present` as the gate.
 
 ## Approach
 
@@ -32,7 +32,7 @@ that read its runs. The `main` ruleset keeps its required approval and drops the
 and the service configuration lists this repository
 ([ADR-0101](../adr/0101-ai-review-runs-in-quill-as-a-service.md)).
 
-`request-review.py` keeps its results and its rule of one request per head and
+`request-review` keeps its results and its rule of one request per head and
 title and description, and reads the `Quill Review` check run where it read the
 responder check. A `Quill Review` check on the head that is queued or in
 progress means the label waits for a running review; with none, a label still on
@@ -69,10 +69,10 @@ assignee trigger end with it and are cancelled.
 - [ ] The three files are gone.
 - [ ] `uv run pytest scripts/tests` passes.
 
-### Task 3: Read the Quill Review check in request-review.py
+### Task 3: Read the Quill Review check in request-review
 
 **Files:** Modify:
-`.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py`,
+`.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review`,
 `.agents/plugins/agentdev/tests/test_request_review.py`
 
 - [ ] A label on the pull request with a queued or in-progress `Quill Review`
@@ -166,7 +166,7 @@ service configuration, when this plan's pull request merges.
 
 ### Scenario: A request waiting for a running review is not sent again
 
-- **WHEN** `request-review.py` runs on a pull request that carries
+- **WHEN** `request-review` runs on a pull request that carries
   `request-ai-review` and has a queued or in-progress `Quill Review` check on
   its head
 - **THEN** it reports `ALREADY_REQUESTED` and changes no label
@@ -175,7 +175,7 @@ service configuration, when this plan's pull request merges.
 
 ### Scenario: A stale request label is sent again
 
-- **WHEN** `request-review.py` runs on a pull request that carries
+- **WHEN** `request-review` runs on a pull request that carries
   `request-ai-review` and has no unfinished `Quill Review` check on its head
 - **THEN** it removes the label and adds it again
 - **Test:**
@@ -185,7 +185,7 @@ service configuration, when this plan's pull request merges.
 
 - **WHEN** a `Quill Review` check on the head started after the latest title or
   description edit and completed other than cancelled
-- **THEN** `request-review.py` reports `ALREADY_REQUESTED` with that check's URL
+- **THEN** `request-review` reports `ALREADY_REQUESTED` with that check's URL
 - **Test:**
   `.agents/plugins/agentdev/tests/test_request_review.py@test_quill_review_check_completed_after_metadata_edit_counts`
 
@@ -236,10 +236,10 @@ The `rg` command prints nothing.
 
 ## Key references
 
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py@run`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review@run`
   › "actions/workflows/ai-responder.yml/runs" — the workflow-run read that Task
   3 replaces.
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py@requesting_check`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review@requesting_check`
   — the check that counts as a request.
 - `.agents/plugins/agentdev/tests/test_request_review.py@test_label_waiting_for_a_run_is_already_requested`
   — the test that Task 3 replaces.

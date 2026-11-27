@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Review working tree and branch changes for the pr-gen-description skill.
@@ -28,7 +28,7 @@ DESCRIPTION = 'Review working tree and branch changes for the pr-gen-description
 
 USAGE = """
 Usage:
-  review-git-changes.py [--base-ref <ref>] [--range <range>] [--stat-only]
+  review-git-changes [--base-ref <ref>] [--range <range>] [--stat-only]
 
 Options:
   --base-ref <ref>   Base ref used to find the merge base for the default
@@ -53,9 +53,9 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE   1  Unhandled error
 
 Examples:
-  agent-code/review-git-changes.py
-  agent-code/review-git-changes.py --base-ref upstream/main
-  agent-code/review-git-changes.py --range origin/main..HEAD --stat-only
+  agent-code/review-git-changes
+  agent-code/review-git-changes --base-ref upstream/main
+  agent-code/review-git-changes --range origin/main..HEAD --stat-only
 """
 
 

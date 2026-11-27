@@ -4,6 +4,13 @@ indent-width = 4
 # Assume Python 3.12
 target-version = "py312"
 
+# Catalog scripts carry no extension: see ADR-0109.
+extend-include = [
+  ".agents/plugins/*/skills/*/agent-code/*",
+  ".agents/plugins/*/bin/*",
+]
+extend-exclude = [".agents/plugins/*/bin/*.zsh"]
+
 [format]
 # Use single quotes for strings
 quote-style = "single"

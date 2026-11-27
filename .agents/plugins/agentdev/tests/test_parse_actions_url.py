@@ -10,7 +10,7 @@ import subprocess
 from git_fixtures import outcome
 import pytest
 
-SCRIPT_PATH = 'skills/extract-github-actions-logs/agent-code/parse-actions-url.py'
+SCRIPT_PATH = 'skills/extract-github-actions-logs/agent-code/parse-actions-url'
 RUN = 'https://github.com/octo/repo/actions/runs/12345678901'
 JOB = f'{RUN}/job/23456789012?pr=42'
 FAILURES = r'FAILED\|FAILURES\|AssertionError\|ERROR:\|Segmentation\ fault\|test_'

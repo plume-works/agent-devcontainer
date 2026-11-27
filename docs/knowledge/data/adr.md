@@ -221,3 +221,6 @@ skill](adr/0106-no-template-consumption-skill.md)
 systemd as PID 1](adr/0107-devcontainer-image-on-plume-devcontainer-base.md)
 
 [Shared rules live at the plugin root](adr/0108-shared-rules-at-plugin-root.md)
+
+[Catalog scripts have no file
+extension](adr/0109-catalog-scripts-have-no-extension.md)

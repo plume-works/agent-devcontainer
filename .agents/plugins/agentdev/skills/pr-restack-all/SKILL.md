@@ -24,13 +24,13 @@ To bring a single branch up to date with `main`, use
 
 ## The Script
 
-`pr_restack_all.py` ships in the plugin's `bin/`, which is on `PATH` while the
+`pr_restack_all` ships in the plugin's `bin/`, which is on `PATH` while the
 plugin is enabled. Run it from the repository root.
 
 ```bash
-pr_restack_all.py <top-pr>          # a chain, from its top pull request
-pr_restack_all.py <branch>          # a branch, with or without a pull request
-pr_restack_all.py <branch> --list   # print the branch's own dependencies only
+pr_restack_all <top-pr>          # a chain, from its top pull request
+pr_restack_all <branch>          # a branch, with or without a pull request
+pr_restack_all <branch> --list   # print the branch's own dependencies only
 ```
 
 `--remote <name>` selects the remote (default `origin`); `--trunk <branch>`

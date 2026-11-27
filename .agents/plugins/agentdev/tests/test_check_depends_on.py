@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-"""Tests for the Depends on body check in bin/check_depends_on.py."""
+"""Tests for the Depends on body check in bin/check_depends_on."""
 
 from __future__ import annotations
 
 from pathlib import Path
 import subprocess
-import sys
 
 import pytest
 
@@ -23,7 +22,7 @@ def check(
         current_file.write_text(current, encoding='utf-8')
         extra += ['--current', str(current_file)]
     completed = subprocess.run(
-        [sys.executable, str(plugin_root / 'bin/check_depends_on.py'), '-', *extra],
+        [str(plugin_root / 'bin/check_depends_on'), '-', *extra],
         input=body, check=False, capture_output=True, text=True,
     )  # fmt: skip
     return completed.returncode, completed.stdout.splitlines()[-1]

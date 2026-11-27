@@ -1,4 +1,4 @@
-#!/usr/bin/env -S uv run --quiet
+#!/usr/bin/env -S uv run --quiet --script
 
 """
 Merge a local Git ref into the current branch with a non-fast-forward merge.
@@ -21,7 +21,7 @@ from agentdev_lib.skill_common import (
     Stop,
 )
 
-# These numbers and names are shared with update-branch.py, which runs this
+# These numbers and names are shared with update-branch, which runs this
 # script and passes its verdict straight through. Keep the two tables aligned.
 ALREADY_UP_TO_DATE = 3
 MERGE_CONFLICTS = 4
@@ -31,7 +31,7 @@ USAGE = """\
 Merge a local Git ref into the current branch with a non-fast-forward merge.
 
 Usage:
-  git-merge-resolve.py [--message <text>] <source-ref>
+  git-merge-resolve [--message <text>] <source-ref>
 
 Options:
   --message <text>  Merge commit message. Defaults to a generated message.
@@ -50,8 +50,8 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE     1  Unhandled error
 
 Examples:
-  agent-code/git-merge-resolve.py topic
-  agent-code/git-merge-resolve.py \\
+  agent-code/git-merge-resolve topic
+  agent-code/git-merge-resolve \\
     --message "Merge origin/main into feature" origin/main
 """
 
