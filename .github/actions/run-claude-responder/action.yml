@@ -67,8 +67,6 @@ runs:
         # The attach phase without its catalog install: the review keeps the image's
         # catalog that the create phase installed, see ADR-0100.
         uv sync --all-groups --all-extras
-        # TEMPORARY: review with this branch's catalog; revert before merge.
-        agentdev-runtime catalog install "${GITHUB_WORKSPACE}" --claude-scope user
         agentdev-runtime lifecycle hooks attached
 
     # claude-code-action merges its settings input into the user settings one
