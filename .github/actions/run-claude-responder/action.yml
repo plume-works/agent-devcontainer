@@ -165,12 +165,39 @@ runs:
           echo 'Another run already took request-ai-review.'
         fi
 
-    - name: Attach responder output file
-      if: always() && steps.claude_responder.outputs.execution_file != ''
+    # Every session transcript, subagents included, plus a report built from them.
+    - name: Collect run artifacts
+      id: run_artifacts
+      if: always()
+      shell: bash
+      env:
+        EXECUTION_FILE: ${{ steps.claude_responder.outputs.execution_file }}
+      run: |
+        dir="${RUNNER_TEMP}/claude-run"
+        projects="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}/projects"
+        mkdir -p "${dir}"
+        if [[ -n "${EXECUTION_FILE}" && -f "${EXECUTION_FILE}" ]]; then
+          cp "${EXECUTION_FILE}" "${dir}/execution.json"
+        else
+          echo '::notice::The responder wrote no execution file.'
+        fi
+        if [[ -d "${projects}" ]]; then
+          cp -r "${projects}" "${dir}/transcripts"
+          python3 -I "${GITHUB_WORKSPACE}/scripts/review-run-report.py" \
+            --transcripts "${dir}/transcripts" --output "${dir}/review-run-report.md" ||
+            echo '::warning::The review run report could not be built.'
+        else
+          echo "::notice::No Claude transcripts under ${projects}."
+        fi
+        echo "dir=${dir}" >>"${GITHUB_OUTPUT}"
+
+    - name: Attach run artifacts
+      if: always() && steps.run_artifacts.outputs.dir != ''
       uses: actions/upload-artifact@v7.0.2
       with:
         name: ${{ inputs.artifact-name }}
-        path: ${{ steps.claude_responder.outputs.execution_file }}
+        path: ${{ steps.run_artifacts.outputs.dir }}
+        if-no-files-found: warn
         retention-days: 7
 
     - name: Fail on Claude usage limit
