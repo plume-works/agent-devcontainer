@@ -16,6 +16,21 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = 'scripts/renovate-post-upgrade.py'
 TOOLCHAIN = 'mise.toml'
 IWE_CONFIG = '.iwe/config.toml'
+INSTALLER = 'scripts/install-toolchain'
+OLD_X64, OLD_ARM64, NEW_X64, NEW_ARM64 = ('a' * 64, 'b' * 64, 'c' * 64, 'd' * 64)
+
+
+def installer(version: str) -> str:
+    """Return an install-toolchain holding the pin lines the task rewrites."""
+    return (
+        '#!/usr/bin/env bash\n'
+        '# renovate: datasource=github-releases depName=jdx/mise\n'
+        f'readonly MISE_VERSION={version}\n'
+        f'readonly MISE_SHA256_X64={OLD_X64}\n'
+        f'readonly MISE_SHA256_ARM64={OLD_ARM64}\n'
+        'install_mise() { :; }\n'
+    )
+
 
 # Each stub logs its arguments; STUB_* variables choose its outcome per call.
 UV_STUB = """#!/usr/bin/env bash
@@ -58,7 +73,8 @@ def repo() -> Iterator[Path]:
     for name, body in (('uv', UV_STUB), ('mise', MISE_STUB)):
         (root / 'bin' / name).write_text(body)
         (root / 'bin' / name).chmod(0o755)
-    (root / '.gitignore').write_text('bin/\nstub.log*\n.tmp/\n')
+    (root / '.gitignore').write_text('bin/\nstub.log*\n.tmp/\nrelease/\n')
+    (root / INSTALLER).write_text(installer('1.0.0'))
     for path in ('pins.yml', 'gone.yml', IWE_CONFIG):
         (root / path).write_text('original\n')
     (root / TOOLCHAIN).write_text('original\n')
@@ -82,7 +98,12 @@ def run(root: Path, **stub_env: str) -> tuple[int, list[str]]:
     """Run the script with stubbed tools; return its exit code and the stub call log."""
     log = root / 'stub.log'
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update(stub_env, STUB_LOG=str(log), PATH=f'{root / "bin"}:{env["PATH"]}')
+    env.update(
+        stub_env,
+        STUB_LOG=str(log),
+        PATH=f'{root / "bin"}:{env["PATH"]}',
+        MISE_RELEASES_URL=f'file://{root / "release"}',
+    )
     result = subprocess.run([str(root / SCRIPT)], cwd=root, env=env, check=False)
     calls = log.read_text().splitlines() if log.exists() else []
     return result.returncode, calls
@@ -204,3 +225,41 @@ def test_a_failed_iwe_run_fails_before_pre_commit(repo: Path) -> None:
 
     assert code != 0
     assert not any('pre-commit' in call for call in calls)
+
+
+def release(root: Path, version: str, sums: str) -> None:
+    """Serve SHASUMS256.txt for VERSION from the fixture's release directory."""
+    (root / 'release' / f'v{version}').mkdir(parents=True)
+    (root / 'release' / f'v{version}' / 'SHASUMS256.txt').write_text(sums)
+
+
+def test_mise_bump_refreshes_the_pinned_digests_before_pre_commit(repo: Path) -> None:
+    """The bumped release's musl digests replace the pins, and pre-commit sees them."""
+    (repo / INSTALLER).write_text(installer('2.0.0'))
+    release(
+        repo,
+        '2.0.0',
+        f'{"e" * 64}  ./mise-v2.0.0-linux-x64\n'
+        f'{NEW_X64}  ./mise-v2.0.0-linux-x64-musl\n'
+        f'{NEW_ARM64}  ./mise-v2.0.0-linux-arm64-musl\n',
+    )
+
+    code, calls = run(repo)
+
+    assert code == 0
+    assert (repo / INSTALLER).read_text() == installer('2.0.0').replace(OLD_X64, NEW_X64).replace(
+        OLD_ARM64, NEW_ARM64
+    )
+    assert calls == [f'uv run --frozen pre-commit run --files {INSTALLER}']
+
+
+def test_a_release_missing_a_musl_digest_fails_before_pre_commit(repo: Path) -> None:
+    """Without a digest for every architecture the pins stay put and the task fails."""
+    (repo / INSTALLER).write_text(installer('2.0.0'))
+    release(repo, '2.0.0', f'{NEW_X64}  ./mise-v2.0.0-linux-x64-musl\n')
+
+    code, calls = run(repo)
+
+    assert code != 0
+    assert (repo / INSTALLER).read_text() == installer('2.0.0')
+    assert calls == []

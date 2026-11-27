@@ -5,29 +5,30 @@ set -euo pipefail
 
 # renovate: datasource=github-releases depName=jdx/mise
 readonly MISE_VERSION=2026.11.14
+# The musl asset's SHA-256 per architecture: renovate-post-upgrade.py refreshes them on a bump.
+readonly MISE_SHA256_X64=3b2dbc7011bfd96c4b1160db2bca9f0937f226cc61ae5beddfd1fec536e81b2a
+readonly MISE_SHA256_ARM64=7a5252b6a4f30baa96486234e9f217c9f9aaef2343f32b744cd1a54fb4248268
 
 die() {
   echo "install-toolchain: $*" >&2
   exit 1
 }
 
-# A Linux host without mise gets the pinned release, checked against the release's checksums.
+# A Linux host without mise gets the pinned release, checked against the pinned digest.
 install_mise() {
-  local bin_dir=$1 arch asset base work
+  local bin_dir=$1 arch digest asset base work
   [ "$(uname -s)" = Linux ] || die "mise is not installed; install it first (brew install mise)"
   case "$(uname -m)" in
-    x86_64) arch=x64 ;;
-    aarch64 | arm64) arch=arm64 ;;
+    x86_64) arch=x64 digest=$MISE_SHA256_X64 ;;
+    aarch64 | arm64) arch=arm64 digest=$MISE_SHA256_ARM64 ;;
     *) die "unsupported architecture: $(uname -m)" ;;
   esac
   asset="mise-v${MISE_VERSION}-linux-${arch}-musl"
   base="https://github.com/jdx/mise/releases/download/v${MISE_VERSION}"
   work=$(mktemp -d)
   curl -fsSL -o "$work/$asset" "$base/$asset"
-  curl -fsSL -o "$work/SHASUMS256.txt" "$base/SHASUMS256.txt"
-  grep " \./${asset}\$" "$work/SHASUMS256.txt" >"$work/expected" ||
-    die "no checksum for $asset in the release"
-  (cd "$work" && sha256sum --quiet -c expected) || die "checksum mismatch for $asset"
+  (cd "$work" && echo "$digest  $asset" | sha256sum --quiet -c -) ||
+    die "checksum mismatch for $asset"
   install -m 0755 "$work/$asset" "$bin_dir/mise"
   rm -rf "$work"
 }

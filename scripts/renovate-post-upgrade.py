@@ -4,15 +4,49 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+import re
 import subprocess
 import sys
+import urllib.request
 
 # Declares the iwe that the hooks and .iwe/ migrations run: see ADR-0111.
 TOOLCHAIN = 'mise.toml'
+# Pins the mise release, and its digests, for hosts without mise: see ADR-0111.
+INSTALLER = 'scripts/install-toolchain'
+MISE_RELEASES = 'https://github.com/jdx/mise/releases/download'
 
 
 def run(*command: str, check: bool = True) -> int:
     return subprocess.run(command, check=check).returncode
+
+
+def mise_checksums(version: str) -> str:
+    """Return the SHASUMS256.txt of mise release VERSION; MISE_RELEASES_URL overrides the host."""
+    base = os.environ.get('MISE_RELEASES_URL', MISE_RELEASES)
+    with urllib.request.urlopen(f'{base}/v{version}/SHASUMS256.txt') as response:
+        return response.read().decode()
+
+
+def refresh_mise_digests() -> None:
+    """Rewrite the installer's per-architecture digests from its MISE_VERSION's release."""
+    installer = Path(INSTALLER)
+    text = installer.read_text()
+    match = re.search(r'^readonly MISE_VERSION=(\S+)$', text, re.MULTILINE)
+    if match is None:
+        raise SystemExit(f'renovate-post-upgrade: no MISE_VERSION in {INSTALLER}')
+    version = match.group(1)
+    digests = {}
+    for line in mise_checksums(version).splitlines():
+        digest, _, name = line.partition('  ')
+        digests[name] = digest
+    for arch in ('x64', 'arm64'):
+        asset = f'./mise-v{version}-linux-{arch}-musl'
+        if not re.fullmatch(r'[0-9a-f]{64}', digests.get(asset, '')):
+            raise SystemExit(f'renovate-post-upgrade: no checksum for {asset}')
+        constant = f'readonly MISE_SHA256_{arch.upper()}='
+        text = re.sub(f'^{constant}.*$', f'{constant}{digests[asset]}', text, flags=re.MULTILINE)
+    installer.write_text(text)
 
 
 def changed_files() -> list[str]:
@@ -40,6 +74,8 @@ def main() -> int:
     changed = changed_files()
     if not changed:
         return 0
+    if INSTALLER in changed:
+        refresh_mise_digests()
     # The image carries the old iwe; the bumped one migrates .iwe/ and runs the hooks' `iwe`.
     locked: tuple[str, ...] = ()
     if TOOLCHAIN in changed:

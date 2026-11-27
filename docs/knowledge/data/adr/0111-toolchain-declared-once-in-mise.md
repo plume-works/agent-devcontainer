@@ -30,8 +30,11 @@ commit, so no checksum is refreshed by hand.
 - A linked tool replaces the base image's copy at the same path, so the version
   in `mise.toml` wins over the base image's uv, Bun, gh, and jq.
 - A Linux host without mise gets the release that `scripts/install-toolchain`
-  pins, checked against that release's own checksum list. macOS gets mise from
-  Homebrew, unpinned.
+  pins, checked against the musl asset's SHA-256 that the script commits per
+  architecture. When Renovate bumps `MISE_VERSION`,
+  `scripts/renovate-post-upgrade.py` refreshes those digests from the release's
+  checksum list, so the Renovate pull request diff shows them for review. macOS
+  gets mise from Homebrew, unpinned.
 - `bin/macos-bootstrap.zsh` downloads `scripts/install-toolchain`, `mise.toml`,
   and `mise.lock` from the repository, because an installed plugin has no
   checkout around it.
